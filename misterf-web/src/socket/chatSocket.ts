@@ -1,13 +1,9 @@
+import { randomUUID } from 'node:crypto';
 import type { Server, Socket } from 'socket.io';
-import {
-  addMessage,
-  createConversation,
-  getOrCreateConversation,
-  listMessages,
-} from '../db/repository.js';
 import {
   MissingGeminiApiKeyError,
   streamTutorReply,
+  type TutorMessage,
 } from '../services/geminiTutor.js';
 
 type JoinPayload = {
@@ -19,7 +15,15 @@ type SendMessagePayload = {
   content?: string;
 };
 
+type ChatMessage = TutorMessage & {
+  id: string;
+  conversationId: string;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+};
+
 const runningConversations = new Set<string>();
+const conversations = new Map<string, ChatMessage[]>();
 
 export function registerChatSocket(io: Server): void {
   io.on('connection', (socket) => {
@@ -69,6 +73,47 @@ export function registerChatSocket(io: Server): void {
       await streamAssistantMessage(io, conversationId, true);
     });
   });
+}
+
+function createConversation(): string {
+  const conversationId = randomUUID();
+  conversations.set(conversationId, []);
+  return conversationId;
+}
+
+function getOrCreateConversation(conversationId?: string | null): string {
+  if (conversationId) {
+    conversations.set(conversationId, conversations.get(conversationId) ?? []);
+    return conversationId;
+  }
+
+  return createConversation();
+}
+
+function listMessages(conversationId: string): ChatMessage[] {
+  return conversations.get(conversationId) ?? [];
+}
+
+function addMessage(
+  conversationId: string,
+  role: TutorMessage['role'],
+  content: string,
+  metadata: Record<string, unknown> | null = null,
+): ChatMessage {
+  const message = {
+    id: randomUUID(),
+    conversationId,
+    role,
+    content,
+    metadata,
+    createdAt: new Date().toISOString(),
+  };
+
+  const messages = conversations.get(conversationId) ?? [];
+  messages.push(message);
+  conversations.set(conversationId, messages);
+
+  return message;
 }
 
 function joinConversationRoom(

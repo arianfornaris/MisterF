@@ -7,10 +7,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "migrate": "tsx src/db/migrateCli.ts",
     "typecheck": "tsc --noEmit",
-    "pm2:start": "npm run build && npm run migrate && pm2 start ecosystem.config.cjs --env production",
-    "pm2:restart": "npm run build && npm run migrate && pm2 restart ecosystem.config.cjs --env production --update-env",
+    "pm2:start": "npm run build && pm2 start ecosystem.config.cjs --env production",
+    "pm2:restart": "npm run build && pm2 restart ecosystem.config.cjs --env production --update-env",
     "pm2:status": "pm2 status",
     "pm2:stop": "pm2 stop misterf-web",
     "pm2:delete": "pm2 delete misterf-web",
@@ -23,8 +22,11 @@
   "dependencies": {
     "@google/genai": "^1.50.1",
     "better-sqlite3": "^12.9.0",
+    "bootswatch": "^5.3.8",
+    "dompurify": "^3.4.0",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
+    "marked": "^18.0.1",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {

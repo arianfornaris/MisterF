@@ -1,5 +1,3 @@
-const path = require('node:path');
-
 const projectRoot = __dirname;
 
 module.exports = {
@@ -17,14 +15,12 @@ module.exports = {
       env: {
         NODE_ENV: 'development',
         PORT: '3000',
-        DATABASE_PATH: path.join(projectRoot, 'data/misterf.sqlite'),
         GEMINI_API_KEY: 'AIzaSyDpxu5hgbpVnJCSyFMTrxE8FSMOmfIoK38',
         GEMINI_MODEL: 'gemini-2.5-flash',
       },
       env_production: {
         NODE_ENV: 'production',
         PORT: '3000',
-        DATABASE_PATH: path.join(projectRoot, 'data/misterf.sqlite'),
         GEMINI_API_KEY: 'AIzaSyDpxu5hgbpVnJCSyFMTrxE8FSMOmfIoK38',
         GEMINI_MODEL: 'gemini-2.5-flash',
       },

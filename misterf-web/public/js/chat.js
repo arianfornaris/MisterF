@@ -4,20 +4,33 @@ const storageKey = 'misterf.conversationId';
 const messagesEl = document.querySelector('#messages');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
-const resetButtonEl = document.querySelector('#resetButton');
-const connectionStatusEl = document.querySelector('#connectionStatus');
 
 let conversationId = localStorage.getItem(storageKey);
 let streamingBubble = null;
 let isAssistantBusy = false;
 
+if (window.marked) {
+  window.marked.setOptions({
+    breaks: true,
+    gfm: true,
+  });
+}
+
 socket.on('connect', () => {
-  setConnectionStatus('En linea', 'online');
   socket.emit('conversation:join', { conversationId });
 });
 
-socket.on('disconnect', () => {
-  setConnectionStatus('Sin conexion', 'offline');
+socket.on('disconnect', (reason) => {
+  appendEphemeralError(
+    `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
+  );
+  setComposerEnabled(false);
+});
+
+socket.on('connect_error', () => {
+  appendEphemeralError(
+    'No puedo conectar con el servidor en este momento. Revisa PM2 o vuelve a intentar en unos segundos.',
+  );
   setComposerEnabled(false);
 });
 
@@ -32,6 +45,7 @@ socket.on('conversation:ready', (payload) => {
   }
 
   setComposerEnabled(!isAssistantBusy);
+  focusComposer();
   scrollToBottom();
 });
 
@@ -52,13 +66,14 @@ socket.on('assistant:chunk', ({ chunk }) => {
     streamingBubble = appendMessage('model', '', { streaming: true });
   }
 
-  streamingBubble.textContent += chunk;
+  const rawContent = `${streamingBubble.dataset.rawContent ?? ''}${chunk}`;
+  setMessageContent(streamingBubble, rawContent);
   scrollToBottom();
 });
 
 socket.on('assistant:done', (message) => {
   if (streamingBubble) {
-    streamingBubble.textContent = message.content;
+    setMessageContent(streamingBubble, message.content);
     streamingBubble.classList.remove('typing-caret');
   } else {
     appendMessage('model', message.content);
@@ -67,7 +82,7 @@ socket.on('assistant:done', (message) => {
   streamingBubble = null;
   isAssistantBusy = false;
   setComposerEnabled(true);
-  inputEl.focus();
+  focusComposer();
   scrollToBottom();
 });
 
@@ -100,12 +115,6 @@ inputEl.addEventListener('input', () => {
   inputEl.style.height = `${inputEl.scrollHeight}px`;
 });
 
-resetButtonEl.addEventListener('click', () => {
-  isAssistantBusy = false;
-  setComposerEnabled(false);
-  socket.emit('conversation:reset');
-});
-
 function sendMessage() {
   const content = inputEl.value.trim();
   if (!content || isAssistantBusy) {
@@ -124,7 +133,7 @@ function appendMessage(role, content, options = {}) {
 
   const bubble = document.createElement('div');
   bubble.className = 'message-bubble';
-  bubble.textContent = content;
+  setMessageContent(bubble, content);
 
   if (options.streaming) {
     bubble.classList.add('typing-caret');
@@ -135,15 +144,57 @@ function appendMessage(role, content, options = {}) {
   return bubble;
 }
 
+function appendEphemeralError(content) {
+  const existing = messagesEl.querySelector('[data-ephemeral="connection"]');
+  if (existing) {
+    existing.remove();
+  }
+
+  const bubble = appendMessage('error', content);
+  bubble.closest('.message-row')?.setAttribute('data-ephemeral', 'connection');
+  scrollToBottom();
+}
+
+function setMessageContent(element, content) {
+  element.dataset.rawContent = content;
+  element.innerHTML = renderMarkdown(content);
+
+  for (const link of element.querySelectorAll('a')) {
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  }
+}
+
+function renderMarkdown(content) {
+  if (!window.marked || !window.DOMPurify) {
+    return escapeHtml(content).replaceAll('\n', '<br>');
+  }
+
+  const html = window.marked.parse(content || '');
+  return window.DOMPurify.sanitize(html, {
+    USE_PROFILES: { html: true },
+  });
+}
+
+function escapeHtml(value) {
+  const wrapper = document.createElement('div');
+  wrapper.textContent = value;
+  return wrapper.innerHTML;
+}
+
 function setComposerEnabled(enabled) {
   inputEl.disabled = !enabled;
   formEl.querySelector('button[type="submit"]').disabled = !enabled;
 }
 
-function setConnectionStatus(text, state) {
-  connectionStatusEl.textContent = text;
-  connectionStatusEl.classList.toggle('is-online', state === 'online');
-  connectionStatusEl.classList.toggle('is-offline', state === 'offline');
+function focusComposer() {
+  if (inputEl.disabled) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    inputEl.focus({ preventScroll: true });
+  });
 }
 
 function scrollToBottom() {

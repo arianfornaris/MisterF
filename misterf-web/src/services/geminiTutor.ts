@@ -1,6 +1,12 @@
 import { GoogleGenAI, type Content } from '@google/genai';
+import fs from 'node:fs';
+import path from 'node:path';
 import { env } from '../config/env.js';
-import type { StoredMessage } from '../db/repository.js';
+
+export type TutorMessage = {
+  role: 'user' | 'model';
+  content: string;
+};
 
 export class MissingGeminiApiKeyError extends Error {
   constructor() {
@@ -9,31 +15,12 @@ export class MissingGeminiApiKeyError extends Error {
   }
 }
 
-const systemInstruction = `
-Eres Mister F, un tutor de ingles para hispanohablantes.
-
-Objetivo:
-- Retas al usuario con una oracion en espanol.
-- El usuario debe escribir esa oracion en ingles.
-- Evalua cada intento y guia al usuario hasta que lo escriba correctamente.
-
-Reglas:
-- Responde siempre en espanol, excepto cuando muestres frases en ingles.
-- Mantente breve, claro y conversacional.
-- Al iniciar una sesion, da una sola oracion en espanol para traducir.
-- No reveles la traduccion completa si el intento del usuario es incorrecto.
-- Si hay errores, explica 1 a 3 errores concretos, da una pista y pide otro intento.
-- Si el intento esta correcto o casi perfecto, confirma la respuesta correcta y da una nueva oracion en espanol.
-- Enfocate en gramatica, orden natural, articulos, preposiciones, tiempos verbales y vocabulario.
-- No cambies de oracion hasta que el usuario resuelva la actual.
-`;
-
 const firstChallengePrompt = `
-Comienza la sesion. Dale al usuario una oracion sencilla en espanol para traducir al ingles.
-No incluyas la respuesta en ingles.
+Comienza la sesion.
 `;
 
 let client: GoogleGenAI | undefined;
+let systemInstruction: string | undefined;
 
 function getClient(): GoogleGenAI {
   if (
@@ -47,15 +34,24 @@ function getClient(): GoogleGenAI {
   return client;
 }
 
-function toGeminiContent(message: StoredMessage): Content {
+function toGeminiContent(message: TutorMessage): Content {
   return {
     role: message.role,
     parts: [{ text: message.content }],
   };
 }
 
+function getSystemInstruction(): string {
+  systemInstruction ??= fs.readFileSync(
+    path.join(env.projectRoot, 'gameplays/gameplay-1.md'),
+    'utf8',
+  );
+
+  return systemInstruction;
+}
+
 export async function* streamTutorReply(
-  history: StoredMessage[],
+  history: TutorMessage[],
   options: { startConversation?: boolean } = {},
 ): AsyncGenerator<string> {
   const ai = getClient();
@@ -72,7 +68,7 @@ export async function* streamTutorReply(
     model: env.geminiModel,
     contents,
     config: {
-      systemInstruction,
+      systemInstruction: getSystemInstruction(),
       temperature: 0.45,
       maxOutputTokens: 700,
     },

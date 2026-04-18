@@ -2,6 +2,8 @@
 
 Mister F es una app web simple para practicar escritura de frases en ingles con un tutor IA basado en Gemini.
 
+Nota temporal: mientras se prueba el gameplay, el chat no persiste nada en SQLite. El historial vive solo en memoria y se pierde al reiniciar el servidor.
+
 ## Stack
 
 - Node.js + Express
@@ -9,8 +11,8 @@ Mister F es una app web simple para practicar escritura de frases en ingles con 
 - EJS
 - Bootstrap
 - Socket.IO
-- SQLite
-- Migraciones propias
+- SQLite, desactivado temporalmente
+- Migraciones propias, desactivadas temporalmente
 - Gemini con `@google/genai`
 
 ## Uso
@@ -31,10 +33,9 @@ http://localhost:3000
 - `npm run dev`: servidor con recarga via `tsx watch`
 - `npm run build`: compila TypeScript a `dist`
 - `npm start`: ejecuta la version compilada
-- `npm run migrate`: aplica migraciones pendientes
 - `npm run typecheck`: valida tipos sin compilar
-- `npm run pm2:start`: compila, migra y arranca PM2 en modo produccion
-- `npm run pm2:restart`: compila, migra y reinicia PM2 actualizando variables
+- `npm run pm2:start`: compila y arranca PM2 en modo produccion
+- `npm run pm2:restart`: compila y reinicia PM2 actualizando variables
 - `npm run pm2:status`: muestra el estado de PM2
 - `npm run pm2:stop`: detiene la app en PM2
 - `npm run pm2:delete`: elimina la app de PM2
@@ -55,7 +56,6 @@ PM2 recibe estas variables:
 ```text
 NODE_ENV=production
 PORT=3000
-DATABASE_PATH=/ruta/absoluta/al/proyecto/data/misterf.sqlite
 GEMINI_API_KEY=...
 GEMINI_MODEL=gemini-2.5-flash
 ```
