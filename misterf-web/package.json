@@ -1,0 +1,38 @@
+{
+  "name": "misterf-web",
+  "version": "1.0.0",
+  "description": "Mister F web tutor for practicing English sentence writing.",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "migrate": "tsx src/db/migrateCli.ts",
+    "typecheck": "tsc --noEmit",
+    "pm2:start": "npm run build && npm run migrate && pm2 start ecosystem.config.cjs --env production",
+    "pm2:restart": "npm run build && npm run migrate && pm2 restart ecosystem.config.cjs --env production --update-env",
+    "pm2:status": "pm2 status",
+    "pm2:stop": "pm2 stop misterf-web",
+    "pm2:delete": "pm2 delete misterf-web",
+    "pm2:logs": "pm2 logs misterf-web"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^1.50.1",
+    "better-sqlite3": "^12.9.0",
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}
