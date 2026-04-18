@@ -1,9 +1,13 @@
-const socket = io();
-
 const storageKey = 'misterf.conversationId';
 const messagesEl = document.querySelector('#messages');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
+const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
+const socketAuthToken = document.body.dataset.socketAuthToken || '';
+const authMessage = document.body.dataset.authMessage || '';
+const socket = isInitiallyAuthenticated
+  ? io({ auth: { token: socketAuthToken } })
+  : null;
 
 let conversationId = localStorage.getItem(storageKey);
 let streamingBubble = null;
@@ -16,87 +20,98 @@ if (window.marked) {
   });
 }
 
-socket.on('connect', () => {
-  socket.emit('conversation:join', { conversationId });
-});
+if (socket) {
+  socket.on('connect', () => {
+    socket.emit('conversation:join', { conversationId });
+  });
 
-socket.on('disconnect', (reason) => {
-  appendEphemeralError(
-    `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
-  );
-  setComposerEnabled(false);
-});
+  socket.on('auth:required', ({ message }) => {
+    showAuthRequiredMessage(message);
+  });
 
-socket.on('connect_error', () => {
-  appendEphemeralError(
-    'No puedo conectar con el servidor en este momento. Revisa PM2 o vuelve a intentar en unos segundos.',
-  );
-  setComposerEnabled(false);
-});
+  socket.on('disconnect', (reason) => {
+    appendEphemeralError(
+      `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
+    );
+    setComposerEnabled(false);
+  });
 
-socket.on('conversation:ready', (payload) => {
-  conversationId = payload.conversationId;
-  localStorage.setItem(storageKey, conversationId);
-  messagesEl.replaceChildren();
-  streamingBubble = null;
+  socket.on('connect_error', (error) => {
+    if (error.message === 'authentication_required') {
+      showAuthRequiredMessage();
+      return;
+    }
 
-  for (const message of payload.messages ?? []) {
-    appendMessage(message.role, message.content);
-  }
+    appendEphemeralError(
+      'No puedo conectar con el servidor en este momento. Revisa PM2 o vuelve a intentar en unos segundos.',
+    );
+    setComposerEnabled(false);
+  });
 
-  setComposerEnabled(!isAssistantBusy);
-  focusComposer();
-  scrollToBottom();
-});
-
-socket.on('message:created', (message) => {
-  appendMessage(message.role, message.content);
-  scrollToBottom();
-});
-
-socket.on('assistant:start', () => {
-  isAssistantBusy = true;
-  setComposerEnabled(false);
-  streamingBubble = appendMessage('model', '', { streaming: true });
-  scrollToBottom();
-});
-
-socket.on('assistant:chunk', ({ chunk }) => {
-  if (!streamingBubble) {
-    streamingBubble = appendMessage('model', '', { streaming: true });
-  }
-
-  const rawContent = `${streamingBubble.dataset.rawContent ?? ''}${chunk}`;
-  setMessageContent(streamingBubble, rawContent);
-  scrollToBottom();
-});
-
-socket.on('assistant:done', (message) => {
-  if (streamingBubble) {
-    setMessageContent(streamingBubble, message.content);
-    streamingBubble.classList.remove('typing-caret');
-  } else {
-    appendMessage('model', message.content);
-  }
-
-  streamingBubble = null;
-  isAssistantBusy = false;
-  setComposerEnabled(true);
-  focusComposer();
-  scrollToBottom();
-});
-
-socket.on('assistant:error', ({ message }) => {
-  if (streamingBubble) {
-    streamingBubble.closest('.message-row')?.remove();
+  socket.on('conversation:ready', (payload) => {
+    conversationId = payload.conversationId;
+    localStorage.setItem(storageKey, conversationId);
+    messagesEl.replaceChildren();
     streamingBubble = null;
-  }
 
-  appendMessage('error', message);
-  isAssistantBusy = false;
-  setComposerEnabled(true);
-  scrollToBottom();
-});
+    for (const message of payload.messages ?? []) {
+      appendMessage(message.role, message.content);
+    }
+
+    setComposerEnabled(!isAssistantBusy);
+    focusComposer();
+    scrollToBottom();
+  });
+
+  socket.on('message:created', (message) => {
+    appendMessage(message.role, message.content);
+    scrollToBottom();
+  });
+
+  socket.on('assistant:start', () => {
+    isAssistantBusy = true;
+    setComposerEnabled(false);
+    streamingBubble = appendMessage('model', '', { streaming: true });
+    scrollToBottom();
+  });
+
+  socket.on('assistant:chunk', ({ chunk }) => {
+    if (!streamingBubble) {
+      streamingBubble = appendMessage('model', '', { streaming: true });
+    }
+
+    const rawContent = `${streamingBubble.dataset.rawContent ?? ''}${chunk}`;
+    setMessageContent(streamingBubble, rawContent);
+    scrollToBottom();
+  });
+
+  socket.on('assistant:done', (message) => {
+    if (streamingBubble) {
+      setMessageContent(streamingBubble, message.content);
+      streamingBubble.classList.remove('typing-caret');
+    } else {
+      appendMessage('model', message.content);
+    }
+
+    streamingBubble = null;
+    isAssistantBusy = false;
+    setComposerEnabled(true);
+    focusComposer();
+    scrollToBottom();
+  });
+
+  socket.on('assistant:error', ({ message }) => {
+    if (streamingBubble) {
+      streamingBubble.closest('.message-row')?.remove();
+      streamingBubble = null;
+    }
+
+    appendMessage('error', message);
+    isAssistantBusy = false;
+    setComposerEnabled(true);
+    scrollToBottom();
+  });
+}
 
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -117,7 +132,7 @@ inputEl.addEventListener('input', () => {
 
 function sendMessage() {
   const content = inputEl.value.trim();
-  if (!content || isAssistantBusy) {
+  if (!content || isAssistantBusy || !socket) {
     return;
   }
 
@@ -125,6 +140,18 @@ function sendMessage() {
   inputEl.style.height = 'auto';
   setComposerEnabled(false);
   socket.emit('message:send', { conversationId, content });
+}
+
+function showAuthRequiredMessage(message) {
+  messagesEl.replaceChildren();
+  streamingBubble = null;
+  appendMessage(
+    'model',
+    message ||
+      'Para practicar con Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
+  );
+  setComposerEnabled(false);
+  scrollToBottom();
 }
 
 function appendMessage(role, content, options = {}) {
@@ -160,8 +187,11 @@ function setMessageContent(element, content) {
   element.innerHTML = renderMarkdown(content);
 
   for (const link of element.querySelectorAll('a')) {
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
+    const url = new URL(link.getAttribute('href') || '', window.location.href);
+    if (url.origin !== window.location.origin) {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
   }
 }
 
@@ -199,4 +229,11 @@ function focusComposer() {
 
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+if (isInitiallyAuthenticated) {
+  setComposerEnabled(true);
+  focusComposer();
+} else {
+  showAuthRequiredMessage(authMessage || undefined);
 }

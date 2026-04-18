@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/css/app.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="auth-sheet" aria-label="<%= title %>">
+        <form
+          class="auth-form"
+          method="post"
+          action="<%= mode === 'login' ? '/login' : mode === 'signup' ? '/signup' : mode === 'forgot' ? '/forgot-password' : '/reset-password' %>"
+          novalidate
+        >
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="auth-copy">
+            <p class="auth-kicker">
+              <%= mode === 'login' ? 'Bienvenido' : mode === 'signup' ? 'Crea tu cuenta' : mode === 'forgot' ? 'Recuperación' : 'Seguridad' %>
+            </p>
+            <h1>
+              <%= mode === 'login' ? 'Iniciar sesión' : mode === 'signup' ? 'Empezar a practicar' : mode === 'forgot' ? 'Recuperar password' : 'Nuevo password' %>
+            </h1>
+          </div>
+
+          <% if (error) { %>
+            <p class="auth-error"><%= error %></p>
+          <% } %>
+
+          <% if (mode === 'signup') { %>
+            <label class="auth-field">
+              <span>Nombre completo</span>
+              <input
+                name="fullName"
+                type="text"
+                autocomplete="name"
+                value="<%= values.fullName %>"
+                required
+                autofocus
+              >
+              <% if (fieldErrors.fullName) { %>
+                <small><%= fieldErrors.fullName %></small>
+              <% } %>
+            </label>
+          <% } %>
+
+          <% if (mode !== 'reset') { %>
+            <label class="auth-field">
+              <span>Correo</span>
+              <input
+                name="email"
+                type="email"
+                autocomplete="email"
+                value="<%= values.email %>"
+                required
+                <%= mode === 'login' || mode === 'forgot' ? 'autofocus' : '' %>
+              >
+              <% if (fieldErrors.email) { %>
+                <small><%= fieldErrors.email %></small>
+              <% } %>
+            </label>
+          <% } %>
+
+          <% if (mode === 'reset') { %>
+            <label class="auth-field">
+              <span>Correo</span>
+              <input
+                name="email"
+                type="email"
+                autocomplete="email"
+                value="<%= values.email %>"
+                required
+                autofocus
+              >
+              <% if (fieldErrors.email) { %>
+                <small><%= fieldErrors.email %></small>
+              <% } %>
+            </label>
+
+            <label class="auth-field">
+              <span>Código</span>
+              <input
+                name="code"
+                type="text"
+                autocomplete="one-time-code"
+                inputmode="text"
+                value="<%= values.code %>"
+                required
+              >
+              <% if (fieldErrors.code) { %>
+                <small><%= fieldErrors.code %></small>
+              <% } %>
+            </label>
+          <% } %>
+
+          <% if (mode !== 'forgot') { %>
+            <label class="auth-field">
+              <span>Password</span>
+              <input
+                name="password"
+                type="password"
+                autocomplete="<%= mode === 'login' ? 'current-password' : 'new-password' %>"
+                minlength="10"
+                required
+                <%= mode === 'reset' ? 'autofocus' : '' %>
+              >
+              <% if (fieldErrors.password) { %>
+                <small><%= fieldErrors.password %></small>
+              <% } %>
+            </label>
+          <% } %>
+
+          <button class="btn btn-dark auth-submit" type="submit">
+            <%= mode === 'login' ? 'Entrar' : mode === 'signup' ? 'Crear cuenta' : mode === 'forgot' ? 'Enviar código' : 'Actualizar password' %>
+          </button>
+
+          <p class="auth-switch">
+            <% if (mode === 'login') { %>
+              ¿No tienes cuenta? <a href="/signup">Crea una</a>. <a href="/forgot-password">Olvidé mi password</a>.
+            <% } else if (mode === 'signup') { %>
+              ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>.
+            <% } else { %>
+              <a href="/login">Volver a iniciar sesión</a>.
+            <% } %>
+          </p>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

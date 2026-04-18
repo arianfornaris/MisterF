@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/css/app.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="auth-sheet" aria-label="<%= title %>">
+        <div class="auth-form">
+          <div class="auth-copy">
+            <p class="auth-kicker">Mister F</p>
+            <h1><%= title %></h1>
+          </div>
+
+          <p class="auth-message"><%= body %></p>
+
+          <% if (showResendVerification) { %>
+            <form method="post" action="/resend-verification">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-dark auth-submit" type="submit">Reenviar verificación</button>
+            </form>
+          <% } %>
+
+          <% if (showVerificationCodeForm) { %>
+            <form class="auth-form" method="post" action="/verify-email">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <label class="auth-field">
+                <span>Código</span>
+                <input
+                  name="code"
+                  type="text"
+                  autocomplete="one-time-code"
+                  inputmode="text"
+                  required
+                  autofocus
+                >
+              </label>
+              <button class="btn btn-dark auth-submit" type="submit">Verificar correo</button>
+            </form>
+          <% } %>
+
+          <% if (linkHref && linkText) { %>
+            <p class="auth-switch"><a href="<%= linkHref %>"><%= linkText %></a></p>
+          <% } else { %>
+            <p class="auth-switch"><a href="/">Volver</a></p>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

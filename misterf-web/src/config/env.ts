@@ -14,6 +14,15 @@ function readInteger(name: string, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function readBoolean(name: string, fallback: boolean): boolean {
+  const rawValue = process.env[name];
+  if (!rawValue) {
+    return fallback;
+  }
+
+  return ['1', 'true', 'yes'].includes(rawValue.toLowerCase());
+}
+
 function resolveProjectPath(value: string): string {
   return path.isAbsolute(value) ? value : path.resolve(projectRoot, value);
 }
@@ -26,4 +35,12 @@ export const env = {
   ),
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
+  appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
+  sessionSecret: process.env.APP_SESSION_SECRET ?? '',
+  smtpHost: process.env.SMTP_HOST ?? '',
+  smtpPort: readInteger('SMTP_PORT', 587),
+  smtpSecure: readBoolean('SMTP_SECURE', false),
+  smtpUser: process.env.SMTP_USER ?? '',
+  smtpPassword: process.env.SMTP_PASSWORD ?? '',
+  mailFrom: process.env.MAIL_FROM ?? '',
 };

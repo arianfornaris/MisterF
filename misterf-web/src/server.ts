@@ -2,8 +2,32 @@ import express from 'express';
 import http from 'node:http';
 import path from 'node:path';
 import { Server } from 'socket.io';
+import { csrfProtection } from './auth/csrf.js';
+import {
+  handleChangePassword,
+  handleForgotPassword,
+  handleLogin,
+  handleLogout,
+  handleResendVerification,
+  handleResetPassword,
+  handleSignup,
+  handleVerifyEmail,
+  renderHome,
+  renderChangePassword,
+  renderForgotPassword,
+  renderLogin,
+  renderResetPassword,
+  renderSignup,
+  renderVerifyNeeded,
+} from './auth/forms.js';
+import { loadAuthSession } from './auth/middleware.js';
+import { requireSessionSecret } from './auth/session.js';
 import { env } from './config/env.js';
+import { migrate } from './db/migrator.js';
 import { registerChatSocket } from './socket/chatSocket.js';
+
+requireSessionSecret();
+migrate();
 
 const app = express();
 const server = http.createServer(app);
@@ -11,11 +35,16 @@ const io = new Server(server);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(env.projectRoot, 'views'));
+app.set('trust proxy', 1);
 
 app.use('/public', express.static(path.join(env.projectRoot, 'public')));
 app.use(
   '/vendor/bootswatch',
   express.static(path.join(env.projectRoot, 'node_modules/bootswatch/dist')),
+);
+app.use(
+  '/vendor/bootstrap',
+  express.static(path.join(env.projectRoot, 'node_modules/bootstrap/dist')),
 );
 app.use(
   '/vendor/marked',
@@ -26,10 +55,40 @@ app.use(
   express.static(path.join(env.projectRoot, 'node_modules/dompurify/dist')),
 );
 
-app.get('/', (_request, response) => {
-  response.render('index', {
-    title: 'Mister F',
-    geminiModel: env.geminiModel,
+app.use(express.urlencoded({ extended: false, limit: '32kb' }));
+app.use(csrfProtection);
+app.use(loadAuthSession);
+
+app.get('/login', renderLogin);
+app.post('/login', handleLogin);
+app.get('/signup', renderSignup);
+app.post('/signup', handleSignup);
+app.get('/register', renderSignup);
+app.post('/register', handleSignup);
+app.get('/forgot-password', renderForgotPassword);
+app.post('/forgot-password', handleForgotPassword);
+app.get('/reset-password', renderResetPassword);
+app.post('/reset-password', handleResetPassword);
+app.get('/change-password', renderChangePassword);
+app.post('/change-password', handleChangePassword);
+app.post('/verify-email', handleVerifyEmail);
+app.get('/verify-needed', renderVerifyNeeded);
+app.post('/resend-verification', handleResendVerification);
+app.get('/callback', (_request, response) => {
+  response.redirect('/');
+});
+app.post('/logout', handleLogout);
+app.get('/', renderHome);
+app.get('/session', (request, response) => {
+  response.json({
+    isAuthenticated: Boolean(request.authUser),
+    user: request.authUser
+      ? {
+          email: request.authUser.email,
+          fullName: request.authUser.fullName,
+          id: request.authUser.id,
+        }
+      : null,
   });
 });
 

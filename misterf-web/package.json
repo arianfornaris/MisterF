@@ -22,11 +22,13 @@
   "dependencies": {
     "@google/genai": "^1.50.1",
     "better-sqlite3": "^12.9.0",
+    "bootstrap": "^5.3.8",
     "bootswatch": "^5.3.8",
     "dompurify": "^3.4.0",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "marked": "^18.0.1",
+    "nodemailer": "^8.0.5",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
@@ -34,6 +36,7 @@
     "@types/ejs": "^3.1.5",
     "@types/express": "^5.0.6",
     "@types/node": "^25.6.0",
+    "@types/nodemailer": "^8.0.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }

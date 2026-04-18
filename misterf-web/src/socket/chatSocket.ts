@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { Server, Socket } from 'socket.io';
+import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
   MissingGeminiApiKeyError,
   streamTutorReply,
@@ -26,10 +27,26 @@ const runningConversations = new Set<string>();
 const conversations = new Map<string, ChatMessage[]>();
 
 export function registerChatSocket(io: Server): void {
+  io.use((socket, next) => {
+    const payload = verifySocketAuthToken(socket.handshake.auth.token);
+    if (!payload) {
+      next(new Error('authentication_required'));
+      return;
+    }
+
+    socket.data.authenticatedUser = payload;
+    next();
+  });
+
   io.on('connection', (socket) => {
     let currentConversationId: string | null = null;
 
     socket.on('conversation:join', async (payload: JoinPayload = {}) => {
+      if (!isSocketAuthenticated(socket)) {
+        emitAuthRequired(socket);
+        return;
+      }
+
       const conversationId = getOrCreateConversation(payload.conversationId);
       joinConversationRoom(socket, currentConversationId, conversationId);
       currentConversationId = conversationId;
@@ -45,6 +62,11 @@ export function registerChatSocket(io: Server): void {
     socket.on('message:send', async (payload: SendMessagePayload = {}) => {
       const content = payload.content?.trim();
       if (!content) {
+        return;
+      }
+
+      if (!isSocketAuthenticated(socket)) {
+        emitAuthRequired(socket);
         return;
       }
 
@@ -66,12 +88,28 @@ export function registerChatSocket(io: Server): void {
     });
 
     socket.on('conversation:reset', async () => {
+      if (!isSocketAuthenticated(socket)) {
+        emitAuthRequired(socket);
+        return;
+      }
+
       const conversationId = createConversation();
       joinConversationRoom(socket, currentConversationId, conversationId);
       currentConversationId = conversationId;
       socket.emit('conversation:ready', { conversationId, messages: [] });
       await streamAssistantMessage(io, conversationId, true);
     });
+  });
+}
+
+function isSocketAuthenticated(socket: Socket): boolean {
+  return Boolean(socket.data.authenticatedUser);
+}
+
+function emitAuthRequired(socket: Socket): void {
+  socket.emit('auth:required', {
+    message:
+      'Para usar Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
   });
 }
 
