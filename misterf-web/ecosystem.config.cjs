@@ -25,6 +25,8 @@ module.exports = {
         SMTP_USER: 'boniatillo@gmail.com',
         SMTP_PASSWORD: 'bnfk tdtf umwf vfnb',
         MAIL_FROM: 'Mister F <boniatillo@gmail.com>',
+        GOOGLE_CLIENT_ID: '929306495415-ivqps91v65abk26p6pqdcg9c86cvcvgs.apps.googleusercontent.com',
+        GOOGLE_CLIENT_SECRET: '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',
       },
       env_production: {
         NODE_ENV: 'production',
@@ -39,6 +41,8 @@ module.exports = {
         SMTP_USER: 'boniatillo@gmail.com',
         SMTP_PASSWORD: 'bnfk tdtf umwf vfnb',
         MAIL_FROM: 'Mister F <boniatillo@gmail.com>',
+        GOOGLE_CLIENT_ID: '929306495415-ivqps91v65abk26p6pqdcg9c86cvcvgs.apps.googleusercontent.com',
+        GOOGLE_CLIENT_SECRET: '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',
       },
     },
   ],

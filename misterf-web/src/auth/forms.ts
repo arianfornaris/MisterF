@@ -48,6 +48,7 @@ type AuthFormView = {
 type ChangePasswordView = {
   error: string;
   fieldErrors: Record<string, string>;
+  hasPassword: boolean;
 };
 
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
@@ -114,6 +115,7 @@ export function renderChangePassword(
   renderChangePasswordForm(response, {
     error: '',
     fieldErrors: {},
+    hasPassword: Boolean(request.authUser.passwordHash),
   });
 }
 
@@ -351,7 +353,7 @@ export async function handleChangePassword(
   const newPassword = readField(request.body.newPassword);
   const fieldErrors: Record<string, string> = {};
 
-  if (!currentPassword) {
+  if (user.passwordHash && !currentPassword) {
     fieldErrors.currentPassword = 'Escribe tu password actual.';
   }
 
@@ -363,20 +365,24 @@ export async function handleChangePassword(
     renderChangePasswordForm(response.status(422), {
       error: '',
       fieldErrors,
+      hasPassword: Boolean(user.passwordHash),
     });
     return;
   }
 
-  const isCurrentPasswordValid = await verifyPassword(
-    currentPassword,
-    user.passwordHash,
-  );
-  if (!isCurrentPasswordValid) {
-    renderChangePasswordForm(response.status(401), {
-      error: 'El password actual no es correcto.',
-      fieldErrors: {},
-    });
-    return;
+  if (user.passwordHash) {
+    const isCurrentPasswordValid = await verifyPassword(
+      currentPassword,
+      user.passwordHash,
+    );
+    if (!isCurrentPasswordValid) {
+      renderChangePasswordForm(response.status(401), {
+        error: 'El password actual no es correcto.',
+        fieldErrors: {},
+        hasPassword: true,
+      });
+      return;
+    }
   }
 
   updateUserPassword({

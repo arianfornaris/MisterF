@@ -18,6 +18,7 @@ type UserRow = {
 };
 
 type AuthActionTokenType = 'email_verification' | 'password_reset';
+type IdentityProvider = 'local' | 'google' | 'facebook' | 'apple';
 
 function toAuthUser(row: UserRow): AuthUser {
   return {
@@ -43,6 +44,26 @@ export function findUserByEmail(email: string): AuthUser | null {
       `,
     )
     .get(normalizeEmail(email)) as UserRow | undefined;
+
+  return row ? toAuthUser(row) : null;
+}
+
+export function findUserByIdentity(input: {
+  provider: IdentityProvider;
+  providerSubject: string;
+}): AuthUser | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT users.id, users.email, users.full_name, users.password_hash, users.email_verified
+        FROM user_identities
+        INNER JOIN users ON users.id = user_identities.user_id
+        WHERE user_identities.provider = ?
+          AND user_identities.provider_subject = ?
+          AND users.disabled_at IS NULL
+      `,
+    )
+    .get(input.provider, input.providerSubject) as UserRow | undefined;
 
   return row ? toAuthUser(row) : null;
 }
@@ -112,6 +133,83 @@ export function createLocalUser(input: {
   }
 
   return user;
+}
+
+export function createExternalUser(input: {
+  email: string;
+  emailVerified: boolean;
+  fullName: string;
+  provider: Exclude<IdentityProvider, 'local'>;
+  providerSubject: string;
+}): AuthUser {
+  const db = getDb();
+  const id = randomUUID();
+  const email = normalizeEmail(input.email);
+
+  const create = db.transaction(() => {
+    db.prepare(
+      `
+        INSERT INTO users (
+          id,
+          email,
+          full_name,
+          password_hash,
+          email_verified
+        )
+        VALUES (?, ?, ?, NULL, ?)
+      `,
+    ).run(id, email, input.fullName.trim(), input.emailVerified ? 1 : 0);
+
+    db.prepare(
+      `
+        INSERT INTO user_identities (
+          id,
+          user_id,
+          provider,
+          provider_subject,
+          email
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    ).run(randomUUID(), id, input.provider, input.providerSubject, email);
+  });
+
+  create();
+
+  const user = findUserByEmail(email);
+  if (!user) {
+    throw new Error('Could not load newly created external user.');
+  }
+
+  return user;
+}
+
+export function linkUserIdentity(input: {
+  email: string;
+  provider: Exclude<IdentityProvider, 'local'>;
+  providerSubject: string;
+  userId: string;
+}): void {
+  getDb()
+    .prepare(
+      `
+        INSERT OR IGNORE INTO user_identities (
+          id,
+          user_id,
+          provider,
+          provider_subject,
+          email
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      randomUUID(),
+      input.userId,
+      input.provider,
+      input.providerSubject,
+      normalizeEmail(input.email),
+    );
 }
 
 export function createSession(input: {

@@ -385,6 +385,33 @@ body {
   color: #9d3b24;
 }
 
+.google-auth-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.google-auth-button:hover,
+.google-auth-button:focus {
+  border-color: var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.auth-divider {
+  height: 1px;
+  background: var(--line);
+}
+
 .auth-field {
   display: grid;
   gap: 7px;

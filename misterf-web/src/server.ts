@@ -20,6 +20,7 @@ import {
   renderSignup,
   renderVerifyNeeded,
 } from './auth/forms.js';
+import { finishGoogleLogin, startGoogleLogin } from './auth/google.js';
 import { loadAuthSession } from './auth/middleware.js';
 import { requireSessionSecret } from './auth/session.js';
 import { env } from './config/env.js';
@@ -65,6 +66,8 @@ app.get('/signup', renderSignup);
 app.post('/signup', handleSignup);
 app.get('/register', renderSignup);
 app.post('/register', handleSignup);
+app.get('/auth/google', startGoogleLogin);
+app.get('/auth/google/callback', finishGoogleLogin);
 app.get('/forgot-password', renderForgotPassword);
 app.post('/forgot-password', handleForgotPassword);
 app.get('/reset-password', renderResetPassword);
