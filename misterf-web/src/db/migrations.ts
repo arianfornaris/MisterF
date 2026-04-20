@@ -106,4 +106,43 @@ export const migrations: Migration[] = [
         ON auth_action_tokens (user_id, type, used_at);
     `,
   },
+  {
+    id: 4,
+    name: 'add_chat_ownership_and_title',
+    up: `
+      ALTER TABLE conversations
+        ADD COLUMN user_id TEXT
+        REFERENCES users (id)
+        ON DELETE CASCADE;
+
+      ALTER TABLE conversations
+        ADD COLUMN title TEXT NOT NULL DEFAULT 'Nueva conversación';
+
+      CREATE INDEX idx_conversations_user_updated
+        ON conversations (user_id, updated_at DESC);
+    `,
+  },
+  {
+    id: 5,
+    name: 'create_conversation_progress',
+    up: `
+      CREATE TABLE conversation_progress (
+        conversation_id TEXT PRIMARY KEY,
+        markdown TEXT NOT NULL,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+    `,
+  },
+  {
+    id: 6,
+    name: 'add_manual_conversation_title_flag',
+    up: `
+      ALTER TABLE conversations
+        ADD COLUMN title_updated_by_user INTEGER NOT NULL DEFAULT 0
+        CHECK (title_updated_by_user IN (0, 1));
+    `,
+  },
 ];

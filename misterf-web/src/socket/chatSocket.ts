@@ -1,11 +1,29 @@
-import { randomUUID } from 'node:crypto';
 import type { Server, Socket } from 'socket.io';
+import { findUserBySessionTokenHash } from '../auth/repository.js';
+import {
+  getSessionTokenFromCookieHeader,
+  hashSessionToken,
+} from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
+  addMessage,
+  createConversation,
+  deleteConversationForUser,
+  findConversationForUser,
+  getProgressForConversation,
+  listMessages,
+  renameConversationForUser,
+  type StoredMessage,
+} from '../db/repository.js';
+import { pickInitialGreeting } from './initialGreetings.js';
+import {
+  GeminiFinishReasonError,
   MissingGeminiApiKeyError,
-  streamTutorReply,
+  runTutorAgentLoop,
   type TutorMessage,
+  type TutorToolCall,
 } from '../services/geminiTutor.js';
+import { createConversationToolManager } from '../tools/conversationTools.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -16,47 +34,84 @@ type SendMessagePayload = {
   content?: string;
 };
 
-type ChatMessage = TutorMessage & {
-  id: string;
-  conversationId: string;
-  metadata: Record<string, unknown> | null;
-  createdAt: string;
+type RenamePayload = {
+  conversationId?: string | null;
+  title?: string;
+};
+
+type DeletePayload = {
+  conversationId?: string | null;
+};
+
+type AuthenticatedSocketData = {
+  authenticatedUser?: {
+    exp: number;
+    sub: string;
+  };
 };
 
 const runningConversations = new Set<string>();
-const conversations = new Map<string, ChatMessage[]>();
+const toolManager = createConversationToolManager();
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
-    const payload = verifySocketAuthToken(socket.handshake.auth.token);
+    const payload =
+      verifySocketAuthToken(socket.handshake.auth.token) ??
+      verifySocketSessionCookie(socket);
     if (!payload) {
       next(new Error('authentication_required'));
       return;
     }
 
-    socket.data.authenticatedUser = payload;
+    (socket.data as AuthenticatedSocketData).authenticatedUser = payload;
     next();
   });
 
   io.on('connection', (socket) => {
     let currentConversationId: string | null = null;
+    let pendingInitialGreeting = pickInitialGreeting();
 
     socket.on('conversation:join', async (payload: JoinPayload = {}) => {
-      if (!isSocketAuthenticated(socket)) {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
         emitAuthRequired(socket);
         return;
       }
 
-      const conversationId = getOrCreateConversation(payload.conversationId);
-      joinConversationRoom(socket, currentConversationId, conversationId);
-      currentConversationId = conversationId;
+      const conversation = payload.conversationId
+        ? findConversationForUser(payload.conversationId, userId)
+        : null;
 
-      const messages = listMessages(conversationId);
-      socket.emit('conversation:ready', { conversationId, messages });
-
-      if (messages.length === 0) {
-        await streamAssistantMessage(io, conversationId, true);
+      if (!conversation) {
+        pendingInitialGreeting = pickInitialGreeting();
+        leaveConversationRoom(socket, currentConversationId);
+        currentConversationId = null;
+        socket.emit('conversation:ready', {
+          conversation: null,
+          conversationId: null,
+          messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+          progress: null,
+        });
+        return;
       }
+
+      joinConversationRoom(socket, currentConversationId, conversation.id);
+      currentConversationId = conversation.id;
+
+      const messages = listMessages(conversation.id);
+      if (messages.length === 0) {
+        pendingInitialGreeting = pickInitialGreeting();
+      }
+
+      socket.emit('conversation:ready', {
+        conversation,
+        conversationId: conversation.id,
+        messages:
+          messages.length > 0
+            ? messages
+            : [createEphemeralInitialMessage(pendingInitialGreeting)],
+        progress: getProgressForConversation(conversation.id),
+      });
     });
 
     socket.on('message:send', async (payload: SendMessagePayload = {}) => {
@@ -65,45 +120,186 @@ export function registerChatSocket(io: Server): void {
         return;
       }
 
-      if (!isSocketAuthenticated(socket)) {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
         emitAuthRequired(socket);
         return;
       }
 
-      const conversationId = getOrCreateConversation(payload.conversationId);
-      joinConversationRoom(socket, currentConversationId, conversationId);
-      currentConversationId = conversationId;
+      let conversation = payload.conversationId
+        ? findConversationForUser(payload.conversationId, userId)
+        : null;
 
-      if (runningConversations.has(conversationId)) {
+      const shouldPersistInitialGreeting =
+        !conversation || listMessages(conversation.id).length === 0;
+      if (!conversation) {
+        conversation = createConversation(userId);
+      }
+
+      joinConversationRoom(socket, currentConversationId, conversation.id);
+      currentConversationId = conversation.id;
+
+      if (runningConversations.has(conversation.id)) {
         socket.emit('assistant:error', {
           message: 'Espera un momento: Mister F todavia esta respondiendo.',
         });
         return;
       }
 
-      const userMessage = addMessage(conversationId, 'user', content);
-      io.to(conversationId).emit('message:created', userMessage);
+      if (shouldPersistInitialGreeting) {
+        addMessage(conversation.id, 'model', pendingInitialGreeting, {
+          source: 'initial_greeting',
+        });
+        socket.emit('conversation:promoted', {
+          conversation,
+          conversationId: conversation.id,
+        });
+      }
 
-      await streamAssistantMessage(io, conversationId);
+      const userMessage = addMessage(conversation.id, 'user', content);
+      io.to(conversation.id).emit('message:created', userMessage);
+
+      await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
     });
 
     socket.on('conversation:reset', async () => {
-      if (!isSocketAuthenticated(socket)) {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
         emitAuthRequired(socket);
         return;
       }
 
-      const conversationId = createConversation();
-      joinConversationRoom(socket, currentConversationId, conversationId);
-      currentConversationId = conversationId;
-      socket.emit('conversation:ready', { conversationId, messages: [] });
-      await streamAssistantMessage(io, conversationId, true);
+      pendingInitialGreeting = pickInitialGreeting();
+      leaveConversationRoom(socket, currentConversationId);
+      currentConversationId = null;
+      socket.emit('conversation:ready', {
+        conversation: null,
+        conversationId: null,
+        messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        progress: null,
+      });
+    });
+
+    socket.on('conversation:rename', (payload: RenamePayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      const title = normalizeConversationTitle(payload.title);
+      if (!conversationId || !title) {
+        socket.emit('conversation:error', {
+          message: 'El titulo de la conversacion no puede estar vacio.',
+        });
+        return;
+      }
+
+      const conversation = renameConversationForUser(
+        conversationId,
+        userId,
+        title,
+        { updatedByUser: true },
+      );
+      if (!conversation) {
+        socket.emit('conversation:error', {
+          message: 'No pude encontrar esa conversacion.',
+        });
+        return;
+      }
+
+      socket.emit('conversation:renamed', {
+        conversation,
+        conversationId: conversation.id,
+      });
+      socket.to(conversation.id).emit('conversation:renamed', {
+        conversation,
+        conversationId: conversation.id,
+      });
+    });
+
+    socket.on('conversation:delete', (payload: DeletePayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      if (!conversationId) {
+        return;
+      }
+
+      const conversation = findConversationForUser(conversationId, userId);
+      if (!conversation) {
+        socket.emit('conversation:error', {
+          message: 'No pude encontrar esa conversacion.',
+        });
+        return;
+      }
+
+      const wasCurrentConversation = currentConversationId === conversation.id;
+      const deleted = deleteConversationForUser(conversation.id, userId);
+      if (!deleted) {
+        socket.emit('conversation:error', {
+          message: 'No pude eliminar esa conversacion.',
+        });
+        return;
+      }
+
+      runningConversations.delete(conversation.id);
+      io.to(conversation.id).emit('conversation:deleted', {
+        conversationId: conversation.id,
+        wasActive: true,
+      });
+
+      if (!wasCurrentConversation) {
+        socket.emit('conversation:deleted', {
+          conversationId: conversation.id,
+          wasActive: false,
+        });
+        return;
+      }
+
+      pendingInitialGreeting = pickInitialGreeting();
+      leaveConversationRoom(socket, currentConversationId);
+      currentConversationId = null;
+      socket.emit('conversation:ready', {
+        conversation: null,
+        conversationId: null,
+        messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        progress: null,
+      });
     });
   });
 }
 
-function isSocketAuthenticated(socket: Socket): boolean {
-  return Boolean(socket.data.authenticatedUser);
+function verifySocketSessionCookie(socket: Socket): {
+  exp: number;
+  sub: string;
+} | null {
+  const token = getSessionTokenFromCookieHeader(socket.request.headers.cookie);
+  if (!token) {
+    return null;
+  }
+
+  const tokenHash = hashSessionToken(token);
+  const user = findUserBySessionTokenHash(tokenHash);
+  if (!user?.emailVerified) {
+    return null;
+  }
+
+  return {
+    exp: Math.floor(Date.now() / 1000) + 60,
+    sub: user.id,
+  };
+}
+
+function getAuthenticatedUserId(socket: Socket): string | null {
+  return (
+    (socket.data as AuthenticatedSocketData).authenticatedUser?.sub ?? null
+  );
 }
 
 function emitAuthRequired(socket: Socket): void {
@@ -111,47 +307,6 @@ function emitAuthRequired(socket: Socket): void {
     message:
       'Para usar Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
   });
-}
-
-function createConversation(): string {
-  const conversationId = randomUUID();
-  conversations.set(conversationId, []);
-  return conversationId;
-}
-
-function getOrCreateConversation(conversationId?: string | null): string {
-  if (conversationId) {
-    conversations.set(conversationId, conversations.get(conversationId) ?? []);
-    return conversationId;
-  }
-
-  return createConversation();
-}
-
-function listMessages(conversationId: string): ChatMessage[] {
-  return conversations.get(conversationId) ?? [];
-}
-
-function addMessage(
-  conversationId: string,
-  role: TutorMessage['role'],
-  content: string,
-  metadata: Record<string, unknown> | null = null,
-): ChatMessage {
-  const message = {
-    id: randomUUID(),
-    conversationId,
-    role,
-    content,
-    metadata,
-    createdAt: new Date().toISOString(),
-  };
-
-  const messages = conversations.get(conversationId) ?? [];
-  messages.push(message);
-  conversations.set(conversationId, messages);
-
-  return message;
 }
 
 function joinConversationRoom(
@@ -166,9 +321,31 @@ function joinConversationRoom(
   socket.join(nextConversationId);
 }
 
+function leaveConversationRoom(
+  socket: Socket,
+  conversationId: string | null,
+): void {
+  if (conversationId) {
+    socket.leave(conversationId);
+  }
+}
+
+function createEphemeralInitialMessage(content: string): TutorMessage {
+  return {
+    content,
+    role: 'model',
+  };
+}
+
+function normalizeConversationTitle(title?: string): string {
+  return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
+}
+
 async function streamAssistantMessage(
   io: Server,
   conversationId: string,
+  userId: string,
+  lastUserMessageId?: number,
   startConversation = false,
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
@@ -178,16 +355,34 @@ async function streamAssistantMessage(
   runningConversations.add(conversationId);
   io.to(conversationId).emit('assistant:start');
 
-  let content = '';
-
   try {
-    const history = listMessages(conversationId);
-    for await (const chunk of streamTutorReply(history, { startConversation })) {
-      content += chunk;
-      io.to(conversationId).emit('assistant:chunk', { chunk });
+    const conversation = findConversationForUser(conversationId, userId);
+    if (!conversation) {
+      throw new Error('Conversation not found.');
     }
 
-    const trimmedContent = content.trim();
+    const messages = listMessages(conversationId);
+    const currentProgress = getProgressForConversation(conversationId);
+    const result = await runTutorAgentLoop(
+      toTutorHistory(messages),
+      {
+        currentProgressMarkdown: currentProgress?.markdown ?? '',
+        currentTitle: conversation.title,
+        executeTool: (toolCall) =>
+          executeConversationTool(
+            io,
+            conversationId,
+            userId,
+            toolCall,
+            lastUserMessageId,
+          ),
+        startConversation,
+        titleUpdatedByUser: conversation.titleUpdatedByUser,
+        toolDeclarations: toolManager.getDeclarations(),
+      },
+    );
+
+    const trimmedContent = result.content.trim();
     if (!trimmedContent) {
       throw new Error('Gemini returned an empty response.');
     }
@@ -209,9 +404,42 @@ async function streamAssistantMessage(
   }
 }
 
+function executeConversationTool(
+  io: Server,
+  conversationId: string,
+  userId: string,
+  toolCall: TutorToolCall,
+  lastUserMessageId?: number,
+): Promise<Record<string, unknown>> {
+  io.to(conversationId).emit('llm:tool_call', {
+    args: toolCall.args,
+    conversationId,
+    name: toolCall.name,
+    timestamp: new Date().toISOString(),
+  });
+
+  return toolManager.execute(toolCall, {
+    conversationId,
+    io,
+    lastUserMessageId,
+    userId,
+  });
+}
+
+function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
+  return messages.map((message) => ({
+    content: message.content,
+    role: message.role,
+  }));
+}
+
 function toUserFacingError(error: unknown): string {
   if (error instanceof MissingGeminiApiKeyError) {
     return 'Falta configurar GEMINI_API_KEY en ecosystem.config.cjs.';
+  }
+
+  if (error instanceof GeminiFinishReasonError) {
+    return error.message;
   }
 
   if (error instanceof Error) {

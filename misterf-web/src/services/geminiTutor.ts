@@ -1,4 +1,12 @@
-import { GoogleGenAI, type Content } from '@google/genai';
+import {
+  FinishReason,
+  FunctionCallingConfigMode,
+  GoogleGenAI,
+  createPartFromFunctionResponse,
+  type Content,
+  type FunctionCall,
+  type FunctionDeclaration,
+} from '@google/genai';
 import fs from 'node:fs';
 import path from 'node:path';
 import { env } from '../config/env.js';
@@ -8,10 +16,38 @@ export type TutorMessage = {
   content: string;
 };
 
+export type LlmToolCallLog = {
+  args: Record<string, unknown>;
+  name: string;
+};
+
+export type TutorToolCall = LlmToolCallLog & {
+  id: string;
+};
+
+export type TutorAgentResult = {
+  content: string;
+  toolCalls: LlmToolCallLog[];
+};
+
+export type TutorToolExecutor = (
+  toolCall: TutorToolCall,
+) => Promise<Record<string, unknown>> | Record<string, unknown>;
+
 export class MissingGeminiApiKeyError extends Error {
   constructor() {
     super('GEMINI_API_KEY is not configured.');
     this.name = 'MissingGeminiApiKeyError';
+  }
+}
+
+export class GeminiFinishReasonError extends Error {
+  constructor(
+    readonly finishReason: FinishReason,
+    message: string,
+  ) {
+    super(message);
+    this.name = 'GeminiFinishReasonError';
   }
 }
 
@@ -50,12 +86,20 @@ function getSystemInstruction(): string {
   return systemInstruction;
 }
 
-export async function* streamTutorReply(
+export async function runTutorAgentLoop(
   history: TutorMessage[],
-  options: { startConversation?: boolean } = {},
-): AsyncGenerator<string> {
+  options: {
+    currentProgressMarkdown?: string;
+    currentTitle?: string;
+    executeTool: TutorToolExecutor;
+    startConversation?: boolean;
+    titleUpdatedByUser?: boolean;
+    toolDeclarations: FunctionDeclaration[];
+  },
+): Promise<TutorAgentResult> {
   const ai = getClient();
   const contents = history.map(toGeminiContent);
+  const toolCalls: LlmToolCallLog[] = [];
 
   if (options.startConversation || contents.length === 0) {
     contents.push({
@@ -64,20 +108,128 @@ export async function* streamTutorReply(
     });
   }
 
-  const stream = await ai.models.generateContentStream({
-    model: env.geminiModel,
-    contents,
-    config: {
-      systemInstruction: getSystemInstruction(),
-      temperature: 0.45,
-      maxOutputTokens: 700,
-    },
-  });
+  for (let turn = 0; turn < 6; turn += 1) {
+    const response = await ai.models.generateContent({
+      model: env.geminiModel,
+      contents,
+      config: {
+        systemInstruction: buildAgentSystemInstruction(options),
+        temperature: 0.45,
+        maxOutputTokens: 900,
+        thinkingConfig: {
+          includeThoughts: false,
+          thinkingBudget: env.geminiThinkingBudget,
+        },
+        tools: [
+          {
+            functionDeclarations: options.toolDeclarations,
+          },
+        ],
+        toolConfig: {
+          functionCallingConfig: {
+            mode: FunctionCallingConfigMode.AUTO,
+          },
+        },
+      },
+    });
 
-  for await (const chunk of stream) {
-    const text = chunk.text;
-    if (text) {
-      yield text;
+    const finishReason = response.candidates?.[0]?.finishReason;
+    const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+      finishReason,
+    );
+    if (userFacingFinishMessage && finishReason) {
+      throw new GeminiFinishReasonError(finishReason, userFacingFinishMessage);
     }
+
+    const functionCalls = response.functionCalls ?? [];
+    if (functionCalls.length === 0) {
+      const content = response.text?.trim() ?? '';
+      return { content, toolCalls };
+    }
+
+    const modelContent = response.candidates?.[0]?.content;
+    if (modelContent) {
+      contents.push(modelContent);
+    }
+
+    const functionResponseParts = [];
+    for (const [index, functionCall] of functionCalls.entries()) {
+      const toolCall = toTutorToolCall(functionCall, index);
+      toolCalls.push({ args: toolCall.args, name: toolCall.name });
+      const toolResponse = await options.executeTool(toolCall);
+      functionResponseParts.push(
+        createPartFromFunctionResponse(
+          toolCall.id,
+          toolCall.name,
+          toolResponse,
+        ),
+      );
+    }
+
+    contents.push({
+      role: 'user',
+      parts: functionResponseParts,
+    });
   }
+
+  return {
+    content: '',
+    toolCalls,
+  };
+}
+
+function getUserFacingFinishReasonMessage(
+  finishReason?: FinishReason,
+): string | null {
+  switch (finishReason) {
+    case FinishReason.MAX_TOKENS:
+      return 'La respuesta de Gemini se cortó porque alcanzó el límite máximo de tokens. Intenta enviar un mensaje más corto o vuelve a pedirlo en partes.';
+    case FinishReason.SAFETY:
+      return 'Gemini detuvo la respuesta por sus filtros de seguridad. Prueba reformulando tu mensaje con un contexto más claro y neutral.';
+    case FinishReason.RECITATION:
+      return 'Gemini detuvo la respuesta porque detectó una posible recitación de contenido protegido. Intenta pedir una explicación o una versión original en vez de una reproducción exacta.';
+    default:
+      return null;
+  }
+}
+
+function buildAgentSystemInstruction(options: {
+  currentProgressMarkdown?: string;
+  currentTitle?: string;
+  titleUpdatedByUser?: boolean;
+}): string {
+  return [
+    getSystemInstruction(),
+    '',
+    '## Estado interno actual',
+    '',
+    `Título actual: ${options.currentTitle || 'Nueva conversación'}`,
+    options.titleUpdatedByUser
+      ? 'El usuario ya cambió este título manualmente. No llames update_conversation_title.'
+      : 'Puedes llamar update_conversation_title si el tema o propósito ya está claro y el título actual es genérico.',
+    '',
+    'Progreso actual:',
+    options.currentProgressMarkdown || '(todavía no hay progreso guardado)',
+    '',
+    '## Uso de tools',
+    '',
+    '- Evalúa la ortografía inglesa con rigor. Si el usuario escribe una palabra mal, como "cal" en vez de "call", el intento no debe considerarse correcto.',
+    '- Puedes llamar update_learning_progress cuando haya información útil nueva sobre tema, nivel, resumen, errores frecuentes o vocabulario.',
+    '- Debes llamar update_sentence_evaluation cada vez que estés corrigiendo o evaluando un intento de traducción del usuario.',
+    '- Puedes llamar update_conversation_title cuando el título actual sea genérico y ya exista suficiente contexto.',
+    '- Después de llamar tools, continúa con tu respuesta normal al usuario.',
+    '- No menciones al usuario que llamaste tools.',
+  ].join('\n');
+}
+
+function toTutorToolCall(
+  functionCall: FunctionCall,
+  index: number,
+): TutorToolCall {
+  const name = functionCall.name ?? 'unknown_tool';
+  return {
+    args: functionCall.args ?? {},
+    id: functionCall.id ?? `${name}-${index}`,
+    name,
+  };
 }

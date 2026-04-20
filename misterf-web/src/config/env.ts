@@ -35,6 +35,7 @@ export const env = {
   ),
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   geminiModel: process.env.GEMINI_MODEL ?? 'gemini-2.5-flash',
+  geminiThinkingBudget: readInteger('GEMINI_THINKING_BUDGET', -1),
   appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
   sessionSecret: process.env.APP_SESSION_SECRET ?? '',
   smtpHost: process.env.SMTP_HOST ?? '',

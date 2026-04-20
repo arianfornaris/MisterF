@@ -21,7 +21,12 @@ export function createSessionCookie(): SessionCookie {
 }
 
 export function getSessionToken(request: Request): string | null {
-  const cookieHeader = request.headers.cookie;
+  return getSessionTokenFromCookieHeader(request.headers.cookie);
+}
+
+export function getSessionTokenFromCookieHeader(
+  cookieHeader: string | undefined,
+): string | null {
   if (!cookieHeader) {
     return null;
   }

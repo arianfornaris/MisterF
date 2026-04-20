@@ -31,6 +31,7 @@ import {
   hashActionToken,
   normalizeActionToken,
 } from './tokens.js';
+import { listConversationsForUser } from '../db/repository.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -521,9 +522,11 @@ export function renderHome(request: Request, response: Response): void {
   const isVerified = Boolean(user?.emailVerified);
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
+  const conversations = user ? listConversationsForUser(user.id) : [];
 
   response.render('index', {
     authMessage,
+    conversations,
     csrfToken: response.locals.csrfToken,
     geminiModel: '',
     hasSession: Boolean(user),

@@ -3,13 +3,28 @@ import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
 
+export type StoredConversation = {
+  id: string;
+  titleUpdatedByUser: boolean;
+  title: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type StoredMessage = {
   id: number;
   conversationId: string;
   role: MessageRole;
   content: string;
-  metadata: string | null;
+  metadata: Record<string, unknown> | null;
   createdAt: string;
+};
+
+export type StoredProgress = {
+  conversationId: string;
+  markdown: string;
+  updatedAt: string;
 };
 
 type MessageRow = {
@@ -21,9 +36,33 @@ type MessageRow = {
   created_at: string;
 };
 
+type ProgressRow = {
+  conversation_id: string;
+  markdown: string;
+  updated_at: string;
+};
+
 type ConversationRow = {
   id: string;
+  title: string;
+  title_updated_by_user: number;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
 };
+
+const defaultConversationTitle = 'Nueva conversación';
+
+function toStoredConversation(row: ConversationRow): StoredConversation {
+  return {
+    id: row.id,
+    title: row.title,
+    titleUpdatedByUser: Boolean(row.title_updated_by_user),
+    userId: row.user_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
 
 function toStoredMessage(row: MessageRow): StoredMessage {
   return {
@@ -31,37 +70,161 @@ function toStoredMessage(row: MessageRow): StoredMessage {
     conversationId: row.conversation_id,
     role: row.role,
     content: row.content,
-    metadata: row.metadata,
+    metadata: row.metadata ? parseMetadata(row.metadata) : null,
     createdAt: row.created_at,
   };
 }
 
-export function createConversation(): string {
-  const id = randomUUID();
-  getDb().prepare('INSERT INTO conversations (id) VALUES (?)').run(id);
-  return id;
+function toStoredProgress(row: ProgressRow): StoredProgress {
+  return {
+    conversationId: row.conversation_id,
+    markdown: row.markdown,
+    updatedAt: row.updated_at,
+  };
 }
 
-export function getOrCreateConversation(id?: string | null): string {
-  const db = getDb();
+export function createConversation(
+  userId: string,
+  title = defaultConversationTitle,
+): StoredConversation {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO conversations (id, user_id, title)
+        VALUES (?, ?, ?)
+      `,
+    )
+    .run(id, userId, title);
 
+  const conversation = findConversationForUser(id, userId);
+  if (!conversation) {
+    throw new Error('Could not load newly created conversation.');
+  }
+
+  return conversation;
+}
+
+export function findConversationForUser(
+  id: string,
+  userId: string,
+): StoredConversation | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at
+        FROM conversations
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as ConversationRow | undefined;
+
+  return row ? toStoredConversation(row) : null;
+}
+
+export function getOrCreateConversation(
+  userId: string,
+  id?: string | null,
+): StoredConversation {
   if (id) {
-    const existing = db
-      .prepare('SELECT id FROM conversations WHERE id = ?')
-      .get(id) as ConversationRow | undefined;
-
+    const existing = findConversationForUser(id, userId);
     if (existing) {
-      return existing.id;
+      return existing;
     }
   }
 
-  return createConversation();
+  return createConversation(userId);
 }
 
 export function touchConversation(conversationId: string): void {
   getDb()
     .prepare('UPDATE conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?')
     .run(conversationId);
+}
+
+export function listConversationsForUser(userId: string): StoredConversation[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at
+        FROM conversations
+        WHERE user_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(userId) as ConversationRow[];
+
+  return rows.map(toStoredConversation);
+}
+
+export function renameConversationForUser(
+  id: string,
+  userId: string,
+  title: string,
+  options: { updatedByUser?: boolean } = {},
+): StoredConversation | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE conversations
+        SET title = ?,
+            title_updated_by_user = CASE
+              WHEN ? THEN 1
+              ELSE title_updated_by_user
+            END
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(title, options.updatedByUser ? 1 : 0, id, userId);
+
+  return findConversationForUser(id, userId);
+}
+
+export function deleteConversationForUser(id: string, userId: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM conversations WHERE id = ? AND user_id = ?')
+    .run(id, userId);
+
+  return result.changes > 0;
+}
+
+export function getProgressForConversation(
+  conversationId: string,
+): StoredProgress | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT conversation_id, markdown, updated_at
+        FROM conversation_progress
+        WHERE conversation_id = ?
+      `,
+    )
+    .get(conversationId) as ProgressRow | undefined;
+
+  return row ? toStoredProgress(row) : null;
+}
+
+export function upsertProgressForConversation(
+  conversationId: string,
+  markdown: string,
+): StoredProgress {
+  const db = getDb();
+  db.prepare(
+    `
+      INSERT INTO conversation_progress (conversation_id, markdown)
+      VALUES (?, ?)
+      ON CONFLICT(conversation_id) DO UPDATE SET
+        markdown = excluded.markdown,
+        updated_at = CURRENT_TIMESTAMP
+    `,
+  ).run(conversationId, markdown);
+
+  const progress = getProgressForConversation(conversationId);
+  if (!progress) {
+    throw new Error('Could not load newly saved conversation progress.');
+  }
+
+  return progress;
 }
 
 export function listMessages(conversationId: string): StoredMessage[] {
@@ -112,4 +275,64 @@ export function addMessage(
     .get(result.lastInsertRowid) as MessageRow;
 
   return toStoredMessage(row);
+}
+
+export function updateMessageMetadata(
+  messageId: number,
+  conversationId: string,
+  metadataPatch: Record<string, unknown>,
+): StoredMessage | null {
+  const db = getDb();
+  const existing = db
+    .prepare(
+      `
+        SELECT id, conversation_id, role, content, metadata, created_at
+        FROM messages
+        WHERE id = ? AND conversation_id = ?
+      `,
+    )
+    .get(messageId, conversationId) as MessageRow | undefined;
+
+  if (!existing) {
+    return null;
+  }
+
+  const currentMetadata = existing.metadata
+    ? parseMetadata(existing.metadata)
+    : null;
+  const nextMetadata = {
+    ...(currentMetadata ?? {}),
+    ...metadataPatch,
+  };
+
+  db.prepare(
+    `
+      UPDATE messages
+      SET metadata = ?
+      WHERE id = ? AND conversation_id = ?
+    `,
+  ).run(JSON.stringify(nextMetadata), messageId, conversationId);
+
+  const updated = db
+    .prepare(
+      `
+        SELECT id, conversation_id, role, content, metadata, created_at
+        FROM messages
+        WHERE id = ? AND conversation_id = ?
+      `,
+    )
+    .get(messageId, conversationId) as MessageRow | undefined;
+
+  return updated ? toStoredMessage(updated) : null;
+}
+
+function parseMetadata(metadata: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(metadata) as unknown;
+    return parsed && typeof parsed === 'object'
+      ? (parsed as Record<string, unknown>)
+      : null;
+  } catch {
+    return null;
+  }
 }

@@ -1,7 +1,20 @@
 const storageKey = 'misterf.conversationId';
 const messagesEl = document.querySelector('#messages');
+const chatPaneEl = document.querySelector('#chatPane');
+const progressContentEl = document.querySelector('#progressContent');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
+const conversationPanelEl = document.querySelector('#conversationPanel');
+const newConversationButtonEl = document.querySelector('[data-new-conversation]');
+const deleteConversationModalEl = document.querySelector(
+  '#deleteConversationModal',
+);
+const deleteConversationTitleEl = document.querySelector(
+  '[data-delete-conversation-title]',
+);
+const confirmDeleteConversationButtonEl = document.querySelector(
+  '[data-confirm-delete-conversation]',
+);
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const authMessage = document.body.dataset.authMessage || '';
@@ -12,6 +25,9 @@ const socket = isInitiallyAuthenticated
 let conversationId = localStorage.getItem(storageKey);
 let streamingBubble = null;
 let isAssistantBusy = false;
+let pendingDeleteConversationId = null;
+let activeUserMessageId = null;
+const pendingSentenceEvaluations = new Map();
 
 if (window.marked) {
   window.marked.setOptions({
@@ -50,21 +66,76 @@ if (socket) {
 
   socket.on('conversation:ready', (payload) => {
     conversationId = payload.conversationId;
-    localStorage.setItem(storageKey, conversationId);
+    storeConversationId(conversationId);
+    upsertConversationItem(payload.conversation);
+    markActiveConversation(conversationId);
     messagesEl.replaceChildren();
     streamingBubble = null;
+    pendingSentenceEvaluations.clear();
 
+    let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
-      appendMessage(message.role, message.content);
+      if (message.role === 'user') {
+        queuedSentenceEvaluation = message.metadata?.sentenceEvaluation ?? null;
+        appendStoredMessage(message);
+        continue;
+      }
+
+      appendStoredMessage(message, {
+        sentenceEvaluation: queuedSentenceEvaluation,
+      });
+      queuedSentenceEvaluation = null;
     }
+    renderProgress(payload.progress?.markdown || '');
 
     setComposerEnabled(!isAssistantBusy);
     focusComposer();
     scrollToBottom();
   });
 
+  socket.on('conversation:promoted', (payload) => {
+    conversationId = payload.conversationId;
+    storeConversationId(conversationId);
+    upsertConversationItem(payload.conversation);
+    markActiveConversation(conversationId);
+  });
+
+  socket.on('progress:updated', (payload) => {
+    if (payload.conversationId === conversationId) {
+      renderProgress(payload.progress?.markdown || '');
+    }
+  });
+
+  socket.on('llm:tool_call', (payload) => {
+    console.info('[Mr. F tool call]', payload.name, payload.args, payload);
+  });
+
+  socket.on('conversation:renamed', (payload) => {
+    updateConversationItem(payload.conversation);
+    markActiveConversation(conversationId);
+  });
+
+  socket.on('conversation:deleted', (payload) => {
+    removeConversationItem(payload.conversationId);
+
+    if (payload.conversationId === conversationId || payload.wasActive) {
+      conversationId = null;
+      storeConversationId(null);
+      messagesEl.replaceChildren();
+      renderProgress('');
+      streamingBubble = null;
+    }
+  });
+
+  socket.on('conversation:error', ({ message }) => {
+    appendEphemeralError(message || 'No pude actualizar la conversación.');
+  });
+
   socket.on('message:created', (message) => {
-    appendMessage(message.role, message.content);
+    appendStoredMessage(message);
+    if (message.role === 'user') {
+      activeUserMessageId = message.id;
+    }
     scrollToBottom();
   });
 
@@ -86,13 +157,24 @@ if (socket) {
   });
 
   socket.on('assistant:done', (message) => {
+    const sentenceEvaluation = activeUserMessageId
+      ? pendingSentenceEvaluations.get(activeUserMessageId)
+      : null;
+
     if (streamingBubble) {
       setMessageContent(streamingBubble, message.content);
       streamingBubble.classList.remove('typing-caret');
+      streamingBubble.closest('.message-row')?.setAttribute('data-message-id', message.id);
+      renderSentenceEvaluation(streamingBubble, sentenceEvaluation);
+      initializeSentencePopovers(streamingBubble);
     } else {
-      appendMessage('model', message.content);
+      appendStoredMessage(message, { sentenceEvaluation });
     }
 
+    if (activeUserMessageId) {
+      pendingSentenceEvaluations.delete(activeUserMessageId);
+    }
+    activeUserMessageId = null;
     streamingBubble = null;
     isAssistantBusy = false;
     setComposerEnabled(true);
@@ -111,6 +193,19 @@ if (socket) {
     setComposerEnabled(true);
     scrollToBottom();
   });
+
+  socket.on('message:evaluation_updated', ({ message }) => {
+    if (!message?.id) {
+      return;
+    }
+
+    pendingSentenceEvaluations.set(message.id, message.metadata?.sentenceEvaluation);
+
+    if (!isAssistantBusy) {
+      renderSentenceEvaluationOnLastAssistant(message.metadata?.sentenceEvaluation);
+      scrollToBottom();
+    }
+  });
 }
 
 formEl.addEventListener('submit', (event) => {
@@ -126,9 +221,31 @@ inputEl.addEventListener('keydown', (event) => {
 });
 
 inputEl.addEventListener('input', () => {
-  inputEl.style.height = 'auto';
-  inputEl.style.height = `${inputEl.scrollHeight}px`;
+  resizeComposerInput();
 });
+
+for (const item of document.querySelectorAll('[data-conversation-id]')) {
+  configureConversationItem(item);
+}
+
+newConversationButtonEl?.addEventListener('click', () => {
+  startNewConversation();
+});
+
+confirmDeleteConversationButtonEl?.addEventListener('click', () => {
+  confirmDeleteConversation();
+});
+
+document.querySelector('#progress-tab')?.addEventListener('shown.bs.tab', () => {
+  formEl.hidden = true;
+});
+
+document.querySelector('#chat-tab')?.addEventListener('shown.bs.tab', () => {
+  formEl.hidden = false;
+  focusComposer();
+});
+
+formatConversationDates();
 
 function sendMessage() {
   const content = inputEl.value.trim();
@@ -142,8 +259,399 @@ function sendMessage() {
   socket.emit('message:send', { conversationId, content });
 }
 
+function storeConversationId(nextConversationId) {
+  if (nextConversationId) {
+    localStorage.setItem(storageKey, nextConversationId);
+    return;
+  }
+
+  localStorage.removeItem(storageKey);
+}
+
+function startNewConversation() {
+  if (!socket || isAssistantBusy) {
+    return;
+  }
+
+  conversationId = null;
+  localStorage.removeItem(storageKey);
+  markActiveConversation('');
+  hideConversationPanel();
+  setComposerEnabled(false);
+  socket.emit('conversation:reset');
+}
+
+function openConversation(nextConversationId) {
+  if (!nextConversationId || !socket || isAssistantBusy) {
+    return;
+  }
+
+  conversationId = nextConversationId;
+  localStorage.setItem(storageKey, conversationId);
+  markActiveConversation(conversationId);
+  hideConversationPanel();
+  setComposerEnabled(false);
+  socket.emit('conversation:join', { conversationId });
+}
+
+function hideConversationPanel() {
+  if (!conversationPanelEl || !window.bootstrap?.Offcanvas) {
+    return;
+  }
+
+  const panel =
+    window.bootstrap.Offcanvas.getInstance(conversationPanelEl) ||
+    window.bootstrap.Offcanvas.getOrCreateInstance(conversationPanelEl);
+  panel.hide();
+}
+
+function markActiveConversation(activeConversationId) {
+  for (const item of document.querySelectorAll('[data-conversation-id]')) {
+    item.classList.toggle(
+      'is-active',
+      item.dataset.conversationId === activeConversationId,
+    );
+  }
+}
+
+function configureConversationItem(item) {
+  item.querySelector('[data-open-conversation]')?.addEventListener('click', () => {
+    openConversation(item.dataset.conversationId || '');
+  });
+
+  item
+    .querySelector('[data-rename-conversation]')
+    ?.addEventListener('click', () => {
+      startRenamingConversation(item);
+    });
+
+  item
+    .querySelector('[data-delete-conversation]')
+    ?.addEventListener('click', () => {
+      requestDeleteConversation(item);
+    });
+}
+
+function upsertConversationItem(conversation) {
+  if (!conversation?.id || !conversationPanelEl) {
+    return;
+  }
+
+  let list = conversationPanelEl.querySelector('.conversation-list');
+  if (!list) {
+    const emptyState = conversationPanelEl.querySelector('.conversation-empty');
+    emptyState?.remove();
+    list = document.createElement('div');
+    list.className = 'conversation-list';
+    conversationPanelEl.querySelector('.offcanvas-body')?.append(list);
+  } else {
+    conversationPanelEl.querySelector('.conversation-empty')?.remove();
+  }
+
+  let item = list.querySelector(
+    `[data-conversation-id="${CSS.escape(conversation.id)}"]`,
+  );
+
+  if (!item) {
+    item = createConversationItem(conversation);
+    list.prepend(item);
+    return;
+  }
+
+  item.querySelector('.conversation-title').textContent =
+    conversation.title || 'Nueva conversación';
+
+  const date = item.querySelector('.conversation-date');
+  date.dateTime = conversation.updatedAt || '';
+  date.textContent = formatConversationDate(conversation.updatedAt || '');
+  date.title = conversation.updatedAt || '';
+  list.prepend(item);
+}
+
+function updateConversationItem(conversation) {
+  if (!conversation?.id || !conversationPanelEl) {
+    return;
+  }
+
+  const item = conversationPanelEl.querySelector(
+    `[data-conversation-id="${CSS.escape(conversation.id)}"]`,
+  );
+  if (!item) {
+    upsertConversationItem(conversation);
+    return;
+  }
+
+  item.querySelector('.conversation-title').textContent =
+    conversation.title || 'Nueva conversación';
+
+  const date = item.querySelector('.conversation-date');
+  date.dateTime = conversation.updatedAt || '';
+  date.textContent = formatConversationDate(conversation.updatedAt || '');
+  date.title = conversation.updatedAt || '';
+}
+
+function createConversationItem(conversation) {
+  const item = document.createElement('div');
+  item.className = 'conversation-item';
+  item.dataset.conversationId = conversation.id;
+
+  const openButton = document.createElement('button');
+  openButton.className = 'conversation-open-button';
+  openButton.type = 'button';
+  openButton.dataset.openConversation = '';
+
+  const title = document.createElement('span');
+  title.className = 'conversation-title';
+  title.textContent = conversation.title || 'Nueva conversación';
+
+  const date = document.createElement('time');
+  date.className = 'conversation-date';
+  date.dateTime = conversation.updatedAt || '';
+  date.textContent = formatConversationDate(conversation.updatedAt || '');
+  date.title = conversation.updatedAt || '';
+
+  openButton.append(title, date);
+  item.append(openButton, createConversationActions());
+  configureConversationItem(item);
+  return item;
+}
+
+function createConversationActions() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'conversation-actions dropdown';
+
+  const button = document.createElement('button');
+  button.className = 'conversation-actions-button';
+  button.type = 'button';
+  button.title = 'Opciones de conversación';
+  button.setAttribute('aria-label', 'Opciones de conversación');
+  button.setAttribute('aria-expanded', 'false');
+  button.dataset.bsToggle = 'dropdown';
+  button.innerHTML = `
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="5" cy="12" r="1.8"></circle>
+      <circle cx="12" cy="12" r="1.8"></circle>
+      <circle cx="19" cy="12" r="1.8"></circle>
+    </svg>
+  `;
+
+  const menu = document.createElement('div');
+  menu.className = 'dropdown-menu dropdown-menu-end conversation-actions-menu';
+
+  const rename = document.createElement('button');
+  rename.className = 'dropdown-item';
+  rename.type = 'button';
+  rename.dataset.renameConversation = '';
+  rename.textContent = 'Renombrar';
+
+  const remove = document.createElement('button');
+  remove.className = 'dropdown-item text-danger';
+  remove.type = 'button';
+  remove.dataset.deleteConversation = '';
+  remove.textContent = 'Eliminar';
+
+  menu.append(rename, remove);
+  wrapper.append(button, menu);
+  return wrapper;
+}
+
+function startRenamingConversation(item) {
+  if (item.classList.contains('is-renaming')) {
+    return;
+  }
+
+  const currentTitle =
+    item.querySelector('.conversation-title')?.textContent?.trim() ||
+    'Nueva conversación';
+  const form = document.createElement('form');
+  form.className = 'conversation-rename-form';
+
+  const input = document.createElement('input');
+  input.className = 'conversation-rename-input';
+  input.type = 'text';
+  input.maxLength = 90;
+  input.required = true;
+  input.value = currentTitle;
+  input.setAttribute('aria-label', 'Nuevo título de la conversación');
+
+  const saveButton = createRenameActionButton({
+    label: 'Guardar nombre',
+    path: 'm5 12 4 4L19 6',
+    type: 'submit',
+  });
+
+  const cancelButton = createRenameActionButton({
+    label: 'Cancelar',
+    path: 'M6 6l12 12M18 6 6 18',
+    type: 'button',
+  });
+
+  form.append(input, saveButton, cancelButton);
+  item.append(form);
+  item.classList.add('is-renaming');
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    renameConversation(item, input.value);
+  });
+
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      cancelRenamingConversation(item);
+    }
+  });
+
+  cancelButton.addEventListener('click', () => {
+    cancelRenamingConversation(item);
+  });
+
+  requestAnimationFrame(() => {
+    input.focus();
+    input.select();
+  });
+}
+
+function createRenameActionButton({ label, path, type }) {
+  const button = document.createElement('button');
+  button.className = 'conversation-rename-action';
+  button.type = type;
+  button.title = label;
+  button.setAttribute('aria-label', label);
+  button.innerHTML = `
+    <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
+      <path d="${path}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  return button;
+}
+
+function renameConversation(item, title) {
+  const nextTitle = title.replace(/\s+/g, ' ').trim();
+  if (!nextTitle || !socket) {
+    return;
+  }
+
+  socket.emit('conversation:rename', {
+    conversationId: item.dataset.conversationId,
+    title: nextTitle,
+  });
+  cancelRenamingConversation(item);
+}
+
+function cancelRenamingConversation(item) {
+  item.querySelector('.conversation-rename-form')?.remove();
+  item.classList.remove('is-renaming');
+}
+
+function requestDeleteConversation(item) {
+  pendingDeleteConversationId = item.dataset.conversationId || null;
+  if (!pendingDeleteConversationId) {
+    return;
+  }
+
+  const title =
+    item.querySelector('.conversation-title')?.textContent?.trim() ||
+    'Nueva conversación';
+  if (deleteConversationTitleEl) {
+    deleteConversationTitleEl.textContent = title;
+  }
+
+  if (deleteConversationModalEl && window.bootstrap?.Modal) {
+    window.bootstrap.Modal.getOrCreateInstance(deleteConversationModalEl).show();
+  }
+}
+
+function confirmDeleteConversation() {
+  if (!pendingDeleteConversationId || !socket) {
+    return;
+  }
+
+  socket.emit('conversation:delete', {
+    conversationId: pendingDeleteConversationId,
+  });
+  pendingDeleteConversationId = null;
+
+  if (deleteConversationModalEl && window.bootstrap?.Modal) {
+    window.bootstrap.Modal.getOrCreateInstance(deleteConversationModalEl).hide();
+  }
+}
+
+function removeConversationItem(removedConversationId) {
+  if (!removedConversationId) {
+    return;
+  }
+
+  document
+    .querySelector(`[data-conversation-id="${CSS.escape(removedConversationId)}"]`)
+    ?.remove();
+
+  if (!conversationPanelEl?.querySelector('[data-conversation-id]')) {
+    const emptyState = document.createElement('p');
+    emptyState.className = 'conversation-empty';
+    emptyState.textContent = 'Todavía no hay conversaciones.';
+    conversationPanelEl?.querySelector('.offcanvas-body')?.append(emptyState);
+  }
+}
+
+function formatConversationDates() {
+  for (const date of document.querySelectorAll('.conversation-date')) {
+    const rawValue = date.getAttribute('datetime') || date.textContent || '';
+    date.textContent = formatConversationDate(rawValue.trim());
+    date.title = rawValue.trim();
+  }
+}
+
+function formatConversationDate(value) {
+  const date = parseConversationDate(value);
+  if (!date) {
+    return value;
+  }
+
+  const today = startOfDay(new Date());
+  const target = startOfDay(date);
+  const dayDiff = Math.round((today.getTime() - target.getTime()) / 86400000);
+
+  if (dayDiff === 0) {
+    return `Hoy, ${formatConversationTime(date)}`;
+  }
+
+  if (dayDiff === 1) {
+    return `Ayer, ${formatConversationTime(date)}`;
+  }
+
+  return new Intl.DateTimeFormat('es', {
+    day: 'numeric',
+    month: 'short',
+    year: date.getFullYear() === today.getFullYear() ? undefined : 'numeric',
+  })
+    .format(date)
+    .replace('.', '');
+}
+
+function formatConversationTime(date) {
+  return new Intl.DateTimeFormat('es', {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function parseConversationDate(value) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
+  const date = new Date(normalized);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
 function showAuthRequiredMessage(message) {
   messagesEl.replaceChildren();
+  renderProgress('');
   streamingBubble = null;
   appendMessage(
     'model',
@@ -154,13 +662,49 @@ function showAuthRequiredMessage(message) {
   scrollToBottom();
 }
 
+function renderProgress(markdown) {
+  if (!progressContentEl) {
+    return;
+  }
+
+  if (!markdown.trim()) {
+    progressContentEl.classList.add('is-empty');
+    progressContentEl.innerHTML = renderMarkdown(
+      'El progreso aparecerá aquí cuando avancemos un poco en la práctica.',
+    );
+    return;
+  }
+
+  progressContentEl.classList.remove('is-empty');
+  progressContentEl.innerHTML = renderMarkdown(markdown);
+}
+
+function appendStoredMessage(message, options = {}) {
+  return appendMessage(message.role, message.content, {
+    id: message.id,
+    metadata: message.metadata,
+    sentenceEvaluation: options.sentenceEvaluation,
+  });
+}
+
 function appendMessage(role, content, options = {}) {
   const row = document.createElement('div');
   row.className = `message-row is-${role}`;
+  if (options.id) {
+    row.dataset.messageId = String(options.id);
+  }
 
   const bubble = document.createElement('div');
   bubble.className = 'message-bubble';
   setMessageContent(bubble, content);
+
+  if (role === 'user') {
+    appendUserMessageActions(bubble);
+  }
+
+  if (role === 'model') {
+    renderSentenceEvaluation(bubble, options.sentenceEvaluation);
+  }
 
   if (options.streaming) {
     bubble.classList.add('typing-caret');
@@ -168,7 +712,194 @@ function appendMessage(role, content, options = {}) {
 
   row.append(bubble);
   messagesEl.append(row);
+  initializeSentencePopovers(row);
   return bubble;
+}
+
+function renderSentenceEvaluationOnLastAssistant(evaluation) {
+  const modelRows = messagesEl.querySelectorAll('.message-row.is-model');
+  const lastModelRow = modelRows[modelRows.length - 1];
+  if (!lastModelRow) {
+    return;
+  }
+
+  renderSentenceEvaluation(
+    lastModelRow.querySelector('.message-bubble'),
+    evaluation,
+  );
+  initializeSentencePopovers(lastModelRow);
+}
+
+function renderSentenceEvaluation(element, evaluation) {
+  if (!element) {
+    return;
+  }
+
+  element.querySelector('.sentence-evaluation')?.remove();
+  if (!isValidSentenceEvaluation(evaluation)) {
+    return;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'sentence-evaluation';
+
+  const header = document.createElement('div');
+  header.className = 'sentence-evaluation-header';
+
+  const label = document.createElement('h3');
+  label.className = 'sentence-evaluation-label';
+  label.textContent = 'Tu intento, por partes';
+
+  const parts = document.createElement('p');
+  parts.className = 'sentence-parts';
+
+  for (const [index, part] of evaluation.parts.entries()) {
+    const normalizedStatus = normalizePartStatus(part.status);
+    const node =
+      normalizedStatus === 'correct'
+        ? document.createElement('span')
+        : document.createElement('button');
+
+    node.className = `sentence-part is-${normalizedStatus}`;
+    node.textContent = part.text;
+
+    if (node instanceof HTMLButtonElement) {
+      node.type = 'button';
+      node.dataset.bsToggle = 'popover';
+      node.dataset.bsTrigger = 'focus';
+      node.dataset.bsPlacement = 'top';
+      node.dataset.bsCustomClass = `sentence-popover sentence-popover-${normalizedStatus}`;
+      node.dataset.bsTitle =
+        normalizedStatus === 'error' ? 'Error' : 'Puede mejorar';
+      node.dataset.bsContent =
+        part.explanation || 'Esta parte necesita un ajuste.';
+      node.setAttribute(
+        'aria-label',
+        `${part.text}: ${part.explanation || 'Esta parte necesita un ajuste.'}`,
+      );
+    }
+
+    parts.append(node);
+    if (index < evaluation.parts.length - 1) {
+      parts.append(document.createTextNode(' '));
+    }
+  }
+
+  header.append(label);
+
+  const body = document.createElement('div');
+  body.className = 'sentence-evaluation-body';
+  body.append(parts);
+
+  wrapper.append(header, body);
+  element.append(wrapper);
+}
+
+function initializeSentencePopovers(root = document) {
+  if (!window.bootstrap?.Popover) {
+    return;
+  }
+
+  for (const trigger of root.querySelectorAll('[data-bs-toggle="popover"]')) {
+    window.bootstrap.Popover.getOrCreateInstance(trigger);
+  }
+}
+
+function isValidSentenceEvaluation(evaluation) {
+  return (
+    evaluation &&
+    typeof evaluation === 'object' &&
+    Array.isArray(evaluation.parts) &&
+    evaluation.parts.length > 0
+  );
+}
+
+function normalizePartStatus(status) {
+  if (status === 'error' || status === 'red') {
+    return 'error';
+  }
+
+  if (status === 'improve' || status === 'yellow') {
+    return 'improve';
+  }
+
+  return 'correct';
+}
+
+function appendUserMessageActions(element) {
+  const actions = document.createElement('span');
+  actions.className = 'message-actions';
+
+  const editButton = createMessageActionButton({
+    label: 'Editar texto',
+    path: 'M4 20h4.5L19.7 8.8a2.1 2.1 0 0 0 0-3l-1.5-1.5a2.1 2.1 0 0 0-3 0L4 15.5V20Z M13.8 5.7l4.5 4.5',
+  });
+  editButton.addEventListener('click', () => {
+    putMessageBackInComposer(element.dataset.rawContent || '');
+  });
+
+  const copyButton = createMessageActionButton({
+    label: 'Copiar texto',
+    path: 'M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2 M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z',
+  });
+  copyButton.addEventListener('click', async () => {
+    const copied = await copyTextToClipboard(element.dataset.rawContent || '');
+    copyButton.classList.toggle('is-copied', copied);
+    copyButton.title = copied ? 'Copiado' : 'No se pudo copiar';
+
+    setTimeout(() => {
+      copyButton.classList.remove('is-copied');
+      copyButton.title = 'Copiar texto';
+    }, 1200);
+  });
+
+  actions.append(editButton, copyButton);
+  getMessageActionHost(element).append(actions);
+}
+
+function getMessageActionHost(element) {
+  return (
+    element.querySelector(
+      ':scope > p:last-child, :scope > ul:last-child li:last-child, :scope > ol:last-child li:last-child, :scope > blockquote:last-child',
+    ) || element
+  );
+}
+
+function createMessageActionButton({ label, path }) {
+  const button = document.createElement('button');
+  button.className = 'message-action-button';
+  button.type = 'button';
+  button.title = label;
+  button.setAttribute('aria-label', label);
+  button.innerHTML = `
+    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <path d="${path}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  return button;
+}
+
+function putMessageBackInComposer(content) {
+  inputEl.value = content;
+  resizeComposerInput();
+  focusComposer();
+}
+
+async function copyTextToClipboard(content) {
+  if (!content) {
+    return false;
+  }
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(content);
+      return true;
+    }
+  } catch {
+    return fallbackCopyText(content);
+  }
+
+  return fallbackCopyText(content);
 }
 
 function appendEphemeralError(content) {
@@ -212,6 +943,30 @@ function escapeHtml(value) {
   return wrapper.innerHTML;
 }
 
+function fallbackCopyText(content) {
+  const textarea = document.createElement('textarea');
+  textarea.value = content;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.top = '-1000px';
+  textarea.style.opacity = '0';
+  document.body.append(textarea);
+  textarea.select();
+
+  try {
+    return document.execCommand('copy');
+  } catch {
+    return false;
+  } finally {
+    textarea.remove();
+  }
+}
+
+function resizeComposerInput() {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = `${inputEl.scrollHeight}px`;
+}
+
 function setComposerEnabled(enabled) {
   inputEl.disabled = !enabled;
   formEl.querySelector('button[type="submit"]').disabled = !enabled;
@@ -228,7 +983,8 @@ function focusComposer() {
 }
 
 function scrollToBottom() {
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+  const scrollTarget = chatPaneEl || messagesEl;
+  scrollTarget.scrollTop = scrollTarget.scrollHeight;
 }
 
 if (isInitiallyAuthenticated) {
