@@ -55,6 +55,7 @@ export type StoredSentenceChallenge = {
   createdAt: string;
   id: string;
   level: string | null;
+  score: number | null;
   sourceSentence: string;
   topic: string | null;
 };
@@ -89,6 +90,7 @@ type SentenceChallengeRow = {
   created_at: string;
   id: string;
   level: string | null;
+  score: number | null;
   source_sentence: string;
   topic: string | null;
 };
@@ -160,6 +162,7 @@ function toStoredSentenceChallenge(
     createdAt: row.created_at,
     id: row.id,
     level: row.level,
+    score: row.score,
     sourceSentence: row.source_sentence,
     topic: row.topic,
   };
@@ -450,7 +453,7 @@ export function findActiveSentenceChallenge(
   const row = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at
+        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at, score
         FROM sentence_challenges
         WHERE conversation_id = ? AND completed_at IS NULL
         ORDER BY created_at DESC, id DESC
@@ -469,7 +472,7 @@ export function findSentenceChallenge(
   const row = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at
+        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at, score
         FROM sentence_challenges
         WHERE id = ? AND conversation_id = ?
       `,
@@ -482,16 +485,21 @@ export function findSentenceChallenge(
 export function completeSentenceChallenge(
   id: string,
   conversationId: string,
+  score: number | null = null,
 ): StoredSentenceChallenge | null {
   getDb()
     .prepare(
       `
         UPDATE sentence_challenges
-        SET completed_at = COALESCE(completed_at, CURRENT_TIMESTAMP)
+        SET completed_at = COALESCE(completed_at, CURRENT_TIMESTAMP),
+            score = CASE
+              WHEN ? IS NULL THEN score
+              ELSE ?
+            END
         WHERE id = ? AND conversation_id = ?
       `,
     )
-    .run(id, conversationId);
+    .run(score, score, id, conversationId);
 
   return findSentenceChallenge(id, conversationId);
 }
@@ -574,7 +582,7 @@ export function listSentenceChallenges(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at
+        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at, score
         FROM sentence_challenges
         WHERE conversation_id = ?
         ORDER BY created_at ASC, id ASC

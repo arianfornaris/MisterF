@@ -189,4 +189,12 @@ export const migrations: Migration[] = [
         ON sentence_attempts (challenge_id, created_at, id);
     `,
   },
+  {
+    id: 8,
+    name: 'add_sentence_challenge_score',
+    up: `
+      ALTER TABLE sentence_challenges
+        ADD COLUMN score REAL CHECK (score IS NULL OR (score >= 0 AND score <= 1));
+    `,
+  },
 ];

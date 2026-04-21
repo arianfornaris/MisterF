@@ -111,10 +111,46 @@ if (socket) {
   });
 
   socket.on('practice:updated', (payload) => {
-    if (payload.conversationId === conversationId) {
-      practiceChallenges = payload.challenges ?? [];
-      renderPractice(practiceChallenges);
+    console.log('[Mr. F practice event received]', {
+      activeConversationId: conversationId,
+      challengeCount: payload.challenges?.length ?? 0,
+      eventConversationId: payload.conversationId,
+      isCurrentConversation: isCurrentConversationPayload(payload),
+    });
+
+    if (!isCurrentConversationPayload(payload)) {
+      console.log('[Mr. F practice update skipped]', {
+        reason: 'conversation_id_mismatch',
+        activeConversationId: conversationId,
+        eventConversationId: payload.conversationId,
+      });
+      return;
     }
+
+    practiceChallenges = payload.challenges ?? [];
+    renderPractice(practiceChallenges);
+  });
+
+  socket.on('sentence_challenge:completed', (payload) => {
+    console.log('[Mr. F confetti event received]', {
+      activeConversationId: conversationId,
+      challengeConversationId: payload.challenge?.conversationId,
+      eventConversationId: payload.conversationId,
+      isCurrentConversation: isCurrentConversationPayload(payload),
+      payload,
+    });
+
+    if (!isCurrentConversationPayload(payload)) {
+      console.log('[Mr. F confetti skipped]', {
+        reason: 'conversation_id_mismatch',
+        activeConversationId: conversationId,
+        challengeConversationId: payload.challenge?.conversationId,
+        eventConversationId: payload.conversationId,
+      });
+      return;
+    }
+
+    launchConfetti(payload);
   });
 
   socket.on('llm:tool_call', (payload) => {
@@ -287,6 +323,12 @@ function storeConversationId(nextConversationId) {
   }
 
   localStorage.removeItem(storageKey);
+}
+
+function isCurrentConversationPayload(payload) {
+  const payloadConversationId =
+    payload?.conversationId || payload?.challenge?.conversationId || '';
+  return Boolean(conversationId && payloadConversationId === conversationId);
 }
 
 function startNewConversation() {
@@ -1151,6 +1193,65 @@ function focusComposer() {
 function scrollToBottom() {
   const scrollTarget = chatPaneEl || messagesEl;
   scrollTarget.scrollTop = scrollTarget.scrollHeight;
+}
+
+function launchConfetti(payload = {}) {
+  const existingLayer = document.querySelector('.confetti-layer');
+  existingLayer?.remove();
+
+  const layer = document.createElement('div');
+  layer.className = 'confetti-layer';
+  layer.setAttribute('aria-hidden', 'true');
+
+  const colors = [
+    '#eb6864',
+    '#22c55e',
+    '#facc15',
+    '#38bdf8',
+    '#a855f7',
+    '#f97316',
+    '#14b8a6',
+  ];
+  const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 20
+    : 120;
+
+  console.log('[Mr. F confetti launched]', {
+    automatic: Boolean(payload.automatic),
+    challengeId: payload.challenge?.id ?? null,
+    count,
+    score: payload.score ?? null,
+  });
+
+  for (let index = 0; index < count; index += 1) {
+    const piece = document.createElement('span');
+    piece.className = 'confetti-piece';
+    piece.style.setProperty('--confetti-color', colors[index % colors.length]);
+    piece.style.setProperty('--confetti-left', `${Math.random() * 100}%`);
+    piece.style.setProperty('--confetti-delay', `${Math.random() * 0.22}s`);
+    piece.style.setProperty(
+      '--confetti-duration',
+      `${0.95 + Math.random() * 0.45}s`,
+    );
+    piece.style.setProperty(
+      '--confetti-drift',
+      `${Math.round((Math.random() - 0.5) * 360)}px`,
+    );
+    piece.style.setProperty(
+      '--confetti-rotate',
+      `${Math.round(Math.random() * 360)}deg`,
+    );
+    piece.style.setProperty(
+      '--confetti-scale',
+      `${0.72 + Math.random() * 0.72}`,
+    );
+    layer.append(piece);
+  }
+
+  document.body.append(layer);
+  setTimeout(() => {
+    layer.remove();
+  }, 1800);
 }
 
 if (isInitiallyAuthenticated) {

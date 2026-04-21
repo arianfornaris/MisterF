@@ -15,7 +15,7 @@ export class UpdateConversationTitleTool implements LlmTool {
   readonly declaration: LlmToolDeclaration = {
     name: this.name,
     description:
-      'Actualiza el título visible de la conversación cuando el tema o propósito ya está claro.',
+      'Actualiza el título visible de la conversación. OBLIGATORIA cuando el título actual sea genérico y el tema o propósito de la conversación ya esté claro. OPCIONAL si el título actual sigue siendo útil. NO USAR si el usuario renombró la conversación manualmente, si todavía no hay suficiente contexto, si el título actual ya describe bien la práctica o si solo estás respondiendo a una pregunta lateral.',
     parametersJsonSchema: {
       type: 'object',
       properties: {

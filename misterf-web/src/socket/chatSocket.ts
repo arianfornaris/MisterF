@@ -44,6 +44,12 @@ type DeletePayload = {
   conversationId?: string | null;
 };
 
+type StreamAssistantOptions = {
+  isAutoContinue?: boolean;
+  startConversation?: boolean;
+  syntheticUserMessage?: string;
+};
+
 type AuthenticatedSocketData = {
   authenticatedUser?: {
     exp: number;
@@ -53,6 +59,13 @@ type AuthenticatedSocketData = {
 
 const runningConversations = new Set<string>();
 const toolManager = createConversationToolManager();
+const autoContinuePrompt = [
+  'CONTINUACION INTERNA DE LA APP.',
+  'El reto anterior ya fue completado correctamente y cerrado por la app.',
+  'Propón exactamente una nueva oración en español para que el usuario la traduzca al inglés.',
+  'No llames tools en este turno salvo que también actualices progreso o título.',
+  'No evalúes nada y no digas que este mensaje vino del usuario.',
+].join(' ');
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
@@ -351,7 +364,7 @@ async function streamAssistantMessage(
   conversationId: string,
   userId: string,
   lastUserMessageId?: number,
-  startConversation = false,
+  options: StreamAssistantOptions = {},
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -359,6 +372,7 @@ async function streamAssistantMessage(
 
   runningConversations.add(conversationId);
   io.to(conversationId).emit('assistant:start');
+  let shouldAutoContinue = false;
 
   try {
     const conversation = findConversationForUser(conversationId, userId);
@@ -368,8 +382,19 @@ async function streamAssistantMessage(
 
     const messages = listMessages(conversationId);
     const currentProgress = getProgressForConversation(conversationId);
+    const tutorHistory = toTutorHistory(messages);
+    if (options.syntheticUserMessage) {
+      tutorHistory.push({
+        content: options.syntheticUserMessage,
+        role: 'user',
+      });
+    }
+
+    const turnState: {
+      challengeCompletedThisTurn?: boolean;
+    } = {};
     const result = await runTutorAgentLoop(
-      toTutorHistory(messages),
+      tutorHistory,
       {
         currentProgressMarkdown: currentProgress?.markdown ?? '',
         currentTitle: conversation.title,
@@ -380,8 +405,9 @@ async function streamAssistantMessage(
             userId,
             toolCall,
             lastUserMessageId,
+            turnState,
           ),
-        startConversation,
+        startConversation: options.startConversation,
         titleUpdatedByUser: conversation.titleUpdatedByUser,
         toolDeclarations: toolManager.getDeclarations(),
       },
@@ -400,6 +426,10 @@ async function streamAssistantMessage(
     );
 
     io.to(conversationId).emit('assistant:done', assistantMessage);
+    shouldAutoContinue = Boolean(
+      turnState.challengeCompletedThisTurn &&
+        !options.isAutoContinue,
+    );
   } catch (error) {
     console.error('Assistant response failed.', {
       conversationId,
@@ -413,6 +443,13 @@ async function streamAssistantMessage(
   } finally {
     runningConversations.delete(conversationId);
   }
+
+  if (shouldAutoContinue) {
+    await streamAssistantMessage(io, conversationId, userId, undefined, {
+      isAutoContinue: true,
+      syntheticUserMessage: autoContinuePrompt,
+    });
+  }
 }
 
 function executeConversationTool(
@@ -421,6 +458,9 @@ function executeConversationTool(
   userId: string,
   toolCall: TutorToolCall,
   lastUserMessageId?: number,
+  turnState?: {
+    challengeCompletedThisTurn?: boolean;
+  },
 ): Promise<Record<string, unknown>> {
   io.to(conversationId).emit('llm:tool_call', {
     args: toolCall.args,
@@ -433,6 +473,7 @@ function executeConversationTool(
     conversationId,
     io,
     lastUserMessageId,
+    turnState,
     userId,
   });
 }

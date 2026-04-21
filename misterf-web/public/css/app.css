@@ -828,6 +828,59 @@ button.sentence-part:focus {
   }
 }
 
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -18px;
+  left: var(--confetti-left);
+  width: 8px;
+  height: 15px;
+  border-radius: 2px;
+  background: var(--confetti-color);
+  opacity: 0.96;
+  transform: translate3d(0, 0, 0) rotate(var(--confetti-rotate))
+    scale(var(--confetti-scale));
+  animation: confetti-fall var(--confetti-duration) linear
+    forwards;
+  animation-delay: var(--confetti-delay);
+}
+
+.confetti-piece:nth-child(3n) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.confetti-piece:nth-child(4n) {
+  width: 6px;
+  height: 18px;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--confetti-rotate))
+      scale(var(--confetti-scale));
+  }
+
+  58% {
+    opacity: 0.96;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift), 108vh, 0)
+      rotate(calc(var(--confetti-rotate) + 780deg))
+      scale(var(--confetti-scale));
+  }
+}
+
 .composer {
   display: grid;
   grid-template-columns: auto 1fr auto;

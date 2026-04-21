@@ -16,6 +16,9 @@ export type ToolExecutionContext = {
   conversationId: string;
   io: Server;
   lastUserMessageId?: number;
+  turnState?: {
+    challengeCompletedThisTurn?: boolean;
+  };
   userId: string;
 };
 

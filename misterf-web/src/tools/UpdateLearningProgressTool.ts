@@ -23,7 +23,7 @@ export class UpdateLearningProgressTool implements LlmTool {
   readonly declaration: LlmToolDeclaration = {
     name: this.name,
     description:
-      'Actualiza el resumen de progreso del estudiante para la conversación actual solo cuando haya información útil nueva sobre tema, nivel, avance, errores frecuentes o vocabulario. No la uses en cada mensaje si no hay nada nuevo. El progreso debe ser conciso, informativo y útil para el estudiante. Escribe el progreso en español; usa inglés solo para términos, frases, ejemplos o correcciones que el estudiante esté aprendiendo. No escribas notas internas en inglés como "The user wants..." o "The current focus is...". Esta tool no reemplaza tu respuesta normal en el chat.',
+      'Actualiza el resumen de progreso visible del estudiante para la conversación actual. OBLIGATORIA cuando cambie o se confirme claramente el tema, nivel, resumen del avance, errores frecuentes o vocabulario útil del estudiante. OPCIONAL cuando solo quieras refrescar un progreso ya existente con información pedagógica nueva. NO USAR en cada mensaje si no hay nada nuevo, para conversación lateral, para guardar instrucciones internas ni para reemplazar tu respuesta normal en el chat. El progreso debe ser conciso, informativo y útil para el estudiante. Escríbelo en español; usa inglés solo para términos, frases, ejemplos o correcciones que el estudiante esté aprendiendo. No escribas notas internas en inglés como "The user wants..." o "The current focus is...".',
     parametersJsonSchema: {
       type: 'object',
       properties: {
