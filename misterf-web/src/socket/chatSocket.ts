@@ -7,13 +7,19 @@ import {
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
   addMessage,
+  completeSentenceChallenge,
   createConversation,
+  createSentenceChallenge,
   deleteConversationForUser,
+  findActiveSentenceChallenge,
   findConversationForUser,
   getProgressForConversation,
   listSentenceChallenges,
   listMessages,
   renameConversationForUser,
+  updateMessageMetadata,
+  upsertProgressForConversation,
+  upsertSentenceAttempt,
   type StoredMessage,
 } from '../db/repository.js';
 import { pickInitialGreeting } from './initialGreetings.js';
@@ -22,9 +28,9 @@ import {
   MissingLlmApiKeyError,
   runTutorAgentLoop,
   type TutorMessage,
-  type TutorToolCall,
+  type TutorResponseBlock,
+  type TutorSentenceEvaluationBlock,
 } from '../services/llmTutor.js';
-import { createConversationToolManager } from '../tools/conversationTools.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -44,12 +50,6 @@ type DeletePayload = {
   conversationId?: string | null;
 };
 
-type StreamAssistantOptions = {
-  isAutoContinue?: boolean;
-  startConversation?: boolean;
-  syntheticUserMessage?: string;
-};
-
 type AuthenticatedSocketData = {
   authenticatedUser?: {
     exp: number;
@@ -58,14 +58,7 @@ type AuthenticatedSocketData = {
 };
 
 const runningConversations = new Set<string>();
-const toolManager = createConversationToolManager();
-const autoContinuePrompt = [
-  'CONTINUACION INTERNA DE LA APP.',
-  'El reto anterior ya fue completado correctamente y cerrado por la app.',
-  'Propón exactamente una nueva oración en español para que el usuario la traduzca al inglés.',
-  'No llames tools en este turno salvo que también actualices progreso o título.',
-  'No evalúes nada y no digas que este mensaje vino del usuario.',
-].join(' ');
+const fallbackChallengeTitle = 'Oración pendiente de identificar';
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
@@ -364,7 +357,7 @@ async function streamAssistantMessage(
   conversationId: string,
   userId: string,
   lastUserMessageId?: number,
-  options: StreamAssistantOptions = {},
+  startConversation = false,
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -372,7 +365,6 @@ async function streamAssistantMessage(
 
   runningConversations.add(conversationId);
   io.to(conversationId).emit('assistant:start');
-  let shouldAutoContinue = false;
 
   try {
     const conversation = findConversationForUser(conversationId, userId);
@@ -382,34 +374,13 @@ async function streamAssistantMessage(
 
     const messages = listMessages(conversationId);
     const currentProgress = getProgressForConversation(conversationId);
-    const tutorHistory = toTutorHistory(messages);
-    if (options.syntheticUserMessage) {
-      tutorHistory.push({
-        content: options.syntheticUserMessage,
-        role: 'user',
-      });
-    }
-
-    const turnState: {
-      challengeCompletedThisTurn?: boolean;
-    } = {};
     const result = await runTutorAgentLoop(
-      tutorHistory,
+      toTutorHistory(messages),
       {
         currentProgressMarkdown: currentProgress?.markdown ?? '',
         currentTitle: conversation.title,
-        executeTool: (toolCall) =>
-          executeConversationTool(
-            io,
-            conversationId,
-            userId,
-            toolCall,
-            lastUserMessageId,
-            turnState,
-          ),
-        startConversation: options.startConversation,
+        startConversation,
         titleUpdatedByUser: conversation.titleUpdatedByUser,
-        toolDeclarations: toolManager.getDeclarations(),
       },
     );
 
@@ -422,14 +393,19 @@ async function streamAssistantMessage(
       conversationId,
       'model',
       trimmedContent,
-      { model: result.model, provider: result.provider },
+      { blocks: result.blocks, model: result.model, provider: result.provider },
     );
 
+    applyTutorBlocks({
+      blocks: result.blocks,
+      conversationId,
+      io,
+      lastUserMessageId,
+      messageHistory: messages,
+      userId,
+    });
+
     io.to(conversationId).emit('assistant:done', assistantMessage);
-    shouldAutoContinue = Boolean(
-      turnState.challengeCompletedThisTurn &&
-        !options.isAutoContinue,
-    );
   } catch (error) {
     console.error('Assistant response failed.', {
       conversationId,
@@ -443,39 +419,6 @@ async function streamAssistantMessage(
   } finally {
     runningConversations.delete(conversationId);
   }
-
-  if (shouldAutoContinue) {
-    await streamAssistantMessage(io, conversationId, userId, undefined, {
-      isAutoContinue: true,
-      syntheticUserMessage: autoContinuePrompt,
-    });
-  }
-}
-
-function executeConversationTool(
-  io: Server,
-  conversationId: string,
-  userId: string,
-  toolCall: TutorToolCall,
-  lastUserMessageId?: number,
-  turnState?: {
-    challengeCompletedThisTurn?: boolean;
-  },
-): Promise<Record<string, unknown>> {
-  io.to(conversationId).emit('llm:tool_call', {
-    args: toolCall.args,
-    conversationId,
-    name: toolCall.name,
-    timestamp: new Date().toISOString(),
-  });
-
-  return toolManager.execute(toolCall, {
-    conversationId,
-    io,
-    lastUserMessageId,
-    turnState,
-    userId,
-  });
 }
 
 function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
@@ -483,6 +426,299 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
     content: message.content,
     role: message.role,
   }));
+}
+
+function applyTutorBlocks(input: {
+  blocks: TutorResponseBlock[];
+  conversationId: string;
+  io: Server;
+  lastUserMessageId?: number;
+  messageHistory: StoredMessage[];
+  userId: string;
+}): void {
+  let latestEvaluation: TutorSentenceEvaluationBlock | null = null;
+
+  for (const block of input.blocks) {
+    switch (block.type) {
+      case 'challenge_started':
+        handleChallengeStartedBlock(input.io, input.conversationId, block);
+        break;
+
+      case 'sentence_evaluation':
+        latestEvaluation = block;
+        handleSentenceEvaluationBlock({
+          block,
+          conversationId: input.conversationId,
+          io: input.io,
+          lastUserMessageId: input.lastUserMessageId,
+          messageHistory: input.messageHistory,
+        });
+        break;
+
+      case 'challenge_completed':
+        handleChallengeCompletedBlock({
+          block,
+          conversationId: input.conversationId,
+          io: input.io,
+          latestEvaluation,
+        });
+        break;
+
+      case 'learning_progress':
+        handleLearningProgressBlock(input.io, input.conversationId, block.markdown);
+        break;
+
+      case 'conversation_title':
+        handleConversationTitleBlock({
+          conversationId: input.conversationId,
+          io: input.io,
+          title: block.title,
+          userId: input.userId,
+        });
+        break;
+
+      case 'message':
+        break;
+    }
+  }
+}
+
+function handleChallengeStartedBlock(
+  io: Server,
+  conversationId: string,
+  block: Extract<TutorResponseBlock, { type: 'challenge_started' }>,
+): void {
+  const current = findActiveSentenceChallenge(conversationId);
+  if (current) {
+    console.log('[Mr. F challenge_started skipped]', {
+      conversationId,
+      reason: 'active_challenge_exists',
+      sourceSentence: block.sourceSentence,
+    });
+    return;
+  }
+
+  createSentenceChallenge({
+    conversationId,
+    level: block.level,
+    sourceSentence: block.sourceSentence,
+    topic: block.topic,
+  });
+  emitPracticeUpdated(io, conversationId);
+}
+
+function handleSentenceEvaluationBlock(input: {
+  block: TutorSentenceEvaluationBlock;
+  conversationId: string;
+  io: Server;
+  lastUserMessageId?: number;
+  messageHistory: StoredMessage[];
+}): void {
+  if (!input.lastUserMessageId) {
+    return;
+  }
+
+  const message = updateMessageMetadata(
+    input.lastUserMessageId,
+    input.conversationId,
+    { sentenceEvaluation: { parts: input.block.parts } },
+  );
+  if (!message) {
+    return;
+  }
+
+  const challenge =
+    findActiveSentenceChallenge(input.conversationId) ??
+    createSentenceChallenge({
+      conversationId: input.conversationId,
+      sourceSentence:
+        inferLatestSourceSentence(input.messageHistory, input.lastUserMessageId) ??
+        fallbackChallengeTitle,
+    });
+  const isCorrect = input.block.parts.every((part) => part.status === 'correct');
+
+  upsertSentenceAttempt({
+    attemptText: message.content,
+    challengeId: challenge.id,
+    conversationId: input.conversationId,
+    evaluation: { parts: input.block.parts },
+    isCorrect,
+    userMessageId: message.id,
+  });
+
+  input.io.to(input.conversationId).emit('message:evaluation_updated', {
+    conversationId: input.conversationId,
+    message,
+    messageId: message.id,
+    sentenceEvaluation: { parts: input.block.parts },
+  });
+
+  emitPracticeUpdated(input.io, input.conversationId);
+
+  if (isCorrect) {
+    completeAndCelebrateChallenge({
+      conversationId: input.conversationId,
+      io: input.io,
+      score: 1,
+      source: 'sentence_evaluation',
+    });
+  }
+}
+
+function handleChallengeCompletedBlock(input: {
+  block: Extract<TutorResponseBlock, { type: 'challenge_completed' }>;
+  conversationId: string;
+  io: Server;
+  latestEvaluation: TutorSentenceEvaluationBlock | null;
+}): void {
+  const canComplete =
+    input.latestEvaluation?.parts.every((part) => part.status === 'correct') ??
+    false;
+  if (!canComplete) {
+    console.log('[Mr. F challenge_completed skipped]', {
+      conversationId: input.conversationId,
+      reason: 'latest_evaluation_not_all_correct',
+      score: input.block.score,
+    });
+    return;
+  }
+
+  completeAndCelebrateChallenge({
+    conversationId: input.conversationId,
+    io: input.io,
+    score: input.block.score,
+    source: 'challenge_completed',
+  });
+}
+
+function completeAndCelebrateChallenge(input: {
+  conversationId: string;
+  io: Server;
+  score: number;
+  source: string;
+}): void {
+  const activeChallenge = findActiveSentenceChallenge(input.conversationId);
+  if (!activeChallenge) {
+    return;
+  }
+
+  const completedChallenge = completeSentenceChallenge(
+    activeChallenge.id,
+    input.conversationId,
+    input.score,
+  );
+  emitPracticeUpdated(input.io, input.conversationId);
+
+  const completionPayload = {
+    automatic: true,
+    challenge: completedChallenge,
+    conversationId: input.conversationId,
+    score: input.score,
+    source: input.source,
+  };
+  console.log('[Mr. F confetti emit]', completionPayload);
+  input.io
+    .to(input.conversationId)
+    .emit('sentence_challenge:completed', completionPayload);
+}
+
+function handleLearningProgressBlock(
+  io: Server,
+  conversationId: string,
+  markdown: string,
+): void {
+  const progress = upsertProgressForConversation(conversationId, markdown);
+  io.to(conversationId).emit('progress:updated', {
+    conversationId,
+    progress,
+  });
+}
+
+function handleConversationTitleBlock(input: {
+  conversationId: string;
+  io: Server;
+  title: string;
+  userId: string;
+}): void {
+  const conversation = findConversationForUser(input.conversationId, input.userId);
+  if (!conversation || conversation.titleUpdatedByUser) {
+    return;
+  }
+
+  const title = normalizeConversationTitle(input.title);
+  if (!title || title.toLowerCase() === 'nueva conversación') {
+    return;
+  }
+
+  const renamedConversation = renameConversationForUser(
+    input.conversationId,
+    input.userId,
+    title,
+  );
+  if (!renamedConversation) {
+    return;
+  }
+
+  input.io.to(input.conversationId).emit('conversation:renamed', {
+    conversation: renamedConversation,
+    conversationId: input.conversationId,
+  });
+}
+
+function emitPracticeUpdated(io: Server, conversationId: string): void {
+  io.to(conversationId).emit('practice:updated', {
+    challenges: listSentenceChallenges(conversationId),
+    conversationId,
+  });
+}
+
+function inferLatestSourceSentence(
+  messages: StoredMessage[],
+  lastUserMessageId: number,
+): string | null {
+  const lastUserIndex = messages.findIndex(
+    (message) => message.id === lastUserMessageId,
+  );
+  const searchEndIndex = lastUserIndex >= 0 ? lastUserIndex : messages.length;
+  const previousModelMessages = messages
+    .slice(0, searchEndIndex)
+    .filter((message) => message.role === 'model')
+    .reverse();
+
+  for (const message of previousModelMessages) {
+    const quotedSentence = extractBestSpanishQuotedSentence(message.content);
+    if (quotedSentence) {
+      return quotedSentence;
+    }
+  }
+
+  return null;
+}
+
+function extractBestSpanishQuotedSentence(content: string): string | null {
+  const quotedSegments = [...content.matchAll(/["“”]([^"“”]{8,240})["“”]/g)]
+    .map((match) => normalizeConversationTitle(match[1]).slice(0, 240))
+    .filter(Boolean);
+
+  return quotedSegments.find(isLikelySpanishChallengeSentence) ?? null;
+}
+
+function isLikelySpanishChallengeSentence(value: string): boolean {
+  if (value.split(/\s+/).filter(Boolean).length < 4) {
+    return false;
+  }
+
+  const spanishSignals = [
+    /[¿¡áéíóúñü]/i,
+    /\b(el|la|los|las|un|una|unos|unas|de|del|que|con|para|por|donde|dónde|cuando|cuándo|cuanto|cuánto|me|mi|quiero|gustaria|gustaría|esta|está|son|es)\b/i,
+  ];
+  const englishSignals =
+    /\b(the|would|like|ticket|please|where|nearest|bus|stop|train|to|from|round-trip|return)\b/i;
+
+  return (
+    spanishSignals.some((pattern) => pattern.test(value)) &&
+    !englishSignals.test(value)
+  );
 }
 
 function toUserFacingError(error: unknown): string {

@@ -153,10 +153,6 @@ if (socket) {
     launchConfetti(payload);
   });
 
-  socket.on('llm:tool_call', (payload) => {
-    console.info('[Mr. F tool call]', payload.name, payload.args, payload);
-  });
-
   socket.on('conversation:renamed', (payload) => {
     updateConversationItem(payload.conversation);
     markActiveConversation(conversationId);
