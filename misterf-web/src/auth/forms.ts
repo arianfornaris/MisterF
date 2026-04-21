@@ -528,7 +528,6 @@ export function renderHome(request: Request, response: Response): void {
     authMessage,
     conversations,
     csrfToken: response.locals.csrfToken,
-    geminiModel: '',
     hasSession: Boolean(user),
     isAuthenticated: isVerified,
     socketAuthToken,

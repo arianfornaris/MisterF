@@ -1,14 +1,18 @@
-import type { FunctionDeclaration } from '@google/genai';
 import {
   findConversationForUser,
   renameConversationForUser,
 } from '../db/repository.js';
-import type { LlmTool, LlmToolCall, ToolExecutionContext } from './types.js';
+import type {
+  LlmTool,
+  LlmToolCall,
+  LlmToolDeclaration,
+  ToolExecutionContext,
+} from './types.js';
 
 export class UpdateConversationTitleTool implements LlmTool {
   readonly name = 'update_conversation_title';
 
-  readonly declaration: FunctionDeclaration = {
+  readonly declaration: LlmToolDeclaration = {
     name: this.name,
     description:
       'Actualiza el título visible de la conversación cuando el tema o propósito ya está claro.',

@@ -145,4 +145,48 @@ export const migrations: Migration[] = [
         CHECK (title_updated_by_user IN (0, 1));
     `,
   },
+  {
+    id: 7,
+    name: 'create_sentence_challenges_and_attempts',
+    up: `
+      CREATE TABLE sentence_challenges (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL,
+        source_sentence TEXT NOT NULL,
+        topic TEXT,
+        level TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        completed_at TEXT,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_sentence_challenges_conversation_created
+        ON sentence_challenges (conversation_id, created_at, id);
+
+      CREATE TABLE sentence_attempts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        challenge_id TEXT NOT NULL,
+        conversation_id TEXT NOT NULL,
+        user_message_id INTEGER NOT NULL UNIQUE,
+        attempt_text TEXT NOT NULL,
+        evaluation_json TEXT NOT NULL,
+        is_correct INTEGER NOT NULL DEFAULT 0 CHECK (is_correct IN (0, 1)),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (challenge_id)
+          REFERENCES sentence_challenges (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_message_id)
+          REFERENCES messages (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_sentence_attempts_challenge_created
+        ON sentence_attempts (challenge_id, created_at, id);
+    `,
+  },
 ];

@@ -1,6 +1,7 @@
 const storageKey = 'misterf.conversationId';
 const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
+const practiceContentEl = document.querySelector('#practiceContent');
 const progressContentEl = document.querySelector('#progressContent');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
@@ -28,6 +29,7 @@ let isAssistantBusy = false;
 let pendingDeleteConversationId = null;
 let activeUserMessageId = null;
 const pendingSentenceEvaluations = new Map();
+let practiceChallenges = [];
 
 if (window.marked) {
   window.marked.setOptions({
@@ -72,6 +74,7 @@ if (socket) {
     messagesEl.replaceChildren();
     streamingBubble = null;
     pendingSentenceEvaluations.clear();
+    practiceChallenges = payload.practice ?? [];
 
     let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
@@ -86,6 +89,7 @@ if (socket) {
       });
       queuedSentenceEvaluation = null;
     }
+    renderPractice(practiceChallenges);
     renderProgress(payload.progress?.markdown || '');
 
     setComposerEnabled(!isAssistantBusy);
@@ -106,6 +110,13 @@ if (socket) {
     }
   });
 
+  socket.on('practice:updated', (payload) => {
+    if (payload.conversationId === conversationId) {
+      practiceChallenges = payload.challenges ?? [];
+      renderPractice(practiceChallenges);
+    }
+  });
+
   socket.on('llm:tool_call', (payload) => {
     console.info('[Mr. F tool call]', payload.name, payload.args, payload);
   });
@@ -122,6 +133,8 @@ if (socket) {
       conversationId = null;
       storeConversationId(null);
       messagesEl.replaceChildren();
+      practiceChallenges = [];
+      renderPractice(practiceChallenges);
       renderProgress('');
       streamingBubble = null;
     }
@@ -164,7 +177,11 @@ if (socket) {
     if (streamingBubble) {
       setMessageContent(streamingBubble, message.content);
       streamingBubble.classList.remove('typing-caret');
-      streamingBubble.closest('.message-row')?.setAttribute('data-message-id', message.id);
+      const streamingRow = streamingBubble.closest('.message-row');
+      streamingRow?.setAttribute('data-message-id', message.id);
+      if (streamingRow) {
+        markLatestModelMessage(streamingRow);
+      }
       renderSentenceEvaluation(streamingBubble, sentenceEvaluation);
       initializeSentencePopovers(streamingBubble);
     } else {
@@ -237,6 +254,10 @@ confirmDeleteConversationButtonEl?.addEventListener('click', () => {
 });
 
 document.querySelector('#progress-tab')?.addEventListener('shown.bs.tab', () => {
+  formEl.hidden = true;
+});
+
+document.querySelector('#practice-tab')?.addEventListener('shown.bs.tab', () => {
   formEl.hidden = true;
 });
 
@@ -421,7 +442,7 @@ function createConversationActions() {
   wrapper.className = 'conversation-actions dropdown';
 
   const button = document.createElement('button');
-  button.className = 'conversation-actions-button';
+  button.className = 'btn btn-link conversation-actions-button';
   button.type = 'button';
   button.title = 'Opciones de conversación';
   button.setAttribute('aria-label', 'Opciones de conversación');
@@ -651,6 +672,8 @@ function startOfDay(date) {
 
 function showAuthRequiredMessage(message) {
   messagesEl.replaceChildren();
+  practiceChallenges = [];
+  renderPractice(practiceChallenges);
   renderProgress('');
   streamingBubble = null;
   appendMessage(
@@ -679,6 +702,102 @@ function renderProgress(markdown) {
   progressContentEl.innerHTML = renderMarkdown(markdown);
 }
 
+function renderPractice(challenges) {
+  if (!practiceContentEl) {
+    return;
+  }
+
+  practiceContentEl.replaceChildren();
+  if (!challenges.length) {
+    const empty = document.createElement('div');
+    empty.className = 'alert alert-light practice-empty';
+    empty.textContent =
+      'Los intentos aparecerán aquí cuando empieces a traducir oraciones.';
+    practiceContentEl.append(empty);
+    return;
+  }
+
+  for (const challenge of challenges) {
+    practiceContentEl.append(renderPracticeChallenge(challenge));
+  }
+}
+
+function renderPracticeChallenge(challenge) {
+  const card = document.createElement('article');
+  card.className = 'card practice-card';
+
+  const body = document.createElement('div');
+  body.className = 'card-body practice-card-body';
+
+  const source = document.createElement('p');
+  source.className = 'practice-source';
+  source.textContent = challenge.sourceSentence;
+  body.append(source);
+
+  if (challenge.attempts?.length) {
+    const list = document.createElement('ul');
+    list.className = 'practice-attempt-list';
+    for (const attempt of challenge.attempts) {
+      list.append(renderPracticeAttempt(attempt));
+    }
+    body.append(list);
+  } else {
+    const empty = document.createElement('p');
+    empty.className = 'practice-attempt-empty';
+    empty.textContent = 'Todavía no hay intentos para esta oración.';
+    body.append(empty);
+  }
+
+  card.append(body);
+  return card;
+}
+
+function renderPracticeAttempt(attempt) {
+  const item = document.createElement('li');
+  item.className = 'practice-attempt';
+
+  const parts = document.createElement('p');
+  parts.className = 'sentence-parts practice-sentence-parts';
+  const evaluationParts = attempt.evaluation?.parts?.length
+    ? attempt.evaluation.parts
+    : [{ status: 'correct', text: attempt.attemptText }];
+
+  for (const [partIndex, part] of evaluationParts.entries()) {
+    const normalizedStatus = normalizePartStatus(part.status);
+    const node =
+      normalizedStatus === 'correct'
+        ? document.createElement('span')
+        : document.createElement('button');
+    node.className = `sentence-part is-${normalizedStatus}`;
+    node.textContent = part.text;
+
+    if (node instanceof HTMLButtonElement) {
+      node.type = 'button';
+      node.dataset.bsToggle = 'popover';
+      node.dataset.bsTrigger = 'focus';
+      node.dataset.bsPlacement = 'top';
+      node.dataset.bsCustomClass = `sentence-popover sentence-popover-${normalizedStatus}`;
+      node.dataset.bsTitle =
+        normalizedStatus === 'error' ? 'Error' : 'Puede mejorar';
+      node.dataset.bsContent =
+        part.explanation || 'Esta parte necesita un ajuste.';
+      node.setAttribute(
+        'aria-label',
+        `${part.text}: ${part.explanation || 'Esta parte necesita un ajuste.'}`,
+      );
+    }
+
+    parts.append(node);
+    if (partIndex < evaluationParts.length - 1) {
+      parts.append(document.createTextNode(' '));
+    }
+  }
+
+  item.append(parts);
+  initializeSentencePopovers(item);
+  return item;
+}
+
 function appendStoredMessage(message, options = {}) {
   return appendMessage(message.role, message.content, {
     id: message.id,
@@ -695,10 +814,11 @@ function appendMessage(role, content, options = {}) {
   }
 
   const bubble = document.createElement('div');
-  bubble.className = 'message-bubble';
+  bubble.className = getMessageBubbleClassName(role);
   setMessageContent(bubble, content);
 
   if (role === 'user') {
+    prependUserMessageIcon(bubble);
     appendUserMessageActions(bubble);
   }
 
@@ -712,8 +832,36 @@ function appendMessage(role, content, options = {}) {
 
   row.append(bubble);
   messagesEl.append(row);
+  if (role === 'model' && !options.streaming) {
+    markLatestModelMessage(row);
+  }
   initializeSentencePopovers(row);
   return bubble;
+}
+
+function getMessageBubbleClassName(role) {
+  if (role === 'user') {
+    return 'message-bubble card card-body user-message-card';
+  }
+
+  if (role === 'error') {
+    return 'message-bubble alert alert-warning error-message-alert';
+  }
+
+  return 'message-bubble';
+}
+
+function prependUserMessageIcon(element) {
+  const icon = document.createElement('span');
+  icon.className = 'user-message-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"></path>
+      <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  `;
+  element.prepend(icon, document.createTextNode(' '));
 }
 
 function renderSentenceEvaluationOnLastAssistant(evaluation) {
@@ -730,6 +878,24 @@ function renderSentenceEvaluationOnLastAssistant(evaluation) {
   initializeSentencePopovers(lastModelRow);
 }
 
+function markLatestModelMessage(row) {
+  for (const previousRow of messagesEl.querySelectorAll('.message-row.is-model.is-latest-model')) {
+    previousRow.classList.remove('is-latest-model');
+    previousRow.querySelector('.message-bubble')?.classList.remove(
+      'card',
+      'card-body',
+      'latest-model-card',
+    );
+  }
+
+  row.classList.add('is-latest-model');
+  row.querySelector('.message-bubble')?.classList.add(
+    'card',
+    'card-body',
+    'latest-model-card',
+  );
+}
+
 function renderSentenceEvaluation(element, evaluation) {
   if (!element) {
     return;
@@ -741,10 +907,10 @@ function renderSentenceEvaluation(element, evaluation) {
   }
 
   const wrapper = document.createElement('div');
-  wrapper.className = 'sentence-evaluation';
+  wrapper.className = 'sentence-evaluation card';
 
   const header = document.createElement('div');
-  header.className = 'sentence-evaluation-header';
+  header.className = 'sentence-evaluation-header card-header';
 
   const label = document.createElement('h3');
   label.className = 'sentence-evaluation-label';
@@ -788,7 +954,7 @@ function renderSentenceEvaluation(element, evaluation) {
   header.append(label);
 
   const body = document.createElement('div');
-  body.className = 'sentence-evaluation-body';
+  body.className = 'sentence-evaluation-body card-body';
   body.append(parts);
 
   wrapper.append(header, body);
@@ -810,7 +976,7 @@ function isValidSentenceEvaluation(evaluation) {
     evaluation &&
     typeof evaluation === 'object' &&
     Array.isArray(evaluation.parts) &&
-    evaluation.parts.length > 0
+    evaluation.parts.some((part) => normalizePartStatus(part.status) !== 'correct')
   );
 }
 

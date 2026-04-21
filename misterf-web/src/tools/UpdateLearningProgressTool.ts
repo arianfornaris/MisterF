@@ -1,6 +1,10 @@
-import type { FunctionDeclaration } from '@google/genai';
 import { upsertProgressForConversation } from '../db/repository.js';
-import type { LlmTool, LlmToolCall, ToolExecutionContext } from './types.js';
+import type {
+  LlmTool,
+  LlmToolCall,
+  LlmToolDeclaration,
+  ToolExecutionContext,
+} from './types.js';
 
 type LearningProgressUpdate = {
   topic: string;
@@ -16,7 +20,7 @@ type LearningProgressUpdate = {
 export class UpdateLearningProgressTool implements LlmTool {
   readonly name = 'update_learning_progress';
 
-  readonly declaration: FunctionDeclaration = {
+  readonly declaration: LlmToolDeclaration = {
     name: this.name,
     description:
       'Actualiza el resumen de progreso del estudiante para la conversación actual solo cuando haya información útil nueva sobre tema, nivel, avance, errores frecuentes o vocabulario. No la uses en cada mensaje si no hay nada nuevo. El progreso debe ser conciso, informativo y útil para el estudiante. Escribe el progreso en español; usa inglés solo para términos, frases, ejemplos o correcciones que el estudiante esté aprendiendo. No escribas notas internas en inglés como "The user wants..." o "The current focus is...". Esta tool no reemplaza tu respuesta normal en el chat.',

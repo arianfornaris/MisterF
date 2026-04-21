@@ -27,6 +27,38 @@ export type StoredProgress = {
   updatedAt: string;
 };
 
+export type SentenceEvaluationPart = {
+  explanation?: string;
+  status: 'correct' | 'improve' | 'error';
+  text: string;
+};
+
+export type SentenceEvaluation = {
+  parts: SentenceEvaluationPart[];
+};
+
+export type StoredSentenceAttempt = {
+  id: number;
+  attemptText: string;
+  challengeId: string;
+  conversationId: string;
+  createdAt: string;
+  evaluation: SentenceEvaluation;
+  isCorrect: boolean;
+  userMessageId: number;
+};
+
+export type StoredSentenceChallenge = {
+  attempts: StoredSentenceAttempt[];
+  completedAt: string | null;
+  conversationId: string;
+  createdAt: string;
+  id: string;
+  level: string | null;
+  sourceSentence: string;
+  topic: string | null;
+};
+
 type MessageRow = {
   id: number;
   conversation_id: string;
@@ -49,6 +81,27 @@ type ConversationRow = {
   user_id: string;
   created_at: string;
   updated_at: string;
+};
+
+type SentenceChallengeRow = {
+  completed_at: string | null;
+  conversation_id: string;
+  created_at: string;
+  id: string;
+  level: string | null;
+  source_sentence: string;
+  topic: string | null;
+};
+
+type SentenceAttemptRow = {
+  attempt_text: string;
+  challenge_id: string;
+  conversation_id: string;
+  created_at: string;
+  evaluation_json: string;
+  id: number;
+  is_correct: number;
+  user_message_id: number;
 };
 
 const defaultConversationTitle = 'Nueva conversación';
@@ -80,6 +133,35 @@ function toStoredProgress(row: ProgressRow): StoredProgress {
     conversationId: row.conversation_id,
     markdown: row.markdown,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredSentenceAttempt(row: SentenceAttemptRow): StoredSentenceAttempt {
+  return {
+    id: row.id,
+    attemptText: row.attempt_text,
+    challengeId: row.challenge_id,
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    evaluation: parseSentenceEvaluation(row.evaluation_json),
+    isCorrect: Boolean(row.is_correct),
+    userMessageId: row.user_message_id,
+  };
+}
+
+function toStoredSentenceChallenge(
+  row: SentenceChallengeRow,
+  attempts: StoredSentenceAttempt[] = [],
+): StoredSentenceChallenge {
+  return {
+    attempts,
+    completedAt: row.completed_at,
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    id: row.id,
+    level: row.level,
+    sourceSentence: row.source_sentence,
+    topic: row.topic,
   };
 }
 
@@ -326,6 +408,210 @@ export function updateMessageMetadata(
   return updated ? toStoredMessage(updated) : null;
 }
 
+export function createSentenceChallenge(input: {
+  conversationId: string;
+  level?: string | null;
+  sourceSentence: string;
+  topic?: string | null;
+}): StoredSentenceChallenge {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO sentence_challenges (
+          id,
+          conversation_id,
+          source_sentence,
+          topic,
+          level
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      id,
+      input.conversationId,
+      input.sourceSentence,
+      input.topic || null,
+      input.level || null,
+    );
+
+  const challenge = findSentenceChallenge(id, input.conversationId);
+  if (!challenge) {
+    throw new Error('Could not load newly created sentence challenge.');
+  }
+
+  return challenge;
+}
+
+export function findActiveSentenceChallenge(
+  conversationId: string,
+): StoredSentenceChallenge | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at
+        FROM sentence_challenges
+        WHERE conversation_id = ? AND completed_at IS NULL
+        ORDER BY created_at DESC, id DESC
+        LIMIT 1
+      `,
+    )
+    .get(conversationId) as SentenceChallengeRow | undefined;
+
+  return row ? toStoredSentenceChallenge(row, listSentenceAttempts(row.id)) : null;
+}
+
+export function findSentenceChallenge(
+  id: string,
+  conversationId: string,
+): StoredSentenceChallenge | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at
+        FROM sentence_challenges
+        WHERE id = ? AND conversation_id = ?
+      `,
+    )
+    .get(id, conversationId) as SentenceChallengeRow | undefined;
+
+  return row ? toStoredSentenceChallenge(row, listSentenceAttempts(row.id)) : null;
+}
+
+export function completeSentenceChallenge(
+  id: string,
+  conversationId: string,
+): StoredSentenceChallenge | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE sentence_challenges
+        SET completed_at = COALESCE(completed_at, CURRENT_TIMESTAMP)
+        WHERE id = ? AND conversation_id = ?
+      `,
+    )
+    .run(id, conversationId);
+
+  return findSentenceChallenge(id, conversationId);
+}
+
+export function upsertSentenceAttempt(input: {
+  attemptText: string;
+  challengeId: string;
+  conversationId: string;
+  evaluation: SentenceEvaluation;
+  isCorrect: boolean;
+  userMessageId: number;
+}): StoredSentenceAttempt {
+  const db = getDb();
+  db.prepare(
+    `
+      INSERT INTO sentence_attempts (
+        challenge_id,
+        conversation_id,
+        user_message_id,
+        attempt_text,
+        evaluation_json,
+        is_correct
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_message_id) DO UPDATE SET
+        challenge_id = excluded.challenge_id,
+        conversation_id = excluded.conversation_id,
+        attempt_text = excluded.attempt_text,
+        evaluation_json = excluded.evaluation_json,
+        is_correct = excluded.is_correct
+    `,
+  ).run(
+    input.challengeId,
+    input.conversationId,
+    input.userMessageId,
+    input.attemptText,
+    JSON.stringify(input.evaluation),
+    input.isCorrect ? 1 : 0,
+  );
+
+  const row = db
+    .prepare(
+      `
+        SELECT id, challenge_id, conversation_id, user_message_id, attempt_text,
+               evaluation_json, is_correct, created_at
+        FROM sentence_attempts
+        WHERE user_message_id = ?
+      `,
+    )
+    .get(input.userMessageId) as SentenceAttemptRow | undefined;
+
+  if (!row) {
+    throw new Error('Could not load newly saved sentence attempt.');
+  }
+
+  return toStoredSentenceAttempt(row);
+}
+
+export function listSentenceAttempts(
+  challengeId: string,
+): StoredSentenceAttempt[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, challenge_id, conversation_id, user_message_id, attempt_text,
+               evaluation_json, is_correct, created_at
+        FROM sentence_attempts
+        WHERE challenge_id = ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(challengeId) as SentenceAttemptRow[];
+
+  return rows.map(toStoredSentenceAttempt);
+}
+
+export function listSentenceChallenges(
+  conversationId: string,
+): StoredSentenceChallenge[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at
+        FROM sentence_challenges
+        WHERE conversation_id = ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(conversationId) as SentenceChallengeRow[];
+
+  if (rows.length === 0) {
+    return [];
+  }
+
+  const attemptsByChallenge = new Map<string, StoredSentenceAttempt[]>();
+  for (const row of rows) {
+    attemptsByChallenge.set(row.id, []);
+  }
+
+  const attemptRows = getDb()
+    .prepare(
+      `
+        SELECT id, challenge_id, conversation_id, user_message_id, attempt_text,
+               evaluation_json, is_correct, created_at
+        FROM sentence_attempts
+        WHERE conversation_id = ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(conversationId) as SentenceAttemptRow[];
+
+  for (const row of attemptRows) {
+    attemptsByChallenge.get(row.challenge_id)?.push(toStoredSentenceAttempt(row));
+  }
+
+  return rows.map((row) =>
+    toStoredSentenceChallenge(row, attemptsByChallenge.get(row.id) ?? []),
+  );
+}
+
 function parseMetadata(metadata: string): Record<string, unknown> | null {
   try {
     const parsed = JSON.parse(metadata) as unknown;
@@ -335,4 +621,21 @@ function parseMetadata(metadata: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
+}
+
+function parseSentenceEvaluation(value: string): SentenceEvaluation {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (
+      parsed &&
+      typeof parsed === 'object' &&
+      Array.isArray((parsed as { parts?: unknown }).parts)
+    ) {
+      return parsed as SentenceEvaluation;
+    }
+  } catch {
+    // Return an empty evaluation below.
+  }
+
+  return { parts: [] };
 }

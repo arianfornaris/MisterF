@@ -9,14 +9,14 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="auth-sheet" aria-label="<%= title %>">
-        <div class="auth-form">
+      <section class="auth-sheet card" aria-label="<%= title %>">
+        <div class="auth-form card-body">
           <div class="auth-copy">
             <p class="auth-kicker">Mister F</p>
             <h1><%= title %></h1>
           </div>
 
-          <p class="auth-message"><%= body %></p>
+          <div class="alert alert-info auth-message" role="status"><%= body %></div>
 
           <% if (showResendVerification) { %>
             <form method="post" action="/resend-verification">
@@ -28,9 +28,11 @@
           <% if (showVerificationCodeForm) { %>
             <form class="auth-form" method="post" action="/verify-email">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <label class="auth-field">
-                <span>Código</span>
+              <div class="auth-field mb-0">
+                <label class="form-label" for="code">Código</label>
                 <input
+                  id="code"
+                  class="form-control"
                   name="code"
                   type="text"
                   autocomplete="one-time-code"
@@ -38,7 +40,7 @@
                   required
                   autofocus
                 >
-              </label>
+              </div>
               <button class="btn btn-dark auth-submit" type="submit">Verificar correo</button>
             </form>
           <% } %>

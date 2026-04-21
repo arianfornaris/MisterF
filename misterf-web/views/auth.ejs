@@ -9,9 +9,9 @@
   </head>
   <body>
     <main class="app-shell">
-      <section class="auth-sheet" aria-label="<%= title %>">
+      <section class="auth-sheet card" aria-label="<%= title %>">
         <form
-          class="auth-form"
+          class="auth-form card-body"
           method="post"
           action="<%= mode === 'login' ? '/login' : mode === 'signup' ? '/signup' : mode === 'forgot' ? '/forgot-password' : '/reset-password' %>"
           novalidate
@@ -28,11 +28,11 @@
           </div>
 
           <% if (error) { %>
-            <p class="auth-error"><%= error %></p>
+            <div class="alert alert-danger auth-error" role="alert"><%= error %></div>
           <% } %>
 
           <% if (mode === 'login' || mode === 'signup') { %>
-            <a class="google-auth-button" href="/auth/google">
+            <a class="btn btn-outline-secondary google-auth-button" href="/auth/google">
               <svg aria-hidden="true" width="18" height="18" viewBox="0 0 48 48">
                 <path fill="#EA4335" d="M24 9.5c3.3 0 6.3 1.1 8.6 3.1l6.4-6.4C35.1 2.6 29.8.5 24 .5 14.6.5 6.5 5.9 2.6 13.7l7.8 6.1C12.2 13.8 17.6 9.5 24 9.5Z"/>
                 <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-2.8-.4-4.1H24v8.2h13c-.3 2.1-1.7 5.3-4.9 7.5l7.6 5.9c4.4-4.1 6.8-10.1 6.8-17.5Z"/>
@@ -46,9 +46,11 @@
           <% } %>
 
           <% if (mode === 'signup') { %>
-            <label class="auth-field">
-              <span>Nombre completo</span>
+            <div class="auth-field mb-0">
+              <label class="form-label" for="fullName">Nombre completo</label>
               <input
+                id="fullName"
+                class="form-control <%= fieldErrors.fullName ? 'is-invalid' : '' %>"
                 name="fullName"
                 type="text"
                 autocomplete="name"
@@ -57,15 +59,17 @@
                 autofocus
               >
               <% if (fieldErrors.fullName) { %>
-                <small><%= fieldErrors.fullName %></small>
+                <div class="invalid-feedback"><%= fieldErrors.fullName %></div>
               <% } %>
-            </label>
+            </div>
           <% } %>
 
           <% if (mode !== 'reset') { %>
-            <label class="auth-field">
-              <span>Correo</span>
+            <div class="auth-field mb-0">
+              <label class="form-label" for="email">Correo</label>
               <input
+                id="email"
+                class="form-control <%= fieldErrors.email ? 'is-invalid' : '' %>"
                 name="email"
                 type="email"
                 autocomplete="email"
@@ -74,15 +78,17 @@
                 <%= mode === 'login' || mode === 'forgot' ? 'autofocus' : '' %>
               >
               <% if (fieldErrors.email) { %>
-                <small><%= fieldErrors.email %></small>
+                <div class="invalid-feedback"><%= fieldErrors.email %></div>
               <% } %>
-            </label>
+            </div>
           <% } %>
 
           <% if (mode === 'reset') { %>
-            <label class="auth-field">
-              <span>Correo</span>
+            <div class="auth-field mb-0">
+              <label class="form-label" for="email">Correo</label>
               <input
+                id="email"
+                class="form-control <%= fieldErrors.email ? 'is-invalid' : '' %>"
                 name="email"
                 type="email"
                 autocomplete="email"
@@ -91,13 +97,15 @@
                 autofocus
               >
               <% if (fieldErrors.email) { %>
-                <small><%= fieldErrors.email %></small>
+                <div class="invalid-feedback"><%= fieldErrors.email %></div>
               <% } %>
-            </label>
+            </div>
 
-            <label class="auth-field">
-              <span>Código</span>
+            <div class="auth-field mb-0">
+              <label class="form-label" for="code">Código</label>
               <input
+                id="code"
+                class="form-control <%= fieldErrors.code ? 'is-invalid' : '' %>"
                 name="code"
                 type="text"
                 autocomplete="one-time-code"
@@ -106,15 +114,17 @@
                 required
               >
               <% if (fieldErrors.code) { %>
-                <small><%= fieldErrors.code %></small>
+                <div class="invalid-feedback"><%= fieldErrors.code %></div>
               <% } %>
-            </label>
+            </div>
           <% } %>
 
           <% if (mode !== 'forgot') { %>
-            <label class="auth-field">
-              <span>Password</span>
+            <div class="auth-field mb-0">
+              <label class="form-label" for="password">Password</label>
               <input
+                id="password"
+                class="form-control <%= fieldErrors.password ? 'is-invalid' : '' %>"
                 name="password"
                 type="password"
                 autocomplete="<%= mode === 'login' ? 'current-password' : 'new-password' %>"
@@ -123,9 +133,9 @@
                 <%= mode === 'reset' ? 'autofocus' : '' %>
               >
               <% if (fieldErrors.password) { %>
-                <small><%= fieldErrors.password %></small>
+                <div class="invalid-feedback"><%= fieldErrors.password %></div>
               <% } %>
-            </label>
+            </div>
           <% } %>
 
           <button class="btn btn-dark auth-submit" type="submit">

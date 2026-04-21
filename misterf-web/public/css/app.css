@@ -80,10 +80,9 @@ body {
   display: inline-grid;
   place-items: center;
   padding: 0;
-  border: 0;
   border-radius: 8px;
-  background: transparent;
   color: #aaa;
+  text-decoration: none;
 }
 
 .chat-menu-button:hover,
@@ -122,12 +121,11 @@ body {
   gap: 8px;
   margin-bottom: 14px;
   padding: 0 4px;
-  border: 0;
   border-radius: 0;
-  background: transparent;
   color: var(--accent);
   font-weight: 700;
   text-align: left;
+  text-decoration: none;
 }
 
 .new-conversation-button:hover,
@@ -205,10 +203,9 @@ body {
   display: inline-grid;
   place-items: center;
   padding: 0;
-  border: 0;
   border-radius: 8px;
-  background: transparent;
   color: #aaa;
+  text-decoration: none;
 }
 
 .conversation-actions-button:hover,
@@ -292,10 +289,46 @@ body {
   display: inline-grid;
   place-items: center;
   padding: 0;
-  border: 0;
   border-radius: 8px;
-  background: transparent;
   color: #aaa;
+  text-decoration: none;
+}
+
+.chat-menu-button,
+.conversation-actions-button,
+.user-menu-button,
+.message-action-button,
+.conversation-rename-action,
+.new-conversation-button {
+  background: transparent;
+  border: 0;
+  border-color: transparent;
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.chat-menu-button:hover,
+.chat-menu-button:focus,
+.conversation-actions-button:hover,
+.conversation-actions-button:focus,
+.user-menu-button:hover,
+.user-menu-button:focus,
+.message-action-button:hover,
+.message-action-button:focus,
+.conversation-rename-action:hover,
+.conversation-rename-action:focus {
+  border-color: transparent;
+  box-shadow: none;
+  text-decoration: none;
+}
+
+.chat-menu-button:not(:hover):not(:focus):not([aria-expanded="true"]),
+.conversation-actions-button:not(:hover):not(:focus):not([aria-expanded="true"]),
+.user-menu-button:not(:hover):not(:focus):not([aria-expanded="true"]),
+.message-action-button:not(:hover):not(:focus),
+.conversation-rename-action:not(:hover):not(:focus),
+.new-conversation-button:not(:hover):not(:focus) {
+  background: transparent;
 }
 
 .user-menu-button:hover,
@@ -371,6 +404,7 @@ body {
 }
 
 .messages,
+.practice-pane,
 .progress-pane {
   overflow-y: auto;
   padding: 28px 46px;
@@ -391,6 +425,57 @@ body {
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   font-size: 0.98rem;
+}
+
+.practice-content {
+  max-width: min(100%, 780px);
+  display: grid;
+  gap: 16px;
+}
+
+.practice-empty {
+  margin: 0;
+  border-radius: 8px;
+}
+
+.practice-card {
+  --bs-card-border-color: rgb(34 34 34 / 10%);
+  --bs-card-border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 26px rgb(34 34 34 / 6%);
+}
+
+.practice-source {
+  margin: 0;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.18rem;
+  line-height: 1.45;
+}
+
+.practice-attempt-list {
+  margin-top: 16px;
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}
+
+.practice-attempt {
+  padding-left: 0.25rem;
+}
+
+.practice-sentence-parts {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.practice-attempt + .practice-attempt {
+  margin-top: 0.65rem;
+}
+
+.practice-attempt-empty {
+  margin: 14px 0 0;
+  color: var(--muted);
 }
 
 .progress-content :where(h2) {
@@ -440,10 +525,40 @@ body {
   line-height: 1.55;
 }
 
+.message-row.is-model .message-bubble.latest-model-card {
+  --bs-card-border-color: rgb(235 104 100 / 16%);
+  --bs-card-bg: rgb(235 104 100 / 3%);
+  --bs-card-border-radius: 8px;
+  width: fit-content;
+  max-width: min(100%, 760px);
+  padding: 1rem 1.12rem;
+  border: 1px solid var(--bs-card-border-color);
+  background: var(--bs-card-bg);
+  box-shadow: 0 8px 24px rgb(235 104 100 / 7%);
+}
+
 .message-row.is-user .message-bubble {
-  background: transparent;
+  --bs-card-border-color: rgb(31 111 139 / 18%);
+  --bs-card-bg: rgb(31 111 139 / 4%);
+  --bs-card-border-radius: 8px;
+  width: fit-content;
+  max-width: min(100%, 760px);
+  padding: 0.82rem 1rem;
+  background: var(--bs-card-bg);
   color: #1f6f8b;
   font-size: 0.98rem;
+  box-shadow: 0 8px 22px rgb(31 111 139 / 7%);
+}
+
+.user-message-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.18rem;
+  height: 1.18rem;
+  margin-right: 0.34rem;
+  color: rgb(31 111 139 / 72%);
+  vertical-align: -0.22rem;
 }
 
 .message-actions {
@@ -478,11 +593,11 @@ body {
 }
 
 .sentence-evaluation {
+  --bs-card-border-color: rgb(31 111 139 / 14%);
+  --bs-card-border-radius: 8px;
   max-width: min(100%, 760px);
   margin-top: 16px;
   overflow: hidden;
-  border: 1px solid rgb(31 111 139 / 14%);
-  border-radius: 8px;
   background:
     linear-gradient(180deg, rgb(255 255 255 / 94%), rgb(248 250 252 / 96%)),
     #fff;
@@ -496,7 +611,6 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 12px;
-  border-bottom: 1px solid rgb(31 111 139 / 12%);
   background: rgb(31 111 139 / 4%);
 }
 
@@ -600,8 +714,9 @@ button.sentence-part:focus {
 }
 
 .message-row.is-error .message-bubble {
-  border: 0;
-  background: transparent;
+  max-width: min(100%, 760px);
+  margin-bottom: 0;
+  border-radius: 8px;
   color: #9d3b24;
 }
 
@@ -789,11 +904,9 @@ button.sentence-part:focus {
 }
 
 .auth-sheet {
+  --bs-card-border-color: var(--line);
+  --bs-card-border-radius: 8px;
   width: min(100%, 480px);
-  padding: 44px 42px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
   box-shadow: 0 16px 45px rgb(34 34 34 / 8%);
 }
 
@@ -824,7 +937,6 @@ button.sentence-part:focus {
 
 .auth-error {
   margin: 0;
-  color: #9d3b24;
 }
 
 .google-auth-button {
@@ -833,13 +945,8 @@ button.sentence-part:focus {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 0 14px;
-  border: 1px solid #ced4da;
   border-radius: 8px;
-  background: #fff;
-  color: var(--ink);
   font-weight: 700;
-  text-decoration: none;
 }
 
 .google-auth-button:hover,
@@ -855,34 +962,31 @@ button.sentence-part:focus {
 }
 
 .auth-field {
-  display: grid;
-  gap: 7px;
   color: var(--ink);
 }
 
-.auth-field span {
+.auth-field .form-label {
+  margin-bottom: 7px;
   color: #555;
   font-size: 0.95rem;
 }
 
-.auth-field input {
-  width: 100%;
+.auth-field .form-control {
   min-height: 44px;
   border: 0;
   border-bottom: 1px solid #ced4da;
-  outline: 0;
   background: transparent;
   color: var(--ink);
-  font: inherit;
   border-radius: 0;
 }
 
-.auth-field input:focus {
+.auth-field .form-control:focus {
   border-bottom-color: var(--accent);
+  box-shadow: none;
 }
 
-.auth-field small {
-  color: #9d3b24;
+.auth-field .form-control.is-invalid {
+  border-bottom-color: var(--bs-form-invalid-border-color);
 }
 
 .auth-submit {
@@ -939,6 +1043,7 @@ button.sentence-part:focus {
     padding: 8px 18px 0;
   }
 
+  .practice-pane,
   .progress-pane {
     padding: 24px 18px 18px;
   }
@@ -961,9 +1066,12 @@ button.sentence-part:focus {
   .auth-sheet {
     width: 100%;
     min-height: 100vh;
-    padding: 36px 24px;
     border: 0;
     border-radius: 0;
     box-shadow: none;
+  }
+
+  .auth-sheet .card-body {
+    padding: 36px 24px;
   }
 }

@@ -1,5 +1,10 @@
-import type { FunctionDeclaration } from '@google/genai';
 import type { Server } from 'socket.io';
+
+export type LlmToolDeclaration = {
+  description?: string;
+  name: string;
+  parametersJsonSchema: Record<string, unknown>;
+};
 
 export type LlmToolCall = {
   args: Record<string, unknown>;
@@ -15,7 +20,7 @@ export type ToolExecutionContext = {
 };
 
 export interface LlmTool {
-  declaration: FunctionDeclaration;
+  declaration: LlmToolDeclaration;
   name: string;
   execute(
     call: LlmToolCall,

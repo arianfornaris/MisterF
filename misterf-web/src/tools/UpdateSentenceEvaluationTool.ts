@@ -1,33 +1,35 @@
-import type { FunctionDeclaration } from '@google/genai';
-import { updateMessageMetadata } from '../db/repository.js';
-import type { LlmTool, LlmToolCall, ToolExecutionContext } from './types.js';
+import {
+  completeSentenceChallenge,
+  findActiveSentenceChallenge,
+  listSentenceChallenges,
+  type SentenceEvaluation,
+  type SentenceEvaluationPart,
+  updateMessageMetadata,
+  upsertSentenceAttempt,
+} from '../db/repository.js';
+import type {
+  LlmTool,
+  LlmToolCall,
+  LlmToolDeclaration,
+  ToolExecutionContext,
+} from './types.js';
 
-type SentencePartStatus = 'correct' | 'improve' | 'error';
-
-type SentenceEvaluationPart = {
-  explanation?: string;
-  status: SentencePartStatus;
-  text: string;
-};
-
-type SentenceEvaluation = {
-  parts: SentenceEvaluationPart[];
-};
+type SentencePartStatus = SentenceEvaluationPart['status'];
 
 export class UpdateSentenceEvaluationTool implements LlmTool {
   readonly name = 'update_sentence_evaluation';
 
-  readonly declaration: FunctionDeclaration = {
+  readonly declaration: LlmToolDeclaration = {
     name: this.name,
     description:
-      'Guarda una evaluación visual por partes del último intento del usuario. Debes usar esta tool cada vez que evalúes o corrijas un intento de traducción o de corrección por parte del usuario, incluso si la oración está correcta. No la uses para preguntas laterales o mensajes que no sean intentos de traducción. Esta evaluación visual no reemplaza tu respuesta normal en el chat.',
+      'Guarda una evaluación visual por partes del último intento del usuario. Debes usar esta tool cada vez que evalúes o corrijas un intento de traducción o de corrección por parte del usuario, incluso si la oración está correcta. Las partes deben reconstruir la oración del usuario en el mismo orden, sin duplicar, omitir ni inventar texto. No la uses para preguntas laterales o mensajes que no sean intentos de traducción. Esta evaluación visual no reemplaza tu respuesta normal en el chat.',
     parametersJsonSchema: {
       type: 'object',
       properties: {
         parts: {
           type: 'array',
           description:
-            'Segmentos naturales que reconstruyen la oración exacta del usuario en el mismo orden. No necesariamente palabra por palabra. No corrijas el texto dentro de los segmentos; conserva lo que escribió el usuario.',
+            'Segmentos naturales que reconstruyen la oración del usuario en el mismo orden. No necesariamente palabra por palabra. No corrijas el texto dentro de los segmentos; conserva lo que escribió el usuario.',
           items: {
             type: 'object',
             properties: {
@@ -81,6 +83,30 @@ export class UpdateSentenceEvaluationTool implements LlmTool {
       return { ok: false, error: 'Could not update message evaluation.' };
     }
 
+    const activeChallenge = findActiveSentenceChallenge(context.conversationId);
+    if (activeChallenge) {
+      const isCorrect = evaluation.parts.every(
+        (part) => part.status === 'correct',
+      );
+      upsertSentenceAttempt({
+        attemptText: message.content,
+        challengeId: activeChallenge.id,
+        conversationId: context.conversationId,
+        evaluation,
+        isCorrect,
+        userMessageId: message.id,
+      });
+
+      if (isCorrect) {
+        completeSentenceChallenge(activeChallenge.id, context.conversationId);
+      }
+
+      context.io.to(context.conversationId).emit('practice:updated', {
+        challenges: listSentenceChallenges(context.conversationId),
+        conversationId: context.conversationId,
+      });
+    }
+
     context.io.to(context.conversationId).emit('message:evaluation_updated', {
       conversationId: context.conversationId,
       message,
@@ -95,9 +121,7 @@ export class UpdateSentenceEvaluationTool implements LlmTool {
   }
 }
 
-function normalizeSentenceEvaluation(
-  args: Record<string, unknown>,
-): SentenceEvaluation | null {
+function normalizeSentenceEvaluation(args: Record<string, unknown>): SentenceEvaluation | null {
   const parts = Array.isArray(args.parts)
     ? args.parts
         .map(normalizeSentencePart)

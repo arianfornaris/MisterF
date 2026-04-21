@@ -17,7 +17,7 @@
         <% if (hasSession) { %>
           <div class="chat-toolbar" aria-label="Controles del chat">
             <button
-              class="chat-menu-button"
+              class="btn btn-link chat-menu-button"
               type="button"
               data-bs-toggle="offcanvas"
               data-bs-target="#conversationPanel"
@@ -32,7 +32,7 @@
 
             <div class="user-menu dropdown">
               <button
-                class="user-menu-button"
+                class="btn btn-link user-menu-button"
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
@@ -67,7 +67,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
             <div class="offcanvas-body">
-              <button class="new-conversation-button" type="button" data-new-conversation>
+              <button class="btn btn-link new-conversation-button" type="button" data-new-conversation>
                 <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
                   <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
@@ -90,7 +90,7 @@
 
                       <div class="conversation-actions dropdown">
                         <button
-                          class="conversation-actions-button"
+                          class="btn btn-link conversation-actions-button"
                           type="button"
                           data-bs-toggle="dropdown"
                           aria-expanded="false"
@@ -164,6 +164,20 @@
             <li class="nav-item" role="presentation">
               <button
                 class="nav-link"
+                id="practice-tab"
+                type="button"
+                role="tab"
+                data-bs-toggle="tab"
+                data-bs-target="#practicePane"
+                aria-controls="practicePane"
+                aria-selected="false"
+              >
+                Intentos
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
                 id="progress-tab"
                 type="button"
                 role="tab"
@@ -186,6 +200,16 @@
               tabindex="0"
             >
               <div id="messages" aria-live="polite"></div>
+            </div>
+
+            <div
+              class="tab-pane fade practice-pane"
+              id="practicePane"
+              role="tabpanel"
+              aria-labelledby="practice-tab"
+              tabindex="0"
+            >
+              <div id="practiceContent" class="practice-content"></div>
             </div>
 
             <div

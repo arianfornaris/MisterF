@@ -11,18 +11,19 @@ import {
   deleteConversationForUser,
   findConversationForUser,
   getProgressForConversation,
+  listSentenceChallenges,
   listMessages,
   renameConversationForUser,
   type StoredMessage,
 } from '../db/repository.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import {
-  GeminiFinishReasonError,
-  MissingGeminiApiKeyError,
+  LlmFinishReasonError,
+  MissingLlmApiKeyError,
   runTutorAgentLoop,
   type TutorMessage,
   type TutorToolCall,
-} from '../services/geminiTutor.js';
+} from '../services/llmTutor.js';
 import { createConversationToolManager } from '../tools/conversationTools.js';
 
 type JoinPayload = {
@@ -89,6 +90,7 @@ export function registerChatSocket(io: Server): void {
         socket.emit('conversation:ready', {
           conversation: null,
           conversationId: null,
+          practice: [],
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
           progress: null,
         });
@@ -110,6 +112,7 @@ export function registerChatSocket(io: Server): void {
           messages.length > 0
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
+        practice: listSentenceChallenges(conversation.id),
         progress: getProgressForConversation(conversation.id),
       });
     });
@@ -175,6 +178,7 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         conversation: null,
         conversationId: null,
+        practice: [],
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
         progress: null,
       });
@@ -268,6 +272,7 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         conversation: null,
         conversationId: null,
+        practice: [],
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
         progress: null,
       });
@@ -384,18 +389,24 @@ async function streamAssistantMessage(
 
     const trimmedContent = result.content.trim();
     if (!trimmedContent) {
-      throw new Error('Gemini returned an empty response.');
+      throw new Error('The model returned an empty response.');
     }
 
     const assistantMessage = addMessage(
       conversationId,
       'model',
       trimmedContent,
-      { model: 'gemini' },
+      { model: result.model, provider: result.provider },
     );
 
     io.to(conversationId).emit('assistant:done', assistantMessage);
   } catch (error) {
+    console.error('Assistant response failed.', {
+      conversationId,
+      error: serializeError(error),
+      lastUserMessageId,
+      userId,
+    });
     io.to(conversationId).emit('assistant:error', {
       message: toUserFacingError(error),
     });
@@ -434,17 +445,30 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
 }
 
 function toUserFacingError(error: unknown): string {
-  if (error instanceof MissingGeminiApiKeyError) {
-    return 'Falta configurar GEMINI_API_KEY en ecosystem.config.cjs.';
+  if (error instanceof MissingLlmApiKeyError) {
+    return `Falta configurar la API key del proveedor "${error.provider}" en ecosystem.config.cjs.`;
   }
 
-  if (error instanceof GeminiFinishReasonError) {
+  if (error instanceof LlmFinishReasonError) {
     return error.message;
   }
 
   if (error instanceof Error) {
-    return `No pude hablar con Gemini: ${error.message}`;
+    return `No pude hablar con el modelo: ${error.message}`;
   }
 
-  return 'No pude hablar con Gemini por un error inesperado.';
+  return 'No pude hablar con el modelo por un error inesperado.';
+}
+
+function serializeError(error: unknown): Record<string, unknown> {
+  if (!(error instanceof Error)) {
+    return { value: error };
+  }
+
+  return {
+    cause: error.cause,
+    message: error.message,
+    name: error.name,
+    stack: error.stack,
+  };
 }

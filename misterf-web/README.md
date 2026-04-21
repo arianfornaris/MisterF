@@ -1,8 +1,6 @@
 # Mister F Web
 
-Mister F es una app web simple para practicar escritura de frases en ingles con un tutor IA basado en Gemini.
-
-Nota temporal: mientras se prueba el gameplay, el chat no persiste nada en SQLite. El historial vive solo en memoria y se pierde al reiniciar el servidor.
+Mister F es una app web simple para practicar escritura de frases en ingles con un tutor IA configurable mediante AI SDK.
 
 ## Stack
 
@@ -11,9 +9,9 @@ Nota temporal: mientras se prueba el gameplay, el chat no persiste nada en SQLit
 - EJS
 - Bootstrap
 - Socket.IO
-- SQLite, desactivado temporalmente
-- Migraciones propias, desactivadas temporalmente
-- Gemini con `@google/genai`
+- SQLite
+- Migraciones propias
+- AI SDK con proveedores Google, OpenAI, OpenRouter y Anthropic
 
 ## Uso
 
@@ -43,22 +41,22 @@ http://localhost:3000
 
 ## PM2
 
-La configuracion de PM2 esta en `ecosystem.config.cjs`. Edita ese archivo y reemplaza:
-
-```text
-GEMINI_API_KEY: 'replace_with_your_gemini_api_key'
-```
-
-por tu API key real de Gemini.
+La configuracion de PM2 esta en `ecosystem.config.cjs`. Cambia el proveedor y el modelo con `LLM_PROVIDER` y `LLM_MODEL`.
 
 PM2 recibe estas variables:
 
 ```text
 NODE_ENV=production
 PORT=3000
+LLM_PROVIDER=google
+LLM_MODEL=gemini-2.5-flash
 GEMINI_API_KEY=...
-GEMINI_MODEL=gemini-2.5-flash
+OPENAI_API_KEY=...
+OPENROUTER_API_KEY=...
+ANTHROPIC_API_KEY=...
 ```
+
+Valores soportados para `LLM_PROVIDER`: `google`, `openai`, `openrouter`, `anthropic`.
 
 Para guardar el proceso y reactivarlo al reiniciar la maquina:
 

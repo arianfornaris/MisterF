@@ -1,5 +1,9 @@
-import type { FunctionDeclaration } from '@google/genai';
-import type { LlmTool, LlmToolCall, ToolExecutionContext } from './types.js';
+import type {
+  LlmTool,
+  LlmToolCall,
+  LlmToolDeclaration,
+  ToolExecutionContext,
+} from './types.js';
 
 export class ToolManager {
   private readonly tools = new Map<string, LlmTool>();
@@ -12,7 +16,7 @@ export class ToolManager {
     this.tools.set(tool.name, tool);
   }
 
-  getDeclarations(): FunctionDeclaration[] {
+  getDeclarations(): LlmToolDeclaration[] {
     return [...this.tools.values()].map((tool) => tool.declaration);
   }
 
@@ -28,7 +32,11 @@ export class ToolManager {
     try {
       return await tool.execute(call, context);
     } catch (error) {
-      console.warn(`Could not execute tool: ${call.name}`, error);
+      console.error(`Could not execute tool: ${call.name}`, {
+        args: call.args,
+        error,
+        id: call.id,
+      });
       return {
         ok: false,
         error: error instanceof Error ? error.message : 'Unexpected tool error.',
