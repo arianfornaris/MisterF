@@ -93,6 +93,8 @@ const firstChallengePrompt = `
 Comienza la sesion.
 `;
 
+const maxAgentTurns = 6;
+
 let systemInstruction: string | undefined;
 
 function getSystemInstruction(): string {
@@ -123,46 +125,95 @@ export async function runTutorAgentLoop(
   }
 
   const system = buildAgentSystemInstruction(options);
-  logLlmRequest(messages, system, options);
+  let lastError: unknown = null;
 
-  const result = await generateObject({
-    maxOutputTokens: 900,
-    messages,
-    model: getLanguageModel(),
-    providerOptions: getProviderOptions(),
-    schema: jsonSchema(genericTutorResponseJsonSchema),
-    schemaDescription:
-      'A JSON object with a blocks array. The exact block contract is described in the system instructions and validated by the server.',
-    schemaName: 'TutorResponse',
-    system,
-    temperature: shouldUseTemperature() ? 0.45 : undefined,
-  });
+  for (let turn = 0; turn < maxAgentTurns; turn += 1) {
+    logLlmRequest(messages, system, options, turn + 1);
 
-  logLlmResponse(result.object, result.finishReason, result.providerMetadata);
+    try {
+      const result = await generateObject({
+        maxOutputTokens: 900,
+        messages,
+        model: getLanguageModel(),
+        providerOptions: getProviderOptions(),
+        schema: jsonSchema(genericTutorResponseJsonSchema),
+        schemaDescription:
+          'A JSON object with a blocks array. The exact block contract is described in the system instructions and validated by the server.',
+        schemaName: 'TutorResponse',
+        system,
+        temperature: shouldUseTemperature() ? 0.45 : undefined,
+      });
 
-  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-    result.finishReason,
-    undefined,
-    result.providerMetadata,
-  );
-  if (userFacingFinishMessage) {
-    throw new LlmFinishReasonError(
-      result.finishReason,
-      userFacingFinishMessage,
-    );
+      logLlmResponse(
+        result.object,
+        result.finishReason,
+        result.providerMetadata,
+        turn + 1,
+      );
+
+      const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+        result.finishReason,
+        undefined,
+        result.providerMetadata,
+      );
+      if (userFacingFinishMessage) {
+        throw new LlmFinishReasonError(
+          result.finishReason,
+          userFacingFinishMessage,
+        );
+      }
+
+      try {
+        const blocks = validateTutorResponseBlocks(result.object);
+        if (blocks.length === 0) {
+          throw new Error('The model returned no usable response blocks.');
+        }
+
+        return {
+          blocks,
+          content: blocksToMarkdown(blocks),
+          model: env.llmModel,
+          provider: env.llmProvider,
+        };
+      } catch (error) {
+        lastError = error;
+
+        if (turn >= maxAgentTurns - 1) {
+          throw error;
+        }
+
+        appendStructuredCorrectionRequest(messages, {
+          error,
+          invalidOutput: JSON.stringify(result.object, null, 2),
+          reason:
+            'El objeto JSON fue parseado, pero no cumple el contrato TutorResponse descrito en las instrucciones.',
+          turn: turn + 1,
+        });
+      }
+    } catch (error) {
+      lastError = error;
+
+      if (error instanceof LlmFinishReasonError || !isCorrectableLlmOutputError(error)) {
+        throw error;
+      }
+
+      if (turn >= maxAgentTurns - 1) {
+        throw error;
+      }
+
+      appendStructuredCorrectionRequest(messages, {
+        error,
+        invalidOutput: extractGeneratedTextFromError(error),
+        reason:
+          'Tu respuesta anterior no fue JSON valido o no pudo convertirse en un objeto TutorResponse.',
+        turn: turn + 1,
+      });
+    }
   }
 
-  const blocks = validateTutorResponseBlocks(result.object);
-  if (blocks.length === 0) {
-    throw new Error('The model returned no usable response blocks.');
-  }
-
-  return {
-    blocks,
-    content: blocksToMarkdown(blocks),
-    model: env.llmModel,
-    provider: env.llmProvider,
-  };
+  throw lastError instanceof Error
+    ? lastError
+    : new Error('The model did not return a usable structured response.');
 }
 
 function toModelMessage(message: TutorMessage): ModelMessage {
@@ -181,6 +232,7 @@ function logLlmRequest(
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
   },
+  turn: number,
 ): void {
   logJson('[Mr. F LLM request]', {
     messageCount: messages.length,
@@ -193,6 +245,7 @@ function logLlmRequest(
     options,
     provider: env.llmProvider,
     system,
+    turn,
   });
 }
 
@@ -200,16 +253,102 @@ function logLlmResponse(
   object: unknown,
   finishReason: FinishReason,
   providerMetadata?: ProviderMetadata,
+  turn?: number,
 ): void {
   logJson('[Mr. F LLM response]', {
     finishReason,
     object,
     providerMetadata,
+    turn,
   });
 }
 
 function logJson(label: string, value: unknown): void {
   console.log(`${label} ${JSON.stringify(value, null, 2)}`);
+}
+
+function appendStructuredCorrectionRequest(
+  messages: ModelMessage[],
+  input: {
+    error: unknown;
+    invalidOutput?: string | null;
+    reason: string;
+    turn: number;
+  },
+): void {
+  const invalidOutput = input.invalidOutput?.trim();
+
+  if (invalidOutput) {
+    messages.push({
+      content: invalidOutput.slice(0, 6000),
+      role: 'assistant',
+    });
+  }
+
+  messages.push({
+    content: [
+      'CONTINUACION INTERNA DE LA APP.',
+      '',
+      input.reason,
+      'No respondas con explicaciones, disculpas, markdown suelto ni texto antes o despues del JSON.',
+      'Reemite la respuesta completa como un unico objeto JSON que cumpla exactamente el contrato TutorResponse.',
+      'Conserva la intención pedagógica de tu respuesta anterior, pero corrige exclusivamente el formato estructurado.',
+    ].join('\n'),
+    role: 'user',
+  });
+
+  logJson('[Mr. F LLM structured correction requested]', {
+    error: serializeLlmError(input.error),
+    hadInvalidOutput: Boolean(invalidOutput),
+    reason: input.reason,
+    turn: input.turn,
+  });
+}
+
+function isCorrectableLlmOutputError(error: unknown): boolean {
+  const text = JSON.stringify(serializeLlmError(error)).toLowerCase();
+  return (
+    text.includes('no object generated') ||
+    text.includes('json parsing failed') ||
+    text.includes('could not parse') ||
+    text.includes('type validation') ||
+    text.includes('invalid') ||
+    text.includes('schema')
+  );
+}
+
+function extractGeneratedTextFromError(error: unknown): string | null {
+  if (!error || typeof error !== 'object') {
+    return null;
+  }
+
+  const record = error as Record<string, unknown>;
+  if (typeof record.text === 'string') {
+    return record.text;
+  }
+
+  return extractGeneratedTextFromError(record.cause);
+}
+
+function serializeLlmError(error: unknown): unknown {
+  if (error instanceof Error) {
+    return {
+      cause: serializeLlmError(error.cause),
+      message: error.message,
+      name: error.name,
+    };
+  }
+
+  if (error && typeof error === 'object') {
+    const record = error as Record<string, unknown>;
+    return {
+      message: typeof record.message === 'string' ? record.message : undefined,
+      name: typeof record.name === 'string' ? record.name : undefined,
+      text: typeof record.text === 'string' ? record.text.slice(0, 6000) : undefined,
+    };
+  }
+
+  return error;
 }
 
 function getLanguageModel(): LanguageModel {
@@ -346,7 +485,9 @@ function buildAgentSystemInstruction(options: {
     '- Si sentence_evaluation tiene todas las partes con status correct, puedes incluir challenge_completed y luego challenge_started para la siguiente oración.',
     '- Si hay partes error o improve, no incluyas challenge_completed ni challenge_started; da feedback y pide otro intento.',
     '- Cuando propongas una oración nueva en español, incluye challenge_started y también un bloque message que muestre esa oración al usuario.',
-    '- Incluye learning_progress solo cuando haya información nueva útil sobre tema, nivel, errores frecuentes o vocabulario.',
+    '- Incluye learning_progress obligatoriamente cuando el usuario define tema y nivel, cambia tema o nivel, comete un error nuevo y claro, o completa correctamente una oración.',
+    '- El markdown de learning_progress debe estar en español y contener estas secciones: Tema, Nivel, Resumen, Errores frecuentes, Vocabulario.',
+    '- No incluyas learning_progress si no cambió nada relevante para esas secciones.',
     '- Incluye conversation_title si el título actual es genérico y ya existe suficiente contexto, salvo que el usuario haya renombrado manualmente.',
   ].join('\n');
 }

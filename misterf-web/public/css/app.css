@@ -502,6 +502,27 @@ body {
   margin-bottom: 22px;
 }
 
+.chat-challenge-card {
+  --bs-card-border-color: rgb(34 34 34 / 10%);
+  --bs-card-border-radius: 8px;
+  --bs-card-bg: rgb(255 255 255 / 88%);
+  max-width: min(100%, 820px);
+  margin-bottom: 24px;
+  box-shadow: 0 14px 34px rgb(34 34 34 / 7%);
+}
+
+.chat-challenge-card-body {
+  padding: 1.2rem 1.22rem;
+}
+
+.chat-challenge-card .message-row {
+  margin-bottom: 18px;
+}
+
+.chat-challenge-card .message-row:last-child {
+  margin-bottom: 0;
+}
+
 .message-row.is-user {
   justify-content: flex-start;
 }
@@ -525,18 +546,6 @@ body {
   line-height: 1.55;
 }
 
-.message-row.is-model .message-bubble.latest-model-card {
-  --bs-card-border-color: rgb(235 104 100 / 16%);
-  --bs-card-bg: rgb(235 104 100 / 3%);
-  --bs-card-border-radius: 8px;
-  width: fit-content;
-  max-width: min(100%, 760px);
-  padding: 1rem 1.12rem;
-  border: 1px solid var(--bs-card-border-color);
-  background: var(--bs-card-bg);
-  box-shadow: 0 8px 24px rgb(235 104 100 / 7%);
-}
-
 .message-row.is-user .message-bubble {
   --bs-card-border-color: rgb(31 111 139 / 18%);
   --bs-card-bg: rgb(31 111 139 / 4%);
@@ -548,17 +557,6 @@ body {
   color: #1f6f8b;
   font-size: 0.98rem;
   box-shadow: 0 8px 22px rgb(31 111 139 / 7%);
-}
-
-.user-message-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.18rem;
-  height: 1.18rem;
-  margin-right: 0.34rem;
-  color: rgb(31 111 139 / 72%);
-  vertical-align: -0.22rem;
 }
 
 .message-actions {

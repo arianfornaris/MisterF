@@ -90,6 +90,7 @@ if (socket) {
       queuedSentenceEvaluation = null;
     }
     renderPractice(practiceChallenges);
+    rebuildChallengeCards();
     renderProgress(payload.progress?.markdown || '');
 
     setComposerEnabled(!isAssistantBusy);
@@ -129,6 +130,7 @@ if (socket) {
 
     practiceChallenges = payload.challenges ?? [];
     renderPractice(practiceChallenges);
+    rebuildChallengeCards();
   });
 
   socket.on('sentence_challenge:completed', (payload) => {
@@ -180,6 +182,7 @@ if (socket) {
     appendStoredMessage(message);
     if (message.role === 'user') {
       activeUserMessageId = message.id;
+      rebuildChallengeCards();
     }
     scrollToBottom();
   });
@@ -211,9 +214,7 @@ if (socket) {
       streamingBubble.classList.remove('typing-caret');
       const streamingRow = streamingBubble.closest('.message-row');
       streamingRow?.setAttribute('data-message-id', message.id);
-      if (streamingRow) {
-        markLatestModelMessage(streamingRow);
-      }
+      attachMessageMetadata(streamingRow, message.metadata);
       renderSentenceEvaluation(streamingBubble, sentenceEvaluation);
       initializeSentencePopovers(streamingBubble);
     } else {
@@ -225,6 +226,7 @@ if (socket) {
     }
     activeUserMessageId = null;
     streamingBubble = null;
+    rebuildChallengeCards();
     isAssistantBusy = false;
     setComposerEnabled(true);
     focusComposer();
@@ -847,16 +849,17 @@ function appendStoredMessage(message, options = {}) {
 function appendMessage(role, content, options = {}) {
   const row = document.createElement('div');
   row.className = `message-row is-${role}`;
+  row.dataset.role = role;
   if (options.id) {
     row.dataset.messageId = String(options.id);
   }
+  attachMessageMetadata(row, options.metadata);
 
   const bubble = document.createElement('div');
   bubble.className = getMessageBubbleClassName(role);
   setMessageContent(bubble, content);
 
   if (role === 'user') {
-    prependUserMessageIcon(bubble);
     appendUserMessageActions(bubble);
   }
 
@@ -870,16 +873,13 @@ function appendMessage(role, content, options = {}) {
 
   row.append(bubble);
   messagesEl.append(row);
-  if (role === 'model' && !options.streaming) {
-    markLatestModelMessage(row);
-  }
   initializeSentencePopovers(row);
   return bubble;
 }
 
 function getMessageBubbleClassName(role) {
   if (role === 'user') {
-    return 'message-bubble card card-body user-message-card';
+    return 'message-bubble user-message-card';
   }
 
   if (role === 'error') {
@@ -887,19 +887,6 @@ function getMessageBubbleClassName(role) {
   }
 
   return 'message-bubble';
-}
-
-function prependUserMessageIcon(element) {
-  const icon = document.createElement('span');
-  icon.className = 'user-message-icon';
-  icon.setAttribute('aria-hidden', 'true');
-  icon.innerHTML = `
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"></path>
-      <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-    </svg>
-  `;
-  element.prepend(icon, document.createTextNode(' '));
 }
 
 function renderSentenceEvaluationOnLastAssistant(evaluation) {
@@ -914,24 +901,6 @@ function renderSentenceEvaluationOnLastAssistant(evaluation) {
     evaluation,
   );
   initializeSentencePopovers(lastModelRow);
-}
-
-function markLatestModelMessage(row) {
-  for (const previousRow of messagesEl.querySelectorAll('.message-row.is-model.is-latest-model')) {
-    previousRow.classList.remove('is-latest-model');
-    previousRow.querySelector('.message-bubble')?.classList.remove(
-      'card',
-      'card-body',
-      'latest-model-card',
-    );
-  }
-
-  row.classList.add('is-latest-model');
-  row.querySelector('.message-bubble')?.classList.add(
-    'card',
-    'card-body',
-    'latest-model-card',
-  );
 }
 
 function renderSentenceEvaluation(element, evaluation) {
@@ -997,6 +966,86 @@ function renderSentenceEvaluation(element, evaluation) {
 
   wrapper.append(header, body);
   element.append(wrapper);
+}
+
+function attachMessageMetadata(row, metadata) {
+  if (!row) {
+    return;
+  }
+
+  if (!metadata?.blocks) {
+    delete row.dataset.messageBlocks;
+    return;
+  }
+
+  row.dataset.messageBlocks = JSON.stringify(metadata.blocks);
+}
+
+function rebuildChallengeCards() {
+  unwrapChallengeCards();
+
+  const rows = Array.from(messagesEl.querySelectorAll(':scope > .message-row'));
+  let currentBody = null;
+
+  for (const row of rows) {
+    if (rowStartsChallenge(row)) {
+      const card = createChatChallengeCard(row);
+      messagesEl.insertBefore(card, row);
+      currentBody = card.querySelector('.chat-challenge-card-body');
+    }
+
+    if (currentBody) {
+      currentBody.append(row);
+    }
+  }
+
+  initializeSentencePopovers(messagesEl);
+}
+
+function unwrapChallengeCards() {
+  for (const card of Array.from(messagesEl.querySelectorAll(':scope > .chat-challenge-card'))) {
+    const rows = Array.from(card.querySelectorAll(':scope .message-row'));
+    for (const row of rows) {
+      messagesEl.insertBefore(row, card);
+    }
+    card.remove();
+  }
+}
+
+function createChatChallengeCard(startRow) {
+  const card = document.createElement('article');
+  card.className = 'card chat-challenge-card';
+  const sourceSentence = getChallengeStartedBlock(startRow)?.sourceSentence;
+  if (sourceSentence) {
+    card.dataset.challengeSource = sourceSentence;
+  }
+
+  const body = document.createElement('div');
+  body.className = 'card-body chat-challenge-card-body';
+  card.append(body);
+  return card;
+}
+
+function rowStartsChallenge(row) {
+  return Boolean(getChallengeStartedBlock(row));
+}
+
+function getChallengeStartedBlock(row) {
+  const blocks = parseMessageBlocks(row);
+  return blocks.find((block) => block?.type === 'challenge_started') || null;
+}
+
+function parseMessageBlocks(row) {
+  if (!row?.dataset.messageBlocks) {
+    return [];
+  }
+
+  try {
+    const blocks = JSON.parse(row.dataset.messageBlocks);
+    return Array.isArray(blocks) ? blocks : [];
+  } catch {
+    return [];
+  }
 }
 
 function initializeSentencePopovers(root = document) {
