@@ -483,6 +483,7 @@ function buildAgentSystemInstruction(options: {
     '- Evalúa la ortografía inglesa con rigor. Si el usuario escribe una palabra mal, como "cal" en vez de "call", el intento no debe considerarse correcto.',
     '- Cuando el usuario escriba un intento de traducción o una corrección, incluye exactamente un bloque sentence_evaluation antes o junto al feedback.',
     '- Si sentence_evaluation tiene todas las partes con status correct, puedes incluir challenge_completed y luego challenge_started para la siguiente oración.',
+    '- Cuando incluyas challenge_completed, el bloque message visible debe mostrar 2 o 3 formas alternativas de decir la misma idea en inglés, con una explicación breve de cuándo usar cada variante.',
     '- Si hay partes error o improve, no incluyas challenge_completed ni challenge_started; da feedback y pide otro intento.',
     '- Cuando propongas una oración nueva en español, incluye challenge_started y también un bloque message que muestre esa oración al usuario.',
     '- Incluye learning_progress obligatoriamente cuando el usuario define tema y nivel, cambia tema o nivel, comete un error nuevo y claro, o completa correctamente una oración.',

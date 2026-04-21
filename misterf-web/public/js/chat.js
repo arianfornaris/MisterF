@@ -23,6 +23,8 @@ const socket = isInitiallyAuthenticated
   ? io({ auth: { token: socketAuthToken } })
   : null;
 
+disableComposerTextAssist();
+
 let conversationId = localStorage.getItem(storageKey);
 let streamingBubble = null;
 let isAssistantBusy = false;
@@ -303,6 +305,13 @@ document.querySelector('#chat-tab')?.addEventListener('shown.bs.tab', () => {
 });
 
 formatConversationDates();
+
+function disableComposerTextAssist() {
+  inputEl?.setAttribute('autocomplete', 'off');
+  inputEl?.setAttribute('autocorrect', 'off');
+  inputEl?.setAttribute('autocapitalize', 'none');
+  inputEl?.setAttribute('spellcheck', 'false');
+}
 
 function sendMessage() {
   const content = inputEl.value.trim();
