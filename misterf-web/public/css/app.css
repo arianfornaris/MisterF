@@ -53,7 +53,8 @@ body {
   min-height: 40px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 4px;
 }
 
 .chat-layout {
@@ -71,10 +72,12 @@ body {
 }
 
 .user-menu {
+  margin-left: auto;
   position: relative;
 }
 
-.chat-menu-button {
+.chat-menu-button,
+.translator-button {
   width: 36px;
   height: 36px;
   display: inline-grid;
@@ -86,7 +89,9 @@ body {
 }
 
 .chat-menu-button:hover,
-.chat-menu-button:focus {
+.chat-menu-button:focus,
+.translator-button:hover,
+.translator-button:focus {
   outline: 0;
   background: var(--accent-soft);
   color: var(--accent);
@@ -283,6 +288,84 @@ body {
   border-radius: 8px;
 }
 
+.translator-modal {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.translator-mode {
+  margin-bottom: 16px;
+}
+
+.translator-label {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.translator-box {
+  position: relative;
+}
+
+.translator-result-box {
+  margin-top: 16px;
+}
+
+.translator-textarea {
+  min-height: 132px;
+  padding-right: 42px;
+  resize: vertical;
+}
+
+.translator-result {
+  min-height: 88px;
+  padding: 14px 42px 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(34 34 34 / 2%);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.08rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.translator-copy-button {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 80%);
+  color: rgb(34 34 34 / 54%);
+}
+
+.translator-copy-button:hover,
+.translator-copy-button:focus {
+  outline: 0;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.translator-copy-button.is-copied {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.translator-result:empty::before {
+  color: var(--muted);
+  content: "La traducción aparecerá aquí.";
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.95rem;
+}
+
 .user-menu-button {
   width: 36px;
   height: 36px;
@@ -295,6 +378,7 @@ body {
 }
 
 .chat-menu-button,
+.translator-button,
 .conversation-actions-button,
 .user-menu-button,
 .message-action-button,
@@ -309,6 +393,8 @@ body {
 
 .chat-menu-button:hover,
 .chat-menu-button:focus,
+.translator-button:hover,
+.translator-button:focus,
 .conversation-actions-button:hover,
 .conversation-actions-button:focus,
 .user-menu-button:hover,
@@ -323,6 +409,7 @@ body {
 }
 
 .chat-menu-button:not(:hover):not(:focus):not([aria-expanded="true"]),
+.translator-button:not(:hover):not(:focus),
 .conversation-actions-button:not(:hover):not(:focus):not([aria-expanded="true"]),
 .user-menu-button:not(:hover):not(:focus):not([aria-expanded="true"]),
 .message-action-button:not(:hover):not(:focus),
@@ -384,6 +471,7 @@ body {
 }
 
 .sheet-tabs .nav-link {
+  position: relative;
   border-radius: 0;
   color: var(--muted);
   font-weight: 700;
@@ -405,7 +493,8 @@ body {
 
 .messages,
 .practice-pane,
-.progress-pane {
+.progress-pane,
+.vocabulary-pane {
   overflow-y: auto;
   padding: 28px 46px;
   background: #fff;
@@ -433,9 +522,96 @@ body {
   gap: 16px;
 }
 
-.practice-empty {
+.practice-empty,
+.vocabulary-empty {
   margin: 0;
   border-radius: 8px;
+}
+
+.vocabulary-content {
+  max-width: min(100%, 720px);
+  display: grid;
+  gap: 0;
+}
+
+.vocabulary-card {
+  --bs-card-border-color: transparent;
+  --bs-card-border-radius: 0;
+  border-width: 0 0 1px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.vocabulary-card-body {
+  padding: 1.05rem 0;
+}
+
+.vocabulary-entry {
+  margin-bottom: 0.35rem;
+}
+
+.vocabulary-term {
+  margin: 0;
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.34rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.vocabulary-translation {
+  margin: 0.15rem 0 0;
+  color: #555;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.02rem;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.vocabulary-explanation {
+  margin: 0;
+  color: #333;
+  line-height: 1.55;
+}
+
+.vocabulary-example,
+.vocabulary-source {
+  display: block;
+  margin: 0.7rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid rgb(34 34 34 / 14%);
+  color: var(--muted);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  line-height: 1.45;
+}
+
+.vocabulary-example {
+  font-size: 1rem;
+}
+
+.vocabulary-example::before {
+  color: var(--accent);
+  content: "Example: ";
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.vocabulary-source {
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.88rem;
+}
+
+.vocabulary-source::before {
+  color: #888;
+  content: "Contexto: ";
+  font-weight: 800;
 }
 
 .practice-card {
@@ -1134,7 +1310,8 @@ button.sentence-part:focus {
   }
 
   .practice-pane,
-  .progress-pane {
+  .progress-pane,
+  .vocabulary-pane {
     padding: 24px 18px 18px;
   }
 

@@ -30,6 +30,22 @@
               </svg>
             </button>
 
+            <button
+              class="btn btn-link translator-button"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#translatorModal"
+              data-open-translator
+              title="Traductor"
+              aria-label="Traductor"
+            >
+              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M4 5h9M9 3v2m2 0c-.7 3.3-2.7 6-6 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M7 9c1.2 1.6 2.7 2.8 4.6 3.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M13 21l4.2-10h1.6L23 21M14.4 18h7.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
             <div class="user-menu dropdown">
               <button
                 class="btn btn-link user-menu-button"
@@ -143,6 +159,81 @@
               </div>
             </div>
           </div>
+
+          <div
+            class="modal fade"
+            id="translatorModal"
+            tabindex="-1"
+            aria-labelledby="translatorModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content translator-modal">
+                <form id="translatorForm" autocomplete="off">
+                  <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="translatorModalLabel">Traductor</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="translator-mode btn-group" role="group" aria-label="Modo de traducción">
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
+                      <label class="btn btn-outline-dark" for="translatorModeAuto">Auto</label>
+
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEsEn" value="es-en">
+                      <label class="btn btn-outline-dark" for="translatorModeEsEn">ES → EN</label>
+
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEnEs" value="en-es">
+                      <label class="btn btn-outline-dark" for="translatorModeEnEs">EN → ES</label>
+                    </div>
+
+                    <label class="visually-hidden" for="translatorInput">Texto para traducir</label>
+                    <div class="translator-box">
+                      <textarea
+                        class="form-control translator-textarea"
+                        id="translatorInput"
+                        rows="5"
+                        maxlength="2000"
+                        autocomplete="off"
+                        autocapitalize="none"
+                        autocorrect="off"
+                        spellcheck="false"
+                      ></textarea>
+                      <button
+                        class="translator-copy-button"
+                        type="button"
+                        data-translator-copy="input"
+                        title="Copiar texto"
+                        aria-label="Copiar texto"
+                      >
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                          <path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2 M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div class="translator-box translator-result-box">
+                      <div class="translator-result" id="translatorResult" aria-live="polite"></div>
+                      <button
+                        class="translator-copy-button"
+                        type="button"
+                        data-translator-copy="result"
+                        title="Copiar traducción"
+                        aria-label="Copiar traducción"
+                      >
+                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                          <path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2 M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-dark" data-translator-submit>Traducir</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         <% } %>
 
         <section class="chat-layout" aria-label="Chat con Mister F">
@@ -189,6 +280,20 @@
                 Progreso
               </button>
             </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="vocabulary-tab"
+                type="button"
+                role="tab"
+                data-bs-toggle="tab"
+                data-bs-target="#vocabularyPane"
+                aria-controls="vocabularyPane"
+                aria-selected="false"
+              >
+                Vocabulario
+              </button>
+            </li>
           </ul>
 
           <div class="tab-content sheet-tab-content">
@@ -220,6 +325,16 @@
               tabindex="0"
             >
               <div id="progressContent" class="progress-content"></div>
+            </div>
+
+            <div
+              class="tab-pane fade vocabulary-pane"
+              id="vocabularyPane"
+              role="tabpanel"
+              aria-labelledby="vocabulary-tab"
+              tabindex="0"
+            >
+              <div id="vocabularyContent" class="vocabulary-content"></div>
             </div>
           </div>
 

@@ -14,12 +14,14 @@ import {
   findActiveSentenceChallenge,
   findConversationForUser,
   getProgressForConversation,
+  listVocabularyForConversation,
   listSentenceChallenges,
   listMessages,
   renameConversationForUser,
   updateMessageMetadata,
   upsertProgressForConversation,
   upsertSentenceAttempt,
+  upsertVocabularyItems,
   type StoredMessage,
 } from '../db/repository.js';
 import { pickInitialGreeting } from './initialGreetings.js';
@@ -27,6 +29,8 @@ import {
   LlmFinishReasonError,
   MissingLlmApiKeyError,
   runTutorAgentLoop,
+  translateTextWithLlm,
+  type TranslationMode,
   type TutorMessage,
   type TutorResponseBlock,
   type TutorSentenceEvaluationBlock,
@@ -48,6 +52,11 @@ type RenamePayload = {
 
 type DeletePayload = {
   conversationId?: string | null;
+};
+
+type TranslatePayload = {
+  mode?: string;
+  text?: string;
 };
 
 type AuthenticatedSocketData = {
@@ -96,9 +105,10 @@ export function registerChatSocket(io: Server): void {
         socket.emit('conversation:ready', {
           conversation: null,
           conversationId: null,
-          practice: [],
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+          practice: [],
           progress: null,
+          vocabulary: [],
         });
         return;
       }
@@ -120,6 +130,7 @@ export function registerChatSocket(io: Server): void {
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
         practice: listSentenceChallenges(conversation.id),
         progress: getProgressForConversation(conversation.id),
+        vocabulary: listVocabularyForConversation(conversation.id),
       });
     });
 
@@ -184,9 +195,10 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         conversation: null,
         conversationId: null,
-        practice: [],
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        practice: [],
         progress: null,
+        vocabulary: [],
       });
     });
 
@@ -278,10 +290,45 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         conversation: null,
         conversationId: null,
-        practice: [],
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        practice: [],
         progress: null,
+        vocabulary: [],
       });
+    });
+
+    socket.on('translator:translate', async (payload: TranslatePayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const text = payload.text?.trim() ?? '';
+      const mode = normalizeTranslationMode(payload.mode);
+      if (!text) {
+        socket.emit('translator:error', {
+          message: 'Escribe algo para traducir.',
+        });
+        return;
+      }
+
+      try {
+        const translation = await translateTextWithLlm({ mode, text });
+        socket.emit('translator:result', {
+          mode,
+          translation,
+        });
+      } catch (error) {
+        console.error('Translator request failed.', {
+          error: serializeError(error),
+          mode,
+          userId,
+        });
+        socket.emit('translator:error', {
+          message: toUserFacingError(error),
+        });
+      }
     });
   });
 }
@@ -350,6 +397,10 @@ function createEphemeralInitialMessage(content: string): TutorMessage {
 
 function normalizeConversationTitle(title?: string): string {
   return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
+}
+
+function normalizeTranslationMode(mode?: string): TranslationMode {
+  return mode === 'es-en' || mode === 'en-es' ? mode : 'auto';
 }
 
 async function streamAssistantMessage(
@@ -475,6 +526,10 @@ function applyTutorBlocks(input: {
           title: block.title,
           userId: input.userId,
         });
+        break;
+
+      case 'vocabulary_items':
+        handleVocabularyItemsBlock(input.io, input.conversationId, block.items);
         break;
 
       case 'message':
@@ -631,6 +686,18 @@ function handleLearningProgressBlock(
   io.to(conversationId).emit('progress:updated', {
     conversationId,
     progress,
+  });
+}
+
+function handleVocabularyItemsBlock(
+  io: Server,
+  conversationId: string,
+  items: Extract<TutorResponseBlock, { type: 'vocabulary_items' }>['items'],
+): void {
+  const vocabulary = upsertVocabularyItems(conversationId, items);
+  io.to(conversationId).emit('vocabulary:updated', {
+    conversationId,
+    vocabulary,
   });
 }
 

@@ -197,4 +197,28 @@ export const migrations: Migration[] = [
         ADD COLUMN score REAL CHECK (score IS NULL OR (score >= 0 AND score <= 1));
     `,
   },
+  {
+    id: 9,
+    name: 'create_conversation_vocabulary',
+    up: `
+      CREATE TABLE conversation_vocabulary (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversation_id TEXT NOT NULL,
+        term TEXT NOT NULL COLLATE NOCASE,
+        translation TEXT NOT NULL,
+        explanation TEXT NOT NULL,
+        example TEXT,
+        source_sentence TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        UNIQUE (conversation_id, term)
+      );
+
+      CREATE INDEX idx_conversation_vocabulary_conversation_created
+        ON conversation_vocabulary (conversation_id, created_at, id);
+    `,
+  },
 ];

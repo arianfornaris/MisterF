@@ -28,13 +28,23 @@ export type TutorAgentResult = {
   provider: string;
 };
 
+export type TranslationMode = 'auto' | 'es-en' | 'en-es';
+
+export type TranslationResult = {
+  detectedLanguage: string;
+  model: string;
+  provider: string;
+  translatedText: string;
+};
+
 export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorChallengeStartedBlock
   | TutorSentenceEvaluationBlock
   | TutorChallengeCompletedBlock
   | TutorLearningProgressBlock
-  | TutorConversationTitleBlock;
+  | TutorConversationTitleBlock
+  | TutorVocabularyItemsBlock;
 
 export type TutorMessageBlock = {
   type: 'message';
@@ -70,6 +80,17 @@ export type TutorLearningProgressBlock = {
 export type TutorConversationTitleBlock = {
   title: string;
   type: 'conversation_title';
+};
+
+export type TutorVocabularyItemsBlock = {
+  items: Array<{
+    example?: string;
+    explanation: string;
+    sourceSentence?: string;
+    term: string;
+    translation: string;
+  }>;
+  type: 'vocabulary_items';
 };
 
 export class MissingLlmApiKeyError extends Error {
@@ -214,6 +235,69 @@ export async function runTutorAgentLoop(
   throw lastError instanceof Error
     ? lastError
     : new Error('The model did not return a usable structured response.');
+}
+
+export async function translateTextWithLlm(input: {
+  mode: TranslationMode;
+  text: string;
+}): Promise<TranslationResult> {
+  const text = input.text.trim();
+  if (!text) {
+    throw new Error('No hay texto para traducir.');
+  }
+
+  const result = await generateObject({
+    maxOutputTokens: 500,
+    messages: [
+      {
+        content: text,
+        role: 'user',
+      },
+    ],
+    model: getLanguageModel(),
+    providerOptions: getProviderOptions(),
+    schema: jsonSchema(translationJsonSchema),
+    schemaDescription:
+      'A small translation result. The translatedText field contains only the translation.',
+    schemaName: 'TranslationResult',
+    system: buildTranslatorSystemInstruction(input.mode),
+    temperature: shouldUseTemperature() ? 0.15 : undefined,
+  });
+
+  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+    result.finishReason,
+    undefined,
+    result.providerMetadata,
+  );
+  if (userFacingFinishMessage) {
+    throw new LlmFinishReasonError(
+      result.finishReason,
+      userFacingFinishMessage,
+    );
+  }
+
+  const parsed = translationResultSchema.safeParse(result.object);
+  if (!parsed.success) {
+    console.error('[Mr. F translator validation failed]', JSON.stringify({
+      issues: parsed.error.issues,
+      value: result.object,
+    }, null, 2));
+    throw new Error('El traductor no devolvió una respuesta válida.');
+  }
+
+  console.log('[Mr. F translator response]', JSON.stringify({
+    detectedLanguage: parsed.data.detectedLanguage,
+    mode: input.mode,
+    model: env.llmModel,
+    provider: env.llmProvider,
+  }, null, 2));
+
+  return {
+    detectedLanguage: parsed.data.detectedLanguage,
+    model: env.llmModel,
+    provider: env.llmProvider,
+    translatedText: parsed.data.translatedText,
+  };
 }
 
 function toModelMessage(message: TutorMessage): ModelMessage {
@@ -486,10 +570,36 @@ function buildAgentSystemInstruction(options: {
     '- Cuando incluyas challenge_completed, el bloque message visible debe mostrar 2 o 3 formas alternativas de decir la misma idea en inglés, con una explicación breve de cuándo usar cada variante.',
     '- Si hay partes error o improve, no incluyas challenge_completed ni challenge_started; da feedback y pide otro intento.',
     '- Cuando propongas una oración nueva en español, incluye challenge_started y también un bloque message que muestre esa oración al usuario.',
+    '- Cuando propongas una oración nueva en español, incluye vocabulary_items con el vocabulario clave de esa oración.',
+    '- También puedes incluir vocabulary_items cuando aparezcan palabras útiles en correcciones, alternativas o explicaciones.',
+    '- vocabulary_items debe contener vocabulario realmente útil para aprender: evita palabras triviales como "the", "a", "is" salvo que sean pedagógicamente relevantes.',
+    '- En vocabulary_items, translation y explanation deben estar en español, con explicaciones breves y prácticas.',
     '- Incluye learning_progress obligatoriamente cuando el usuario define tema y nivel, cambia tema o nivel, comete un error nuevo y claro, o completa correctamente una oración.',
     '- El markdown de learning_progress debe estar en español y contener estas secciones: Tema, Nivel, Resumen, Errores frecuentes, Vocabulario.',
     '- No incluyas learning_progress si no cambió nada relevante para esas secciones.',
     '- Incluye conversation_title si el título actual es genérico y ya existe suficiente contexto, salvo que el usuario haya renombrado manualmente.',
+  ].join('\n');
+}
+
+function buildTranslatorSystemInstruction(mode: TranslationMode): string {
+  const direction =
+    mode === 'es-en'
+      ? 'Traduce de español a inglés.'
+      : mode === 'en-es'
+        ? 'Traduce de inglés a español.'
+        : 'Detecta si el texto está en español o inglés y tradúcelo al otro idioma.';
+
+  return [
+    'Eres un traductor profesional para una app de aprendizaje de inglés.',
+    direction,
+    'Conserva el sentido, el tono y el registro del texto original.',
+    'No expliques la traducción. No corrijas ni enseñes gramática. Solo traduce.',
+    'Responde con un objeto JSON que cumpla TranslationResult.',
+    '',
+    'type TranslationResult = {',
+    '  detectedLanguage: string;',
+    '  translatedText: string;',
+    '};',
   ].join('\n');
 }
 
@@ -508,6 +618,27 @@ const genericTutorResponseJsonSchema = {
   },
   required: ['blocks'],
 } as const;
+
+const translationJsonSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    detectedLanguage: {
+      type: 'string',
+    },
+    translatedText: {
+      type: 'string',
+    },
+  },
+  required: ['detectedLanguage', 'translatedText'],
+} as const;
+
+const translationResultSchema = z
+  .object({
+    detectedLanguage: z.string().trim().min(1).max(80),
+    translatedText: z.string().trim().min(1).max(3000),
+  })
+  .strict();
 
 const tutorResponseTypeContract = `type TutorResponse = {
   blocks: TutorResponseBlock[];
@@ -531,7 +662,17 @@ type TutorResponseBlock =
     }
   | { type: "challenge_completed"; score: number } // score debe ser decimal de 0 a 1: usa 1 para perfecto, no 100.
   | { type: "learning_progress"; markdown: string }
-  | { type: "conversation_title"; title: string };`;
+  | { type: "conversation_title"; title: string }
+  | {
+      type: "vocabulary_items";
+      items: Array<{
+        term: string; // palabra, frase corta o expresión en inglés
+        translation: string; // traducción al español
+        explanation: string; // explicación breve en español de uso/contexto
+        example?: string; // ejemplo breve en inglés
+        sourceSentence?: string; // oración en español o contexto de donde salió
+      }>;
+    };`;
 
 const messageBlockSchema = z
   .object({
@@ -593,6 +734,26 @@ const conversationTitleBlockSchema = z
   })
   .strict();
 
+const vocabularyItemsBlockSchema = z
+  .object({
+    type: z.literal('vocabulary_items'),
+    items: z
+      .array(
+        z
+          .object({
+            term: z.string().trim().min(1).max(90),
+            translation: z.string().trim().min(1).max(160),
+            explanation: z.string().trim().min(1).max(360),
+            example: z.string().trim().min(1).max(240).optional(),
+            sourceSentence: z.string().trim().min(1).max(320).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(12),
+  })
+  .strict();
+
 const tutorResponseSchema = z
   .object({
     blocks: z
@@ -604,10 +765,11 @@ const tutorResponseSchema = z
           challengeCompletedBlockSchema,
           learningProgressBlockSchema,
           conversationTitleBlockSchema,
+          vocabularyItemsBlockSchema,
         ]),
       )
       .min(1)
-      .max(8),
+      .max(12),
   })
   .strict();
 

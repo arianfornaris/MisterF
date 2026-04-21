@@ -60,6 +60,26 @@ export type StoredSentenceChallenge = {
   topic: string | null;
 };
 
+export type VocabularyInput = {
+  example?: string | null;
+  explanation: string;
+  sourceSentence?: string | null;
+  term: string;
+  translation: string;
+};
+
+export type StoredVocabularyItem = {
+  conversationId: string;
+  createdAt: string;
+  example: string | null;
+  explanation: string;
+  id: number;
+  sourceSentence: string | null;
+  term: string;
+  translation: string;
+  updatedAt: string;
+};
+
 type MessageRow = {
   id: number;
   conversation_id: string;
@@ -104,6 +124,18 @@ type SentenceAttemptRow = {
   id: number;
   is_correct: number;
   user_message_id: number;
+};
+
+type VocabularyRow = {
+  conversation_id: string;
+  created_at: string;
+  example: string | null;
+  explanation: string;
+  id: number;
+  source_sentence: string | null;
+  term: string;
+  translation: string;
+  updated_at: string;
 };
 
 const defaultConversationTitle = 'Nueva conversación';
@@ -165,6 +197,20 @@ function toStoredSentenceChallenge(
     score: row.score,
     sourceSentence: row.source_sentence,
     topic: row.topic,
+  };
+}
+
+function toStoredVocabularyItem(row: VocabularyRow): StoredVocabularyItem {
+  return {
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    example: row.example,
+    explanation: row.explanation,
+    id: row.id,
+    sourceSentence: row.source_sentence,
+    term: row.term,
+    translation: row.translation,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -618,6 +664,99 @@ export function listSentenceChallenges(
   return rows.map((row) =>
     toStoredSentenceChallenge(row, attemptsByChallenge.get(row.id) ?? []),
   );
+}
+
+export function listVocabularyForConversation(
+  conversationId: string,
+): StoredVocabularyItem[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, conversation_id, term, translation, explanation, example,
+               source_sentence, created_at, updated_at
+        FROM conversation_vocabulary
+        WHERE conversation_id = ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(conversationId) as VocabularyRow[];
+
+  return rows.map(toStoredVocabularyItem);
+}
+
+export function upsertVocabularyItems(
+  conversationId: string,
+  items: VocabularyInput[],
+): StoredVocabularyItem[] {
+  const normalizedItems = items
+    .map(normalizeVocabularyInput)
+    .filter((item): item is VocabularyInput => Boolean(item));
+
+  if (normalizedItems.length === 0) {
+    return listVocabularyForConversation(conversationId);
+  }
+
+  const db = getDb();
+  const upsert = db.prepare(
+    `
+      INSERT INTO conversation_vocabulary (
+        conversation_id,
+        term,
+        translation,
+        explanation,
+        example,
+        source_sentence
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+      ON CONFLICT(conversation_id, term) DO UPDATE SET
+        translation = excluded.translation,
+        explanation = excluded.explanation,
+        example = excluded.example,
+        source_sentence = excluded.source_sentence,
+        updated_at = CURRENT_TIMESTAMP
+    `,
+  );
+
+  const run = db.transaction(() => {
+    for (const item of normalizedItems) {
+      upsert.run(
+        conversationId,
+        item.term,
+        item.translation,
+        item.explanation,
+        item.example || null,
+        item.sourceSentence || null,
+      );
+    }
+  });
+  run();
+
+  return listVocabularyForConversation(conversationId);
+}
+
+function normalizeVocabularyInput(
+  item: VocabularyInput,
+): VocabularyInput | null {
+  const term = normalizeVocabularyText(item.term, 90);
+  const translation = normalizeVocabularyText(item.translation, 160);
+  const explanation = normalizeVocabularyText(item.explanation, 360);
+
+  if (!term || !translation || !explanation) {
+    return null;
+  }
+
+  return {
+    example: normalizeVocabularyText(item.example ?? '', 240) || null,
+    explanation,
+    sourceSentence:
+      normalizeVocabularyText(item.sourceSentence ?? '', 320) || null,
+    term,
+    translation,
+  };
+}
+
+function normalizeVocabularyText(value: string, maxLength: number): string {
+  return value.replace(/\s+/g, ' ').trim().slice(0, maxLength);
 }
 
 function parseMetadata(metadata: string): Record<string, unknown> | null {

@@ -3,6 +3,9 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const practiceContentEl = document.querySelector('#practiceContent');
 const progressContentEl = document.querySelector('#progressContent');
+const vocabularyPaneEl = document.querySelector('#vocabularyPane');
+const vocabularyContentEl = document.querySelector('#vocabularyContent');
+const chatTabEl = document.querySelector('#chat-tab');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
 const conversationPanelEl = document.querySelector('#conversationPanel');
@@ -16,6 +19,13 @@ const deleteConversationTitleEl = document.querySelector(
 const confirmDeleteConversationButtonEl = document.querySelector(
   '[data-confirm-delete-conversation]',
 );
+const translatorModalEl = document.querySelector('#translatorModal');
+const translatorFormEl = document.querySelector('#translatorForm');
+const translatorInputEl = document.querySelector('#translatorInput');
+const translatorResultEl = document.querySelector('#translatorResult');
+const translatorSubmitEl = document.querySelector('[data-translator-submit]');
+const translatorOpenButtonEl = document.querySelector('[data-open-translator]');
+const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const authMessage = document.body.dataset.authMessage || '';
@@ -32,6 +42,9 @@ let pendingDeleteConversationId = null;
 let activeUserMessageId = null;
 const pendingSentenceEvaluations = new Map();
 let practiceChallenges = [];
+let vocabularyItems = [];
+let pendingTranslatorSelection = '';
+let shouldScrollVocabularyOnOpen = false;
 
 if (window.marked) {
   window.marked.setOptions({
@@ -77,6 +90,7 @@ if (socket) {
     streamingBubble = null;
     pendingSentenceEvaluations.clear();
     practiceChallenges = payload.practice ?? [];
+    vocabularyItems = payload.vocabulary ?? [];
 
     let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
@@ -94,6 +108,7 @@ if (socket) {
     renderPractice(practiceChallenges);
     rebuildChallengeCards();
     renderProgress(payload.progress?.markdown || '');
+    renderVocabulary(vocabularyItems);
 
     setComposerEnabled(!isAssistantBusy);
     focusComposer();
@@ -111,6 +126,17 @@ if (socket) {
     if (payload.conversationId === conversationId) {
       renderProgress(payload.progress?.markdown || '');
     }
+  });
+
+  socket.on('vocabulary:updated', (payload) => {
+    if (!isCurrentConversationPayload(payload)) {
+      return;
+    }
+
+    vocabularyItems = payload.vocabulary ?? [];
+    renderVocabulary(vocabularyItems);
+    shouldScrollVocabularyOnOpen = true;
+    scrollVocabularyToBottom();
   });
 
   socket.on('practice:updated', (payload) => {
@@ -170,14 +196,27 @@ if (socket) {
       storeConversationId(null);
       messagesEl.replaceChildren();
       practiceChallenges = [];
+      vocabularyItems = [];
       renderPractice(practiceChallenges);
       renderProgress('');
+      renderVocabulary(vocabularyItems);
       streamingBubble = null;
     }
   });
 
   socket.on('conversation:error', ({ message }) => {
     appendEphemeralError(message || 'No pude actualizar la conversación.');
+  });
+
+  socket.on('translator:result', ({ translation }) => {
+    setTranslatorBusy(false);
+    translatorResultEl.textContent = translation?.translatedText || '';
+  });
+
+  socket.on('translator:error', ({ message }) => {
+    setTranslatorBusy(false);
+    translatorResultEl.textContent =
+      message || 'No pude traducir el texto en este momento.';
   });
 
   socket.on('message:created', (message) => {
@@ -291,12 +330,50 @@ confirmDeleteConversationButtonEl?.addEventListener('click', () => {
   confirmDeleteConversation();
 });
 
+translatorOpenButtonEl?.addEventListener('pointerdown', () => {
+  pendingTranslatorSelection = getSelectedAppText();
+});
+
+translatorOpenButtonEl?.addEventListener('click', () => {
+  translateSelectedAppText();
+});
+
+translatorFormEl?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  translateFromModal();
+});
+
+translatorModalEl?.addEventListener('shown.bs.modal', () => {
+  translatorInputEl?.focus();
+});
+
+translatorInputEl?.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    translateFromModal();
+  }
+});
+
+for (const button of translatorCopyButtonEls) {
+  button.addEventListener('click', () => {
+    copyTranslatorText(button);
+  });
+}
+
 document.querySelector('#progress-tab')?.addEventListener('shown.bs.tab', () => {
   formEl.hidden = true;
 });
 
 document.querySelector('#practice-tab')?.addEventListener('shown.bs.tab', () => {
   formEl.hidden = true;
+});
+
+document.querySelector('#vocabulary-tab')?.addEventListener('shown.bs.tab', () => {
+  formEl.hidden = true;
+  if (shouldScrollVocabularyOnOpen) {
+    scrollVocabularyToBottom();
+    shouldScrollVocabularyOnOpen = false;
+  }
 });
 
 document.querySelector('#chat-tab')?.addEventListener('shown.bs.tab', () => {
@@ -311,6 +388,106 @@ function disableComposerTextAssist() {
   inputEl?.setAttribute('autocorrect', 'off');
   inputEl?.setAttribute('autocapitalize', 'none');
   inputEl?.setAttribute('spellcheck', 'false');
+}
+
+function translateSelectedAppText() {
+  const selectedText = pendingTranslatorSelection || getSelectedAppText();
+  pendingTranslatorSelection = '';
+  if (!selectedText) {
+    return;
+  }
+
+  const autoModeInput = translatorFormEl?.querySelector(
+    'input[name="translatorMode"][value="auto"]',
+  );
+  if (autoModeInput) {
+    autoModeInput.checked = true;
+  }
+
+  translatorInputEl.value = selectedText;
+  translatorResultEl.textContent = '';
+  window.setTimeout(() => {
+    translateFromModal();
+  }, 0);
+}
+
+function getSelectedAppText() {
+  const selectedControlText = getSelectedTextFromControl(document.activeElement);
+  if (selectedControlText) {
+    return selectedControlText;
+  }
+
+  const selection = window.getSelection?.();
+  const selectedText = selection?.toString().trim() || '';
+  if (!selectedText || !selection?.rangeCount) {
+    return '';
+  }
+
+  const range = selection.getRangeAt(0);
+  const selectionContainer = range.commonAncestorContainer;
+  const selectionElement =
+    selectionContainer.nodeType === Node.ELEMENT_NODE
+      ? selectionContainer
+      : selectionContainer.parentElement;
+
+  const appShell = document.querySelector('.app-shell');
+  return appShell?.contains(selectionElement) ? selectedText : '';
+}
+
+function getSelectedTextFromControl(element) {
+  if (
+    !(element instanceof HTMLTextAreaElement) &&
+    !(element instanceof HTMLInputElement)
+  ) {
+    return '';
+  }
+
+  const selectionStart = element.selectionStart ?? 0;
+  const selectionEnd = element.selectionEnd ?? 0;
+  if (selectionEnd <= selectionStart) {
+    return '';
+  }
+
+  return element.value.slice(selectionStart, selectionEnd).trim();
+}
+
+function translateFromModal() {
+  const text = translatorInputEl?.value.trim() || '';
+  if (!text || !socket) {
+    return;
+  }
+
+  const mode =
+    translatorFormEl?.querySelector('input[name="translatorMode"]:checked')?.value ||
+    'auto';
+
+  setTranslatorBusy(true);
+  translatorResultEl.textContent = '';
+  socket.emit('translator:translate', { mode, text });
+}
+
+function setTranslatorBusy(isBusy) {
+  if (translatorSubmitEl) {
+    translatorSubmitEl.disabled = isBusy;
+    translatorSubmitEl.textContent = isBusy ? 'Traduciendo...' : 'Traducir';
+  }
+}
+
+async function copyTranslatorText(button) {
+  const source = button.dataset.translatorCopy;
+  const content =
+    source === 'result'
+      ? translatorResultEl?.textContent?.trim() || ''
+      : translatorInputEl?.value.trim() || '';
+  const copied = await copyTextToClipboard(content);
+
+  button.classList.toggle('is-copied', copied);
+  button.title = copied ? 'Copiado' : 'No se pudo copiar';
+
+  window.setTimeout(() => {
+    button.classList.remove('is-copied');
+    button.title = source === 'result' ? 'Copiar traducción' : 'Copiar texto';
+  }, 1200);
 }
 
 function sendMessage() {
@@ -348,9 +525,23 @@ function startNewConversation() {
   conversationId = null;
   localStorage.removeItem(storageKey);
   markActiveConversation('');
+  showChatTab();
   hideConversationPanel();
   setComposerEnabled(false);
   socket.emit('conversation:reset');
+}
+
+function showChatTab() {
+  if (!chatTabEl || !window.bootstrap?.Tab) {
+    formEl.hidden = false;
+    focusComposer();
+    return;
+  }
+
+  window.bootstrap.Tab.getOrCreateInstance(chatTabEl).show();
+  window.setTimeout(() => {
+    focusComposer();
+  }, 0);
 }
 
 function openConversation(nextConversationId) {
@@ -724,8 +915,10 @@ function startOfDay(date) {
 function showAuthRequiredMessage(message) {
   messagesEl.replaceChildren();
   practiceChallenges = [];
+  vocabularyItems = [];
   renderPractice(practiceChallenges);
   renderProgress('');
+  renderVocabulary(vocabularyItems);
   streamingBubble = null;
   appendMessage(
     'model',
@@ -771,6 +964,80 @@ function renderPractice(challenges) {
   for (const challenge of challenges) {
     practiceContentEl.append(renderPracticeChallenge(challenge));
   }
+}
+
+function renderVocabulary(items) {
+  if (!vocabularyContentEl) {
+    return;
+  }
+
+  vocabularyContentEl.replaceChildren();
+  if (!items.length) {
+    const empty = document.createElement('div');
+    empty.className = 'alert alert-light vocabulary-empty';
+    empty.textContent =
+      'El vocabulario aparecerá aquí cuando el tutor vaya usando palabras clave.';
+    vocabularyContentEl.append(empty);
+    return;
+  }
+
+  for (const item of items) {
+    vocabularyContentEl.append(renderVocabularyItem(item));
+  }
+}
+
+function scrollVocabularyToBottom() {
+  if (!vocabularyPaneEl) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    vocabularyPaneEl.scrollTop = vocabularyPaneEl.scrollHeight;
+  });
+}
+
+function renderVocabularyItem(item) {
+  const card = document.createElement('article');
+  card.className = 'card vocabulary-card';
+
+  const body = document.createElement('div');
+  body.className = 'card-body vocabulary-card-body';
+
+  const entry = document.createElement('div');
+  entry.className = 'vocabulary-entry';
+
+  const term = document.createElement('h3');
+  term.className = 'vocabulary-term';
+  term.textContent = item.term || '';
+
+  const translation = document.createElement('p');
+  translation.className = 'vocabulary-translation';
+  translation.textContent = item.translation || '';
+
+  entry.append(term, translation);
+
+  const explanation = document.createElement('p');
+  explanation.className = 'vocabulary-explanation';
+  explanation.textContent = item.explanation || '';
+
+  body.append(entry, explanation);
+
+  if (item.example) {
+    const example = document.createElement('blockquote');
+    example.className = 'vocabulary-example';
+    example.textContent = item.example;
+    body.append(example);
+  }
+
+  if (item.sourceSentence) {
+    const source = document.createElement('small');
+    source.className = 'vocabulary-source';
+    source.textContent = item.sourceSentence;
+    body.append(source);
+  }
+
+  card.append(body);
+  return card;
 }
 
 function renderPracticeChallenge(challenge) {
