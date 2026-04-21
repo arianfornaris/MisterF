@@ -546,6 +546,45 @@ body {
   line-height: 1.55;
 }
 
+.message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation) {
+  animation: tutor-message-fade-in 420ms ease-out both;
+}
+
+.message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation):nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation):nth-child(3) {
+  animation-delay: 150ms;
+}
+
+.message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation):nth-child(4) {
+  animation-delay: 220ms;
+}
+
+.message-row.is-model.tutor-message-enter .sentence-evaluation {
+  animation: tutor-message-fade-in 440ms ease-out 300ms both;
+}
+
+@keyframes tutor-message-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation),
+  .message-row.is-model.tutor-message-enter .sentence-evaluation {
+    animation: none;
+  }
+}
+
 .message-row.is-user .message-bubble {
   --bs-card-border-color: rgb(31 111 139 / 18%);
   --bs-card-bg: rgb(31 111 139 / 4%);

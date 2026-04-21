@@ -217,8 +217,10 @@ if (socket) {
       attachMessageMetadata(streamingRow, message.metadata);
       renderSentenceEvaluation(streamingBubble, sentenceEvaluation);
       initializeSentencePopovers(streamingBubble);
+      markTutorMessageArrived(streamingRow);
     } else {
-      appendStoredMessage(message, { sentenceEvaluation });
+      const bubble = appendStoredMessage(message, { sentenceEvaluation });
+      markTutorMessageArrived(bubble.closest('.message-row'));
     }
 
     if (activeUserMessageId) {
@@ -875,6 +877,20 @@ function appendMessage(role, content, options = {}) {
   messagesEl.append(row);
   initializeSentencePopovers(row);
   return bubble;
+}
+
+function markTutorMessageArrived(row) {
+  if (!row || !row.classList.contains('is-model')) {
+    return;
+  }
+
+  row.classList.remove('tutor-message-enter');
+  void row.offsetWidth;
+  row.classList.add('tutor-message-enter');
+
+  window.setTimeout(() => {
+    row.classList.remove('tutor-message-enter');
+  }, 1200);
 }
 
 function getMessageBubbleClassName(role) {
