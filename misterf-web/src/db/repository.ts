@@ -138,6 +138,10 @@ type VocabularyRow = {
   updated_at: string;
 };
 
+type TimestampRow = {
+  updated_at: string | null;
+};
+
 const defaultConversationTitle = 'Nueva conversación';
 
 function toStoredConversation(row: ConversationRow): StoredConversation {
@@ -682,6 +686,53 @@ export function listVocabularyForConversation(
     .all(conversationId) as VocabularyRow[];
 
   return rows.map(toStoredVocabularyItem);
+}
+
+export function getLearningSourceUpdatedAt(
+  conversationId: string,
+): string | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT MAX(updated_at) AS updated_at
+        FROM (
+          SELECT created_at AS updated_at
+          FROM sentence_challenges
+          WHERE conversation_id = ?
+
+          UNION ALL
+
+          SELECT completed_at AS updated_at
+          FROM sentence_challenges
+          WHERE conversation_id = ? AND completed_at IS NOT NULL
+
+          UNION ALL
+
+          SELECT created_at AS updated_at
+          FROM sentence_attempts
+          WHERE conversation_id = ?
+        )
+      `,
+    )
+    .get(conversationId, conversationId, conversationId) as
+    | TimestampRow
+    | undefined;
+
+  return row?.updated_at ?? null;
+}
+
+export function getVocabularyUpdatedAt(conversationId: string): string | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT MAX(updated_at) AS updated_at
+        FROM conversation_vocabulary
+        WHERE conversation_id = ?
+      `,
+    )
+    .get(conversationId) as TimestampRow | undefined;
+
+  return row?.updated_at ?? null;
 }
 
 export function upsertVocabularyItems(

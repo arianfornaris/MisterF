@@ -5,6 +5,7 @@ import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import type { ProviderOptions } from '@ai-sdk/provider-utils';
 import {
   generateObject,
+  generateText,
   jsonSchema,
   type FinishReason,
   type LanguageModelUsage,
@@ -48,14 +49,32 @@ export type TranslationResult = {
   translatedText: string;
 };
 
+export type GeneratedProgressResult = {
+  markdown: string;
+  model: string;
+  provider: string;
+};
+
+export type GeneratedVocabularyItem = {
+  example?: string;
+  explanation: string;
+  sourceSentence?: string;
+  term: string;
+  translation: string;
+};
+
+export type GeneratedVocabularyResult = {
+  items: GeneratedVocabularyItem[];
+  model: string;
+  provider: string;
+};
+
 export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorChallengeStartedBlock
   | TutorSentenceEvaluationBlock
   | TutorChallengeCompletedBlock
-  | TutorLearningProgressBlock
-  | TutorConversationTitleBlock
-  | TutorVocabularyItemsBlock;
+  | TutorConversationTitleBlock;
 
 export type TutorMessageBlock = {
   type: 'message';
@@ -83,25 +102,9 @@ export type TutorChallengeCompletedBlock = {
   score: number;
 };
 
-export type TutorLearningProgressBlock = {
-  type: 'learning_progress';
-  markdown: string;
-};
-
 export type TutorConversationTitleBlock = {
   title: string;
   type: 'conversation_title';
-};
-
-export type TutorVocabularyItemsBlock = {
-  items: Array<{
-    example?: string;
-    explanation: string;
-    sourceSentence?: string;
-    term: string;
-    translation: string;
-  }>;
-  type: 'vocabulary_items';
 };
 
 export class MissingLlmApiKeyError extends Error {
@@ -141,7 +144,6 @@ function getSystemInstruction(): string {
 export async function runTutorAgentLoop(
   history: TutorMessage[],
   options: {
-    currentProgressMarkdown?: string;
     currentTitle?: string;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     startConversation?: boolean;
@@ -320,6 +322,120 @@ export async function translateTextWithLlm(input: {
   };
 }
 
+export async function generateProgressWithLlm(input: {
+  compactDataset: string;
+  onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
+}): Promise<GeneratedProgressResult> {
+  const system = buildProgressSystemInstruction();
+  const messages: ModelMessage[] = [
+    {
+      content: input.compactDataset,
+      role: 'user',
+    },
+  ];
+  const result = await generateText({
+    maxOutputTokens: 800,
+    messages,
+    model: getLanguageModel(),
+    providerOptions: getProviderOptions(),
+    system,
+    temperature: shouldUseTemperature() ? 0.2 : undefined,
+  });
+
+  input.onTokenUsage?.(
+    buildLlmRequestTokenUsage({
+      messages,
+      system,
+      turn: 1,
+      usage: result.usage,
+    }),
+  );
+
+  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+    result.finishReason,
+    undefined,
+    result.providerMetadata,
+  );
+  if (userFacingFinishMessage) {
+    throw new LlmFinishReasonError(
+      result.finishReason,
+      userFacingFinishMessage,
+    );
+  }
+
+  const markdown = result.text.trim();
+  if (!markdown) {
+    throw new Error('El progreso no devolvió contenido.');
+  }
+
+  return {
+    markdown,
+    model: env.llmModel,
+    provider: env.llmProvider,
+  };
+}
+
+export async function generateVocabularyWithLlm(input: {
+  compactDataset: string;
+  onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
+}): Promise<GeneratedVocabularyResult> {
+  const system = buildVocabularySystemInstruction();
+  const messages: ModelMessage[] = [
+    {
+      content: input.compactDataset,
+      role: 'user',
+    },
+  ];
+  const result = await generateObject({
+    maxOutputTokens: 1300,
+    messages,
+    model: getLanguageModel(),
+    providerOptions: getProviderOptions(),
+    schema: jsonSchema(vocabularyJsonSchema),
+    schemaDescription:
+      'Useful vocabulary extracted from sentence challenges and user attempts.',
+    schemaName: 'VocabularyResult',
+    system,
+    temperature: shouldUseTemperature() ? 0.2 : undefined,
+  });
+
+  input.onTokenUsage?.(
+    buildLlmRequestTokenUsage({
+      messages,
+      system,
+      turn: 1,
+      usage: result.usage,
+    }),
+  );
+
+  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+    result.finishReason,
+    undefined,
+    result.providerMetadata,
+  );
+  if (userFacingFinishMessage) {
+    throw new LlmFinishReasonError(
+      result.finishReason,
+      userFacingFinishMessage,
+    );
+  }
+
+  const parsed = vocabularyResultSchema.safeParse(result.object);
+  if (!parsed.success) {
+    console.error('[Mr. F vocabulary validation failed]', JSON.stringify({
+      issues: parsed.error.issues,
+      value: result.object,
+    }, null, 2));
+    throw new Error('El vocabulario no devolvió una respuesta válida.');
+  }
+
+  return {
+    items: parsed.data.items,
+    model: env.llmModel,
+    provider: env.llmProvider,
+  };
+}
+
 function toModelMessage(message: TutorMessage): ModelMessage {
   return {
     content: message.content,
@@ -331,7 +447,6 @@ function logLlmRequest(
   messages: ModelMessage[],
   system: string,
   options: {
-    currentProgressMarkdown?: string;
     currentTitle?: string;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     startConversation?: boolean;
@@ -608,9 +723,6 @@ function buildAgentSystemInstruction(options: {
       ? 'El usuario ya cambió este título manualmente. No incluyas conversation_title.'
       : 'Puedes incluir conversation_title si el tema o propósito ya está claro y el título actual es genérico.',
     '',
-    'Progreso actual:',
-    options.currentProgressMarkdown || '(todavía no hay progreso guardado)',
-    '',
     '## Protocolo de respuesta estructurada',
     '',
     'Debes responder siempre con un objeto JSON. No devuelvas markdown suelto ni texto fuera del JSON.',
@@ -627,14 +739,50 @@ function buildAgentSystemInstruction(options: {
     '- Cuando incluyas challenge_completed, el bloque message visible debe mostrar 2 o 3 formas alternativas de decir la misma idea en inglés, con una explicación breve de cuándo usar cada variante.',
     '- Si hay partes error o improve, no incluyas challenge_completed ni challenge_started; da feedback y pide otro intento.',
     '- Cuando propongas una oración nueva en español, incluye challenge_started y también un bloque message que muestre esa oración al usuario.',
-    '- Cuando propongas una oración nueva en español, incluye vocabulary_items con el vocabulario clave de esa oración.',
-    '- También puedes incluir vocabulary_items cuando aparezcan palabras útiles en correcciones, alternativas o explicaciones.',
-    '- vocabulary_items debe contener vocabulario realmente útil para aprender: evita palabras triviales como "the", "a", "is" salvo que sean pedagógicamente relevantes.',
-    '- En vocabulary_items, translation y explanation deben estar en español, con explicaciones breves y prácticas.',
-    '- Incluye learning_progress obligatoriamente cuando el usuario define tema y nivel, cambia tema o nivel, comete un error nuevo y claro, o completa correctamente una oración.',
-    '- El markdown de learning_progress debe estar en español y contener estas secciones: Tema, Nivel, Resumen, Errores frecuentes, Vocabulario.',
-    '- No incluyas learning_progress si no cambió nada relevante para esas secciones.',
+    '- No incluyas progreso ni vocabulario en la respuesta del chat. La app los calcula bajo demanda con llamadas especializadas.',
     '- Incluye conversation_title si el título actual es genérico y ya existe suficiente contexto, salvo que el usuario haya renombrado manualmente.',
+  ].join('\n');
+}
+
+function buildProgressSystemInstruction(): string {
+  return [
+    'Eres un analista pedagógico para una app de aprendizaje de inglés.',
+    'Recibirás solo datos compactos de retos: oración y respuestas del usuario.',
+    'Genera un progreso actualizado en español, conciso e informativo.',
+    'No inventes datos fuera de los retos. Si algo no se puede inferir, dilo brevemente.',
+    'Usa markdown con exactamente estas secciones:',
+    '',
+    '## Tema',
+    '## Nivel',
+    '## Resumen',
+    '## Errores frecuentes',
+    '## Vocabulario',
+    '',
+    'Mantén el resultado compacto: idealmente 120 a 180 palabras.',
+    'Devuelve solo markdown. No devuelvas JSON. No uses bloque de código.',
+  ].join('\n');
+}
+
+function buildVocabularySystemInstruction(): string {
+  return [
+    'Eres un extractor de vocabulario para una app de aprendizaje de inglés.',
+    'Recibirás solo datos compactos de retos: oración y respuestas del usuario.',
+    'Extrae vocabulario útil que aparezca o se derive directamente de esas oraciones e intentos.',
+    'No inventes vocabulario fuera del contexto. Evita palabras triviales como "the", "a", "is" salvo que sean pedagógicamente relevantes.',
+    'Cada item debe tener término en inglés, traducción al español y explicación breve en español.',
+    'Incluye example solo si puedes dar un ejemplo corto y natural en inglés basado en el contexto.',
+    'Incluye sourceSentence si ayuda a ubicar de dónde salió el vocabulario.',
+    'Máximo 12 items.',
+    'Responde solo con JSON que cumpla:',
+    'type VocabularyResult = {',
+    '  items: Array<{',
+    '    term: string;',
+    '    translation: string;',
+    '    explanation: string;',
+    '    example?: string;',
+    '    sourceSentence?: string;',
+    '  }>',
+    '};',
   ].join('\n');
 }
 
@@ -690,10 +838,53 @@ const translationJsonSchema = {
   required: ['detectedLanguage', 'translatedText'],
 } as const;
 
+const vocabularyJsonSchema = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    items: {
+      type: 'array',
+      minItems: 0,
+      maxItems: 12,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          term: { type: 'string' },
+          translation: { type: 'string' },
+          explanation: { type: 'string' },
+          example: { type: 'string' },
+          sourceSentence: { type: 'string' },
+        },
+        required: ['term', 'translation', 'explanation'],
+      },
+    },
+  },
+  required: ['items'],
+} as const;
+
 const translationResultSchema = z
   .object({
     detectedLanguage: z.string().trim().min(1).max(80),
     translatedText: z.string().trim().min(1).max(3000),
+  })
+  .strict();
+
+const vocabularyResultSchema = z
+  .object({
+    items: z
+      .array(
+        z
+          .object({
+            term: z.string().trim().min(1).max(90),
+            translation: z.string().trim().min(1).max(160),
+            explanation: z.string().trim().min(1).max(360),
+            example: z.string().trim().min(1).max(240).optional(),
+            sourceSentence: z.string().trim().min(1).max(320).optional(),
+          })
+          .strict(),
+      )
+      .max(12),
   })
   .strict();
 
@@ -718,18 +909,7 @@ type TutorResponseBlock =
       }>;
     }
   | { type: "challenge_completed"; score: number } // score debe ser decimal de 0 a 1: usa 1 para perfecto, no 100.
-  | { type: "learning_progress"; markdown: string }
-  | { type: "conversation_title"; title: string }
-  | {
-      type: "vocabulary_items";
-      items: Array<{
-        term: string; // palabra, frase corta o expresión en inglés
-        translation: string; // traducción al español
-        explanation: string; // explicación breve en español de uso/contexto
-        example?: string; // ejemplo breve en inglés
-        sourceSentence?: string; // oración en español o contexto de donde salió
-      }>;
-    };`;
+  | { type: "conversation_title"; title: string };`;
 
 const messageBlockSchema = z
   .object({
@@ -777,37 +957,10 @@ const challengeCompletedBlockSchema = z
   })
   .strict();
 
-const learningProgressBlockSchema = z
-  .object({
-    type: z.literal('learning_progress'),
-    markdown: z.string().trim().min(1).max(2400),
-  })
-  .strict();
-
 const conversationTitleBlockSchema = z
   .object({
     type: z.literal('conversation_title'),
     title: z.string().trim().min(1).max(90),
-  })
-  .strict();
-
-const vocabularyItemsBlockSchema = z
-  .object({
-    type: z.literal('vocabulary_items'),
-    items: z
-      .array(
-        z
-          .object({
-            term: z.string().trim().min(1).max(90),
-            translation: z.string().trim().min(1).max(160),
-            explanation: z.string().trim().min(1).max(360),
-            example: z.string().trim().min(1).max(240).optional(),
-            sourceSentence: z.string().trim().min(1).max(320).optional(),
-          })
-          .strict(),
-      )
-      .min(1)
-      .max(12),
   })
   .strict();
 
@@ -820,13 +973,11 @@ const tutorResponseSchema = z
           challengeStartedBlockSchema,
           sentenceEvaluationBlockSchema,
           challengeCompletedBlockSchema,
-          learningProgressBlockSchema,
           conversationTitleBlockSchema,
-          vocabularyItemsBlockSchema,
         ]),
       )
       .min(1)
-      .max(12),
+      .max(8),
   })
   .strict();
 

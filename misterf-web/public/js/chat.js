@@ -45,6 +45,8 @@ let practiceChallenges = [];
 let vocabularyItems = [];
 let pendingTranslatorSelection = '';
 let shouldScrollVocabularyOnOpen = false;
+let isProgressGenerating = false;
+let isVocabularyGenerating = false;
 
 if (window.marked) {
   window.marked.setOptions({
@@ -88,6 +90,8 @@ if (socket) {
     markActiveConversation(conversationId);
     messagesEl.replaceChildren();
     streamingBubble = null;
+    isProgressGenerating = false;
+    isVocabularyGenerating = false;
     pendingSentenceEvaluations.clear();
     practiceChallenges = payload.practice ?? [];
     vocabularyItems = payload.vocabulary ?? [];
@@ -124,8 +128,21 @@ if (socket) {
 
   socket.on('progress:updated', (payload) => {
     if (payload.conversationId === conversationId) {
+      isProgressGenerating = false;
       renderProgress(payload.progress?.markdown || '');
     }
+  });
+
+  socket.on('progress:generating', (payload) => {
+    if (isCurrentConversationPayload(payload)) {
+      isProgressGenerating = true;
+      renderProgressGenerating();
+    }
+  });
+
+  socket.on('progress:error', ({ message }) => {
+    isProgressGenerating = false;
+    renderProgressError(message || 'No pude actualizar el progreso.');
   });
 
   socket.on('llm:request_tokens', (payload) => {
@@ -141,10 +158,23 @@ if (socket) {
       return;
     }
 
+    isVocabularyGenerating = false;
     vocabularyItems = payload.vocabulary ?? [];
     renderVocabulary(vocabularyItems);
     shouldScrollVocabularyOnOpen = true;
     scrollVocabularyToBottom();
+  });
+
+  socket.on('vocabulary:generating', (payload) => {
+    if (isCurrentConversationPayload(payload)) {
+      isVocabularyGenerating = true;
+      renderVocabularyGenerating();
+    }
+  });
+
+  socket.on('vocabulary:error', ({ message }) => {
+    isVocabularyGenerating = false;
+    renderVocabularyError(message || 'No pude actualizar el vocabulario.');
   });
 
   socket.on('practice:updated', (payload) => {
@@ -208,6 +238,8 @@ if (socket) {
       renderPractice(practiceChallenges);
       renderProgress('');
       renderVocabulary(vocabularyItems);
+      isProgressGenerating = false;
+      isVocabularyGenerating = false;
       streamingBubble = null;
     }
   });
@@ -370,6 +402,7 @@ for (const button of translatorCopyButtonEls) {
 
 document.querySelector('#progress-tab')?.addEventListener('shown.bs.tab', () => {
   formEl.hidden = true;
+  requestProgressGeneration();
 });
 
 document.querySelector('#practice-tab')?.addEventListener('shown.bs.tab', () => {
@@ -378,6 +411,7 @@ document.querySelector('#practice-tab')?.addEventListener('shown.bs.tab', () => 
 
 document.querySelector('#vocabulary-tab')?.addEventListener('shown.bs.tab', () => {
   formEl.hidden = true;
+  requestVocabularyGeneration();
   if (shouldScrollVocabularyOnOpen) {
     scrollVocabularyToBottom();
     shouldScrollVocabularyOnOpen = false;
@@ -542,6 +576,22 @@ function logLlmRequestTokens(usage) {
     provider: usage.provider,
     turn: usage.turn,
   });
+}
+
+function requestProgressGeneration() {
+  if (!socket || !conversationId || isProgressGenerating) {
+    return;
+  }
+
+  socket.emit('progress:generate', { conversationId });
+}
+
+function requestVocabularyGeneration() {
+  if (!socket || !conversationId || isVocabularyGenerating) {
+    return;
+  }
+
+  socket.emit('vocabulary:generate', { conversationId });
 }
 
 function startNewConversation() {
@@ -973,6 +1023,26 @@ function renderProgress(markdown) {
   progressContentEl.innerHTML = renderMarkdown(markdown);
 }
 
+function renderProgressGenerating() {
+  if (!progressContentEl) {
+    return;
+  }
+
+  progressContentEl.classList.add('is-empty');
+  progressContentEl.innerHTML = renderMarkdown(
+    'Actualizando el progreso con los retos e intentos registrados...',
+  );
+}
+
+function renderProgressError(message) {
+  if (!progressContentEl) {
+    return;
+  }
+
+  progressContentEl.classList.add('is-empty');
+  progressContentEl.innerHTML = renderMarkdown(message);
+}
+
 function renderPractice(challenges) {
   if (!practiceContentEl) {
     return;
@@ -1011,6 +1081,31 @@ function renderVocabulary(items) {
   for (const item of items) {
     vocabularyContentEl.append(renderVocabularyItem(item));
   }
+}
+
+function renderVocabularyGenerating() {
+  if (!vocabularyContentEl) {
+    return;
+  }
+
+  vocabularyContentEl.replaceChildren();
+  const loading = document.createElement('div');
+  loading.className = 'alert alert-light vocabulary-empty';
+  loading.textContent =
+    'Actualizando el vocabulario con los retos e intentos registrados...';
+  vocabularyContentEl.append(loading);
+}
+
+function renderVocabularyError(message) {
+  if (!vocabularyContentEl) {
+    return;
+  }
+
+  vocabularyContentEl.replaceChildren();
+  const error = document.createElement('div');
+  error.className = 'alert alert-warning vocabulary-empty';
+  error.textContent = message;
+  vocabularyContentEl.append(error);
 }
 
 function scrollVocabularyToBottom() {

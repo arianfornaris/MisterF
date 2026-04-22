@@ -13,7 +13,9 @@ import {
   deleteConversationForUser,
   findActiveSentenceChallenge,
   findConversationForUser,
+  getLearningSourceUpdatedAt,
   getProgressForConversation,
+  getVocabularyUpdatedAt,
   listVocabularyForConversation,
   listSentenceChallenges,
   listMessages,
@@ -29,6 +31,8 @@ import { pickInitialGreeting } from './initialGreetings.js';
 import {
   LlmFinishReasonError,
   MissingLlmApiKeyError,
+  generateProgressWithLlm,
+  generateVocabularyWithLlm,
   runTutorAgentLoop,
   translateTextWithLlm,
   type LlmRequestTokenUsage,
@@ -59,6 +63,10 @@ type DeletePayload = {
 type TranslatePayload = {
   mode?: string;
   text?: string;
+};
+
+type GenerateTabPayload = {
+  conversationId?: string | null;
 };
 
 type AuthenticatedSocketData = {
@@ -332,6 +340,132 @@ export function registerChatSocket(io: Server): void {
         });
       }
     });
+
+    socket.on('progress:generate', async (payload: GenerateTabPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      const conversation = conversationId
+        ? findConversationForUser(conversationId, userId)
+        : null;
+      if (!conversation) {
+        socket.emit('progress:error', {
+          message: 'No pude encontrar esa conversación.',
+        });
+        return;
+      }
+
+      socket.emit('progress:generating', { conversationId: conversation.id });
+
+      try {
+        const sourceUpdatedAt = getLearningSourceUpdatedAt(conversation.id);
+        const currentProgress = getProgressForConversation(conversation.id);
+        if (!sourceUpdatedAt || isDerivedArtifactFresh(
+          currentProgress?.updatedAt,
+          sourceUpdatedAt,
+        )) {
+          socket.emit('progress:updated', {
+            conversationId: conversation.id,
+            progress: currentProgress,
+          });
+          return;
+        }
+
+        const compactDataset = buildCompactChallengeDataset(
+          listSentenceChallenges(conversation.id),
+        );
+        const generated = await generateProgressWithLlm({
+          compactDataset,
+          onTokenUsage: (usage) => {
+            emitLlmRequestTokenUsage(io, conversation.id, usage);
+          },
+        });
+        const progress = upsertProgressForConversation(
+          conversation.id,
+          generated.markdown,
+        );
+        io.to(conversation.id).emit('progress:updated', {
+          conversationId: conversation.id,
+          progress,
+        });
+      } catch (error) {
+        console.error('Progress generation failed.', {
+          conversationId: conversation.id,
+          error: serializeError(error),
+          userId,
+        });
+        socket.emit('progress:error', {
+          message: toUserFacingError(error),
+        });
+      }
+    });
+
+    socket.on('vocabulary:generate', async (payload: GenerateTabPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      const conversation = conversationId
+        ? findConversationForUser(conversationId, userId)
+        : null;
+      if (!conversation) {
+        socket.emit('vocabulary:error', {
+          message: 'No pude encontrar esa conversación.',
+        });
+        return;
+      }
+
+      socket.emit('vocabulary:generating', { conversationId: conversation.id });
+
+      try {
+        const sourceUpdatedAt = getLearningSourceUpdatedAt(conversation.id);
+        const vocabulary = listVocabularyForConversation(conversation.id);
+        if (!sourceUpdatedAt || isDerivedArtifactFresh(
+          getVocabularyUpdatedAt(conversation.id),
+          sourceUpdatedAt,
+        )) {
+          socket.emit('vocabulary:updated', {
+            conversationId: conversation.id,
+            vocabulary,
+          });
+          return;
+        }
+
+        const compactDataset = buildCompactChallengeDataset(
+          listSentenceChallenges(conversation.id),
+        );
+        const generated = await generateVocabularyWithLlm({
+          compactDataset,
+          onTokenUsage: (usage) => {
+            emitLlmRequestTokenUsage(io, conversation.id, usage);
+          },
+        });
+        const updatedVocabulary = upsertVocabularyItems(
+          conversation.id,
+          generated.items,
+        );
+        io.to(conversation.id).emit('vocabulary:updated', {
+          conversationId: conversation.id,
+          vocabulary: updatedVocabulary,
+        });
+      } catch (error) {
+        console.error('Vocabulary generation failed.', {
+          conversationId: conversation.id,
+          error: serializeError(error),
+          userId,
+        });
+        socket.emit('vocabulary:error', {
+          message: toUserFacingError(error),
+        });
+      }
+    });
   });
 }
 
@@ -427,11 +561,9 @@ async function streamAssistantMessage(
 
     const messages = listMessages(conversationId);
     const challenges = listSentenceChallenges(conversationId);
-    const currentProgress = getProgressForConversation(conversationId);
     const result = await runTutorAgentLoop(
       buildTutorHistoryForLlm(messages, challenges),
       {
-        currentProgressMarkdown: currentProgress?.markdown ?? '',
         currentTitle: conversation.title,
         onTokenUsage: (usage) => {
           emitLlmRequestTokenUsage(io, conversationId, usage);
@@ -494,6 +626,17 @@ function emitLlmRequestTokenUsage(
     conversationId,
     usage,
   });
+}
+
+function isDerivedArtifactFresh(
+  artifactUpdatedAt: string | null | undefined,
+  sourceUpdatedAt: string,
+): boolean {
+  if (!artifactUpdatedAt) {
+    return false;
+  }
+
+  return compareSqliteTimestamps(artifactUpdatedAt, sourceUpdatedAt) >= 0;
 }
 
 function buildTutorHistoryForLlm(
@@ -561,6 +704,56 @@ function buildCompressedChallengeHistory(
     ].join('\n'),
     role: 'user',
   };
+}
+
+function buildCompactChallengeDataset(
+  challenges: StoredSentenceChallenge[],
+): string {
+  const usableChallenges = challenges.filter(
+    (challenge) => challenge.sourceSentence || challenge.attempts.length > 0,
+  );
+
+  if (usableChallenges.length === 0) {
+    return [
+      'RETOS E INTENTOS',
+      '',
+      'Todavía no hay retos registrados.',
+    ].join('\n');
+  }
+
+  const sections = usableChallenges.map((challenge, index) => {
+    const lines = [
+      `${index + 1}. Oración: ${challenge.sourceSentence}`,
+      'Intentos:',
+    ];
+
+    if (challenge.attempts.length === 0) {
+      lines.push('- ninguno');
+      return lines.join('\n');
+    }
+
+    for (const attempt of challenge.attempts) {
+      lines.push(`- ${attempt.attemptText} [${getAttemptOutcome(attempt)}]`);
+    }
+
+    return lines.join('\n');
+  });
+
+  return ['RETOS E INTENTOS', '', sections.join('\n\n')].join('\n');
+}
+
+function getAttemptOutcome(
+  attempt: StoredSentenceChallenge['attempts'][number],
+): string {
+  if (attempt.isCorrect) {
+    return 'correcta';
+  }
+
+  if (attempt.evaluation.parts.some((part) => part.status === 'improve')) {
+    return 'puede mejorar';
+  }
+
+  return 'incorrecta';
 }
 
 function selectLiveMessagesForLlm(
@@ -716,10 +909,6 @@ function applyTutorBlocks(input: {
         });
         break;
 
-      case 'learning_progress':
-        handleLearningProgressBlock(input.io, input.conversationId, block.markdown);
-        break;
-
       case 'conversation_title':
         handleConversationTitleBlock({
           conversationId: input.conversationId,
@@ -727,10 +916,6 @@ function applyTutorBlocks(input: {
           title: block.title,
           userId: input.userId,
         });
-        break;
-
-      case 'vocabulary_items':
-        handleVocabularyItemsBlock(input.io, input.conversationId, block.items);
         break;
 
       case 'message':
@@ -876,30 +1061,6 @@ function completeAndCelebrateChallenge(input: {
   input.io
     .to(input.conversationId)
     .emit('sentence_challenge:completed', completionPayload);
-}
-
-function handleLearningProgressBlock(
-  io: Server,
-  conversationId: string,
-  markdown: string,
-): void {
-  const progress = upsertProgressForConversation(conversationId, markdown);
-  io.to(conversationId).emit('progress:updated', {
-    conversationId,
-    progress,
-  });
-}
-
-function handleVocabularyItemsBlock(
-  io: Server,
-  conversationId: string,
-  items: Extract<TutorResponseBlock, { type: 'vocabulary_items' }>['items'],
-): void {
-  const vocabulary = upsertVocabularyItems(conversationId, items);
-  io.to(conversationId).emit('vocabulary:updated', {
-    conversationId,
-    vocabulary,
-  });
 }
 
 function handleConversationTitleBlock(input: {
