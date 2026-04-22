@@ -38,6 +38,7 @@ export const env = {
     process.env.LLM_MODEL ??
     process.env.GEMINI_MODEL ??
     'gemini-2.5-flash',
+  llmContextWindow: readInteger('LLM_CONTEXT_WINDOW', 128000),
   openaiApiKey: process.env.OPENAI_API_KEY ?? '',
   openaiReasoningEffort: process.env.OPENAI_REASONING_EFFORT ?? 'medium',
   openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',

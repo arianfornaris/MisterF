@@ -7,6 +7,7 @@ import {
   generateObject,
   jsonSchema,
   type FinishReason,
+  type LanguageModelUsage,
   type LanguageModel,
   type ModelMessage,
   type ProviderMetadata,
@@ -26,6 +27,16 @@ export type TutorAgentResult = {
   content: string;
   model: string;
   provider: string;
+};
+
+export type LlmRequestTokenUsage = {
+  contextWindowTokens: number;
+  inputTokens: number;
+  isEstimate: boolean;
+  model: string;
+  percentUsed: number;
+  provider: string;
+  turn: number;
 };
 
 export type TranslationMode = 'auto' | 'es-en' | 'en-es';
@@ -132,6 +143,7 @@ export async function runTutorAgentLoop(
   options: {
     currentProgressMarkdown?: string;
     currentTitle?: string;
+    onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
   },
@@ -170,6 +182,14 @@ export async function runTutorAgentLoop(
         result.finishReason,
         result.providerMetadata,
         turn + 1,
+      );
+      options.onTokenUsage?.(
+        buildLlmRequestTokenUsage({
+          messages,
+          system,
+          turn: turn + 1,
+          usage: result.usage,
+        }),
       );
 
       const userFacingFinishMessage = getUserFacingFinishReasonMessage(
@@ -313,6 +333,7 @@ function logLlmRequest(
   options: {
     currentProgressMarkdown?: string;
     currentTitle?: string;
+    onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
   },
@@ -331,6 +352,42 @@ function logLlmRequest(
     system,
     turn,
   });
+}
+
+function buildLlmRequestTokenUsage(input: {
+  messages: ModelMessage[];
+  system: string;
+  turn: number;
+  usage?: LanguageModelUsage;
+}): LlmRequestTokenUsage {
+  const inputTokens =
+    input.usage?.inputTokens ?? estimateTokenCount(input.system, input.messages);
+  const contextWindowTokens = Math.max(1, env.llmContextWindow);
+
+  return {
+    contextWindowTokens,
+    inputTokens,
+    isEstimate: input.usage?.inputTokens === undefined,
+    model: env.llmModel,
+    percentUsed: Number(
+      ((inputTokens / contextWindowTokens) * 100).toFixed(2),
+    ),
+    provider: env.llmProvider,
+    turn: input.turn,
+  };
+}
+
+function estimateTokenCount(system: string, messages: ModelMessage[]): number {
+  const text = [
+    system,
+    ...messages.map((message) =>
+      typeof message.content === 'string'
+        ? message.content
+        : JSON.stringify(message.content),
+    ),
+  ].join('\n\n');
+
+  return Math.max(1, Math.ceil(text.length / 4));
 }
 
 function logLlmResponse(

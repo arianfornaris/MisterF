@@ -23,6 +23,7 @@ import {
   upsertSentenceAttempt,
   upsertVocabularyItems,
   type StoredMessage,
+  type StoredSentenceChallenge,
 } from '../db/repository.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import {
@@ -30,6 +31,7 @@ import {
   MissingLlmApiKeyError,
   runTutorAgentLoop,
   translateTextWithLlm,
+  type LlmRequestTokenUsage,
   type TranslationMode,
   type TutorMessage,
   type TutorResponseBlock,
@@ -424,12 +426,16 @@ async function streamAssistantMessage(
     }
 
     const messages = listMessages(conversationId);
+    const challenges = listSentenceChallenges(conversationId);
     const currentProgress = getProgressForConversation(conversationId);
     const result = await runTutorAgentLoop(
-      toTutorHistory(messages),
+      buildTutorHistoryForLlm(messages, challenges),
       {
         currentProgressMarkdown: currentProgress?.markdown ?? '',
         currentTitle: conversation.title,
+        onTokenUsage: (usage) => {
+          emitLlmRequestTokenUsage(io, conversationId, usage);
+        },
         startConversation,
         titleUpdatedByUser: conversation.titleUpdatedByUser,
       },
@@ -477,6 +483,201 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
     content: message.content,
     role: message.role,
   }));
+}
+
+function emitLlmRequestTokenUsage(
+  io: Server,
+  conversationId: string,
+  usage: LlmRequestTokenUsage,
+): void {
+  io.to(conversationId).emit('llm:request_tokens', {
+    conversationId,
+    usage,
+  });
+}
+
+function buildTutorHistoryForLlm(
+  messages: StoredMessage[],
+  challenges: StoredSentenceChallenge[],
+): TutorMessage[] {
+  if (challenges.length === 0) {
+    return toTutorHistory(messages);
+  }
+
+  const activeChallenge = challenges.find((challenge) => !challenge.completedAt);
+  const previousChallenges = activeChallenge
+    ? challenges.filter((challenge) => challenge.id !== activeChallenge.id)
+    : challenges;
+  const compressedHistory = buildCompressedChallengeHistory(previousChallenges);
+  const liveMessages = selectLiveMessagesForLlm(messages, challenges, activeChallenge);
+  const history = compressedHistory ? [compressedHistory, ...liveMessages] : liveMessages;
+
+  console.log('[Mr. F compressed LLM history]', {
+    activeChallengeId: activeChallenge?.id ?? null,
+    compressedChallengeCount: previousChallenges.length,
+    originalMessageCount: messages.length,
+    sentMessageCount: history.length,
+  });
+
+  return history;
+}
+
+function buildCompressedChallengeHistory(
+  challenges: StoredSentenceChallenge[],
+): TutorMessage | null {
+  const completedOrPreviousChallenges = challenges.filter(
+    (challenge) => challenge.attempts.length > 0 || challenge.sourceSentence,
+  );
+  if (completedOrPreviousChallenges.length === 0) {
+    return null;
+  }
+
+  const sections = completedOrPreviousChallenges.map((challenge, index) => {
+    const lines = [
+      `Reto ${index + 1}:`,
+      `Oración en español: ${challenge.sourceSentence}`,
+    ];
+
+    if (challenge.attempts.length === 0) {
+      lines.push('Intentos: ninguno registrado.');
+      return lines.join('\n');
+    }
+
+    lines.push('Intentos:');
+    for (const attempt of challenge.attempts) {
+      lines.push(`- ${attempt.attemptText}`);
+    }
+
+    return lines.join('\n');
+  });
+
+  return {
+    content: [
+      'CONTEXTO INTERNO DE LA APP: compressed_history.',
+      'Este resumen reemplaza los mensajes completos de retos anteriores. No lo muestres al usuario.',
+      'Usa este contexto solo para mantener continuidad pedagógica, errores recurrentes y temas practicados.',
+      '',
+      sections.join('\n\n'),
+    ].join('\n'),
+    role: 'user',
+  };
+}
+
+function selectLiveMessagesForLlm(
+  messages: StoredMessage[],
+  challenges: StoredSentenceChallenge[],
+  activeChallenge?: StoredSentenceChallenge,
+): TutorMessage[] {
+  if (messages.length === 0) {
+    return [];
+  }
+
+  if (activeChallenge) {
+    const activeStartIndex = findChallengeStartMessageIndex(
+      messages,
+      activeChallenge,
+    );
+    return toTutorHistory(messages.slice(activeStartIndex));
+  }
+
+  const lastCompletedChallenge = [...challenges]
+    .filter((challenge) => challenge.completedAt)
+    .sort((first, second) =>
+      compareSqliteTimestamps(second.completedAt, first.completedAt),
+    )[0];
+
+  if (!lastCompletedChallenge?.completedAt) {
+    return toTutorHistory(messages);
+  }
+
+  const firstRecentIndex = messages.findIndex(
+    (message) =>
+      compareSqliteTimestamps(message.createdAt, lastCompletedChallenge.completedAt) >
+      0,
+  );
+
+  return firstRecentIndex >= 0 ? toTutorHistory(messages.slice(firstRecentIndex)) : [];
+}
+
+function findChallengeStartMessageIndex(
+  messages: StoredMessage[],
+  challenge: StoredSentenceChallenge,
+): number {
+  const metadataIndex = findLastMessageIndex(messages, (message) => {
+    return (
+      message.role === 'model' &&
+      getChallengeStartedSourceSentence(message) === challenge.sourceSentence
+    );
+  });
+  if (metadataIndex >= 0) {
+    return metadataIndex;
+  }
+
+  const firstAttemptMessageId = challenge.attempts[0]?.userMessageId;
+  if (firstAttemptMessageId) {
+    const firstAttemptIndex = messages.findIndex(
+      (message) => message.id === firstAttemptMessageId,
+    );
+    if (firstAttemptIndex >= 0) {
+      return Math.max(0, firstAttemptIndex - 1);
+    }
+  }
+
+  const firstByDateIndex = messages.findIndex(
+    (message) => compareSqliteTimestamps(message.createdAt, challenge.createdAt) >= 0,
+  );
+  return firstByDateIndex >= 0 ? Math.max(0, firstByDateIndex - 1) : 0;
+}
+
+function getChallengeStartedSourceSentence(message: StoredMessage): string | null {
+  const blocks = message.metadata?.blocks;
+  if (!Array.isArray(blocks)) {
+    return null;
+  }
+
+  const startedBlock = blocks.find(
+    (block): block is { sourceSentence: string; type: string } =>
+      Boolean(
+        block &&
+          typeof block === 'object' &&
+          (block as { type?: unknown }).type === 'challenge_started' &&
+          typeof (block as { sourceSentence?: unknown }).sourceSentence === 'string',
+      ),
+  );
+
+  return startedBlock?.sourceSentence ?? null;
+}
+
+function findLastMessageIndex(
+  messages: StoredMessage[],
+  predicate: (message: StoredMessage) => boolean,
+): number {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (predicate(messages[index])) {
+      return index;
+    }
+  }
+
+  return -1;
+}
+
+function compareSqliteTimestamps(
+  first?: string | null,
+  second?: string | null,
+): number {
+  return parseSqliteTimestamp(first) - parseSqliteTimestamp(second);
+}
+
+function parseSqliteTimestamp(value?: string | null): number {
+  if (!value) {
+    return 0;
+  }
+
+  const normalized = value.includes('T')
+    ? value
+    : `${value.replace(' ', 'T')}Z`;
+  const timestamp = Date.parse(normalized);
+  return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
 function applyTutorBlocks(input: {

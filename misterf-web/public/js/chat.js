@@ -128,6 +128,14 @@ if (socket) {
     }
   });
 
+  socket.on('llm:request_tokens', (payload) => {
+    if (!isCurrentConversationPayload(payload)) {
+      return;
+    }
+
+    logLlmRequestTokens(payload.usage);
+  });
+
   socket.on('vocabulary:updated', (payload) => {
     if (!isCurrentConversationPayload(payload)) {
       return;
@@ -515,6 +523,25 @@ function isCurrentConversationPayload(payload) {
   const payloadConversationId =
     payload?.conversationId || payload?.challenge?.conversationId || '';
   return Boolean(conversationId && payloadConversationId === conversationId);
+}
+
+function logLlmRequestTokens(usage) {
+  if (!usage) {
+    return;
+  }
+
+  const label = usage.isEstimate
+    ? '[Mr. F LLM tokens estimados]'
+    : '[Mr. F LLM tokens]';
+
+  console.log(label, {
+    contextWindowTokens: usage.contextWindowTokens,
+    inputTokens: usage.inputTokens,
+    model: usage.model,
+    percentUsed: `${usage.percentUsed}%`,
+    provider: usage.provider,
+    turn: usage.turn,
+  });
 }
 
 function startNewConversation() {
