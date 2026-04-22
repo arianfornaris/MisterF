@@ -125,7 +125,7 @@ export class LlmFinishReasonError extends Error {
 }
 
 const firstChallengePrompt = `
-Comienza la sesion.
+Start the session.
 `;
 
 const maxAgentTurns = 6;
@@ -167,7 +167,7 @@ export async function runTutorAgentLoop(
 
     try {
       const result = await generateObject({
-        maxOutputTokens: 900,
+        maxOutputTokens: 1800,
         messages,
         model: getLanguageModel(),
         providerOptions: getProviderOptions(),
@@ -229,7 +229,7 @@ export async function runTutorAgentLoop(
           error,
           invalidOutput: JSON.stringify(result.object, null, 2),
           reason:
-            'El objeto JSON fue parseado, pero no cumple el contrato TutorResponse descrito en las instrucciones.',
+            'The JSON object was parsed, but it does not satisfy the TutorResponse contract described in the instructions.',
           turn: turn + 1,
         });
       }
@@ -248,7 +248,7 @@ export async function runTutorAgentLoop(
         error,
         invalidOutput: extractGeneratedTextFromError(error),
         reason:
-          'Tu respuesta anterior no fue JSON valido o no pudo convertirse en un objeto TutorResponse.',
+          'Your previous response was not valid JSON or could not be converted into a TutorResponse object.',
         turn: turn + 1,
       });
     }
@@ -269,7 +269,7 @@ export async function translateTextWithLlm(input: {
   }
 
   const result = await generateObject({
-    maxOutputTokens: 500,
+    maxOutputTokens: 1000,
     messages: [
       {
         content: text,
@@ -334,7 +334,7 @@ export async function generateProgressWithLlm(input: {
     },
   ];
   const result = await generateText({
-    maxOutputTokens: 800,
+    maxOutputTokens: 1600,
     messages,
     model: getLanguageModel(),
     providerOptions: getProviderOptions(),
@@ -364,15 +364,47 @@ export async function generateProgressWithLlm(input: {
   }
 
   const markdown = result.text.trim();
-  if (!markdown) {
-    throw new Error('El progreso no devolvió contenido.');
-  }
+  assertUsableProgressMarkdown(markdown);
 
   return {
     markdown,
     model: env.llmModel,
     provider: env.llmProvider,
   };
+}
+
+function assertUsableProgressMarkdown(markdown: string): void {
+  if (!markdown) {
+    throw new Error('El progreso no devolvió contenido.');
+  }
+
+  const requiredHeadings = [
+    'Tema',
+    'Nivel',
+    'Resumen',
+    'Errores frecuentes',
+    'Vocabulario',
+  ];
+
+  const missingHeadings = requiredHeadings.filter(
+    (heading) => !new RegExp(`^##\\s+${escapeRegExp(heading)}\\s*$`, 'im').test(markdown),
+  );
+  if (missingHeadings.length > 0) {
+    throw new Error(
+      `El progreso del modelo llegó incompleto. Faltan secciones: ${missingHeadings.join(', ')}.`,
+    );
+  }
+
+  const meaningfulText = markdown
+    .replace(/^##\s+.+$/gim, '')
+    .replace(/[#*_`>\-\s]/g, '');
+  if (meaningfulText.length < 80) {
+    throw new Error('El progreso del modelo llegó demasiado corto para ser útil.');
+  }
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export async function generateVocabularyWithLlm(input: {
@@ -386,15 +418,11 @@ export async function generateVocabularyWithLlm(input: {
       role: 'user',
     },
   ];
-  const result = await generateObject({
-    maxOutputTokens: 1300,
+  const result = await generateText({
+    maxOutputTokens: 2600,
     messages,
     model: getLanguageModel(),
     providerOptions: getProviderOptions(),
-    schema: jsonSchema(vocabularyJsonSchema),
-    schemaDescription:
-      'Useful vocabulary extracted from sentence challenges and user attempts.',
-    schemaName: 'VocabularyResult',
     system,
     temperature: shouldUseTemperature() ? 0.2 : undefined,
   });
@@ -408,32 +436,88 @@ export async function generateVocabularyWithLlm(input: {
     }),
   );
 
+  const parsedItems = parseVocabularyJsonLines(result.text);
+  if (parsedItems.length === 0) {
+    const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+      result.finishReason,
+      undefined,
+      result.providerMetadata,
+    );
+    if (userFacingFinishMessage) {
+      throw new LlmFinishReasonError(
+        result.finishReason,
+        userFacingFinishMessage,
+      );
+    }
+
+    console.error('[Mr. F vocabulary JSONL parse failed]', JSON.stringify({
+      finishReason: result.finishReason,
+      text: result.text,
+    }, null, 2));
+    throw new Error('El vocabulario no devolvió líneas JSON válidas.');
+  }
+
   const userFacingFinishMessage = getUserFacingFinishReasonMessage(
     result.finishReason,
     undefined,
     result.providerMetadata,
   );
   if (userFacingFinishMessage) {
-    throw new LlmFinishReasonError(
-      result.finishReason,
-      userFacingFinishMessage,
-    );
-  }
-
-  const parsed = vocabularyResultSchema.safeParse(result.object);
-  if (!parsed.success) {
-    console.error('[Mr. F vocabulary validation failed]', JSON.stringify({
-      issues: parsed.error.issues,
-      value: result.object,
+    console.warn('[Mr. F vocabulary partial result accepted]', JSON.stringify({
+      finishReason: result.finishReason,
+      itemCount: parsedItems.length,
+      message: userFacingFinishMessage,
     }, null, 2));
-    throw new Error('El vocabulario no devolvió una respuesta válida.');
   }
 
   return {
-    items: parsed.data.items,
+    items: parsedItems,
     model: env.llmModel,
     provider: env.llmProvider,
   };
+}
+
+function parseVocabularyJsonLines(text: string): GeneratedVocabularyItem[] {
+  const items: GeneratedVocabularyItem[] = [];
+  const invalidLines: Array<{ line: string; lineNumber: number; reason: string }> = [];
+
+  for (const [index, rawLine] of text.split(/\r?\n/).entries()) {
+    const line = rawLine.trim();
+    if (!line || line === '```' || line.startsWith('```')) {
+      continue;
+    }
+
+    const normalizedLine = line.replace(/,$/, '');
+    try {
+      const parsed = JSON.parse(normalizedLine) as unknown;
+      const item = vocabularyItemSchema.safeParse(parsed);
+      if (item.success) {
+        items.push(item.data);
+        continue;
+      }
+
+      invalidLines.push({
+        line: normalizedLine.slice(0, 240),
+        lineNumber: index + 1,
+        reason: item.error.issues.map((issue) => issue.message).join('; '),
+      });
+    } catch (error) {
+      invalidLines.push({
+        line: normalizedLine.slice(0, 240),
+        lineNumber: index + 1,
+        reason: error instanceof Error ? error.message : 'Invalid JSON',
+      });
+    }
+  }
+
+  if (invalidLines.length > 0) {
+    console.warn('[Mr. F vocabulary JSONL invalid lines ignored]', JSON.stringify({
+      invalidLines,
+      validItemCount: items.length,
+    }, null, 2));
+  }
+
+  return items.slice(0, 12);
 }
 
 function toModelMessage(message: TutorMessage): ModelMessage {
@@ -543,12 +627,12 @@ function appendStructuredCorrectionRequest(
 
   messages.push({
     content: [
-      'CONTINUACION INTERNA DE LA APP.',
+      'INTERNAL APP CONTINUATION.',
       '',
       input.reason,
-      'No respondas con explicaciones, disculpas, markdown suelto ni texto antes o despues del JSON.',
-      'Reemite la respuesta completa como un unico objeto JSON que cumpla exactamente el contrato TutorResponse.',
-      'Conserva la intención pedagógica de tu respuesta anterior, pero corrige exclusivamente el formato estructurado.',
+      'Do not respond with explanations, apologies, loose markdown, or any text before or after the JSON object.',
+      'Re-emit the complete response as one JSON object that exactly satisfies the TutorResponse contract.',
+      'Preserve the pedagogical intent of your previous response, but correct only the structured format.',
     ].join('\n'),
     role: 'user',
   });
@@ -716,41 +800,41 @@ function buildAgentSystemInstruction(options: {
   return [
     getSystemInstruction(),
     '',
-    '## Estado interno actual',
+    '## Current Internal State',
     '',
-    `Título actual: ${options.currentTitle || 'Nueva conversación'}`,
+    `Current title: ${options.currentTitle || 'Nueva conversación'}`,
     options.titleUpdatedByUser
-      ? 'El usuario ya cambió este título manualmente. No incluyas conversation_title.'
-      : 'Puedes incluir conversation_title si el tema o propósito ya está claro y el título actual es genérico.',
+      ? 'The user has already changed this title manually. Do not include conversation_title.'
+      : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
     '',
-    '## Protocolo de respuesta estructurada',
+    '## Structured Response Protocol',
     '',
-    'Debes responder siempre con un objeto JSON. No devuelvas markdown suelto ni texto fuera del JSON.',
-    'La propiedad blocks es un array ordenado de acciones que la app aplicará en ese orden.',
+    'You must always respond with one JSON object. Do not return loose markdown or any text outside the JSON object.',
+    'The blocks property is an ordered array of actions that the app will apply in that exact order.',
     '',
-    'Contrato exacto, escrito como tipos de TypeScript:',
+    'Exact contract, written as TypeScript types:',
     '',
     tutorResponseTypeContract,
     '',
-    'Reglas de bloques:',
-    '- Evalúa la ortografía inglesa con rigor. Si el usuario escribe una palabra mal, como "cal" en vez de "call", el intento no debe considerarse correcto.',
-    '- Cuando el usuario escriba un intento de traducción o una corrección, incluye exactamente un bloque sentence_evaluation antes o junto al feedback.',
-    '- Si sentence_evaluation tiene todas las partes con status correct, puedes incluir challenge_completed y luego challenge_started para la siguiente oración.',
-    '- Cuando incluyas challenge_completed, el bloque message visible debe mostrar 2 o 3 formas alternativas de decir la misma idea en inglés, con una explicación breve de cuándo usar cada variante.',
-    '- Si hay partes error o improve, no incluyas challenge_completed ni challenge_started; da feedback y pide otro intento.',
-    '- Cuando propongas una oración nueva en español, incluye challenge_started y también un bloque message que muestre esa oración al usuario.',
-    '- No incluyas progreso ni vocabulario en la respuesta del chat. La app los calcula bajo demanda con llamadas especializadas.',
-    '- Incluye conversation_title si el título actual es genérico y ya existe suficiente contexto, salvo que el usuario haya renombrado manualmente.',
+    'Block rules:',
+    '- Evaluate English spelling strictly. If the learner misspells a word, such as "cal" instead of "call", the attempt must not be considered correct.',
+    '- When the learner writes a translation attempt or a correction, include exactly one sentence_evaluation block before or together with the feedback.',
+    '- If sentence_evaluation has all parts with status correct, you may include challenge_completed and then challenge_started for the next sentence.',
+    '- When you include challenge_completed, the visible message block must show 2 or 3 alternative ways to express the same idea in English, with a brief Spanish explanation of when to use each variant.',
+    '- If any parts are error or improve, do not include challenge_completed or challenge_started; give feedback and ask for another attempt.',
+    '- When you propose a new Spanish sentence, include challenge_started and also a message block that shows that sentence to the learner.',
+    '- Do not include progress or vocabulary in the chat response. The app computes those on demand with specialized calls.',
+    '- Include conversation_title if the current title is generic and there is enough context, unless the user renamed it manually.',
   ].join('\n');
 }
 
 function buildProgressSystemInstruction(): string {
   return [
-    'Eres un analista pedagógico para una app de aprendizaje de inglés.',
-    'Recibirás solo datos compactos de retos: oración y respuestas del usuario.',
-    'Genera un progreso actualizado en español, conciso e informativo.',
-    'No inventes datos fuera de los retos. Si algo no se puede inferir, dilo brevemente.',
-    'Usa markdown con exactamente estas secciones:',
+    'You are a pedagogical analyst for an English-learning app.',
+    'You will receive only compact challenge data: source sentence and learner attempts.',
+    'Generate an updated progress report in Spanish. Keep it concise and informative.',
+    'Do not invent facts outside the challenge data. If something cannot be inferred, say so briefly in Spanish.',
+    'Use markdown with exactly these Spanish section headings:',
     '',
     '## Tema',
     '## Nivel',
@@ -758,48 +842,50 @@ function buildProgressSystemInstruction(): string {
     '## Errores frecuentes',
     '## Vocabulario',
     '',
-    'Mantén el resultado compacto: idealmente 120 a 180 palabras.',
-    'Devuelve solo markdown. No devuelvas JSON. No uses bloque de código.',
+    'Keep the result compact: ideally 120 to 180 Spanish words.',
+    'Return only markdown. Do not return JSON. Do not use a code block.',
   ].join('\n');
 }
 
 function buildVocabularySystemInstruction(): string {
   return [
-    'Eres un extractor de vocabulario para una app de aprendizaje de inglés.',
-    'Recibirás solo datos compactos de retos: oración y respuestas del usuario.',
-    'Extrae vocabulario útil que aparezca o se derive directamente de esas oraciones e intentos.',
-    'No inventes vocabulario fuera del contexto. Evita palabras triviales como "the", "a", "is" salvo que sean pedagógicamente relevantes.',
-    'Cada item debe tener término en inglés, traducción al español y explicación breve en español.',
-    'Incluye example solo si puedes dar un ejemplo corto y natural en inglés basado en el contexto.',
-    'Incluye sourceSentence si ayuda a ubicar de dónde salió el vocabulario.',
-    'Máximo 12 items.',
-    'Responde solo con JSON que cumpla:',
-    'type VocabularyResult = {',
-    '  items: Array<{',
+    'You are a vocabulary extractor for an English-learning app.',
+    'You will receive only compact challenge data: source sentence and learner attempts.',
+    'Extract useful vocabulary that appears in, or is directly derived from, those sentences and attempts.',
+    'Do not invent vocabulary outside the context. Avoid trivial words like "the", "a", or "is" unless they are pedagogically relevant.',
+    'Each item must have an English term, a Spanish translation, and a brief Spanish explanation.',
+    'Include example only if you can provide a short, natural English example based on the context.',
+    'Include sourceSentence if it helps locate where the vocabulary came from.',
+    'Maximum 12 items.',
+    'Return only JSON Lines: one line per item, no array, no wrapper object, no markdown, and no code fence.',
+    'Each line must be a complete JSON object matching:',
+    'type VocabularyLine = {',
     '    term: string;',
     '    translation: string;',
     '    explanation: string;',
     '    example?: string;',
     '    sourceSentence?: string;',
-    '  }>',
     '};',
+    'Format example:',
+    '{"term":"love song","translation":"canción de amor","explanation":"Canción cuyo tema principal es el amor.","example":"She sings a love song.","sourceSentence":"Ella canta una canción de amor."}',
+    '{"term":"all night long","translation":"toda la noche","explanation":"Expresa que algo ocurre durante toda la noche.","sourceSentence":"Nosotros bailamos toda la noche."}',
   ].join('\n');
 }
 
 function buildTranslatorSystemInstruction(mode: TranslationMode): string {
   const direction =
     mode === 'es-en'
-      ? 'Traduce de español a inglés.'
+      ? 'Translate from Spanish to English.'
       : mode === 'en-es'
-        ? 'Traduce de inglés a español.'
-        : 'Detecta si el texto está en español o inglés y tradúcelo al otro idioma.';
+        ? 'Translate from English to Spanish.'
+        : 'Detect whether the text is Spanish or English and translate it into the other language.';
 
   return [
-    'Eres un traductor profesional para una app de aprendizaje de inglés.',
+    'You are a professional translator for an English-learning app.',
     direction,
-    'Conserva el sentido, el tono y el registro del texto original.',
-    'No expliques la traducción. No corrijas ni enseñes gramática. Solo traduce.',
-    'Responde con un objeto JSON que cumpla TranslationResult.',
+    'Preserve the meaning, tone, and register of the original text.',
+    'Do not explain the translation. Do not correct or teach grammar. Only translate.',
+    'Respond with a JSON object matching TranslationResult.',
     '',
     'type TranslationResult = {',
     '  detectedLanguage: string;',
@@ -838,31 +924,6 @@ const translationJsonSchema = {
   required: ['detectedLanguage', 'translatedText'],
 } as const;
 
-const vocabularyJsonSchema = {
-  type: 'object',
-  additionalProperties: false,
-  properties: {
-    items: {
-      type: 'array',
-      minItems: 0,
-      maxItems: 12,
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          term: { type: 'string' },
-          translation: { type: 'string' },
-          explanation: { type: 'string' },
-          example: { type: 'string' },
-          sourceSentence: { type: 'string' },
-        },
-        required: ['term', 'translation', 'explanation'],
-      },
-    },
-  },
-  required: ['items'],
-} as const;
-
 const translationResultSchema = z
   .object({
     detectedLanguage: z.string().trim().min(1).max(80),
@@ -870,21 +931,13 @@ const translationResultSchema = z
   })
   .strict();
 
-const vocabularyResultSchema = z
+const vocabularyItemSchema = z
   .object({
-    items: z
-      .array(
-        z
-          .object({
-            term: z.string().trim().min(1).max(90),
-            translation: z.string().trim().min(1).max(160),
-            explanation: z.string().trim().min(1).max(360),
-            example: z.string().trim().min(1).max(240).optional(),
-            sourceSentence: z.string().trim().min(1).max(320).optional(),
-          })
-          .strict(),
-      )
-      .max(12),
+    term: z.string().trim().min(1).max(90),
+    translation: z.string().trim().min(1).max(160),
+    explanation: z.string().trim().min(1).max(360),
+    example: z.string().trim().min(1).max(240).optional(),
+    sourceSentence: z.string().trim().min(1).max(320).optional(),
   })
   .strict();
 
@@ -908,7 +961,7 @@ type TutorResponseBlock =
         explanation?: string;
       }>;
     }
-  | { type: "challenge_completed"; score: number } // score debe ser decimal de 0 a 1: usa 1 para perfecto, no 100.
+  | { type: "challenge_completed"; score: number } // score must be a decimal from 0 to 1: use 1 for perfect, not 100.
   | { type: "conversation_title"; title: string };`;
 
 const messageBlockSchema = z

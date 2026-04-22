@@ -677,16 +677,16 @@ function buildCompressedChallengeHistory(
 
   const sections = completedOrPreviousChallenges.map((challenge, index) => {
     const lines = [
-      `Reto ${index + 1}:`,
-      `Oración en español: ${challenge.sourceSentence}`,
+      `Challenge ${index + 1}:`,
+      `Spanish sentence: ${challenge.sourceSentence}`,
     ];
 
     if (challenge.attempts.length === 0) {
-      lines.push('Intentos: ninguno registrado.');
+      lines.push('Attempts: none recorded.');
       return lines.join('\n');
     }
 
-    lines.push('Intentos:');
+    lines.push('Attempts:');
     for (const attempt of challenge.attempts) {
       lines.push(`- ${attempt.attemptText}`);
     }
@@ -696,9 +696,9 @@ function buildCompressedChallengeHistory(
 
   return {
     content: [
-      'CONTEXTO INTERNO DE LA APP: compressed_history.',
-      'Este resumen reemplaza los mensajes completos de retos anteriores. No lo muestres al usuario.',
-      'Usa este contexto solo para mantener continuidad pedagógica, errores recurrentes y temas practicados.',
+      'INTERNAL APP CONTEXT: compressed_history.',
+      'This summary replaces the full messages from previous challenges. Do not show it to the user.',
+      'Use this context only to preserve pedagogical continuity, recurring errors, and practiced topics.',
       '',
       sections.join('\n\n'),
     ].join('\n'),
@@ -715,20 +715,20 @@ function buildCompactChallengeDataset(
 
   if (usableChallenges.length === 0) {
     return [
-      'RETOS E INTENTOS',
+      'CHALLENGES AND ATTEMPTS',
       '',
-      'Todavía no hay retos registrados.',
+      'There are no recorded challenges yet.',
     ].join('\n');
   }
 
   const sections = usableChallenges.map((challenge, index) => {
     const lines = [
-      `${index + 1}. Oración: ${challenge.sourceSentence}`,
-      'Intentos:',
+      `${index + 1}. Sentence: ${challenge.sourceSentence}`,
+      'Attempts:',
     ];
 
     if (challenge.attempts.length === 0) {
-      lines.push('- ninguno');
+      lines.push('- none');
       return lines.join('\n');
     }
 
@@ -739,21 +739,21 @@ function buildCompactChallengeDataset(
     return lines.join('\n');
   });
 
-  return ['RETOS E INTENTOS', '', sections.join('\n\n')].join('\n');
+  return ['CHALLENGES AND ATTEMPTS', '', sections.join('\n\n')].join('\n');
 }
 
 function getAttemptOutcome(
   attempt: StoredSentenceChallenge['attempts'][number],
 ): string {
   if (attempt.isCorrect) {
-    return 'correcta';
+    return 'correct';
   }
 
   if (attempt.evaluation.parts.some((part) => part.status === 'improve')) {
-    return 'puede mejorar';
+    return 'can improve';
   }
 
-  return 'incorrecta';
+  return 'incorrect';
 }
 
 function selectLiveMessagesForLlm(
@@ -959,15 +959,6 @@ function handleSentenceEvaluationBlock(input: {
     return;
   }
 
-  const message = updateMessageMetadata(
-    input.lastUserMessageId,
-    input.conversationId,
-    { sentenceEvaluation: { parts: input.block.parts } },
-  );
-  if (!message) {
-    return;
-  }
-
   const challenge =
     findActiveSentenceChallenge(input.conversationId) ??
     createSentenceChallenge({
@@ -976,6 +967,21 @@ function handleSentenceEvaluationBlock(input: {
         inferLatestSourceSentence(input.messageHistory, input.lastUserMessageId) ??
         fallbackChallengeTitle,
     });
+
+  const message = updateMessageMetadata(
+    input.lastUserMessageId,
+    input.conversationId,
+    {
+      sentenceEvaluation: {
+        parts: input.block.parts,
+        sourceSentence: challenge.sourceSentence,
+      },
+    },
+  );
+  if (!message) {
+    return;
+  }
+
   const isCorrect = input.block.parts.every((part) => part.status === 'correct');
 
   upsertSentenceAttempt({
@@ -991,7 +997,10 @@ function handleSentenceEvaluationBlock(input: {
     conversationId: input.conversationId,
     message,
     messageId: message.id,
-    sentenceEvaluation: { parts: input.block.parts },
+    sentenceEvaluation: {
+      parts: input.block.parts,
+      sourceSentence: challenge.sourceSentence,
+    },
   });
 
   emitPracticeUpdated(input.io, input.conversationId);

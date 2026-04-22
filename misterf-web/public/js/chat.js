@@ -44,7 +44,6 @@ const pendingSentenceEvaluations = new Map();
 let practiceChallenges = [];
 let vocabularyItems = [];
 let pendingTranslatorSelection = '';
-let shouldScrollVocabularyOnOpen = false;
 let isProgressGenerating = false;
 let isVocabularyGenerating = false;
 
@@ -161,8 +160,6 @@ if (socket) {
     isVocabularyGenerating = false;
     vocabularyItems = payload.vocabulary ?? [];
     renderVocabulary(vocabularyItems);
-    shouldScrollVocabularyOnOpen = true;
-    scrollVocabularyToBottom();
   });
 
   socket.on('vocabulary:generating', (payload) => {
@@ -197,6 +194,7 @@ if (socket) {
     practiceChallenges = payload.challenges ?? [];
     renderPractice(practiceChallenges);
     rebuildChallengeCards();
+    scrollToBottom();
   });
 
   socket.on('sentence_challenge:completed', (payload) => {
@@ -412,10 +410,6 @@ document.querySelector('#practice-tab')?.addEventListener('shown.bs.tab', () => 
 document.querySelector('#vocabulary-tab')?.addEventListener('shown.bs.tab', () => {
   formEl.hidden = true;
   requestVocabularyGeneration();
-  if (shouldScrollVocabularyOnOpen) {
-    scrollVocabularyToBottom();
-    shouldScrollVocabularyOnOpen = false;
-  }
 });
 
 document.querySelector('#chat-tab')?.addEventListener('shown.bs.tab', () => {
@@ -1108,16 +1102,6 @@ function renderVocabularyError(message) {
   vocabularyContentEl.append(error);
 }
 
-function scrollVocabularyToBottom() {
-  if (!vocabularyPaneEl) {
-    return;
-  }
-
-  requestAnimationFrame(() => {
-    vocabularyPaneEl.scrollTop = vocabularyPaneEl.scrollHeight;
-  });
-}
-
 function renderVocabularyItem(item) {
   const card = document.createElement('article');
   card.className = 'card vocabulary-card';
@@ -1335,7 +1319,7 @@ function renderSentenceEvaluation(element, evaluation) {
 
   const label = document.createElement('h3');
   label.className = 'sentence-evaluation-label';
-  label.textContent = 'Tu intento, por partes';
+  label.textContent = 'Evaluación';
 
   const parts = document.createElement('p');
   parts.className = 'sentence-parts';
@@ -1376,10 +1360,41 @@ function renderSentenceEvaluation(element, evaluation) {
 
   const body = document.createElement('div');
   body.className = 'sentence-evaluation-body card-body';
+
+  const sourceSentence = getEvaluationSourceSentence(evaluation);
+  if (sourceSentence) {
+    const sourceBlock = document.createElement('div');
+    sourceBlock.className = 'sentence-evaluation-source';
+
+    const sourceLabel = document.createElement('p');
+    sourceLabel.className = 'sentence-evaluation-source-label';
+    sourceLabel.textContent = 'Reto';
+
+    const sourceText = document.createElement('p');
+    sourceText.className = 'sentence-evaluation-source-text';
+    sourceText.textContent = sourceSentence;
+
+    sourceBlock.append(sourceLabel, sourceText);
+    body.append(sourceBlock);
+  }
+
+  const partsLabel = document.createElement('p');
+  partsLabel.className = 'sentence-evaluation-parts-label';
+  partsLabel.textContent = 'Tu intento, por partes';
+
+  body.append(partsLabel);
   body.append(parts);
 
   wrapper.append(header, body);
   element.append(wrapper);
+}
+
+function getEvaluationSourceSentence(evaluation) {
+  if (typeof evaluation?.sourceSentence === 'string' && evaluation.sourceSentence.trim()) {
+    return evaluation.sourceSentence.trim();
+  }
+
+  return getActiveChallenge()?.sourceSentence || '';
 }
 
 function attachMessageMetadata(row, metadata) {
@@ -1414,6 +1429,10 @@ function rebuildChallengeCards() {
   }
 
   initializeSentencePopovers(messagesEl);
+}
+
+function getActiveChallenge() {
+  return practiceChallenges.find((challenge) => !challenge.completedAt) ?? null;
 }
 
 function unwrapChallengeCards() {
