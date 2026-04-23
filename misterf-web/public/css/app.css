@@ -869,6 +869,10 @@ body {
   margin-top: 0.72rem;
 }
 
+.message-row.is-dialogue-inline-hidden {
+  display: none;
+}
+
 .dialogue-transcript-speaker {
   color: #6c4b2c;
   font-size: 0.92rem;
@@ -882,6 +886,23 @@ body {
 
 .dialogue-transcript-text {
   color: var(--ink);
+}
+
+.dialogue-transcript .dialogue-transcript-parts {
+  display: inline;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.dialogue-transcript-line.is-pending .dialogue-transcript-speaker,
+.dialogue-transcript-line.is-draft .dialogue-transcript-speaker {
+  color: #9c5b1a;
+}
+
+.dialogue-transcript-line.is-pending .dialogue-transcript-parts,
+.dialogue-transcript-line.is-draft .dialogue-transcript-parts {
+  opacity: 0.98;
 }
 
 .next-challenge-action {
@@ -934,6 +955,14 @@ body {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 1.12rem;
   line-height: 1.55;
+}
+
+.message-row.is-model.is-muted-history .message-bubble {
+  opacity: 0.58;
+}
+
+.message-row.is-model.is-muted-history .sentence-evaluation {
+  opacity: 0.78;
 }
 
 .tutor-message-block + .tutor-message-block,

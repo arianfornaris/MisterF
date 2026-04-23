@@ -1416,18 +1416,34 @@ function renderPracticeAttempt(attempt) {
   const item = document.createElement('li');
   item.className = 'practice-attempt';
 
-  const parts = document.createElement('p');
-  parts.className = 'sentence-parts practice-sentence-parts';
-  const evaluationParts = attempt.evaluation?.parts?.length
+  const parts = createSentencePartsElement(
+    getAttemptEvaluationParts(attempt),
+    'practice-sentence-parts',
+  );
+
+  item.append(parts);
+  initializeSentencePopovers(item);
+  return item;
+}
+
+function getAttemptEvaluationParts(attempt) {
+  return attempt.evaluation?.parts?.length
     ? attempt.evaluation.parts
     : [{ status: 'correct', text: attempt.attemptText }];
+}
 
-  for (const [partIndex, part] of evaluationParts.entries()) {
+function createSentencePartsElement(partsInput, extraClassName = '') {
+  const parts = document.createElement('p');
+  parts.className = ['sentence-parts', extraClassName].filter(Boolean).join(' ');
+  const items = Array.isArray(partsInput) ? partsInput : [];
+
+  for (const [index, part] of items.entries()) {
     const normalizedStatus = normalizePartStatus(part.status);
     const node =
       normalizedStatus === 'correct'
         ? document.createElement('span')
         : document.createElement('button');
+
     node.className = `sentence-part is-${normalizedStatus}`;
     node.textContent = part.text;
 
@@ -1448,14 +1464,12 @@ function renderPracticeAttempt(attempt) {
     }
 
     parts.append(node);
-    if (partIndex < evaluationParts.length - 1) {
+    if (index < items.length - 1) {
       parts.append(document.createTextNode(' '));
     }
   }
 
-  item.append(parts);
-  initializeSentencePopovers(item);
-  return item;
+  return parts;
 }
 
 function setModelBubbleContent(element, content, metadata) {
@@ -1470,9 +1484,7 @@ function setModelBubbleContent(element, content, metadata) {
     return;
   }
 
-  const visualBlocks = blocks.filter(
-    (block) => block?.type === 'message' || block?.type === 'character_message',
-  );
+  const visualBlocks = blocks.filter((block) => block?.type === 'message');
   if (!visualBlocks.length) {
     setMessageContent(element, content);
     return;
@@ -1488,23 +1500,6 @@ function setModelBubbleContent(element, content, metadata) {
       continue;
     }
 
-    const card = document.createElement('article');
-    card.className = 'card character-message-card';
-
-    const body = document.createElement('div');
-    body.className = 'card-body character-message-card-body';
-
-    const name = document.createElement('p');
-    name.className = 'character-message-name';
-    name.textContent = block.name || 'Personaje';
-
-    const contentNode = document.createElement('div');
-    contentNode.className = 'character-message-content';
-    contentNode.innerHTML = renderMarkdown(block.markdown || '');
-
-    body.append(name, contentNode);
-    card.append(body);
-    element.append(card);
   }
 }
 
@@ -1601,6 +1596,10 @@ function renderSentenceEvaluation(element, evaluation) {
     return;
   }
 
+  if (getEvaluationChallengeType(evaluation) === 'dialogue_scene') {
+    return;
+  }
+
   const wrapper = document.createElement('div');
   wrapper.className = 'sentence-evaluation card';
 
@@ -1611,40 +1610,7 @@ function renderSentenceEvaluation(element, evaluation) {
   label.className = 'sentence-evaluation-label';
   label.textContent = 'Evaluación';
 
-  const parts = document.createElement('p');
-  parts.className = 'sentence-parts';
-
-  for (const [index, part] of evaluation.parts.entries()) {
-    const normalizedStatus = normalizePartStatus(part.status);
-    const node =
-      normalizedStatus === 'correct'
-        ? document.createElement('span')
-        : document.createElement('button');
-
-    node.className = `sentence-part is-${normalizedStatus}`;
-    node.textContent = part.text;
-
-    if (node instanceof HTMLButtonElement) {
-      node.type = 'button';
-      node.dataset.bsToggle = 'popover';
-      node.dataset.bsTrigger = 'focus';
-      node.dataset.bsPlacement = 'top';
-      node.dataset.bsCustomClass = `sentence-popover sentence-popover-${normalizedStatus}`;
-      node.dataset.bsTitle =
-        normalizedStatus === 'error' ? 'Error' : 'Puede mejorar';
-      node.dataset.bsContent =
-        part.explanation || 'Esta parte necesita un ajuste.';
-      node.setAttribute(
-        'aria-label',
-        `${part.text}: ${part.explanation || 'Esta parte necesita un ajuste.'}`,
-      );
-    }
-
-    parts.append(node);
-    if (index < evaluation.parts.length - 1) {
-      parts.append(document.createTextNode(' '));
-    }
-  }
+  const parts = createSentencePartsElement(evaluation.parts);
 
   header.append(label);
 
@@ -1761,8 +1727,10 @@ function rebuildChallengeCards() {
     }
   }
 
-  initializeSentencePopovers(messagesEl);
   renderDialogueTranscripts();
+  syncDialogueRowsPresentation();
+  updateTutorMessageEmphasis();
+  initializeSentencePopovers(messagesEl);
   renderNextChallengeButton();
 }
 
@@ -1954,16 +1922,24 @@ function buildDialogueTranscript(challenge, container) {
   for (const entry of entries) {
     const line = document.createElement('div');
     line.className = `dialogue-transcript-line is-${entry.role}`;
+    if (entry.state) {
+      line.classList.add(`is-${entry.state}`);
+    }
 
     const speaker = document.createElement('span');
     speaker.className = 'dialogue-transcript-speaker';
     speaker.textContent = `${entry.speaker}:`;
 
-    const text = document.createElement('span');
-    text.className = 'dialogue-transcript-text';
-    text.textContent = entry.text;
+    line.append(speaker, document.createTextNode(' '));
+    if (entry.parts?.length) {
+      line.append(createSentencePartsElement(entry.parts, 'dialogue-transcript-parts'));
+    } else {
+      const text = document.createElement('span');
+      text.className = 'dialogue-transcript-text';
+      text.textContent = entry.text;
+      line.append(text);
+    }
 
-    line.append(speaker, document.createTextNode(' '), text);
     content.append(line);
   }
 
@@ -1978,27 +1954,19 @@ function buildDialogueTranscript(challenge, container) {
 function collectDialogueTranscriptEntries(challenge, container) {
   const entries = [];
   const rows = Array.from(container.querySelectorAll(':scope > .message-row'));
-  const approvedUserMessageIds = new Set(
+  const attemptsByMessageId = new Map(
     (challenge?.attempts || [])
-      .filter((attempt) => attempt?.isCorrect && attempt?.userMessageId)
-      .map((attempt) => String(attempt.userMessageId)),
+      .filter((attempt) => attempt?.userMessageId)
+      .map((attempt) => [String(attempt.userMessageId), attempt]),
   );
+  let latestUserEntry = null;
 
   for (const row of rows) {
     if (row.dataset.role === 'user') {
-      if (!approvedUserMessageIds.has(String(row.dataset.messageId || ''))) {
-        continue;
-      }
-
-      const bubble = row.querySelector('.message-bubble');
-      const text = (bubble?.dataset.rawContent || bubble?.textContent || '').trim();
-      if (text) {
-        entries.push({
-          role: 'user',
-          speaker: 'You',
-          text,
-        });
-      }
+      latestUserEntry = buildDialogueUserTranscriptEntry(
+        row,
+        attemptsByMessageId.get(String(row.dataset.messageId || '')),
+      );
       continue;
     }
 
@@ -2006,6 +1974,11 @@ function collectDialogueTranscriptEntries(challenge, container) {
     for (const block of blocks) {
       if (block?.type !== 'character_message') {
         continue;
+      }
+
+      if (latestUserEntry) {
+        entries.push(latestUserEntry);
+        latestUserEntry = null;
       }
 
       const text = String(block.markdown || '').replace(/\s+/g, ' ').trim();
@@ -2021,7 +1994,73 @@ function collectDialogueTranscriptEntries(challenge, container) {
     }
   }
 
+  if (latestUserEntry) {
+    entries.push(latestUserEntry);
+  }
+
   return entries;
+}
+
+function buildDialogueUserTranscriptEntry(row, attempt) {
+  const bubble = row.querySelector('.message-bubble');
+  const fallbackText = (bubble?.dataset.rawContent || bubble?.textContent || '').trim();
+  if (!fallbackText && !attempt) {
+    return null;
+  }
+
+  return {
+    parts: attempt ? getAttemptEvaluationParts(attempt) : [{ status: 'correct', text: fallbackText }],
+    role: 'user',
+    speaker: 'You',
+    state: attempt ? (attempt.isCorrect ? 'approved' : 'pending') : 'draft',
+    text: fallbackText,
+  };
+}
+
+function syncDialogueRowsPresentation() {
+  for (const card of Array.from(messagesEl.querySelectorAll(':scope > .chat-challenge-card'))) {
+    const challengeId = card.dataset.challengeId;
+    if (!challengeId) {
+      continue;
+    }
+
+    const challenge = practiceChallenges.find((item) => item.id === challengeId);
+    if (challenge?.challengeType !== 'dialogue_scene') {
+      continue;
+    }
+
+    for (const row of Array.from(card.querySelectorAll('.message-row'))) {
+      const hideRow =
+        row.dataset.role === 'user' ||
+        (row.dataset.role === 'model' && modelRowContainsOnlyCharacterMessages(row));
+      row.classList.toggle('is-dialogue-inline-hidden', hideRow);
+    }
+  }
+}
+
+function modelRowContainsOnlyCharacterMessages(row) {
+  const blocks = parseMessageBlocks(row);
+  if (!blocks.length) {
+    return false;
+  }
+
+  const hasCharacter = blocks.some((block) => block?.type === 'character_message');
+  const hasTutorMessage = blocks.some((block) => block?.type === 'message');
+  return hasCharacter && !hasTutorMessage;
+}
+
+function updateTutorMessageEmphasis() {
+  const tutorRows = Array.from(messagesEl.querySelectorAll('.message-row.is-model')).filter(
+    (row) =>
+      !row.classList.contains('is-dialogue-inline-hidden') &&
+      parseMessageBlocks(row).some((block) => block?.type === 'message'),
+  );
+
+  for (const row of tutorRows) {
+    row.classList.add('is-muted-history');
+  }
+
+  tutorRows[tutorRows.length - 1]?.classList.remove('is-muted-history');
 }
 
 function renderNextChallengeButton() {
