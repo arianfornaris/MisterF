@@ -87,8 +87,10 @@ export type TutorMessageBlock = {
 };
 
 export type TutorChallengeStartedBlock = {
+  challengeType?: 'produce_en' | 'understand_en';
   type: 'challenge_started';
   level?: string;
+  objective?: string;
   sourceSentence: string;
   topic?: string;
 };
@@ -389,6 +391,8 @@ function assertUsableProgressMarkdown(markdown: string): void {
   const requiredHeadings = [
     'Tema',
     'Nivel',
+    'Objetivos',
+    'Avance de objetivos',
     'Resumen',
     'Errores frecuentes',
     'Vocabulario',
@@ -836,12 +840,26 @@ function buildAgentSystemInstruction(options: {
     tutorResponseTypeContract,
     '',
     'Block rules:',
+    '- During the first few interactions, gather or infer: topic, level, practice mode, and one concrete learning objective. Examples: verb tenses, vocabulary for a situation, agreement, articles, prepositions, word order, listening/comprehension clues.',
+    '- If the learner does not provide every detail after a few interactions, infer a sensible objective and proceed. Do not keep interrogating the learner.',
+    '- Before or when starting the first challenge, briefly tell the learner the current objective in Spanish.',
+    '- Prefer continuing with new challenges under the same topic and objective. There are many useful challenges inside one topic.',
+    '- Do not frequently ask whether the learner wants a new topic, a new objective, or a new conversation.',
+    '- Only suggest changing topic, objective, or conversation when the learner asks for it, the current objective is clearly achieved after several challenges, or the current practice is becoming repetitive.',
     '- Evaluate English spelling strictly. If the learner misspells a word, such as "cal" instead of "call", the attempt must not be considered correct.',
-    '- When the learner writes a translation attempt or a correction, include exactly one sentence_evaluation block before or together with the feedback.',
-    '- If sentence_evaluation has all parts with status correct, you may include challenge_completed and then challenge_started for the next sentence.',
-    '- When you include challenge_completed, the visible message block must show 2 or 3 alternative ways to express the same idea in English, with a brief Spanish explanation of when to use each variant.',
+    '- There are two challenge types: produce_en means you show a Spanish sentence and the learner writes it in English; understand_en means you show an English sentence and the learner explains its meaning in Spanish.',
+    '- You may ask the learner whether they want production, comprehension, or mixed practice. If they do not choose, you may alternate naturally.',
+    '- For challenge_started, set challengeType explicitly and include objective. Use produce_en for Spanish-to-English production and understand_en for English-comprehension practice.',
+    '- When the learner writes an attempt or correction for the current challenge, include exactly one sentence_evaluation block before or together with the feedback.',
+    '- For produce_en, sentence_evaluation must evaluate the learner\'s English attempt by spelling, meaning, grammar, and naturalness.',
+    '- For understand_en, sentence_evaluation must evaluate the learner\'s Spanish explanation by whether it captures the English sentence meaning, key details, tense, subject, intent, and nuance. Do not require a literal word-by-word translation.',
+    '- If sentence_evaluation has all parts with status correct, you may include challenge_completed, but do not start a new challenge in the same response.',
+    '- When you include challenge_completed for produce_en, the visible message block must show 2 or 3 alternative ways to express the same idea in English, with a brief Spanish explanation of when to use each variant.',
+    '- When you include challenge_completed for understand_en, the visible message block must briefly explain the English sentence in Spanish and point out 1 or 2 useful listening/comprehension clues.',
     '- If any parts are error or improve, do not include challenge_completed or challenge_started; give feedback and ask for another attempt.',
-    '- When you propose a new Spanish sentence, include challenge_started and also a message block that shows that sentence to the learner.',
+    '- After completing a challenge, ask whether the learner wants to try another variant of the same challenge or move to the next challenge in the same topic.',
+    '- Only include a new challenge_started after the learner clearly asks for the next challenge or a new objective.',
+    '- When you propose a new challenge sentence, include challenge_started and also a message block that shows that sentence to the learner.',
     '- Do not include progress or vocabulary in the chat response. The app computes those on demand with specialized calls.',
     '- Include conversation_title if the current title is generic and there is enough context, unless the user renamed it manually.',
   ].join('\n');
@@ -850,8 +868,9 @@ function buildAgentSystemInstruction(options: {
 function buildProgressSystemInstruction(): string {
   return [
     'You are Mr. F reviewing one person\'s individual English-learning progress.',
-    'You will receive only compact challenge data: source sentence and learner attempts.',
+    'You will receive only compact challenge data: challenge type, objective, source sentence, and learner attempts.',
     'Generate an updated progress note in Spanish. Keep it concise, practical, and personal.',
+    'Explicitly describe the conversation objectives and estimate progress toward them based only on the challenge data.',
     'This is not a school report and not a classroom summary. The learner may be practicing English independently.',
     'Always refer to one individual learner in singular. Prefer "el usuario" or direct "tú" when natural. Never write plural forms such as "los estudiantes".',
     'Do not invent facts outside the challenge data. If something cannot be inferred, say so briefly in Spanish.',
@@ -859,11 +878,13 @@ function buildProgressSystemInstruction(): string {
     '',
     '## Tema',
     '## Nivel',
+    '## Objetivos',
+    '## Avance de objetivos',
     '## Resumen',
     '## Errores frecuentes',
     '## Vocabulario',
     '',
-    'Keep the result compact: ideally 120 to 180 Spanish words.',
+    'Keep the result compact: ideally 150 to 220 Spanish words.',
     'Return only markdown. Do not return JSON. Do not use a code block.',
   ].join('\n');
 }
@@ -970,7 +991,9 @@ type TutorResponseBlock =
   | { type: "message"; markdown: string }
   | {
       type: "challenge_started";
+      challengeType?: "produce_en" | "understand_en"; // produce_en: Spanish prompt -> English answer. understand_en: English prompt -> Spanish meaning.
       sourceSentence: string;
+      objective?: string; // concise learning objective for this challenge or current practice cycle.
       topic?: string;
       level?: string;
     }
@@ -995,7 +1018,9 @@ const messageBlockSchema = z
 const challengeStartedBlockSchema = z
   .object({
     type: z.literal('challenge_started'),
+    challengeType: z.enum(['produce_en', 'understand_en']).optional(),
     sourceSentence: z.string().trim().min(1).max(320),
+    objective: z.string().trim().min(1).max(160).optional(),
     topic: z.string().trim().min(1).max(80).optional(),
     level: z.string().trim().min(1).max(40).optional(),
   })
@@ -1067,7 +1092,29 @@ function validateTutorResponseBlocks(value: unknown): TutorResponseBlock[] {
     );
   }
 
-  return parsed.data.blocks;
+  const blocks = parsed.data.blocks;
+  assertValidTutorBlockSequence(blocks);
+
+  return blocks;
+}
+
+function assertValidTutorBlockSequence(blocks: TutorResponseBlock[]): void {
+  const completedIndex = blocks.findIndex(
+    (block) => block.type === 'challenge_completed',
+  );
+  const startedIndex = blocks.findIndex(
+    (block) => block.type === 'challenge_started',
+  );
+
+  if (completedIndex >= 0 && startedIndex >= 0) {
+    console.error('[Mr. F LLM response sequence invalid]', JSON.stringify({
+      blocks,
+      reason: 'challenge_completed_and_challenge_started_same_response',
+    }, null, 2));
+    throw new Error(
+      'No debes completar un reto y empezar otro en la misma respuesta. Completa el reto, pregunta si el usuario quiere seguir con variantes o pasar al siguiente, y espera su respuesta.',
+    );
+  }
 }
 
 function blocksToMarkdown(blocks: TutorResponseBlock[]): string {

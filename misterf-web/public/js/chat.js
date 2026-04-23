@@ -50,6 +50,7 @@ let vocabularyItems = [];
 let pendingTranslatorSelection = '';
 let isProgressGenerating = false;
 let isVocabularyGenerating = false;
+let isNextChallengeRequested = false;
 
 if (window.marked) {
   window.marked.setOptions({
@@ -97,6 +98,7 @@ if (socket) {
     isVocabularyGenerating = false;
     pendingSentenceEvaluations.clear();
     practiceChallenges = payload.practice ?? [];
+    isNextChallengeRequested = false;
     vocabularyItems = payload.vocabulary ?? [];
 
     let queuedSentenceEvaluation = null;
@@ -225,6 +227,7 @@ if (socket) {
     }
 
     launchConfetti(payload);
+    renderNextChallengeButton();
   });
 
   socket.on('conversation:renamed', (payload) => {
@@ -241,6 +244,7 @@ if (socket) {
       messagesEl.replaceChildren();
       practiceChallenges = [];
       vocabularyItems = [];
+      isNextChallengeRequested = false;
       renderPractice(practiceChallenges);
       renderProgress('');
       renderVocabulary(vocabularyItems);
@@ -277,6 +281,7 @@ if (socket) {
   socket.on('assistant:start', () => {
     isAssistantBusy = true;
     setComposerEnabled(false);
+    renderNextChallengeButton();
     streamingBubble = appendMessage('model', '', { streaming: true });
     scrollToBottom();
   });
@@ -315,8 +320,9 @@ if (socket) {
     }
     activeUserMessageId = null;
     streamingBubble = null;
-    rebuildChallengeCards();
+    isNextChallengeRequested = false;
     isAssistantBusy = false;
+    rebuildChallengeCards();
     setComposerEnabled(true);
     focusComposer();
     scrollToBottom();
@@ -329,8 +335,10 @@ if (socket) {
     }
 
     appendMessage('error', message);
+    isNextChallengeRequested = false;
     isAssistantBusy = false;
     setComposerEnabled(true);
+    renderNextChallengeButton();
     scrollToBottom();
   });
 
@@ -548,6 +556,7 @@ function sendMessage() {
 
   inputEl.value = '';
   inputEl.style.height = 'auto';
+  renderNextChallengeButton();
   setComposerEnabled(false);
   socket.emit('message:send', { conversationId, content });
 }
@@ -1123,7 +1132,7 @@ function renderPractice(challenges) {
     const empty = document.createElement('div');
     empty.className = 'alert alert-light practice-empty';
     empty.textContent =
-      'Los intentos aparecerán aquí cuando empieces a traducir oraciones.';
+      'Los intentos aparecerán aquí cuando empieces a practicar producción o comprensión.';
     practiceContentEl.append(empty);
     return;
   }
@@ -1232,6 +1241,20 @@ function renderPracticeChallenge(challenge) {
   const source = document.createElement('p');
   source.className = 'practice-source';
   source.textContent = challenge.sourceSentence;
+
+  const mode = document.createElement('p');
+  mode.className = 'practice-mode';
+  mode.textContent = getChallengeModeLabel(challenge.challengeType);
+
+  body.append(mode);
+
+  if (challenge.objective) {
+    const objective = document.createElement('p');
+    objective.className = 'practice-objective';
+    objective.textContent = `Objetivo: ${challenge.objective}`;
+    body.append(objective);
+  }
+
   body.append(source);
 
   if (challenge.attempts?.length) {
@@ -1244,7 +1267,7 @@ function renderPracticeChallenge(challenge) {
   } else {
     const empty = document.createElement('p');
     empty.className = 'practice-attempt-empty';
-    empty.textContent = 'Todavía no hay intentos para esta oración.';
+    empty.textContent = 'Todavía no hay respuestas para este reto.';
     body.append(empty);
   }
 
@@ -1444,7 +1467,7 @@ function renderSentenceEvaluation(element, evaluation) {
 
     const sourceLabel = document.createElement('p');
     sourceLabel.className = 'sentence-evaluation-source-label';
-    sourceLabel.textContent = 'Reto';
+    sourceLabel.textContent = getEvaluationSourceLabel(evaluation);
 
     const sourceText = document.createElement('p');
     sourceText.className = 'sentence-evaluation-source-text';
@@ -1456,7 +1479,7 @@ function renderSentenceEvaluation(element, evaluation) {
 
   const partsLabel = document.createElement('p');
   partsLabel.className = 'sentence-evaluation-parts-label';
-  partsLabel.textContent = 'Tu intento, por partes';
+  partsLabel.textContent = getEvaluationPartsLabel(evaluation);
 
   body.append(partsLabel);
   body.append(parts);
@@ -1471,6 +1494,35 @@ function getEvaluationSourceSentence(evaluation) {
   }
 
   return getActiveChallenge()?.sourceSentence || '';
+}
+
+function getEvaluationChallengeType(evaluation) {
+  if (
+    evaluation?.challengeType === 'produce_en' ||
+    evaluation?.challengeType === 'understand_en'
+  ) {
+    return evaluation.challengeType;
+  }
+
+  return getActiveChallenge()?.challengeType || 'produce_en';
+}
+
+function getEvaluationSourceLabel(evaluation) {
+  return getEvaluationChallengeType(evaluation) === 'understand_en'
+    ? 'Reto de comprensión'
+    : 'Reto';
+}
+
+function getEvaluationPartsLabel(evaluation) {
+  return getEvaluationChallengeType(evaluation) === 'understand_en'
+    ? 'Tu explicación, por partes'
+    : 'Tu intento, por partes';
+}
+
+function getChallengeModeLabel(challengeType) {
+  return challengeType === 'understand_en'
+    ? 'Comprensión: inglés -> español'
+    : 'Producción: español -> inglés';
 }
 
 function attachMessageMetadata(row, metadata) {
@@ -1505,10 +1557,15 @@ function rebuildChallengeCards() {
   }
 
   initializeSentencePopovers(messagesEl);
+  renderNextChallengeButton();
 }
 
 function getActiveChallenge() {
-  return practiceChallenges.find((challenge) => !challenge.completedAt) ?? null;
+  return getCurrentChallenge();
+}
+
+function getCurrentChallenge() {
+  return practiceChallenges[practiceChallenges.length - 1] ?? null;
 }
 
 function unwrapChallengeCards() {
@@ -1528,11 +1585,73 @@ function createChatChallengeCard(startRow) {
   if (sourceSentence) {
     card.dataset.challengeSource = sourceSentence;
   }
+  const challenge = findChallengeBySourceSentence(sourceSentence);
+  if (challenge?.id) {
+    card.dataset.challengeId = challenge.id;
+  }
 
   const body = document.createElement('div');
   body.className = 'card-body chat-challenge-card-body';
   card.append(body);
   return card;
+}
+
+function findChallengeBySourceSentence(sourceSentence) {
+  if (!sourceSentence) {
+    return null;
+  }
+
+  return [...practiceChallenges]
+    .reverse()
+    .find((challenge) => challenge.sourceSentence === sourceSentence) || null;
+}
+
+function renderNextChallengeButton() {
+  messagesEl.querySelector('.next-challenge-action')?.remove();
+
+  if (isAssistantBusy || isNextChallengeRequested || !conversationId) {
+    return;
+  }
+
+  const current = getCurrentChallenge();
+  if (!current?.completedAt) {
+    return;
+  }
+
+  const card = messagesEl.querySelector(
+    `.chat-challenge-card[data-challenge-id="${CSS.escape(current.id)}"]`,
+  );
+  const body = card?.querySelector('.chat-challenge-card-body');
+  if (!body) {
+    return;
+  }
+
+  const action = document.createElement('div');
+  action.className = 'next-challenge-action';
+
+  const button = document.createElement('button');
+  button.className = 'btn btn-link next-challenge-button';
+  button.type = 'button';
+  button.textContent = 'Siguiente reto';
+  button.addEventListener('click', () => {
+    requestNextChallenge(button);
+  });
+
+  action.append(button);
+  body.append(action);
+}
+
+function requestNextChallenge(button) {
+  if (!socket || !conversationId || isAssistantBusy) {
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Preparando...';
+  isNextChallengeRequested = true;
+  renderNextChallengeButton();
+  setComposerEnabled(false);
+  socket.emit('challenge:next', { conversationId });
 }
 
 function rowStartsChallenge(row) {

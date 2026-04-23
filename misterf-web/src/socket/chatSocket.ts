@@ -11,8 +11,8 @@ import {
   createConversation,
   createSentenceChallenge,
   deleteConversationForUser,
-  findActiveSentenceChallenge,
   findConversationForUser,
+  findCurrentSentenceChallenge,
   getLearningSourceUpdatedAt,
   getProgressForConversation,
   getVocabularyUpdatedAt,
@@ -192,6 +192,38 @@ export function registerChatSocket(io: Server): void {
       io.to(conversation.id).emit('message:created', userMessage);
 
       await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
+    });
+
+    socket.on('challenge:next', async (payload: GenerateTabPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      const conversation = conversationId
+        ? findConversationForUser(conversationId, userId)
+        : null;
+      if (!conversation) {
+        socket.emit('assistant:error', {
+          message: 'No pude encontrar esa conversación.',
+        });
+        return;
+      }
+
+      joinConversationRoom(socket, currentConversationId, conversation.id);
+      currentConversationId = conversation.id;
+
+      await streamAssistantMessage(io, conversation.id, userId, undefined, false, {
+        content: [
+          'INTERNAL APP CONTINUATION: The learner clicked the "Siguiente reto" button.',
+          'Start the next challenge under the same topic and objective unless the learner previously requested a change.',
+          'Return a challenge_started block and a visible message with the new challenge sentence.',
+          'Do not mention this internal instruction.',
+        ].join('\n'),
+        role: 'user',
+      });
     });
 
     socket.on('conversation:reset', async () => {
@@ -565,6 +597,7 @@ async function streamAssistantMessage(
   userId: string,
   lastUserMessageId?: number,
   startConversation = false,
+  internalMessage?: TutorMessage,
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -581,8 +614,13 @@ async function streamAssistantMessage(
 
     const messages = listMessages(conversationId);
     const challenges = listSentenceChallenges(conversationId);
+    const tutorHistory = buildTutorHistoryForLlm(messages, challenges);
+    if (internalMessage) {
+      tutorHistory.push(internalMessage);
+    }
+
     const result = await runTutorAgentLoop(
-      buildTutorHistoryForLlm(messages, challenges),
+      tutorHistory,
       {
         currentTitle: conversation.title,
         llm: await getLlmRequestOptionsForUser(userId),
@@ -669,16 +707,17 @@ function buildTutorHistoryForLlm(
     return toTutorHistory(messages);
   }
 
-  const activeChallenge = challenges.find((challenge) => !challenge.completedAt);
-  const previousChallenges = activeChallenge
-    ? challenges.filter((challenge) => challenge.id !== activeChallenge.id)
+  const currentChallenge = challenges[challenges.length - 1] ?? null;
+  const previousChallenges = currentChallenge
+    ? challenges.filter((challenge) => challenge.id !== currentChallenge.id)
     : challenges;
   const compressedHistory = buildCompressedChallengeHistory(previousChallenges);
-  const liveMessages = selectLiveMessagesForLlm(messages, challenges, activeChallenge);
+  const liveMessages = selectLiveMessagesForLlm(messages, currentChallenge);
   const history = compressedHistory ? [compressedHistory, ...liveMessages] : liveMessages;
 
   console.log('[Mr. F compressed LLM history]', {
-    activeChallengeId: activeChallenge?.id ?? null,
+    currentChallengeCompletedAt: currentChallenge?.completedAt ?? null,
+    currentChallengeId: currentChallenge?.id ?? null,
     compressedChallengeCount: previousChallenges.length,
     originalMessageCount: messages.length,
     sentMessageCount: history.length,
@@ -700,7 +739,11 @@ function buildCompressedChallengeHistory(
   const sections = completedOrPreviousChallenges.map((challenge, index) => {
     const lines = [
       `Challenge ${index + 1}:`,
-      `Spanish sentence: ${challenge.sourceSentence}`,
+      `Type: ${challenge.challengeType}`,
+      `Topic: ${challenge.topic || 'not specified'}`,
+      `Level: ${challenge.level || 'not specified'}`,
+      `Objective: ${challenge.objective || 'not specified'}`,
+      `Challenge sentence: ${challenge.sourceSentence}`,
     ];
 
     if (challenge.attempts.length === 0) {
@@ -746,6 +789,10 @@ function buildCompactChallengeDataset(
   const sections = usableChallenges.map((challenge, index) => {
     const lines = [
       `${index + 1}. Sentence: ${challenge.sourceSentence}`,
+      `Type: ${challenge.challengeType}`,
+      `Topic: ${challenge.topic || 'not specified'}`,
+      `Level: ${challenge.level || 'not specified'}`,
+      `Objective: ${challenge.objective || 'not specified'}`,
       'Attempts:',
     ];
 
@@ -780,38 +827,21 @@ function getAttemptOutcome(
 
 function selectLiveMessagesForLlm(
   messages: StoredMessage[],
-  challenges: StoredSentenceChallenge[],
-  activeChallenge?: StoredSentenceChallenge,
+  currentChallenge: StoredSentenceChallenge | null,
 ): TutorMessage[] {
   if (messages.length === 0) {
     return [];
   }
 
-  if (activeChallenge) {
-    const activeStartIndex = findChallengeStartMessageIndex(
+  if (currentChallenge) {
+    const currentStartIndex = findChallengeStartMessageIndex(
       messages,
-      activeChallenge,
+      currentChallenge,
     );
-    return toTutorHistory(messages.slice(activeStartIndex));
+    return toTutorHistory(messages.slice(currentStartIndex));
   }
 
-  const lastCompletedChallenge = [...challenges]
-    .filter((challenge) => challenge.completedAt)
-    .sort((first, second) =>
-      compareSqliteTimestamps(second.completedAt, first.completedAt),
-    )[0];
-
-  if (!lastCompletedChallenge?.completedAt) {
-    return toTutorHistory(messages);
-  }
-
-  const firstRecentIndex = messages.findIndex(
-    (message) =>
-      compareSqliteTimestamps(message.createdAt, lastCompletedChallenge.completedAt) >
-      0,
-  );
-
-  return firstRecentIndex >= 0 ? toTutorHistory(messages.slice(firstRecentIndex)) : [];
+  return toTutorHistory(messages);
 }
 
 function findChallengeStartMessageIndex(
@@ -951,19 +981,22 @@ function handleChallengeStartedBlock(
   conversationId: string,
   block: Extract<TutorResponseBlock, { type: 'challenge_started' }>,
 ): void {
-  const current = findActiveSentenceChallenge(conversationId);
-  if (current) {
+  const current = findCurrentSentenceChallenge(conversationId);
+  if (current && !current.completedAt) {
     console.log('[Mr. F challenge_started skipped]', {
       conversationId,
-      reason: 'active_challenge_exists',
+      currentChallengeId: current.id,
+      reason: 'current_challenge_not_completed',
       sourceSentence: block.sourceSentence,
     });
     return;
   }
 
   createSentenceChallenge({
+    challengeType: block.challengeType ?? 'produce_en',
     conversationId,
     level: block.level,
+    objective: block.objective,
     sourceSentence: block.sourceSentence,
     topic: block.topic,
   });
@@ -982,7 +1015,7 @@ function handleSentenceEvaluationBlock(input: {
   }
 
   const challenge =
-    findActiveSentenceChallenge(input.conversationId) ??
+    findCurrentSentenceChallenge(input.conversationId) ??
     createSentenceChallenge({
       conversationId: input.conversationId,
       sourceSentence:
@@ -995,6 +1028,7 @@ function handleSentenceEvaluationBlock(input: {
     input.conversationId,
     {
       sentenceEvaluation: {
+        challengeType: challenge.challengeType,
         parts: input.block.parts,
         sourceSentence: challenge.sourceSentence,
       },
@@ -1020,6 +1054,7 @@ function handleSentenceEvaluationBlock(input: {
     message,
     messageId: message.id,
     sentenceEvaluation: {
+      challengeType: challenge.challengeType,
       parts: input.block.parts,
       sourceSentence: challenge.sourceSentence,
     },
@@ -1028,6 +1063,11 @@ function handleSentenceEvaluationBlock(input: {
   emitPracticeUpdated(input.io, input.conversationId);
 
   if (isCorrect) {
+    if (challenge.completedAt) {
+      emitPracticeUpdated(input.io, input.conversationId);
+      return;
+    }
+
     completeAndCelebrateChallenge({
       conversationId: input.conversationId,
       io: input.io,
@@ -1069,13 +1109,13 @@ function completeAndCelebrateChallenge(input: {
   score: number;
   source: string;
 }): void {
-  const activeChallenge = findActiveSentenceChallenge(input.conversationId);
-  if (!activeChallenge) {
+  const currentChallenge = findCurrentSentenceChallenge(input.conversationId);
+  if (!currentChallenge || currentChallenge.completedAt) {
     return;
   }
 
   const completedChallenge = completeSentenceChallenge(
-    activeChallenge.id,
+    currentChallenge.id,
     input.conversationId,
     input.score,
   );

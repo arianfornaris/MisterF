@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
+export type SentenceChallengeType = 'produce_en' | 'understand_en';
 
 export type StoredConversation = {
   id: string;
@@ -50,11 +51,13 @@ export type StoredSentenceAttempt = {
 
 export type StoredSentenceChallenge = {
   attempts: StoredSentenceAttempt[];
+  challengeType: SentenceChallengeType;
   completedAt: string | null;
   conversationId: string;
   createdAt: string;
   id: string;
   level: string | null;
+  objective: string | null;
   score: number | null;
   sourceSentence: string;
   topic: string | null;
@@ -105,11 +108,13 @@ type ConversationRow = {
 };
 
 type SentenceChallengeRow = {
+  challenge_type: SentenceChallengeType;
   completed_at: string | null;
   conversation_id: string;
   created_at: string;
   id: string;
   level: string | null;
+  objective: string | null;
   score: number | null;
   source_sentence: string;
   topic: string | null;
@@ -193,11 +198,13 @@ function toStoredSentenceChallenge(
 ): StoredSentenceChallenge {
   return {
     attempts,
+    challengeType: row.challenge_type,
     completedAt: row.completed_at,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     id: row.id,
     level: row.level,
+    objective: row.objective,
     score: row.score,
     sourceSentence: row.source_sentence,
     topic: row.topic,
@@ -462,8 +469,10 @@ export function updateMessageMetadata(
 }
 
 export function createSentenceChallenge(input: {
+  challengeType?: SentenceChallengeType;
   conversationId: string;
   level?: string | null;
+  objective?: string | null;
   sourceSentence: string;
   topic?: string | null;
 }): StoredSentenceChallenge {
@@ -475,18 +484,22 @@ export function createSentenceChallenge(input: {
           id,
           conversation_id,
           source_sentence,
+          challenge_type,
           topic,
-          level
+          level,
+          objective
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
       id,
       input.conversationId,
       input.sourceSentence,
+      input.challengeType ?? 'produce_en',
       input.topic || null,
       input.level || null,
+      input.objective || null,
     );
 
   const challenge = findSentenceChallenge(id, input.conversationId);
@@ -497,15 +510,15 @@ export function createSentenceChallenge(input: {
   return challenge;
 }
 
-export function findActiveSentenceChallenge(
+export function findCurrentSentenceChallenge(
   conversationId: string,
 ): StoredSentenceChallenge | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at, score
+        SELECT id, conversation_id, source_sentence, challenge_type, topic, level, objective, created_at, completed_at, score
         FROM sentence_challenges
-        WHERE conversation_id = ? AND completed_at IS NULL
+        WHERE conversation_id = ?
         ORDER BY created_at DESC, id DESC
         LIMIT 1
       `,
@@ -522,7 +535,7 @@ export function findSentenceChallenge(
   const row = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at, score
+        SELECT id, conversation_id, source_sentence, challenge_type, topic, level, objective, created_at, completed_at, score
         FROM sentence_challenges
         WHERE id = ? AND conversation_id = ?
       `,
@@ -632,7 +645,7 @@ export function listSentenceChallenges(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, topic, level, created_at, completed_at, score
+        SELECT id, conversation_id, source_sentence, challenge_type, topic, level, objective, created_at, completed_at, score
         FROM sentence_challenges
         WHERE conversation_id = ?
         ORDER BY created_at ASC, id ASC

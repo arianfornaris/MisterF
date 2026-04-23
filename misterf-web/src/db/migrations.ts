@@ -189,4 +189,21 @@ export const migrations: Migration[] = [
         ON conversation_vocabulary (conversation_id, created_at, id);
     `,
   },
+  {
+    id: 2,
+    name: 'add_sentence_challenge_type',
+    up: `
+      ALTER TABLE sentence_challenges
+        ADD COLUMN challenge_type TEXT NOT NULL DEFAULT 'produce_en'
+        CHECK (challenge_type IN ('produce_en', 'understand_en'));
+    `,
+  },
+  {
+    id: 3,
+    name: 'add_sentence_challenge_objective',
+    up: `
+      ALTER TABLE sentence_challenges
+        ADD COLUMN objective TEXT;
+    `,
+  },
 ];

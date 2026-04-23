@@ -1,2 +1,13 @@
 - Utilizar AWS SES para enviar los emails.
 - Ya tengo cuenta en AWS con boniatillo@gmail.com
+
+Juegos y retos:
+
+x- Traducir frase del español al ingles.
+- Entender frase en inglés - escribirla en español.
+- El juego del diálogo:
+    El usuario tiene un diálogo con un personaje ficticio y debe completar determinadas pautas. Por ejemplo:
+        - saludar
+        - pedir el nombre
+        - averiguar en que trabaja
+    El tutor genera los objetivos y evalua si se completo el reto.

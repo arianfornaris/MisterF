@@ -700,6 +700,23 @@ body {
   line-height: 1.45;
 }
 
+.practice-mode {
+  display: inline-flex;
+  margin: 0 0 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.practice-objective {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .practice-attempt-list {
   margin-top: 16px;
   margin-bottom: 0;
@@ -760,6 +777,27 @@ body {
 
 .chat-challenge-card-body {
   padding: 1.2rem 1.22rem;
+}
+
+.next-challenge-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.next-challenge-button {
+  padding: 0;
+  border: 0;
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.next-challenge-button:hover,
+.next-challenge-button:focus {
+  color: #c6524e;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
 }
 
 .chat-challenge-card .message-row {
