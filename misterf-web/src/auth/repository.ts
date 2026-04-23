@@ -9,12 +9,26 @@ export type AuthUser = {
   emailVerified: boolean;
 };
 
+export type SuperadminUser = AuthUser & {
+  createdAt: string;
+  disabledAt: string | null;
+  identityProviders: string[];
+  updatedAt: string;
+};
+
 type UserRow = {
   id: string;
   email: string;
   full_name: string;
   password_hash: string | null;
   email_verified: 0 | 1;
+};
+
+type SuperadminUserRow = UserRow & {
+  created_at: string;
+  disabled_at: string | null;
+  identity_providers: string | null;
+  updated_at: string;
 };
 
 type AuthActionTokenType = 'email_verification' | 'password_reset';
@@ -27,6 +41,18 @@ function toAuthUser(row: UserRow): AuthUser {
     fullName: row.full_name,
     passwordHash: row.password_hash,
     emailVerified: row.email_verified === 1,
+  };
+}
+
+function toSuperadminUser(row: SuperadminUserRow): SuperadminUser {
+  return {
+    ...toAuthUser(row),
+    createdAt: row.created_at,
+    disabledAt: row.disabled_at,
+    identityProviders: row.identity_providers
+      ? row.identity_providers.split(',').filter(Boolean)
+      : [],
+    updatedAt: row.updated_at,
   };
 }
 
@@ -46,6 +72,70 @@ export function findUserByEmail(email: string): AuthUser | null {
     .get(normalizeEmail(email)) as UserRow | undefined;
 
   return row ? toAuthUser(row) : null;
+}
+
+export function findUserById(userId: string): AuthUser | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, email, full_name, password_hash, email_verified
+        FROM users
+        WHERE id = ? AND disabled_at IS NULL
+      `,
+    )
+    .get(userId) as UserRow | undefined;
+
+  return row ? toAuthUser(row) : null;
+}
+
+export function findUserForSuperadmin(userId: string): SuperadminUser | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          users.id,
+          users.email,
+          users.full_name,
+          users.password_hash,
+          users.email_verified,
+          users.created_at,
+          users.updated_at,
+          users.disabled_at,
+          GROUP_CONCAT(user_identities.provider) AS identity_providers
+        FROM users
+        LEFT JOIN user_identities ON user_identities.user_id = users.id
+        WHERE users.id = ?
+        GROUP BY users.id
+      `,
+    )
+    .get(userId) as SuperadminUserRow | undefined;
+
+  return row ? toSuperadminUser(row) : null;
+}
+
+export function listUsersForSuperadmin(): SuperadminUser[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          users.id,
+          users.email,
+          users.full_name,
+          users.password_hash,
+          users.email_verified,
+          users.created_at,
+          users.updated_at,
+          users.disabled_at,
+          GROUP_CONCAT(user_identities.provider) AS identity_providers
+        FROM users
+        LEFT JOIN user_identities ON user_identities.user_id = users.id
+        GROUP BY users.id
+        ORDER BY datetime(users.created_at) DESC, users.email ASC
+      `,
+    )
+    .all() as SuperadminUserRow[];
+
+  return rows.map(toSuperadminUser);
 }
 
 export function findUserByIdentity(input: {
@@ -182,6 +272,12 @@ export function createExternalUser(input: {
   }
 
   return user;
+}
+
+export function deleteUserById(userId: string): void {
+  getDb()
+    .prepare('DELETE FROM users WHERE id = ?')
+    .run(userId);
 }
 
 export function linkUserIdentity(input: {

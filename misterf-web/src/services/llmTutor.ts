@@ -40,6 +40,11 @@ export type LlmRequestTokenUsage = {
   turn: number;
 };
 
+export type LlmRequestOptions = {
+  openRouterApiKey?: string | null;
+  userId?: string;
+};
+
 export type TranslationMode = 'auto' | 'es-en' | 'en-es';
 
 export type TranslationResult = {
@@ -145,6 +150,7 @@ export async function runTutorAgentLoop(
   history: TutorMessage[],
   options: {
     currentTitle?: string;
+    llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
@@ -169,7 +175,7 @@ export async function runTutorAgentLoop(
       const result = await generateObject({
         maxOutputTokens: 1800,
         messages,
-        model: getLanguageModel(),
+        model: getLanguageModel(options.llm),
         providerOptions: getProviderOptions(),
         schema: jsonSchema(genericTutorResponseJsonSchema),
         schemaDescription:
@@ -260,6 +266,7 @@ export async function runTutorAgentLoop(
 }
 
 export async function translateTextWithLlm(input: {
+  llm?: LlmRequestOptions;
   mode: TranslationMode;
   text: string;
 }): Promise<TranslationResult> {
@@ -276,7 +283,7 @@ export async function translateTextWithLlm(input: {
         role: 'user',
       },
     ],
-    model: getLanguageModel(),
+    model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     schema: jsonSchema(translationJsonSchema),
     schemaDescription:
@@ -324,6 +331,7 @@ export async function translateTextWithLlm(input: {
 
 export async function generateProgressWithLlm(input: {
   compactDataset: string;
+  llm?: LlmRequestOptions;
   onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
 }): Promise<GeneratedProgressResult> {
   const system = buildProgressSystemInstruction();
@@ -336,7 +344,7 @@ export async function generateProgressWithLlm(input: {
   const result = await generateText({
     maxOutputTokens: 1600,
     messages,
-    model: getLanguageModel(),
+    model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     system,
     temperature: shouldUseTemperature() ? 0.2 : undefined,
@@ -409,6 +417,7 @@ function escapeRegExp(value: string): string {
 
 export async function generateVocabularyWithLlm(input: {
   compactDataset: string;
+  llm?: LlmRequestOptions;
   onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
 }): Promise<GeneratedVocabularyResult> {
   const system = buildVocabularySystemInstruction();
@@ -421,7 +430,7 @@ export async function generateVocabularyWithLlm(input: {
   const result = await generateText({
     maxOutputTokens: 2600,
     messages,
-    model: getLanguageModel(),
+    model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     system,
     temperature: shouldUseTemperature() ? 0.2 : undefined,
@@ -532,6 +541,7 @@ function logLlmRequest(
   system: string,
   options: {
     currentTitle?: string;
+    llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
@@ -546,7 +556,13 @@ function logLlmRequest(
       role: message.role,
     })),
     model: env.llmModel,
-    options,
+    options: {
+      currentTitle: options.currentTitle,
+      hasUserScopedOpenRouterKey: Boolean(options.llm?.openRouterApiKey),
+      startConversation: options.startConversation,
+      titleUpdatedByUser: options.titleUpdatedByUser,
+      userId: options.llm?.userId,
+    },
     provider: env.llmProvider,
     system,
     turn,
@@ -691,7 +707,7 @@ function serializeLlmError(error: unknown): unknown {
   return error;
 }
 
-function getLanguageModel(): LanguageModel {
+function getLanguageModel(options: LlmRequestOptions = {}): LanguageModel {
   switch (env.llmProvider) {
     case 'openai':
       if (!env.openaiApiKey) {
@@ -700,15 +716,18 @@ function getLanguageModel(): LanguageModel {
       return createOpenAI({ apiKey: env.openaiApiKey })(env.llmModel);
 
     case 'openrouter':
-      if (!env.openrouterApiKey) {
-        throw new MissingLlmApiKeyError('openrouter');
+      {
+        const apiKey = options.openRouterApiKey || env.openrouterApiKey;
+        if (!apiKey) {
+          throw new MissingLlmApiKeyError('openrouter');
+        }
+        return createOpenRouter({
+          apiKey,
+          appName: 'Mister F',
+          appUrl: env.appBaseUrl,
+          baseURL: env.openrouterBaseUrl,
+        }).chat(env.llmModel);
       }
-      return createOpenRouter({
-        apiKey: env.openrouterApiKey,
-        appName: 'Mister F',
-        appUrl: env.appBaseUrl,
-        baseURL: env.openrouterBaseUrl,
-      }).chat(env.llmModel);
 
     case 'anthropic':
       if (!env.anthropicApiKey) {

@@ -14,6 +14,16 @@ function readInteger(name: string, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function readNumber(name: string, fallback: number | null): number | null {
+  const rawValue = process.env[name];
+  if (!rawValue) {
+    return fallback;
+  }
+
+  const parsed = Number.parseFloat(rawValue);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 function readBoolean(name: string, fallback: boolean): boolean {
   const rawValue = process.env[name];
   if (!rawValue) {
@@ -44,6 +54,19 @@ export const env = {
   openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
   openrouterBaseUrl:
     process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1',
+  openrouterKeyEncryptionSecret:
+    process.env.OPENROUTER_KEY_ENCRYPTION_SECRET ??
+    process.env.APP_SESSION_SECRET ??
+    '',
+  openrouterManagementApiKey:
+    process.env.OPENROUTER_MANAGEMENT_API_KEY ?? '',
+  openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
+  openrouterUserKeyLimitReset:
+    process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
+  openrouterUserKeyIncludeByokInLimit: readBoolean(
+    'OPENROUTER_USER_KEY_INCLUDE_BYOK_IN_LIMIT',
+    true,
+  ),
   anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
   geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   geminiThinkingBudget: readInteger('GEMINI_THINKING_BUDGET', -1),
@@ -57,4 +80,5 @@ export const env = {
   mailFrom: process.env.MAIL_FROM ?? '',
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+  superadminEmail: (process.env.SUPERADMIN_EMAIL ?? '').trim().toLowerCase(),
 };

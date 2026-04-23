@@ -15,6 +15,7 @@ import {
   requireSessionSecret,
   setSessionCookie,
 } from './session.js';
+import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 
 const stateCookieName = 'misterf_google_oauth_state';
 const authorizationEndpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -162,6 +163,7 @@ async function signInGoogleUser(
   response: Response,
   user: AuthUser,
 ): Promise<void> {
+  await ensureOpenRouterKeyForUser(user.id);
   const session = createSessionCookie();
   createSession({
     userId: user.id,

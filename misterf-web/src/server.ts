@@ -26,6 +26,11 @@ import { requireSessionSecret } from './auth/session.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
 import { registerChatSocket } from './socket/chatSocket.js';
+import {
+  handleOpenRouterKeyUpdate,
+  renderSuperadminUser,
+  renderSuperadminUsers,
+} from './superadmin/routes.js';
 
 requireSessionSecret();
 migrate();
@@ -81,6 +86,9 @@ app.get('/callback', (_request, response) => {
   response.redirect('/');
 });
 app.post('/logout', handleLogout);
+app.get('/superadmin', renderSuperadminUsers);
+app.get('/superadmin/users/:userId', renderSuperadminUser);
+app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
 app.get('/', renderHome);
 app.get('/session', (request, response) => {
   response.json({

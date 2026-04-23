@@ -7,33 +7,7 @@ export type Migration = {
 export const migrations: Migration[] = [
   {
     id: 1,
-    name: 'create_conversations_and_messages',
-    up: `
-      CREATE TABLE conversations (
-        id TEXT PRIMARY KEY,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-
-      CREATE TABLE messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        conversation_id TEXT NOT NULL,
-        role TEXT NOT NULL CHECK (role IN ('user', 'model')),
-        content TEXT NOT NULL,
-        metadata TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_messages_conversation_created
-        ON messages (conversation_id, created_at, id);
-    `,
-  },
-  {
-    id: 2,
-    name: 'create_auth_tables',
+    name: 'create_initial_schema',
     up: `
       CREATE TABLE users (
         id TEXT PRIMARY KEY,
@@ -80,12 +54,7 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_user_sessions_user_active
         ON user_sessions (user_id, revoked_at, expires_at);
-    `,
-  },
-  {
-    id: 3,
-    name: 'create_auth_action_tokens',
-    up: `
+
       CREATE TABLE auth_action_tokens (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -104,28 +73,53 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_auth_action_tokens_user
         ON auth_action_tokens (user_id, type, used_at);
-    `,
-  },
-  {
-    id: 4,
-    name: 'add_chat_ownership_and_title',
-    up: `
-      ALTER TABLE conversations
-        ADD COLUMN user_id TEXT
-        REFERENCES users (id)
-        ON DELETE CASCADE;
 
-      ALTER TABLE conversations
-        ADD COLUMN title TEXT NOT NULL DEFAULT 'Nueva conversación';
+      CREATE TABLE user_openrouter_keys (
+        user_id TEXT PRIMARY KEY,
+        key_hash TEXT UNIQUE,
+        encrypted_api_key TEXT,
+        name TEXT NOT NULL,
+        limit_usd REAL,
+        limit_reset TEXT CHECK (limit_reset IS NULL OR limit_reset IN ('daily', 'weekly', 'monthly')),
+        status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'active', 'error', 'disabled')),
+        last_error TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE TABLE conversations (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL DEFAULT 'Nueva conversación',
+        title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
 
       CREATE INDEX idx_conversations_user_updated
         ON conversations (user_id, updated_at DESC);
-    `,
-  },
-  {
-    id: 5,
-    name: 'create_conversation_progress',
-    up: `
+
+      CREATE TABLE messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversation_id TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('user', 'model')),
+        content TEXT NOT NULL,
+        metadata TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_messages_conversation_created
+        ON messages (conversation_id, created_at, id);
+
       CREATE TABLE conversation_progress (
         conversation_id TEXT PRIMARY KEY,
         markdown TEXT NOT NULL,
@@ -134,27 +128,14 @@ export const migrations: Migration[] = [
           REFERENCES conversations (id)
           ON DELETE CASCADE
       );
-    `,
-  },
-  {
-    id: 6,
-    name: 'add_manual_conversation_title_flag',
-    up: `
-      ALTER TABLE conversations
-        ADD COLUMN title_updated_by_user INTEGER NOT NULL DEFAULT 0
-        CHECK (title_updated_by_user IN (0, 1));
-    `,
-  },
-  {
-    id: 7,
-    name: 'create_sentence_challenges_and_attempts',
-    up: `
+
       CREATE TABLE sentence_challenges (
         id TEXT PRIMARY KEY,
         conversation_id TEXT NOT NULL,
         source_sentence TEXT NOT NULL,
         topic TEXT,
         level TEXT,
+        score REAL CHECK (score IS NULL OR (score >= 0 AND score <= 1)),
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         completed_at TEXT,
         FOREIGN KEY (conversation_id)
@@ -187,20 +168,7 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_sentence_attempts_challenge_created
         ON sentence_attempts (challenge_id, created_at, id);
-    `,
-  },
-  {
-    id: 8,
-    name: 'add_sentence_challenge_score',
-    up: `
-      ALTER TABLE sentence_challenges
-        ADD COLUMN score REAL CHECK (score IS NULL OR (score >= 0 AND score <= 1));
-    `,
-  },
-  {
-    id: 9,
-    name: 'create_conversation_vocabulary',
-    up: `
+
       CREATE TABLE conversation_vocabulary (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         conversation_id TEXT NOT NULL,

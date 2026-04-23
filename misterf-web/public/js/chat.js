@@ -1,4 +1,5 @@
 const storageKey = 'misterf.conversationId';
+const guestDraftStorageKey = 'misterf.guestDraft';
 const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const practiceContentEl = document.querySelector('#practiceContent');
@@ -26,9 +27,12 @@ const translatorResultEl = document.querySelector('#translatorResult');
 const translatorSubmitEl = document.querySelector('[data-translator-submit]');
 const translatorOpenButtonEl = document.querySelector('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
+const creditModalEl = document.querySelector('#creditModal');
+const creditMessageEl = document.querySelector('[data-credit-message]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const authMessage = document.body.dataset.authMessage || '';
+const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const socket = isInitiallyAuthenticated
   ? io({ auth: { token: socketAuthToken } })
   : null;
@@ -150,6 +154,10 @@ if (socket) {
     }
 
     logLlmRequestTokens(payload.usage);
+  });
+
+  socket.on('llm:credit_exhausted', ({ message }) => {
+    showCreditExhaustedModal(message);
   });
 
   socket.on('vocabulary:updated', (payload) => {
@@ -528,7 +536,13 @@ async function copyTranslatorText(button) {
 
 function sendMessage() {
   const content = inputEl.value.trim();
-  if (!content || isAssistantBusy || !socket) {
+  if (!content || isAssistantBusy) {
+    return;
+  }
+
+  if (!socket) {
+    preserveGuestDraft(content);
+    showGuestAuthPrompt();
     return;
   }
 
@@ -998,6 +1012,68 @@ function showAuthRequiredMessage(message) {
   );
   setComposerEnabled(false);
   scrollToBottom();
+}
+
+function showCreditExhaustedModal(message) {
+  const displayMessage =
+    message ||
+    'Tu crédito de práctica se agotó por ahora. Puedes recargar crédito o intentarlo de nuevo más tarde.';
+
+  if (creditMessageEl) {
+    creditMessageEl.textContent = displayMessage;
+  }
+
+  if (creditModalEl && window.bootstrap?.Modal) {
+    window.bootstrap.Modal.getOrCreateInstance(creditModalEl).show();
+    return;
+  }
+
+  appendMessage('error', displayMessage);
+  scrollToBottom();
+}
+
+function showGuestGreeting() {
+  messagesEl.replaceChildren();
+  practiceChallenges = [];
+  vocabularyItems = [];
+  renderPractice(practiceChallenges);
+  renderProgress('');
+  renderVocabulary(vocabularyItems);
+  streamingBubble = null;
+  appendMessage(
+    'model',
+    guestInitialGreeting ||
+      '¡Hola! Soy Mr. F, tu tutor de inglés. Para empezar, dime qué tema quieres practicar y qué nivel prefieres.',
+  );
+  setComposerEnabled(true);
+  focusComposer();
+  scrollToBottom();
+}
+
+function preserveGuestDraft(content) {
+  sessionStorage.setItem(guestDraftStorageKey, content);
+}
+
+function showGuestAuthPrompt() {
+  appendMessage(
+    'model',
+    'Perfecto. Para guardar tu práctica y continuar este workflow, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
+  );
+  setComposerEnabled(true);
+  inputEl.value = getGuestDraft() || inputEl.value;
+  resizeComposerInput();
+  focusComposer();
+  scrollToBottom();
+}
+
+function getGuestDraft() {
+  return sessionStorage.getItem(guestDraftStorageKey) || '';
+}
+
+function consumeGuestDraft() {
+  const draft = getGuestDraft();
+  sessionStorage.removeItem(guestDraftStorageKey);
+  return draft;
 }
 
 function renderProgress(markdown) {
@@ -1733,8 +1809,16 @@ function launchConfetti(payload = {}) {
 }
 
 if (isInitiallyAuthenticated) {
+  const guestDraft = consumeGuestDraft();
+  if (guestDraft) {
+    inputEl.value = guestDraft;
+    resizeComposerInput();
+    window.setTimeout(() => {
+      sendMessage();
+    }, 0);
+  }
   setComposerEnabled(true);
   focusComposer();
 } else {
-  showAuthRequiredMessage(authMessage || undefined);
+  showGuestGreeting();
 }

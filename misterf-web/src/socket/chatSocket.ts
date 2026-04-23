@@ -35,12 +35,14 @@ import {
   generateVocabularyWithLlm,
   runTutorAgentLoop,
   translateTextWithLlm,
+  type LlmRequestOptions,
   type LlmRequestTokenUsage,
   type TranslationMode,
   type TutorMessage,
   type TutorResponseBlock,
   type TutorSentenceEvaluationBlock,
 } from '../services/llmTutor.js';
+import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -324,7 +326,11 @@ export function registerChatSocket(io: Server): void {
       }
 
       try {
-        const translation = await translateTextWithLlm({ mode, text });
+        const translation = await translateTextWithLlm({
+          llm: await getLlmRequestOptionsForUser(userId),
+          mode,
+          text,
+        });
         socket.emit('translator:result', {
           mode,
           translation,
@@ -335,6 +341,7 @@ export function registerChatSocket(io: Server): void {
           mode,
           userId,
         });
+        emitCreditExhaustedIfNeeded(socket, error);
         socket.emit('translator:error', {
           message: toUserFacingError(error),
         });
@@ -380,6 +387,7 @@ export function registerChatSocket(io: Server): void {
         );
         const generated = await generateProgressWithLlm({
           compactDataset,
+          llm: await getLlmRequestOptionsForUser(userId),
           onTokenUsage: (usage) => {
             emitLlmRequestTokenUsage(io, conversation.id, usage);
           },
@@ -398,6 +406,7 @@ export function registerChatSocket(io: Server): void {
           error: serializeError(error),
           userId,
         });
+        emitCreditExhaustedIfNeeded(socket, error);
         socket.emit('progress:error', {
           message: toUserFacingError(error),
         });
@@ -443,6 +452,7 @@ export function registerChatSocket(io: Server): void {
         );
         const generated = await generateVocabularyWithLlm({
           compactDataset,
+          llm: await getLlmRequestOptionsForUser(userId),
           onTokenUsage: (usage) => {
             emitLlmRequestTokenUsage(io, conversation.id, usage);
           },
@@ -461,6 +471,7 @@ export function registerChatSocket(io: Server): void {
           error: serializeError(error),
           userId,
         });
+        emitCreditExhaustedIfNeeded(socket, error);
         socket.emit('vocabulary:error', {
           message: toUserFacingError(error),
         });
@@ -539,6 +550,15 @@ function normalizeTranslationMode(mode?: string): TranslationMode {
   return mode === 'es-en' || mode === 'en-es' ? mode : 'auto';
 }
 
+async function getLlmRequestOptionsForUser(
+  userId: string,
+): Promise<LlmRequestOptions> {
+  return {
+    openRouterApiKey: await getOpenRouterApiKeyForUser(userId),
+    userId,
+  };
+}
+
 async function streamAssistantMessage(
   io: Server,
   conversationId: string,
@@ -565,6 +585,7 @@ async function streamAssistantMessage(
       buildTutorHistoryForLlm(messages, challenges),
       {
         currentTitle: conversation.title,
+        llm: await getLlmRequestOptionsForUser(userId),
         onTokenUsage: (usage) => {
           emitLlmRequestTokenUsage(io, conversationId, usage);
         },
@@ -602,6 +623,7 @@ async function streamAssistantMessage(
       lastUserMessageId,
       userId,
     });
+    emitRoomCreditExhaustedIfNeeded(io, conversationId, error);
     io.to(conversationId).emit('assistant:error', {
       message: toUserFacingError(error),
     });
@@ -1160,6 +1182,10 @@ function isLikelySpanishChallengeSentence(value: string): boolean {
 }
 
 function toUserFacingError(error: unknown): string {
+  if (isCreditExhaustedError(error)) {
+    return getCreditExhaustedMessage();
+  }
+
   if (error instanceof MissingLlmApiKeyError) {
     return `Falta configurar la API key del proveedor "${error.provider}" en ecosystem.config.cjs.`;
   }
@@ -1175,13 +1201,55 @@ function toUserFacingError(error: unknown): string {
   return 'No pude hablar con el modelo por un error inesperado.';
 }
 
+function emitCreditExhaustedIfNeeded(socket: Socket, error: unknown): void {
+  if (!isCreditExhaustedError(error)) {
+    return;
+  }
+
+  socket.emit('llm:credit_exhausted', {
+    message: getCreditExhaustedMessage(),
+  });
+}
+
+function emitRoomCreditExhaustedIfNeeded(
+  io: Server,
+  conversationId: string,
+  error: unknown,
+): void {
+  if (!isCreditExhaustedError(error)) {
+    return;
+  }
+
+  io.to(conversationId).emit('llm:credit_exhausted', {
+    message: getCreditExhaustedMessage(),
+  });
+}
+
+function getCreditExhaustedMessage(): string {
+  return 'Tu crédito de práctica se agotó por ahora. Recarga crédito para seguir usando el tutor o intenta de nuevo cuando tengas crédito disponible.';
+}
+
+function isCreditExhaustedError(error: unknown): boolean {
+  const text = JSON.stringify(serializeError(error)).toLowerCase();
+  return (
+    text.includes('insufficient credit') ||
+    text.includes('insufficient credits') ||
+    text.includes('out of credits') ||
+    text.includes('not enough credits') ||
+    text.includes('credit limit') ||
+    text.includes('credits exhausted') ||
+    text.includes('balance') && text.includes('credit') ||
+    text.includes('402') && text.includes('credit')
+  );
+}
+
 function serializeError(error: unknown): Record<string, unknown> {
   if (!(error instanceof Error)) {
     return { value: error };
   }
 
   return {
-    cause: error.cause,
+    cause: error.cause ? serializeError(error.cause) : undefined,
     message: error.message,
     name: error.name,
     stack: error.stack,

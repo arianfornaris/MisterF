@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { createSocketAuthToken } from './socketAuth.js';
+import { pickInitialGreeting } from '../socket/initialGreetings.js';
 import {
   getMailerConfigurationError,
   isMailerConfigured,
@@ -11,6 +12,7 @@ import {
   createAuthActionToken,
   createLocalUser,
   createSession,
+  deleteUserById,
   findUserByAuthActionToken,
   findUserByEmail,
   markAuthActionTokenUsed,
@@ -32,6 +34,7 @@ import {
   normalizeActionToken,
 } from './tokens.js';
 import { listConversationsForUser } from '../db/repository.js';
+import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -215,6 +218,19 @@ export async function handleSignup(
 
   const passwordHash = await hashPassword(password);
   const user = createLocalUser({ email, fullName, passwordHash });
+  try {
+    await ensureOpenRouterKeyForUser(user.id);
+  } catch (error) {
+    deleteUserById(user.id);
+    renderAuthForm(response.status(503), {
+      error: toOpenRouterProvisioningErrorMessage(error),
+      fieldErrors: {},
+      mode: 'signup',
+      values: { code: '', email, fullName },
+    });
+    return;
+  }
+
   try {
     await issueEmailVerification(user);
   } catch (error) {
@@ -523,11 +539,13 @@ export function renderHome(request: Request, response: Response): void {
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
   const conversations = user ? listConversationsForUser(user.id) : [];
+  const guestInitialGreeting = user ? '' : pickInitialGreeting();
 
   response.render('index', {
     authMessage,
     conversations,
     csrfToken: response.locals.csrfToken,
+    guestInitialGreeting,
     hasSession: Boolean(user),
     isAuthenticated: isVerified,
     socketAuthToken,
@@ -542,6 +560,7 @@ async function signInUser(
   userId: string,
   returnTo = '/',
 ): Promise<void> {
+  await ensureOpenRouterKeyForUser(userId);
   const session = createSessionCookie();
   createSession({
     userId,
@@ -552,6 +571,13 @@ async function signInUser(
   });
   setSessionCookie(response, session);
   response.redirect(returnTo);
+}
+
+function toOpenRouterProvisioningErrorMessage(error: unknown): string {
+  console.error('OpenRouter user key provisioning failed during auth.', error);
+  return error instanceof Error
+    ? `No pude preparar la cuenta de IA para este usuario: ${error.message}`
+    : 'No pude preparar la cuenta de IA para este usuario.';
 }
 
 async function issueEmailVerification(user: AuthUser): Promise<void> {

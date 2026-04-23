@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Superadmin</title>
+    <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/css/app.css">
+  </head>
+  <body>
+    <main class="superadmin-shell">
+      <section class="superadmin-sheet">
+        <header class="superadmin-header">
+          <div>
+            <p class="superadmin-kicker">Superadmin</p>
+            <h1>Usuarios</h1>
+          </div>
+          <a class="btn btn-link px-0" href="/">Volver al chat</a>
+        </header>
+
+        <% if (success) { %>
+          <div class="alert alert-success" role="alert"><%= success %></div>
+        <% } %>
+
+        <% if (error) { %>
+          <div class="alert alert-danger" role="alert"><%= error %></div>
+        <% } %>
+
+        <div class="row g-4">
+          <aside class="<%= mode === 'detail' ? 'col-lg-5' : 'col-12' %>">
+            <div class="card superadmin-card">
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                  <h2 class="h5 mb-0">Todos los usuarios</h2>
+                  <span class="badge text-bg-light"><%= users.length %></span>
+                </div>
+
+                <% if (users.length === 0) { %>
+                  <div class="alert alert-light mb-0" role="status">
+                    Todavía no hay usuarios registrados.
+                  </div>
+                <% } else { %>
+                  <div class="list-group superadmin-user-list">
+                    <% users.forEach((user) => { %>
+                      <a
+                        class="list-group-item list-group-item-action <%= activeUser && activeUser.id === user.id ? 'active' : '' %>"
+                        href="/superadmin/users/<%= encodeURIComponent(user.id) %>"
+                      >
+                        <span class="d-flex w-100 justify-content-between gap-3">
+                          <strong><%= user.fullName %></strong>
+                          <small><%= formatDate(user.createdAt) %></small>
+                        </span>
+                        <span class="d-block small <%= activeUser && activeUser.id === user.id ? 'text-white-50' : 'text-muted' %>">
+                          <%= user.email %>
+                        </span>
+                      </a>
+                    <% }) %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </aside>
+
+          <% if (mode === 'detail' && activeUser) { %>
+            <section class="col-lg-7">
+              <div class="vstack gap-4">
+                <div class="card superadmin-card">
+                  <div class="card-body">
+                    <h2 class="h5">Datos de usuario</h2>
+                    <dl class="row superadmin-dl mb-0">
+                      <dt class="col-sm-4">Nombre</dt>
+                      <dd class="col-sm-8"><%= activeUser.fullName %></dd>
+                      <dt class="col-sm-4">Correo</dt>
+                      <dd class="col-sm-8"><%= activeUser.email %></dd>
+                      <dt class="col-sm-4">Email verificado</dt>
+                      <dd class="col-sm-8"><%= activeUser.emailVerified ? 'Sí' : 'No' %></dd>
+                      <dt class="col-sm-4">Perfil</dt>
+                      <dd class="col-sm-8">
+                        <% if (activeUser.identityProviders.length === 0) { %>
+                          <span class="text-muted">Sin proveedor registrado</span>
+                        <% } else { %>
+                          <% activeUser.identityProviders.forEach((provider) => { %>
+                            <span class="badge text-bg-secondary me-1"><%= provider %></span>
+                          <% }) %>
+                        <% } %>
+                      </dd>
+                      <dt class="col-sm-4">Creado</dt>
+                      <dd class="col-sm-8"><%= formatDate(activeUser.createdAt) %></dd>
+                      <dt class="col-sm-4">Actualizado</dt>
+                      <dd class="col-sm-8"><%= formatDate(activeUser.updatedAt) %></dd>
+                      <dt class="col-sm-4">ID</dt>
+                      <dd class="col-sm-8"><code><%= activeUser.id %></code></dd>
+                    </dl>
+                  </div>
+                </div>
+
+                <div class="card superadmin-card" id="openrouter-key">
+                  <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                      <div>
+                        <h2 class="h5 mb-1">OpenRouter key</h2>
+                        <p class="text-muted mb-0">
+                          Información local y datos devueltos por OpenRouter.
+                        </p>
+                      </div>
+                      <% if (keyRecord) { %>
+                        <span class="badge text-bg-<%= keyRecord.status === 'active' ? 'success' : keyRecord.status === 'error' ? 'danger' : 'warning' %>">
+                          <%= keyRecord.status %>
+                        </span>
+                      <% } %>
+                    </div>
+
+                    <% if (!keyRecord) { %>
+                      <div class="alert alert-warning mb-0" role="alert">
+                        Este usuario todavía no tiene una key registrada.
+                      </div>
+                    <% } else { %>
+                      <dl class="row superadmin-dl">
+                        <dt class="col-sm-4">Nombre</dt>
+                        <dd class="col-sm-8"><%= keyRecord.name %></dd>
+                        <dt class="col-sm-4">Hash</dt>
+                        <dd class="col-sm-8">
+                          <% if (keyRecord.keyHash) { %>
+                            <a href="#manage-openrouter-key"><code><%= keyRecord.keyHash %></code></a>
+                          <% } else { %>
+                            <span class="text-muted">Pendiente</span>
+                          <% } %>
+                        </dd>
+                        <dt class="col-sm-4">Límite local</dt>
+                        <dd class="col-sm-8"><%= formatMoney(keyRecord.limitUsd) %></dd>
+                        <dt class="col-sm-4">Reset local</dt>
+                        <dd class="col-sm-8"><%= keyRecord.limitReset || 'sin reset' %></dd>
+                        <dt class="col-sm-4">Actualizada</dt>
+                        <dd class="col-sm-8"><%= formatDate(keyRecord.updatedAt) %></dd>
+                      </dl>
+
+                      <% if (keyRecord.lastError) { %>
+                        <div class="alert alert-danger" role="alert">
+                          <strong>Último error:</strong> <%= keyRecord.lastError %>
+                        </div>
+                      <% } %>
+
+                      <% if (remoteError) { %>
+                        <div class="alert alert-warning" role="alert">
+                          No pude leer la key en OpenRouter: <%= remoteError %>
+                        </div>
+                      <% } %>
+
+                      <% if (openRouterInfo) { %>
+                        <div class="table-responsive mb-4">
+                          <table class="table table-sm align-middle mb-0">
+                            <tbody>
+                              <tr>
+                                <th scope="row">Límite</th>
+                                <td><%= formatMoney(openRouterInfo.limit) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Disponible</th>
+                                <td><%= formatMoney(openRouterInfo.limitRemaining) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Uso total</th>
+                                <td><%= formatMoney(openRouterInfo.usage) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Uso mensual</th>
+                                <td><%= formatMoney(openRouterInfo.usageMonthly) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Reset</th>
+                                <td><%= openRouterInfo.limitReset || 'sin reset' %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">BYOK incluido</th>
+                                <td><%= openRouterInfo.includeByokInLimit ? 'Sí' : 'No' %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Deshabilitada</th>
+                                <td><%= openRouterInfo.disabled ? 'Sí' : 'No' %></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      <% } %>
+
+                      <form
+                        id="manage-openrouter-key"
+                        class="superadmin-key-form"
+                        method="post"
+                        action="/superadmin/users/<%= encodeURIComponent(activeUser.id) %>/openrouter-key"
+                      >
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <h3 class="h6">Administrar saldo</h3>
+
+                        <div class="row g-3">
+                          <div class="col-sm-6">
+                            <label class="form-label" for="limitUsd">Límite USD</label>
+                            <input
+                              id="limitUsd"
+                              class="form-control"
+                              name="limitUsd"
+                              type="number"
+                              min="0"
+                              step="0.0001"
+                              value="<%= openRouterInfo && openRouterInfo.limit !== null && openRouterInfo.limit !== undefined ? openRouterInfo.limit : keyRecord.limitUsd ?? '' %>"
+                              placeholder="Sin límite"
+                            >
+                          </div>
+
+                          <div class="col-sm-6">
+                            <label class="form-label" for="limitReset">Reset</label>
+                            <select id="limitReset" class="form-select" name="limitReset">
+                              <% const currentReset = openRouterInfo?.limitReset ?? keyRecord.limitReset ?? ''; %>
+                              <option value="" <%= !currentReset ? 'selected' : '' %>>Sin reset</option>
+                              <option value="daily" <%= currentReset === 'daily' ? 'selected' : '' %>>Diario</option>
+                              <option value="weekly" <%= currentReset === 'weekly' ? 'selected' : '' %>>Semanal</option>
+                              <option value="monthly" <%= currentReset === 'monthly' ? 'selected' : '' %>>Mensual</option>
+                            </select>
+                          </div>
+
+                          <div class="col-12">
+                            <div class="form-check">
+                              <input
+                                id="includeByokInLimit"
+                                class="form-check-input"
+                                name="includeByokInLimit"
+                                type="checkbox"
+                                <%= openRouterInfo?.includeByokInLimit === false ? '' : 'checked' %>
+                              >
+                              <label class="form-check-label" for="includeByokInLimit">
+                                Incluir BYOK en el límite de saldo
+                              </label>
+                            </div>
+                            <div class="form-check">
+                              <input
+                                id="disabled"
+                                class="form-check-input"
+                                name="disabled"
+                                type="checkbox"
+                                <%= openRouterInfo?.disabled ? 'checked' : '' %>
+                              >
+                              <label class="form-check-label" for="disabled">
+                                Deshabilitar esta key
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button class="btn btn-dark mt-3" type="submit">
+                          Guardar cambios
+                        </button>
+                      </form>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </section>
+          <% } %>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

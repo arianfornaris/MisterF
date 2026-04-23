@@ -37,6 +37,74 @@ body {
   padding: 24px;
 }
 
+.superadmin-shell {
+  min-height: 100vh;
+  padding: 28px 18px;
+}
+
+.superadmin-sheet {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+.superadmin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.superadmin-header h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+}
+
+.superadmin-kicker {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.superadmin-card {
+  border-radius: 8px;
+  box-shadow: 0 14px 36px rgb(34 34 34 / 7%);
+}
+
+.superadmin-user-list {
+  max-height: min(68vh, 720px);
+  overflow: auto;
+}
+
+.superadmin-user-list .list-group-item {
+  border-left: 0;
+  border-right: 0;
+}
+
+.superadmin-user-list .list-group-item:first-child {
+  border-top: 0;
+}
+
+.superadmin-user-list .list-group-item:last-child {
+  border-bottom: 0;
+}
+
+.superadmin-dl dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.superadmin-dl dd {
+  overflow-wrap: anywhere;
+}
+
+.superadmin-key-form {
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
 .chat-workspace {
   width: min(100%, 980px);
   height: min(860px, calc(100vh - 48px));
@@ -289,6 +357,11 @@ body {
 }
 
 .translator-modal {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.credit-modal {
   border: 1px solid var(--line);
   border-radius: 8px;
 }

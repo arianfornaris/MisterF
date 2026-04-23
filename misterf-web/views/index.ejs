@@ -11,6 +11,7 @@
     data-authenticated="<%= isAuthenticated ? 'true' : 'false' %>"
     data-socket-auth-token="<%= socketAuthToken %>"
     data-auth-message="<%= authMessage %>"
+    data-guest-initial-greeting="<%= guestInitialGreeting %>"
   >
     <main class="app-shell">
       <div class="chat-workspace <%= hasSession ? 'has-toolbar' : '' %>">
@@ -231,6 +232,31 @@
                     <button type="submit" class="btn btn-dark" data-translator-submit>Traducir</button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="creditModal"
+            tabindex="-1"
+            aria-labelledby="creditModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content credit-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="creditModalLabel">Crédito agotado</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="mb-0" data-credit-message>
+                    Tu crédito de práctica se agotó por ahora.
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
               </div>
             </div>
           </div>
