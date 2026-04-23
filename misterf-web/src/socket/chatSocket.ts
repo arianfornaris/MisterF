@@ -20,10 +20,12 @@ import {
   listSentenceChallenges,
   listMessages,
   renameConversationForUser,
+  updateSentenceChallengeMetadata,
   updateMessageMetadata,
   upsertProgressForConversation,
   upsertSentenceAttempt,
   upsertVocabularyItems,
+  type ChallengeMetadata,
   type StoredMessage,
   type StoredSentenceChallenge,
 } from '../db/repository.js';
@@ -629,6 +631,9 @@ async function streamAssistantMessage(
         },
         startConversation,
         titleUpdatedByUser: conversation.titleUpdatedByUser,
+        validateBlocks: (blocks) => {
+          assertTutorBlocksFitConversationState(blocks, conversationId);
+        },
       },
     );
 
@@ -711,7 +716,7 @@ function buildTutorHistoryForLlm(
   const previousChallenges = currentChallenge
     ? challenges.filter((challenge) => challenge.id !== currentChallenge.id)
     : challenges;
-  const compressedHistory = buildCompressedChallengeHistory(previousChallenges);
+  const compressedHistory = buildCompressedChallengeHistory(messages, previousChallenges);
   const liveMessages = selectLiveMessagesForLlm(messages, currentChallenge);
   const history = compressedHistory ? [compressedHistory, ...liveMessages] : liveMessages;
 
@@ -727,6 +732,7 @@ function buildTutorHistoryForLlm(
 }
 
 function buildCompressedChallengeHistory(
+  messages: StoredMessage[],
   challenges: StoredSentenceChallenge[],
 ): TutorMessage | null {
   const completedOrPreviousChallenges = challenges.filter(
@@ -736,7 +742,21 @@ function buildCompressedChallengeHistory(
     return null;
   }
 
+  const dialogueChallenges = completedOrPreviousChallenges.filter(
+    (challenge) => challenge.challengeType === 'dialogue_scene',
+  );
+  const dialogueLightSet = new Set(
+    dialogueChallenges.slice(-2).map((challenge) => challenge.id),
+  );
+
   const sections = completedOrPreviousChallenges.map((challenge, index) => {
+    if (challenge.challengeType === 'dialogue_scene') {
+      const level = dialogueLightSet.has(challenge.id) ? 'light' : 'aggressive';
+      return level === 'light'
+        ? buildLightDialogueCompression(messages, challenge, index + 1)
+        : buildAggressiveDialogueCompression(challenge, index + 1);
+    }
+
     const lines = [
       `Challenge ${index + 1}:`,
       `Type: ${challenge.challengeType}`,
@@ -771,6 +791,91 @@ function buildCompressedChallengeHistory(
   };
 }
 
+function buildLightDialogueCompression(
+  messages: StoredMessage[],
+  challenge: StoredSentenceChallenge,
+  index: number,
+): string {
+  const dialogue = challenge.metadata?.dialogue;
+  const slice = getChallengeMessageSlice(messages, challenge);
+  const lines = [
+    `Dialogue Scene ${index}:`,
+    `Compression level: light`,
+    `Scenario: ${dialogue?.scenario || challenge.sourceSentence}`,
+    `Learner role: ${dialogue?.learnerRole || 'not specified'}`,
+    `Character: ${dialogue?.characterName || 'Character'} (${dialogue?.characterRole || 'not specified'})`,
+    `Objective: ${challenge.objective || 'not specified'}`,
+    `Goals: ${(dialogue?.goals || []).join(' | ') || 'not specified'}`,
+  ];
+
+  if (slice.length === 0) {
+    lines.push('Turns: none recorded.');
+    return lines.join('\n');
+  }
+
+  lines.push('Turns:');
+  for (const message of slice) {
+    if (message.role === 'user') {
+      lines.push(`- Learner: ${message.content}`);
+      continue;
+    }
+
+    const blocks = Array.isArray(message.metadata?.blocks)
+      ? (message.metadata?.blocks as Array<Record<string, unknown>>)
+      : [];
+    const started = blocks.find((block) => block.type === 'challenge_started');
+    if (started) {
+      const introBlocks = blocks.filter(
+        (block) => block.type === 'message' && typeof block.markdown === 'string',
+      );
+      for (const block of introBlocks) {
+        lines.push(`- Tutor intro: ${String(block.markdown).replace(/\s+/g, ' ').trim()}`);
+      }
+    }
+
+    const characterBlocks = blocks.filter(
+      (block) =>
+        block.type === 'character_message' &&
+        typeof block.name === 'string' &&
+        typeof block.markdown === 'string',
+    );
+    for (const block of characterBlocks) {
+      lines.push(
+        `- ${String(block.name)}: ${String(block.markdown).replace(/\s+/g, ' ').trim()}`,
+      );
+    }
+  }
+
+  return lines.join('\n');
+}
+
+function buildAggressiveDialogueCompression(
+  challenge: StoredSentenceChallenge,
+  index: number,
+): string {
+  const dialogue = challenge.metadata?.dialogue;
+  const lines = [
+    `Dialogue Scene ${index}:`,
+    `Compression level: aggressive`,
+    `Scenario: ${dialogue?.scenario || challenge.sourceSentence}`,
+    `Learner role: ${dialogue?.learnerRole || 'not specified'}`,
+    `Character: ${dialogue?.characterName || 'Character'} (${dialogue?.characterRole || 'not specified'})`,
+    `Objective: ${challenge.objective || 'not specified'}`,
+    `Goals completed: ${(dialogue?.completedGoals || []).join(' | ') || 'none'}`,
+    'Key learner turns:',
+  ];
+
+  if (challenge.attempts.length === 0) {
+    lines.push('- none');
+  } else {
+    for (const attempt of challenge.attempts.slice(-4)) {
+      lines.push(`- ${attempt.attemptText}`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
 function buildCompactChallengeDataset(
   challenges: StoredSentenceChallenge[],
 ): string {
@@ -793,8 +898,22 @@ function buildCompactChallengeDataset(
       `Topic: ${challenge.topic || 'not specified'}`,
       `Level: ${challenge.level || 'not specified'}`,
       `Objective: ${challenge.objective || 'not specified'}`,
-      'Attempts:',
     ];
+
+    if (challenge.challengeType === 'dialogue_scene') {
+      const dialogue = challenge.metadata?.dialogue;
+      lines.push(`Scenario: ${dialogue?.scenario || challenge.sourceSentence}`);
+      lines.push(`Learner role: ${dialogue?.learnerRole || 'not specified'}`);
+      lines.push(
+        `Character: ${dialogue?.characterName || 'Character'} (${dialogue?.characterRole || 'not specified'})`,
+      );
+      lines.push(`Goals: ${(dialogue?.goals || []).join(' | ') || 'not specified'}`);
+      lines.push(
+        `Completed goals: ${(dialogue?.completedGoals || []).join(' | ') || 'none'}`,
+      );
+    }
+
+    lines.push('Attempts:');
 
     if (challenge.attempts.length === 0) {
       lines.push('- none');
@@ -844,6 +963,32 @@ function selectLiveMessagesForLlm(
   return toTutorHistory(messages);
 }
 
+function getChallengeMessageSlice(
+  messages: StoredMessage[],
+  challenge: StoredSentenceChallenge,
+): StoredMessage[] {
+  const startIndex = findChallengeStartMessageIndex(messages, challenge);
+  const challengeIndex = findChallengeIndexById(challenge.id, listSentenceChallenges(challenge.conversationId));
+  if (challengeIndex < 0) {
+    return messages.slice(startIndex);
+  }
+  const conversationChallenges = listSentenceChallenges(challenge.conversationId);
+  const nextChallenge = conversationChallenges[challengeIndex + 1];
+  if (!nextChallenge) {
+    return messages.slice(startIndex);
+  }
+
+  const nextStartIndex = findChallengeStartMessageIndex(messages, nextChallenge);
+  return messages.slice(startIndex, nextStartIndex);
+}
+
+function findChallengeIndexById(
+  challengeId: string,
+  challenges: StoredSentenceChallenge[],
+): number {
+  return challenges.findIndex((challenge) => challenge.id === challengeId);
+}
+
 function findChallengeStartMessageIndex(
   messages: StoredMessage[],
   challenge: StoredSentenceChallenge,
@@ -851,7 +996,7 @@ function findChallengeStartMessageIndex(
   const metadataIndex = findLastMessageIndex(messages, (message) => {
     return (
       message.role === 'model' &&
-      getChallengeStartedSourceSentence(message) === challenge.sourceSentence
+      getChallengeStartedPrimaryText(message) === challenge.sourceSentence
     );
   });
   if (metadataIndex >= 0) {
@@ -874,23 +1019,42 @@ function findChallengeStartMessageIndex(
   return firstByDateIndex >= 0 ? Math.max(0, firstByDateIndex - 1) : 0;
 }
 
-function getChallengeStartedSourceSentence(message: StoredMessage): string | null {
+function getChallengeStartedPrimaryText(message: StoredMessage): string | null {
   const blocks = message.metadata?.blocks;
   if (!Array.isArray(blocks)) {
     return null;
   }
 
   const startedBlock = blocks.find(
-    (block): block is { sourceSentence: string; type: string } =>
+    (
+      block,
+    ): block is
+      | { challengeType?: string; sourceSentence: string; type: string }
+      | {
+          challengeType: 'dialogue_scene';
+          dialogue: { scenario: string };
+          type: string;
+        } =>
       Boolean(
         block &&
           typeof block === 'object' &&
-          (block as { type?: unknown }).type === 'challenge_started' &&
-          typeof (block as { sourceSentence?: unknown }).sourceSentence === 'string',
+          (block as { type?: unknown }).type === 'challenge_started',
       ),
   );
 
-  return startedBlock?.sourceSentence ?? null;
+  if (!startedBlock) {
+    return null;
+  }
+
+  if (
+    startedBlock.challengeType === 'dialogue_scene' &&
+    'dialogue' in startedBlock &&
+    typeof startedBlock.dialogue?.scenario === 'string'
+  ) {
+    return startedBlock.dialogue.scenario;
+  }
+
+  return 'sourceSentence' in startedBlock ? startedBlock.sourceSentence : null;
 }
 
 function findLastMessageIndex(
@@ -952,6 +1116,15 @@ function applyTutorBlocks(input: {
         });
         break;
 
+      case 'dialogue_progress':
+        handleDialogueProgressBlock({
+          block,
+          conversationId: input.conversationId,
+          io: input.io,
+          latestEvaluation,
+        });
+        break;
+
       case 'challenge_completed':
         handleChallengeCompletedBlock({
           block,
@@ -971,8 +1144,85 @@ function applyTutorBlocks(input: {
         break;
 
       case 'message':
+      case 'character_message':
         break;
     }
+  }
+}
+
+function assertTutorBlocksFitConversationState(
+  blocks: TutorResponseBlock[],
+  conversationId: string,
+): void {
+  const current = findCurrentSentenceChallenge(conversationId);
+  assertDialogueBlocksFitCurrentState(blocks, current);
+
+  const startedBlock = blocks.find(
+    (block): block is Extract<TutorResponseBlock, { type: 'challenge_started' }> =>
+      block.type === 'challenge_started',
+  );
+  if (!startedBlock) {
+    return;
+  }
+
+  if (!current || current.completedAt) {
+    return;
+  }
+
+  const requestedChallengeText =
+    startedBlock.challengeType === 'dialogue_scene' && 'dialogue' in startedBlock
+      ? startedBlock.dialogue.scenario
+      : 'sourceSentence' in startedBlock
+        ? startedBlock.sourceSentence
+        : null;
+
+  console.error('[Mr. F tutor blocks rejected before apply]', JSON.stringify({
+    conversationId,
+    currentChallengeCompletedAt: current.completedAt,
+    currentChallengeId: current.id,
+    currentChallengeText: current.sourceSentence,
+    reason: 'challenge_started_while_current_challenge_not_completed',
+    requestedChallengeText,
+  }, null, 2));
+
+  throw new Error(
+    'The response is inconsistent with the current conversation state: there is already an open challenge, so you must not emit challenge_started yet. Continue the current challenge instead, or wait until the learner explicitly asks for the next challenge after completion.',
+  );
+}
+
+function assertDialogueBlocksFitCurrentState(
+  blocks: TutorResponseBlock[],
+  currentChallenge: StoredSentenceChallenge | null,
+): void {
+  if (!currentChallenge || currentChallenge.challengeType !== 'dialogue_scene') {
+    return;
+  }
+
+  const latestEvaluation = [...blocks]
+    .reverse()
+    .find(
+      (block): block is TutorSentenceEvaluationBlock =>
+        block.type === 'sentence_evaluation',
+    );
+  if (!latestEvaluation) {
+    return;
+  }
+
+  const hasCharacterMessage = blocks.some(
+    (block) => block.type === 'character_message',
+  );
+  const hasChallengeCompleted = blocks.some(
+    (block) => block.type === 'challenge_completed',
+  );
+
+  if (
+    evaluationIsFullyCorrect(latestEvaluation) &&
+    !hasChallengeCompleted &&
+    !hasCharacterMessage
+  ) {
+    throw new Error(
+      'In a dialogue_scene, when the latest sentence_evaluation is fully correct and the scene is not completed in this response, include exactly one character_message with the next in-scene turn.',
+    );
   }
 }
 
@@ -987,7 +1237,12 @@ function handleChallengeStartedBlock(
       conversationId,
       currentChallengeId: current.id,
       reason: 'current_challenge_not_completed',
-      sourceSentence: block.sourceSentence,
+      challengeText:
+        block.challengeType === 'dialogue_scene' && 'dialogue' in block
+          ? block.dialogue.scenario
+          : 'sourceSentence' in block
+            ? block.sourceSentence
+            : null,
     });
     return;
   }
@@ -996,11 +1251,73 @@ function handleChallengeStartedBlock(
     challengeType: block.challengeType ?? 'produce_en',
     conversationId,
     level: block.level,
+    metadata: block.challengeType === 'dialogue_scene' && 'dialogue' in block
+      ? {
+          dialogue: {
+            ...block.dialogue,
+            completedGoals: [],
+          },
+        }
+      : null,
     objective: block.objective,
-    sourceSentence: block.sourceSentence,
+    sourceSentence:
+      block.challengeType === 'dialogue_scene' && 'dialogue' in block
+        ? block.dialogue.scenario
+        : 'sourceSentence' in block
+          ? block.sourceSentence
+          : fallbackChallengeTitle,
     topic: block.topic,
   });
   emitPracticeUpdated(io, conversationId);
+}
+
+function handleDialogueProgressBlock(input: {
+  block: Extract<TutorResponseBlock, { type: 'dialogue_progress' }>;
+  conversationId: string;
+  io: Server;
+  latestEvaluation: TutorSentenceEvaluationBlock | null;
+}): void {
+  const current = findCurrentSentenceChallenge(input.conversationId);
+  if (!current || current.challengeType !== 'dialogue_scene') {
+    return;
+  }
+
+  const dialogue = current.metadata?.dialogue;
+  if (!dialogue) {
+    return;
+  }
+
+  const completedGoals = mergeCompletedDialogueGoals(
+    dialogue.goals,
+    dialogue.completedGoals,
+    input.block.completedGoals,
+  );
+  const nextMetadata: ChallengeMetadata = {
+    dialogue: {
+      ...dialogue,
+      completedGoals,
+    },
+  };
+  const updatedChallenge = updateSentenceChallengeMetadata(
+    current.id,
+    input.conversationId,
+    nextMetadata,
+  );
+  emitPracticeUpdated(input.io, input.conversationId);
+
+  if (
+    updatedChallenge &&
+    !updatedChallenge.completedAt &&
+    dialogueGoalsCompleted(updatedChallenge) &&
+    evaluationIsFullyCorrect(input.latestEvaluation)
+  ) {
+    completeAndCelebrateChallenge({
+      conversationId: input.conversationId,
+      io: input.io,
+      score: 1,
+      source: 'dialogue_progress',
+    });
+  }
 }
 
 function handleSentenceEvaluationBlock(input: {
@@ -1068,6 +1385,10 @@ function handleSentenceEvaluationBlock(input: {
       return;
     }
 
+    if (challenge.challengeType === 'dialogue_scene') {
+      return;
+    }
+
     completeAndCelebrateChallenge({
       conversationId: input.conversationId,
       io: input.io,
@@ -1090,6 +1411,19 @@ function handleChallengeCompletedBlock(input: {
     console.log('[Mr. F challenge_completed skipped]', {
       conversationId: input.conversationId,
       reason: 'latest_evaluation_not_all_correct',
+      score: input.block.score,
+    });
+    return;
+  }
+
+  const currentChallenge = findCurrentSentenceChallenge(input.conversationId);
+  if (
+    currentChallenge?.challengeType === 'dialogue_scene' &&
+    !dialogueGoalsCompleted(currentChallenge)
+  ) {
+    console.log('[Mr. F challenge_completed skipped]', {
+      conversationId: input.conversationId,
+      reason: 'dialogue_goals_not_completed',
       score: input.block.score,
     });
     return;
@@ -1133,6 +1467,80 @@ function completeAndCelebrateChallenge(input: {
     .to(input.conversationId)
     .emit('sentence_challenge:completed', completionPayload);
 }
+
+function evaluationIsFullyCorrect(
+  evaluation: TutorSentenceEvaluationBlock | null,
+): boolean {
+  return evaluation?.parts.every((part) => part.status === 'correct') ?? false;
+}
+
+function dialogueGoalsCompleted(challenge: StoredSentenceChallenge): boolean {
+  if (challenge.challengeType !== 'dialogue_scene') {
+    return true;
+  }
+
+  const goals = challenge.metadata?.dialogue?.goals ?? [];
+  const completedGoals = challenge.metadata?.dialogue?.completedGoals ?? [];
+  return goals.length > 0 && completedGoals.length >= goals.length;
+}
+
+function mergeCompletedDialogueGoals(
+  canonicalGoals: string[],
+  existingCompletedGoals: string[],
+  incomingCompletedGoals: string[],
+): string[] {
+  const merged = new Map<string, string>();
+
+  for (const goal of canonicalGoals) {
+    if (goal.trim()) {
+      merged.set(normalizeGoalText(goal), goal);
+    }
+  }
+
+  const completed = new Set<string>();
+  for (const goal of [...existingCompletedGoals, ...incomingCompletedGoals]) {
+    const matchedGoal = findMatchingDialogueGoal(goal, canonicalGoals);
+    if (matchedGoal) {
+      completed.add(matchedGoal);
+    }
+  }
+
+  return canonicalGoals.filter((goal) => completed.has(goal));
+}
+
+function findMatchingDialogueGoal(
+  candidate: string,
+  canonicalGoals: string[],
+): string | null {
+  const normalizedCandidate = normalizeGoalText(candidate);
+  if (!normalizedCandidate) {
+    return null;
+  }
+
+  for (const goal of canonicalGoals) {
+    const normalizedGoal = normalizeGoalText(goal);
+    if (
+      normalizedGoal === normalizedCandidate ||
+      normalizedGoal.includes(normalizedCandidate) ||
+      normalizedCandidate.includes(normalizedGoal)
+    ) {
+      return goal;
+    }
+  }
+
+  return null;
+}
+
+function normalizeGoalText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 
 function handleConversationTitleBlock(input: {
   conversationId: string;

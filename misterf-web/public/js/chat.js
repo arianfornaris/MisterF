@@ -51,6 +51,9 @@ let pendingTranslatorSelection = '';
 let isProgressGenerating = false;
 let isVocabularyGenerating = false;
 let isNextChallengeRequested = false;
+let userInputHistory = [];
+let userInputHistoryIndex = -1;
+let userInputDraftBeforeHistory = '';
 
 if (window.marked) {
   window.marked.setOptions({
@@ -100,6 +103,11 @@ if (socket) {
     practiceChallenges = payload.practice ?? [];
     isNextChallengeRequested = false;
     vocabularyItems = payload.vocabulary ?? [];
+    userInputHistory = (payload.messages ?? [])
+      .filter((message) => message?.role === 'user' && typeof message.content === 'string')
+      .map((message) => message.content)
+      .filter((content) => content.trim().length > 0);
+    resetUserInputHistoryNavigation();
 
     let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
@@ -302,7 +310,7 @@ if (socket) {
       : null;
 
     if (streamingBubble) {
-      setMessageContent(streamingBubble, message.content);
+      setModelBubbleContent(streamingBubble, message.content, message.metadata);
       streamingBubble.classList.remove('typing-caret');
       const streamingRow = streamingBubble.closest('.message-row');
       streamingRow?.setAttribute('data-message-id', message.id);
@@ -362,6 +370,10 @@ formEl.addEventListener('submit', (event) => {
 });
 
 inputEl.addEventListener('keydown', (event) => {
+  if (handleUserInputHistoryKeydown(event)) {
+    return;
+  }
+
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     sendMessage();
@@ -554,11 +566,120 @@ function sendMessage() {
     return;
   }
 
+  rememberUserInput(content);
+
   inputEl.value = '';
   inputEl.style.height = 'auto';
+  resetUserInputHistoryNavigation();
   renderNextChallengeButton();
   setComposerEnabled(false);
   socket.emit('message:send', { conversationId, content });
+}
+
+function handleUserInputHistoryKeydown(event) {
+  if (!inputEl || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return false;
+  }
+
+  if (event.key === 'ArrowUp') {
+    if (!shouldUseHistoryArrow('up')) {
+      return false;
+    }
+
+    event.preventDefault();
+    navigateUserInputHistory(-1);
+    return true;
+  }
+
+  if (event.key === 'ArrowDown') {
+    if (!shouldUseHistoryArrow('down')) {
+      return false;
+    }
+
+    event.preventDefault();
+    navigateUserInputHistory(1);
+    return true;
+  }
+
+  return false;
+}
+
+function shouldUseHistoryArrow(direction) {
+  if (!inputEl || !userInputHistory.length) {
+    return false;
+  }
+
+  const hasDraft = inputEl.value.trim().length > 0;
+  if (hasDraft && userInputHistoryIndex === -1) {
+    return false;
+  }
+
+  const selectionStart = inputEl.selectionStart ?? 0;
+  const selectionEnd = inputEl.selectionEnd ?? 0;
+  if (selectionStart !== selectionEnd) {
+    return false;
+  }
+
+  if (direction === 'up') {
+    const textBeforeCaret = inputEl.value.slice(0, selectionStart);
+    return !textBeforeCaret.includes('\n');
+  }
+
+  const textAfterCaret = inputEl.value.slice(selectionEnd);
+  return !textAfterCaret.includes('\n');
+}
+
+function navigateUserInputHistory(step) {
+  if (!inputEl || !userInputHistory.length) {
+    return;
+  }
+
+  if (userInputHistoryIndex === -1) {
+    userInputDraftBeforeHistory = inputEl.value;
+    userInputHistoryIndex = userInputHistory.length;
+  }
+
+  const nextIndex = Math.max(
+    0,
+    Math.min(userInputHistory.length, userInputHistoryIndex + step),
+  );
+
+  if (nextIndex === userInputHistory.length) {
+    userInputHistoryIndex = -1;
+    inputEl.value = userInputDraftBeforeHistory;
+    resizeComposerInput();
+    moveCaretToEnd(inputEl);
+    return;
+  }
+
+  userInputHistoryIndex = nextIndex;
+  inputEl.value = userInputHistory[userInputHistoryIndex] || '';
+  resizeComposerInput();
+  moveCaretToEnd(inputEl);
+}
+
+function resetUserInputHistoryNavigation() {
+  userInputHistoryIndex = -1;
+  userInputDraftBeforeHistory = '';
+}
+
+function rememberUserInput(content) {
+  const normalized = content.trim();
+  if (!normalized) {
+    return;
+  }
+
+  const last = userInputHistory[userInputHistory.length - 1];
+  if (last === normalized) {
+    return;
+  }
+
+  userInputHistory.push(normalized);
+}
+
+function moveCaretToEnd(element) {
+  const end = element.value.length;
+  element.setSelectionRange(end, end);
 }
 
 function storeConversationId(nextConversationId) {
@@ -1240,7 +1361,10 @@ function renderPracticeChallenge(challenge) {
 
   const source = document.createElement('p');
   source.className = 'practice-source';
-  source.textContent = challenge.sourceSentence;
+  source.textContent =
+    challenge.challengeType === 'dialogue_scene'
+      ? challenge.metadata?.dialogue?.scenario || challenge.sourceSentence
+      : challenge.sourceSentence;
 
   const mode = document.createElement('p');
   mode.className = 'practice-mode';
@@ -1256,6 +1380,19 @@ function renderPracticeChallenge(challenge) {
   }
 
   body.append(source);
+
+  if (challenge.challengeType === 'dialogue_scene' && challenge.metadata?.dialogue) {
+    const roles = document.createElement('p');
+    roles.className = 'practice-dialogue-roles';
+    roles.textContent = `Tú: ${challenge.metadata.dialogue.learnerRole}. ${challenge.metadata.dialogue.characterName}: ${challenge.metadata.dialogue.characterRole}.`;
+    body.append(roles);
+
+    const goals = renderDialogueGoals(challenge.metadata.dialogue, challenge.completedAt);
+    if (goals) {
+      goals.classList.add('practice-dialogue-goals');
+      body.append(goals);
+    }
+  }
 
   if (challenge.attempts?.length) {
     const list = document.createElement('ul');
@@ -1321,6 +1458,56 @@ function renderPracticeAttempt(attempt) {
   return item;
 }
 
+function setModelBubbleContent(element, content, metadata) {
+  if (!element) {
+    return;
+  }
+
+  element.dataset.rawContent = content;
+  const blocks = Array.isArray(metadata?.blocks) ? metadata.blocks : [];
+  if (!blocks.length) {
+    setMessageContent(element, content);
+    return;
+  }
+
+  const visualBlocks = blocks.filter(
+    (block) => block?.type === 'message' || block?.type === 'character_message',
+  );
+  if (!visualBlocks.length) {
+    setMessageContent(element, content);
+    return;
+  }
+
+  element.replaceChildren();
+  for (const block of visualBlocks) {
+    if (block.type === 'message') {
+      const node = document.createElement('div');
+      node.className = 'tutor-message-block';
+      node.innerHTML = renderMarkdown(block.markdown || '');
+      element.append(node);
+      continue;
+    }
+
+    const card = document.createElement('article');
+    card.className = 'card character-message-card';
+
+    const body = document.createElement('div');
+    body.className = 'card-body character-message-card-body';
+
+    const name = document.createElement('p');
+    name.className = 'character-message-name';
+    name.textContent = block.name || 'Personaje';
+
+    const contentNode = document.createElement('div');
+    contentNode.className = 'character-message-content';
+    contentNode.innerHTML = renderMarkdown(block.markdown || '');
+
+    body.append(name, contentNode);
+    card.append(body);
+    element.append(card);
+  }
+}
+
 function appendStoredMessage(message, options = {}) {
   return appendMessage(message.role, message.content, {
     id: message.id,
@@ -1340,7 +1527,11 @@ function appendMessage(role, content, options = {}) {
 
   const bubble = document.createElement('div');
   bubble.className = getMessageBubbleClassName(role);
-  setMessageContent(bubble, content);
+  if (role === 'model') {
+    setModelBubbleContent(bubble, content, options.metadata);
+  } else {
+    setMessageContent(bubble, content);
+  }
 
   if (role === 'user') {
     appendUserMessageActions(bubble);
@@ -1460,8 +1651,9 @@ function renderSentenceEvaluation(element, evaluation) {
   const body = document.createElement('div');
   body.className = 'sentence-evaluation-body card-body';
 
+  const challengeType = getEvaluationChallengeType(evaluation);
   const sourceSentence = getEvaluationSourceSentence(evaluation);
-  if (sourceSentence) {
+  if (sourceSentence && challengeType !== 'dialogue_scene') {
     const sourceBlock = document.createElement('div');
     sourceBlock.className = 'sentence-evaluation-source';
 
@@ -1499,7 +1691,8 @@ function getEvaluationSourceSentence(evaluation) {
 function getEvaluationChallengeType(evaluation) {
   if (
     evaluation?.challengeType === 'produce_en' ||
-    evaluation?.challengeType === 'understand_en'
+    evaluation?.challengeType === 'understand_en' ||
+    evaluation?.challengeType === 'dialogue_scene'
   ) {
     return evaluation.challengeType;
   }
@@ -1508,18 +1701,30 @@ function getEvaluationChallengeType(evaluation) {
 }
 
 function getEvaluationSourceLabel(evaluation) {
+  if (getEvaluationChallengeType(evaluation) === 'dialogue_scene') {
+    return 'Escena';
+  }
+
   return getEvaluationChallengeType(evaluation) === 'understand_en'
     ? 'Reto de comprensión'
     : 'Reto';
 }
 
 function getEvaluationPartsLabel(evaluation) {
+  if (getEvaluationChallengeType(evaluation) === 'dialogue_scene') {
+    return 'Tu respuesta, por partes';
+  }
+
   return getEvaluationChallengeType(evaluation) === 'understand_en'
     ? 'Tu explicación, por partes'
     : 'Tu intento, por partes';
 }
 
 function getChallengeModeLabel(challengeType) {
+  if (challengeType === 'dialogue_scene') {
+    return 'Diálogo guiado';
+  }
+
   return challengeType === 'understand_en'
     ? 'Comprensión: inglés -> español'
     : 'Producción: español -> inglés';
@@ -1557,6 +1762,7 @@ function rebuildChallengeCards() {
   }
 
   initializeSentencePopovers(messagesEl);
+  renderDialogueTranscripts();
   renderNextChallengeButton();
 }
 
@@ -1581,19 +1787,95 @@ function unwrapChallengeCards() {
 function createChatChallengeCard(startRow) {
   const card = document.createElement('article');
   card.className = 'card chat-challenge-card';
-  const sourceSentence = getChallengeStartedBlock(startRow)?.sourceSentence;
-  if (sourceSentence) {
-    card.dataset.challengeSource = sourceSentence;
+  const startedBlock = getChallengeStartedBlock(startRow);
+  const challengeText = getChallengePrimaryText(startedBlock);
+  if (challengeText) {
+    card.dataset.challengeSource = challengeText;
   }
-  const challenge = findChallengeBySourceSentence(sourceSentence);
+  const challenge = findChallengeBySourceSentence(challengeText);
   if (challenge?.id) {
     card.dataset.challengeId = challenge.id;
+  }
+
+  const header = createChallengeCardHeader(challenge, startedBlock);
+  if (header) {
+    card.append(header);
   }
 
   const body = document.createElement('div');
   body.className = 'card-body chat-challenge-card-body';
   card.append(body);
   return card;
+}
+
+function createChallengeCardHeader(challenge, startedBlock) {
+  const challengeType = challenge?.challengeType || startedBlock?.challengeType;
+  if (challengeType !== 'dialogue_scene') {
+    return null;
+  }
+
+  const dialogue = challenge?.metadata?.dialogue || startedBlock?.dialogue;
+  if (!dialogue) {
+    return null;
+  }
+
+  const header = document.createElement('div');
+  header.className = 'chat-challenge-card-header dialogue-challenge-header';
+
+  const title = document.createElement('p');
+  title.className = 'dialogue-challenge-scenario';
+  title.textContent = dialogue.scenario || challenge?.sourceSentence || '';
+  header.append(title);
+
+  const roles = document.createElement('p');
+  roles.className = 'dialogue-challenge-roles';
+  roles.textContent = `Tú: ${dialogue.learnerRole}. ${dialogue.characterName}: ${dialogue.characterRole}.`;
+  header.append(roles);
+
+  if (challenge?.objective) {
+    const objective = document.createElement('p');
+    objective.className = 'dialogue-challenge-objective';
+    objective.textContent = `Objetivo: ${challenge.objective}`;
+    header.append(objective);
+  }
+
+  const goals = renderDialogueGoals(dialogue, challenge?.completedAt);
+  if (goals) {
+    header.append(goals);
+  }
+
+  return header;
+}
+
+function renderDialogueGoals(dialogue, completedAt) {
+  if (!dialogue?.goals?.length) {
+    return null;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'dialogue-goals';
+
+  const label = document.createElement('p');
+  label.className = 'dialogue-goals-label';
+  label.textContent = 'Logros';
+  wrapper.append(label);
+
+  const list = document.createElement('ul');
+  list.className = 'dialogue-goals-list';
+  const completedSet = new Set(dialogue.completedGoals || []);
+
+  for (const goal of dialogue.goals) {
+    const item = document.createElement('li');
+    item.className = 'dialogue-goal-item';
+    if (completedSet.has(goal) || completedAt) {
+      item.classList.add('is-complete');
+    }
+    item.textContent = goal;
+    list.append(item);
+  }
+
+  wrapper.append(list);
+  return wrapper;
 }
 
 function findChallengeBySourceSentence(sourceSentence) {
@@ -1604,6 +1886,142 @@ function findChallengeBySourceSentence(sourceSentence) {
   return [...practiceChallenges]
     .reverse()
     .find((challenge) => challenge.sourceSentence === sourceSentence) || null;
+}
+
+function getChallengePrimaryText(startedBlock) {
+  if (!startedBlock) {
+    return '';
+  }
+
+  if (
+    startedBlock.challengeType === 'dialogue_scene' &&
+    startedBlock.dialogue?.scenario
+  ) {
+    return startedBlock.dialogue.scenario;
+  }
+
+  return startedBlock.sourceSentence || '';
+}
+
+function renderDialogueTranscripts() {
+  for (const challenge of practiceChallenges) {
+    if (challenge.challengeType !== 'dialogue_scene') {
+      continue;
+    }
+
+    const card = messagesEl.querySelector(
+      `.chat-challenge-card[data-challenge-id="${CSS.escape(challenge.id)}"]`,
+    );
+    const body = card?.querySelector('.chat-challenge-card-body');
+    if (!body) {
+      continue;
+    }
+
+    const existingTranscript = body.querySelector('.dialogue-transcript');
+    const nextTranscript = buildDialogueTranscript(challenge, body);
+
+    if (!nextTranscript) {
+      existingTranscript?.remove();
+      delete card.dataset.dialogueTranscriptSignature;
+      continue;
+    }
+
+    if (card.dataset.dialogueTranscriptSignature === nextTranscript.signature) {
+      continue;
+    }
+
+    existingTranscript?.remove();
+    body.append(nextTranscript.element);
+    card.dataset.dialogueTranscriptSignature = nextTranscript.signature;
+  }
+}
+
+function buildDialogueTranscript(challenge, container) {
+  const entries = collectDialogueTranscriptEntries(challenge, container);
+  if (!entries.length) {
+    return null;
+  }
+
+  const article = document.createElement('article');
+  article.className = 'dialogue-transcript card';
+
+  const body = document.createElement('div');
+  body.className = 'card-body dialogue-transcript-body';
+
+  const content = document.createElement('div');
+  content.className = 'dialogue-transcript-content';
+
+  for (const entry of entries) {
+    const line = document.createElement('div');
+    line.className = `dialogue-transcript-line is-${entry.role}`;
+
+    const speaker = document.createElement('span');
+    speaker.className = 'dialogue-transcript-speaker';
+    speaker.textContent = `${entry.speaker}:`;
+
+    const text = document.createElement('span');
+    text.className = 'dialogue-transcript-text';
+    text.textContent = entry.text;
+
+    line.append(speaker, document.createTextNode(' '), text);
+    content.append(line);
+  }
+
+  body.append(content);
+  article.append(body);
+  return {
+    element: article,
+    signature: JSON.stringify(entries),
+  };
+}
+
+function collectDialogueTranscriptEntries(challenge, container) {
+  const entries = [];
+  const rows = Array.from(container.querySelectorAll(':scope > .message-row'));
+  const approvedUserMessageIds = new Set(
+    (challenge?.attempts || [])
+      .filter((attempt) => attempt?.isCorrect && attempt?.userMessageId)
+      .map((attempt) => String(attempt.userMessageId)),
+  );
+
+  for (const row of rows) {
+    if (row.dataset.role === 'user') {
+      if (!approvedUserMessageIds.has(String(row.dataset.messageId || ''))) {
+        continue;
+      }
+
+      const bubble = row.querySelector('.message-bubble');
+      const text = (bubble?.dataset.rawContent || bubble?.textContent || '').trim();
+      if (text) {
+        entries.push({
+          role: 'user',
+          speaker: 'You',
+          text,
+        });
+      }
+      continue;
+    }
+
+    const blocks = parseMessageBlocks(row);
+    for (const block of blocks) {
+      if (block?.type !== 'character_message') {
+        continue;
+      }
+
+      const text = String(block.markdown || '').replace(/\s+/g, ' ').trim();
+      if (!text) {
+        continue;
+      }
+
+      entries.push({
+        role: 'character',
+        speaker: String(block.name || 'Character'),
+        text,
+      });
+    }
+  }
+
+  return entries;
 }
 
 function renderNextChallengeButton() {

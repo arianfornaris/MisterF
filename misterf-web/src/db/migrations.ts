@@ -206,4 +206,60 @@ export const migrations: Migration[] = [
         ADD COLUMN objective TEXT;
     `,
   },
+  {
+    id: 4,
+    name: 'rebuild_sentence_challenges_for_dialogue',
+    up: `
+      CREATE TABLE sentence_challenges_new (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL,
+        source_sentence TEXT NOT NULL,
+        topic TEXT,
+        level TEXT,
+        objective TEXT,
+        challenge_type TEXT NOT NULL DEFAULT 'produce_en'
+          CHECK (challenge_type IN ('produce_en', 'understand_en', 'dialogue_scene')),
+        metadata_json TEXT,
+        score REAL CHECK (score IS NULL OR (score >= 0 AND score <= 1)),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        completed_at TEXT,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO sentence_challenges_new (
+        id,
+        conversation_id,
+        source_sentence,
+        topic,
+        level,
+        objective,
+        challenge_type,
+        score,
+        created_at,
+        completed_at
+      )
+      SELECT
+        id,
+        conversation_id,
+        source_sentence,
+        topic,
+        level,
+        objective,
+        challenge_type,
+        score,
+        created_at,
+        completed_at
+      FROM sentence_challenges;
+
+      DROP TABLE sentence_challenges;
+
+      ALTER TABLE sentence_challenges_new
+        RENAME TO sentence_challenges;
+
+      CREATE INDEX idx_sentence_challenges_conversation_created
+        ON sentence_challenges (conversation_id, created_at, id);
+    `,
+  },
 ];
