@@ -54,6 +54,8 @@ let isNextChallengeRequested = false;
 let userInputHistory = [];
 let userInputHistoryIndex = -1;
 let userInputDraftBeforeHistory = '';
+let pendingBootGuestDraft = '';
+let hasHandledInitialConversationReady = false;
 
 if (window.marked) {
   window.marked.setOptions({
@@ -91,6 +93,7 @@ if (socket) {
   });
 
   socket.on('conversation:ready', (payload) => {
+    hasHandledInitialConversationReady = true;
     conversationId = payload.conversationId;
     storeConversationId(conversationId);
     upsertConversationItem(payload.conversation);
@@ -130,6 +133,8 @@ if (socket) {
     setComposerEnabled(!isAssistantBusy);
     focusComposer();
     scrollToBottom();
+
+    flushPendingBootGuestDraft();
   });
 
   socket.on('conversation:promoted', (payload) => {
@@ -1361,10 +1366,7 @@ function renderPracticeChallenge(challenge) {
 
   const source = document.createElement('p');
   source.className = 'practice-source';
-  source.textContent =
-    challenge.challengeType === 'dialogue_scene'
-      ? challenge.metadata?.dialogue?.scenario || challenge.sourceSentence
-      : challenge.sourceSentence;
+  source.textContent = challenge.challengeLabel;
 
   const mode = document.createElement('p');
   mode.className = 'practice-mode';
@@ -1380,19 +1382,6 @@ function renderPracticeChallenge(challenge) {
   }
 
   body.append(source);
-
-  if (challenge.challengeType === 'dialogue_scene' && challenge.metadata?.dialogue) {
-    const roles = document.createElement('p');
-    roles.className = 'practice-dialogue-roles';
-    roles.textContent = `Tú: ${challenge.metadata.dialogue.learnerRole}. ${challenge.metadata.dialogue.characterName}: ${challenge.metadata.dialogue.characterRole}.`;
-    body.append(roles);
-
-    const goals = renderDialogueGoals(challenge.metadata.dialogue, challenge.completedAt);
-    if (goals) {
-      goals.classList.add('practice-dialogue-goals');
-      body.append(goals);
-    }
-  }
 
   if (challenge.attempts?.length) {
     const list = document.createElement('ul');
@@ -1491,16 +1480,20 @@ function setModelBubbleContent(element, content, metadata) {
   }
 
   element.replaceChildren();
+  const stack = document.createElement('div');
+  stack.className = 'tutor-message-stack';
+
   for (const block of visualBlocks) {
     if (block.type === 'message') {
       const node = document.createElement('div');
       node.className = 'tutor-message-block';
       node.innerHTML = renderMarkdown(block.markdown || '');
-      element.append(node);
+      stack.append(node);
       continue;
     }
-
   }
+
+  element.append(stack);
 }
 
 function appendStoredMessage(message, options = {}) {
@@ -1618,8 +1611,8 @@ function renderSentenceEvaluation(element, evaluation) {
   body.className = 'sentence-evaluation-body card-body';
 
   const challengeType = getEvaluationChallengeType(evaluation);
-  const sourceSentence = getEvaluationSourceSentence(evaluation);
-  if (sourceSentence && challengeType !== 'dialogue_scene') {
+  const challengeLabel = getEvaluationChallengeLabel(evaluation);
+  if (challengeLabel && challengeType !== 'dialogue_scene') {
     const sourceBlock = document.createElement('div');
     sourceBlock.className = 'sentence-evaluation-source';
 
@@ -1629,7 +1622,7 @@ function renderSentenceEvaluation(element, evaluation) {
 
     const sourceText = document.createElement('p');
     sourceText.className = 'sentence-evaluation-source-text';
-    sourceText.textContent = sourceSentence;
+    sourceText.textContent = challengeLabel;
 
     sourceBlock.append(sourceLabel, sourceText);
     body.append(sourceBlock);
@@ -1646,12 +1639,12 @@ function renderSentenceEvaluation(element, evaluation) {
   element.append(wrapper);
 }
 
-function getEvaluationSourceSentence(evaluation) {
-  if (typeof evaluation?.sourceSentence === 'string' && evaluation.sourceSentence.trim()) {
-    return evaluation.sourceSentence.trim();
+function getEvaluationChallengeLabel(evaluation) {
+  if (typeof evaluation?.challengeLabel === 'string' && evaluation.challengeLabel.trim()) {
+    return evaluation.challengeLabel.trim();
   }
 
-  return getActiveChallenge()?.sourceSentence || '';
+  return getActiveChallenge()?.challengeLabel || '';
 }
 
 function getEvaluationChallengeType(evaluation) {
@@ -1760,7 +1753,7 @@ function createChatChallengeCard(startRow) {
   if (challengeText) {
     card.dataset.challengeSource = challengeText;
   }
-  const challenge = findChallengeBySourceSentence(challengeText);
+  const challenge = findChallengeByLabel(challengeText);
   if (challenge?.id) {
     card.dataset.challengeId = challenge.id;
   }
@@ -1778,82 +1771,20 @@ function createChatChallengeCard(startRow) {
 
 function createChallengeCardHeader(challenge, startedBlock) {
   const challengeType = challenge?.challengeType || startedBlock?.challengeType;
-  if (challengeType !== 'dialogue_scene') {
+  if (challengeType === 'dialogue_scene') {
     return null;
   }
-
-  const dialogue = challenge?.metadata?.dialogue || startedBlock?.dialogue;
-  if (!dialogue) {
-    return null;
-  }
-
-  const header = document.createElement('div');
-  header.className = 'chat-challenge-card-header dialogue-challenge-header';
-
-  const title = document.createElement('p');
-  title.className = 'dialogue-challenge-scenario';
-  title.textContent = dialogue.scenario || challenge?.sourceSentence || '';
-  header.append(title);
-
-  const roles = document.createElement('p');
-  roles.className = 'dialogue-challenge-roles';
-  roles.textContent = `Tú: ${dialogue.learnerRole}. ${dialogue.characterName}: ${dialogue.characterRole}.`;
-  header.append(roles);
-
-  if (challenge?.objective) {
-    const objective = document.createElement('p');
-    objective.className = 'dialogue-challenge-objective';
-    objective.textContent = `Objetivo: ${challenge.objective}`;
-    header.append(objective);
-  }
-
-  const goals = renderDialogueGoals(dialogue, challenge?.completedAt);
-  if (goals) {
-    header.append(goals);
-  }
-
-  return header;
+  return null;
 }
 
-function renderDialogueGoals(dialogue, completedAt) {
-  if (!dialogue?.goals?.length) {
-    return null;
-  }
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'dialogue-goals';
-
-  const label = document.createElement('p');
-  label.className = 'dialogue-goals-label';
-  label.textContent = 'Logros';
-  wrapper.append(label);
-
-  const list = document.createElement('ul');
-  list.className = 'dialogue-goals-list';
-  const completedSet = new Set(dialogue.completedGoals || []);
-
-  for (const goal of dialogue.goals) {
-    const item = document.createElement('li');
-    item.className = 'dialogue-goal-item';
-    if (completedSet.has(goal) || completedAt) {
-      item.classList.add('is-complete');
-    }
-    item.textContent = goal;
-    list.append(item);
-  }
-
-  wrapper.append(list);
-  return wrapper;
-}
-
-function findChallengeBySourceSentence(sourceSentence) {
-  if (!sourceSentence) {
+function findChallengeByLabel(challengeLabel) {
+  if (!challengeLabel) {
     return null;
   }
 
   return [...practiceChallenges]
     .reverse()
-    .find((challenge) => challenge.sourceSentence === sourceSentence) || null;
+    .find((challenge) => challenge.challengeLabel === challengeLabel) || null;
 }
 
 function getChallengePrimaryText(startedBlock) {
@@ -1863,12 +1794,12 @@ function getChallengePrimaryText(startedBlock) {
 
   if (
     startedBlock.challengeType === 'dialogue_scene' &&
-    startedBlock.dialogue?.scenario
+    startedBlock.challengeLabel
   ) {
-    return startedBlock.dialogue.scenario;
+    return startedBlock.challengeLabel;
   }
 
-  return startedBlock.sourceSentence || '';
+  return startedBlock.challengeLabel || '';
 }
 
 function renderDialogueTranscripts() {
@@ -2385,16 +2316,27 @@ function launchConfetti(payload = {}) {
 }
 
 if (isInitiallyAuthenticated) {
-  const guestDraft = consumeGuestDraft();
-  if (guestDraft) {
-    inputEl.value = guestDraft;
-    resizeComposerInput();
-    window.setTimeout(() => {
-      sendMessage();
-    }, 0);
-  }
+  pendingBootGuestDraft = consumeGuestDraft();
   setComposerEnabled(true);
   focusComposer();
 } else {
   showGuestGreeting();
+}
+
+function flushPendingBootGuestDraft() {
+  if (!isInitiallyAuthenticated || !hasHandledInitialConversationReady) {
+    return;
+  }
+
+  const guestDraft = pendingBootGuestDraft.trim();
+  if (!guestDraft || isAssistantBusy) {
+    return;
+  }
+
+  pendingBootGuestDraft = '';
+  inputEl.value = guestDraft;
+  resizeComposerInput();
+  window.setTimeout(() => {
+    sendMessage();
+  }, 0);
 }

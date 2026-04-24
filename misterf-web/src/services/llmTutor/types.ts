@@ -28,20 +28,14 @@ export type TutorChallengeStartedBlock = {
 } & (
   | {
       challengeType?: 'produce_en' | 'understand_en';
+      challengeLabel: string;
       level?: string;
       objective?: string;
-      sourceSentence: string;
       topic?: string;
     }
   | {
       challengeType: 'dialogue_scene';
-      dialogue: {
-        characterName: string;
-        characterRole: string;
-        goals: string[];
-        learnerRole: string;
-        scenario: string;
-      };
+      challengeLabel: string;
       level?: string;
       objective?: string;
       topic?: string;
@@ -52,11 +46,6 @@ export type TutorCharacterMessageBlock = {
   type: 'character_message';
   name: string;
   markdown: string;
-};
-
-export type TutorDialogueProgressBlock = {
-  type: 'dialogue_progress';
-  completedGoals: string[];
 };
 
 export type TutorSentenceEvaluationBlock = {
@@ -82,7 +71,6 @@ export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorChallengeStartedBlock
   | TutorCharacterMessageBlock
-  | TutorDialogueProgressBlock
   | TutorSentenceEvaluationBlock
   | TutorChallengeCompletedBlock
   | TutorConversationTitleBlock;

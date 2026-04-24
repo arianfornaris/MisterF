@@ -73,7 +73,6 @@ El contrato se valida en servidor. Los bloques importantes hoy son:
 - `message`
 - `challenge_started`
 - `character_message`
-- `dialogue_progress`
 - `sentence_evaluation`
 - `challenge_completed`
 - `conversation_title`
@@ -91,11 +90,10 @@ Hoy existen tres tipos:
 Cada reto guarda:
 
 - `challengeType`
-- `sourceSentence`
+- `challengeLabel`
 - `topic`
 - `level`
 - `objective`
-- `metadata` (para escenas de diálogo: escenario, roles, goals y completedGoals)
 - `score`
 - `completedAt`
 
@@ -103,16 +101,18 @@ Cada reto guarda:
 
 En `dialogue_scene`:
 
-- el tutor presenta el ejercicio;
+- el tutor marca el inicio del diálogo con un `challenge_started` mínimo;
+- luego explica la escena en texto normal;
 - el personaje ficticio habla por `character_message`;
 - el usuario responde como parte de la escena;
 - el tutor corrige con `message` + `sentence_evaluation`;
-- el progreso visible de objetivos se actualiza con `dialogue_progress`.
+- el tutor puede mencionar objetivos de forma libre en sus mensajes, pero no existe un bloque estructurado de progreso para ellos;
+- el diálogo termina cuando el modelo decide cerrarlo con `challenge_completed`, normalmente porque la escena ya se resolvió de forma natural.
 
 En UI:
 
 - cada escena se renderiza dentro del mismo card del reto;
-- arriba del card se muestran escenario, roles y lista de logros;
+- el card no depende de metadata estructurada de escenario o roles;
 - dentro del flujo del chat, los mensajes del personaje van en cards propios, visualmente distintos del tutor.
 
 ## Flujo de retos

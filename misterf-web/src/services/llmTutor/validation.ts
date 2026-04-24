@@ -98,18 +98,12 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block.type === 'challenge_started',
     );
   if (started) {
-    if (started.challengeType === 'dialogue_scene' && started.dialogue) {
-      return [
-        'Vamos con esta escena:',
-        `**${started.dialogue.scenario}**`,
-        '',
-        `Tú eres: ${started.dialogue.learnerRole}.`,
-        `${started.dialogue.characterName} es ${started.dialogue.characterRole}.`,
-      ].join('\n');
+    if (started.challengeType === 'dialogue_scene') {
+      return 'Vamos con este diálogo.';
     }
 
-    if ('sourceSentence' in started) {
-      return `Vamos con esta oración:\n\n**${started.sourceSentence}**`;
+    if ('challengeLabel' in started) {
+      return `Vamos con este reto:\n\n**${started.challengeLabel}**`;
     }
   }
 

@@ -7,19 +7,6 @@ export type SentenceChallengeType =
   | 'understand_en'
   | 'dialogue_scene';
 
-export type DialogueChallengeMetadata = {
-  characterName: string;
-  characterRole: string;
-  completedGoals: string[];
-  goals: string[];
-  learnerRole: string;
-  scenario: string;
-};
-
-export type ChallengeMetadata = {
-  dialogue?: DialogueChallengeMetadata;
-};
-
 export type StoredConversation = {
   id: string;
   titleUpdatedByUser: boolean;
@@ -67,16 +54,15 @@ export type StoredSentenceAttempt = {
 
 export type StoredSentenceChallenge = {
   attempts: StoredSentenceAttempt[];
+  challengeLabel: string;
   challengeType: SentenceChallengeType;
   completedAt: string | null;
   conversationId: string;
   createdAt: string;
   id: string;
   level: string | null;
-  metadata: ChallengeMetadata | null;
   objective: string | null;
   score: number | null;
-  sourceSentence: string;
   topic: string | null;
 };
 
@@ -125,16 +111,15 @@ type ConversationRow = {
 };
 
 type SentenceChallengeRow = {
+  challenge_label: string;
   challenge_type: SentenceChallengeType;
   completed_at: string | null;
   conversation_id: string;
   created_at: string;
   id: string;
   level: string | null;
-  metadata_json: string | null;
   objective: string | null;
   score: number | null;
-  source_sentence: string;
   topic: string | null;
 };
 
@@ -216,16 +201,15 @@ function toStoredSentenceChallenge(
 ): StoredSentenceChallenge {
   return {
     attempts,
+    challengeLabel: row.challenge_label,
     challengeType: row.challenge_type,
     completedAt: row.completed_at,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     id: row.id,
     level: row.level,
-    metadata: row.metadata_json ? parseChallengeMetadata(row.metadata_json) : null,
     objective: row.objective,
     score: row.score,
-    sourceSentence: row.source_sentence,
     topic: row.topic,
   };
 }
@@ -489,11 +473,10 @@ export function updateMessageMetadata(
 
 export function createSentenceChallenge(input: {
   challengeType?: SentenceChallengeType;
+  challengeLabel: string;
   conversationId: string;
   level?: string | null;
-  metadata?: ChallengeMetadata | null;
   objective?: string | null;
-  sourceSentence: string;
   topic?: string | null;
 }): StoredSentenceChallenge {
   const id = randomUUID();
@@ -503,25 +486,23 @@ export function createSentenceChallenge(input: {
         INSERT INTO sentence_challenges (
           id,
           conversation_id,
-          source_sentence,
+          challenge_label,
           challenge_type,
           topic,
           level,
-          objective,
-          metadata_json
+          objective
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
       id,
       input.conversationId,
-      input.sourceSentence,
+      input.challengeLabel,
       input.challengeType ?? 'produce_en',
       input.topic || null,
       input.level || null,
       input.objective || null,
-      input.metadata ? JSON.stringify(input.metadata) : null,
     );
 
   const challenge = findSentenceChallenge(id, input.conversationId);
@@ -538,7 +519,7 @@ export function findCurrentSentenceChallenge(
   const row = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, challenge_type, topic, level, objective, metadata_json, created_at, completed_at, score
+        SELECT id, conversation_id, challenge_label, challenge_type, topic, level, objective, created_at, completed_at, score
         FROM sentence_challenges
         WHERE conversation_id = ?
         ORDER BY created_at DESC, id DESC
@@ -557,7 +538,7 @@ export function findSentenceChallenge(
   const row = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, challenge_type, topic, level, objective, metadata_json, created_at, completed_at, score
+        SELECT id, conversation_id, challenge_label, challenge_type, topic, level, objective, created_at, completed_at, score
         FROM sentence_challenges
         WHERE id = ? AND conversation_id = ?
       `,
@@ -585,24 +566,6 @@ export function completeSentenceChallenge(
       `,
     )
     .run(score, score, id, conversationId);
-
-  return findSentenceChallenge(id, conversationId);
-}
-
-export function updateSentenceChallengeMetadata(
-  id: string,
-  conversationId: string,
-  metadata: ChallengeMetadata | null,
-): StoredSentenceChallenge | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE sentence_challenges
-        SET metadata_json = ?
-        WHERE id = ? AND conversation_id = ?
-      `,
-    )
-    .run(metadata ? JSON.stringify(metadata) : null, id, conversationId);
 
   return findSentenceChallenge(id, conversationId);
 }
@@ -685,7 +648,7 @@ export function listSentenceChallenges(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, conversation_id, source_sentence, challenge_type, topic, level, objective, metadata_json, created_at, completed_at, score
+        SELECT id, conversation_id, challenge_label, challenge_type, topic, level, objective, created_at, completed_at, score
         FROM sentence_challenges
         WHERE conversation_id = ?
         ORDER BY created_at ASC, id ASC
@@ -889,47 +852,4 @@ function parseSentenceEvaluation(value: string): SentenceEvaluation {
   }
 
   return { parts: [] };
-}
-
-function parseChallengeMetadata(value: string): ChallengeMetadata | null {
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    if (!parsed || typeof parsed !== 'object') {
-      return null;
-    }
-
-    const dialogue = (parsed as { dialogue?: unknown }).dialogue;
-    if (!dialogue || typeof dialogue !== 'object') {
-      return null;
-    }
-
-    const candidate = dialogue as Partial<DialogueChallengeMetadata>;
-    if (
-      typeof candidate.scenario !== 'string' ||
-      typeof candidate.learnerRole !== 'string' ||
-      typeof candidate.characterName !== 'string' ||
-      typeof candidate.characterRole !== 'string' ||
-      !Array.isArray(candidate.goals) ||
-      !Array.isArray(candidate.completedGoals)
-    ) {
-      return null;
-    }
-
-    return {
-      dialogue: {
-        scenario: candidate.scenario,
-        learnerRole: candidate.learnerRole,
-        characterName: candidate.characterName,
-        characterRole: candidate.characterRole,
-        goals: candidate.goals.filter(
-          (goal): goal is string => typeof goal === 'string' && goal.trim().length > 0,
-        ),
-        completedGoals: candidate.completedGoals.filter(
-          (goal): goal is string => typeof goal === 'string' && goal.trim().length > 0,
-        ),
-      },
-    };
-  } catch {
-    return null;
-  }
 }

@@ -7,12 +7,9 @@ import {
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
   addMessage,
-  completeSentenceChallenge,
   createConversation,
-  createSentenceChallenge,
   deleteConversationForUser,
   findConversationForUser,
-  findCurrentSentenceChallenge,
   getLearningSourceUpdatedAt,
   getProgressForConversation,
   getVocabularyUpdatedAt,
@@ -20,12 +17,8 @@ import {
   listSentenceChallenges,
   listMessages,
   renameConversationForUser,
-  updateSentenceChallengeMetadata,
-  updateMessageMetadata,
   upsertProgressForConversation,
-  upsertSentenceAttempt,
   upsertVocabularyItems,
-  type ChallengeMetadata,
   type StoredMessage,
   type StoredSentenceChallenge,
 } from '../db/repository.js';
@@ -45,6 +38,10 @@ import {
   type TutorSentenceEvaluationBlock,
 } from '../services/llmTutor.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import {
+  applyTutorBlocksRuntime,
+  validateTutorBlocksAgainstConversationState,
+} from '../services/tutorWorkflow/index.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -632,7 +629,11 @@ async function streamAssistantMessage(
         startConversation,
         titleUpdatedByUser: conversation.titleUpdatedByUser,
         validateBlocks: (blocks) => {
-          assertTutorBlocksFitConversationState(blocks, conversationId);
+          validateTutorBlocksAgainstConversationState(
+            blocks,
+            conversationId,
+            lastUserMessageId,
+          );
         },
       },
     );
@@ -649,7 +650,7 @@ async function streamAssistantMessage(
       { blocks: result.blocks, model: result.model, provider: result.provider },
     );
 
-    applyTutorBlocks({
+    applyTutorBlocksRuntime({
       blocks: result.blocks,
       conversationId,
       io,
@@ -736,7 +737,7 @@ function buildCompressedChallengeHistory(
   challenges: StoredSentenceChallenge[],
 ): TutorMessage | null {
   const completedOrPreviousChallenges = challenges.filter(
-    (challenge) => challenge.attempts.length > 0 || challenge.sourceSentence,
+    (challenge) => challenge.attempts.length > 0 || challenge.challengeLabel,
   );
   if (completedOrPreviousChallenges.length === 0) {
     return null;
@@ -763,7 +764,7 @@ function buildCompressedChallengeHistory(
       `Topic: ${challenge.topic || 'not specified'}`,
       `Level: ${challenge.level || 'not specified'}`,
       `Objective: ${challenge.objective || 'not specified'}`,
-      `Challenge sentence: ${challenge.sourceSentence}`,
+      `Challenge label: ${challenge.challengeLabel}`,
     ];
 
     if (challenge.attempts.length === 0) {
@@ -796,16 +797,12 @@ function buildLightDialogueCompression(
   challenge: StoredSentenceChallenge,
   index: number,
 ): string {
-  const dialogue = challenge.metadata?.dialogue;
   const slice = getChallengeMessageSlice(messages, challenge);
   const lines = [
     `Dialogue Scene ${index}:`,
     `Compression level: light`,
-    `Scenario: ${dialogue?.scenario || challenge.sourceSentence}`,
-    `Learner role: ${dialogue?.learnerRole || 'not specified'}`,
-    `Character: ${dialogue?.characterName || 'Character'} (${dialogue?.characterRole || 'not specified'})`,
+    `Label: ${challenge.challengeLabel}`,
     `Objective: ${challenge.objective || 'not specified'}`,
-    `Goals: ${(dialogue?.goals || []).join(' | ') || 'not specified'}`,
   ];
 
   if (slice.length === 0) {
@@ -853,15 +850,11 @@ function buildAggressiveDialogueCompression(
   challenge: StoredSentenceChallenge,
   index: number,
 ): string {
-  const dialogue = challenge.metadata?.dialogue;
   const lines = [
     `Dialogue Scene ${index}:`,
     `Compression level: aggressive`,
-    `Scenario: ${dialogue?.scenario || challenge.sourceSentence}`,
-    `Learner role: ${dialogue?.learnerRole || 'not specified'}`,
-    `Character: ${dialogue?.characterName || 'Character'} (${dialogue?.characterRole || 'not specified'})`,
+    `Label: ${challenge.challengeLabel}`,
     `Objective: ${challenge.objective || 'not specified'}`,
-    `Goals completed: ${(dialogue?.completedGoals || []).join(' | ') || 'none'}`,
     'Key learner turns:',
   ];
 
@@ -880,7 +873,7 @@ function buildCompactChallengeDataset(
   challenges: StoredSentenceChallenge[],
 ): string {
   const usableChallenges = challenges.filter(
-    (challenge) => challenge.sourceSentence || challenge.attempts.length > 0,
+    (challenge) => challenge.challengeLabel || challenge.attempts.length > 0,
   );
 
   if (usableChallenges.length === 0) {
@@ -893,25 +886,12 @@ function buildCompactChallengeDataset(
 
   const sections = usableChallenges.map((challenge, index) => {
     const lines = [
-      `${index + 1}. Sentence: ${challenge.sourceSentence}`,
+      `${index + 1}. Label: ${challenge.challengeLabel}`,
       `Type: ${challenge.challengeType}`,
       `Topic: ${challenge.topic || 'not specified'}`,
       `Level: ${challenge.level || 'not specified'}`,
       `Objective: ${challenge.objective || 'not specified'}`,
     ];
-
-    if (challenge.challengeType === 'dialogue_scene') {
-      const dialogue = challenge.metadata?.dialogue;
-      lines.push(`Scenario: ${dialogue?.scenario || challenge.sourceSentence}`);
-      lines.push(`Learner role: ${dialogue?.learnerRole || 'not specified'}`);
-      lines.push(
-        `Character: ${dialogue?.characterName || 'Character'} (${dialogue?.characterRole || 'not specified'})`,
-      );
-      lines.push(`Goals: ${(dialogue?.goals || []).join(' | ') || 'not specified'}`);
-      lines.push(
-        `Completed goals: ${(dialogue?.completedGoals || []).join(' | ') || 'none'}`,
-      );
-    }
 
     lines.push('Attempts:');
 
@@ -996,7 +976,7 @@ function findChallengeStartMessageIndex(
   const metadataIndex = findLastMessageIndex(messages, (message) => {
     return (
       message.role === 'model' &&
-      getChallengeStartedPrimaryText(message) === challenge.sourceSentence
+      getChallengeStartedPrimaryText(message) === challenge.challengeLabel
     );
   });
   if (metadataIndex >= 0) {
@@ -1029,12 +1009,7 @@ function getChallengeStartedPrimaryText(message: StoredMessage): string | null {
     (
       block,
     ): block is
-      | { challengeType?: string; sourceSentence: string; type: string }
-      | {
-          challengeType: 'dialogue_scene';
-          dialogue: { scenario: string };
-          type: string;
-        } =>
+      | { challengeLabel: string; challengeType?: string; type: string } =>
       Boolean(
         block &&
           typeof block === 'object' &&
@@ -1046,15 +1021,7 @@ function getChallengeStartedPrimaryText(message: StoredMessage): string | null {
     return null;
   }
 
-  if (
-    startedBlock.challengeType === 'dialogue_scene' &&
-    'dialogue' in startedBlock &&
-    typeof startedBlock.dialogue?.scenario === 'string'
-  ) {
-    return startedBlock.dialogue.scenario;
-  }
-
-  return 'sourceSentence' in startedBlock ? startedBlock.sourceSentence : null;
+  return 'challengeLabel' in startedBlock ? startedBlock.challengeLabel : null;
 }
 
 function findLastMessageIndex(
@@ -1087,546 +1054,6 @@ function parseSqliteTimestamp(value?: string | null): number {
     : `${value.replace(' ', 'T')}Z`;
   const timestamp = Date.parse(normalized);
   return Number.isNaN(timestamp) ? 0 : timestamp;
-}
-
-function applyTutorBlocks(input: {
-  blocks: TutorResponseBlock[];
-  conversationId: string;
-  io: Server;
-  lastUserMessageId?: number;
-  messageHistory: StoredMessage[];
-  userId: string;
-}): void {
-  let latestEvaluation: TutorSentenceEvaluationBlock | null = null;
-
-  for (const block of input.blocks) {
-    switch (block.type) {
-      case 'challenge_started':
-        handleChallengeStartedBlock(input.io, input.conversationId, block);
-        break;
-
-      case 'sentence_evaluation':
-        latestEvaluation = block;
-        handleSentenceEvaluationBlock({
-          block,
-          conversationId: input.conversationId,
-          io: input.io,
-          lastUserMessageId: input.lastUserMessageId,
-          messageHistory: input.messageHistory,
-        });
-        break;
-
-      case 'dialogue_progress':
-        handleDialogueProgressBlock({
-          block,
-          conversationId: input.conversationId,
-          io: input.io,
-          latestEvaluation,
-        });
-        break;
-
-      case 'challenge_completed':
-        handleChallengeCompletedBlock({
-          block,
-          conversationId: input.conversationId,
-          io: input.io,
-          latestEvaluation,
-        });
-        break;
-
-      case 'conversation_title':
-        handleConversationTitleBlock({
-          conversationId: input.conversationId,
-          io: input.io,
-          title: block.title,
-          userId: input.userId,
-        });
-        break;
-
-      case 'message':
-      case 'character_message':
-        break;
-    }
-  }
-}
-
-function assertTutorBlocksFitConversationState(
-  blocks: TutorResponseBlock[],
-  conversationId: string,
-): void {
-  const current = findCurrentSentenceChallenge(conversationId);
-  assertDialogueBlocksFitCurrentState(blocks, current);
-
-  const startedBlock = blocks.find(
-    (block): block is Extract<TutorResponseBlock, { type: 'challenge_started' }> =>
-      block.type === 'challenge_started',
-  );
-  if (!startedBlock) {
-    return;
-  }
-
-  if (!current || current.completedAt) {
-    return;
-  }
-
-  const requestedChallengeText =
-    startedBlock.challengeType === 'dialogue_scene' && 'dialogue' in startedBlock
-      ? startedBlock.dialogue.scenario
-      : 'sourceSentence' in startedBlock
-        ? startedBlock.sourceSentence
-        : null;
-
-  console.error('[Mr. F tutor blocks rejected before apply]', JSON.stringify({
-    conversationId,
-    currentChallengeCompletedAt: current.completedAt,
-    currentChallengeId: current.id,
-    currentChallengeText: current.sourceSentence,
-    reason: 'challenge_started_while_current_challenge_not_completed',
-    requestedChallengeText,
-  }, null, 2));
-
-  throw new Error(
-    'The response is inconsistent with the current conversation state: there is already an open challenge, so you must not emit challenge_started yet. Continue the current challenge instead, or wait until the learner explicitly asks for the next challenge after completion.',
-  );
-}
-
-function assertDialogueBlocksFitCurrentState(
-  blocks: TutorResponseBlock[],
-  currentChallenge: StoredSentenceChallenge | null,
-): void {
-  if (!currentChallenge || currentChallenge.challengeType !== 'dialogue_scene') {
-    return;
-  }
-
-  const latestEvaluation = [...blocks]
-    .reverse()
-    .find(
-      (block): block is TutorSentenceEvaluationBlock =>
-        block.type === 'sentence_evaluation',
-    );
-  if (!latestEvaluation) {
-    return;
-  }
-
-  const hasCharacterMessage = blocks.some(
-    (block) => block.type === 'character_message',
-  );
-  const hasChallengeCompleted = blocks.some(
-    (block) => block.type === 'challenge_completed',
-  );
-
-  if (
-    evaluationIsFullyCorrect(latestEvaluation) &&
-    !hasChallengeCompleted &&
-    !hasCharacterMessage
-  ) {
-    throw new Error(
-      'In a dialogue_scene, when the latest sentence_evaluation is fully correct and the scene is not completed in this response, include exactly one character_message with the next in-scene turn.',
-    );
-  }
-}
-
-function handleChallengeStartedBlock(
-  io: Server,
-  conversationId: string,
-  block: Extract<TutorResponseBlock, { type: 'challenge_started' }>,
-): void {
-  const current = findCurrentSentenceChallenge(conversationId);
-  if (current && !current.completedAt) {
-    console.log('[Mr. F challenge_started skipped]', {
-      conversationId,
-      currentChallengeId: current.id,
-      reason: 'current_challenge_not_completed',
-      challengeText:
-        block.challengeType === 'dialogue_scene' && 'dialogue' in block
-          ? block.dialogue.scenario
-          : 'sourceSentence' in block
-            ? block.sourceSentence
-            : null,
-    });
-    return;
-  }
-
-  createSentenceChallenge({
-    challengeType: block.challengeType ?? 'produce_en',
-    conversationId,
-    level: block.level,
-    metadata: block.challengeType === 'dialogue_scene' && 'dialogue' in block
-      ? {
-          dialogue: {
-            ...block.dialogue,
-            completedGoals: [],
-          },
-        }
-      : null,
-    objective: block.objective,
-    sourceSentence:
-      block.challengeType === 'dialogue_scene' && 'dialogue' in block
-        ? block.dialogue.scenario
-        : 'sourceSentence' in block
-          ? block.sourceSentence
-          : fallbackChallengeTitle,
-    topic: block.topic,
-  });
-  emitPracticeUpdated(io, conversationId);
-}
-
-function handleDialogueProgressBlock(input: {
-  block: Extract<TutorResponseBlock, { type: 'dialogue_progress' }>;
-  conversationId: string;
-  io: Server;
-  latestEvaluation: TutorSentenceEvaluationBlock | null;
-}): void {
-  const current = findCurrentSentenceChallenge(input.conversationId);
-  if (!current || current.challengeType !== 'dialogue_scene') {
-    return;
-  }
-
-  const dialogue = current.metadata?.dialogue;
-  if (!dialogue) {
-    return;
-  }
-
-  const completedGoals = mergeCompletedDialogueGoals(
-    dialogue.goals,
-    dialogue.completedGoals,
-    input.block.completedGoals,
-  );
-  const nextMetadata: ChallengeMetadata = {
-    dialogue: {
-      ...dialogue,
-      completedGoals,
-    },
-  };
-  const updatedChallenge = updateSentenceChallengeMetadata(
-    current.id,
-    input.conversationId,
-    nextMetadata,
-  );
-  emitPracticeUpdated(input.io, input.conversationId);
-
-  if (
-    updatedChallenge &&
-    !updatedChallenge.completedAt &&
-    dialogueGoalsCompleted(updatedChallenge) &&
-    evaluationIsFullyCorrect(input.latestEvaluation)
-  ) {
-    completeAndCelebrateChallenge({
-      conversationId: input.conversationId,
-      io: input.io,
-      score: 1,
-      source: 'dialogue_progress',
-    });
-  }
-}
-
-function handleSentenceEvaluationBlock(input: {
-  block: TutorSentenceEvaluationBlock;
-  conversationId: string;
-  io: Server;
-  lastUserMessageId?: number;
-  messageHistory: StoredMessage[];
-}): void {
-  if (!input.lastUserMessageId) {
-    return;
-  }
-
-  const challenge =
-    findCurrentSentenceChallenge(input.conversationId) ??
-    createSentenceChallenge({
-      conversationId: input.conversationId,
-      sourceSentence:
-        inferLatestSourceSentence(input.messageHistory, input.lastUserMessageId) ??
-        fallbackChallengeTitle,
-    });
-
-  const message = updateMessageMetadata(
-    input.lastUserMessageId,
-    input.conversationId,
-    {
-      sentenceEvaluation: {
-        challengeType: challenge.challengeType,
-        parts: input.block.parts,
-        sourceSentence: challenge.sourceSentence,
-      },
-    },
-  );
-  if (!message) {
-    return;
-  }
-
-  const isCorrect = input.block.parts.every((part) => part.status === 'correct');
-
-  upsertSentenceAttempt({
-    attemptText: message.content,
-    challengeId: challenge.id,
-    conversationId: input.conversationId,
-    evaluation: { parts: input.block.parts },
-    isCorrect,
-    userMessageId: message.id,
-  });
-
-  input.io.to(input.conversationId).emit('message:evaluation_updated', {
-    conversationId: input.conversationId,
-    message,
-    messageId: message.id,
-    sentenceEvaluation: {
-      challengeType: challenge.challengeType,
-      parts: input.block.parts,
-      sourceSentence: challenge.sourceSentence,
-    },
-  });
-
-  emitPracticeUpdated(input.io, input.conversationId);
-
-  if (isCorrect) {
-    if (challenge.completedAt) {
-      emitPracticeUpdated(input.io, input.conversationId);
-      return;
-    }
-
-    if (challenge.challengeType === 'dialogue_scene') {
-      return;
-    }
-
-    completeAndCelebrateChallenge({
-      conversationId: input.conversationId,
-      io: input.io,
-      score: 1,
-      source: 'sentence_evaluation',
-    });
-  }
-}
-
-function handleChallengeCompletedBlock(input: {
-  block: Extract<TutorResponseBlock, { type: 'challenge_completed' }>;
-  conversationId: string;
-  io: Server;
-  latestEvaluation: TutorSentenceEvaluationBlock | null;
-}): void {
-  const canComplete =
-    input.latestEvaluation?.parts.every((part) => part.status === 'correct') ??
-    false;
-  if (!canComplete) {
-    console.log('[Mr. F challenge_completed skipped]', {
-      conversationId: input.conversationId,
-      reason: 'latest_evaluation_not_all_correct',
-      score: input.block.score,
-    });
-    return;
-  }
-
-  const currentChallenge = findCurrentSentenceChallenge(input.conversationId);
-  if (
-    currentChallenge?.challengeType === 'dialogue_scene' &&
-    !dialogueGoalsCompleted(currentChallenge)
-  ) {
-    console.log('[Mr. F challenge_completed skipped]', {
-      conversationId: input.conversationId,
-      reason: 'dialogue_goals_not_completed',
-      score: input.block.score,
-    });
-    return;
-  }
-
-  completeAndCelebrateChallenge({
-    conversationId: input.conversationId,
-    io: input.io,
-    score: input.block.score,
-    source: 'challenge_completed',
-  });
-}
-
-function completeAndCelebrateChallenge(input: {
-  conversationId: string;
-  io: Server;
-  score: number;
-  source: string;
-}): void {
-  const currentChallenge = findCurrentSentenceChallenge(input.conversationId);
-  if (!currentChallenge || currentChallenge.completedAt) {
-    return;
-  }
-
-  const completedChallenge = completeSentenceChallenge(
-    currentChallenge.id,
-    input.conversationId,
-    input.score,
-  );
-  emitPracticeUpdated(input.io, input.conversationId);
-
-  const completionPayload = {
-    automatic: true,
-    challenge: completedChallenge,
-    conversationId: input.conversationId,
-    score: input.score,
-    source: input.source,
-  };
-  console.log('[Mr. F confetti emit]', completionPayload);
-  input.io
-    .to(input.conversationId)
-    .emit('sentence_challenge:completed', completionPayload);
-}
-
-function evaluationIsFullyCorrect(
-  evaluation: TutorSentenceEvaluationBlock | null,
-): boolean {
-  return evaluation?.parts.every((part) => part.status === 'correct') ?? false;
-}
-
-function dialogueGoalsCompleted(challenge: StoredSentenceChallenge): boolean {
-  if (challenge.challengeType !== 'dialogue_scene') {
-    return true;
-  }
-
-  const goals = challenge.metadata?.dialogue?.goals ?? [];
-  const completedGoals = challenge.metadata?.dialogue?.completedGoals ?? [];
-  return goals.length > 0 && completedGoals.length >= goals.length;
-}
-
-function mergeCompletedDialogueGoals(
-  canonicalGoals: string[],
-  existingCompletedGoals: string[],
-  incomingCompletedGoals: string[],
-): string[] {
-  const merged = new Map<string, string>();
-
-  for (const goal of canonicalGoals) {
-    if (goal.trim()) {
-      merged.set(normalizeGoalText(goal), goal);
-    }
-  }
-
-  const completed = new Set<string>();
-  for (const goal of [...existingCompletedGoals, ...incomingCompletedGoals]) {
-    const matchedGoal = findMatchingDialogueGoal(goal, canonicalGoals);
-    if (matchedGoal) {
-      completed.add(matchedGoal);
-    }
-  }
-
-  return canonicalGoals.filter((goal) => completed.has(goal));
-}
-
-function findMatchingDialogueGoal(
-  candidate: string,
-  canonicalGoals: string[],
-): string | null {
-  const normalizedCandidate = normalizeGoalText(candidate);
-  if (!normalizedCandidate) {
-    return null;
-  }
-
-  for (const goal of canonicalGoals) {
-    const normalizedGoal = normalizeGoalText(goal);
-    if (
-      normalizedGoal === normalizedCandidate ||
-      normalizedGoal.includes(normalizedCandidate) ||
-      normalizedCandidate.includes(normalizedGoal)
-    ) {
-      return goal;
-    }
-  }
-
-  return null;
-}
-
-function normalizeGoalText(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}\s]/gu, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-
-function handleConversationTitleBlock(input: {
-  conversationId: string;
-  io: Server;
-  title: string;
-  userId: string;
-}): void {
-  const conversation = findConversationForUser(input.conversationId, input.userId);
-  if (!conversation || conversation.titleUpdatedByUser) {
-    return;
-  }
-
-  const title = normalizeConversationTitle(input.title);
-  if (!title || title.toLowerCase() === 'nueva conversación') {
-    return;
-  }
-
-  const renamedConversation = renameConversationForUser(
-    input.conversationId,
-    input.userId,
-    title,
-  );
-  if (!renamedConversation) {
-    return;
-  }
-
-  input.io.to(input.conversationId).emit('conversation:renamed', {
-    conversation: renamedConversation,
-    conversationId: input.conversationId,
-  });
-}
-
-function emitPracticeUpdated(io: Server, conversationId: string): void {
-  io.to(conversationId).emit('practice:updated', {
-    challenges: listSentenceChallenges(conversationId),
-    conversationId,
-  });
-}
-
-function inferLatestSourceSentence(
-  messages: StoredMessage[],
-  lastUserMessageId: number,
-): string | null {
-  const lastUserIndex = messages.findIndex(
-    (message) => message.id === lastUserMessageId,
-  );
-  const searchEndIndex = lastUserIndex >= 0 ? lastUserIndex : messages.length;
-  const previousModelMessages = messages
-    .slice(0, searchEndIndex)
-    .filter((message) => message.role === 'model')
-    .reverse();
-
-  for (const message of previousModelMessages) {
-    const quotedSentence = extractBestSpanishQuotedSentence(message.content);
-    if (quotedSentence) {
-      return quotedSentence;
-    }
-  }
-
-  return null;
-}
-
-function extractBestSpanishQuotedSentence(content: string): string | null {
-  const quotedSegments = [...content.matchAll(/["“”]([^"“”]{8,240})["“”]/g)]
-    .map((match) => normalizeConversationTitle(match[1]).slice(0, 240))
-    .filter(Boolean);
-
-  return quotedSegments.find(isLikelySpanishChallengeSentence) ?? null;
-}
-
-function isLikelySpanishChallengeSentence(value: string): boolean {
-  if (value.split(/\s+/).filter(Boolean).length < 4) {
-    return false;
-  }
-
-  const spanishSignals = [
-    /[¿¡áéíóúñü]/i,
-    /\b(el|la|los|las|un|una|unos|unas|de|del|que|con|para|por|donde|dónde|cuando|cuándo|cuanto|cuánto|me|mi|quiero|gustaria|gustaría|esta|está|son|es)\b/i,
-  ];
-  const englishSignals =
-    /\b(the|would|like|ticket|please|where|nearest|bus|stop|train|to|from|round-trip|return)\b/i;
-
-  return (
-    spanishSignals.some((pattern) => pattern.test(value)) &&
-    !englishSignals.test(value)
-  );
 }
 
 function toUserFacingError(error: unknown): string {

@@ -71,13 +71,6 @@ export const characterMessageBlockSchema = z
   })
   .strict();
 
-export const dialogueProgressBlockSchema = z
-  .object({
-    type: z.literal('dialogue_progress'),
-    completedGoals: z.array(z.string().trim().min(1).max(160)).min(1).max(12),
-  })
-  .strict();
-
 export const sentenceEvaluationBlockSchema = z
   .object({
     type: z.literal('sentence_evaluation'),
@@ -123,7 +116,6 @@ export const tutorResponseSchema = z
           messageBlockSchema,
           challengeStartedBlockSchema,
           characterMessageBlockSchema,
-          dialogueProgressBlockSchema,
           sentenceEvaluationBlockSchema,
           challengeCompletedBlockSchema,
           conversationTitleBlockSchema,

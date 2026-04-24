@@ -1,7 +1,5 @@
 import {
-  generateObject,
   generateText,
-  jsonSchema,
   type ModelMessage,
 } from 'ai';
 import { env } from '../../config/env.js';
@@ -11,7 +9,7 @@ import { buildProgressSystemInstruction, buildTranslatorSystemInstruction, build
 import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { assertUsableProgressMarkdown, parseVocabularyJsonLines } from './parsers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
-import { genericTutorResponseJsonSchema, translationJsonSchema, translationResultSchema } from './schemas.js';
+import { translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 import type { GeneratedProgressResult, GeneratedVocabularyResult, LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorResponseValidator } from './types.js';
 
@@ -20,6 +18,19 @@ Start the session.
 `;
 
 const maxAgentTurns = 6;
+
+function parseJsonFromModelText(text: string): unknown {
+  const trimmed = text.trim();
+  const fencedMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  const candidate = fencedMatch ? fencedMatch[1].trim() : trimmed;
+
+  try {
+    return JSON.parse(candidate) as unknown;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Invalid JSON';
+    throw new Error(`JSON parsing failed: ${message}`);
+  }
+}
 
 export async function runTutorAgentLoop(
   history: TutorMessage[],
@@ -48,21 +59,18 @@ export async function runTutorAgentLoop(
     logLlmRequest(messages, system, options, turn + 1);
 
     try {
-      const result = await generateObject({
+      const result = await generateText({
         maxOutputTokens: 1800,
         messages,
         model: getLanguageModel(options.llm),
         providerOptions: getProviderOptions(),
-        schema: jsonSchema(genericTutorResponseJsonSchema),
-        schemaDescription:
-          'A JSON object with a blocks array. The exact block contract is described in the system instructions and validated by the server.',
-        schemaName: 'TutorResponse',
         system,
         temperature: shouldUseTemperature() ? 0.45 : undefined,
       });
 
+      const parsedObject = parseJsonFromModelText(result.text);
       logLlmResponse(
-        result.object,
+        parsedObject,
         result.finishReason,
         result.providerMetadata,
         turn + 1,
@@ -89,7 +97,7 @@ export async function runTutorAgentLoop(
       }
 
       try {
-        const blocks = validateTutorResponseBlocks(result.object);
+        const blocks = validateTutorResponseBlocks(parsedObject);
         if (blocks.length === 0) {
           throw new Error('The model returned no usable response blocks.');
         }
@@ -110,7 +118,7 @@ export async function runTutorAgentLoop(
 
         appendStructuredCorrectionRequest(messages, {
           error,
-          invalidOutput: JSON.stringify(result.object, null, 2),
+          invalidOutput: result.text,
           reason: buildStructuredValidationReason(error),
           turn: turn + 1,
         });
@@ -154,15 +162,11 @@ export async function translateTextWithLlm(input: {
     throw new Error('No hay texto para traducir.');
   }
 
-  const result = await generateObject({
+  const result = await generateText({
     maxOutputTokens: 1000,
     messages: [{ content: text, role: 'user' }],
     model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
-    schema: jsonSchema(translationJsonSchema),
-    schemaDescription:
-      'A small translation result. The translatedText field contains only the translation.',
-    schemaName: 'TranslationResult',
     system: buildTranslatorSystemInstruction(input.mode),
     temperature: shouldUseTemperature() ? 0.15 : undefined,
   });
@@ -179,11 +183,11 @@ export async function translateTextWithLlm(input: {
     );
   }
 
-  const parsed = translationResultSchema.safeParse(result.object);
+  const parsed = translationResultSchema.safeParse(parseJsonFromModelText(result.text));
   if (!parsed.success) {
     console.error('[Mr. F translator validation failed]', JSON.stringify({
       issues: parsed.error.issues,
-      value: result.object,
+      value: result.text,
     }, null, 2));
     throw new Error('El traductor no devolvió una respuesta válida.');
   }

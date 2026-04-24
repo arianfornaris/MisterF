@@ -51,7 +51,26 @@ export function buildStructuredValidationReason(error: unknown): string {
       detail,
       'There is already an open challenge in progress.',
       'Do not emit challenge_started again for the same scene or sentence.',
-      'Continue the current challenge with sentence_evaluation, message, dialogue_progress, character_message, and/or challenge_completed as appropriate.',
+      'Continue the current challenge with sentence_evaluation, message, character_message, and/or challenge_completed as appropriate.',
+    ].join('\n');
+  }
+
+  if (detail.includes('include both a tutor message and a character_message')) {
+    return [
+      baseReason,
+      detail,
+      'A dialogue_scene opening is not complete with challenge_started alone.',
+      'When you open a new dialogue_scene, include challenge_started, one tutor message in Spanish, and one character_message with the first in-scene line.',
+    ].join('\n');
+  }
+
+  if (detail.includes('include exactly one sentence_evaluation')) {
+    return [
+      baseReason,
+      detail,
+      'The learner already sent a message inside an open challenge.',
+      'You must evaluate that learner turn before continuing the scene or giving more guidance.',
+      'Emit exactly one sentence_evaluation for the learner turn, then continue with message, character_message, and/or challenge_completed as appropriate.',
     ].join('\n');
   }
 

@@ -813,7 +813,12 @@ body {
 }
 
 .dialogue-goals {
-  margin-top: 0.65rem;
+  --bs-card-border-color: rgb(34 34 34 / 10%);
+  --bs-card-border-radius: 8px;
+  --bs-card-bg: rgb(255 255 255 / 66%);
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.8rem 0.78rem;
+  box-shadow: 0 8px 18px rgb(34 34 34 / 4%);
 }
 
 .dialogue-goals-label {
@@ -826,13 +831,19 @@ body {
 
 .dialogue-goals-list {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.55rem;
   margin: 0;
-  padding-left: 1.15rem;
+  padding: 0;
+  list-style: none;
 }
 
 .dialogue-goal-item {
-  color: var(--ink);
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  padding: 0.2rem 0;
+  color: #4b5763;
   font-family: Georgia, "Times New Roman", Times, serif;
 }
 
@@ -840,7 +851,37 @@ body {
   color: #1f6f8b;
 }
 
-.dialogue-goal-item.is-complete::marker {
+.dialogue-goal-check {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: inline-grid;
+  place-items: center;
+  margin-top: 0.05rem;
+  border: 1px solid rgb(34 34 34 / 16%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 78%);
+  color: transparent;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 75%);
+}
+
+.dialogue-goal-text {
+  color: inherit;
+  line-height: 1.5;
+}
+
+.dialogue-goal-item.is-complete .dialogue-goal-check {
+  border-color: rgb(31 111 139 / 26%);
+  background: linear-gradient(180deg, rgb(31 111 139 / 16%), rgb(31 111 139 / 24%));
+  color: #1f6f8b;
+}
+
+.dialogue-goal-item.is-complete .dialogue-goal-text {
   color: #1f6f8b;
 }
 
@@ -955,6 +996,25 @@ body {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-size: 1.12rem;
   line-height: 1.55;
+}
+
+.tutor-message-stack {
+  max-height: calc(1.55em * 10);
+  overflow-y: auto;
+  padding-right: 0.35rem;
+}
+
+.tutor-message-stack::-webkit-scrollbar {
+  width: 8px;
+}
+
+.tutor-message-stack::-webkit-scrollbar-thumb {
+  background: rgb(34 34 34 / 16%);
+  border-radius: 999px;
+}
+
+.tutor-message-stack::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .message-row.is-model.is-muted-history .message-bubble {
