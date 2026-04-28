@@ -1105,10 +1105,44 @@ function setModelBubbleContent(element, content, metadata) {
 
       const text = document.createElement('div');
       text.className = 'inline-character-text';
-      text.textContent = String(block.markdown || '').replace(/\s+/g, ' ').trim();
+      text.innerHTML = renderMarkdown(block.markdown || '');
 
       turn.append(speaker, text);
       stack.append(turn);
+      hasVisualContent = true;
+      continue;
+    }
+
+    if (block.type === 'dialogue_transcript') {
+      const section = document.createElement('section');
+      section.className = 'dialogue-transcript-card';
+
+      const label = document.createElement('p');
+      label.className = 'dialogue-transcript-label';
+      label.textContent = 'Dialogo completo';
+
+      const turns = document.createElement('div');
+      turns.className = 'dialogue-transcript-turns';
+
+      const items = Array.isArray(block.turns) ? block.turns : [];
+      for (const item of items) {
+        const turn = document.createElement('div');
+        turn.className = 'dialogue-transcript-turn';
+
+        const speaker = document.createElement('div');
+        speaker.className = 'dialogue-transcript-speaker';
+        speaker.textContent = String(item.speaker || 'Speaker').replace(/\s+/g, ' ').trim();
+
+        const text = document.createElement('div');
+        text.className = 'dialogue-transcript-text';
+        text.innerHTML = renderMarkdown(item.markdown || '');
+
+        turn.append(speaker, text);
+        turns.append(turn);
+      }
+
+      section.append(label, turns);
+      stack.append(section);
       hasVisualContent = true;
       continue;
     }

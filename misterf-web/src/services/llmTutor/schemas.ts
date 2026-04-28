@@ -62,6 +62,23 @@ export const dialogueCharacterMessageBlockSchema = z
   })
   .strict();
 
+export const dialogueTranscriptBlockSchema = z
+  .object({
+    type: z.literal('dialogue_transcript'),
+    turns: z
+      .array(
+        z
+          .object({
+            speaker: z.string().trim().min(1).max(80),
+            markdown: z.string().trim().min(1).max(1400),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(24),
+  })
+  .strict();
+
 export const translateToEnglishPromptBlockSchema = z
   .object({
     type: z.literal('translate_to_english_prompt'),
@@ -108,6 +125,7 @@ export const tutorResponseSchema = z
         z.union([
           messageBlockSchema,
           dialogueCharacterMessageBlockSchema,
+          dialogueTranscriptBlockSchema,
           translateToEnglishPromptBlockSchema,
           understandInSpanishPromptBlockSchema,
           sentenceEvaluationBlockSchema,

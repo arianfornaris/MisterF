@@ -30,6 +30,14 @@ export type TutorDialogueCharacterMessageBlock = {
   markdown: string;
 };
 
+export type TutorDialogueTranscriptBlock = {
+  type: 'dialogue_transcript';
+  turns: Array<{
+    markdown: string;
+    speaker: string;
+  }>;
+};
+
 export type TutorTranslateToEnglishPromptBlock = {
   type: 'translate_to_english_prompt';
   sentence: string;
@@ -57,6 +65,7 @@ export type TutorConversationTitleBlock = {
 export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorDialogueCharacterMessageBlock
+  | TutorDialogueTranscriptBlock
   | TutorTranslateToEnglishPromptBlock
   | TutorUnderstandInSpanishPromptBlock
   | TutorSentenceEvaluationBlock

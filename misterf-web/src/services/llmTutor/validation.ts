@@ -1,5 +1,6 @@
 import type {
   TutorDialogueCharacterMessageBlock,
+  TutorDialogueTranscriptBlock,
   TutorUnderstandInSpanishPromptBlock,
   TutorMessage,
   TutorMessageBlock,
@@ -38,16 +39,24 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
       ): block is
         | TutorMessageBlock
         | TutorDialogueCharacterMessageBlock
+        | TutorDialogueTranscriptBlock
         | TutorTranslateToEnglishPromptBlock
         | TutorUnderstandInSpanishPromptBlock =>
         block.type === 'message' ||
         block.type === 'dialogue_character_message' ||
+        block.type === 'dialogue_transcript' ||
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt',
     )
     .map((block) => {
       if (block.type === 'dialogue_character_message') {
         return `**${block.name}:** ${block.markdown.trim()}`;
+      }
+
+      if (block.type === 'dialogue_transcript') {
+        return block.turns
+          .map((turn) => `**${turn.speaker.trim()}:** ${turn.markdown.trim()}`)
+          .join('\n\n');
       }
 
       if (block.type === 'translate_to_english_prompt') {
