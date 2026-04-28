@@ -1,10 +1,10 @@
 import type {
-  TutorChallengeStartedBlock,
-  TutorCharacterMessageBlock,
+  TutorDialogueCharacterMessageBlock,
+  TutorUnderstandInSpanishPromptBlock,
   TutorMessage,
   TutorMessageBlock,
   TutorResponseBlock,
-  TutorSentenceEvaluationBlock,
+  TutorTranslateToEnglishPromptBlock,
 } from './types.js';
 import { tutorResponseSchema } from './schemas.js';
 
@@ -27,84 +27,43 @@ export function validateTutorResponseBlocks(value: unknown): TutorResponseBlock[
     );
   }
 
-  const blocks = parsed.data.blocks as TutorResponseBlock[];
-  assertValidTutorBlockSequence(blocks);
-
-  return blocks;
-}
-
-function assertValidTutorBlockSequence(blocks: TutorResponseBlock[]): void {
-  const completedIndex = blocks.findIndex(
-    (block) => block.type === 'challenge_completed',
-  );
-  const startedIndex = blocks.findIndex(
-    (block) => block.type === 'challenge_started',
-  );
-
-  if (completedIndex >= 0 && startedIndex >= 0) {
-    console.error('[Mr. F LLM response sequence invalid]', JSON.stringify({
-      blocks,
-      reason: 'challenge_completed_and_challenge_started_same_response',
-    }, null, 2));
-    throw new Error(
-      'No debes completar un reto y empezar otro en la misma respuesta. Completa el reto, pregunta si el usuario quiere seguir con variantes o pasar al siguiente, y espera su respuesta.',
-    );
-  }
-
-  const latestEvaluation = [...blocks]
-    .reverse()
-    .find(
-      (block): block is TutorSentenceEvaluationBlock =>
-        block.type === 'sentence_evaluation',
-    );
-  const hasCharacterMessage = blocks.some(
-    (block) => block.type === 'character_message',
-  );
-  const evaluationHasProblems =
-    latestEvaluation?.parts.some((part) => part.status !== 'correct') ?? false;
-
-  if (hasCharacterMessage && evaluationHasProblems) {
-    console.error('[Mr. F LLM response sequence invalid]', JSON.stringify({
-      blocks,
-      reason: 'dialogue_character_advanced_while_evaluation_has_problems',
-    }, null, 2));
-    throw new Error(
-      'En un dialogue_scene, si sentence_evaluation tiene algun part con status improve o error, no puedes incluir character_message. Da feedback como tutor y espera otro intento del usuario.',
-    );
-  }
+  return parsed.data.blocks as TutorResponseBlock[];
 }
 
 export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
   const messageMarkdown = blocks
     .filter(
-      (block): block is TutorMessageBlock | TutorCharacterMessageBlock =>
-        block.type === 'message' || block.type === 'character_message',
+      (
+        block,
+      ): block is
+        | TutorMessageBlock
+        | TutorDialogueCharacterMessageBlock
+        | TutorTranslateToEnglishPromptBlock
+        | TutorUnderstandInSpanishPromptBlock =>
+        block.type === 'message' ||
+        block.type === 'dialogue_character_message' ||
+        block.type === 'translate_to_english_prompt' ||
+        block.type === 'understand_in_spanish_prompt',
     )
-    .map((block) =>
-      block.type === 'character_message'
-        ? `**${block.name}:** ${block.markdown.trim()}`
-        : block.markdown.trim(),
-    )
+    .map((block) => {
+      if (block.type === 'dialogue_character_message') {
+        return `**${block.name}:** ${block.markdown.trim()}`;
+      }
+
+      if (block.type === 'translate_to_english_prompt') {
+        return `Traduce al ingles: "${block.sentence.trim()}"`;
+      }
+
+      if (block.type === 'understand_in_spanish_prompt') {
+        return `Explica en espanol: "${block.sentence.trim()}"`;
+      }
+
+      return block.markdown.trim();
+    })
     .filter(Boolean);
 
   if (messageMarkdown.length > 0) {
     return messageMarkdown.join('\n\n');
-  }
-
-  const started = [...blocks]
-    .reverse()
-    .find(
-      (block): block is TutorChallengeStartedBlock =>
-        block.type === 'challenge_started',
-    );
-  if (started) {
-    if (started.challengeType === 'dialogue_scene') {
-      return 'Vamos con este diálogo.';
-    }
-
-    if ('challengeLabel' in started) {
-      return `Vamos con este reto:\n\n**${started.challengeLabel}**`;
-    }
   }
 
   return 'Listo.';

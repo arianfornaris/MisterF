@@ -2,11 +2,6 @@ const storageKey = 'misterf.conversationId';
 const guestDraftStorageKey = 'misterf.guestDraft';
 const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
-const practiceContentEl = document.querySelector('#practiceContent');
-const progressContentEl = document.querySelector('#progressContent');
-const vocabularyPaneEl = document.querySelector('#vocabularyPane');
-const vocabularyContentEl = document.querySelector('#vocabularyContent');
-const chatTabEl = document.querySelector('#chat-tab');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
 const conversationPanelEl = document.querySelector('#conversationPanel');
@@ -31,7 +26,6 @@ const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
-const authMessage = document.body.dataset.authMessage || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const socket = isInitiallyAuthenticated
   ? io({ auth: { token: socketAuthToken } })
@@ -45,12 +39,7 @@ let isAssistantBusy = false;
 let pendingDeleteConversationId = null;
 let activeUserMessageId = null;
 const pendingSentenceEvaluations = new Map();
-let practiceChallenges = [];
-let vocabularyItems = [];
 let pendingTranslatorSelection = '';
-let isProgressGenerating = false;
-let isVocabularyGenerating = false;
-let isNextChallengeRequested = false;
 let userInputHistory = [];
 let userInputHistoryIndex = -1;
 let userInputDraftBeforeHistory = '';
@@ -100,12 +89,7 @@ if (socket) {
     markActiveConversation(conversationId);
     messagesEl.replaceChildren();
     streamingBubble = null;
-    isProgressGenerating = false;
-    isVocabularyGenerating = false;
     pendingSentenceEvaluations.clear();
-    practiceChallenges = payload.practice ?? [];
-    isNextChallengeRequested = false;
-    vocabularyItems = payload.vocabulary ?? [];
     userInputHistory = (payload.messages ?? [])
       .filter((message) => message?.role === 'user' && typeof message.content === 'string')
       .map((message) => message.content)
@@ -125,15 +109,10 @@ if (socket) {
       });
       queuedSentenceEvaluation = null;
     }
-    renderPractice(practiceChallenges);
-    rebuildChallengeCards();
-    renderProgress(payload.progress?.markdown || '');
-    renderVocabulary(vocabularyItems);
 
     setComposerEnabled(!isAssistantBusy);
     focusComposer();
     scrollToBottom();
-
     flushPendingBootGuestDraft();
   });
 
@@ -142,105 +121,6 @@ if (socket) {
     storeConversationId(conversationId);
     upsertConversationItem(payload.conversation);
     markActiveConversation(conversationId);
-  });
-
-  socket.on('progress:updated', (payload) => {
-    if (payload.conversationId === conversationId) {
-      isProgressGenerating = false;
-      renderProgress(payload.progress?.markdown || '');
-    }
-  });
-
-  socket.on('progress:generating', (payload) => {
-    if (isCurrentConversationPayload(payload)) {
-      isProgressGenerating = true;
-      renderProgressGenerating();
-    }
-  });
-
-  socket.on('progress:error', ({ message }) => {
-    isProgressGenerating = false;
-    renderProgressError(message || 'No pude actualizar el progreso.');
-  });
-
-  socket.on('llm:request_tokens', (payload) => {
-    if (!isCurrentConversationPayload(payload)) {
-      return;
-    }
-
-    logLlmRequestTokens(payload.usage);
-  });
-
-  socket.on('llm:credit_exhausted', ({ message }) => {
-    showCreditExhaustedModal(message);
-  });
-
-  socket.on('vocabulary:updated', (payload) => {
-    if (!isCurrentConversationPayload(payload)) {
-      return;
-    }
-
-    isVocabularyGenerating = false;
-    vocabularyItems = payload.vocabulary ?? [];
-    renderVocabulary(vocabularyItems);
-  });
-
-  socket.on('vocabulary:generating', (payload) => {
-    if (isCurrentConversationPayload(payload)) {
-      isVocabularyGenerating = true;
-      renderVocabularyGenerating();
-    }
-  });
-
-  socket.on('vocabulary:error', ({ message }) => {
-    isVocabularyGenerating = false;
-    renderVocabularyError(message || 'No pude actualizar el vocabulario.');
-  });
-
-  socket.on('practice:updated', (payload) => {
-    console.log('[Mr. F practice event received]', {
-      activeConversationId: conversationId,
-      challengeCount: payload.challenges?.length ?? 0,
-      eventConversationId: payload.conversationId,
-      isCurrentConversation: isCurrentConversationPayload(payload),
-    });
-
-    if (!isCurrentConversationPayload(payload)) {
-      console.log('[Mr. F practice update skipped]', {
-        reason: 'conversation_id_mismatch',
-        activeConversationId: conversationId,
-        eventConversationId: payload.conversationId,
-      });
-      return;
-    }
-
-    practiceChallenges = payload.challenges ?? [];
-    renderPractice(practiceChallenges);
-    rebuildChallengeCards();
-    scrollToBottom();
-  });
-
-  socket.on('sentence_challenge:completed', (payload) => {
-    console.log('[Mr. F confetti event received]', {
-      activeConversationId: conversationId,
-      challengeConversationId: payload.challenge?.conversationId,
-      eventConversationId: payload.conversationId,
-      isCurrentConversation: isCurrentConversationPayload(payload),
-      payload,
-    });
-
-    if (!isCurrentConversationPayload(payload)) {
-      console.log('[Mr. F confetti skipped]', {
-        reason: 'conversation_id_mismatch',
-        activeConversationId: conversationId,
-        challengeConversationId: payload.challenge?.conversationId,
-        eventConversationId: payload.conversationId,
-      });
-      return;
-    }
-
-    launchConfetti(payload);
-    renderNextChallengeButton();
   });
 
   socket.on('conversation:renamed', (payload) => {
@@ -255,14 +135,6 @@ if (socket) {
       conversationId = null;
       storeConversationId(null);
       messagesEl.replaceChildren();
-      practiceChallenges = [];
-      vocabularyItems = [];
-      isNextChallengeRequested = false;
-      renderPractice(practiceChallenges);
-      renderProgress('');
-      renderVocabulary(vocabularyItems);
-      isProgressGenerating = false;
-      isVocabularyGenerating = false;
       streamingBubble = null;
     }
   });
@@ -282,11 +154,22 @@ if (socket) {
       message || 'No pude traducir el texto en este momento.';
   });
 
+  socket.on('llm:request_tokens', (payload) => {
+    if (!isCurrentConversationPayload(payload)) {
+      return;
+    }
+
+    logLlmRequestTokens(payload.usage);
+  });
+
+  socket.on('llm:credit_exhausted', ({ message }) => {
+    showCreditExhaustedModal(message);
+  });
+
   socket.on('message:created', (message) => {
     appendStoredMessage(message);
     if (message.role === 'user') {
       activeUserMessageId = message.id;
-      rebuildChallengeCards();
     }
     scrollToBottom();
   });
@@ -294,7 +177,6 @@ if (socket) {
   socket.on('assistant:start', () => {
     isAssistantBusy = true;
     setComposerEnabled(false);
-    renderNextChallengeButton();
     streamingBubble = appendMessage('model', '', { streaming: true });
     scrollToBottom();
   });
@@ -333,9 +215,7 @@ if (socket) {
     }
     activeUserMessageId = null;
     streamingBubble = null;
-    isNextChallengeRequested = false;
     isAssistantBusy = false;
-    rebuildChallengeCards();
     setComposerEnabled(true);
     focusComposer();
     scrollToBottom();
@@ -348,10 +228,8 @@ if (socket) {
     }
 
     appendMessage('error', message);
-    isNextChallengeRequested = false;
     isAssistantBusy = false;
     setComposerEnabled(true);
-    renderNextChallengeButton();
     scrollToBottom();
   });
 
@@ -430,25 +308,6 @@ for (const button of translatorCopyButtonEls) {
     copyTranslatorText(button);
   });
 }
-
-document.querySelector('#progress-tab')?.addEventListener('shown.bs.tab', () => {
-  formEl.hidden = true;
-  requestProgressGeneration();
-});
-
-document.querySelector('#practice-tab')?.addEventListener('shown.bs.tab', () => {
-  formEl.hidden = true;
-});
-
-document.querySelector('#vocabulary-tab')?.addEventListener('shown.bs.tab', () => {
-  formEl.hidden = true;
-  requestVocabularyGeneration();
-});
-
-document.querySelector('#chat-tab')?.addEventListener('shown.bs.tab', () => {
-  formEl.hidden = false;
-  focusComposer();
-});
 
 formatConversationDates();
 
@@ -572,11 +431,9 @@ function sendMessage() {
   }
 
   rememberUserInput(content);
-
   inputEl.value = '';
   inputEl.style.height = 'auto';
   resetUserInputHistoryNavigation();
-  renderNextChallengeButton();
   setComposerEnabled(false);
   socket.emit('message:send', { conversationId, content });
 }
@@ -697,8 +554,7 @@ function storeConversationId(nextConversationId) {
 }
 
 function isCurrentConversationPayload(payload) {
-  const payloadConversationId =
-    payload?.conversationId || payload?.challenge?.conversationId || '';
+  const payloadConversationId = payload?.conversationId || '';
   return Boolean(conversationId && payloadConversationId === conversationId);
 }
 
@@ -721,22 +577,6 @@ function logLlmRequestTokens(usage) {
   });
 }
 
-function requestProgressGeneration() {
-  if (!socket || !conversationId || isProgressGenerating) {
-    return;
-  }
-
-  socket.emit('progress:generate', { conversationId });
-}
-
-function requestVocabularyGeneration() {
-  if (!socket || !conversationId || isVocabularyGenerating) {
-    return;
-  }
-
-  socket.emit('vocabulary:generate', { conversationId });
-}
-
 function startNewConversation() {
   if (!socket || isAssistantBusy) {
     return;
@@ -745,23 +585,9 @@ function startNewConversation() {
   conversationId = null;
   localStorage.removeItem(storageKey);
   markActiveConversation('');
-  showChatTab();
   hideConversationPanel();
   setComposerEnabled(false);
   socket.emit('conversation:reset');
-}
-
-function showChatTab() {
-  if (!chatTabEl || !window.bootstrap?.Tab) {
-    formEl.hidden = false;
-    focusComposer();
-    return;
-  }
-
-  window.bootstrap.Tab.getOrCreateInstance(chatTabEl).show();
-  window.setTimeout(() => {
-    focusComposer();
-  }, 0);
 }
 
 function openConversation(nextConversationId) {
@@ -1134,11 +960,6 @@ function startOfDay(date) {
 
 function showAuthRequiredMessage(message) {
   messagesEl.replaceChildren();
-  practiceChallenges = [];
-  vocabularyItems = [];
-  renderPractice(practiceChallenges);
-  renderProgress('');
-  renderVocabulary(vocabularyItems);
   streamingBubble = null;
   appendMessage(
     'model',
@@ -1169,16 +990,11 @@ function showCreditExhaustedModal(message) {
 
 function showGuestGreeting() {
   messagesEl.replaceChildren();
-  practiceChallenges = [];
-  vocabularyItems = [];
-  renderPractice(practiceChallenges);
-  renderProgress('');
-  renderVocabulary(vocabularyItems);
   streamingBubble = null;
   appendMessage(
     'model',
     guestInitialGreeting ||
-      '¡Hola! Soy Mr. F, tu tutor de inglés. Para empezar, dime qué tema quieres practicar y qué nivel prefieres.',
+      '¡Hola! Soy Mr. F, tu tutor de inglés. Cuéntame qué quieres practicar hoy.',
   );
   setComposerEnabled(true);
   focusComposer();
@@ -1192,7 +1008,7 @@ function preserveGuestDraft(content) {
 function showGuestAuthPrompt() {
   appendMessage(
     'model',
-    'Perfecto. Para guardar tu práctica y continuar este workflow, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
+    'Perfecto. Para guardar tu práctica y continuar esta conversación, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
   );
   setComposerEnabled(true);
   inputEl.value = getGuestDraft() || inputEl.value;
@@ -1209,216 +1025,6 @@ function consumeGuestDraft() {
   const draft = getGuestDraft();
   sessionStorage.removeItem(guestDraftStorageKey);
   return draft;
-}
-
-function renderProgress(markdown) {
-  if (!progressContentEl) {
-    return;
-  }
-
-  if (!markdown.trim()) {
-    progressContentEl.classList.add('is-empty');
-    progressContentEl.innerHTML = renderMarkdown(
-      'El progreso aparecerá aquí cuando avancemos un poco en la práctica.',
-    );
-    return;
-  }
-
-  progressContentEl.classList.remove('is-empty');
-  progressContentEl.innerHTML = renderMarkdown(markdown);
-}
-
-function renderProgressGenerating() {
-  if (!progressContentEl) {
-    return;
-  }
-
-  progressContentEl.classList.add('is-empty');
-  progressContentEl.innerHTML = renderMarkdown(
-    'Actualizando el progreso con los retos e intentos registrados...',
-  );
-}
-
-function renderProgressError(message) {
-  if (!progressContentEl) {
-    return;
-  }
-
-  progressContentEl.classList.add('is-empty');
-  progressContentEl.innerHTML = renderMarkdown(message);
-}
-
-function renderPractice(challenges) {
-  if (!practiceContentEl) {
-    return;
-  }
-
-  practiceContentEl.replaceChildren();
-  if (!challenges.length) {
-    const empty = document.createElement('div');
-    empty.className = 'alert alert-light practice-empty';
-    empty.textContent =
-      'Los intentos aparecerán aquí cuando empieces a practicar producción o comprensión.';
-    practiceContentEl.append(empty);
-    return;
-  }
-
-  for (const challenge of challenges) {
-    practiceContentEl.append(renderPracticeChallenge(challenge));
-  }
-}
-
-function renderVocabulary(items) {
-  if (!vocabularyContentEl) {
-    return;
-  }
-
-  vocabularyContentEl.replaceChildren();
-  if (!items.length) {
-    const empty = document.createElement('div');
-    empty.className = 'alert alert-light vocabulary-empty';
-    empty.textContent =
-      'El vocabulario aparecerá aquí cuando el tutor vaya usando palabras clave.';
-    vocabularyContentEl.append(empty);
-    return;
-  }
-
-  for (const item of items) {
-    vocabularyContentEl.append(renderVocabularyItem(item));
-  }
-}
-
-function renderVocabularyGenerating() {
-  if (!vocabularyContentEl) {
-    return;
-  }
-
-  vocabularyContentEl.replaceChildren();
-  const loading = document.createElement('div');
-  loading.className = 'alert alert-light vocabulary-empty';
-  loading.textContent =
-    'Actualizando el vocabulario con los retos e intentos registrados...';
-  vocabularyContentEl.append(loading);
-}
-
-function renderVocabularyError(message) {
-  if (!vocabularyContentEl) {
-    return;
-  }
-
-  vocabularyContentEl.replaceChildren();
-  const error = document.createElement('div');
-  error.className = 'alert alert-warning vocabulary-empty';
-  error.textContent = message;
-  vocabularyContentEl.append(error);
-}
-
-function renderVocabularyItem(item) {
-  const card = document.createElement('article');
-  card.className = 'card vocabulary-card';
-
-  const body = document.createElement('div');
-  body.className = 'card-body vocabulary-card-body';
-
-  const entry = document.createElement('div');
-  entry.className = 'vocabulary-entry';
-
-  const term = document.createElement('h3');
-  term.className = 'vocabulary-term';
-  term.textContent = item.term || '';
-
-  const translation = document.createElement('p');
-  translation.className = 'vocabulary-translation';
-  translation.textContent = item.translation || '';
-
-  entry.append(term, translation);
-
-  const explanation = document.createElement('p');
-  explanation.className = 'vocabulary-explanation';
-  explanation.textContent = item.explanation || '';
-
-  body.append(entry, explanation);
-
-  if (item.example) {
-    const example = document.createElement('blockquote');
-    example.className = 'vocabulary-example';
-    example.textContent = item.example;
-    body.append(example);
-  }
-
-  if (item.sourceSentence) {
-    const source = document.createElement('small');
-    source.className = 'vocabulary-source';
-    source.textContent = item.sourceSentence;
-    body.append(source);
-  }
-
-  card.append(body);
-  return card;
-}
-
-function renderPracticeChallenge(challenge) {
-  const card = document.createElement('article');
-  card.className = 'card practice-card';
-
-  const body = document.createElement('div');
-  body.className = 'card-body practice-card-body';
-
-  const source = document.createElement('p');
-  source.className = 'practice-source';
-  source.textContent = challenge.challengeLabel;
-
-  const mode = document.createElement('p');
-  mode.className = 'practice-mode';
-  mode.textContent = getChallengeModeLabel(challenge.challengeType);
-
-  body.append(mode);
-
-  if (challenge.objective) {
-    const objective = document.createElement('p');
-    objective.className = 'practice-objective';
-    objective.textContent = `Objetivo: ${challenge.objective}`;
-    body.append(objective);
-  }
-
-  body.append(source);
-
-  if (challenge.attempts?.length) {
-    const list = document.createElement('ul');
-    list.className = 'practice-attempt-list';
-    for (const attempt of challenge.attempts) {
-      list.append(renderPracticeAttempt(attempt));
-    }
-    body.append(list);
-  } else {
-    const empty = document.createElement('p');
-    empty.className = 'practice-attempt-empty';
-    empty.textContent = 'Todavía no hay respuestas para este reto.';
-    body.append(empty);
-  }
-
-  card.append(body);
-  return card;
-}
-
-function renderPracticeAttempt(attempt) {
-  const item = document.createElement('li');
-  item.className = 'practice-attempt';
-
-  const parts = createSentencePartsElement(
-    getAttemptEvaluationParts(attempt),
-    'practice-sentence-parts',
-  );
-
-  item.append(parts);
-  initializeSentencePopovers(item);
-  return item;
-}
-
-function getAttemptEvaluationParts(attempt) {
-  return attempt.evaluation?.parts?.length
-    ? attempt.evaluation.parts
-    : [{ status: 'correct', text: attempt.attemptText }];
 }
 
 function createSentencePartsElement(partsInput, extraClassName = '') {
@@ -1473,24 +1079,67 @@ function setModelBubbleContent(element, content, metadata) {
     return;
   }
 
-  const visualBlocks = blocks.filter((block) => block?.type === 'message');
-  if (!visualBlocks.length) {
-    setMessageContent(element, content);
-    return;
-  }
-
   element.replaceChildren();
   const stack = document.createElement('div');
   stack.className = 'tutor-message-stack';
 
-  for (const block of visualBlocks) {
+  let hasVisualContent = false;
+
+  for (const block of blocks) {
     if (block.type === 'message') {
       const node = document.createElement('div');
       node.className = 'tutor-message-block';
       node.innerHTML = renderMarkdown(block.markdown || '');
       stack.append(node);
+      hasVisualContent = true;
       continue;
     }
+
+    if (block.type === 'dialogue_character_message') {
+      const turn = document.createElement('div');
+      turn.className = 'inline-character-turn';
+
+      const speaker = document.createElement('div');
+      speaker.className = 'inline-character-name';
+      speaker.textContent = String(block.name || 'Character');
+
+      const text = document.createElement('div');
+      text.className = 'inline-character-text';
+      text.textContent = String(block.markdown || '').replace(/\s+/g, ' ').trim();
+
+      turn.append(speaker, text);
+      stack.append(turn);
+      hasVisualContent = true;
+      continue;
+    }
+
+    if (
+      block.type === 'translate_to_english_prompt' ||
+      block.type === 'understand_in_spanish_prompt'
+    ) {
+      const card = document.createElement('section');
+      card.className = `translation-prompt-card is-${block.type}`;
+
+      const label = document.createElement('p');
+      label.className = 'translation-prompt-label';
+      label.textContent =
+        block.type === 'translate_to_english_prompt'
+          ? 'Traduce al ingles'
+          : 'Explica en espanol';
+
+      const sentence = document.createElement('blockquote');
+      sentence.className = 'translation-prompt-sentence';
+      sentence.textContent = String(block.sentence || '').replace(/\s+/g, ' ').trim();
+
+      card.append(label, sentence);
+      stack.append(card);
+      hasVisualContent = true;
+    }
+  }
+
+  if (!hasVisualContent) {
+    setMessageContent(element, content);
+    return;
   }
 
   element.append(stack);
@@ -1589,10 +1238,6 @@ function renderSentenceEvaluation(element, evaluation) {
     return;
   }
 
-  if (getEvaluationChallengeType(evaluation) === 'dialogue_scene') {
-    return;
-  }
-
   const wrapper = document.createElement('div');
   wrapper.className = 'sentence-evaluation card';
 
@@ -1602,91 +1247,20 @@ function renderSentenceEvaluation(element, evaluation) {
   const label = document.createElement('h3');
   label.className = 'sentence-evaluation-label';
   label.textContent = 'Evaluación';
-
-  const parts = createSentencePartsElement(evaluation.parts);
-
   header.append(label);
 
   const body = document.createElement('div');
   body.className = 'sentence-evaluation-body card-body';
 
-  const challengeType = getEvaluationChallengeType(evaluation);
-  const challengeLabel = getEvaluationChallengeLabel(evaluation);
-  if (challengeLabel && challengeType !== 'dialogue_scene') {
-    const sourceBlock = document.createElement('div');
-    sourceBlock.className = 'sentence-evaluation-source';
-
-    const sourceLabel = document.createElement('p');
-    sourceLabel.className = 'sentence-evaluation-source-label';
-    sourceLabel.textContent = getEvaluationSourceLabel(evaluation);
-
-    const sourceText = document.createElement('p');
-    sourceText.className = 'sentence-evaluation-source-text';
-    sourceText.textContent = challengeLabel;
-
-    sourceBlock.append(sourceLabel, sourceText);
-    body.append(sourceBlock);
-  }
-
   const partsLabel = document.createElement('p');
   partsLabel.className = 'sentence-evaluation-parts-label';
-  partsLabel.textContent = getEvaluationPartsLabel(evaluation);
+  partsLabel.textContent = 'Tu último mensaje, por partes';
 
   body.append(partsLabel);
-  body.append(parts);
+  body.append(createSentencePartsElement(evaluation.parts));
 
   wrapper.append(header, body);
   element.append(wrapper);
-}
-
-function getEvaluationChallengeLabel(evaluation) {
-  if (typeof evaluation?.challengeLabel === 'string' && evaluation.challengeLabel.trim()) {
-    return evaluation.challengeLabel.trim();
-  }
-
-  return getActiveChallenge()?.challengeLabel || '';
-}
-
-function getEvaluationChallengeType(evaluation) {
-  if (
-    evaluation?.challengeType === 'produce_en' ||
-    evaluation?.challengeType === 'understand_en' ||
-    evaluation?.challengeType === 'dialogue_scene'
-  ) {
-    return evaluation.challengeType;
-  }
-
-  return getActiveChallenge()?.challengeType || 'produce_en';
-}
-
-function getEvaluationSourceLabel(evaluation) {
-  if (getEvaluationChallengeType(evaluation) === 'dialogue_scene') {
-    return 'Escena';
-  }
-
-  return getEvaluationChallengeType(evaluation) === 'understand_en'
-    ? 'Reto de comprensión'
-    : 'Reto';
-}
-
-function getEvaluationPartsLabel(evaluation) {
-  if (getEvaluationChallengeType(evaluation) === 'dialogue_scene') {
-    return 'Tu respuesta, por partes';
-  }
-
-  return getEvaluationChallengeType(evaluation) === 'understand_en'
-    ? 'Tu explicación, por partes'
-    : 'Tu intento, por partes';
-}
-
-function getChallengeModeLabel(challengeType) {
-  if (challengeType === 'dialogue_scene') {
-    return 'Diálogo guiado';
-  }
-
-  return challengeType === 'understand_en'
-    ? 'Comprensión: inglés -> español'
-    : 'Producción: español -> inglés';
 }
 
 function attachMessageMetadata(row, metadata) {
@@ -1700,368 +1274,6 @@ function attachMessageMetadata(row, metadata) {
   }
 
   row.dataset.messageBlocks = JSON.stringify(metadata.blocks);
-}
-
-function rebuildChallengeCards() {
-  unwrapChallengeCards();
-
-  const rows = Array.from(messagesEl.querySelectorAll(':scope > .message-row'));
-  let currentBody = null;
-
-  for (const row of rows) {
-    if (rowStartsChallenge(row)) {
-      const card = createChatChallengeCard(row);
-      messagesEl.insertBefore(card, row);
-      currentBody = card.querySelector('.chat-challenge-card-body');
-    }
-
-    if (currentBody) {
-      currentBody.append(row);
-    }
-  }
-
-  renderDialogueTranscripts();
-  syncDialogueRowsPresentation();
-  updateTutorMessageEmphasis();
-  initializeSentencePopovers(messagesEl);
-  renderNextChallengeButton();
-}
-
-function getActiveChallenge() {
-  return getCurrentChallenge();
-}
-
-function getCurrentChallenge() {
-  return practiceChallenges[practiceChallenges.length - 1] ?? null;
-}
-
-function unwrapChallengeCards() {
-  for (const card of Array.from(messagesEl.querySelectorAll(':scope > .chat-challenge-card'))) {
-    const rows = Array.from(card.querySelectorAll(':scope .message-row'));
-    for (const row of rows) {
-      messagesEl.insertBefore(row, card);
-    }
-    card.remove();
-  }
-}
-
-function createChatChallengeCard(startRow) {
-  const card = document.createElement('article');
-  card.className = 'card chat-challenge-card';
-  const startedBlock = getChallengeStartedBlock(startRow);
-  const challengeText = getChallengePrimaryText(startedBlock);
-  if (challengeText) {
-    card.dataset.challengeSource = challengeText;
-  }
-  const challenge = findChallengeByLabel(challengeText);
-  if (challenge?.id) {
-    card.dataset.challengeId = challenge.id;
-  }
-
-  const header = createChallengeCardHeader(challenge, startedBlock);
-  if (header) {
-    card.append(header);
-  }
-
-  const body = document.createElement('div');
-  body.className = 'card-body chat-challenge-card-body';
-  card.append(body);
-  return card;
-}
-
-function createChallengeCardHeader(challenge, startedBlock) {
-  const challengeType = challenge?.challengeType || startedBlock?.challengeType;
-  if (challengeType === 'dialogue_scene') {
-    return null;
-  }
-  return null;
-}
-
-function findChallengeByLabel(challengeLabel) {
-  if (!challengeLabel) {
-    return null;
-  }
-
-  return [...practiceChallenges]
-    .reverse()
-    .find((challenge) => challenge.challengeLabel === challengeLabel) || null;
-}
-
-function getChallengePrimaryText(startedBlock) {
-  if (!startedBlock) {
-    return '';
-  }
-
-  if (
-    startedBlock.challengeType === 'dialogue_scene' &&
-    startedBlock.challengeLabel
-  ) {
-    return startedBlock.challengeLabel;
-  }
-
-  return startedBlock.challengeLabel || '';
-}
-
-function renderDialogueTranscripts() {
-  for (const challenge of practiceChallenges) {
-    if (challenge.challengeType !== 'dialogue_scene') {
-      continue;
-    }
-
-    const card = messagesEl.querySelector(
-      `.chat-challenge-card[data-challenge-id="${CSS.escape(challenge.id)}"]`,
-    );
-    const body = card?.querySelector('.chat-challenge-card-body');
-    if (!body) {
-      continue;
-    }
-
-    const existingTranscript = body.querySelector('.dialogue-transcript');
-    const nextTranscript = buildDialogueTranscript(challenge, body);
-
-    if (!nextTranscript) {
-      existingTranscript?.remove();
-      delete card.dataset.dialogueTranscriptSignature;
-      continue;
-    }
-
-    if (card.dataset.dialogueTranscriptSignature === nextTranscript.signature) {
-      continue;
-    }
-
-    existingTranscript?.remove();
-    body.append(nextTranscript.element);
-    card.dataset.dialogueTranscriptSignature = nextTranscript.signature;
-  }
-}
-
-function buildDialogueTranscript(challenge, container) {
-  const entries = collectDialogueTranscriptEntries(challenge, container);
-  if (!entries.length) {
-    return null;
-  }
-
-  const article = document.createElement('article');
-  article.className = 'dialogue-transcript card';
-
-  const body = document.createElement('div');
-  body.className = 'card-body dialogue-transcript-body';
-
-  const content = document.createElement('div');
-  content.className = 'dialogue-transcript-content';
-
-  for (const entry of entries) {
-    const line = document.createElement('div');
-    line.className = `dialogue-transcript-line is-${entry.role}`;
-    if (entry.state) {
-      line.classList.add(`is-${entry.state}`);
-    }
-
-    const speaker = document.createElement('span');
-    speaker.className = 'dialogue-transcript-speaker';
-    speaker.textContent = `${entry.speaker}:`;
-
-    line.append(speaker, document.createTextNode(' '));
-    if (entry.parts?.length) {
-      line.append(createSentencePartsElement(entry.parts, 'dialogue-transcript-parts'));
-    } else {
-      const text = document.createElement('span');
-      text.className = 'dialogue-transcript-text';
-      text.textContent = entry.text;
-      line.append(text);
-    }
-
-    content.append(line);
-  }
-
-  body.append(content);
-  article.append(body);
-  return {
-    element: article,
-    signature: JSON.stringify(entries),
-  };
-}
-
-function collectDialogueTranscriptEntries(challenge, container) {
-  const entries = [];
-  const rows = Array.from(container.querySelectorAll(':scope > .message-row'));
-  const attemptsByMessageId = new Map(
-    (challenge?.attempts || [])
-      .filter((attempt) => attempt?.userMessageId)
-      .map((attempt) => [String(attempt.userMessageId), attempt]),
-  );
-  let latestUserEntry = null;
-
-  for (const row of rows) {
-    if (row.dataset.role === 'user') {
-      latestUserEntry = buildDialogueUserTranscriptEntry(
-        row,
-        attemptsByMessageId.get(String(row.dataset.messageId || '')),
-      );
-      continue;
-    }
-
-    const blocks = parseMessageBlocks(row);
-    for (const block of blocks) {
-      if (block?.type !== 'character_message') {
-        continue;
-      }
-
-      if (latestUserEntry) {
-        entries.push(latestUserEntry);
-        latestUserEntry = null;
-      }
-
-      const text = String(block.markdown || '').replace(/\s+/g, ' ').trim();
-      if (!text) {
-        continue;
-      }
-
-      entries.push({
-        role: 'character',
-        speaker: String(block.name || 'Character'),
-        text,
-      });
-    }
-  }
-
-  if (latestUserEntry) {
-    entries.push(latestUserEntry);
-  }
-
-  return entries;
-}
-
-function buildDialogueUserTranscriptEntry(row, attempt) {
-  const bubble = row.querySelector('.message-bubble');
-  const fallbackText = (bubble?.dataset.rawContent || bubble?.textContent || '').trim();
-  if (!fallbackText && !attempt) {
-    return null;
-  }
-
-  return {
-    parts: attempt ? getAttemptEvaluationParts(attempt) : [{ status: 'correct', text: fallbackText }],
-    role: 'user',
-    speaker: 'You',
-    state: attempt ? (attempt.isCorrect ? 'approved' : 'pending') : 'draft',
-    text: fallbackText,
-  };
-}
-
-function syncDialogueRowsPresentation() {
-  for (const card of Array.from(messagesEl.querySelectorAll(':scope > .chat-challenge-card'))) {
-    const challengeId = card.dataset.challengeId;
-    if (!challengeId) {
-      continue;
-    }
-
-    const challenge = practiceChallenges.find((item) => item.id === challengeId);
-    if (challenge?.challengeType !== 'dialogue_scene') {
-      continue;
-    }
-
-    for (const row of Array.from(card.querySelectorAll('.message-row'))) {
-      const hideRow =
-        row.dataset.role === 'user' ||
-        (row.dataset.role === 'model' && modelRowContainsOnlyCharacterMessages(row));
-      row.classList.toggle('is-dialogue-inline-hidden', hideRow);
-    }
-  }
-}
-
-function modelRowContainsOnlyCharacterMessages(row) {
-  const blocks = parseMessageBlocks(row);
-  if (!blocks.length) {
-    return false;
-  }
-
-  const hasCharacter = blocks.some((block) => block?.type === 'character_message');
-  const hasTutorMessage = blocks.some((block) => block?.type === 'message');
-  return hasCharacter && !hasTutorMessage;
-}
-
-function updateTutorMessageEmphasis() {
-  const tutorRows = Array.from(messagesEl.querySelectorAll('.message-row.is-model')).filter(
-    (row) =>
-      !row.classList.contains('is-dialogue-inline-hidden') &&
-      parseMessageBlocks(row).some((block) => block?.type === 'message'),
-  );
-
-  for (const row of tutorRows) {
-    row.classList.add('is-muted-history');
-  }
-
-  tutorRows[tutorRows.length - 1]?.classList.remove('is-muted-history');
-}
-
-function renderNextChallengeButton() {
-  messagesEl.querySelector('.next-challenge-action')?.remove();
-
-  if (isAssistantBusy || isNextChallengeRequested || !conversationId) {
-    return;
-  }
-
-  const current = getCurrentChallenge();
-  if (!current?.completedAt) {
-    return;
-  }
-
-  const card = messagesEl.querySelector(
-    `.chat-challenge-card[data-challenge-id="${CSS.escape(current.id)}"]`,
-  );
-  const body = card?.querySelector('.chat-challenge-card-body');
-  if (!body) {
-    return;
-  }
-
-  const action = document.createElement('div');
-  action.className = 'next-challenge-action';
-
-  const button = document.createElement('button');
-  button.className = 'btn btn-link next-challenge-button';
-  button.type = 'button';
-  button.textContent = 'Siguiente reto';
-  button.addEventListener('click', () => {
-    requestNextChallenge(button);
-  });
-
-  action.append(button);
-  body.append(action);
-}
-
-function requestNextChallenge(button) {
-  if (!socket || !conversationId || isAssistantBusy) {
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent = 'Preparando...';
-  isNextChallengeRequested = true;
-  renderNextChallengeButton();
-  setComposerEnabled(false);
-  socket.emit('challenge:next', { conversationId });
-}
-
-function rowStartsChallenge(row) {
-  return Boolean(getChallengeStartedBlock(row));
-}
-
-function getChallengeStartedBlock(row) {
-  const blocks = parseMessageBlocks(row);
-  return blocks.find((block) => block?.type === 'challenge_started') || null;
-}
-
-function parseMessageBlocks(row) {
-  if (!row?.dataset.messageBlocks) {
-    return [];
-  }
-
-  try {
-    const blocks = JSON.parse(row.dataset.messageBlocks);
-    return Array.isArray(blocks) ? blocks : [];
-  } catch {
-    return [];
-  }
 }
 
 function initializeSentencePopovers(root = document) {
@@ -2079,7 +1291,7 @@ function isValidSentenceEvaluation(evaluation) {
     evaluation &&
     typeof evaluation === 'object' &&
     Array.isArray(evaluation.parts) &&
-    evaluation.parts.some((part) => normalizePartStatus(part.status) !== 'correct')
+    evaluation.parts.length > 0
   );
 }
 
@@ -2254,65 +1466,6 @@ function focusComposer() {
 function scrollToBottom() {
   const scrollTarget = chatPaneEl || messagesEl;
   scrollTarget.scrollTop = scrollTarget.scrollHeight;
-}
-
-function launchConfetti(payload = {}) {
-  const existingLayer = document.querySelector('.confetti-layer');
-  existingLayer?.remove();
-
-  const layer = document.createElement('div');
-  layer.className = 'confetti-layer';
-  layer.setAttribute('aria-hidden', 'true');
-
-  const colors = [
-    '#eb6864',
-    '#22c55e',
-    '#facc15',
-    '#38bdf8',
-    '#a855f7',
-    '#f97316',
-    '#14b8a6',
-  ];
-  const count = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 20
-    : 120;
-
-  console.log('[Mr. F confetti launched]', {
-    automatic: Boolean(payload.automatic),
-    challengeId: payload.challenge?.id ?? null,
-    count,
-    score: payload.score ?? null,
-  });
-
-  for (let index = 0; index < count; index += 1) {
-    const piece = document.createElement('span');
-    piece.className = 'confetti-piece';
-    piece.style.setProperty('--confetti-color', colors[index % colors.length]);
-    piece.style.setProperty('--confetti-left', `${Math.random() * 100}%`);
-    piece.style.setProperty('--confetti-delay', `${Math.random() * 0.22}s`);
-    piece.style.setProperty(
-      '--confetti-duration',
-      `${0.95 + Math.random() * 0.45}s`,
-    );
-    piece.style.setProperty(
-      '--confetti-drift',
-      `${Math.round((Math.random() - 0.5) * 360)}px`,
-    );
-    piece.style.setProperty(
-      '--confetti-rotate',
-      `${Math.round(Math.random() * 360)}deg`,
-    );
-    piece.style.setProperty(
-      '--confetti-scale',
-      `${0.72 + Math.random() * 0.72}`,
-    );
-    layer.append(piece);
-  }
-
-  document.body.append(layer);
-  setTimeout(() => {
-    layer.remove();
-  }, 1800);
 }
 
 if (isInitiallyAuthenticated) {

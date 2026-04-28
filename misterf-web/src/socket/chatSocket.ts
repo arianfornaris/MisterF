@@ -10,38 +10,23 @@ import {
   createConversation,
   deleteConversationForUser,
   findConversationForUser,
-  getLearningSourceUpdatedAt,
-  getProgressForConversation,
-  getVocabularyUpdatedAt,
-  listVocabularyForConversation,
-  listSentenceChallenges,
   listMessages,
   renameConversationForUser,
-  upsertProgressForConversation,
-  upsertVocabularyItems,
   type StoredMessage,
-  type StoredSentenceChallenge,
 } from '../db/repository.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import {
   LlmFinishReasonError,
   MissingLlmApiKeyError,
-  generateProgressWithLlm,
-  generateVocabularyWithLlm,
   runTutorAgentLoop,
   translateTextWithLlm,
   type LlmRequestOptions,
   type LlmRequestTokenUsage,
   type TranslationMode,
   type TutorMessage,
-  type TutorResponseBlock,
-  type TutorSentenceEvaluationBlock,
 } from '../services/llmTutor.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
-import {
-  applyTutorBlocksRuntime,
-  validateTutorBlocksAgainstConversationState,
-} from '../services/tutorWorkflow/index.js';
+import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -66,10 +51,6 @@ type TranslatePayload = {
   text?: string;
 };
 
-type GenerateTabPayload = {
-  conversationId?: string | null;
-};
-
 type AuthenticatedSocketData = {
   authenticatedUser?: {
     exp: number;
@@ -78,7 +59,6 @@ type AuthenticatedSocketData = {
 };
 
 const runningConversations = new Set<string>();
-const fallbackChallengeTitle = 'Oración pendiente de identificar';
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
@@ -117,9 +97,6 @@ export function registerChatSocket(io: Server): void {
           conversation: null,
           conversationId: null,
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-          practice: [],
-          progress: null,
-          vocabulary: [],
         });
         return;
       }
@@ -139,9 +116,6 @@ export function registerChatSocket(io: Server): void {
           messages.length > 0
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
-        practice: listSentenceChallenges(conversation.id),
-        progress: getProgressForConversation(conversation.id),
-        vocabulary: listVocabularyForConversation(conversation.id),
       });
     });
 
@@ -193,38 +167,6 @@ export function registerChatSocket(io: Server): void {
       await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
     });
 
-    socket.on('challenge:next', async (payload: GenerateTabPayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      const conversationId = payload.conversationId?.trim();
-      const conversation = conversationId
-        ? findConversationForUser(conversationId, userId)
-        : null;
-      if (!conversation) {
-        socket.emit('assistant:error', {
-          message: 'No pude encontrar esa conversación.',
-        });
-        return;
-      }
-
-      joinConversationRoom(socket, currentConversationId, conversation.id);
-      currentConversationId = conversation.id;
-
-      await streamAssistantMessage(io, conversation.id, userId, undefined, false, {
-        content: [
-          'INTERNAL APP CONTINUATION: The learner clicked the "Siguiente reto" button.',
-          'Start the next challenge under the same topic and objective unless the learner previously requested a change.',
-          'Return a challenge_started block and a visible message with the new challenge sentence.',
-          'Do not mention this internal instruction.',
-        ].join('\n'),
-        role: 'user',
-      });
-    });
-
     socket.on('conversation:reset', async () => {
       const userId = getAuthenticatedUserId(socket);
       if (!userId) {
@@ -239,9 +181,6 @@ export function registerChatSocket(io: Server): void {
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-        practice: [],
-        progress: null,
-        vocabulary: [],
       });
     });
 
@@ -334,9 +273,6 @@ export function registerChatSocket(io: Server): void {
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-        practice: [],
-        progress: null,
-        vocabulary: [],
       });
     });
 
@@ -374,136 +310,6 @@ export function registerChatSocket(io: Server): void {
         });
         emitCreditExhaustedIfNeeded(socket, error);
         socket.emit('translator:error', {
-          message: toUserFacingError(error),
-        });
-      }
-    });
-
-    socket.on('progress:generate', async (payload: GenerateTabPayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      const conversationId = payload.conversationId?.trim();
-      const conversation = conversationId
-        ? findConversationForUser(conversationId, userId)
-        : null;
-      if (!conversation) {
-        socket.emit('progress:error', {
-          message: 'No pude encontrar esa conversación.',
-        });
-        return;
-      }
-
-      socket.emit('progress:generating', { conversationId: conversation.id });
-
-      try {
-        const sourceUpdatedAt = getLearningSourceUpdatedAt(conversation.id);
-        const currentProgress = getProgressForConversation(conversation.id);
-        if (!sourceUpdatedAt || isDerivedArtifactFresh(
-          currentProgress?.updatedAt,
-          sourceUpdatedAt,
-        )) {
-          socket.emit('progress:updated', {
-            conversationId: conversation.id,
-            progress: currentProgress,
-          });
-          return;
-        }
-
-        const compactDataset = buildCompactChallengeDataset(
-          listSentenceChallenges(conversation.id),
-        );
-        const generated = await generateProgressWithLlm({
-          compactDataset,
-          llm: await getLlmRequestOptionsForUser(userId),
-          onTokenUsage: (usage) => {
-            emitLlmRequestTokenUsage(io, conversation.id, usage);
-          },
-        });
-        const progress = upsertProgressForConversation(
-          conversation.id,
-          generated.markdown,
-        );
-        io.to(conversation.id).emit('progress:updated', {
-          conversationId: conversation.id,
-          progress,
-        });
-      } catch (error) {
-        console.error('Progress generation failed.', {
-          conversationId: conversation.id,
-          error: serializeError(error),
-          userId,
-        });
-        emitCreditExhaustedIfNeeded(socket, error);
-        socket.emit('progress:error', {
-          message: toUserFacingError(error),
-        });
-      }
-    });
-
-    socket.on('vocabulary:generate', async (payload: GenerateTabPayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      const conversationId = payload.conversationId?.trim();
-      const conversation = conversationId
-        ? findConversationForUser(conversationId, userId)
-        : null;
-      if (!conversation) {
-        socket.emit('vocabulary:error', {
-          message: 'No pude encontrar esa conversación.',
-        });
-        return;
-      }
-
-      socket.emit('vocabulary:generating', { conversationId: conversation.id });
-
-      try {
-        const sourceUpdatedAt = getLearningSourceUpdatedAt(conversation.id);
-        const vocabulary = listVocabularyForConversation(conversation.id);
-        if (!sourceUpdatedAt || isDerivedArtifactFresh(
-          getVocabularyUpdatedAt(conversation.id),
-          sourceUpdatedAt,
-        )) {
-          socket.emit('vocabulary:updated', {
-            conversationId: conversation.id,
-            vocabulary,
-          });
-          return;
-        }
-
-        const compactDataset = buildCompactChallengeDataset(
-          listSentenceChallenges(conversation.id),
-        );
-        const generated = await generateVocabularyWithLlm({
-          compactDataset,
-          llm: await getLlmRequestOptionsForUser(userId),
-          onTokenUsage: (usage) => {
-            emitLlmRequestTokenUsage(io, conversation.id, usage);
-          },
-        });
-        const updatedVocabulary = upsertVocabularyItems(
-          conversation.id,
-          generated.items,
-        );
-        io.to(conversation.id).emit('vocabulary:updated', {
-          conversationId: conversation.id,
-          vocabulary: updatedVocabulary,
-        });
-      } catch (error) {
-        console.error('Vocabulary generation failed.', {
-          conversationId: conversation.id,
-          error: serializeError(error),
-          userId,
-        });
-        emitCreditExhaustedIfNeeded(socket, error);
-        socket.emit('vocabulary:error', {
           message: toUserFacingError(error),
         });
       }
@@ -596,7 +402,6 @@ async function streamAssistantMessage(
   userId: string,
   lastUserMessageId?: number,
   startConversation = false,
-  internalMessage?: TutorMessage,
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -612,14 +417,8 @@ async function streamAssistantMessage(
     }
 
     const messages = listMessages(conversationId);
-    const challenges = listSentenceChallenges(conversationId);
-    const tutorHistory = buildTutorHistoryForLlm(messages, challenges);
-    if (internalMessage) {
-      tutorHistory.push(internalMessage);
-    }
-
     const result = await runTutorAgentLoop(
-      tutorHistory,
+      toTutorHistory(messages),
       {
         currentTitle: conversation.title,
         llm: await getLlmRequestOptionsForUser(userId),
@@ -628,13 +427,6 @@ async function streamAssistantMessage(
         },
         startConversation,
         titleUpdatedByUser: conversation.titleUpdatedByUser,
-        validateBlocks: (blocks) => {
-          validateTutorBlocksAgainstConversationState(
-            blocks,
-            conversationId,
-            lastUserMessageId,
-          );
-        },
       },
     );
 
@@ -655,7 +447,6 @@ async function streamAssistantMessage(
       conversationId,
       io,
       lastUserMessageId,
-      messageHistory: messages,
       userId,
     });
 
@@ -692,368 +483,6 @@ function emitLlmRequestTokenUsage(
     conversationId,
     usage,
   });
-}
-
-function isDerivedArtifactFresh(
-  artifactUpdatedAt: string | null | undefined,
-  sourceUpdatedAt: string,
-): boolean {
-  if (!artifactUpdatedAt) {
-    return false;
-  }
-
-  return compareSqliteTimestamps(artifactUpdatedAt, sourceUpdatedAt) >= 0;
-}
-
-function buildTutorHistoryForLlm(
-  messages: StoredMessage[],
-  challenges: StoredSentenceChallenge[],
-): TutorMessage[] {
-  if (challenges.length === 0) {
-    return toTutorHistory(messages);
-  }
-
-  const currentChallenge = challenges[challenges.length - 1] ?? null;
-  const previousChallenges = currentChallenge
-    ? challenges.filter((challenge) => challenge.id !== currentChallenge.id)
-    : challenges;
-  const compressedHistory = buildCompressedChallengeHistory(messages, previousChallenges);
-  const liveMessages = selectLiveMessagesForLlm(messages, currentChallenge);
-  const history = compressedHistory ? [compressedHistory, ...liveMessages] : liveMessages;
-
-  console.log('[Mr. F compressed LLM history]', {
-    currentChallengeCompletedAt: currentChallenge?.completedAt ?? null,
-    currentChallengeId: currentChallenge?.id ?? null,
-    compressedChallengeCount: previousChallenges.length,
-    originalMessageCount: messages.length,
-    sentMessageCount: history.length,
-  });
-
-  return history;
-}
-
-function buildCompressedChallengeHistory(
-  messages: StoredMessage[],
-  challenges: StoredSentenceChallenge[],
-): TutorMessage | null {
-  const completedOrPreviousChallenges = challenges.filter(
-    (challenge) => challenge.attempts.length > 0 || challenge.challengeLabel,
-  );
-  if (completedOrPreviousChallenges.length === 0) {
-    return null;
-  }
-
-  const dialogueChallenges = completedOrPreviousChallenges.filter(
-    (challenge) => challenge.challengeType === 'dialogue_scene',
-  );
-  const dialogueLightSet = new Set(
-    dialogueChallenges.slice(-2).map((challenge) => challenge.id),
-  );
-
-  const sections = completedOrPreviousChallenges.map((challenge, index) => {
-    if (challenge.challengeType === 'dialogue_scene') {
-      const level = dialogueLightSet.has(challenge.id) ? 'light' : 'aggressive';
-      return level === 'light'
-        ? buildLightDialogueCompression(messages, challenge, index + 1)
-        : buildAggressiveDialogueCompression(challenge, index + 1);
-    }
-
-    const lines = [
-      `Challenge ${index + 1}:`,
-      `Type: ${challenge.challengeType}`,
-      `Topic: ${challenge.topic || 'not specified'}`,
-      `Level: ${challenge.level || 'not specified'}`,
-      `Objective: ${challenge.objective || 'not specified'}`,
-      `Challenge label: ${challenge.challengeLabel}`,
-    ];
-
-    if (challenge.attempts.length === 0) {
-      lines.push('Attempts: none recorded.');
-      return lines.join('\n');
-    }
-
-    lines.push('Attempts:');
-    for (const attempt of challenge.attempts) {
-      lines.push(`- ${attempt.attemptText}`);
-    }
-
-    return lines.join('\n');
-  });
-
-  return {
-    content: [
-      'INTERNAL APP CONTEXT: compressed_history.',
-      'This summary replaces the full messages from previous challenges. Do not show it to the user.',
-      'Use this context only to preserve pedagogical continuity, recurring errors, and practiced topics.',
-      '',
-      sections.join('\n\n'),
-    ].join('\n'),
-    role: 'user',
-  };
-}
-
-function buildLightDialogueCompression(
-  messages: StoredMessage[],
-  challenge: StoredSentenceChallenge,
-  index: number,
-): string {
-  const slice = getChallengeMessageSlice(messages, challenge);
-  const lines = [
-    `Dialogue Scene ${index}:`,
-    `Compression level: light`,
-    `Label: ${challenge.challengeLabel}`,
-    `Objective: ${challenge.objective || 'not specified'}`,
-  ];
-
-  if (slice.length === 0) {
-    lines.push('Turns: none recorded.');
-    return lines.join('\n');
-  }
-
-  lines.push('Turns:');
-  for (const message of slice) {
-    if (message.role === 'user') {
-      lines.push(`- Learner: ${message.content}`);
-      continue;
-    }
-
-    const blocks = Array.isArray(message.metadata?.blocks)
-      ? (message.metadata?.blocks as Array<Record<string, unknown>>)
-      : [];
-    const started = blocks.find((block) => block.type === 'challenge_started');
-    if (started) {
-      const introBlocks = blocks.filter(
-        (block) => block.type === 'message' && typeof block.markdown === 'string',
-      );
-      for (const block of introBlocks) {
-        lines.push(`- Tutor intro: ${String(block.markdown).replace(/\s+/g, ' ').trim()}`);
-      }
-    }
-
-    const characterBlocks = blocks.filter(
-      (block) =>
-        block.type === 'character_message' &&
-        typeof block.name === 'string' &&
-        typeof block.markdown === 'string',
-    );
-    for (const block of characterBlocks) {
-      lines.push(
-        `- ${String(block.name)}: ${String(block.markdown).replace(/\s+/g, ' ').trim()}`,
-      );
-    }
-  }
-
-  return lines.join('\n');
-}
-
-function buildAggressiveDialogueCompression(
-  challenge: StoredSentenceChallenge,
-  index: number,
-): string {
-  const lines = [
-    `Dialogue Scene ${index}:`,
-    `Compression level: aggressive`,
-    `Label: ${challenge.challengeLabel}`,
-    `Objective: ${challenge.objective || 'not specified'}`,
-    'Key learner turns:',
-  ];
-
-  if (challenge.attempts.length === 0) {
-    lines.push('- none');
-  } else {
-    for (const attempt of challenge.attempts.slice(-4)) {
-      lines.push(`- ${attempt.attemptText}`);
-    }
-  }
-
-  return lines.join('\n');
-}
-
-function buildCompactChallengeDataset(
-  challenges: StoredSentenceChallenge[],
-): string {
-  const usableChallenges = challenges.filter(
-    (challenge) => challenge.challengeLabel || challenge.attempts.length > 0,
-  );
-
-  if (usableChallenges.length === 0) {
-    return [
-      'CHALLENGES AND ATTEMPTS',
-      '',
-      'There are no recorded challenges yet.',
-    ].join('\n');
-  }
-
-  const sections = usableChallenges.map((challenge, index) => {
-    const lines = [
-      `${index + 1}. Label: ${challenge.challengeLabel}`,
-      `Type: ${challenge.challengeType}`,
-      `Topic: ${challenge.topic || 'not specified'}`,
-      `Level: ${challenge.level || 'not specified'}`,
-      `Objective: ${challenge.objective || 'not specified'}`,
-    ];
-
-    lines.push('Attempts:');
-
-    if (challenge.attempts.length === 0) {
-      lines.push('- none');
-      return lines.join('\n');
-    }
-
-    for (const attempt of challenge.attempts) {
-      lines.push(`- ${attempt.attemptText} [${getAttemptOutcome(attempt)}]`);
-    }
-
-    return lines.join('\n');
-  });
-
-  return ['CHALLENGES AND ATTEMPTS', '', sections.join('\n\n')].join('\n');
-}
-
-function getAttemptOutcome(
-  attempt: StoredSentenceChallenge['attempts'][number],
-): string {
-  if (attempt.isCorrect) {
-    return 'correct';
-  }
-
-  if (attempt.evaluation.parts.some((part) => part.status === 'improve')) {
-    return 'can improve';
-  }
-
-  return 'incorrect';
-}
-
-function selectLiveMessagesForLlm(
-  messages: StoredMessage[],
-  currentChallenge: StoredSentenceChallenge | null,
-): TutorMessage[] {
-  if (messages.length === 0) {
-    return [];
-  }
-
-  if (currentChallenge) {
-    const currentStartIndex = findChallengeStartMessageIndex(
-      messages,
-      currentChallenge,
-    );
-    return toTutorHistory(messages.slice(currentStartIndex));
-  }
-
-  return toTutorHistory(messages);
-}
-
-function getChallengeMessageSlice(
-  messages: StoredMessage[],
-  challenge: StoredSentenceChallenge,
-): StoredMessage[] {
-  const startIndex = findChallengeStartMessageIndex(messages, challenge);
-  const challengeIndex = findChallengeIndexById(challenge.id, listSentenceChallenges(challenge.conversationId));
-  if (challengeIndex < 0) {
-    return messages.slice(startIndex);
-  }
-  const conversationChallenges = listSentenceChallenges(challenge.conversationId);
-  const nextChallenge = conversationChallenges[challengeIndex + 1];
-  if (!nextChallenge) {
-    return messages.slice(startIndex);
-  }
-
-  const nextStartIndex = findChallengeStartMessageIndex(messages, nextChallenge);
-  return messages.slice(startIndex, nextStartIndex);
-}
-
-function findChallengeIndexById(
-  challengeId: string,
-  challenges: StoredSentenceChallenge[],
-): number {
-  return challenges.findIndex((challenge) => challenge.id === challengeId);
-}
-
-function findChallengeStartMessageIndex(
-  messages: StoredMessage[],
-  challenge: StoredSentenceChallenge,
-): number {
-  const metadataIndex = findLastMessageIndex(messages, (message) => {
-    return (
-      message.role === 'model' &&
-      getChallengeStartedPrimaryText(message) === challenge.challengeLabel
-    );
-  });
-  if (metadataIndex >= 0) {
-    return metadataIndex;
-  }
-
-  const firstAttemptMessageId = challenge.attempts[0]?.userMessageId;
-  if (firstAttemptMessageId) {
-    const firstAttemptIndex = messages.findIndex(
-      (message) => message.id === firstAttemptMessageId,
-    );
-    if (firstAttemptIndex >= 0) {
-      return Math.max(0, firstAttemptIndex - 1);
-    }
-  }
-
-  const firstByDateIndex = messages.findIndex(
-    (message) => compareSqliteTimestamps(message.createdAt, challenge.createdAt) >= 0,
-  );
-  return firstByDateIndex >= 0 ? Math.max(0, firstByDateIndex - 1) : 0;
-}
-
-function getChallengeStartedPrimaryText(message: StoredMessage): string | null {
-  const blocks = message.metadata?.blocks;
-  if (!Array.isArray(blocks)) {
-    return null;
-  }
-
-  const startedBlock = blocks.find(
-    (
-      block,
-    ): block is
-      | { challengeLabel: string; challengeType?: string; type: string } =>
-      Boolean(
-        block &&
-          typeof block === 'object' &&
-          (block as { type?: unknown }).type === 'challenge_started',
-      ),
-  );
-
-  if (!startedBlock) {
-    return null;
-  }
-
-  return 'challengeLabel' in startedBlock ? startedBlock.challengeLabel : null;
-}
-
-function findLastMessageIndex(
-  messages: StoredMessage[],
-  predicate: (message: StoredMessage) => boolean,
-): number {
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    if (predicate(messages[index])) {
-      return index;
-    }
-  }
-
-  return -1;
-}
-
-function compareSqliteTimestamps(
-  first?: string | null,
-  second?: string | null,
-): number {
-  return parseSqliteTimestamp(first) - parseSqliteTimestamp(second);
-}
-
-function parseSqliteTimestamp(value?: string | null): number {
-  if (!value) {
-    return 0;
-  }
-
-  const normalized = value.includes('T')
-    ? value
-    : `${value.replace(' ', 'T')}Z`;
-  const timestamp = Date.parse(normalized);
-  return Number.isNaN(timestamp) ? 0 : timestamp;
 }
 
 function toUserFacingError(error: unknown): string {
@@ -1113,20 +542,29 @@ function isCreditExhaustedError(error: unknown): boolean {
     text.includes('not enough credits') ||
     text.includes('credit limit') ||
     text.includes('credits exhausted') ||
-    text.includes('balance') && text.includes('credit') ||
-    text.includes('402') && text.includes('credit')
+    (text.includes('balance') && text.includes('credit')) ||
+    (text.includes('402') && text.includes('credit'))
   );
 }
 
-function serializeError(error: unknown): Record<string, unknown> {
-  if (!(error instanceof Error)) {
-    return { value: error };
+function serializeError(error: unknown): unknown {
+  if (error instanceof Error) {
+    return {
+      cause: serializeError(error.cause),
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+    };
   }
 
-  return {
-    cause: error.cause ? serializeError(error.cause) : undefined,
-    message: error.message,
-    name: error.name,
-    stack: error.stack,
-  };
+  if (error && typeof error === 'object') {
+    const record = error as Record<string, unknown>;
+    return {
+      message: typeof record.message === 'string' ? record.message : undefined,
+      name: typeof record.name === 'string' ? record.name : undefined,
+      text: typeof record.text === 'string' ? record.text.slice(0, 6000) : undefined,
+    };
+  }
+
+  return error;
 }

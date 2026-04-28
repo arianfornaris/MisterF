@@ -1,7 +1,4 @@
 import { z } from 'zod';
-import { dialogueSceneChallengeStartedBlockSchema } from './challenges/dialogueScene.js';
-import { produceEnChallengeStartedBlockSchema } from './challenges/produceEn.js';
-import { understandEnChallengeStartedBlockSchema } from './challenges/understandEn.js';
 
 export const genericTutorResponseJsonSchema = {
   type: 'object',
@@ -57,17 +54,25 @@ export const messageBlockSchema = z
   })
   .strict();
 
-export const challengeStartedBlockSchema = z.union([
-  produceEnChallengeStartedBlockSchema,
-  understandEnChallengeStartedBlockSchema,
-  dialogueSceneChallengeStartedBlockSchema,
-]);
-
-export const characterMessageBlockSchema = z
+export const dialogueCharacterMessageBlockSchema = z
   .object({
-    type: z.literal('character_message'),
+    type: z.literal('dialogue_character_message'),
     name: z.string().trim().min(1).max(80),
     markdown: z.string().trim().min(1).max(1400),
+  })
+  .strict();
+
+export const translateToEnglishPromptBlockSchema = z
+  .object({
+    type: z.literal('translate_to_english_prompt'),
+    sentence: z.string().trim().min(1).max(800),
+  })
+  .strict();
+
+export const understandInSpanishPromptBlockSchema = z
+  .object({
+    type: z.literal('understand_in_spanish_prompt'),
+    sentence: z.string().trim().min(1).max(800),
   })
   .strict();
 
@@ -89,18 +94,6 @@ export const sentenceEvaluationBlockSchema = z
   })
   .strict();
 
-export const challengeCompletedBlockSchema = z
-  .object({
-    type: z.literal('challenge_completed'),
-    score: z
-      .number()
-      .nonnegative()
-      .max(100)
-      .transform((score) => (score > 1 ? score / 100 : score))
-      .pipe(z.number().min(0).max(1)),
-  })
-  .strict();
-
 export const conversationTitleBlockSchema = z
   .object({
     type: z.literal('conversation_title'),
@@ -114,10 +107,10 @@ export const tutorResponseSchema = z
       .array(
         z.union([
           messageBlockSchema,
-          challengeStartedBlockSchema,
-          characterMessageBlockSchema,
+          dialogueCharacterMessageBlockSchema,
+          translateToEnglishPromptBlockSchema,
+          understandInSpanishPromptBlockSchema,
           sentenceEvaluationBlockSchema,
-          challengeCompletedBlockSchema,
           conversationTitleBlockSchema,
         ]),
       )

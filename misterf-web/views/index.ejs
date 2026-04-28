@@ -263,109 +263,16 @@
         <% } %>
 
         <section class="chat-layout" aria-label="Chat con Mister F">
-          <ul class="nav nav-tabs sheet-tabs" id="sheetTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button
-                class="nav-link active"
-                id="chat-tab"
-                type="button"
-                role="tab"
-                data-bs-toggle="tab"
-                data-bs-target="#chatPane"
-                aria-controls="chatPane"
-                aria-selected="true"
-              >
-                Chat
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button
-                class="nav-link"
-                id="practice-tab"
-                type="button"
-                role="tab"
-                data-bs-toggle="tab"
-                data-bs-target="#practicePane"
-                aria-controls="practicePane"
-                aria-selected="false"
-              >
-                Intentos
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button
-                class="nav-link"
-                id="progress-tab"
-                type="button"
-                role="tab"
-                data-bs-toggle="tab"
-                data-bs-target="#progressPane"
-                aria-controls="progressPane"
-                aria-selected="false"
-              >
-                Progreso
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button
-                class="nav-link"
-                id="vocabulary-tab"
-                type="button"
-                role="tab"
-                data-bs-toggle="tab"
-                data-bs-target="#vocabularyPane"
-                aria-controls="vocabularyPane"
-                aria-selected="false"
-              >
-                Vocabulario
-              </button>
-            </li>
-          </ul>
-
-          <div class="tab-content sheet-tab-content">
-            <div
-              class="tab-pane fade show active messages"
-              id="chatPane"
-              role="tabpanel"
-              aria-labelledby="chat-tab"
-              tabindex="0"
-            >
-              <div id="messages" aria-live="polite"></div>
-            </div>
-
-            <div
-              class="tab-pane fade practice-pane"
-              id="practicePane"
-              role="tabpanel"
-              aria-labelledby="practice-tab"
-              tabindex="0"
-            >
-              <div id="practiceContent" class="practice-content"></div>
-            </div>
-
-            <div
-              class="tab-pane fade progress-pane"
-              id="progressPane"
-              role="tabpanel"
-              aria-labelledby="progress-tab"
-              tabindex="0"
-            >
-              <div id="progressContent" class="progress-content"></div>
-            </div>
-
-            <div
-              class="tab-pane fade vocabulary-pane"
-              id="vocabularyPane"
-              role="tabpanel"
-              aria-labelledby="vocabulary-tab"
-              tabindex="0"
-            >
-              <div id="vocabularyContent" class="vocabulary-content"></div>
-            </div>
+          <div
+            class="messages"
+            id="chatPane"
+            tabindex="0"
+          >
+            <div id="messages" aria-live="polite"></div>
           </div>
 
           <form id="chatForm" class="composer" autocomplete="off">
-            <label class="visually-hidden" for="messageInput">Respuesta en ingles</label>
+            <label class="visually-hidden" for="messageInput">Escribe tu mensaje</label>
             <span class="composer-prompt" aria-hidden="true">&gt;</span>
             <div class="composer-input-wrap">
               <textarea
@@ -373,7 +280,7 @@
                 class="composer-input"
                 rows="1"
                 maxlength="1200"
-                placeholder="Escribe tu frase en inglés"
+                placeholder="Escribe tu mensaje"
                 autocomplete="off"
                 autocapitalize="none"
                 autocorrect="off"

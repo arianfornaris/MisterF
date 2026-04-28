@@ -23,29 +23,20 @@ export type TutorMessageBlock = {
   markdown: string;
 };
 
-export type TutorChallengeStartedBlock = {
-  type: 'challenge_started';
-} & (
-  | {
-      challengeType?: 'produce_en' | 'understand_en';
-      challengeLabel: string;
-      level?: string;
-      objective?: string;
-      topic?: string;
-    }
-  | {
-      challengeType: 'dialogue_scene';
-      challengeLabel: string;
-      level?: string;
-      objective?: string;
-      topic?: string;
-    }
-);
-
-export type TutorCharacterMessageBlock = {
-  type: 'character_message';
+export type TutorDialogueCharacterMessageBlock = {
+  type: 'dialogue_character_message';
   name: string;
   markdown: string;
+};
+
+export type TutorTranslateToEnglishPromptBlock = {
+  type: 'translate_to_english_prompt';
+  sentence: string;
+};
+
+export type TutorUnderstandInSpanishPromptBlock = {
+  type: 'understand_in_spanish_prompt';
+  sentence: string;
 };
 
 export type TutorSentenceEvaluationBlock = {
@@ -57,11 +48,6 @@ export type TutorSentenceEvaluationBlock = {
   }>;
 };
 
-export type TutorChallengeCompletedBlock = {
-  type: 'challenge_completed';
-  score: number;
-};
-
 export type TutorConversationTitleBlock = {
   title: string;
   type: 'conversation_title';
@@ -69,10 +55,10 @@ export type TutorConversationTitleBlock = {
 
 export type TutorResponseBlock =
   | TutorMessageBlock
-  | TutorChallengeStartedBlock
-  | TutorCharacterMessageBlock
+  | TutorDialogueCharacterMessageBlock
+  | TutorTranslateToEnglishPromptBlock
+  | TutorUnderstandInSpanishPromptBlock
   | TutorSentenceEvaluationBlock
-  | TutorChallengeCompletedBlock
   | TutorConversationTitleBlock;
 
 export type TutorResponseValidator = (blocks: TutorResponseBlock[]) => void;
