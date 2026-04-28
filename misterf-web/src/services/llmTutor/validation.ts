@@ -1,6 +1,8 @@
 import type {
   TutorDialogueCharacterMessageBlock,
   TutorDialogueTranscriptBlock,
+  TutorFillInTheBlankChoiceBlock,
+  TutorFillInTheBlankInputBlock,
   TutorMatchingPairsBlock,
   TutorUnderstandInSpanishPromptBlock,
   TutorMessage,
@@ -43,13 +45,17 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorDialogueTranscriptBlock
         | TutorMatchingPairsBlock
         | TutorTranslateToEnglishPromptBlock
-        | TutorUnderstandInSpanishPromptBlock =>
+        | TutorUnderstandInSpanishPromptBlock
+        | TutorFillInTheBlankInputBlock
+        | TutorFillInTheBlankChoiceBlock =>
         block.type === 'message' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
         block.type === 'translate_to_english_prompt' ||
-        block.type === 'understand_in_spanish_prompt',
+        block.type === 'understand_in_spanish_prompt' ||
+        block.type === 'fill_in_the_blank_input' ||
+        block.type === 'fill_in_the_blank_choice',
     )
     .map((block) => {
       if (block.type === 'dialogue_character_message') {
@@ -64,6 +70,17 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
 
       if (block.type === 'matching_pairs') {
         return block.prompt?.trim() || 'Ejercicio de emparejar.';
+      }
+
+      if (
+        block.type === 'fill_in_the_blank_input' ||
+        block.type === 'fill_in_the_blank_choice'
+      ) {
+        const sentencePreview =
+          block.type === 'fill_in_the_blank_choice'
+            ? block.sentence.trim().replaceAll('{{blank}}', '_____')
+            : block.sentence.trim().replaceAll('___', '_____');
+        return block.prompt?.trim() || sentencePreview;
       }
 
       if (block.type === 'translate_to_english_prompt') {

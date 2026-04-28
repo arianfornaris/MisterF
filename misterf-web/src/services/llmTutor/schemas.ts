@@ -83,48 +83,63 @@ export const matchingPairsBlockSchema = z
   .object({
     type: z.literal('matching_pairs'),
     prompt: z.string().trim().min(1).max(500).optional(),
-    leftItems: z
+    pairs: z
       .array(
         z
           .object({
-            id: z.string().trim().min(1).max(80),
-            text: z.string().trim().min(1).max(280),
+            left: z.string().trim().min(1).max(280),
+            right: z.string().trim().min(1).max(280),
           })
           .strict(),
       )
       .min(2)
-      .max(8),
-    rightItems: z
+      .max(16),
+  })
+  .strict();
+
+export const fillInTheBlankInputBlockSchema = z
+  .object({
+    type: z.literal('fill_in_the_blank_input'),
+    prompt: z.string().trim().min(1).max(500).optional(),
+    sentence: z.string().trim().min(1).max(800),
+    blanks: z
       .array(
         z
           .object({
-            id: z.string().trim().min(1).max(80),
-            text: z.string().trim().min(1).max(280),
+            answers: z.array(z.string().trim().min(1).max(160)).min(1).max(8),
           })
           .strict(),
       )
-      .min(2)
-      .max(8),
-    correctPairs: z
-      .array(
-        z
-          .object({
-            leftId: z.string().trim().min(1).max(80),
-            rightId: z.string().trim().min(1).max(80),
-          })
-          .strict(),
-      )
-      .min(2)
-      .max(8),
+      .min(1)
+      .max(12),
   })
   .strict()
-  .refine((block) => block.leftItems.length === block.rightItems.length, {
-    message: 'leftItems and rightItems must have the same length.',
-    path: ['rightItems'],
+  .refine((block) => countSentencePlaceholders(block.sentence, '___') === block.blanks.length, {
+    message: 'sentence must contain exactly one ___ placeholder per blanks entry.',
+    path: ['sentence'],
+  });
+
+export const fillInTheBlankChoiceBlockSchema = z
+  .object({
+    type: z.literal('fill_in_the_blank_choice'),
+    prompt: z.string().trim().min(1).max(500).optional(),
+    sentence: z.string().trim().min(1).max(800),
+    blanks: z
+      .array(
+        z
+          .object({
+            choices: z.array(z.string().trim().min(1).max(160)).min(2).max(12),
+            answers: z.array(z.string().trim().min(1).max(160)).min(1).max(8),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(12),
   })
-  .refine((block) => block.correctPairs.length === block.leftItems.length, {
-    message: 'correctPairs must match the number of leftItems.',
-    path: ['correctPairs'],
+  .strict()
+  .refine((block) => countSentencePlaceholders(block.sentence, '{{blank}}') === block.blanks.length, {
+    message: 'sentence must contain exactly one {{blank}} placeholder per blanks entry.',
+    path: ['sentence'],
   });
 
 export const translateToEnglishPromptBlockSchema = z
@@ -133,6 +148,14 @@ export const translateToEnglishPromptBlockSchema = z
     sentence: z.string().trim().min(1).max(800),
   })
   .strict();
+
+function countSentencePlaceholders(sentence: string, placeholder: string): number {
+  if (!placeholder) {
+    return 0;
+  }
+
+  return sentence.split(placeholder).length - 1;
+}
 
 export const understandInSpanishPromptBlockSchema = z
   .object({
@@ -177,6 +200,8 @@ export const tutorResponseSchema = z
           matchingPairsBlockSchema,
           translateToEnglishPromptBlockSchema,
           understandInSpanishPromptBlockSchema,
+          fillInTheBlankInputBlockSchema,
+          fillInTheBlankChoiceBlockSchema,
           sentenceEvaluationBlockSchema,
           conversationTitleBlockSchema,
         ]),

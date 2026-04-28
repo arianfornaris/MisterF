@@ -42,6 +42,8 @@ export function applyTutorBlocksRuntime(input: {
       case 'matching_pairs':
       case 'translate_to_english_prompt':
       case 'understand_in_spanish_prompt':
+      case 'fill_in_the_blank_input':
+      case 'fill_in_the_blank_choice':
         break;
     }
   }

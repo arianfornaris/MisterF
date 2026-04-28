@@ -762,6 +762,187 @@ body {
   color: #166534;
 }
 
+.fill-in-the-blank-card {
+  margin: 0;
+  padding: 15px 16px 16px;
+  border: 1px solid rgb(31 111 139 / 16%);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(248 250 252 / 98%)),
+    #fff;
+  box-shadow: 0 10px 28px rgb(31 111 139 / 8%);
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.fill-in-the-blank-card.is-fill_in_the_blank_input {
+  border-left: 4px solid #1f6f8b;
+}
+
+.fill-in-the-blank-card.is-fill_in_the_blank_choice {
+  border-left: 4px solid #c66b3d;
+}
+
+.fill-in-the-blank-card.is-error {
+  border-color: rgb(185 28 28 / 35%);
+  box-shadow: 0 12px 24px rgb(185 28 28 / 8%);
+}
+
+.fill-in-the-blank-label {
+  margin: 0 0 0.45rem;
+  color: #155e75;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.fill-in-the-blank-card.is-fill_in_the_blank_choice .fill-in-the-blank-label {
+  color: #9a3412;
+}
+
+.fill-in-the-blank-prompt {
+  margin-bottom: 0.95rem;
+  color: var(--ink);
+}
+
+.fill-in-the-blank-prompt > :first-child {
+  margin-top: 0;
+}
+
+.fill-in-the-blank-prompt > :last-child {
+  margin-bottom: 0;
+}
+
+.fill-in-the-blank-sentence {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.95rem;
+  color: #17212b;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: clamp(1.02rem, 0.98rem + 0.22vw, 1.18rem);
+  line-height: 1.7;
+}
+
+.fill-in-the-blank-text {
+  white-space: pre-wrap;
+}
+
+.fill-in-the-blank-blank-wrap {
+  min-width: 72px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fill-in-the-blank-input,
+.fill-in-the-blank-select {
+  min-width: 72px;
+  width: clamp(72px, 14ch, 160px);
+  padding: 0.45rem 0.35rem;
+  border: 0;
+  border-bottom: 2px solid rgb(31 111 139 / 54%);
+  border-radius: 0;
+  background: transparent;
+  color: #17212b;
+  font: inherit;
+  line-height: 1.45;
+  box-shadow: none;
+}
+
+.fill-in-the-blank-input:focus {
+  outline: 0;
+  border-bottom-color: #155e75;
+  box-shadow: 0 3px 0 rgb(21 94 117 / 16%);
+}
+
+.fill-in-the-blank-select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 2.15rem;
+  padding-right: 0.35rem;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fill-in-the-blank-select:focus {
+  outline: 0;
+  border-bottom-color: #155e75;
+  box-shadow: 0 3px 0 rgb(21 94 117 / 16%);
+}
+
+.fill-in-the-blank-controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.exercise-confirm-button {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgb(21 94 117 / 20%);
+  border-radius: 999px;
+  background: #fff;
+  color: #155e75;
+  box-shadow: 0 8px 18px rgb(21 94 117 / 7%);
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.exercise-confirm-button:hover,
+.exercise-confirm-button:focus {
+  outline: 0;
+  transform: translateY(-1px);
+  border-color: rgb(21 94 117 / 36%);
+  background: rgb(240 249 255 / 96%);
+  box-shadow: 0 10px 22px rgb(21 94 117 / 10%);
+}
+
+.exercise-confirm-button:disabled {
+  transform: none;
+  border-color: rgb(148 163 184 / 28%);
+  background: rgb(248 250 252 / 96%);
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: default;
+}
+
+.exercise-confirm-button.is-success {
+  border-color: rgb(21 128 61 / 22%);
+  background: rgb(240 253 244 / 98%);
+  color: #166534;
+}
+
+.fill-in-the-blank-status {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.fill-in-the-blank-status.is-error {
+  color: #991b1b;
+}
+
+.fill-in-the-blank-status.is-success {
+  color: #166534;
+}
+
 @keyframes matching-pairs-shake {
   0%,
   100% {
@@ -788,6 +969,12 @@ body {
 @media (max-width: 720px) {
   .matching-pairs-columns {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fill-in-the-blank-input,
+  .fill-in-the-blank-select {
+    min-width: 72px;
+    width: min(140px, 38vw);
   }
 }
 

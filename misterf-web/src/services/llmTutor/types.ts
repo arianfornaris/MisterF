@@ -41,17 +41,9 @@ export type TutorDialogueTranscriptBlock = {
 export type TutorMatchingPairsBlock = {
   type: 'matching_pairs';
   prompt?: string;
-  leftItems: Array<{
-    id: string;
-    text: string;
-  }>;
-  rightItems: Array<{
-    id: string;
-    text: string;
-  }>;
-  correctPairs: Array<{
-    leftId: string;
-    rightId: string;
+  pairs: Array<{
+    left: string;
+    right: string;
   }>;
 };
 
@@ -63,6 +55,25 @@ export type TutorTranslateToEnglishPromptBlock = {
 export type TutorUnderstandInSpanishPromptBlock = {
   type: 'understand_in_spanish_prompt';
   sentence: string;
+};
+
+export type TutorFillInTheBlankInputBlock = {
+  type: 'fill_in_the_blank_input';
+  prompt?: string;
+  sentence: string;
+  blanks: Array<{
+    answers: string[];
+  }>;
+};
+
+export type TutorFillInTheBlankChoiceBlock = {
+  type: 'fill_in_the_blank_choice';
+  prompt?: string;
+  sentence: string;
+  blanks: Array<{
+    answers: string[];
+    choices: string[];
+  }>;
 };
 
 export type TutorSentenceEvaluationBlock = {
@@ -86,6 +97,8 @@ export type TutorResponseBlock =
   | TutorMatchingPairsBlock
   | TutorTranslateToEnglishPromptBlock
   | TutorUnderstandInSpanishPromptBlock
+  | TutorFillInTheBlankInputBlock
+  | TutorFillInTheBlankChoiceBlock
   | TutorSentenceEvaluationBlock
   | TutorConversationTitleBlock;
 

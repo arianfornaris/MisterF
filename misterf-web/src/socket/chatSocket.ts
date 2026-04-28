@@ -22,6 +22,8 @@ import {
   MissingLlmApiKeyError,
   runTutorAgentLoop,
   translateTextWithLlm,
+  type TutorFillInTheBlankChoiceBlock,
+  type TutorFillInTheBlankInputBlock,
   type LlmRequestOptions,
   type LlmRequestTokenUsage,
   type TranslationMode,
@@ -58,11 +60,21 @@ type MatchingExerciseCompletedPayload = {
   blockIndex?: number;
   conversationId?: string | null;
   incorrectAttempts?: Array<{
-    leftId?: string;
-    rightId?: string;
+    left?: string;
+    right?: string;
   }>;
   messageId?: number;
   totalAttempts?: number;
+};
+
+type FillInTheBlankCompletedPayload = {
+  blockIndex?: number;
+  completedSentence?: string;
+  conversationId?: string | null;
+  incorrectSentences?: string[];
+  messageId?: number;
+  totalAttempts?: number;
+  values?: string[];
 };
 
 type AuthenticatedSocketData = {
@@ -413,6 +425,95 @@ export function registerChatSocket(io: Server): void {
         );
       },
     );
+
+    socket.on(
+      'exercise:fill_in_the_blank_completed',
+      async (payload: FillInTheBlankCompletedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        const totalAttempts = normalizePositiveInteger(payload.totalAttempts) ?? 0;
+        const completedSentence = normalizeExerciseSentence(payload.completedSentence);
+        if (!conversationId || !messageId || blockIndex === null || !completedSentence) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        if (runningConversations.has(conversationId)) {
+          socket.emit('assistant:error', {
+            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isFillInTheBlankBlock(block)) {
+          return;
+        }
+
+        const incorrectSentences = normalizeIncorrectSentences(
+          payload.incorrectSentences,
+          completedSentence,
+        );
+        const nextResults = {
+          ...((message.metadata?.fillInTheBlankResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            completedAt: new Date().toISOString(),
+            completedSentence,
+            incorrectSentences,
+            totalAttempts,
+            values: normalizeExerciseValues(payload.values),
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          fillInTheBlankResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+
+        await streamAssistantMessage(
+          io,
+          conversationId,
+          userId,
+          undefined,
+          false,
+          [
+            {
+              content: buildFillInTheBlankCompletionContext({
+                block,
+                completedSentence,
+                incorrectSentences,
+                totalAttempts,
+              }),
+              role: 'user',
+            },
+          ],
+        );
+      },
+    );
   });
 }
 
@@ -587,39 +688,53 @@ function isMatchingPairsBlock(value: unknown): value is TutorMatchingPairsBlock 
     value &&
       typeof value === 'object' &&
       (value as Record<string, unknown>).type === 'matching_pairs' &&
-      Array.isArray((value as Record<string, unknown>).leftItems) &&
-      Array.isArray((value as Record<string, unknown>).rightItems) &&
-      Array.isArray((value as Record<string, unknown>).correctPairs),
+      Array.isArray((value as Record<string, unknown>).pairs),
+  );
+}
+
+function isFillInTheBlankBlock(
+  value: unknown,
+): value is TutorFillInTheBlankInputBlock | TutorFillInTheBlankChoiceBlock {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (
+        (value as Record<string, unknown>).type === 'fill_in_the_blank_input' ||
+        (value as Record<string, unknown>).type === 'fill_in_the_blank_choice'
+      ) &&
+      typeof (value as Record<string, unknown>).sentence === 'string' &&
+      Array.isArray((value as Record<string, unknown>).blanks),
   );
 }
 
 function normalizeIncorrectAttempts(
   attempts: MatchingExerciseCompletedPayload['incorrectAttempts'],
   block: TutorMatchingPairsBlock,
-): Array<{ leftId: string; rightId: string }> {
-  const validLeftIds = new Set(block.leftItems.map((item) => item.id));
-  const validRightIds = new Set(block.rightItems.map((item) => item.id));
+): Array<{ left: string; right: string }> {
+  const validPairs = new Set(
+    block.pairs.map((pair) => `${pair.left.trim()}::${pair.right.trim()}`),
+  );
   const unique = new Set<string>();
-  const normalized: Array<{ leftId: string; rightId: string }> = [];
+  const normalized: Array<{ left: string; right: string }> = [];
 
   for (const item of attempts ?? []) {
-    const leftId = item?.leftId?.trim();
-    const rightId = item?.rightId?.trim();
-    if (!leftId || !rightId) {
+    const left = item?.left?.replace(/\s+/g, ' ').trim();
+    const right = item?.right?.replace(/\s+/g, ' ').trim();
+    if (!left || !right) {
       continue;
     }
 
-    if (!validLeftIds.has(leftId) || !validRightIds.has(rightId)) {
+    if (validPairs.has(`${left}::${right}`)) {
       continue;
     }
 
-    const key = `${leftId}::${rightId}`;
+    const key = `${left}::${right}`;
     if (unique.has(key)) {
       continue;
     }
 
     unique.add(key);
-    normalized.push({ leftId, rightId });
+    normalized.push({ left, right });
   }
 
   return normalized;
@@ -627,28 +742,12 @@ function normalizeIncorrectAttempts(
 
 function buildMatchingPairsCompletionContext(input: {
   block: TutorMatchingPairsBlock;
-  incorrectAttempts: Array<{ leftId: string; rightId: string }>;
+  incorrectAttempts: Array<{ left: string; right: string }>;
   totalAttempts: number;
 }): string {
-  const leftLookup = new Map(
-    input.block.leftItems.map((item) => [item.id, item.text]),
-  );
-  const rightLookup = new Map(
-    input.block.rightItems.map((item) => [item.id, item.text]),
-  );
-
-  const correctPairs = input.block.correctPairs.map((pair) => ({
-    left: leftLookup.get(pair.leftId) ?? pair.leftId,
-    right: rightLookup.get(pair.rightId) ?? pair.rightId,
-  }));
-
   const incorrectPairs =
     input.incorrectAttempts.length > 0
       ? input.incorrectAttempts
-          .map((pair) => ({
-            left: leftLookup.get(pair.leftId) ?? pair.leftId,
-            right: rightLookup.get(pair.rightId) ?? pair.rightId,
-          }))
           .map((pair) => `- ${pair.left} -> ${pair.right}`)
           .join('\n')
       : '- none';
@@ -660,10 +759,81 @@ function buildMatchingPairsCompletionContext(input: {
     input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
     `Total attempts: ${Math.max(0, input.totalAttempts)}`,
     'Correct pairs:',
-    ...correctPairs.map((pair) => `- ${pair.left} -> ${pair.right}`),
+    ...input.block.pairs.map((pair) => `- ${pair.left} -> ${pair.right}`),
     'Incorrect attempts before success:',
     incorrectPairs,
     'You may briefly reinforce the pairs that were difficult, then continue naturally.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+function normalizeExerciseSentence(value: unknown): string | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const sentence = value.replace(/\s+/g, ' ').trim();
+  return sentence ? sentence.slice(0, 1200) : null;
+}
+
+function normalizeIncorrectSentences(
+  values: unknown,
+  completedSentence: string,
+): string[] {
+  const unique = new Set<string>();
+  const normalized: string[] = [];
+
+  for (const value of Array.isArray(values) ? values : []) {
+    const sentence = normalizeExerciseSentence(value);
+    if (!sentence || sentence === completedSentence || unique.has(sentence)) {
+      continue;
+    }
+
+    unique.add(sentence);
+    normalized.push(sentence);
+  }
+
+  return normalized;
+}
+
+function normalizeExerciseValues(values: unknown): string[] {
+  const normalized: string[] = [];
+
+  for (const value of Array.isArray(values) ? values : []) {
+    const nextValue =
+      typeof value === 'string'
+        ? value.replace(/\s+/g, ' ').trim().slice(0, 240)
+        : '';
+    if (!nextValue) {
+      continue;
+    }
+
+    normalized.push(nextValue);
+  }
+
+  return normalized;
+}
+
+function buildFillInTheBlankCompletionContext(input: {
+  block: TutorFillInTheBlankInputBlock | TutorFillInTheBlankChoiceBlock;
+  completedSentence: string;
+  incorrectSentences: string[];
+  totalAttempts: number;
+}): string {
+  return [
+    'INTERNAL FILL IN THE BLANK EXERCISE COMPLETED.',
+    'The learner completed a fill-in-the-blank exercise in the UI.',
+    'Use this as teacher-only context. Do not mention the existence of the internal report.',
+    input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
+    `Sentence with blank: ${input.block.sentence}`,
+    `Completed sentence: ${input.completedSentence}`,
+    `Total attempts: ${Math.max(0, input.totalAttempts)}`,
+    'Incorrect full sentences before success:',
+    ...(input.incorrectSentences.length > 0
+      ? input.incorrectSentences.map((sentence) => `- ${sentence}`)
+      : ['- none']),
+    'You may briefly reinforce what was difficult, then continue naturally.',
   ]
     .filter(Boolean)
     .join('\n');
