@@ -45,6 +45,7 @@ let userInputHistoryIndex = -1;
 let userInputDraftBeforeHistory = '';
 let pendingBootGuestDraft = '';
 let hasHandledInitialConversationReady = false;
+const matchingExerciseStates = new Map();
 
 if (window.marked) {
   window.marked.setOptions({
@@ -197,7 +198,9 @@ if (socket) {
       : null;
 
     if (streamingBubble) {
-      setModelBubbleContent(streamingBubble, message.content, message.metadata);
+      setModelBubbleContent(streamingBubble, message.content, message.metadata, {
+        messageId: message.id,
+      });
       streamingBubble.classList.remove('typing-caret');
       const streamingRow = streamingBubble.closest('.message-row');
       streamingRow?.setAttribute('data-message-id', message.id);
@@ -244,6 +247,14 @@ if (socket) {
       renderSentenceEvaluationOnLastAssistant(message.metadata?.sentenceEvaluation);
       scrollToBottom();
     }
+  });
+
+  socket.on('message:updated', (message) => {
+    if (!message?.id) {
+      return;
+    }
+
+    updateRenderedMessage(message);
   });
 }
 
@@ -1067,7 +1078,7 @@ function createSentencePartsElement(partsInput, extraClassName = '') {
   return parts;
 }
 
-function setModelBubbleContent(element, content, metadata) {
+function setModelBubbleContent(element, content, metadata, options = {}) {
   if (!element) {
     return;
   }
@@ -1085,14 +1096,14 @@ function setModelBubbleContent(element, content, metadata) {
 
   let hasVisualContent = false;
 
-  for (const block of blocks) {
+  blocks.forEach((block, blockIndex) => {
     if (block.type === 'message') {
       const node = document.createElement('div');
       node.className = 'tutor-message-block';
       node.innerHTML = renderMarkdown(block.markdown || '');
       stack.append(node);
       hasVisualContent = true;
-      continue;
+      return;
     }
 
     if (block.type === 'dialogue_character_message') {
@@ -1110,7 +1121,7 @@ function setModelBubbleContent(element, content, metadata) {
       turn.append(speaker, text);
       stack.append(turn);
       hasVisualContent = true;
-      continue;
+      return;
     }
 
     if (block.type === 'dialogue_transcript') {
@@ -1144,7 +1155,20 @@ function setModelBubbleContent(element, content, metadata) {
       section.append(label, turns);
       stack.append(section);
       hasVisualContent = true;
-      continue;
+      return;
+    }
+
+    if (block.type === 'matching_pairs') {
+      const card = createMatchingPairsCard(block, {
+        blockIndex,
+        matchingResult: getMatchingResultForBlock(metadata, blockIndex),
+        messageId: options.messageId,
+      });
+      if (card) {
+        stack.append(card);
+        hasVisualContent = true;
+      }
+      return;
     }
 
     if (
@@ -1169,7 +1193,7 @@ function setModelBubbleContent(element, content, metadata) {
       stack.append(card);
       hasVisualContent = true;
     }
-  }
+  });
 
   if (!hasVisualContent) {
     setMessageContent(element, content);
@@ -1199,7 +1223,9 @@ function appendMessage(role, content, options = {}) {
   const bubble = document.createElement('div');
   bubble.className = getMessageBubbleClassName(role);
   if (role === 'model') {
-    setModelBubbleContent(bubble, content, options.metadata);
+    setModelBubbleContent(bubble, content, options.metadata, {
+      messageId: options.id,
+    });
   } else {
     setMessageContent(bubble, content);
   }
@@ -1308,6 +1334,29 @@ function attachMessageMetadata(row, metadata) {
   }
 
   row.dataset.messageBlocks = JSON.stringify(metadata.blocks);
+}
+
+function updateRenderedMessage(message) {
+  const row = messagesEl.querySelector(
+    `[data-message-id="${CSS.escape(String(message.id))}"]`,
+  );
+  if (!row) {
+    return;
+  }
+
+  attachMessageMetadata(row, message.metadata);
+  if (message.role !== 'model') {
+    return;
+  }
+
+  const bubble = row.querySelector('.message-bubble');
+  if (!bubble) {
+    return;
+  }
+
+  setModelBubbleContent(bubble, message.content, message.metadata, {
+    messageId: message.id,
+  });
 }
 
 function initializeSentencePopovers(root = document) {
@@ -1449,6 +1498,295 @@ function renderMarkdown(content) {
   const html = window.marked.parse(content || '');
   return window.DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
+  });
+}
+
+function getMatchingResultForBlock(metadata, blockIndex) {
+  const results = metadata?.matchingExerciseResults;
+  if (!results || typeof results !== 'object') {
+    return null;
+  }
+
+  return results[String(blockIndex)] ?? null;
+}
+
+function createMatchingPairsCard(block, context) {
+  if (!Array.isArray(block.leftItems) || !Array.isArray(block.rightItems)) {
+    return null;
+  }
+
+  const leftItems = block.leftItems
+    .filter((item) => item && typeof item.id === 'string' && typeof item.text === 'string')
+    .map((item) => ({ id: item.id.trim(), text: item.text.trim() }))
+    .filter((item) => item.id && item.text);
+  const rightItems = block.rightItems
+    .filter((item) => item && typeof item.id === 'string' && typeof item.text === 'string')
+    .map((item) => ({ id: item.id.trim(), text: item.text.trim() }))
+    .filter((item) => item.id && item.text);
+  const correctPairs = Array.isArray(block.correctPairs)
+    ? block.correctPairs.filter(
+        (pair) =>
+          pair &&
+          typeof pair.leftId === 'string' &&
+          typeof pair.rightId === 'string',
+      )
+    : [];
+
+  if (
+    leftItems.length < 2 ||
+    leftItems.length !== rightItems.length ||
+    correctPairs.length !== leftItems.length
+  ) {
+    return null;
+  }
+
+  const blockIndex = Number(context.blockIndex) || 0;
+  const messageId = Number(context.messageId) || 0;
+  const exerciseKey = `${messageId}:${blockIndex}`;
+  const section = document.createElement('section');
+  section.className = 'matching-pairs-card';
+  section.dataset.exerciseKey = exerciseKey;
+
+  const label = document.createElement('p');
+  label.className = 'matching-pairs-label';
+  label.textContent = 'Empareja';
+
+  const prompt = document.createElement('div');
+  prompt.className = 'matching-pairs-prompt';
+  prompt.innerHTML = renderMarkdown(block.prompt || 'Selecciona los pares correctos.');
+
+  const columns = document.createElement('div');
+  columns.className = 'matching-pairs-columns';
+
+  const leftColumn = document.createElement('div');
+  leftColumn.className = 'matching-pairs-column';
+  const leftTitle = document.createElement('p');
+  leftTitle.className = 'matching-pairs-column-title';
+  leftTitle.textContent = 'Columna A';
+  const leftList = document.createElement('div');
+  leftList.className = 'matching-pairs-list';
+
+  const rightColumn = document.createElement('div');
+  rightColumn.className = 'matching-pairs-column';
+  const rightTitle = document.createElement('p');
+  rightTitle.className = 'matching-pairs-column-title';
+  rightTitle.textContent = 'Columna B';
+  const rightList = document.createElement('div');
+  rightList.className = 'matching-pairs-list';
+
+  const state = {
+    blockIndex,
+    correctPairsByLeftId: new Map(correctPairs.map((pair) => [pair.leftId, pair.rightId])),
+    completed: Boolean(context.matchingResult?.completedAt),
+    exerciseKey,
+    incorrectAttempts: [],
+    lockedPairsByLeftId: new Map(),
+    messageId,
+    prompt: block.prompt || '',
+    reported: Boolean(context.matchingResult?.completedAt),
+    selectedLeftId: null,
+    selectedRightId: null,
+    totalAttempts: Number(context.matchingResult?.totalAttempts) || 0,
+  };
+
+  const persistedAttempts = Array.isArray(context.matchingResult?.incorrectAttempts)
+    ? context.matchingResult.incorrectAttempts
+    : [];
+  for (const attempt of persistedAttempts) {
+    if (
+      attempt &&
+      typeof attempt.leftId === 'string' &&
+      typeof attempt.rightId === 'string'
+    ) {
+      state.incorrectAttempts.push({
+        leftId: attempt.leftId,
+        rightId: attempt.rightId,
+      });
+    }
+  }
+
+  if (state.completed) {
+    for (const pair of correctPairs) {
+      state.lockedPairsByLeftId.set(pair.leftId, pair.rightId);
+    }
+  }
+
+  for (const item of leftItems) {
+    const button = document.createElement('button');
+    button.className = 'matching-pairs-item';
+    button.type = 'button';
+    button.dataset.side = 'left';
+    button.dataset.itemId = item.id;
+    button.textContent = item.text;
+    leftList.append(button);
+  }
+
+  for (const item of rightItems) {
+    const button = document.createElement('button');
+    button.className = 'matching-pairs-item';
+    button.type = 'button';
+    button.dataset.side = 'right';
+    button.dataset.itemId = item.id;
+    button.textContent = item.text;
+    rightList.append(button);
+  }
+
+  const status = document.createElement('p');
+  status.className = 'matching-pairs-status';
+
+  leftColumn.append(leftTitle, leftList);
+  rightColumn.append(rightTitle, rightList);
+  columns.append(leftColumn, rightColumn);
+  section.append(label, prompt, columns, status);
+
+  section.addEventListener('click', (event) => {
+    const button = event.target.closest('.matching-pairs-item');
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    handleMatchingPairsSelection(section, state, button);
+  });
+
+  matchingExerciseStates.set(exerciseKey, state);
+  renderMatchingPairsState(section, state);
+  return section;
+}
+
+function handleMatchingPairsSelection(section, state, button) {
+  if (state.completed) {
+    return;
+  }
+
+  const side = button.dataset.side;
+  const itemId = button.dataset.itemId || '';
+  if (!itemId || !side) {
+    return;
+  }
+
+  if (side === 'left' && state.lockedPairsByLeftId.has(itemId)) {
+    return;
+  }
+
+  if (side === 'right' && Array.from(state.lockedPairsByLeftId.values()).includes(itemId)) {
+    return;
+  }
+
+  if (side === 'left') {
+    state.selectedLeftId = state.selectedLeftId === itemId ? null : itemId;
+  } else {
+    state.selectedRightId = state.selectedRightId === itemId ? null : itemId;
+  }
+
+  renderMatchingPairsState(section, state);
+
+  if (!state.selectedLeftId || !state.selectedRightId) {
+    return;
+  }
+
+  state.totalAttempts += 1;
+  const expectedRightId = state.correctPairsByLeftId.get(state.selectedLeftId);
+  if (expectedRightId && expectedRightId === state.selectedRightId) {
+    state.lockedPairsByLeftId.set(state.selectedLeftId, state.selectedRightId);
+    state.selectedLeftId = null;
+    state.selectedRightId = null;
+
+    if (state.lockedPairsByLeftId.size === state.correctPairsByLeftId.size) {
+      state.completed = true;
+      renderMatchingPairsState(section, state);
+      reportMatchingPairsCompleted(state);
+      return;
+    }
+
+    renderMatchingPairsState(section, state);
+    return;
+  }
+
+  const attemptKey = `${state.selectedLeftId}::${state.selectedRightId}`;
+  if (!state.incorrectAttempts.some((item) => `${item.leftId}::${item.rightId}` === attemptKey)) {
+    state.incorrectAttempts.push({
+      leftId: state.selectedLeftId,
+      rightId: state.selectedRightId,
+    });
+  }
+
+  flashMatchingPairError(section, state.selectedLeftId, state.selectedRightId);
+  state.selectedLeftId = null;
+  state.selectedRightId = null;
+  renderMatchingPairsState(section, state);
+}
+
+function renderMatchingPairsState(section, state) {
+  const lockedRightIds = new Set(state.lockedPairsByLeftId.values());
+  for (const button of section.querySelectorAll('.matching-pairs-item')) {
+    if (!(button instanceof HTMLButtonElement)) {
+      continue;
+    }
+
+    const side = button.dataset.side;
+    const itemId = button.dataset.itemId || '';
+    const isSelected =
+      (side === 'left' && state.selectedLeftId === itemId) ||
+      (side === 'right' && state.selectedRightId === itemId);
+    const isLocked =
+      (side === 'left' && state.lockedPairsByLeftId.has(itemId)) ||
+      (side === 'right' && lockedRightIds.has(itemId));
+
+    button.classList.toggle('is-selected', isSelected);
+    button.classList.toggle('is-locked', isLocked);
+    button.disabled = isLocked || state.completed;
+  }
+
+  const status = section.querySelector('.matching-pairs-status');
+  if (!status) {
+    return;
+  }
+
+  if (state.completed) {
+    status.textContent = 'Completado. Buen trabajo.';
+    status.classList.add('is-success');
+    return;
+  }
+
+  status.classList.remove('is-success');
+  status.textContent =
+    state.lockedPairsByLeftId.size > 0
+      ? `Pares correctos: ${state.lockedPairsByLeftId.size}/${state.correctPairsByLeftId.size}`
+      : 'Selecciona un elemento de cada columna para formar un par.';
+}
+
+function flashMatchingPairError(section, leftId, rightId) {
+  const leftButton = section.querySelector(
+    `.matching-pairs-item[data-side="left"][data-item-id="${CSS.escape(leftId)}"]`,
+  );
+  const rightButton = section.querySelector(
+    `.matching-pairs-item[data-side="right"][data-item-id="${CSS.escape(rightId)}"]`,
+  );
+
+  for (const button of [leftButton, rightButton]) {
+    if (!(button instanceof HTMLButtonElement)) {
+      continue;
+    }
+
+    button.classList.add('is-error');
+    window.setTimeout(() => {
+      button.classList.remove('is-error');
+    }, 620);
+  }
+}
+
+function reportMatchingPairsCompleted(state) {
+  if (!socket || state.reported || !conversationId || !state.messageId) {
+    return;
+  }
+
+  state.reported = true;
+  socket.emit('exercise:matching_completed', {
+    blockIndex: state.blockIndex,
+    conversationId,
+    incorrectAttempts: state.incorrectAttempts,
+    messageId: state.messageId,
+    totalAttempts: state.totalAttempts,
   });
 }
 

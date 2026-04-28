@@ -79,6 +79,54 @@ export const dialogueTranscriptBlockSchema = z
   })
   .strict();
 
+export const matchingPairsBlockSchema = z
+  .object({
+    type: z.literal('matching_pairs'),
+    prompt: z.string().trim().min(1).max(500).optional(),
+    leftItems: z
+      .array(
+        z
+          .object({
+            id: z.string().trim().min(1).max(80),
+            text: z.string().trim().min(1).max(280),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(8),
+    rightItems: z
+      .array(
+        z
+          .object({
+            id: z.string().trim().min(1).max(80),
+            text: z.string().trim().min(1).max(280),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(8),
+    correctPairs: z
+      .array(
+        z
+          .object({
+            leftId: z.string().trim().min(1).max(80),
+            rightId: z.string().trim().min(1).max(80),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(8),
+  })
+  .strict()
+  .refine((block) => block.leftItems.length === block.rightItems.length, {
+    message: 'leftItems and rightItems must have the same length.',
+    path: ['rightItems'],
+  })
+  .refine((block) => block.correctPairs.length === block.leftItems.length, {
+    message: 'correctPairs must match the number of leftItems.',
+    path: ['correctPairs'],
+  });
+
 export const translateToEnglishPromptBlockSchema = z
   .object({
     type: z.literal('translate_to_english_prompt'),
@@ -126,6 +174,7 @@ export const tutorResponseSchema = z
           messageBlockSchema,
           dialogueCharacterMessageBlockSchema,
           dialogueTranscriptBlockSchema,
+          matchingPairsBlockSchema,
           translateToEnglishPromptBlockSchema,
           understandInSpanishPromptBlockSchema,
           sentenceEvaluationBlockSchema,

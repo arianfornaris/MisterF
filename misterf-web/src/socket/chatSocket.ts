@@ -10,8 +10,10 @@ import {
   createConversation,
   deleteConversationForUser,
   findConversationForUser,
+  findMessageInConversation,
   listMessages,
   renameConversationForUser,
+  updateMessageMetadata,
   type StoredMessage,
 } from '../db/repository.js';
 import { pickInitialGreeting } from './initialGreetings.js';
@@ -24,6 +26,7 @@ import {
   type LlmRequestTokenUsage,
   type TranslationMode,
   type TutorMessage,
+  type TutorMatchingPairsBlock,
 } from '../services/llmTutor.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
@@ -49,6 +52,17 @@ type DeletePayload = {
 type TranslatePayload = {
   mode?: string;
   text?: string;
+};
+
+type MatchingExerciseCompletedPayload = {
+  blockIndex?: number;
+  conversationId?: string | null;
+  incorrectAttempts?: Array<{
+    leftId?: string;
+    rightId?: string;
+  }>;
+  messageId?: number;
+  totalAttempts?: number;
 };
 
 type AuthenticatedSocketData = {
@@ -314,6 +328,91 @@ export function registerChatSocket(io: Server): void {
         });
       }
     });
+
+    socket.on(
+      'exercise:matching_completed',
+      async (payload: MatchingExerciseCompletedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        const totalAttempts = normalizePositiveInteger(payload.totalAttempts) ?? 0;
+        if (!conversationId || !messageId || blockIndex === null) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        if (runningConversations.has(conversationId)) {
+          socket.emit('assistant:error', {
+            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isMatchingPairsBlock(block)) {
+          return;
+        }
+
+        const incorrectAttempts = normalizeIncorrectAttempts(
+          payload.incorrectAttempts,
+          block,
+        );
+        const nextResults = {
+          ...((message.metadata?.matchingExerciseResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            completedAt: new Date().toISOString(),
+            incorrectAttempts,
+            totalAttempts,
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          matchingExerciseResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+
+        await streamAssistantMessage(
+          io,
+          conversationId,
+          userId,
+          undefined,
+          false,
+          [
+            {
+              content: buildMatchingPairsCompletionContext({
+                block,
+                incorrectAttempts,
+                totalAttempts,
+              }),
+              role: 'user',
+            },
+          ],
+        );
+      },
+    );
   });
 }
 
@@ -402,6 +501,7 @@ async function streamAssistantMessage(
   userId: string,
   lastUserMessageId?: number,
   startConversation = false,
+  extraHistory: TutorMessage[] = [],
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -418,7 +518,7 @@ async function streamAssistantMessage(
 
     const messages = listMessages(conversationId);
     const result = await runTutorAgentLoop(
-      toTutorHistory(messages),
+      [...toTutorHistory(messages), ...extraHistory],
       {
         currentTitle: conversation.title,
         llm: await getLlmRequestOptionsForUser(userId),
@@ -472,6 +572,101 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
     content: message.content,
     role: message.role,
   }));
+}
+
+function normalizePositiveInteger(value: unknown): number | null {
+  return Number.isInteger(value) && Number(value) > 0 ? Number(value) : null;
+}
+
+function normalizeNonNegativeInteger(value: unknown): number | null {
+  return Number.isInteger(value) && Number(value) >= 0 ? Number(value) : null;
+}
+
+function isMatchingPairsBlock(value: unknown): value is TutorMatchingPairsBlock {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (value as Record<string, unknown>).type === 'matching_pairs' &&
+      Array.isArray((value as Record<string, unknown>).leftItems) &&
+      Array.isArray((value as Record<string, unknown>).rightItems) &&
+      Array.isArray((value as Record<string, unknown>).correctPairs),
+  );
+}
+
+function normalizeIncorrectAttempts(
+  attempts: MatchingExerciseCompletedPayload['incorrectAttempts'],
+  block: TutorMatchingPairsBlock,
+): Array<{ leftId: string; rightId: string }> {
+  const validLeftIds = new Set(block.leftItems.map((item) => item.id));
+  const validRightIds = new Set(block.rightItems.map((item) => item.id));
+  const unique = new Set<string>();
+  const normalized: Array<{ leftId: string; rightId: string }> = [];
+
+  for (const item of attempts ?? []) {
+    const leftId = item?.leftId?.trim();
+    const rightId = item?.rightId?.trim();
+    if (!leftId || !rightId) {
+      continue;
+    }
+
+    if (!validLeftIds.has(leftId) || !validRightIds.has(rightId)) {
+      continue;
+    }
+
+    const key = `${leftId}::${rightId}`;
+    if (unique.has(key)) {
+      continue;
+    }
+
+    unique.add(key);
+    normalized.push({ leftId, rightId });
+  }
+
+  return normalized;
+}
+
+function buildMatchingPairsCompletionContext(input: {
+  block: TutorMatchingPairsBlock;
+  incorrectAttempts: Array<{ leftId: string; rightId: string }>;
+  totalAttempts: number;
+}): string {
+  const leftLookup = new Map(
+    input.block.leftItems.map((item) => [item.id, item.text]),
+  );
+  const rightLookup = new Map(
+    input.block.rightItems.map((item) => [item.id, item.text]),
+  );
+
+  const correctPairs = input.block.correctPairs.map((pair) => ({
+    left: leftLookup.get(pair.leftId) ?? pair.leftId,
+    right: rightLookup.get(pair.rightId) ?? pair.rightId,
+  }));
+
+  const incorrectPairs =
+    input.incorrectAttempts.length > 0
+      ? input.incorrectAttempts
+          .map((pair) => ({
+            left: leftLookup.get(pair.leftId) ?? pair.leftId,
+            right: rightLookup.get(pair.rightId) ?? pair.rightId,
+          }))
+          .map((pair) => `- ${pair.left} -> ${pair.right}`)
+          .join('\n')
+      : '- none';
+
+  return [
+    'INTERNAL MATCHING EXERCISE COMPLETED.',
+    'The learner completed a matching_pairs exercise in the UI.',
+    'Use this as teacher-only context. Do not mention the existence of the internal report.',
+    input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
+    `Total attempts: ${Math.max(0, input.totalAttempts)}`,
+    'Correct pairs:',
+    ...correctPairs.map((pair) => `- ${pair.left} -> ${pair.right}`),
+    'Incorrect attempts before success:',
+    incorrectPairs,
+    'You may briefly reinforce the pairs that were difficult, then continue naturally.',
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function emitLlmRequestTokenUsage(

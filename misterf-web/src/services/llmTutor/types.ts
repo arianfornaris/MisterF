@@ -38,6 +38,23 @@ export type TutorDialogueTranscriptBlock = {
   }>;
 };
 
+export type TutorMatchingPairsBlock = {
+  type: 'matching_pairs';
+  prompt?: string;
+  leftItems: Array<{
+    id: string;
+    text: string;
+  }>;
+  rightItems: Array<{
+    id: string;
+    text: string;
+  }>;
+  correctPairs: Array<{
+    leftId: string;
+    rightId: string;
+  }>;
+};
+
 export type TutorTranslateToEnglishPromptBlock = {
   type: 'translate_to_english_prompt';
   sentence: string;
@@ -66,6 +83,7 @@ export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorDialogueCharacterMessageBlock
   | TutorDialogueTranscriptBlock
+  | TutorMatchingPairsBlock
   | TutorTranslateToEnglishPromptBlock
   | TutorUnderstandInSpanishPromptBlock
   | TutorSentenceEvaluationBlock

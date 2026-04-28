@@ -60,6 +60,24 @@ export function logLlmResponse(
   });
 }
 
+export function logLlmInvalidRawResponse(input: {
+  error: unknown;
+  rawText: string;
+  turn?: number;
+}): void {
+  logJson('[Mr. F LLM invalid raw response]', {
+    error:
+      input.error instanceof Error
+        ? {
+            message: input.error.message,
+            name: input.error.name,
+          }
+        : input.error,
+    rawText: input.rawText,
+    turn: input.turn,
+  });
+}
+
 function estimateTokenCount(system: string, messages: ModelMessage[]): number {
   const text = [
     system,

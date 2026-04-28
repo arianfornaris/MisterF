@@ -4,7 +4,12 @@ import {
 } from 'ai';
 import { env } from '../../config/env.js';
 import { LlmFinishReasonError } from './errors.js';
-import { buildLlmRequestTokenUsage, logLlmRequest, logLlmResponse } from './logging.js';
+import {
+  buildLlmRequestTokenUsage,
+  logLlmInvalidRawResponse,
+  logLlmRequest,
+  logLlmResponse,
+} from './logging.js';
 import { buildProgressSystemInstruction, buildTranslatorSystemInstruction, buildVocabularySystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { assertUsableProgressMarkdown, parseVocabularyJsonLines } from './parsers.js';
@@ -68,7 +73,17 @@ export async function runTutorAgentLoop(
         temperature: shouldUseTemperature() ? 0.45 : undefined,
       });
 
-      const parsedObject = parseJsonFromModelText(result.text);
+      let parsedObject: unknown;
+      try {
+        parsedObject = parseJsonFromModelText(result.text);
+      } catch (error) {
+        logLlmInvalidRawResponse({
+          error,
+          rawText: result.text,
+          turn: turn + 1,
+        });
+        throw error;
+      }
       logLlmResponse(
         parsedObject,
         result.finishReason,

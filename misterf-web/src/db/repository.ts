@@ -422,6 +422,23 @@ export function addMessage(
   return toStoredMessage(row);
 }
 
+export function findMessageInConversation(
+  messageId: number,
+  conversationId: string,
+): StoredMessage | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, conversation_id, role, content, metadata, created_at
+        FROM messages
+        WHERE id = ? AND conversation_id = ?
+      `,
+    )
+    .get(messageId, conversationId) as MessageRow | undefined;
+
+  return row ? toStoredMessage(row) : null;
+}
+
 export function updateMessageMetadata(
   messageId: number,
   conversationId: string,
