@@ -60,6 +60,8 @@ export const env = {
     '',
   openrouterManagementApiKey:
     process.env.OPENROUTER_MANAGEMENT_API_KEY ?? '',
+  openrouterReasoningEffort:
+    process.env.OPENROUTER_REASONING_EFFORT ?? 'medium',
   openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
   openrouterUserKeyLimitReset:
     process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',

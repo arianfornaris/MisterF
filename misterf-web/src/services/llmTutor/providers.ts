@@ -83,6 +83,24 @@ export function getProviderOptions(): ProviderOptions | undefined {
     };
   }
 
+  if (env.llmProvider === 'openrouter') {
+    return {
+      openrouter: {
+        reasoning: {
+          effort:
+            env.openrouterReasoningEffort as
+              | 'xhigh'
+              | 'high'
+              | 'medium'
+              | 'low'
+              | 'minimal'
+              | 'none',
+          exclude: true,
+        },
+      },
+    };
+  }
+
   return undefined;
 }
 

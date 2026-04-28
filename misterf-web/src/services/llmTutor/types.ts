@@ -15,6 +15,7 @@ export type LlmRequestTokenUsage = {
   model: string;
   percentUsed: number;
   provider: string;
+  reasoningTokens?: number;
   turn: number;
 };
 

@@ -46,6 +46,7 @@ export function logLlmRequest(
 export function logLlmResponse(
   object: unknown,
   finishReason: FinishReason,
+  usage?: LanguageModelUsage,
   providerMetadata?: ProviderMetadata,
   turn?: number,
 ): void {
@@ -53,7 +54,9 @@ export function logLlmResponse(
     finishReason,
     object,
     providerMetadata,
+    reasoningTokens: usage?.reasoningTokens,
     turn,
+    usage,
   });
 }
 
@@ -89,6 +92,7 @@ export function buildLlmRequestTokenUsage(input: {
       ((inputTokens / contextWindowTokens) * 100).toFixed(2),
     ),
     provider: env.llmProvider,
+    reasoningTokens: input.usage?.reasoningTokens,
     turn: input.turn,
   };
 }

@@ -72,6 +72,7 @@ export async function runTutorAgentLoop(
       logLlmResponse(
         parsedObject,
         result.finishReason,
+        result.usage,
         result.providerMetadata,
         turn + 1,
       );
