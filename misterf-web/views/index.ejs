@@ -48,31 +48,6 @@
                 <path d="M13 21l4.2-10h1.6L23 21M14.4 18h7.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </button>
-
-            <div class="user-menu dropdown">
-              <button
-                class="btn btn-link user-menu-button"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                title="Menu de usuario"
-                aria-label="Menu de usuario"
-              >
-                <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
-                  <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </button>
-
-              <div class="dropdown-menu dropdown-menu-end user-menu-panel">
-                <p class="user-menu-email"><%= user.email %></p>
-                <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
-                <form method="post" action="/logout">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button class="dropdown-item" type="submit">Cerrar sesión</button>
-                </form>
-              </div>
-            </div>
           </div>
 
           <aside
@@ -114,52 +89,84 @@
                 </a>
               </div>
 
-              <p class="panel-section-label">Recientes</p>
+              <div class="panel-recents">
+                <p class="panel-section-label">Recientes</p>
 
-              <% if (conversations.length > 0) { %>
-                <div class="conversation-list">
-                  <% conversations.forEach((conversation) => { %>
-                    <div
-                      class="conversation-item"
-                      data-conversation-id="<%= conversation.id %>"
-                    >
-                      <a
-                        class="conversation-open-button"
-                        href="/c/<%= encodeURIComponent(conversation.id) %>"
-                        data-open-conversation
+                <% if (conversations.length > 0) { %>
+                  <div class="conversation-list">
+                    <% conversations.forEach((conversation) => { %>
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="<%= conversation.id %>"
                       >
-                        <span class="conversation-title"><%= conversation.title %></span>
-                        <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
-                          <%= conversation.updatedAt %>
-                        </time>
-                      </a>
-
-                      <div class="conversation-actions dropdown">
-                        <button
-                          class="btn btn-link conversation-actions-button"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                          title="Opciones de conversación"
-                          aria-label="Opciones de conversación"
+                        <a
+                          class="conversation-open-button"
+                          href="/c/<%= encodeURIComponent(conversation.id) %>"
+                          data-open-conversation
                         >
-                          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <circle cx="5" cy="12" r="1.8"/>
-                            <circle cx="12" cy="12" r="1.8"/>
-                            <circle cx="19" cy="12" r="1.8"/>
-                          </svg>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
-                          <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
-                          <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          <span class="conversation-title"><%= conversation.title %></span>
+                          <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
+                            <%= conversation.updatedAt %>
+                          </time>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                              <circle cx="5" cy="12" r="1.8"/>
+                              <circle cx="12" cy="12" r="1.8"/>
+                              <circle cx="19" cy="12" r="1.8"/>
+                            </svg>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  <% }) %>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <p class="conversation-empty">Todavía no hay conversaciones.</p>
+                <% } %>
+              </div>
+
+              <div class="panel-bottom">
+                <p class="panel-section-label">Opciones</p>
+
+                <div class="user-menu dropdown">
+                  <button
+                    class="btn btn-link panel-nav-button user-panel-button"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="Perfil"
+                    aria-label="Perfil"
+                  >
+                    <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
+                      <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Perfil
+                  </button>
+
+                  <div class="dropdown-menu user-menu-panel">
+                    <p class="user-menu-email"><%= user.email %></p>
+                    <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
+                    <form method="post" action="/logout">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="dropdown-item" type="submit">Cerrar sesión</button>
+                    </form>
+                  </div>
                 </div>
-              <% } else { %>
-                <p class="conversation-empty">Todavía no hay conversaciones.</p>
-              <% } %>
+              </div>
             </div>
           </aside>
 
@@ -349,7 +356,7 @@
           class="activities-view <%= currentView === 'activities' ? '' : 'd-none' %>"
           aria-label="Actividades"
         >
-          <div class="activities-header <%= activityPageMode === 'detail' ? 'activities-header-detail' : '' %>">
+          <div class="activities-header <%= activityPageMode === 'detail' ? 'activities-header-detail' : '' %> <%= activityPageMode !== 'list' ? 'activities-header-has-close' : '' %>">
             <div>
               <p class="activities-kicker">Actividades</p>
               <h1 class="activities-title">

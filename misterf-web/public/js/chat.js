@@ -722,13 +722,14 @@ function upsertConversationItem(conversation) {
     return;
   }
 
+  const recentsContainer = conversationPanelEl.querySelector('.panel-recents');
   let list = conversationPanelEl.querySelector('.conversation-list');
   if (!list) {
     const emptyState = conversationPanelEl.querySelector('.conversation-empty');
     emptyState?.remove();
     list = document.createElement('div');
     list.className = 'conversation-list';
-    conversationPanelEl.querySelector('.offcanvas-body')?.append(list);
+    recentsContainer?.append(list);
   } else {
     conversationPanelEl.querySelector('.conversation-empty')?.remove();
   }
@@ -982,10 +983,11 @@ function removeConversationItem(removedConversationId) {
     ?.remove();
 
   if (!conversationPanelEl?.querySelector('[data-conversation-id]')) {
+    const recentsContainer = conversationPanelEl?.querySelector('.panel-recents');
     const emptyState = document.createElement('p');
     emptyState.className = 'conversation-empty';
     emptyState.textContent = 'Todavía no hay conversaciones.';
-    conversationPanelEl?.querySelector('.offcanvas-body')?.append(emptyState);
+    recentsContainer?.append(emptyState);
   }
 }
 
