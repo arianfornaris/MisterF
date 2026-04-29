@@ -209,6 +209,7 @@ export function registerChatSocket(io: Server): void {
       }
 
       const userMessage = addMessage(conversation.id, 'user', content);
+      emitConversationUpdated(io, conversation.id, userId);
       io.to(conversation.id).emit('message:created', userMessage);
 
       await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
@@ -840,6 +841,7 @@ async function streamAssistantMessage(
       trimmedContent,
       { blocks: result.blocks, model: result.model, provider: result.provider },
     );
+    emitConversationUpdated(io, conversationId, userId);
 
     applyTutorBlocksRuntime({
       blocks: result.blocks,
@@ -871,6 +873,22 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
     content: message.content,
     role: message.role,
   }));
+}
+
+function emitConversationUpdated(
+  io: Server,
+  conversationId: string,
+  userId: string,
+): void {
+  const conversation = findConversationForUser(conversationId, userId);
+  if (!conversation) {
+    return;
+  }
+
+  io.to(conversationId).emit('conversation:updated', {
+    conversation,
+    conversationId: conversation.id,
+  });
 }
 
 function normalizePositiveInteger(value: unknown): number | null {

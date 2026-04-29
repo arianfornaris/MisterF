@@ -138,6 +138,11 @@ if (socket) {
     markActiveConversation(conversationId);
   });
 
+  socket.on('conversation:updated', (payload) => {
+    updateConversationItem(payload.conversation, { moveToTop: true });
+    markActiveConversation(conversationId);
+  });
+
   socket.on('conversation:deleted', (payload) => {
     removeConversationItem(payload.conversationId);
 
@@ -765,17 +770,24 @@ function upsertConversationItem(conversation) {
     return;
   }
 
+  const previousUpdatedAt =
+    item.querySelector('.conversation-date')?.dateTime || '';
+  const nextUpdatedAt = conversation.updatedAt || '';
+
   item.querySelector('.conversation-title').textContent =
     conversation.title || 'Nueva conversación';
 
   const date = item.querySelector('.conversation-date');
-  date.dateTime = conversation.updatedAt || '';
-  date.textContent = formatConversationDate(conversation.updatedAt || '');
-  date.title = conversation.updatedAt || '';
-  list.prepend(item);
+  date.dateTime = nextUpdatedAt;
+  date.textContent = formatConversationDate(nextUpdatedAt);
+  date.title = nextUpdatedAt;
+
+  if (nextUpdatedAt && nextUpdatedAt !== previousUpdatedAt) {
+    list.prepend(item);
+  }
 }
 
-function updateConversationItem(conversation) {
+function updateConversationItem(conversation, options = {}) {
   if (!conversation?.id || !conversationPanelEl) {
     return;
   }
@@ -795,6 +807,10 @@ function updateConversationItem(conversation) {
   date.dateTime = conversation.updatedAt || '';
   date.textContent = formatConversationDate(conversation.updatedAt || '');
   date.title = conversation.updatedAt || '';
+
+  if (options.moveToTop) {
+    item.parentElement?.prepend(item);
+  }
 }
 
 function createConversationItem(conversation) {
