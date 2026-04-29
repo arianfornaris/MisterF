@@ -549,6 +549,12 @@ export function renderHome(request: Request, response: Response): void {
   const authMessage = getHomeAuthMessage(request, user);
   const conversations = user ? listConversationsForUser(user.id) : [];
   const activities = user ? listActivitiesForUser(user.id) : [];
+  const activitiesWithCounts = user
+    ? activities.map((activity) => ({
+        ...activity,
+        conversationCount: listConversationsForActivity(activity.id, user.id).length,
+      }))
+    : [];
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
   const requestedConversationId =
@@ -607,7 +613,7 @@ export function renderHome(request: Request, response: Response): void {
   }
 
   response.render('index', {
-    activities,
+    activities: activitiesWithCounts,
     activityConversations,
     activityPageMode,
     authMessage,

@@ -498,7 +498,12 @@
             <div class="activities-grid">
               <% activities.forEach((activity) => { %>
                 <a class="activity-card" href="/activities/<%= encodeURIComponent(activity.id) %>">
-                  <p class="activity-card-kicker">Actividad</p>
+                  <div class="activity-card-meta">
+                    <p class="activity-card-kicker">Actividad</p>
+                    <span class="activity-chat-count-badge">
+                      <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
+                    </span>
+                  </div>
                   <h2><%= activity.title %></h2>
                   <p><%= activity.description %></p>
                 </a>
