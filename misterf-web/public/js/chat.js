@@ -1,4 +1,3 @@
-const storageKey = 'misterf.conversationId';
 const guestDraftStorageKey = 'misterf.guestDraft';
 const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
@@ -29,6 +28,8 @@ const creditMessageEl = document.querySelector('[data-credit-message]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
+const initialConversationId =
+  document.body.dataset.initialConversationId?.trim() || '';
 const socket = isInitiallyAuthenticated
   ? io({ auth: { token: socketAuthToken } })
   : null;
@@ -40,7 +41,7 @@ const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 disableComposerTextAssist();
 initializeLlmContextMeter();
 
-let conversationId = localStorage.getItem(storageKey);
+let conversationId = initialConversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
 let pendingDeleteConversationId = null;
@@ -92,7 +93,7 @@ if (socket) {
   socket.on('conversation:ready', (payload) => {
     hasHandledInitialConversationReady = true;
     conversationId = payload.conversationId;
-    storeConversationId(conversationId);
+    syncConversationUrl(conversationId, { replace: true });
     upsertConversationItem(payload.conversation);
     markActiveConversation(conversationId);
     messagesEl.replaceChildren();
@@ -127,7 +128,7 @@ if (socket) {
 
   socket.on('conversation:promoted', (payload) => {
     conversationId = payload.conversationId;
-    storeConversationId(conversationId);
+    syncConversationUrl(conversationId);
     upsertConversationItem(payload.conversation);
     markActiveConversation(conversationId);
   });
@@ -142,7 +143,7 @@ if (socket) {
 
     if (payload.conversationId === conversationId || payload.wasActive) {
       conversationId = null;
-      storeConversationId(null);
+      syncConversationUrl(null);
       messagesEl.replaceChildren();
       streamingBubble = null;
     }
@@ -266,6 +267,24 @@ if (socket) {
     updateRenderedMessage(message);
   });
 }
+
+window.addEventListener('popstate', () => {
+  if (!socket || isAssistantBusy) {
+    return;
+  }
+
+  const nextConversationId = getConversationIdFromLocation();
+  if ((nextConversationId || null) === (conversationId || null)) {
+    return;
+  }
+
+  conversationId = nextConversationId || null;
+  markActiveConversation(conversationId || '');
+  setComposerEnabled(false);
+  socket.emit('conversation:join', {
+    conversationId: conversationId || null,
+  });
+});
 
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
@@ -564,13 +583,27 @@ function moveCaretToEnd(element) {
   element.setSelectionRange(end, end);
 }
 
-function storeConversationId(nextConversationId) {
-  if (nextConversationId) {
-    localStorage.setItem(storageKey, nextConversationId);
+function buildConversationPath(nextConversationId) {
+  return nextConversationId
+    ? `/c/${encodeURIComponent(nextConversationId)}`
+    : '/';
+}
+
+function syncConversationUrl(nextConversationId, options = {}) {
+  const targetPath = buildConversationPath(nextConversationId);
+  const currentPath = `${window.location.pathname}${window.location.search}`;
+
+  if (currentPath === targetPath) {
     return;
   }
 
-  localStorage.removeItem(storageKey);
+  const method = options.replace ? 'replaceState' : 'pushState';
+  window.history[method]({ conversationId: nextConversationId || null }, '', targetPath);
+}
+
+function getConversationIdFromLocation() {
+  const match = window.location.pathname.match(/^\/c\/([^/]+)$/);
+  return match?.[1] ? decodeURIComponent(match[1]) : '';
 }
 
 function isCurrentConversationPayload(payload) {
@@ -648,7 +681,7 @@ function startNewConversation() {
   }
 
   conversationId = null;
-  localStorage.removeItem(storageKey);
+  syncConversationUrl(null);
   markActiveConversation('');
   hideConversationPanel();
   setComposerEnabled(false);
@@ -661,7 +694,7 @@ function openConversation(nextConversationId) {
   }
 
   conversationId = nextConversationId;
-  localStorage.setItem(storageKey, conversationId);
+  syncConversationUrl(conversationId);
   markActiveConversation(conversationId);
   hideConversationPanel();
   setComposerEnabled(false);

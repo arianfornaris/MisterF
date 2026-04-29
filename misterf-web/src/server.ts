@@ -89,6 +89,7 @@ app.post('/logout', handleLogout);
 app.get('/superadmin', renderSuperadminUsers);
 app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
+app.get('/c/:conversationId', renderHome);
 app.get('/', renderHome);
 app.get('/session', (request, response) => {
   response.json({

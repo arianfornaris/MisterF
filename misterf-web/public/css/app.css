@@ -1210,6 +1210,11 @@ body {
   gap: 0.9rem;
 }
 
+.message-row.is-model.tutor-message-enter .message-bubble {
+  animation: tutor-message-bubble-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: left top;
+}
+
 .message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation) {
   animation: tutor-message-fade-in 420ms ease-out both;
 }
@@ -1242,7 +1247,20 @@ body {
   }
 }
 
+@keyframes tutor-message-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .message-row.is-model.tutor-message-enter .message-bubble,
   .message-row.is-model.tutor-message-enter .message-bubble > :not(.sentence-evaluation),
   .message-row.is-model.tutor-message-enter .sentence-evaluation {
     animation: none;

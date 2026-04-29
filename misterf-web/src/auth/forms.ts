@@ -33,7 +33,10 @@ import {
   hashActionToken,
   normalizeActionToken,
 } from './tokens.js';
-import { listConversationsForUser } from '../db/repository.js';
+import {
+  findConversationForUser,
+  listConversationsForUser,
+} from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
@@ -540,6 +543,22 @@ export function renderHome(request: Request, response: Response): void {
   const authMessage = getHomeAuthMessage(request, user);
   const conversations = user ? listConversationsForUser(user.id) : [];
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
+  const requestedConversationIdRaw = request.params.conversationId;
+  const requestedConversationId =
+    typeof requestedConversationIdRaw === 'string'
+      ? requestedConversationIdRaw.trim()
+      : '';
+  let initialConversationId = '';
+
+  if (requestedConversationId && user) {
+    const conversation = findConversationForUser(requestedConversationId, user.id);
+    if (!conversation) {
+      response.redirect('/');
+      return;
+    }
+
+    initialConversationId = conversation.id;
+  }
 
   response.render('index', {
     authMessage,
@@ -547,6 +566,7 @@ export function renderHome(request: Request, response: Response): void {
     csrfToken: response.locals.csrfToken,
     guestInitialGreeting,
     hasSession: Boolean(user),
+    initialConversationId,
     isAuthenticated: isVerified,
     socketAuthToken,
     title: 'Mister F',
