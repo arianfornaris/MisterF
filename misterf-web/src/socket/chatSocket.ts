@@ -29,6 +29,8 @@ import {
   type TranslationMode,
   type TutorMessage,
   type TutorMatchingPairsBlock,
+  type TutorMultipleChoiceBlock,
+  type TutorUnscrambleSentenceBlock,
 } from '../services/llmTutor.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
@@ -75,6 +77,25 @@ type FillInTheBlankCompletedPayload = {
   messageId?: number;
   totalAttempts?: number;
   values?: string[];
+};
+
+type MultipleChoiceCompletedPayload = {
+  blockIndex?: number;
+  conversationId?: string | null;
+  incorrectSelections?: string[][];
+  messageId?: number;
+  selectedOptions?: string[];
+  totalAttempts?: number;
+};
+
+type UnscrambleSentenceCompletedPayload = {
+  blockIndex?: number;
+  completedSentence?: string;
+  conversationId?: string | null;
+  incorrectSentences?: string[];
+  messageId?: number;
+  selectedTokens?: string[];
+  totalAttempts?: number;
 };
 
 type AuthenticatedSocketData = {
@@ -514,6 +535,183 @@ export function registerChatSocket(io: Server): void {
         );
       },
     );
+
+    socket.on(
+      'exercise:multiple_choice_completed',
+      async (payload: MultipleChoiceCompletedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        const totalAttempts = normalizePositiveInteger(payload.totalAttempts) ?? 0;
+        if (!conversationId || !messageId || blockIndex === null) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        if (runningConversations.has(conversationId)) {
+          socket.emit('assistant:error', {
+            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isMultipleChoiceBlock(block)) {
+          return;
+        }
+
+        const selectedOptions = normalizeStringArray(payload.selectedOptions, 240);
+        const incorrectSelections = normalizeIncorrectSelections(
+          payload.incorrectSelections,
+          block,
+        );
+        const nextResults = {
+          ...((message.metadata?.multipleChoiceResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            completedAt: new Date().toISOString(),
+            incorrectSelections,
+            selectedOptions,
+            totalAttempts,
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          multipleChoiceResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+
+        await streamAssistantMessage(
+          io,
+          conversationId,
+          userId,
+          undefined,
+          false,
+          [
+            {
+              content: buildMultipleChoiceCompletionContext({
+                block,
+                incorrectSelections,
+                selectedOptions,
+                totalAttempts,
+              }),
+              role: 'user',
+            },
+          ],
+        );
+      },
+    );
+
+    socket.on(
+      'exercise:unscramble_sentence_completed',
+      async (payload: UnscrambleSentenceCompletedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        const totalAttempts = normalizePositiveInteger(payload.totalAttempts) ?? 0;
+        const completedSentence = normalizeExerciseSentence(payload.completedSentence);
+        if (!conversationId || !messageId || blockIndex === null || !completedSentence) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        if (runningConversations.has(conversationId)) {
+          socket.emit('assistant:error', {
+            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isUnscrambleSentenceBlock(block)) {
+          return;
+        }
+
+        const incorrectSentences = normalizeIncorrectSentences(
+          payload.incorrectSentences,
+          completedSentence,
+        );
+        const nextResults = {
+          ...((message.metadata?.unscrambleSentenceResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            completedAt: new Date().toISOString(),
+            completedSentence,
+            incorrectSentences,
+            selectedTokens: normalizeStringArray(payload.selectedTokens, 120),
+            totalAttempts,
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          unscrambleSentenceResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+
+        await streamAssistantMessage(
+          io,
+          conversationId,
+          userId,
+          undefined,
+          false,
+          [
+            {
+              content: buildUnscrambleSentenceCompletionContext({
+                block,
+                completedSentence,
+                incorrectSentences,
+                totalAttempts,
+              }),
+              role: 'user',
+            },
+          ],
+        );
+      },
+    );
   });
 }
 
@@ -707,6 +905,27 @@ function isFillInTheBlankBlock(
   );
 }
 
+function isMultipleChoiceBlock(value: unknown): value is TutorMultipleChoiceBlock {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (value as Record<string, unknown>).type === 'multiple_choice' &&
+      Array.isArray((value as Record<string, unknown>).options),
+  );
+}
+
+function isUnscrambleSentenceBlock(
+  value: unknown,
+): value is TutorUnscrambleSentenceBlock {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (value as Record<string, unknown>).type === 'unscramble_sentence' &&
+      Array.isArray((value as Record<string, unknown>).tokens) &&
+      Array.isArray((value as Record<string, unknown>).answers),
+  );
+}
+
 function normalizeIncorrectAttempts(
   attempts: MatchingExerciseCompletedPayload['incorrectAttempts'],
   block: TutorMatchingPairsBlock,
@@ -815,6 +1034,54 @@ function normalizeExerciseValues(values: unknown): string[] {
   return normalized;
 }
 
+function normalizeStringArray(values: unknown, maxLength: number): string[] {
+  const unique = new Set<string>();
+  const normalized: string[] = [];
+
+  for (const value of Array.isArray(values) ? values : []) {
+    const nextValue =
+      typeof value === 'string'
+        ? value.replace(/\s+/g, ' ').trim().slice(0, maxLength)
+        : '';
+    if (!nextValue || unique.has(nextValue)) {
+      continue;
+    }
+
+    unique.add(nextValue);
+    normalized.push(nextValue);
+  }
+
+  return normalized;
+}
+
+function normalizeIncorrectSelections(
+  values: unknown,
+  block: TutorMultipleChoiceBlock,
+): string[][] {
+  const validOptions = new Set(block.options.map((option) => option.text.trim()));
+  const unique = new Set<string>();
+  const normalized: string[][] = [];
+
+  for (const selection of Array.isArray(values) ? values : []) {
+    const normalizedSelection = normalizeStringArray(selection, 240).filter((item) =>
+      validOptions.has(item),
+    );
+    if (normalizedSelection.length === 0) {
+      continue;
+    }
+
+    const key = normalizedSelection.slice().sort().join(' || ');
+    if (unique.has(key)) {
+      continue;
+    }
+
+    unique.add(key);
+    normalized.push(normalizedSelection);
+  }
+
+  return normalized;
+}
+
 function buildFillInTheBlankCompletionContext(input: {
   block: TutorFillInTheBlankInputBlock | TutorFillInTheBlankChoiceBlock;
   completedSentence: string;
@@ -827,6 +1094,60 @@ function buildFillInTheBlankCompletionContext(input: {
     'Use this as teacher-only context. Do not mention the existence of the internal report.',
     input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
     `Sentence with blank: ${input.block.sentence}`,
+    `Completed sentence: ${input.completedSentence}`,
+    `Total attempts: ${Math.max(0, input.totalAttempts)}`,
+    'Incorrect full sentences before success:',
+    ...(input.incorrectSentences.length > 0
+      ? input.incorrectSentences.map((sentence) => `- ${sentence}`)
+      : ['- none']),
+    'You may briefly reinforce what was difficult, then continue naturally.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+function buildMultipleChoiceCompletionContext(input: {
+  block: TutorMultipleChoiceBlock;
+  incorrectSelections: string[][];
+  selectedOptions: string[];
+  totalAttempts: number;
+}): string {
+  const correctOptions = input.block.options
+    .filter((option) => option.isCorrect)
+    .map((option) => option.text);
+
+  return [
+    'INTERNAL MULTIPLE CHOICE EXERCISE COMPLETED.',
+    'The learner completed a multiple_choice exercise in the UI.',
+    'Use this as teacher-only context. Do not mention the existence of the internal report.',
+    input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
+    `Question: ${input.block.question}`,
+    `Selected correct options: ${input.selectedOptions.join(' | ')}`,
+    `Total attempts: ${Math.max(0, input.totalAttempts)}`,
+    'Correct options:',
+    ...correctOptions.map((option) => `- ${option}`),
+    'Incorrect selections before success:',
+    ...(input.incorrectSelections.length > 0
+      ? input.incorrectSelections.map((selection) => `- ${selection.join(' | ')}`)
+      : ['- none']),
+    'You may briefly reinforce what was difficult, then continue naturally.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+function buildUnscrambleSentenceCompletionContext(input: {
+  block: TutorUnscrambleSentenceBlock;
+  completedSentence: string;
+  incorrectSentences: string[];
+  totalAttempts: number;
+}): string {
+  return [
+    'INTERNAL UNSCRAMBLE SENTENCE EXERCISE COMPLETED.',
+    'The learner completed an unscramble_sentence exercise in the UI.',
+    'Use this as teacher-only context. Do not mention the existence of the internal report.',
+    input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
+    `Tokens: ${input.block.tokens.join(' | ')}`,
     `Completed sentence: ${input.completedSentence}`,
     `Total attempts: ${Math.max(0, input.totalAttempts)}`,
     'Incorrect full sentences before success:',

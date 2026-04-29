@@ -1187,6 +1187,32 @@ function setModelBubbleContent(element, content, metadata, options = {}) {
       return;
     }
 
+    if (block.type === 'multiple_choice') {
+      const card = createMultipleChoiceCard(block, {
+        blockIndex,
+        messageId: options.messageId,
+        result: getExerciseResultForBlock(metadata, 'multipleChoiceResults', blockIndex),
+      });
+      if (card) {
+        stack.append(card);
+        hasVisualContent = true;
+      }
+      return;
+    }
+
+    if (block.type === 'unscramble_sentence') {
+      const card = createUnscrambleSentenceCard(block, {
+        blockIndex,
+        messageId: options.messageId,
+        result: getExerciseResultForBlock(metadata, 'unscrambleSentenceResults', blockIndex),
+      });
+      if (card) {
+        stack.append(card);
+        hasVisualContent = true;
+      }
+      return;
+    }
+
     if (
       block.type === 'translate_to_english_prompt' ||
       block.type === 'understand_in_spanish_prompt'
@@ -1518,16 +1544,15 @@ function renderMarkdown(content) {
 }
 
 function getMatchingResultForBlock(metadata, blockIndex) {
-  const results = metadata?.matchingExerciseResults;
-  if (!results || typeof results !== 'object') {
-    return null;
-  }
-
-  return results[String(blockIndex)] ?? null;
+  return getExerciseResultForBlock(metadata, 'matchingExerciseResults', blockIndex);
 }
 
 function getFillInTheBlankResultForBlock(metadata, blockIndex) {
-  const results = metadata?.fillInTheBlankResults;
+  return getExerciseResultForBlock(metadata, 'fillInTheBlankResults', blockIndex);
+}
+
+function getExerciseResultForBlock(metadata, key, blockIndex) {
+  const results = metadata?.[key];
   if (!results || typeof results !== 'object') {
     return null;
   }
@@ -2211,6 +2236,487 @@ function findMatchingIdByText(state, text, side) {
   }
 
   return '';
+}
+
+function createMultipleChoiceCard(block, context) {
+  if (
+    !Array.isArray(block.options) ||
+    typeof block.question !== 'string' ||
+    (block.selectionMode !== 'single' && block.selectionMode !== 'multiple')
+  ) {
+    return null;
+  }
+
+  const options = block.options
+    .filter(
+      (option) =>
+        option &&
+        typeof option.text === 'string' &&
+        typeof option.isCorrect === 'boolean',
+    )
+    .map((option) => ({
+      isCorrect: option.isCorrect,
+      text: option.text.trim(),
+    }))
+    .filter((option) => option.text);
+  if (options.length < 2 || !options.some((option) => option.isCorrect)) {
+    return null;
+  }
+
+  const blockIndex = Number(context.blockIndex) || 0;
+  const messageId = Number(context.messageId) || 0;
+  const exerciseKey = `${messageId}:${blockIndex}`;
+  const section = document.createElement('section');
+  section.className = 'multiple-choice-card';
+  section.dataset.exerciseKey = exerciseKey;
+
+  const label = document.createElement('p');
+  label.className = 'multiple-choice-label';
+  label.textContent = 'Selecciona la respuesta';
+
+  const prompt = document.createElement('div');
+  prompt.className = 'multiple-choice-prompt';
+  prompt.innerHTML = renderMarkdown(block.prompt || '');
+
+  const question = document.createElement('div');
+  question.className = 'multiple-choice-question';
+  question.innerHTML = renderMarkdown(block.question || '');
+
+  const optionsWrap = document.createElement('div');
+  optionsWrap.className = 'multiple-choice-options';
+
+  const state = {
+    completed: Boolean(context.result?.completedAt),
+    correctOptions: new Set(
+      options.filter((option) => option.isCorrect).map((option) => option.text),
+    ),
+    incorrectSelections: Array.isArray(context.result?.incorrectSelections)
+      ? context.result.incorrectSelections
+      : [],
+    messageId,
+    selectedOptions: new Set(
+      Array.isArray(context.result?.selectedOptions) ? context.result.selectedOptions : [],
+    ),
+    selectionMode: block.selectionMode,
+    blockIndex,
+    reported: Boolean(context.result?.completedAt),
+    statusText: '',
+    statusTone: '',
+    totalAttempts: Number(context.result?.totalAttempts) || 0,
+  };
+
+  seededShuffle(options, `${exerciseKey}:multiple-choice`).forEach((option) => {
+    const button = document.createElement('button');
+    button.className = 'multiple-choice-option';
+    button.type = 'button';
+    button.dataset.optionText = option.text;
+    button.textContent = option.text;
+    optionsWrap.append(button);
+  });
+
+  optionsWrap.addEventListener('click', (event) => {
+    const button = event.target.closest('.multiple-choice-option');
+    if (!(button instanceof HTMLButtonElement) || state.completed) {
+      return;
+    }
+
+    const optionText = button.dataset.optionText || '';
+    if (!optionText) {
+      return;
+    }
+
+    if (state.selectionMode === 'single') {
+      if (state.selectedOptions.has(optionText)) {
+        state.selectedOptions.clear();
+      } else {
+        state.selectedOptions.clear();
+        state.selectedOptions.add(optionText);
+      }
+    } else if (state.selectedOptions.has(optionText)) {
+      state.selectedOptions.delete(optionText);
+    } else {
+      state.selectedOptions.add(optionText);
+    }
+    renderMultipleChoiceState(section, state);
+  });
+
+  const confirmButton = createExerciseConfirmButton(() => {
+    handleMultipleChoiceSubmit(section, state);
+  });
+
+  const controls = document.createElement('div');
+  controls.className = 'exercise-controls';
+  controls.append(confirmButton);
+
+  const status = document.createElement('p');
+  status.className = 'exercise-status';
+
+  section.append(label);
+  if (block.prompt) {
+    section.append(prompt);
+  }
+  section.append(question, optionsWrap, controls, status);
+  renderMultipleChoiceState(section, state);
+  return section;
+}
+
+function renderMultipleChoiceState(section, state) {
+  for (const button of section.querySelectorAll('.multiple-choice-option')) {
+    if (!(button instanceof HTMLButtonElement)) {
+      continue;
+    }
+
+    const optionText = button.dataset.optionText || '';
+    const isSelected = state.selectedOptions.has(optionText);
+    button.classList.toggle('is-selected', isSelected);
+    button.disabled = state.completed;
+  }
+
+  const confirmButton = section.querySelector('.exercise-confirm-button');
+  if (confirmButton instanceof HTMLButtonElement) {
+    confirmButton.disabled = state.completed || state.selectedOptions.size === 0;
+    confirmButton.classList.toggle('is-success', state.completed);
+  }
+
+  const status = section.querySelector('.exercise-status');
+  if (!(status instanceof HTMLParagraphElement)) {
+    return;
+  }
+
+  status.classList.remove('is-error', 'is-success');
+  if (state.completed) {
+    status.textContent = 'Completado. Buen trabajo.';
+    status.classList.add('is-success');
+    return;
+  }
+
+  status.textContent =
+    state.statusText ||
+    (state.selectionMode === 'single'
+      ? 'Marca solo una opción y confirma cuando estés seguro.'
+      : 'Selecciona una o varias opciones y confirma cuando estés seguro.');
+  if (state.statusTone === 'error') {
+    status.classList.add('is-error');
+  }
+}
+
+function handleMultipleChoiceSubmit(section, state) {
+  if (state.completed || state.selectedOptions.size === 0) {
+    return;
+  }
+
+  state.totalAttempts += 1;
+  const selected = Array.from(state.selectedOptions).sort();
+  const correct = Array.from(state.correctOptions).sort();
+  if (arraysEqual(selected, correct)) {
+    state.completed = true;
+    state.statusText = '';
+    state.statusTone = '';
+    renderMultipleChoiceState(section, state);
+    reportMultipleChoiceCompleted(state);
+    return;
+  }
+
+  const key = selected.join(' || ');
+  if (
+    !state.incorrectSelections.some(
+      (selection) => Array.isArray(selection) && selection.slice().sort().join(' || ') === key,
+    )
+  ) {
+    state.incorrectSelections.push(selected);
+  }
+  state.statusText = 'Todavía no. Revísalo y vuelve a intentarlo.';
+  state.statusTone = 'error';
+  flashExerciseError(section);
+  renderMultipleChoiceState(section, state);
+}
+
+function reportMultipleChoiceCompleted(state) {
+  if (!socket || state.reported || !conversationId || !state.messageId) {
+    return;
+  }
+
+  state.reported = true;
+  socket.emit('exercise:multiple_choice_completed', {
+    blockIndex: state.blockIndex,
+    conversationId,
+    incorrectSelections: state.incorrectSelections,
+    messageId: state.messageId,
+    selectedOptions: Array.from(state.selectedOptions),
+    totalAttempts: state.totalAttempts,
+  });
+}
+
+function createUnscrambleSentenceCard(block, context) {
+  if (!Array.isArray(block.tokens) || !Array.isArray(block.answers)) {
+    return null;
+  }
+
+  const tokens = block.tokens
+    .filter((token) => typeof token === 'string')
+    .map((token) => token.trim())
+    .filter(Boolean);
+  const answers = block.answers
+    .filter((answer) => typeof answer === 'string')
+    .map((answer) => answer.trim())
+    .filter(Boolean);
+  if (tokens.length < 2 || answers.length === 0) {
+    return null;
+  }
+
+  const blockIndex = Number(context.blockIndex) || 0;
+  const messageId = Number(context.messageId) || 0;
+  const exerciseKey = `${messageId}:${blockIndex}`;
+  const section = document.createElement('section');
+  section.className = 'unscramble-sentence-card';
+  section.dataset.exerciseKey = exerciseKey;
+
+  const label = document.createElement('p');
+  label.className = 'unscramble-sentence-label';
+  label.textContent = 'Ordena la oración';
+
+  const prompt = document.createElement('div');
+  prompt.className = 'unscramble-sentence-prompt';
+  prompt.innerHTML = renderMarkdown(block.prompt || '');
+
+  const assembled = document.createElement('div');
+  assembled.className = 'unscramble-sentence-assembled';
+
+  const bank = document.createElement('div');
+  bank.className = 'unscramble-sentence-bank';
+
+  const state = {
+    answersNormalized: new Set(answers.map(normalizeExerciseAnswer)),
+    availableTokens: seededShuffle(tokens, `${exerciseKey}:unscramble`),
+    blockIndex,
+    completed: Boolean(context.result?.completedAt),
+    completedSentence:
+      typeof context.result?.completedSentence === 'string'
+        ? context.result.completedSentence
+        : '',
+    incorrectSentences: Array.isArray(context.result?.incorrectSentences)
+      ? context.result.incorrectSentences
+      : [],
+    messageId,
+    reported: Boolean(context.result?.completedAt),
+    selectedTokens: Array.isArray(context.result?.selectedTokens)
+      ? context.result.selectedTokens
+      : [],
+    statusText: '',
+    statusTone: '',
+    totalAttempts: Number(context.result?.totalAttempts) || 0,
+  };
+
+  if (state.completed && state.selectedTokens.length === 0) {
+    state.selectedTokens = tokenizeSentence(state.completedSentence);
+    state.availableTokens = [];
+  } else if (state.selectedTokens.length > 0) {
+    const remaining = [...tokens];
+    for (const selected of state.selectedTokens) {
+      const index = remaining.indexOf(selected);
+      if (index >= 0) {
+        remaining.splice(index, 1);
+      }
+    }
+    state.availableTokens = seededShuffle(remaining, `${exerciseKey}:unscramble:remaining`);
+  }
+
+  assembled.addEventListener('click', (event) => {
+    const button = event.target.closest('.unscramble-token');
+    if (!(button instanceof HTMLButtonElement) || state.completed) {
+      return;
+    }
+
+    const token = button.dataset.token || '';
+    const tokenIndex = Number(button.dataset.tokenIndex);
+    if (!token || !Number.isInteger(tokenIndex)) {
+      return;
+    }
+
+    state.selectedTokens.splice(tokenIndex, 1);
+    state.availableTokens.push(token);
+    renderUnscrambleSentenceState(section, state);
+  });
+
+  bank.addEventListener('click', (event) => {
+    const button = event.target.closest('.unscramble-token');
+    if (!(button instanceof HTMLButtonElement) || state.completed) {
+      return;
+    }
+
+    const token = button.dataset.token || '';
+    const tokenIndex = Number(button.dataset.tokenIndex);
+    if (!token || !Number.isInteger(tokenIndex)) {
+      return;
+    }
+
+    state.availableTokens.splice(tokenIndex, 1);
+    state.selectedTokens.push(token);
+    renderUnscrambleSentenceState(section, state);
+  });
+
+  const confirmButton = createExerciseConfirmButton(() => {
+    handleUnscrambleSentenceSubmit(section, state);
+  });
+
+  const controls = document.createElement('div');
+  controls.className = 'exercise-controls';
+  controls.append(confirmButton);
+
+  const status = document.createElement('p');
+  status.className = 'exercise-status';
+
+  section.append(label);
+  if (block.prompt) {
+    section.append(prompt);
+  }
+  section.append(assembled, bank, controls, status);
+  renderUnscrambleSentenceState(section, state);
+  return section;
+}
+
+function renderUnscrambleSentenceState(section, state) {
+  const assembled = section.querySelector('.unscramble-sentence-assembled');
+  const bank = section.querySelector('.unscramble-sentence-bank');
+  if (!(assembled instanceof HTMLDivElement) || !(bank instanceof HTMLDivElement)) {
+    return;
+  }
+
+  assembled.replaceChildren();
+  bank.replaceChildren();
+
+  if (state.selectedTokens.length === 0) {
+    const empty = document.createElement('span');
+    empty.className = 'unscramble-placeholder';
+    empty.textContent = 'Arma la oración aquí';
+    assembled.append(empty);
+  } else {
+    state.selectedTokens.forEach((token, index) => {
+      assembled.append(createUnscrambleTokenButton(token, index, true, state.completed));
+    });
+  }
+
+  state.availableTokens.forEach((token, index) => {
+    bank.append(createUnscrambleTokenButton(token, index, false, state.completed));
+  });
+
+  const confirmButton = section.querySelector('.exercise-confirm-button');
+  if (confirmButton instanceof HTMLButtonElement) {
+    confirmButton.disabled = state.completed || state.selectedTokens.length === 0;
+    confirmButton.classList.toggle('is-success', state.completed);
+  }
+
+  const status = section.querySelector('.exercise-status');
+  if (!(status instanceof HTMLParagraphElement)) {
+    return;
+  }
+
+  status.classList.remove('is-error', 'is-success');
+  if (state.completed) {
+    status.textContent = 'Completado. Buen trabajo.';
+    status.classList.add('is-success');
+    return;
+  }
+
+  status.textContent = state.statusText || 'Organiza las piezas y confirma cuando estés seguro.';
+  if (state.statusTone === 'error') {
+    status.classList.add('is-error');
+  }
+}
+
+function createUnscrambleTokenButton(token, index, isSelected, disabled) {
+  const button = document.createElement('button');
+  button.className = `unscramble-token${isSelected ? ' is-selected' : ''}`;
+  button.type = 'button';
+  button.dataset.token = token;
+  button.dataset.tokenIndex = String(index);
+  button.textContent = token;
+  button.disabled = disabled;
+  return button;
+}
+
+function handleUnscrambleSentenceSubmit(section, state) {
+  if (state.completed || state.selectedTokens.length === 0) {
+    return;
+  }
+
+  state.totalAttempts += 1;
+  const completedSentence = state.selectedTokens.join(' ').replace(/\s+/g, ' ').trim();
+  if (state.answersNormalized.has(normalizeExerciseAnswer(completedSentence))) {
+    state.completed = true;
+    state.completedSentence = completedSentence;
+    state.statusText = '';
+    state.statusTone = '';
+    renderUnscrambleSentenceState(section, state);
+    reportUnscrambleSentenceCompleted(state);
+    return;
+  }
+
+  if (!state.incorrectSentences.includes(completedSentence)) {
+    state.incorrectSentences.push(completedSentence);
+  }
+  state.statusText = 'Todavía no. Reordénala y vuelve a intentarlo.';
+  state.statusTone = 'error';
+  flashExerciseError(section);
+  renderUnscrambleSentenceState(section, state);
+}
+
+function reportUnscrambleSentenceCompleted(state) {
+  if (
+    !socket ||
+    state.reported ||
+    !conversationId ||
+    !state.messageId ||
+    !state.completedSentence
+  ) {
+    return;
+  }
+
+  state.reported = true;
+  socket.emit('exercise:unscramble_sentence_completed', {
+    blockIndex: state.blockIndex,
+    completedSentence: state.completedSentence,
+    conversationId,
+    incorrectSentences: state.incorrectSentences,
+    messageId: state.messageId,
+    selectedTokens: state.selectedTokens,
+    totalAttempts: state.totalAttempts,
+  });
+}
+
+function createExerciseConfirmButton(onClick) {
+  const confirmButton = document.createElement('button');
+  confirmButton.className = 'exercise-confirm-button';
+  confirmButton.type = 'button';
+  confirmButton.setAttribute('aria-label', 'Confirmar respuesta');
+  confirmButton.innerHTML = `
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `;
+  confirmButton.addEventListener('click', onClick);
+  return confirmButton;
+}
+
+function flashExerciseError(section) {
+  section.classList.add('is-error');
+  window.setTimeout(() => {
+    section.classList.remove('is-error');
+  }, 620);
+}
+
+function arraysEqual(left, right) {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((item, index) => item === right[index]);
+}
+
+function tokenizeSentence(sentence) {
+  return typeof sentence === 'string'
+    ? sentence.split(/\s+/).map((part) => part.trim()).filter(Boolean)
+    : [];
 }
 
 function escapeHtml(value) {

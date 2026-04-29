@@ -44,6 +44,8 @@ export function applyTutorBlocksRuntime(input: {
       case 'understand_in_spanish_prompt':
       case 'fill_in_the_blank_input':
       case 'fill_in_the_blank_choice':
+      case 'multiple_choice':
+      case 'unscramble_sentence':
         break;
     }
   }

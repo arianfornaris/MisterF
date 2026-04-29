@@ -4,11 +4,13 @@ import type {
   TutorFillInTheBlankChoiceBlock,
   TutorFillInTheBlankInputBlock,
   TutorMatchingPairsBlock,
+  TutorMultipleChoiceBlock,
   TutorUnderstandInSpanishPromptBlock,
   TutorMessage,
   TutorMessageBlock,
   TutorResponseBlock,
   TutorTranslateToEnglishPromptBlock,
+  TutorUnscrambleSentenceBlock,
 } from './types.js';
 import { tutorResponseSchema } from './schemas.js';
 
@@ -47,7 +49,9 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorTranslateToEnglishPromptBlock
         | TutorUnderstandInSpanishPromptBlock
         | TutorFillInTheBlankInputBlock
-        | TutorFillInTheBlankChoiceBlock =>
+        | TutorFillInTheBlankChoiceBlock
+        | TutorMultipleChoiceBlock
+        | TutorUnscrambleSentenceBlock =>
         block.type === 'message' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
@@ -55,7 +59,9 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt' ||
         block.type === 'fill_in_the_blank_input' ||
-        block.type === 'fill_in_the_blank_choice',
+        block.type === 'fill_in_the_blank_choice' ||
+        block.type === 'multiple_choice' ||
+        block.type === 'unscramble_sentence',
     )
     .map((block) => {
       if (block.type === 'dialogue_character_message') {
@@ -81,6 +87,14 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
             ? block.sentence.trim().replaceAll('{{blank}}', '_____')
             : block.sentence.trim().replaceAll('___', '_____');
         return block.prompt?.trim() || sentencePreview;
+      }
+
+      if (block.type === 'multiple_choice') {
+        return block.prompt?.trim() || block.question.trim();
+      }
+
+      if (block.type === 'unscramble_sentence') {
+        return block.prompt?.trim() || block.tokens.join(' ').trim();
       }
 
       if (block.type === 'translate_to_english_prompt') {

@@ -76,6 +76,24 @@ export type TutorFillInTheBlankChoiceBlock = {
   }>;
 };
 
+export type TutorMultipleChoiceBlock = {
+  type: 'multiple_choice';
+  prompt?: string;
+  question: string;
+  selectionMode: 'single' | 'multiple';
+  options: Array<{
+    isCorrect: boolean;
+    text: string;
+  }>;
+};
+
+export type TutorUnscrambleSentenceBlock = {
+  type: 'unscramble_sentence';
+  prompt?: string;
+  tokens: string[];
+  answers: string[];
+};
+
 export type TutorSentenceEvaluationBlock = {
   type: 'sentence_evaluation';
   parts: Array<{
@@ -99,6 +117,8 @@ export type TutorResponseBlock =
   | TutorUnderstandInSpanishPromptBlock
   | TutorFillInTheBlankInputBlock
   | TutorFillInTheBlankChoiceBlock
+  | TutorMultipleChoiceBlock
+  | TutorUnscrambleSentenceBlock
   | TutorSentenceEvaluationBlock
   | TutorConversationTitleBlock;
 

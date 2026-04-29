@@ -943,6 +943,165 @@ body {
   color: #166534;
 }
 
+.multiple-choice-card,
+.unscramble-sentence-card {
+  margin: 0;
+  padding: 15px 16px 16px;
+  border: 1px solid rgb(31 111 139 / 16%);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(248 250 252 / 98%)),
+    #fff;
+  box-shadow: 0 10px 28px rgb(31 111 139 / 8%);
+}
+
+.multiple-choice-card {
+  border-left: 4px solid #2f6fed;
+}
+
+.unscramble-sentence-card {
+  border-left: 4px solid #0f766e;
+}
+
+.multiple-choice-card.is-error,
+.unscramble-sentence-card.is-error {
+  border-color: rgb(185 28 28 / 35%);
+  box-shadow: 0 12px 24px rgb(185 28 28 / 8%);
+}
+
+.multiple-choice-label,
+.unscramble-sentence-label {
+  margin: 0 0 0.45rem;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.multiple-choice-label {
+  color: #1d4ed8;
+}
+
+.unscramble-sentence-label {
+  color: #0f766e;
+}
+
+.multiple-choice-prompt,
+.unscramble-sentence-prompt,
+.multiple-choice-question {
+  color: var(--ink);
+}
+
+.multiple-choice-prompt,
+.unscramble-sentence-prompt {
+  margin-bottom: 0.85rem;
+}
+
+.multiple-choice-question {
+  margin-bottom: 0.95rem;
+  font-weight: 700;
+}
+
+.multiple-choice-options {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.multiple-choice-option,
+.unscramble-token {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.72rem 0.88rem;
+  border: 1px solid rgb(31 111 139 / 13%);
+  border-radius: 10px;
+  background: #fff;
+  color: #17212b;
+  font: inherit;
+  line-height: 1.4;
+  box-shadow: 0 6px 14px rgb(31 111 139 / 4%);
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.multiple-choice-option {
+  width: 100%;
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.multiple-choice-option:hover,
+.multiple-choice-option:focus,
+.unscramble-token:hover,
+.unscramble-token:focus {
+  outline: 0;
+  transform: translateY(-1px);
+  border-color: rgb(31 111 139 / 28%);
+  box-shadow: 0 10px 20px rgb(31 111 139 / 8%);
+}
+
+.multiple-choice-option.is-selected,
+.unscramble-token.is-selected {
+  border-color: #1f6f8b;
+  background: rgb(31 111 139 / 7%);
+  box-shadow: 0 10px 20px rgb(31 111 139 / 10%);
+}
+
+.unscramble-sentence-assembled,
+.unscramble-sentence-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  min-height: 52px;
+  padding: 0.8rem;
+  border: 1px dashed rgb(31 111 139 / 20%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 92%);
+}
+
+.unscramble-sentence-assembled {
+  margin-bottom: 0.7rem;
+}
+
+.unscramble-sentence-bank {
+  margin-bottom: 0.95rem;
+}
+
+.unscramble-placeholder {
+  color: #6b7280;
+  font-style: italic;
+}
+
+.exercise-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.85rem;
+}
+
+.exercise-status {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.exercise-status.is-error {
+  color: #991b1b;
+}
+
+.exercise-status.is-success {
+  color: #166534;
+}
+
 @keyframes matching-pairs-shake {
   0%,
   100% {

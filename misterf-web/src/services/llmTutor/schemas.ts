@@ -142,6 +142,50 @@ export const fillInTheBlankChoiceBlockSchema = z
     path: ['sentence'],
   });
 
+export const multipleChoiceBlockSchema = z
+  .object({
+    type: z.literal('multiple_choice'),
+    prompt: z.string().trim().min(1).max(500).optional(),
+    question: z.string().trim().min(1).max(800),
+    selectionMode: z.enum(['single', 'multiple']),
+    options: z
+      .array(
+        z
+          .object({
+            isCorrect: z.boolean(),
+            text: z.string().trim().min(1).max(240),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(8),
+  })
+  .strict()
+  .refine((block) => block.options.some((option) => option.isCorrect), {
+    message: 'multiple_choice must include at least one correct option.',
+    path: ['options'],
+  })
+  .refine((block) => {
+    if (block.selectionMode === 'multiple') {
+      return true;
+    }
+
+    return block.options.filter((option) => option.isCorrect).length === 1;
+  }, {
+    message:
+      'multiple_choice with selectionMode "single" must include exactly one correct option.',
+    path: ['selectionMode'],
+  });
+
+export const unscrambleSentenceBlockSchema = z
+  .object({
+    type: z.literal('unscramble_sentence'),
+    prompt: z.string().trim().min(1).max(500).optional(),
+    tokens: z.array(z.string().trim().min(1).max(80)).min(2).max(20),
+    answers: z.array(z.string().trim().min(1).max(800)).min(1).max(6),
+  })
+  .strict();
+
 export const translateToEnglishPromptBlockSchema = z
   .object({
     type: z.literal('translate_to_english_prompt'),
@@ -202,6 +246,8 @@ export const tutorResponseSchema = z
           understandInSpanishPromptBlockSchema,
           fillInTheBlankInputBlockSchema,
           fillInTheBlankChoiceBlockSchema,
+          multipleChoiceBlockSchema,
+          unscrambleSentenceBlockSchema,
           sentenceEvaluationBlockSchema,
           conversationTitleBlockSchema,
         ]),
