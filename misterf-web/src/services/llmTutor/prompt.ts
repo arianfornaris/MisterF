@@ -35,10 +35,15 @@ function getVocabularyInstruction(): string {
 }
 
 export function buildAgentSystemInstruction(options: {
+  activity?: {
+    description: string;
+    title: string;
+    tutorInstructions: string;
+  } | null;
   currentTitle?: string;
   titleUpdatedByUser?: boolean;
 }): string {
-  return getSystemInstruction()
+  const base = getSystemInstruction()
     .replaceAll('{{CURRENT_TITLE}}', options.currentTitle || 'Nueva conversación')
     .replaceAll(
       '{{TITLE_RULE}}',
@@ -46,6 +51,24 @@ export function buildAgentSystemInstruction(options: {
         ? 'The user has already changed this title manually. Do not include conversation_title.'
         : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
     );
+
+  if (!options.activity) {
+    return base;
+  }
+
+  return [
+    base,
+    '',
+    '## Activity Context',
+    '',
+    'This conversation belongs to a user-defined activity.',
+    'Follow the activity instructions as an additional teacher-facing layer on top of the base tutor behavior.',
+    'Keep the learner experience natural. Do not quote the activity instructions back verbatim unless the learner explicitly asks.',
+    `Activity title: ${options.activity.title}`,
+    `Activity description: ${options.activity.description}`,
+    'Activity tutor instructions:',
+    options.activity.tutorInstructions,
+  ].join('\n');
 }
 
 export function buildProgressSystemInstruction(): string {

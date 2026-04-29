@@ -34,8 +34,14 @@ import {
   normalizeActionToken,
 } from './tokens.js';
 import {
+  createActivity,
+  createConversationFromActivity,
+  findActivityForUser,
   findConversationForUser,
+  listActivitiesForUser,
+  listConversationsForActivity,
   listConversationsForUser,
+  updateActivity,
 } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 
@@ -542,13 +548,32 @@ export function renderHome(request: Request, response: Response): void {
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
   const conversations = user ? listConversationsForUser(user.id) : [];
+  const activities = user ? listActivitiesForUser(user.id) : [];
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
   const requestedConversationId =
     typeof requestedConversationIdRaw === 'string'
       ? requestedConversationIdRaw.trim()
       : '';
+  const requestedActivityIdRaw = request.params.activityId;
+  const requestedActivityId =
+    typeof requestedActivityIdRaw === 'string'
+      ? requestedActivityIdRaw.trim()
+      : '';
+  const isActivityNewPage = request.path === '/activities/new';
+  const isActivityEditPage = request.path.endsWith('/edit');
   let initialConversationId = '';
+  let currentView: 'chat' | 'activities' = request.path.startsWith('/activities')
+    ? 'activities'
+    : 'chat';
+  let activityPageMode: 'list' | 'detail' | 'new' | 'edit' = 'list';
+  let selectedActivity = null;
+  let activityConversations: ReturnType<typeof listConversationsForActivity> = [];
+
+  if (currentView === 'activities' && !user && (isActivityNewPage || isActivityEditPage)) {
+    response.redirect('/login');
+    return;
+  }
 
   if (requestedConversationId && user) {
     const conversation = findConversationForUser(requestedConversationId, user.id);
@@ -560,18 +585,138 @@ export function renderHome(request: Request, response: Response): void {
     initialConversationId = conversation.id;
   }
 
+  if (requestedActivityId && user) {
+    const activity = findActivityForUser(requestedActivityId, user.id);
+    if (!activity) {
+      response.redirect('/activities');
+      return;
+    }
+
+    selectedActivity = activity;
+    activityConversations = listConversationsForActivity(activity.id, user.id);
+  }
+
+  if (currentView === 'activities') {
+    if (isActivityNewPage) {
+      activityPageMode = 'new';
+    } else if (selectedActivity && isActivityEditPage) {
+      activityPageMode = 'edit';
+    } else if (selectedActivity) {
+      activityPageMode = 'detail';
+    }
+  }
+
   response.render('index', {
+    activities,
+    activityConversations,
+    activityPageMode,
     authMessage,
     conversations,
+    currentView,
     csrfToken: response.locals.csrfToken,
     guestInitialGreeting,
     hasSession: Boolean(user),
     initialConversationId,
     isAuthenticated: isVerified,
+    selectedActivity,
     socketAuthToken,
     title: 'Mister F',
     user,
   });
+}
+
+export function handleCreateActivity(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim();
+  const tutorInstructions = String(request.body.tutorInstructions || '').trim();
+
+  if (!title || !description || !tutorInstructions) {
+    response.redirect('/activities/new');
+    return;
+  }
+
+  const activity = createActivity({
+    userId: user.id,
+    title,
+    description,
+    tutorInstructions,
+  });
+
+  response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+}
+
+export function handleCreateActivityConversation(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const activityIdRaw = request.params.activityId;
+  const activityId =
+    typeof activityIdRaw === 'string' ? activityIdRaw.trim() : '';
+  if (!activityId) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const activity = findActivityForUser(activityId, user.id);
+  if (!activity) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const conversation = createConversationFromActivity(user.id, activity);
+
+  response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
+}
+
+export function handleUpdateActivity(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const activityIdRaw = request.params.activityId;
+  const activityId =
+    typeof activityIdRaw === 'string' ? activityIdRaw.trim() : '';
+  if (!activityId) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim();
+  const tutorInstructions = String(request.body.tutorInstructions || '').trim();
+  if (!title || !description || !tutorInstructions) {
+    response.redirect(`/activities/${encodeURIComponent(activityId)}/edit`);
+    return;
+  }
+
+  const activity = updateActivity({
+    activityId,
+    description,
+    title,
+    tutorInstructions,
+    userId: user.id,
+  });
+
+  if (!activity) {
+    response.redirect('/activities');
+    return;
+  }
+
+  response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
 }
 
 async function signInUser(

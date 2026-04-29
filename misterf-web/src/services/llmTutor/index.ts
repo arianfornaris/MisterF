@@ -40,6 +40,11 @@ function parseJsonFromModelText(text: string): unknown {
 export async function runTutorAgentLoop(
   history: TutorMessage[],
   options: {
+    activity?: {
+      description: string;
+      title: string;
+      tutorInstructions: string;
+    } | null;
     currentTitle?: string;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;

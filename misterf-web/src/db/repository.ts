@@ -8,12 +8,32 @@ export type SentenceChallengeType =
   | 'dialogue_scene';
 
 export type StoredConversation = {
+  activityId: string | null;
   id: string;
   titleUpdatedByUser: boolean;
   title: string;
   userId: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type StoredActivity = {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  tutorInstructions: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredConversationActivitySnapshot = {
+  activityId: string;
+  conversationId: string;
+  createdAt: string;
+  description: string;
+  title: string;
+  tutorInstructions: string;
 };
 
 export type StoredMessage = {
@@ -102,12 +122,32 @@ type ProgressRow = {
 };
 
 type ConversationRow = {
+  activity_id: string | null;
   id: string;
   title: string;
   title_updated_by_user: number;
   user_id: string;
   created_at: string;
   updated_at: string;
+};
+
+type ActivityRow = {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  tutor_instructions: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type ConversationActivitySnapshotRow = {
+  activity_id: string;
+  conversation_id: string;
+  created_at: string;
+  description: string;
+  title: string;
+  tutor_instructions: string;
 };
 
 type SentenceChallengeRow = {
@@ -154,12 +194,38 @@ const defaultConversationTitle = 'Nueva conversación';
 
 function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
+    activityId: row.activity_id,
     id: row.id,
     title: row.title,
     titleUpdatedByUser: Boolean(row.title_updated_by_user),
     userId: row.user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredActivity(row: ActivityRow): StoredActivity {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    description: row.description,
+    tutorInstructions: row.tutor_instructions,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredConversationActivitySnapshot(
+  row: ConversationActivitySnapshotRow,
+): StoredConversationActivitySnapshot {
+  return {
+    activityId: row.activity_id,
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    description: row.description,
+    title: row.title,
+    tutorInstructions: row.tutor_instructions,
   };
 }
 
@@ -231,22 +297,35 @@ function toStoredVocabularyItem(row: VocabularyRow): StoredVocabularyItem {
 export function createConversation(
   userId: string,
   title = defaultConversationTitle,
+  options: { activityId?: string | null } = {},
 ): StoredConversation {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO conversations (id, user_id, title)
-        VALUES (?, ?, ?)
+        INSERT INTO conversations (id, user_id, title, activity_id)
+        VALUES (?, ?, ?, ?)
       `,
     )
-    .run(id, userId, title);
+    .run(id, userId, title, options.activityId ?? null);
 
   const conversation = findConversationForUser(id, userId);
   if (!conversation) {
     throw new Error('Could not load newly created conversation.');
   }
 
+  return conversation;
+}
+
+export function createConversationFromActivity(
+  userId: string,
+  activity: StoredActivity,
+): StoredConversation {
+  const conversation = createConversation(userId, defaultConversationTitle, {
+    activityId: activity.id,
+  });
+
+  createConversationActivitySnapshot(conversation.id, activity);
   return conversation;
 }
 
@@ -257,7 +336,7 @@ export function findConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -291,7 +370,7 @@ export function listConversationsForUser(userId: string): StoredConversation[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id
         FROM conversations
         WHERE user_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -331,6 +410,164 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
     .run(id, userId);
 
   return result.changes > 0;
+}
+
+export function createActivity(input: {
+  userId: string;
+  title: string;
+  description: string;
+  tutorInstructions: string;
+}): StoredActivity {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO activities (id, user_id, title, description, tutor_instructions)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      id,
+      input.userId,
+      input.title,
+      input.description,
+      input.tutorInstructions,
+    );
+
+  const activity = findActivityForUser(id, input.userId);
+  if (!activity) {
+    throw new Error('Could not load newly created activity.');
+  }
+
+  return activity;
+}
+
+export function findActivityForUser(
+  id: string,
+  userId: string,
+): StoredActivity | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at
+        FROM activities
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as ActivityRow | undefined;
+
+  return row ? toStoredActivity(row) : null;
+}
+
+export function listActivitiesForUser(userId: string): StoredActivity[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at
+        FROM activities
+        WHERE user_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(userId) as ActivityRow[];
+
+  return rows.map(toStoredActivity);
+}
+
+export function listConversationsForActivity(
+  activityId: string,
+  userId: string,
+): StoredConversation[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id
+        FROM conversations
+        WHERE user_id = ? AND activity_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(userId, activityId) as ConversationRow[];
+
+  return rows.map(toStoredConversation);
+}
+
+export function updateActivity(input: {
+  activityId: string;
+  description: string;
+  title: string;
+  tutorInstructions: string;
+  userId: string;
+}): StoredActivity | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE activities
+        SET title = ?,
+            description = ?,
+            tutor_instructions = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(
+      input.title,
+      input.description,
+      input.tutorInstructions,
+      input.activityId,
+      input.userId,
+    );
+
+  return findActivityForUser(input.activityId, input.userId);
+}
+
+export function createConversationActivitySnapshot(
+  conversationId: string,
+  activity: StoredActivity,
+): StoredConversationActivitySnapshot {
+  getDb()
+    .prepare(
+      `
+        INSERT OR REPLACE INTO conversation_activity_snapshots (
+          conversation_id,
+          activity_id,
+          title,
+          description,
+          tutor_instructions
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      conversationId,
+      activity.id,
+      activity.title,
+      activity.description,
+      activity.tutorInstructions,
+    );
+
+  const snapshot = getConversationActivitySnapshot(conversationId);
+  if (!snapshot) {
+    throw new Error('Could not load conversation activity snapshot.');
+  }
+
+  return snapshot;
+}
+
+export function getConversationActivitySnapshot(
+  conversationId: string,
+): StoredConversationActivitySnapshot | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT conversation_id, activity_id, title, description, tutor_instructions, created_at
+        FROM conversation_activity_snapshots
+        WHERE conversation_id = ?
+      `,
+    )
+    .get(conversationId) as ConversationActivitySnapshotRow | undefined;
+
+  return row ? toStoredConversationActivitySnapshot(row) : null;
 }
 
 export function getProgressForConversation(

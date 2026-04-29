@@ -5,6 +5,9 @@ import { Server } from 'socket.io';
 import { csrfProtection } from './auth/csrf.js';
 import {
   handleChangePassword,
+  handleCreateActivity,
+  handleCreateActivityConversation,
+  handleUpdateActivity,
   handleForgotPassword,
   handleLogin,
   handleLogout,
@@ -89,6 +92,13 @@ app.post('/logout', handleLogout);
 app.get('/superadmin', renderSuperadminUsers);
 app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
+app.get('/activities', renderHome);
+app.get('/activities/new', renderHome);
+app.post('/activities', handleCreateActivity);
+app.get('/activities/:activityId/edit', renderHome);
+app.get('/activities/:activityId', renderHome);
+app.post('/activities/:activityId', handleUpdateActivity);
+app.post('/activities/:activityId/chats', handleCreateActivityConversation);
 app.get('/c/:conversationId', renderHome);
 app.get('/', renderHome);
 app.get('/session', (request, response) => {

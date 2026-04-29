@@ -3,6 +3,12 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
+const activityStartPanelEl = document.querySelector('[data-activity-start-panel]');
+const activityStartTitleEl = document.querySelector('[data-activity-start-title]');
+const activityStartDescriptionEl = document.querySelector(
+  '[data-activity-start-description]',
+);
+const activityStartButtonEl = document.querySelector('[data-activity-start-button]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
 const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
 const conversationPanelEl = document.querySelector('#conversationPanel');
@@ -26,6 +32,7 @@ const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy
 const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
+const currentView = document.body.dataset.currentView || 'chat';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const initialConversationId =
@@ -40,12 +47,14 @@ const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 
 disableComposerTextAssist();
 initializeLlmContextMeter();
+initializeStaticMarkdown();
 
 let conversationId = initialConversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
 let pendingDeleteConversationId = null;
 let activeUserMessageId = null;
+let pendingActivityStart = false;
 const pendingSentenceEvaluations = new Map();
 let pendingTranslatorSelection = '';
 let userInputHistory = [];
@@ -93,7 +102,6 @@ if (socket) {
   socket.on('conversation:ready', (payload) => {
     hasHandledInitialConversationReady = true;
     conversationId = payload.conversationId;
-    syncConversationUrl(conversationId, { replace: true });
     upsertConversationItem(payload.conversation);
     markActiveConversation(conversationId);
     messagesEl.replaceChildren();
@@ -105,6 +113,8 @@ if (socket) {
       .filter((content) => content.trim().length > 0);
     resetUserInputHistoryNavigation();
     updateLlmContextMeter(null);
+    pendingActivityStart = Boolean(payload.pendingActivityStart);
+    renderActivityStartPanel(payload.activity, pendingActivityStart);
 
     let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
@@ -120,7 +130,7 @@ if (socket) {
       queuedSentenceEvaluation = null;
     }
 
-    setComposerEnabled(!isAssistantBusy);
+    setComposerEnabled(!isAssistantBusy && !pendingActivityStart);
     focusComposer();
     scrollToBottom();
     flushPendingBootGuestDraft();
@@ -128,9 +138,7 @@ if (socket) {
 
   socket.on('conversation:promoted', (payload) => {
     conversationId = payload.conversationId;
-    syncConversationUrl(conversationId);
-    upsertConversationItem(payload.conversation);
-    markActiveConversation(conversationId);
+    window.location.replace(buildConversationPath(conversationId));
   });
 
   socket.on('conversation:renamed', (payload) => {
@@ -147,10 +155,7 @@ if (socket) {
     removeConversationItem(payload.conversationId);
 
     if (payload.conversationId === conversationId || payload.wasActive) {
-      conversationId = null;
-      syncConversationUrl(null);
-      messagesEl.replaceChildren();
-      streamingBubble = null;
+      window.location.assign('/');
     }
   });
 
@@ -192,6 +197,8 @@ if (socket) {
 
   socket.on('assistant:start', () => {
     isAssistantBusy = true;
+    pendingActivityStart = false;
+    renderActivityStartPanel(null, false);
     setComposerEnabled(false);
     streamingBubble = appendMessage('model', '', { streaming: true });
     scrollToBottom();
@@ -234,6 +241,7 @@ if (socket) {
     activeUserMessageId = null;
     streamingBubble = null;
     isAssistantBusy = false;
+    renderActivityStartPanel(null, false);
     setComposerEnabled(true);
     focusComposer();
     scrollToBottom();
@@ -247,7 +255,7 @@ if (socket) {
 
     appendMessage('error', message);
     isAssistantBusy = false;
-    setComposerEnabled(true);
+    setComposerEnabled(!pendingActivityStart);
     scrollToBottom();
   });
 
@@ -273,24 +281,6 @@ if (socket) {
   });
 }
 
-window.addEventListener('popstate', () => {
-  if (!socket || isAssistantBusy) {
-    return;
-  }
-
-  const nextConversationId = getConversationIdFromLocation();
-  if ((nextConversationId || null) === (conversationId || null)) {
-    return;
-  }
-
-  conversationId = nextConversationId || null;
-  markActiveConversation(conversationId || '');
-  setComposerEnabled(false);
-  socket.emit('conversation:join', {
-    conversationId: conversationId || null,
-  });
-});
-
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
   sendMessage();
@@ -315,8 +305,13 @@ for (const item of document.querySelectorAll('[data-conversation-id]')) {
   configureConversationItem(item);
 }
 
-newConversationButtonEl?.addEventListener('click', () => {
+newConversationButtonEl?.addEventListener('click', (event) => {
+  event.preventDefault();
   startNewConversation();
+});
+
+activityStartButtonEl?.addEventListener('click', () => {
+  startActivityConversation();
 });
 
 confirmDeleteConversationButtonEl?.addEventListener('click', () => {
@@ -594,23 +589,6 @@ function buildConversationPath(nextConversationId) {
     : '/';
 }
 
-function syncConversationUrl(nextConversationId, options = {}) {
-  const targetPath = buildConversationPath(nextConversationId);
-  const currentPath = `${window.location.pathname}${window.location.search}`;
-
-  if (currentPath === targetPath) {
-    return;
-  }
-
-  const method = options.replace ? 'replaceState' : 'pushState';
-  window.history[method]({ conversationId: nextConversationId || null }, '', targetPath);
-}
-
-function getConversationIdFromLocation() {
-  const match = window.location.pathname.match(/^\/c\/([^/]+)$/);
-  return match?.[1] ? decodeURIComponent(match[1]) : '';
-}
-
 function isCurrentConversationPayload(payload) {
   const payloadConversationId = payload?.conversationId || '';
   return Boolean(conversationId && payloadConversationId === conversationId);
@@ -680,41 +658,40 @@ function updateLlmContextMeter(usage) {
   llmContextMeterEl.dataset.contextLevel = level;
 }
 
+function renderActivityStartPanel(activity, isVisible) {
+  if (!activityStartPanelEl || !activityStartTitleEl || !activityStartDescriptionEl) {
+    return;
+  }
+
+  if (!isVisible || !activity) {
+    activityStartPanelEl.classList.add('d-none');
+    activityStartTitleEl.textContent = '';
+    activityStartDescriptionEl.textContent = '';
+    return;
+  }
+
+  activityStartTitleEl.textContent = activity.title || 'Actividad';
+  activityStartDescriptionEl.textContent = activity.description || '';
+  activityStartPanelEl.classList.remove('d-none');
+}
+
 function startNewConversation() {
-  if (!socket || isAssistantBusy) {
+  if (isAssistantBusy) {
     return;
   }
 
-  conversationId = null;
-  syncConversationUrl(null);
-  markActiveConversation('');
-  hideConversationPanel();
-  setComposerEnabled(false);
-  socket.emit('conversation:reset');
+  window.location.assign('/');
 }
 
-function openConversation(nextConversationId) {
-  if (!nextConversationId || !socket || isAssistantBusy) {
+function startActivityConversation() {
+  if (!socket || isAssistantBusy || !conversationId) {
     return;
   }
 
-  conversationId = nextConversationId;
-  syncConversationUrl(conversationId);
-  markActiveConversation(conversationId);
-  hideConversationPanel();
+  pendingActivityStart = false;
+  renderActivityStartPanel(null, false);
   setComposerEnabled(false);
-  socket.emit('conversation:join', { conversationId });
-}
-
-function hideConversationPanel() {
-  if (!conversationPanelEl || !window.bootstrap?.Offcanvas) {
-    return;
-  }
-
-  const panel =
-    window.bootstrap.Offcanvas.getInstance(conversationPanelEl) ||
-    window.bootstrap.Offcanvas.getOrCreateInstance(conversationPanelEl);
-  panel.hide();
+  socket.emit('activity:start', { conversationId });
 }
 
 function markActiveConversation(activeConversationId) {
@@ -727,10 +704,6 @@ function markActiveConversation(activeConversationId) {
 }
 
 function configureConversationItem(item) {
-  item.querySelector('[data-open-conversation]')?.addEventListener('click', () => {
-    openConversation(item.dataset.conversationId || '');
-  });
-
   item
     .querySelector('[data-rename-conversation]')
     ?.addEventListener('click', () => {
@@ -818,9 +791,9 @@ function createConversationItem(conversation) {
   item.className = 'conversation-item';
   item.dataset.conversationId = conversation.id;
 
-  const openButton = document.createElement('button');
+  const openButton = document.createElement('a');
   openButton.className = 'conversation-open-button';
-  openButton.type = 'button';
+  openButton.href = buildConversationPath(conversation.id);
   openButton.dataset.openConversation = '';
 
   const title = document.createElement('span');
@@ -1644,6 +1617,12 @@ function renderMarkdown(content) {
   return window.DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
   });
+}
+
+function initializeStaticMarkdown() {
+  for (const element of document.querySelectorAll('[data-render-markdown]')) {
+    setMessageContent(element, element.textContent || '');
+  }
 }
 
 function getMatchingResultForBlock(metadata, blockIndex) {

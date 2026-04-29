@@ -121,4 +121,77 @@ export const migrations: Migration[] = [
         ON messages (conversation_id, created_at, id);
     `,
   },
+  {
+    id: 2,
+    name: 'add_activities',
+    up: `
+      CREATE TABLE activities (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tutor_instructions TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_activities_user_updated
+        ON activities (user_id, updated_at DESC, created_at DESC);
+
+      ALTER TABLE conversations
+        ADD COLUMN activity_id TEXT
+        REFERENCES activities (id)
+        ON DELETE SET NULL;
+
+      CREATE INDEX idx_conversations_activity_updated
+        ON conversations (activity_id, updated_at DESC, created_at DESC);
+    `,
+  },
+  {
+    id: 3,
+    name: 'add_conversation_activity_snapshots',
+    up: `
+      CREATE TABLE conversation_activity_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        activity_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tutor_instructions TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (activity_id)
+          REFERENCES activities (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_conversation_activity_snapshots_activity
+        ON conversation_activity_snapshots (activity_id, created_at DESC);
+
+      INSERT INTO conversation_activity_snapshots (
+        conversation_id,
+        activity_id,
+        title,
+        description,
+        tutor_instructions
+      )
+      SELECT
+        conversations.id,
+        activities.id,
+        activities.title,
+        activities.description,
+        activities.tutor_instructions
+      FROM conversations
+      JOIN activities
+        ON activities.id = conversations.activity_id
+      LEFT JOIN conversation_activity_snapshots
+        ON conversation_activity_snapshots.conversation_id = conversations.id
+      WHERE conversations.activity_id IS NOT NULL
+        AND conversation_activity_snapshots.conversation_id IS NULL;
+    `,
+  },
 ];

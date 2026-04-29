@@ -10,6 +10,7 @@ import {
   createConversation,
   deleteConversationForUser,
   findConversationForUser,
+  getConversationActivitySnapshot,
   findMessageInConversation,
   listMessages,
   renameConversationForUser,
@@ -56,6 +57,10 @@ type DeletePayload = {
 type TranslatePayload = {
   mode?: string;
   text?: string;
+};
+
+type ActivityStartPayload = {
+  conversationId?: string | null;
 };
 
 type MatchingExerciseCompletedPayload = {
@@ -141,9 +146,11 @@ export function registerChatSocket(io: Server): void {
         leaveConversationRoom(socket, currentConversationId);
         currentConversationId = null;
         socket.emit('conversation:ready', {
+          activity: null,
           conversation: null,
           conversationId: null,
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+          pendingActivityStart: false,
         });
         return;
       }
@@ -152,17 +159,28 @@ export function registerChatSocket(io: Server): void {
       currentConversationId = conversation.id;
 
       const messages = listMessages(conversation.id);
+      const activitySnapshot = getConversationActivitySnapshot(conversation.id);
       if (messages.length === 0) {
         pendingInitialGreeting = pickInitialGreeting();
       }
 
       socket.emit('conversation:ready', {
+        activity: activitySnapshot
+          ? {
+              description: activitySnapshot.description,
+              id: activitySnapshot.activityId,
+              title: activitySnapshot.title,
+            }
+          : null,
         conversation,
         conversationId: conversation.id,
         messages:
-          messages.length > 0
+          activitySnapshot && messages.length === 0
+            ? []
+            : messages.length > 0
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
+        pendingActivityStart: Boolean(activitySnapshot && messages.length === 0),
       });
     });
 
@@ -183,7 +201,8 @@ export function registerChatSocket(io: Server): void {
         : null;
 
       const shouldPersistInitialGreeting =
-        !conversation || listMessages(conversation.id).length === 0;
+        !conversation ||
+        (listMessages(conversation.id).length === 0 && !conversation.activityId);
       if (!conversation) {
         conversation = createConversation(userId);
       }
@@ -226,9 +245,11 @@ export function registerChatSocket(io: Server): void {
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
+        activity: null,
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        pendingActivityStart: false,
       });
     });
 
@@ -318,10 +339,54 @@ export function registerChatSocket(io: Server): void {
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
+        activity: null,
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        pendingActivityStart: false,
       });
+    });
+
+    socket.on('activity:start', async (payload: ActivityStartPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      if (!conversationId) {
+        return;
+      }
+
+      const conversation = findConversationForUser(conversationId, userId);
+      if (!conversation?.activityId) {
+        socket.emit('assistant:error', {
+          message: 'No pude iniciar esta actividad.',
+        });
+        return;
+      }
+
+      const activitySnapshot = getConversationActivitySnapshot(conversation.id);
+      if (!activitySnapshot) {
+        socket.emit('assistant:error', {
+          message: 'No pude cargar la actividad.',
+        });
+        return;
+      }
+
+      if (listMessages(conversation.id).length > 0) {
+        return;
+      }
+
+      await streamAssistantMessage(
+        io,
+        conversation.id,
+        userId,
+        undefined,
+        false,
+        [buildActivityStartMessage(activitySnapshot)],
+      );
     });
 
     socket.on('translator:translate', async (payload: TranslatePayload = {}) => {
@@ -815,11 +880,19 @@ async function streamAssistantMessage(
     if (!conversation) {
       throw new Error('Conversation not found.');
     }
+    const activitySnapshot = getConversationActivitySnapshot(conversationId);
 
     const messages = listMessages(conversationId);
     const result = await runTutorAgentLoop(
       [...toTutorHistory(messages), ...extraHistory],
       {
+        activity: activitySnapshot
+          ? {
+              description: activitySnapshot.description,
+              title: activitySnapshot.title,
+              tutorInstructions: activitySnapshot.tutorInstructions,
+            }
+          : null,
         currentTitle: conversation.title,
         llm: await getLlmRequestOptionsForUser(userId),
         onTokenUsage: (usage) => {
@@ -873,6 +946,26 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
     content: message.content,
     role: message.role,
   }));
+}
+
+function buildActivityStartMessage(activity: {
+  description: string;
+  title: string;
+  tutorInstructions: string;
+}): TutorMessage {
+  return {
+    role: 'user',
+    content: [
+      'INTERNAL ACTIVITY START.',
+      'This activity has just begun.',
+      'Use this as teacher-only context. Do not mention the internal signal.',
+      `Activity title: ${activity.title}`,
+      `Activity description: ${activity.description}`,
+      `Activity tutor instructions: ${activity.tutorInstructions}`,
+      'Start the activity now with the first useful exercise or prompt.',
+      'Do not ask unnecessary setup questions if the activity already provides enough direction.',
+    ].join('\n'),
+  };
 }
 
 function emitConversationUpdated(

@@ -13,6 +13,7 @@
     data-auth-message="<%= authMessage %>"
     data-guest-initial-greeting="<%= guestInitialGreeting %>"
     data-initial-conversation-id="<%= initialConversationId || '' %>"
+    data-current-view="<%= currentView %>"
   >
     <main class="app-shell">
       <div class="chat-workspace <%= hasSession ? 'has-toolbar' : '' %>">
@@ -78,19 +79,42 @@
             class="offcanvas offcanvas-start conversation-panel"
             tabindex="-1"
             id="conversationPanel"
-            aria-labelledby="conversationPanelLabel"
+            aria-label="Panel lateral"
           >
             <div class="offcanvas-header">
-              <h2 class="offcanvas-title" id="conversationPanelLabel">Conversaciones</h2>
+              <a
+                class="panel-home-link"
+                href="/"
+                title="Ir al inicio"
+                aria-label="Ir al inicio"
+              >
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M5 9.5V21h14V9.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  <path d="M9 21v-6h6v6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+              </a>
               <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
             <div class="offcanvas-body">
-              <button class="btn btn-link new-conversation-button" type="button" data-new-conversation>
+              <a class="btn btn-link panel-nav-button" href="/" data-new-conversation>
                 <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M8 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L10 16l-4 1 1-4 9.5-9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 Nueva conversación
-              </button>
+              </a>
+
+              <div class="panel-nav">
+                <a class="panel-nav-link <%= currentView === 'activities' ? 'is-active' : '' %>" href="/activities">
+                  <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                  Actividades
+                </a>
+              </div>
+
+              <p class="panel-section-label">Recientes</p>
 
               <% if (conversations.length > 0) { %>
                 <div class="conversation-list">
@@ -99,12 +123,16 @@
                       class="conversation-item"
                       data-conversation-id="<%= conversation.id %>"
                     >
-                      <button class="conversation-open-button" type="button" data-open-conversation>
+                      <a
+                        class="conversation-open-button"
+                        href="/c/<%= encodeURIComponent(conversation.id) %>"
+                        data-open-conversation
+                      >
                         <span class="conversation-title"><%= conversation.title %></span>
                         <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
                           <%= conversation.updatedAt %>
                         </time>
-                      </button>
+                      </a>
 
                       <div class="conversation-actions dropdown">
                         <button
@@ -261,14 +289,242 @@
               </div>
             </div>
           </div>
+
+          <div
+            class="modal fade"
+            id="activityHelpModal"
+            tabindex="-1"
+            aria-labelledby="activityHelpModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content translator-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="activityHelpModalLabel">Qué puede hacer el tutor</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body activity-help-modal-body">
+                  <section class="activity-help-section">
+                    <h3>Tipos de práctica que puedes pedir</h3>
+                    <ul>
+                      <li>Traducir del español al inglés con corrección guiada.</li>
+                      <li>Comprender frases en inglés y explicarlas en español.</li>
+                      <li>Mini-conversaciones o role-play con personajes ficticios.</li>
+                      <li>Emparejar columnas de palabras, frases o significados.</li>
+                      <li>Completar espacios escribiendo o eligiendo opciones.</li>
+                      <li>Multiple choice de una o varias respuestas correctas.</li>
+                      <li>Ordenar palabras para reconstruir una oración.</li>
+                    </ul>
+                  </section>
+
+                  <section class="activity-help-section">
+                    <h3>Ejemplos de instrucciones útiles</h3>
+                    <ul>
+                      <li>Practica vocabulario de colores con ejercicios variados y mucha corrección paciente.</li>
+                      <li>Haz mini-conversaciones de restaurante para un nivel básico, con tono amable y situaciones realistas.</li>
+                      <li>Trabaja el pasado simple con frases cortas, completar espacios y multiple choice.</li>
+                      <li>Enfócate en inglés para entrevistas de trabajo con tono formal y correcciones claras.</li>
+                    </ul>
+                  </section>
+
+                  <section class="activity-help-section">
+                    <h3>Buenas prácticas</h3>
+                    <ul>
+                      <li>Especifica el tema, el tipo de situación y el nivel aproximado.</li>
+                      <li>Puedes combinar varias dinámicas dentro de una misma actividad.</li>
+                      <li>No hace falta describir la interfaz; describe el objetivo pedagógico.</li>
+                      <li>Puedes decir si quieres que el tutor sea más paciente, más exigente o más conversacional.</li>
+                    </ul>
+                  </section>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
+              </div>
+            </div>
+          </div>
         <% } %>
 
-        <section class="chat-layout" aria-label="Chat con Mister F">
+        <section
+          class="activities-view <%= currentView === 'activities' ? '' : 'd-none' %>"
+          aria-label="Actividades"
+        >
+          <div class="activities-header <%= activityPageMode === 'detail' ? 'activities-header-detail' : '' %>">
+            <div>
+              <p class="activities-kicker">Actividades</p>
+              <h1 class="activities-title">
+                <% if (activityPageMode === 'new') { %>
+                  Nueva actividad
+                <% } else if (activityPageMode === 'edit') { %>
+                  Editar actividad
+                <% } else { %>
+                  <%= selectedActivity ? selectedActivity.title : 'Biblioteca de actividades' %>
+                <% } %>
+              </h1>
+              <p class="activities-copy">
+                <% if (activityPageMode === 'new') { %>
+                  Diseña una actividad con un objetivo claro, una descripción útil y una guía precisa para el tutor.
+                <% } else if (activityPageMode === 'edit') { %>
+                  Ajusta esta actividad con calma. Los chats existentes conservarán su propia copia de la actividad original.
+                <% } else { %>
+                  <%= selectedActivity ? selectedActivity.description : 'Crea experiencias guiadas para el tutor con un objetivo claro, una descripción y reglas propias.' %>
+                <% } %>
+              </p>
+
+              <% if (activityPageMode === 'detail' && selectedActivity) { %>
+                <div class="activity-detail-inline-actions">
+                  <a
+                    class="btn btn-outline-dark"
+                    href="/activities/<%= encodeURIComponent(selectedActivity.id) %>/edit"
+                  >
+                    Editar actividad
+                  </a>
+                </div>
+
+                <p class="activity-section-copy">Chats de esta actividad</p>
+
+                <form
+                  class="activity-start-form"
+                  method="post"
+                  action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/chats"
+                >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn btn-dark">Comenzar actividad</button>
+                </form>
+
+                <% if (activityConversations.length > 0) { %>
+                  <div class="activity-chat-list">
+                    <% activityConversations.forEach((conversation) => { %>
+                      <a class="activity-chat-item" href="/c/<%= encodeURIComponent(conversation.id) %>">
+                        <span class="activity-chat-title"><%= conversation.title %></span>
+                        <time class="activity-chat-date" datetime="<%= conversation.updatedAt %>">
+                          <%= conversation.updatedAt %>
+                        </time>
+                      </a>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <p class="activity-empty">Todavía no hay chats para esta actividad.</p>
+                <% } %>
+              <% } %>
+            </div>
+
+            <% if (hasSession) { %>
+              <div class="activities-header-actions">
+                <% if (activityPageMode === 'new' || activityPageMode === 'edit' || activityPageMode === 'detail') { %>
+                  <a
+                    class="btn-close activity-close-button"
+                    href="<%= activityPageMode === 'detail' ? '/activities' : selectedActivity ? `/activities/${encodeURIComponent(selectedActivity.id)}` : '/activities' %>"
+                    title="Cerrar"
+                    aria-label="Cerrar"
+                  ></a>
+                <% } %>
+                <% if (activityPageMode === 'list') { %>
+                  <a class="btn btn-dark" href="/activities/new">
+                    Nueva actividad
+                  </a>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (activityPageMode === 'new' || activityPageMode === 'edit') { %>
+            <section class="activity-form-shell">
+              <div class="activity-form-card">
+                <form
+                  class="activity-form"
+                  method="post"
+                  action="<%= activityPageMode === 'edit' && selectedActivity ? `/activities/${encodeURIComponent(selectedActivity.id)}` : '/activities' %>"
+                  autocomplete="off"
+                >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+                  <label class="form-label" for="activityTitle">
+                    Título
+                  </label>
+                  <input
+                    class="form-control"
+                    id="activityTitle"
+                    name="title"
+                    maxlength="120"
+                    value="<%= activityPageMode === 'edit' && selectedActivity ? selectedActivity.title : '' %>"
+                    required
+                  >
+
+                  <label class="form-label" for="activityDescription">
+                    Descripción
+                  </label>
+                  <textarea
+                    class="form-control"
+                    id="activityDescription"
+                    name="description"
+                    rows="4"
+                    maxlength="500"
+                    required
+                  ><%= activityPageMode === 'edit' && selectedActivity ? selectedActivity.description : '' %></textarea>
+
+                  <div class="activity-help-row">
+                    <label class="form-label" for="activityTutorInstructions">
+                      Instrucciones al tutor
+                    </label>
+                    <button
+                      class="btn btn-link activity-help-button"
+                      type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#activityHelpModal"
+                    >
+                      Ayuda
+                    </button>
+                  </div>
+                  <textarea
+                    class="form-control"
+                    id="activityTutorInstructions"
+                    name="tutorInstructions"
+                    rows="10"
+                    maxlength="4000"
+                    required
+                  ><%= activityPageMode === 'edit' && selectedActivity ? selectedActivity.tutorInstructions : '' %></textarea>
+
+                  <div class="activity-form-actions">
+                    <button type="submit" class="btn btn-dark">
+                      <%= activityPageMode === 'edit' ? 'Guardar cambios' : 'Crear actividad' %>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </section>
+          <% } else if (selectedActivity) { %>
+          <% } else if (activities.length > 0) { %>
+            <div class="activities-grid">
+              <% activities.forEach((activity) => { %>
+                <a class="activity-card" href="/activities/<%= encodeURIComponent(activity.id) %>">
+                  <p class="activity-card-kicker">Actividad</p>
+                  <h2><%= activity.title %></h2>
+                  <p><%= activity.description %></p>
+                </a>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="activity-empty-state">
+              <p>Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.</p>
+            </div>
+          <% } %>
+        </section>
+
+        <section class="chat-layout <%= currentView === 'chat' ? '' : 'd-none' %>" aria-label="Chat con Mister F">
           <div
             class="messages"
             id="chatPane"
             tabindex="0"
           >
+            <section class="activity-start-panel d-none" data-activity-start-panel>
+              <p class="activity-start-kicker">Actividad</p>
+              <h2 class="activity-start-title" data-activity-start-title></h2>
+              <p class="activity-start-description" data-activity-start-description></p>
+              <button class="btn btn-dark" type="button" data-activity-start-button>
+                Comenzar
+              </button>
+            </section>
             <div id="messages" aria-live="polite"></div>
           </div>
 
