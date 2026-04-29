@@ -1554,8 +1554,11 @@ button.sentence-part:focus {
 
 .composer {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 10px;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "prompt input"
+    ". footer";
+  gap: 10px 14px;
   align-items: start;
   padding: 14px 46px 22px;
   border-top: 0;
@@ -1563,6 +1566,7 @@ button.sentence-part:focus {
 }
 
 .composer-prompt {
+  grid-area: prompt;
   min-height: 44px;
   display: inline-flex;
   align-items: flex-start;
@@ -1576,6 +1580,7 @@ button.sentence-part:focus {
 }
 
 .composer-input-wrap {
+  grid-area: input;
   position: relative;
   min-height: 44px;
   border-bottom: 1px solid #ced4da;
@@ -1609,7 +1614,64 @@ button.sentence-part:focus {
   border-bottom-color: var(--accent);
 }
 
+.composer-footer {
+  grid-area: footer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.llm-context-meter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  user-select: none;
+}
+
+.llm-context-meter-copy,
+.llm-context-meter-label,
+.llm-context-meter-value {
+  display: none !important;
+}
+
+.llm-context-meter-ring {
+  width: 34px;
+  height: 34px;
+  overflow: visible;
+  transform: rotate(-90deg);
+  flex: 0 0 auto;
+}
+
+.llm-context-meter-track,
+.llm-context-meter-progress {
+  fill: none;
+  stroke-width: 3;
+}
+
+.llm-context-meter-track {
+  stroke: color-mix(in srgb, var(--line) 78%, white 22%);
+}
+
+.llm-context-meter-progress {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 180ms ease, stroke 180ms ease;
+}
+
+.llm-context-meter[data-context-level='warn'] .llm-context-meter-progress {
+  stroke: #ca7b18;
+}
+
+.llm-context-meter[data-context-level='danger'] .llm-context-meter-progress {
+  stroke: #c34c47;
+}
+
 .send-button {
+  justify-self: end;
   color: var(--accent);
   background: transparent;
   border-color: transparent;
@@ -1776,6 +1838,10 @@ button.sentence-part:focus {
 
   .composer {
     padding: 12px 18px 16px;
+  }
+
+  .composer-footer {
+    gap: 12px;
   }
 
   .auth-sheet {

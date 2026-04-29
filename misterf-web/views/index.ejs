@@ -288,12 +288,46 @@
                 autofocus
               ></textarea>
             </div>
-            <button class="btn btn-dark send-button" type="submit" title="Enviar" aria-label="Enviar">
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <div class="composer-footer">
+              <div
+                class="llm-context-meter"
+                data-llm-context-meter
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                aria-valuetext="0 por ciento del contexto usado"
+                title="Uso del contexto del modelo"
+                aria-label="Uso del contexto del modelo"
+              >
+                <svg
+                  class="llm-context-meter-ring"
+                  viewBox="0 0 40 40"
+                  aria-hidden="true"
+                >
+                  <circle
+                    class="llm-context-meter-track"
+                    cx="20"
+                    cy="20"
+                    r="16"
+                  ></circle>
+                  <circle
+                    class="llm-context-meter-progress"
+                    cx="20"
+                    cy="20"
+                    r="16"
+                    data-llm-context-circle
+                  ></circle>
+                </svg>
+              </div>
+
+              <button class="btn btn-dark send-button" type="submit" title="Enviar" aria-label="Enviar">
+                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </form>
         </section>
       </div>

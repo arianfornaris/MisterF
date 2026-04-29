@@ -6,6 +6,7 @@ import type {
 } from 'ai';
 import { env } from '../../config/env.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage } from './types.js';
+import { resolveContextWindowTokens } from './modelMetadata.js';
 
 export function logJson(label: string, value: unknown): void {
   console.log(`${label} ${JSON.stringify(value, null, 2)}`);
@@ -91,15 +92,15 @@ function estimateTokenCount(system: string, messages: ModelMessage[]): number {
   return Math.max(1, Math.ceil(text.length / 4));
 }
 
-export function buildLlmRequestTokenUsage(input: {
+export async function buildLlmRequestTokenUsage(input: {
   messages: ModelMessage[];
   system: string;
   turn: number;
   usage?: LanguageModelUsage;
-}): LlmRequestTokenUsage {
+}): Promise<LlmRequestTokenUsage> {
   const inputTokens =
     input.usage?.inputTokens ?? estimateTokenCount(input.system, input.messages);
-  const contextWindowTokens = Math.max(1, env.llmContextWindow);
+  const contextWindowTokens = await resolveContextWindowTokens(env.llmModel);
 
   return {
     contextWindowTokens,

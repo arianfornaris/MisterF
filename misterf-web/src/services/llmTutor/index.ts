@@ -92,7 +92,7 @@ export async function runTutorAgentLoop(
         turn + 1,
       );
       options.onTokenUsage?.(
-        buildLlmRequestTokenUsage({
+        await buildLlmRequestTokenUsage({
           messages,
           system,
           turn: turn + 1,
@@ -242,7 +242,7 @@ export async function generateProgressWithLlm(input: {
   });
 
   input.onTokenUsage?.(
-    buildLlmRequestTokenUsage({
+    await buildLlmRequestTokenUsage({
       messages,
       system,
       turn: 1,
@@ -291,7 +291,7 @@ export async function generateVocabularyWithLlm(input: {
   });
 
   input.onTokenUsage?.(
-    buildLlmRequestTokenUsage({
+    await buildLlmRequestTokenUsage({
       messages,
       system,
       turn: 1,

@@ -4,6 +4,8 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
+const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
+const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
 const conversationPanelEl = document.querySelector('#conversationPanel');
 const newConversationButtonEl = document.querySelector('[data-new-conversation]');
 const deleteConversationModalEl = document.querySelector(
@@ -30,8 +32,13 @@ const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const socket = isInitiallyAuthenticated
   ? io({ auth: { token: socketAuthToken } })
   : null;
+const llmContextCircleRadius = llmContextCircleEl
+  ? Number.parseFloat(llmContextCircleEl.getAttribute('r') || '0')
+  : 0;
+const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 
 disableComposerTextAssist();
+initializeLlmContextMeter();
 
 let conversationId = localStorage.getItem(storageKey);
 let streamingBubble = null;
@@ -96,6 +103,7 @@ if (socket) {
       .map((message) => message.content)
       .filter((content) => content.trim().length > 0);
     resetUserInputHistoryNavigation();
+    updateLlmContextMeter(null);
 
     let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
@@ -161,6 +169,7 @@ if (socket) {
     }
 
     logLlmRequestTokens(payload.usage);
+    updateLlmContextMeter(payload.usage);
   });
 
   socket.on('llm:credit_exhausted', ({ message }) => {
@@ -586,6 +595,51 @@ function logLlmRequestTokens(usage) {
     provider: usage.provider,
     turn: usage.turn,
   });
+}
+
+function initializeLlmContextMeter() {
+  if (!llmContextCircleEl || !llmContextMeterEl) {
+    return;
+  }
+
+  llmContextCircleEl.style.strokeDasharray = `${llmContextCircleCircumference}`;
+  updateLlmContextMeter(null);
+}
+
+function updateLlmContextMeter(usage) {
+  if (!llmContextMeterEl || !llmContextCircleEl) {
+    return;
+  }
+
+  const rawPercent = Number(usage?.percentUsed);
+  const hasPercent = Number.isFinite(rawPercent);
+  const clampedPercent = hasPercent
+    ? Math.min(100, Math.max(0, rawPercent))
+    : 0;
+  const progress = clampedPercent / 100;
+  const dashOffset =
+    llmContextCircleCircumference * (1 - progress);
+
+  llmContextCircleEl.style.strokeDashoffset = `${dashOffset}`;
+  llmContextMeterEl.setAttribute(
+    'aria-valuenow',
+    hasPercent ? `${Math.round(clampedPercent)}` : '0',
+  );
+  llmContextMeterEl.setAttribute(
+    'aria-valuetext',
+    hasPercent
+      ? `${Math.round(clampedPercent)} por ciento del contexto usado`
+      : '0 por ciento del contexto usado',
+  );
+
+  let level = 'normal';
+  if (clampedPercent >= 85) {
+    level = 'danger';
+  } else if (clampedPercent >= 65) {
+    level = 'warn';
+  }
+
+  llmContextMeterEl.dataset.contextLevel = level;
 }
 
 function startNewConversation() {
