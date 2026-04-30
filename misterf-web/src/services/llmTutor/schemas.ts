@@ -87,6 +87,169 @@ export const matchingPairsBlockSchema = z
   })
   .strict();
 
+const quizOpenTextItemSchema = z
+  .object({
+    kind: z.literal('open_text'),
+    placeholder: z.string().trim().min(1).max(240).optional(),
+    prompt: z.string().trim().min(1).max(1600),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+  })
+  .strict();
+
+const quizTranslateToEnglishItemSchema = z
+  .object({
+    acceptableAnswers: z.array(z.string().trim().min(1).max(320)).min(1).max(16).optional(),
+    kind: z.literal('translate_to_english'),
+    prompt: z.string().trim().min(1).max(1600),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+    sentence: z.string().trim().min(1).max(1600),
+  })
+  .strict();
+
+const quizUnderstandInSpanishItemSchema = z
+  .object({
+    acceptableAnswers: z.array(z.string().trim().min(1).max(320)).min(1).max(16).optional(),
+    kind: z.literal('understand_in_spanish'),
+    prompt: z.string().trim().min(1).max(1600),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+    sentence: z.string().trim().min(1).max(1600),
+  })
+  .strict();
+
+const quizFillInTheBlankInputItemSchema = z
+  .object({
+    blanks: z
+      .array(
+        z
+          .object({
+            acceptableAnswers: z.array(z.string().trim().min(1).max(240)).min(1).max(16).optional(),
+            rubric: z.string().trim().min(1).max(800).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(20),
+    kind: z.literal('fill_in_the_blank_input'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentence: z.string().trim().min(1).max(1600),
+  })
+  .strict()
+  .refine((item) => countSentencePlaceholders(item.sentence, '___') === item.blanks.length, {
+    message: 'sentence must contain exactly one ___ placeholder per blanks entry.',
+    path: ['sentence'],
+  });
+
+const quizFillInTheBlankChoiceItemSchema = z
+  .object({
+    blanks: z
+      .array(
+        z
+          .object({
+            acceptableAnswers: z.array(z.string().trim().min(1).max(240)).min(1).max(16).optional(),
+            choices: z.array(z.string().trim().min(1).max(240)).min(2).max(20),
+            rubric: z.string().trim().min(1).max(800).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(20),
+    kind: z.literal('fill_in_the_blank_choice'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentence: z.string().trim().min(1).max(1600),
+  })
+  .strict()
+  .refine((item) => countSentencePlaceholders(item.sentence, '{{blank}}') === item.blanks.length, {
+    message: 'sentence must contain exactly one {{blank}} placeholder per blanks entry.',
+    path: ['sentence'],
+  });
+
+const quizMultipleChoiceItemSchema = z
+  .object({
+    correctOptions: z.array(z.string().trim().min(1).max(400)).min(1).max(16),
+    kind: z.literal('multiple_choice'),
+    options: z.array(z.string().trim().min(1).max(400)).min(2).max(16),
+    prompt: z.string().trim().min(1).max(1600),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+    selectionMode: z.enum(['single', 'multiple']),
+  })
+  .strict()
+  .refine((item) => item.correctOptions.every((option) => item.options.includes(option)), {
+    message: 'correctOptions must be a subset of options.',
+    path: ['correctOptions'],
+  })
+  .refine((item) => item.selectionMode === 'multiple' || item.correctOptions.length === 1, {
+    message: 'multiple_choice with selectionMode "single" must include exactly one correct option.',
+    path: ['selectionMode'],
+  });
+
+const quizMatchingPairsItemSchema = z
+  .object({
+    correctPairs: z
+      .array(
+        z
+          .object({
+            left: z.string().trim().min(1).max(600),
+            right: z.string().trim().min(1).max(600),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(24),
+    kind: z.literal('matching_pairs'),
+    leftItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
+    prompt: z.string().trim().min(1).max(1600),
+    rightItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+  })
+  .strict()
+  .refine((item) => item.correctPairs.every((pair) => item.leftItems.includes(pair.left)), {
+    message: 'Every correctPairs.left value must exist in leftItems.',
+    path: ['correctPairs'],
+  })
+  .refine((item) => item.correctPairs.every((pair) => item.rightItems.includes(pair.right)), {
+    message: 'Every correctPairs.right value must exist in rightItems.',
+    path: ['correctPairs'],
+  })
+  .refine((item) => item.leftItems.length === item.rightItems.length, {
+    message: 'leftItems and rightItems must have the same length.',
+    path: ['rightItems'],
+  })
+  .refine((item) => item.correctPairs.length === item.leftItems.length, {
+    message: 'correctPairs must cover the full set of visible left/right items.',
+    path: ['correctPairs'],
+  });
+
+const quizUnscrambleSentenceItemSchema = z
+  .object({
+    acceptableAnswers: z.array(z.string().trim().min(1).max(1600)).min(1).max(16).optional(),
+    kind: z.literal('unscramble_sentence'),
+    prompt: z.string().trim().min(1).max(1600),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+    tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
+  })
+  .strict();
+
+const quizItemSchema = z.union([
+  quizOpenTextItemSchema,
+  quizTranslateToEnglishItemSchema,
+  quizUnderstandInSpanishItemSchema,
+  quizFillInTheBlankInputItemSchema,
+  quizFillInTheBlankChoiceItemSchema,
+  quizMultipleChoiceItemSchema,
+  quizMatchingPairsItemSchema,
+  quizUnscrambleSentenceItemSchema,
+]);
+
+export const quizBlockSchema = z
+  .object({
+    type: z.literal('quiz'),
+    title: z.string().trim().min(1).max(200).optional(),
+    prompt: z.string().trim().min(1).max(2000),
+    rubric: z.string().trim().min(1).max(3000).optional(),
+    items: z.array(quizItemSchema).min(1).max(24),
+  })
+  .strict();
+
 export const fillInTheBlankInputBlockSchema = z
   .object({
     type: z.literal('fill_in_the_blank_input'),
@@ -232,6 +395,7 @@ export const tutorResponseSchema = z
           dialogueCharacterMessageBlockSchema,
           dialogueTranscriptBlockSchema,
           matchingPairsBlockSchema,
+          quizBlockSchema,
           translateToEnglishPromptBlockSchema,
           understandInSpanishPromptBlockSchema,
           fillInTheBlankInputBlockSchema,

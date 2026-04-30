@@ -94,6 +94,97 @@ export type TutorUnscrambleSentenceBlock = {
   answers: string[];
 };
 
+export type TutorQuizItemOpenText = {
+  kind: 'open_text';
+  prompt: string;
+  placeholder?: string;
+  rubric?: string;
+};
+
+export type TutorQuizItemTranslateToEnglish = {
+  kind: 'translate_to_english';
+  prompt: string;
+  sentence: string;
+  acceptableAnswers?: string[];
+  rubric?: string;
+};
+
+export type TutorQuizItemUnderstandInSpanish = {
+  kind: 'understand_in_spanish';
+  prompt: string;
+  sentence: string;
+  acceptableAnswers?: string[];
+  rubric?: string;
+};
+
+export type TutorQuizItemFillInTheBlankInput = {
+  kind: 'fill_in_the_blank_input';
+  prompt: string;
+  sentence: string;
+  blanks: Array<{
+    acceptableAnswers?: string[];
+    rubric?: string;
+  }>;
+};
+
+export type TutorQuizItemFillInTheBlankChoice = {
+  kind: 'fill_in_the_blank_choice';
+  prompt: string;
+  sentence: string;
+  blanks: Array<{
+    acceptableAnswers?: string[];
+    choices: string[];
+    rubric?: string;
+  }>;
+};
+
+export type TutorQuizItemMultipleChoice = {
+  kind: 'multiple_choice';
+  prompt: string;
+  selectionMode: 'single' | 'multiple';
+  options: string[];
+  correctOptions: string[];
+  rubric?: string;
+};
+
+export type TutorQuizItemMatchingPairs = {
+  kind: 'matching_pairs';
+  prompt: string;
+  leftItems: string[];
+  rightItems: string[];
+  correctPairs: Array<{
+    left: string;
+    right: string;
+  }>;
+  rubric?: string;
+};
+
+export type TutorQuizItemUnscrambleSentence = {
+  kind: 'unscramble_sentence';
+  prompt: string;
+  tokens: string[];
+  acceptableAnswers?: string[];
+  rubric?: string;
+};
+
+export type TutorQuizItem =
+  | TutorQuizItemOpenText
+  | TutorQuizItemTranslateToEnglish
+  | TutorQuizItemUnderstandInSpanish
+  | TutorQuizItemFillInTheBlankInput
+  | TutorQuizItemFillInTheBlankChoice
+  | TutorQuizItemMultipleChoice
+  | TutorQuizItemMatchingPairs
+  | TutorQuizItemUnscrambleSentence;
+
+export type TutorQuizBlock = {
+  type: 'quiz';
+  title?: string;
+  prompt: string;
+  rubric?: string;
+  items: TutorQuizItem[];
+};
+
 export type TutorSentenceEvaluationBlock = {
   type: 'sentence_evaluation';
   parts: Array<{
@@ -113,6 +204,7 @@ export type TutorResponseBlock =
   | TutorDialogueCharacterMessageBlock
   | TutorDialogueTranscriptBlock
   | TutorMatchingPairsBlock
+  | TutorQuizBlock
   | TutorTranslateToEnglishPromptBlock
   | TutorUnderstandInSpanishPromptBlock
   | TutorFillInTheBlankInputBlock

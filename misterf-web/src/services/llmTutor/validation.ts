@@ -5,6 +5,7 @@ import type {
   TutorFillInTheBlankInputBlock,
   TutorMatchingPairsBlock,
   TutorMultipleChoiceBlock,
+  TutorQuizBlock,
   TutorUnderstandInSpanishPromptBlock,
   TutorMessage,
   TutorMessageBlock,
@@ -46,6 +47,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorDialogueCharacterMessageBlock
         | TutorDialogueTranscriptBlock
         | TutorMatchingPairsBlock
+        | TutorQuizBlock
         | TutorTranslateToEnglishPromptBlock
         | TutorUnderstandInSpanishPromptBlock
         | TutorFillInTheBlankInputBlock
@@ -56,6 +58,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
+        block.type === 'quiz' ||
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt' ||
         block.type === 'fill_in_the_blank_input' ||
@@ -76,6 +79,10 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
 
       if (block.type === 'matching_pairs') {
         return block.prompt?.trim() || 'Ejercicio de emparejar.';
+      }
+
+      if (block.type === 'quiz') {
+        return block.title?.trim() || block.prompt.trim();
       }
 
       if (

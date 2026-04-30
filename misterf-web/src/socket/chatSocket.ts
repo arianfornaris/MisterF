@@ -33,6 +33,7 @@ import {
   type TutorFillInTheBlankInputBlock,
   type LlmRequestOptions,
   type LlmRequestTokenUsage,
+  type TutorQuizBlock,
   type TranslationMode,
   type TutorMessage,
   type TutorMatchingPairsBlock,
@@ -134,6 +135,20 @@ type UnscrambleSentenceCompletedPayload = {
   messageId?: number;
   selectedTokens?: string[];
   totalAttempts?: number;
+};
+
+type QuizCompletedPayload = {
+  blockIndex?: number;
+  conversationId?: string | null;
+  messageId?: number;
+  responses?: unknown[];
+};
+
+type QuizAbortedPayload = {
+  blockIndex?: number;
+  conversationId?: string | null;
+  messageId?: number;
+  responses?: unknown[];
 };
 
 type AuthenticatedSocketData = {
@@ -1019,6 +1034,140 @@ export function registerChatSocket(io: Server): void {
         );
       },
     );
+
+    socket.on(
+      'exercise:quiz_completed',
+      async (payload: QuizCompletedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        if (!conversationId || !messageId || blockIndex === null) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        if (runningConversations.has(conversationId)) {
+          socket.emit('assistant:error', {
+            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isQuizBlock(block)) {
+          return;
+        }
+
+        const responses = normalizeQuizResponses(payload.responses, block);
+        const nextResults = {
+          ...((message.metadata?.quizResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            responses,
+            submittedAt: new Date().toISOString(),
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          quizResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+
+        await streamAssistantMessage(
+          io,
+          conversationId,
+          userId,
+          undefined,
+          false,
+          [
+            {
+              content: buildQuizCompletionContext({
+                block,
+                responses,
+              }),
+              role: 'user',
+            },
+          ],
+        );
+      },
+    );
+
+    socket.on(
+      'exercise:quiz_aborted',
+      (payload: QuizAbortedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        if (!conversationId || !messageId || blockIndex === null) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isQuizBlock(block)) {
+          return;
+        }
+
+        const responses = normalizeQuizResponses(payload.responses, block);
+        const nextResults = {
+          ...((message.metadata?.quizResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            abortedAt: new Date().toISOString(),
+            responses,
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          quizResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+      },
+    );
   });
 }
 
@@ -1409,6 +1558,137 @@ function isUnscrambleSentenceBlock(
   );
 }
 
+function isQuizBlock(value: unknown): value is TutorQuizBlock {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (value as Record<string, unknown>).type === 'quiz' &&
+      Array.isArray((value as Record<string, unknown>).items) &&
+      typeof (value as Record<string, unknown>).prompt === 'string',
+  );
+}
+
+function normalizeQuizResponses(
+  values: unknown,
+  block: TutorQuizBlock,
+): Array<Record<string, unknown>> {
+  const items = Array.isArray(block.items) ? block.items : [];
+  const responses = Array.isArray(values) ? values : [];
+
+  return items.map((item, index) => {
+    const response = responses[index];
+
+    if (item.kind === 'matching_pairs') {
+      return {
+        kind: item.kind,
+        pairs: normalizeQuizMatchingPairsResponse(response, item),
+      };
+    }
+
+    if (
+      item.kind === 'fill_in_the_blank_input' ||
+      item.kind === 'fill_in_the_blank_choice'
+    ) {
+      const normalizedValues = normalizeStringArray(
+        (response as { values?: unknown })?.values,
+        240,
+      );
+      return {
+        completedSentence: fillSentencePlaceholdersForQuiz(
+          item.sentence,
+          normalizedValues,
+          item.kind === 'fill_in_the_blank_choice' ? '{{blank}}' : '___',
+        ),
+        kind: item.kind,
+        values: normalizedValues,
+      };
+    }
+
+    if (item.kind === 'multiple_choice') {
+      return {
+        kind: item.kind,
+        selectedOptions: normalizeStringArray(
+          (response as { selectedOptions?: unknown })?.selectedOptions,
+          400,
+        ).filter((option) => item.options.includes(option)),
+      };
+    }
+
+    if (item.kind === 'unscramble_sentence') {
+      const selectedTokens = normalizeStringArray(
+        (response as { selectedTokens?: unknown })?.selectedTokens,
+        120,
+      );
+      return {
+        kind: item.kind,
+        selectedTokens: selectedTokens.filter((token) => item.tokens.includes(token)),
+        sentence: selectedTokens.join(' ').replace(/\s+/g, ' ').trim(),
+      };
+    }
+
+    return {
+      kind: item.kind,
+      text:
+        typeof (response as { text?: unknown })?.text === 'string'
+          ? (response as { text: string }).text.replace(/\s+/g, ' ').trim().slice(0, 2400)
+          : '',
+    };
+  });
+}
+
+function normalizeQuizMatchingPairsResponse(
+  response: unknown,
+  item: TutorQuizBlock['items'][number] & { kind: 'matching_pairs' },
+): Array<{ left: string; right: string }> {
+  const leftItems = new Set(item.leftItems);
+  const rightItems = new Set(item.rightItems);
+  const unique = new Set<string>();
+  const pairs: Array<{ left: string; right: string }> = [];
+
+  for (const pair of Array.isArray((response as { pairs?: unknown })?.pairs)
+    ? (response as { pairs: unknown[] }).pairs
+    : []) {
+    const left =
+      typeof (pair as { left?: unknown })?.left === 'string'
+        ? (pair as { left: string }).left.replace(/\s+/g, ' ').trim().slice(0, 600)
+        : '';
+    const right =
+      typeof (pair as { right?: unknown })?.right === 'string'
+        ? (pair as { right: string }).right.replace(/\s+/g, ' ').trim().slice(0, 600)
+        : '';
+    if (!left || !right || !leftItems.has(left) || !rightItems.has(right)) {
+      continue;
+    }
+
+    const key = `${left}::${right}`;
+    if (unique.has(key)) {
+      continue;
+    }
+
+    unique.add(key);
+    pairs.push({ left, right });
+  }
+
+  return pairs;
+}
+
+function fillSentencePlaceholdersForQuiz(
+  sentence: string,
+  values: string[],
+  placeholderToken: string,
+): string {
+  if (typeof sentence !== 'string' || !placeholderToken || !sentence.includes(placeholderToken)) {
+    return '';
+  }
+
+  let nextSentence = sentence;
+  for (const value of values) {
+    nextSentence = nextSentence.replace(placeholderToken, value.trim());
+  }
+
+  return nextSentence.replace(/\s+/g, ' ').trim();
+}
+
 function normalizeIncorrectAttempts(
   attempts: MatchingExerciseCompletedPayload['incorrectAttempts'],
   block: TutorMatchingPairsBlock,
@@ -1641,6 +1921,131 @@ function buildUnscrambleSentenceCompletionContext(input: {
   ]
     .filter(Boolean)
     .join('\n');
+}
+
+function buildQuizCompletionContext(input: {
+  block: TutorQuizBlock;
+  responses: Array<Record<string, unknown>>;
+}): string {
+  const lines = [
+    'INTERNAL QUIZ COMPLETED.',
+    'The learner submitted a completed quiz in the UI.',
+    'Use this as teacher-only context. Do not mention the existence of the internal report.',
+    input.block.title ? `Quiz title: ${input.block.title}` : '',
+    `Quiz prompt: ${input.block.prompt}`,
+    input.block.rubric ? `Quiz rubric: ${input.block.rubric}` : '',
+    'Evaluate the learner based on the quiz prompt, the item prompts, the hidden answer guidance when present, and the learner responses below.',
+    'The quiz is self-contained. Do not assume extra context from the surrounding conversation.',
+    'After evaluating it, give concise, useful feedback in natural tutoring language.',
+    '',
+  ].filter(Boolean);
+
+  input.block.items.forEach((item, index) => {
+    const response = input.responses[index] ?? {};
+    lines.push(`Item ${index + 1} (${item.kind})`);
+    lines.push(`Prompt: ${item.prompt}`);
+
+    if (item.kind === 'open_text') {
+      if (item.placeholder) {
+        lines.push(`Placeholder: ${item.placeholder}`);
+      }
+      if (item.rubric) {
+        lines.push(`Item rubric: ${item.rubric}`);
+      }
+      lines.push(`Learner response: ${String(response.text || '(empty)')}`);
+    }
+
+    if (item.kind === 'translate_to_english' || item.kind === 'understand_in_spanish') {
+      lines.push(`Sentence: ${item.sentence}`);
+      if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) {
+        lines.push(`Acceptable answers: ${item.acceptableAnswers.join(' | ')}`);
+      }
+      if (item.rubric) {
+        lines.push(`Item rubric: ${item.rubric}`);
+      }
+      lines.push(`Learner response: ${String(response.text || '(empty)')}`);
+    }
+
+    if (
+      item.kind === 'fill_in_the_blank_input' ||
+      item.kind === 'fill_in_the_blank_choice'
+    ) {
+      lines.push(`Sentence: ${item.sentence}`);
+      if (item.kind === 'fill_in_the_blank_choice') {
+        item.blanks.forEach((blank, blankIndex) => {
+          if (Array.isArray(blank.acceptableAnswers) && blank.acceptableAnswers.length > 0) {
+            lines.push(
+              `Blank ${blankIndex + 1} acceptable answers: ${blank.acceptableAnswers.join(' | ')}`,
+            );
+          }
+          if (blank.rubric) {
+            lines.push(`Blank ${blankIndex + 1} rubric: ${blank.rubric}`);
+          }
+          lines.push(`Blank ${blankIndex + 1} choices: ${blank.choices.join(' | ')}`);
+        });
+      } else {
+        item.blanks.forEach((blank, blankIndex) => {
+          if (Array.isArray(blank.acceptableAnswers) && blank.acceptableAnswers.length > 0) {
+            lines.push(
+              `Blank ${blankIndex + 1} acceptable answers: ${blank.acceptableAnswers.join(' | ')}`,
+            );
+          }
+          if (blank.rubric) {
+            lines.push(`Blank ${blankIndex + 1} rubric: ${blank.rubric}`);
+          }
+        });
+      }
+      lines.push(
+        `Learner values: ${Array.isArray(response.values) && response.values.length > 0 ? response.values.join(' | ') : '(empty)'}`,
+      );
+      lines.push(`Learner completed sentence: ${String(response.completedSentence || '(empty)')}`);
+    }
+
+    if (item.kind === 'multiple_choice') {
+      lines.push(`Selection mode: ${item.selectionMode}`);
+      lines.push(`Options: ${item.options.join(' | ')}`);
+      lines.push(`Correct options: ${item.correctOptions.join(' | ')}`);
+      if (item.rubric) {
+        lines.push(`Item rubric: ${item.rubric}`);
+      }
+      lines.push(
+        `Learner selection: ${Array.isArray(response.selectedOptions) && response.selectedOptions.length > 0 ? response.selectedOptions.join(' | ') : '(empty)'}`,
+      );
+    }
+
+    if (item.kind === 'matching_pairs') {
+      lines.push(`Left items: ${item.leftItems.join(' | ')}`);
+      lines.push(`Right items: ${item.rightItems.join(' | ')}`);
+      lines.push(
+        `Correct pairs: ${item.correctPairs.map((pair) => `${pair.left} -> ${pair.right}`).join(' ; ')}`,
+      );
+      if (item.rubric) {
+        lines.push(`Item rubric: ${item.rubric}`);
+      }
+      lines.push(
+        `Learner pairs: ${Array.isArray(response.pairs) && response.pairs.length > 0 ? response.pairs.map((pair) => `${pair.left} -> ${pair.right}`).join(' ; ') : '(empty)'}`,
+      );
+    }
+
+    if (item.kind === 'unscramble_sentence') {
+      lines.push(`Tokens: ${item.tokens.join(' | ')}`);
+      if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) {
+        lines.push(`Acceptable answers: ${item.acceptableAnswers.join(' | ')}`);
+      }
+      if (item.rubric) {
+        lines.push(`Item rubric: ${item.rubric}`);
+      }
+      lines.push(
+        `Learner token order: ${Array.isArray(response.selectedTokens) && response.selectedTokens.length > 0 ? response.selectedTokens.join(' | ') : '(empty)'}`,
+      );
+      lines.push(`Learner sentence: ${String(response.sentence || '(empty)')}`);
+    }
+
+    lines.push('');
+  });
+
+  lines.push('Now evaluate the quiz and continue naturally as the tutor.');
+  return lines.join('\n');
 }
 
 function emitLlmRequestTokenUsage(
