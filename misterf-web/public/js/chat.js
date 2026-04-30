@@ -8,7 +8,9 @@ const activityStartTitleEl = document.querySelector('[data-activity-start-title]
 const activityStartDescriptionEl = document.querySelector(
   '[data-activity-start-description]',
 );
+const activityStartStatusEl = document.querySelector('[data-activity-start-status]');
 const activityStartButtonEl = document.querySelector('[data-activity-start-button]');
+const sendButtonEl = document.querySelector('[data-send-button]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
 const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
 const conversationPanelEl = document.querySelector('#conversationPanel');
@@ -63,6 +65,7 @@ let isAssistantBusy = false;
 let pendingDeleteTarget = null;
 let activeUserMessageId = null;
 let pendingActivityStart = false;
+let isAssistantStopping = false;
 const pendingSentenceEvaluations = new Map();
 let pendingTranslatorSelection = '';
 let userInputHistory = [];
@@ -74,6 +77,7 @@ const matchingExerciseStates = new Map();
 const chatSocketEvents =
   chatMode === 'admin'
     ? {
+        cancel: 'admin-chat:cancel',
         deleted: 'admin-chat:deleted',
         error: 'admin-chat:error',
         join: 'admin-chat:join',
@@ -82,6 +86,7 @@ const chatSocketEvents =
         send: 'admin-chat:send',
       }
     : {
+        cancel: 'assistant:cancel',
         deleted: 'conversation:deleted',
         error: 'conversation:error',
         join: 'conversation:join',
@@ -146,7 +151,10 @@ if (socket) {
       chatMode !== 'admin' && pendingActivityStart && Boolean(payload.activity);
     renderActivityStartPanel(
       payload.activity,
-      pendingActivityStart && !shouldAutoStartActivity,
+      {
+        autoStarting: shouldAutoStartActivity,
+        visible: pendingActivityStart,
+      },
     );
 
     let queuedSentenceEvaluation = null;
@@ -170,7 +178,7 @@ if (socket) {
 
     if (shouldAutoStartActivity) {
       window.setTimeout(() => {
-        startActivityConversation();
+        startActivityConversation({ preservePanel: true });
       }, 0);
     }
   });
@@ -246,8 +254,9 @@ if (socket) {
 
   socket.on('assistant:start', () => {
     isAssistantBusy = true;
+    isAssistantStopping = false;
     pendingActivityStart = false;
-    renderActivityStartPanel(null, false);
+    renderActivityStartPanel(null, { visible: false });
     setComposerEnabled(false);
     streamingBubble = appendMessage('model', '', { streaming: true });
     scrollToBottom();
@@ -290,8 +299,23 @@ if (socket) {
     activeUserMessageId = null;
     streamingBubble = null;
     isAssistantBusy = false;
-    renderActivityStartPanel(null, false);
+    isAssistantStopping = false;
+    renderActivityStartPanel(null, { visible: false });
     setComposerEnabled(true);
+    focusComposer();
+    scrollToBottom();
+  });
+
+  socket.on('assistant:stopped', () => {
+    if (streamingBubble) {
+      streamingBubble.closest('.message-row')?.remove();
+      streamingBubble = null;
+    }
+
+    isAssistantBusy = false;
+    isAssistantStopping = false;
+    renderActivityStartPanel(null, { visible: false });
+    setComposerEnabled(!pendingActivityStart);
     focusComposer();
     scrollToBottom();
   });
@@ -304,6 +328,7 @@ if (socket) {
 
     appendMessage('error', message);
     isAssistantBusy = false;
+    isAssistantStopping = false;
     setComposerEnabled(!pendingActivityStart);
     scrollToBottom();
   });
@@ -332,6 +357,11 @@ if (socket) {
 
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
+  if (isAssistantBusy) {
+    stopAssistantResponse();
+    return;
+  }
+
   sendMessage();
 });
 
@@ -526,6 +556,16 @@ function sendMessage() {
   socket.emit(chatSocketEvents.send, { conversationId, content });
 }
 
+function stopAssistantResponse() {
+  if (!socket || !conversationId || !isAssistantBusy || isAssistantStopping) {
+    return;
+  }
+
+  isAssistantStopping = true;
+  syncSendButton();
+  socket.emit(chatSocketEvents.cancel, { conversationId });
+}
+
 function handleUserInputHistoryKeydown(event) {
   if (!inputEl || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
     return false;
@@ -717,20 +757,33 @@ function updateLlmContextMeter(usage) {
   llmContextMeterEl.dataset.contextLevel = level;
 }
 
-function renderActivityStartPanel(activity, isVisible) {
-  if (!activityStartPanelEl || !activityStartTitleEl || !activityStartDescriptionEl) {
+function renderActivityStartPanel(activity, options = {}) {
+  if (
+    !activityStartPanelEl ||
+    !activityStartTitleEl ||
+    !activityStartDescriptionEl ||
+    !activityStartButtonEl ||
+    !activityStartStatusEl
+  ) {
     return;
   }
 
-  if (!isVisible || !activity) {
+  const visible = Boolean(options.visible);
+  const autoStarting = Boolean(options.autoStarting);
+
+  if (!visible || !activity) {
     activityStartPanelEl.classList.add('d-none');
     activityStartTitleEl.textContent = '';
     activityStartDescriptionEl.textContent = '';
+    activityStartStatusEl.classList.add('d-none');
+    activityStartButtonEl.classList.remove('d-none');
     return;
   }
 
-  activityStartTitleEl.textContent = activity.title || 'Actividad';
-  activityStartDescriptionEl.textContent = activity.description || '';
+  activityStartTitleEl.textContent = autoStarting ? '' : activity.title || 'Actividad';
+  activityStartDescriptionEl.textContent = autoStarting ? '' : activity.description || '';
+  activityStartStatusEl.classList.toggle('d-none', !autoStarting);
+  activityStartButtonEl.classList.toggle('d-none', autoStarting);
   activityStartPanelEl.classList.remove('d-none');
 }
 
@@ -742,13 +795,15 @@ function startNewConversation() {
   window.location.assign('/');
 }
 
-function startActivityConversation() {
+function startActivityConversation(options = {}) {
   if (!socket || isAssistantBusy || !conversationId) {
     return;
   }
 
   pendingActivityStart = false;
-  renderActivityStartPanel(null, false);
+  if (!options.preservePanel) {
+    renderActivityStartPanel(null, { visible: false });
+  }
   setComposerEnabled(false);
   socket.emit('activity:start', { conversationId });
 }
@@ -3030,7 +3085,31 @@ function resizeComposerInput() {
 
 function setComposerEnabled(enabled) {
   inputEl.disabled = !enabled;
-  formEl.querySelector('button[type="submit"]').disabled = !enabled;
+  syncSendButton();
+}
+
+function syncSendButton() {
+  if (!sendButtonEl) {
+    return;
+  }
+
+  const isStopMode = isAssistantBusy;
+  sendButtonEl.disabled = isStopMode ? isAssistantStopping : inputEl.disabled;
+  sendButtonEl.title = isStopMode ? 'Detener' : 'Enviar';
+  sendButtonEl.setAttribute('aria-label', isStopMode ? 'Detener' : 'Enviar');
+  sendButtonEl.dataset.mode = isStopMode ? 'stop' : 'send';
+  sendButtonEl.innerHTML = isStopMode
+    ? `
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"></rect>
+        </svg>
+      `
+    : `
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      `;
 }
 
 function focusComposer() {

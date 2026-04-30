@@ -4,8 +4,9 @@
 - Permitir usar imagenes en los ejercicios.
     - (free) Pizabay API https://pixabay.com/api/docs/
 
-Juegos y retos:
+Tipo de mensajes/ejercicios:
 
+- Permitir hacer un exámen, que tiene diferntes tipos de ejercicios. La idea de un examen es que el tutor no lo rectifica, sino que lo evalua y le asigna un nota.
 x- Traducir frase del español al ingles.
 x- Entender frase en inglés - escribirla en español.
 x- El juego del diálogo:

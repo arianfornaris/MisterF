@@ -30,6 +30,15 @@ import { toModelMessage } from './llmTutor/validation.js';
 let adminCapabilitiesInstruction: string | undefined;
 const maxAdminTurns = 4;
 
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 const adminChatResponseSchema = z.object({
   blocks: z.array(
     z.union([
@@ -115,6 +124,7 @@ type AdminChatResponseBlock = AdminChatMessageBlock | AdminChatActivityLinkBlock
 export async function runAdminChatLoop(
   history: TutorMessage[],
   options: {
+    abortSignal?: AbortSignal;
     currentThreadId?: string | null;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
@@ -137,6 +147,7 @@ export async function runAdminChatLoop(
 
     try {
       const result = await generateText({
+        abortSignal: options.abortSignal,
         maxOutputTokens: 1800,
         messages,
         model: getLanguageModel(options.llm),
@@ -223,15 +234,15 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         query: z.string().trim().min(1).optional(),
       }),
       execute: async ({ query }) => {
-        const normalizedQuery = query?.toLowerCase().trim() || '';
+        const normalizedQuery = normalizeSearchText(query || '');
         const activities = listActivitiesForUser(userId)
           .filter((activity) => {
             if (!normalizedQuery) {
               return true;
             }
 
-            const haystack = `${activity.title}\n${activity.description}`.toLowerCase();
-            return haystack.includes(normalizedQuery);
+            const haystack = `${activity.title}\n${activity.description}`;
+            return normalizeSearchText(haystack).includes(normalizedQuery);
           })
           .map((activity) => ({
             conversationCount: listConversationsForActivity(activity.id, userId).length,

@@ -88,6 +88,14 @@ type ActivityStartPayload = {
   conversationId?: string | null;
 };
 
+type CancelAssistantPayload = {
+  conversationId?: string | null;
+};
+
+type CancelAdminAssistantPayload = {
+  conversationId?: string | null;
+};
+
 type MatchingExerciseCompletedPayload = {
   blockIndex?: number;
   conversationId?: string | null;
@@ -137,6 +145,8 @@ type AuthenticatedSocketData = {
 
 const runningConversations = new Set<string>();
 const runningAdminThreads = new Set<string>();
+const runningConversationControllers = new Map<string, AbortController>();
+const runningAdminThreadControllers = new Map<string, AbortController>();
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
@@ -298,6 +308,26 @@ export function registerChatSocket(io: Server): void {
       await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
     });
 
+    socket.on('assistant:cancel', (payload: CancelAssistantPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      if (!conversationId) {
+        return;
+      }
+
+      const conversation = findConversationForUser(conversationId, userId);
+      if (!conversation) {
+        return;
+      }
+
+      runningConversationControllers.get(conversationId)?.abort();
+    });
+
     socket.on('admin-chat:send', async (payload: AdminSendMessagePayload = {}) => {
       const content = payload.content?.trim();
       if (!content) {
@@ -335,6 +365,26 @@ export function registerChatSocket(io: Server): void {
       io.to(getAdminThreadRoomId(thread.id)).emit('message:created', userMessage);
 
       await streamAdminAssistantMessage(io, thread.id, userId);
+    });
+
+    socket.on('admin-chat:cancel', (payload: CancelAdminAssistantPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const threadId = payload.conversationId?.trim();
+      if (!threadId) {
+        return;
+      }
+
+      const thread = findAdminChatThreadForUser(threadId, userId);
+      if (!thread) {
+        return;
+      }
+
+      runningAdminThreadControllers.get(threadId)?.abort();
     });
 
     socket.on('conversation:reset', async () => {
@@ -1096,7 +1146,9 @@ async function streamAssistantMessage(
     return;
   }
 
+  const abortController = new AbortController();
   runningConversations.add(conversationId);
+  runningConversationControllers.set(conversationId, abortController);
   io.to(conversationId).emit('assistant:start');
 
   try {
@@ -1117,6 +1169,7 @@ async function streamAssistantMessage(
               tutorInstructions: activitySnapshot.tutorInstructions,
             }
           : null,
+        abortSignal: abortController.signal,
         currentTitle: conversation.title,
         llm: await getLlmRequestOptionsForUser(userId),
         onTokenUsage: (usage) => {
@@ -1150,6 +1203,11 @@ async function streamAssistantMessage(
 
     io.to(conversationId).emit('assistant:done', assistantMessage);
   } catch (error) {
+    if (isAbortError(error, abortController.signal)) {
+      io.to(conversationId).emit('assistant:stopped');
+      return;
+    }
+
     console.error('Assistant response failed.', {
       conversationId,
       error: serializeError(error),
@@ -1162,6 +1220,7 @@ async function streamAssistantMessage(
     });
   } finally {
     runningConversations.delete(conversationId);
+    runningConversationControllers.delete(conversationId);
   }
 }
 
@@ -1174,7 +1233,9 @@ async function streamAdminAssistantMessage(
     return;
   }
 
+  const abortController = new AbortController();
   runningAdminThreads.add(threadId);
+  runningAdminThreadControllers.set(threadId, abortController);
   const roomId = getAdminThreadRoomId(threadId);
   io.to(roomId).emit('assistant:start');
 
@@ -1186,6 +1247,7 @@ async function streamAdminAssistantMessage(
 
     const messages = listAdminChatMessages(threadId);
     const result = await runAdminChatLoop(toAdminHistory(messages), {
+      abortSignal: abortController.signal,
       currentThreadId: threadId,
       llm: await getLlmRequestOptionsForUser(userId),
       onTokenUsage: (usage) => {
@@ -1212,6 +1274,11 @@ async function streamAdminAssistantMessage(
 
     io.to(roomId).emit('assistant:done', assistantMessage);
   } catch (error) {
+    if (isAbortError(error, abortController.signal)) {
+      io.to(roomId).emit('assistant:stopped');
+      return;
+    }
+
     console.error('Admin chat response failed.', {
       error: serializeError(error),
       threadId,
@@ -1223,6 +1290,7 @@ async function streamAdminAssistantMessage(
     });
   } finally {
     runningAdminThreads.delete(threadId);
+    runningAdminThreadControllers.delete(threadId);
   }
 }
 
@@ -1238,6 +1306,18 @@ function toAdminHistory(messages: Array<{ content: string; role: 'user' | 'model
     content: message.content,
     role: message.role,
   }));
+}
+
+function isAbortError(error: unknown, signal?: AbortSignal): boolean {
+  if (signal?.aborted) {
+    return true;
+  }
+
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return error.name === 'AbortError' || /abort(ed)?/i.test(error.message);
 }
 
 function buildActivityStartMessage(activity: {

@@ -363,6 +363,33 @@ body {
   color: var(--muted);
 }
 
+.activity-filter-form {
+  margin: 18px 0 20px;
+}
+
+.activity-filter-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 560px;
+}
+
+.activity-filter-input {
+  min-width: 0;
+}
+
+.activity-filter-clear {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.activity-filter-clear:hover,
+.activity-filter-clear:focus {
+  color: var(--accent);
+}
+
 .activities-grid,
 .activity-chat-list {
   display: grid;
@@ -609,6 +636,11 @@ body {
 
 .activity-start-panel .btn {
   justify-self: start;
+}
+
+.activity-start-status {
+  margin: 0;
+  font-size: 0.98rem;
 }
 
 .conversation-open-button {
@@ -2149,6 +2181,10 @@ body[data-chat-mode="admin"] .composer-prompt {
   border-color: transparent;
 }
 
+.send-button[data-mode='stop'] {
+  color: #b64a46;
+}
+
 .send-button:hover,
 .send-button:focus {
   color: #d95e5a;
@@ -2322,6 +2358,11 @@ body[data-chat-mode="admin"] .composer-prompt {
   .activities-header:not(.activities-header-has-close) .activities-header-actions {
     width: auto;
     align-items: flex-start;
+  }
+
+  .activity-filter-input-wrap {
+    max-width: none;
+    flex-wrap: wrap;
   }
 
   .activity-detail-grid {

@@ -73,6 +73,15 @@ const attemptWindowMs = 10 * 60 * 1000;
 const verificationTtlMs = 24 * 60 * 60 * 1000;
 const passwordResetTtlMs = 60 * 60 * 1000;
 
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function renderLogin(request: Request, response: Response): void {
   if (request.authUser?.emailVerified) {
     response.redirect('/');
@@ -553,11 +562,30 @@ export function renderHome(request: Request, response: Response): void {
   const conversations = user ? listConversationsForUser(user.id) : [];
   const adminChatThreads = user ? listAdminChatThreadsForUser(user.id) : [];
   const activities = user ? listActivitiesForUser(user.id) : [];
+  const activityFilterQueryRaw =
+    typeof request.query.q === 'string' ? request.query.q : '';
+  const activityFilterQuery = activityFilterQueryRaw.trim();
+  const normalizedActivityFilterQuery = normalizeSearchText(activityFilterQuery);
   const activitiesWithCounts = user
-    ? activities.map((activity) => ({
-        ...activity,
-        conversationCount: listConversationsForActivity(activity.id, user.id).length,
-      }))
+    ? activities
+        .filter((activity) => {
+          if (!normalizedActivityFilterQuery) {
+            return true;
+          }
+
+          const haystack = [
+            activity.title,
+            activity.description,
+            activity.tutorInstructions,
+          ]
+            .join('\n');
+
+          return normalizeSearchText(haystack).includes(normalizedActivityFilterQuery);
+        })
+        .map((activity) => ({
+          ...activity,
+          conversationCount: listConversationsForActivity(activity.id, user.id).length,
+        }))
     : [];
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
@@ -648,6 +676,7 @@ export function renderHome(request: Request, response: Response): void {
 
   response.render('index', {
     activities: activitiesWithCounts,
+    activityFilterQuery,
     adminChatThreads,
     activityConversations,
     activityPageMode,

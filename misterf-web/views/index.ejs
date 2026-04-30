@@ -452,6 +452,26 @@
             <% } %>
           </div>
 
+          <% if (activityPageMode === 'list') { %>
+            <form class="activity-filter-form" method="get" action="/activities" role="search">
+              <div class="activity-filter-input-wrap">
+                <input
+                  class="form-control activity-filter-input"
+                  type="search"
+                  name="q"
+                  value="<%= activityFilterQuery || '' %>"
+                  placeholder="Filtrar actividades por texto"
+                  aria-label="Filtrar actividades por texto"
+                >
+                <% if (activityFilterQuery) { %>
+                  <a class="activity-filter-clear" href="/activities" aria-label="Limpiar filtro">
+                    Limpiar
+                  </a>
+                <% } %>
+              </div>
+            </form>
+          <% } %>
+
           <% if (activityPageMode === 'new' || activityPageMode === 'edit') { %>
             <section class="activity-form-shell">
               <div class="activity-form-card">
@@ -535,7 +555,11 @@
             </div>
           <% } else { %>
             <div class="activity-empty-state">
-              <p>Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.</p>
+              <p>
+                <%= activityFilterQuery
+                  ? 'No encontré actividades que coincidan con ese texto.'
+                  : 'Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.' %>
+              </p>
             </div>
           <% } %>
         </section>
@@ -620,6 +644,9 @@
               <p class="activity-start-kicker">Actividad</p>
               <h2 class="activity-start-title" data-activity-start-title></h2>
               <p class="activity-start-description" data-activity-start-description></p>
+              <p class="activity-start-status text-body-secondary d-none" data-activity-start-status>
+                Comenzando la actividad...
+              </p>
               <button class="btn btn-dark" type="button" data-activity-start-button>
                 Comenzar
               </button>
@@ -677,7 +704,13 @@
                 </svg>
               </div>
 
-              <button class="btn btn-dark send-button" type="submit" title="Enviar" aria-label="Enviar">
+              <button
+                class="btn btn-dark send-button"
+                type="submit"
+                title="Enviar"
+                aria-label="Enviar"
+                data-send-button
+              >
                 <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
                   <path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

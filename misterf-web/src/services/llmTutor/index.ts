@@ -44,6 +44,7 @@ export async function runTutorAgentLoop(
       title: string;
       tutorInstructions: string;
     } | null;
+    abortSignal?: AbortSignal;
     currentTitle?: string;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
@@ -69,6 +70,7 @@ export async function runTutorAgentLoop(
 
     try {
       const result = await generateText({
+        abortSignal: options.abortSignal,
         maxOutputTokens: 1800,
         messages,
         model: getLanguageModel(options.llm),
