@@ -139,23 +139,3 @@ export type TranslationResult = {
   provider: string;
   translatedText: string;
 };
-
-export type GeneratedProgressResult = {
-  markdown: string;
-  model: string;
-  provider: string;
-};
-
-export type GeneratedVocabularyItem = {
-  example?: string;
-  explanation: string;
-  sourceSentence?: string;
-  term: string;
-  translation: string;
-};
-
-export type GeneratedVocabularyResult = {
-  items: GeneratedVocabularyItem[];
-  model: string;
-  provider: string;
-};

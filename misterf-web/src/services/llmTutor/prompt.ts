@@ -4,8 +4,6 @@ import { env } from '../../config/env.js';
 import type { TranslationMode } from './types.js';
 
 let systemInstruction: string | undefined;
-let progressInstruction: string | undefined;
-let vocabularyInstruction: string | undefined;
 
 function getSystemInstruction(): string {
   systemInstruction ??= fs.readFileSync(
@@ -14,24 +12,6 @@ function getSystemInstruction(): string {
   );
 
   return systemInstruction;
-}
-
-function getProgressInstruction(): string {
-  progressInstruction ??= fs.readFileSync(
-    path.join(env.projectRoot, 'gameplays/progress-instructions.md'),
-    'utf8',
-  );
-
-  return progressInstruction;
-}
-
-function getVocabularyInstruction(): string {
-  vocabularyInstruction ??= fs.readFileSync(
-    path.join(env.projectRoot, 'gameplays/vocabulaty-instructions.md'),
-    'utf8',
-  );
-
-  return vocabularyInstruction;
 }
 
 export function buildAgentSystemInstruction(options: {
@@ -69,14 +49,6 @@ export function buildAgentSystemInstruction(options: {
     'Activity tutor instructions:',
     options.activity.tutorInstructions,
   ].join('\n');
-}
-
-export function buildProgressSystemInstruction(): string {
-  return getProgressInstruction();
-}
-
-export function buildVocabularySystemInstruction(): string {
-  return getVocabularyInstruction();
 }
 
 export function buildTranslatorSystemInstruction(mode: TranslationMode): string {

@@ -10,13 +10,12 @@ import {
   logLlmRequest,
   logLlmResponse,
 } from './logging.js';
-import { buildProgressSystemInstruction, buildTranslatorSystemInstruction, buildVocabularySystemInstruction, buildAgentSystemInstruction } from './prompt.js';
+import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
-import { assertUsableProgressMarkdown, parseVocabularyJsonLines } from './parsers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
-import type { GeneratedProgressResult, GeneratedVocabularyResult, LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorResponseValidator } from './types.js';
+import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorResponseValidator } from './types.js';
 
 const firstChallengePrompt = `
 Start the session.
@@ -225,123 +224,6 @@ export async function translateTextWithLlm(input: {
     model: env.llmModel,
     provider: env.llmProvider,
     translatedText: parsed.data.translatedText,
-  };
-}
-
-export async function generateProgressWithLlm(input: {
-  compactDataset: string;
-  llm?: LlmRequestOptions;
-  onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
-}): Promise<GeneratedProgressResult> {
-  const system = buildProgressSystemInstruction();
-  const messages: ModelMessage[] = [
-    { content: input.compactDataset, role: 'user' },
-  ];
-  const result = await generateText({
-    maxOutputTokens: 1600,
-    messages,
-    model: getLanguageModel(input.llm),
-    providerOptions: getProviderOptions(),
-    system,
-    temperature: shouldUseTemperature() ? 0.2 : undefined,
-  });
-
-  input.onTokenUsage?.(
-    await buildLlmRequestTokenUsage({
-      messages,
-      system,
-      turn: 1,
-      usage: result.usage,
-    }),
-  );
-
-  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-    result.finishReason,
-    undefined,
-    result.providerMetadata,
-  );
-  if (userFacingFinishMessage) {
-    throw new LlmFinishReasonError(
-      result.finishReason,
-      userFacingFinishMessage,
-    );
-  }
-
-  const markdown = result.text.trim();
-  assertUsableProgressMarkdown(markdown);
-
-  return {
-    markdown,
-    model: env.llmModel,
-    provider: env.llmProvider,
-  };
-}
-
-export async function generateVocabularyWithLlm(input: {
-  compactDataset: string;
-  llm?: LlmRequestOptions;
-  onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
-}): Promise<GeneratedVocabularyResult> {
-  const system = buildVocabularySystemInstruction();
-  const messages: ModelMessage[] = [
-    { content: input.compactDataset, role: 'user' },
-  ];
-  const result = await generateText({
-    maxOutputTokens: 2600,
-    messages,
-    model: getLanguageModel(input.llm),
-    providerOptions: getProviderOptions(),
-    system,
-    temperature: shouldUseTemperature() ? 0.2 : undefined,
-  });
-
-  input.onTokenUsage?.(
-    await buildLlmRequestTokenUsage({
-      messages,
-      system,
-      turn: 1,
-      usage: result.usage,
-    }),
-  );
-
-  const parsedItems = parseVocabularyJsonLines(result.text);
-  if (parsedItems.length === 0) {
-    const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-      result.finishReason,
-      undefined,
-      result.providerMetadata,
-    );
-    if (userFacingFinishMessage) {
-      throw new LlmFinishReasonError(
-        result.finishReason,
-        userFacingFinishMessage,
-      );
-    }
-
-    console.error('[Mr. F vocabulary JSONL parse failed]', JSON.stringify({
-      finishReason: result.finishReason,
-      text: result.text,
-    }, null, 2));
-    throw new Error('El vocabulario no devolvió líneas JSON válidas.');
-  }
-
-  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-    result.finishReason,
-    undefined,
-    result.providerMetadata,
-  );
-  if (userFacingFinishMessage) {
-    console.warn('[Mr. F vocabulary partial result accepted]', JSON.stringify({
-      finishReason: result.finishReason,
-      itemCount: parsedItems.length,
-      message: userFacingFinishMessage,
-    }, null, 2));
-  }
-
-  return {
-    items: parsedItems,
-    model: env.llmModel,
-    provider: env.llmProvider,
   };
 }
 

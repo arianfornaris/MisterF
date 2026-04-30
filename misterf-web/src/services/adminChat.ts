@@ -35,15 +35,15 @@ const adminChatResponseSchema = z.object({
     z.union([
       z.object({
         type: z.literal('message'),
-        markdown: z.string().trim().min(1).max(6000),
+        markdown: z.string().trim().min(1).max(12000),
       }),
       z.object({
         type: z.literal('activity_link'),
         activityId: z.string().trim().min(1),
-        label: z.string().trim().min(1).max(80),
+        label: z.string().trim().min(1).max(160),
       }),
     ]),
-  ).min(1).max(8),
+  ).min(1).max(16),
 });
 
 function getAdminCapabilitiesInstruction(): string {
@@ -72,11 +72,17 @@ function buildAdminSystemInstruction(): string {
     '- Do not invent unsupported exercise types or product features.',
     '- Treat the product reference below as a lightweight map of real capabilities, not as a rigid pedagogy script.',
     '- Give the user room to design activities freely when their request does not require a strict structure.',
+    '- When helping create an activity, the default recommendation is to focus on helping the learner acquire useful vocabulary and learn how to form the relevant sentences.',
+    '- In most cases, creativity or the ability to understand more complex texts is not the main goal unless the user clearly asks for that.',
     '- Respond with one JSON object of the form {"blocks":[...]}. Do not write any text before or after the JSON object.',
     '- The only valid block types are: message, activity_link.',
     '- A message block has: type="message", markdown.',
     '- An activity_link block has: type="activity_link", activityId, and label.',
     '- When you want to point the user to an activity page, use the build_activity_link tool first and then emit an activity_link block. Do not paste raw URLs into the message text.',
+    '- When you create, update, or otherwise change an activity or any other object, do not respond with only a link block.',
+    '- In those cases, always include a message block that briefly explains what was created or changed and summarizes the important content.',
+    '- If you create or update an activity, the message should mention the title and summarize the description, tutor instructions, or the main changes in natural language.',
+    '- When you create an activity, also mention the exercise types that can naturally be used in that activity.',
     '- If the current admin chat still has a generic title, assign it a better title as soon as the purpose of the chat becomes clear from the first useful information the user gives you.',
     '- Do not wait for a long conversation if the main purpose is already obvious.',
     '- Use the auto_title_current_chat tool for that.',
@@ -247,9 +253,9 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
     create_activity: tool({
       description: 'Create a new activity for the user.',
       inputSchema: z.object({
-        description: z.string().trim().min(1).max(500),
-        title: z.string().trim().min(1).max(120),
-        tutorInstructions: z.string().trim().min(1).max(4000),
+        description: z.string().trim().min(1).max(1500),
+        title: z.string().trim().min(1).max(220),
+        tutorInstructions: z.string().trim().min(1).max(12000),
       }),
       execute: async ({ description, title, tutorInstructions }) => {
         const activity = createActivity({
@@ -271,9 +277,9 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         'Update an existing activity. Use list_activities first if you need to discover the activity id.',
       inputSchema: z.object({
         activityId: z.string().trim().min(1),
-        description: z.string().trim().min(1).max(500).optional(),
-        title: z.string().trim().min(1).max(120).optional(),
-        tutorInstructions: z.string().trim().min(1).max(4000).optional(),
+        description: z.string().trim().min(1).max(1500).optional(),
+        title: z.string().trim().min(1).max(220).optional(),
+        tutorInstructions: z.string().trim().min(1).max(12000).optional(),
       }),
       execute: async ({ activityId, description, title, tutorInstructions }) => {
         const current = findActivityForUser(activityId, userId);
@@ -341,7 +347,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
       description:
         'List the user conversations. Optionally filter by a query in the title.',
       inputSchema: z.object({
-        limit: z.number().int().min(1).max(30).optional(),
+        limit: z.number().int().min(1).max(100).optional(),
         query: z.string().trim().min(1).optional(),
       }),
       execute: async ({ limit, query }) => {
@@ -374,7 +380,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
       description: 'Rename a user conversation.',
       inputSchema: z.object({
         conversationId: z.string().trim().min(1),
-        title: z.string().trim().min(1).max(90),
+        title: z.string().trim().min(1).max(160),
       }),
       execute: async ({ conversationId, title }) => {
         const existing = findConversationForUser(conversationId, userId);
@@ -413,7 +419,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         'Build a UI activity link action so the interface can render an activity button instead of showing a raw URL.',
       inputSchema: z.object({
         activityId: z.string().trim().min(1),
-        label: z.string().trim().min(1).max(80).optional(),
+        label: z.string().trim().min(1).max(160).optional(),
       }),
       execute: async ({ activityId, label }) => {
         const activity = findActivityForUser(activityId, userId);
@@ -437,7 +443,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
       description:
         'Assign a better title to the current admin chat thread when its purpose is already clear.',
       inputSchema: z.object({
-        title: z.string().trim().min(1).max(90),
+        title: z.string().trim().min(1).max(160),
       }),
       execute: async ({ title }) => {
         if (!currentThreadId) {

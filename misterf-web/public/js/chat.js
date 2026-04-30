@@ -142,7 +142,12 @@ if (socket) {
     resetUserInputHistoryNavigation();
     updateLlmContextMeter(null);
     pendingActivityStart = Boolean(payload.pendingActivityStart);
-    renderActivityStartPanel(payload.activity, pendingActivityStart);
+    const shouldAutoStartActivity =
+      chatMode !== 'admin' && pendingActivityStart && Boolean(payload.activity);
+    renderActivityStartPanel(
+      payload.activity,
+      pendingActivityStart && !shouldAutoStartActivity,
+    );
 
     let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
@@ -162,6 +167,12 @@ if (socket) {
     focusComposer();
     scrollToBottom();
     flushPendingBootGuestDraft();
+
+    if (shouldAutoStartActivity) {
+      window.setTimeout(() => {
+        startActivityConversation();
+      }, 0);
+    }
   });
 
   socket.on(chatSocketEvents.promoted, (payload) => {
