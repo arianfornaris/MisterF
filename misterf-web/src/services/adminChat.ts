@@ -6,11 +6,14 @@ import { env } from '../config/env.js';
 import {
   createActivity,
   findActivityForUser,
+  findAdminChatThreadForUser,
   findConversationForUser,
   listActivitiesForUser,
   listConversationsForActivity,
   listConversationsForUser,
+  renameAdminChatThreadForUser,
   renameConversationForUser,
+  deleteActivityForUser,
   updateActivity,
   type StoredActivity,
 } from '../db/repository.js';
@@ -74,6 +77,9 @@ function buildAdminSystemInstruction(): string {
     '- A message block has: type="message", markdown.',
     '- An activity_link block has: type="activity_link", activityId, and label.',
     '- When you want to point the user to an activity page, use the build_activity_link tool first and then emit an activity_link block. Do not paste raw URLs into the message text.',
+    '- If the current admin chat still has a generic title, assign it a better title as soon as the purpose of the chat becomes clear from the first useful information the user gives you.',
+    '- Do not wait for a long conversation if the main purpose is already obvious.',
+    '- Use the auto_title_current_chat tool for that.',
     '- Respond in Spanish unless the user clearly asks for another language.',
     '',
     getAdminCapabilitiesInstruction(),
@@ -103,6 +109,7 @@ type AdminChatResponseBlock = AdminChatMessageBlock | AdminChatActivityLinkBlock
 export async function runAdminChatLoop(
   history: TutorMessage[],
   options: {
+    currentThreadId?: string | null;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     userId: string;
@@ -131,7 +138,7 @@ export async function runAdminChatLoop(
         stopWhen: stepCountIs(6),
         system: systemInstruction,
         temperature: shouldUseTemperature() ? 0.25 : undefined,
-        tools: buildAdminChatTools(options.userId),
+        tools: buildAdminChatTools(options.userId, options.currentThreadId ?? null),
       });
 
       options.onTokenUsage?.(
@@ -201,7 +208,7 @@ export async function runAdminChatLoop(
     : new Error('El Admin Chat no devolvió una respuesta estructurada válida.');
 }
 
-function buildAdminChatTools(userId: string) {
+function buildAdminChatTools(userId: string, currentThreadId: string | null) {
   return {
     list_activities: tool({
       description:
@@ -300,6 +307,36 @@ function buildAdminChatTools(userId: string) {
       },
     }),
 
+    delete_activity: tool({
+      description:
+        'Delete an existing activity. Existing chats keep their historical snapshot, but the activity is removed from the activity library.',
+      inputSchema: z.object({
+        activityId: z.string().trim().min(1),
+      }),
+      execute: async ({ activityId }) => {
+        const existing = findActivityForUser(activityId, userId);
+        if (!existing) {
+          return {
+            error: `No activity found with id ${activityId}.`,
+          };
+        }
+
+        const deleted = deleteActivityForUser(activityId, userId);
+        if (!deleted) {
+          return {
+            error: `Could not delete activity ${activityId}.`,
+          };
+        }
+
+        return {
+          deletedActivity: {
+            id: existing.id,
+            title: existing.title,
+          },
+        };
+      },
+    }),
+
     list_conversations: tool({
       description:
         'List the user conversations. Optionally filter by a query in the title.',
@@ -391,6 +428,47 @@ function buildAdminChatTools(userId: string) {
             activityId,
             label: label || 'Abrir actividad',
             type: 'activity_link' as const,
+          },
+        };
+      },
+    }),
+
+    auto_title_current_chat: tool({
+      description:
+        'Assign a better title to the current admin chat thread when its purpose is already clear.',
+      inputSchema: z.object({
+        title: z.string().trim().min(1).max(90),
+      }),
+      execute: async ({ title }) => {
+        if (!currentThreadId) {
+          return {
+            error: 'There is no current admin chat thread to rename.',
+          };
+        }
+
+        const currentThread = findAdminChatThreadForUser(currentThreadId, userId);
+        if (!currentThread) {
+          return {
+            error: `No admin chat thread found with id ${currentThreadId}.`,
+          };
+        }
+
+        const renamedThread = renameAdminChatThreadForUser(
+          currentThreadId,
+          userId,
+          title,
+        );
+        if (!renamedThread) {
+          return {
+            error: `Could not rename admin chat thread ${currentThreadId}.`,
+          };
+        }
+
+        return {
+          thread: {
+            id: renamedThread.id,
+            title: renamedThread.title,
+            updatedAt: renamedThread.updatedAt,
           },
         };
       },

@@ -28,7 +28,7 @@ export type StoredActivity = {
 };
 
 export type StoredConversationActivitySnapshot = {
-  activityId: string;
+  activityId: string | null;
   conversationId: string;
   createdAt: string;
   description: string;
@@ -494,6 +494,33 @@ export function listAdminChatThreadsForUser(
   return rows.map(toStoredAdminChatThread);
 }
 
+export function renameAdminChatThreadForUser(
+  id: string,
+  userId: string,
+  title: string,
+): StoredAdminChatThread | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE admin_chat_threads
+        SET title = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(title, id, userId);
+
+  return findAdminChatThreadForUser(id, userId);
+}
+
+export function deleteAdminChatThreadForUser(id: string, userId: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM admin_chat_threads WHERE id = ? AND user_id = ?')
+    .run(id, userId);
+
+  return result.changes > 0;
+}
+
 export function renameConversationForUser(
   id: string,
   userId: string,
@@ -585,6 +612,14 @@ export function listActivitiesForUser(userId: string): StoredActivity[] {
     .all(userId) as ActivityRow[];
 
   return rows.map(toStoredActivity);
+}
+
+export function deleteActivityForUser(id: string, userId: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM activities WHERE id = ? AND user_id = ?')
+    .run(id, userId);
+
+  return result.changes > 0;
 }
 
 export function listConversationsForActivity(

@@ -10,6 +10,7 @@ import {
   addAdminChatMessage,
   createConversation,
   createAdminChatThread,
+  deleteAdminChatThreadForUser,
   deleteConversationForUser,
   findAdminChatThreadForUser,
   findConversationForUser,
@@ -17,6 +18,7 @@ import {
   findMessageInConversation,
   listAdminChatMessages,
   listMessages,
+  renameAdminChatThreadForUser,
   renameConversationForUser,
   updateMessageMetadata,
   type StoredMessage,
@@ -66,6 +68,15 @@ type RenamePayload = {
 
 type DeletePayload = {
   conversationId?: string | null;
+};
+
+type AdminRenamePayload = {
+  threadId?: string | null;
+  title?: string;
+};
+
+type AdminDeletePayload = {
+  threadId?: string | null;
 };
 
 type TranslatePayload = {
@@ -435,6 +446,94 @@ export function registerChatSocket(io: Server): void {
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
+        pendingActivityStart: false,
+      });
+    });
+
+    socket.on('admin-chat:rename', (payload: AdminRenamePayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const threadId = payload.threadId?.trim();
+      const title = normalizeConversationTitle(payload.title);
+      if (!threadId || !title) {
+        socket.emit('admin-chat:error', {
+          message: 'El título del chat admin no puede estar vacío.',
+        });
+        return;
+      }
+
+      const thread = renameAdminChatThreadForUser(threadId, userId, title);
+      if (!thread) {
+        socket.emit('admin-chat:error', {
+          message: 'No pude encontrar ese chat admin.',
+        });
+        return;
+      }
+
+      socket.emit('admin-chat:renamed', {
+        conversation: thread,
+        conversationId: thread.id,
+      });
+      io.to(getAdminThreadRoomId(thread.id)).emit('admin-chat:renamed', {
+        conversation: thread,
+        conversationId: thread.id,
+      });
+    });
+
+    socket.on('admin-chat:delete', (payload: AdminDeletePayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const threadId = payload.threadId?.trim();
+      if (!threadId) {
+        return;
+      }
+
+      const thread = findAdminChatThreadForUser(threadId, userId);
+      if (!thread) {
+        socket.emit('admin-chat:error', {
+          message: 'No pude encontrar ese chat admin.',
+        });
+        return;
+      }
+
+      const wasCurrentThread = currentAdminThreadId === thread.id;
+      const deleted = deleteAdminChatThreadForUser(thread.id, userId);
+      if (!deleted) {
+        socket.emit('admin-chat:error', {
+          message: 'No pude eliminar ese chat admin.',
+        });
+        return;
+      }
+
+      runningAdminThreads.delete(thread.id);
+      io.to(getAdminThreadRoomId(thread.id)).emit('admin-chat:deleted', {
+        conversationId: thread.id,
+        wasActive: true,
+      });
+
+      if (!wasCurrentThread) {
+        socket.emit('admin-chat:deleted', {
+          conversationId: thread.id,
+          wasActive: false,
+        });
+        return;
+      }
+
+      leaveAdminThreadRoom(socket, currentAdminThreadId);
+      currentAdminThreadId = null;
+      socket.emit('admin-chat:ready', {
+        activity: null,
+        conversation: null,
+        conversationId: null,
+        messages: [createEphemeralAdminMessage()],
         pendingActivityStart: false,
       });
     });
@@ -1087,6 +1186,7 @@ async function streamAdminAssistantMessage(
 
     const messages = listAdminChatMessages(threadId);
     const result = await runAdminChatLoop(toAdminHistory(messages), {
+      currentThreadId: threadId,
       llm: await getLlmRequestOptionsForUser(userId),
       onTokenUsage: (usage) => {
         emitLlmRequestTokenUsage(io, threadId, usage, roomId);

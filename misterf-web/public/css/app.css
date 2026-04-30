@@ -251,6 +251,7 @@ body {
 .panel-bottom {
   margin-top: auto;
   padding-top: 18px;
+  border-top: 1px solid rgb(31 111 139 / 10%);
 }
 
 .user-menu {
@@ -453,7 +454,15 @@ body {
 }
 
 .activity-detail-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   margin-top: 14px;
+}
+
+.activity-detail-inline-actions form {
+  margin: 0;
 }
 
 .activity-section-copy {
@@ -518,6 +527,16 @@ body {
 .activity-empty,
 .activity-empty-state {
   color: var(--muted);
+}
+
+.admin-chat-library-list {
+  display: grid;
+  gap: 8px;
+  max-width: 900px;
+}
+
+.admin-thread-item {
+  padding: 4px 0;
 }
 
 .activity-modal-body {

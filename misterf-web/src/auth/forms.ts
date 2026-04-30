@@ -36,10 +36,12 @@ import {
 import {
   createActivity,
   createConversationFromActivity,
+  deleteActivityForUser,
   findAdminChatThreadForUser,
   findActivityForUser,
   findConversationForUser,
   listActivitiesForUser,
+  listAdminChatThreadsForUser,
   listConversationsForActivity,
   listConversationsForUser,
   updateActivity,
@@ -549,6 +551,7 @@ export function renderHome(request: Request, response: Response): void {
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
   const conversations = user ? listConversationsForUser(user.id) : [];
+  const adminChatThreads = user ? listAdminChatThreadsForUser(user.id) : [];
   const activities = user ? listActivitiesForUser(user.id) : [];
   const activitiesWithCounts = user
     ? activities.map((activity) => ({
@@ -575,20 +578,24 @@ export function renderHome(request: Request, response: Response): void {
   const isActivityNewPage = request.path === '/activities/new';
   const isActivityEditPage = request.path.endsWith('/edit');
   let initialConversationId = '';
-  let chatMode: 'tutor' | 'admin' = request.path.startsWith('/admin-chat')
-    ? 'admin'
-    : 'tutor';
-  let currentView: 'chat' | 'activities' | 'admin-chat' =
+  const isAdminChatsRoot = request.path === '/admin-chats';
+  const isAdminChatPage =
+    request.path === '/admin-chats/new' || /^\/admin-chats\/[^/]+$/.test(request.path);
+  let chatMode: 'tutor' | 'admin' =
+    isAdminChatsRoot || isAdminChatPage ? 'admin' : 'tutor';
+  let currentView: 'chat' | 'activities' | 'admin-chat' | 'admin-chats' =
     request.path.startsWith('/activities')
       ? 'activities'
-      : request.path.startsWith('/admin-chat')
+      : isAdminChatsRoot
+      ? 'admin-chats'
+      : request.path.startsWith('/admin-chats')
       ? 'admin-chat'
       : 'chat';
   let activityPageMode: 'list' | 'detail' | 'new' | 'edit' = 'list';
   let selectedActivity = null;
   let activityConversations: ReturnType<typeof listConversationsForActivity> = [];
 
-  if (currentView === 'admin-chat' && !user) {
+  if ((currentView === 'admin-chat' || currentView === 'admin-chats') && !user) {
     response.redirect('/login');
     return;
   }
@@ -611,7 +618,7 @@ export function renderHome(request: Request, response: Response): void {
   if (requestedAdminChatId && user) {
     const thread = findAdminChatThreadForUser(requestedAdminChatId, user.id);
     if (!thread) {
-      response.redirect('/admin-chat');
+      response.redirect('/admin-chats');
       return;
     }
 
@@ -641,6 +648,7 @@ export function renderHome(request: Request, response: Response): void {
 
   response.render('index', {
     activities: activitiesWithCounts,
+    adminChatThreads,
     activityConversations,
     activityPageMode,
     authMessage,
@@ -751,6 +759,25 @@ export function handleUpdateActivity(request: Request, response: Response): void
   }
 
   response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+}
+
+export function handleDeleteActivity(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const activityIdRaw = request.params.activityId;
+  const activityId =
+    typeof activityIdRaw === 'string' ? activityIdRaw.trim() : '';
+  if (!activityId) {
+    response.redirect('/activities');
+    return;
+  }
+
+  deleteActivityForUser(activityId, user.id);
+  response.redirect('/activities');
 }
 
 async function signInUser(

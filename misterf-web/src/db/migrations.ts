@@ -228,4 +228,49 @@ export const migrations: Migration[] = [
         ON admin_chat_messages (thread_id, created_at, id);
     `,
   },
+  {
+    id: 5,
+    name: 'preserve_activity_snapshots_after_activity_delete',
+    up: `
+      CREATE TABLE conversation_activity_snapshots_next (
+        conversation_id TEXT PRIMARY KEY,
+        activity_id TEXT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tutor_instructions TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (activity_id)
+          REFERENCES activities (id)
+          ON DELETE SET NULL
+      );
+
+      INSERT INTO conversation_activity_snapshots_next (
+        conversation_id,
+        activity_id,
+        title,
+        description,
+        tutor_instructions,
+        created_at
+      )
+      SELECT
+        conversation_id,
+        activity_id,
+        title,
+        description,
+        tutor_instructions,
+        created_at
+      FROM conversation_activity_snapshots;
+
+      DROP TABLE conversation_activity_snapshots;
+
+      ALTER TABLE conversation_activity_snapshots_next
+        RENAME TO conversation_activity_snapshots;
+
+      CREATE INDEX idx_conversation_activity_snapshots_activity
+        ON conversation_activity_snapshots (activity_id, created_at DESC);
+    `,
+  },
 ];

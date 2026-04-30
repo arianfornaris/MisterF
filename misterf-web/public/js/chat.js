@@ -38,7 +38,14 @@ const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const initialConversationId =
   document.body.dataset.initialConversationId?.trim() || '';
-const socket = isInitiallyAuthenticated
+const shouldInitializeSocket =
+  isInitiallyAuthenticated &&
+  (currentView === 'chat' ||
+    currentView === 'admin-chat' ||
+    currentView === 'admin-chats');
+const shouldAutoJoinSocketThread =
+  currentView === 'chat' || currentView === 'admin-chat';
+const socket = shouldInitializeSocket
   ? io({ auth: { token: socketAuthToken } })
   : null;
 const llmContextCircleRadius = llmContextCircleEl
@@ -53,7 +60,7 @@ initializeStaticMarkdown();
 let conversationId = initialConversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
-let pendingDeleteConversationId = null;
+let pendingDeleteTarget = null;
 let activeUserMessageId = null;
 let pendingActivityStart = false;
 const pendingSentenceEvaluations = new Map();
@@ -92,7 +99,9 @@ if (window.marked) {
 
 if (socket) {
   socket.on('connect', () => {
-    socket.emit(chatSocketEvents.join, { conversationId });
+    if (shouldAutoJoinSocketThread) {
+      socket.emit(chatSocketEvents.join, { conversationId });
+    }
   });
 
   socket.on('auth:required', ({ message }) => {
@@ -172,11 +181,19 @@ if (socket) {
     });
   }
 
+  socket.on('admin-chat:renamed', (payload) => {
+    updateAdminThreadItem(payload.conversation);
+  });
+
   socket.on(chatSocketEvents.deleted, (payload) => {
-    removeConversationItem(payload.conversationId);
+    if (chatMode === 'admin') {
+      removeAdminThreadItem(payload.conversationId);
+    } else {
+      removeConversationItem(payload.conversationId);
+    }
 
     if (payload.conversationId === conversationId || payload.wasActive) {
-      window.location.assign(chatMode === 'admin' ? '/admin-chat' : '/');
+      window.location.assign(chatMode === 'admin' ? '/admin-chats' : '/');
     }
   });
 
@@ -322,7 +339,7 @@ inputEl.addEventListener('input', () => {
   resizeComposerInput();
 });
 
-for (const item of document.querySelectorAll('[data-conversation-id]')) {
+for (const item of document.querySelectorAll('.conversation-item')) {
   configureConversationItem(item);
 }
 
@@ -613,8 +630,8 @@ function buildConversationPath(nextConversationId) {
 function buildCurrentChatPath(nextConversationId) {
   if (chatMode === 'admin') {
     return nextConversationId
-      ? `/admin-chat/${encodeURIComponent(nextConversationId)}`
-      : '/admin-chat';
+      ? `/admin-chats/${encodeURIComponent(nextConversationId)}`
+      : '/admin-chats/new';
   }
 
   return buildConversationPath(nextConversationId);
@@ -822,6 +839,7 @@ function createConversationItem(conversation) {
   const item = document.createElement('div');
   item.className = 'conversation-item';
   item.dataset.conversationId = conversation.id;
+  item.dataset.itemKind = 'conversation';
 
   const openButton = document.createElement('a');
   openButton.className = 'conversation-open-button';
@@ -959,10 +977,17 @@ function renameConversation(item, title) {
     return;
   }
 
-  socket.emit('conversation:rename', {
-    conversationId: item.dataset.conversationId,
-    title: nextTitle,
-  });
+  if (getConversationItemKind(item) === 'admin-thread') {
+    socket.emit('admin-chat:rename', {
+      threadId: item.dataset.adminThreadId,
+      title: nextTitle,
+    });
+  } else {
+    socket.emit('conversation:rename', {
+      conversationId: item.dataset.conversationId,
+      title: nextTitle,
+    });
+  }
   cancelRenamingConversation(item);
 }
 
@@ -972,8 +997,14 @@ function cancelRenamingConversation(item) {
 }
 
 function requestDeleteConversation(item) {
-  pendingDeleteConversationId = item.dataset.conversationId || null;
-  if (!pendingDeleteConversationId) {
+  const kind = getConversationItemKind(item);
+  const id =
+    kind === 'admin-thread'
+      ? item.dataset.adminThreadId || null
+      : item.dataset.conversationId || null;
+
+  pendingDeleteTarget = id ? { id, kind } : null;
+  if (!pendingDeleteTarget) {
     return;
   }
 
@@ -990,18 +1021,28 @@ function requestDeleteConversation(item) {
 }
 
 function confirmDeleteConversation() {
-  if (!pendingDeleteConversationId || !socket) {
+  if (!pendingDeleteTarget || !socket) {
     return;
   }
 
-  socket.emit('conversation:delete', {
-    conversationId: pendingDeleteConversationId,
-  });
-  pendingDeleteConversationId = null;
+  if (pendingDeleteTarget.kind === 'admin-thread') {
+    socket.emit('admin-chat:delete', {
+      threadId: pendingDeleteTarget.id,
+    });
+  } else {
+    socket.emit('conversation:delete', {
+      conversationId: pendingDeleteTarget.id,
+    });
+  }
+  pendingDeleteTarget = null;
 
   if (deleteConversationModalEl && window.bootstrap?.Modal) {
     window.bootstrap.Modal.getOrCreateInstance(deleteConversationModalEl).hide();
   }
+}
+
+function getConversationItemKind(item) {
+  return item?.dataset?.itemKind === 'admin-thread' ? 'admin-thread' : 'conversation';
 }
 
 function removeConversationItem(removedConversationId) {
@@ -1019,6 +1060,49 @@ function removeConversationItem(removedConversationId) {
     emptyState.className = 'conversation-empty';
     emptyState.textContent = 'Todavía no hay conversaciones.';
     recentsContainer?.append(emptyState);
+  }
+}
+
+function updateAdminThreadItem(thread) {
+  if (!thread?.id) {
+    return;
+  }
+
+  const item = document.querySelector(
+    `[data-admin-thread-id="${CSS.escape(thread.id)}"]`,
+  );
+  if (!item) {
+    return;
+  }
+
+  item.querySelector('.conversation-title').textContent =
+    thread.title || 'Admin Chat';
+
+  const date = item.querySelector('.conversation-date');
+  if (date) {
+    date.dateTime = thread.updatedAt || '';
+    date.textContent = formatConversationDate(thread.updatedAt || '');
+    date.title = thread.updatedAt || '';
+  }
+}
+
+function removeAdminThreadItem(threadId) {
+  if (!threadId) {
+    return;
+  }
+
+  document
+    .querySelector(`[data-admin-thread-id="${CSS.escape(threadId)}"]`)
+    ?.remove();
+
+  const libraryList = document.querySelector('.admin-chat-library-list');
+  if (libraryList && !libraryList.querySelector('[data-admin-thread-id]')) {
+    libraryList.remove();
+    const emptyState = document.createElement('div');
+    emptyState.className = 'activity-empty-state';
+    emptyState.innerHTML =
+      '<p>Todavía no hay chats admin guardados. Comienza uno nuevo y deja que Mr. F te ayude a crear o mejorar actividades.</p>';
+    document.querySelector('.activities-view:not(.d-none)')?.append(emptyState);
   }
 }
 
