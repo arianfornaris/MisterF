@@ -194,4 +194,38 @@ export const migrations: Migration[] = [
         AND conversation_activity_snapshots.conversation_id IS NULL;
     `,
   },
+  {
+    id: 4,
+    name: 'add_admin_chat_tables',
+    up: `
+      CREATE TABLE admin_chat_threads (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL DEFAULT 'Admin Chat',
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_admin_chat_threads_user_updated
+        ON admin_chat_threads (user_id, updated_at DESC, created_at DESC);
+
+      CREATE TABLE admin_chat_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        thread_id TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('user', 'model')),
+        content TEXT NOT NULL,
+        metadata TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (thread_id)
+          REFERENCES admin_chat_threads (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_admin_chat_messages_thread_created
+        ON admin_chat_messages (thread_id, created_at, id);
+    `,
+  },
 ];

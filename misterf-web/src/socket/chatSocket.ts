@@ -7,11 +7,15 @@ import {
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
   addMessage,
+  addAdminChatMessage,
   createConversation,
+  createAdminChatThread,
   deleteConversationForUser,
+  findAdminChatThreadForUser,
   findConversationForUser,
   getConversationActivitySnapshot,
   findMessageInConversation,
+  listAdminChatMessages,
   listMessages,
   renameConversationForUser,
   updateMessageMetadata,
@@ -33,6 +37,7 @@ import {
   type TutorMultipleChoiceBlock,
   type TutorUnscrambleSentenceBlock,
 } from '../services/llmTutor.js';
+import { runAdminChatLoop } from '../services/adminChat.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 
@@ -41,6 +46,15 @@ type JoinPayload = {
 };
 
 type SendMessagePayload = {
+  conversationId?: string | null;
+  content?: string;
+};
+
+type AdminJoinPayload = {
+  conversationId?: string | null;
+};
+
+type AdminSendMessagePayload = {
   conversationId?: string | null;
   content?: string;
 };
@@ -111,6 +125,7 @@ type AuthenticatedSocketData = {
 };
 
 const runningConversations = new Set<string>();
+const runningAdminThreads = new Set<string>();
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
@@ -128,6 +143,7 @@ export function registerChatSocket(io: Server): void {
 
   io.on('connection', (socket) => {
     let currentConversationId: string | null = null;
+    let currentAdminThreadId: string | null = null;
     let pendingInitialGreeting = pickInitialGreeting();
 
     socket.on('conversation:join', async (payload: JoinPayload = {}) => {
@@ -184,6 +200,43 @@ export function registerChatSocket(io: Server): void {
       });
     });
 
+    socket.on('admin-chat:join', async (payload: AdminJoinPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const thread = payload.conversationId
+        ? findAdminChatThreadForUser(payload.conversationId, userId)
+        : null;
+
+      if (!thread) {
+        leaveAdminThreadRoom(socket, currentAdminThreadId);
+        currentAdminThreadId = null;
+        socket.emit('admin-chat:ready', {
+          activity: null,
+          conversation: null,
+          conversationId: null,
+          messages: [createEphemeralAdminMessage()],
+          pendingActivityStart: false,
+        });
+        return;
+      }
+
+      joinAdminThreadRoom(socket, currentAdminThreadId, thread.id);
+      currentAdminThreadId = thread.id;
+
+      const messages = listAdminChatMessages(thread.id);
+      socket.emit('admin-chat:ready', {
+        activity: null,
+        conversation: null,
+        conversationId: thread.id,
+        messages: messages.length > 0 ? messages : [createEphemeralAdminMessage()],
+        pendingActivityStart: false,
+      });
+    });
+
     socket.on('message:send', async (payload: SendMessagePayload = {}) => {
       const content = payload.content?.trim();
       if (!content) {
@@ -232,6 +285,45 @@ export function registerChatSocket(io: Server): void {
       io.to(conversation.id).emit('message:created', userMessage);
 
       await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
+    });
+
+    socket.on('admin-chat:send', async (payload: AdminSendMessagePayload = {}) => {
+      const content = payload.content?.trim();
+      if (!content) {
+        return;
+      }
+
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      let thread = payload.conversationId
+        ? findAdminChatThreadForUser(payload.conversationId, userId)
+        : null;
+
+      if (!thread) {
+        thread = createAdminChatThread(userId);
+        socket.emit('admin-chat:promoted', {
+          conversationId: thread.id,
+        });
+      }
+
+      joinAdminThreadRoom(socket, currentAdminThreadId, thread.id);
+      currentAdminThreadId = thread.id;
+
+      if (runningAdminThreads.has(thread.id)) {
+        socket.emit('assistant:error', {
+          message: 'Espera un momento: Mr. F todavía está respondiendo.',
+        });
+        return;
+      }
+
+      const userMessage = addAdminChatMessage(thread.id, 'user', content);
+      io.to(getAdminThreadRoomId(thread.id)).emit('message:created', userMessage);
+
+      await streamAdminAssistantMessage(io, thread.id, userId);
     });
 
     socket.on('conversation:reset', async () => {
@@ -836,9 +928,42 @@ function leaveConversationRoom(
   }
 }
 
+function getAdminThreadRoomId(threadId: string): string {
+  return `admin-thread:${threadId}`;
+}
+
+function joinAdminThreadRoom(
+  socket: Socket,
+  previousThreadId: string | null,
+  nextThreadId: string,
+): void {
+  if (previousThreadId && previousThreadId !== nextThreadId) {
+    socket.leave(getAdminThreadRoomId(previousThreadId));
+  }
+
+  socket.join(getAdminThreadRoomId(nextThreadId));
+}
+
+function leaveAdminThreadRoom(
+  socket: Socket,
+  threadId: string | null,
+): void {
+  if (threadId) {
+    socket.leave(getAdminThreadRoomId(threadId));
+  }
+}
+
 function createEphemeralInitialMessage(content: string): TutorMessage {
   return {
     content,
+    role: 'model',
+  };
+}
+
+function createEphemeralAdminMessage(): TutorMessage {
+  return {
+    content:
+      'Soy Mr. F en modo Admin Chat. Puedo ayudarte a crear o editar actividades, revisar conversaciones y renombrar cosas dentro de la app.',
     role: 'model',
   };
 }
@@ -941,7 +1066,74 @@ async function streamAssistantMessage(
   }
 }
 
+async function streamAdminAssistantMessage(
+  io: Server,
+  threadId: string,
+  userId: string,
+): Promise<void> {
+  if (runningAdminThreads.has(threadId)) {
+    return;
+  }
+
+  runningAdminThreads.add(threadId);
+  const roomId = getAdminThreadRoomId(threadId);
+  io.to(roomId).emit('assistant:start');
+
+  try {
+    const thread = findAdminChatThreadForUser(threadId, userId);
+    if (!thread) {
+      throw new Error('Admin chat thread not found.');
+    }
+
+    const messages = listAdminChatMessages(threadId);
+    const result = await runAdminChatLoop(toAdminHistory(messages), {
+      llm: await getLlmRequestOptionsForUser(userId),
+      onTokenUsage: (usage) => {
+        emitLlmRequestTokenUsage(io, threadId, usage, roomId);
+      },
+      userId,
+    });
+
+    const trimmedContent = result.content.trim();
+    if (!trimmedContent) {
+      throw new Error('The admin model returned an empty response.');
+    }
+
+    const assistantMessage = addAdminChatMessage(
+      threadId,
+      'model',
+      trimmedContent,
+      {
+        adminBlocks: result.blocks,
+        model: result.model,
+        provider: result.provider,
+      },
+    );
+
+    io.to(roomId).emit('assistant:done', assistantMessage);
+  } catch (error) {
+    console.error('Admin chat response failed.', {
+      error: serializeError(error),
+      threadId,
+      userId,
+    });
+    emitRoomCreditExhaustedIfNeeded(io, roomId, error);
+    io.to(roomId).emit('assistant:error', {
+      message: toUserFacingError(error),
+    });
+  } finally {
+    runningAdminThreads.delete(threadId);
+  }
+}
+
 function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
+  return messages.map((message) => ({
+    content: message.content,
+    role: message.role,
+  }));
+}
+
+function toAdminHistory(messages: Array<{ content: string; role: 'user' | 'model' }>): TutorMessage[] {
   return messages.map((message) => ({
     content: message.content,
     role: message.role,
@@ -1275,8 +1467,9 @@ function emitLlmRequestTokenUsage(
   io: Server,
   conversationId: string,
   usage: LlmRequestTokenUsage,
+  roomId = conversationId,
 ): void {
-  io.to(conversationId).emit('llm:request_tokens', {
+  io.to(roomId).emit('llm:request_tokens', {
     conversationId,
     usage,
   });

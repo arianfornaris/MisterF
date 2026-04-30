@@ -1572,6 +1572,19 @@ body {
   line-height: 1.55;
 }
 
+body[data-chat-mode="admin"] .message-row.is-model .message-bubble {
+  font-family:
+    "Helvetica Neue",
+    "Segoe UI",
+    "Avenir Next",
+    Avenir,
+    "Noto Sans",
+    Arial,
+    sans-serif;
+  font-size: 1.03rem;
+  line-height: 1.6;
+}
+
 .tutor-message-stack {
   display: grid;
   gap: 0.9rem;
@@ -1683,6 +1696,43 @@ body {
 .message-action-button.is-copied {
   background: var(--accent-soft);
   color: var(--accent);
+}
+
+.admin-message-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.85rem;
+}
+
+.admin-message-action-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.42rem 0.8rem;
+  border: 1px solid rgb(31 111 139 / 16%);
+  border-radius: 999px;
+  background: rgb(31 111 139 / 6%);
+  color: #1f6f8b;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.admin-message-action-link:hover,
+.admin-message-action-link:focus {
+  background: rgb(31 111 139 / 10%);
+  border-color: rgb(31 111 139 / 22%);
+  color: #15586f;
+  transform: translateY(-1px);
+  text-decoration: none;
 }
 
 .sentence-evaluation {
@@ -2006,6 +2056,24 @@ button.sentence-part:focus {
   justify-content: flex-end;
   gap: 12px;
   min-height: 42px;
+}
+
+body[data-chat-mode="admin"] .composer-prompt,
+body[data-chat-mode="admin"] .composer-input {
+  font-family:
+    "Helvetica Neue",
+    "Segoe UI",
+    "Avenir Next",
+    Avenir,
+    "Noto Sans",
+    Arial,
+    sans-serif;
+}
+
+body[data-chat-mode="admin"] .composer-prompt {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .llm-context-meter {

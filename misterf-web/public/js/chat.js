@@ -32,6 +32,7 @@ const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy
 const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
+const chatMode = document.body.dataset.chatMode || 'tutor';
 const currentView = document.body.dataset.currentView || 'chat';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
@@ -63,6 +64,24 @@ let userInputDraftBeforeHistory = '';
 let pendingBootGuestDraft = '';
 let hasHandledInitialConversationReady = false;
 const matchingExerciseStates = new Map();
+const chatSocketEvents =
+  chatMode === 'admin'
+    ? {
+        deleted: 'admin-chat:deleted',
+        error: 'admin-chat:error',
+        join: 'admin-chat:join',
+        promoted: 'admin-chat:promoted',
+        ready: 'admin-chat:ready',
+        send: 'admin-chat:send',
+      }
+    : {
+        deleted: 'conversation:deleted',
+        error: 'conversation:error',
+        join: 'conversation:join',
+        promoted: 'conversation:promoted',
+        ready: 'conversation:ready',
+        send: 'message:send',
+      };
 
 if (window.marked) {
   window.marked.setOptions({
@@ -73,7 +92,7 @@ if (window.marked) {
 
 if (socket) {
   socket.on('connect', () => {
-    socket.emit('conversation:join', { conversationId });
+    socket.emit(chatSocketEvents.join, { conversationId });
   });
 
   socket.on('auth:required', ({ message }) => {
@@ -99,7 +118,7 @@ if (socket) {
     setComposerEnabled(false);
   });
 
-  socket.on('conversation:ready', (payload) => {
+  socket.on(chatSocketEvents.ready, (payload) => {
     hasHandledInitialConversationReady = true;
     conversationId = payload.conversationId;
     upsertConversationItem(payload.conversation);
@@ -136,30 +155,32 @@ if (socket) {
     flushPendingBootGuestDraft();
   });
 
-  socket.on('conversation:promoted', (payload) => {
+  socket.on(chatSocketEvents.promoted, (payload) => {
     conversationId = payload.conversationId;
-    window.location.replace(buildConversationPath(conversationId));
+    window.location.replace(buildCurrentChatPath(conversationId));
   });
 
-  socket.on('conversation:renamed', (payload) => {
-    updateConversationItem(payload.conversation);
-    markActiveConversation(conversationId);
-  });
+  if (chatMode !== 'admin') {
+    socket.on('conversation:renamed', (payload) => {
+      updateConversationItem(payload.conversation);
+      markActiveConversation(conversationId);
+    });
 
-  socket.on('conversation:updated', (payload) => {
-    updateConversationItem(payload.conversation, { moveToTop: true });
-    markActiveConversation(conversationId);
-  });
+    socket.on('conversation:updated', (payload) => {
+      updateConversationItem(payload.conversation, { moveToTop: true });
+      markActiveConversation(conversationId);
+    });
+  }
 
-  socket.on('conversation:deleted', (payload) => {
+  socket.on(chatSocketEvents.deleted, (payload) => {
     removeConversationItem(payload.conversationId);
 
     if (payload.conversationId === conversationId || payload.wasActive) {
-      window.location.assign('/');
+      window.location.assign(chatMode === 'admin' ? '/admin-chat' : '/');
     }
   });
 
-  socket.on('conversation:error', ({ message }) => {
+  socket.on(chatSocketEvents.error, ({ message }) => {
     appendEphemeralError(message || 'No pude actualizar la conversación.');
   });
 
@@ -474,7 +495,7 @@ function sendMessage() {
   inputEl.style.height = 'auto';
   resetUserInputHistoryNavigation();
   setComposerEnabled(false);
-  socket.emit('message:send', { conversationId, content });
+  socket.emit(chatSocketEvents.send, { conversationId, content });
 }
 
 function handleUserInputHistoryKeydown(event) {
@@ -587,6 +608,16 @@ function buildConversationPath(nextConversationId) {
   return nextConversationId
     ? `/c/${encodeURIComponent(nextConversationId)}`
     : '/';
+}
+
+function buildCurrentChatPath(nextConversationId) {
+  if (chatMode === 'admin') {
+    return nextConversationId
+      ? `/admin-chat/${encodeURIComponent(nextConversationId)}`
+      : '/admin-chat';
+  }
+
+  return buildConversationPath(nextConversationId);
 }
 
 function isCurrentConversationPayload(payload) {
@@ -1163,8 +1194,13 @@ function setModelBubbleContent(element, content, metadata, options = {}) {
 
   element.dataset.rawContent = content;
   const blocks = Array.isArray(metadata?.blocks) ? metadata.blocks : [];
+  const adminBlocks = Array.isArray(metadata?.adminBlocks) ? metadata.adminBlocks : [];
   if (!blocks.length) {
-    setMessageContent(element, content);
+    if (adminBlocks.length) {
+      renderAdminBlocks(element, adminBlocks);
+      return;
+    }
+    renderModelMessageWithMetadata(element, content, metadata);
     return;
   }
 
@@ -1316,7 +1352,7 @@ function setModelBubbleContent(element, content, metadata, options = {}) {
   });
 
   if (!hasVisualContent) {
-    setMessageContent(element, content);
+    renderModelMessageWithMetadata(element, content, metadata);
     return;
   }
 
@@ -1610,6 +1646,14 @@ function setMessageContent(element, content) {
   }
 }
 
+function renderModelMessageWithMetadata(element, content, metadata) {
+  element.replaceChildren();
+
+  const body = document.createElement('div');
+  setMessageContent(body, content);
+  element.append(body);
+}
+
 function renderMarkdown(content) {
   if (!window.marked || !window.DOMPurify) {
     return escapeHtml(content).replaceAll('\n', '<br>');
@@ -1625,6 +1669,62 @@ function initializeStaticMarkdown() {
   for (const element of document.querySelectorAll('[data-render-markdown]')) {
     setMessageContent(element, element.textContent || '');
   }
+}
+
+function renderAdminBlocks(element, adminBlocks) {
+  element.replaceChildren();
+
+  const stack = document.createElement('div');
+  stack.className = 'tutor-message-stack';
+
+  for (const block of adminBlocks) {
+    if (block?.type === 'message' && typeof block.markdown === 'string') {
+      const node = document.createElement('div');
+      node.className = 'tutor-message-block';
+      node.innerHTML = renderMarkdown(block.markdown);
+      stack.append(node);
+      continue;
+    }
+
+    if (block?.type === 'activity_link') {
+      const actionLink = createAdminActivityLink(block);
+      if (!actionLink) {
+        continue;
+      }
+
+      let actionRow = stack.querySelector('.admin-message-actions');
+      if (!actionRow) {
+        actionRow = document.createElement('div');
+        actionRow.className = 'admin-message-actions';
+        stack.append(actionRow);
+      }
+
+      actionRow.append(actionLink);
+    }
+  }
+
+  if (!stack.childNodes.length) {
+    setMessageContent(element, element.dataset.rawContent || '');
+    return;
+  }
+
+  element.append(stack);
+}
+
+function createAdminActivityLink(block) {
+  if (!block || typeof block !== 'object' || typeof block.label !== 'string') {
+    return null;
+  }
+
+  if (typeof block.activityId !== 'string' || !block.activityId.trim()) {
+    return null;
+  }
+
+  const link = document.createElement('a');
+  link.className = 'admin-message-action-link';
+  link.href = `/activities/${encodeURIComponent(block.activityId.trim())}`;
+  link.textContent = block.label;
+  return link;
 }
 
 function getMatchingResultForBlock(metadata, blockIndex) {

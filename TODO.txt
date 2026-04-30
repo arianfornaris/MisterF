@@ -1,6 +1,8 @@
 - Utilizar AWS SES para enviar los emails.
 - Ya tengo cuenta en AWS con boniatillo@gmail.com
 - Incorporar voz-a-texto, y texto-a-voz.
+- Permitir usar imagenes en los ejercicios.
+    - (free) Pizabay API https://pixabay.com/api/docs/
 
 Juegos y retos:
 

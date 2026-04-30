@@ -36,6 +36,23 @@ export type StoredConversationActivitySnapshot = {
   tutorInstructions: string;
 };
 
+export type StoredAdminChatThread = {
+  id: string;
+  userId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredAdminChatMessage = {
+  id: number;
+  threadId: string;
+  role: MessageRole;
+  content: string;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+};
+
 export type StoredMessage = {
   id: number;
   conversationId: string;
@@ -150,6 +167,23 @@ type ConversationActivitySnapshotRow = {
   tutor_instructions: string;
 };
 
+type AdminChatThreadRow = {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type AdminChatMessageRow = {
+  id: number;
+  thread_id: string;
+  role: MessageRole;
+  content: string;
+  metadata: string | null;
+  created_at: string;
+};
+
 type SentenceChallengeRow = {
   challenge_label: string;
   challenge_type: SentenceChallengeType;
@@ -233,6 +267,29 @@ function toStoredMessage(row: MessageRow): StoredMessage {
   return {
     id: row.id,
     conversationId: row.conversation_id,
+    role: row.role,
+    content: row.content,
+    metadata: row.metadata ? parseMetadata(row.metadata) : null,
+    createdAt: row.created_at,
+  };
+}
+
+function toStoredAdminChatThread(row: AdminChatThreadRow): StoredAdminChatThread {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    title: row.title,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredAdminChatMessage(
+  row: AdminChatMessageRow,
+): StoredAdminChatMessage {
+  return {
+    id: row.id,
+    threadId: row.thread_id,
     role: row.role,
     content: row.content,
     metadata: row.metadata ? parseMetadata(row.metadata) : null,
@@ -329,6 +386,28 @@ export function createConversationFromActivity(
   return conversation;
 }
 
+export function createAdminChatThread(
+  userId: string,
+  title = 'Admin Chat',
+): StoredAdminChatThread {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO admin_chat_threads (id, user_id, title)
+        VALUES (?, ?, ?)
+      `,
+    )
+    .run(id, userId, title);
+
+  const thread = findAdminChatThreadForUser(id, userId);
+  if (!thread) {
+    throw new Error('Could not load newly created admin chat thread.');
+  }
+
+  return thread;
+}
+
 export function findConversationForUser(
   id: string,
   userId: string,
@@ -344,6 +423,23 @@ export function findConversationForUser(
     .get(id, userId) as ConversationRow | undefined;
 
   return row ? toStoredConversation(row) : null;
+}
+
+export function findAdminChatThreadForUser(
+  id: string,
+  userId: string,
+): StoredAdminChatThread | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, created_at, updated_at
+        FROM admin_chat_threads
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as AdminChatThreadRow | undefined;
+
+  return row ? toStoredAdminChatThread(row) : null;
 }
 
 export function getOrCreateConversation(
@@ -379,6 +475,23 @@ export function listConversationsForUser(userId: string): StoredConversation[] {
     .all(userId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
+}
+
+export function listAdminChatThreadsForUser(
+  userId: string,
+): StoredAdminChatThread[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, title, created_at, updated_at
+        FROM admin_chat_threads
+        WHERE user_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(userId) as AdminChatThreadRow[];
+
+  return rows.map(toStoredAdminChatThread);
 }
 
 export function renameConversationForUser(
@@ -624,6 +737,23 @@ export function listMessages(conversationId: string): StoredMessage[] {
   return rows.map(toStoredMessage);
 }
 
+export function listAdminChatMessages(
+  threadId: string,
+): StoredAdminChatMessage[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, thread_id, role, content, metadata, created_at
+        FROM admin_chat_messages
+        WHERE thread_id = ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(threadId) as AdminChatMessageRow[];
+
+  return rows.map(toStoredAdminChatMessage);
+}
+
 export function addMessage(
   conversationId: string,
   role: MessageRole,
@@ -657,6 +787,48 @@ export function addMessage(
     .get(result.lastInsertRowid) as MessageRow;
 
   return toStoredMessage(row);
+}
+
+export function addAdminChatMessage(
+  threadId: string,
+  role: MessageRole,
+  content: string,
+  metadata: Record<string, unknown> | null = null,
+): StoredAdminChatMessage {
+  const db = getDb();
+  const result = db
+    .prepare(
+      `
+        INSERT INTO admin_chat_messages (thread_id, role, content, metadata)
+        VALUES (?, ?, ?, ?)
+      `,
+    )
+    .run(
+      threadId,
+      role,
+      content,
+      metadata ? JSON.stringify(metadata) : null,
+    );
+
+  db.prepare(
+    `
+      UPDATE admin_chat_threads
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+  ).run(threadId);
+
+  const row = db
+    .prepare(
+      `
+        SELECT id, thread_id, role, content, metadata, created_at
+        FROM admin_chat_messages
+        WHERE id = ?
+      `,
+    )
+    .get(result.lastInsertRowid) as AdminChatMessageRow;
+
+  return toStoredAdminChatMessage(row);
 }
 
 export function findMessageInConversation(

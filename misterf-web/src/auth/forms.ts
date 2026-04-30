@@ -36,6 +36,7 @@ import {
 import {
   createActivity,
   createConversationFromActivity,
+  findAdminChatThreadForUser,
   findActivityForUser,
   findConversationForUser,
   listActivitiesForUser,
@@ -561,6 +562,11 @@ export function renderHome(request: Request, response: Response): void {
     typeof requestedConversationIdRaw === 'string'
       ? requestedConversationIdRaw.trim()
       : '';
+  const requestedAdminChatIdRaw = request.params.adminChatId;
+  const requestedAdminChatId =
+    typeof requestedAdminChatIdRaw === 'string'
+      ? requestedAdminChatIdRaw.trim()
+      : '';
   const requestedActivityIdRaw = request.params.activityId;
   const requestedActivityId =
     typeof requestedActivityIdRaw === 'string'
@@ -569,12 +575,23 @@ export function renderHome(request: Request, response: Response): void {
   const isActivityNewPage = request.path === '/activities/new';
   const isActivityEditPage = request.path.endsWith('/edit');
   let initialConversationId = '';
-  let currentView: 'chat' | 'activities' = request.path.startsWith('/activities')
-    ? 'activities'
-    : 'chat';
+  let chatMode: 'tutor' | 'admin' = request.path.startsWith('/admin-chat')
+    ? 'admin'
+    : 'tutor';
+  let currentView: 'chat' | 'activities' | 'admin-chat' =
+    request.path.startsWith('/activities')
+      ? 'activities'
+      : request.path.startsWith('/admin-chat')
+      ? 'admin-chat'
+      : 'chat';
   let activityPageMode: 'list' | 'detail' | 'new' | 'edit' = 'list';
   let selectedActivity = null;
   let activityConversations: ReturnType<typeof listConversationsForActivity> = [];
+
+  if (currentView === 'admin-chat' && !user) {
+    response.redirect('/login');
+    return;
+  }
 
   if (currentView === 'activities' && !user && (isActivityNewPage || isActivityEditPage)) {
     response.redirect('/login');
@@ -589,6 +606,16 @@ export function renderHome(request: Request, response: Response): void {
     }
 
     initialConversationId = conversation.id;
+  }
+
+  if (requestedAdminChatId && user) {
+    const thread = findAdminChatThreadForUser(requestedAdminChatId, user.id);
+    if (!thread) {
+      response.redirect('/admin-chat');
+      return;
+    }
+
+    initialConversationId = thread.id;
   }
 
   if (requestedActivityId && user) {
@@ -622,6 +649,7 @@ export function renderHome(request: Request, response: Response): void {
     csrfToken: response.locals.csrfToken,
     guestInitialGreeting,
     hasSession: Boolean(user),
+    chatMode,
     initialConversationId,
     isAuthenticated: isVerified,
     selectedActivity,

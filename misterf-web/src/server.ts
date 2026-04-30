@@ -99,6 +99,8 @@ app.get('/activities/:activityId/edit', renderHome);
 app.get('/activities/:activityId', renderHome);
 app.post('/activities/:activityId', handleUpdateActivity);
 app.post('/activities/:activityId/chats', handleCreateActivityConversation);
+app.get('/admin-chat', renderHome);
+app.get('/admin-chat/:adminChatId', renderHome);
 app.get('/c/:conversationId', renderHome);
 app.get('/', renderHome);
 app.get('/session', (request, response) => {
