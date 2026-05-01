@@ -273,4 +273,68 @@ export const migrations: Migration[] = [
         ON conversation_activity_snapshots (activity_id, created_at DESC);
     `,
   },
+  {
+    id: 6,
+    name: 'add_profiles',
+    up: `
+      CREATE TABLE profiles (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_profiles_user_created
+        ON profiles (user_id, created_at ASC, updated_at ASC);
+
+      INSERT INTO profiles (id, user_id, name, description)
+      SELECT
+        users.id || '::default',
+        users.id,
+        'Perfil principal',
+        ''
+      FROM users;
+
+      ALTER TABLE conversations
+        ADD COLUMN profile_id TEXT
+        REFERENCES profiles (id)
+        ON DELETE CASCADE;
+
+      UPDATE conversations
+      SET profile_id = user_id || '::default'
+      WHERE profile_id IS NULL;
+
+      CREATE INDEX idx_conversations_user_profile_updated
+        ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      ALTER TABLE activities
+        ADD COLUMN profile_id TEXT
+        REFERENCES profiles (id)
+        ON DELETE CASCADE;
+
+      UPDATE activities
+      SET profile_id = user_id || '::default'
+      WHERE profile_id IS NULL;
+
+      CREATE INDEX idx_activities_user_profile_updated
+        ON activities (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      ALTER TABLE admin_chat_threads
+        ADD COLUMN profile_id TEXT
+        REFERENCES profiles (id)
+        ON DELETE CASCADE;
+
+      UPDATE admin_chat_threads
+      SET profile_id = user_id || '::default'
+      WHERE profile_id IS NULL;
+
+      CREATE INDEX idx_admin_chat_threads_user_profile_updated
+        ON admin_chat_threads (user_id, profile_id, updated_at DESC, created_at DESC);
+    `,
+  },
 ];

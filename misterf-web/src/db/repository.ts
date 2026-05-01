@@ -3,9 +3,19 @@ import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
 
+export type StoredProfile = {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type StoredConversation = {
   activityId: string | null;
   id: string;
+  profileId: string;
   titleUpdatedByUser: boolean;
   title: string;
   userId: string;
@@ -15,6 +25,7 @@ export type StoredConversation = {
 
 export type StoredActivity = {
   id: string;
+  profileId: string;
   userId: string;
   title: string;
   description: string;
@@ -34,6 +45,7 @@ export type StoredConversationActivitySnapshot = {
 
 export type StoredAdminChatThread = {
   id: string;
+  profileId: string;
   userId: string;
   title: string;
   createdAt: string;
@@ -58,6 +70,15 @@ export type StoredMessage = {
   createdAt: string;
 };
 
+type ProfileRow = {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
 type MessageRow = {
   id: number;
   conversation_id: string;
@@ -70,6 +91,7 @@ type MessageRow = {
 type ConversationRow = {
   activity_id: string | null;
   id: string;
+  profile_id: string;
   title: string;
   title_updated_by_user: number;
   user_id: string;
@@ -79,6 +101,7 @@ type ConversationRow = {
 
 type ActivityRow = {
   id: string;
+  profile_id: string;
   user_id: string;
   title: string;
   description: string;
@@ -98,6 +121,7 @@ type ConversationActivitySnapshotRow = {
 
 type AdminChatThreadRow = {
   id: string;
+  profile_id: string;
   user_id: string;
   title: string;
   created_at: string;
@@ -114,11 +138,24 @@ type AdminChatMessageRow = {
 };
 
 const defaultConversationTitle = 'Nueva conversación';
+const defaultProfileName = 'Perfil principal';
+
+function toStoredProfile(row: ProfileRow): StoredProfile {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    description: row.description,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
 
 function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
     activityId: row.activity_id,
     id: row.id,
+    profileId: row.profile_id,
     title: row.title,
     titleUpdatedByUser: Boolean(row.title_updated_by_user),
     userId: row.user_id,
@@ -130,6 +167,7 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
 function toStoredActivity(row: ActivityRow): StoredActivity {
   return {
     id: row.id,
+    profileId: row.profile_id,
     userId: row.user_id,
     title: row.title,
     description: row.description,
@@ -166,6 +204,7 @@ function toStoredMessage(row: MessageRow): StoredMessage {
 function toStoredAdminChatThread(row: AdminChatThreadRow): StoredAdminChatThread {
   return {
     id: row.id,
+    profileId: row.profile_id,
     userId: row.user_id,
     title: row.title,
     createdAt: row.created_at,
@@ -186,8 +225,98 @@ function toStoredAdminChatMessage(
   };
 }
 
+export function createProfile(input: {
+  userId: string;
+  name: string;
+  description?: string;
+}): StoredProfile {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO profiles (id, user_id, name, description)
+        VALUES (?, ?, ?, ?)
+      `,
+    )
+    .run(id, input.userId, input.name, input.description ?? '');
+
+  const profile = findProfileForUser(id, input.userId);
+  if (!profile) {
+    throw new Error('Could not load newly created profile.');
+  }
+
+  return profile;
+}
+
+export function findProfileForUser(
+  id: string,
+  userId: string,
+): StoredProfile | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, name, description, created_at, updated_at
+        FROM profiles
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as ProfileRow | undefined;
+
+  return row ? toStoredProfile(row) : null;
+}
+
+export function listProfilesForUser(userId: string): StoredProfile[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, name, description, created_at, updated_at
+        FROM profiles
+        WHERE user_id = ?
+        ORDER BY created_at ASC, updated_at ASC
+      `,
+    )
+    .all(userId) as ProfileRow[];
+
+  return rows.map(toStoredProfile);
+}
+
+export function ensureUserHasProfile(userId: string): StoredProfile {
+  const existingProfiles = listProfilesForUser(userId);
+  if (existingProfiles.length > 0) {
+    return existingProfiles[0];
+  }
+
+  return createProfile({
+    description: '',
+    name: defaultProfileName,
+    userId,
+  });
+}
+
+export function updateProfile(input: {
+  profileId: string;
+  userId: string;
+  name: string;
+  description: string;
+}): StoredProfile | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE profiles
+        SET name = ?,
+            description = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(input.name, input.description, input.profileId, input.userId);
+
+  return findProfileForUser(input.profileId, input.userId);
+}
+
 export function createConversation(
   userId: string,
+  profileId: string,
   title = defaultConversationTitle,
   options: { activityId?: string | null } = {},
 ): StoredConversation {
@@ -195,11 +324,11 @@ export function createConversation(
   getDb()
     .prepare(
       `
-        INSERT INTO conversations (id, user_id, title, activity_id)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO conversations (id, user_id, profile_id, title, activity_id)
+        VALUES (?, ?, ?, ?, ?)
       `,
     )
-    .run(id, userId, title, options.activityId ?? null);
+    .run(id, userId, profileId, title, options.activityId ?? null);
 
   const conversation = findConversationForUser(id, userId);
   if (!conversation) {
@@ -213,9 +342,14 @@ export function createConversationFromActivity(
   userId: string,
   activity: StoredActivity,
 ): StoredConversation {
-  const conversation = createConversation(userId, defaultConversationTitle, {
-    activityId: activity.id,
-  });
+  const conversation = createConversation(
+    userId,
+    activity.profileId,
+    defaultConversationTitle,
+    {
+      activityId: activity.id,
+    },
+  );
 
   createConversationActivitySnapshot(conversation.id, activity);
   return conversation;
@@ -223,17 +357,18 @@ export function createConversationFromActivity(
 
 export function createAdminChatThread(
   userId: string,
+  profileId: string,
   title = 'Admin Chat',
 ): StoredAdminChatThread {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO admin_chat_threads (id, user_id, title)
-        VALUES (?, ?, ?)
+        INSERT INTO admin_chat_threads (id, user_id, profile_id, title)
+        VALUES (?, ?, ?, ?)
       `,
     )
-    .run(id, userId, title);
+    .run(id, userId, profileId, title);
 
   const thread = findAdminChatThreadForUser(id, userId);
   if (!thread) {
@@ -250,7 +385,7 @@ export function findConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id, profile_id
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -267,7 +402,7 @@ export function findAdminChatThreadForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, created_at, updated_at
+        SELECT id, user_id, title, created_at, updated_at, profile_id
         FROM admin_chat_threads
         WHERE id = ? AND user_id = ?
       `,
@@ -279,6 +414,7 @@ export function findAdminChatThreadForUser(
 
 export function getOrCreateConversation(
   userId: string,
+  profileId: string,
   id?: string | null,
 ): StoredConversation {
   if (id) {
@@ -288,7 +424,7 @@ export function getOrCreateConversation(
     }
   }
 
-  return createConversation(userId);
+  return createConversation(userId, profileId);
 }
 
 export function touchConversation(conversationId: string): void {
@@ -297,34 +433,38 @@ export function touchConversation(conversationId: string): void {
     .run(conversationId);
 }
 
-export function listConversationsForUser(userId: string): StoredConversation[] {
+export function listConversationsForProfile(
+  userId: string,
+  profileId: string,
+): StoredConversation[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id, profile_id
         FROM conversations
-        WHERE user_id = ?
+        WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId) as ConversationRow[];
+    .all(userId, profileId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
 }
 
-export function listAdminChatThreadsForUser(
+export function listAdminChatThreadsForProfile(
   userId: string,
+  profileId: string,
 ): StoredAdminChatThread[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, created_at, updated_at
+        SELECT id, user_id, title, created_at, updated_at, profile_id
         FROM admin_chat_threads
-        WHERE user_id = ?
+        WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId) as AdminChatThreadRow[];
+    .all(userId, profileId) as AdminChatThreadRow[];
 
   return rows.map(toStoredAdminChatThread);
 }
@@ -388,6 +528,7 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
 }
 
 export function createActivity(input: {
+  profileId: string;
   userId: string;
   title: string;
   description: string;
@@ -397,13 +538,14 @@ export function createActivity(input: {
   getDb()
     .prepare(
       `
-        INSERT INTO activities (id, user_id, title, description, tutor_instructions)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO activities (id, user_id, profile_id, title, description, tutor_instructions)
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
       id,
       input.userId,
+      input.profileId,
       input.title,
       input.description,
       input.tutorInstructions,
@@ -424,7 +566,7 @@ export function findActivityForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at
+        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at, profile_id
         FROM activities
         WHERE id = ? AND user_id = ?
       `,
@@ -434,17 +576,20 @@ export function findActivityForUser(
   return row ? toStoredActivity(row) : null;
 }
 
-export function listActivitiesForUser(userId: string): StoredActivity[] {
+export function listActivitiesForProfile(
+  userId: string,
+  profileId: string,
+): StoredActivity[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at
+        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at, profile_id
         FROM activities
-        WHERE user_id = ?
+        WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId) as ActivityRow[];
+    .all(userId, profileId) as ActivityRow[];
 
   return rows.map(toStoredActivity);
 }
@@ -460,17 +605,18 @@ export function deleteActivityForUser(id: string, userId: string): boolean {
 export function listConversationsForActivity(
   activityId: string,
   userId: string,
+  profileId: string,
 ): StoredConversation[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id, profile_id
         FROM conversations
-        WHERE user_id = ? AND activity_id = ?
+        WHERE user_id = ? AND profile_id = ? AND activity_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, activityId) as ConversationRow[];
+    .all(userId, profileId, activityId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
 }

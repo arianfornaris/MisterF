@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= title %></title>
     <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="/public/css/app.css">
   </head>
   <body
@@ -29,9 +30,7 @@
               title="Conversaciones"
               aria-label="Conversaciones"
             >
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+              <i class="bi bi-list fs-4" aria-hidden="true"></i>
             </button>
 
             <button
@@ -43,11 +42,7 @@
               title="Traductor"
               aria-label="Traductor"
             >
-              <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M4 5h9M9 3v2m2 0c-.7 3.3-2.7 6-6 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M7 9c1.2 1.6 2.7 2.8 4.6 3.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <path d="M13 21l4.2-10h1.6L23 21M14.4 18h7.2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <i class="bi bi-translate fs-5" aria-hidden="true"></i>
             </button>
           </div>
 
@@ -64,38 +59,27 @@
                 title="Ir al inicio"
                 aria-label="Ir al inicio"
               >
-                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M5 9.5V21h14V9.5" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                  <path d="M9 21v-6h6v6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                </svg>
+                <i class="bi bi-house-door fs-5" aria-hidden="true"></i>
               </a>
               <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
             <div class="offcanvas-body">
-              <a class="btn btn-link panel-nav-button" href="/" data-new-conversation>
-                <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
-                  <path d="M8 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L10 16l-4 1 1-4 9.5-9.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Nueva conversación
-              </a>
-
               <div class="panel-nav">
+                <a class="panel-nav-link" href="/" data-new-conversation>
+                  <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                  Nueva conversación
+                </a>
+
                 <a class="panel-nav-link <%= currentView === 'activities' ? 'is-active' : '' %>" href="/activities">
-                  <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
-                    <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                  </svg>
+                  <i class="bi bi-folder" aria-hidden="true"></i>
                   Actividades
                 </a>
 
                 <a class="panel-nav-link <%= currentView === 'admin-chat' || currentView === 'admin-chats' ? 'is-active' : '' %>" href="/admin-chats">
-                  <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
-                    <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M6 4h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-4l-4 3v-3H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                  </svg>
+                  <i class="bi bi-chat-square-text" aria-hidden="true"></i>
                   Admin Chat
                 </a>
+
               </div>
 
               <div class="panel-recents">
@@ -128,11 +112,7 @@
                             title="Opciones de conversación"
                             aria-label="Opciones de conversación"
                           >
-                            <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                              <circle cx="5" cy="12" r="1.8"/>
-                              <circle cx="12" cy="12" r="1.8"/>
-                              <circle cx="19" cy="12" r="1.8"/>
-                            </svg>
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
                           </button>
                           <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
                             <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
@@ -150,22 +130,23 @@
               <div class="panel-bottom">
                 <div class="user-menu dropdown">
                   <button
-                    class="btn btn-link panel-nav-button user-panel-button"
+                    class="btn btn-link panel-nav-link user-panel-button"
                     type="button"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    title="Perfil"
-                    aria-label="Perfil"
+                    title="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
+                    aria-label="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
                   >
-                    <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" stroke="currentColor" stroke-width="2"/>
-                      <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                    Perfil
+                    <i class="bi bi-person-circle" aria-hidden="true"></i>
+                    <%= activeProfile ? activeProfile.name : 'Perfil' %>
                   </button>
 
                   <div class="dropdown-menu user-menu-panel">
+                    <% if (activeProfile) { %>
+                      <p class="user-menu-email"><strong><%= activeProfile.name %></strong></p>
+                    <% } %>
                     <p class="user-menu-email"><%= user.email %></p>
+                    <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
                     <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
                     <form method="post" action="/logout">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -249,9 +230,7 @@
                         title="Copiar texto"
                         aria-label="Copiar texto"
                       >
-                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none">
-                          <path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2 M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <i class="bi bi-copy" aria-hidden="true"></i>
                       </button>
                     </div>
 
@@ -264,9 +243,7 @@
                         title="Copiar traducción"
                         aria-label="Copiar traducción"
                       >
-                        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none">
-                          <path d="M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2 M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
+                        <i class="bi bi-copy" aria-hidden="true"></i>
                       </button>
                     </div>
                   </div>
@@ -417,9 +394,12 @@
                 </form>
 
                 <% if (activityConversations.length > 0) { %>
-                  <div class="activity-chat-list">
+                  <div class="activity-chat-list list-group shadow-sm">
                     <% activityConversations.forEach((conversation) => { %>
-                      <a class="activity-chat-item" href="/c/<%= encodeURIComponent(conversation.id) %>">
+                      <a
+                        class="activity-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
+                        href="/c/<%= encodeURIComponent(conversation.id) %>"
+                      >
                         <span class="activity-chat-title"><%= conversation.title %></span>
                         <time class="activity-chat-date" datetime="<%= conversation.updatedAt %>">
                           <%= conversation.updatedAt %>
@@ -474,7 +454,8 @@
 
           <% if (activityPageMode === 'new' || activityPageMode === 'edit') { %>
             <section class="activity-form-shell">
-              <div class="activity-form-card">
+              <div class="activity-form-card card shadow-sm">
+                <div class="card-body">
                 <form
                   class="activity-form"
                   method="post"
@@ -535,31 +516,158 @@
                     </button>
                   </div>
                 </form>
+                </div>
               </div>
             </section>
           <% } else if (selectedActivity) { %>
           <% } else if (activities.length > 0) { %>
             <div class="activities-grid">
               <% activities.forEach((activity) => { %>
-                <a class="activity-card" href="/activities/<%= encodeURIComponent(activity.id) %>">
-                  <div class="activity-card-meta">
-                    <p class="activity-card-kicker">Actividad</p>
-                    <span class="activity-chat-count-badge">
-                      <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
-                    </span>
+                <a class="activity-card card shadow-sm h-100 text-decoration-none" href="/activities/<%= encodeURIComponent(activity.id) %>">
+                  <div class="card-body d-grid gap-2">
+                    <div class="activity-card-meta">
+                      <p class="activity-card-kicker">Actividad</p>
+                      <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">
+                        <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
+                      </span>
+                    </div>
+                    <h2 class="h4"><%= activity.title %></h2>
+                    <p class="mb-0 text-body-secondary"><%= activity.description %></p>
                   </div>
-                  <h2><%= activity.title %></h2>
-                  <p><%= activity.description %></p>
                 </a>
               <% }) %>
             </div>
           <% } else { %>
-            <div class="activity-empty-state">
+            <div class="activity-empty-state alert alert-light border">
               <p>
                 <%= activityFilterQuery
                   ? 'No encontré actividades que coincidan con ese texto.'
                   : 'Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.' %>
               </p>
+            </div>
+          <% } %>
+        </section>
+
+        <section
+          class="activities-view <%= currentView === 'profiles' ? '' : 'd-none' %>"
+          aria-label="Perfiles"
+        >
+          <div class="activities-header <%= profilePageMode !== 'list' ? 'activities-header-has-close' : '' %>">
+            <div>
+              <p class="activities-kicker">Perfiles</p>
+              <h1 class="activities-title">
+                <% if (profilePageMode === 'new') { %>
+                  Nuevo perfil
+                <% } else if (profilePageMode === 'edit') { %>
+                  Editar perfil
+                <% } else { %>
+                  Cambiar perfil
+                <% } %>
+              </h1>
+              <p class="activities-copy">
+                <% if (profilePageMode === 'new') { %>
+                  Crea un perfil separado para organizar conversaciones, actividades y chats admin sin mezclarlos con los demás.
+                <% } else if (profilePageMode === 'edit' && selectedProfile) { %>
+                  Ajusta el nombre y la descripción de este perfil.
+                <% } else { %>
+                  Cada perfil mantiene separadas sus conversaciones, actividades y chats admin.
+                <% } %>
+              </p>
+            </div>
+
+            <% if (hasSession) { %>
+              <div class="activities-header-actions">
+                <% if (profilePageMode === 'list') { %>
+                  <a class="btn btn-dark" href="/profiles/new">
+                    Crear perfil
+                  </a>
+                <% } else { %>
+                  <a
+                    class="btn-close activity-close-button"
+                    href="/profiles"
+                    title="Cerrar"
+                    aria-label="Cerrar"
+                  ></a>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (profilePageMode === 'new' || profilePageMode === 'edit') { %>
+            <section class="activity-form-shell">
+              <div class="activity-form-card card shadow-sm">
+                <div class="card-body">
+                <form
+                  class="activity-form"
+                  method="post"
+                  action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
+                  autocomplete="off"
+                >
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="returnTo" value="/profiles">
+
+                  <label class="form-label" for="profileName">Nombre</label>
+                  <input
+                    class="form-control"
+                    id="profileName"
+                    name="name"
+                    maxlength="120"
+                    value="<%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.name : '' %>"
+                    required
+                  >
+
+                  <label class="form-label" for="profileDescription">Descripción</label>
+                  <textarea
+                    class="form-control"
+                    id="profileDescription"
+                    name="description"
+                    rows="4"
+                    maxlength="500"
+                  ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
+
+                  <div class="activity-form-actions">
+                    <button type="submit" class="btn btn-dark">
+                      <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
+                    </button>
+                  </div>
+                </form>
+                </div>
+              </div>
+            </section>
+          <% } else if (profiles && profiles.length > 0) { %>
+            <div class="profiles-list">
+              <% profiles.forEach((profile) => { %>
+                <article class="activity-card profile-card card shadow-sm <%= activeProfile && activeProfile.id === profile.id ? 'is-active' : '' %>">
+                  <div class="card-body d-grid gap-2">
+                    <div class="activity-card-meta">
+                      <p class="activity-card-kicker">Perfil</p>
+                      <% if (activeProfile && activeProfile.id === profile.id) { %>
+                        <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">Activo</span>
+                      <% } %>
+                    </div>
+                    <h2 class="h4"><%= profile.name %></h2>
+                    <p class="mb-0 text-body-secondary"><%= profile.description || 'Sin descripción.' %></p>
+                    <div class="profile-card-actions">
+                      <% if (activeProfile && activeProfile.id === profile.id) { %>
+                        <a class="btn btn-outline-dark" href="/profiles/<%= encodeURIComponent(profile.id) %>/edit">
+                          Editar perfil
+                        </a>
+                      <% } else { %>
+                        <form method="post" action="/profiles/switch">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <input type="hidden" name="profileId" value="<%= profile.id %>">
+                          <input type="hidden" name="returnTo" value="/profiles">
+                          <button class="btn btn-dark" type="submit">Usar este perfil</button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="activity-empty-state alert alert-light border">
+              <p>Todavía no hay perfiles. Crea el primero para separar tu práctica en distintos contextos.</p>
             </div>
           <% } %>
         </section>
@@ -613,11 +721,7 @@
                       title="Opciones del chat admin"
                       aria-label="Opciones del chat admin"
                     >
-                      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="5" cy="12" r="1.8"/>
-                        <circle cx="12" cy="12" r="1.8"/>
-                        <circle cx="19" cy="12" r="1.8"/>
-                      </svg>
+                      <i class="bi bi-three-dots" aria-hidden="true"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
                       <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
@@ -628,7 +732,7 @@
               <% }) %>
             </div>
           <% } else { %>
-            <div class="activity-empty-state">
+            <div class="activity-empty-state alert alert-light border">
               <p>Todavía no hay chats admin guardados. Comienza uno nuevo y deja que Mr. F te ayude a crear o mejorar actividades.</p>
             </div>
           <% } %>
@@ -711,10 +815,7 @@
                 aria-label="Enviar"
                 data-send-button
               >
-                <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                  <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+                <i class="bi bi-send" aria-hidden="true"></i>
               </button>
             </div>
           </form>

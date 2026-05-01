@@ -8,12 +8,14 @@ import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
   addMessage,
   addAdminChatMessage,
+  ensureUserHasProfile,
   createConversation,
   createAdminChatThread,
   deleteAdminChatThreadForUser,
   deleteConversationForUser,
   findAdminChatThreadForUser,
   findConversationForUser,
+  findProfileForUser,
   getConversationActivitySnapshot,
   findMessageInConversation,
   listAdminChatMessages,
@@ -22,7 +24,9 @@ import {
   renameConversationForUser,
   updateMessageMetadata,
   type StoredMessage,
+  type StoredProfile,
 } from '../db/repository.js';
+import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import {
   LlmFinishReasonError,
@@ -181,6 +185,12 @@ export function registerChatSocket(io: Server): void {
     let currentConversationId: string | null = null;
     let currentAdminThreadId: string | null = null;
     let pendingInitialGreeting = pickInitialGreeting();
+    let currentProfile: StoredProfile | null = null;
+
+    const authenticatedUserId = getAuthenticatedUserId(socket);
+    if (authenticatedUserId) {
+      currentProfile = resolveSocketProfile(socket, authenticatedUserId);
+    }
 
     socket.on('conversation:join', async (payload: JoinPayload = {}) => {
       const userId = getAuthenticatedUserId(socket);
@@ -188,6 +198,7 @@ export function registerChatSocket(io: Server): void {
         emitAuthRequired(socket);
         return;
       }
+      currentProfile = resolveSocketProfile(socket, userId);
 
       const conversation = payload.conversationId
         ? findConversationForUser(payload.conversationId, userId)
@@ -242,6 +253,7 @@ export function registerChatSocket(io: Server): void {
         emitAuthRequired(socket);
         return;
       }
+      currentProfile = resolveSocketProfile(socket, userId);
 
       const thread = payload.conversationId
         ? findAdminChatThreadForUser(payload.conversationId, userId)
@@ -284,6 +296,7 @@ export function registerChatSocket(io: Server): void {
         emitAuthRequired(socket);
         return;
       }
+      currentProfile = resolveSocketProfile(socket, userId);
 
       let conversation = payload.conversationId
         ? findConversationForUser(payload.conversationId, userId)
@@ -293,7 +306,11 @@ export function registerChatSocket(io: Server): void {
         !conversation ||
         (listMessages(conversation.id).length === 0 && !conversation.activityId);
       if (!conversation) {
-        conversation = createConversation(userId);
+        if (!currentProfile) {
+          return;
+        }
+
+        conversation = createConversation(userId, currentProfile.id);
       }
 
       joinConversationRoom(socket, currentConversationId, conversation.id);
@@ -329,6 +346,7 @@ export function registerChatSocket(io: Server): void {
         emitAuthRequired(socket);
         return;
       }
+      currentProfile = resolveSocketProfile(socket, userId);
 
       const conversationId = payload.conversationId?.trim();
       if (!conversationId) {
@@ -360,7 +378,11 @@ export function registerChatSocket(io: Server): void {
         : null;
 
       if (!thread) {
-        thread = createAdminChatThread(userId);
+        if (!currentProfile) {
+          return;
+        }
+
+        thread = createAdminChatThread(userId, currentProfile.id);
         socket.emit('admin-chat:promoted', {
           conversationId: thread.id,
         });
@@ -379,7 +401,12 @@ export function registerChatSocket(io: Server): void {
       const userMessage = addAdminChatMessage(thread.id, 'user', content);
       io.to(getAdminThreadRoomId(thread.id)).emit('message:created', userMessage);
 
-      await streamAdminAssistantMessage(io, thread.id, userId);
+      await streamAdminAssistantMessage(
+        io,
+        thread.id,
+        userId,
+        currentProfile?.id ?? thread.profileId,
+      );
     });
 
     socket.on('admin-chat:cancel', (payload: CancelAdminAssistantPayload = {}) => {
@@ -1192,6 +1219,17 @@ function verifySocketSessionCookie(socket: Socket): {
   };
 }
 
+function resolveSocketProfile(socket: Socket, userId: string): StoredProfile {
+  const fallbackProfile = ensureUserHasProfile(userId);
+  const requestedProfileId = getActiveProfileIdFromCookieHeader(
+    socket.request.headers.cookie,
+  );
+
+  return requestedProfileId
+    ? findProfileForUser(requestedProfileId, userId) ?? fallbackProfile
+    : fallbackProfile;
+}
+
 function getAuthenticatedUserId(socket: Socket): string | null {
   return (
     (socket.data as AuthenticatedSocketData).authenticatedUser?.sub ?? null
@@ -1377,6 +1415,7 @@ async function streamAdminAssistantMessage(
   io: Server,
   threadId: string,
   userId: string,
+  profileId: string,
 ): Promise<void> {
   if (runningAdminThreads.has(threadId)) {
     return;
@@ -1402,6 +1441,7 @@ async function streamAdminAssistantMessage(
       onTokenUsage: (usage) => {
         emitLlmRequestTokenUsage(io, threadId, usage, roomId);
       },
+      profileId,
       userId,
     });
 

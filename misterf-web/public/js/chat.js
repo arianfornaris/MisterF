@@ -939,13 +939,7 @@ function createConversationActions() {
   button.setAttribute('aria-label', 'Opciones de conversación');
   button.setAttribute('aria-expanded', 'false');
   button.dataset.bsToggle = 'dropdown';
-  button.innerHTML = `
-    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <circle cx="5" cy="12" r="1.8"></circle>
-      <circle cx="12" cy="12" r="1.8"></circle>
-      <circle cx="19" cy="12" r="1.8"></circle>
-    </svg>
-  `;
+  button.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i>';
 
   const menu = document.createElement('div');
   menu.className = 'dropdown-menu dropdown-menu-end conversation-actions-menu';
@@ -988,13 +982,13 @@ function startRenamingConversation(item) {
 
   const saveButton = createRenameActionButton({
     label: 'Guardar nombre',
-    path: 'm5 12 4 4L19 6',
+    iconClass: 'bi-check-lg',
     type: 'submit',
   });
 
   const cancelButton = createRenameActionButton({
     label: 'Cancelar',
-    path: 'M6 6l12 12M18 6 6 18',
+    iconClass: 'bi-x-lg',
     type: 'button',
   });
 
@@ -1023,17 +1017,13 @@ function startRenamingConversation(item) {
   });
 }
 
-function createRenameActionButton({ label, path, type }) {
+function createRenameActionButton({ label, iconClass, type }) {
   const button = document.createElement('button');
   button.className = 'conversation-rename-action';
   button.type = type;
   button.title = label;
   button.setAttribute('aria-label', label);
-  button.innerHTML = `
-    <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none">
-      <path d="${path}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  button.innerHTML = `<i class="bi ${iconClass}" aria-hidden="true"></i>`;
   return button;
 }
 
@@ -1173,7 +1163,7 @@ function removeAdminThreadItem(threadId) {
 }
 
 function formatConversationDates() {
-  for (const date of document.querySelectorAll('.conversation-date')) {
+  for (const date of document.querySelectorAll('.conversation-date, .activity-chat-date')) {
     const rawValue = date.getAttribute('datetime') || date.textContent || '';
     date.textContent = formatConversationDate(rawValue.trim());
     date.title = rawValue.trim();
@@ -1715,7 +1705,7 @@ function appendUserMessageActions(element) {
 
   const editButton = createMessageActionButton({
     label: 'Editar texto',
-    path: 'M4 20h4.5L19.7 8.8a2.1 2.1 0 0 0 0-3l-1.5-1.5a2.1 2.1 0 0 0-3 0L4 15.5V20Z M13.8 5.7l4.5 4.5',
+    iconClass: 'bi-pencil',
   });
   editButton.addEventListener('click', () => {
     putMessageBackInComposer(element.dataset.rawContent || '');
@@ -1723,7 +1713,7 @@ function appendUserMessageActions(element) {
 
   const copyButton = createMessageActionButton({
     label: 'Copiar texto',
-    path: 'M8 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2 M6 8h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z',
+    iconClass: 'bi-copy',
   });
   copyButton.addEventListener('click', async () => {
     const copied = await copyTextToClipboard(element.dataset.rawContent || '');
@@ -1748,17 +1738,13 @@ function getMessageActionHost(element) {
   );
 }
 
-function createMessageActionButton({ label, path }) {
+function createMessageActionButton({ label, iconClass }) {
   const button = document.createElement('button');
   button.className = 'message-action-button';
   button.type = 'button';
   button.title = label;
   button.setAttribute('aria-label', label);
-  button.innerHTML = `
-    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <path d="${path}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  button.innerHTML = `<i class="bi ${iconClass}" aria-hidden="true"></i>`;
   return button;
 }
 
@@ -3127,11 +3113,7 @@ function createFillInTheBlankCard(block, context) {
   confirmButton.className = 'exercise-confirm-button';
   confirmButton.type = 'button';
   confirmButton.setAttribute('aria-label', 'Confirmar respuesta');
-  confirmButton.innerHTML = `
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  confirmButton.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>';
   confirmButton.addEventListener('click', () => {
     handleFillInTheBlankSubmit(section, state);
   });
@@ -3788,11 +3770,7 @@ function createExerciseConfirmButton(onClick) {
   confirmButton.className = 'exercise-confirm-button';
   confirmButton.type = 'button';
   confirmButton.setAttribute('aria-label', 'Confirmar respuesta');
-  confirmButton.innerHTML = `
-    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  confirmButton.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>';
   confirmButton.addEventListener('click', onClick);
   return confirmButton;
 }
@@ -3864,17 +3842,8 @@ function syncSendButton() {
   sendButtonEl.setAttribute('aria-label', isStopMode ? 'Detener' : 'Enviar');
   sendButtonEl.dataset.mode = isStopMode ? 'stop' : 'send';
   sendButtonEl.innerHTML = isStopMode
-    ? `
-        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <rect x="7" y="7" width="10" height="10" rx="1.5" fill="currentColor"></rect>
-        </svg>
-      `
-    : `
-        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <path d="m13 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      `;
+    ? '<i class="bi bi-stop-fill" aria-hidden="true"></i>'
+    : '<i class="bi bi-send" aria-hidden="true"></i>';
 }
 
 function focusComposer() {

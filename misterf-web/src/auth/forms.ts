@@ -34,19 +34,26 @@ import {
   normalizeActionToken,
 } from './tokens.js';
 import {
+  createProfile,
   createActivity,
   createConversationFromActivity,
   deleteActivityForUser,
   findAdminChatThreadForUser,
   findActivityForUser,
   findConversationForUser,
-  listActivitiesForUser,
-  listAdminChatThreadsForUser,
+  findProfileForUser,
+  listActivitiesForProfile,
+  listAdminChatThreadsForProfile,
   listConversationsForActivity,
-  listConversationsForUser,
+  listConversationsForProfile,
+  updateProfile,
   updateActivity,
 } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
+import {
+  clearActiveProfileCookie,
+  setActiveProfileCookie,
+} from './profiles.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -80,6 +87,19 @@ function normalizeSearchText(value: string): string {
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function normalizeReturnTo(value: string | undefined): string {
+  if (!value) {
+    return '/';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed.startsWith('/')) {
+    return '/';
+  }
+
+  return trimmed;
 }
 
 export function renderLogin(request: Request, response: Response): void {
@@ -551,42 +571,21 @@ export function handleLogout(request: Request, response: Response): void {
   }
 
   clearSessionCookie(response);
+  clearActiveProfileCookie(response);
   response.redirect('/');
 }
 
 export function renderHome(request: Request, response: Response): void {
   const user = request.authUser;
+  const defaultActiveProfile = request.activeProfile;
+  const availableProfiles = request.availableProfiles ?? [];
   const isVerified = Boolean(user?.emailVerified);
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
-  const conversations = user ? listConversationsForUser(user.id) : [];
-  const adminChatThreads = user ? listAdminChatThreadsForUser(user.id) : [];
-  const activities = user ? listActivitiesForUser(user.id) : [];
   const activityFilterQueryRaw =
     typeof request.query.q === 'string' ? request.query.q : '';
   const activityFilterQuery = activityFilterQueryRaw.trim();
   const normalizedActivityFilterQuery = normalizeSearchText(activityFilterQuery);
-  const activitiesWithCounts = user
-    ? activities
-        .filter((activity) => {
-          if (!normalizedActivityFilterQuery) {
-            return true;
-          }
-
-          const haystack = [
-            activity.title,
-            activity.description,
-            activity.tutorInstructions,
-          ]
-            .join('\n');
-
-          return normalizeSearchText(haystack).includes(normalizedActivityFilterQuery);
-        })
-        .map((activity) => ({
-          ...activity,
-          conversationCount: listConversationsForActivity(activity.id, user.id).length,
-        }))
-    : [];
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
   const requestedConversationId =
@@ -603,25 +602,38 @@ export function renderHome(request: Request, response: Response): void {
     typeof requestedActivityIdRaw === 'string'
       ? requestedActivityIdRaw.trim()
       : '';
+  const requestedProfileIdRaw = request.params.profileId;
+  const requestedProfileId =
+    typeof requestedProfileIdRaw === 'string'
+      ? requestedProfileIdRaw.trim()
+      : '';
   const isActivityNewPage = request.path === '/activities/new';
   const isActivityEditPage = request.path.endsWith('/edit');
+  const isProfilesRoot = request.path === '/profiles';
+  const isProfileNewPage = request.path === '/profiles/new';
+  const isProfileEditPage = /^\/profiles\/[^/]+\/edit$/.test(request.path);
   let initialConversationId = '';
   const isAdminChatsRoot = request.path === '/admin-chats';
   const isAdminChatPage =
     request.path === '/admin-chats/new' || /^\/admin-chats\/[^/]+$/.test(request.path);
   let chatMode: 'tutor' | 'admin' =
     isAdminChatsRoot || isAdminChatPage ? 'admin' : 'tutor';
-  let currentView: 'chat' | 'activities' | 'admin-chat' | 'admin-chats' =
+  let currentView: 'chat' | 'activities' | 'profiles' | 'admin-chat' | 'admin-chats' =
     request.path.startsWith('/activities')
       ? 'activities'
+      : request.path.startsWith('/profiles')
+      ? 'profiles'
       : isAdminChatsRoot
       ? 'admin-chats'
       : request.path.startsWith('/admin-chats')
       ? 'admin-chat'
       : 'chat';
   let activityPageMode: 'list' | 'detail' | 'new' | 'edit' = 'list';
+  let profilePageMode: 'list' | 'new' | 'edit' = 'list';
   let selectedActivity = null;
   let activityConversations: ReturnType<typeof listConversationsForActivity> = [];
+  let activeProfile = defaultActiveProfile;
+  let selectedProfile = null;
 
   if ((currentView === 'admin-chat' || currentView === 'admin-chats') && !user) {
     response.redirect('/login');
@@ -633,6 +645,11 @@ export function renderHome(request: Request, response: Response): void {
     return;
   }
 
+  if (currentView === 'profiles' && !user) {
+    response.redirect('/login');
+    return;
+  }
+
   if (requestedConversationId && user) {
     const conversation = findConversationForUser(requestedConversationId, user.id);
     if (!conversation) {
@@ -640,6 +657,12 @@ export function renderHome(request: Request, response: Response): void {
       return;
     }
 
+    if (!activeProfile || conversation.profileId !== activeProfile.id) {
+      activeProfile = findProfileForUser(conversation.profileId, user.id);
+      if (activeProfile) {
+        setActiveProfileCookie(response, activeProfile.id);
+      }
+    }
     initialConversationId = conversation.id;
   }
 
@@ -650,6 +673,12 @@ export function renderHome(request: Request, response: Response): void {
       return;
     }
 
+    if (!activeProfile || thread.profileId !== activeProfile.id) {
+      activeProfile = findProfileForUser(thread.profileId, user.id);
+      if (activeProfile) {
+        setActiveProfileCookie(response, activeProfile.id);
+      }
+    }
     initialConversationId = thread.id;
   }
 
@@ -660,9 +689,66 @@ export function renderHome(request: Request, response: Response): void {
       return;
     }
 
+    if (!activeProfile || activity.profileId !== activeProfile.id) {
+      activeProfile = findProfileForUser(activity.profileId, user.id);
+      if (activeProfile) {
+        setActiveProfileCookie(response, activeProfile.id);
+      }
+    }
     selectedActivity = activity;
-    activityConversations = listConversationsForActivity(activity.id, user.id);
+    activityConversations = listConversationsForActivity(
+      activity.id,
+      user.id,
+      activity.profileId,
+    );
   }
+
+  if (requestedProfileId && user) {
+    const profile = findProfileForUser(requestedProfileId, user.id);
+    if (!profile) {
+      response.redirect('/profiles');
+      return;
+    }
+
+    selectedProfile = profile;
+  }
+
+  const conversations =
+    user && activeProfile
+      ? listConversationsForProfile(user.id, activeProfile.id)
+      : [];
+  const adminChatThreads =
+    user && activeProfile
+      ? listAdminChatThreadsForProfile(user.id, activeProfile.id)
+      : [];
+  const activities =
+    user && activeProfile
+      ? listActivitiesForProfile(user.id, activeProfile.id)
+      : [];
+  const activitiesWithCounts = user
+    ? activities
+        .filter((activity) => {
+          if (!normalizedActivityFilterQuery) {
+            return true;
+          }
+
+          const haystack = [
+            activity.title,
+            activity.description,
+            activity.tutorInstructions,
+          ].join('\n');
+
+          return normalizeSearchText(haystack).includes(normalizedActivityFilterQuery);
+        })
+        .map((activity) => ({
+          ...activity,
+          conversationCount: listConversationsForActivity(
+            activity.id,
+            user.id,
+            activity.profileId,
+          ).length,
+        }))
+    : [];
 
   if (currentView === 'activities') {
     if (isActivityNewPage) {
@@ -674,8 +760,19 @@ export function renderHome(request: Request, response: Response): void {
     }
   }
 
+  if (currentView === 'profiles') {
+    if (isProfileNewPage) {
+      profilePageMode = 'new';
+    } else if (selectedProfile && isProfileEditPage) {
+      profilePageMode = 'edit';
+    } else {
+      profilePageMode = 'list';
+    }
+  }
+
   response.render('index', {
     activities: activitiesWithCounts,
+    activeProfile,
     activityFilterQuery,
     adminChatThreads,
     activityConversations,
@@ -683,13 +780,17 @@ export function renderHome(request: Request, response: Response): void {
     authMessage,
     conversations,
     currentView,
+    currentPath: request.originalUrl || request.path,
     csrfToken: response.locals.csrfToken,
     guestInitialGreeting,
     hasSession: Boolean(user),
     chatMode,
     initialConversationId,
     isAuthenticated: isVerified,
+    profiles: availableProfiles,
+    profilePageMode,
     selectedActivity,
+    selectedProfile,
     socketAuthToken,
     title: 'Mister F',
     user,
@@ -698,7 +799,8 @@ export function renderHome(request: Request, response: Response): void {
 
 export function handleCreateActivity(request: Request, response: Response): void {
   const user = request.authUser;
-  if (!user?.emailVerified) {
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
     response.redirect('/login');
     return;
   }
@@ -713,6 +815,7 @@ export function handleCreateActivity(request: Request, response: Response): void
   }
 
   const activity = createActivity({
+    profileId: activeProfile.id,
     userId: user.id,
     title,
     description,
@@ -749,6 +852,86 @@ export function handleCreateActivityConversation(
   const conversation = createConversationFromActivity(user.id, activity);
 
   response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
+}
+
+export function handleSwitchProfile(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const profileId = String(request.body.profileId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  if (!profileId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const profile = findProfileForUser(profileId, user.id);
+  if (!profile) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  setActiveProfileCookie(response, profile.id);
+  response.redirect(returnTo);
+}
+
+export function handleCreateProfile(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const name = String(request.body.name || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  if (!name) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const profile = createProfile({
+    name: name.slice(0, 120),
+    userId: user.id,
+  });
+  setActiveProfileCookie(response, profile.id);
+  response.redirect(returnTo);
+}
+
+export function handleUpdateProfile(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const profileId = String(request.params.profileId || '').trim();
+  if (!profileId) {
+    response.redirect('/profiles');
+    return;
+  }
+
+  const name = String(request.body.name || '').trim();
+  const description = String(request.body.description || '').trim();
+  if (!name) {
+    response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
+    return;
+  }
+
+  const profile = updateProfile({
+    description: description.slice(0, 500),
+    name: name.slice(0, 120),
+    profileId,
+    userId: user.id,
+  });
+  if (!profile) {
+    response.redirect('/profiles');
+    return;
+  }
+
+  response.redirect('/profiles');
 }
 
 export function handleUpdateActivity(request: Request, response: Response): void {

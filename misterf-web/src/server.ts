@@ -7,6 +7,7 @@ import {
   handleChangePassword,
   handleCreateActivity,
   handleCreateActivityConversation,
+  handleCreateProfile,
   handleDeleteActivity,
   handleUpdateActivity,
   handleForgotPassword,
@@ -15,6 +16,8 @@ import {
   handleResendVerification,
   handleResetPassword,
   handleSignup,
+  handleSwitchProfile,
+  handleUpdateProfile,
   handleVerifyEmail,
   renderHome,
   renderChangePassword,
@@ -55,6 +58,10 @@ app.use(
 app.use(
   '/vendor/bootstrap',
   express.static(path.join(env.projectRoot, 'node_modules/bootstrap/dist')),
+);
+app.use(
+  '/vendor/bootstrap-icons',
+  express.static(path.join(env.projectRoot, 'node_modules/bootstrap-icons/font')),
 );
 app.use(
   '/vendor/marked',
@@ -101,6 +108,12 @@ app.get('/activities/:activityId', renderHome);
 app.post('/activities/:activityId', handleUpdateActivity);
 app.post('/activities/:activityId/delete', handleDeleteActivity);
 app.post('/activities/:activityId/chats', handleCreateActivityConversation);
+app.get('/profiles', renderHome);
+app.get('/profiles/new', renderHome);
+app.get('/profiles/:profileId/edit', renderHome);
+app.post('/profiles', handleCreateProfile);
+app.post('/profiles/switch', handleSwitchProfile);
+app.post('/profiles/:profileId', handleUpdateProfile);
 app.get('/admin-chat', (_request, response) => {
   response.redirect('/admin-chats');
 });

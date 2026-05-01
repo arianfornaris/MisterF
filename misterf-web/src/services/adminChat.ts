@@ -8,9 +8,9 @@ import {
   findActivityForUser,
   findAdminChatThreadForUser,
   findConversationForUser,
-  listActivitiesForUser,
+  listActivitiesForProfile,
   listConversationsForActivity,
-  listConversationsForUser,
+  listConversationsForProfile,
   renameAdminChatThreadForUser,
   renameConversationForUser,
   deleteActivityForUser,
@@ -128,6 +128,7 @@ export async function runAdminChatLoop(
     currentThreadId?: string | null;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
+    profileId: string;
     userId: string;
   },
 ): Promise<AdminChatResult> {
@@ -155,7 +156,11 @@ export async function runAdminChatLoop(
         stopWhen: stepCountIs(6),
         system: systemInstruction,
         temperature: shouldUseTemperature() ? 0.25 : undefined,
-        tools: buildAdminChatTools(options.userId, options.currentThreadId ?? null),
+        tools: buildAdminChatTools(
+          options.userId,
+          options.profileId,
+          options.currentThreadId ?? null,
+        ),
       });
 
       options.onTokenUsage?.(
@@ -225,7 +230,11 @@ export async function runAdminChatLoop(
     : new Error('El Admin Chat no devolvió una respuesta estructurada válida.');
 }
 
-function buildAdminChatTools(userId: string, currentThreadId: string | null) {
+function buildAdminChatTools(
+  userId: string,
+  profileId: string,
+  currentThreadId: string | null,
+) {
   return {
     list_activities: tool({
       description:
@@ -235,7 +244,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
       }),
       execute: async ({ query }) => {
         const normalizedQuery = normalizeSearchText(query || '');
-        const activities = listActivitiesForUser(userId)
+        const activities = listActivitiesForProfile(userId, profileId)
           .filter((activity) => {
             if (!normalizedQuery) {
               return true;
@@ -245,7 +254,11 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
             return normalizeSearchText(haystack).includes(normalizedQuery);
           })
           .map((activity) => ({
-            conversationCount: listConversationsForActivity(activity.id, userId).length,
+            conversationCount: listConversationsForActivity(
+              activity.id,
+              userId,
+              profileId,
+            ).length,
             description: activity.description,
             id: activity.id,
             title: activity.title,
@@ -271,6 +284,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
       execute: async ({ description, title, tutorInstructions }) => {
         const activity = createActivity({
           description,
+          profileId,
           title,
           tutorInstructions,
           userId,
@@ -299,6 +313,11 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
             error: `No activity found with id ${activityId}.`,
           };
         }
+        if (current.profileId !== profileId) {
+          return {
+            error: `Activity ${activityId} does not belong to the current profile.`,
+          };
+        }
 
         const next = updateActivity({
           activityId,
@@ -317,7 +336,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         return {
           activity: summarizeActivity(
             next,
-            listConversationsForActivity(next.id, userId).length,
+            listConversationsForActivity(next.id, userId, profileId).length,
           ),
           url: `/activities/${encodeURIComponent(next.id)}`,
         };
@@ -335,6 +354,11 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         if (!existing) {
           return {
             error: `No activity found with id ${activityId}.`,
+          };
+        }
+        if (existing.profileId !== profileId) {
+          return {
+            error: `Activity ${activityId} does not belong to the current profile.`,
           };
         }
 
@@ -363,7 +387,7 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
       }),
       execute: async ({ limit, query }) => {
         const normalizedQuery = query?.toLowerCase().trim() || '';
-        const conversations = listConversationsForUser(userId)
+        const conversations = listConversationsForProfile(userId, profileId)
           .filter((conversation) => {
             if (!normalizedQuery) {
               return true;
@@ -398,6 +422,11 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         if (!existing) {
           return {
             error: `No conversation found with id ${conversationId}.`,
+          };
+        }
+        if (existing.profileId !== profileId) {
+          return {
+            error: `Conversation ${conversationId} does not belong to the current profile.`,
           };
         }
 
@@ -439,6 +468,11 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
             error: `No activity found with id ${activityId}.`,
           };
         }
+        if (activity.profileId !== profileId) {
+          return {
+            error: `Activity ${activityId} does not belong to the current profile.`,
+          };
+        }
 
         return {
           action: {
@@ -467,6 +501,11 @@ function buildAdminChatTools(userId: string, currentThreadId: string | null) {
         if (!currentThread) {
           return {
             error: `No admin chat thread found with id ${currentThreadId}.`,
+          };
+        }
+        if (currentThread.profileId !== profileId) {
+          return {
+            error: `Admin chat thread ${currentThreadId} does not belong to the current profile.`,
           };
         }
 
