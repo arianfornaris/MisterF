@@ -3,10 +3,12 @@
 - Incorporar voz-a-texto, y texto-a-voz.
 - Permitir usar imagenes en los ejercicios.
     - (free) Pizabay API https://pixabay.com/api/docs/
+- Estoy pensando seriamente que el tutor pueda además administrar las actividades. Quizás deba unificar el chat admin con el pedagogico.
+- En el example, la UI de emparejar palabras está un poco cabrona. Hay que repensarla.
 
 Tipo de mensajes/ejercicios:
 
-- Permitir hacer un exámen, que tiene diferntes tipos de ejercicios. La idea de un examen es que el tutor no lo rectifica, sino que lo evalua y le asigna un nota.
+x- Permitir hacer un exámen, que tiene diferntes tipos de ejercicios. La idea de un examen es que el tutor no lo rectifica, sino que lo evalua y le asigna un nota.
 x- Traducir frase del español al ingles.
 x- Entender frase en inglés - escribirla en español.
 x- El juego del diálogo:

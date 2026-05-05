@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
@@ -26,12 +26,23 @@ export type StoredConversation = {
 export type StoredActivity = {
   id: string;
   profileId: string;
+  sharedVia: 'profile' | 'link' | null;
+  sourceActivityId: string | null;
+  sourceProfileId: string | null;
+  sourceUserId: string | null;
   userId: string;
   title: string;
   description: string;
   tutorInstructions: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type StoredActivityShareLink = {
+  activityId: string;
+  createdAt: string;
+  id: string;
+  revokedAt: string | null;
 };
 
 export type StoredConversationActivitySnapshot = {
@@ -102,12 +113,23 @@ type ConversationRow = {
 type ActivityRow = {
   id: string;
   profile_id: string;
+  shared_via: 'profile' | 'link' | null;
+  source_activity_id: string | null;
+  source_profile_id: string | null;
+  source_user_id: string | null;
   user_id: string;
   title: string;
   description: string;
   tutor_instructions: string;
   created_at: string;
   updated_at: string;
+};
+
+type ActivityShareLinkRow = {
+  activity_id: string;
+  created_at: string;
+  id: string;
+  revoked_at: string | null;
 };
 
 type ConversationActivitySnapshotRow = {
@@ -168,12 +190,27 @@ function toStoredActivity(row: ActivityRow): StoredActivity {
   return {
     id: row.id,
     profileId: row.profile_id,
+    sharedVia: row.shared_via,
+    sourceActivityId: row.source_activity_id,
+    sourceProfileId: row.source_profile_id,
+    sourceUserId: row.source_user_id,
     userId: row.user_id,
     title: row.title,
     description: row.description,
     tutorInstructions: row.tutor_instructions,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredActivityShareLink(
+  row: ActivityShareLinkRow,
+): StoredActivityShareLink {
+  return {
+    activityId: row.activity_id,
+    createdAt: row.created_at,
+    id: row.id,
+    revokedAt: row.revoked_at,
   };
 }
 
@@ -261,6 +298,20 @@ export function findProfileForUser(
       `,
     )
     .get(id, userId) as ProfileRow | undefined;
+
+  return row ? toStoredProfile(row) : null;
+}
+
+export function findProfileById(id: string): StoredProfile | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, name, description, created_at, updated_at
+        FROM profiles
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ProfileRow | undefined;
 
   return row ? toStoredProfile(row) : null;
 }
@@ -529,6 +580,10 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
 
 export function createActivity(input: {
   profileId: string;
+  sharedVia?: 'profile' | 'link' | null;
+  sourceActivityId?: string | null;
+  sourceProfileId?: string | null;
+  sourceUserId?: string | null;
   userId: string;
   title: string;
   description: string;
@@ -538,8 +593,19 @@ export function createActivity(input: {
   getDb()
     .prepare(
       `
-        INSERT INTO activities (id, user_id, profile_id, title, description, tutor_instructions)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO activities (
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          tutor_instructions,
+          source_activity_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -549,6 +615,10 @@ export function createActivity(input: {
       input.title,
       input.description,
       input.tutorInstructions,
+      input.sourceActivityId ?? null,
+      input.sourceUserId ?? null,
+      input.sourceProfileId ?? null,
+      input.sharedVia ?? null,
     );
 
   const activity = findActivityForUser(id, input.userId);
@@ -566,12 +636,50 @@ export function findActivityForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at, profile_id
+        SELECT
+          id,
+          user_id,
+          title,
+          description,
+          tutor_instructions,
+          created_at,
+          updated_at,
+          profile_id,
+          source_activity_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
         FROM activities
         WHERE id = ? AND user_id = ?
       `,
     )
     .get(id, userId) as ActivityRow | undefined;
+
+  return row ? toStoredActivity(row) : null;
+}
+
+export function findActivityById(id: string): StoredActivity | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          title,
+          description,
+          tutor_instructions,
+          created_at,
+          updated_at,
+          profile_id,
+          source_activity_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
+        FROM activities
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ActivityRow | undefined;
 
   return row ? toStoredActivity(row) : null;
 }
@@ -583,7 +691,19 @@ export function listActivitiesForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, description, tutor_instructions, created_at, updated_at, profile_id
+        SELECT
+          id,
+          user_id,
+          title,
+          description,
+          tutor_instructions,
+          created_at,
+          updated_at,
+          profile_id,
+          source_activity_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
         FROM activities
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -648,6 +768,132 @@ export function updateActivity(input: {
     );
 
   return findActivityForUser(input.activityId, input.userId);
+}
+
+export function findImportedActivityForProfile(input: {
+  profileId: string;
+  sourceActivityId: string;
+  userId: string;
+}): StoredActivity | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          title,
+          description,
+          tutor_instructions,
+          created_at,
+          updated_at,
+          profile_id,
+          source_activity_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
+        FROM activities
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND source_activity_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(input.userId, input.profileId, input.sourceActivityId) as
+    | ActivityRow
+    | undefined;
+
+  return row ? toStoredActivity(row) : null;
+}
+
+export function importActivityToProfile(input: {
+  shareKind: 'profile' | 'link';
+  sourceActivity: StoredActivity;
+  targetProfileId: string;
+  userId: string;
+}): StoredActivity {
+  const existing = findImportedActivityForProfile({
+    profileId: input.targetProfileId,
+    sourceActivityId: input.sourceActivity.id,
+    userId: input.userId,
+  });
+  if (existing) {
+    return existing;
+  }
+
+  return createActivity({
+    description: input.sourceActivity.description,
+    profileId: input.targetProfileId,
+    sharedVia: input.shareKind,
+    sourceActivityId: input.sourceActivity.id,
+    sourceProfileId: input.sourceActivity.profileId,
+    sourceUserId: input.sourceActivity.userId,
+    title: input.sourceActivity.title,
+    tutorInstructions: input.sourceActivity.tutorInstructions,
+    userId: input.userId,
+  });
+}
+
+export function findActivityShareLinkById(
+  id: string,
+): StoredActivityShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, activity_id, created_at, revoked_at
+        FROM activity_share_links
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ActivityShareLinkRow | undefined;
+
+  return row ? toStoredActivityShareLink(row) : null;
+}
+
+export function findActivityShareLinkForActivity(
+  activityId: string,
+): StoredActivityShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, activity_id, created_at, revoked_at
+        FROM activity_share_links
+        WHERE activity_id = ?
+          AND revoked_at IS NULL
+        LIMIT 1
+      `,
+    )
+    .get(activityId) as ActivityShareLinkRow | undefined;
+
+  return row ? toStoredActivityShareLink(row) : null;
+}
+
+export function getOrCreateActivityShareLink(
+  activityId: string,
+): StoredActivityShareLink {
+  const existing = findActivityShareLinkForActivity(activityId);
+  if (existing) {
+    return existing;
+  }
+
+  const id = randomBytes(18).toString('base64url');
+  getDb()
+    .prepare(
+      `
+        INSERT INTO activity_share_links (id, activity_id)
+        VALUES (?, ?)
+        ON CONFLICT(activity_id) DO UPDATE SET
+          revoked_at = NULL
+      `,
+    )
+    .run(id, activityId);
+
+  const created = findActivityShareLinkForActivity(activityId);
+  if (!created) {
+    throw new Error('Could not load newly created activity share link.');
+  }
+
+  return created;
 }
 
 export function createConversationActivitySnapshot(

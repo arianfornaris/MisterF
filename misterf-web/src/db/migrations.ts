@@ -337,4 +337,47 @@ export const migrations: Migration[] = [
         ON admin_chat_threads (user_id, profile_id, updated_at DESC, created_at DESC);
     `,
   },
+  {
+    id: 7,
+    name: 'add_activity_sharing',
+    up: `
+      ALTER TABLE activities
+        ADD COLUMN source_activity_id TEXT
+        REFERENCES activities (id)
+        ON DELETE SET NULL;
+
+      ALTER TABLE activities
+        ADD COLUMN source_user_id TEXT
+        REFERENCES users (id)
+        ON DELETE SET NULL;
+
+      ALTER TABLE activities
+        ADD COLUMN source_profile_id TEXT
+        REFERENCES profiles (id)
+        ON DELETE SET NULL;
+
+      ALTER TABLE activities
+        ADD COLUMN shared_via TEXT
+        CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link'));
+
+      CREATE INDEX idx_activities_profile_shared
+        ON activities (profile_id, shared_via, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_activities_profile_source
+        ON activities (profile_id, source_activity_id, shared_via);
+
+      CREATE TABLE activity_share_links (
+        id TEXT PRIMARY KEY,
+        activity_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (activity_id)
+          REFERENCES activities (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_activity_share_links_active
+        ON activity_share_links (activity_id, revoked_at, created_at DESC);
+    `,
+  },
 ];

@@ -409,6 +409,11 @@ body {
   white-space: nowrap;
 }
 
+.activity-shared-badge {
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
 .activity-card h2,
 .activity-start-title {
   margin: 0;
@@ -443,8 +448,6 @@ body {
 }
 
 .activity-detail-inline-actions {
-  display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
   margin-top: 14px;

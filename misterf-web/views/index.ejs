@@ -348,6 +348,8 @@
                   Nueva actividad
                 <% } else if (activityPageMode === 'edit') { %>
                   Editar actividad
+                <% } else if (activityPageMode === 'share') { %>
+                  <%= selectedSharedActivity ? selectedSharedActivity.title : 'Actividad compartida' %>
                 <% } else { %>
                   <%= selectedActivity ? selectedActivity.title : 'Biblioteca de actividades' %>
                 <% } %>
@@ -357,29 +359,86 @@
                   Diseña una actividad con un objetivo claro, una descripción útil y una guía precisa para el tutor.
                 <% } else if (activityPageMode === 'edit') { %>
                   Ajusta esta actividad con calma. Los chats existentes conservarán su propia copia de la actividad original.
+                <% } else if (activityPageMode === 'share') { %>
+                  <%= selectedSharedActivity ? selectedSharedActivity.description : 'Te compartieron una actividad.' %>
                 <% } else { %>
                   <%= selectedActivity ? selectedActivity.description : 'Crea experiencias guiadas para el tutor con un objetivo claro, una descripción y reglas propias.' %>
                 <% } %>
               </p>
 
               <% if (activityPageMode === 'detail' && selectedActivity) { %>
-                <div class="activity-detail-inline-actions">
-                  <a
-                    class="btn btn-outline-dark"
-                    href="/activities/<%= encodeURIComponent(selectedActivity.id) %>/edit"
-                  >
-                    Editar actividad
-                  </a>
-                  <form
-                    method="post"
-                    action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/delete"
-                    onsubmit="return window.confirm('¿Seguro que quieres eliminar esta actividad? Los chats existentes conservarán su copia histórica, pero la actividad ya no aparecerá en la biblioteca.');"
-                  >
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button class="btn btn-outline-danger" type="submit">
-                      Eliminar actividad
+                <% if (selectedActivity.sharedVia) { %>
+                  <div class="mt-3">
+                    <% if (selectedActivitySharedFromProfileName) { %>
+                      <span class="badge text-bg-light border activity-shared-badge" role="status">
+                        Compartida por <%= selectedActivitySharedFromProfileName %>
+                      </span>
+                    <% } else { %>
+                      <span class="badge text-bg-light border activity-shared-badge" role="status">
+                        Compartida <%= selectedActivity.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+                      </span>
+                    <% } %>
+                  </div>
+                <% } %>
+
+                <div class="activity-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones de la actividad">
+                  <div class="btn-group" role="group" aria-label="Editar actividad">
+                    <a
+                      class="btn btn-outline-dark"
+                      href="/activities/<%= encodeURIComponent(selectedActivity.id) %>/edit"
+                      title="Editar actividad"
+                      aria-label="Editar actividad"
+                    >
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="Compartir actividad">
+                    <button
+                      class="btn btn-outline-dark dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      title="Compartir actividad"
+                      aria-label="Compartir actividad"
+                    >
+                      <i class="bi bi-share" aria-hidden="true"></i>
                     </button>
-                  </form>
+                    <div class="dropdown-menu">
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#shareActivityProfileModal"
+                      >
+                        Compartir con perfil
+                      </button>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#shareActivityLinkModal"
+                      >
+                        Obtener enlace
+                      </button>
+                    </div>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="Eliminar actividad">
+                    <form
+                      method="post"
+                      action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/delete"
+                      onsubmit="return window.confirm('¿Seguro que quieres eliminar esta actividad? Los chats existentes conservarán su copia histórica, pero la actividad ya no aparecerá en la biblioteca.');"
+                    >
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button
+                        class="btn btn-outline-danger"
+                        type="submit"
+                        title="Eliminar actividad"
+                        aria-label="Eliminar actividad"
+                      >
+                        <i class="bi bi-trash" aria-hidden="true"></i>
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
                 <p class="activity-section-copy">Chats de esta actividad</p>
@@ -415,10 +474,10 @@
 
             <% if (hasSession) { %>
               <div class="activities-header-actions">
-                <% if (activityPageMode === 'new' || activityPageMode === 'edit' || activityPageMode === 'detail') { %>
+                <% if (activityPageMode === 'new' || activityPageMode === 'edit' || activityPageMode === 'detail' || activityPageMode === 'share') { %>
                   <a
                     class="btn-close activity-close-button"
-                    href="<%= activityPageMode === 'detail' ? '/activities' : selectedActivity ? `/activities/${encodeURIComponent(selectedActivity.id)}` : '/activities' %>"
+                    href="<%= activityPageMode === 'detail' || activityPageMode === 'share' ? '/activities' : selectedActivity ? `/activities/${encodeURIComponent(selectedActivity.id)}` : '/activities' %>"
                     title="Cerrar"
                     aria-label="Cerrar"
                   ></a>
@@ -519,34 +578,234 @@
                 </div>
               </div>
             </section>
-          <% } else if (selectedActivity) { %>
-          <% } else if (activities.length > 0) { %>
-            <div class="activities-grid">
-              <% activities.forEach((activity) => { %>
-                <a class="activity-card card shadow-sm h-100 text-decoration-none" href="/activities/<%= encodeURIComponent(activity.id) %>">
-                  <div class="card-body d-grid gap-2">
-                    <div class="activity-card-meta">
-                      <p class="activity-card-kicker">Actividad</p>
-                      <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">
-                        <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
-                      </span>
+          <% } else if (activityPageMode === 'share' && selectedSharedActivity && selectedActivityShareLink) { %>
+            <section class="activity-form-shell">
+              <div class="activity-form-card card shadow-sm">
+                <div class="card-body">
+                  <div class="d-grid gap-3">
+                    <div>
+                      <p class="mb-2 text-body-secondary">Revisa la actividad y decide si quieres importarla a tu perfil activo.</p>
+                      <dl class="mb-0">
+                        <dt class="small text-uppercase text-body-secondary">Título</dt>
+                        <dd class="mb-3"><%= selectedSharedActivity.title %></dd>
+                        <dt class="small text-uppercase text-body-secondary">Descripción</dt>
+                        <dd class="mb-3"><%= selectedSharedActivity.description %></dd>
+                        <dt class="small text-uppercase text-body-secondary">Tipo</dt>
+                        <dd class="mb-0">
+                          <% if (selectedSharedActivity.sharedVia) { %>
+                            Compartida originalmente por <%= selectedSharedActivity.sharedVia === 'link' ? 'enlace' : 'perfil' %>
+                          <% } else { %>
+                            Actividad compartida
+                          <% } %>
+                        </dd>
+                      </dl>
                     </div>
-                    <h2 class="h4"><%= activity.title %></h2>
-                    <p class="mb-0 text-body-secondary"><%= activity.description %></p>
                   </div>
-                </a>
-              <% }) %>
-            </div>
-          <% } else { %>
-            <div class="activity-empty-state alert alert-light border">
-              <p>
-                <%= activityFilterQuery
-                  ? 'No encontré actividades que coincidan con ese texto.'
-                  : 'Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.' %>
-              </p>
-            </div>
+                </div>
+              </div>
+            </section>
+          <% } else if (activityPageMode === 'list') { %>
+            <% if (activities.length > 0 || sharedActivities.length > 0) { %>
+              <% if (activities.length > 0) { %>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                  <h2 class="h5 mb-0">Tus actividades</h2>
+                  <span class="badge text-bg-light border"><%= activities.length %></span>
+                </div>
+                <div class="activities-grid">
+                  <% activities.forEach((activity) => { %>
+                    <article class="activity-card card shadow-sm h-100">
+                      <div class="card-body d-grid gap-2">
+                        <div class="activity-card-meta">
+                          <p class="activity-card-kicker">Actividad</p>
+                          <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">
+                            <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
+                          </span>
+                        </div>
+                        <h2 class="h4">
+                          <a
+                            class="stretched-link text-decoration-none text-reset"
+                            href="/activities/<%= encodeURIComponent(activity.id) %>"
+                          >
+                            <%= activity.title %>
+                          </a>
+                        </h2>
+                        <p class="mb-0 text-body-secondary"><%= activity.description %></p>
+                      </div>
+                    </article>
+                  <% }) %>
+                </div>
+              <% } %>
+
+              <% if (sharedActivities.length > 0) { %>
+                <div class="d-flex align-items-center justify-content-between mb-3 mt-4">
+                  <h2 class="h5 mb-0">Compartidas contigo</h2>
+                  <span class="badge text-bg-light border"><%= sharedActivities.length %></span>
+                </div>
+                <div class="activities-grid">
+                  <% sharedActivities.forEach((activity) => { %>
+                    <article class="activity-card card shadow-sm h-100">
+                      <div class="card-body d-grid gap-2">
+                        <div class="activity-card-meta">
+                          <p class="activity-card-kicker">Compartida</p>
+                          <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">
+                            <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
+                          </span>
+                        </div>
+                        <h2 class="h4">
+                          <a
+                            class="stretched-link text-decoration-none text-reset"
+                            href="/activities/<%= encodeURIComponent(activity.id) %>"
+                          >
+                            <%= activity.title %>
+                          </a>
+                        </h2>
+                        <p class="mb-0 text-body-secondary"><%= activity.description %></p>
+                      </div>
+                    </article>
+                  <% }) %>
+                </div>
+              <% } %>
+            <% } else { %>
+              <div class="activity-empty-state alert alert-light border">
+                <p>
+                  <%= activityFilterQuery
+                    ? 'No encontré actividades que coincidan con ese texto.'
+                    : 'Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.' %>
+                </p>
+              </div>
+            <% } %>
           <% } %>
         </section>
+
+        <% if (currentView === 'activities' && activityPageMode === 'detail' && selectedActivity) { %>
+          <div
+            class="modal fade"
+            id="shareActivityProfileModal"
+            tabindex="-1"
+            aria-labelledby="shareActivityProfileModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="shareActivityProfileModalLabel">Compartir con perfil</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <% if (shareTargetProfiles.length > 0) { %>
+                    <form method="post" action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/share/profile" class="d-grid gap-3">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <div>
+                        <label class="form-label" for="shareTargetProfileId">Perfil destino</label>
+                        <select class="form-select" id="shareTargetProfileId" name="targetProfileId" required>
+                          <% shareTargetProfiles.forEach((profile) => { %>
+                            <option value="<%= profile.id %>"><%= profile.name %></option>
+                          <% }) %>
+                        </select>
+                      </div>
+                      <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-dark">Compartir ahora</button>
+                      </div>
+                    </form>
+                  <% } else { %>
+                    <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta actividad.</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="shareActivityLinkModal"
+            tabindex="-1"
+            aria-labelledby="shareActivityLinkModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="shareActivityLinkModalLabel">Enlace para compartir</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body d-grid gap-3">
+                  <div>
+                    <label class="form-label" for="activityShareLinkField">Enlace</label>
+                    <input
+                      class="form-control"
+                      id="activityShareLinkField"
+                      type="text"
+                      readonly
+                      value="<%= activityShareUrl %>"
+                      data-activity-share-link-field
+                    >
+                  </div>
+                  <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-outline-dark" type="button" data-copy-activity-share-link>
+                      <i class="bi bi-copy me-1" aria-hidden="true"></i>
+                      Copiar
+                    </button>
+                    <button class="btn btn-outline-dark" type="button" data-native-share-activity-link>
+                      <i class="bi bi-share me-1" aria-hidden="true"></i>
+                      Compartir
+                    </button>
+                  </div>
+                  <% if (activityShareQrDataUrl) { %>
+                    <div class="d-flex justify-content-center">
+                      <img
+                        class="activity-share-qr"
+                        src="<%= activityShareQrDataUrl %>"
+                        alt="QR del enlace para compartir la actividad"
+                        width="180"
+                        height="180"
+                      >
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (currentView === 'activities' && activityPageMode === 'share' && selectedSharedActivity && selectedActivityShareLink) { %>
+          <div
+            class="modal fade"
+            id="acceptSharedActivityModal"
+            tabindex="-1"
+            aria-labelledby="acceptSharedActivityModalLabel"
+            aria-hidden="true"
+            data-auto-open-share-modal
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="acceptSharedActivityModalLabel">Aceptar actividad compartida</h2>
+                  <a class="btn-close" href="/activities" aria-label="Cerrar"></a>
+                </div>
+                <div class="modal-body d-grid gap-3">
+                  <p class="mb-0">
+                    <% if (activeProfile) { %>
+                      ¿Quieres importar esta actividad al perfil <strong><%= activeProfile.name %></strong>?
+                    <% } else { %>
+                      Inicia sesión para importar esta actividad a uno de tus perfiles.
+                    <% } %>
+                  </p>
+                  <div class="d-flex justify-content-end gap-2">
+                    <a class="btn btn-link" href="/activities">No ahora</a>
+                    <% if (isAuthenticated && activeProfile) { %>
+                      <form method="post" action="/activities/shared/<%= encodeURIComponent(selectedActivityShareLink.id) %>/accept">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="btn btn-dark" type="submit">Aceptar</button>
+                      </form>
+                    <% } else { %>
+                      <a class="btn btn-dark" href="/login">Iniciar sesión</a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
 
         <section
           class="activities-view <%= currentView === 'profiles' ? '' : 'd-none' %>"

@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import QRCode from 'qrcode';
 import { createSocketAuthToken } from './socketAuth.js';
 import { pickInitialGreeting } from '../socket/initialGreetings.js';
 import {
@@ -38,10 +39,15 @@ import {
   createActivity,
   createConversationFromActivity,
   deleteActivityForUser,
+  findActivityById,
+  findActivityShareLinkById,
   findAdminChatThreadForUser,
   findActivityForUser,
   findConversationForUser,
+  findProfileById,
+  getOrCreateActivityShareLink,
   findProfileForUser,
+  importActivityToProfile,
   listActivitiesForProfile,
   listAdminChatThreadsForProfile,
   listConversationsForActivity,
@@ -50,6 +56,7 @@ import {
   updateActivity,
 } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
+import { env } from '../config/env.js';
 import {
   clearActiveProfileCookie,
   setActiveProfileCookie,
@@ -100,6 +107,10 @@ function normalizeReturnTo(value: string | undefined): string {
   }
 
   return trimmed;
+}
+
+function buildAbsoluteAppUrl(pathname: string): string {
+  return new URL(pathname, env.appBaseUrl).toString();
 }
 
 export function renderLogin(request: Request, response: Response): void {
@@ -575,7 +586,7 @@ export function handleLogout(request: Request, response: Response): void {
   response.redirect('/');
 }
 
-export function renderHome(request: Request, response: Response): void {
+export async function renderHome(request: Request, response: Response): Promise<void> {
   const user = request.authUser;
   const defaultActiveProfile = request.activeProfile;
   const availableProfiles = request.availableProfiles ?? [];
@@ -601,6 +612,11 @@ export function renderHome(request: Request, response: Response): void {
   const requestedActivityId =
     typeof requestedActivityIdRaw === 'string'
       ? requestedActivityIdRaw.trim()
+      : '';
+  const requestedActivityShareIdRaw = request.params.shareId;
+  const requestedActivityShareId =
+    typeof requestedActivityShareIdRaw === 'string'
+      ? requestedActivityShareIdRaw.trim()
       : '';
   const requestedProfileIdRaw = request.params.profileId;
   const requestedProfileId =
@@ -628,9 +644,12 @@ export function renderHome(request: Request, response: Response): void {
       : request.path.startsWith('/admin-chats')
       ? 'admin-chat'
       : 'chat';
-  let activityPageMode: 'list' | 'detail' | 'new' | 'edit' = 'list';
+  let activityPageMode: 'list' | 'detail' | 'new' | 'edit' | 'share' = 'list';
   let profilePageMode: 'list' | 'new' | 'edit' = 'list';
   let selectedActivity = null;
+  let selectedSharedActivity = null;
+  let selectedActivityShareLink = null;
+  let selectedActivitySharedFromProfileName = '';
   let activityConversations: ReturnType<typeof listConversationsForActivity> = [];
   let activeProfile = defaultActiveProfile;
   let selectedProfile = null;
@@ -703,6 +722,31 @@ export function renderHome(request: Request, response: Response): void {
     );
   }
 
+  if (requestedActivityShareId) {
+    const shareLink = findActivityShareLinkById(requestedActivityShareId);
+    if (!shareLink || shareLink.revokedAt) {
+      response.redirect('/activities');
+      return;
+    }
+
+    const sharedActivity = findActivityById(shareLink.activityId);
+    if (!sharedActivity) {
+      response.redirect('/activities');
+      return;
+    }
+
+    selectedSharedActivity = sharedActivity;
+    selectedActivityShareLink = shareLink;
+  }
+
+  if (selectedActivity) {
+    selectedActivityShareLink = getOrCreateActivityShareLink(selectedActivity.id);
+    if (selectedActivity.sourceProfileId) {
+      selectedActivitySharedFromProfileName =
+        findProfileById(selectedActivity.sourceProfileId)?.name || '';
+    }
+  }
+
   if (requestedProfileId && user) {
     const profile = findProfileForUser(requestedProfileId, user.id);
     if (!profile) {
@@ -725,7 +769,7 @@ export function renderHome(request: Request, response: Response): void {
     user && activeProfile
       ? listActivitiesForProfile(user.id, activeProfile.id)
       : [];
-  const activitiesWithCounts = user
+  const visibleActivities = user
     ? activities
         .filter((activity) => {
           if (!normalizedActivityFilterQuery) {
@@ -749,12 +793,32 @@ export function renderHome(request: Request, response: Response): void {
           ).length,
         }))
     : [];
+  const ownActivities = visibleActivities.filter((activity) => !activity.sharedVia);
+  const sharedActivities = visibleActivities.filter((activity) => Boolean(activity.sharedVia));
+  const shareTargetProfiles =
+    availableProfiles.filter(
+      (profile) => profile.id !== (selectedActivity?.profileId ?? activeProfile?.id),
+    );
+  const activityShareUrl =
+    selectedActivity && selectedActivityShareLink
+      ? buildAbsoluteAppUrl(
+          `/activities/shared/${encodeURIComponent(selectedActivityShareLink.id)}`,
+        )
+      : '';
+  const activityShareQrDataUrl = activityShareUrl
+    ? await QRCode.toDataURL(activityShareUrl, {
+        margin: 1,
+        width: 180,
+      })
+    : '';
 
   if (currentView === 'activities') {
     if (isActivityNewPage) {
       activityPageMode = 'new';
     } else if (selectedActivity && isActivityEditPage) {
       activityPageMode = 'edit';
+    } else if (selectedSharedActivity && selectedActivityShareLink) {
+      activityPageMode = 'share';
     } else if (selectedActivity) {
       activityPageMode = 'detail';
     }
@@ -771,12 +835,14 @@ export function renderHome(request: Request, response: Response): void {
   }
 
   response.render('index', {
-    activities: activitiesWithCounts,
+    activities: ownActivities,
     activeProfile,
     activityFilterQuery,
     adminChatThreads,
     activityConversations,
     activityPageMode,
+    activityShareQrDataUrl,
+    activityShareUrl,
     authMessage,
     conversations,
     currentView,
@@ -789,8 +855,13 @@ export function renderHome(request: Request, response: Response): void {
     isAuthenticated: isVerified,
     profiles: availableProfiles,
     profilePageMode,
+    shareTargetProfiles,
+    sharedActivities,
     selectedActivity,
+    selectedActivityShareLink,
+    selectedActivitySharedFromProfileName,
     selectedProfile,
+    selectedSharedActivity,
     socketAuthToken,
     title: 'Mister F',
     user,
@@ -990,6 +1061,82 @@ export function handleDeleteActivity(request: Request, response: Response): void
 
   deleteActivityForUser(activityId, user.id);
   response.redirect('/activities');
+}
+
+export function handleShareActivityToProfile(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const activityId = String(request.params.activityId || '').trim();
+  const targetProfileId = String(request.body.targetProfileId || '').trim();
+  if (!activityId || !targetProfileId) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const activity = findActivityForUser(activityId, user.id);
+  if (!activity) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const targetProfile = findProfileForUser(targetProfileId, user.id);
+  if (!targetProfile || targetProfile.id === activity.profileId) {
+    response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+    return;
+  }
+
+  importActivityToProfile({
+    shareKind: 'profile',
+    sourceActivity: activity,
+    targetProfileId: targetProfile.id,
+    userId: user.id,
+  });
+  response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+}
+
+export function handleAcceptSharedActivityLink(
+  request: Request,
+  response: Response,
+): void {
+  const shareId = String(request.params.shareId || '').trim();
+  if (!shareId) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const shareLink = findActivityShareLinkById(shareId);
+  if (!shareLink || shareLink.revokedAt) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const sourceActivity = findActivityById(shareLink.activityId);
+  if (!sourceActivity) {
+    response.redirect('/activities');
+    return;
+  }
+
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const imported = importActivityToProfile({
+    shareKind: 'link',
+    sourceActivity,
+    targetProfileId: activeProfile.id,
+    userId: user.id,
+  });
+  response.redirect(`/activities/${encodeURIComponent(imported.id)}`);
 }
 
 async function signInUser(

@@ -33,6 +33,19 @@ const translatorOpenButtonEl = document.querySelector('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
 const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
+const shareActivityLinkModalEl = document.querySelector('#shareActivityLinkModal');
+const activityShareLinkFieldEl = document.querySelector(
+  '[data-activity-share-link-field]',
+);
+const copyActivityShareLinkButtonEl = document.querySelector(
+  '[data-copy-activity-share-link]',
+);
+const nativeShareActivityLinkButtonEl = document.querySelector(
+  '[data-native-share-activity-link]',
+);
+const autoOpenSharedActivityModalEl = document.querySelector(
+  '[data-auto-open-share-modal]',
+);
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const chatMode = document.body.dataset.chatMode || 'tutor';
 const currentView = document.body.dataset.currentView || 'chat';
@@ -58,6 +71,7 @@ const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 disableComposerTextAssist();
 initializeLlmContextMeter();
 initializeStaticMarkdown();
+initializeActivitySharingUi();
 
 let conversationId = initialConversationId;
 let streamingBubble = null;
@@ -720,6 +734,48 @@ function initializeLlmContextMeter() {
   llmContextCircleEl.style.strokeDasharray = `${llmContextCircleCircumference}`;
   updateLlmContextMeter(null);
 }
+
+function initializeActivitySharingUi() {
+  if (copyActivityShareLinkButtonEl) {
+    copyActivityShareLinkButtonEl.addEventListener('click', async () => {
+      if (!activityShareLinkFieldEl) {
+        return;
+      }
+
+      const copied = await copyTextToClipboard(activityShareLinkFieldEl.value);
+      copyActivityShareLinkButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
+      window.setTimeout(() => {
+        copyActivityShareLinkButtonEl.innerHTML =
+          '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
+      }, 1200);
+    });
+  }
+
+  if (nativeShareActivityLinkButtonEl) {
+    if (typeof navigator.share !== 'function') {
+      nativeShareActivityLinkButtonEl.classList.add('d-none');
+    } else {
+      nativeShareActivityLinkButtonEl.addEventListener('click', async () => {
+        if (!activityShareLinkFieldEl?.value) {
+          return;
+        }
+
+        try {
+          await navigator.share({
+            title: 'Actividad compartida',
+            url: activityShareLinkFieldEl.value,
+          });
+        } catch {}
+      });
+    }
+  }
+
+  if (autoOpenSharedActivityModalEl && window.bootstrap?.Modal) {
+    const modal = new window.bootstrap.Modal(autoOpenSharedActivityModalEl);
+    modal.show();
+  }
+}
+
 
 function updateLlmContextMeter(usage) {
   if (!llmContextMeterEl || !llmContextCircleEl) {

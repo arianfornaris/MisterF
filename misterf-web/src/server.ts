@@ -9,6 +9,8 @@ import {
   handleCreateActivityConversation,
   handleCreateProfile,
   handleDeleteActivity,
+  handleAcceptSharedActivityLink,
+  handleShareActivityToProfile,
   handleUpdateActivity,
   handleForgotPassword,
   handleLogin,
@@ -103,11 +105,14 @@ app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
 app.get('/activities', renderHome);
 app.get('/activities/new', renderHome);
 app.post('/activities', handleCreateActivity);
+app.get('/activities/shared/:shareId', renderHome);
+app.post('/activities/shared/:shareId/accept', handleAcceptSharedActivityLink);
 app.get('/activities/:activityId/edit', renderHome);
 app.get('/activities/:activityId', renderHome);
 app.post('/activities/:activityId', handleUpdateActivity);
 app.post('/activities/:activityId/delete', handleDeleteActivity);
 app.post('/activities/:activityId/chats', handleCreateActivityConversation);
+app.post('/activities/:activityId/share/profile', handleShareActivityToProfile);
 app.get('/profiles', renderHome);
 app.get('/profiles/new', renderHome);
 app.get('/profiles/:profileId/edit', renderHome);
