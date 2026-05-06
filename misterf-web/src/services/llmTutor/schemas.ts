@@ -52,13 +52,6 @@ export const lessonLinkBlockSchema = z
   })
   .strict();
 
-export const administrationInstructionBlockSchema = z
-  .object({
-    instruction: z.string().trim().min(1).max(2000).optional(),
-    type: z.literal('instructions_for_administration'),
-  })
-  .strict();
-
 export const dialogueCharacterMessageBlockSchema = z
   .object({
     type: z.literal('dialogue_character_message'),
@@ -408,7 +401,6 @@ export const tutorResponseSchema = z
   z.union([
     messageBlockSchema,
     lessonLinkBlockSchema,
-    administrationInstructionBlockSchema,
   dialogueCharacterMessageBlockSchema,
           dialogueTranscriptBlockSchema,
           matchingPairsBlockSchema,

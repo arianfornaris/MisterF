@@ -43,9 +43,6 @@ import {
 } from '../services/llmTutor.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
-import {
-  runAdministrationLoop,
-} from '../services/administration/index.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -1100,7 +1097,6 @@ async function streamAssistantMessage(
   }
 
   const abortController = new AbortController();
-  let pendingAdministrationInstruction: string | null = null;
   runningConversations.add(conversationId);
   runningConversationControllers.set(conversationId, abortController);
   io.to(conversationId).emit('assistant:start');
@@ -1144,23 +1140,18 @@ async function streamAssistantMessage(
     });
 
     const trimmedContent = result.content.trim();
-    if (!trimmedContent && !result.blocks.some((block) => block.type === 'instructions_for_administration')) {
+    if (!trimmedContent) {
       throw new Error('The model returned an empty response.');
     }
 
-    if (trimmedContent) {
-      const assistantMessage = addMessage(
-        conversationId,
-        'model',
-        trimmedContent,
-        { blocks: result.blocks, model: result.model, provider: result.provider },
-      );
-      emitConversationUpdated(io, conversationId, userId);
-      io.to(conversationId).emit('assistant:done', assistantMessage);
-    } else {
-      emitConversationUpdated(io, conversationId, userId);
-      io.to(conversationId).emit('assistant:done');
-    }
+    const assistantMessage = addMessage(
+      conversationId,
+      'model',
+      trimmedContent,
+      { blocks: result.blocks, model: result.model, provider: result.provider },
+    );
+    emitConversationUpdated(io, conversationId, userId);
+    io.to(conversationId).emit('assistant:done', assistantMessage);
 
     applyTutorBlocksRuntime({
       blocks: result.blocks,
@@ -1169,17 +1160,6 @@ async function streamAssistantMessage(
       lastUserMessageId,
       userId,
     });
-
-    if (result.blocks.some((block) => block.type === 'instructions_for_administration')) {
-      const administrationInstructionBlock = result.blocks.find(
-        (
-          block,
-        ): block is { type: 'instructions_for_administration'; instruction?: string } =>
-          block.type === 'instructions_for_administration',
-      );
-      pendingAdministrationInstruction =
-        administrationInstructionBlock?.instruction?.trim() || '';
-    }
   } catch (error) {
     if (isAbortError(error, abortController.signal)) {
       io.to(conversationId).emit('assistant:stopped');
@@ -1190,82 +1170,6 @@ async function streamAssistantMessage(
       conversationId,
       error: serializeError(error),
       lastUserMessageId,
-      userId,
-    });
-    emitRoomCreditExhaustedIfNeeded(io, conversationId, error);
-    io.to(conversationId).emit('assistant:error', {
-      message: toUserFacingError(error),
-    });
-  } finally {
-    runningConversations.delete(conversationId);
-    runningConversationControllers.delete(conversationId);
-  }
-
-  if (pendingAdministrationInstruction) {
-    await executeAdministrationInstruction(
-      io,
-      conversationId,
-      userId,
-      pendingAdministrationInstruction,
-    );
-  }
-}
-
-async function executeAdministrationInstruction(
-  io: Server,
-  conversationId: string,
-  userId: string,
-  instruction: string,
-): Promise<void> {
-  const conversation = findConversationForUser(conversationId, userId);
-  if (!conversation) {
-    return;
-  }
-
-  const abortController = new AbortController();
-  runningConversations.add(conversationId);
-  runningConversationControllers.set(conversationId, abortController);
-  io.to(conversationId).emit('assistant:start');
-
-  try {
-    const lessonSnapshot = getConversationLessonSnapshot(conversationId);
-    const llmOptions = await getLlmRequestOptionsForUser(userId);
-    const onTokenUsage = (usage: LlmRequestTokenUsage) => {
-      emitLlmRequestTokenUsage(io, conversationId, usage);
-    };
-    const onToolCall = (toolName: string) => {
-      emitAssistantToolStatus(io, conversationId, toolName);
-    };
-
-    const result = await runAdministrationLoop({
-      instruction,
-      abortSignal: abortController.signal,
-      currentLessonId: conversation.lessonId,
-      currentLessonTitle: lessonSnapshot?.title ?? null,
-      llm: llmOptions,
-      onTokenUsage,
-      onToolCall,
-      profileId: conversation.profileId,
-      userId,
-    });
-
-    const assistantMessage = addMessage(
-      conversationId,
-      'model',
-      result.content.trim(),
-      { blocks: result.blocks, model: result.model, provider: result.provider, source: 'administration' },
-    );
-    emitConversationUpdated(io, conversationId, userId);
-    io.to(conversationId).emit('assistant:done', assistantMessage);
-  } catch (error) {
-    if (isAbortError(error, abortController.signal)) {
-      io.to(conversationId).emit('assistant:stopped');
-      return;
-    }
-
-    console.error('Administration response failed.', {
-      conversationId,
-      error: serializeError(error),
       userId,
     });
     emitRoomCreditExhaustedIfNeeded(io, conversationId, error);

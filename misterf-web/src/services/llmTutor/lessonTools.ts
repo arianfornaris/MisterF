@@ -1,6 +1,5 @@
-import { generateText, stepCountIs, tool, type ModelMessage } from 'ai';
+import { tool } from 'ai';
 import { z } from 'zod';
-import { env } from '../../config/env.js';
 import {
   createLesson,
   deleteLessonForUser,
@@ -10,34 +9,7 @@ import {
   updateLesson,
   type StoredLesson,
 } from '../../db/repository.js';
-import {
-  buildLlmRequestTokenUsage,
-  logLlmRequest,
-  logLlmResponse,
-  logLlmToolCalls,
-} from '../llmTutor/logging.js';
-import { buildAdministrationSystemInstruction } from '../llmTutor/prompt.js';
-import {
-  getLanguageModel,
-  getProviderOptions,
-  getUserFacingFinishReasonMessage,
-  shouldUseTemperature,
-} from '../llmTutor/providers.js';
-import type {
-  LlmRequestOptions,
-  LlmRequestTokenUsage,
-  TutorLessonLinkBlock,
-  TutorMessageBlock,
-} from '../llmTutor/types.js';
-
-type AdministrationResponseBlock = TutorMessageBlock | TutorLessonLinkBlock;
-
-export type AdministrationResult = {
-  blocks: AdministrationResponseBlock[];
-  content: string;
-  model: string;
-  provider: string;
-};
+import type { TutorLessonLinkBlock } from './types.js';
 
 function normalizeSearchText(value: string): string {
   return value
@@ -48,171 +20,7 @@ function normalizeSearchText(value: string): string {
     .trim();
 }
 
-function adminBlocksToMarkdown(blocks: AdministrationResponseBlock[]): string {
-  const parts = blocks
-    .map((block) => (block.type === 'message' ? block.markdown.trim() : block.label.trim()))
-    .filter(Boolean);
-
-  return parts.join('\n\n');
-}
-
-async function continueAdministrationResponseAfterToolUse(input: {
-  abortSignal?: AbortSignal;
-  llm?: LlmRequestOptions;
-  instruction: string;
-  system: string;
-  toolResults: Array<{
-    output: unknown;
-    preliminary?: boolean;
-    toolName: string;
-  }>;
-}) {
-  const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
-  const messages: ModelMessage[] = [
-    {
-      role: 'user',
-      content: [
-        'Original administration instruction:',
-        input.instruction,
-        '',
-        'INTERNAL APP CONTINUATION.',
-        'The previous step already used tools and may have completed lesson actions successfully.',
-        'Do not call any more tools in this step.',
-        'Now answer the learner in natural Spanish text only.',
-        'Do not return JSON.',
-        'Do not return markdown fences.',
-        'Explain briefly what happened.',
-        '',
-        JSON.stringify(
-          finalizedToolResults.map((result) => ({
-            output: result.output,
-            toolName: result.toolName,
-          })),
-          null,
-          2,
-        ),
-      ].join('\n'),
-    },
-  ];
-
-  return generateText({
-    abortSignal: input.abortSignal,
-    maxOutputTokens: 1200,
-    messages,
-    model: getLanguageModel(input.llm),
-    providerOptions: getProviderOptions(),
-    system: input.system,
-    temperature: shouldUseTemperature() ? 0.2 : undefined,
-  });
-}
-
-export async function runAdministrationLoop(input: {
-  instruction: string;
-  abortSignal?: AbortSignal;
-  currentLessonId?: string | null;
-  currentLessonTitle?: string | null;
-  llm?: LlmRequestOptions;
-  onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
-  onToolCall?: (toolName: string) => void;
-  profileId?: string | null;
-  userId?: string | null;
-}): Promise<AdministrationResult> {
-  const instruction = input.instruction.trim();
-  if (!instruction) {
-    throw new Error('No pude procesar una instrucción administrativa vacía.');
-  }
-
-  const messages: ModelMessage[] = [{ role: 'user', content: instruction }];
-  const system = buildAdministrationSystemInstruction({
-    currentLessonTitle: input.currentLessonTitle ?? null,
-  });
-
-  logLlmRequest(messages, system, input, 1);
-
-  const result = await generateText({
-    abortSignal: input.abortSignal,
-    maxOutputTokens: 1200,
-    messages,
-    model: getLanguageModel(input.llm),
-    providerOptions: getProviderOptions(),
-    stopWhen: stepCountIs(6),
-    system,
-    temperature: shouldUseTemperature() ? 0.2 : undefined,
-    tools: buildAdministrationLessonTools({
-      currentLessonId: input.currentLessonId ?? null,
-      onToolCall: input.onToolCall,
-      profileId: input.profileId ?? null,
-      userId: input.userId ?? null,
-    }),
-  });
-
-  logLlmToolCalls({
-    steps: result.steps,
-    turn: 1,
-  });
-
-  const toolResults = result.steps.flatMap((step) => step.toolResults);
-  const effectiveResult =
-    (!result.text.trim() || toolResults.length > 0)
-      ? await continueAdministrationResponseAfterToolUse({
-          abortSignal: input.abortSignal,
-          instruction,
-          llm: input.llm,
-          system,
-          toolResults,
-        })
-      : result;
-
-  const text = effectiveResult.text.trim();
-  if (!text) {
-    throw new Error('El administrador no devolvió una respuesta usable.');
-  }
-
-  const blocks = mergeAdministrationLessonLinkBlocks(
-    [
-      {
-        type: 'message',
-        markdown: text,
-      },
-    ],
-    extractInferredLessonLinkBlocks(toolResults),
-  );
-
-  logLlmResponse(
-    { blocks },
-    effectiveResult.finishReason,
-    effectiveResult.usage,
-    effectiveResult.providerMetadata,
-    1,
-  );
-
-  input.onTokenUsage?.(
-    await buildLlmRequestTokenUsage({
-      messages,
-      system,
-      turn: 1,
-      usage: effectiveResult.usage,
-    }),
-  );
-
-  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-    effectiveResult.finishReason,
-    undefined,
-    effectiveResult.providerMetadata,
-  );
-  if (userFacingFinishMessage) {
-    throw new Error(userFacingFinishMessage);
-  }
-
-  return {
-    blocks,
-    content: adminBlocksToMarkdown(blocks),
-    model: env.llmModel,
-    provider: env.llmProvider,
-  };
-}
-
-function buildAdministrationLessonTools(input: {
+export function buildTutorLessonTools(input: {
   currentLessonId: string | null;
   onToolCall?: (toolName: string) => void;
   profileId: string | null;
@@ -254,7 +62,8 @@ function buildAdministrationLessonTools(input: {
       },
     }),
     create_lesson: tool({
-      description: 'Create a new lesson in the current profile.',
+      description:
+        'Create a new lesson in the current profile. Provide title, description, and tutorInstructions. Infer them from the user request and chat context when possible.',
       inputSchema: z.object({
         description: z.string().trim().min(1).max(1500),
         title: z.string().trim().min(1).max(220),
@@ -391,7 +200,7 @@ function summarizeLesson(lesson: StoredLesson, userId: string) {
   };
 }
 
-function extractInferredLessonLinkBlocks(
+export function extractInferredLessonLinkBlocks(
   toolResults: Array<{
     output: unknown;
     preliminary?: boolean;
@@ -463,18 +272,4 @@ function extractLessonRecord(value: unknown) {
 
 function buildLessonLinkLabel(title: string) {
   return `Abrir lección: ${title}`;
-}
-
-function mergeAdministrationLessonLinkBlocks(
-  blocks: AdministrationResponseBlock[],
-  inferredLinks: TutorLessonLinkBlock[],
-): AdministrationResponseBlock[] {
-  const seenLessonIds = new Set(
-    blocks.filter((block) => block.type === 'lesson_link').map((block) => block.lessonId),
-  );
-
-  return [
-    ...blocks,
-    ...inferredLinks.filter((link) => !seenLessonIds.has(link.lessonId)),
-  ];
 }

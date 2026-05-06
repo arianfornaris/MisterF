@@ -4,7 +4,6 @@ import { env } from '../../config/env.js';
 import type { TranslationMode } from './types.js';
 
 let systemInstruction: string | undefined;
-let administrationSystemInstruction: string | undefined;
 
 function getSystemInstruction(): string {
   systemInstruction ??= fs.readFileSync(
@@ -13,15 +12,6 @@ function getSystemInstruction(): string {
   );
 
   return systemInstruction;
-}
-
-function getAdministrationSystemInstruction(): string {
-  administrationSystemInstruction ??= fs.readFileSync(
-    path.join(env.projectRoot, 'gameplays/administration-system-prompt.md'),
-    'utf8',
-  );
-
-  return administrationSystemInstruction;
 }
 
 export function buildAgentSystemInstruction(options: {
@@ -88,23 +78,4 @@ export function buildTranslatorSystemInstruction(mode: TranslationMode): string 
     '  translatedText: string;',
     '};',
   ].join('\n');
-}
-
-export function buildAdministrationSystemInstruction(options: {
-  currentLessonTitle?: string | null;
-} = {}): string {
-  const sections = [getAdministrationSystemInstruction()];
-
-  if (options.currentLessonTitle) {
-    sections.push(
-      [
-        '',
-        '## Current Lesson Context',
-        '',
-        `This conversation currently belongs to the lesson: ${options.currentLessonTitle}`,
-      ].join('\n'),
-    );
-  }
-
-  return sections.join('\n');
 }

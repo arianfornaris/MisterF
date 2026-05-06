@@ -938,7 +938,7 @@ body {
 
 .tool-status-bubble {
   max-width: min(100%, 760px);
-  padding-left: 0.25rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.85rem;
   font-family: var(--bs-body-font-family);
 }
 

@@ -38,7 +38,6 @@ export function applyTutorBlocksRuntime(input: {
 
       case 'message':
       case 'lesson_link':
-      case 'instructions_for_administration':
       case 'dialogue_character_message':
       case 'dialogue_transcript':
       case 'matching_pairs':

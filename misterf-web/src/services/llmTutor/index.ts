@@ -1,6 +1,7 @@
 import {
   generateText,
   stepCountIs,
+  type ToolSet,
   type ModelMessage,
 } from 'ai';
 import { env } from '../../config/env.js';
@@ -12,18 +13,83 @@ import {
   logLlmResponse,
   logLlmToolCalls,
 } from './logging.js';
+import { buildTutorLessonTools, extractInferredLessonLinkBlocks } from './lessonTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
-import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorResponseValidator } from './types.js';
+import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorResponseBlock, TutorResponseValidator } from './types.js';
 
 const firstChallengePrompt = `
 Start the session.
 `;
 
 const maxAgentTurns = 6;
+
+function mergeTutorLessonLinkBlocks(
+  blocks: TutorResponseBlock[],
+  inferredLinks: Array<Extract<TutorResponseBlock, { type: 'lesson_link' }>>,
+): TutorResponseBlock[] {
+  const seenLessonIds = new Set(
+    blocks
+      .filter(
+        (block): block is Extract<TutorResponseBlock, { type: 'lesson_link' }> =>
+          block.type === 'lesson_link',
+      )
+      .map((block) => block.lessonId),
+  );
+
+  return [
+    ...blocks,
+    ...inferredLinks.filter((link) => !seenLessonIds.has(link.lessonId)),
+  ];
+}
+
+async function continueTutorResponseAfterToolUse(input: {
+  abortSignal?: AbortSignal;
+  llm?: LlmRequestOptions;
+  system: string;
+  toolResults: Array<{
+    output: unknown;
+    preliminary?: boolean;
+    toolName: string;
+  }>;
+}) {
+  const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
+  const messages: ModelMessage[] = [
+    {
+      role: 'user',
+      content: [
+        'INTERNAL APP CONTINUATION.',
+        'The previous step already used tools and may have completed lesson operations successfully.',
+        'Do not call any more tools in this step.',
+        'Now re-emit the complete final TutorResponse as exactly one JSON object and nothing else.',
+        'Do not use markdown fences.',
+        'Use the tool results below as context.',
+        '',
+        JSON.stringify(
+          finalizedToolResults.map((result) => ({
+            output: result.output,
+            toolName: result.toolName,
+          })),
+          null,
+          2,
+        ),
+      ].join('\n'),
+    },
+  ];
+
+  return generateText({
+    abortSignal: input.abortSignal,
+    maxOutputTokens: 1800,
+    messages,
+    model: getLanguageModel(input.llm),
+    providerOptions: getProviderOptions(),
+    system: input.system,
+    temperature: shouldUseTemperature() ? 0.25 : undefined,
+  });
+}
 
 function parseJsonFromModelText(text: string): unknown {
   const trimmed = text.trim();
@@ -72,6 +138,12 @@ export async function runTutorAgentLoop(
     ...options,
   });
   let lastError: unknown = null;
+  const tools = buildTutorLessonTools({
+    currentLessonId: options.currentLessonId ?? null,
+    onToolCall: options.onToolCall,
+    profileId: options.profileId ?? null,
+    userId: options.userId ?? null,
+  }) as ToolSet | undefined;
 
   for (let turn = 0; turn < maxAgentTurns; turn += 1) {
     logLlmRequest(messages, system, options, turn + 1);
@@ -86,12 +158,22 @@ export async function runTutorAgentLoop(
         stopWhen: stepCountIs(6),
         system,
         temperature: shouldUseTemperature() ? 0.45 : undefined,
+        tools,
       });
       logLlmToolCalls({
         steps: result.steps,
         turn: turn + 1,
       });
-      const effectiveResult = result;
+      const toolResults = result.steps.flatMap((step) => step.toolResults);
+      const effectiveResult =
+        (!result.text.trim() || toolResults.length > 0)
+          ? await continueTutorResponseAfterToolUse({
+              abortSignal: options.abortSignal,
+              llm: options.llm,
+              system,
+              toolResults,
+            })
+          : result;
 
       let parsedObject: unknown;
       try {
@@ -137,11 +219,15 @@ export async function runTutorAgentLoop(
         if (blocks.length === 0) {
           throw new Error('The model returned no usable response blocks.');
         }
-        options.validateBlocks?.(blocks);
+        const blocksWithInferredLinks = mergeTutorLessonLinkBlocks(
+          blocks,
+          extractInferredLessonLinkBlocks(toolResults),
+        );
+        options.validateBlocks?.(blocksWithInferredLinks);
 
         return {
-          blocks,
-          content: blocksToMarkdown(blocks),
+          blocks: blocksWithInferredLinks,
+          content: blocksToMarkdown(blocksWithInferredLinks),
           model: env.llmModel,
           provider: env.llmProvider,
         };

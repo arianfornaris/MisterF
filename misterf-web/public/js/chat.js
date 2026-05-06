@@ -615,7 +615,12 @@ function setToolStatus(text) {
     row.dataset.role = 'tool-status';
 
     const bubble = document.createElement('div');
-    bubble.className = 'message-bubble tool-status-bubble small text-body-secondary';
+    bubble.className = 'message-bubble tool-status-bubble';
+
+    const textNode = document.createElement('div');
+    textNode.className = 'tool-status-text small text-body-secondary';
+
+    bubble.append(textNode);
     row.append(bubble);
     const streamingRow = streamingBubble?.closest('.message-row');
     if (streamingRow?.parentElement === messagesEl) {
@@ -628,7 +633,10 @@ function setToolStatus(text) {
 
   const bubble = toolStatusRow.querySelector('.tool-status-bubble');
   if (bubble) {
-    bubble.textContent = nextText;
+    const textNode = bubble.querySelector('.tool-status-text');
+    if (textNode) {
+      textNode.textContent = nextText;
+    }
   }
   scrollToBottom();
 }
@@ -1739,13 +1747,14 @@ function syncSpeakerLabel(bubble, metadata) {
   }
 
   bubble.querySelector('.message-speaker-label')?.remove();
-  if (!metadata?.speakerLabel) {
+  const speakerLabel = metadata?.speakerLabel || '';
+  if (!speakerLabel) {
     return;
   }
 
   const label = document.createElement('div');
   label.className = 'message-speaker-label small text-body-secondary';
-  label.textContent = metadata.speakerLabel;
+  label.textContent = speakerLabel;
   bubble.prepend(label);
 }
 

@@ -16,6 +16,7 @@ export function logLlmRequest(
   messages: ModelMessage[],
   system: string,
   options: {
+    actorLabel?: string;
     currentTitle?: string;
     llm?: LlmRequestOptions;
     startConversation?: boolean;
@@ -23,7 +24,7 @@ export function logLlmRequest(
   },
   turn: number,
 ): void {
-  logJson('[Mr. F LLM request]', {
+  logJson(`[${options.actorLabel || 'Mr. F'} LLM request]`, {
     messageCount: messages.length,
     messages: messages.map((message, index) => ({
       content: message.content,
@@ -50,8 +51,9 @@ export function logLlmResponse(
   usage?: LanguageModelUsage,
   providerMetadata?: ProviderMetadata,
   turn?: number,
+  actorLabel = 'Mr. F',
 ): void {
-  logJson('[Mr. F LLM response]', {
+  logJson(`[${actorLabel} LLM response]`, {
     finishReason,
     object,
     providerMetadata,
@@ -62,6 +64,7 @@ export function logLlmResponse(
 }
 
 export function logLlmToolCalls(input: {
+  actorLabel?: string;
   steps: Array<{
     text?: string;
     toolCalls?: Array<{
@@ -100,18 +103,19 @@ export function logLlmToolCalls(input: {
     return;
   }
 
-  logJson('[Mr. F LLM tool calls]', {
+  logJson(`[${input.actorLabel || 'Mr. F'} LLM tool calls]`, {
     steps: stepsWithTools,
     turn: input.turn,
   });
 }
 
 export function logLlmInvalidRawResponse(input: {
+  actorLabel?: string;
   error: unknown;
   rawText: string;
   turn?: number;
 }): void {
-  logJson('[Mr. F LLM invalid raw response]', {
+  logJson(`[${input.actorLabel || 'Mr. F'} LLM invalid raw response]`, {
     error:
       input.error instanceof Error
         ? {
