@@ -19,7 +19,6 @@ import {
   findMessageInConversation,
   listMessages,
   renameConversationForUser,
-  setConversationActiveAgentForUser,
   updateMessageMetadata,
   type StoredMessage,
   type StoredProfile,
@@ -45,9 +44,8 @@ import {
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 import {
-  runSecretaryAgentLoop,
-  type SecretaryResult,
-} from '../services/secretary/index.js';
+  runAdministrationLoop,
+} from '../services/administration/index.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -1072,10 +1070,6 @@ function createEphemeralInitialMessage(content: string): TutorMessage {
   };
 }
 
-function buildSecretaryIntroMessage(): string {
-  return 'Hola. Puedo ayudarte a crear, revisar, editar, organizar y eliminar lecciones usando el contexto de esta conversación. Si luego quieres volver con Mr. F, solo dímelo.';
-}
-
 function normalizeConversationTitle(title?: string): string {
   return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
 }
@@ -1106,8 +1100,7 @@ async function streamAssistantMessage(
   }
 
   const abortController = new AbortController();
-  let shouldActivateSecretary = false;
-  let pendingSecretaryInstruction: string | null = null;
+  let pendingAdministrationInstruction: string | null = null;
   runningConversations.add(conversationId);
   runningConversationControllers.set(conversationId, abortController);
   io.to(conversationId).emit('assistant:start');
@@ -1136,89 +1129,56 @@ async function streamAssistantMessage(
         }
       : null;
 
-    const isSecretaryConversation = conversation.activeAgent === 'secretary';
-    const result =
-      isSecretaryConversation
-        ? await runSecretaryAgentLoop(history, {
-            abortSignal: abortController.signal,
-            currentLessonId: conversation.lessonId,
-            currentLessonTitle: lessonSnapshot?.title ?? null,
-            llm: llmOptions,
-            onTokenUsage,
-            onToolCall,
-            profileId: conversation.profileId,
-            userId,
-          })
-        : await runTutorAgentLoop(history, {
-            lesson: lessonContext,
-            abortSignal: abortController.signal,
-            currentTitle: conversation.title,
-            currentLessonId: conversation.lessonId,
-            llm: llmOptions,
-            onTokenUsage,
-            onToolCall,
-            profileId: conversation.profileId,
-            startConversation,
-            titleUpdatedByUser: conversation.titleUpdatedByUser,
-            userId,
-          });
+    const result = await runTutorAgentLoop(history, {
+      lesson: lessonContext,
+      abortSignal: abortController.signal,
+      currentTitle: conversation.title,
+      currentLessonId: conversation.lessonId,
+      llm: llmOptions,
+      onTokenUsage,
+      onToolCall,
+      profileId: conversation.profileId,
+      startConversation,
+      titleUpdatedByUser: conversation.titleUpdatedByUser,
+      userId,
+    });
 
     const trimmedContent = result.content.trim();
-    if (!trimmedContent) {
+    if (!trimmedContent && !result.blocks.some((block) => block.type === 'instructions_for_administration')) {
       throw new Error('The model returned an empty response.');
     }
 
-    const assistantMessage = addMessage(
+    if (trimmedContent) {
+      const assistantMessage = addMessage(
+        conversationId,
+        'model',
+        trimmedContent,
+        { blocks: result.blocks, model: result.model, provider: result.provider },
+      );
+      emitConversationUpdated(io, conversationId, userId);
+      io.to(conversationId).emit('assistant:done', assistantMessage);
+    } else {
+      emitConversationUpdated(io, conversationId, userId);
+      io.to(conversationId).emit('assistant:done');
+    }
+
+    applyTutorBlocksRuntime({
+      blocks: result.blocks,
       conversationId,
-      'model',
-      trimmedContent,
-      conversation.activeAgent === 'secretary'
-        ? buildSecretaryMessageMetadata(result)
-        : { blocks: result.blocks, model: result.model, provider: result.provider },
-    );
-    emitConversationUpdated(io, conversationId, userId);
+      io,
+      lastUserMessageId,
+      userId,
+    });
 
-    if (conversation.activeAgent === 'tutor') {
-      applyTutorBlocksRuntime({
-        blocks: result.blocks,
-        conversationId,
-        io,
-        lastUserMessageId,
-        userId,
-      });
-    }
-
-    io.to(conversationId).emit('assistant:done', assistantMessage);
-
-    if (isSecretaryConversation && (result as SecretaryResult).returnToTutor) {
-      const nextConversation = setConversationActiveAgentForUser(
-        conversationId,
-        userId,
-        'tutor',
+    if (result.blocks.some((block) => block.type === 'instructions_for_administration')) {
+      const administrationInstructionBlock = result.blocks.find(
+        (
+          block,
+        ): block is { type: 'instructions_for_administration'; instruction?: string } =>
+          block.type === 'instructions_for_administration',
       );
-      if (nextConversation) {
-        const tutorReturn = addMessage(
-          conversationId,
-          'model',
-          'Aquí estoy de nuevo. Seguimos con la parte pedagógica cuando quieras.',
-          { source: 'tutor_return' },
-        );
-        emitConversationUpdated(io, conversationId, userId);
-        io.to(conversationId).emit('message:created', tutorReturn);
-      }
-      return;
-    }
-
-    if (
-      conversation.activeAgent === 'tutor' &&
-      result.blocks.some((block) => block.type === 'call_secretary')
-    ) {
-      const secretaryCall = result.blocks.find(
-        (block): block is { type: 'call_secretary'; instruction?: string } =>
-          block.type === 'call_secretary',
-      );
-      shouldActivateSecretary = true;
-      pendingSecretaryInstruction = secretaryCall?.instruction?.trim() || null;
+      pendingAdministrationInstruction =
+        administrationInstructionBlock?.instruction?.trim() || '';
     }
   } catch (error) {
     if (isAbortError(error, abortController.signal)) {
@@ -1241,74 +1201,81 @@ async function streamAssistantMessage(
     runningConversationControllers.delete(conversationId);
   }
 
-  if (shouldActivateSecretary) {
-    await activateSecretaryMode(
+  if (pendingAdministrationInstruction) {
+    await executeAdministrationInstruction(
       io,
       conversationId,
       userId,
-      pendingSecretaryInstruction,
+      pendingAdministrationInstruction,
     );
   }
 }
 
-async function activateSecretaryMode(
+async function executeAdministrationInstruction(
   io: Server,
   conversationId: string,
   userId: string,
-  instruction?: string | null,
+  instruction: string,
 ): Promise<void> {
-  const conversation = setConversationActiveAgentForUser(
-    conversationId,
-    userId,
-    'secretary',
-  );
+  const conversation = findConversationForUser(conversationId, userId);
   if (!conversation) {
     return;
   }
 
-  const normalizedInstruction = instruction?.trim();
-  if (normalizedInstruction) {
-    emitConversationUpdated(io, conversationId, userId);
-    await streamAssistantMessage(
-      io,
-      conversationId,
+  const abortController = new AbortController();
+  runningConversations.add(conversationId);
+  runningConversationControllers.set(conversationId, abortController);
+  io.to(conversationId).emit('assistant:start');
+
+  try {
+    const lessonSnapshot = getConversationLessonSnapshot(conversationId);
+    const llmOptions = await getLlmRequestOptionsForUser(userId);
+    const onTokenUsage = (usage: LlmRequestTokenUsage) => {
+      emitLlmRequestTokenUsage(io, conversationId, usage);
+    };
+    const onToolCall = (toolName: string) => {
+      emitAssistantToolStatus(io, conversationId, toolName);
+    };
+
+    const result = await runAdministrationLoop({
+      instruction,
+      abortSignal: abortController.signal,
+      currentLessonId: conversation.lessonId,
+      currentLessonTitle: lessonSnapshot?.title ?? null,
+      llm: llmOptions,
+      onTokenUsage,
+      onToolCall,
+      profileId: conversation.profileId,
       userId,
-      undefined,
-      false,
-      [
-        {
-          content: [
-            'INTERNAL SECRETARY HANDOFF.',
-            'Mr. F has passed the learner to Ms. María.',
-            'Use this as secretary-only context.',
-            `Instruction from Mr. F: ${normalizedInstruction}`,
-          ].join('\n'),
-          role: 'user',
-        },
-      ],
+    });
+
+    const assistantMessage = addMessage(
+      conversationId,
+      'model',
+      result.content.trim(),
+      { blocks: result.blocks, model: result.model, provider: result.provider, source: 'administration' },
     );
-    return;
+    emitConversationUpdated(io, conversationId, userId);
+    io.to(conversationId).emit('assistant:done', assistantMessage);
+  } catch (error) {
+    if (isAbortError(error, abortController.signal)) {
+      io.to(conversationId).emit('assistant:stopped');
+      return;
+    }
+
+    console.error('Administration response failed.', {
+      conversationId,
+      error: serializeError(error),
+      userId,
+    });
+    emitRoomCreditExhaustedIfNeeded(io, conversationId, error);
+    io.to(conversationId).emit('assistant:error', {
+      message: toUserFacingError(error),
+    });
+  } finally {
+    runningConversations.delete(conversationId);
+    runningConversationControllers.delete(conversationId);
   }
-
-  const introText = buildSecretaryIntroMessage();
-  const secretaryMessage = addMessage(
-    conversationId,
-    'model',
-    introText,
-    buildSecretaryMessageMetadata({
-      blocks: [
-        {
-          markdown: introText,
-          type: 'message',
-        },
-      ],
-      model: 'system',
-      provider: 'app',
-    }),
-  );
-
-  emitConversationUpdated(io, conversationId, userId);
-  io.to(conversationId).emit('message:created', secretaryMessage);
 }
 
 function emitAssistantToolStatus(
@@ -1345,20 +1312,6 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
     content: message.content,
     role: message.role,
   }));
-}
-
-function buildSecretaryMessageMetadata(result: {
-  blocks: unknown[];
-  model: string;
-  provider: string;
-}) {
-  return {
-    blocks: result.blocks,
-    model: result.model,
-    provider: result.provider,
-    speaker: 'secretary',
-    speakerLabel: 'Ms. María',
-  };
 }
 
 function isAbortError(error: unknown, signal?: AbortSignal): boolean {

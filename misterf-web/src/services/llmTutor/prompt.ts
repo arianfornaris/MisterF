@@ -4,7 +4,7 @@ import { env } from '../../config/env.js';
 import type { TranslationMode } from './types.js';
 
 let systemInstruction: string | undefined;
-let secretarySystemInstruction: string | undefined;
+let administrationSystemInstruction: string | undefined;
 
 function getSystemInstruction(): string {
   systemInstruction ??= fs.readFileSync(
@@ -15,13 +15,13 @@ function getSystemInstruction(): string {
   return systemInstruction;
 }
 
-function getSecretarySystemInstruction(): string {
-  secretarySystemInstruction ??= fs.readFileSync(
-    path.join(env.projectRoot, 'gameplays/secretary-system-prompt.md'),
+function getAdministrationSystemInstruction(): string {
+  administrationSystemInstruction ??= fs.readFileSync(
+    path.join(env.projectRoot, 'gameplays/administration-system-prompt.md'),
     'utf8',
   );
 
-  return secretarySystemInstruction;
+  return administrationSystemInstruction;
 }
 
 export function buildAgentSystemInstruction(options: {
@@ -90,10 +90,10 @@ export function buildTranslatorSystemInstruction(mode: TranslationMode): string 
   ].join('\n');
 }
 
-export function buildSecretarySystemInstruction(options: {
+export function buildAdministrationSystemInstruction(options: {
   currentLessonTitle?: string | null;
 } = {}): string {
-  const sections = [getSecretarySystemInstruction()];
+  const sections = [getAdministrationSystemInstruction()];
 
   if (options.currentLessonTitle) {
     sections.push(

@@ -12,12 +12,11 @@ import {
 } from '../../db/repository.js';
 import {
   buildLlmRequestTokenUsage,
-  logLlmInvalidRawResponse,
   logLlmRequest,
   logLlmResponse,
   logLlmToolCalls,
 } from '../llmTutor/logging.js';
-import { buildSecretarySystemInstruction } from '../llmTutor/prompt.js';
+import { buildAdministrationSystemInstruction } from '../llmTutor/prompt.js';
 import {
   getLanguageModel,
   getProviderOptions,
@@ -31,12 +30,13 @@ import type {
   TutorMessageBlock,
 } from '../llmTutor/types.js';
 
-export type SecretaryResult = {
-  blocks: Array<TutorMessageBlock | TutorLessonLinkBlock>;
+type AdministrationResponseBlock = TutorMessageBlock | TutorLessonLinkBlock;
+
+export type AdministrationResult = {
+  blocks: AdministrationResponseBlock[];
   content: string;
   model: string;
   provider: string;
-  returnToTutor: boolean;
 };
 
 function normalizeSearchText(value: string): string {
@@ -48,10 +48,18 @@ function normalizeSearchText(value: string): string {
     .trim();
 }
 
-async function continueSecretaryResponseAfterToolUse(input: {
+function adminBlocksToMarkdown(blocks: AdministrationResponseBlock[]): string {
+  const parts = blocks
+    .map((block) => (block.type === 'message' ? block.markdown.trim() : block.label.trim()))
+    .filter(Boolean);
+
+  return parts.join('\n\n');
+}
+
+async function continueAdministrationResponseAfterToolUse(input: {
   abortSignal?: AbortSignal;
   llm?: LlmRequestOptions;
-  messages: ModelMessage[];
+  instruction: string;
   system: string;
   toolResults: Array<{
     output: unknown;
@@ -60,17 +68,20 @@ async function continueSecretaryResponseAfterToolUse(input: {
   }>;
 }) {
   const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
-  const continuationMessages: ModelMessage[] = [
-    ...input.messages,
+  const messages: ModelMessage[] = [
     {
       role: 'user',
       content: [
+        'Original administration instruction:',
+        input.instruction,
+        '',
         'INTERNAL APP CONTINUATION.',
         'The previous step already used tools and may have completed lesson actions successfully.',
         'Do not call any more tools in this step.',
-        'Using the tool results below, answer the learner now in normal natural Spanish.',
-        'Explain clearly what happened.',
+        'Now answer the learner in natural Spanish text only.',
         'Do not return JSON.',
+        'Do not return markdown fences.',
+        'Explain briefly what happened.',
         '',
         JSON.stringify(
           finalizedToolResults.map((result) => ({
@@ -87,52 +98,51 @@ async function continueSecretaryResponseAfterToolUse(input: {
   return generateText({
     abortSignal: input.abortSignal,
     maxOutputTokens: 1200,
-    messages: continuationMessages,
+    messages,
     model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     system: input.system,
-    temperature: shouldUseTemperature() ? 0.35 : undefined,
+    temperature: shouldUseTemperature() ? 0.2 : undefined,
   });
 }
 
-export async function runSecretaryAgentLoop(
-  history: Array<{ content: string; role: 'model' | 'user' }>,
-  options: {
-    abortSignal?: AbortSignal;
-    currentLessonId?: string | null;
-    currentLessonTitle?: string | null;
-    llm?: LlmRequestOptions;
-    onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
-    onToolCall?: (toolName: string) => void;
-    profileId?: string | null;
-    userId?: string | null;
-  },
-): Promise<SecretaryResult> {
-  const messages: ModelMessage[] = history.map((message) => ({
-    content: message.content,
-    role: message.role === 'model' ? 'assistant' : 'user',
-  }));
+export async function runAdministrationLoop(input: {
+  instruction: string;
+  abortSignal?: AbortSignal;
+  currentLessonId?: string | null;
+  currentLessonTitle?: string | null;
+  llm?: LlmRequestOptions;
+  onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
+  onToolCall?: (toolName: string) => void;
+  profileId?: string | null;
+  userId?: string | null;
+}): Promise<AdministrationResult> {
+  const instruction = input.instruction.trim();
+  if (!instruction) {
+    throw new Error('No pude procesar una instrucción administrativa vacía.');
+  }
 
-  const system = buildSecretarySystemInstruction({
-    currentLessonTitle: options.currentLessonTitle ?? null,
+  const messages: ModelMessage[] = [{ role: 'user', content: instruction }];
+  const system = buildAdministrationSystemInstruction({
+    currentLessonTitle: input.currentLessonTitle ?? null,
   });
 
-  logLlmRequest(messages, system, options, 1);
+  logLlmRequest(messages, system, input, 1);
 
   const result = await generateText({
-    abortSignal: options.abortSignal,
+    abortSignal: input.abortSignal,
     maxOutputTokens: 1200,
     messages,
-    model: getLanguageModel(options.llm),
+    model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     stopWhen: stepCountIs(6),
     system,
-    temperature: shouldUseTemperature() ? 0.45 : undefined,
-    tools: buildSecretaryLessonTools({
-      currentLessonId: options.currentLessonId ?? null,
-      onToolCall: options.onToolCall,
-      profileId: options.profileId ?? null,
-      userId: options.userId ?? null,
+    temperature: shouldUseTemperature() ? 0.2 : undefined,
+    tools: buildAdministrationLessonTools({
+      currentLessonId: input.currentLessonId ?? null,
+      onToolCall: input.onToolCall,
+      profileId: input.profileId ?? null,
+      userId: input.userId ?? null,
     }),
   });
 
@@ -143,11 +153,11 @@ export async function runSecretaryAgentLoop(
 
   const toolResults = result.steps.flatMap((step) => step.toolResults);
   const effectiveResult =
-    !result.text.trim() && toolResults.length > 0
-      ? await continueSecretaryResponseAfterToolUse({
-          abortSignal: options.abortSignal,
-          llm: options.llm,
-          messages,
+    (!result.text.trim() || toolResults.length > 0)
+      ? await continueAdministrationResponseAfterToolUse({
+          abortSignal: input.abortSignal,
+          instruction,
+          llm: input.llm,
           system,
           toolResults,
         })
@@ -155,31 +165,28 @@ export async function runSecretaryAgentLoop(
 
   const text = effectiveResult.text.trim();
   if (!text) {
-    logLlmInvalidRawResponse({
-      error: new Error('Secretary loop returned empty text.'),
-      rawText: effectiveResult.text,
-      turn: 1,
-    });
-    throw new Error('Ms. María no pudo responder en este momento.');
+    throw new Error('El administrador no devolvió una respuesta usable.');
   }
 
+  const blocks = mergeAdministrationLessonLinkBlocks(
+    [
+      {
+        type: 'message',
+        markdown: text,
+      },
+    ],
+    extractInferredLessonLinkBlocks(toolResults),
+  );
+
   logLlmResponse(
-    {
-      blocks: [
-        {
-          markdown: text,
-          type: 'message',
-        },
-        ...extractInferredLessonLinkBlocks(toolResults),
-      ],
-    },
+    { blocks },
     effectiveResult.finishReason,
     effectiveResult.usage,
     effectiveResult.providerMetadata,
     1,
   );
 
-  options.onTokenUsage?.(
+  input.onTokenUsage?.(
     await buildLlmRequestTokenUsage({
       messages,
       system,
@@ -198,21 +205,14 @@ export async function runSecretaryAgentLoop(
   }
 
   return {
-    blocks: [
-      {
-        markdown: text,
-        type: 'message',
-      },
-      ...extractInferredLessonLinkBlocks(toolResults),
-    ],
-    content: text,
+    blocks,
+    content: adminBlocksToMarkdown(blocks),
     model: env.llmModel,
     provider: env.llmProvider,
-    returnToTutor: extractReturnToTutor(toolResults),
   };
 }
 
-function buildSecretaryLessonTools(input: {
+function buildAdministrationLessonTools(input: {
   currentLessonId: string | null;
   onToolCall?: (toolName: string) => void;
   profileId: string | null;
@@ -370,24 +370,8 @@ function buildSecretaryLessonTools(input: {
         return {
           action: {
             lessonId: resolvedLessonId,
-            label: label || 'Abrir lección',
+            label: label || buildLessonLinkLabel(lesson.title),
             type: 'lesson_link' as const,
-          },
-        };
-      },
-    }),
-    return_to_tutor: tool({
-      description:
-        'Return control of the conversation to Mr. F when the learner asks to go back to the tutor.',
-      inputSchema: z.object({
-        note: z.string().trim().min(1).max(300).optional(),
-      }),
-      execute: async ({ note }) => {
-        announceToolCall('return_to_tutor');
-        return {
-          action: {
-            note: note || null,
-            type: 'return_to_tutor' as const,
           },
         };
       },
@@ -434,7 +418,7 @@ function extractInferredLessonLinkBlocks(
       if (lesson) {
         actions.push({
           lessonId: lesson.id,
-          label: 'Abrir lección',
+          label: buildLessonLinkLabel(lesson.title),
           type: 'lesson_link',
         });
       }
@@ -477,23 +461,20 @@ function extractLessonRecord(value: unknown) {
   };
 }
 
-function extractReturnToTutor(
-  toolResults: Array<{
-    output: unknown;
-    preliminary?: boolean;
-    toolName: string;
-  }>,
-): boolean {
-  return toolResults.some((result) => {
-    if (result.preliminary || result.toolName !== 'return_to_tutor') {
-      return false;
-    }
+function buildLessonLinkLabel(title: string) {
+  return `Abrir lección: ${title}`;
+}
 
-    const action = (result.output as { action?: unknown } | undefined)?.action;
-    if (!action || typeof action !== 'object') {
-      return false;
-    }
+function mergeAdministrationLessonLinkBlocks(
+  blocks: AdministrationResponseBlock[],
+  inferredLinks: TutorLessonLinkBlock[],
+): AdministrationResponseBlock[] {
+  const seenLessonIds = new Set(
+    blocks.filter((block) => block.type === 'lesson_link').map((block) => block.lessonId),
+  );
 
-    return (action as Record<string, unknown>).type === 'return_to_tutor';
-  });
+  return [
+    ...blocks,
+    ...inferredLinks.filter((link) => !seenLessonIds.has(link.lessonId)),
+  ];
 }

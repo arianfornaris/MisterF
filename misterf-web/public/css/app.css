@@ -1847,27 +1847,6 @@ body {
   line-height: 1.55;
 }
 
-.message-row.is-model.is-secretary .message-bubble {
-  max-width: min(100%, 760px);
-  padding: 0.85rem 1rem 0.9rem;
-  border: 1px solid var(--bs-border-color);
-  border-left: 4px solid var(--bs-secondary-color);
-  border-radius: var(--bs-border-radius);
-  background: var(--bs-tertiary-bg);
-  box-shadow: none;
-  color: var(--ink);
-  font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 1.02rem;
-  line-height: 1.55;
-}
-
-.message-row.is-model.is-secretary .message-bubble .message-speaker-label {
-  color: var(--bs-secondary-color);
-  font-family: var(--bs-body-font-family);
-  letter-spacing: 0.02em;
-  text-transform: none;
-}
-
 .tutor-message-stack {
   display: grid;
   gap: 0.9rem;

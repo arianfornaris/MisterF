@@ -148,7 +148,7 @@ export const migrations: Migration[] = [
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
-        active_agent TEXT NOT NULL DEFAULT 'tutor',
+        active_agent TEXT NOT NULL DEFAULT 'tutor' CHECK (active_agent IN ('tutor')),
         lesson_id TEXT,
         title TEXT NOT NULL DEFAULT 'Nueva conversación',
         title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),

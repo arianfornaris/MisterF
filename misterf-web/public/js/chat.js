@@ -283,6 +283,19 @@ if (socket) {
   });
 
   socket.on('assistant:done', (message) => {
+    if (!message) {
+      streamingBubble?.remove();
+      streamingBubble = null;
+      setToolStatus('');
+      isAssistantBusy = false;
+      isAssistantStopping = false;
+      renderLessonStartPanel(null, { visible: false });
+      setComposerEnabled(true);
+      focusComposer();
+      scrollToBottom();
+      return;
+    }
+
     const sentenceEvaluation = activeUserMessageId
       ? pendingSentenceEvaluations.get(activeUserMessageId)
       : null;
@@ -1718,8 +1731,6 @@ function applyModelSpeakerMetadata(row, metadata) {
   if (!row || !row.classList.contains('is-model')) {
     return;
   }
-
-  row.classList.toggle('is-secretary', metadata?.speaker === 'secretary');
 }
 
 function syncSpeakerLabel(bubble, metadata) {

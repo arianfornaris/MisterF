@@ -1,5 +1,5 @@
 import type {
-  TutorCallSecretaryBlock,
+  TutorAdministrationInstructionBlock,
   TutorDialogueCharacterMessageBlock,
   TutorDialogueTranscriptBlock,
   TutorFillInTheBlankChoiceBlock,
@@ -47,7 +47,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
       ): block is
         | TutorMessageBlock
         | TutorLessonLinkBlock
-        | TutorCallSecretaryBlock
+        | TutorAdministrationInstructionBlock
         | TutorDialogueCharacterMessageBlock
         | TutorDialogueTranscriptBlock
         | TutorMatchingPairsBlock
@@ -60,7 +60,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorUnscrambleSentenceBlock =>
         block.type === 'message' ||
         block.type === 'lesson_link' ||
-        block.type === 'call_secretary' ||
+        block.type === 'instructions_for_administration' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
@@ -81,7 +81,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         return block.label.trim();
       }
 
-      if (block.type === 'call_secretary') {
+      if (block.type === 'instructions_for_administration') {
         return '';
       }
 
@@ -134,5 +134,5 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
     return messageMarkdown.join('\n\n');
   }
 
-  return 'Listo.';
+  return '';
 }

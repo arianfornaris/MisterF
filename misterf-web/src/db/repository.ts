@@ -13,7 +13,7 @@ export type StoredProfile = {
 };
 
 export type StoredConversation = {
-  activeAgent: 'tutor' | 'secretary';
+  activeAgent: 'tutor';
   lessonId: string | null;
   id: string;
   profileId: string;
@@ -83,7 +83,7 @@ type MessageRow = {
 };
 
 type ConversationRow = {
-  active_agent: 'tutor' | 'secretary';
+  active_agent: string;
   lesson_id: string | null;
   id: string;
   profile_id: string;
@@ -141,7 +141,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
 
 function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
-    activeAgent: row.active_agent === 'secretary' ? 'secretary' : 'tutor',
+    activeAgent: 'tutor',
     lessonId: row.lesson_id,
     id: row.id,
     profileId: row.profile_id,
@@ -312,7 +312,7 @@ export function createConversation(
   userId: string,
   profileId: string,
   title = defaultConversationTitle,
-  options: { activeAgent?: 'tutor' | 'secretary'; lessonId?: string | null } = {},
+  options: { lessonId?: string | null } = {},
 ): StoredConversation {
   const id = randomUUID();
   getDb()
@@ -322,7 +322,7 @@ export function createConversation(
         VALUES (?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(id, userId, profileId, title, options.lessonId ?? null, options.activeAgent ?? 'tutor');
+    .run(id, userId, profileId, title, options.lessonId ?? null, 'tutor');
 
   const conversation = findConversationForUser(id, userId);
   if (!conversation) {
@@ -424,25 +424,6 @@ export function renameConversationForUser(
       `,
     )
     .run(title, options.updatedByUser ? 1 : 0, id, userId);
-
-  return findConversationForUser(id, userId);
-}
-
-export function setConversationActiveAgentForUser(
-  id: string,
-  userId: string,
-  activeAgent: 'tutor' | 'secretary',
-): StoredConversation | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE conversations
-        SET active_agent = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(activeAgent, id, userId);
 
   return findConversationForUser(id, userId);
 }

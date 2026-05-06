@@ -30,8 +30,8 @@ export type TutorLessonLinkBlock = {
   label: string;
 };
 
-export type TutorCallSecretaryBlock = {
-  type: 'call_secretary';
+export type TutorAdministrationInstructionBlock = {
+  type: 'instructions_for_administration';
   instruction?: string;
 };
 
@@ -213,7 +213,7 @@ export type TutorConversationTitleBlock = {
 export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorLessonLinkBlock
-  | TutorCallSecretaryBlock
+  | TutorAdministrationInstructionBlock
   | TutorDialogueCharacterMessageBlock
   | TutorDialogueTranscriptBlock
   | TutorMatchingPairsBlock
