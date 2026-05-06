@@ -105,17 +105,19 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_profiles_user_created
         ON profiles (user_id, created_at ASC, updated_at ASC);
 
-      CREATE TABLE lessons (
+      CREATE TABLE practice_modules (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         tutor_instructions TEXT NOT NULL,
-        source_lesson_id TEXT,
+        source_practice_module_id TEXT,
         source_user_id TEXT,
         source_profile_id TEXT,
         shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
+        archived_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id)
@@ -124,8 +126,8 @@ export const migrations: Migration[] = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (source_lesson_id)
-          REFERENCES lessons (id)
+        FOREIGN KEY (source_practice_module_id)
+          REFERENCES practice_modules (id)
           ON DELETE SET NULL,
         FOREIGN KEY (source_user_id)
           REFERENCES users (id)
@@ -135,21 +137,24 @@ export const migrations: Migration[] = [
           ON DELETE SET NULL
       );
 
-      CREATE INDEX idx_lessons_user_profile_updated
-        ON lessons (user_id, profile_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_modules_user_profile_updated
+        ON practice_modules (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_lessons_profile_shared
-        ON lessons (profile_id, shared_via, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_modules_profile_shared
+        ON practice_modules (profile_id, shared_via, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_lessons_profile_source
-        ON lessons (profile_id, source_lesson_id, shared_via);
+      CREATE INDEX idx_practice_modules_profile_source
+        ON practice_modules (profile_id, source_practice_module_id, shared_via);
+
+      CREATE INDEX idx_practice_modules_profile_archive_favorite
+        ON practice_modules (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
 
       CREATE TABLE conversations (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         active_agent TEXT NOT NULL DEFAULT 'tutor' CHECK (active_agent IN ('tutor')),
-        lesson_id TEXT,
+        practice_module_id TEXT,
         title TEXT NOT NULL DEFAULT 'Nueva conversación',
         title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -160,23 +165,23 @@ export const migrations: Migration[] = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (lesson_id)
-          REFERENCES lessons (id)
+        FOREIGN KEY (practice_module_id)
+          REFERENCES practice_modules (id)
           ON DELETE SET NULL
       );
 
       CREATE INDEX idx_conversations_user_profile_updated
         ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_conversations_lesson_updated
-        ON conversations (lesson_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_conversations_practice_module_updated
+        ON conversations (practice_module_id, updated_at DESC, created_at DESC);
 
       CREATE INDEX idx_conversations_active_agent
         ON conversations (active_agent, updated_at DESC, created_at DESC);
 
-      CREATE TABLE conversation_lesson_snapshots (
+      CREATE TABLE conversation_practice_module_snapshots (
         conversation_id TEXT PRIMARY KEY,
-        lesson_id TEXT,
+        practice_module_id TEXT,
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         tutor_instructions TEXT NOT NULL,
@@ -184,26 +189,26 @@ export const migrations: Migration[] = [
         FOREIGN KEY (conversation_id)
           REFERENCES conversations (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (lesson_id)
-          REFERENCES lessons (id)
+        FOREIGN KEY (practice_module_id)
+          REFERENCES practice_modules (id)
           ON DELETE SET NULL
       );
 
-      CREATE INDEX idx_conversation_lesson_snapshots_lesson
-        ON conversation_lesson_snapshots (lesson_id, created_at DESC);
+      CREATE INDEX idx_conversation_practice_module_snapshots_practice_module
+        ON conversation_practice_module_snapshots (practice_module_id, created_at DESC);
 
-      CREATE TABLE lesson_share_links (
+      CREATE TABLE practice_module_share_links (
         id TEXT PRIMARY KEY,
-        lesson_id TEXT NOT NULL UNIQUE,
+        practice_module_id TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         revoked_at TEXT,
-        FOREIGN KEY (lesson_id)
-          REFERENCES lessons (id)
+        FOREIGN KEY (practice_module_id)
+          REFERENCES practice_modules (id)
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_lesson_share_links_active
-        ON lesson_share_links (lesson_id, revoked_at, created_at DESC);
+      CREATE INDEX idx_practice_module_share_links_active
+        ON practice_module_share_links (practice_module_id, revoked_at, created_at DESC);
 
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -220,16 +225,5 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_messages_conversation_created
         ON messages (conversation_id, created_at, id);
     `,
-  },
-  {
-    id: 2,
-    name: 'add_conversation_active_agent',
-    up: `
-        ALTER TABLE conversations
-        ADD COLUMN active_agent TEXT NOT NULL DEFAULT 'tutor';
-
-        CREATE INDEX IF NOT EXISTS idx_conversations_active_agent
-        ON conversations (active_agent, updated_at DESC, created_at DESC);
-      `,
   },
 ];

@@ -14,7 +14,7 @@ export type StoredProfile = {
 
 export type StoredConversation = {
   activeAgent: 'tutor';
-  lessonId: string | null;
+  practiceModuleId: string | null;
   id: string;
   profileId: string;
   titleUpdatedByUser: boolean;
@@ -24,11 +24,13 @@ export type StoredConversation = {
   updatedAt: string;
 };
 
-export type StoredLesson = {
+export type StoredPracticeModule = {
+  archivedAt: string | null;
   id: string;
+  isFavorite: boolean;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
-  sourceLessonId: string | null;
+  sourcePracticeModuleId: string | null;
   sourceProfileId: string | null;
   sourceUserId: string | null;
   userId: string;
@@ -39,15 +41,15 @@ export type StoredLesson = {
   updatedAt: string;
 };
 
-export type StoredLessonShareLink = {
-  lessonId: string;
+export type StoredPracticeModuleShareLink = {
+  practiceModuleId: string;
   createdAt: string;
   id: string;
   revokedAt: string | null;
 };
 
-export type StoredConversationLessonSnapshot = {
-  lessonId: string | null;
+export type StoredConversationPracticeModuleSnapshot = {
+  practiceModuleId: string | null;
   conversationId: string;
   createdAt: string;
   description: string;
@@ -84,7 +86,7 @@ type MessageRow = {
 
 type ConversationRow = {
   active_agent: string;
-  lesson_id: string | null;
+  practice_module_id: string | null;
   id: string;
   profile_id: string;
   title: string;
@@ -94,11 +96,13 @@ type ConversationRow = {
   updated_at: string;
 };
 
-type LessonRow = {
+type PracticeModuleRow = {
+  archived_at: string | null;
   id: string;
+  is_favorite: number;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
-  source_lesson_id: string | null;
+  source_practice_module_id: string | null;
   source_profile_id: string | null;
   source_user_id: string | null;
   user_id: string;
@@ -109,15 +113,15 @@ type LessonRow = {
   updated_at: string;
 };
 
-type LessonShareLinkRow = {
-  lesson_id: string;
+type PracticeModuleShareLinkRow = {
+  practice_module_id: string;
   created_at: string;
   id: string;
   revoked_at: string | null;
 };
 
-type ConversationLessonSnapshotRow = {
-  lesson_id: string | null;
+type ConversationPracticeModuleSnapshotRow = {
+  practice_module_id: string | null;
   conversation_id: string;
   created_at: string;
   description: string;
@@ -142,7 +146,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
 function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
     activeAgent: 'tutor',
-    lessonId: row.lesson_id,
+    practiceModuleId: row.practice_module_id,
     id: row.id,
     profileId: row.profile_id,
     title: row.title,
@@ -153,12 +157,14 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
   };
 }
 
-function toStoredLesson(row: LessonRow): StoredLesson {
+function toStoredPracticeModule(row: PracticeModuleRow): StoredPracticeModule {
   return {
+    archivedAt: row.archived_at,
     id: row.id,
+    isFavorite: Boolean(row.is_favorite),
     profileId: row.profile_id,
     sharedVia: row.shared_via,
-    sourceLessonId: row.source_lesson_id,
+    sourcePracticeModuleId: row.source_practice_module_id,
     sourceProfileId: row.source_profile_id,
     sourceUserId: row.source_user_id,
     userId: row.user_id,
@@ -170,22 +176,22 @@ function toStoredLesson(row: LessonRow): StoredLesson {
   };
 }
 
-function toStoredLessonShareLink(
-  row: LessonShareLinkRow,
-): StoredLessonShareLink {
+function toStoredPracticeModuleShareLink(
+  row: PracticeModuleShareLinkRow,
+): StoredPracticeModuleShareLink {
   return {
-    lessonId: row.lesson_id,
+    practiceModuleId: row.practice_module_id,
     createdAt: row.created_at,
     id: row.id,
     revokedAt: row.revoked_at,
   };
 }
 
-function toStoredConversationLessonSnapshot(
-  row: ConversationLessonSnapshotRow,
-): StoredConversationLessonSnapshot {
+function toStoredConversationPracticeModuleSnapshot(
+  row: ConversationPracticeModuleSnapshotRow,
+): StoredConversationPracticeModuleSnapshot {
   return {
-    lessonId: row.lesson_id,
+    practiceModuleId: row.practice_module_id,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     description: row.description,
@@ -312,17 +318,17 @@ export function createConversation(
   userId: string,
   profileId: string,
   title = defaultConversationTitle,
-  options: { lessonId?: string | null } = {},
+  options: { practiceModuleId?: string | null } = {},
 ): StoredConversation {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO conversations (id, user_id, profile_id, title, lesson_id, active_agent)
+        INSERT INTO conversations (id, user_id, profile_id, title, practice_module_id, active_agent)
         VALUES (?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(id, userId, profileId, title, options.lessonId ?? null, 'tutor');
+    .run(id, userId, profileId, title, options.practiceModuleId ?? null, 'tutor');
 
   const conversation = findConversationForUser(id, userId);
   if (!conversation) {
@@ -332,20 +338,20 @@ export function createConversation(
   return conversation;
 }
 
-export function createConversationFromLesson(
+export function createConversationFromPracticeModule(
   userId: string,
-  lesson: StoredLesson,
+  practiceModule: StoredPracticeModule,
 ): StoredConversation {
   const conversation = createConversation(
     userId,
-    lesson.profileId,
+    practiceModule.profileId,
     defaultConversationTitle,
     {
-      lessonId: lesson.id,
+      practiceModuleId: practiceModule.id,
     },
   );
 
-  createConversationLessonSnapshot(conversation.id, lesson);
+  createConversationPracticeModuleSnapshot(conversation.id, practiceModule);
   return conversation;
 }
 
@@ -356,7 +362,7 @@ export function findConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, lesson_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -394,7 +400,7 @@ export function listConversationsForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, lesson_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -436,29 +442,29 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
   return result.changes > 0;
 }
 
-export function createLesson(input: {
+export function createPracticeModule(input: {
   profileId: string;
   sharedVia?: 'profile' | 'link' | null;
-  sourceLessonId?: string | null;
+  sourcePracticeModuleId?: string | null;
   sourceProfileId?: string | null;
   sourceUserId?: string | null;
   userId: string;
   title: string;
   description: string;
   tutorInstructions: string;
-}): StoredLesson {
+}): StoredPracticeModule {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO lessons (
+        INSERT INTO practice_modules (
           id,
           user_id,
           profile_id,
           title,
           description,
           tutor_instructions,
-          source_lesson_id,
+          source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
@@ -473,29 +479,31 @@ export function createLesson(input: {
       input.title,
       input.description,
       input.tutorInstructions,
-      input.sourceLessonId ?? null,
+      input.sourcePracticeModuleId ?? null,
       input.sourceUserId ?? null,
       input.sourceProfileId ?? null,
       input.sharedVia ?? null,
     );
 
-  const lesson = findLessonForUser(id, input.userId);
-  if (!lesson) {
-    throw new Error('Could not load newly created lesson.');
+  const practiceModule = findPracticeModuleForUser(id, input.userId);
+  if (!practiceModule) {
+    throw new Error('Could not load newly created practice module.');
   }
 
-  return lesson;
+  return practiceModule;
 }
 
-export function findLessonForUser(
+export function findPracticeModuleForUser(
   id: string,
   userId: string,
-): StoredLesson | null {
+): StoredPracticeModule | null {
   const row = getDb()
     .prepare(
       `
         SELECT
+          archived_at,
           id,
+          is_favorite,
           user_id,
           title,
           description,
@@ -503,25 +511,27 @@ export function findLessonForUser(
           created_at,
           updated_at,
           profile_id,
-          source_lesson_id,
+          source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM lessons
+        FROM practice_modules
         WHERE id = ? AND user_id = ?
       `,
     )
-    .get(id, userId) as LessonRow | undefined;
+    .get(id, userId) as PracticeModuleRow | undefined;
 
-  return row ? toStoredLesson(row) : null;
+  return row ? toStoredPracticeModule(row) : null;
 }
 
-export function findLessonById(id: string): StoredLesson | null {
+export function findPracticeModuleById(id: string): StoredPracticeModule | null {
   const row = getDb()
     .prepare(
       `
         SELECT
+          archived_at,
           id,
+          is_favorite,
           user_id,
           title,
           description,
@@ -529,28 +539,30 @@ export function findLessonById(id: string): StoredLesson | null {
           created_at,
           updated_at,
           profile_id,
-          source_lesson_id,
+          source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM lessons
+        FROM practice_modules
         WHERE id = ?
       `,
     )
-    .get(id) as LessonRow | undefined;
+    .get(id) as PracticeModuleRow | undefined;
 
-  return row ? toStoredLesson(row) : null;
+  return row ? toStoredPracticeModule(row) : null;
 }
 
-export function listLessonsForProfile(
+export function listPracticeModulesForProfile(
   userId: string,
   profileId: string,
-): StoredLesson[] {
+): StoredPracticeModule[] {
   const rows = getDb()
     .prepare(
       `
         SELECT
+          archived_at,
           id,
+          is_favorite,
           user_id,
           title,
           description,
@@ -558,58 +570,125 @@ export function listLessonsForProfile(
           created_at,
           updated_at,
           profile_id,
-          source_lesson_id,
+          source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM lessons
+        FROM practice_modules
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, profileId) as LessonRow[];
+    .all(userId, profileId) as PracticeModuleRow[];
 
-  return rows.map(toStoredLesson);
+  return rows.map(toStoredPracticeModule);
 }
 
-export function deleteLessonForUser(id: string, userId: string): boolean {
+export function deletePracticeModuleForUser(id: string, userId: string): boolean {
   const result = getDb()
-    .prepare('DELETE FROM lessons WHERE id = ? AND user_id = ?')
+    .prepare('DELETE FROM practice_modules WHERE id = ? AND user_id = ?')
     .run(id, userId);
 
   return result.changes > 0;
 }
 
-export function listConversationsForLesson(
-  lessonId: string,
+export function setPracticeModuleFavoriteForUser(
+  practiceModuleId: string,
+  userId: string,
+  isFavorite: boolean,
+): StoredPracticeModule | null {
+  const result = getDb()
+    .prepare(
+      `
+        UPDATE practice_modules
+        SET is_favorite = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(isFavorite ? 1 : 0, practiceModuleId, userId);
+
+  if (result.changes < 1) {
+    return null;
+  }
+
+  return findPracticeModuleForUser(practiceModuleId, userId);
+}
+
+export function archivePracticeModuleForUser(
+  practiceModuleId: string,
+  userId: string,
+): StoredPracticeModule | null {
+  const result = getDb()
+    .prepare(
+      `
+        UPDATE practice_modules
+        SET archived_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(practiceModuleId, userId);
+
+  if (result.changes < 1) {
+    return null;
+  }
+
+  return findPracticeModuleForUser(practiceModuleId, userId);
+}
+
+export function restorePracticeModuleForUser(
+  practiceModuleId: string,
+  userId: string,
+): StoredPracticeModule | null {
+  const result = getDb()
+    .prepare(
+      `
+        UPDATE practice_modules
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(practiceModuleId, userId);
+
+  if (result.changes < 1) {
+    return null;
+  }
+
+  return findPracticeModuleForUser(practiceModuleId, userId);
+}
+
+export function listConversationsForPracticeModule(
+  practiceModuleId: string,
   userId: string,
   profileId: string,
 ): StoredConversation[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, lesson_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
         FROM conversations
-        WHERE user_id = ? AND profile_id = ? AND lesson_id = ?
+        WHERE user_id = ? AND profile_id = ? AND practice_module_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, profileId, lessonId) as ConversationRow[];
+    .all(userId, profileId, practiceModuleId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
 }
 
-export function updateLesson(input: {
-  lessonId: string;
+export function updatePracticeModule(input: {
+  practiceModuleId: string;
   description: string;
   title: string;
   tutorInstructions: string;
   userId: string;
-}): StoredLesson | null {
+}): StoredPracticeModule | null {
   getDb()
     .prepare(
       `
-        UPDATE lessons
+        UPDATE practice_modules
         SET title = ?,
             description = ?,
             tutor_instructions = ?,
@@ -621,23 +700,25 @@ export function updateLesson(input: {
       input.title,
       input.description,
       input.tutorInstructions,
-      input.lessonId,
+      input.practiceModuleId,
       input.userId,
     );
 
-  return findLessonForUser(input.lessonId, input.userId);
+  return findPracticeModuleForUser(input.practiceModuleId, input.userId);
 }
 
-export function findImportedLessonForProfile(input: {
+export function findImportedPracticeModuleForProfile(input: {
   profileId: string;
-  sourceLessonId: string;
+  sourcePracticeModuleId: string;
   userId: string;
-}): StoredLesson | null {
+}): StoredPracticeModule | null {
   const row = getDb()
     .prepare(
       `
         SELECT
+          archived_at,
           id,
+          is_favorite,
           user_id,
           title,
           description,
@@ -645,91 +726,91 @@ export function findImportedLessonForProfile(input: {
           created_at,
           updated_at,
           profile_id,
-          source_lesson_id,
+          source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM lessons
+        FROM practice_modules
         WHERE user_id = ?
           AND profile_id = ?
-          AND source_lesson_id = ?
+          AND source_practice_module_id = ?
         ORDER BY updated_at DESC, created_at DESC
         LIMIT 1
       `,
     )
-    .get(input.userId, input.profileId, input.sourceLessonId) as
-    | LessonRow
+    .get(input.userId, input.profileId, input.sourcePracticeModuleId) as
+    | PracticeModuleRow
     | undefined;
 
-  return row ? toStoredLesson(row) : null;
+  return row ? toStoredPracticeModule(row) : null;
 }
 
-export function importLessonToProfile(input: {
+export function importPracticeModuleToProfile(input: {
   shareKind: 'profile' | 'link';
-  sourceLesson: StoredLesson;
+  sourcePracticeModule: StoredPracticeModule;
   targetProfileId: string;
   userId: string;
-}): StoredLesson {
-  const existing = findImportedLessonForProfile({
+}): StoredPracticeModule {
+  const existing = findImportedPracticeModuleForProfile({
     profileId: input.targetProfileId,
-    sourceLessonId: input.sourceLesson.id,
+    sourcePracticeModuleId: input.sourcePracticeModule.id,
     userId: input.userId,
   });
   if (existing) {
     return existing;
   }
 
-  return createLesson({
-    description: input.sourceLesson.description,
+  return createPracticeModule({
+    description: input.sourcePracticeModule.description,
     profileId: input.targetProfileId,
     sharedVia: input.shareKind,
-    sourceLessonId: input.sourceLesson.id,
-    sourceProfileId: input.sourceLesson.profileId,
-    sourceUserId: input.sourceLesson.userId,
-    title: input.sourceLesson.title,
-    tutorInstructions: input.sourceLesson.tutorInstructions,
+    sourcePracticeModuleId: input.sourcePracticeModule.id,
+    sourceProfileId: input.sourcePracticeModule.profileId,
+    sourceUserId: input.sourcePracticeModule.userId,
+    title: input.sourcePracticeModule.title,
+    tutorInstructions: input.sourcePracticeModule.tutorInstructions,
     userId: input.userId,
   });
 }
 
-export function findLessonShareLinkById(
+export function findPracticeModuleShareLinkById(
   id: string,
-): StoredLessonShareLink | null {
+): StoredPracticeModuleShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, lesson_id, created_at, revoked_at
-        FROM lesson_share_links
+        SELECT id, practice_module_id, created_at, revoked_at
+        FROM practice_module_share_links
         WHERE id = ?
       `,
     )
-    .get(id) as LessonShareLinkRow | undefined;
+    .get(id) as PracticeModuleShareLinkRow | undefined;
 
-  return row ? toStoredLessonShareLink(row) : null;
+  return row ? toStoredPracticeModuleShareLink(row) : null;
 }
 
-export function findLessonShareLinkForLesson(
-  lessonId: string,
-): StoredLessonShareLink | null {
+export function findPracticeModuleShareLinkForPracticeModule(
+  practiceModuleId: string,
+): StoredPracticeModuleShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, lesson_id, created_at, revoked_at
-        FROM lesson_share_links
-        WHERE lesson_id = ?
+        SELECT id, practice_module_id, created_at, revoked_at
+        FROM practice_module_share_links
+        WHERE practice_module_id = ?
           AND revoked_at IS NULL
         LIMIT 1
       `,
     )
-    .get(lessonId) as LessonShareLinkRow | undefined;
+    .get(practiceModuleId) as PracticeModuleShareLinkRow | undefined;
 
-  return row ? toStoredLessonShareLink(row) : null;
+  return row ? toStoredPracticeModuleShareLink(row) : null;
 }
 
-export function getOrCreateLessonShareLink(
-  lessonId: string,
-): StoredLessonShareLink {
-  const existing = findLessonShareLinkForLesson(lessonId);
+export function getOrCreatePracticeModuleShareLink(
+  practiceModuleId: string,
+): StoredPracticeModuleShareLink {
+  const existing = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
   if (existing) {
     return existing;
   }
@@ -738,32 +819,32 @@ export function getOrCreateLessonShareLink(
   getDb()
     .prepare(
       `
-        INSERT INTO lesson_share_links (id, lesson_id)
+        INSERT INTO practice_module_share_links (id, practice_module_id)
         VALUES (?, ?)
-        ON CONFLICT(lesson_id) DO UPDATE SET
+        ON CONFLICT(practice_module_id) DO UPDATE SET
           revoked_at = NULL
       `,
     )
-    .run(id, lessonId);
+    .run(id, practiceModuleId);
 
-  const created = findLessonShareLinkForLesson(lessonId);
+  const created = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
   if (!created) {
-    throw new Error('Could not load newly created lesson share link.');
+    throw new Error('Could not load newly created practice-module share link.');
   }
 
   return created;
 }
 
-export function createConversationLessonSnapshot(
+export function createConversationPracticeModuleSnapshot(
   conversationId: string,
-  lesson: StoredLesson,
-): StoredConversationLessonSnapshot {
+  practiceModule: StoredPracticeModule,
+): StoredConversationPracticeModuleSnapshot {
   getDb()
     .prepare(
       `
-        INSERT OR REPLACE INTO conversation_lesson_snapshots (
+        INSERT OR REPLACE INTO conversation_practice_module_snapshots (
           conversation_id,
-          lesson_id,
+          practice_module_id,
           title,
           description,
           tutor_instructions
@@ -773,34 +854,34 @@ export function createConversationLessonSnapshot(
     )
     .run(
       conversationId,
-      lesson.id,
-      lesson.title,
-      lesson.description,
-      lesson.tutorInstructions,
+      practiceModule.id,
+      practiceModule.title,
+      practiceModule.description,
+      practiceModule.tutorInstructions,
     );
 
-  const snapshot = getConversationLessonSnapshot(conversationId);
+  const snapshot = getConversationPracticeModuleSnapshot(conversationId);
   if (!snapshot) {
-    throw new Error('Could not load conversation lesson snapshot.');
+    throw new Error('Could not load conversation practice-module snapshot.');
   }
 
   return snapshot;
 }
 
-export function getConversationLessonSnapshot(
+export function getConversationPracticeModuleSnapshot(
   conversationId: string,
-): StoredConversationLessonSnapshot | null {
+): StoredConversationPracticeModuleSnapshot | null {
   const row = getDb()
     .prepare(
       `
-        SELECT conversation_id, lesson_id, title, description, tutor_instructions, created_at
-        FROM conversation_lesson_snapshots
+        SELECT conversation_id, practice_module_id, title, description, tutor_instructions, created_at
+        FROM conversation_practice_module_snapshots
         WHERE conversation_id = ?
       `,
     )
-    .get(conversationId) as ConversationLessonSnapshotRow | undefined;
+    .get(conversationId) as ConversationPracticeModuleSnapshotRow | undefined;
 
-  return row ? toStoredConversationLessonSnapshot(row) : null;
+  return row ? toStoredConversationPracticeModuleSnapshot(row) : null;
 }
 
 export function listMessages(conversationId: string): StoredMessage[] {

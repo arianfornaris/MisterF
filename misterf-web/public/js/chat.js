@@ -3,13 +3,13 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
-const lessonStartPanelEl = document.querySelector('[data-lesson-start-panel]');
-const lessonStartTitleEl = document.querySelector('[data-lesson-start-title]');
-const lessonStartDescriptionEl = document.querySelector(
-  '[data-lesson-start-description]',
+const practiceModuleStartPanelEl = document.querySelector('[data-practice-module-start-panel]');
+const practiceModuleStartTitleEl = document.querySelector('[data-practiceModule-start-title]');
+const practiceModuleStartDescriptionEl = document.querySelector(
+  '[data-practiceModule-start-description]',
 );
-const lessonStartStatusEl = document.querySelector('[data-lesson-start-status]');
-const lessonStartButtonEl = document.querySelector('[data-lesson-start-button]');
+const practiceModuleStartStatusEl = document.querySelector('[data-practice-module-start-status]');
+const practiceModuleStartButtonEl = document.querySelector('[data-practiceModule-start-button]');
 const sendButtonEl = document.querySelector('[data-send-button]');
 const toolStatusEl = document.querySelector('[data-tool-status]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
@@ -34,17 +34,17 @@ const translatorOpenButtonEl = document.querySelector('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
 const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
-const shareLessonLinkModalEl = document.querySelector('#shareLessonLinkModal');
-const lessonShareLinkFieldEl = document.querySelector(
-  '[data-lesson-share-link-field]',
+const sharePracticeModuleLinkModalEl = document.querySelector('#sharePracticeModuleLinkModal');
+const practiceModuleShareLinkFieldEl = document.querySelector(
+  '[data-practiceModule-share-link-field]',
 );
-const copyLessonShareLinkButtonEl = document.querySelector(
-  '[data-copy-lesson-share-link]',
+const copyPracticeModuleShareLinkButtonEl = document.querySelector(
+  '[data-copy-practiceModule-share-link]',
 );
-const nativeShareLessonLinkButtonEl = document.querySelector(
-  '[data-native-share-lesson-link]',
+const nativeSharePracticeModuleLinkButtonEl = document.querySelector(
+  '[data-native-share-practiceModule-link]',
 );
-const autoOpenSharedLessonModalEl = document.querySelector(
+const autoOpenSharedPracticeModuleModalEl = document.querySelector(
   '[data-auto-open-share-modal]',
 );
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
@@ -67,14 +67,14 @@ const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 disableComposerTextAssist();
 initializeLlmContextMeter();
 initializeStaticMarkdown();
-initializeLessonSharingUi();
+initializePracticeModuleSharingUi();
 
 let conversationId = initialConversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
 let pendingDeleteTarget = null;
 let activeUserMessageId = null;
-let pendingLessonStart = false;
+let pendingPracticeModuleStart = false;
 let isAssistantStopping = false;
 const pendingSentenceEvaluations = new Map();
 let pendingTranslatorSelection = '';
@@ -148,13 +148,14 @@ if (socket) {
     resetUserInputHistoryNavigation();
     updateLlmContextMeter(null);
     setToolStatus('');
-    pendingLessonStart = Boolean(payload.pendingLessonStart);
-    const shouldAutoStartLesson = pendingLessonStart && Boolean(payload.lesson);
-    renderLessonStartPanel(
-      payload.lesson,
+    pendingPracticeModuleStart = Boolean(payload.pendingPracticeModuleStart);
+    const shouldAutoStartPracticeModule =
+      pendingPracticeModuleStart && Boolean(payload.practiceModule);
+    renderPracticeModuleStartPanel(
+      payload.practiceModule,
       {
-        autoStarting: shouldAutoStartLesson,
-        visible: pendingLessonStart,
+        autoStarting: shouldAutoStartPracticeModule,
+        visible: pendingPracticeModuleStart,
       },
     );
 
@@ -183,15 +184,15 @@ if (socket) {
     } else {
       isAssistantBusy = false;
       isAssistantStopping = false;
-      setComposerEnabled(!pendingLessonStart);
+      setComposerEnabled(!pendingPracticeModuleStart);
     }
     focusComposer();
     scrollToBottom();
     flushPendingBootGuestDraft();
 
-    if (shouldAutoStartLesson) {
+    if (shouldAutoStartPracticeModule) {
       window.setTimeout(() => {
-        startLessonConversation({ preservePanel: true });
+        startPracticeModuleConversation({ preservePanel: true });
       }, 0);
     }
   });
@@ -260,8 +261,8 @@ if (socket) {
   socket.on('assistant:start', () => {
     isAssistantBusy = true;
     isAssistantStopping = false;
-    pendingLessonStart = false;
-    renderLessonStartPanel(null, { visible: false });
+    pendingPracticeModuleStart = false;
+    renderPracticeModuleStartPanel(null, { visible: false });
     setToolStatus('');
     setComposerEnabled(false);
     streamingBubble = appendMessage('model', '', { streaming: true });
@@ -289,7 +290,7 @@ if (socket) {
       setToolStatus('');
       isAssistantBusy = false;
       isAssistantStopping = false;
-      renderLessonStartPanel(null, { visible: false });
+      renderPracticeModuleStartPanel(null, { visible: false });
       setComposerEnabled(true);
       focusComposer();
       scrollToBottom();
@@ -324,7 +325,7 @@ if (socket) {
     setToolStatus('');
     isAssistantBusy = false;
     isAssistantStopping = false;
-    renderLessonStartPanel(null, { visible: false });
+    renderPracticeModuleStartPanel(null, { visible: false });
     setComposerEnabled(true);
     focusComposer();
     scrollToBottom();
@@ -339,8 +340,8 @@ if (socket) {
     setToolStatus('');
     isAssistantBusy = false;
     isAssistantStopping = false;
-    renderLessonStartPanel(null, { visible: false });
-    setComposerEnabled(!pendingLessonStart);
+    renderPracticeModuleStartPanel(null, { visible: false });
+    setComposerEnabled(!pendingPracticeModuleStart);
     focusComposer();
     scrollToBottom();
   });
@@ -355,7 +356,7 @@ if (socket) {
     appendMessage('error', message);
     isAssistantBusy = false;
     isAssistantStopping = false;
-    setComposerEnabled(!pendingLessonStart);
+    setComposerEnabled(!pendingPracticeModuleStart);
     scrollToBottom();
   });
 
@@ -415,8 +416,8 @@ newConversationButtonEl?.addEventListener('click', (event) => {
   startNewConversation();
 });
 
-lessonStartButtonEl?.addEventListener('click', () => {
-  startLessonConversation();
+practiceModuleStartButtonEl?.addEventListener('click', () => {
+  startPracticeModuleConversation();
 });
 
 confirmDeleteConversationButtonEl?.addEventListener('click', () => {
@@ -790,43 +791,43 @@ function initializeLlmContextMeter() {
   updateLlmContextMeter(null);
 }
 
-function initializeLessonSharingUi() {
-  if (copyLessonShareLinkButtonEl) {
-    copyLessonShareLinkButtonEl.addEventListener('click', async () => {
-      if (!lessonShareLinkFieldEl) {
+function initializePracticeModuleSharingUi() {
+  if (copyPracticeModuleShareLinkButtonEl) {
+    copyPracticeModuleShareLinkButtonEl.addEventListener('click', async () => {
+      if (!practiceModuleShareLinkFieldEl) {
         return;
       }
 
-      const copied = await copyTextToClipboard(lessonShareLinkFieldEl.value);
-      copyLessonShareLinkButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
+      const copied = await copyTextToClipboard(practiceModuleShareLinkFieldEl.value);
+      copyPracticeModuleShareLinkButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
       window.setTimeout(() => {
-        copyLessonShareLinkButtonEl.innerHTML =
+        copyPracticeModuleShareLinkButtonEl.innerHTML =
           '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
       }, 1200);
     });
   }
 
-  if (nativeShareLessonLinkButtonEl) {
+  if (nativeSharePracticeModuleLinkButtonEl) {
     if (typeof navigator.share !== 'function') {
-      nativeShareLessonLinkButtonEl.classList.add('d-none');
+      nativeSharePracticeModuleLinkButtonEl.classList.add('d-none');
     } else {
-      nativeShareLessonLinkButtonEl.addEventListener('click', async () => {
-        if (!lessonShareLinkFieldEl?.value) {
+      nativeSharePracticeModuleLinkButtonEl.addEventListener('click', async () => {
+        if (!practiceModuleShareLinkFieldEl?.value) {
           return;
         }
 
         try {
           await navigator.share({
-            title: 'Lección compartida',
-            url: lessonShareLinkFieldEl.value,
+            title: 'Módulo de práctica compartido',
+            url: practiceModuleShareLinkFieldEl.value,
           });
         } catch {}
       });
     }
   }
 
-  if (autoOpenSharedLessonModalEl && window.bootstrap?.Modal) {
-    const modal = new window.bootstrap.Modal(autoOpenSharedLessonModalEl);
+  if (autoOpenSharedPracticeModuleModalEl && window.bootstrap?.Modal) {
+    const modal = new window.bootstrap.Modal(autoOpenSharedPracticeModuleModalEl);
     modal.show();
   }
 }
@@ -868,13 +869,13 @@ function updateLlmContextMeter(usage) {
   llmContextMeterEl.dataset.contextLevel = level;
 }
 
-function renderLessonStartPanel(lesson, options = {}) {
+function renderPracticeModuleStartPanel(practiceModule, options = {}) {
   if (
-    !lessonStartPanelEl ||
-    !lessonStartTitleEl ||
-    !lessonStartDescriptionEl ||
-    !lessonStartButtonEl ||
-    !lessonStartStatusEl
+    !practiceModuleStartPanelEl ||
+    !practiceModuleStartTitleEl ||
+    !practiceModuleStartDescriptionEl ||
+    !practiceModuleStartButtonEl ||
+    !practiceModuleStartStatusEl
   ) {
     return;
   }
@@ -882,20 +883,20 @@ function renderLessonStartPanel(lesson, options = {}) {
   const visible = Boolean(options.visible);
   const autoStarting = Boolean(options.autoStarting);
 
-  if (!visible || !lesson) {
-    lessonStartPanelEl.classList.add('d-none');
-    lessonStartTitleEl.textContent = '';
-    lessonStartDescriptionEl.textContent = '';
-    lessonStartStatusEl.classList.add('d-none');
-    lessonStartButtonEl.classList.remove('d-none');
+  if (!visible || !practiceModule) {
+    practiceModuleStartPanelEl.classList.add('d-none');
+    practiceModuleStartTitleEl.textContent = '';
+    practiceModuleStartDescriptionEl.textContent = '';
+    practiceModuleStartStatusEl.classList.add('d-none');
+    practiceModuleStartButtonEl.classList.remove('d-none');
     return;
   }
 
-  lessonStartTitleEl.textContent = autoStarting ? '' : lesson.title || 'Lección';
-  lessonStartDescriptionEl.textContent = autoStarting ? '' : lesson.description || '';
-  lessonStartStatusEl.classList.toggle('d-none', !autoStarting);
-  lessonStartButtonEl.classList.toggle('d-none', autoStarting);
-  lessonStartPanelEl.classList.remove('d-none');
+  practiceModuleStartTitleEl.textContent = autoStarting ? '' : practiceModule.title || 'Módulo de práctica';
+  practiceModuleStartDescriptionEl.textContent = autoStarting ? '' : practiceModule.description || '';
+  practiceModuleStartStatusEl.classList.toggle('d-none', !autoStarting);
+  practiceModuleStartButtonEl.classList.toggle('d-none', autoStarting);
+  practiceModuleStartPanelEl.classList.remove('d-none');
 }
 
 function startNewConversation() {
@@ -906,17 +907,17 @@ function startNewConversation() {
   window.location.assign('/');
 }
 
-function startLessonConversation(options = {}) {
+function startPracticeModuleConversation(options = {}) {
   if (!socket || isAssistantBusy || !conversationId) {
     return;
   }
 
-  pendingLessonStart = false;
+  pendingPracticeModuleStart = false;
   if (!options.preservePanel) {
-    renderLessonStartPanel(null, { visible: false });
+    renderPracticeModuleStartPanel(null, { visible: false });
   }
   setComposerEnabled(false);
-  socket.emit('lesson:start', { conversationId });
+  socket.emit('practice-module:start', { conversationId });
 }
 
 function markActiveConversation(activeConversationId) {
@@ -1210,7 +1211,7 @@ function removeConversationItem(removedConversationId) {
 }
 
 function formatConversationDates() {
-  for (const date of document.querySelectorAll('.conversation-date, .lesson-chat-date')) {
+  for (const date of document.querySelectorAll('.conversation-date, .practice-module-chat-date')) {
     const rawValue = date.getAttribute('datetime') || date.textContent || '';
     date.textContent = formatConversationDate(rawValue.trim());
     date.title = rawValue.trim();
@@ -1402,8 +1403,8 @@ function setModelBubbleContent(element, content, metadata, options = {}) {
       return;
     }
 
-    if (block.type === 'lesson_link') {
-      const actionLink = createLessonLinkAction(block);
+    if (block.type === 'practice_module_link') {
+      const actionLink = createPracticeModuleLinkAction(block);
       if (actionLink) {
         let actionRow = stack.querySelector('.tutor-message-actions');
         if (!actionRow) {
@@ -1910,18 +1911,18 @@ function initializeStaticMarkdown() {
   }
 }
 
-function createLessonLinkAction(block) {
+function createPracticeModuleLinkAction(block) {
   if (!block || typeof block !== 'object' || typeof block.label !== 'string') {
     return null;
   }
 
-  if (typeof block.lessonId !== 'string' || !block.lessonId.trim()) {
+  if (typeof block.practiceModuleId !== 'string' || !block.practiceModuleId.trim()) {
     return null;
   }
 
   const link = document.createElement('a');
   link.className = 'tutor-message-action-link';
-  link.href = `/lessons/${encodeURIComponent(block.lessonId.trim())}`;
+  link.href = `/practice-modules/${encodeURIComponent(block.practiceModuleId.trim())}`;
   link.textContent = block.label;
   return link;
 }

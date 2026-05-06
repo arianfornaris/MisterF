@@ -15,7 +15,7 @@ import {
   deleteConversationForUser,
   findConversationForUser,
   findProfileForUser,
-  getConversationLessonSnapshot,
+  getConversationPracticeModuleSnapshot,
   findMessageInConversation,
   listMessages,
   renameConversationForUser,
@@ -67,7 +67,7 @@ type TranslatePayload = {
   text?: string;
 };
 
-type LessonStartPayload = {
+type PracticeModuleStartPayload = {
   conversationId?: string | null;
 };
 
@@ -193,11 +193,11 @@ export function registerChatSocket(io: Server): void {
         socket.emit('conversation:ready', {
           activeAgent: 'tutor',
           assistantPending: false,
-          lesson: null,
+          practiceModule: null,
           conversation: null,
           conversationId: null,
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-          pendingLessonStart: false,
+          pendingPracticeModuleStart: false,
         });
         return;
       }
@@ -206,7 +206,7 @@ export function registerChatSocket(io: Server): void {
       currentConversationId = conversation.id;
 
       const messages = listMessages(conversation.id);
-      const lessonSnapshot = getConversationLessonSnapshot(conversation.id);
+      const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
       if (messages.length === 0) {
         pendingInitialGreeting = pickInitialGreeting();
       }
@@ -214,22 +214,22 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         activeAgent: conversation.activeAgent,
         assistantPending: runningConversations.has(conversation.id),
-        lesson: lessonSnapshot
+        practiceModule: practiceModuleSnapshot
           ? {
-              description: lessonSnapshot.description,
-              id: lessonSnapshot.lessonId,
-              title: lessonSnapshot.title,
+              description: practiceModuleSnapshot.description,
+              id: practiceModuleSnapshot.practiceModuleId,
+              title: practiceModuleSnapshot.title,
             }
           : null,
         conversation,
         conversationId: conversation.id,
         messages:
-          lessonSnapshot && messages.length === 0
+          practiceModuleSnapshot && messages.length === 0
             ? []
             : messages.length > 0
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
-        pendingLessonStart: Boolean(lessonSnapshot && messages.length === 0),
+        pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
       });
     });
 
@@ -252,7 +252,7 @@ export function registerChatSocket(io: Server): void {
 
       const shouldPersistInitialGreeting =
         !conversation ||
-        (listMessages(conversation.id).length === 0 && !conversation.lessonId);
+        (listMessages(conversation.id).length === 0 && !conversation.practiceModuleId);
       if (!conversation) {
         if (!currentProfile) {
           return;
@@ -322,11 +322,11 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         activeAgent: 'tutor',
         assistantPending: false,
-        lesson: null,
+        practiceModule: null,
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-        pendingLessonStart: false,
+        pendingPracticeModuleStart: false,
       });
     });
 
@@ -418,15 +418,15 @@ export function registerChatSocket(io: Server): void {
       socket.emit('conversation:ready', {
         activeAgent: 'tutor',
         assistantPending: false,
-        lesson: null,
+        practiceModule: null,
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-        pendingLessonStart: false,
+        pendingPracticeModuleStart: false,
       });
     });
 
-    socket.on('lesson:start', async (payload: LessonStartPayload = {}) => {
+    socket.on('practice-module:start', async (payload: PracticeModuleStartPayload = {}) => {
       const userId = getAuthenticatedUserId(socket);
       if (!userId) {
         emitAuthRequired(socket);
@@ -439,17 +439,17 @@ export function registerChatSocket(io: Server): void {
       }
 
       const conversation = findConversationForUser(conversationId, userId);
-      if (!conversation?.lessonId) {
+      if (!conversation?.practiceModuleId) {
         socket.emit('assistant:error', {
-          message: 'No pude iniciar esta lección.',
+          message: 'No pude iniciar este módulo de práctica.',
         });
         return;
       }
 
-      const lessonSnapshot = getConversationLessonSnapshot(conversation.id);
-      if (!lessonSnapshot) {
+      const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
+      if (!practiceModuleSnapshot) {
         socket.emit('assistant:error', {
-          message: 'No pude cargar la lección.',
+          message: 'No pude cargar este módulo de práctica.',
         });
         return;
       }
@@ -464,7 +464,7 @@ export function registerChatSocket(io: Server): void {
         userId,
         undefined,
         false,
-        [buildLessonStartMessage(lessonSnapshot)],
+        [buildPracticeModuleStartMessage(practiceModuleSnapshot)],
       );
     });
 
@@ -1106,7 +1106,7 @@ async function streamAssistantMessage(
     if (!conversation) {
       throw new Error('Conversation not found.');
     }
-    const lessonSnapshot = getConversationLessonSnapshot(conversationId);
+    const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
 
     const messages = listMessages(conversationId);
     const llmOptions = await getLlmRequestOptionsForUser(userId);
@@ -1117,19 +1117,19 @@ async function streamAssistantMessage(
       emitAssistantToolStatus(io, conversationId, toolName);
     };
     const history = [...toTutorHistory(messages), ...extraHistory];
-    const lessonContext = lessonSnapshot
+    const practiceModuleContext = practiceModuleSnapshot
       ? {
-          description: lessonSnapshot.description,
-          title: lessonSnapshot.title,
-          tutorInstructions: lessonSnapshot.tutorInstructions,
+          description: practiceModuleSnapshot.description,
+          title: practiceModuleSnapshot.title,
+          tutorInstructions: practiceModuleSnapshot.tutorInstructions,
         }
       : null;
 
     const result = await runTutorAgentLoop(history, {
-      lesson: lessonContext,
+      practiceModule: practiceModuleContext,
       abortSignal: abortController.signal,
       currentTitle: conversation.title,
-      currentLessonId: conversation.lessonId,
+      currentPracticeModuleId: conversation.practiceModuleId,
       llm: llmOptions,
       onTokenUsage,
       onToolCall,
@@ -1196,16 +1196,16 @@ function emitAssistantToolStatus(
 
 function getToolStatusLabel(toolName: string): string {
   switch (toolName) {
-    case 'list_lessons':
-      return 'Ejecutando herramienta: buscar lecciones...';
-    case 'create_lesson':
-      return 'Ejecutando herramienta: crear lección...';
-    case 'update_lesson':
-      return 'Ejecutando herramienta: actualizar lección...';
-    case 'delete_lesson':
-      return 'Ejecutando herramienta: eliminar lección...';
-    case 'build_lesson_link':
-      return 'Ejecutando herramienta: preparar enlace de la lección...';
+    case 'list_practice_modules':
+      return 'Ejecutando herramienta: buscar módulos de práctica...';
+    case 'create_practice_module':
+      return 'Ejecutando herramienta: crear módulo de práctica...';
+    case 'update_practice_module':
+      return 'Ejecutando herramienta: actualizar módulo de práctica...';
+    case 'delete_practice_module':
+      return 'Ejecutando herramienta: eliminar módulo de práctica...';
+    case 'build_practice_module_link':
+      return 'Ejecutando herramienta: preparar enlace del módulo de práctica...';
     default:
       return `Ejecutando herramienta: ${toolName}...`;
   }
@@ -1230,7 +1230,7 @@ function isAbortError(error: unknown, signal?: AbortSignal): boolean {
   return error.name === 'AbortError' || /abort(ed)?/i.test(error.message);
 }
 
-function buildLessonStartMessage(lesson: {
+function buildPracticeModuleStartMessage(practiceModule: {
   description: string;
   title: string;
   tutorInstructions: string;
@@ -1239,13 +1239,13 @@ function buildLessonStartMessage(lesson: {
     role: 'user',
     content: [
       'INTERNAL ACTIVITY START.',
-      'This lesson has just begun.',
+      'This practice module has just begun.',
       'Use this as teacher-only context. Do not mention the internal signal.',
-      `Lesson title: ${lesson.title}`,
-      `Lesson description: ${lesson.description}`,
-      `Lesson tutor instructions: ${lesson.tutorInstructions}`,
-      'Start the lesson now with the first useful exercise or prompt.',
-      'Do not ask unnecessary setup questions if the lesson already provides enough direction.',
+      `Practice module title: ${practiceModule.title}`,
+      `Practice module description: ${practiceModule.description}`,
+      `Practice module tutor instructions: ${practiceModule.tutorInstructions}`,
+      'Start the practice module now with the first useful exercise or prompt.',
+      'Do not ask unnecessary setup questions if the practice module already provides enough direction.',
     ].join('\n'),
   };
 }

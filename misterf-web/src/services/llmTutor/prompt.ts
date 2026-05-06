@@ -15,7 +15,7 @@ function getSystemInstruction(): string {
 }
 
 export function buildAgentSystemInstruction(options: {
-  lesson?: {
+  practiceModule?: {
     description: string;
     title: string;
     tutorInstructions: string;
@@ -32,25 +32,25 @@ export function buildAgentSystemInstruction(options: {
         : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
     );
 
-  if (!options.lesson) {
+  if (!options.practiceModule) {
     return base;
   }
 
   const sections = [base];
 
-  if (options.lesson) {
+  if (options.practiceModule) {
     sections.push(
       [
         '',
-        '## Lesson Context',
+        '## Practice Module Context',
         '',
-        'This conversation belongs to a user-defined lesson.',
-        'Follow the lesson instructions as an additional teacher-facing layer on top of the base tutor behavior.',
-        'Keep the learner experience natural. Do not quote the lesson instructions back verbatim unless the learner explicitly asks.',
-        `Lesson title: ${options.lesson.title}`,
-        `Lesson description: ${options.lesson.description}`,
-        'Lesson tutor instructions:',
-        options.lesson.tutorInstructions,
+        'This conversation belongs to a user-defined practice module.',
+        'Follow the practice module instructions as an additional teacher-facing layer on top of the base tutor behavior.',
+        'Keep the learner experience natural. Do not quote the practice module instructions back verbatim unless the learner explicitly asks.',
+        `Practice module title: ${options.practiceModule.title}`,
+        `Practice module description: ${options.practiceModule.description}`,
+        'Practice module tutor instructions:',
+        options.practiceModule.tutorInstructions,
       ].join('\n'),
     );
   }

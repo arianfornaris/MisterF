@@ -8,8 +8,11 @@ import {
   handleCreateLesson,
   handleCreateLessonConversation,
   handleCreateProfile,
+  handleArchiveLesson,
   handleDeleteLesson,
-  handleAcceptSharedLessonLink,
+  handleAcceptSharedPracticeModuleLink,
+  handleRestoreLesson,
+  handleSetLessonFavorite,
   handleShareLessonToProfile,
   handleUpdateLesson,
   handleForgotPassword,
@@ -102,17 +105,20 @@ app.post('/logout', handleLogout);
 app.get('/superadmin', renderSuperadminUsers);
 app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
-app.get('/lessons', renderHome);
-app.get('/lessons/new', renderHome);
-app.post('/lessons', handleCreateLesson);
-app.get('/lessons/shared/:shareId', renderHome);
-app.post('/lessons/shared/:shareId/accept', handleAcceptSharedLessonLink);
-app.get('/lessons/:lessonId/edit', renderHome);
-app.get('/lessons/:lessonId', renderHome);
-app.post('/lessons/:lessonId', handleUpdateLesson);
-app.post('/lessons/:lessonId/delete', handleDeleteLesson);
-app.post('/lessons/:lessonId/chats', handleCreateLessonConversation);
-app.post('/lessons/:lessonId/share/profile', handleShareLessonToProfile);
+app.get('/practice-modules', renderHome);
+app.get('/practice-modules/new', renderHome);
+app.post('/practice-modules', handleCreateLesson);
+app.get('/practice-modules/shared/:shareId', renderHome);
+app.post('/practice-modules/shared/:shareId/accept', handleAcceptSharedPracticeModuleLink);
+app.get('/practice-modules/:practiceModuleId/edit', renderHome);
+app.get('/practice-modules/:practiceModuleId', renderHome);
+app.post('/practice-modules/:practiceModuleId', handleUpdateLesson);
+app.post('/practice-modules/:practiceModuleId/favorite', handleSetLessonFavorite);
+app.post('/practice-modules/:practiceModuleId/archive', handleArchiveLesson);
+app.post('/practice-modules/:practiceModuleId/restore', handleRestoreLesson);
+app.post('/practice-modules/:practiceModuleId/delete', handleDeleteLesson);
+app.post('/practice-modules/:practiceModuleId/chats', handleCreateLessonConversation);
+app.post('/practice-modules/:practiceModuleId/share/profile', handleShareLessonToProfile);
 app.get('/profiles', renderHome);
 app.get('/profiles/new', renderHome);
 app.get('/profiles/:profileId/edit', renderHome);

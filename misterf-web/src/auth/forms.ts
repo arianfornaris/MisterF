@@ -35,23 +35,26 @@ import {
   normalizeActionToken,
 } from './tokens.js';
 import {
+  archivePracticeModuleForUser,
   createProfile,
-  createLesson,
-  createConversationFromLesson,
-  deleteLessonForUser,
-  findLessonById,
-  findLessonShareLinkById,
-  findLessonForUser,
+  createPracticeModule,
+  createConversationFromPracticeModule,
+  deletePracticeModuleForUser,
+  findPracticeModuleById,
+  findPracticeModuleShareLinkById,
+  findPracticeModuleForUser,
   findConversationForUser,
   findProfileById,
-  getOrCreateLessonShareLink,
+  getOrCreatePracticeModuleShareLink,
   findProfileForUser,
-  importLessonToProfile,
-  listLessonsForProfile,
-  listConversationsForLesson,
+  importPracticeModuleToProfile,
+  listPracticeModulesForProfile,
+  listConversationsForPracticeModule,
   listConversationsForProfile,
+  restorePracticeModuleForUser,
+  setPracticeModuleFavoriteForUser,
   updateProfile,
-  updateLesson,
+  updatePracticeModule,
 } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { env } from '../config/env.js';
@@ -591,17 +594,18 @@ export async function renderHome(request: Request, response: Response): Promise<
   const isVerified = Boolean(user?.emailVerified);
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
-  const lessonFilterQueryRaw =
+  const practiceModuleFilterQueryRaw =
     typeof request.query.q === 'string' ? request.query.q : '';
-  const lessonFilterQuery = lessonFilterQueryRaw.trim();
-  const normalizedLessonFilterQuery = normalizeSearchText(lessonFilterQuery);
+  const practiceModuleFilterQuery = practiceModuleFilterQueryRaw.trim();
+  const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
+  const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
   const requestedConversationId =
     typeof requestedConversationIdRaw === 'string'
       ? requestedConversationIdRaw.trim()
       : '';
-  const requestedLessonIdRaw = request.params.lessonId;
+  const requestedLessonIdRaw = request.params.practiceModuleId;
   const requestedLessonId =
     typeof requestedLessonIdRaw === 'string'
       ? requestedLessonIdRaw.trim()
@@ -616,30 +620,30 @@ export async function renderHome(request: Request, response: Response): Promise<
     typeof requestedProfileIdRaw === 'string'
       ? requestedProfileIdRaw.trim()
       : '';
-  const isLessonNewPage = request.path === '/lessons/new';
+  const isLessonNewPage = request.path === '/practice-modules/new';
   const isLessonEditPage = request.path.endsWith('/edit');
   const isProfilesRoot = request.path === '/profiles';
   const isProfileNewPage = request.path === '/profiles/new';
   const isProfileEditPage = /^\/profiles\/[^/]+\/edit$/.test(request.path);
   let initialConversationId = '';
   const chatMode = 'tutor';
-  let currentView: 'chat' | 'lessons' | 'profiles' =
-    request.path.startsWith('/lessons')
-      ? 'lessons'
+  let currentView: 'chat' | 'practiceModules' | 'profiles' =
+    request.path.startsWith('/practice-modules')
+      ? 'practiceModules'
       : request.path.startsWith('/profiles')
       ? 'profiles'
       : 'chat';
-  let lessonPageMode: 'list' | 'detail' | 'new' | 'edit' | 'share' = 'list';
+  let practiceModulePageMode: 'list' | 'detail' | 'new' | 'edit' | 'share' = 'list';
   let profilePageMode: 'list' | 'new' | 'edit' = 'list';
-  let selectedLesson = null;
-  let selectedSharedLesson = null;
-  let selectedLessonShareLink = null;
-  let selectedLessonSharedFromProfileName = '';
-  let lessonConversations: ReturnType<typeof listConversationsForLesson> = [];
+  let selectedPracticeModule = null;
+  let selectedSharedPracticeModule = null;
+  let selectedPracticeModuleShareLink = null;
+  let selectedPracticeModuleSharedFromProfileName = '';
+  let practiceModuleConversations: ReturnType<typeof listConversationsForPracticeModule> = [];
   let activeProfile = defaultActiveProfile;
   let selectedProfile = null;
 
-  if (currentView === 'lessons' && !user && (isLessonNewPage || isLessonEditPage)) {
+  if (currentView === 'practiceModules' && !user && (isLessonNewPage || isLessonEditPage)) {
     response.redirect('/login');
     return;
   }
@@ -666,48 +670,48 @@ export async function renderHome(request: Request, response: Response): Promise<
   }
 
   if (requestedLessonId && user) {
-    const lesson = findLessonForUser(requestedLessonId, user.id);
-    if (!lesson) {
-      response.redirect('/lessons');
+    const practiceModule = findPracticeModuleForUser(requestedLessonId, user.id);
+    if (!practiceModule) {
+      response.redirect('/practice-modules');
       return;
     }
 
-    if (!activeProfile || lesson.profileId !== activeProfile.id) {
-      activeProfile = findProfileForUser(lesson.profileId, user.id);
+    if (!activeProfile || practiceModule.profileId !== activeProfile.id) {
+      activeProfile = findProfileForUser(practiceModule.profileId, user.id);
       if (activeProfile) {
         setActiveProfileCookie(response, activeProfile.id);
       }
     }
-    selectedLesson = lesson;
-    lessonConversations = listConversationsForLesson(
-      lesson.id,
+    selectedPracticeModule = practiceModule;
+    practiceModuleConversations = listConversationsForPracticeModule(
+      practiceModule.id,
       user.id,
-      lesson.profileId,
+      practiceModule.profileId,
     );
   }
 
   if (requestedLessonShareId) {
-    const shareLink = findLessonShareLinkById(requestedLessonShareId);
+    const shareLink = findPracticeModuleShareLinkById(requestedLessonShareId);
     if (!shareLink || shareLink.revokedAt) {
-      response.redirect('/lessons');
+      response.redirect('/practice-modules');
       return;
     }
 
-    const sharedLesson = findLessonById(shareLink.lessonId);
+    const sharedLesson = findPracticeModuleById(shareLink.practiceModuleId);
     if (!sharedLesson) {
-      response.redirect('/lessons');
+      response.redirect('/practice-modules');
       return;
     }
 
-    selectedSharedLesson = sharedLesson;
-    selectedLessonShareLink = shareLink;
+    selectedSharedPracticeModule = sharedLesson;
+    selectedPracticeModuleShareLink = shareLink;
   }
 
-  if (selectedLesson) {
-    selectedLessonShareLink = getOrCreateLessonShareLink(selectedLesson.id);
-    if (selectedLesson.sourceProfileId) {
-      selectedLessonSharedFromProfileName =
-        findProfileById(selectedLesson.sourceProfileId)?.name || '';
+  if (selectedPracticeModule) {
+    selectedPracticeModuleShareLink = getOrCreatePracticeModuleShareLink(selectedPracticeModule.id);
+    if (selectedPracticeModule.sourceProfileId) {
+      selectedPracticeModuleSharedFromProfileName =
+        findProfileById(selectedPracticeModule.sourceProfileId)?.name || '';
     }
   }
 
@@ -725,62 +729,83 @@ export async function renderHome(request: Request, response: Response): Promise<
     user && activeProfile
       ? listConversationsForProfile(user.id, activeProfile.id)
       : [];
-  const lessons =
+  const practiceModules =
     user && activeProfile
-      ? listLessonsForProfile(user.id, activeProfile.id)
+      ? listPracticeModulesForProfile(user.id, activeProfile.id)
       : [];
   const visibleLessons = user
-    ? lessons
-        .filter((lesson) => {
-          if (!normalizedLessonFilterQuery) {
+    ? practiceModules
+        .filter((practiceModule) => {
+          if (practiceModule.archivedAt && !showArchivedPracticeModules) {
+            return false;
+          }
+
+          if (!normalizedpracticeModuleFilterQuery) {
             return true;
           }
 
           const haystack = [
-            lesson.title,
-            lesson.description,
-            lesson.tutorInstructions,
+            practiceModule.title,
+            practiceModule.description,
+            practiceModule.tutorInstructions,
           ].join('\n');
 
-          return normalizeSearchText(haystack).includes(normalizedLessonFilterQuery);
+          return normalizeSearchText(haystack).includes(normalizedpracticeModuleFilterQuery);
         })
-        .map((lesson) => ({
-          ...lesson,
-          conversationCount: listConversationsForLesson(
-            lesson.id,
+        .map((practiceModule) => ({
+          ...practiceModule,
+          conversationCount: listConversationsForPracticeModule(
+            practiceModule.id,
             user.id,
-            lesson.profileId,
+            practiceModule.profileId,
           ).length,
         }))
     : [];
-  const ownLessons = visibleLessons.filter((lesson) => !lesson.sharedVia);
-  const sharedLessons = visibleLessons.filter((lesson) => Boolean(lesson.sharedVia));
-  const shareTargetProfiles =
+  const activeVisibleLessons = visibleLessons.filter((practiceModule) => !practiceModule.archivedAt);
+  const archivedPracticeModules = visibleLessons
+    .filter((practiceModule) => Boolean(practiceModule.archivedAt))
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const favoritePracticeModules = activeVisibleLessons
+    .filter((practiceModule) => !practiceModule.sharedVia && practiceModule.isFavorite)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const ownLessons = activeVisibleLessons
+    .filter((practiceModule) => !practiceModule.sharedVia && !practiceModule.isFavorite)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const sharedLessons = activeVisibleLessons
+    .filter((practiceModule) => Boolean(practiceModule.sharedVia))
+    .sort((a, b) => {
+      if (a.isFavorite !== b.isFavorite) {
+        return a.isFavorite ? -1 : 1;
+      }
+
+      return b.updatedAt.localeCompare(a.updatedAt);
+    });
+  const shareTargetPracticeModuleProfiles =
     availableProfiles.filter(
-      (profile) => profile.id !== (selectedLesson?.profileId ?? activeProfile?.id),
+      (profile) => profile.id !== (selectedPracticeModule?.profileId ?? activeProfile?.id),
     );
-  const lessonShareUrl =
-    selectedLesson && selectedLessonShareLink
+  const practiceModuleShareUrl =
+    selectedPracticeModule && selectedPracticeModuleShareLink
       ? buildAbsoluteAppUrl(
-          `/lessons/shared/${encodeURIComponent(selectedLessonShareLink.id)}`,
+          `/practice-modules/shared/${encodeURIComponent(selectedPracticeModuleShareLink.id)}`,
         )
       : '';
-  const lessonShareQrDataUrl = lessonShareUrl
-    ? await QRCode.toDataURL(lessonShareUrl, {
+  const practiceModuleShareQrDataUrl = practiceModuleShareUrl
+    ? await QRCode.toDataURL(practiceModuleShareUrl, {
         margin: 1,
         width: 180,
       })
     : '';
 
-  if (currentView === 'lessons') {
+  if (currentView === 'practiceModules') {
     if (isLessonNewPage) {
-      lessonPageMode = 'new';
-    } else if (selectedLesson && isLessonEditPage) {
-      lessonPageMode = 'edit';
-    } else if (selectedSharedLesson && selectedLessonShareLink) {
-      lessonPageMode = 'share';
-    } else if (selectedLesson) {
-      lessonPageMode = 'detail';
+      practiceModulePageMode = 'new';
+    } else if (selectedPracticeModule && isLessonEditPage) {
+      practiceModulePageMode = 'edit';
+    } else if (selectedSharedPracticeModule && selectedPracticeModuleShareLink) {
+      practiceModulePageMode = 'share';
+    } else if (selectedPracticeModule) {
+      practiceModulePageMode = 'detail';
     }
   }
 
@@ -795,13 +820,15 @@ export async function renderHome(request: Request, response: Response): Promise<
   }
 
   response.render('index', {
-    lessons: ownLessons,
+    practiceModules: ownLessons,
     activeProfile,
-    lessonFilterQuery,
-    lessonConversations,
-    lessonPageMode,
-    lessonShareQrDataUrl,
-    lessonShareUrl,
+    archivedPracticeModules,
+    practiceModuleFilterQuery,
+    practiceModuleConversations,
+    practiceModulePageMode,
+    practiceModuleShareQrDataUrl,
+    practiceModuleShareUrl,
+    favoritePracticeModules,
     authMessage,
     conversations,
     currentView,
@@ -814,13 +841,14 @@ export async function renderHome(request: Request, response: Response): Promise<
     isAuthenticated: isVerified,
     profiles: availableProfiles,
     profilePageMode,
-    shareTargetProfiles,
+    showArchivedPracticeModules,
+    shareTargetPracticeModuleProfiles,
     sharedLessons,
-    selectedLesson,
-    selectedLessonShareLink,
-    selectedLessonSharedFromProfileName,
+    selectedPracticeModule,
+    selectedPracticeModuleShareLink,
+    selectedPracticeModuleSharedFromProfileName,
     selectedProfile,
-    selectedSharedLesson,
+    selectedSharedPracticeModule,
     socketAuthToken,
     title: 'Mister F',
     user,
@@ -840,11 +868,11 @@ export function handleCreateLesson(request: Request, response: Response): void {
   const tutorInstructions = String(request.body.tutorInstructions || '').trim();
 
   if (!title || !description || !tutorInstructions) {
-    response.redirect('/lessons/new');
+    response.redirect('/practice-modules/new');
     return;
   }
 
-  const lesson = createLesson({
+  const practiceModule = createPracticeModule({
     profileId: activeProfile.id,
     userId: user.id,
     title,
@@ -852,7 +880,7 @@ export function handleCreateLesson(request: Request, response: Response): void {
     tutorInstructions,
   });
 
-  response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
+  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
 
 export function handleCreateLessonConversation(
@@ -865,21 +893,21 @@ export function handleCreateLessonConversation(
     return;
   }
 
-  const lessonIdRaw = request.params.lessonId;
-  const lessonId =
-    typeof lessonIdRaw === 'string' ? lessonIdRaw.trim() : '';
-  if (!lessonId) {
-    response.redirect('/lessons');
+  const practiceModuleIdRaw = request.params.practiceModuleId;
+  const practiceModuleId =
+    typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+  if (!practiceModuleId) {
+    response.redirect('/practice-modules');
     return;
   }
 
-  const lesson = findLessonForUser(lessonId, user.id);
-  if (!lesson) {
-    response.redirect('/lessons');
+  const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
+  if (!practiceModule) {
+    response.redirect('/practice-modules');
     return;
   }
 
-  const conversation = createConversationFromLesson(user.id, lesson);
+  const conversation = createConversationFromPracticeModule(user.id, practiceModule);
 
   response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
 }
@@ -971,11 +999,11 @@ export function handleUpdateLesson(request: Request, response: Response): void {
     return;
   }
 
-  const lessonIdRaw = request.params.lessonId;
-  const lessonId =
-    typeof lessonIdRaw === 'string' ? lessonIdRaw.trim() : '';
-  if (!lessonId) {
-    response.redirect('/lessons');
+  const practiceModuleIdRaw = request.params.practiceModuleId;
+  const practiceModuleId =
+    typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+  if (!practiceModuleId) {
+    response.redirect('/practice-modules');
     return;
   }
 
@@ -983,24 +1011,80 @@ export function handleUpdateLesson(request: Request, response: Response): void {
   const description = String(request.body.description || '').trim();
   const tutorInstructions = String(request.body.tutorInstructions || '').trim();
   if (!title || !description || !tutorInstructions) {
-    response.redirect(`/lessons/${encodeURIComponent(lessonId)}/edit`);
+    response.redirect(`/practice-modules/${encodeURIComponent(practiceModuleId)}/edit`);
     return;
   }
 
-  const lesson = updateLesson({
-    lessonId,
+  const practiceModule = updatePracticeModule({
+    practiceModuleId,
     description,
     title,
     tutorInstructions,
     userId: user.id,
   });
 
-  if (!lesson) {
-    response.redirect('/lessons');
+  if (!practiceModule) {
+    response.redirect('/practice-modules');
     return;
   }
 
-  response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
+  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+
+export function handleSetLessonFavorite(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+  if (!practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const favoriteValue = String(request.body.favorite || '').trim();
+  const isFavorite = favoriteValue === '1' || favoriteValue === 'true';
+  setPracticeModuleFavoriteForUser(practiceModuleId, user.id, isFavorite);
+  response.redirect(returnTo);
+}
+
+export function handleArchiveLesson(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+  if (!practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  archivePracticeModuleForUser(practiceModuleId, user.id);
+  response.redirect(returnTo);
+}
+
+export function handleRestoreLesson(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules?archived=1'));
+  if (!practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  restorePracticeModuleForUser(practiceModuleId, user.id);
+  response.redirect(returnTo);
 }
 
 export function handleDeleteLesson(request: Request, response: Response): void {
@@ -1010,16 +1094,16 @@ export function handleDeleteLesson(request: Request, response: Response): void {
     return;
   }
 
-  const lessonIdRaw = request.params.lessonId;
-  const lessonId =
-    typeof lessonIdRaw === 'string' ? lessonIdRaw.trim() : '';
-  if (!lessonId) {
-    response.redirect('/lessons');
+  const practiceModuleIdRaw = request.params.practiceModuleId;
+  const practiceModuleId =
+    typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+  if (!practiceModuleId) {
+    response.redirect('/practice-modules');
     return;
   }
 
-  deleteLessonForUser(lessonId, user.id);
-  response.redirect('/lessons');
+  deletePracticeModuleForUser(practiceModuleId, user.id);
+  response.redirect('/practice-modules');
 }
 
 export function handleShareLessonToProfile(
@@ -1032,53 +1116,53 @@ export function handleShareLessonToProfile(
     return;
   }
 
-  const lessonId = String(request.params.lessonId || '').trim();
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
   const targetProfileId = String(request.body.targetProfileId || '').trim();
-  if (!lessonId || !targetProfileId) {
-    response.redirect('/lessons');
+  if (!practiceModuleId || !targetProfileId) {
+    response.redirect('/practice-modules');
     return;
   }
 
-  const lesson = findLessonForUser(lessonId, user.id);
-  if (!lesson) {
-    response.redirect('/lessons');
+  const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
+  if (!practiceModule) {
+    response.redirect('/practice-modules');
     return;
   }
 
   const targetProfile = findProfileForUser(targetProfileId, user.id);
-  if (!targetProfile || targetProfile.id === lesson.profileId) {
-    response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
+  if (!targetProfile || targetProfile.id === practiceModule.profileId) {
+    response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
     return;
   }
 
-  importLessonToProfile({
+  importPracticeModuleToProfile({
     shareKind: 'profile',
-    sourceLesson: lesson,
+    sourcePracticeModule: practiceModule,
     targetProfileId: targetProfile.id,
     userId: user.id,
   });
-  response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
+  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
 
-export function handleAcceptSharedLessonLink(
+export function handleAcceptSharedPracticeModuleLink(
   request: Request,
   response: Response,
 ): void {
   const shareId = String(request.params.shareId || '').trim();
   if (!shareId) {
-    response.redirect('/lessons');
+    response.redirect('/practice-modules');
     return;
   }
 
-  const shareLink = findLessonShareLinkById(shareId);
+  const shareLink = findPracticeModuleShareLinkById(shareId);
   if (!shareLink || shareLink.revokedAt) {
-    response.redirect('/lessons');
+    response.redirect('/practice-modules');
     return;
   }
 
-  const sourceLesson = findLessonById(shareLink.lessonId);
-  if (!sourceLesson) {
-    response.redirect('/lessons');
+  const sourcePracticeModule = findPracticeModuleById(shareLink.practiceModuleId);
+  if (!sourcePracticeModule) {
+    response.redirect('/practice-modules');
     return;
   }
 
@@ -1089,13 +1173,13 @@ export function handleAcceptSharedLessonLink(
     return;
   }
 
-  const imported = importLessonToProfile({
+  const imported = importPracticeModuleToProfile({
     shareKind: 'link',
-    sourceLesson,
+    sourcePracticeModule,
     targetProfileId: activeProfile.id,
     userId: user.id,
   });
-  response.redirect(`/lessons/${encodeURIComponent(imported.id)}`);
+  response.redirect(`/practice-modules/${encodeURIComponent(imported.id)}`);
 }
 
 async function signInUser(

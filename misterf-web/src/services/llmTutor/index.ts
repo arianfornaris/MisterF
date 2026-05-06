@@ -13,7 +13,7 @@ import {
   logLlmResponse,
   logLlmToolCalls,
 } from './logging.js';
-import { buildTutorLessonTools, extractInferredLessonLinkBlocks } from './lessonTools.js';
+import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
@@ -27,22 +27,22 @@ Start the session.
 
 const maxAgentTurns = 6;
 
-function mergeTutorLessonLinkBlocks(
+function mergeTutorPracticeModuleLinkBlocks(
   blocks: TutorResponseBlock[],
-  inferredLinks: Array<Extract<TutorResponseBlock, { type: 'lesson_link' }>>,
+  inferredLinks: Array<Extract<TutorResponseBlock, { type: 'practice_module_link' }>>,
 ): TutorResponseBlock[] {
-  const seenLessonIds = new Set(
+  const seenPracticeModuleIds = new Set(
     blocks
       .filter(
-        (block): block is Extract<TutorResponseBlock, { type: 'lesson_link' }> =>
-          block.type === 'lesson_link',
+        (block): block is Extract<TutorResponseBlock, { type: 'practice_module_link' }> =>
+          block.type === 'practice_module_link',
       )
-      .map((block) => block.lessonId),
+      .map((block) => block.practiceModuleId),
   );
 
   return [
     ...blocks,
-    ...inferredLinks.filter((link) => !seenLessonIds.has(link.lessonId)),
+    ...inferredLinks.filter((link) => !seenPracticeModuleIds.has(link.practiceModuleId)),
   ];
 }
 
@@ -62,7 +62,7 @@ async function continueTutorResponseAfterToolUse(input: {
       role: 'user',
       content: [
         'INTERNAL APP CONTINUATION.',
-        'The previous step already used tools and may have completed lesson operations successfully.',
+        'The previous step already used tools and may have completed practice-module operations successfully.',
         'Do not call any more tools in this step.',
         'Now re-emit the complete final TutorResponse as exactly one JSON object and nothing else.',
         'Do not use markdown fences.',
@@ -107,14 +107,14 @@ function parseJsonFromModelText(text: string): unknown {
 export async function runTutorAgentLoop(
   history: TutorMessage[],
   options: {
-    lesson?: {
+    practiceModule?: {
       description: string;
       title: string;
       tutorInstructions: string;
     } | null;
     abortSignal?: AbortSignal;
     currentTitle?: string;
-    currentLessonId?: string | null;
+    currentPracticeModuleId?: string | null;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     onToolCall?: (toolName: string) => void;
@@ -138,8 +138,8 @@ export async function runTutorAgentLoop(
     ...options,
   });
   let lastError: unknown = null;
-  const tools = buildTutorLessonTools({
-    currentLessonId: options.currentLessonId ?? null,
+  const tools = buildTutorPracticeModuleTools({
+    currentPracticeModuleId: options.currentPracticeModuleId ?? null,
     onToolCall: options.onToolCall,
     profileId: options.profileId ?? null,
     userId: options.userId ?? null,
@@ -219,9 +219,9 @@ export async function runTutorAgentLoop(
         if (blocks.length === 0) {
           throw new Error('The model returned no usable response blocks.');
         }
-        const blocksWithInferredLinks = mergeTutorLessonLinkBlocks(
+        const blocksWithInferredLinks = mergeTutorPracticeModuleLinkBlocks(
           blocks,
-          extractInferredLessonLinkBlocks(toolResults),
+          extractInferredPracticeModuleLinkBlocks(toolResults),
         );
         options.validateBlocks?.(blocksWithInferredLinks);
 

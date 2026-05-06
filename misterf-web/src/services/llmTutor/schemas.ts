@@ -44,10 +44,10 @@ export const messageBlockSchema = z
   })
   .strict();
 
-export const lessonLinkBlockSchema = z
+export const practiceModuleLinkBlockSchema = z
   .object({
-    type: z.literal('lesson_link'),
-    lessonId: z.string().trim().min(1),
+    type: z.literal('practice_module_link'),
+    practiceModuleId: z.string().trim().min(1),
     label: z.string().trim().min(1).max(160),
   })
   .strict();
@@ -400,7 +400,7 @@ export const tutorResponseSchema = z
       .array(
   z.union([
     messageBlockSchema,
-    lessonLinkBlockSchema,
+    practiceModuleLinkBlockSchema,
   dialogueCharacterMessageBlockSchema,
           dialogueTranscriptBlockSchema,
           matchingPairsBlockSchema,

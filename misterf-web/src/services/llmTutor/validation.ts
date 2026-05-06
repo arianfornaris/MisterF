@@ -3,7 +3,7 @@ import type {
   TutorDialogueTranscriptBlock,
   TutorFillInTheBlankChoiceBlock,
   TutorFillInTheBlankInputBlock,
-  TutorLessonLinkBlock,
+  TutorPracticeModuleLinkBlock,
   TutorMatchingPairsBlock,
   TutorMultipleChoiceBlock,
   TutorQuizBlock,
@@ -45,7 +45,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block,
       ): block is
         | TutorMessageBlock
-        | TutorLessonLinkBlock
+        | TutorPracticeModuleLinkBlock
         | TutorDialogueCharacterMessageBlock
         | TutorDialogueTranscriptBlock
         | TutorMatchingPairsBlock
@@ -57,7 +57,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorMultipleChoiceBlock
         | TutorUnscrambleSentenceBlock =>
         block.type === 'message' ||
-        block.type === 'lesson_link' ||
+        block.type === 'practice_module_link' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
@@ -74,7 +74,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         return `**${block.name}:** ${block.markdown.trim()}`;
       }
 
-      if (block.type === 'lesson_link') {
+      if (block.type === 'practice_module_link') {
         return block.label.trim();
       }
 
