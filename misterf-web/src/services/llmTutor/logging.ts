@@ -61,6 +61,51 @@ export function logLlmResponse(
   });
 }
 
+export function logLlmToolCalls(input: {
+  steps: Array<{
+    text?: string;
+    toolCalls?: Array<{
+      input?: unknown;
+      toolCallId?: string;
+      toolName?: string;
+    }>;
+    toolResults?: Array<{
+      output?: unknown;
+      preliminary?: boolean;
+      toolCallId?: string;
+      toolName?: string;
+    }>;
+  }>;
+  turn?: number;
+}): void {
+  const stepsWithTools = input.steps
+    .map((step, index) => ({
+      index,
+      text: step.text,
+      toolCalls: (step.toolCalls ?? []).map((toolCall) => ({
+        input: toolCall.input,
+        toolCallId: toolCall.toolCallId,
+        toolName: toolCall.toolName,
+      })),
+      toolResults: (step.toolResults ?? []).map((toolResult) => ({
+        output: toolResult.output,
+        preliminary: toolResult.preliminary,
+        toolCallId: toolResult.toolCallId,
+        toolName: toolResult.toolName,
+      })),
+    }))
+    .filter((step) => step.toolCalls.length > 0 || step.toolResults.length > 0);
+
+  if (stepsWithTools.length === 0) {
+    return;
+  }
+
+  logJson('[Mr. F LLM tool calls]', {
+    steps: stepsWithTools,
+    turn: input.turn,
+  });
+}
+
 export function logLlmInvalidRawResponse(input: {
   error: unknown;
   rawText: string;

@@ -36,24 +36,22 @@ import {
 } from './tokens.js';
 import {
   createProfile,
-  createActivity,
-  createConversationFromActivity,
-  deleteActivityForUser,
-  findActivityById,
-  findActivityShareLinkById,
-  findAdminChatThreadForUser,
-  findActivityForUser,
+  createLesson,
+  createConversationFromLesson,
+  deleteLessonForUser,
+  findLessonById,
+  findLessonShareLinkById,
+  findLessonForUser,
   findConversationForUser,
   findProfileById,
-  getOrCreateActivityShareLink,
+  getOrCreateLessonShareLink,
   findProfileForUser,
-  importActivityToProfile,
-  listActivitiesForProfile,
-  listAdminChatThreadsForProfile,
-  listConversationsForActivity,
+  importLessonToProfile,
+  listLessonsForProfile,
+  listConversationsForLesson,
   listConversationsForProfile,
   updateProfile,
-  updateActivity,
+  updateLesson,
 } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { env } from '../config/env.js';
@@ -593,73 +591,55 @@ export async function renderHome(request: Request, response: Response): Promise<
   const isVerified = Boolean(user?.emailVerified);
   const socketAuthToken = user && isVerified ? createSocketAuthToken(user) : '';
   const authMessage = getHomeAuthMessage(request, user);
-  const activityFilterQueryRaw =
+  const lessonFilterQueryRaw =
     typeof request.query.q === 'string' ? request.query.q : '';
-  const activityFilterQuery = activityFilterQueryRaw.trim();
-  const normalizedActivityFilterQuery = normalizeSearchText(activityFilterQuery);
+  const lessonFilterQuery = lessonFilterQueryRaw.trim();
+  const normalizedLessonFilterQuery = normalizeSearchText(lessonFilterQuery);
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
   const requestedConversationId =
     typeof requestedConversationIdRaw === 'string'
       ? requestedConversationIdRaw.trim()
       : '';
-  const requestedAdminChatIdRaw = request.params.adminChatId;
-  const requestedAdminChatId =
-    typeof requestedAdminChatIdRaw === 'string'
-      ? requestedAdminChatIdRaw.trim()
+  const requestedLessonIdRaw = request.params.lessonId;
+  const requestedLessonId =
+    typeof requestedLessonIdRaw === 'string'
+      ? requestedLessonIdRaw.trim()
       : '';
-  const requestedActivityIdRaw = request.params.activityId;
-  const requestedActivityId =
-    typeof requestedActivityIdRaw === 'string'
-      ? requestedActivityIdRaw.trim()
-      : '';
-  const requestedActivityShareIdRaw = request.params.shareId;
-  const requestedActivityShareId =
-    typeof requestedActivityShareIdRaw === 'string'
-      ? requestedActivityShareIdRaw.trim()
+  const requestedLessonShareIdRaw = request.params.shareId;
+  const requestedLessonShareId =
+    typeof requestedLessonShareIdRaw === 'string'
+      ? requestedLessonShareIdRaw.trim()
       : '';
   const requestedProfileIdRaw = request.params.profileId;
   const requestedProfileId =
     typeof requestedProfileIdRaw === 'string'
       ? requestedProfileIdRaw.trim()
       : '';
-  const isActivityNewPage = request.path === '/activities/new';
-  const isActivityEditPage = request.path.endsWith('/edit');
+  const isLessonNewPage = request.path === '/lessons/new';
+  const isLessonEditPage = request.path.endsWith('/edit');
   const isProfilesRoot = request.path === '/profiles';
   const isProfileNewPage = request.path === '/profiles/new';
   const isProfileEditPage = /^\/profiles\/[^/]+\/edit$/.test(request.path);
   let initialConversationId = '';
-  const isAdminChatsRoot = request.path === '/admin-chats';
-  const isAdminChatPage =
-    request.path === '/admin-chats/new' || /^\/admin-chats\/[^/]+$/.test(request.path);
-  let chatMode: 'tutor' | 'admin' =
-    isAdminChatsRoot || isAdminChatPage ? 'admin' : 'tutor';
-  let currentView: 'chat' | 'activities' | 'profiles' | 'admin-chat' | 'admin-chats' =
-    request.path.startsWith('/activities')
-      ? 'activities'
+  const chatMode = 'tutor';
+  let currentView: 'chat' | 'lessons' | 'profiles' =
+    request.path.startsWith('/lessons')
+      ? 'lessons'
       : request.path.startsWith('/profiles')
       ? 'profiles'
-      : isAdminChatsRoot
-      ? 'admin-chats'
-      : request.path.startsWith('/admin-chats')
-      ? 'admin-chat'
       : 'chat';
-  let activityPageMode: 'list' | 'detail' | 'new' | 'edit' | 'share' = 'list';
+  let lessonPageMode: 'list' | 'detail' | 'new' | 'edit' | 'share' = 'list';
   let profilePageMode: 'list' | 'new' | 'edit' = 'list';
-  let selectedActivity = null;
-  let selectedSharedActivity = null;
-  let selectedActivityShareLink = null;
-  let selectedActivitySharedFromProfileName = '';
-  let activityConversations: ReturnType<typeof listConversationsForActivity> = [];
+  let selectedLesson = null;
+  let selectedSharedLesson = null;
+  let selectedLessonShareLink = null;
+  let selectedLessonSharedFromProfileName = '';
+  let lessonConversations: ReturnType<typeof listConversationsForLesson> = [];
   let activeProfile = defaultActiveProfile;
   let selectedProfile = null;
 
-  if ((currentView === 'admin-chat' || currentView === 'admin-chats') && !user) {
-    response.redirect('/login');
-    return;
-  }
-
-  if (currentView === 'activities' && !user && (isActivityNewPage || isActivityEditPage)) {
+  if (currentView === 'lessons' && !user && (isLessonNewPage || isLessonEditPage)) {
     response.redirect('/login');
     return;
   }
@@ -685,65 +665,49 @@ export async function renderHome(request: Request, response: Response): Promise<
     initialConversationId = conversation.id;
   }
 
-  if (requestedAdminChatId && user) {
-    const thread = findAdminChatThreadForUser(requestedAdminChatId, user.id);
-    if (!thread) {
-      response.redirect('/admin-chats');
+  if (requestedLessonId && user) {
+    const lesson = findLessonForUser(requestedLessonId, user.id);
+    if (!lesson) {
+      response.redirect('/lessons');
       return;
     }
 
-    if (!activeProfile || thread.profileId !== activeProfile.id) {
-      activeProfile = findProfileForUser(thread.profileId, user.id);
+    if (!activeProfile || lesson.profileId !== activeProfile.id) {
+      activeProfile = findProfileForUser(lesson.profileId, user.id);
       if (activeProfile) {
         setActiveProfileCookie(response, activeProfile.id);
       }
     }
-    initialConversationId = thread.id;
-  }
-
-  if (requestedActivityId && user) {
-    const activity = findActivityForUser(requestedActivityId, user.id);
-    if (!activity) {
-      response.redirect('/activities');
-      return;
-    }
-
-    if (!activeProfile || activity.profileId !== activeProfile.id) {
-      activeProfile = findProfileForUser(activity.profileId, user.id);
-      if (activeProfile) {
-        setActiveProfileCookie(response, activeProfile.id);
-      }
-    }
-    selectedActivity = activity;
-    activityConversations = listConversationsForActivity(
-      activity.id,
+    selectedLesson = lesson;
+    lessonConversations = listConversationsForLesson(
+      lesson.id,
       user.id,
-      activity.profileId,
+      lesson.profileId,
     );
   }
 
-  if (requestedActivityShareId) {
-    const shareLink = findActivityShareLinkById(requestedActivityShareId);
+  if (requestedLessonShareId) {
+    const shareLink = findLessonShareLinkById(requestedLessonShareId);
     if (!shareLink || shareLink.revokedAt) {
-      response.redirect('/activities');
+      response.redirect('/lessons');
       return;
     }
 
-    const sharedActivity = findActivityById(shareLink.activityId);
-    if (!sharedActivity) {
-      response.redirect('/activities');
+    const sharedLesson = findLessonById(shareLink.lessonId);
+    if (!sharedLesson) {
+      response.redirect('/lessons');
       return;
     }
 
-    selectedSharedActivity = sharedActivity;
-    selectedActivityShareLink = shareLink;
+    selectedSharedLesson = sharedLesson;
+    selectedLessonShareLink = shareLink;
   }
 
-  if (selectedActivity) {
-    selectedActivityShareLink = getOrCreateActivityShareLink(selectedActivity.id);
-    if (selectedActivity.sourceProfileId) {
-      selectedActivitySharedFromProfileName =
-        findProfileById(selectedActivity.sourceProfileId)?.name || '';
+  if (selectedLesson) {
+    selectedLessonShareLink = getOrCreateLessonShareLink(selectedLesson.id);
+    if (selectedLesson.sourceProfileId) {
+      selectedLessonSharedFromProfileName =
+        findProfileById(selectedLesson.sourceProfileId)?.name || '';
     }
   }
 
@@ -761,66 +725,62 @@ export async function renderHome(request: Request, response: Response): Promise<
     user && activeProfile
       ? listConversationsForProfile(user.id, activeProfile.id)
       : [];
-  const adminChatThreads =
+  const lessons =
     user && activeProfile
-      ? listAdminChatThreadsForProfile(user.id, activeProfile.id)
+      ? listLessonsForProfile(user.id, activeProfile.id)
       : [];
-  const activities =
-    user && activeProfile
-      ? listActivitiesForProfile(user.id, activeProfile.id)
-      : [];
-  const visibleActivities = user
-    ? activities
-        .filter((activity) => {
-          if (!normalizedActivityFilterQuery) {
+  const visibleLessons = user
+    ? lessons
+        .filter((lesson) => {
+          if (!normalizedLessonFilterQuery) {
             return true;
           }
 
           const haystack = [
-            activity.title,
-            activity.description,
-            activity.tutorInstructions,
+            lesson.title,
+            lesson.description,
+            lesson.tutorInstructions,
           ].join('\n');
 
-          return normalizeSearchText(haystack).includes(normalizedActivityFilterQuery);
+          return normalizeSearchText(haystack).includes(normalizedLessonFilterQuery);
         })
-        .map((activity) => ({
-          ...activity,
-          conversationCount: listConversationsForActivity(
-            activity.id,
+        .map((lesson) => ({
+          ...lesson,
+          conversationCount: listConversationsForLesson(
+            lesson.id,
             user.id,
-            activity.profileId,
+            lesson.profileId,
           ).length,
         }))
     : [];
-  const ownActivities = visibleActivities.filter((activity) => !activity.sharedVia);
-  const sharedActivities = visibleActivities.filter((activity) => Boolean(activity.sharedVia));
+  const ownLessons = visibleLessons.filter((lesson) => !lesson.sharedVia);
+  const sharedLessons = visibleLessons.filter((lesson) => Boolean(lesson.sharedVia));
   const shareTargetProfiles =
     availableProfiles.filter(
-      (profile) => profile.id !== (selectedActivity?.profileId ?? activeProfile?.id),
+      (profile) => profile.id !== (selectedLesson?.profileId ?? activeProfile?.id),
     );
-  const activityShareUrl =
-    selectedActivity && selectedActivityShareLink
+  const lessonShareUrl =
+    selectedLesson && selectedLessonShareLink
       ? buildAbsoluteAppUrl(
-          `/activities/shared/${encodeURIComponent(selectedActivityShareLink.id)}`,
+          `/lessons/shared/${encodeURIComponent(selectedLessonShareLink.id)}`,
         )
       : '';
-  const activityShareQrDataUrl = activityShareUrl
-    ? await QRCode.toDataURL(activityShareUrl, {
+  const lessonShareQrDataUrl = lessonShareUrl
+    ? await QRCode.toDataURL(lessonShareUrl, {
         margin: 1,
         width: 180,
       })
     : '';
 
-  if (currentView === 'activities') {
-    if (isActivityNewPage) {
-      activityPageMode = 'new';
-    } else if (selectedActivity && isActivityEditPage) {
-      activityPageMode = 'edit';
-    } else if (selectedSharedActivity && selectedActivityShareLink) {
-      activityPageMode = 'share';
-    } else if (selectedActivity) {
-      activityPageMode = 'detail';
+  if (currentView === 'lessons') {
+    if (isLessonNewPage) {
+      lessonPageMode = 'new';
+    } else if (selectedLesson && isLessonEditPage) {
+      lessonPageMode = 'edit';
+    } else if (selectedSharedLesson && selectedLessonShareLink) {
+      lessonPageMode = 'share';
+    } else if (selectedLesson) {
+      lessonPageMode = 'detail';
     }
   }
 
@@ -835,14 +795,13 @@ export async function renderHome(request: Request, response: Response): Promise<
   }
 
   response.render('index', {
-    activities: ownActivities,
+    lessons: ownLessons,
     activeProfile,
-    activityFilterQuery,
-    adminChatThreads,
-    activityConversations,
-    activityPageMode,
-    activityShareQrDataUrl,
-    activityShareUrl,
+    lessonFilterQuery,
+    lessonConversations,
+    lessonPageMode,
+    lessonShareQrDataUrl,
+    lessonShareUrl,
     authMessage,
     conversations,
     currentView,
@@ -856,19 +815,19 @@ export async function renderHome(request: Request, response: Response): Promise<
     profiles: availableProfiles,
     profilePageMode,
     shareTargetProfiles,
-    sharedActivities,
-    selectedActivity,
-    selectedActivityShareLink,
-    selectedActivitySharedFromProfileName,
+    sharedLessons,
+    selectedLesson,
+    selectedLessonShareLink,
+    selectedLessonSharedFromProfileName,
     selectedProfile,
-    selectedSharedActivity,
+    selectedSharedLesson,
     socketAuthToken,
     title: 'Mister F',
     user,
   });
 }
 
-export function handleCreateActivity(request: Request, response: Response): void {
+export function handleCreateLesson(request: Request, response: Response): void {
   const user = request.authUser;
   const activeProfile = request.activeProfile;
   if (!user?.emailVerified || !activeProfile) {
@@ -881,11 +840,11 @@ export function handleCreateActivity(request: Request, response: Response): void
   const tutorInstructions = String(request.body.tutorInstructions || '').trim();
 
   if (!title || !description || !tutorInstructions) {
-    response.redirect('/activities/new');
+    response.redirect('/lessons/new');
     return;
   }
 
-  const activity = createActivity({
+  const lesson = createLesson({
     profileId: activeProfile.id,
     userId: user.id,
     title,
@@ -893,10 +852,10 @@ export function handleCreateActivity(request: Request, response: Response): void
     tutorInstructions,
   });
 
-  response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+  response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
 }
 
-export function handleCreateActivityConversation(
+export function handleCreateLessonConversation(
   request: Request,
   response: Response,
 ): void {
@@ -906,21 +865,21 @@ export function handleCreateActivityConversation(
     return;
   }
 
-  const activityIdRaw = request.params.activityId;
-  const activityId =
-    typeof activityIdRaw === 'string' ? activityIdRaw.trim() : '';
-  if (!activityId) {
-    response.redirect('/activities');
+  const lessonIdRaw = request.params.lessonId;
+  const lessonId =
+    typeof lessonIdRaw === 'string' ? lessonIdRaw.trim() : '';
+  if (!lessonId) {
+    response.redirect('/lessons');
     return;
   }
 
-  const activity = findActivityForUser(activityId, user.id);
-  if (!activity) {
-    response.redirect('/activities');
+  const lesson = findLessonForUser(lessonId, user.id);
+  if (!lesson) {
+    response.redirect('/lessons');
     return;
   }
 
-  const conversation = createConversationFromActivity(user.id, activity);
+  const conversation = createConversationFromLesson(user.id, lesson);
 
   response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
 }
@@ -1005,18 +964,18 @@ export function handleUpdateProfile(request: Request, response: Response): void 
   response.redirect('/profiles');
 }
 
-export function handleUpdateActivity(request: Request, response: Response): void {
+export function handleUpdateLesson(request: Request, response: Response): void {
   const user = request.authUser;
   if (!user?.emailVerified) {
     response.redirect('/login');
     return;
   }
 
-  const activityIdRaw = request.params.activityId;
-  const activityId =
-    typeof activityIdRaw === 'string' ? activityIdRaw.trim() : '';
-  if (!activityId) {
-    response.redirect('/activities');
+  const lessonIdRaw = request.params.lessonId;
+  const lessonId =
+    typeof lessonIdRaw === 'string' ? lessonIdRaw.trim() : '';
+  if (!lessonId) {
+    response.redirect('/lessons');
     return;
   }
 
@@ -1024,46 +983,46 @@ export function handleUpdateActivity(request: Request, response: Response): void
   const description = String(request.body.description || '').trim();
   const tutorInstructions = String(request.body.tutorInstructions || '').trim();
   if (!title || !description || !tutorInstructions) {
-    response.redirect(`/activities/${encodeURIComponent(activityId)}/edit`);
+    response.redirect(`/lessons/${encodeURIComponent(lessonId)}/edit`);
     return;
   }
 
-  const activity = updateActivity({
-    activityId,
+  const lesson = updateLesson({
+    lessonId,
     description,
     title,
     tutorInstructions,
     userId: user.id,
   });
 
-  if (!activity) {
-    response.redirect('/activities');
+  if (!lesson) {
+    response.redirect('/lessons');
     return;
   }
 
-  response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+  response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
 }
 
-export function handleDeleteActivity(request: Request, response: Response): void {
+export function handleDeleteLesson(request: Request, response: Response): void {
   const user = request.authUser;
   if (!user?.emailVerified) {
     response.redirect('/login');
     return;
   }
 
-  const activityIdRaw = request.params.activityId;
-  const activityId =
-    typeof activityIdRaw === 'string' ? activityIdRaw.trim() : '';
-  if (!activityId) {
-    response.redirect('/activities');
+  const lessonIdRaw = request.params.lessonId;
+  const lessonId =
+    typeof lessonIdRaw === 'string' ? lessonIdRaw.trim() : '';
+  if (!lessonId) {
+    response.redirect('/lessons');
     return;
   }
 
-  deleteActivityForUser(activityId, user.id);
-  response.redirect('/activities');
+  deleteLessonForUser(lessonId, user.id);
+  response.redirect('/lessons');
 }
 
-export function handleShareActivityToProfile(
+export function handleShareLessonToProfile(
   request: Request,
   response: Response,
 ): void {
@@ -1073,53 +1032,53 @@ export function handleShareActivityToProfile(
     return;
   }
 
-  const activityId = String(request.params.activityId || '').trim();
+  const lessonId = String(request.params.lessonId || '').trim();
   const targetProfileId = String(request.body.targetProfileId || '').trim();
-  if (!activityId || !targetProfileId) {
-    response.redirect('/activities');
+  if (!lessonId || !targetProfileId) {
+    response.redirect('/lessons');
     return;
   }
 
-  const activity = findActivityForUser(activityId, user.id);
-  if (!activity) {
-    response.redirect('/activities');
+  const lesson = findLessonForUser(lessonId, user.id);
+  if (!lesson) {
+    response.redirect('/lessons');
     return;
   }
 
   const targetProfile = findProfileForUser(targetProfileId, user.id);
-  if (!targetProfile || targetProfile.id === activity.profileId) {
-    response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+  if (!targetProfile || targetProfile.id === lesson.profileId) {
+    response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
     return;
   }
 
-  importActivityToProfile({
+  importLessonToProfile({
     shareKind: 'profile',
-    sourceActivity: activity,
+    sourceLesson: lesson,
     targetProfileId: targetProfile.id,
     userId: user.id,
   });
-  response.redirect(`/activities/${encodeURIComponent(activity.id)}`);
+  response.redirect(`/lessons/${encodeURIComponent(lesson.id)}`);
 }
 
-export function handleAcceptSharedActivityLink(
+export function handleAcceptSharedLessonLink(
   request: Request,
   response: Response,
 ): void {
   const shareId = String(request.params.shareId || '').trim();
   if (!shareId) {
-    response.redirect('/activities');
+    response.redirect('/lessons');
     return;
   }
 
-  const shareLink = findActivityShareLinkById(shareId);
+  const shareLink = findLessonShareLinkById(shareId);
   if (!shareLink || shareLink.revokedAt) {
-    response.redirect('/activities');
+    response.redirect('/lessons');
     return;
   }
 
-  const sourceActivity = findActivityById(shareLink.activityId);
-  if (!sourceActivity) {
-    response.redirect('/activities');
+  const sourceLesson = findLessonById(shareLink.lessonId);
+  if (!sourceLesson) {
+    response.redirect('/lessons');
     return;
   }
 
@@ -1130,13 +1089,13 @@ export function handleAcceptSharedActivityLink(
     return;
   }
 
-  const imported = importActivityToProfile({
+  const imported = importLessonToProfile({
     shareKind: 'link',
-    sourceActivity,
+    sourceLesson,
     targetProfileId: activeProfile.id,
     userId: user.id,
   });
-  response.redirect(`/activities/${encodeURIComponent(imported.id)}`);
+  response.redirect(`/lessons/${encodeURIComponent(imported.id)}`);
 }
 
 async function signInUser(

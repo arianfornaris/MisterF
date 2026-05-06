@@ -44,6 +44,21 @@ export const messageBlockSchema = z
   })
   .strict();
 
+export const lessonLinkBlockSchema = z
+  .object({
+    type: z.literal('lesson_link'),
+    lessonId: z.string().trim().min(1),
+    label: z.string().trim().min(1).max(160),
+  })
+  .strict();
+
+export const callSecretaryBlockSchema = z
+  .object({
+    instruction: z.string().trim().min(1).max(2000).optional(),
+    type: z.literal('call_secretary'),
+  })
+  .strict();
+
 export const dialogueCharacterMessageBlockSchema = z
   .object({
     type: z.literal('dialogue_character_message'),
@@ -392,7 +407,9 @@ export const tutorResponseSchema = z
       .array(
         z.union([
           messageBlockSchema,
-          dialogueCharacterMessageBlockSchema,
+  lessonLinkBlockSchema,
+  callSecretaryBlockSchema,
+  dialogueCharacterMessageBlockSchema,
           dialogueTranscriptBlockSchema,
           matchingPairsBlockSchema,
           quizBlockSchema,

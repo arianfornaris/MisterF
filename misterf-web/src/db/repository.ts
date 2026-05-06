@@ -13,7 +13,8 @@ export type StoredProfile = {
 };
 
 export type StoredConversation = {
-  activityId: string | null;
+  activeAgent: 'tutor' | 'secretary';
+  lessonId: string | null;
   id: string;
   profileId: string;
   titleUpdatedByUser: boolean;
@@ -23,11 +24,11 @@ export type StoredConversation = {
   updatedAt: string;
 };
 
-export type StoredActivity = {
+export type StoredLesson = {
   id: string;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
-  sourceActivityId: string | null;
+  sourceLessonId: string | null;
   sourceProfileId: string | null;
   sourceUserId: string | null;
   userId: string;
@@ -38,38 +39,20 @@ export type StoredActivity = {
   updatedAt: string;
 };
 
-export type StoredActivityShareLink = {
-  activityId: string;
+export type StoredLessonShareLink = {
+  lessonId: string;
   createdAt: string;
   id: string;
   revokedAt: string | null;
 };
 
-export type StoredConversationActivitySnapshot = {
-  activityId: string | null;
+export type StoredConversationLessonSnapshot = {
+  lessonId: string | null;
   conversationId: string;
   createdAt: string;
   description: string;
   title: string;
   tutorInstructions: string;
-};
-
-export type StoredAdminChatThread = {
-  id: string;
-  profileId: string;
-  userId: string;
-  title: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type StoredAdminChatMessage = {
-  id: number;
-  threadId: string;
-  role: MessageRole;
-  content: string;
-  metadata: Record<string, unknown> | null;
-  createdAt: string;
 };
 
 export type StoredMessage = {
@@ -100,7 +83,8 @@ type MessageRow = {
 };
 
 type ConversationRow = {
-  activity_id: string | null;
+  active_agent: 'tutor' | 'secretary';
+  lesson_id: string | null;
   id: string;
   profile_id: string;
   title: string;
@@ -110,11 +94,11 @@ type ConversationRow = {
   updated_at: string;
 };
 
-type ActivityRow = {
+type LessonRow = {
   id: string;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
-  source_activity_id: string | null;
+  source_lesson_id: string | null;
   source_profile_id: string | null;
   source_user_id: string | null;
   user_id: string;
@@ -125,38 +109,20 @@ type ActivityRow = {
   updated_at: string;
 };
 
-type ActivityShareLinkRow = {
-  activity_id: string;
+type LessonShareLinkRow = {
+  lesson_id: string;
   created_at: string;
   id: string;
   revoked_at: string | null;
 };
 
-type ConversationActivitySnapshotRow = {
-  activity_id: string | null;
+type ConversationLessonSnapshotRow = {
+  lesson_id: string | null;
   conversation_id: string;
   created_at: string;
   description: string;
   title: string;
   tutor_instructions: string;
-};
-
-type AdminChatThreadRow = {
-  id: string;
-  profile_id: string;
-  user_id: string;
-  title: string;
-  created_at: string;
-  updated_at: string;
-};
-
-type AdminChatMessageRow = {
-  id: number;
-  thread_id: string;
-  role: MessageRole;
-  content: string;
-  metadata: string | null;
-  created_at: string;
 };
 
 const defaultConversationTitle = 'Nueva conversación';
@@ -175,7 +141,8 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
 
 function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
-    activityId: row.activity_id,
+    activeAgent: row.active_agent === 'secretary' ? 'secretary' : 'tutor',
+    lessonId: row.lesson_id,
     id: row.id,
     profileId: row.profile_id,
     title: row.title,
@@ -186,12 +153,12 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
   };
 }
 
-function toStoredActivity(row: ActivityRow): StoredActivity {
+function toStoredLesson(row: LessonRow): StoredLesson {
   return {
     id: row.id,
     profileId: row.profile_id,
     sharedVia: row.shared_via,
-    sourceActivityId: row.source_activity_id,
+    sourceLessonId: row.source_lesson_id,
     sourceProfileId: row.source_profile_id,
     sourceUserId: row.source_user_id,
     userId: row.user_id,
@@ -203,22 +170,22 @@ function toStoredActivity(row: ActivityRow): StoredActivity {
   };
 }
 
-function toStoredActivityShareLink(
-  row: ActivityShareLinkRow,
-): StoredActivityShareLink {
+function toStoredLessonShareLink(
+  row: LessonShareLinkRow,
+): StoredLessonShareLink {
   return {
-    activityId: row.activity_id,
+    lessonId: row.lesson_id,
     createdAt: row.created_at,
     id: row.id,
     revokedAt: row.revoked_at,
   };
 }
 
-function toStoredConversationActivitySnapshot(
-  row: ConversationActivitySnapshotRow,
-): StoredConversationActivitySnapshot {
+function toStoredConversationLessonSnapshot(
+  row: ConversationLessonSnapshotRow,
+): StoredConversationLessonSnapshot {
   return {
-    activityId: row.activity_id,
+    lessonId: row.lesson_id,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     description: row.description,
@@ -231,30 +198,6 @@ function toStoredMessage(row: MessageRow): StoredMessage {
   return {
     id: row.id,
     conversationId: row.conversation_id,
-    role: row.role,
-    content: row.content,
-    metadata: row.metadata ? parseMetadata(row.metadata) : null,
-    createdAt: row.created_at,
-  };
-}
-
-function toStoredAdminChatThread(row: AdminChatThreadRow): StoredAdminChatThread {
-  return {
-    id: row.id,
-    profileId: row.profile_id,
-    userId: row.user_id,
-    title: row.title,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  };
-}
-
-function toStoredAdminChatMessage(
-  row: AdminChatMessageRow,
-): StoredAdminChatMessage {
-  return {
-    id: row.id,
-    threadId: row.thread_id,
     role: row.role,
     content: row.content,
     metadata: row.metadata ? parseMetadata(row.metadata) : null,
@@ -369,17 +312,17 @@ export function createConversation(
   userId: string,
   profileId: string,
   title = defaultConversationTitle,
-  options: { activityId?: string | null } = {},
+  options: { activeAgent?: 'tutor' | 'secretary'; lessonId?: string | null } = {},
 ): StoredConversation {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO conversations (id, user_id, profile_id, title, activity_id)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO conversations (id, user_id, profile_id, title, lesson_id, active_agent)
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(id, userId, profileId, title, options.activityId ?? null);
+    .run(id, userId, profileId, title, options.lessonId ?? null, options.activeAgent ?? 'tutor');
 
   const conversation = findConversationForUser(id, userId);
   if (!conversation) {
@@ -389,44 +332,21 @@ export function createConversation(
   return conversation;
 }
 
-export function createConversationFromActivity(
+export function createConversationFromLesson(
   userId: string,
-  activity: StoredActivity,
+  lesson: StoredLesson,
 ): StoredConversation {
   const conversation = createConversation(
     userId,
-    activity.profileId,
+    lesson.profileId,
     defaultConversationTitle,
     {
-      activityId: activity.id,
+      lessonId: lesson.id,
     },
   );
 
-  createConversationActivitySnapshot(conversation.id, activity);
+  createConversationLessonSnapshot(conversation.id, lesson);
   return conversation;
-}
-
-export function createAdminChatThread(
-  userId: string,
-  profileId: string,
-  title = 'Admin Chat',
-): StoredAdminChatThread {
-  const id = randomUUID();
-  getDb()
-    .prepare(
-      `
-        INSERT INTO admin_chat_threads (id, user_id, profile_id, title)
-        VALUES (?, ?, ?, ?)
-      `,
-    )
-    .run(id, userId, profileId, title);
-
-  const thread = findAdminChatThreadForUser(id, userId);
-  if (!thread) {
-    throw new Error('Could not load newly created admin chat thread.');
-  }
-
-  return thread;
 }
 
 export function findConversationForUser(
@@ -436,7 +356,7 @@ export function findConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id, profile_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, lesson_id, profile_id, active_agent
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -444,23 +364,6 @@ export function findConversationForUser(
     .get(id, userId) as ConversationRow | undefined;
 
   return row ? toStoredConversation(row) : null;
-}
-
-export function findAdminChatThreadForUser(
-  id: string,
-  userId: string,
-): StoredAdminChatThread | null {
-  const row = getDb()
-    .prepare(
-      `
-        SELECT id, user_id, title, created_at, updated_at, profile_id
-        FROM admin_chat_threads
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .get(id, userId) as AdminChatThreadRow | undefined;
-
-  return row ? toStoredAdminChatThread(row) : null;
 }
 
 export function getOrCreateConversation(
@@ -491,7 +394,7 @@ export function listConversationsForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id, profile_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, lesson_id, profile_id, active_agent
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -500,51 +403,6 @@ export function listConversationsForProfile(
     .all(userId, profileId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
-}
-
-export function listAdminChatThreadsForProfile(
-  userId: string,
-  profileId: string,
-): StoredAdminChatThread[] {
-  const rows = getDb()
-    .prepare(
-      `
-        SELECT id, user_id, title, created_at, updated_at, profile_id
-        FROM admin_chat_threads
-        WHERE user_id = ? AND profile_id = ?
-        ORDER BY updated_at DESC, created_at DESC
-      `,
-    )
-    .all(userId, profileId) as AdminChatThreadRow[];
-
-  return rows.map(toStoredAdminChatThread);
-}
-
-export function renameAdminChatThreadForUser(
-  id: string,
-  userId: string,
-  title: string,
-): StoredAdminChatThread | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE admin_chat_threads
-        SET title = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(title, id, userId);
-
-  return findAdminChatThreadForUser(id, userId);
-}
-
-export function deleteAdminChatThreadForUser(id: string, userId: string): boolean {
-  const result = getDb()
-    .prepare('DELETE FROM admin_chat_threads WHERE id = ? AND user_id = ?')
-    .run(id, userId);
-
-  return result.changes > 0;
 }
 
 export function renameConversationForUser(
@@ -570,6 +428,25 @@ export function renameConversationForUser(
   return findConversationForUser(id, userId);
 }
 
+export function setConversationActiveAgentForUser(
+  id: string,
+  userId: string,
+  activeAgent: 'tutor' | 'secretary',
+): StoredConversation | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE conversations
+        SET active_agent = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(activeAgent, id, userId);
+
+  return findConversationForUser(id, userId);
+}
+
 export function deleteConversationForUser(id: string, userId: string): boolean {
   const result = getDb()
     .prepare('DELETE FROM conversations WHERE id = ? AND user_id = ?')
@@ -578,29 +455,29 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
   return result.changes > 0;
 }
 
-export function createActivity(input: {
+export function createLesson(input: {
   profileId: string;
   sharedVia?: 'profile' | 'link' | null;
-  sourceActivityId?: string | null;
+  sourceLessonId?: string | null;
   sourceProfileId?: string | null;
   sourceUserId?: string | null;
   userId: string;
   title: string;
   description: string;
   tutorInstructions: string;
-}): StoredActivity {
+}): StoredLesson {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO activities (
+        INSERT INTO lessons (
           id,
           user_id,
           profile_id,
           title,
           description,
           tutor_instructions,
-          source_activity_id,
+          source_lesson_id,
           source_user_id,
           source_profile_id,
           shared_via
@@ -615,24 +492,24 @@ export function createActivity(input: {
       input.title,
       input.description,
       input.tutorInstructions,
-      input.sourceActivityId ?? null,
+      input.sourceLessonId ?? null,
       input.sourceUserId ?? null,
       input.sourceProfileId ?? null,
       input.sharedVia ?? null,
     );
 
-  const activity = findActivityForUser(id, input.userId);
-  if (!activity) {
-    throw new Error('Could not load newly created activity.');
+  const lesson = findLessonForUser(id, input.userId);
+  if (!lesson) {
+    throw new Error('Could not load newly created lesson.');
   }
 
-  return activity;
+  return lesson;
 }
 
-export function findActivityForUser(
+export function findLessonForUser(
   id: string,
   userId: string,
-): StoredActivity | null {
+): StoredLesson | null {
   const row = getDb()
     .prepare(
       `
@@ -645,20 +522,20 @@ export function findActivityForUser(
           created_at,
           updated_at,
           profile_id,
-          source_activity_id,
+          source_lesson_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM activities
+        FROM lessons
         WHERE id = ? AND user_id = ?
       `,
     )
-    .get(id, userId) as ActivityRow | undefined;
+    .get(id, userId) as LessonRow | undefined;
 
-  return row ? toStoredActivity(row) : null;
+  return row ? toStoredLesson(row) : null;
 }
 
-export function findActivityById(id: string): StoredActivity | null {
+export function findLessonById(id: string): StoredLesson | null {
   const row = getDb()
     .prepare(
       `
@@ -671,23 +548,23 @@ export function findActivityById(id: string): StoredActivity | null {
           created_at,
           updated_at,
           profile_id,
-          source_activity_id,
+          source_lesson_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM activities
+        FROM lessons
         WHERE id = ?
       `,
     )
-    .get(id) as ActivityRow | undefined;
+    .get(id) as LessonRow | undefined;
 
-  return row ? toStoredActivity(row) : null;
+  return row ? toStoredLesson(row) : null;
 }
 
-export function listActivitiesForProfile(
+export function listLessonsForProfile(
   userId: string,
   profileId: string,
-): StoredActivity[] {
+): StoredLesson[] {
   const rows = getDb()
     .prepare(
       `
@@ -700,58 +577,58 @@ export function listActivitiesForProfile(
           created_at,
           updated_at,
           profile_id,
-          source_activity_id,
+          source_lesson_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM activities
+        FROM lessons
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, profileId) as ActivityRow[];
+    .all(userId, profileId) as LessonRow[];
 
-  return rows.map(toStoredActivity);
+  return rows.map(toStoredLesson);
 }
 
-export function deleteActivityForUser(id: string, userId: string): boolean {
+export function deleteLessonForUser(id: string, userId: string): boolean {
   const result = getDb()
-    .prepare('DELETE FROM activities WHERE id = ? AND user_id = ?')
+    .prepare('DELETE FROM lessons WHERE id = ? AND user_id = ?')
     .run(id, userId);
 
   return result.changes > 0;
 }
 
-export function listConversationsForActivity(
-  activityId: string,
+export function listConversationsForLesson(
+  lessonId: string,
   userId: string,
   profileId: string,
 ): StoredConversation[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, activity_id, profile_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, lesson_id, profile_id, active_agent
         FROM conversations
-        WHERE user_id = ? AND profile_id = ? AND activity_id = ?
+        WHERE user_id = ? AND profile_id = ? AND lesson_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, profileId, activityId) as ConversationRow[];
+    .all(userId, profileId, lessonId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
 }
 
-export function updateActivity(input: {
-  activityId: string;
+export function updateLesson(input: {
+  lessonId: string;
   description: string;
   title: string;
   tutorInstructions: string;
   userId: string;
-}): StoredActivity | null {
+}): StoredLesson | null {
   getDb()
     .prepare(
       `
-        UPDATE activities
+        UPDATE lessons
         SET title = ?,
             description = ?,
             tutor_instructions = ?,
@@ -763,18 +640,18 @@ export function updateActivity(input: {
       input.title,
       input.description,
       input.tutorInstructions,
-      input.activityId,
+      input.lessonId,
       input.userId,
     );
 
-  return findActivityForUser(input.activityId, input.userId);
+  return findLessonForUser(input.lessonId, input.userId);
 }
 
-export function findImportedActivityForProfile(input: {
+export function findImportedLessonForProfile(input: {
   profileId: string;
-  sourceActivityId: string;
+  sourceLessonId: string;
   userId: string;
-}): StoredActivity | null {
+}): StoredLesson | null {
   const row = getDb()
     .prepare(
       `
@@ -787,91 +664,91 @@ export function findImportedActivityForProfile(input: {
           created_at,
           updated_at,
           profile_id,
-          source_activity_id,
+          source_lesson_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM activities
+        FROM lessons
         WHERE user_id = ?
           AND profile_id = ?
-          AND source_activity_id = ?
+          AND source_lesson_id = ?
         ORDER BY updated_at DESC, created_at DESC
         LIMIT 1
       `,
     )
-    .get(input.userId, input.profileId, input.sourceActivityId) as
-    | ActivityRow
+    .get(input.userId, input.profileId, input.sourceLessonId) as
+    | LessonRow
     | undefined;
 
-  return row ? toStoredActivity(row) : null;
+  return row ? toStoredLesson(row) : null;
 }
 
-export function importActivityToProfile(input: {
+export function importLessonToProfile(input: {
   shareKind: 'profile' | 'link';
-  sourceActivity: StoredActivity;
+  sourceLesson: StoredLesson;
   targetProfileId: string;
   userId: string;
-}): StoredActivity {
-  const existing = findImportedActivityForProfile({
+}): StoredLesson {
+  const existing = findImportedLessonForProfile({
     profileId: input.targetProfileId,
-    sourceActivityId: input.sourceActivity.id,
+    sourceLessonId: input.sourceLesson.id,
     userId: input.userId,
   });
   if (existing) {
     return existing;
   }
 
-  return createActivity({
-    description: input.sourceActivity.description,
+  return createLesson({
+    description: input.sourceLesson.description,
     profileId: input.targetProfileId,
     sharedVia: input.shareKind,
-    sourceActivityId: input.sourceActivity.id,
-    sourceProfileId: input.sourceActivity.profileId,
-    sourceUserId: input.sourceActivity.userId,
-    title: input.sourceActivity.title,
-    tutorInstructions: input.sourceActivity.tutorInstructions,
+    sourceLessonId: input.sourceLesson.id,
+    sourceProfileId: input.sourceLesson.profileId,
+    sourceUserId: input.sourceLesson.userId,
+    title: input.sourceLesson.title,
+    tutorInstructions: input.sourceLesson.tutorInstructions,
     userId: input.userId,
   });
 }
 
-export function findActivityShareLinkById(
+export function findLessonShareLinkById(
   id: string,
-): StoredActivityShareLink | null {
+): StoredLessonShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, activity_id, created_at, revoked_at
-        FROM activity_share_links
+        SELECT id, lesson_id, created_at, revoked_at
+        FROM lesson_share_links
         WHERE id = ?
       `,
     )
-    .get(id) as ActivityShareLinkRow | undefined;
+    .get(id) as LessonShareLinkRow | undefined;
 
-  return row ? toStoredActivityShareLink(row) : null;
+  return row ? toStoredLessonShareLink(row) : null;
 }
 
-export function findActivityShareLinkForActivity(
-  activityId: string,
-): StoredActivityShareLink | null {
+export function findLessonShareLinkForLesson(
+  lessonId: string,
+): StoredLessonShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, activity_id, created_at, revoked_at
-        FROM activity_share_links
-        WHERE activity_id = ?
+        SELECT id, lesson_id, created_at, revoked_at
+        FROM lesson_share_links
+        WHERE lesson_id = ?
           AND revoked_at IS NULL
         LIMIT 1
       `,
     )
-    .get(activityId) as ActivityShareLinkRow | undefined;
+    .get(lessonId) as LessonShareLinkRow | undefined;
 
-  return row ? toStoredActivityShareLink(row) : null;
+  return row ? toStoredLessonShareLink(row) : null;
 }
 
-export function getOrCreateActivityShareLink(
-  activityId: string,
-): StoredActivityShareLink {
-  const existing = findActivityShareLinkForActivity(activityId);
+export function getOrCreateLessonShareLink(
+  lessonId: string,
+): StoredLessonShareLink {
+  const existing = findLessonShareLinkForLesson(lessonId);
   if (existing) {
     return existing;
   }
@@ -880,32 +757,32 @@ export function getOrCreateActivityShareLink(
   getDb()
     .prepare(
       `
-        INSERT INTO activity_share_links (id, activity_id)
+        INSERT INTO lesson_share_links (id, lesson_id)
         VALUES (?, ?)
-        ON CONFLICT(activity_id) DO UPDATE SET
+        ON CONFLICT(lesson_id) DO UPDATE SET
           revoked_at = NULL
       `,
     )
-    .run(id, activityId);
+    .run(id, lessonId);
 
-  const created = findActivityShareLinkForActivity(activityId);
+  const created = findLessonShareLinkForLesson(lessonId);
   if (!created) {
-    throw new Error('Could not load newly created activity share link.');
+    throw new Error('Could not load newly created lesson share link.');
   }
 
   return created;
 }
 
-export function createConversationActivitySnapshot(
+export function createConversationLessonSnapshot(
   conversationId: string,
-  activity: StoredActivity,
-): StoredConversationActivitySnapshot {
+  lesson: StoredLesson,
+): StoredConversationLessonSnapshot {
   getDb()
     .prepare(
       `
-        INSERT OR REPLACE INTO conversation_activity_snapshots (
+        INSERT OR REPLACE INTO conversation_lesson_snapshots (
           conversation_id,
-          activity_id,
+          lesson_id,
           title,
           description,
           tutor_instructions
@@ -915,34 +792,34 @@ export function createConversationActivitySnapshot(
     )
     .run(
       conversationId,
-      activity.id,
-      activity.title,
-      activity.description,
-      activity.tutorInstructions,
+      lesson.id,
+      lesson.title,
+      lesson.description,
+      lesson.tutorInstructions,
     );
 
-  const snapshot = getConversationActivitySnapshot(conversationId);
+  const snapshot = getConversationLessonSnapshot(conversationId);
   if (!snapshot) {
-    throw new Error('Could not load conversation activity snapshot.');
+    throw new Error('Could not load conversation lesson snapshot.');
   }
 
   return snapshot;
 }
 
-export function getConversationActivitySnapshot(
+export function getConversationLessonSnapshot(
   conversationId: string,
-): StoredConversationActivitySnapshot | null {
+): StoredConversationLessonSnapshot | null {
   const row = getDb()
     .prepare(
       `
-        SELECT conversation_id, activity_id, title, description, tutor_instructions, created_at
-        FROM conversation_activity_snapshots
+        SELECT conversation_id, lesson_id, title, description, tutor_instructions, created_at
+        FROM conversation_lesson_snapshots
         WHERE conversation_id = ?
       `,
     )
-    .get(conversationId) as ConversationActivitySnapshotRow | undefined;
+    .get(conversationId) as ConversationLessonSnapshotRow | undefined;
 
-  return row ? toStoredConversationActivitySnapshot(row) : null;
+  return row ? toStoredConversationLessonSnapshot(row) : null;
 }
 
 export function listMessages(conversationId: string): StoredMessage[] {
@@ -958,23 +835,6 @@ export function listMessages(conversationId: string): StoredMessage[] {
     .all(conversationId) as MessageRow[];
 
   return rows.map(toStoredMessage);
-}
-
-export function listAdminChatMessages(
-  threadId: string,
-): StoredAdminChatMessage[] {
-  const rows = getDb()
-    .prepare(
-      `
-        SELECT id, thread_id, role, content, metadata, created_at
-        FROM admin_chat_messages
-        WHERE thread_id = ?
-        ORDER BY created_at ASC, id ASC
-      `,
-    )
-    .all(threadId) as AdminChatMessageRow[];
-
-  return rows.map(toStoredAdminChatMessage);
 }
 
 export function addMessage(
@@ -1010,48 +870,6 @@ export function addMessage(
     .get(result.lastInsertRowid) as MessageRow;
 
   return toStoredMessage(row);
-}
-
-export function addAdminChatMessage(
-  threadId: string,
-  role: MessageRole,
-  content: string,
-  metadata: Record<string, unknown> | null = null,
-): StoredAdminChatMessage {
-  const db = getDb();
-  const result = db
-    .prepare(
-      `
-        INSERT INTO admin_chat_messages (thread_id, role, content, metadata)
-        VALUES (?, ?, ?, ?)
-      `,
-    )
-    .run(
-      threadId,
-      role,
-      content,
-      metadata ? JSON.stringify(metadata) : null,
-    );
-
-  db.prepare(
-    `
-      UPDATE admin_chat_threads
-      SET updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `,
-  ).run(threadId);
-
-  const row = db
-    .prepare(
-      `
-        SELECT id, thread_id, role, content, metadata, created_at
-        FROM admin_chat_messages
-        WHERE id = ?
-      `,
-    )
-    .get(result.lastInsertRowid) as AdminChatMessageRow;
-
-  return toStoredAdminChatMessage(row);
 }
 
 export function findMessageInConversation(

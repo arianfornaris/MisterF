@@ -3,14 +3,15 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
-const activityStartPanelEl = document.querySelector('[data-activity-start-panel]');
-const activityStartTitleEl = document.querySelector('[data-activity-start-title]');
-const activityStartDescriptionEl = document.querySelector(
-  '[data-activity-start-description]',
+const lessonStartPanelEl = document.querySelector('[data-lesson-start-panel]');
+const lessonStartTitleEl = document.querySelector('[data-lesson-start-title]');
+const lessonStartDescriptionEl = document.querySelector(
+  '[data-lesson-start-description]',
 );
-const activityStartStatusEl = document.querySelector('[data-activity-start-status]');
-const activityStartButtonEl = document.querySelector('[data-activity-start-button]');
+const lessonStartStatusEl = document.querySelector('[data-lesson-start-status]');
+const lessonStartButtonEl = document.querySelector('[data-lesson-start-button]');
 const sendButtonEl = document.querySelector('[data-send-button]');
+const toolStatusEl = document.querySelector('[data-tool-status]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
 const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
 const conversationPanelEl = document.querySelector('#conversationPanel');
@@ -33,33 +34,28 @@ const translatorOpenButtonEl = document.querySelector('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
 const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
-const shareActivityLinkModalEl = document.querySelector('#shareActivityLinkModal');
-const activityShareLinkFieldEl = document.querySelector(
-  '[data-activity-share-link-field]',
+const shareLessonLinkModalEl = document.querySelector('#shareLessonLinkModal');
+const lessonShareLinkFieldEl = document.querySelector(
+  '[data-lesson-share-link-field]',
 );
-const copyActivityShareLinkButtonEl = document.querySelector(
-  '[data-copy-activity-share-link]',
+const copyLessonShareLinkButtonEl = document.querySelector(
+  '[data-copy-lesson-share-link]',
 );
-const nativeShareActivityLinkButtonEl = document.querySelector(
-  '[data-native-share-activity-link]',
+const nativeShareLessonLinkButtonEl = document.querySelector(
+  '[data-native-share-lesson-link]',
 );
-const autoOpenSharedActivityModalEl = document.querySelector(
+const autoOpenSharedLessonModalEl = document.querySelector(
   '[data-auto-open-share-modal]',
 );
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
-const chatMode = document.body.dataset.chatMode || 'tutor';
+const chatMode = 'tutor';
 const currentView = document.body.dataset.currentView || 'chat';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const initialConversationId =
   document.body.dataset.initialConversationId?.trim() || '';
-const shouldInitializeSocket =
-  isInitiallyAuthenticated &&
-  (currentView === 'chat' ||
-    currentView === 'admin-chat' ||
-    currentView === 'admin-chats');
-const shouldAutoJoinSocketThread =
-  currentView === 'chat' || currentView === 'admin-chat';
+const shouldInitializeSocket = isInitiallyAuthenticated && currentView === 'chat';
+const shouldAutoJoinSocketThread = currentView === 'chat';
 const socket = shouldInitializeSocket
   ? io({ auth: { token: socketAuthToken } })
   : null;
@@ -71,14 +67,14 @@ const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 disableComposerTextAssist();
 initializeLlmContextMeter();
 initializeStaticMarkdown();
-initializeActivitySharingUi();
+initializeLessonSharingUi();
 
 let conversationId = initialConversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
 let pendingDeleteTarget = null;
 let activeUserMessageId = null;
-let pendingActivityStart = false;
+let pendingLessonStart = false;
 let isAssistantStopping = false;
 const pendingSentenceEvaluations = new Map();
 let pendingTranslatorSelection = '';
@@ -87,27 +83,17 @@ let userInputHistoryIndex = -1;
 let userInputDraftBeforeHistory = '';
 let pendingBootGuestDraft = '';
 let hasHandledInitialConversationReady = false;
+let toolStatusRow = null;
 const matchingExerciseStates = new Map();
-const chatSocketEvents =
-  chatMode === 'admin'
-    ? {
-        cancel: 'admin-chat:cancel',
-        deleted: 'admin-chat:deleted',
-        error: 'admin-chat:error',
-        join: 'admin-chat:join',
-        promoted: 'admin-chat:promoted',
-        ready: 'admin-chat:ready',
-        send: 'admin-chat:send',
-      }
-    : {
-        cancel: 'assistant:cancel',
-        deleted: 'conversation:deleted',
-        error: 'conversation:error',
-        join: 'conversation:join',
-        promoted: 'conversation:promoted',
-        ready: 'conversation:ready',
-        send: 'message:send',
-      };
+const chatSocketEvents = {
+  cancel: 'assistant:cancel',
+  deleted: 'conversation:deleted',
+  error: 'conversation:error',
+  join: 'conversation:join',
+  promoted: 'conversation:promoted',
+  ready: 'conversation:ready',
+  send: 'message:send',
+};
 
 if (window.marked) {
   window.marked.setOptions({
@@ -154,20 +140,21 @@ if (socket) {
     messagesEl.replaceChildren();
     streamingBubble = null;
     pendingSentenceEvaluations.clear();
+    activeUserMessageId = null;
     userInputHistory = (payload.messages ?? [])
       .filter((message) => message?.role === 'user' && typeof message.content === 'string')
       .map((message) => message.content)
       .filter((content) => content.trim().length > 0);
     resetUserInputHistoryNavigation();
     updateLlmContextMeter(null);
-    pendingActivityStart = Boolean(payload.pendingActivityStart);
-    const shouldAutoStartActivity =
-      chatMode !== 'admin' && pendingActivityStart && Boolean(payload.activity);
-    renderActivityStartPanel(
-      payload.activity,
+    setToolStatus('');
+    pendingLessonStart = Boolean(payload.pendingLessonStart);
+    const shouldAutoStartLesson = pendingLessonStart && Boolean(payload.lesson);
+    renderLessonStartPanel(
+      payload.lesson,
       {
-        autoStarting: shouldAutoStartActivity,
-        visible: pendingActivityStart,
+        autoStarting: shouldAutoStartLesson,
+        visible: pendingLessonStart,
       },
     );
 
@@ -176,6 +163,9 @@ if (socket) {
       if (message.role === 'user') {
         queuedSentenceEvaluation = message.metadata?.sentenceEvaluation ?? null;
         appendStoredMessage(message);
+        if (typeof message.id === 'number') {
+          activeUserMessageId = message.id;
+        }
         continue;
       }
 
@@ -185,14 +175,23 @@ if (socket) {
       queuedSentenceEvaluation = null;
     }
 
-    setComposerEnabled(!isAssistantBusy && !pendingActivityStart);
+    if (payload.assistantPending) {
+      isAssistantBusy = true;
+      isAssistantStopping = false;
+      setComposerEnabled(false);
+      streamingBubble = appendMessage('model', '', { streaming: true });
+    } else {
+      isAssistantBusy = false;
+      isAssistantStopping = false;
+      setComposerEnabled(!pendingLessonStart);
+    }
     focusComposer();
     scrollToBottom();
     flushPendingBootGuestDraft();
 
-    if (shouldAutoStartActivity) {
+    if (shouldAutoStartLesson) {
       window.setTimeout(() => {
-        startActivityConversation({ preservePanel: true });
+        startLessonConversation({ preservePanel: true });
       }, 0);
     }
   });
@@ -202,31 +201,21 @@ if (socket) {
     window.location.replace(buildCurrentChatPath(conversationId));
   });
 
-  if (chatMode !== 'admin') {
-    socket.on('conversation:renamed', (payload) => {
-      updateConversationItem(payload.conversation);
-      markActiveConversation(conversationId);
-    });
+  socket.on('conversation:renamed', (payload) => {
+    updateConversationItem(payload.conversation);
+    markActiveConversation(conversationId);
+  });
 
-    socket.on('conversation:updated', (payload) => {
-      updateConversationItem(payload.conversation, { moveToTop: true });
-      markActiveConversation(conversationId);
-    });
-  }
-
-  socket.on('admin-chat:renamed', (payload) => {
-    updateAdminThreadItem(payload.conversation);
+  socket.on('conversation:updated', (payload) => {
+    updateConversationItem(payload.conversation, { moveToTop: true });
+    markActiveConversation(conversationId);
   });
 
   socket.on(chatSocketEvents.deleted, (payload) => {
-    if (chatMode === 'admin') {
-      removeAdminThreadItem(payload.conversationId);
-    } else {
-      removeConversationItem(payload.conversationId);
-    }
+    removeConversationItem(payload.conversationId);
 
     if (payload.conversationId === conversationId || payload.wasActive) {
-      window.location.assign(chatMode === 'admin' ? '/admin-chats' : '/');
+      window.location.assign('/');
     }
   });
 
@@ -259,9 +248,11 @@ if (socket) {
   });
 
   socket.on('message:created', (message) => {
-    appendStoredMessage(message);
+    const bubble = appendStoredMessage(message);
     if (message.role === 'user') {
       activeUserMessageId = message.id;
+    } else {
+      markTutorMessageArrived(bubble.closest('.message-row'));
     }
     scrollToBottom();
   });
@@ -269,11 +260,16 @@ if (socket) {
   socket.on('assistant:start', () => {
     isAssistantBusy = true;
     isAssistantStopping = false;
-    pendingActivityStart = false;
-    renderActivityStartPanel(null, { visible: false });
+    pendingLessonStart = false;
+    renderLessonStartPanel(null, { visible: false });
+    setToolStatus('');
     setComposerEnabled(false);
     streamingBubble = appendMessage('model', '', { streaming: true });
     scrollToBottom();
+  });
+
+  socket.on('assistant:tool_status', ({ label }) => {
+    setToolStatus(typeof label === 'string' ? label : '');
   });
 
   socket.on('assistant:chunk', ({ chunk }) => {
@@ -312,9 +308,10 @@ if (socket) {
     }
     activeUserMessageId = null;
     streamingBubble = null;
+    setToolStatus('');
     isAssistantBusy = false;
     isAssistantStopping = false;
-    renderActivityStartPanel(null, { visible: false });
+    renderLessonStartPanel(null, { visible: false });
     setComposerEnabled(true);
     focusComposer();
     scrollToBottom();
@@ -326,10 +323,11 @@ if (socket) {
       streamingBubble = null;
     }
 
+    setToolStatus('');
     isAssistantBusy = false;
     isAssistantStopping = false;
-    renderActivityStartPanel(null, { visible: false });
-    setComposerEnabled(!pendingActivityStart);
+    renderLessonStartPanel(null, { visible: false });
+    setComposerEnabled(!pendingLessonStart);
     focusComposer();
     scrollToBottom();
   });
@@ -340,10 +338,11 @@ if (socket) {
       streamingBubble = null;
     }
 
+    setToolStatus('');
     appendMessage('error', message);
     isAssistantBusy = false;
     isAssistantStopping = false;
-    setComposerEnabled(!pendingActivityStart);
+    setComposerEnabled(!pendingLessonStart);
     scrollToBottom();
   });
 
@@ -403,8 +402,8 @@ newConversationButtonEl?.addEventListener('click', (event) => {
   startNewConversation();
 });
 
-activityStartButtonEl?.addEventListener('click', () => {
-  startActivityConversation();
+lessonStartButtonEl?.addEventListener('click', () => {
+  startLessonConversation();
 });
 
 confirmDeleteConversationButtonEl?.addEventListener('click', () => {
@@ -580,6 +579,47 @@ function stopAssistantResponse() {
   socket.emit(chatSocketEvents.cancel, { conversationId });
 }
 
+function setToolStatus(text) {
+  const nextText = typeof text === 'string' ? text.trim() : '';
+  if (!nextText) {
+    toolStatusRow?.remove();
+    toolStatusRow = null;
+    if (toolStatusEl) {
+      toolStatusEl.textContent = '';
+      toolStatusEl.classList.add('d-none');
+    }
+    return;
+  }
+
+  if (toolStatusEl) {
+    toolStatusEl.textContent = '';
+    toolStatusEl.classList.add('d-none');
+  }
+
+  if (!toolStatusRow) {
+    const row = document.createElement('div');
+    row.className = 'message-row is-tool-status';
+    row.dataset.role = 'tool-status';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'message-bubble tool-status-bubble small text-body-secondary';
+    row.append(bubble);
+    const streamingRow = streamingBubble?.closest('.message-row');
+    if (streamingRow?.parentElement === messagesEl) {
+      messagesEl.insertBefore(row, streamingRow);
+    } else {
+      messagesEl.append(row);
+    }
+    toolStatusRow = row;
+  }
+
+  const bubble = toolStatusRow.querySelector('.tool-status-bubble');
+  if (bubble) {
+    bubble.textContent = nextText;
+  }
+  scrollToBottom();
+}
+
 function handleUserInputHistoryKeydown(event) {
   if (!inputEl || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
     return false;
@@ -693,12 +733,6 @@ function buildConversationPath(nextConversationId) {
 }
 
 function buildCurrentChatPath(nextConversationId) {
-  if (chatMode === 'admin') {
-    return nextConversationId
-      ? `/admin-chats/${encodeURIComponent(nextConversationId)}`
-      : '/admin-chats/new';
-  }
-
   return buildConversationPath(nextConversationId);
 }
 
@@ -735,43 +769,43 @@ function initializeLlmContextMeter() {
   updateLlmContextMeter(null);
 }
 
-function initializeActivitySharingUi() {
-  if (copyActivityShareLinkButtonEl) {
-    copyActivityShareLinkButtonEl.addEventListener('click', async () => {
-      if (!activityShareLinkFieldEl) {
+function initializeLessonSharingUi() {
+  if (copyLessonShareLinkButtonEl) {
+    copyLessonShareLinkButtonEl.addEventListener('click', async () => {
+      if (!lessonShareLinkFieldEl) {
         return;
       }
 
-      const copied = await copyTextToClipboard(activityShareLinkFieldEl.value);
-      copyActivityShareLinkButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
+      const copied = await copyTextToClipboard(lessonShareLinkFieldEl.value);
+      copyLessonShareLinkButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
       window.setTimeout(() => {
-        copyActivityShareLinkButtonEl.innerHTML =
+        copyLessonShareLinkButtonEl.innerHTML =
           '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
       }, 1200);
     });
   }
 
-  if (nativeShareActivityLinkButtonEl) {
+  if (nativeShareLessonLinkButtonEl) {
     if (typeof navigator.share !== 'function') {
-      nativeShareActivityLinkButtonEl.classList.add('d-none');
+      nativeShareLessonLinkButtonEl.classList.add('d-none');
     } else {
-      nativeShareActivityLinkButtonEl.addEventListener('click', async () => {
-        if (!activityShareLinkFieldEl?.value) {
+      nativeShareLessonLinkButtonEl.addEventListener('click', async () => {
+        if (!lessonShareLinkFieldEl?.value) {
           return;
         }
 
         try {
           await navigator.share({
-            title: 'Actividad compartida',
-            url: activityShareLinkFieldEl.value,
+            title: 'Lección compartida',
+            url: lessonShareLinkFieldEl.value,
           });
         } catch {}
       });
     }
   }
 
-  if (autoOpenSharedActivityModalEl && window.bootstrap?.Modal) {
-    const modal = new window.bootstrap.Modal(autoOpenSharedActivityModalEl);
+  if (autoOpenSharedLessonModalEl && window.bootstrap?.Modal) {
+    const modal = new window.bootstrap.Modal(autoOpenSharedLessonModalEl);
     modal.show();
   }
 }
@@ -813,13 +847,13 @@ function updateLlmContextMeter(usage) {
   llmContextMeterEl.dataset.contextLevel = level;
 }
 
-function renderActivityStartPanel(activity, options = {}) {
+function renderLessonStartPanel(lesson, options = {}) {
   if (
-    !activityStartPanelEl ||
-    !activityStartTitleEl ||
-    !activityStartDescriptionEl ||
-    !activityStartButtonEl ||
-    !activityStartStatusEl
+    !lessonStartPanelEl ||
+    !lessonStartTitleEl ||
+    !lessonStartDescriptionEl ||
+    !lessonStartButtonEl ||
+    !lessonStartStatusEl
   ) {
     return;
   }
@@ -827,20 +861,20 @@ function renderActivityStartPanel(activity, options = {}) {
   const visible = Boolean(options.visible);
   const autoStarting = Boolean(options.autoStarting);
 
-  if (!visible || !activity) {
-    activityStartPanelEl.classList.add('d-none');
-    activityStartTitleEl.textContent = '';
-    activityStartDescriptionEl.textContent = '';
-    activityStartStatusEl.classList.add('d-none');
-    activityStartButtonEl.classList.remove('d-none');
+  if (!visible || !lesson) {
+    lessonStartPanelEl.classList.add('d-none');
+    lessonStartTitleEl.textContent = '';
+    lessonStartDescriptionEl.textContent = '';
+    lessonStartStatusEl.classList.add('d-none');
+    lessonStartButtonEl.classList.remove('d-none');
     return;
   }
 
-  activityStartTitleEl.textContent = autoStarting ? '' : activity.title || 'Actividad';
-  activityStartDescriptionEl.textContent = autoStarting ? '' : activity.description || '';
-  activityStartStatusEl.classList.toggle('d-none', !autoStarting);
-  activityStartButtonEl.classList.toggle('d-none', autoStarting);
-  activityStartPanelEl.classList.remove('d-none');
+  lessonStartTitleEl.textContent = autoStarting ? '' : lesson.title || 'Lección';
+  lessonStartDescriptionEl.textContent = autoStarting ? '' : lesson.description || '';
+  lessonStartStatusEl.classList.toggle('d-none', !autoStarting);
+  lessonStartButtonEl.classList.toggle('d-none', autoStarting);
+  lessonStartPanelEl.classList.remove('d-none');
 }
 
 function startNewConversation() {
@@ -851,17 +885,17 @@ function startNewConversation() {
   window.location.assign('/');
 }
 
-function startActivityConversation(options = {}) {
+function startLessonConversation(options = {}) {
   if (!socket || isAssistantBusy || !conversationId) {
     return;
   }
 
-  pendingActivityStart = false;
+  pendingLessonStart = false;
   if (!options.preservePanel) {
-    renderActivityStartPanel(null, { visible: false });
+    renderLessonStartPanel(null, { visible: false });
   }
   setComposerEnabled(false);
-  socket.emit('activity:start', { conversationId });
+  socket.emit('lesson:start', { conversationId });
 }
 
 function markActiveConversation(activeConversationId) {
@@ -1089,17 +1123,10 @@ function renameConversation(item, title) {
     return;
   }
 
-  if (getConversationItemKind(item) === 'admin-thread') {
-    socket.emit('admin-chat:rename', {
-      threadId: item.dataset.adminThreadId,
-      title: nextTitle,
-    });
-  } else {
-    socket.emit('conversation:rename', {
-      conversationId: item.dataset.conversationId,
-      title: nextTitle,
-    });
-  }
+  socket.emit('conversation:rename', {
+    conversationId: item.dataset.conversationId,
+    title: nextTitle,
+  });
   cancelRenamingConversation(item);
 }
 
@@ -1109,13 +1136,9 @@ function cancelRenamingConversation(item) {
 }
 
 function requestDeleteConversation(item) {
-  const kind = getConversationItemKind(item);
-  const id =
-    kind === 'admin-thread'
-      ? item.dataset.adminThreadId || null
-      : item.dataset.conversationId || null;
+  const id = item.dataset.conversationId || null;
 
-  pendingDeleteTarget = id ? { id, kind } : null;
+  pendingDeleteTarget = id ? { id, kind: 'conversation' } : null;
   if (!pendingDeleteTarget) {
     return;
   }
@@ -1137,24 +1160,14 @@ function confirmDeleteConversation() {
     return;
   }
 
-  if (pendingDeleteTarget.kind === 'admin-thread') {
-    socket.emit('admin-chat:delete', {
-      threadId: pendingDeleteTarget.id,
-    });
-  } else {
-    socket.emit('conversation:delete', {
-      conversationId: pendingDeleteTarget.id,
-    });
-  }
+  socket.emit('conversation:delete', {
+    conversationId: pendingDeleteTarget.id,
+  });
   pendingDeleteTarget = null;
 
   if (deleteConversationModalEl && window.bootstrap?.Modal) {
     window.bootstrap.Modal.getOrCreateInstance(deleteConversationModalEl).hide();
   }
-}
-
-function getConversationItemKind(item) {
-  return item?.dataset?.itemKind === 'admin-thread' ? 'admin-thread' : 'conversation';
 }
 
 function removeConversationItem(removedConversationId) {
@@ -1175,51 +1188,8 @@ function removeConversationItem(removedConversationId) {
   }
 }
 
-function updateAdminThreadItem(thread) {
-  if (!thread?.id) {
-    return;
-  }
-
-  const item = document.querySelector(
-    `[data-admin-thread-id="${CSS.escape(thread.id)}"]`,
-  );
-  if (!item) {
-    return;
-  }
-
-  item.querySelector('.conversation-title').textContent =
-    thread.title || 'Admin Chat';
-
-  const date = item.querySelector('.conversation-date');
-  if (date) {
-    date.dateTime = thread.updatedAt || '';
-    date.textContent = formatConversationDate(thread.updatedAt || '');
-    date.title = thread.updatedAt || '';
-  }
-}
-
-function removeAdminThreadItem(threadId) {
-  if (!threadId) {
-    return;
-  }
-
-  document
-    .querySelector(`[data-admin-thread-id="${CSS.escape(threadId)}"]`)
-    ?.remove();
-
-  const libraryList = document.querySelector('.admin-chat-library-list');
-  if (libraryList && !libraryList.querySelector('[data-admin-thread-id]')) {
-    libraryList.remove();
-    const emptyState = document.createElement('div');
-    emptyState.className = 'activity-empty-state';
-    emptyState.innerHTML =
-      '<p>Todavía no hay chats admin guardados. Comienza uno nuevo y deja que Mr. F te ayude a crear o mejorar actividades.</p>';
-    document.querySelector('.activities-view:not(.d-none)')?.append(emptyState);
-  }
-}
-
 function formatConversationDates() {
-  for (const date of document.querySelectorAll('.conversation-date, .activity-chat-date')) {
+  for (const date of document.querySelectorAll('.conversation-date, .lesson-chat-date')) {
     const rawValue = date.getAttribute('datetime') || date.textContent || '';
     date.textContent = formatConversationDate(rawValue.trim());
     date.title = rawValue.trim();
@@ -1390,12 +1360,7 @@ function setModelBubbleContent(element, content, metadata, options = {}) {
 
   element.dataset.rawContent = content;
   const blocks = Array.isArray(metadata?.blocks) ? metadata.blocks : [];
-  const adminBlocks = Array.isArray(metadata?.adminBlocks) ? metadata.adminBlocks : [];
   if (!blocks.length) {
-    if (adminBlocks.length) {
-      renderAdminBlocks(element, adminBlocks);
-      return;
-    }
     renderModelMessageWithMetadata(element, content, metadata);
     return;
   }
@@ -1413,6 +1378,22 @@ function setModelBubbleContent(element, content, metadata, options = {}) {
       node.innerHTML = renderMarkdown(block.markdown || '');
       stack.append(node);
       hasVisualContent = true;
+      return;
+    }
+
+    if (block.type === 'lesson_link') {
+      const actionLink = createLessonLinkAction(block);
+      if (actionLink) {
+        let actionRow = stack.querySelector('.tutor-message-actions');
+        if (!actionRow) {
+          actionRow = document.createElement('div');
+          actionRow.className = 'tutor-message-actions';
+          stack.append(actionRow);
+        }
+
+        actionRow.append(actionLink);
+        hasVisualContent = true;
+      }
       return;
     }
 
@@ -1583,6 +1564,7 @@ function appendMessage(role, content, options = {}) {
   if (options.id) {
     row.dataset.messageId = String(options.id);
   }
+  applyModelSpeakerMetadata(row, options.metadata);
   attachMessageMetadata(row, options.metadata);
 
   const bubble = document.createElement('div');
@@ -1591,6 +1573,7 @@ function appendMessage(role, content, options = {}) {
     setModelBubbleContent(bubble, content, options.metadata, {
       messageId: options.id,
     });
+    syncSpeakerLabel(bubble, options.metadata);
   } else {
     setMessageContent(bubble, content);
   }
@@ -1693,6 +1676,12 @@ function attachMessageMetadata(row, metadata) {
     return;
   }
 
+  applyModelSpeakerMetadata(row, metadata);
+  const bubble = row.querySelector('.message-bubble');
+  if (bubble && row.classList.contains('is-model')) {
+    syncSpeakerLabel(bubble, metadata);
+  }
+
   if (!metadata?.blocks) {
     delete row.dataset.messageBlocks;
     return;
@@ -1722,6 +1711,31 @@ function updateRenderedMessage(message) {
   setModelBubbleContent(bubble, message.content, message.metadata, {
     messageId: message.id,
   });
+  syncSpeakerLabel(bubble, message.metadata);
+}
+
+function applyModelSpeakerMetadata(row, metadata) {
+  if (!row || !row.classList.contains('is-model')) {
+    return;
+  }
+
+  row.classList.toggle('is-secretary', metadata?.speaker === 'secretary');
+}
+
+function syncSpeakerLabel(bubble, metadata) {
+  if (!bubble) {
+    return;
+  }
+
+  bubble.querySelector('.message-speaker-label')?.remove();
+  if (!metadata?.speakerLabel) {
+    return;
+  }
+
+  const label = document.createElement('div');
+  label.className = 'message-speaker-label small text-body-secondary';
+  label.textContent = metadata.speakerLabel;
+  bubble.prepend(label);
 }
 
 function initializeSentencePopovers(root = document) {
@@ -1876,58 +1890,18 @@ function initializeStaticMarkdown() {
   }
 }
 
-function renderAdminBlocks(element, adminBlocks) {
-  element.replaceChildren();
-
-  const stack = document.createElement('div');
-  stack.className = 'tutor-message-stack';
-
-  for (const block of adminBlocks) {
-    if (block?.type === 'message' && typeof block.markdown === 'string') {
-      const node = document.createElement('div');
-      node.className = 'tutor-message-block';
-      node.innerHTML = renderMarkdown(block.markdown);
-      stack.append(node);
-      continue;
-    }
-
-    if (block?.type === 'activity_link') {
-      const actionLink = createAdminActivityLink(block);
-      if (!actionLink) {
-        continue;
-      }
-
-      let actionRow = stack.querySelector('.admin-message-actions');
-      if (!actionRow) {
-        actionRow = document.createElement('div');
-        actionRow.className = 'admin-message-actions';
-        stack.append(actionRow);
-      }
-
-      actionRow.append(actionLink);
-    }
-  }
-
-  if (!stack.childNodes.length) {
-    setMessageContent(element, element.dataset.rawContent || '');
-    return;
-  }
-
-  element.append(stack);
-}
-
-function createAdminActivityLink(block) {
+function createLessonLinkAction(block) {
   if (!block || typeof block !== 'object' || typeof block.label !== 'string') {
     return null;
   }
 
-  if (typeof block.activityId !== 'string' || !block.activityId.trim()) {
+  if (typeof block.lessonId !== 'string' || !block.lessonId.trim()) {
     return null;
   }
 
   const link = document.createElement('a');
-  link.className = 'admin-message-action-link';
-  link.href = `/activities/${encodeURIComponent(block.activityId.trim())}`;
+  link.className = 'tutor-message-action-link';
+  link.href = `/lessons/${encodeURIComponent(block.lessonId.trim())}`;
   link.textContent = block.label;
   return link;
 }

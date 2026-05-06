@@ -24,6 +24,17 @@ export type TutorMessageBlock = {
   markdown: string;
 };
 
+export type TutorLessonLinkBlock = {
+  type: 'lesson_link';
+  lessonId: string;
+  label: string;
+};
+
+export type TutorCallSecretaryBlock = {
+  type: 'call_secretary';
+  instruction?: string;
+};
+
 export type TutorDialogueCharacterMessageBlock = {
   type: 'dialogue_character_message';
   name: string;
@@ -201,6 +212,8 @@ export type TutorConversationTitleBlock = {
 
 export type TutorResponseBlock =
   | TutorMessageBlock
+  | TutorLessonLinkBlock
+  | TutorCallSecretaryBlock
   | TutorDialogueCharacterMessageBlock
   | TutorDialogueTranscriptBlock
   | TutorMatchingPairsBlock

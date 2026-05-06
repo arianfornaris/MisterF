@@ -70,16 +70,10 @@
                   Nueva conversación
                 </a>
 
-                <a class="panel-nav-link <%= currentView === 'activities' ? 'is-active' : '' %>" href="/activities">
+                <a class="panel-nav-link <%= currentView === 'lessons' ? 'is-active' : '' %>" href="/lessons">
                   <i class="bi bi-folder" aria-hidden="true"></i>
-                  Actividades
+                  Lecciones
                 </a>
-
-                <a class="panel-nav-link <%= currentView === 'admin-chat' || currentView === 'admin-chats' ? 'is-active' : '' %>" href="/admin-chats">
-                  <i class="bi bi-chat-square-text" aria-hidden="true"></i>
-                  Admin Chat
-                </a>
-
               </div>
 
               <div class="panel-recents">
@@ -283,19 +277,19 @@
 
           <div
             class="modal fade"
-            id="activityHelpModal"
+            id="lessonHelpModal"
             tabindex="-1"
-            aria-labelledby="activityHelpModalLabel"
+            aria-labelledby="lessonHelpModalLabel"
             aria-hidden="true"
           >
             <div class="modal-dialog modal-dialog-centered modal-lg">
               <div class="modal-content translator-modal">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="activityHelpModalLabel">Qué puede hacer el tutor</h2>
+                  <h2 class="modal-title fs-5" id="lessonHelpModalLabel">Qué puede hacer el tutor</h2>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="modal-body activity-help-modal-body">
-                  <section class="activity-help-section">
+                <div class="modal-body lesson-help-modal-body">
+                  <section class="lesson-help-section">
                     <h3>Tipos de práctica que puedes pedir</h3>
                     <ul>
                       <li>Traducir del español al inglés con corrección guiada.</li>
@@ -308,7 +302,7 @@
                     </ul>
                   </section>
 
-                  <section class="activity-help-section">
+                  <section class="lesson-help-section">
                     <h3>Ejemplos de instrucciones útiles</h3>
                     <ul>
                       <li>Practica vocabulario de colores con ejercicios variados y mucha corrección paciente.</li>
@@ -318,11 +312,11 @@
                     </ul>
                   </section>
 
-                  <section class="activity-help-section">
+                  <section class="lesson-help-section">
                     <h3>Buenas prácticas</h3>
                     <ul>
                       <li>Especifica el tema, el tipo de situación y el nivel aproximado.</li>
-                      <li>Puedes combinar varias dinámicas dentro de una misma actividad.</li>
+                      <li>Puedes combinar varias dinámicas dentro de una misma lección.</li>
                       <li>No hace falta describir la interfaz; describe el objetivo pedagógico.</li>
                       <li>Puedes decir si quieres que el tutor sea más paciente, más exigente o más conversacional.</li>
                     </ul>
@@ -337,69 +331,69 @@
         <% } %>
 
         <section
-          class="activities-view <%= currentView === 'activities' ? '' : 'd-none' %>"
-          aria-label="Actividades"
+          class="lessons-view <%= currentView === 'lessons' ? '' : 'd-none' %>"
+          aria-label="Lecciones"
         >
-          <div class="activities-header <%= activityPageMode === 'detail' ? 'activities-header-detail' : '' %> <%= activityPageMode !== 'list' ? 'activities-header-has-close' : '' %>">
+          <div class="lessons-header <%= lessonPageMode === 'detail' ? 'lessons-header-detail' : '' %> <%= lessonPageMode !== 'list' ? 'lessons-header-has-close' : '' %>">
             <div>
-              <p class="activities-kicker">Actividades</p>
-              <h1 class="activities-title">
-                <% if (activityPageMode === 'new') { %>
-                  Nueva actividad
-                <% } else if (activityPageMode === 'edit') { %>
-                  Editar actividad
-                <% } else if (activityPageMode === 'share') { %>
-                  <%= selectedSharedActivity ? selectedSharedActivity.title : 'Actividad compartida' %>
+              <p class="lessons-kicker">Lecciones</p>
+              <h1 class="lessons-title">
+                <% if (lessonPageMode === 'new') { %>
+                  Nueva lección
+                <% } else if (lessonPageMode === 'edit') { %>
+                  Editar lección
+                <% } else if (lessonPageMode === 'share') { %>
+                  <%= selectedSharedLesson ? selectedSharedLesson.title : 'Lección compartida' %>
                 <% } else { %>
-                  <%= selectedActivity ? selectedActivity.title : 'Biblioteca de actividades' %>
+                  <%= selectedLesson ? selectedLesson.title : 'Biblioteca de lecciones' %>
                 <% } %>
               </h1>
-              <p class="activities-copy">
-                <% if (activityPageMode === 'new') { %>
-                  Diseña una actividad con un objetivo claro, una descripción útil y una guía precisa para el tutor.
-                <% } else if (activityPageMode === 'edit') { %>
-                  Ajusta esta actividad con calma. Los chats existentes conservarán su propia copia de la actividad original.
-                <% } else if (activityPageMode === 'share') { %>
-                  <%= selectedSharedActivity ? selectedSharedActivity.description : 'Te compartieron una actividad.' %>
+              <p class="lessons-copy">
+                <% if (lessonPageMode === 'new') { %>
+                  Diseña una lección con un objetivo claro, una descripción útil y una guía precisa para el tutor.
+                <% } else if (lessonPageMode === 'edit') { %>
+                  Ajusta esta lección con calma. Los chats existentes conservarán su propia copia de la lección original.
+                <% } else if (lessonPageMode === 'share') { %>
+                  <%= selectedSharedLesson ? selectedSharedLesson.description : 'Te compartieron una lección.' %>
                 <% } else { %>
-                  <%= selectedActivity ? selectedActivity.description : 'Crea experiencias guiadas para el tutor con un objetivo claro, una descripción y reglas propias.' %>
+                  <%= selectedLesson ? selectedLesson.description : 'Crea experiencias guiadas para el tutor con un objetivo claro, una descripción y reglas propias.' %>
                 <% } %>
               </p>
 
-              <% if (activityPageMode === 'detail' && selectedActivity) { %>
-                <% if (selectedActivity.sharedVia) { %>
+              <% if (lessonPageMode === 'detail' && selectedLesson) { %>
+                <% if (selectedLesson.sharedVia) { %>
                   <div class="mt-3">
-                    <% if (selectedActivitySharedFromProfileName) { %>
-                      <span class="badge text-bg-light border activity-shared-badge" role="status">
-                        Compartida por <%= selectedActivitySharedFromProfileName %>
+                    <% if (selectedLessonSharedFromProfileName) { %>
+                      <span class="badge text-bg-light border lesson-shared-badge" role="status">
+                        Compartida por <%= selectedLessonSharedFromProfileName %>
                       </span>
                     <% } else { %>
-                      <span class="badge text-bg-light border activity-shared-badge" role="status">
-                        Compartida <%= selectedActivity.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+                      <span class="badge text-bg-light border lesson-shared-badge" role="status">
+                        Compartida <%= selectedLesson.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
                       </span>
                     <% } %>
                   </div>
                 <% } %>
 
-                <div class="activity-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones de la actividad">
-                  <div class="btn-group" role="group" aria-label="Editar actividad">
+                <div class="lesson-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones de la lección">
+                  <div class="btn-group" role="group" aria-label="Editar lección">
                     <a
                       class="btn btn-outline-dark"
-                      href="/activities/<%= encodeURIComponent(selectedActivity.id) %>/edit"
-                      title="Editar actividad"
-                      aria-label="Editar actividad"
+                      href="/lessons/<%= encodeURIComponent(selectedLesson.id) %>/edit"
+                      title="Editar lección"
+                      aria-label="Editar lección"
                     >
                       <i class="bi bi-pencil" aria-hidden="true"></i>
                     </a>
                   </div>
-                  <div class="btn-group" role="group" aria-label="Compartir actividad">
+                  <div class="btn-group" role="group" aria-label="Compartir lección">
                     <button
                       class="btn btn-outline-dark dropdown-toggle"
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
-                      title="Compartir actividad"
-                      aria-label="Compartir actividad"
+                      title="Compartir lección"
+                      aria-label="Compartir lección"
                     >
                       <i class="bi bi-share" aria-hidden="true"></i>
                     </button>
@@ -408,7 +402,7 @@
                         class="dropdown-item"
                         type="button"
                         data-bs-toggle="modal"
-                        data-bs-target="#shareActivityProfileModal"
+                        data-bs-target="#shareLessonProfileModal"
                       >
                         Compartir con perfil
                       </button>
@@ -416,24 +410,24 @@
                         class="dropdown-item"
                         type="button"
                         data-bs-toggle="modal"
-                        data-bs-target="#shareActivityLinkModal"
+                        data-bs-target="#shareLessonLinkModal"
                       >
                         Obtener enlace
                       </button>
                     </div>
                   </div>
-                  <div class="btn-group" role="group" aria-label="Eliminar actividad">
+                  <div class="btn-group" role="group" aria-label="Eliminar lección">
                     <form
                       method="post"
-                      action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/delete"
-                      onsubmit="return window.confirm('¿Seguro que quieres eliminar esta actividad? Los chats existentes conservarán su copia histórica, pero la actividad ya no aparecerá en la biblioteca.');"
+                      action="/lessons/<%= encodeURIComponent(selectedLesson.id) %>/delete"
+                      onsubmit="return window.confirm('¿Seguro que quieres eliminar esta lección? Los chats existentes conservarán su copia histórica, pero la lección ya no aparecerá en la biblioteca.');"
                     >
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button
                         class="btn btn-outline-danger"
                         type="submit"
-                        title="Eliminar actividad"
-                        aria-label="Eliminar actividad"
+                        title="Eliminar lección"
+                        aria-label="Eliminar lección"
                       >
                         <i class="bi bi-trash" aria-hidden="true"></i>
                       </button>
@@ -441,69 +435,69 @@
                   </div>
                 </div>
 
-                <p class="activity-section-copy">Chats de esta actividad</p>
+                <p class="lesson-section-copy">Chats de esta lección</p>
 
                 <form
-                  class="activity-start-form"
+                  class="lesson-start-form"
                   method="post"
-                  action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/chats"
+                  action="/lessons/<%= encodeURIComponent(selectedLesson.id) %>/chats"
                 >
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit" class="btn btn-dark">Comenzar actividad</button>
+                  <button type="submit" class="btn btn-dark">Comenzar lección</button>
                 </form>
 
-                <% if (activityConversations.length > 0) { %>
-                  <div class="activity-chat-list list-group shadow-sm">
-                    <% activityConversations.forEach((conversation) => { %>
+                <% if (lessonConversations.length > 0) { %>
+                  <div class="lesson-chat-list list-group shadow-sm">
+                    <% lessonConversations.forEach((conversation) => { %>
                       <a
-                        class="activity-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
+                        class="lesson-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
                         href="/c/<%= encodeURIComponent(conversation.id) %>"
                       >
-                        <span class="activity-chat-title"><%= conversation.title %></span>
-                        <time class="activity-chat-date" datetime="<%= conversation.updatedAt %>">
+                        <span class="lesson-chat-title"><%= conversation.title %></span>
+                        <time class="lesson-chat-date" datetime="<%= conversation.updatedAt %>">
                           <%= conversation.updatedAt %>
                         </time>
                       </a>
                     <% }) %>
                   </div>
                 <% } else { %>
-                  <p class="activity-empty">Todavía no hay chats para esta actividad.</p>
+                  <p class="lesson-empty">Todavía no hay chats para esta lección.</p>
                 <% } %>
               <% } %>
             </div>
 
             <% if (hasSession) { %>
-              <div class="activities-header-actions">
-                <% if (activityPageMode === 'new' || activityPageMode === 'edit' || activityPageMode === 'detail' || activityPageMode === 'share') { %>
+              <div class="lessons-header-actions">
+                <% if (lessonPageMode === 'new' || lessonPageMode === 'edit' || lessonPageMode === 'detail' || lessonPageMode === 'share') { %>
                   <a
-                    class="btn-close activity-close-button"
-                    href="<%= activityPageMode === 'detail' || activityPageMode === 'share' ? '/activities' : selectedActivity ? `/activities/${encodeURIComponent(selectedActivity.id)}` : '/activities' %>"
+                    class="btn-close lesson-close-button"
+                    href="<%= lessonPageMode === 'detail' || lessonPageMode === 'share' ? '/lessons' : selectedLesson ? `/lessons/${encodeURIComponent(selectedLesson.id)}` : '/lessons' %>"
                     title="Cerrar"
                     aria-label="Cerrar"
                   ></a>
                 <% } %>
-                <% if (activityPageMode === 'list') { %>
-                  <a class="btn btn-dark" href="/activities/new">
-                    Nueva actividad
+                <% if (lessonPageMode === 'list') { %>
+                  <a class="btn btn-dark" href="/lessons/new">
+                    Nueva lección
                   </a>
                 <% } %>
               </div>
             <% } %>
           </div>
 
-          <% if (activityPageMode === 'list') { %>
-            <form class="activity-filter-form" method="get" action="/activities" role="search">
-              <div class="activity-filter-input-wrap">
+          <% if (lessonPageMode === 'list') { %>
+            <form class="lesson-filter-form" method="get" action="/lessons" role="search">
+              <div class="lesson-filter-input-wrap">
                 <input
-                  class="form-control activity-filter-input"
+                  class="form-control lesson-filter-input"
                   type="search"
                   name="q"
-                  value="<%= activityFilterQuery || '' %>"
-                  placeholder="Filtrar actividades por texto"
-                  aria-label="Filtrar actividades por texto"
+                  value="<%= lessonFilterQuery || '' %>"
+                  placeholder="Filtrar lecciones por texto"
+                  aria-label="Filtrar lecciones por texto"
                 >
-                <% if (activityFilterQuery) { %>
-                  <a class="activity-filter-clear" href="/activities" aria-label="Limpiar filtro">
+                <% if (lessonFilterQuery) { %>
+                  <a class="lesson-filter-clear" href="/lessons" aria-label="Limpiar filtro">
                     Limpiar
                   </a>
                 <% } %>
@@ -511,91 +505,91 @@
             </form>
           <% } %>
 
-          <% if (activityPageMode === 'new' || activityPageMode === 'edit') { %>
-            <section class="activity-form-shell">
-              <div class="activity-form-card card shadow-sm">
+          <% if (lessonPageMode === 'new' || lessonPageMode === 'edit') { %>
+            <section class="lesson-form-shell">
+              <div class="lesson-form-card card shadow-sm">
                 <div class="card-body">
                 <form
-                  class="activity-form"
+                  class="lesson-form"
                   method="post"
-                  action="<%= activityPageMode === 'edit' && selectedActivity ? `/activities/${encodeURIComponent(selectedActivity.id)}` : '/activities' %>"
+                  action="<%= lessonPageMode === 'edit' && selectedLesson ? `/lessons/${encodeURIComponent(selectedLesson.id)}` : '/lessons' %>"
                   autocomplete="off"
                 >
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-                  <label class="form-label" for="activityTitle">
+                  <label class="form-label" for="lessonTitle">
                     Título
                   </label>
                   <input
                     class="form-control"
-                    id="activityTitle"
+                    id="lessonTitle"
                     name="title"
                     maxlength="120"
-                    value="<%= activityPageMode === 'edit' && selectedActivity ? selectedActivity.title : '' %>"
+                    value="<%= lessonPageMode === 'edit' && selectedLesson ? selectedLesson.title : '' %>"
                     required
                   >
 
-                  <label class="form-label" for="activityDescription">
+                  <label class="form-label" for="lessonDescription">
                     Descripción
                   </label>
                   <textarea
                     class="form-control"
-                    id="activityDescription"
+                    id="lessonDescription"
                     name="description"
                     rows="4"
                     maxlength="500"
                     required
-                  ><%= activityPageMode === 'edit' && selectedActivity ? selectedActivity.description : '' %></textarea>
+                  ><%= lessonPageMode === 'edit' && selectedLesson ? selectedLesson.description : '' %></textarea>
 
-                  <div class="activity-help-row">
-                    <label class="form-label" for="activityTutorInstructions">
+                  <div class="lesson-help-row">
+                    <label class="form-label" for="lessonTutorInstructions">
                       Instrucciones al tutor
                     </label>
                     <button
-                      class="btn btn-link activity-help-button"
+                      class="btn btn-link lesson-help-button"
                       type="button"
                       data-bs-toggle="modal"
-                      data-bs-target="#activityHelpModal"
+                      data-bs-target="#lessonHelpModal"
                     >
                       Ayuda
                     </button>
                   </div>
                   <textarea
                     class="form-control"
-                    id="activityTutorInstructions"
+                    id="lessonTutorInstructions"
                     name="tutorInstructions"
                     rows="10"
                     maxlength="4000"
                     required
-                  ><%= activityPageMode === 'edit' && selectedActivity ? selectedActivity.tutorInstructions : '' %></textarea>
+                  ><%= lessonPageMode === 'edit' && selectedLesson ? selectedLesson.tutorInstructions : '' %></textarea>
 
-                  <div class="activity-form-actions">
+                  <div class="lesson-form-actions">
                     <button type="submit" class="btn btn-dark">
-                      <%= activityPageMode === 'edit' ? 'Guardar cambios' : 'Crear actividad' %>
+                      <%= lessonPageMode === 'edit' ? 'Guardar cambios' : 'Crear lección' %>
                     </button>
                   </div>
                 </form>
                 </div>
               </div>
             </section>
-          <% } else if (activityPageMode === 'share' && selectedSharedActivity && selectedActivityShareLink) { %>
-            <section class="activity-form-shell">
-              <div class="activity-form-card card shadow-sm">
+          <% } else if (lessonPageMode === 'share' && selectedSharedLesson && selectedLessonShareLink) { %>
+            <section class="lesson-form-shell">
+              <div class="lesson-form-card card shadow-sm">
                 <div class="card-body">
                   <div class="d-grid gap-3">
                     <div>
-                      <p class="mb-2 text-body-secondary">Revisa la actividad y decide si quieres importarla a tu perfil activo.</p>
+                      <p class="mb-2 text-body-secondary">Revisa la lección y decide si quieres importarla a tu perfil activo.</p>
                       <dl class="mb-0">
                         <dt class="small text-uppercase text-body-secondary">Título</dt>
-                        <dd class="mb-3"><%= selectedSharedActivity.title %></dd>
+                        <dd class="mb-3"><%= selectedSharedLesson.title %></dd>
                         <dt class="small text-uppercase text-body-secondary">Descripción</dt>
-                        <dd class="mb-3"><%= selectedSharedActivity.description %></dd>
+                        <dd class="mb-3"><%= selectedSharedLesson.description %></dd>
                         <dt class="small text-uppercase text-body-secondary">Tipo</dt>
                         <dd class="mb-0">
-                          <% if (selectedSharedActivity.sharedVia) { %>
-                            Compartida originalmente por <%= selectedSharedActivity.sharedVia === 'link' ? 'enlace' : 'perfil' %>
+                          <% if (selectedSharedLesson.sharedVia) { %>
+                            Compartida originalmente por <%= selectedSharedLesson.sharedVia === 'link' ? 'enlace' : 'perfil' %>
                           <% } else { %>
-                            Actividad compartida
+                            Lección compartida
                           <% } %>
                         </dd>
                       </dl>
@@ -604,96 +598,96 @@
                 </div>
               </div>
             </section>
-          <% } else if (activityPageMode === 'list') { %>
-            <% if (activities.length > 0 || sharedActivities.length > 0) { %>
-              <% if (activities.length > 0) { %>
+          <% } else if (lessonPageMode === 'list') { %>
+            <% if (lessons.length > 0 || sharedLessons.length > 0) { %>
+              <% if (lessons.length > 0) { %>
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                  <h2 class="h5 mb-0">Tus actividades</h2>
-                  <span class="badge text-bg-light border"><%= activities.length %></span>
+                  <h2 class="h5 mb-0">Tus lecciones</h2>
+                  <span class="badge text-bg-light border"><%= lessons.length %></span>
                 </div>
-                <div class="activities-grid">
-                  <% activities.forEach((activity) => { %>
-                    <article class="activity-card card shadow-sm h-100">
+                <div class="lessons-grid">
+                  <% lessons.forEach((lesson) => { %>
+                    <article class="lesson-card card shadow-sm h-100">
                       <div class="card-body d-grid gap-2">
-                        <div class="activity-card-meta">
-                          <p class="activity-card-kicker">Actividad</p>
-                          <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">
-                            <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
+                        <div class="lesson-card-meta">
+                          <p class="lesson-card-kicker">Lección</p>
+                          <span class="badge rounded-pill text-bg-light border lesson-chat-count-badge">
+                            <%= lesson.conversationCount %> <%= lesson.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
                         </div>
                         <h2 class="h4">
                           <a
                             class="stretched-link text-decoration-none text-reset"
-                            href="/activities/<%= encodeURIComponent(activity.id) %>"
+                            href="/lessons/<%= encodeURIComponent(lesson.id) %>"
                           >
-                            <%= activity.title %>
+                            <%= lesson.title %>
                           </a>
                         </h2>
-                        <p class="mb-0 text-body-secondary"><%= activity.description %></p>
+                        <p class="mb-0 text-body-secondary"><%= lesson.description %></p>
                       </div>
                     </article>
                   <% }) %>
                 </div>
               <% } %>
 
-              <% if (sharedActivities.length > 0) { %>
+              <% if (sharedLessons.length > 0) { %>
                 <div class="d-flex align-items-center justify-content-between mb-3 mt-4">
                   <h2 class="h5 mb-0">Compartidas contigo</h2>
-                  <span class="badge text-bg-light border"><%= sharedActivities.length %></span>
+                  <span class="badge text-bg-light border"><%= sharedLessons.length %></span>
                 </div>
-                <div class="activities-grid">
-                  <% sharedActivities.forEach((activity) => { %>
-                    <article class="activity-card card shadow-sm h-100">
+                <div class="lessons-grid">
+                  <% sharedLessons.forEach((lesson) => { %>
+                    <article class="lesson-card card shadow-sm h-100">
                       <div class="card-body d-grid gap-2">
-                        <div class="activity-card-meta">
-                          <p class="activity-card-kicker">Compartida</p>
-                          <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">
-                            <%= activity.conversationCount %> <%= activity.conversationCount === 1 ? 'chat' : 'chats' %>
+                        <div class="lesson-card-meta">
+                          <p class="lesson-card-kicker">Compartida</p>
+                          <span class="badge rounded-pill text-bg-light border lesson-chat-count-badge">
+                            <%= lesson.conversationCount %> <%= lesson.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
                         </div>
                         <h2 class="h4">
                           <a
                             class="stretched-link text-decoration-none text-reset"
-                            href="/activities/<%= encodeURIComponent(activity.id) %>"
+                            href="/lessons/<%= encodeURIComponent(lesson.id) %>"
                           >
-                            <%= activity.title %>
+                            <%= lesson.title %>
                           </a>
                         </h2>
-                        <p class="mb-0 text-body-secondary"><%= activity.description %></p>
+                        <p class="mb-0 text-body-secondary"><%= lesson.description %></p>
                       </div>
                     </article>
                   <% }) %>
                 </div>
               <% } %>
             <% } else { %>
-              <div class="activity-empty-state alert alert-light border">
+              <div class="lesson-empty-state alert alert-light border">
                 <p>
-                  <%= activityFilterQuery
-                    ? 'No encontré actividades que coincidan con ese texto.'
-                    : 'Todavía no hay actividades. Crea la primera y dale un marco propio al tutor.' %>
+                  <%= lessonFilterQuery
+                    ? 'No encontré lecciones que coincidan con ese texto.'
+                    : 'Todavía no hay lecciones. Crea la primera y dale un marco propio al tutor.' %>
                 </p>
               </div>
             <% } %>
           <% } %>
         </section>
 
-        <% if (currentView === 'activities' && activityPageMode === 'detail' && selectedActivity) { %>
+        <% if (currentView === 'lessons' && lessonPageMode === 'detail' && selectedLesson) { %>
           <div
             class="modal fade"
-            id="shareActivityProfileModal"
+            id="shareLessonProfileModal"
             tabindex="-1"
-            aria-labelledby="shareActivityProfileModalLabel"
+            aria-labelledby="shareLessonProfileModalLabel"
             aria-hidden="true"
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="shareActivityProfileModalLabel">Compartir con perfil</h2>
+                  <h2 class="modal-title fs-5" id="shareLessonProfileModalLabel">Compartir con perfil</h2>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
                   <% if (shareTargetProfiles.length > 0) { %>
-                    <form method="post" action="/activities/<%= encodeURIComponent(selectedActivity.id) %>/share/profile" class="d-grid gap-3">
+                    <form method="post" action="/lessons/<%= encodeURIComponent(selectedLesson.id) %>/share/profile" class="d-grid gap-3">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <div>
                         <label class="form-label" for="shareTargetProfileId">Perfil destino</label>
@@ -708,7 +702,7 @@
                       </div>
                     </form>
                   <% } else { %>
-                    <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta actividad.</p>
+                    <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta lección.</p>
                   <% } %>
                 </div>
               </div>
@@ -717,45 +711,45 @@
 
           <div
             class="modal fade"
-            id="shareActivityLinkModal"
+            id="shareLessonLinkModal"
             tabindex="-1"
-            aria-labelledby="shareActivityLinkModalLabel"
+            aria-labelledby="shareLessonLinkModalLabel"
             aria-hidden="true"
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="shareActivityLinkModalLabel">Enlace para compartir</h2>
+                  <h2 class="modal-title fs-5" id="shareLessonLinkModalLabel">Enlace para compartir</h2>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body d-grid gap-3">
                   <div>
-                    <label class="form-label" for="activityShareLinkField">Enlace</label>
+                    <label class="form-label" for="lessonShareLinkField">Enlace</label>
                     <input
                       class="form-control"
-                      id="activityShareLinkField"
+                      id="lessonShareLinkField"
                       type="text"
                       readonly
-                      value="<%= activityShareUrl %>"
-                      data-activity-share-link-field
+                      value="<%= lessonShareUrl %>"
+                      data-lesson-share-link-field
                     >
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-dark" type="button" data-copy-activity-share-link>
+                    <button class="btn btn-outline-dark" type="button" data-copy-lesson-share-link>
                       <i class="bi bi-copy me-1" aria-hidden="true"></i>
                       Copiar
                     </button>
-                    <button class="btn btn-outline-dark" type="button" data-native-share-activity-link>
+                    <button class="btn btn-outline-dark" type="button" data-native-share-lesson-link>
                       <i class="bi bi-share me-1" aria-hidden="true"></i>
                       Compartir
                     </button>
                   </div>
-                  <% if (activityShareQrDataUrl) { %>
+                  <% if (lessonShareQrDataUrl) { %>
                     <div class="d-flex justify-content-center">
                       <img
-                        class="activity-share-qr"
-                        src="<%= activityShareQrDataUrl %>"
-                        alt="QR del enlace para compartir la actividad"
+                        class="lesson-share-qr"
+                        src="<%= lessonShareQrDataUrl %>"
+                        alt="QR del enlace para compartir la lección"
                         width="180"
                         height="180"
                       >
@@ -767,33 +761,33 @@
           </div>
         <% } %>
 
-        <% if (currentView === 'activities' && activityPageMode === 'share' && selectedSharedActivity && selectedActivityShareLink) { %>
+        <% if (currentView === 'lessons' && lessonPageMode === 'share' && selectedSharedLesson && selectedLessonShareLink) { %>
           <div
             class="modal fade"
-            id="acceptSharedActivityModal"
+            id="acceptSharedLessonModal"
             tabindex="-1"
-            aria-labelledby="acceptSharedActivityModalLabel"
+            aria-labelledby="acceptSharedLessonModalLabel"
             aria-hidden="true"
             data-auto-open-share-modal
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="acceptSharedActivityModalLabel">Aceptar actividad compartida</h2>
-                  <a class="btn-close" href="/activities" aria-label="Cerrar"></a>
+                  <h2 class="modal-title fs-5" id="acceptSharedLessonModalLabel">Aceptar lección compartida</h2>
+                  <a class="btn-close" href="/lessons" aria-label="Cerrar"></a>
                 </div>
                 <div class="modal-body d-grid gap-3">
                   <p class="mb-0">
                     <% if (activeProfile) { %>
-                      ¿Quieres importar esta actividad al perfil <strong><%= activeProfile.name %></strong>?
+                      ¿Quieres importar esta lección al perfil <strong><%= activeProfile.name %></strong>?
                     <% } else { %>
-                      Inicia sesión para importar esta actividad a uno de tus perfiles.
+                      Inicia sesión para importar esta lección a uno de tus perfiles.
                     <% } %>
                   </p>
                   <div class="d-flex justify-content-end gap-2">
-                    <a class="btn btn-link" href="/activities">No ahora</a>
+                    <a class="btn btn-link" href="/lessons">No ahora</a>
                     <% if (isAuthenticated && activeProfile) { %>
-                      <form method="post" action="/activities/shared/<%= encodeURIComponent(selectedActivityShareLink.id) %>/accept">
+                      <form method="post" action="/lessons/shared/<%= encodeURIComponent(selectedLessonShareLink.id) %>/accept">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <button class="btn btn-dark" type="submit">Aceptar</button>
                       </form>
@@ -808,13 +802,13 @@
         <% } %>
 
         <section
-          class="activities-view <%= currentView === 'profiles' ? '' : 'd-none' %>"
+          class="lessons-view <%= currentView === 'profiles' ? '' : 'd-none' %>"
           aria-label="Perfiles"
         >
-          <div class="activities-header <%= profilePageMode !== 'list' ? 'activities-header-has-close' : '' %>">
+          <div class="lessons-header <%= profilePageMode !== 'list' ? 'lessons-header-has-close' : '' %>">
             <div>
-              <p class="activities-kicker">Perfiles</p>
-              <h1 class="activities-title">
+              <p class="lessons-kicker">Perfiles</p>
+              <h1 class="lessons-title">
                 <% if (profilePageMode === 'new') { %>
                   Nuevo perfil
                 <% } else if (profilePageMode === 'edit') { %>
@@ -823,26 +817,26 @@
                   Cambiar perfil
                 <% } %>
               </h1>
-              <p class="activities-copy">
+              <p class="lessons-copy">
                 <% if (profilePageMode === 'new') { %>
-                  Crea un perfil separado para organizar conversaciones, actividades y chats admin sin mezclarlos con los demás.
+                  Crea un perfil separado para organizar conversaciones y lecciones sin mezclarlas con las demás.
                 <% } else if (profilePageMode === 'edit' && selectedProfile) { %>
                   Ajusta el nombre y la descripción de este perfil.
                 <% } else { %>
-                  Cada perfil mantiene separadas sus conversaciones, actividades y chats admin.
+                  Cada perfil mantiene separadas sus conversaciones y lecciones.
                 <% } %>
               </p>
             </div>
 
             <% if (hasSession) { %>
-              <div class="activities-header-actions">
+              <div class="lessons-header-actions">
                 <% if (profilePageMode === 'list') { %>
                   <a class="btn btn-dark" href="/profiles/new">
                     Crear perfil
                   </a>
                 <% } else { %>
                   <a
-                    class="btn-close activity-close-button"
+                    class="btn-close lesson-close-button"
                     href="/profiles"
                     title="Cerrar"
                     aria-label="Cerrar"
@@ -853,11 +847,11 @@
           </div>
 
           <% if (profilePageMode === 'new' || profilePageMode === 'edit') { %>
-            <section class="activity-form-shell">
-              <div class="activity-form-card card shadow-sm">
+            <section class="lesson-form-shell">
+              <div class="lesson-form-card card shadow-sm">
                 <div class="card-body">
                 <form
-                  class="activity-form"
+                  class="lesson-form"
                   method="post"
                   action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
                   autocomplete="off"
@@ -884,7 +878,7 @@
                     maxlength="500"
                   ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
 
-                  <div class="activity-form-actions">
+                  <div class="lesson-form-actions">
                     <button type="submit" class="btn btn-dark">
                       <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
                     </button>
@@ -896,12 +890,12 @@
           <% } else if (profiles && profiles.length > 0) { %>
             <div class="profiles-list">
               <% profiles.forEach((profile) => { %>
-                <article class="activity-card profile-card card shadow-sm <%= activeProfile && activeProfile.id === profile.id ? 'is-active' : '' %>">
+                <article class="lesson-card profile-card card shadow-sm <%= activeProfile && activeProfile.id === profile.id ? 'is-active' : '' %>">
                   <div class="card-body d-grid gap-2">
-                    <div class="activity-card-meta">
-                      <p class="activity-card-kicker">Perfil</p>
+                    <div class="lesson-card-meta">
+                      <p class="lesson-card-kicker">Perfil</p>
                       <% if (activeProfile && activeProfile.id === profile.id) { %>
-                        <span class="badge rounded-pill text-bg-light border activity-chat-count-badge">Activo</span>
+                        <span class="badge rounded-pill text-bg-light border lesson-chat-count-badge">Activo</span>
                       <% } %>
                     </div>
                     <h2 class="h4"><%= profile.name %></h2>
@@ -925,92 +919,26 @@
               <% }) %>
             </div>
           <% } else { %>
-            <div class="activity-empty-state alert alert-light border">
+            <div class="lesson-empty-state alert alert-light border">
               <p>Todavía no hay perfiles. Crea el primero para separar tu práctica en distintos contextos.</p>
             </div>
           <% } %>
         </section>
 
-        <section
-          class="activities-view <%= currentView === 'admin-chats' ? '' : 'd-none' %>"
-          aria-label="Admin Chat"
-        >
-          <div class="activities-header">
-            <div>
-              <p class="activities-kicker">Admin Chat</p>
-              <h1 class="activities-title">Biblioteca de chats admin</h1>
-              <p class="activities-copy">
-                Habla con Mr. F en modo administrador para diseñar actividades, pulir instrucciones del tutor y gestionar mejor tu contenido. Aquí puedes comenzar un chat nuevo o volver a cualquiera de los que ya guardaste.
-              </p>
-            </div>
-
-            <% if (hasSession) { %>
-              <div class="activities-header-actions">
-                <a class="btn btn-dark" href="/admin-chats/new">
-                  Comenzar chat con Admin
-                </a>
-              </div>
-            <% } %>
-          </div>
-
-          <% if (adminChatThreads.length > 0) { %>
-            <div class="admin-chat-library-list">
-              <% adminChatThreads.forEach((thread) => { %>
-                <div
-                  class="conversation-item admin-thread-item"
-                  data-admin-thread-id="<%= thread.id %>"
-                  data-item-kind="admin-thread"
-                >
-                  <a
-                    class="conversation-open-button"
-                    href="/admin-chats/<%= encodeURIComponent(thread.id) %>"
-                  >
-                    <span class="conversation-title"><%= thread.title %></span>
-                    <time class="conversation-date" datetime="<%= thread.updatedAt %>">
-                      <%= thread.updatedAt %>
-                    </time>
-                  </a>
-
-                  <div class="conversation-actions dropdown">
-                    <button
-                      class="btn btn-link conversation-actions-button"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      title="Opciones del chat admin"
-                      aria-label="Opciones del chat admin"
-                    >
-                      <i class="bi bi-three-dots" aria-hidden="true"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
-                      <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
-                      <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
-                    </div>
-                  </div>
-                </div>
-              <% }) %>
-            </div>
-          <% } else { %>
-            <div class="activity-empty-state alert alert-light border">
-              <p>Todavía no hay chats admin guardados. Comienza uno nuevo y deja que Mr. F te ayude a crear o mejorar actividades.</p>
-            </div>
-          <% } %>
-        </section>
-
-        <section class="chat-layout <%= currentView === 'chat' || currentView === 'admin-chat' ? '' : 'd-none' %>" aria-label="Chat con Mister F">
+        <section class="chat-layout <%= currentView === 'chat' ? '' : 'd-none' %>" aria-label="Chat con Mister F">
           <div
             class="messages"
             id="chatPane"
             tabindex="0"
           >
-            <section class="activity-start-panel d-none" data-activity-start-panel>
-              <p class="activity-start-kicker">Actividad</p>
-              <h2 class="activity-start-title" data-activity-start-title></h2>
-              <p class="activity-start-description" data-activity-start-description></p>
-              <p class="activity-start-status text-body-secondary d-none" data-activity-start-status>
-                Comenzando la actividad...
+            <section class="lesson-start-panel d-none" data-lesson-start-panel>
+              <p class="lesson-start-kicker">Lección</p>
+              <h2 class="lesson-start-title" data-lesson-start-title></h2>
+              <p class="lesson-start-description" data-lesson-start-description></p>
+              <p class="lesson-start-status text-body-secondary d-none" data-lesson-start-status>
+                Comenzando la lección...
               </p>
-              <button class="btn btn-dark" type="button" data-activity-start-button>
+              <button class="btn btn-dark" type="button" data-lesson-start-button>
                 Comenzar
               </button>
             </section>
@@ -1077,6 +1005,11 @@
                 <i class="bi bi-send" aria-hidden="true"></i>
               </button>
             </div>
+            <div
+              class="composer-status small text-body-secondary d-none"
+              data-tool-status
+              aria-live="polite"
+            ></div>
           </form>
         </section>
       </div>

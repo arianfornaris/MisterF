@@ -1,5 +1,6 @@
 import {
   generateText,
+  stepCountIs,
   type ModelMessage,
 } from 'ai';
 import { env } from '../../config/env.js';
@@ -9,6 +10,7 @@ import {
   logLlmInvalidRawResponse,
   logLlmRequest,
   logLlmResponse,
+  logLlmToolCalls,
 } from './logging.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
@@ -39,17 +41,21 @@ function parseJsonFromModelText(text: string): unknown {
 export async function runTutorAgentLoop(
   history: TutorMessage[],
   options: {
-    activity?: {
+    lesson?: {
       description: string;
       title: string;
       tutorInstructions: string;
     } | null;
     abortSignal?: AbortSignal;
     currentTitle?: string;
+    currentLessonId?: string | null;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
+    onToolCall?: (toolName: string) => void;
+    profileId?: string | null;
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
+    userId?: string | null;
     validateBlocks?: TutorResponseValidator;
   },
 ): Promise<TutorAgentResult> {
@@ -62,7 +68,9 @@ export async function runTutorAgentLoop(
     });
   }
 
-  const system = buildAgentSystemInstruction(options);
+  const system = buildAgentSystemInstruction({
+    ...options,
+  });
   let lastError: unknown = null;
 
   for (let turn = 0; turn < maxAgentTurns; turn += 1) {
@@ -75,26 +83,32 @@ export async function runTutorAgentLoop(
         messages,
         model: getLanguageModel(options.llm),
         providerOptions: getProviderOptions(),
+        stopWhen: stepCountIs(6),
         system,
         temperature: shouldUseTemperature() ? 0.45 : undefined,
       });
+      logLlmToolCalls({
+        steps: result.steps,
+        turn: turn + 1,
+      });
+      const effectiveResult = result;
 
       let parsedObject: unknown;
       try {
-        parsedObject = parseJsonFromModelText(result.text);
+        parsedObject = parseJsonFromModelText(effectiveResult.text);
       } catch (error) {
         logLlmInvalidRawResponse({
           error,
-          rawText: result.text,
+          rawText: effectiveResult.text,
           turn: turn + 1,
         });
         throw error;
       }
       logLlmResponse(
         parsedObject,
-        result.finishReason,
-        result.usage,
-        result.providerMetadata,
+        effectiveResult.finishReason,
+        effectiveResult.usage,
+        effectiveResult.providerMetadata,
         turn + 1,
       );
       options.onTokenUsage?.(
@@ -102,14 +116,14 @@ export async function runTutorAgentLoop(
           messages,
           system,
           turn: turn + 1,
-          usage: result.usage,
+          usage: effectiveResult.usage,
         }),
       );
 
       const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-        result.finishReason,
+        effectiveResult.finishReason,
         undefined,
-        result.providerMetadata,
+        effectiveResult.providerMetadata,
       );
       if (userFacingFinishMessage) {
         throw new LlmFinishReasonError(
@@ -140,7 +154,7 @@ export async function runTutorAgentLoop(
 
         appendStructuredCorrectionRequest(messages, {
           error,
-          invalidOutput: result.text,
+          invalidOutput: effectiveResult.text,
           reason: buildStructuredValidationReason(error),
           turn: turn + 1,
         });

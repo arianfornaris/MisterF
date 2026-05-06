@@ -4,6 +4,7 @@ import { env } from '../../config/env.js';
 import type { TranslationMode } from './types.js';
 
 let systemInstruction: string | undefined;
+let secretarySystemInstruction: string | undefined;
 
 function getSystemInstruction(): string {
   systemInstruction ??= fs.readFileSync(
@@ -14,8 +15,17 @@ function getSystemInstruction(): string {
   return systemInstruction;
 }
 
+function getSecretarySystemInstruction(): string {
+  secretarySystemInstruction ??= fs.readFileSync(
+    path.join(env.projectRoot, 'gameplays/secretary-system-prompt.md'),
+    'utf8',
+  );
+
+  return secretarySystemInstruction;
+}
+
 export function buildAgentSystemInstruction(options: {
-  activity?: {
+  lesson?: {
     description: string;
     title: string;
     tutorInstructions: string;
@@ -32,23 +42,30 @@ export function buildAgentSystemInstruction(options: {
         : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
     );
 
-  if (!options.activity) {
+  if (!options.lesson) {
     return base;
   }
 
-  return [
-    base,
-    '',
-    '## Activity Context',
-    '',
-    'This conversation belongs to a user-defined activity.',
-    'Follow the activity instructions as an additional teacher-facing layer on top of the base tutor behavior.',
-    'Keep the learner experience natural. Do not quote the activity instructions back verbatim unless the learner explicitly asks.',
-    `Activity title: ${options.activity.title}`,
-    `Activity description: ${options.activity.description}`,
-    'Activity tutor instructions:',
-    options.activity.tutorInstructions,
-  ].join('\n');
+  const sections = [base];
+
+  if (options.lesson) {
+    sections.push(
+      [
+        '',
+        '## Lesson Context',
+        '',
+        'This conversation belongs to a user-defined lesson.',
+        'Follow the lesson instructions as an additional teacher-facing layer on top of the base tutor behavior.',
+        'Keep the learner experience natural. Do not quote the lesson instructions back verbatim unless the learner explicitly asks.',
+        `Lesson title: ${options.lesson.title}`,
+        `Lesson description: ${options.lesson.description}`,
+        'Lesson tutor instructions:',
+        options.lesson.tutorInstructions,
+      ].join('\n'),
+    );
+  }
+
+  return sections.join('\n');
 }
 
 export function buildTranslatorSystemInstruction(mode: TranslationMode): string {
@@ -71,4 +88,23 @@ export function buildTranslatorSystemInstruction(mode: TranslationMode): string 
     '  translatedText: string;',
     '};',
   ].join('\n');
+}
+
+export function buildSecretarySystemInstruction(options: {
+  currentLessonTitle?: string | null;
+} = {}): string {
+  const sections = [getSecretarySystemInstruction()];
+
+  if (options.currentLessonTitle) {
+    sections.push(
+      [
+        '',
+        '## Current Lesson Context',
+        '',
+        `This conversation currently belongs to the lesson: ${options.currentLessonTitle}`,
+      ].join('\n'),
+    );
+  }
+
+  return sections.join('\n');
 }

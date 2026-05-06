@@ -5,13 +5,13 @@ import { Server } from 'socket.io';
 import { csrfProtection } from './auth/csrf.js';
 import {
   handleChangePassword,
-  handleCreateActivity,
-  handleCreateActivityConversation,
+  handleCreateLesson,
+  handleCreateLessonConversation,
   handleCreateProfile,
-  handleDeleteActivity,
-  handleAcceptSharedActivityLink,
-  handleShareActivityToProfile,
-  handleUpdateActivity,
+  handleDeleteLesson,
+  handleAcceptSharedLessonLink,
+  handleShareLessonToProfile,
+  handleUpdateLesson,
   handleForgotPassword,
   handleLogin,
   handleLogout,
@@ -102,32 +102,23 @@ app.post('/logout', handleLogout);
 app.get('/superadmin', renderSuperadminUsers);
 app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
-app.get('/activities', renderHome);
-app.get('/activities/new', renderHome);
-app.post('/activities', handleCreateActivity);
-app.get('/activities/shared/:shareId', renderHome);
-app.post('/activities/shared/:shareId/accept', handleAcceptSharedActivityLink);
-app.get('/activities/:activityId/edit', renderHome);
-app.get('/activities/:activityId', renderHome);
-app.post('/activities/:activityId', handleUpdateActivity);
-app.post('/activities/:activityId/delete', handleDeleteActivity);
-app.post('/activities/:activityId/chats', handleCreateActivityConversation);
-app.post('/activities/:activityId/share/profile', handleShareActivityToProfile);
+app.get('/lessons', renderHome);
+app.get('/lessons/new', renderHome);
+app.post('/lessons', handleCreateLesson);
+app.get('/lessons/shared/:shareId', renderHome);
+app.post('/lessons/shared/:shareId/accept', handleAcceptSharedLessonLink);
+app.get('/lessons/:lessonId/edit', renderHome);
+app.get('/lessons/:lessonId', renderHome);
+app.post('/lessons/:lessonId', handleUpdateLesson);
+app.post('/lessons/:lessonId/delete', handleDeleteLesson);
+app.post('/lessons/:lessonId/chats', handleCreateLessonConversation);
+app.post('/lessons/:lessonId/share/profile', handleShareLessonToProfile);
 app.get('/profiles', renderHome);
 app.get('/profiles/new', renderHome);
 app.get('/profiles/:profileId/edit', renderHome);
 app.post('/profiles', handleCreateProfile);
 app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
-app.get('/admin-chat', (_request, response) => {
-  response.redirect('/admin-chats');
-});
-app.get('/admin-chat/:adminChatId', (request, response) => {
-  response.redirect(`/admin-chats/${encodeURIComponent(request.params.adminChatId)}`);
-});
-app.get('/admin-chats', renderHome);
-app.get('/admin-chats/new', renderHome);
-app.get('/admin-chats/:adminChatId', renderHome);
 app.get('/c/:conversationId', renderHome);
 app.get('/', renderHome);
 app.get('/session', (request, response) => {

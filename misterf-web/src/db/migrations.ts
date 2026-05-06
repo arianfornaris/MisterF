@@ -90,11 +90,11 @@ export const migrations: Migration[] = [
           ON DELETE CASCADE
       );
 
-      CREATE TABLE conversations (
+      CREATE TABLE profiles (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
-        title TEXT NOT NULL DEFAULT 'Nueva conversación',
-        title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),
+        name TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id)
@@ -102,8 +102,108 @@ export const migrations: Migration[] = [
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_conversations_user_updated
-        ON conversations (user_id, updated_at DESC);
+      CREATE INDEX idx_profiles_user_created
+        ON profiles (user_id, created_at ASC, updated_at ASC);
+
+      CREATE TABLE lessons (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tutor_instructions TEXT NOT NULL,
+        source_lesson_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_lesson_id)
+          REFERENCES lessons (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_lessons_user_profile_updated
+        ON lessons (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_lessons_profile_shared
+        ON lessons (profile_id, shared_via, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_lessons_profile_source
+        ON lessons (profile_id, source_lesson_id, shared_via);
+
+      CREATE TABLE conversations (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        active_agent TEXT NOT NULL DEFAULT 'tutor',
+        lesson_id TEXT,
+        title TEXT NOT NULL DEFAULT 'Nueva conversación',
+        title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (lesson_id)
+          REFERENCES lessons (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_conversations_user_profile_updated
+        ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_conversations_lesson_updated
+        ON conversations (lesson_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_conversations_active_agent
+        ON conversations (active_agent, updated_at DESC, created_at DESC);
+
+      CREATE TABLE conversation_lesson_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        lesson_id TEXT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tutor_instructions TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (lesson_id)
+          REFERENCES lessons (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_conversation_lesson_snapshots_lesson
+        ON conversation_lesson_snapshots (lesson_id, created_at DESC);
+
+      CREATE TABLE lesson_share_links (
+        id TEXT PRIMARY KEY,
+        lesson_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (lesson_id)
+          REFERENCES lessons (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_lesson_share_links_active
+        ON lesson_share_links (lesson_id, revoked_at, created_at DESC);
 
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -123,261 +223,13 @@ export const migrations: Migration[] = [
   },
   {
     id: 2,
-    name: 'add_activities',
+    name: 'add_conversation_active_agent',
     up: `
-      CREATE TABLE activities (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        tutor_instructions TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE
-      );
+        ALTER TABLE conversations
+        ADD COLUMN active_agent TEXT NOT NULL DEFAULT 'tutor';
 
-      CREATE INDEX idx_activities_user_updated
-        ON activities (user_id, updated_at DESC, created_at DESC);
-
-      ALTER TABLE conversations
-        ADD COLUMN activity_id TEXT
-        REFERENCES activities (id)
-        ON DELETE SET NULL;
-
-      CREATE INDEX idx_conversations_activity_updated
-        ON conversations (activity_id, updated_at DESC, created_at DESC);
-    `,
-  },
-  {
-    id: 3,
-    name: 'add_conversation_activity_snapshots',
-    up: `
-      CREATE TABLE conversation_activity_snapshots (
-        conversation_id TEXT PRIMARY KEY,
-        activity_id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        tutor_instructions TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (activity_id)
-          REFERENCES activities (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_conversation_activity_snapshots_activity
-        ON conversation_activity_snapshots (activity_id, created_at DESC);
-
-      INSERT INTO conversation_activity_snapshots (
-        conversation_id,
-        activity_id,
-        title,
-        description,
-        tutor_instructions
-      )
-      SELECT
-        conversations.id,
-        activities.id,
-        activities.title,
-        activities.description,
-        activities.tutor_instructions
-      FROM conversations
-      JOIN activities
-        ON activities.id = conversations.activity_id
-      LEFT JOIN conversation_activity_snapshots
-        ON conversation_activity_snapshots.conversation_id = conversations.id
-      WHERE conversations.activity_id IS NOT NULL
-        AND conversation_activity_snapshots.conversation_id IS NULL;
-    `,
-  },
-  {
-    id: 4,
-    name: 'add_admin_chat_tables',
-    up: `
-      CREATE TABLE admin_chat_threads (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        title TEXT NOT NULL DEFAULT 'Admin Chat',
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_admin_chat_threads_user_updated
-        ON admin_chat_threads (user_id, updated_at DESC, created_at DESC);
-
-      CREATE TABLE admin_chat_messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        thread_id TEXT NOT NULL,
-        role TEXT NOT NULL CHECK (role IN ('user', 'model')),
-        content TEXT NOT NULL,
-        metadata TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (thread_id)
-          REFERENCES admin_chat_threads (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_admin_chat_messages_thread_created
-        ON admin_chat_messages (thread_id, created_at, id);
-    `,
-  },
-  {
-    id: 5,
-    name: 'preserve_activity_snapshots_after_activity_delete',
-    up: `
-      CREATE TABLE conversation_activity_snapshots_next (
-        conversation_id TEXT PRIMARY KEY,
-        activity_id TEXT,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        tutor_instructions TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (activity_id)
-          REFERENCES activities (id)
-          ON DELETE SET NULL
-      );
-
-      INSERT INTO conversation_activity_snapshots_next (
-        conversation_id,
-        activity_id,
-        title,
-        description,
-        tutor_instructions,
-        created_at
-      )
-      SELECT
-        conversation_id,
-        activity_id,
-        title,
-        description,
-        tutor_instructions,
-        created_at
-      FROM conversation_activity_snapshots;
-
-      DROP TABLE conversation_activity_snapshots;
-
-      ALTER TABLE conversation_activity_snapshots_next
-        RENAME TO conversation_activity_snapshots;
-
-      CREATE INDEX idx_conversation_activity_snapshots_activity
-        ON conversation_activity_snapshots (activity_id, created_at DESC);
-    `,
-  },
-  {
-    id: 6,
-    name: 'add_profiles',
-    up: `
-      CREATE TABLE profiles (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_profiles_user_created
-        ON profiles (user_id, created_at ASC, updated_at ASC);
-
-      INSERT INTO profiles (id, user_id, name, description)
-      SELECT
-        users.id || '::default',
-        users.id,
-        'Perfil principal',
-        ''
-      FROM users;
-
-      ALTER TABLE conversations
-        ADD COLUMN profile_id TEXT
-        REFERENCES profiles (id)
-        ON DELETE CASCADE;
-
-      UPDATE conversations
-      SET profile_id = user_id || '::default'
-      WHERE profile_id IS NULL;
-
-      CREATE INDEX idx_conversations_user_profile_updated
-        ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      ALTER TABLE activities
-        ADD COLUMN profile_id TEXT
-        REFERENCES profiles (id)
-        ON DELETE CASCADE;
-
-      UPDATE activities
-      SET profile_id = user_id || '::default'
-      WHERE profile_id IS NULL;
-
-      CREATE INDEX idx_activities_user_profile_updated
-        ON activities (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      ALTER TABLE admin_chat_threads
-        ADD COLUMN profile_id TEXT
-        REFERENCES profiles (id)
-        ON DELETE CASCADE;
-
-      UPDATE admin_chat_threads
-      SET profile_id = user_id || '::default'
-      WHERE profile_id IS NULL;
-
-      CREATE INDEX idx_admin_chat_threads_user_profile_updated
-        ON admin_chat_threads (user_id, profile_id, updated_at DESC, created_at DESC);
-    `,
-  },
-  {
-    id: 7,
-    name: 'add_activity_sharing',
-    up: `
-      ALTER TABLE activities
-        ADD COLUMN source_activity_id TEXT
-        REFERENCES activities (id)
-        ON DELETE SET NULL;
-
-      ALTER TABLE activities
-        ADD COLUMN source_user_id TEXT
-        REFERENCES users (id)
-        ON DELETE SET NULL;
-
-      ALTER TABLE activities
-        ADD COLUMN source_profile_id TEXT
-        REFERENCES profiles (id)
-        ON DELETE SET NULL;
-
-      ALTER TABLE activities
-        ADD COLUMN shared_via TEXT
-        CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link'));
-
-      CREATE INDEX idx_activities_profile_shared
-        ON activities (profile_id, shared_via, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_activities_profile_source
-        ON activities (profile_id, source_activity_id, shared_via);
-
-      CREATE TABLE activity_share_links (
-        id TEXT PRIMARY KEY,
-        activity_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (activity_id)
-          REFERENCES activities (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_activity_share_links_active
-        ON activity_share_links (activity_id, revoked_at, created_at DESC);
-    `,
+        CREATE INDEX IF NOT EXISTS idx_conversations_active_agent
+        ON conversations (active_agent, updated_at DESC, created_at DESC);
+      `,
   },
 ];

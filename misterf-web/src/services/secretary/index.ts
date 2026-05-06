@@ -1,0 +1,499 @@
+import { generateText, stepCountIs, tool, type ModelMessage } from 'ai';
+import { z } from 'zod';
+import { env } from '../../config/env.js';
+import {
+  createLesson,
+  deleteLessonForUser,
+  findLessonForUser,
+  listConversationsForLesson,
+  listLessonsForProfile,
+  updateLesson,
+  type StoredLesson,
+} from '../../db/repository.js';
+import {
+  buildLlmRequestTokenUsage,
+  logLlmInvalidRawResponse,
+  logLlmRequest,
+  logLlmResponse,
+  logLlmToolCalls,
+} from '../llmTutor/logging.js';
+import { buildSecretarySystemInstruction } from '../llmTutor/prompt.js';
+import {
+  getLanguageModel,
+  getProviderOptions,
+  getUserFacingFinishReasonMessage,
+  shouldUseTemperature,
+} from '../llmTutor/providers.js';
+import type {
+  LlmRequestOptions,
+  LlmRequestTokenUsage,
+  TutorLessonLinkBlock,
+  TutorMessageBlock,
+} from '../llmTutor/types.js';
+
+export type SecretaryResult = {
+  blocks: Array<TutorMessageBlock | TutorLessonLinkBlock>;
+  content: string;
+  model: string;
+  provider: string;
+  returnToTutor: boolean;
+};
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+async function continueSecretaryResponseAfterToolUse(input: {
+  abortSignal?: AbortSignal;
+  llm?: LlmRequestOptions;
+  messages: ModelMessage[];
+  system: string;
+  toolResults: Array<{
+    output: unknown;
+    preliminary?: boolean;
+    toolName: string;
+  }>;
+}) {
+  const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
+  const continuationMessages: ModelMessage[] = [
+    ...input.messages,
+    {
+      role: 'user',
+      content: [
+        'INTERNAL APP CONTINUATION.',
+        'The previous step already used tools and may have completed lesson actions successfully.',
+        'Do not call any more tools in this step.',
+        'Using the tool results below, answer the learner now in normal natural Spanish.',
+        'Explain clearly what happened.',
+        'Do not return JSON.',
+        '',
+        JSON.stringify(
+          finalizedToolResults.map((result) => ({
+            output: result.output,
+            toolName: result.toolName,
+          })),
+          null,
+          2,
+        ),
+      ].join('\n'),
+    },
+  ];
+
+  return generateText({
+    abortSignal: input.abortSignal,
+    maxOutputTokens: 1200,
+    messages: continuationMessages,
+    model: getLanguageModel(input.llm),
+    providerOptions: getProviderOptions(),
+    system: input.system,
+    temperature: shouldUseTemperature() ? 0.35 : undefined,
+  });
+}
+
+export async function runSecretaryAgentLoop(
+  history: Array<{ content: string; role: 'model' | 'user' }>,
+  options: {
+    abortSignal?: AbortSignal;
+    currentLessonId?: string | null;
+    currentLessonTitle?: string | null;
+    llm?: LlmRequestOptions;
+    onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
+    onToolCall?: (toolName: string) => void;
+    profileId?: string | null;
+    userId?: string | null;
+  },
+): Promise<SecretaryResult> {
+  const messages: ModelMessage[] = history.map((message) => ({
+    content: message.content,
+    role: message.role === 'model' ? 'assistant' : 'user',
+  }));
+
+  const system = buildSecretarySystemInstruction({
+    currentLessonTitle: options.currentLessonTitle ?? null,
+  });
+
+  logLlmRequest(messages, system, options, 1);
+
+  const result = await generateText({
+    abortSignal: options.abortSignal,
+    maxOutputTokens: 1200,
+    messages,
+    model: getLanguageModel(options.llm),
+    providerOptions: getProviderOptions(),
+    stopWhen: stepCountIs(6),
+    system,
+    temperature: shouldUseTemperature() ? 0.45 : undefined,
+    tools: buildSecretaryLessonTools({
+      currentLessonId: options.currentLessonId ?? null,
+      onToolCall: options.onToolCall,
+      profileId: options.profileId ?? null,
+      userId: options.userId ?? null,
+    }),
+  });
+
+  logLlmToolCalls({
+    steps: result.steps,
+    turn: 1,
+  });
+
+  const toolResults = result.steps.flatMap((step) => step.toolResults);
+  const effectiveResult =
+    !result.text.trim() && toolResults.length > 0
+      ? await continueSecretaryResponseAfterToolUse({
+          abortSignal: options.abortSignal,
+          llm: options.llm,
+          messages,
+          system,
+          toolResults,
+        })
+      : result;
+
+  const text = effectiveResult.text.trim();
+  if (!text) {
+    logLlmInvalidRawResponse({
+      error: new Error('Secretary loop returned empty text.'),
+      rawText: effectiveResult.text,
+      turn: 1,
+    });
+    throw new Error('Ms. María no pudo responder en este momento.');
+  }
+
+  logLlmResponse(
+    {
+      blocks: [
+        {
+          markdown: text,
+          type: 'message',
+        },
+        ...extractInferredLessonLinkBlocks(toolResults),
+      ],
+    },
+    effectiveResult.finishReason,
+    effectiveResult.usage,
+    effectiveResult.providerMetadata,
+    1,
+  );
+
+  options.onTokenUsage?.(
+    await buildLlmRequestTokenUsage({
+      messages,
+      system,
+      turn: 1,
+      usage: effectiveResult.usage,
+    }),
+  );
+
+  const userFacingFinishMessage = getUserFacingFinishReasonMessage(
+    effectiveResult.finishReason,
+    undefined,
+    effectiveResult.providerMetadata,
+  );
+  if (userFacingFinishMessage) {
+    throw new Error(userFacingFinishMessage);
+  }
+
+  return {
+    blocks: [
+      {
+        markdown: text,
+        type: 'message',
+      },
+      ...extractInferredLessonLinkBlocks(toolResults),
+    ],
+    content: text,
+    model: env.llmModel,
+    provider: env.llmProvider,
+    returnToTutor: extractReturnToTutor(toolResults),
+  };
+}
+
+function buildSecretaryLessonTools(input: {
+  currentLessonId: string | null;
+  onToolCall?: (toolName: string) => void;
+  profileId: string | null;
+  userId: string | null;
+}) {
+  if (!input.userId || !input.profileId) {
+    return undefined;
+  }
+
+  const { currentLessonId, onToolCall, profileId, userId } = input;
+
+  function announceToolCall(toolName: string) {
+    onToolCall?.(toolName);
+  }
+
+  return {
+    list_lessons: tool({
+      description:
+        'List the lessons in the current profile. Optionally filter by a text query in the title or description.',
+      inputSchema: z.object({
+        query: z.string().trim().min(1).optional(),
+      }),
+      execute: async ({ query }) => {
+        announceToolCall('list_lessons');
+        const normalizedQuery = normalizeSearchText(query || '');
+        const lessons = listLessonsForProfile(userId, profileId)
+          .filter((lesson) => {
+            if (!normalizedQuery) {
+              return true;
+            }
+
+            return normalizeSearchText(
+              `${lesson.title}\n${lesson.description}\n${lesson.tutorInstructions}`,
+            ).includes(normalizedQuery);
+          })
+          .map((lesson) => summarizeLesson(lesson, userId));
+
+        return { count: lessons.length, lessons };
+      },
+    }),
+    create_lesson: tool({
+      description: 'Create a new lesson in the current profile.',
+      inputSchema: z.object({
+        description: z.string().trim().min(1).max(1500),
+        title: z.string().trim().min(1).max(220),
+        tutorInstructions: z.string().trim().min(1).max(12000),
+      }),
+      execute: async ({ description, title, tutorInstructions }) => {
+        announceToolCall('create_lesson');
+        const lesson = createLesson({
+          description,
+          profileId,
+          title,
+          tutorInstructions,
+          userId,
+        });
+
+        return { lesson: summarizeLesson(lesson, userId) };
+      },
+    }),
+    update_lesson: tool({
+      description:
+        'Update a lesson in the current profile. If lessonId is omitted, use the current lesson when this conversation already belongs to one.',
+      inputSchema: z.object({
+        lessonId: z.string().trim().min(1).optional(),
+        description: z.string().trim().min(1).max(1500).optional(),
+        title: z.string().trim().min(1).max(220).optional(),
+        tutorInstructions: z.string().trim().min(1).max(12000).optional(),
+      }),
+      execute: async ({ lessonId, description, title, tutorInstructions }) => {
+        announceToolCall('update_lesson');
+        const resolvedLessonId = lessonId || currentLessonId;
+        if (!resolvedLessonId) {
+          return { error: 'No lessonId was provided and there is no current lesson in this chat.' };
+        }
+
+        const current = findLessonForUser(resolvedLessonId, userId);
+        if (!current) {
+          return { error: `No lesson found with id ${resolvedLessonId}.` };
+        }
+        if (current.profileId !== profileId) {
+          return { error: `Lesson ${resolvedLessonId} does not belong to the current profile.` };
+        }
+
+        const next = updateLesson({
+          lessonId: resolvedLessonId,
+          description: description ?? current.description,
+          title: title ?? current.title,
+          tutorInstructions: tutorInstructions ?? current.tutorInstructions,
+          userId,
+        });
+        if (!next) {
+          return { error: `Could not update lesson ${resolvedLessonId}.` };
+        }
+
+        return { lesson: summarizeLesson(next, userId) };
+      },
+    }),
+    delete_lesson: tool({
+      description:
+        'Delete a lesson from the current profile. Existing chats keep their historical snapshot.',
+      inputSchema: z.object({
+        lessonId: z.string().trim().min(1).optional(),
+      }),
+      execute: async ({ lessonId }) => {
+        announceToolCall('delete_lesson');
+        const resolvedLessonId = lessonId || currentLessonId;
+        if (!resolvedLessonId) {
+          return { error: 'No lessonId was provided and there is no current lesson in this chat.' };
+        }
+
+        const current = findLessonForUser(resolvedLessonId, userId);
+        if (!current) {
+          return { error: `No lesson found with id ${resolvedLessonId}.` };
+        }
+        if (current.profileId !== profileId) {
+          return { error: `Lesson ${resolvedLessonId} does not belong to the current profile.` };
+        }
+
+        const deleted = deleteLessonForUser(resolvedLessonId, userId);
+        if (!deleted) {
+          return { error: `Could not delete lesson ${resolvedLessonId}.` };
+        }
+
+        return {
+          deletedLesson: {
+            id: current.id,
+            title: current.title,
+          },
+        };
+      },
+    }),
+    build_lesson_link: tool({
+      description:
+        'Build a lesson link block for the UI so the chat can render a button to open a lesson.',
+      inputSchema: z.object({
+        lessonId: z.string().trim().min(1).optional(),
+        label: z.string().trim().min(1).max(160).optional(),
+      }),
+      execute: async ({ lessonId, label }) => {
+        announceToolCall('build_lesson_link');
+        const resolvedLessonId = lessonId || currentLessonId;
+        if (!resolvedLessonId) {
+          return { error: 'No lessonId was provided and there is no current lesson in this chat.' };
+        }
+
+        const lesson = findLessonForUser(resolvedLessonId, userId);
+        if (!lesson) {
+          return { error: `No lesson found with id ${resolvedLessonId}.` };
+        }
+        if (lesson.profileId !== profileId) {
+          return { error: `Lesson ${resolvedLessonId} does not belong to the current profile.` };
+        }
+
+        return {
+          action: {
+            lessonId: resolvedLessonId,
+            label: label || 'Abrir lección',
+            type: 'lesson_link' as const,
+          },
+        };
+      },
+    }),
+    return_to_tutor: tool({
+      description:
+        'Return control of the conversation to Mr. F when the learner asks to go back to the tutor.',
+      inputSchema: z.object({
+        note: z.string().trim().min(1).max(300).optional(),
+      }),
+      execute: async ({ note }) => {
+        announceToolCall('return_to_tutor');
+        return {
+          action: {
+            note: note || null,
+            type: 'return_to_tutor' as const,
+          },
+        };
+      },
+    }),
+  };
+}
+
+function summarizeLesson(lesson: StoredLesson, userId: string) {
+  return {
+    conversationCount: listConversationsForLesson(lesson.id, userId, lesson.profileId).length,
+    description: lesson.description,
+    id: lesson.id,
+    title: lesson.title,
+    tutorInstructions: lesson.tutorInstructions,
+    updatedAt: lesson.updatedAt,
+    url: `/lessons/${encodeURIComponent(lesson.id)}`,
+  };
+}
+
+function extractInferredLessonLinkBlocks(
+  toolResults: Array<{
+    output: unknown;
+    preliminary?: boolean;
+    toolName: string;
+  }>,
+): TutorLessonLinkBlock[] {
+  const actions: TutorLessonLinkBlock[] = [];
+
+  for (const result of toolResults) {
+    if (result.preliminary) {
+      continue;
+    }
+
+    if (result.toolName === 'build_lesson_link') {
+      const action = extractLessonLinkAction((result.output as { action?: unknown })?.action);
+      if (action) {
+        actions.push(action);
+      }
+      continue;
+    }
+
+    if (result.toolName === 'create_lesson' || result.toolName === 'update_lesson') {
+      const lesson = extractLessonRecord((result.output as { lesson?: unknown })?.lesson);
+      if (lesson) {
+        actions.push({
+          lessonId: lesson.id,
+          label: 'Abrir lección',
+          type: 'lesson_link',
+        });
+      }
+    }
+  }
+
+  return Array.from(new Map(actions.map((action) => [action.lessonId, action])).values());
+}
+
+function extractLessonLinkAction(value: unknown): TutorLessonLinkBlock | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  if (typeof record.lessonId !== 'string' || typeof record.label !== 'string') {
+    return null;
+  }
+
+  return {
+    lessonId: record.lessonId,
+    label: record.label,
+    type: 'lesson_link',
+  };
+}
+
+function extractLessonRecord(value: unknown) {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  if (typeof record.id !== 'string' || typeof record.title !== 'string') {
+    return null;
+  }
+
+  return {
+    id: record.id,
+    title: record.title,
+  };
+}
+
+function extractReturnToTutor(
+  toolResults: Array<{
+    output: unknown;
+    preliminary?: boolean;
+    toolName: string;
+  }>,
+): boolean {
+  return toolResults.some((result) => {
+    if (result.preliminary || result.toolName !== 'return_to_tutor') {
+      return false;
+    }
+
+    const action = (result.output as { action?: unknown } | undefined)?.action;
+    if (!action || typeof action !== 'object') {
+      return false;
+    }
+
+    return (action as Record<string, unknown>).type === 'return_to_tutor';
+  });
+}

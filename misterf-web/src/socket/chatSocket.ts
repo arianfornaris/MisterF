@@ -1,5 +1,8 @@
 import type { Server, Socket } from 'socket.io';
-import { findUserBySessionTokenHash } from '../auth/repository.js';
+import {
+  findUserById,
+  findUserBySessionTokenHash,
+} from '../auth/repository.js';
 import {
   getSessionTokenFromCookieHeader,
   hashSessionToken,
@@ -7,21 +10,16 @@ import {
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import {
   addMessage,
-  addAdminChatMessage,
   ensureUserHasProfile,
   createConversation,
-  createAdminChatThread,
-  deleteAdminChatThreadForUser,
   deleteConversationForUser,
-  findAdminChatThreadForUser,
   findConversationForUser,
   findProfileForUser,
-  getConversationActivitySnapshot,
+  getConversationLessonSnapshot,
   findMessageInConversation,
-  listAdminChatMessages,
   listMessages,
-  renameAdminChatThreadForUser,
   renameConversationForUser,
+  setConversationActiveAgentForUser,
   updateMessageMetadata,
   type StoredMessage,
   type StoredProfile,
@@ -44,24 +42,18 @@ import {
   type TutorMultipleChoiceBlock,
   type TutorUnscrambleSentenceBlock,
 } from '../services/llmTutor.js';
-import { runAdminChatLoop } from '../services/adminChat.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
+import {
+  runSecretaryAgentLoop,
+  type SecretaryResult,
+} from '../services/secretary/index.js';
 
 type JoinPayload = {
   conversationId?: string | null;
 };
 
 type SendMessagePayload = {
-  conversationId?: string | null;
-  content?: string;
-};
-
-type AdminJoinPayload = {
-  conversationId?: string | null;
-};
-
-type AdminSendMessagePayload = {
   conversationId?: string | null;
   content?: string;
 };
@@ -75,21 +67,12 @@ type DeletePayload = {
   conversationId?: string | null;
 };
 
-type AdminRenamePayload = {
-  threadId?: string | null;
-  title?: string;
-};
-
-type AdminDeletePayload = {
-  threadId?: string | null;
-};
-
 type TranslatePayload = {
   mode?: string;
   text?: string;
 };
 
-type ActivityStartPayload = {
+type LessonStartPayload = {
   conversationId?: string | null;
 };
 
@@ -97,8 +80,9 @@ type CancelAssistantPayload = {
   conversationId?: string | null;
 };
 
-type CancelAdminAssistantPayload = {
-  conversationId?: string | null;
+type AssistantToolStatusPayload = {
+  label: string;
+  toolName: string;
 };
 
 type MatchingExerciseCompletedPayload = {
@@ -163,9 +147,7 @@ type AuthenticatedSocketData = {
 };
 
 const runningConversations = new Set<string>();
-const runningAdminThreads = new Set<string>();
 const runningConversationControllers = new Map<string, AbortController>();
-const runningAdminThreadControllers = new Map<string, AbortController>();
 
 export function registerChatSocket(io: Server): void {
   io.use((socket, next) => {
@@ -177,13 +159,18 @@ export function registerChatSocket(io: Server): void {
       return;
     }
 
+    const user = findUserById(payload.sub);
+    if (!user?.emailVerified) {
+      next(new Error('authentication_required'));
+      return;
+    }
+
     (socket.data as AuthenticatedSocketData).authenticatedUser = payload;
     next();
   });
 
   io.on('connection', (socket) => {
     let currentConversationId: string | null = null;
-    let currentAdminThreadId: string | null = null;
     let pendingInitialGreeting = pickInitialGreeting();
     let currentProfile: StoredProfile | null = null;
 
@@ -209,11 +196,13 @@ export function registerChatSocket(io: Server): void {
         leaveConversationRoom(socket, currentConversationId);
         currentConversationId = null;
         socket.emit('conversation:ready', {
-          activity: null,
+          activeAgent: 'tutor',
+          assistantPending: false,
+          lesson: null,
           conversation: null,
           conversationId: null,
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-          pendingActivityStart: false,
+          pendingLessonStart: false,
         });
         return;
       }
@@ -222,66 +211,30 @@ export function registerChatSocket(io: Server): void {
       currentConversationId = conversation.id;
 
       const messages = listMessages(conversation.id);
-      const activitySnapshot = getConversationActivitySnapshot(conversation.id);
+      const lessonSnapshot = getConversationLessonSnapshot(conversation.id);
       if (messages.length === 0) {
         pendingInitialGreeting = pickInitialGreeting();
       }
 
       socket.emit('conversation:ready', {
-        activity: activitySnapshot
+        activeAgent: conversation.activeAgent,
+        assistantPending: runningConversations.has(conversation.id),
+        lesson: lessonSnapshot
           ? {
-              description: activitySnapshot.description,
-              id: activitySnapshot.activityId,
-              title: activitySnapshot.title,
+              description: lessonSnapshot.description,
+              id: lessonSnapshot.lessonId,
+              title: lessonSnapshot.title,
             }
           : null,
         conversation,
         conversationId: conversation.id,
         messages:
-          activitySnapshot && messages.length === 0
+          lessonSnapshot && messages.length === 0
             ? []
             : messages.length > 0
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
-        pendingActivityStart: Boolean(activitySnapshot && messages.length === 0),
-      });
-    });
-
-    socket.on('admin-chat:join', async (payload: AdminJoinPayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-      currentProfile = resolveSocketProfile(socket, userId);
-
-      const thread = payload.conversationId
-        ? findAdminChatThreadForUser(payload.conversationId, userId)
-        : null;
-
-      if (!thread) {
-        leaveAdminThreadRoom(socket, currentAdminThreadId);
-        currentAdminThreadId = null;
-        socket.emit('admin-chat:ready', {
-          activity: null,
-          conversation: null,
-          conversationId: null,
-          messages: [createEphemeralAdminMessage()],
-          pendingActivityStart: false,
-        });
-        return;
-      }
-
-      joinAdminThreadRoom(socket, currentAdminThreadId, thread.id);
-      currentAdminThreadId = thread.id;
-
-      const messages = listAdminChatMessages(thread.id);
-      socket.emit('admin-chat:ready', {
-        activity: null,
-        conversation: null,
-        conversationId: thread.id,
-        messages: messages.length > 0 ? messages : [createEphemeralAdminMessage()],
-        pendingActivityStart: false,
+        pendingLessonStart: Boolean(lessonSnapshot && messages.length === 0),
       });
     });
 
@@ -304,7 +257,7 @@ export function registerChatSocket(io: Server): void {
 
       const shouldPersistInitialGreeting =
         !conversation ||
-        (listMessages(conversation.id).length === 0 && !conversation.activityId);
+        (listMessages(conversation.id).length === 0 && !conversation.lessonId);
       if (!conversation) {
         if (!currentProfile) {
           return;
@@ -361,74 +314,6 @@ export function registerChatSocket(io: Server): void {
       runningConversationControllers.get(conversationId)?.abort();
     });
 
-    socket.on('admin-chat:send', async (payload: AdminSendMessagePayload = {}) => {
-      const content = payload.content?.trim();
-      if (!content) {
-        return;
-      }
-
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      let thread = payload.conversationId
-        ? findAdminChatThreadForUser(payload.conversationId, userId)
-        : null;
-
-      if (!thread) {
-        if (!currentProfile) {
-          return;
-        }
-
-        thread = createAdminChatThread(userId, currentProfile.id);
-        socket.emit('admin-chat:promoted', {
-          conversationId: thread.id,
-        });
-      }
-
-      joinAdminThreadRoom(socket, currentAdminThreadId, thread.id);
-      currentAdminThreadId = thread.id;
-
-      if (runningAdminThreads.has(thread.id)) {
-        socket.emit('assistant:error', {
-          message: 'Espera un momento: Mr. F todavía está respondiendo.',
-        });
-        return;
-      }
-
-      const userMessage = addAdminChatMessage(thread.id, 'user', content);
-      io.to(getAdminThreadRoomId(thread.id)).emit('message:created', userMessage);
-
-      await streamAdminAssistantMessage(
-        io,
-        thread.id,
-        userId,
-        currentProfile?.id ?? thread.profileId,
-      );
-    });
-
-    socket.on('admin-chat:cancel', (payload: CancelAdminAssistantPayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      const threadId = payload.conversationId?.trim();
-      if (!threadId) {
-        return;
-      }
-
-      const thread = findAdminChatThreadForUser(threadId, userId);
-      if (!thread) {
-        return;
-      }
-
-      runningAdminThreadControllers.get(threadId)?.abort();
-    });
-
     socket.on('conversation:reset', async () => {
       const userId = getAuthenticatedUserId(socket);
       if (!userId) {
@@ -440,11 +325,13 @@ export function registerChatSocket(io: Server): void {
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
-        activity: null,
+        activeAgent: 'tutor',
+        assistantPending: false,
+        lesson: null,
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-        pendingActivityStart: false,
+        pendingLessonStart: false,
       });
     });
 
@@ -534,103 +421,17 @@ export function registerChatSocket(io: Server): void {
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
-        activity: null,
+        activeAgent: 'tutor',
+        assistantPending: false,
+        lesson: null,
         conversation: null,
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-        pendingActivityStart: false,
+        pendingLessonStart: false,
       });
     });
 
-    socket.on('admin-chat:rename', (payload: AdminRenamePayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      const threadId = payload.threadId?.trim();
-      const title = normalizeConversationTitle(payload.title);
-      if (!threadId || !title) {
-        socket.emit('admin-chat:error', {
-          message: 'El título del chat admin no puede estar vacío.',
-        });
-        return;
-      }
-
-      const thread = renameAdminChatThreadForUser(threadId, userId, title);
-      if (!thread) {
-        socket.emit('admin-chat:error', {
-          message: 'No pude encontrar ese chat admin.',
-        });
-        return;
-      }
-
-      socket.emit('admin-chat:renamed', {
-        conversation: thread,
-        conversationId: thread.id,
-      });
-      io.to(getAdminThreadRoomId(thread.id)).emit('admin-chat:renamed', {
-        conversation: thread,
-        conversationId: thread.id,
-      });
-    });
-
-    socket.on('admin-chat:delete', (payload: AdminDeletePayload = {}) => {
-      const userId = getAuthenticatedUserId(socket);
-      if (!userId) {
-        emitAuthRequired(socket);
-        return;
-      }
-
-      const threadId = payload.threadId?.trim();
-      if (!threadId) {
-        return;
-      }
-
-      const thread = findAdminChatThreadForUser(threadId, userId);
-      if (!thread) {
-        socket.emit('admin-chat:error', {
-          message: 'No pude encontrar ese chat admin.',
-        });
-        return;
-      }
-
-      const wasCurrentThread = currentAdminThreadId === thread.id;
-      const deleted = deleteAdminChatThreadForUser(thread.id, userId);
-      if (!deleted) {
-        socket.emit('admin-chat:error', {
-          message: 'No pude eliminar ese chat admin.',
-        });
-        return;
-      }
-
-      runningAdminThreads.delete(thread.id);
-      io.to(getAdminThreadRoomId(thread.id)).emit('admin-chat:deleted', {
-        conversationId: thread.id,
-        wasActive: true,
-      });
-
-      if (!wasCurrentThread) {
-        socket.emit('admin-chat:deleted', {
-          conversationId: thread.id,
-          wasActive: false,
-        });
-        return;
-      }
-
-      leaveAdminThreadRoom(socket, currentAdminThreadId);
-      currentAdminThreadId = null;
-      socket.emit('admin-chat:ready', {
-        activity: null,
-        conversation: null,
-        conversationId: null,
-        messages: [createEphemeralAdminMessage()],
-        pendingActivityStart: false,
-      });
-    });
-
-    socket.on('activity:start', async (payload: ActivityStartPayload = {}) => {
+    socket.on('lesson:start', async (payload: LessonStartPayload = {}) => {
       const userId = getAuthenticatedUserId(socket);
       if (!userId) {
         emitAuthRequired(socket);
@@ -643,17 +444,17 @@ export function registerChatSocket(io: Server): void {
       }
 
       const conversation = findConversationForUser(conversationId, userId);
-      if (!conversation?.activityId) {
+      if (!conversation?.lessonId) {
         socket.emit('assistant:error', {
-          message: 'No pude iniciar esta actividad.',
+          message: 'No pude iniciar esta lección.',
         });
         return;
       }
 
-      const activitySnapshot = getConversationActivitySnapshot(conversation.id);
-      if (!activitySnapshot) {
+      const lessonSnapshot = getConversationLessonSnapshot(conversation.id);
+      if (!lessonSnapshot) {
         socket.emit('assistant:error', {
-          message: 'No pude cargar la actividad.',
+          message: 'No pude cargar la lección.',
         });
         return;
       }
@@ -668,7 +469,7 @@ export function registerChatSocket(io: Server): void {
         userId,
         undefined,
         false,
-        [buildActivityStartMessage(activitySnapshot)],
+        [buildLessonStartMessage(lessonSnapshot)],
       );
     });
 
@@ -1264,31 +1065,6 @@ function leaveConversationRoom(
   }
 }
 
-function getAdminThreadRoomId(threadId: string): string {
-  return `admin-thread:${threadId}`;
-}
-
-function joinAdminThreadRoom(
-  socket: Socket,
-  previousThreadId: string | null,
-  nextThreadId: string,
-): void {
-  if (previousThreadId && previousThreadId !== nextThreadId) {
-    socket.leave(getAdminThreadRoomId(previousThreadId));
-  }
-
-  socket.join(getAdminThreadRoomId(nextThreadId));
-}
-
-function leaveAdminThreadRoom(
-  socket: Socket,
-  threadId: string | null,
-): void {
-  if (threadId) {
-    socket.leave(getAdminThreadRoomId(threadId));
-  }
-}
-
 function createEphemeralInitialMessage(content: string): TutorMessage {
   return {
     content,
@@ -1296,12 +1072,8 @@ function createEphemeralInitialMessage(content: string): TutorMessage {
   };
 }
 
-function createEphemeralAdminMessage(): TutorMessage {
-  return {
-    content:
-      'Soy Mr. F en modo Admin Chat. Puedo ayudarte a crear o editar actividades, revisar conversaciones y renombrar cosas dentro de la app.',
-    role: 'model',
-  };
+function buildSecretaryIntroMessage(): string {
+  return 'Hola. Puedo ayudarte a crear, revisar, editar, organizar y eliminar lecciones usando el contexto de esta conversación. Si luego quieres volver con Mr. F, solo dímelo.';
 }
 
 function normalizeConversationTitle(title?: string): string {
@@ -1334,6 +1106,8 @@ async function streamAssistantMessage(
   }
 
   const abortController = new AbortController();
+  let shouldActivateSecretary = false;
+  let pendingSecretaryInstruction: string | null = null;
   runningConversations.add(conversationId);
   runningConversationControllers.set(conversationId, abortController);
   io.to(conversationId).emit('assistant:start');
@@ -1343,29 +1117,51 @@ async function streamAssistantMessage(
     if (!conversation) {
       throw new Error('Conversation not found.');
     }
-    const activitySnapshot = getConversationActivitySnapshot(conversationId);
+    const lessonSnapshot = getConversationLessonSnapshot(conversationId);
 
     const messages = listMessages(conversationId);
-    const result = await runTutorAgentLoop(
-      [...toTutorHistory(messages), ...extraHistory],
-      {
-        activity: activitySnapshot
-          ? {
-              description: activitySnapshot.description,
-              title: activitySnapshot.title,
-              tutorInstructions: activitySnapshot.tutorInstructions,
-            }
-          : null,
-        abortSignal: abortController.signal,
-        currentTitle: conversation.title,
-        llm: await getLlmRequestOptionsForUser(userId),
-        onTokenUsage: (usage) => {
-          emitLlmRequestTokenUsage(io, conversationId, usage);
-        },
-        startConversation,
-        titleUpdatedByUser: conversation.titleUpdatedByUser,
-      },
-    );
+    const llmOptions = await getLlmRequestOptionsForUser(userId);
+    const onTokenUsage = (usage: LlmRequestTokenUsage) => {
+      emitLlmRequestTokenUsage(io, conversationId, usage);
+    };
+    const onToolCall = (toolName: string) => {
+      emitAssistantToolStatus(io, conversationId, toolName);
+    };
+    const history = [...toTutorHistory(messages), ...extraHistory];
+    const lessonContext = lessonSnapshot
+      ? {
+          description: lessonSnapshot.description,
+          title: lessonSnapshot.title,
+          tutorInstructions: lessonSnapshot.tutorInstructions,
+        }
+      : null;
+
+    const isSecretaryConversation = conversation.activeAgent === 'secretary';
+    const result =
+      isSecretaryConversation
+        ? await runSecretaryAgentLoop(history, {
+            abortSignal: abortController.signal,
+            currentLessonId: conversation.lessonId,
+            currentLessonTitle: lessonSnapshot?.title ?? null,
+            llm: llmOptions,
+            onTokenUsage,
+            onToolCall,
+            profileId: conversation.profileId,
+            userId,
+          })
+        : await runTutorAgentLoop(history, {
+            lesson: lessonContext,
+            abortSignal: abortController.signal,
+            currentTitle: conversation.title,
+            currentLessonId: conversation.lessonId,
+            llm: llmOptions,
+            onTokenUsage,
+            onToolCall,
+            profileId: conversation.profileId,
+            startConversation,
+            titleUpdatedByUser: conversation.titleUpdatedByUser,
+            userId,
+          });
 
     const trimmedContent = result.content.trim();
     if (!trimmedContent) {
@@ -1376,19 +1172,54 @@ async function streamAssistantMessage(
       conversationId,
       'model',
       trimmedContent,
-      { blocks: result.blocks, model: result.model, provider: result.provider },
+      conversation.activeAgent === 'secretary'
+        ? buildSecretaryMessageMetadata(result)
+        : { blocks: result.blocks, model: result.model, provider: result.provider },
     );
     emitConversationUpdated(io, conversationId, userId);
 
-    applyTutorBlocksRuntime({
-      blocks: result.blocks,
-      conversationId,
-      io,
-      lastUserMessageId,
-      userId,
-    });
+    if (conversation.activeAgent === 'tutor') {
+      applyTutorBlocksRuntime({
+        blocks: result.blocks,
+        conversationId,
+        io,
+        lastUserMessageId,
+        userId,
+      });
+    }
 
     io.to(conversationId).emit('assistant:done', assistantMessage);
+
+    if (isSecretaryConversation && (result as SecretaryResult).returnToTutor) {
+      const nextConversation = setConversationActiveAgentForUser(
+        conversationId,
+        userId,
+        'tutor',
+      );
+      if (nextConversation) {
+        const tutorReturn = addMessage(
+          conversationId,
+          'model',
+          'Aquí estoy de nuevo. Seguimos con la parte pedagógica cuando quieras.',
+          { source: 'tutor_return' },
+        );
+        emitConversationUpdated(io, conversationId, userId);
+        io.to(conversationId).emit('message:created', tutorReturn);
+      }
+      return;
+    }
+
+    if (
+      conversation.activeAgent === 'tutor' &&
+      result.blocks.some((block) => block.type === 'call_secretary')
+    ) {
+      const secretaryCall = result.blocks.find(
+        (block): block is { type: 'call_secretary'; instruction?: string } =>
+          block.type === 'call_secretary',
+      );
+      shouldActivateSecretary = true;
+      pendingSecretaryInstruction = secretaryCall?.instruction?.trim() || null;
+    }
   } catch (error) {
     if (isAbortError(error, abortController.signal)) {
       io.to(conversationId).emit('assistant:stopped');
@@ -1409,77 +1240,103 @@ async function streamAssistantMessage(
     runningConversations.delete(conversationId);
     runningConversationControllers.delete(conversationId);
   }
+
+  if (shouldActivateSecretary) {
+    await activateSecretaryMode(
+      io,
+      conversationId,
+      userId,
+      pendingSecretaryInstruction,
+    );
+  }
 }
 
-async function streamAdminAssistantMessage(
+async function activateSecretaryMode(
   io: Server,
-  threadId: string,
+  conversationId: string,
   userId: string,
-  profileId: string,
+  instruction?: string | null,
 ): Promise<void> {
-  if (runningAdminThreads.has(threadId)) {
+  const conversation = setConversationActiveAgentForUser(
+    conversationId,
+    userId,
+    'secretary',
+  );
+  if (!conversation) {
     return;
   }
 
-  const abortController = new AbortController();
-  runningAdminThreads.add(threadId);
-  runningAdminThreadControllers.set(threadId, abortController);
-  const roomId = getAdminThreadRoomId(threadId);
-  io.to(roomId).emit('assistant:start');
-
-  try {
-    const thread = findAdminChatThreadForUser(threadId, userId);
-    if (!thread) {
-      throw new Error('Admin chat thread not found.');
-    }
-
-    const messages = listAdminChatMessages(threadId);
-    const result = await runAdminChatLoop(toAdminHistory(messages), {
-      abortSignal: abortController.signal,
-      currentThreadId: threadId,
-      llm: await getLlmRequestOptionsForUser(userId),
-      onTokenUsage: (usage) => {
-        emitLlmRequestTokenUsage(io, threadId, usage, roomId);
-      },
-      profileId,
+  const normalizedInstruction = instruction?.trim();
+  if (normalizedInstruction) {
+    emitConversationUpdated(io, conversationId, userId);
+    await streamAssistantMessage(
+      io,
+      conversationId,
       userId,
-    });
-
-    const trimmedContent = result.content.trim();
-    if (!trimmedContent) {
-      throw new Error('The admin model returned an empty response.');
-    }
-
-    const assistantMessage = addAdminChatMessage(
-      threadId,
-      'model',
-      trimmedContent,
-      {
-        adminBlocks: result.blocks,
-        model: result.model,
-        provider: result.provider,
-      },
+      undefined,
+      false,
+      [
+        {
+          content: [
+            'INTERNAL SECRETARY HANDOFF.',
+            'Mr. F has passed the learner to Ms. María.',
+            'Use this as secretary-only context.',
+            `Instruction from Mr. F: ${normalizedInstruction}`,
+          ].join('\n'),
+          role: 'user',
+        },
+      ],
     );
+    return;
+  }
 
-    io.to(roomId).emit('assistant:done', assistantMessage);
-  } catch (error) {
-    if (isAbortError(error, abortController.signal)) {
-      io.to(roomId).emit('assistant:stopped');
-      return;
-    }
+  const introText = buildSecretaryIntroMessage();
+  const secretaryMessage = addMessage(
+    conversationId,
+    'model',
+    introText,
+    buildSecretaryMessageMetadata({
+      blocks: [
+        {
+          markdown: introText,
+          type: 'message',
+        },
+      ],
+      model: 'system',
+      provider: 'app',
+    }),
+  );
 
-    console.error('Admin chat response failed.', {
-      error: serializeError(error),
-      threadId,
-      userId,
-    });
-    emitRoomCreditExhaustedIfNeeded(io, roomId, error);
-    io.to(roomId).emit('assistant:error', {
-      message: toUserFacingError(error),
-    });
-  } finally {
-    runningAdminThreads.delete(threadId);
-    runningAdminThreadControllers.delete(threadId);
+  emitConversationUpdated(io, conversationId, userId);
+  io.to(conversationId).emit('message:created', secretaryMessage);
+}
+
+function emitAssistantToolStatus(
+  io: Server,
+  conversationId: string,
+  toolName: string,
+): void {
+  const payload: AssistantToolStatusPayload = {
+    label: getToolStatusLabel(toolName),
+    toolName,
+  };
+  io.to(conversationId).emit('assistant:tool_status', payload);
+}
+
+function getToolStatusLabel(toolName: string): string {
+  switch (toolName) {
+    case 'list_lessons':
+      return 'Ejecutando herramienta: buscar lecciones...';
+    case 'create_lesson':
+      return 'Ejecutando herramienta: crear lección...';
+    case 'update_lesson':
+      return 'Ejecutando herramienta: actualizar lección...';
+    case 'delete_lesson':
+      return 'Ejecutando herramienta: eliminar lección...';
+    case 'build_lesson_link':
+      return 'Ejecutando herramienta: preparar enlace de la lección...';
+    default:
+      return `Ejecutando herramienta: ${toolName}...`;
   }
 }
 
@@ -1490,11 +1347,18 @@ function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
   }));
 }
 
-function toAdminHistory(messages: Array<{ content: string; role: 'user' | 'model' }>): TutorMessage[] {
-  return messages.map((message) => ({
-    content: message.content,
-    role: message.role,
-  }));
+function buildSecretaryMessageMetadata(result: {
+  blocks: unknown[];
+  model: string;
+  provider: string;
+}) {
+  return {
+    blocks: result.blocks,
+    model: result.model,
+    provider: result.provider,
+    speaker: 'secretary',
+    speakerLabel: 'Ms. María',
+  };
 }
 
 function isAbortError(error: unknown, signal?: AbortSignal): boolean {
@@ -1509,7 +1373,7 @@ function isAbortError(error: unknown, signal?: AbortSignal): boolean {
   return error.name === 'AbortError' || /abort(ed)?/i.test(error.message);
 }
 
-function buildActivityStartMessage(activity: {
+function buildLessonStartMessage(lesson: {
   description: string;
   title: string;
   tutorInstructions: string;
@@ -1518,13 +1382,13 @@ function buildActivityStartMessage(activity: {
     role: 'user',
     content: [
       'INTERNAL ACTIVITY START.',
-      'This activity has just begun.',
+      'This lesson has just begun.',
       'Use this as teacher-only context. Do not mention the internal signal.',
-      `Activity title: ${activity.title}`,
-      `Activity description: ${activity.description}`,
-      `Activity tutor instructions: ${activity.tutorInstructions}`,
-      'Start the activity now with the first useful exercise or prompt.',
-      'Do not ask unnecessary setup questions if the activity already provides enough direction.',
+      `Lesson title: ${lesson.title}`,
+      `Lesson description: ${lesson.description}`,
+      `Lesson tutor instructions: ${lesson.tutorInstructions}`,
+      'Start the lesson now with the first useful exercise or prompt.',
+      'Do not ask unnecessary setup questions if the lesson already provides enough direction.',
     ].join('\n'),
   };
 }
