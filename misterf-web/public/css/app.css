@@ -402,6 +402,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
+  z-index: 2;
 }
 
 .practice-module-card-actions form {
@@ -427,6 +429,15 @@ body {
 .practice-module-card h2,
 .practiceModule-start-title {
   margin: 0;
+}
+
+.practice-module-card-title {
+  position: relative;
+  z-index: 1;
+}
+
+.practice-module-card-link {
+  display: inline;
 }
 
 .practice-module-card p:last-child,

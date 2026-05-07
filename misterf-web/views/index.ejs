@@ -615,7 +615,7 @@
                   <h2 class="h5 mb-0">Favoritos</h2>
                   <span class="badge text-bg-light border"><%= favoritePracticeModules.length %></span>
                 </div>
-                <div class="practice-modules-grid">
+                <div class="practice-modules-grid mb-4">
                   <% favoritePracticeModules.forEach((practiceModule) => { %>
                     <article class="practice-module-card card shadow-sm h-100">
                       <div class="card-body d-grid gap-2">
@@ -625,9 +625,9 @@
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
                         </div>
-                        <h2 class="h4">
+                        <h2 class="h4 practice-module-card-title">
                           <a
-                            class="stretched-link text-decoration-none text-reset"
+                            class="practice-module-card-link text-decoration-none text-reset"
                             href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
                           >
                             <%= practiceModule.title %>
@@ -658,7 +658,7 @@
               <% } %>
 
               <% if (practiceModules.length > 0) { %>
-                <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-3 practice-modules-section-heading <%= favoritePracticeModules.length > 0 ? 'mt-4' : '' %>">
                   <h2 class="h5 mb-0">Tus módulos de práctica</h2>
                   <span class="badge text-bg-light border"><%= practiceModules.length %></span>
                 </div>
@@ -672,9 +672,9 @@
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
                         </div>
-                        <h2 class="h4">
+                        <h2 class="h4 practice-module-card-title">
                           <a
-                            class="stretched-link text-decoration-none text-reset"
+                            class="practice-module-card-link text-decoration-none text-reset"
                             href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
                           >
                             <%= practiceModule.title %>
@@ -719,9 +719,9 @@
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
                         </div>
-                        <h2 class="h4">
+                        <h2 class="h4 practice-module-card-title">
                           <a
-                            class="stretched-link text-decoration-none text-reset"
+                            class="practice-module-card-link text-decoration-none text-reset"
                             href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
                           >
                             <%= practiceModule.title %>
@@ -766,9 +766,9 @@
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
                         </div>
-                        <h2 class="h4">
+                        <h2 class="h4 practice-module-card-title">
                           <a
-                            class="stretched-link text-decoration-none text-reset"
+                            class="practice-module-card-link text-decoration-none text-reset"
                             href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
                           >
                             <%= practiceModule.title %>
