@@ -63,7 +63,7 @@ export function buildTutorPracticeModuleTools(input: {
     }),
     create_practice_module: tool({
       description:
-        'Create a new practice module in the current profile. Provide title, description, and tutorInstructions. Infer them from the user request and chat context when possible.',
+        'Create a new practice module in the current profile. Provide title, description, and tutorInstructions. Infer them from the user request and chat context when possible. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
       inputSchema: z.object({
         description: z.string().trim().min(1).max(1500),
         title: z.string().trim().min(1).max(220),
@@ -84,7 +84,7 @@ export function buildTutorPracticeModuleTools(input: {
     }),
     update_practice_module: tool({
       description:
-        'Update a practice module in the current profile. If practiceModuleId is omitted, use the current practice module when this conversation already belongs to one.',
+        'Update a practice module in the current profile. If practiceModuleId is omitted, use the current practice module when this conversation already belongs to one. Any provided title, description, or tutorInstructions must be written in Spanish. Never write those fields in English.',
       inputSchema: z.object({
         practiceModuleId: z.string().trim().min(1).optional(),
         description: z.string().trim().min(1).max(1500).optional(),

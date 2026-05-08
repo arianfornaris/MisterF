@@ -359,10 +359,32 @@
                   <%= selectedPracticeModule ? selectedPracticeModule.description : 'Crea experiencias guiadas para el tutor con un objetivo claro, una descripción y reglas propias.' %>
                 <% } %>
               </p>
+            </div>
 
-              <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
+            <% if (hasSession) { %>
+              <div class="practice-modules-header-actions">
+                <% if (practiceModulePageMode === 'new' || practiceModulePageMode === 'edit' || practiceModulePageMode === 'detail' || practiceModulePageMode === 'share') { %>
+                  <a
+                    class="btn-close practice-module-close-button"
+                    href="<%= practiceModulePageMode === 'detail' || practiceModulePageMode === 'share' ? '/practice-modules' : selectedPracticeModule ? `/practice-modules/${encodeURIComponent(selectedPracticeModule.id)}` : '/practice-modules' %>"
+                    title="Cerrar"
+                    aria-label="Cerrar"
+                  ></a>
+                <% } %>
+                <% if (practiceModulePageMode === 'list') { %>
+                  <a class="btn btn-dark" href="/practice-modules/new">
+                    Nuevo módulo de práctica
+                  </a>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
+            <section class="practice-module-detail-shell">
+              <div class="d-grid gap-3">
                 <% if (selectedPracticeModule.sharedVia) { %>
-                  <div class="mt-3">
+                  <div>
                     <% if (selectedPracticeModuleSharedFromProfileName) { %>
                       <span class="badge text-bg-light border practice-module-shared-badge" role="status">
                         Compartida por <%= selectedPracticeModuleSharedFromProfileName %>
@@ -416,20 +438,21 @@
                       </button>
                     </div>
                   </div>
-                  <div class="btn-group" role="group" aria-label="Eliminar módulo de práctica">
+                  <div class="btn-group" role="group" aria-label="<%= selectedPracticeModule.archivedAt ? 'Restaurar módulo de práctica' : 'Archivar módulo de práctica' %>">
                     <form
                       method="post"
-                      action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/delete"
-                      onsubmit="return window.confirm('¿Seguro que quieres eliminar este módulo de práctica? Los chats existentes conservarán su copia histórica, pero el módulo ya no aparecerá en la biblioteca.');"
+                      action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/<%= selectedPracticeModule.archivedAt ? 'restore' : 'archive' %>"
+                      onsubmit="return window.confirm('<%= selectedPracticeModule.archivedAt ? '¿Seguro que quieres restaurar este módulo de práctica?' : '¿Seguro que quieres archivar este módulo de práctica? Podrás recuperarlo después desde Archivados.' %>');"
                     >
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="returnTo" value="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>">
                       <button
-                        class="btn btn-outline-danger"
+                        class="btn btn-outline-dark"
                         type="submit"
-                        title="Eliminar módulo de práctica"
-                        aria-label="Eliminar módulo de práctica"
+                        title="<%= selectedPracticeModule.archivedAt ? 'Restaurar módulo de práctica' : 'Archivar módulo de práctica' %>"
+                        aria-label="<%= selectedPracticeModule.archivedAt ? 'Restaurar módulo de práctica' : 'Archivar módulo de práctica' %>"
                       >
-                        <i class="bi bi-trash" aria-hidden="true"></i>
+                        <i class="bi <%= selectedPracticeModule.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
                       </button>
                     </form>
                   </div>
@@ -461,29 +484,11 @@
                     <% }) %>
                   </div>
                 <% } else { %>
-                  <p class="practice-module-empty">Todavía no hay chats para este módulo de práctica.</p>
-                <% } %>
-              <% } %>
-            </div>
-
-            <% if (hasSession) { %>
-              <div class="practice-modules-header-actions">
-                <% if (practiceModulePageMode === 'new' || practiceModulePageMode === 'edit' || practiceModulePageMode === 'detail' || practiceModulePageMode === 'share') { %>
-                  <a
-                    class="btn-close practice-module-close-button"
-                    href="<%= practiceModulePageMode === 'detail' || practiceModulePageMode === 'share' ? '/practice-modules' : selectedPracticeModule ? `/practice-modules/${encodeURIComponent(selectedPracticeModule.id)}` : '/practice-modules' %>"
-                    title="Cerrar"
-                    aria-label="Cerrar"
-                  ></a>
-                <% } %>
-                <% if (practiceModulePageMode === 'list') { %>
-                  <a class="btn btn-dark" href="/practice-modules/new">
-                    Nuevo módulo de práctica
-                  </a>
+                  <p class="practice-module-empty mb-0">Todavía no hay chats para este módulo de práctica.</p>
                 <% } %>
               </div>
-            <% } %>
-          </div>
+            </section>
+          <% } %>
 
           <% if (practiceModulePageMode === 'list') { %>
             <form class="practiceModule-filter-form" method="get" action="/practice-modules" role="search">
@@ -620,7 +625,12 @@
                     <article class="practice-module-card card shadow-sm h-100">
                       <div class="card-body d-grid gap-2">
                         <div class="practice-module-card-meta">
-                          <p class="practice-module-card-kicker">Módulo de práctica</p>
+                          <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <p class="practice-module-card-kicker mb-0">Módulo de práctica</p>
+                            <% if (practiceModule.archivedAt) { %>
+                              <span class="badge text-bg-light border">Archivado</span>
+                            <% } %>
+                          </div>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
@@ -635,6 +645,22 @@
                         </h2>
                         <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
                         <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
+                          <div class="dropdown">
+                            <button
+                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                              title="Compartir módulo de práctica"
+                              aria-label="Compartir módulo de práctica"
+                            >
+                              <i class="bi bi-share" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
+                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                            </div>
+                          </div>
                           <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="favorite" value="0">
@@ -647,7 +673,7 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="returnTo" value="<%= currentPath %>">
                             <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
-                              <i class="bi bi-trash" aria-hidden="true"></i>
+                              <i class="bi bi-archive" aria-hidden="true"></i>
                             </button>
                           </form>
                         </div>
@@ -667,7 +693,12 @@
                     <article class="practice-module-card card shadow-sm h-100">
                       <div class="card-body d-grid gap-2">
                         <div class="practice-module-card-meta">
-                          <p class="practice-module-card-kicker">Módulo de práctica</p>
+                          <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <p class="practice-module-card-kicker mb-0">Módulo de práctica</p>
+                            <% if (practiceModule.archivedAt) { %>
+                              <span class="badge text-bg-light border">Archivado</span>
+                            <% } %>
+                          </div>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
@@ -682,6 +713,22 @@
                         </h2>
                         <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
                         <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
+                          <div class="dropdown">
+                            <button
+                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                              title="Compartir módulo de práctica"
+                              aria-label="Compartir módulo de práctica"
+                            >
+                              <i class="bi bi-share" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
+                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                            </div>
+                          </div>
                           <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
@@ -694,7 +741,7 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="returnTo" value="<%= currentPath %>">
                             <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
-                              <i class="bi bi-trash" aria-hidden="true"></i>
+                              <i class="bi bi-archive" aria-hidden="true"></i>
                             </button>
                           </form>
                         </div>
@@ -714,7 +761,12 @@
                     <article class="practice-module-card card shadow-sm h-100">
                       <div class="card-body d-grid gap-2">
                         <div class="practice-module-card-meta">
-                          <p class="practice-module-card-kicker">Compartida</p>
+                          <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <p class="practice-module-card-kicker mb-0">Compartida</p>
+                            <% if (practiceModule.archivedAt) { %>
+                              <span class="badge text-bg-light border">Archivado</span>
+                            <% } %>
+                          </div>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
@@ -729,6 +781,22 @@
                         </h2>
                         <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
                         <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
+                          <div class="dropdown">
+                            <button
+                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                              title="Compartir módulo de práctica"
+                              aria-label="Compartir módulo de práctica"
+                            >
+                              <i class="bi bi-share" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
+                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                            </div>
+                          </div>
                           <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
@@ -741,7 +809,7 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="returnTo" value="<%= currentPath %>">
                             <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
-                              <i class="bi bi-trash" aria-hidden="true"></i>
+                              <i class="bi bi-archive" aria-hidden="true"></i>
                             </button>
                           </form>
                         </div>
@@ -761,7 +829,10 @@
                     <article class="practice-module-card card shadow-sm h-100 border-secondary-subtle">
                       <div class="card-body d-grid gap-2">
                         <div class="practice-module-card-meta">
-                          <p class="practice-module-card-kicker">Archivada</p>
+                          <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <p class="practice-module-card-kicker mb-0">Archivada</p>
+                            <span class="badge text-bg-light border">Archivado</span>
+                          </div>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
@@ -780,7 +851,7 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             <input type="hidden" name="returnTo" value="<%= currentPath %>">
                             <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar módulo de práctica" aria-label="Restaurar módulo de práctica">
-                              <i class="bi bi-box-arrow-up" aria-hidden="true"></i>
+                              <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
                             </button>
                           </form>
                         </div>
@@ -808,6 +879,7 @@
             tabindex="-1"
             aria-labelledby="sharePracticeModuleProfileModalLabel"
             aria-hidden="true"
+            <%= practiceModuleShareMode === 'profile' ? 'data-auto-open-share-modal' : '' %>
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
@@ -845,6 +917,7 @@
             tabindex="-1"
             aria-labelledby="sharePracticeModuleLinkModalLabel"
             aria-hidden="true"
+            <%= practiceModuleShareMode === 'link' ? 'data-auto-open-share-modal' : '' %>
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">

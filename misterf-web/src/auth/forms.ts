@@ -596,7 +596,13 @@ export async function renderHome(request: Request, response: Response): Promise<
   const authMessage = getHomeAuthMessage(request, user);
   const practiceModuleFilterQueryRaw =
     typeof request.query.q === 'string' ? request.query.q : '';
+  const practiceModuleShareModeRaw =
+    typeof request.query.share === 'string' ? request.query.share : '';
   const practiceModuleFilterQuery = practiceModuleFilterQueryRaw.trim();
+  const practiceModuleShareMode =
+    practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
+      ? practiceModuleShareModeRaw
+      : '';
   const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
   const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
   const guestInitialGreeting = user ? '' : pickInitialGreeting();
@@ -828,6 +834,7 @@ export async function renderHome(request: Request, response: Response): Promise<
     practiceModulePageMode,
     practiceModuleShareQrDataUrl,
     practiceModuleShareUrl,
+    practiceModuleShareMode,
     favoritePracticeModules,
     authMessage,
     conversations,
