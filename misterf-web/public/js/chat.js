@@ -30,7 +30,7 @@ const translatorFormEl = document.querySelector('#translatorForm');
 const translatorInputEl = document.querySelector('#translatorInput');
 const translatorResultEl = document.querySelector('#translatorResult');
 const translatorSubmitEl = document.querySelector('[data-translator-submit]');
-const translatorOpenButtonEl = document.querySelector('[data-open-translator]');
+const translatorOpenButtonEls = document.querySelectorAll('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
 const creditModalEl = document.querySelector('#creditModal');
 const creditMessageEl = document.querySelector('[data-credit-message]');
@@ -424,13 +424,16 @@ confirmDeleteConversationButtonEl?.addEventListener('click', () => {
   confirmDeleteConversation();
 });
 
-translatorOpenButtonEl?.addEventListener('pointerdown', () => {
-  pendingTranslatorSelection = getSelectedAppText();
-});
+for (const button of translatorOpenButtonEls) {
+  button.addEventListener('pointerdown', () => {
+    pendingTranslatorSelection = getSelectedAppText();
+  });
 
-translatorOpenButtonEl?.addEventListener('click', () => {
-  translateSelectedAppText();
-});
+  button.addEventListener('click', () => {
+    translateSelectedAppText();
+    button.blur();
+  });
+}
 
 translatorFormEl?.addEventListener('submit', (event) => {
   event.preventDefault();

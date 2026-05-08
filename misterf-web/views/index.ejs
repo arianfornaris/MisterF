@@ -22,7 +22,7 @@
         <% if (hasSession) { %>
           <div class="chat-toolbar" aria-label="Controles del chat">
             <button
-              class="btn btn-link chat-menu-button"
+              class="btn btn-link chat-menu-button d-lg-none"
               type="button"
               data-bs-toggle="offcanvas"
               data-bs-target="#conversationPanel"
@@ -34,7 +34,7 @@
             </button>
 
             <button
-              class="btn btn-link translator-button"
+              class="btn btn-link translator-button d-lg-none"
               type="button"
               data-bs-toggle="modal"
               data-bs-target="#translatorModal"
@@ -47,7 +47,7 @@
           </div>
 
           <aside
-            class="offcanvas offcanvas-start conversation-panel"
+            class="offcanvas-lg offcanvas-start conversation-panel"
             tabindex="-1"
             id="conversationPanel"
             aria-label="Panel lateral"
@@ -61,7 +61,7 @@
               >
                 <i class="bi bi-house-door fs-5" aria-hidden="true"></i>
               </a>
-              <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
             <div class="offcanvas-body">
               <div class="panel-nav">
@@ -74,6 +74,17 @@
                   <i class="bi bi-folder" aria-hidden="true"></i>
                   Módulos de práctica
                 </a>
+
+                <button
+                  class="panel-nav-link d-none d-lg-inline-flex"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#translatorModal"
+                  data-open-translator
+                >
+                  <i class="bi bi-translate" aria-hidden="true"></i>
+                  Traductor
+                </button>
               </div>
 
               <div class="panel-recents">
