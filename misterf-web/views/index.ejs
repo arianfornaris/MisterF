@@ -121,10 +121,13 @@
                           href="/c/<%= encodeURIComponent(conversation.id) %>"
                           data-open-conversation
                         >
-                          <span class="conversation-title"><%= conversation.title %></span>
-                          <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
-                            <%= conversation.updatedAt %>
-                          </time>
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title"><%= conversation.title %></span>
+                            <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
+                              <%= conversation.updatedAt %>
+                            </time>
+                          </span>
                         </a>
 
                         <div class="conversation-actions dropdown">
