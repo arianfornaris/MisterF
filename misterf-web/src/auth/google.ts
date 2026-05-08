@@ -18,6 +18,7 @@ import {
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 
 const stateCookieName = 'misterf_google_oauth_state';
+const returnToCookieName = 'misterf_google_oauth_return_to';
 const authorizationEndpoint = 'https://accounts.google.com/o/oauth2/v2/auth';
 const tokenEndpoint = 'https://oauth2.googleapis.com/token';
 const userInfoEndpoint = 'https://openidconnect.googleapis.com/v1/userinfo';
@@ -36,14 +37,24 @@ type GoogleUserInfo = {
   sub?: unknown;
 };
 
-export function startGoogleLogin(_request: Request, response: Response): void {
+export function startGoogleLogin(request: Request, response: Response): void {
   if (!isGoogleConfigured()) {
     renderGoogleConfigurationError(response);
     return;
   }
 
+  const returnTo = normalizeReturnTo(
+    typeof request.query.returnTo === 'string' ? request.query.returnTo : '/',
+  );
   const state = createGoogleState();
   response.cookie(stateCookieName, state, {
+    expires: new Date(Date.now() + stateTtlMs),
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: env.appBaseUrl.startsWith('https://'),
+    path: '/',
+  });
+  response.cookie(returnToCookieName, returnTo, {
     expires: new Date(Date.now() + stateTtlMs),
     httpOnly: true,
     sameSite: 'lax',
@@ -77,14 +88,17 @@ export async function finishGoogleLogin(
   const code = typeof request.query.code === 'string' ? request.query.code : '';
   const state = typeof request.query.state === 'string' ? request.query.state : '';
   const storedState = getCookie(request, stateCookieName);
+  const returnTo = normalizeReturnTo(getCookie(request, returnToCookieName) || '/');
   response.clearCookie(stateCookieName, { path: '/' });
+  response.clearCookie(returnToCookieName, { path: '/' });
 
   if (!code || !state || !storedState || !verifyGoogleState(state, storedState)) {
     response.status(400).render('auth_message', {
       body: 'No pude validar el inicio de sesión con Google. Intenta otra vez.',
       csrfToken: response.locals.csrfToken,
-      linkHref: '/login',
+      linkHref: `/login?returnTo=${encodeURIComponent(returnTo)}`,
       linkText: 'Volver a login',
+      returnTo,
       showResendVerification: false,
       showVerificationCodeForm: false,
       title: 'Login cancelado',
@@ -99,13 +113,14 @@ export async function finishGoogleLogin(
     }
 
     const user = resolveGoogleUser(googleUser);
-    await signInGoogleUser(request, response, user);
+    await signInGoogleUser(request, response, user, returnTo);
   } catch (error) {
     response.status(502).render('auth_message', {
       body: toGoogleErrorMessage(error),
       csrfToken: response.locals.csrfToken,
-      linkHref: '/login',
+      linkHref: `/login?returnTo=${encodeURIComponent(returnTo)}`,
       linkText: 'Volver a login',
+      returnTo,
       showResendVerification: false,
       showVerificationCodeForm: false,
       title: 'Google no respondió',
@@ -162,6 +177,7 @@ async function signInGoogleUser(
   request: Request,
   response: Response,
   user: AuthUser,
+  returnTo: string,
 ): Promise<void> {
   await ensureOpenRouterKeyForUser(user.id);
   const session = createSessionCookie();
@@ -173,7 +189,7 @@ async function signInGoogleUser(
     ipAddress: request.ip,
   });
   setSessionCookie(response, session);
-  response.redirect('/');
+  response.redirect(returnTo);
 }
 
 async function getGoogleUserInfo(code: string): Promise<{
@@ -289,6 +305,19 @@ function getCookie(request: Request, name: string): string | null {
 
 function getGoogleRedirectUri(): string {
   return `${env.appBaseUrl}/auth/google/callback`;
+}
+
+function normalizeReturnTo(value: string | undefined): string {
+  if (!value) {
+    return '/';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed.startsWith('/')) {
+    return '/';
+  }
+
+  return trimmed;
 }
 
 function isGoogleConfigured(): boolean {

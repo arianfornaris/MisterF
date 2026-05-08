@@ -592,22 +592,24 @@
               <div class="practice-module-form-card card shadow-sm">
                 <div class="card-body">
                   <div class="d-grid gap-3">
-                    <div>
-                      <p class="mb-2 text-body-secondary">Revisa el módulo de práctica y decide si quieres importarlo a tu perfil activo.</p>
-                      <dl class="mb-0">
-                        <dt class="small text-uppercase text-body-secondary">Título</dt>
-                        <dd class="mb-3"><%= selectedSharedPracticeModule.title %></dd>
-                        <dt class="small text-uppercase text-body-secondary">Descripción</dt>
-                        <dd class="mb-3"><%= selectedSharedPracticeModule.description %></dd>
-                        <dt class="small text-uppercase text-body-secondary">Tipo</dt>
-                        <dd class="mb-0">
-                          <% if (selectedSharedPracticeModule.sharedVia) { %>
-                            Compartido originalmente por <%= selectedSharedPracticeModule.sharedVia === 'link' ? 'enlace' : 'perfil' %>
-                          <% } else { %>
-                            Módulo de práctica compartido
-                          <% } %>
-                        </dd>
-                      </dl>
+                    <p class="mb-0 text-body-secondary">
+                      <% if (activeProfile) { %>
+                        Este módulo de práctica fue compartido contigo. Revísalo y decide si quieres importarlo al perfil <strong><%= activeProfile.name %></strong>.
+                      <% } else { %>
+                        Este módulo de práctica fue compartido contigo. Puedes revisarlo ahora mismo y, si te interesa, iniciar sesión o crear una cuenta para importarlo.
+                      <% } %>
+                    </p>
+                    <div class="d-flex justify-content-end gap-2">
+                      <a class="btn btn-link" href="<%= isAuthenticated ? '/practice-modules' : '/' %>">No ahora</a>
+                      <% if (isAuthenticated && activeProfile) { %>
+                        <form method="post" action="/practice-modules/shared/<%= encodeURIComponent(selectedPracticeModuleShareLink.id) %>/accept">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-dark" type="submit">Importar módulo</button>
+                        </form>
+                      <% } else { %>
+                        <a class="btn btn-outline-dark" href="/signup?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Crear cuenta</a>
+                        <a class="btn btn-dark" href="/login?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Iniciar sesión</a>
+                      <% } %>
                     </div>
                   </div>
                 </div>
@@ -644,6 +646,9 @@
                           </a>
                         </h2>
                         <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
+                        <% if (practiceModule.sourceProfileName) { %>
+                          <p class="mb-0 text-body-secondary small">Compartido por <%= practiceModule.sourceProfileName %></p>
+                        <% } %>
                         <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
                           <div class="dropdown">
                             <button
@@ -958,46 +963,6 @@
                       >
                     </div>
                   <% } %>
-                </div>
-              </div>
-            </div>
-          </div>
-        <% } %>
-
-        <% if (currentView === 'practiceModules' && practiceModulePageMode === 'share' && selectedSharedPracticeModule && selectedPracticeModuleShareLink) { %>
-          <div
-            class="modal fade"
-            id="acceptSharedPracticeModuleModal"
-            tabindex="-1"
-            aria-labelledby="acceptSharedPracticeModuleModalLabel"
-            aria-hidden="true"
-            data-auto-open-share-modal
-          >
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="acceptSharedPracticeModuleModalLabel">Aceptar módulo de práctica compartida</h2>
-                  <a class="btn-close" href="/practice-modules" aria-label="Cerrar"></a>
-                </div>
-                <div class="modal-body d-grid gap-3">
-                  <p class="mb-0">
-                    <% if (activeProfile) { %>
-                      ¿Quieres importar este módulo de práctica al perfil <strong><%= activeProfile.name %></strong>?
-                    <% } else { %>
-                      Inicia sesión para importar este módulo de práctica a uno de tus perfiles.
-                    <% } %>
-                  </p>
-                  <div class="d-flex justify-content-end gap-2">
-                    <a class="btn btn-link" href="/practice-modules">No ahora</a>
-                    <% if (isAuthenticated && activeProfile) { %>
-                      <form method="post" action="/practice-modules/shared/<%= encodeURIComponent(selectedPracticeModuleShareLink.id) %>/accept">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button class="btn btn-dark" type="submit">Aceptar</button>
-                      </form>
-                    <% } else { %>
-                      <a class="btn btn-dark" href="/login">Iniciar sesión</a>
-                    <% } %>
-                  </div>
                 </div>
               </div>
             </div>

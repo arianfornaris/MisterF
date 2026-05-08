@@ -69,6 +69,7 @@ type AuthFormView = {
   error: string;
   fieldErrors: Record<string, string>;
   mode: AuthMode;
+  returnTo?: string;
   values: {
     code: string;
     email: string;
@@ -114,9 +115,21 @@ function buildAbsoluteAppUrl(pathname: string): string {
   return new URL(pathname, env.appBaseUrl).toString();
 }
 
+function logAuthReturnTo(event: string, details: Record<string, unknown>) {
+  console.log(`[auth returnTo] ${event}`, details);
+}
+
 export function renderLogin(request: Request, response: Response): void {
+  const returnTo = normalizeReturnTo(
+    typeof request.query.returnTo === 'string' ? request.query.returnTo : '/',
+  );
+  logAuthReturnTo('renderLogin', {
+    authenticated: Boolean(request.authUser),
+    path: request.originalUrl || request.path,
+    returnTo,
+  });
   if (request.authUser?.emailVerified) {
-    response.redirect('/');
+    response.redirect(returnTo);
     return;
   }
 
@@ -124,13 +137,22 @@ export function renderLogin(request: Request, response: Response): void {
     error: '',
     fieldErrors: {},
     mode: 'login',
+    returnTo,
     values: { code: '', email: '', fullName: '' },
   });
 }
 
 export function renderSignup(request: Request, response: Response): void {
+  const returnTo = normalizeReturnTo(
+    typeof request.query.returnTo === 'string' ? request.query.returnTo : '/',
+  );
+  logAuthReturnTo('renderSignup', {
+    authenticated: Boolean(request.authUser),
+    path: request.originalUrl || request.path,
+    returnTo,
+  });
   if (request.authUser?.emailVerified) {
-    response.redirect('/');
+    response.redirect(returnTo);
     return;
   }
 
@@ -138,6 +160,7 @@ export function renderSignup(request: Request, response: Response): void {
     error: '',
     fieldErrors: {},
     mode: 'signup',
+    returnTo,
     values: { code: '', email: '', fullName: '' },
   });
 }
@@ -180,6 +203,11 @@ export async function handleLogin(
   request: Request,
   response: Response,
 ): Promise<void> {
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  logAuthReturnTo('handleLogin:start', {
+    email: normalizeEmail(readField(request.body.email)),
+    returnTo,
+  });
   const email = normalizeEmail(readField(request.body.email));
   const password = readField(request.body.password);
   const fieldErrors: Record<string, string> = {};
@@ -197,6 +225,7 @@ export async function handleLogin(
       error: '',
       fieldErrors,
       mode: 'login',
+      returnTo,
       values: { code: '', email, fullName: '' },
     });
     return;
@@ -207,6 +236,7 @@ export async function handleLogin(
       error: 'Demasiados intentos. Espera unos minutos y vuelve a probar.',
       fieldErrors: {},
       mode: 'login',
+      returnTo,
       values: { code: '', email, fullName: '' },
     });
     return;
@@ -220,18 +250,28 @@ export async function handleLogin(
       error: 'El correo o el password no son correctos.',
       fieldErrors: {},
       mode: 'login',
+      returnTo,
       values: { code: '', email, fullName: '' },
     });
     return;
   }
 
-  await signInUser(request, response, user.id);
+  logAuthReturnTo('handleLogin:success', {
+    returnTo,
+    userId: user.id,
+  });
+  await signInUser(request, response, user.id, returnTo);
 }
 
 export async function handleSignup(
   request: Request,
   response: Response,
 ): Promise<void> {
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  logAuthReturnTo('handleSignup:start', {
+    email: normalizeEmail(readField(request.body.email)),
+    returnTo,
+  });
   const email = normalizeEmail(readField(request.body.email));
   const fullName = readField(request.body.fullName);
   const password = readField(request.body.password);
@@ -242,6 +282,7 @@ export async function handleSignup(
       error: '',
       fieldErrors,
       mode: 'signup',
+      returnTo,
       values: { code: '', email, fullName },
     });
     return;
@@ -254,6 +295,7 @@ export async function handleSignup(
         email: 'Ya existe una cuenta con este correo.',
       },
       mode: 'signup',
+      returnTo,
       values: { code: '', email, fullName },
     });
     return;
@@ -264,6 +306,7 @@ export async function handleSignup(
       error: getMailerConfigurationError(),
       fieldErrors: {},
       mode: 'signup',
+      returnTo,
       values: { code: '', email, fullName },
     });
     return;
@@ -279,6 +322,7 @@ export async function handleSignup(
       error: toOpenRouterProvisioningErrorMessage(error),
       fieldErrors: {},
       mode: 'signup',
+      returnTo,
       values: { code: '', email, fullName },
     });
     return;
@@ -291,12 +335,22 @@ export async function handleSignup(
       error: toMailErrorMessage(error),
       fieldErrors: {},
       mode: 'signup',
+      returnTo,
       values: { code: '', email, fullName },
     });
     return;
   }
 
-  await signInUser(request, response, user.id, '/verify-needed');
+  const verifyReturnTo =
+    returnTo && returnTo !== '/'
+      ? `/verify-needed?returnTo=${encodeURIComponent(returnTo)}`
+      : '/verify-needed';
+  logAuthReturnTo('handleSignup:success', {
+    returnTo,
+    userId: user.id,
+    verifyReturnTo,
+  });
+  await signInUser(request, response, user.id, verifyReturnTo);
 }
 
 export async function handleForgotPassword(
@@ -475,6 +529,11 @@ export async function handleVerifyEmail(
   request: Request,
   response: Response,
 ): Promise<void> {
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  logAuthReturnTo('handleVerifyEmail:start', {
+    authenticated: Boolean(request.authUser),
+    returnTo,
+  });
   if (!request.authUser) {
     response.redirect('/login');
     return;
@@ -484,6 +543,7 @@ export async function handleVerifyEmail(
   if (!code) {
     renderAuthMessage(response.status(422), {
       body: 'Escribe el código que enviamos a tu correo.',
+      returnTo,
       showVerificationCodeForm: true,
       title: 'Verifica tu correo',
     });
@@ -499,6 +559,7 @@ export async function handleVerifyEmail(
   if (!user || user.id !== request.authUser.id) {
     renderAuthMessage(response.status(400), {
       body: 'El código de verificación no es válido o ya expiró.',
+      returnTo,
       showVerificationCodeForm: true,
       title: 'Código inválido',
     });
@@ -507,11 +568,16 @@ export async function handleVerifyEmail(
 
   markEmailVerified(user.id);
   markAuthActionTokenUsed(tokenHash);
+  logAuthReturnTo('handleVerifyEmail:success', {
+    returnTo,
+    userId: user.id,
+  });
 
   renderAuthMessage(response, {
     body: 'Tu correo ya está verificado. Puedes empezar a practicar.',
-    linkHref: '/',
+    linkHref: returnTo,
     linkText: 'Ir al chat',
+    returnTo,
     title: 'Correo verificado',
   });
 }
@@ -520,6 +586,11 @@ export async function handleResendVerification(
   request: Request,
   response: Response,
 ): Promise<void> {
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  logAuthReturnTo('handleResendVerification', {
+    authenticated: Boolean(request.authUser),
+    returnTo,
+  });
   if (!request.authUser) {
     response.redirect('/login');
     return;
@@ -533,6 +604,7 @@ export async function handleResendVerification(
   if (!isMailerConfigured()) {
     renderAuthMessage(response.status(503), {
       body: getMailerConfigurationError(),
+      returnTo,
       title: 'No pude enviar el email',
     });
     return;
@@ -543,6 +615,7 @@ export async function handleResendVerification(
   } catch (error) {
     renderAuthMessage(response.status(503), {
       body: toMailErrorMessage(error),
+      returnTo,
       title: 'No pude enviar el email',
     });
     return;
@@ -550,6 +623,7 @@ export async function handleResendVerification(
 
   renderAuthMessage(response, {
     body: 'Enviamos otro código de verificación a tu correo.',
+    returnTo,
     showVerificationCodeForm: true,
     title: 'Revisa tu correo',
   });
@@ -559,18 +633,27 @@ export function renderVerifyNeeded(
   request: Request,
   response: Response,
 ): void {
+  const returnTo = normalizeReturnTo(
+    typeof request.query.returnTo === 'string' ? request.query.returnTo : '/',
+  );
+  logAuthReturnTo('renderVerifyNeeded', {
+    authenticated: Boolean(request.authUser),
+    path: request.originalUrl || request.path,
+    returnTo,
+  });
   if (!request.authUser) {
     response.redirect('/login');
     return;
   }
 
   if (request.authUser.emailVerified) {
-    response.redirect('/');
+    response.redirect(returnTo);
     return;
   }
 
   renderAuthMessage(response, {
     body: `Antes de usar el tutor, escribe el código que enviamos a ${request.authUser.email}.`,
+    returnTo,
     showVerificationCodeForm: true,
     showResendVerification: true,
     title: 'Verifica tu correo',
@@ -649,8 +732,8 @@ export async function renderHome(request: Request, response: Response): Promise<
   let activeProfile = defaultActiveProfile;
   let selectedProfile = null;
 
-  if (currentView === 'practiceModules' && !user && (isLessonNewPage || isLessonEditPage)) {
-    response.redirect('/login');
+  if (currentView === 'practiceModules' && !user && !requestedLessonShareId) {
+    response.redirect('/');
     return;
   }
 
@@ -765,6 +848,9 @@ export async function renderHome(request: Request, response: Response): Promise<
             user.id,
             practiceModule.profileId,
           ).length,
+          sourceProfileName: practiceModule.sourceProfileId
+            ? findProfileById(practiceModule.sourceProfileId)?.name || ''
+            : '',
         }))
     : [];
   const activeVisibleLessons = visibleLessons.filter((practiceModule) => !practiceModule.archivedAt);
@@ -1195,6 +1281,10 @@ async function signInUser(
   userId: string,
   returnTo = '/',
 ): Promise<void> {
+  logAuthReturnTo('signInUser', {
+    returnTo,
+    userId,
+  });
   await ensureOpenRouterKeyForUser(userId);
   const session = createSessionCookie();
   createSession({
@@ -1262,6 +1352,7 @@ function renderAuthMessage(
     body: string;
     linkHref?: string;
     linkText?: string;
+    returnTo?: string;
     showVerificationCodeForm?: boolean;
     showResendVerification?: boolean;
     title: string;
@@ -1272,6 +1363,7 @@ function renderAuthMessage(
     csrfToken: response.locals.csrfToken,
     linkHref: view.linkHref ?? '',
     linkText: view.linkText ?? '',
+    returnTo: view.returnTo ?? '/',
     showVerificationCodeForm: Boolean(view.showVerificationCodeForm),
     showResendVerification: Boolean(view.showResendVerification),
     title: view.title,

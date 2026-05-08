@@ -21,6 +21,7 @@
           <% if (showResendVerification) { %>
             <form method="post" action="/resend-verification">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
               <button class="btn btn-dark auth-submit" type="submit">Reenviar verificación</button>
             </form>
           <% } %>
@@ -28,6 +29,7 @@
           <% if (showVerificationCodeForm) { %>
             <form class="auth-form" method="post" action="/verify-email">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
               <div class="auth-field mb-0">
                 <label class="form-label" for="code">Código</label>
                 <input
@@ -48,7 +50,7 @@
           <% if (linkHref && linkText) { %>
             <p class="auth-switch"><a href="<%= linkHref %>"><%= linkText %></a></p>
           <% } else { %>
-            <p class="auth-switch"><a href="/">Volver</a></p>
+            <p class="auth-switch"><a href="<%= returnTo || '/' %>">Volver</a></p>
           <% } %>
         </div>
       </section>
