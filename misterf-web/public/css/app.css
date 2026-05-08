@@ -209,6 +209,20 @@ body {
   color: var(--accent);
 }
 
+.panel-home-logo {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.panel-nav-brand-logo {
+  display: block;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
 .panel-nav {
   display: grid;
   gap: 4px;

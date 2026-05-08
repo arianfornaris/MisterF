@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= title %></title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
     <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
     <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
     <link rel="stylesheet" href="/public/css/app.css">
@@ -54,17 +55,35 @@
           >
             <div class="offcanvas-header">
               <a
-                class="panel-home-link"
+                class="panel-home-link d-lg-none"
                 href="/"
                 title="Ir al inicio"
                 aria-label="Ir al inicio"
               >
-                <i class="bi bi-house-door fs-5" aria-hidden="true"></i>
+                <img
+                  class="panel-home-logo"
+                  src="/public/brand/panel-brand-64.png"
+                  alt="Mister F"
+                  width="24"
+                  height="24"
+                >
               </a>
               <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
             </div>
             <div class="offcanvas-body">
               <div class="panel-nav">
+                <a class="panel-nav-link d-none d-lg-inline-flex" href="/">
+                  <img
+                    class="panel-nav-brand-logo"
+                    src="/public/brand/panel-brand-64.png"
+                    alt=""
+                    width="20"
+                    height="20"
+                    aria-hidden="true"
+                  >
+                  Mr. F
+                </a>
+
                 <a class="panel-nav-link" href="/" data-new-conversation>
                   <i class="bi bi-pencil-square" aria-hidden="true"></i>
                   Nueva conversación
