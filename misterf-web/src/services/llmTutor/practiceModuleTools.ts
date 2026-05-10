@@ -156,7 +156,7 @@ export function buildTutorPracticeModuleTools(input: {
     }),
     build_practice_module_link: tool({
       description:
-        'Build a practice module link block for the UI so the chat can render a button to open a practice module.',
+        'Build a practice module link block for the UI so the chat can render a button to open a practice module. Only call this with a real existing practiceModuleId obtained from tool results or the current chat context. Never invent, guess, infer, slugify, or paraphrase a practiceModuleId.',
       inputSchema: z.object({
         practiceModuleId: z.string().trim().min(1).optional(),
         label: z.string().trim().min(1).max(160).optional(),

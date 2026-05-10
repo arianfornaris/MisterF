@@ -40,7 +40,9 @@ module.exports = {
       env_production: {
         NODE_ENV: 'production',
         PORT: '3000',
-        LLM_MODEL: 'openai/gpt-5-mini',
+        //LLM_MODEL: 'openai/gpt-5-mini',
+        // LLM_MODEL: 'openai/gpt-5-nano',
+        LLM_MODEL: 'google/gemini-3.1-flash-lite',
         LLM_CONTEXT_WINDOW: '1048576',
         OPENROUTER_API_KEY: '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',
         OPENROUTER_BASE_URL: 'https://openrouter.ai/api/v1',
