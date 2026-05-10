@@ -63,7 +63,7 @@ export function buildTutorPracticeModuleTools(input: {
     }),
     create_practice_module: tool({
       description:
-        'Create a new practice module in the current profile. Provide title, description, and tutorInstructions. Infer them from the user request and chat context when possible. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
+        'Create a new practice module in the current profile, but only when the learner explicitly asks for it or clearly authorizes it. Do not use this tool proactively. You may infer title, description, and tutorInstructions from the user request and chat context only after the learner has explicitly requested or approved creating the practice module. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
       inputSchema: z.object({
         description: z.string().trim().min(1).max(1500),
         title: z.string().trim().min(1).max(220),

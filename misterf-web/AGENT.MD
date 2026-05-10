@@ -14,7 +14,7 @@ La experiencia principal es un chat con estética de “hoja” minimalista. El 
 - puede trabajar producción (`es -> en`) y comprensión (`en -> es`);
 - persiste conversaciones, retos, intentos, progreso y vocabulario.
 
-La app usa hoy un proveedor LLM configurable vía AI SDK, con OpenRouter como opción principal.
+La app usa OpenRouter como único proveedor LLM.
 
 ## Stack
 
@@ -37,7 +37,7 @@ No hay React.
 - [src/services/llmTutor/types.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/types.ts): tipos del protocolo estructurado.
 - [src/services/llmTutor/schemas.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/schemas.ts): esquemas Zod/JSON Schema.
 - [src/services/llmTutor/prompt.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/prompt.ts): construcción de prompts.
-- [src/services/llmTutor/providers.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/providers.ts): selección de proveedor/modelo y manejo de finish reasons.
+- [src/services/llmTutor/providers.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/providers.ts): integración con OpenRouter, selección de modelo y manejo de finish reasons.
 - [src/services/llmTutor/challenges/*](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/challenges): definiciones por tipo de reto (`produce_en`, `understand_en`, `dialogue_scene`).
 - [src/db/repository.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/db/repository.ts): acceso a SQLite.
 - [src/db/migrations.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/db/migrations.ts): migraciones.

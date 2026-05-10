@@ -73,10 +73,6 @@ export class OpenRouterKeyProvisioningError extends Error {
 }
 
 export async function ensureOpenRouterKeyForUser(userId: string): Promise<void> {
-  if (env.llmProvider !== 'openrouter') {
-    return;
-  }
-
   const existing = findUserOpenRouterKeyRow(userId);
   if (existing?.status === 'active' && existing.encrypted_api_key) {
     return;
@@ -88,10 +84,6 @@ export async function ensureOpenRouterKeyForUser(userId: string): Promise<void> 
 export async function getOpenRouterApiKeyForUser(
   userId: string,
 ): Promise<string | null> {
-  if (env.llmProvider !== 'openrouter') {
-    return null;
-  }
-
   await ensureOpenRouterKeyForUser(userId);
   const row = findUserOpenRouterKeyRow(userId);
   if (!row?.encrypted_api_key || row.status !== 'active') {

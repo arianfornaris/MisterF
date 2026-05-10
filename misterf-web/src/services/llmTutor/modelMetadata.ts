@@ -81,10 +81,6 @@ async function getOpenRouterModelContexts(): Promise<Map<string, number>> {
 export async function resolveContextWindowTokens(
   modelId: string,
 ): Promise<number> {
-  if (env.llmProvider !== 'openrouter') {
-    return Math.max(1, env.llmContextWindow);
-  }
-
   try {
     const contexts = await getOpenRouterModelContexts();
     const resolved = contexts.get(modelId);

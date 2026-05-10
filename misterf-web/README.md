@@ -1,6 +1,6 @@
 # Mister F Web
 
-Mister F es una app web simple para practicar escritura de frases en ingles con un tutor IA configurable mediante AI SDK.
+Mister F es una app web simple para practicar escritura de frases en ingles con un tutor IA integrado mediante AI SDK sobre OpenRouter.
 
 ## Stack
 
@@ -11,7 +11,7 @@ Mister F es una app web simple para practicar escritura de frases en ingles con 
 - Socket.IO
 - SQLite
 - Migraciones propias
-- AI SDK con proveedores Google, OpenAI, OpenRouter y Anthropic
+- AI SDK con OpenRouter
 
 ## Uso
 
@@ -41,22 +41,17 @@ http://localhost:3000
 
 ## PM2
 
-La configuracion de PM2 esta en `ecosystem.config.cjs`. Cambia el proveedor y el modelo con `LLM_PROVIDER` y `LLM_MODEL`.
+La configuracion de PM2 esta en `ecosystem.config.cjs`. El proveedor LLM es OpenRouter y puedes cambiar el modelo con `LLM_MODEL`.
 
 PM2 recibe estas variables:
 
 ```text
 NODE_ENV=production
 PORT=3000
-LLM_PROVIDER=google
-LLM_MODEL=gemini-2.5-flash
-GEMINI_API_KEY=...
-OPENAI_API_KEY=...
+LLM_MODEL=openai/gpt-5-mini
 OPENROUTER_API_KEY=...
-ANTHROPIC_API_KEY=...
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```
-
-Valores soportados para `LLM_PROVIDER`: `google`, `openai`, `openrouter`, `anthropic`.
 
 Para guardar el proceso y reactivarlo al reiniciar la maquina:
 

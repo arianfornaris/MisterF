@@ -43,14 +43,9 @@ export const env = {
   databasePath: resolveProjectPath(
     process.env.DATABASE_PATH ?? './data/misterf.sqlite',
   ),
-  llmProvider: (process.env.LLM_PROVIDER ?? 'google').toLowerCase(),
-  llmModel:
-    process.env.LLM_MODEL ??
-    process.env.GEMINI_MODEL ??
-    'google/gemini-3-flash-preview',
+  llmProvider: 'openrouter',
+  llmModel: process.env.LLM_MODEL ?? 'openai/gpt-5-mini',
   llmContextWindow: readInteger('LLM_CONTEXT_WINDOW', 128000),
-  openaiApiKey: process.env.OPENAI_API_KEY ?? '',
-  openaiReasoningEffort: process.env.OPENAI_REASONING_EFFORT ?? 'medium',
   openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
   openrouterBaseUrl:
     process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1',
@@ -69,9 +64,6 @@ export const env = {
     'OPENROUTER_USER_KEY_INCLUDE_BYOK_IN_LIMIT',
     true,
   ),
-  anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
-  geminiApiKey: process.env.GEMINI_API_KEY ?? '',
-  geminiThinkingBudget: readInteger('GEMINI_THINKING_BUDGET', -1),
   appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
   sessionSecret: process.env.APP_SESSION_SECRET ?? '',
   smtpHost: process.env.SMTP_HOST ?? '',
