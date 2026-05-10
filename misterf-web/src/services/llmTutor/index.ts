@@ -63,6 +63,10 @@ async function continueTutorResponseAfterToolUse(input: {
       content: [
         'INTERNAL APP CONTINUATION.',
         'The previous step already used tools and may have completed practice-module operations successfully.',
+        'Continue the current conversation turn.',
+        'Do not greet the learner.',
+        'Do not introduce yourself.',
+        'Do not speak as if this were a new conversation or a fresh start.',
         'Do not call any more tools in this step.',
         'Now re-emit the complete final TutorResponse as exactly one JSON object and nothing else.',
         'Do not use markdown fences.',
@@ -102,6 +106,95 @@ function parseJsonFromModelText(text: string): unknown {
     const message = error instanceof Error ? error.message : 'Invalid JSON';
     throw new Error(`JSON parsing failed: ${message}`);
   }
+}
+
+function extractEmbeddedTutorResponseJson(text: string): string | null {
+  const blocksIndex = text.indexOf('"blocks"');
+  if (blocksIndex === -1) {
+    return null;
+  }
+
+  const startIndex = text.lastIndexOf('{', blocksIndex);
+  if (startIndex === -1) {
+    return null;
+  }
+
+  let depth = 0;
+  let inString = false;
+  let isEscaped = false;
+
+  for (let index = startIndex; index < text.length; index += 1) {
+    const char = text[index];
+
+    if (inString) {
+      if (isEscaped) {
+        isEscaped = false;
+        continue;
+      }
+
+      if (char === '\\') {
+        isEscaped = true;
+        continue;
+      }
+
+      if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+
+    if (char === '{') {
+      depth += 1;
+      continue;
+    }
+
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) {
+        return text.slice(startIndex, index + 1).trim();
+      }
+    }
+  }
+
+  return null;
+}
+
+function looksLikeJsonAttempt(text: string): boolean {
+  const trimmed = text.trim();
+  return (
+    trimmed.startsWith('{') ||
+    trimmed.startsWith('[') ||
+    trimmed.startsWith('```json') ||
+    trimmed.startsWith('```')
+  );
+}
+
+function buildFallbackBlocksFromPlainText(input: {
+  text: string;
+  toolResults: Array<{
+    output: unknown;
+    preliminary?: boolean;
+    toolName: string;
+  }>;
+}): TutorResponseBlock[] {
+  const inferredLinks = extractInferredPracticeModuleLinkBlocks(input.toolResults);
+  const trimmedText = input.text.trim();
+
+  if (!trimmedText) {
+    return inferredLinks.length > 0
+      ? inferredLinks
+      : [{ type: 'message', markdown: 'Listo.' }];
+  }
+
+  return mergeTutorPracticeModuleLinkBlocks(
+    [{ type: 'message', markdown: trimmedText }],
+    inferredLinks,
+  );
 }
 
 export async function runTutorAgentLoop(
@@ -165,29 +258,74 @@ export async function runTutorAgentLoop(
         turn: turn + 1,
       });
       const toolResults = result.steps.flatMap((step) => step.toolResults);
-      const effectiveResult =
-        (!result.text.trim() || toolResults.length > 0)
-          ? await continueTutorResponseAfterToolUse({
+      let effectiveResult = result;
+      let finalBlocks: TutorResponseBlock[] | null = null;
+      let parsedObject: unknown = null;
+      const initialText = result.text.trim();
+
+      if (!initialText) {
+        finalBlocks = buildFallbackBlocksFromPlainText({
+          text: result.text,
+          toolResults,
+        });
+      } else {
+        try {
+          parsedObject = parseJsonFromModelText(result.text);
+          finalBlocks = mergeTutorPracticeModuleLinkBlocks(
+            validateTutorResponseBlocks(parsedObject),
+            extractInferredPracticeModuleLinkBlocks(toolResults),
+          );
+        } catch (error) {
+          const embeddedJson = extractEmbeddedTutorResponseJson(result.text);
+
+          if (embeddedJson) {
+            try {
+              parsedObject = parseJsonFromModelText(embeddedJson);
+              finalBlocks = mergeTutorPracticeModuleLinkBlocks(
+                validateTutorResponseBlocks(parsedObject),
+                extractInferredPracticeModuleLinkBlocks(toolResults),
+              );
+            } catch (embeddedError) {
+              logLlmInvalidRawResponse({
+                error: embeddedError,
+                rawText: result.text,
+                turn: turn + 1,
+              });
+              throw embeddedError;
+            }
+          } else if (!looksLikeJsonAttempt(result.text)) {
+            finalBlocks = buildFallbackBlocksFromPlainText({
+              text: result.text,
+              toolResults,
+            });
+          } else {
+            effectiveResult = await continueTutorResponseAfterToolUse({
               abortSignal: options.abortSignal,
               llm: options.llm,
               system,
               toolResults,
-            })
-          : result;
+            });
 
-      let parsedObject: unknown;
-      try {
-        parsedObject = parseJsonFromModelText(effectiveResult.text);
-      } catch (error) {
-        logLlmInvalidRawResponse({
-          error,
-          rawText: effectiveResult.text,
-          turn: turn + 1,
-        });
-        throw error;
+            try {
+              parsedObject = parseJsonFromModelText(effectiveResult.text);
+              finalBlocks = mergeTutorPracticeModuleLinkBlocks(
+                validateTutorResponseBlocks(parsedObject),
+                extractInferredPracticeModuleLinkBlocks(toolResults),
+              );
+            } catch (continuationError) {
+              logLlmInvalidRawResponse({
+                error: continuationError,
+                rawText: effectiveResult.text,
+                turn: turn + 1,
+              });
+              throw continuationError;
+            }
+          }
+        }
       }
+
       logLlmResponse(
-        parsedObject,
+        parsedObject ?? { blocks: finalBlocks },
         effectiveResult.finishReason,
         effectiveResult.usage,
         effectiveResult.providerMetadata,
@@ -215,19 +353,14 @@ export async function runTutorAgentLoop(
       }
 
       try {
-        const blocks = validateTutorResponseBlocks(parsedObject);
-        if (blocks.length === 0) {
+        if (!finalBlocks || finalBlocks.length === 0) {
           throw new Error('The model returned no usable response blocks.');
         }
-        const blocksWithInferredLinks = mergeTutorPracticeModuleLinkBlocks(
-          blocks,
-          extractInferredPracticeModuleLinkBlocks(toolResults),
-        );
-        options.validateBlocks?.(blocksWithInferredLinks);
+        options.validateBlocks?.(finalBlocks);
 
         return {
-          blocks: blocksWithInferredLinks,
-          content: blocksToMarkdown(blocksWithInferredLinks),
+          blocks: finalBlocks,
+          content: blocksToMarkdown(finalBlocks),
           model: env.llmModel,
           provider: env.llmProvider,
         };
