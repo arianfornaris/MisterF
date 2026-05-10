@@ -2428,81 +2428,109 @@ function renderQuizItemBody(container, item, itemState, state) {
     const pairedLeft = new Set(itemState.pairs.map((pair) => pair.left));
     const pairedRight = new Set(itemState.pairs.map((pair) => pair.right));
 
-    item.leftItems.forEach((leftText) => {
-      const button = document.createElement('button');
-      button.className = 'matching-pairs-item';
-      button.type = 'button';
-      button.textContent = leftText;
-      button.disabled = state.submitted || state.aborted || pairedLeft.has(leftText);
-      button.classList.toggle('is-selected', itemState.selectedLeft === leftText);
-      button.addEventListener('click', () => {
-        itemState.selectedLeft =
-          itemState.selectedLeft === leftText ? '' : leftText;
-        renderQuizCard(container.closest('.quiz-card'), state);
-      });
-      leftList.append(button);
-    });
-
-    itemState.shuffledRightItems.forEach((rightText) => {
-      const button = document.createElement('button');
-      button.className = 'matching-pairs-item';
-      button.type = 'button';
-      button.textContent = rightText;
-      button.disabled = state.submitted || state.aborted || pairedRight.has(rightText);
-      button.classList.toggle('is-selected', itemState.selectedRight === rightText);
-      button.addEventListener('click', () => {
-        itemState.selectedRight =
-          itemState.selectedRight === rightText ? '' : rightText;
-        renderQuizCard(container.closest('.quiz-card'), state);
-      });
-      rightList.append(button);
-    });
-
-    leftColumn.append(leftTitle, leftList);
-    rightColumn.append(rightTitle, rightList);
-    columns.append(leftColumn, rightColumn);
-
-    const pairButton = document.createElement('button');
-    pairButton.className = 'quiz-pair-button';
-    pairButton.type = 'button';
-    pairButton.textContent = 'Emparejar seleccion';
-    pairButton.disabled =
-      state.submitted ||
-      state.aborted ||
-      !itemState.selectedLeft ||
-      !itemState.selectedRight;
-    pairButton.addEventListener('click', () => {
-      if (!itemState.selectedLeft || !itemState.selectedRight) {
+    const commitPair = (leftText, rightText) => {
+      if (!leftText || !rightText) {
         return;
       }
 
       itemState.pairs.push({
-        left: itemState.selectedLeft,
-        right: itemState.selectedRight,
+        left: leftText,
+        right: rightText,
       });
       itemState.selectedLeft = '';
       itemState.selectedRight = '';
       renderQuizCard(container.closest('.quiz-card'), state);
-    });
+    };
+
+    item.leftItems
+      .filter((leftText) => !pairedLeft.has(leftText))
+      .forEach((leftText) => {
+      const button = document.createElement('button');
+      button.className = 'matching-pairs-item';
+      button.type = 'button';
+      button.textContent = leftText;
+      button.disabled = state.submitted || state.aborted;
+      button.classList.toggle('is-selected', itemState.selectedLeft === leftText);
+      button.addEventListener('click', () => {
+        if (state.submitted || state.aborted) {
+          return;
+        }
+
+        if (itemState.selectedRight) {
+          commitPair(leftText, itemState.selectedRight);
+          return;
+        }
+
+        itemState.selectedLeft =
+          itemState.selectedLeft === leftText ? '' : leftText;
+        renderQuizCard(container.closest('.quiz-card'), state);
+      });
+        leftList.append(button);
+      });
+
+    itemState.shuffledRightItems
+      .filter((rightText) => !pairedRight.has(rightText))
+      .forEach((rightText) => {
+      const button = document.createElement('button');
+      button.className = 'matching-pairs-item';
+      button.type = 'button';
+      button.textContent = rightText;
+      button.disabled = state.submitted || state.aborted;
+      button.classList.toggle('is-selected', itemState.selectedRight === rightText);
+      button.addEventListener('click', () => {
+        if (state.submitted || state.aborted) {
+          return;
+        }
+
+        if (itemState.selectedLeft) {
+          commitPair(itemState.selectedLeft, rightText);
+          return;
+        }
+
+        itemState.selectedRight =
+          itemState.selectedRight === rightText ? '' : rightText;
+        renderQuizCard(container.closest('.quiz-card'), state);
+      });
+        rightList.append(button);
+      });
+
+    leftColumn.append(leftTitle, leftList);
+    rightColumn.append(rightTitle, rightList);
+    columns.append(leftColumn, rightColumn);
 
     const pairList = document.createElement('div');
     pairList.className = 'quiz-pair-list';
     if (itemState.pairs.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'quiz-item-helper';
-      empty.textContent = 'Selecciona un elemento de cada columna para crear un par.';
+      empty.textContent =
+        'Selecciona un elemento de una columna y luego uno de la otra para crear el par.';
       pairList.append(empty);
     } else {
       itemState.pairs.forEach((pair, pairIndex) => {
         const row = document.createElement('div');
-        row.className = 'quiz-pair-row';
+        row.className =
+          'quiz-pair-row d-flex align-items-center justify-content-between gap-2 border rounded px-3 py-2 bg-body-tertiary';
 
-        const text = document.createElement('span');
-        text.className = 'quiz-pair-row-text';
-        text.textContent = `${pair.left} -> ${pair.right}`;
+        const text = document.createElement('div');
+        text.className = 'quiz-pair-row-text d-flex align-items-center flex-wrap gap-2';
+
+        const leftChip = document.createElement('span');
+        leftChip.className = 'badge text-bg-light border rounded-pill';
+        leftChip.textContent = pair.left;
+
+        const arrow = document.createElement('i');
+        arrow.className = 'bi bi-arrow-left-right text-body-secondary';
+        arrow.setAttribute('aria-hidden', 'true');
+
+        const rightChip = document.createElement('span');
+        rightChip.className = 'badge text-bg-light border rounded-pill';
+        rightChip.textContent = pair.right;
+
+        text.append(leftChip, arrow, rightChip);
 
         const remove = document.createElement('button');
-        remove.className = 'quiz-pair-remove';
+        remove.className = 'quiz-pair-remove btn btn-sm btn-outline-secondary';
         remove.type = 'button';
         remove.textContent = 'Quitar';
         remove.disabled = state.submitted || state.aborted;
@@ -2516,7 +2544,7 @@ function renderQuizItemBody(container, item, itemState, state) {
       });
     }
 
-    container.append(columns, pairButton, pairList);
+    container.append(columns, pairList);
     return;
   }
 

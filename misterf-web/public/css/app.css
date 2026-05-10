@@ -1562,7 +1562,6 @@ body {
 
 .quiz-nav-button,
 .quiz-evaluate-button,
-.quiz-pair-button,
 .quiz-pair-remove {
   border: 1px solid rgb(79 70 229 / 16%);
   border-radius: 999px;
@@ -1573,7 +1572,6 @@ body {
 }
 
 .quiz-nav-button,
-.quiz-pair-button,
 .quiz-pair-remove {
   padding: 0.55rem 0.9rem;
 }
@@ -1582,8 +1580,6 @@ body {
 .quiz-nav-button:focus,
 .quiz-evaluate-button:hover,
 .quiz-evaluate-button:focus,
-.quiz-pair-button:hover,
-.quiz-pair-button:focus,
 .quiz-pair-remove:hover,
 .quiz-pair-remove:focus {
   outline: 0;
@@ -1593,7 +1589,6 @@ body {
 
 .quiz-nav-button:disabled,
 .quiz-evaluate-button:disabled,
-.quiz-pair-button:disabled,
 .quiz-pair-remove:disabled {
   border-color: rgb(148 163 184 / 28%);
   background: rgb(248 250 252 / 96%);
@@ -1642,14 +1637,7 @@ body {
 }
 
 .quiz-pair-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0.7rem 0.8rem;
-  border: 1px solid rgb(79 70 229 / 12%);
-  border-radius: 10px;
-  background: rgb(248 250 255 / 96%);
+  min-width: 0;
 }
 
 .quiz-pair-row-text {
@@ -1859,7 +1847,6 @@ body {
 
   .quiz-evaluate-button,
   .quiz-nav-button,
-  .quiz-pair-button,
   .quiz-pair-remove {
     width: 100%;
   }
