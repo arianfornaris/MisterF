@@ -105,6 +105,49 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_profiles_user_created
         ON profiles (user_id, created_at ASC, updated_at ASC);
 
+      CREATE TABLE practice_module_collections (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
+        archived_at TEXT,
+        source_collection_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_collection_id)
+          REFERENCES practice_module_collections (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_practice_module_collections_profile_updated
+        ON practice_module_collections (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_practice_module_collections_profile_archive_favorite
+        ON practice_module_collections (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_practice_module_collections_profile_shared
+        ON practice_module_collections (profile_id, shared_via, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_practice_module_collections_profile_source
+        ON practice_module_collections (profile_id, source_collection_id, shared_via);
+
       CREATE TABLE practice_modules (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -112,6 +155,8 @@ export const migrations: Migration[] = [
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         tutor_instructions TEXT NOT NULL,
+        collection_id TEXT,
+        position_in_collection INTEGER,
         source_practice_module_id TEXT,
         source_user_id TEXT,
         source_profile_id TEXT,
@@ -126,6 +171,9 @@ export const migrations: Migration[] = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
+        FOREIGN KEY (collection_id)
+          REFERENCES practice_module_collections (id)
+          ON DELETE SET NULL,
         FOREIGN KEY (source_practice_module_id)
           REFERENCES practice_modules (id)
           ON DELETE SET NULL,
@@ -148,6 +196,9 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_practice_modules_profile_archive_favorite
         ON practice_modules (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_practice_modules_collection_position
+        ON practice_modules (collection_id, position_in_collection, updated_at DESC, created_at DESC);
 
       CREATE TABLE conversations (
         id TEXT PRIMARY KEY,
@@ -210,6 +261,19 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_practice_module_share_links_active
         ON practice_module_share_links (practice_module_id, revoked_at, created_at DESC);
 
+      CREATE TABLE practice_module_collection_share_links (
+        id TEXT PRIMARY KEY,
+        collection_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (collection_id)
+          REFERENCES practice_module_collections (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_practice_module_collection_share_links_active
+        ON practice_module_collection_share_links (collection_id, revoked_at, created_at DESC);
+
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         conversation_id TEXT NOT NULL,
@@ -224,131 +288,6 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_messages_conversation_created
         ON messages (conversation_id, created_at, id);
-    `,
-  },
-  {
-    id: 2,
-    name: 'create_practice_module_collections',
-    up: `
-      CREATE TABLE practice_module_collections (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        profile_id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (profile_id)
-          REFERENCES profiles (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_practice_module_collections_profile_updated
-        ON practice_module_collections (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      CREATE TABLE practice_module_collection_items (
-        collection_id TEXT NOT NULL,
-        practice_module_id TEXT NOT NULL,
-        position INTEGER NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (collection_id, practice_module_id),
-        FOREIGN KEY (collection_id)
-          REFERENCES practice_module_collections (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE UNIQUE INDEX idx_practice_module_collection_items_position
-        ON practice_module_collection_items (collection_id, position);
-
-      CREATE INDEX idx_practice_module_collection_items_module
-        ON practice_module_collection_items (practice_module_id, collection_id);
-    `,
-  },
-  {
-    id: 3,
-    name: 'simplify_practice_module_collections',
-    up: `
-      ALTER TABLE practice_module_collections
-        ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1));
-
-      ALTER TABLE practice_module_collections
-        ADD COLUMN archived_at TEXT;
-
-      ALTER TABLE practice_modules
-        ADD COLUMN collection_id TEXT REFERENCES practice_module_collections (id) ON DELETE SET NULL;
-
-      ALTER TABLE practice_modules
-        ADD COLUMN position_in_collection INTEGER;
-
-      CREATE INDEX idx_practice_modules_collection_position
-        ON practice_modules (collection_id, position_in_collection, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_practice_module_collections_profile_archive_favorite
-        ON practice_module_collections (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
-
-      UPDATE practice_modules
-      SET
-        collection_id = (
-          SELECT items.collection_id
-          FROM practice_module_collection_items AS items
-          WHERE items.practice_module_id = practice_modules.id
-          ORDER BY items.position ASC, items.created_at ASC
-          LIMIT 1
-        ),
-        position_in_collection = (
-          SELECT items.position
-          FROM practice_module_collection_items AS items
-          WHERE items.practice_module_id = practice_modules.id
-          ORDER BY items.position ASC, items.created_at ASC
-          LIMIT 1
-        )
-      WHERE EXISTS (
-        SELECT 1
-        FROM practice_module_collection_items AS items
-        WHERE items.practice_module_id = practice_modules.id
-      );
-    `,
-  },
-  {
-    id: 4,
-    name: 'add_practice_module_collection_sharing',
-    up: `
-      ALTER TABLE practice_module_collections
-        ADD COLUMN source_collection_id TEXT REFERENCES practice_module_collections (id) ON DELETE SET NULL;
-
-      ALTER TABLE practice_module_collections
-        ADD COLUMN source_user_id TEXT REFERENCES users (id) ON DELETE SET NULL;
-
-      ALTER TABLE practice_module_collections
-        ADD COLUMN source_profile_id TEXT REFERENCES profiles (id) ON DELETE SET NULL;
-
-      ALTER TABLE practice_module_collections
-        ADD COLUMN shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link'));
-
-      CREATE INDEX idx_practice_module_collections_profile_shared
-        ON practice_module_collections (profile_id, shared_via, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_practice_module_collections_profile_source
-        ON practice_module_collections (profile_id, source_collection_id, shared_via);
-
-      CREATE TABLE practice_module_collection_share_links (
-        id TEXT PRIMARY KEY,
-        collection_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (collection_id)
-          REFERENCES practice_module_collections (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_practice_module_collection_share_links_active
-        ON practice_module_collection_share_links (collection_id, revoked_at, created_at DESC);
     `,
   },
 ];
