@@ -1,7 +1,9 @@
 import { createHmac, randomBytes } from 'node:crypto';
 import { env } from '../config/env.js';
 export const sessionCookieName = 'misterf_session';
+export const knownVisitorCookieName = 'misterf_known_visitor';
 const sessionDurationMs = 30 * 24 * 60 * 60 * 1000;
+const knownVisitorDurationMs = 365 * 24 * 60 * 60 * 1000;
 export function createSessionCookie() {
     const token = randomBytes(32).toString('base64url');
     return {
@@ -14,6 +16,12 @@ export function getSessionToken(request) {
     return getSessionTokenFromCookieHeader(request.headers.cookie);
 }
 export function getSessionTokenFromCookieHeader(cookieHeader) {
+    return getCookieValue(cookieHeader, sessionCookieName);
+}
+export function hasKnownVisitorCookie(request) {
+    return getCookieValue(request.headers.cookie, knownVisitorCookieName) === '1';
+}
+function getCookieValue(cookieHeader, cookieName) {
     if (!cookieHeader) {
         return null;
     }
@@ -21,7 +29,7 @@ export function getSessionTokenFromCookieHeader(cookieHeader) {
         const [name, ...valueParts] = cookie.trim().split('=');
         return [name, decodeURIComponent(valueParts.join('='))];
     }));
-    return cookies.get(sessionCookieName) ?? null;
+    return cookies.get(cookieName) ?? null;
 }
 export function hashSessionToken(token) {
     return createHmac('sha256', requireSessionSecret())
@@ -39,6 +47,15 @@ export function setSessionCookie(response, session) {
 }
 export function clearSessionCookie(response) {
     response.clearCookie(sessionCookieName, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: env.appBaseUrl.startsWith('https://'),
+        path: '/',
+    });
+}
+export function setKnownVisitorCookie(response) {
+    response.cookie(knownVisitorCookieName, '1', {
+        expires: new Date(Date.now() + knownVisitorDurationMs),
         httpOnly: true,
         sameSite: 'lax',
         secure: env.appBaseUrl.startsWith('https://'),

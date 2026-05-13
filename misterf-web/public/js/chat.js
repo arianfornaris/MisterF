@@ -78,6 +78,8 @@ let pendingDeleteTarget = null;
 let activeUserMessageId = null;
 let pendingPracticeModuleStart = false;
 let isAssistantStopping = false;
+let isGuestPromptPending = false;
+let guestPromptTimerId = 0;
 const pendingSentenceEvaluations = new Map();
 let pendingTranslatorSelection = '';
 let userInputHistory = [];
@@ -570,13 +572,18 @@ async function copyTranslatorText(button) {
 
 function sendMessage() {
   const content = inputEl.value.trim();
-  if (!content || isAssistantBusy) {
+  if (!content || isAssistantBusy || isGuestPromptPending) {
     return;
   }
 
   if (!socket) {
+    rememberUserInput(content);
+    appendMessage('user', content);
     preserveGuestDraft(content);
-    showGuestAuthPrompt();
+    inputEl.value = '';
+    inputEl.style.height = 'auto';
+    resetUserInputHistoryNavigation();
+    showGuestAuthPromptWithDelay();
     return;
   }
 
@@ -1382,15 +1389,30 @@ function preserveGuestDraft(content) {
 }
 
 function showGuestAuthPrompt() {
-  appendMessage(
+  const bubble = appendMessage(
     'model',
     'Perfecto. Para guardar tu práctica y continuar esta conversación, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
   );
+  markTutorMessageArrived(bubble.closest('.message-row'));
   setComposerEnabled(true);
-  inputEl.value = getGuestDraft() || inputEl.value;
   resizeComposerInput();
   focusComposer();
   scrollToBottom();
+}
+
+function showGuestAuthPromptWithDelay() {
+  isGuestPromptPending = true;
+  setComposerEnabled(false);
+  const typingBubble = appendMessage('model', '', { streaming: true });
+  scrollToBottom();
+
+  const delayMs = 850 + Math.floor(Math.random() * 500);
+  guestPromptTimerId = window.setTimeout(() => {
+    typingBubble.closest('.message-row')?.remove();
+    showGuestAuthPrompt();
+    isGuestPromptPending = false;
+    guestPromptTimerId = 0;
+  }, delayMs);
 }
 
 function getGuestDraft() {

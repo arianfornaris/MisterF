@@ -1,7 +1,10 @@
 import type { Request, Response } from 'express';
 import QRCode from 'qrcode';
 import { createSocketAuthToken } from './socketAuth.js';
-import { pickInitialGreeting } from '../socket/initialGreetings.js';
+import {
+  pickInitialGreeting,
+  pickKnownVisitorGreeting,
+} from '../socket/initialGreetings.js';
 import {
   getMailerConfigurationError,
   isMailerConfigured,
@@ -27,6 +30,8 @@ import {
 import {
   clearSessionCookie,
   createSessionCookie,
+  hasKnownVisitorCookie,
+  setKnownVisitorCookie,
   setSessionCookie,
 } from './session.js';
 import {
@@ -685,6 +690,7 @@ export function handleLogout(request: Request, response: Response): void {
 
   clearSessionCookie(response);
   clearActiveProfileCookie(response);
+  setKnownVisitorCookie(response);
   response.redirect('/');
 }
 
@@ -706,7 +712,11 @@ export async function renderHome(request: Request, response: Response): Promise<
       : '';
   const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
   const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
-  const guestInitialGreeting = user ? '' : pickInitialGreeting();
+  const guestInitialGreeting = user
+    ? ''
+    : hasKnownVisitorCookie(request)
+    ? pickKnownVisitorGreeting()
+    : pickInitialGreeting();
   const requestedConversationIdRaw = request.params.conversationId;
   const requestedConversationId =
     typeof requestedConversationIdRaw === 'string'
@@ -1781,6 +1791,7 @@ async function signInUser(
     ipAddress: request.ip,
   });
   setSessionCookie(response, session);
+  setKnownVisitorCookie(response);
   response.redirect(returnTo);
 }
 

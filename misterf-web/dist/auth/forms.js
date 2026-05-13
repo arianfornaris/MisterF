@@ -1,10 +1,10 @@
 import QRCode from 'qrcode';
 import { createSocketAuthToken } from './socketAuth.js';
-import { pickInitialGreeting } from '../socket/initialGreetings.js';
+import { pickInitialGreeting, pickKnownVisitorGreeting, } from '../socket/initialGreetings.js';
 import { getMailerConfigurationError, isMailerConfigured, sendEmailVerification, sendPasswordReset, } from './mailer.js';
 import { hashPassword, verifyPassword } from './password.js';
 import { createAuthActionToken, createLocalUser, createSession, deleteUserById, findUserByAuthActionToken, findUserByEmail, markAuthActionTokenUsed, markEmailVerified, normalizeEmail, revokeSession, revokeUserSessions, updateUserPassword, } from './repository.js';
-import { clearSessionCookie, createSessionCookie, setSessionCookie, } from './session.js';
+import { clearSessionCookie, createSessionCookie, hasKnownVisitorCookie, setKnownVisitorCookie, setSessionCookie, } from './session.js';
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
 import { addPracticeModuleToCollection, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
@@ -497,6 +497,7 @@ export function handleLogout(request, response) {
     }
     clearSessionCookie(response);
     clearActiveProfileCookie(response);
+    setKnownVisitorCookie(response);
     response.redirect('/');
 }
 export async function renderHome(request, response) {
@@ -514,7 +515,11 @@ export async function renderHome(request, response) {
         : '';
     const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
     const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
-    const guestInitialGreeting = user ? '' : pickInitialGreeting();
+    const guestInitialGreeting = user
+        ? ''
+        : hasKnownVisitorCookie(request)
+            ? pickKnownVisitorGreeting()
+            : pickInitialGreeting();
     const requestedConversationIdRaw = request.params.conversationId;
     const requestedConversationId = typeof requestedConversationIdRaw === 'string'
         ? requestedConversationIdRaw.trim()
@@ -1370,6 +1375,7 @@ async function signInUser(request, response, userId, returnTo = '/') {
         ipAddress: request.ip,
     });
     setSessionCookie(response, session);
+    setKnownVisitorCookie(response);
     response.redirect(returnTo);
 }
 function toOpenRouterProvisioningErrorMessage(error) {

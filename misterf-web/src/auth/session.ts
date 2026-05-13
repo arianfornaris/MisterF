@@ -3,7 +3,9 @@ import type { Request, Response } from 'express';
 import { env } from '../config/env.js';
 
 export const sessionCookieName = 'misterf_session';
+export const knownVisitorCookieName = 'misterf_known_visitor';
 const sessionDurationMs = 30 * 24 * 60 * 60 * 1000;
+const knownVisitorDurationMs = 365 * 24 * 60 * 60 * 1000;
 
 export type SessionCookie = {
   expiresAt: Date;
@@ -27,6 +29,17 @@ export function getSessionToken(request: Request): string | null {
 export function getSessionTokenFromCookieHeader(
   cookieHeader: string | undefined,
 ): string | null {
+  return getCookieValue(cookieHeader, sessionCookieName);
+}
+
+export function hasKnownVisitorCookie(request: Request): boolean {
+  return getCookieValue(request.headers.cookie, knownVisitorCookieName) === '1';
+}
+
+function getCookieValue(
+  cookieHeader: string | undefined,
+  cookieName: string,
+): string | null {
   if (!cookieHeader) {
     return null;
   }
@@ -38,7 +51,7 @@ export function getSessionTokenFromCookieHeader(
     }),
   );
 
-  return cookies.get(sessionCookieName) ?? null;
+  return cookies.get(cookieName) ?? null;
 }
 
 export function hashSessionToken(token: string): string {
@@ -59,6 +72,16 @@ export function setSessionCookie(response: Response, session: SessionCookie): vo
 
 export function clearSessionCookie(response: Response): void {
   response.clearCookie(sessionCookieName, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: env.appBaseUrl.startsWith('https://'),
+    path: '/',
+  });
+}
+
+export function setKnownVisitorCookie(response: Response): void {
+  response.cookie(knownVisitorCookieName, '1', {
+    expires: new Date(Date.now() + knownVisitorDurationMs),
     httpOnly: true,
     sameSite: 'lax',
     secure: env.appBaseUrl.startsWith('https://'),
