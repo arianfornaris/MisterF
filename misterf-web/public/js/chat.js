@@ -68,6 +68,8 @@ disableComposerTextAssist();
 initializeLlmContextMeter();
 initializeStaticMarkdown();
 initializePracticeModuleSharingUi();
+initializePracticeModuleCollectionForms();
+initializeCollectionModulePickers();
 
 let conversationId = initialConversationId;
 let streamingBubble = null;
@@ -832,6 +834,69 @@ function initializePracticeModuleSharingUi() {
   if (autoOpenSharedPracticeModuleModalEl && window.bootstrap?.Modal) {
     const modal = new window.bootstrap.Modal(autoOpenSharedPracticeModuleModalEl);
     modal.show();
+  }
+}
+
+function initializePracticeModuleCollectionForms() {
+  const formEls = document.querySelectorAll('[data-practice-module-add-to-collection-form]');
+  if (!formEls.length) {
+    return;
+  }
+
+  for (const formEl of formEls) {
+    const selectEl = formEl.querySelector('[data-practice-module-collection-select]');
+    if (!(selectEl instanceof HTMLSelectElement)) {
+      continue;
+    }
+
+    const syncAction = () => {
+      const selectedOption = selectEl.selectedOptions[0];
+      const action = selectedOption?.dataset.action;
+      if (action) {
+        formEl.setAttribute('action', action);
+      }
+    };
+
+    syncAction();
+    selectEl.addEventListener('change', syncAction);
+  }
+}
+
+function initializeCollectionModulePickers() {
+  const pickerForms = document.querySelectorAll('[data-collection-module-picker]');
+  if (!pickerForms.length) {
+    return;
+  }
+
+  for (const formEl of pickerForms) {
+    const filterEl = formEl.querySelector('[data-collection-module-filter]');
+    const itemEls = Array.from(formEl.querySelectorAll('[data-collection-module-item]'));
+    const emptyEl = formEl.querySelector('[data-collection-module-empty]');
+
+    if (!(filterEl instanceof HTMLInputElement) || !itemEls.length) {
+      continue;
+    }
+
+    const applyFilter = () => {
+      const query = filterEl.value.trim().toLowerCase();
+      let visibleCount = 0;
+
+      for (const itemEl of itemEls) {
+        const haystack = itemEl.getAttribute('data-search-text') || '';
+        const isVisible = !query || haystack.includes(query);
+        itemEl.classList.toggle('d-none', !isVisible);
+        if (isVisible) {
+          visibleCount += 1;
+        }
+      }
+
+      if (emptyEl) {
+        emptyEl.classList.toggle('d-none', visibleCount > 0);
+      }
+    };
+
+    filterEl.addEventListener('input', applyFilter);
+    applyFilter();
   }
 }
 

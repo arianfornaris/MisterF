@@ -26,8 +26,10 @@ export type StoredConversation = {
 
 export type StoredPracticeModule = {
   archivedAt: string | null;
+  collectionId: string | null;
   id: string;
   isFavorite: boolean;
+  positionInCollection: number | null;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
   sourcePracticeModuleId: string | null;
@@ -41,8 +43,38 @@ export type StoredPracticeModule = {
   updatedAt: string;
 };
 
+export type StoredPracticeModuleCollection = {
+  archivedAt: string | null;
+  id: string;
+  isFavorite: boolean;
+  userId: string;
+  profileId: string;
+  sharedVia: 'profile' | 'link' | null;
+  sourceCollectionId: string | null;
+  sourceProfileId: string | null;
+  sourceUserId: string | null;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredPracticeModuleCollectionItem = {
+  collectionId: string;
+  practiceModuleId: string;
+  position: number;
+  createdAt: string;
+};
+
 export type StoredPracticeModuleShareLink = {
   practiceModuleId: string;
+  createdAt: string;
+  id: string;
+  revokedAt: string | null;
+};
+
+export type StoredPracticeModuleCollectionShareLink = {
+  collectionId: string;
   createdAt: string;
   id: string;
   revokedAt: string | null;
@@ -98,8 +130,10 @@ type ConversationRow = {
 
 type PracticeModuleRow = {
   archived_at: string | null;
+  collection_id: string | null;
   id: string;
   is_favorite: number;
+  position_in_collection: number | null;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
   source_practice_module_id: string | null;
@@ -120,6 +154,29 @@ type PracticeModuleShareLinkRow = {
   revoked_at: string | null;
 };
 
+type PracticeModuleCollectionRow = {
+  archived_at: string | null;
+  id: string;
+  is_favorite: number;
+  user_id: string;
+  profile_id: string;
+  shared_via: 'profile' | 'link' | null;
+  source_collection_id: string | null;
+  source_profile_id: string | null;
+  source_user_id: string | null;
+  title: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type PracticeModuleCollectionItemRow = {
+  collection_id: string;
+  practice_module_id: string;
+  position: number;
+  created_at: string;
+};
+
 type ConversationPracticeModuleSnapshotRow = {
   practice_module_id: string | null;
   conversation_id: string;
@@ -127,6 +184,13 @@ type ConversationPracticeModuleSnapshotRow = {
   description: string;
   title: string;
   tutor_instructions: string;
+};
+
+type PracticeModuleCollectionShareLinkRow = {
+  collection_id: string;
+  created_at: string;
+  id: string;
+  revoked_at: string | null;
 };
 
 const defaultConversationTitle = 'Nueva conversación';
@@ -160,8 +224,10 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
 function toStoredPracticeModule(row: PracticeModuleRow): StoredPracticeModule {
   return {
     archivedAt: row.archived_at,
+    collectionId: row.collection_id,
     id: row.id,
     isFavorite: Boolean(row.is_favorite),
+    positionInCollection: row.position_in_collection,
     profileId: row.profile_id,
     sharedVia: row.shared_via,
     sourcePracticeModuleId: row.source_practice_module_id,
@@ -176,11 +242,53 @@ function toStoredPracticeModule(row: PracticeModuleRow): StoredPracticeModule {
   };
 }
 
+function toStoredPracticeModuleCollection(
+  row: PracticeModuleCollectionRow,
+): StoredPracticeModuleCollection {
+  return {
+    archivedAt: row.archived_at,
+    id: row.id,
+    isFavorite: Boolean(row.is_favorite),
+    userId: row.user_id,
+    profileId: row.profile_id,
+    sharedVia: row.shared_via,
+    sourceCollectionId: row.source_collection_id,
+    sourceProfileId: row.source_profile_id,
+    sourceUserId: row.source_user_id,
+    title: row.title,
+    description: row.description,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredPracticeModuleCollectionItem(
+  row: PracticeModuleCollectionItemRow,
+): StoredPracticeModuleCollectionItem {
+  return {
+    collectionId: row.collection_id,
+    practiceModuleId: row.practice_module_id,
+    position: row.position,
+    createdAt: row.created_at,
+  };
+}
+
 function toStoredPracticeModuleShareLink(
   row: PracticeModuleShareLinkRow,
 ): StoredPracticeModuleShareLink {
   return {
     practiceModuleId: row.practice_module_id,
+    createdAt: row.created_at,
+    id: row.id,
+    revokedAt: row.revoked_at,
+  };
+}
+
+function toStoredPracticeModuleCollectionShareLink(
+  row: PracticeModuleCollectionShareLinkRow,
+): StoredPracticeModuleCollectionShareLink {
+  return {
+    collectionId: row.collection_id,
     createdAt: row.created_at,
     id: row.id,
     revokedAt: row.revoked_at,
@@ -443,6 +551,8 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
 }
 
 export function createPracticeModule(input: {
+  collectionId?: string | null;
+  positionInCollection?: number | null;
   profileId: string;
   sharedVia?: 'profile' | 'link' | null;
   sourcePracticeModuleId?: string | null;
@@ -464,12 +574,14 @@ export function createPracticeModule(input: {
           title,
           description,
           tutor_instructions,
+          collection_id,
+          position_in_collection,
           source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -479,6 +591,8 @@ export function createPracticeModule(input: {
       input.title,
       input.description,
       input.tutorInstructions,
+      input.collectionId ?? null,
+      input.positionInCollection ?? null,
       input.sourcePracticeModuleId ?? null,
       input.sourceUserId ?? null,
       input.sourceProfileId ?? null,
@@ -502,8 +616,10 @@ export function findPracticeModuleForUser(
       `
         SELECT
           archived_at,
+          collection_id,
           id,
           is_favorite,
+          position_in_collection,
           user_id,
           title,
           description,
@@ -530,8 +646,10 @@ export function findPracticeModuleById(id: string): StoredPracticeModule | null 
       `
         SELECT
           archived_at,
+          collection_id,
           id,
           is_favorite,
+          position_in_collection,
           user_id,
           title,
           description,
@@ -561,8 +679,10 @@ export function listPracticeModulesForProfile(
       `
         SELECT
           archived_at,
+          collection_id,
           id,
           is_favorite,
+          position_in_collection,
           user_id,
           title,
           description,
@@ -582,6 +702,510 @@ export function listPracticeModulesForProfile(
     .all(userId, profileId) as PracticeModuleRow[];
 
   return rows.map(toStoredPracticeModule);
+}
+
+export function createPracticeModuleCollection(input: {
+  profileId: string;
+  sharedVia?: 'profile' | 'link' | null;
+  sourceCollectionId?: string | null;
+  sourceProfileId?: string | null;
+  sourceUserId?: string | null;
+  userId: string;
+  title: string;
+  description: string;
+}): StoredPracticeModuleCollection {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO practice_module_collections (
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          is_favorite,
+          archived_at,
+          source_collection_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
+        )
+        VALUES (?, ?, ?, ?, ?, 0, NULL, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      id,
+      input.userId,
+      input.profileId,
+      input.title,
+      input.description,
+      input.sourceCollectionId ?? null,
+      input.sourceUserId ?? null,
+      input.sourceProfileId ?? null,
+      input.sharedVia ?? null,
+    );
+
+  const collection = findPracticeModuleCollectionForUser(id, input.userId);
+  if (!collection) {
+    throw new Error('Could not load newly created practice module collection.');
+  }
+
+  return collection;
+}
+
+export function findPracticeModuleCollectionForUser(
+  id: string,
+  userId: string,
+): StoredPracticeModuleCollection | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        FROM practice_module_collections
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as PracticeModuleCollectionRow | undefined;
+
+  return row ? toStoredPracticeModuleCollection(row) : null;
+}
+
+export function findPracticeModuleCollectionById(
+  id: string,
+): StoredPracticeModuleCollection | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        FROM practice_module_collections
+        WHERE id = ?
+      `,
+    )
+    .get(id) as PracticeModuleCollectionRow | undefined;
+
+  return row ? toStoredPracticeModuleCollection(row) : null;
+}
+
+export function listPracticeModuleCollectionsForProfile(
+  userId: string,
+  profileId: string,
+): StoredPracticeModuleCollection[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        FROM practice_module_collections
+        WHERE user_id = ? AND profile_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(userId, profileId) as PracticeModuleCollectionRow[];
+
+  return rows.map(toStoredPracticeModuleCollection);
+}
+
+export function updatePracticeModuleCollection(input: {
+  collectionId: string;
+  userId: string;
+  title: string;
+  description: string;
+}): StoredPracticeModuleCollection | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE practice_module_collections
+        SET title = ?,
+            description = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(input.title, input.description, input.collectionId, input.userId);
+
+  return findPracticeModuleCollectionForUser(input.collectionId, input.userId);
+}
+
+export function findImportedPracticeModuleCollectionForProfile(input: {
+  profileId: string;
+  sourceCollectionId: string;
+  userId: string;
+}): StoredPracticeModuleCollection | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        FROM practice_module_collections
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND source_collection_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(input.userId, input.profileId, input.sourceCollectionId) as
+    | PracticeModuleCollectionRow
+    | undefined;
+
+  return row ? toStoredPracticeModuleCollection(row) : null;
+}
+
+export function setPracticeModuleCollectionFavoriteForUser(
+  collectionId: string,
+  userId: string,
+  isFavorite: boolean,
+): StoredPracticeModuleCollection | null {
+  const result = getDb()
+    .prepare(
+      `
+        UPDATE practice_module_collections
+        SET is_favorite = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(isFavorite ? 1 : 0, collectionId, userId);
+
+  if (result.changes < 1) {
+    return null;
+  }
+
+  return findPracticeModuleCollectionForUser(collectionId, userId);
+}
+
+export function archivePracticeModuleCollectionForUser(
+  collectionId: string,
+  userId: string,
+): StoredPracticeModuleCollection | null {
+  const collection = findPracticeModuleCollectionForUser(collectionId, userId);
+  if (!collection) {
+    return null;
+  }
+
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        UPDATE practice_module_collections
+        SET archived_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(collectionId, userId);
+
+    db.prepare(
+      `
+        UPDATE practice_modules
+        SET archived_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ? AND collection_id = ?
+      `,
+    ).run(userId, collectionId);
+  });
+
+  transaction();
+  return findPracticeModuleCollectionForUser(collectionId, userId);
+}
+
+export function restorePracticeModuleCollectionForUser(
+  collectionId: string,
+  userId: string,
+): StoredPracticeModuleCollection | null {
+  const collection = findPracticeModuleCollectionForUser(collectionId, userId);
+  if (!collection) {
+    return null;
+  }
+
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        UPDATE practice_module_collections
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(collectionId, userId);
+
+    db.prepare(
+      `
+        UPDATE practice_modules
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ? AND collection_id = ?
+      `,
+    ).run(userId, collectionId);
+  });
+
+  transaction();
+  return findPracticeModuleCollectionForUser(collectionId, userId);
+}
+
+export function listPracticeModuleCollectionItems(
+  collectionId: string,
+  userId: string,
+): StoredPracticeModuleCollectionItem[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          collection_id,
+          id AS practice_module_id,
+          COALESCE(position_in_collection, 0) AS position,
+          created_at
+        FROM practice_modules
+        WHERE collection_id = ?
+          AND user_id = ?
+        ORDER BY position_in_collection ASC, created_at ASC
+      `,
+    )
+    .all(collectionId, userId) as PracticeModuleCollectionItemRow[];
+
+  return rows.map(toStoredPracticeModuleCollectionItem);
+}
+
+export function listPracticeModulesForCollection(
+  collectionId: string,
+  userId: string,
+): Array<StoredPracticeModuleCollectionItem & { practiceModule: StoredPracticeModule }> {
+  return listPracticeModuleCollectionItems(collectionId, userId)
+    .map((item) => {
+      const practiceModule = findPracticeModuleForUser(item.practiceModuleId, userId);
+      return practiceModule ? { ...item, practiceModule } : null;
+    })
+    .filter((entry): entry is StoredPracticeModuleCollectionItem & { practiceModule: StoredPracticeModule } => Boolean(entry));
+}
+
+function listPracticeModulesByCollectionId(
+  collectionId: string,
+): StoredPracticeModule[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          archived_at,
+          collection_id,
+          id,
+          is_favorite,
+          position_in_collection,
+          user_id,
+          title,
+          description,
+          tutor_instructions,
+          created_at,
+          updated_at,
+          profile_id,
+          source_practice_module_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
+        FROM practice_modules
+        WHERE collection_id = ?
+        ORDER BY position_in_collection ASC, created_at ASC
+      `,
+    )
+    .all(collectionId) as PracticeModuleRow[];
+
+  return rows.map(toStoredPracticeModule);
+}
+
+function normalizePracticeModuleCollectionPositions(collectionId: string): void {
+  const db = getDb();
+  const rows = db
+    .prepare(
+      `
+        SELECT
+          collection_id,
+          id AS practice_module_id,
+          COALESCE(position_in_collection, 0) AS position,
+          created_at
+        FROM practice_modules
+        WHERE collection_id = ?
+        ORDER BY position_in_collection ASC, created_at ASC
+      `,
+    )
+    .all(collectionId) as PracticeModuleCollectionItemRow[];
+
+  const update = db.prepare(
+    `
+      UPDATE practice_modules
+      SET position_in_collection = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE collection_id = ? AND id = ?
+    `,
+  );
+
+  rows.forEach((row, index) => {
+    update.run(index + 1, row.collection_id, row.practice_module_id);
+  });
+}
+
+export function listPracticeModuleCollectionsContainingModule(
+  practiceModuleId: string,
+  userId: string,
+): StoredPracticeModuleCollection[] {
+  const practiceModule = findPracticeModuleForUser(practiceModuleId, userId);
+  if (!practiceModule?.collectionId) {
+    return [];
+  }
+
+  const collection = findPracticeModuleCollectionForUser(practiceModule.collectionId, userId);
+  return collection ? [collection] : [];
+}
+
+export function addPracticeModuleToCollection(input: {
+  collectionId: string;
+  practiceModuleId: string;
+  userId: string;
+}): boolean {
+  const collection = findPracticeModuleCollectionForUser(input.collectionId, input.userId);
+  const practiceModule = findPracticeModuleForUser(input.practiceModuleId, input.userId);
+  if (!collection || !practiceModule || collection.profileId !== practiceModule.profileId) {
+    return false;
+  }
+
+  const db = getDb();
+  if (practiceModule.collectionId === input.collectionId) {
+    return true;
+  }
+
+  const nextPositionRow = db
+    .prepare(
+      `
+        SELECT COALESCE(MAX(position), 0) AS max_position
+        FROM practice_modules
+        WHERE collection_id = ?
+      `,
+    )
+    .get(input.collectionId) as { max_position: number };
+
+  const previousCollectionId = practiceModule.collectionId;
+  db.prepare(
+    `
+      UPDATE practice_modules
+      SET collection_id = ?,
+          position_in_collection = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `,
+  ).run(input.collectionId, nextPositionRow.max_position + 1, input.practiceModuleId, input.userId);
+
+  if (previousCollectionId) {
+    normalizePracticeModuleCollectionPositions(previousCollectionId);
+  }
+
+  db.prepare(
+    `
+      UPDATE practice_module_collections
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id IN (?, ?)
+    `,
+  ).run(input.collectionId, previousCollectionId ?? input.collectionId);
+
+  return true;
+}
+
+export function removePracticeModuleFromCollection(input: {
+  collectionId: string;
+  practiceModuleId: string;
+  userId: string;
+}): boolean {
+  const collection = findPracticeModuleCollectionForUser(input.collectionId, input.userId);
+  if (!collection) {
+    return false;
+  }
+
+  const db = getDb();
+  const result = db.prepare(
+    `
+      UPDATE practice_modules
+      SET collection_id = NULL,
+          position_in_collection = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE collection_id = ? AND id = ? AND user_id = ?
+    `,
+  ).run(input.collectionId, input.practiceModuleId, input.userId);
+
+  if (result.changes < 1) {
+    return false;
+  }
+
+  normalizePracticeModuleCollectionPositions(input.collectionId);
+  db.prepare(
+    `
+      UPDATE practice_module_collections
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+  ).run(input.collectionId);
+
+  return true;
+}
+
+export function movePracticeModuleCollectionItem(input: {
+  collectionId: string;
+  practiceModuleId: string;
+  userId: string;
+  direction: 'up' | 'down';
+}): boolean {
+  const collection = findPracticeModuleCollectionForUser(input.collectionId, input.userId);
+  if (!collection) {
+    return false;
+  }
+
+  const items = listPracticeModuleCollectionItems(input.collectionId, input.userId);
+  const index = items.findIndex((item) => item.practiceModuleId === input.practiceModuleId);
+  if (index < 0) {
+    return false;
+  }
+
+  const swapIndex = input.direction === 'up' ? index - 1 : index + 1;
+  if (swapIndex < 0 || swapIndex >= items.length) {
+    return false;
+  }
+
+  const current = items[index];
+  const other = items[swapIndex];
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        UPDATE practice_modules
+        SET position_in_collection = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE collection_id = ? AND id = ?
+      `,
+    ).run(-1, input.collectionId, current.practiceModuleId);
+
+    db.prepare(
+      `
+        UPDATE practice_modules
+        SET position_in_collection = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE collection_id = ? AND id = ?
+      `,
+    ).run(current.position, input.collectionId, other.practiceModuleId);
+
+    db.prepare(
+      `
+        UPDATE practice_modules
+        SET position_in_collection = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE collection_id = ? AND id = ?
+      `,
+    ).run(other.position, input.collectionId, current.practiceModuleId);
+
+    db.prepare(
+      `
+        UPDATE practice_module_collections
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(input.collectionId);
+  });
+
+  transaction();
+  return true;
 }
 
 export function deletePracticeModuleForUser(id: string, userId: string): boolean {
@@ -717,8 +1341,10 @@ export function findImportedPracticeModuleForProfile(input: {
       `
         SELECT
           archived_at,
+          collection_id,
           id,
           is_favorite,
+          position_in_collection,
           user_id,
           title,
           description,
@@ -773,6 +1399,52 @@ export function importPracticeModuleToProfile(input: {
   });
 }
 
+export function importPracticeModuleCollectionToProfile(input: {
+  shareKind: 'profile' | 'link';
+  sourceCollection: StoredPracticeModuleCollection;
+  targetProfileId: string;
+  userId: string;
+}): StoredPracticeModuleCollection {
+  const existing = findImportedPracticeModuleCollectionForProfile({
+    profileId: input.targetProfileId,
+    sourceCollectionId: input.sourceCollection.id,
+    userId: input.userId,
+  });
+  if (existing) {
+    return existing;
+  }
+
+  const importedCollection = createPracticeModuleCollection({
+    description: input.sourceCollection.description,
+    profileId: input.targetProfileId,
+    sharedVia: input.shareKind,
+    sourceCollectionId: input.sourceCollection.id,
+    sourceProfileId: input.sourceCollection.profileId,
+    sourceUserId: input.sourceCollection.userId,
+    title: input.sourceCollection.title,
+    userId: input.userId,
+  });
+
+  const sourceModules = listPracticeModulesByCollectionId(input.sourceCollection.id);
+  sourceModules.forEach((sourceModule, index) => {
+    createPracticeModule({
+      collectionId: importedCollection.id,
+      description: sourceModule.description,
+      positionInCollection: index + 1,
+      profileId: input.targetProfileId,
+      sharedVia: input.shareKind,
+      sourcePracticeModuleId: sourceModule.id,
+      sourceProfileId: sourceModule.profileId,
+      sourceUserId: sourceModule.userId,
+      title: sourceModule.title,
+      tutorInstructions: sourceModule.tutorInstructions,
+      userId: input.userId,
+    });
+  });
+
+  return importedCollection;
+}
+
 export function findPracticeModuleShareLinkById(
   id: string,
 ): StoredPracticeModuleShareLink | null {
@@ -787,6 +1459,22 @@ export function findPracticeModuleShareLinkById(
     .get(id) as PracticeModuleShareLinkRow | undefined;
 
   return row ? toStoredPracticeModuleShareLink(row) : null;
+}
+
+export function findPracticeModuleCollectionShareLinkById(
+  id: string,
+): StoredPracticeModuleCollectionShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, collection_id, created_at, revoked_at
+        FROM practice_module_collection_share_links
+        WHERE id = ?
+      `,
+    )
+    .get(id) as PracticeModuleCollectionShareLinkRow | undefined;
+
+  return row ? toStoredPracticeModuleCollectionShareLink(row) : null;
 }
 
 export function findPracticeModuleShareLinkForPracticeModule(
@@ -805,6 +1493,24 @@ export function findPracticeModuleShareLinkForPracticeModule(
     .get(practiceModuleId) as PracticeModuleShareLinkRow | undefined;
 
   return row ? toStoredPracticeModuleShareLink(row) : null;
+}
+
+export function findPracticeModuleCollectionShareLinkForCollection(
+  collectionId: string,
+): StoredPracticeModuleCollectionShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, collection_id, created_at, revoked_at
+        FROM practice_module_collection_share_links
+        WHERE collection_id = ?
+          AND revoked_at IS NULL
+        LIMIT 1
+      `,
+    )
+    .get(collectionId) as PracticeModuleCollectionShareLinkRow | undefined;
+
+  return row ? toStoredPracticeModuleCollectionShareLink(row) : null;
 }
 
 export function getOrCreatePracticeModuleShareLink(
@@ -830,6 +1536,34 @@ export function getOrCreatePracticeModuleShareLink(
   const created = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
   if (!created) {
     throw new Error('Could not load newly created practice-module share link.');
+  }
+
+  return created;
+}
+
+export function getOrCreatePracticeModuleCollectionShareLink(
+  collectionId: string,
+): StoredPracticeModuleCollectionShareLink {
+  const existing = findPracticeModuleCollectionShareLinkForCollection(collectionId);
+  if (existing) {
+    return existing;
+  }
+
+  const id = randomBytes(18).toString('base64url');
+  getDb()
+    .prepare(
+      `
+        INSERT INTO practice_module_collection_share_links (id, collection_id)
+        VALUES (?, ?)
+        ON CONFLICT(collection_id) DO UPDATE SET
+          revoked_at = NULL
+      `,
+    )
+    .run(id, collectionId);
+
+  const created = findPracticeModuleCollectionShareLinkForCollection(collectionId);
+  if (!created) {
+    throw new Error('Could not load newly created practice module collection share link.');
   }
 
   return created;

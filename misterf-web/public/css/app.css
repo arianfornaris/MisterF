@@ -615,6 +615,11 @@ body {
   margin-top: 8px;
 }
 
+.practice-module-collection-picker-list {
+  max-height: 320px;
+  overflow: auto;
+}
+
 .practice-module-help-row {
   display: flex;
   align-items: center;

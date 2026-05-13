@@ -8,6 +8,7 @@
 
 - A largo plazo:
     - algo parecido a grammarly, que pueda "escuchar" constantemente lo que escribimos, corregirlo, y además crear lecciones al respecto.    
+    - Aunque quizas no como grammarly sino como DeepL, que sirva para traducir pero al mismo tiempo nos corrije y loguea al sitio web para luego analizar las dificultades.
 
 ----
 

@@ -24,7 +24,7 @@ export function toModelMessage(message: TutorMessage) {
 }
 
 export function validateTutorResponseBlocks(value: unknown): TutorResponseBlock[] {
-  const parsed = tutorResponseSchema.safeParse(value);
+  const parsed = tutorResponseSchema.safeParse(sanitizeTutorResponse(value));
   if (!parsed.success) {
     console.error('[Mr. F LLM response validation failed]', JSON.stringify({
       issues: parsed.error.issues,
@@ -36,6 +36,53 @@ export function validateTutorResponseBlocks(value: unknown): TutorResponseBlock[
   }
 
   return parsed.data.blocks as TutorResponseBlock[];
+}
+
+function sanitizeTutorResponse(value: unknown): unknown {
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+
+  const record = value as { blocks?: unknown };
+  if (!Array.isArray(record.blocks)) {
+    return value;
+  }
+
+  return {
+    ...record,
+    blocks: record.blocks
+      .map((block) => sanitizeTutorResponseBlock(block))
+      .filter((block) => block !== null),
+  };
+}
+
+function sanitizeTutorResponseBlock(block: unknown): unknown | null {
+  if (!block || typeof block !== 'object') {
+    return block;
+  }
+
+  const record = block as { type?: unknown; parts?: unknown };
+  if (record.type !== 'sentence_evaluation' || !Array.isArray(record.parts)) {
+    return block;
+  }
+
+  const cleanedParts = record.parts.filter((part) => {
+    if (!part || typeof part !== 'object') {
+      return false;
+    }
+
+    const text = (part as { text?: unknown }).text;
+    return typeof text === 'string' && text.trim().length > 0;
+  });
+
+  if (cleanedParts.length === 0) {
+    return null;
+  }
+
+  return {
+    ...record,
+    parts: cleanedParts,
+  };
 }
 
 export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {

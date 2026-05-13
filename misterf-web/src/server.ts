@@ -7,14 +7,24 @@ import {
   handleChangePassword,
   handleCreateLesson,
   handleCreateLessonConversation,
+  handleCreatePracticeModuleCollection,
   handleCreateProfile,
+  handleAcceptSharedPracticeModuleCollectionLink,
   handleArchiveLesson,
+  handleArchivePracticeModuleCollection,
+  handleAddPracticeModuleToCollection,
   handleDeleteLesson,
   handleAcceptSharedPracticeModuleLink,
+  handleMovePracticeModuleCollectionItem,
+  handleRemovePracticeModuleFromCollection,
   handleRestoreLesson,
+  handleRestorePracticeModuleCollection,
   handleSetLessonFavorite,
+  handleSetPracticeModuleCollectionFavorite,
+  handleSharePracticeModuleCollectionToProfile,
   handleShareLessonToProfile,
   handleUpdateLesson,
+  handleUpdatePracticeModuleCollection,
   handleForgotPassword,
   handleLogin,
   handleLogout,
@@ -108,8 +118,23 @@ app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
 app.get('/practice-modules', renderHome);
 app.get('/practice-modules/new', renderHome);
 app.post('/practice-modules', handleCreateLesson);
+app.get('/practice-modules/collections/new', renderHome);
+app.post('/practice-modules/collections', handleCreatePracticeModuleCollection);
+app.get('/practice-modules/collections/shared/:shareId', renderHome);
+app.post('/practice-modules/collections/shared/:shareId/accept', handleAcceptSharedPracticeModuleCollectionLink);
 app.get('/practice-modules/shared/:shareId', renderHome);
 app.post('/practice-modules/shared/:shareId/accept', handleAcceptSharedPracticeModuleLink);
+app.get('/practice-modules/collections/:collectionId/edit', renderHome);
+app.get('/practice-modules/collections/:collectionId', renderHome);
+app.post('/practice-modules/collections/:collectionId', handleUpdatePracticeModuleCollection);
+app.post('/practice-modules/collections/:collectionId/favorite', handleSetPracticeModuleCollectionFavorite);
+app.post('/practice-modules/collections/:collectionId/archive', handleArchivePracticeModuleCollection);
+app.post('/practice-modules/collections/:collectionId/restore', handleRestorePracticeModuleCollection);
+app.post('/practice-modules/collections/:collectionId/share/profile', handleSharePracticeModuleCollectionToProfile);
+app.post('/practice-modules/collections/:collectionId/items', handleAddPracticeModuleToCollection);
+app.post('/practice-modules/collections/:collectionId/items/:practiceModuleId/remove', handleRemovePracticeModuleFromCollection);
+app.post('/practice-modules/collections/:collectionId/items/:practiceModuleId/move-up', handleMovePracticeModuleCollectionItem);
+app.post('/practice-modules/collections/:collectionId/items/:practiceModuleId/move-down', handleMovePracticeModuleCollectionItem);
 app.get('/practice-modules/:practiceModuleId/edit', renderHome);
 app.get('/practice-modules/:practiceModuleId', renderHome);
 app.post('/practice-modules/:practiceModuleId', handleUpdateLesson);
