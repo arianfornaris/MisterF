@@ -80,6 +80,7 @@ let pendingPracticeModuleStart = false;
 let isAssistantStopping = false;
 let isGuestPromptPending = false;
 let guestPromptTimerId = 0;
+let disconnectNoticeTimerId = 0;
 const pendingSentenceEvaluations = new Map();
 let pendingTranslatorSelection = '';
 let userInputHistory = [];
@@ -118,9 +119,13 @@ if (socket) {
   });
 
   socket.on('disconnect', (reason) => {
-    appendEphemeralError(
-      `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
-    );
+    clearPendingDisconnectNotice();
+    disconnectNoticeTimerId = window.setTimeout(() => {
+      appendEphemeralError(
+        `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
+      );
+      disconnectNoticeTimerId = 0;
+    }, 3000);
     setComposerEnabled(false);
   });
 
@@ -137,6 +142,7 @@ if (socket) {
   });
 
   socket.on(chatSocketEvents.ready, (payload) => {
+    clearPendingDisconnectNotice();
     hasHandledInitialConversationReady = true;
     conversationId = payload.conversationId;
     upsertConversationItem(payload.conversation);
@@ -263,6 +269,7 @@ if (socket) {
   });
 
   socket.on('assistant:start', () => {
+    clearPendingDisconnectNotice();
     isAssistantBusy = true;
     isAssistantStopping = false;
     pendingPracticeModuleStart = false;
@@ -4155,6 +4162,15 @@ function focusComposer() {
 function scrollToBottom() {
   const scrollTarget = chatPaneEl || messagesEl;
   scrollTarget.scrollTop = scrollTarget.scrollHeight;
+}
+
+function clearPendingDisconnectNotice() {
+  if (!disconnectNoticeTimerId) {
+    return;
+  }
+
+  window.clearTimeout(disconnectNoticeTimerId);
+  disconnectNoticeTimerId = 0;
 }
 
 if (isInitiallyAuthenticated) {
