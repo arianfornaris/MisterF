@@ -5,7 +5,10 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "dev:client": "vite build --watch",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "tsc",
+    "build:client": "vite build",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "pm2:start": "npm run build && pm2 start ecosystem.config.cjs --update-env",
@@ -45,6 +48,7 @@
     "@types/nodemailer": "^8.0.0",
     "@types/qrcode": "^1.5.6",
     "tsx": "^4.21.0",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.13"
   }
 }
