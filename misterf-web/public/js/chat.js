@@ -464,10 +464,16 @@ for (const button of translatorCopyButtonEls) {
 formatConversationDates();
 
 function disableComposerTextAssist() {
-  inputEl?.setAttribute('autocomplete', 'off');
-  inputEl?.setAttribute('autocorrect', 'off');
-  inputEl?.setAttribute('autocapitalize', 'none');
-  inputEl?.setAttribute('spellcheck', 'false');
+  if (inputEl) {
+    disableTextAssist(inputEl);
+  }
+}
+
+function disableTextAssist(element) {
+  element.setAttribute('autocomplete', 'off');
+  element.setAttribute('autocorrect', 'off');
+  element.setAttribute('autocapitalize', 'none');
+  element.setAttribute('spellcheck', 'false');
 }
 
 function translateSelectedAppText() {
@@ -1166,6 +1172,7 @@ function startRenamingConversation(item) {
   input.required = true;
   input.value = currentTitle;
   input.setAttribute('aria-label', 'Nuevo título de la conversación');
+  disableTextAssist(input);
 
   const saveButton = createRenameActionButton({
     label: 'Guardar nombre',
@@ -2438,6 +2445,7 @@ function renderQuizItemBody(container, item, itemState, state) {
       typeof item.placeholder === 'string' ? item.placeholder : '';
     textarea.value = typeof itemState.text === 'string' ? itemState.text : '';
     textarea.disabled = state.submitted || state.aborted;
+    disableTextAssist(textarea);
     textarea.addEventListener('input', () => {
       itemState.text = textarea.value;
       textarea.style.height = 'auto';
@@ -2510,6 +2518,7 @@ function renderQuizItemBody(container, item, itemState, state) {
         input.type = 'text';
         input.value = itemState.values[segmentIndex] || '';
         input.disabled = state.submitted || state.aborted;
+        disableTextAssist(input);
         input.addEventListener('input', () => {
           itemState.values[segmentIndex] = input.value;
           syncQuizBlankWidth(input);
@@ -3346,10 +3355,7 @@ function createFillInTheBlankCard(block, context) {
       input.className = 'fill-in-the-blank-input';
       input.type = 'text';
       input.dataset.blankIndex = String(index);
-      input.autocomplete = 'off';
-      input.autocorrect = 'off';
-      input.autocapitalize = 'none';
-      input.spellcheck = false;
+      disableTextAssist(input);
       input.value = state.values[index] || '';
       input.addEventListener('input', () => {
         state.values[index] = input.value;
