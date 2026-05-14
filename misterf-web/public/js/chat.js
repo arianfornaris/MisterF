@@ -1779,6 +1779,28 @@ function renderSentenceEvaluation(element, evaluation) {
   body.append(partsLabel);
   body.append(createSentencePartsElement(evaluation.parts));
 
+  const actions = document.createElement('div');
+  actions.className = 'sentence-evaluation-actions';
+
+  const editButton = createMessageActionButton({
+    label: 'Editar mensaje',
+    iconClass: 'bi-pencil',
+  });
+  editButton.classList.add('sentence-evaluation-action');
+  editButton.addEventListener('click', () => {
+    const userContent = findEvaluationTargetUserContent(element);
+    if (!userContent) {
+      return;
+    }
+
+    putMessageBackInComposer(userContent, {
+      preferredSelectionText: findFirstIncorrectEvaluationPart(evaluation),
+    });
+  });
+
+  actions.append(editButton);
+  body.append(actions);
+
   wrapper.append(header, body);
   element.append(wrapper);
 }
@@ -1880,6 +1902,7 @@ function normalizePartStatus(status) {
   return 'correct';
 }
 
+
 function appendUserMessageActions(element) {
   const actions = document.createElement('span');
   actions.className = 'message-actions';
@@ -1929,10 +1952,66 @@ function createMessageActionButton({ label, iconClass }) {
   return button;
 }
 
-function putMessageBackInComposer(content) {
+function putMessageBackInComposer(content, options = {}) {
   inputEl.value = content;
   resizeComposerInput();
   focusComposer();
+
+  const selectionText = options.preferredSelectionText?.trim() || '';
+  if (!selectionText) {
+    moveCaretToEnd(inputEl);
+    return;
+  }
+
+  const startIndex = content.indexOf(selectionText);
+  if (startIndex < 0) {
+    moveCaretToEnd(inputEl);
+    return;
+  }
+
+  const endIndex = startIndex + selectionText.length;
+  requestAnimationFrame(() => {
+    inputEl.focus({ preventScroll: true });
+    inputEl.setSelectionRange(startIndex, endIndex);
+  });
+}
+
+function findEvaluationTargetUserContent(element) {
+  const row = element.closest('.message-row.is-model');
+  let current = row?.previousElementSibling ?? null;
+
+  while (current) {
+    if (
+      current instanceof HTMLDivElement &&
+      current.classList.contains('message-row') &&
+      current.classList.contains('is-user')
+    ) {
+      const bubble = current.querySelector('.message-bubble');
+      return bubble?.dataset.rawContent || '';
+    }
+
+    current = current.previousElementSibling;
+  }
+
+  return '';
+}
+
+function findFirstIncorrectEvaluationPart(evaluation) {
+  if (!isValidSentenceEvaluation(evaluation)) {
+    return '';
+  }
+
+  const errorPart = evaluation.parts.find(
+    (part) => normalizePartStatus(part.status) === 'error' && typeof part.text === 'string',
+  );
+  if (errorPart?.text?.trim()) {
+    return errorPart.text.trim();
+  }
+
+  const improvePart = evaluation.parts.find(
+    (part) => normalizePartStatus(part.status) === 'improve' && typeof part.text === 'string',
+  );
+  return improvePart?.text?.trim() || '';
 }
 
 async function copyTextToClipboard(content) {
