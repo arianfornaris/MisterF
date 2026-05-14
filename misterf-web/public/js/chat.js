@@ -11,6 +11,9 @@ const practiceModuleStartDescriptionEl = document.querySelector(
 const practiceModuleStartStatusEl = document.querySelector('[data-practice-module-start-status]');
 const practiceModuleStartButtonEl = document.querySelector('[data-practiceModule-start-button]');
 const sendButtonEl = document.querySelector('[data-send-button]');
+const modelTierButtonEl = document.querySelector('[data-model-tier-button]');
+const modelTierLabelEl = document.querySelector('[data-model-tier-label]');
+const modelTierOptionEls = document.querySelectorAll('[data-model-tier-option]');
 const toolStatusEl = document.querySelector('[data-tool-status]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
 const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
@@ -95,6 +98,7 @@ const chatSocketEvents = {
   deleted: 'conversation:deleted',
   error: 'conversation:error',
   join: 'conversation:join',
+  modelTier: 'conversation:model_tier',
   promoted: 'conversation:promoted',
   ready: 'conversation:ready',
   send: 'message:send',
@@ -145,6 +149,7 @@ if (socket) {
     clearPendingDisconnectNotice();
     hasHandledInitialConversationReady = true;
     conversationId = payload.conversationId;
+    setSelectedModelTier(payload.conversation?.modelTier || 'regular');
     upsertConversationItem(payload.conversation);
     markActiveConversation(conversationId);
     messagesEl.replaceChildren();
@@ -468,6 +473,19 @@ for (const button of translatorCopyButtonEls) {
   });
 }
 
+for (const button of modelTierOptionEls) {
+  button.addEventListener('click', () => {
+    const tier = button.dataset.modelTierOption || 'regular';
+    setSelectedModelTier(tier);
+    if (socket && conversationId) {
+      socket.emit(chatSocketEvents.modelTier, {
+        conversationId,
+        modelTier: tier,
+      });
+    }
+  });
+}
+
 formatConversationDates();
 
 function disableComposerTextAssist() {
@@ -605,7 +623,11 @@ function sendMessage() {
   inputEl.style.height = 'auto';
   resetUserInputHistoryNavigation();
   setComposerEnabled(false);
-  socket.emit(chatSocketEvents.send, { conversationId, content });
+  socket.emit(chatSocketEvents.send, {
+    content,
+    conversationId,
+    modelTier: getSelectedModelTier(),
+  });
 }
 
 function stopAssistantResponse() {
@@ -1005,7 +1027,10 @@ function startPracticeModuleConversation(options = {}) {
     renderPracticeModuleStartPanel(null, { visible: false });
   }
   setComposerEnabled(false);
-  socket.emit('practice-module:start', { conversationId });
+  socket.emit('practice-module:start', {
+    conversationId,
+    modelTier: getSelectedModelTier(),
+  });
 }
 
 function markActiveConversation(activeConversationId) {
@@ -2831,6 +2856,7 @@ function reportQuizCompleted(state) {
     blockIndex: state.blockIndex,
     conversationId,
     messageId: state.messageId,
+    modelTier: getSelectedModelTier(),
     responses: state.itemStates.map((itemState, index) =>
       buildQuizResponsePayload(state.block.items[index], itemState),
     ),
@@ -2847,6 +2873,7 @@ function reportQuizAborted(state) {
     blockIndex: state.blockIndex,
     conversationId,
     messageId: state.messageId,
+    modelTier: getSelectedModelTier(),
     responses: state.itemStates.map((itemState, index) =>
       buildQuizResponsePayload(state.block.items[index], itemState),
     ),
@@ -3246,6 +3273,7 @@ function reportMatchingPairsCompleted(state) {
     conversationId,
     incorrectAttempts: state.incorrectAttempts,
     messageId: state.messageId,
+    modelTier: getSelectedModelTier(),
     totalAttempts: state.totalAttempts,
   });
 }
@@ -3545,6 +3573,7 @@ function reportFillInTheBlankCompleted(state) {
     conversationId,
     incorrectSentences: state.incorrectSentences,
     messageId: state.messageId,
+    modelTier: getSelectedModelTier(),
     totalAttempts: state.totalAttempts,
     values: state.values.map((value) => value.trim()),
   });
@@ -3826,6 +3855,7 @@ function reportMultipleChoiceCompleted(state) {
     conversationId,
     incorrectSelections: state.incorrectSelections,
     messageId: state.messageId,
+    modelTier: getSelectedModelTier(),
     selectedOptions: Array.from(state.selectedOptions),
     totalAttempts: state.totalAttempts,
   });
@@ -4063,6 +4093,7 @@ function reportUnscrambleSentenceCompleted(state) {
     conversationId,
     incorrectSentences: state.incorrectSentences,
     messageId: state.messageId,
+    modelTier: getSelectedModelTier(),
     selectedTokens: state.selectedTokens,
     totalAttempts: state.totalAttempts,
   });
@@ -4131,6 +4162,9 @@ function resizeComposerInput() {
 
 function setComposerEnabled(enabled) {
   inputEl.disabled = !enabled;
+  if (modelTierButtonEl) {
+    modelTierButtonEl.disabled = !enabled || isAssistantBusy;
+  }
   syncSendButton();
 }
 
@@ -4162,6 +4196,37 @@ function focusComposer() {
 function scrollToBottom() {
   const scrollTarget = chatPaneEl || messagesEl;
   scrollTarget.scrollTop = scrollTarget.scrollHeight;
+}
+
+function getSelectedModelTier() {
+  const tier = modelTierButtonEl?.dataset.modelTier || 'regular';
+  if (tier === 'max') {
+    return 'max';
+  }
+
+  if (tier === 'advanced') {
+    return 'advanced';
+  }
+
+  return 'regular';
+}
+
+function setSelectedModelTier(value) {
+  const tier =
+    value === 'max' ? 'max' : value === 'advanced' ? 'advanced' : 'regular';
+  if (!modelTierButtonEl) {
+    return;
+  }
+
+  modelTierButtonEl.dataset.modelTier = tier;
+  if (modelTierLabelEl) {
+    modelTierLabelEl.textContent =
+      tier === 'max' ? 'Max' : tier === 'advanced' ? 'Avanzado' : 'Regular';
+    return;
+  }
+
+  modelTierButtonEl.textContent =
+    tier === 'max' ? 'Max' : tier === 'advanced' ? 'Avanzado' : 'Regular';
 }
 
 function clearPendingDisconnectNotice() {

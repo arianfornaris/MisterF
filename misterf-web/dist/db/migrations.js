@@ -284,5 +284,14 @@ export const migrations = [
         ON messages (conversation_id, created_at, id);
     `,
     },
+    {
+        id: 5,
+        name: 'add_conversation_model_tier',
+        up: `
+      ALTER TABLE conversations
+        ADD COLUMN model_tier TEXT NOT NULL DEFAULT 'regular'
+        CHECK (model_tier IN ('regular', 'advanced', 'max'));
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

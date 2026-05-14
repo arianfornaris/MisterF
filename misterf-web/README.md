@@ -41,14 +41,16 @@ http://localhost:3000
 
 ## PM2
 
-La configuracion de PM2 esta en `ecosystem.config.cjs`. El proveedor LLM es OpenRouter y puedes cambiar el modelo con `LLM_MODEL`.
+La configuracion de PM2 esta en `ecosystem.config.cjs`. El proveedor LLM es OpenRouter y puedes configurar tres niveles de modelo: regular, avanzado y max.
 
 PM2 recibe estas variables:
 
 ```text
 NODE_ENV=production
 PORT=3000
-LLM_MODEL=openai/gpt-5-mini
+LLM_MODEL_REGULAR=openai/gpt-5-mini
+LLM_MODEL_ADVANCED=openai/gpt-5
+LLM_MODEL_MAX=openai/gpt-5
 OPENROUTER_API_KEY=...
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 ```

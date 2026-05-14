@@ -16,6 +16,7 @@ export type StoredConversation = {
   activeAgent: 'tutor';
   practiceModuleId: string | null;
   id: string;
+  modelTier: 'advanced' | 'max' | 'regular';
   profileId: string;
   titleUpdatedByUser: boolean;
   title: string;
@@ -120,6 +121,7 @@ type ConversationRow = {
   active_agent: string;
   practice_module_id: string | null;
   id: string;
+  model_tier: 'advanced' | 'max' | 'regular';
   profile_id: string;
   title: string;
   title_updated_by_user: number;
@@ -212,6 +214,7 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     activeAgent: 'tutor',
     practiceModuleId: row.practice_module_id,
     id: row.id,
+    modelTier: row.model_tier,
     profileId: row.profile_id,
     title: row.title,
     titleUpdatedByUser: Boolean(row.title_updated_by_user),
@@ -426,17 +429,36 @@ export function createConversation(
   userId: string,
   profileId: string,
   title = defaultConversationTitle,
-  options: { practiceModuleId?: string | null } = {},
+  options: {
+    modelTier?: 'advanced' | 'max' | 'regular';
+    practiceModuleId?: string | null;
+  } = {},
 ): StoredConversation {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO conversations (id, user_id, profile_id, title, practice_module_id, active_agent)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO conversations (
+          id,
+          user_id,
+          profile_id,
+          title,
+          practice_module_id,
+          active_agent,
+          model_tier
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(id, userId, profileId, title, options.practiceModuleId ?? null, 'tutor');
+    .run(
+      id,
+      userId,
+      profileId,
+      title,
+      options.practiceModuleId ?? null,
+      'tutor',
+      options.modelTier ?? 'regular',
+    );
 
   const conversation = findConversationForUser(id, userId);
   if (!conversation) {
@@ -471,6 +493,7 @@ export function findConversationForUser(
     .prepare(
       `
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+             , model_tier
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -509,6 +532,7 @@ export function listConversationsForProfile(
     .prepare(
       `
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+             , model_tier
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -538,6 +562,24 @@ export function renameConversationForUser(
       `,
     )
     .run(title, options.updatedByUser ? 1 : 0, id, userId);
+
+  return findConversationForUser(id, userId);
+}
+
+export function updateConversationModelTierForUser(
+  id: string,
+  userId: string,
+  modelTier: 'advanced' | 'max' | 'regular',
+): StoredConversation | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE conversations
+        SET model_tier = ?
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(modelTier, id, userId);
 
   return findConversationForUser(id, userId);
 }
@@ -1291,7 +1333,7 @@ export function listConversationsForPracticeModule(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent, model_tier
         FROM conversations
         WHERE user_id = ? AND profile_id = ? AND practice_module_id = ?
         ORDER BY updated_at DESC, created_at DESC

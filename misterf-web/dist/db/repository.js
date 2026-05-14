@@ -17,6 +17,7 @@ function toStoredConversation(row) {
         activeAgent: 'tutor',
         practiceModuleId: row.practice_module_id,
         id: row.id,
+        modelTier: row.model_tier,
         profileId: row.profile_id,
         title: row.title,
         titleUpdatedByUser: Boolean(row.title_updated_by_user),
@@ -178,10 +179,18 @@ export function createConversation(userId, profileId, title = defaultConversatio
     const id = randomUUID();
     getDb()
         .prepare(`
-        INSERT INTO conversations (id, user_id, profile_id, title, practice_module_id, active_agent)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO conversations (
+          id,
+          user_id,
+          profile_id,
+          title,
+          practice_module_id,
+          active_agent,
+          model_tier
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, userId, profileId, title, options.practiceModuleId ?? null, 'tutor');
+        .run(id, userId, profileId, title, options.practiceModuleId ?? null, 'tutor', options.modelTier ?? 'regular');
     const conversation = findConversationForUser(id, userId);
     if (!conversation) {
         throw new Error('Could not load newly created conversation.');
@@ -199,6 +208,7 @@ export function findConversationForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+             , model_tier
         FROM conversations
         WHERE id = ? AND user_id = ?
       `)
@@ -223,6 +233,7 @@ export function listConversationsForProfile(userId, profileId) {
     const rows = getDb()
         .prepare(`
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+             , model_tier
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -242,6 +253,16 @@ export function renameConversationForUser(id, userId, title, options = {}) {
         WHERE id = ? AND user_id = ?
       `)
         .run(title, options.updatedByUser ? 1 : 0, id, userId);
+    return findConversationForUser(id, userId);
+}
+export function updateConversationModelTierForUser(id, userId, modelTier) {
+    getDb()
+        .prepare(`
+        UPDATE conversations
+        SET model_tier = ?
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(modelTier, id, userId);
     return findConversationForUser(id, userId);
 }
 export function deleteConversationForUser(id, userId) {
@@ -737,7 +758,7 @@ export function restorePracticeModuleForUser(practiceModuleId, userId) {
 export function listConversationsForPracticeModule(practiceModuleId, userId, profileId) {
     const rows = getDb()
         .prepare(`
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent, model_tier
         FROM conversations
         WHERE user_id = ? AND profile_id = ? AND practice_module_id = ?
         ORDER BY updated_at DESC, created_at DESC

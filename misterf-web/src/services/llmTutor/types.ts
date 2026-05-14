@@ -4,6 +4,8 @@ export type TutorMessage = {
 };
 
 export type LlmRequestOptions = {
+  modelId?: string;
+  modelTier?: 'advanced' | 'max' | 'regular';
   openRouterApiKey?: string | null;
   userId?: string;
 };

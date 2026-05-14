@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationPracticeModuleSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationPracticeModuleSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
@@ -96,6 +96,7 @@ export function registerChatSocket(io) {
                 return;
             }
             currentProfile = resolveSocketProfile(socket, userId);
+            const modelTier = normalizeModelTier(payload.modelTier);
             let conversation = payload.conversationId
                 ? findConversationForUser(payload.conversationId, userId)
                 : null;
@@ -105,7 +106,14 @@ export function registerChatSocket(io) {
                 if (!currentProfile) {
                     return;
                 }
-                conversation = createConversation(userId, currentProfile.id);
+                conversation = createConversation(userId, currentProfile.id, undefined, {
+                    modelTier,
+                });
+            }
+            else if (conversation.modelTier !== modelTier) {
+                conversation =
+                    updateConversationModelTierForUser(conversation.id, userId, modelTier) ??
+                        conversation;
             }
             joinConversationRoom(socket, currentConversationId, conversation.id);
             currentConversationId = conversation.id;
@@ -127,7 +135,22 @@ export function registerChatSocket(io) {
             const userMessage = addMessage(conversation.id, 'user', content);
             emitConversationUpdated(io, conversation.id, userId);
             io.to(conversation.id).emit('message:created', userMessage);
-            await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
+            await streamAssistantMessage(io, conversation.id, userId, userMessage.id, false, [], modelTier);
+        });
+        socket.on('conversation:model_tier', (payload = {}) => {
+            const userId = getAuthenticatedUserId(socket);
+            if (!userId) {
+                emitAuthRequired(socket);
+                return;
+            }
+            const conversationId = payload.conversationId?.trim();
+            if (!conversationId) {
+                return;
+            }
+            const conversation = updateConversationModelTierForUser(conversationId, userId, normalizeModelTier(payload.modelTier));
+            if (!conversation) {
+                return;
+            }
         });
         socket.on('assistant:cancel', (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -272,7 +295,7 @@ export function registerChatSocket(io) {
             if (listMessages(conversation.id).length > 0) {
                 return;
             }
-            await streamAssistantMessage(io, conversation.id, userId, undefined, false, [buildPracticeModuleStartMessage(practiceModuleSnapshot)]);
+            await streamAssistantMessage(io, conversation.id, userId, undefined, false, [buildPracticeModuleStartMessage(practiceModuleSnapshot)], normalizeModelTier(payload.modelTier));
         });
         socket.on('translator:translate', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -372,7 +395,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ]);
+            ], normalizeModelTier(payload.modelTier));
         });
         socket.on('exercise:fill_in_the_blank_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -439,7 +462,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ]);
+            ], normalizeModelTier(payload.modelTier));
         });
         socket.on('exercise:multiple_choice_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -505,7 +528,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ]);
+            ], normalizeModelTier(payload.modelTier));
         });
         socket.on('exercise:unscramble_sentence_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -572,7 +595,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ]);
+            ], normalizeModelTier(payload.modelTier));
         });
         socket.on('exercise:quiz_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -632,7 +655,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ]);
+            ], normalizeModelTier(payload.modelTier));
         });
         socket.on('exercise:quiz_aborted', (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -740,7 +763,7 @@ async function getLlmRequestOptionsForUser(userId) {
         userId,
     };
 }
-async function streamAssistantMessage(io, conversationId, userId, lastUserMessageId, startConversation = false, extraHistory = []) {
+async function streamAssistantMessage(io, conversationId, userId, lastUserMessageId, startConversation = false, extraHistory = [], modelTier = 'regular') {
     if (runningConversations.has(conversationId)) {
         return;
     }
@@ -756,6 +779,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
         const messages = listMessages(conversationId);
         const llmOptions = await getLlmRequestOptionsForUser(userId);
+        llmOptions.modelTier = modelTier;
         const onTokenUsage = (usage) => {
             emitLlmRequestTokenUsage(io, conversationId, usage);
         };
@@ -818,6 +842,15 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         runningConversations.delete(conversationId);
         runningConversationControllers.delete(conversationId);
     }
+}
+function normalizeModelTier(value) {
+    if (value === 'max') {
+        return 'max';
+    }
+    if (value === 'advanced') {
+        return 'advanced';
+    }
+    return 'regular';
 }
 function emitAssistantToolStatus(io, conversationId, toolName) {
     const payload = {

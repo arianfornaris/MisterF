@@ -19,6 +19,7 @@ import {
   findMessageInConversation,
   listMessages,
   renameConversationForUser,
+  updateConversationModelTierForUser,
   updateMessageMetadata,
   type StoredMessage,
   type StoredProfile,
@@ -51,6 +52,7 @@ type JoinPayload = {
 type SendMessagePayload = {
   conversationId?: string | null;
   content?: string;
+  modelTier?: string;
 };
 
 type RenamePayload = {
@@ -62,6 +64,11 @@ type DeletePayload = {
   conversationId?: string | null;
 };
 
+type ModelTierPayload = {
+  conversationId?: string | null;
+  modelTier?: string;
+};
+
 type TranslatePayload = {
   mode?: string;
   text?: string;
@@ -69,6 +76,7 @@ type TranslatePayload = {
 
 type PracticeModuleStartPayload = {
   conversationId?: string | null;
+  modelTier?: string;
 };
 
 type CancelAssistantPayload = {
@@ -88,6 +96,7 @@ type MatchingExerciseCompletedPayload = {
     right?: string;
   }>;
   messageId?: number;
+  modelTier?: string;
   totalAttempts?: number;
 };
 
@@ -97,6 +106,7 @@ type FillInTheBlankCompletedPayload = {
   conversationId?: string | null;
   incorrectSentences?: string[];
   messageId?: number;
+  modelTier?: string;
   totalAttempts?: number;
   values?: string[];
 };
@@ -106,6 +116,7 @@ type MultipleChoiceCompletedPayload = {
   conversationId?: string | null;
   incorrectSelections?: string[][];
   messageId?: number;
+  modelTier?: string;
   selectedOptions?: string[];
   totalAttempts?: number;
 };
@@ -116,6 +127,7 @@ type UnscrambleSentenceCompletedPayload = {
   conversationId?: string | null;
   incorrectSentences?: string[];
   messageId?: number;
+  modelTier?: string;
   selectedTokens?: string[];
   totalAttempts?: number;
 };
@@ -124,6 +136,7 @@ type QuizCompletedPayload = {
   blockIndex?: number;
   conversationId?: string | null;
   messageId?: number;
+  modelTier?: string;
   responses?: unknown[];
 };
 
@@ -131,6 +144,7 @@ type QuizAbortedPayload = {
   blockIndex?: number;
   conversationId?: string | null;
   messageId?: number;
+  modelTier?: string;
   responses?: unknown[];
 };
 
@@ -246,6 +260,7 @@ export function registerChatSocket(io: Server): void {
       }
       currentProfile = resolveSocketProfile(socket, userId);
 
+      const modelTier = normalizeModelTier(payload.modelTier);
       let conversation = payload.conversationId
         ? findConversationForUser(payload.conversationId, userId)
         : null;
@@ -258,7 +273,13 @@ export function registerChatSocket(io: Server): void {
           return;
         }
 
-        conversation = createConversation(userId, currentProfile.id);
+        conversation = createConversation(userId, currentProfile.id, undefined, {
+          modelTier,
+        });
+      } else if (conversation.modelTier !== modelTier) {
+        conversation =
+          updateConversationModelTierForUser(conversation.id, userId, modelTier) ??
+          conversation;
       }
 
       joinConversationRoom(socket, currentConversationId, conversation.id);
@@ -285,7 +306,37 @@ export function registerChatSocket(io: Server): void {
       emitConversationUpdated(io, conversation.id, userId);
       io.to(conversation.id).emit('message:created', userMessage);
 
-      await streamAssistantMessage(io, conversation.id, userId, userMessage.id);
+      await streamAssistantMessage(
+        io,
+        conversation.id,
+        userId,
+        userMessage.id,
+        false,
+        [],
+        modelTier,
+      );
+    });
+
+    socket.on('conversation:model_tier', (payload: ModelTierPayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      if (!conversationId) {
+        return;
+      }
+
+      const conversation = updateConversationModelTierForUser(
+        conversationId,
+        userId,
+        normalizeModelTier(payload.modelTier),
+      );
+      if (!conversation) {
+        return;
+      }
     });
 
     socket.on('assistant:cancel', (payload: CancelAssistantPayload = {}) => {
@@ -465,6 +516,7 @@ export function registerChatSocket(io: Server): void {
         undefined,
         false,
         [buildPracticeModuleStartMessage(practiceModuleSnapshot)],
+        normalizeModelTier(payload.modelTier),
       );
     });
 
@@ -588,6 +640,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
+          normalizeModelTier(payload.modelTier),
         );
       },
     );
@@ -677,6 +730,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
+          normalizeModelTier(payload.modelTier),
         );
       },
     );
@@ -765,6 +819,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
+          normalizeModelTier(payload.modelTier),
         );
       },
     );
@@ -854,6 +909,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
+          normalizeModelTier(payload.modelTier),
         );
       },
     );
@@ -933,6 +989,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
+          normalizeModelTier(payload.modelTier),
         );
       },
     );
@@ -1091,6 +1148,7 @@ async function streamAssistantMessage(
   lastUserMessageId?: number,
   startConversation = false,
   extraHistory: TutorMessage[] = [],
+  modelTier: 'advanced' | 'max' | 'regular' = 'regular',
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -1110,6 +1168,7 @@ async function streamAssistantMessage(
 
     const messages = listMessages(conversationId);
     const llmOptions = await getLlmRequestOptionsForUser(userId);
+    llmOptions.modelTier = modelTier;
     const onTokenUsage = (usage: LlmRequestTokenUsage) => {
       emitLlmRequestTokenUsage(io, conversationId, usage);
     };
@@ -1180,6 +1239,20 @@ async function streamAssistantMessage(
     runningConversations.delete(conversationId);
     runningConversationControllers.delete(conversationId);
   }
+}
+
+function normalizeModelTier(
+  value: string | null | undefined,
+): 'advanced' | 'max' | 'regular' {
+  if (value === 'max') {
+    return 'max';
+  }
+
+  if (value === 'advanced') {
+    return 'advanced';
+  }
+
+  return 'regular';
 }
 
 function emitAssistantToolStatus(

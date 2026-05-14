@@ -15,7 +15,7 @@ import {
 } from './logging.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
-import { getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
+import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
@@ -91,7 +91,7 @@ async function continueTutorResponseAfterToolUse(input: {
     model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     system: input.system,
-    temperature: shouldUseTemperature() ? 0.25 : undefined,
+    temperature: shouldUseTemperature(input.llm) ? 0.25 : undefined,
   });
 }
 
@@ -250,7 +250,7 @@ export async function runTutorAgentLoop(
         providerOptions: getProviderOptions(),
         stopWhen: stepCountIs(6),
         system,
-        temperature: shouldUseTemperature() ? 0.45 : undefined,
+        temperature: shouldUseTemperature(options.llm) ? 0.45 : undefined,
         tools,
       });
       logLlmToolCalls({
@@ -333,6 +333,7 @@ export async function runTutorAgentLoop(
       );
       options.onTokenUsage?.(
         await buildLlmRequestTokenUsage({
+          llm: options.llm,
           messages,
           system,
           turn: turn + 1,
@@ -361,7 +362,7 @@ export async function runTutorAgentLoop(
         return {
           blocks: finalBlocks,
           content: blocksToMarkdown(finalBlocks),
-          model: env.llmModel,
+          model: getConfiguredModelId(options.llm),
           provider: env.llmProvider,
         };
       } catch (error) {
@@ -423,7 +424,7 @@ export async function translateTextWithLlm(input: {
     model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
     system: buildTranslatorSystemInstruction(input.mode),
-    temperature: shouldUseTemperature() ? 0.15 : undefined,
+    temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
   });
 
   const userFacingFinishMessage = getUserFacingFinishReasonMessage(
@@ -450,13 +451,13 @@ export async function translateTextWithLlm(input: {
   console.log('[Mr. F translator response]', JSON.stringify({
     detectedLanguage: parsed.data.detectedLanguage,
     mode: input.mode,
-    model: env.llmModel,
+    model: getConfiguredModelId(input.llm),
     provider: env.llmProvider,
   }, null, 2));
 
   return {
     detectedLanguage: parsed.data.detectedLanguage,
-    model: env.llmModel,
+    model: getConfiguredModelId(input.llm),
     provider: env.llmProvider,
     translatedText: parsed.data.translatedText,
   };

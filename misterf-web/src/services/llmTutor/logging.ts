@@ -7,6 +7,7 @@ import type {
 import { env } from '../../config/env.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage } from './types.js';
 import { resolveContextWindowTokens } from './modelMetadata.js';
+import { getConfiguredModelId } from './providers.js';
 
 export function logJson(label: string, value: unknown): void {
   console.log(`${label} ${JSON.stringify(value, null, 2)}`);
@@ -24,6 +25,7 @@ export function logLlmRequest(
   },
   turn: number,
 ): void {
+  const modelId = getConfiguredModelId(options.llm);
   logJson(`[${options.actorLabel || 'Mr. F'} LLM request]`, {
     messageCount: messages.length,
     messages: messages.map((message, index) => ({
@@ -31,7 +33,7 @@ export function logLlmRequest(
       index,
       role: message.role,
     })),
-    model: env.llmModel,
+    model: modelId,
     options: {
       currentTitle: options.currentTitle,
       hasUserScopedOpenRouterKey: Boolean(options.llm?.openRouterApiKey),
@@ -142,6 +144,7 @@ function estimateTokenCount(system: string, messages: ModelMessage[]): number {
 }
 
 export async function buildLlmRequestTokenUsage(input: {
+  llm?: LlmRequestOptions;
   messages: ModelMessage[];
   system: string;
   turn: number;
@@ -149,13 +152,14 @@ export async function buildLlmRequestTokenUsage(input: {
 }): Promise<LlmRequestTokenUsage> {
   const inputTokens =
     input.usage?.inputTokens ?? estimateTokenCount(input.system, input.messages);
-  const contextWindowTokens = await resolveContextWindowTokens(env.llmModel);
+  const modelId = getConfiguredModelId(input.llm);
+  const contextWindowTokens = await resolveContextWindowTokens(modelId);
 
   return {
     contextWindowTokens,
     inputTokens,
     isEstimate: input.usage?.inputTokens === undefined,
-    model: env.llmModel,
+    model: modelId,
     percentUsed: Number(
       ((inputTokens / contextWindowTokens) * 100).toFixed(2),
     ),

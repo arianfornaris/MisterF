@@ -1,6 +1,18 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { env } from '../../config/env.js';
 import { MissingLlmApiKeyError } from './errors.js';
+export function getConfiguredModelId(options = {}) {
+    if (options.modelId?.trim()) {
+        return options.modelId.trim();
+    }
+    if (options.modelTier === 'max') {
+        return env.llmMaxModel;
+    }
+    if (options.modelTier === 'advanced') {
+        return env.llmAdvancedModel;
+    }
+    return env.llmRegularModel;
+}
 export function getLanguageModel(options = {}) {
     const apiKey = options.openRouterApiKey || env.openrouterApiKey;
     if (!apiKey) {
@@ -11,7 +23,7 @@ export function getLanguageModel(options = {}) {
         appName: 'Mister F',
         appUrl: env.appBaseUrl,
         baseURL: env.openrouterBaseUrl,
-    }).chat(env.llmModel);
+    }).chat(getConfiguredModelId(options));
 }
 export function getProviderOptions() {
     return {
@@ -23,8 +35,8 @@ export function getProviderOptions() {
         },
     };
 }
-export function shouldUseTemperature() {
-    return !/^(gpt-5|o[134]|o4)/i.test(env.llmModel);
+export function shouldUseTemperature(options = {}) {
+    return !/^(gpt-5|o[134]|o4)/i.test(getConfiguredModelId(options));
 }
 export function getUserFacingFinishReasonMessage(finishReason, rawFinishReason, providerMetadata) {
     const normalizedRawFinishReason = rawFinishReason?.toUpperCase() ?? '';

@@ -9,6 +9,24 @@ import { env } from '../../config/env.js';
 import { MissingLlmApiKeyError } from './errors.js';
 import type { LlmRequestOptions } from './types.js';
 
+export function getConfiguredModelId(
+  options: LlmRequestOptions = {},
+): string {
+  if (options.modelId?.trim()) {
+    return options.modelId.trim();
+  }
+
+  if (options.modelTier === 'max') {
+    return env.llmMaxModel;
+  }
+
+  if (options.modelTier === 'advanced') {
+    return env.llmAdvancedModel;
+  }
+
+  return env.llmRegularModel;
+}
+
 export function getLanguageModel(
   options: LlmRequestOptions = {},
 ): LanguageModel {
@@ -22,7 +40,7 @@ export function getLanguageModel(
     appName: 'Mister F',
     appUrl: env.appBaseUrl,
     baseURL: env.openrouterBaseUrl,
-  }).chat(env.llmModel);
+  }).chat(getConfiguredModelId(options));
 }
 
 export function getProviderOptions(): ProviderOptions | undefined {
@@ -43,8 +61,10 @@ export function getProviderOptions(): ProviderOptions | undefined {
   };
 }
 
-export function shouldUseTemperature(): boolean {
-  return !/^(gpt-5|o[134]|o4)/i.test(env.llmModel);
+export function shouldUseTemperature(
+  options: LlmRequestOptions = {},
+): boolean {
+  return !/^(gpt-5|o[134]|o4)/i.test(getConfiguredModelId(options));
 }
 
 export function getUserFacingFinishReasonMessage(

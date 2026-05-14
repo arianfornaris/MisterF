@@ -44,7 +44,21 @@ export const env = {
     process.env.DATABASE_PATH ?? './data/misterf.sqlite',
   ),
   llmProvider: 'openrouter',
-  llmModel: process.env.LLM_MODEL ?? 'openai/gpt-5-mini',
+  llmRegularModel:
+    process.env.LLM_MODEL_REGULAR ??
+    process.env.LLM_MODEL ??
+    'openai/gpt-5-mini',
+  llmAdvancedModel:
+    process.env.LLM_MODEL_ADVANCED ??
+    process.env.LLM_MODEL_REGULAR ??
+    process.env.LLM_MODEL ??
+    'openai/gpt-5',
+  llmMaxModel:
+    process.env.LLM_MODEL_MAX ??
+    process.env.LLM_MODEL_ADVANCED ??
+    process.env.LLM_MODEL_REGULAR ??
+    process.env.LLM_MODEL ??
+    'openai/gpt-5',
   llmContextWindow: readInteger('LLM_CONTEXT_WINDOW', 128000),
   openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
   openrouterBaseUrl:
