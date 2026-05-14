@@ -2950,11 +2950,13 @@ function createMatchingPairsCard(block, context) {
 
   const status = document.createElement('p');
   status.className = 'matching-pairs-status';
+  const summary = document.createElement('div');
+  summary.className = 'matching-pairs-summary d-none';
 
   leftColumn.append(leftTitle, leftList);
   rightColumn.append(rightTitle, rightList);
   columns.append(leftColumn, rightColumn);
-  section.append(label, prompt, columns, status);
+  section.append(label, prompt, columns, summary, status);
 
   section.addEventListener('click', (event) => {
     const button = event.target.closest('.matching-pairs-item');
@@ -3041,6 +3043,7 @@ function handleMatchingPairsSelection(section, state, button) {
 
 function renderMatchingPairsState(section, state) {
   const lockedRightIds = new Set(state.lockedPairsByLeftId.values());
+  const textByItemId = state.textByItemId;
   for (const button of section.querySelectorAll('.matching-pairs-item')) {
     if (!(button instanceof HTMLButtonElement)) {
       continue;
@@ -3057,20 +3060,59 @@ function renderMatchingPairsState(section, state) {
 
     button.classList.toggle('is-selected', isSelected);
     button.classList.toggle('is-locked', isLocked);
-    button.disabled = isLocked || state.completed;
+
+    if (isLocked) {
+      button.disabled = true;
+      if (!button.hidden && !button.dataset.removalScheduled) {
+        button.dataset.removalScheduled = 'true';
+        button.classList.add('is-removing');
+        window.setTimeout(() => {
+          button.hidden = true;
+          button.setAttribute('aria-hidden', 'true');
+          button.classList.remove('is-removing');
+          delete button.dataset.removalScheduled;
+        }, 720);
+      }
+    } else {
+      button.hidden = false;
+      button.setAttribute('aria-hidden', 'false');
+      button.classList.remove('is-removing');
+      delete button.dataset.removalScheduled;
+      button.disabled = state.completed;
+    }
   }
 
   const status = section.querySelector('.matching-pairs-status');
+  const summary = section.querySelector('.matching-pairs-summary');
   if (!status) {
     return;
   }
 
   if (state.completed) {
+    if (summary instanceof HTMLDivElement) {
+      summary.replaceChildren();
+      const list = document.createElement('div');
+      list.className = 'matching-pairs-summary-list';
+
+      for (const [leftId, rightId] of state.correctPairsByLeftId.entries()) {
+        const row = document.createElement('p');
+        row.className = 'matching-pairs-summary-row';
+        row.textContent = `${textByItemId.get(leftId) || leftId} → ${textByItemId.get(rightId) || rightId}`;
+        list.append(row);
+      }
+
+      summary.append(list);
+      summary.classList.remove('d-none');
+    }
     status.textContent = 'Completado. Buen trabajo.';
     status.classList.add('is-success');
     return;
   }
 
+  if (summary instanceof HTMLDivElement) {
+    summary.classList.add('d-none');
+    summary.replaceChildren();
+  }
   status.classList.remove('is-success');
   status.textContent =
     state.lockedPairsByLeftId.size > 0

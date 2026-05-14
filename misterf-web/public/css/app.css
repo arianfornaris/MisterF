@@ -1241,6 +1241,16 @@ body {
   animation: matching-pairs-shake 320ms ease;
 }
 
+.matching-pairs-item.is-removing {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.97);
+  transition:
+    opacity 720ms ease,
+    transform 720ms ease,
+    background-color 720ms ease,
+    border-color 720ms ease;
+}
+
 .matching-pairs-status {
   margin: 0.95rem 0 0;
   color: var(--muted);
@@ -1253,6 +1263,27 @@ body {
 
 .matching-pairs-status.is-success {
   color: #166534;
+}
+
+.matching-pairs-summary {
+  margin-top: 0.95rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid rgb(21 128 61 / 16%);
+  border-radius: 8px;
+  background: rgb(240 253 244 / 72%);
+}
+
+.matching-pairs-summary-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.matching-pairs-summary-row {
+  margin: 0;
+  color: #166534;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.98rem;
+  line-height: 1.45;
 }
 
 .fill-in-the-blank-card {
@@ -1844,8 +1875,17 @@ body {
 }
 
 @media (max-width: 720px) {
+  .matching-pairs-card {
+    padding: 14px;
+  }
+
   .matching-pairs-columns {
-    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .matching-pairs-item {
+    padding: 0.72rem 0.7rem;
+    font-size: 0.94rem;
   }
 
   .quiz-header,
