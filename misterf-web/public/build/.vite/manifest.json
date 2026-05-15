@@ -1,0 +1,8 @@
+{
+  "src/client/chat/index.js": {
+    "file": "entries/chat-DRY3nf0A.js",
+    "name": "chat",
+    "src": "src/client/chat/index.js",
+    "isEntry": true
+  }
+}

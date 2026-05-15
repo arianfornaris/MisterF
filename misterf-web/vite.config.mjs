@@ -5,6 +5,7 @@ export default defineConfig({
   publicDir: false,
   build: {
     emptyOutDir: false,
+    manifest: true,
     outDir: path.resolve('public/build'),
     rollupOptions: {
       input: {
@@ -13,7 +14,7 @@ export default defineConfig({
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'chunks/[name]-[hash].js',
-        entryFileNames: '[name].js',
+        entryFileNames: 'entries/[name]-[hash].js',
       },
     },
     sourcemap: true,
