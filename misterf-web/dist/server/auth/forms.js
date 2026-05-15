@@ -168,7 +168,13 @@ export async function handleSignup(request, response) {
     const email = normalizeEmail(readField(request.body.email));
     const fullName = readField(request.body.fullName);
     const password = readField(request.body.password);
-    const fieldErrors = validateSignup({ email, fullName, password });
+    const confirmPassword = readField(request.body.confirmPassword);
+    const fieldErrors = validateSignup({
+        confirmPassword,
+        email,
+        fullName,
+        password,
+    });
     if (Object.keys(fieldErrors).length > 0) {
         renderAuthForm(response.status(422), {
             error: '',
@@ -1469,6 +1475,12 @@ function validateSignup(input) {
     }
     if (input.password.length < 10) {
         errors.password = 'Usa al menos 10 caracteres.';
+    }
+    if (!input.confirmPassword) {
+        errors.confirmPassword = 'Repite tu password.';
+    }
+    else if (input.password !== input.confirmPassword) {
+        errors.confirmPassword = 'Los passwords no coinciden.';
     }
     return errors;
 }

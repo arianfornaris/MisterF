@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= title %></title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
     <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
     <%- include('partials/app-stylesheet') %>
   </head>
@@ -135,6 +136,24 @@
               >
               <% if (fieldErrors.password) { %>
                 <div class="invalid-feedback"><%= fieldErrors.password %></div>
+              <% } %>
+            </div>
+          <% } %>
+
+          <% if (mode === 'signup') { %>
+            <div class="auth-field mb-0">
+              <label class="form-label" for="confirmPassword">Repite el password</label>
+              <input
+                id="confirmPassword"
+                class="form-control <%= fieldErrors.confirmPassword ? 'is-invalid' : '' %>"
+                name="confirmPassword"
+                type="password"
+                autocomplete="new-password"
+                minlength="10"
+                required
+              >
+              <% if (fieldErrors.confirmPassword) { %>
+                <div class="invalid-feedback"><%= fieldErrors.confirmPassword %></div>
               <% } %>
             </div>
           <% } %>

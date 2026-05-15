@@ -1,9 +1,9 @@
 Hoy
 
-- Utilizar AWS SES para enviar los emails.
+- (muy complicado, estoy usando Resend por ahora) Utilizar AWS SES para enviar los emails.
+    - Ya tengo cuenta en AWS con boniatillo@gmail.com
 - Revisar las colecciones puedan tener descripcion.
 
-- Ya tengo cuenta en AWS con boniatillo@gmail.com
 - Incorporar voz-a-texto, y texto-a-voz.
 - Permitir usar imagenes en los ejercicios.
     - (free) Pizabay API https://pixabay.com/api/docs/
@@ -14,6 +14,7 @@ Hoy
     - Aunque quizas no como grammarly sino como DeepL, que sirva para traducir pero al mismo tiempo nos corrije y loguea al sitio web para luego analizar las dificultades.
 
 ----
+
 x- Configurar nginx para servir los statics
 x- Estoy pensando seriamente que el tutor pueda además administrar las actividades. Quizás deba unificar el chat admin con el pedagogico.
 x- Permitir hacer un exámen, que tiene diferntes tipos de ejercicios. La idea de un examen es que el tutor no lo rectifica, sino que lo evalua y le asigna un nota.

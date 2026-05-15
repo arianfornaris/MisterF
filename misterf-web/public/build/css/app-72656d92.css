@@ -2617,13 +2617,18 @@ button.sentence-part:focus {
   gap: 10px;
   border-radius: 8px;
   font-weight: 700;
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-active-bg: transparent;
+  --bs-btn-hover-shadow: none;
 }
 
 .google-auth-button:hover,
 .google-auth-button:focus {
   border-color: var(--accent);
   color: var(--accent);
+  background-color: transparent;
   text-decoration: none;
+  box-shadow: none;
 }
 
 .auth-divider {
