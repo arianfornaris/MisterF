@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
     <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
     <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
-    <link rel="stylesheet" href="/public/css/app.css">
+    <%- include('app-stylesheet') %>
   </head>
   <body
     data-authenticated="<%= isAuthenticated ? 'true' : 'false' %>"

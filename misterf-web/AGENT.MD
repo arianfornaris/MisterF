@@ -30,7 +30,7 @@ No hay React.
 
 ## Estructura general
 
-- [src/server.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server.ts): arranque de Express, rutas, Socket.IO.
+- [src/server/server.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/server.ts): arranque de Express, rutas, Socket.IO.
 - [src/socket/chatSocket.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/socket/chatSocket.ts): flujo principal del chat, retos, eventos de socket, compresión del historial.
 - [src/services/llmTutor.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor.ts): fachada pública del módulo LLM.
 - [src/services/llmTutor/index.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/llmTutor/index.ts): orquestación principal de llamadas al LLM.
@@ -45,7 +45,7 @@ No hay React.
 - [src/services/openRouterUserKeys.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/services/openRouterUserKeys.ts): provisión y administración de API keys por usuario en OpenRouter.
 - [views/index.ejs](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/views/index.ejs): UI principal.
 - [public/js/chat.js](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/public/js/chat.js): frontend del chat y tabs.
-- [public/css/app.css](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/public/css/app.css): estilos globales.
+- [src/client/styles/app.css](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/client/styles/app.css): estilos globales fuente.
 - [gameplays/system-prompt.md](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/gameplays/system-prompt.md): system prompt central del tutor.
 - [src/socket/initialGreetings.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/socket/initialGreetings.ts): saludos iniciales predefinidos.
 

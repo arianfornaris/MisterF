@@ -103,6 +103,7 @@ body {
   border-top: 1px solid var(--line);
 }
 
+
 .chat-workspace {
   width: min(100%, 980px);
   height: min(860px, calc(100vh - 48px));
@@ -998,6 +999,7 @@ body {
   background: var(--accent-soft);
   color: var(--accent);
 }
+
 
 .send-button {
   width: 42px;
@@ -2391,6 +2393,7 @@ button.sentence-part:focus {
   }
 }
 
+
 .composer {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -2568,6 +2571,7 @@ button.sentence-part:focus {
 .composer-input:disabled {
   cursor: not-allowed;
 }
+
 
 .auth-sheet {
   --bs-card-border-color: var(--line);

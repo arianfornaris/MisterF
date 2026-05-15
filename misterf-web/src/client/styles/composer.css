@@ -1,0 +1,178 @@
+.composer {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "prompt input"
+    ". footer";
+  gap: 10px 14px;
+  align-items: start;
+  padding: 14px 46px 22px;
+  border-top: 0;
+  background: #fff;
+}
+
+.composer-prompt {
+  grid-area: prompt;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: flex-start;
+  color: var(--accent);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.4;
+  padding-top: 9px;
+  user-select: none;
+}
+
+.composer-input-wrap {
+  grid-area: input;
+  position: relative;
+  min-height: 44px;
+  border-bottom: 1px solid #ced4da;
+}
+
+.composer-input {
+  min-height: 44px;
+  max-height: 150px;
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  caret-color: var(--accent);
+  font: inherit;
+  line-height: 1.4;
+  padding: 9px 0 6px;
+}
+
+.composer-input::placeholder {
+  color: #aaa;
+  opacity: 1;
+}
+
+.composer-input:focus {
+  box-shadow: none;
+}
+
+.composer:focus-within .composer-input-wrap {
+  border-bottom-color: var(--accent);
+}
+
+.composer-footer {
+  grid-area: footer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.composer-model-button {
+  width: auto;
+  min-width: 0;
+  height: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  border: 0;
+  font-size: 0.84rem;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.composer-model-button:hover,
+.composer-model-button:focus {
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.composer-model-menu {
+  min-width: 190px;
+}
+
+.composer-model-menu .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.composer-status {
+  min-height: 1.1rem;
+  margin-top: 0.2rem;
+  padding-left: 1.1rem;
+}
+
+.llm-context-meter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  align-self: center;
+  user-select: none;
+}
+
+.llm-context-meter-copy,
+.llm-context-meter-label,
+.llm-context-meter-value {
+  display: none !important;
+}
+
+.llm-context-meter-ring {
+  width: 28px;
+  height: 28px;
+  overflow: visible;
+  transform: rotate(-90deg);
+  flex: 0 0 auto;
+}
+
+.llm-context-meter-track,
+.llm-context-meter-progress {
+  fill: none;
+  stroke-width: 2.75;
+}
+
+.llm-context-meter-track {
+  stroke: color-mix(in srgb, var(--line) 78%, white 22%);
+}
+
+.llm-context-meter-progress {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 180ms ease, stroke 180ms ease;
+}
+
+.llm-context-meter[data-context-level='warn'] .llm-context-meter-progress {
+  stroke: #ca7b18;
+}
+
+.llm-context-meter[data-context-level='danger'] .llm-context-meter-progress {
+  stroke: #c34c47;
+}
+
+.send-button {
+  justify-self: end;
+  color: var(--accent);
+  background: transparent;
+  border-color: transparent;
+}
+
+.send-button[data-mode='stop'] {
+  color: #b64a46;
+}
+
+.send-button:hover,
+.send-button:focus {
+  color: #d95e5a;
+  background: var(--accent-soft);
+  border-color: transparent;
+}
+
+.send-button:disabled,
+.composer-input:disabled {
+  cursor: not-allowed;
+}
+

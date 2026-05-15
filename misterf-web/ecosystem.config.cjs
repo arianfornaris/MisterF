@@ -5,7 +5,7 @@ module.exports = {
     {
       name: 'misterf-web',
       cwd: projectRoot,
-      script: 'dist/server.js',
+      script: 'dist/server/server.js',
       exec_mode: 'fork',
       instances: 1,
       watch: false,
