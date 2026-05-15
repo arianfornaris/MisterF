@@ -7,7 +7,7 @@
     "dev": "tsx watch src/server/server.ts",
     "dev:client": "vite build --watch",
     "build": "npm run build:server && npm run build:client",
-    "build:server": "tsc",
+    "build:server": "rm -rf dist && tsc",
     "build:client": "node scripts/build-client.mjs",
     "start": "node dist/server/server.js",
     "typecheck": "tsc --noEmit",

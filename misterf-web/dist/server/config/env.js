@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 const configDir = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.resolve(configDir, '../..');
+const projectRoot = path.resolve(configDir, '../../..');
 function readInteger(name, fallback) {
     const rawValue = process.env[name];
     if (!rawValue) {
