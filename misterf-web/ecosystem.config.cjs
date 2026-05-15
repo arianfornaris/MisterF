@@ -14,6 +14,7 @@ module.exports = {
       time: true,
       env: {
         NODE_ENV: 'production',
+        HOST: '127.0.0.1',
         PORT: '5005',
         LLM_MODEL_REGULAR: 'google/gemini-3.1-flash-lite',
         LLM_MODEL_ADVANCED: 'google/gemini-3-flash-preview',
@@ -41,6 +42,7 @@ module.exports = {
       },
       env_production: {
         NODE_ENV: 'production',
+        HOST: '127.0.0.1',
         PORT: '5005',
         LLM_MODEL_REGULAR: 'google/gemini-3.1-flash-lite',
         LLM_MODEL_ADVANCED: 'google/gemini-3-flash-preview',

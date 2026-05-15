@@ -171,6 +171,6 @@ app.get('/health', (_request, response) => {
 
 registerChatSocket(io);
 
-server.listen(env.port, () => {
-  console.log(`Mister F listening on http://localhost:${env.port}`);
+server.listen(env.port, env.host, () => {
+  console.log(`Mister F listening on http://${env.host}:${env.port}`);
 });

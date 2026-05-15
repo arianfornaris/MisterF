@@ -30,6 +30,8 @@ function resolveProjectPath(value) {
 }
 export const env = {
     projectRoot,
+    host: process.env.HOST ??
+        (process.env.NODE_ENV === 'production' ? '127.0.0.1' : '0.0.0.0'),
     port: readInteger('PORT', 3000),
     databasePath: resolveProjectPath(process.env.DATABASE_PATH ?? './data/misterf.sqlite'),
     llmProvider: 'openrouter',

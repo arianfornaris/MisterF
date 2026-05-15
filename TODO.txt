@@ -1,9 +1,13 @@
+Hoy
+
+- Configurar nginx para servir los statics
 - Utilizar AWS SES para enviar los emails.
+- Revisar las colecciones puedan tener descripcion.
+
 - Ya tengo cuenta en AWS con boniatillo@gmail.com
 - Incorporar voz-a-texto, y texto-a-voz.
 - Permitir usar imagenes en los ejercicios.
     - (free) Pizabay API https://pixabay.com/api/docs/
-- En el example, la UI de emparejar palabras está un poco cabrona. Hay que repensarla.
 - Que se puedan seleccionar las lecciones favoritas y además archivar lecciones.
 
 - A largo plazo:
