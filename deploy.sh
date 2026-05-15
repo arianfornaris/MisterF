@@ -8,8 +8,24 @@ REMOTE_HOST="arian@misterf.us"
 REMOTE_DIR="repos/MisterF/misterf-web"
 PM2_APP_NAME="misterf-web"
 
-echo "==> Building local app"
 cd "$APP_DIR"
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "Error: there are uncommitted local changes. Commit or discard them before deploying."
+  exit 1
+fi
+
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+remote_branch_ref="refs/remotes/origin/$current_branch"
+if git show-ref --verify --quiet "$remote_branch_ref"; then
+  ahead_count="$(git rev-list --count "origin/$current_branch..HEAD")"
+  if [[ "$ahead_count" != "0" ]]; then
+    echo "Error: there are local commits that have not been pushed. Push them before deploying."
+    exit 1
+  fi
+fi
+
+echo "==> Building local app"
 npm run build
 
 echo "==> Pushing git changes"
