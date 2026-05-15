@@ -1,7 +1,3 @@
-Resend.com API key:
-
-re_CECfs1yB_LtW6mFL1VdyN71H4pKjgXbJ4
-
 Hoy
 
 - Utilizar AWS SES para enviar los emails.

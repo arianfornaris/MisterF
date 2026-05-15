@@ -1,6 +1,8 @@
 node_modules/
 .npm-cache/
 .env
+.env.*
+!.env.example
 data/*.sqlite
 data/*.sqlite-*
 npm-debug.log*

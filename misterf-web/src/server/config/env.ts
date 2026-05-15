@@ -1,8 +1,19 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { config as loadDotenv } from 'dotenv';
 
 const configDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(configDir, '../../..');
+const envFileName =
+  process.env.ENV_FILE ??
+  (process.env.NODE_ENV === 'production'
+    ? '.env.production'
+    : '.env.development');
+
+loadDotenv({
+  path: path.join(projectRoot, envFileName),
+  override: true,
+});
 
 function readInteger(name: string, fallback: number): number {
   const rawValue = process.env[name];
