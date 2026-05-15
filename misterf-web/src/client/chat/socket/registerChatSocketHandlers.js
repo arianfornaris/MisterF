@@ -107,7 +107,11 @@ export function registerChatSocketHandlers(deps) {
 
   socketClient.on(deps.chatSocketEvents.promoted, (payload) => {
     deps.setConversationId(payload.conversationId);
-    window.location.replace(deps.runtime.buildCurrentChatPath(deps.getConversationId()));
+    window.history.replaceState(
+      {},
+      '',
+      deps.runtime.buildCurrentChatPath(deps.getConversationId()),
+    );
   });
 
   socketClient.on('conversation:renamed', (payload) => {
