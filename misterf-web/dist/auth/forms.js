@@ -825,7 +825,12 @@ export async function renderHome(request, response) {
             profilePageMode = 'list';
         }
     }
-    response.render('index', {
+    const viewTemplate = currentView === 'practiceModules'
+        ? 'practice-modules'
+        : currentView === 'profiles'
+            ? 'profiles'
+            : 'chat';
+    response.render(viewTemplate, {
         practiceModules: ownLessons,
         activeProfile,
         archivedPracticeModules,

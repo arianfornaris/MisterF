@@ -1,21 +1,17 @@
 import { ChatState } from './app/ChatState.js';
-import { createFillInTheBlankCard } from './cards/createFillInTheBlankCard.js';
-import { createMultipleChoiceCard } from './cards/multipleChoiceCard.js';
-import { createMatchingPairsCard } from './cards/createMatchingPairsCard.js';
-import { createQuizCard } from './cards/createQuizCard.js';
-import { createSentenceEvaluationCard } from './cards/createSentenceEvaluationCard.js';
-import { createUnscrambleSentenceCard } from './cards/unscrambleSentenceCard.js';
+import { createChatRuntime } from './app/ChatRuntime.js';
 import { chatSocketEvents } from './constants/events.js';
+import { createTranslatorController } from './features/translator.js';
 import { ChatSocketClient } from './socket/ChatSocketClient.js';
-import { renderMarkdown } from './utils/formatting.js';
+import { registerChatSocketHandlers } from './socket/registerChatSocketHandlers.js';
 import { disableTextAssist } from './utils/textAssist.js';
 import { formatConversationDates } from './utils/dates.js';
 import { normalizeModelTier } from './utils/modelTier.js';
 import { consumeGuestDraft, getGuestDraft, preserveGuestDraft } from './utils/storage.js';
 import { ComposerView } from './ui/ComposerView.js';
 import { ConversationListView } from './ui/ConversationListView.js';
-import { MessageRenderer } from './ui/MessageRenderer.js';
 import { PracticeModuleView } from './ui/PracticeModuleView.js';
+import { createTutorMessageRenderer } from './ui/TutorMessageRenderer.js';
 import {
   tokenizeSentence,
 } from './shared/exerciseUtils.js';
@@ -89,13 +85,6 @@ const llmContextCircleRadius = llmContextCircleEl
   : 0;
 const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
 
-disableComposerTextAssist();
-initializeLlmContextMeter();
-initializeStaticMarkdown();
-initializePracticeModuleSharingUi();
-initializePracticeModuleCollectionForms();
-initializeCollectionModulePickers();
-
 let conversationId = chatState.conversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
@@ -141,13 +130,108 @@ const composerView = new ComposerView({
   modelTierLabelEl,
   sendButtonEl,
 });
-const messageRenderer = new MessageRenderer({
-  appendMessage: (...args) => appendMessage(...args),
-  appendStoredMessage: (...args) => appendStoredMessage(...args),
-  renderSentenceEvaluationOnLastAssistant: (...args) =>
-    renderSentenceEvaluationOnLastAssistant(...args),
-  updateRenderedMessage: (...args) => updateRenderedMessage(...args),
+const tutorMessageRenderer = createTutorMessageRenderer({
+  getConversationId: () => conversationId,
+  getSelectedModelTier,
+  getSocket: () => socket,
+  matchingExerciseStates,
+  messagesEl,
+  putMessageBackInComposer,
+  scrollToBottom,
 });
+const runtime = createChatRuntime({
+  chatSocketEvents,
+  focusComposer,
+  getConversationId: () => conversationId,
+  getDisconnectNoticeTimerId: () => disconnectNoticeTimerId,
+  getHasHandledInitialConversationReady: () => hasHandledInitialConversationReady,
+  getIsAssistantBusy: () => isAssistantBusy,
+  getIsAssistantStopping: () => isAssistantStopping,
+  getIsGuestPromptPending: () => isGuestPromptPending,
+  getPendingBootGuestDraft: () => pendingBootGuestDraft,
+  getSelectedModelTier,
+  getSocket: () => socket,
+  getStreamingBubble: () => streamingBubble,
+  getToolStatusRow: () => toolStatusRow,
+  getUserInputDraftBeforeHistory: () => userInputDraftBeforeHistory,
+  getUserInputHistory: () => userInputHistory,
+  getUserInputHistoryIndex: () => userInputHistoryIndex,
+  guestInitialGreeting,
+  inputEl,
+  isInitiallyAuthenticated,
+  llmContextCircleCircumference,
+  llmContextCircleEl,
+  llmContextMeterEl,
+  markTutorMessageArrived: (...args) => tutorMessageRenderer.markTutorMessageArrived(...args),
+  messagesEl,
+  practiceModuleView,
+  preserveGuestDraft,
+  renderer: tutorMessageRenderer,
+  resizeComposerInput,
+  scrollToBottom,
+  setComposerEnabled,
+  setConversationId: (value) => {
+    conversationId = value;
+  },
+  setDisconnectNoticeTimerId: (value) => {
+    disconnectNoticeTimerId = value;
+  },
+  setGuestPromptTimerId: (value) => {
+    guestPromptTimerId = value;
+  },
+  setHasHandledInitialConversationReady: (value) => {
+    hasHandledInitialConversationReady = value;
+  },
+  setIsAssistantStopping: (value) => {
+    isAssistantStopping = value;
+  },
+  setIsGuestPromptPending: (value) => {
+    isGuestPromptPending = value;
+  },
+  setPendingBootGuestDraft: (value) => {
+    pendingBootGuestDraft = value;
+  },
+  setPendingPracticeModuleStart: (value) => {
+    pendingPracticeModuleStart = value;
+  },
+  setStreamingBubble: (value) => {
+    streamingBubble = value;
+  },
+  setToolStatusRow: (value) => {
+    toolStatusRow = value;
+  },
+  setUserInputDraftBeforeHistory: (value) => {
+    userInputDraftBeforeHistory = value;
+  },
+  setUserInputHistoryIndex: (value) => {
+    userInputHistoryIndex = value;
+  },
+  showCreditExhaustedModal,
+  syncSendButton,
+  toolStatusEl,
+});
+const translatorController = createTranslatorController({
+  copyTextToClipboard: (...args) => tutorMessageRenderer.copyTextToClipboard(...args),
+  getPendingTranslatorSelection: () => pendingTranslatorSelection,
+  getSocket: () => socket,
+  setPendingTranslatorSelection: (value) => {
+    pendingTranslatorSelection = value;
+  },
+  translatorCopyButtonEls,
+  translatorFormEl,
+  translatorInputEl,
+  translatorModalEl,
+  translatorOpenButtonEls,
+  translatorResultEl,
+  translatorSubmitEl,
+});
+
+disableComposerTextAssist();
+tutorMessageRenderer.initializeStaticMarkdown();
+initializePracticeModuleSharingUi();
+initializePracticeModuleCollectionForms();
+initializeCollectionModulePickers();
+runtime.initializeLlmContextMeter();
 
 if (window.marked) {
   window.marked.setOptions({
@@ -157,312 +241,75 @@ if (window.marked) {
 }
 
 if (socket) {
-  socketClient.on('connect', () => {
-    if (shouldAutoJoinSocketThread) {
-      socketClient.emit(chatSocketEvents.join, { conversationId });
-    }
-  });
-
-  socketClient.on('auth:required', ({ message }) => {
-    showAuthRequiredMessage(message);
-  });
-
-  socketClient.on('disconnect', (reason) => {
-    clearPendingDisconnectNotice();
-    disconnectNoticeTimerId = window.setTimeout(() => {
-      appendEphemeralError(
-        `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
-      );
-      disconnectNoticeTimerId = 0;
-    }, 3000);
-    setComposerEnabled(false);
-  });
-
-  socketClient.on('connect_error', (error) => {
-    if (error.message === 'authentication_required') {
-      showAuthRequiredMessage();
-      return;
-    }
-
-    appendEphemeralError(
-      'No puedo conectar con el servidor en este momento. Revisa PM2 o vuelve a intentar en unos segundos.',
-    );
-    setComposerEnabled(false);
-  });
-
-  socketClient.on(chatSocketEvents.ready, (payload) => {
-    clearPendingDisconnectNotice();
-    hasHandledInitialConversationReady = true;
-    conversationId = payload.conversationId;
-    setSelectedModelTier(payload.conversation?.modelTier || 'regular');
-    conversationListView.upsert(payload.conversation);
-    conversationListView.markActive(conversationId);
-    messagesEl.replaceChildren();
-    streamingBubble = null;
-    pendingSentenceEvaluations.clear();
-    activeUserMessageId = null;
-    userInputHistory = (payload.messages ?? [])
-      .filter((message) => message?.role === 'user' && typeof message.content === 'string')
-      .map((message) => message.content)
-      .filter((content) => content.trim().length > 0);
-    resetUserInputHistoryNavigation();
-    updateLlmContextMeter(null);
-    setToolStatus('');
-    pendingPracticeModuleStart = Boolean(payload.pendingPracticeModuleStart);
-    const shouldAutoStartPracticeModule =
-      pendingPracticeModuleStart && Boolean(payload.practiceModule);
-    practiceModuleView.render(
-      payload.practiceModule,
-      {
-        autoStarting: shouldAutoStartPracticeModule,
-        visible: pendingPracticeModuleStart,
-      },
-    );
-
-    let queuedSentenceEvaluation = null;
-    for (const message of payload.messages ?? []) {
-      if (message.role === 'user') {
-        queuedSentenceEvaluation = message.metadata?.sentenceEvaluation ?? null;
-        appendStoredMessage(message);
-        if (typeof message.id === 'number') {
-          activeUserMessageId = message.id;
-        }
-        continue;
-      }
-
-      appendStoredMessage(message, {
-        sentenceEvaluation: queuedSentenceEvaluation,
-      });
-      queuedSentenceEvaluation = null;
-    }
-
-    if (payload.assistantPending) {
-      isAssistantBusy = true;
-      isAssistantStopping = false;
-      setComposerEnabled(false);
-      streamingBubble = appendMessage('model', '', { streaming: true });
-    } else {
-      isAssistantBusy = false;
-      isAssistantStopping = false;
-      setComposerEnabled(!pendingPracticeModuleStart);
-    }
-    focusComposer();
-    scrollToBottom();
-    flushPendingBootGuestDraft();
-
-    if (shouldAutoStartPracticeModule) {
-      window.setTimeout(() => {
-        startPracticeModuleConversation({ preservePanel: true });
-      }, 0);
-    }
-  });
-
-  socketClient.on(chatSocketEvents.promoted, (payload) => {
-    conversationId = payload.conversationId;
-    window.location.replace(buildCurrentChatPath(conversationId));
-  });
-
-  socketClient.on('conversation:renamed', (payload) => {
-    conversationListView.update(payload.conversation);
-    conversationListView.markActive(conversationId);
-  });
-
-  socketClient.on('conversation:updated', (payload) => {
-    conversationListView.update(payload.conversation, { moveToTop: true });
-    conversationListView.markActive(conversationId);
-  });
-
-  socketClient.on(chatSocketEvents.deleted, (payload) => {
-    conversationListView.remove(payload.conversationId);
-
-    if (payload.conversationId === conversationId || payload.wasActive) {
-      window.location.assign('/');
-    }
-  });
-
-  socketClient.on(chatSocketEvents.error, ({ message }) => {
-    appendEphemeralError(message || 'No pude actualizar la conversación.');
-  });
-
-  socketClient.on('translator:result', ({ translation }) => {
-    setTranslatorBusy(false);
-    translatorResultEl.textContent = translation?.translatedText || '';
-  });
-
-  socketClient.on('translator:error', ({ message }) => {
-    setTranslatorBusy(false);
-    translatorResultEl.textContent =
-      message || 'No pude traducir el texto en este momento.';
-  });
-
-  socketClient.on('llm:request_tokens', (payload) => {
-    if (!isCurrentConversationPayload(payload)) {
-      return;
-    }
-
-    logLlmRequestTokens(payload.usage);
-    updateLlmContextMeter(payload.usage);
-  });
-
-  socketClient.on('llm:credit_exhausted', ({ message }) => {
-    showCreditExhaustedModal(message);
-  });
-
-  socketClient.on('message:created', (message) => {
-    const bubble = messageRenderer.appendStoredMessage(message);
-    if (message.role === 'user') {
-      activeUserMessageId = message.id;
-    } else {
-      markTutorMessageArrived(bubble.closest('.message-row'));
-    }
-    scrollToBottom();
-  });
-
-  socketClient.on('assistant:start', () => {
-    clearPendingDisconnectNotice();
-    isAssistantBusy = true;
-    isAssistantStopping = false;
-    pendingPracticeModuleStart = false;
-    practiceModuleView.render(null, { visible: false });
-    setToolStatus('');
-    setComposerEnabled(false);
-    streamingBubble = messageRenderer.appendMessage('model', '', { streaming: true });
-    scrollToBottom();
-  });
-
-  socketClient.on('assistant:tool_status', ({ label }) => {
-    setToolStatus(typeof label === 'string' ? label : '');
-  });
-
-  socketClient.on('assistant:chunk', ({ chunk }) => {
-    if (!streamingBubble) {
-      streamingBubble = messageRenderer.appendMessage('model', '', { streaming: true });
-    }
-
-    const rawContent = `${streamingBubble.dataset.rawContent ?? ''}${chunk}`;
-    setMessageContent(streamingBubble, rawContent);
-    scrollToBottom();
-  });
-
-  socketClient.on('assistant:done', (message) => {
-    if (!message) {
-      streamingBubble?.remove();
-      streamingBubble = null;
-      setToolStatus('');
-      isAssistantBusy = false;
-      isAssistantStopping = false;
-      practiceModuleView.render(null, { visible: false });
-      setComposerEnabled(true);
-      focusComposer();
-      scrollToBottom();
-      return;
-    }
-
-    const sentenceEvaluation = activeUserMessageId
-      ? pendingSentenceEvaluations.get(activeUserMessageId)
-      : null;
-
-    if (streamingBubble) {
-      setModelBubbleContent(streamingBubble, message.content, message.metadata, {
-        messageId: message.id,
-      });
-      streamingBubble.classList.remove('typing-caret');
-      const streamingRow = streamingBubble.closest('.message-row');
-      streamingRow?.setAttribute('data-message-id', message.id);
-      attachMessageMetadata(streamingRow, message.metadata);
-      renderSentenceEvaluation(streamingBubble, sentenceEvaluation);
-      initializeSentencePopovers(streamingBubble);
-      markTutorMessageArrived(streamingRow);
-    } else {
-      const bubble = messageRenderer.appendStoredMessage(message, { sentenceEvaluation });
-      markTutorMessageArrived(bubble.closest('.message-row'));
-    }
-
-    if (activeUserMessageId) {
-      pendingSentenceEvaluations.delete(activeUserMessageId);
-    }
-    activeUserMessageId = null;
-    streamingBubble = null;
-    setToolStatus('');
-    isAssistantBusy = false;
-    isAssistantStopping = false;
-    practiceModuleView.render(null, { visible: false });
-    setComposerEnabled(true);
-    focusComposer();
-    scrollToBottom();
-  });
-
-  socketClient.on('assistant:stopped', () => {
-    if (streamingBubble) {
-      streamingBubble.closest('.message-row')?.remove();
-      streamingBubble = null;
-    }
-
-    setToolStatus('');
-    isAssistantBusy = false;
-    isAssistantStopping = false;
-    practiceModuleView.render(null, { visible: false });
-    setComposerEnabled(!pendingPracticeModuleStart);
-    focusComposer();
-    scrollToBottom();
-  });
-
-  socketClient.on('assistant:error', ({ message }) => {
-    if (streamingBubble) {
-      streamingBubble.closest('.message-row')?.remove();
-      streamingBubble = null;
-    }
-
-    setToolStatus('');
-    appendMessage('error', message);
-    isAssistantBusy = false;
-    isAssistantStopping = false;
-    setComposerEnabled(!pendingPracticeModuleStart);
-    scrollToBottom();
-  });
-
-  socketClient.on('message:evaluation_updated', ({ message }) => {
-    if (!message?.id) {
-      return;
-    }
-
-    pendingSentenceEvaluations.set(message.id, message.metadata?.sentenceEvaluation);
-
-    if (!isAssistantBusy) {
-      messageRenderer.renderSentenceEvaluationOnLastAssistant(
-        message.metadata?.sentenceEvaluation,
-      );
-      scrollToBottom();
-    }
-  });
-
-  socketClient.on('message:updated', (message) => {
-    if (!message?.id) {
-      return;
-    }
-
-    messageRenderer.updateRenderedMessage(message);
+  registerChatSocketHandlers({
+    chatSocketEvents,
+    conversationListView,
+    focusComposer,
+    getActiveUserMessageId: () => activeUserMessageId,
+    getConversationId: () => conversationId,
+    getIsAssistantBusy: () => isAssistantBusy,
+    getPendingPracticeModuleStart: () => pendingPracticeModuleStart,
+    getStreamingBubble: () => streamingBubble,
+    messagesEl,
+    pendingSentenceEvaluations,
+    practiceModuleView,
+    renderer: tutorMessageRenderer,
+    runtime,
+    scrollToBottom,
+    setActiveUserMessageId: (value) => {
+      activeUserMessageId = value;
+    },
+    setComposerEnabled,
+    setConversationId: (value) => {
+      conversationId = value;
+    },
+    setDisconnectNoticeTimerId: (value) => {
+      disconnectNoticeTimerId = value;
+    },
+    setHasHandledInitialConversationReady: (value) => {
+      hasHandledInitialConversationReady = value;
+    },
+    setIsAssistantBusy: (value) => {
+      isAssistantBusy = value;
+    },
+    setIsAssistantStopping: (value) => {
+      isAssistantStopping = value;
+    },
+    setPendingPracticeModuleStart: (value) => {
+      pendingPracticeModuleStart = value;
+    },
+    setSelectedModelTier,
+    setStreamingBubble: (value) => {
+      streamingBubble = value;
+    },
+    setUserInputHistory: (value) => {
+      userInputHistory = value;
+    },
+    shouldAutoJoinSocketThread,
+    showCreditExhaustedModal,
+    socketClient,
+    translatorController,
   });
 }
 
 formEl.addEventListener('submit', (event) => {
   event.preventDefault();
   if (isAssistantBusy) {
-    stopAssistantResponse();
+    runtime.stopAssistantResponse();
     return;
   }
 
-  sendMessage();
+  runtime.sendMessage();
 });
 
 inputEl.addEventListener('keydown', (event) => {
-  if (handleUserInputHistoryKeydown(event)) {
+  if (runtime.handleUserInputHistoryKeydown(event)) {
     return;
   }
 
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
-    sendMessage();
+    runtime.sendMessage();
   }
 });
 
@@ -474,45 +321,14 @@ conversationListView.configureExistingItems();
 
 newConversationButtonEl?.addEventListener('click', (event) => {
   event.preventDefault();
-  startNewConversation();
+  runtime.startNewConversation();
 });
 
 practiceModuleStartButtonEl?.addEventListener('click', () => {
-  startPracticeModuleConversation();
+  runtime.startPracticeModuleConversation();
 });
 
-for (const button of translatorOpenButtonEls) {
-  button.addEventListener('pointerdown', () => {
-    pendingTranslatorSelection = getSelectedAppText();
-  });
-
-  button.addEventListener('click', () => {
-    translateSelectedAppText();
-    button.blur();
-  });
-}
-
-translatorFormEl?.addEventListener('submit', (event) => {
-  event.preventDefault();
-  translateFromModal();
-});
-
-translatorModalEl?.addEventListener('shown.bs.modal', () => {
-  translatorInputEl?.focus();
-});
-
-translatorInputEl?.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter' && !event.shiftKey) {
-    event.preventDefault();
-    translateFromModal();
-  }
-});
-
-for (const button of translatorCopyButtonEls) {
-  button.addEventListener('click', () => {
-    copyTranslatorText(button);
-  });
-}
+translatorController.bindUi();
 
 for (const button of modelTierOptionEls) {
   button.addEventListener('click', () => {
@@ -535,342 +351,12 @@ function disableComposerTextAssist() {
   }
 }
 
-function translateSelectedAppText() {
-  const selectedText = pendingTranslatorSelection || getSelectedAppText();
-  pendingTranslatorSelection = '';
-  if (!selectedText) {
-    return;
-  }
-
-  const autoModeInput = translatorFormEl?.querySelector(
-    'input[name="translatorMode"][value="auto"]',
-  );
-  if (autoModeInput) {
-    autoModeInput.checked = true;
-  }
-
-  translatorInputEl.value = selectedText;
-  translatorResultEl.textContent = '';
-  window.setTimeout(() => {
-    translateFromModal();
-  }, 0);
-}
-
-function getSelectedAppText() {
-  const selectedControlText = getSelectedTextFromControl(document.activeElement);
-  if (selectedControlText) {
-    return selectedControlText;
-  }
-
-  const selection = window.getSelection?.();
-  const selectedText = selection?.toString().trim() || '';
-  if (!selectedText || !selection?.rangeCount) {
-    return '';
-  }
-
-  const range = selection.getRangeAt(0);
-  const selectionContainer = range.commonAncestorContainer;
-  const selectionElement =
-    selectionContainer.nodeType === Node.ELEMENT_NODE
-      ? selectionContainer
-      : selectionContainer.parentElement;
-
-  const appShell = document.querySelector('.app-shell');
-  return appShell?.contains(selectionElement) ? selectedText : '';
-}
-
-function getSelectedTextFromControl(element) {
-  if (
-    !(element instanceof HTMLTextAreaElement) &&
-    !(element instanceof HTMLInputElement)
-  ) {
-    return '';
-  }
-
-  const selectionStart = element.selectionStart ?? 0;
-  const selectionEnd = element.selectionEnd ?? 0;
-  if (selectionEnd <= selectionStart) {
-    return '';
-  }
-
-  return element.value.slice(selectionStart, selectionEnd).trim();
-}
-
-function translateFromModal() {
-  const text = translatorInputEl?.value.trim() || '';
-  if (!text || !socket) {
-    return;
-  }
-
-  const mode =
-    translatorFormEl?.querySelector('input[name="translatorMode"]:checked')?.value ||
-    'auto';
-
-  setTranslatorBusy(true);
-  translatorResultEl.textContent = '';
-  socket.emit('translator:translate', { mode, text });
-}
-
-function setTranslatorBusy(isBusy) {
-  if (translatorSubmitEl) {
-    translatorSubmitEl.disabled = isBusy;
-    translatorSubmitEl.textContent = isBusy ? 'Traduciendo...' : 'Traducir';
-  }
-}
-
-async function copyTranslatorText(button) {
-  const source = button.dataset.translatorCopy;
-  const content =
-    source === 'result'
-      ? translatorResultEl?.textContent?.trim() || ''
-      : translatorInputEl?.value.trim() || '';
-  const copied = await copyTextToClipboard(content);
-
-  button.classList.toggle('is-copied', copied);
-  button.title = copied ? 'Copiado' : 'No se pudo copiar';
-
-  window.setTimeout(() => {
-    button.classList.remove('is-copied');
-    button.title = source === 'result' ? 'Copiar traducción' : 'Copiar texto';
-  }, 1200);
-}
-
-function sendMessage() {
-  const content = inputEl.value.trim();
-  if (!content || isAssistantBusy || isGuestPromptPending) {
-    return;
-  }
-
-  if (!socket) {
-    rememberUserInput(content);
-    appendMessage('user', content);
-    preserveGuestDraft(content);
-    inputEl.value = '';
-    inputEl.style.height = 'auto';
-    resetUserInputHistoryNavigation();
-    showGuestAuthPromptWithDelay();
-    return;
-  }
-
-  rememberUserInput(content);
-  inputEl.value = '';
-  inputEl.style.height = 'auto';
-  resetUserInputHistoryNavigation();
-  setComposerEnabled(false);
-  socket.emit(chatSocketEvents.send, {
-    content,
-    conversationId,
-    modelTier: getSelectedModelTier(),
-  });
-}
-
-function stopAssistantResponse() {
-  if (!socket || !conversationId || !isAssistantBusy || isAssistantStopping) {
-    return;
-  }
-
-  isAssistantStopping = true;
-  syncSendButton();
-  socket.emit(chatSocketEvents.cancel, { conversationId });
-}
-
-function setToolStatus(text) {
-  const nextText = typeof text === 'string' ? text.trim() : '';
-  if (!nextText) {
-    toolStatusRow?.remove();
-    toolStatusRow = null;
-    if (toolStatusEl) {
-      toolStatusEl.textContent = '';
-      toolStatusEl.classList.add('d-none');
-    }
-    return;
-  }
-
-  if (toolStatusEl) {
-    toolStatusEl.textContent = '';
-    toolStatusEl.classList.add('d-none');
-  }
-
-  if (!toolStatusRow) {
-    const row = document.createElement('div');
-    row.className = 'message-row is-tool-status';
-    row.dataset.role = 'tool-status';
-
-    const bubble = document.createElement('div');
-    bubble.className = 'message-bubble tool-status-bubble';
-
-    const textNode = document.createElement('div');
-    textNode.className = 'tool-status-text small text-body-secondary';
-
-    bubble.append(textNode);
-    row.append(bubble);
-    const streamingRow = streamingBubble?.closest('.message-row');
-    if (streamingRow?.parentElement === messagesEl) {
-      messagesEl.insertBefore(row, streamingRow);
-    } else {
-      messagesEl.append(row);
-    }
-    toolStatusRow = row;
-  }
-
-  const bubble = toolStatusRow.querySelector('.tool-status-bubble');
-  if (bubble) {
-    const textNode = bubble.querySelector('.tool-status-text');
-    if (textNode) {
-      textNode.textContent = nextText;
-    }
-  }
-  scrollToBottom();
-}
-
-function handleUserInputHistoryKeydown(event) {
-  if (!inputEl || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
-    return false;
-  }
-
-  if (event.key === 'ArrowUp') {
-    if (!shouldUseHistoryArrow('up')) {
-      return false;
-    }
-
-    event.preventDefault();
-    navigateUserInputHistory(-1);
-    return true;
-  }
-
-  if (event.key === 'ArrowDown') {
-    if (!shouldUseHistoryArrow('down')) {
-      return false;
-    }
-
-    event.preventDefault();
-    navigateUserInputHistory(1);
-    return true;
-  }
-
-  return false;
-}
-
-function shouldUseHistoryArrow(direction) {
-  if (!inputEl || !userInputHistory.length) {
-    return false;
-  }
-
-  const hasDraft = inputEl.value.trim().length > 0;
-  if (hasDraft && userInputHistoryIndex === -1) {
-    return false;
-  }
-
-  const selectionStart = inputEl.selectionStart ?? 0;
-  const selectionEnd = inputEl.selectionEnd ?? 0;
-  if (selectionStart !== selectionEnd) {
-    return false;
-  }
-
-  if (direction === 'up') {
-    const textBeforeCaret = inputEl.value.slice(0, selectionStart);
-    return !textBeforeCaret.includes('\n');
-  }
-
-  const textAfterCaret = inputEl.value.slice(selectionEnd);
-  return !textAfterCaret.includes('\n');
-}
-
-function navigateUserInputHistory(step) {
-  if (!inputEl || !userInputHistory.length) {
-    return;
-  }
-
-  if (userInputHistoryIndex === -1) {
-    userInputDraftBeforeHistory = inputEl.value;
-    userInputHistoryIndex = userInputHistory.length;
-  }
-
-  const nextIndex = Math.max(
-    0,
-    Math.min(userInputHistory.length, userInputHistoryIndex + step),
-  );
-
-  if (nextIndex === userInputHistory.length) {
-    userInputHistoryIndex = -1;
-    inputEl.value = userInputDraftBeforeHistory;
-    resizeComposerInput();
-    moveCaretToEnd(inputEl);
-    return;
-  }
-
-  userInputHistoryIndex = nextIndex;
-  inputEl.value = userInputHistory[userInputHistoryIndex] || '';
-  resizeComposerInput();
-  moveCaretToEnd(inputEl);
-}
-
-function resetUserInputHistoryNavigation() {
-  userInputHistoryIndex = -1;
-  userInputDraftBeforeHistory = '';
-}
-
-function rememberUserInput(content) {
-  const normalized = content.trim();
-  if (!normalized) {
-    return;
-  }
-
-  const last = userInputHistory[userInputHistory.length - 1];
-  if (last === normalized) {
-    return;
-  }
-
-  userInputHistory.push(normalized);
-}
-
-function moveCaretToEnd(element) {
-  const end = element.value.length;
-  element.setSelectionRange(end, end);
-}
-
 function buildConversationPath(nextConversationId) {
   return nextConversationId
     ? `/c/${encodeURIComponent(nextConversationId)}`
     : '/';
 }
 
-function buildCurrentChatPath(nextConversationId) {
-  return buildConversationPath(nextConversationId);
-}
-
-function isCurrentConversationPayload(payload) {
-  const payloadConversationId = payload?.conversationId || '';
-  return Boolean(conversationId && payloadConversationId === conversationId);
-}
-
-function logLlmRequestTokens(usage) {
-  if (!usage) {
-    return;
-  }
-
-  const label = usage.isEstimate
-    ? '[Mr. F LLM tokens estimados]'
-    : '[Mr. F LLM tokens]';
-
-  console.log(label, {
-    contextWindowTokens: usage.contextWindowTokens,
-    inputTokens: usage.inputTokens,
-    model: usage.model,
-    percentUsed: `${usage.percentUsed}%`,
-    provider: usage.provider,
-    turn: usage.turn,
-  });
-}
-
-function initializeLlmContextMeter() {
-  if (!llmContextCircleEl || !llmContextMeterEl) {
-    return;
-  }
-
-  llmContextCircleEl.style.strokeDasharray = `${llmContextCircleCircumference}`;
-  updateLlmContextMeter(null);
-}
 
 function initializePracticeModuleSharingUi() {
   if (copyPracticeModuleShareLinkButtonEl) {
@@ -977,42 +463,6 @@ function initializeCollectionModulePickers() {
 }
 
 
-function updateLlmContextMeter(usage) {
-  if (!llmContextMeterEl || !llmContextCircleEl) {
-    return;
-  }
-
-  const rawPercent = Number(usage?.percentUsed);
-  const hasPercent = Number.isFinite(rawPercent);
-  const clampedPercent = hasPercent
-    ? Math.min(100, Math.max(0, rawPercent))
-    : 0;
-  const progress = clampedPercent / 100;
-  const dashOffset =
-    llmContextCircleCircumference * (1 - progress);
-
-  llmContextCircleEl.style.strokeDashoffset = `${dashOffset}`;
-  llmContextMeterEl.setAttribute(
-    'aria-valuenow',
-    hasPercent ? `${Math.round(clampedPercent)}` : '0',
-  );
-  llmContextMeterEl.setAttribute(
-    'aria-valuetext',
-    hasPercent
-      ? `${Math.round(clampedPercent)} por ciento del contexto usado`
-      : '0 por ciento del contexto usado',
-  );
-
-  let level = 'normal';
-  if (clampedPercent >= 85) {
-    level = 'danger';
-  } else if (clampedPercent >= 65) {
-    level = 'warn';
-  }
-
-  llmContextMeterEl.dataset.contextLevel = level;
-}
-
 function renderPracticeModuleStartPanel(practiceModule, options = {}) {
   if (
     !practiceModuleStartPanelEl ||
@@ -1043,42 +493,6 @@ function renderPracticeModuleStartPanel(practiceModule, options = {}) {
   practiceModuleStartPanelEl.classList.remove('d-none');
 }
 
-function startNewConversation() {
-  if (isAssistantBusy) {
-    return;
-  }
-
-  window.location.assign('/');
-}
-
-function startPracticeModuleConversation(options = {}) {
-  if (!socket || isAssistantBusy || !conversationId) {
-    return;
-  }
-
-  pendingPracticeModuleStart = false;
-  if (!options.preservePanel) {
-    practiceModuleView.render(null, { visible: false });
-  }
-  setComposerEnabled(false);
-  socket.emit('practice-module:start', {
-    conversationId,
-    modelTier: getSelectedModelTier(),
-  });
-}
-
-function showAuthRequiredMessage(message) {
-  messagesEl.replaceChildren();
-  streamingBubble = null;
-  appendMessage(
-    'model',
-    message ||
-      'Para practicar con Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
-  );
-  setComposerEnabled(false);
-  scrollToBottom();
-}
-
 function showCreditExhaustedModal(message) {
   const displayMessage =
     message ||
@@ -1093,576 +507,8 @@ function showCreditExhaustedModal(message) {
     return;
   }
 
-  appendMessage('error', displayMessage);
+  tutorMessageRenderer.appendMessage('error', displayMessage);
   scrollToBottom();
-}
-
-function showGuestGreeting() {
-  messagesEl.replaceChildren();
-  streamingBubble = null;
-  appendMessage(
-    'model',
-    guestInitialGreeting ||
-      '¡Hola! Soy Mr. F, tu tutor de inglés. Cuéntame qué quieres practicar hoy.',
-  );
-  setComposerEnabled(true);
-  focusComposer();
-  scrollToBottom();
-}
-
-function showGuestAuthPrompt() {
-  const bubble = appendMessage(
-    'model',
-    'Perfecto. Para guardar tu práctica y continuar esta conversación, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
-  );
-  markTutorMessageArrived(bubble.closest('.message-row'));
-  setComposerEnabled(true);
-  resizeComposerInput();
-  focusComposer();
-  scrollToBottom();
-}
-
-function showGuestAuthPromptWithDelay() {
-  isGuestPromptPending = true;
-  setComposerEnabled(false);
-  const typingBubble = appendMessage('model', '', { streaming: true });
-  scrollToBottom();
-
-  const delayMs = 850 + Math.floor(Math.random() * 500);
-  guestPromptTimerId = window.setTimeout(() => {
-    typingBubble.closest('.message-row')?.remove();
-    showGuestAuthPrompt();
-    isGuestPromptPending = false;
-    guestPromptTimerId = 0;
-  }, delayMs);
-}
-
-
-function createSentencePartsElement(partsInput, extraClassName = '') {
-  const parts = document.createElement('p');
-  parts.className = ['sentence-parts', extraClassName].filter(Boolean).join(' ');
-  const items = Array.isArray(partsInput) ? partsInput : [];
-
-  for (const [index, part] of items.entries()) {
-    const normalizedStatus = normalizePartStatus(part.status);
-    const node =
-      normalizedStatus === 'correct'
-        ? document.createElement('span')
-        : document.createElement('button');
-
-    node.className = `sentence-part is-${normalizedStatus}`;
-    node.textContent = part.text;
-
-    if (node instanceof HTMLButtonElement) {
-      node.type = 'button';
-      node.dataset.bsToggle = 'popover';
-      node.dataset.bsTrigger = 'focus';
-      node.dataset.bsPlacement = 'top';
-      node.dataset.bsCustomClass = `sentence-popover sentence-popover-${normalizedStatus}`;
-      node.dataset.bsTitle =
-        normalizedStatus === 'error' ? 'Error' : 'Puede mejorar';
-      node.dataset.bsContent =
-        part.explanation || 'Esta parte necesita un ajuste.';
-      node.setAttribute(
-        'aria-label',
-        `${part.text}: ${part.explanation || 'Esta parte necesita un ajuste.'}`,
-      );
-    }
-
-    parts.append(node);
-    if (index < items.length - 1) {
-      parts.append(document.createTextNode(' '));
-    }
-  }
-
-  return parts;
-}
-
-function setModelBubbleContent(element, content, metadata, options = {}) {
-  if (!element) {
-    return;
-  }
-
-  element.dataset.rawContent = content;
-  const blocks = Array.isArray(metadata?.blocks) ? metadata.blocks : [];
-  if (!blocks.length) {
-    renderModelMessageWithMetadata(element, content, metadata);
-    return;
-  }
-
-  element.replaceChildren();
-  const stack = document.createElement('div');
-  stack.className = 'tutor-message-stack';
-
-  let hasVisualContent = false;
-
-  blocks.forEach((block, blockIndex) => {
-    if (block.type === 'message') {
-      const node = document.createElement('div');
-      node.className = 'tutor-message-block';
-      node.innerHTML = renderMarkdown(block.markdown || '');
-      stack.append(node);
-      hasVisualContent = true;
-      return;
-    }
-
-    if (block.type === 'practice_module_link') {
-      const actionLink = createPracticeModuleLinkAction(block);
-      if (actionLink) {
-        let actionRow = stack.querySelector('.tutor-message-actions');
-        if (!actionRow) {
-          actionRow = document.createElement('div');
-          actionRow.className = 'tutor-message-actions';
-          stack.append(actionRow);
-        }
-
-        actionRow.append(actionLink);
-        hasVisualContent = true;
-      }
-      return;
-    }
-
-    if (block.type === 'dialogue_character_message') {
-      const turn = document.createElement('div');
-      turn.className = 'inline-character-turn';
-
-      const speaker = document.createElement('div');
-      speaker.className = 'inline-character-name';
-      speaker.textContent = String(block.name || 'Character');
-
-      const text = document.createElement('div');
-      text.className = 'inline-character-text';
-      text.innerHTML = renderMarkdown(block.markdown || '');
-
-      turn.append(speaker, text);
-      stack.append(turn);
-      hasVisualContent = true;
-      return;
-    }
-
-    if (block.type === 'dialogue_transcript') {
-      const section = document.createElement('section');
-      section.className = 'dialogue-transcript-card';
-
-      const label = document.createElement('p');
-      label.className = 'dialogue-transcript-label';
-      label.textContent = 'Dialogo completo';
-
-      const turns = document.createElement('div');
-      turns.className = 'dialogue-transcript-turns';
-
-      const items = Array.isArray(block.turns) ? block.turns : [];
-      for (const item of items) {
-        const turn = document.createElement('div');
-        turn.className = 'dialogue-transcript-turn';
-
-        const speaker = document.createElement('div');
-        speaker.className = 'dialogue-transcript-speaker';
-        speaker.textContent = String(item.speaker || 'Speaker').replace(/\s+/g, ' ').trim();
-
-        const text = document.createElement('div');
-        text.className = 'dialogue-transcript-text';
-        text.innerHTML = renderMarkdown(item.markdown || '');
-
-        turn.append(speaker, text);
-        turns.append(turn);
-      }
-
-      section.append(label, turns);
-      stack.append(section);
-      hasVisualContent = true;
-      return;
-    }
-
-    if (block.type === 'matching_pairs') {
-      const card = createMatchingPairsCard(
-        block,
-        {
-          blockIndex,
-          matchingResult: getMatchingResultForBlock(metadata, blockIndex),
-          messageId: options.messageId,
-        },
-        {
-          getConversationId: () => conversationId,
-          getSelectedModelTier,
-          getSocket: () => socket,
-          matchingExerciseStates,
-        },
-      );
-      if (card) {
-        stack.append(card);
-        hasVisualContent = true;
-      }
-      return;
-    }
-
-    if (
-      block.type === 'fill_in_the_blank_input' ||
-      block.type === 'fill_in_the_blank_choice'
-    ) {
-      const card = createFillInTheBlankCard(
-        block,
-        {
-          blockIndex,
-          fillResult: getFillInTheBlankResultForBlock(metadata, blockIndex),
-          messageId: options.messageId,
-        },
-        {
-          getConversationId: () => conversationId,
-          getSelectedModelTier,
-          getSocket: () => socket,
-        },
-      );
-      if (card) {
-        stack.append(card);
-        hasVisualContent = true;
-      }
-      return;
-    }
-
-    if (block.type === 'multiple_choice') {
-      const card = createMultipleChoiceCard(
-        block,
-        {
-          blockIndex,
-          messageId: options.messageId,
-          result: getExerciseResultForBlock(metadata, 'multipleChoiceResults', blockIndex),
-        },
-        {
-          getConversationId: () => conversationId,
-          getSelectedModelTier,
-          getSocket: () => socket,
-        },
-      );
-      if (card) {
-        stack.append(card);
-        hasVisualContent = true;
-      }
-      return;
-    }
-
-    if (block.type === 'unscramble_sentence') {
-      const card = createUnscrambleSentenceCard(
-        block,
-        {
-          blockIndex,
-          messageId: options.messageId,
-          result: getExerciseResultForBlock(metadata, 'unscrambleSentenceResults', blockIndex),
-        },
-        {
-          getConversationId: () => conversationId,
-          getSelectedModelTier,
-          getSocket: () => socket,
-        },
-      );
-      if (card) {
-        stack.append(card);
-        hasVisualContent = true;
-      }
-      return;
-    }
-
-    if (block.type === 'quiz') {
-      const card = createQuizCard(
-        block,
-        {
-          blockIndex,
-          messageId: options.messageId,
-          result: getExerciseResultForBlock(metadata, 'quizResults', blockIndex),
-        },
-        {
-          getConversationId: () => conversationId,
-          getSelectedModelTier,
-          getSocket: () => socket,
-        },
-      );
-      if (card) {
-        stack.append(card);
-        hasVisualContent = true;
-      }
-      return;
-    }
-
-    if (
-      block.type === 'translate_to_english_prompt' ||
-      block.type === 'understand_in_spanish_prompt'
-    ) {
-      const card = document.createElement('section');
-      card.className = `translation-prompt-card is-${block.type}`;
-
-      const label = document.createElement('p');
-      label.className = 'translation-prompt-label';
-      label.textContent =
-        block.type === 'translate_to_english_prompt'
-          ? 'Traduce al ingles'
-          : 'Explica en espanol';
-
-      const sentence = document.createElement('blockquote');
-      sentence.className = 'translation-prompt-sentence';
-      sentence.textContent = String(block.sentence || '').replace(/\s+/g, ' ').trim();
-
-      card.append(label, sentence);
-      stack.append(card);
-      hasVisualContent = true;
-    }
-  });
-
-  if (!hasVisualContent) {
-    renderModelMessageWithMetadata(element, content, metadata);
-    return;
-  }
-
-  element.append(stack);
-}
-
-function appendStoredMessage(message, options = {}) {
-  return appendMessage(message.role, message.content, {
-    id: message.id,
-    metadata: message.metadata,
-    sentenceEvaluation: options.sentenceEvaluation,
-  });
-}
-
-function appendMessage(role, content, options = {}) {
-  const row = document.createElement('div');
-  row.className = `message-row is-${role}`;
-  row.dataset.role = role;
-  if (options.id) {
-    row.dataset.messageId = String(options.id);
-  }
-  applyModelSpeakerMetadata(row, options.metadata);
-  attachMessageMetadata(row, options.metadata);
-
-  const bubble = document.createElement('div');
-  bubble.className = getMessageBubbleClassName(role);
-  if (role === 'model') {
-    setModelBubbleContent(bubble, content, options.metadata, {
-      messageId: options.id,
-    });
-    syncSpeakerLabel(bubble, options.metadata);
-  } else {
-    setMessageContent(bubble, content);
-  }
-
-  if (role === 'user') {
-    appendUserMessageActions(bubble);
-  }
-
-  if (role === 'model') {
-    renderSentenceEvaluation(bubble, options.sentenceEvaluation);
-  }
-
-  if (options.streaming) {
-    bubble.classList.add('typing-caret');
-  }
-
-  row.append(bubble);
-  messagesEl.append(row);
-  initializeSentencePopovers(row);
-  return bubble;
-}
-
-function markTutorMessageArrived(row) {
-  if (!row || !row.classList.contains('is-model')) {
-    return;
-  }
-
-  row.classList.remove('tutor-message-enter');
-  void row.offsetWidth;
-  row.classList.add('tutor-message-enter');
-
-  window.setTimeout(() => {
-    row.classList.remove('tutor-message-enter');
-  }, 1200);
-}
-
-function getMessageBubbleClassName(role) {
-  if (role === 'user') {
-    return 'message-bubble user-message-card';
-  }
-
-  if (role === 'error') {
-    return 'message-bubble alert alert-warning error-message-alert';
-  }
-
-  return 'message-bubble';
-}
-
-function renderSentenceEvaluationOnLastAssistant(evaluation) {
-  const modelRows = messagesEl.querySelectorAll('.message-row.is-model');
-  const lastModelRow = modelRows[modelRows.length - 1];
-  if (!lastModelRow) {
-    return;
-  }
-
-  renderSentenceEvaluation(
-    lastModelRow.querySelector('.message-bubble'),
-    evaluation,
-  );
-  initializeSentencePopovers(lastModelRow);
-}
-
-function renderSentenceEvaluation(element, evaluation) {
-  const card = createSentenceEvaluationCard({
-    createMessageActionButton,
-    createSentencePartsElement,
-    element,
-    evaluation,
-    findEvaluationTargetUserContent,
-    findFirstIncorrectEvaluationPart,
-    isValidSentenceEvaluation,
-    putMessageBackInComposer,
-  });
-  if (card) {
-    element.append(card);
-  }
-}
-
-function attachMessageMetadata(row, metadata) {
-  if (!row) {
-    return;
-  }
-
-  applyModelSpeakerMetadata(row, metadata);
-  const bubble = row.querySelector('.message-bubble');
-  if (bubble && row.classList.contains('is-model')) {
-    syncSpeakerLabel(bubble, metadata);
-  }
-
-  if (!metadata?.blocks) {
-    delete row.dataset.messageBlocks;
-    return;
-  }
-
-  row.dataset.messageBlocks = JSON.stringify(metadata.blocks);
-}
-
-function updateRenderedMessage(message) {
-  const row = messagesEl.querySelector(
-    `[data-message-id="${CSS.escape(String(message.id))}"]`,
-  );
-  if (!row) {
-    return;
-  }
-
-  attachMessageMetadata(row, message.metadata);
-  if (message.role !== 'model') {
-    return;
-  }
-
-  const bubble = row.querySelector('.message-bubble');
-  if (!bubble) {
-    return;
-  }
-
-  setModelBubbleContent(bubble, message.content, message.metadata, {
-    messageId: message.id,
-  });
-  syncSpeakerLabel(bubble, message.metadata);
-}
-
-function applyModelSpeakerMetadata(row, metadata) {
-  if (!row || !row.classList.contains('is-model')) {
-    return;
-  }
-}
-
-function syncSpeakerLabel(bubble, metadata) {
-  if (!bubble) {
-    return;
-  }
-
-  bubble.querySelector('.message-speaker-label')?.remove();
-  const speakerLabel = metadata?.speakerLabel || '';
-  if (!speakerLabel) {
-    return;
-  }
-
-  const label = document.createElement('div');
-  label.className = 'message-speaker-label small text-body-secondary';
-  label.textContent = speakerLabel;
-  bubble.prepend(label);
-}
-
-function initializeSentencePopovers(root = document) {
-  if (!window.bootstrap?.Popover) {
-    return;
-  }
-
-  for (const trigger of root.querySelectorAll('[data-bs-toggle="popover"]')) {
-    window.bootstrap.Popover.getOrCreateInstance(trigger);
-  }
-}
-
-function isValidSentenceEvaluation(evaluation) {
-  return (
-    evaluation &&
-    typeof evaluation === 'object' &&
-    Array.isArray(evaluation.parts) &&
-    evaluation.parts.length > 0
-  );
-}
-
-function normalizePartStatus(status) {
-  if (status === 'error' || status === 'red') {
-    return 'error';
-  }
-
-  if (status === 'improve' || status === 'yellow') {
-    return 'improve';
-  }
-
-  return 'correct';
-}
-
-
-function appendUserMessageActions(element) {
-  const actions = document.createElement('span');
-  actions.className = 'message-actions';
-
-  const editButton = createMessageActionButton({
-    label: 'Editar texto',
-    iconClass: 'bi-pencil',
-  });
-  editButton.addEventListener('click', () => {
-    putMessageBackInComposer(element.dataset.rawContent || '');
-  });
-
-  const copyButton = createMessageActionButton({
-    label: 'Copiar texto',
-    iconClass: 'bi-copy',
-  });
-  copyButton.addEventListener('click', async () => {
-    const copied = await copyTextToClipboard(element.dataset.rawContent || '');
-    copyButton.classList.toggle('is-copied', copied);
-    copyButton.title = copied ? 'Copiado' : 'No se pudo copiar';
-
-    setTimeout(() => {
-      copyButton.classList.remove('is-copied');
-      copyButton.title = 'Copiar texto';
-    }, 1200);
-  });
-
-  actions.append(editButton, copyButton);
-  getMessageActionHost(element).append(actions);
-}
-
-function getMessageActionHost(element) {
-  return (
-    element.querySelector(
-      ':scope > p:last-child, :scope > ul:last-child li:last-child, :scope > ol:last-child li:last-child, :scope > blockquote:last-child',
-    ) || element
-  );
-}
-
-function createMessageActionButton({ label, iconClass }) {
-  const button = document.createElement('button');
-  button.className = 'message-action-button';
-  button.type = 'button';
-  button.title = label;
-  button.setAttribute('aria-label', label);
-  button.innerHTML = `<i class="bi ${iconClass}" aria-hidden="true"></i>`;
-  return button;
 }
 
 function putMessageBackInComposer(content, options = {}) {
@@ -1689,44 +535,6 @@ function putMessageBackInComposer(content, options = {}) {
   });
 }
 
-function findEvaluationTargetUserContent(element) {
-  const row = element.closest('.message-row.is-model');
-  let current = row?.previousElementSibling ?? null;
-
-  while (current) {
-    if (
-      current instanceof HTMLDivElement &&
-      current.classList.contains('message-row') &&
-      current.classList.contains('is-user')
-    ) {
-      const bubble = current.querySelector('.message-bubble');
-      return bubble?.dataset.rawContent || '';
-    }
-
-    current = current.previousElementSibling;
-  }
-
-  return '';
-}
-
-function findFirstIncorrectEvaluationPart(evaluation) {
-  if (!isValidSentenceEvaluation(evaluation)) {
-    return '';
-  }
-
-  const errorPart = evaluation.parts.find(
-    (part) => normalizePartStatus(part.status) === 'error' && typeof part.text === 'string',
-  );
-  if (errorPart?.text?.trim()) {
-    return errorPart.text.trim();
-  }
-
-  const improvePart = evaluation.parts.find(
-    (part) => normalizePartStatus(part.status) === 'improve' && typeof part.text === 'string',
-  );
-  return improvePart?.text?.trim() || '';
-}
-
 async function copyTextToClipboard(content) {
   if (!content) {
     return false;
@@ -1742,77 +550,6 @@ async function copyTextToClipboard(content) {
   }
 
   return fallbackCopyText(content);
-}
-
-function appendEphemeralError(content) {
-  const existing = messagesEl.querySelector('[data-ephemeral="connection"]');
-  if (existing) {
-    existing.remove();
-  }
-
-  const bubble = appendMessage('error', content);
-  bubble.closest('.message-row')?.setAttribute('data-ephemeral', 'connection');
-  scrollToBottom();
-}
-
-function setMessageContent(element, content) {
-  element.dataset.rawContent = content;
-  element.innerHTML = renderMarkdown(content);
-
-  for (const link of element.querySelectorAll('a')) {
-    const url = new URL(link.getAttribute('href') || '', window.location.href);
-    if (url.origin !== window.location.origin) {
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
-    }
-  }
-}
-
-function renderModelMessageWithMetadata(element, content, metadata) {
-  element.replaceChildren();
-
-  const body = document.createElement('div');
-  setMessageContent(body, content);
-  element.append(body);
-}
-
-function initializeStaticMarkdown() {
-  for (const element of document.querySelectorAll('[data-render-markdown]')) {
-    setMessageContent(element, element.textContent || '');
-  }
-}
-
-function createPracticeModuleLinkAction(block) {
-  if (!block || typeof block !== 'object' || typeof block.label !== 'string') {
-    return null;
-  }
-
-  if (typeof block.practiceModuleId !== 'string' || !block.practiceModuleId.trim()) {
-    return null;
-  }
-
-  const link = document.createElement('a');
-  link.className = 'tutor-message-action-link';
-  link.href = `/practice-modules/${encodeURIComponent(block.practiceModuleId.trim())}`;
-  link.textContent = block.label;
-  return link;
-}
-
-function getMatchingResultForBlock(metadata, blockIndex) {
-  return getExerciseResultForBlock(metadata, 'matchingExerciseResults', blockIndex);
-}
-
-function getFillInTheBlankResultForBlock(metadata, blockIndex) {
-  return getExerciseResultForBlock(metadata, 'fillInTheBlankResults', blockIndex);
-}
-
-function getExerciseResultForBlock(metadata, key, blockIndex) {
-  const results = metadata?.[key];
-  if (!results || typeof results !== 'object') {
-    return null;
-  }
-
-  return results[String(blockIndex)] ?? null;
 }
 
 function fallbackCopyText(content) {
@@ -1863,37 +600,10 @@ function setSelectedModelTier(value) {
   composerView.setSelectedModelTier(value);
 }
 
-function clearPendingDisconnectNotice() {
-  if (!disconnectNoticeTimerId) {
-    return;
-  }
-
-  window.clearTimeout(disconnectNoticeTimerId);
-  disconnectNoticeTimerId = 0;
-}
-
 if (isInitiallyAuthenticated) {
   pendingBootGuestDraft = consumeGuestDraft();
   setComposerEnabled(true);
   focusComposer();
 } else {
-  showGuestGreeting();
-}
-
-function flushPendingBootGuestDraft() {
-  if (!isInitiallyAuthenticated || !hasHandledInitialConversationReady) {
-    return;
-  }
-
-  const guestDraft = pendingBootGuestDraft.trim();
-  if (!guestDraft || isAssistantBusy) {
-    return;
-  }
-
-  pendingBootGuestDraft = '';
-  inputEl.value = guestDraft;
-  resizeComposerInput();
-  window.setTimeout(() => {
-    sendMessage();
-  }, 0);
+  runtime.showGuestGreeting();
 }

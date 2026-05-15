@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
+    <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="/public/css/app.css">
+  </head>
+  <body
+    data-authenticated="<%= isAuthenticated ? 'true' : 'false' %>"
+    data-socket-auth-token="<%= socketAuthToken %>"
+    data-auth-message="<%= authMessage %>"
+    data-guest-initial-greeting="<%= guestInitialGreeting %>"
+    data-initial-conversation-id="<%= initialConversationId || '' %>"
+    data-chat-mode="<%= chatMode %>"
+    data-current-view="<%= currentView %>"
+  >
+    <main class="app-shell">
+      <div class="chat-workspace <%= hasSession ? 'has-toolbar' : '' %>">
+        <% if (hasSession) { %>
+          <div class="chat-toolbar" aria-label="Controles del chat">
+            <button
+              class="btn btn-link chat-menu-button d-lg-none"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#conversationPanel"
+              aria-controls="conversationPanel"
+              title="Conversaciones"
+              aria-label="Conversaciones"
+            >
+              <i class="bi bi-list fs-4" aria-hidden="true"></i>
+            </button>
+
+            <button
+              class="btn btn-link translator-button d-lg-none"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#translatorModal"
+              data-open-translator
+              title="Traductor"
+              aria-label="Traductor"
+            >
+              <i class="bi bi-translate fs-5" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <aside
+            class="offcanvas-lg offcanvas-start conversation-panel"
+            tabindex="-1"
+            id="conversationPanel"
+            aria-label="Panel lateral"
+          >
+            <div class="offcanvas-header">
+              <a
+                class="panel-home-link d-lg-none"
+                href="/"
+                title="Ir al inicio"
+                aria-label="Ir al inicio"
+              >
+                <img
+                  class="panel-home-logo"
+                  src="/public/brand/panel-brand-64.png"
+                  alt="Mister F"
+                  width="24"
+                  height="24"
+                >
+              </a>
+              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="panel-nav">
+                <a class="panel-nav-link d-none d-lg-inline-flex" href="/">
+                  <img
+                    class="panel-nav-brand-logo"
+                    src="/public/brand/panel-brand-64.png"
+                    alt=""
+                    width="20"
+                    height="20"
+                    aria-hidden="true"
+                  >
+                  Mr. F
+                </a>
+
+                <a class="panel-nav-link" href="/" data-new-conversation>
+                  <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                  Nueva conversación
+                </a>
+
+                <a class="panel-nav-link <%= currentView === 'practiceModules' ? 'is-active' : '' %>" href="/practice-modules">
+                  <i class="bi bi-folder" aria-hidden="true"></i>
+                  Módulos de práctica
+                </a>
+
+                <button
+                  class="panel-nav-link d-none d-lg-inline-flex"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#translatorModal"
+                  data-open-translator
+                >
+                  <i class="bi bi-translate" aria-hidden="true"></i>
+                  Traductor
+                </button>
+              </div>
+
+              <div class="panel-recents">
+                <p class="panel-section-label">Recientes</p>
+
+                <% if (conversations.length > 0) { %>
+                  <div class="conversation-list">
+                    <% conversations.forEach((conversation) => { %>
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="<%= conversation.id %>"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/<%= encodeURIComponent(conversation.id) %>"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title"><%= conversation.title %></span>
+                            <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
+                              <%= conversation.updatedAt %>
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    <% }) %>
+                  </div>
+                <% } else { %>
+                  <p class="conversation-empty">Todavía no hay conversaciones.</p>
+                <% } %>
+              </div>
+
+              <div class="panel-bottom">
+                <div class="user-menu dropdown">
+                  <button
+                    class="btn btn-link panel-nav-link user-panel-button"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
+                    aria-label="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
+                  >
+                    <i class="bi bi-person-circle" aria-hidden="true"></i>
+                    <%= activeProfile ? activeProfile.name : 'Perfil' %>
+                  </button>
+
+                  <div class="dropdown-menu user-menu-panel">
+                    <% if (activeProfile) { %>
+                      <p class="user-menu-email"><strong><%= activeProfile.name %></strong></p>
+                    <% } %>
+                    <p class="user-menu-email"><%= user.email %></p>
+                    <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
+                    <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
+                    <form method="post" action="/logout">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="dropdown-item" type="submit">Cerrar sesión</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <div
+            class="modal fade"
+            id="deleteConversationModal"
+            tabindex="-1"
+            aria-labelledby="deleteConversationModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content delete-conversation-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="deleteConversationModalLabel">Eliminar chat</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="mb-0">
+                    ¿Seguro que quieres eliminar “<span data-delete-conversation-title></span>”?
+                    Esta acción no se puede deshacer.
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-danger" data-confirm-delete-conversation>Eliminar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="translatorModal"
+            tabindex="-1"
+            aria-labelledby="translatorModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content translator-modal">
+                <form id="translatorForm" autocomplete="off">
+                  <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="translatorModalLabel">Traductor</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="translator-mode btn-group" role="group" aria-label="Modo de traducción">
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
+                      <label class="btn btn-outline-dark" for="translatorModeAuto">Auto</label>
+
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEsEn" value="es-en">
+                      <label class="btn btn-outline-dark" for="translatorModeEsEn">ES → EN</label>
+
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEnEs" value="en-es">
+                      <label class="btn btn-outline-dark" for="translatorModeEnEs">EN → ES</label>
+                    </div>
+
+                    <label class="visually-hidden" for="translatorInput">Texto para traducir</label>
+                    <div class="translator-box">
+                      <textarea
+                        class="form-control translator-textarea"
+                        id="translatorInput"
+                        rows="5"
+                        maxlength="2000"
+                        autocomplete="off"
+                        autocapitalize="none"
+                        autocorrect="off"
+                        spellcheck="false"
+                      ></textarea>
+                      <button
+                        class="translator-copy-button"
+                        type="button"
+                        data-translator-copy="input"
+                        title="Copiar texto"
+                        aria-label="Copiar texto"
+                      >
+                        <i class="bi bi-copy" aria-hidden="true"></i>
+                      </button>
+                    </div>
+
+                    <div class="translator-box translator-result-box">
+                      <div class="translator-result" id="translatorResult" aria-live="polite"></div>
+                      <button
+                        class="translator-copy-button"
+                        type="button"
+                        data-translator-copy="result"
+                        title="Copiar traducción"
+                        aria-label="Copiar traducción"
+                      >
+                        <i class="bi bi-copy" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-dark" data-translator-submit>Traducir</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="creditModal"
+            tabindex="-1"
+            aria-labelledby="creditModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content credit-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="creditModalLabel">Crédito agotado</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="mb-0" data-credit-message>
+                    Tu crédito de práctica se agotó por ahora.
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="practiceModuleHelpModal"
+            tabindex="-1"
+            aria-labelledby="practiceModuleHelpModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content translator-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="practiceModuleHelpModalLabel">Qué puede hacer el tutor</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body practice-module-help-modal-body">
+                  <section class="practice-module-help-section">
+                    <h3>Tipos de práctica que puedes pedir</h3>
+                    <ul>
+                      <li>Traducir del español al inglés con corrección guiada.</li>
+                      <li>Comprender frases en inglés y explicarlas en español.</li>
+                      <li>Mini-conversaciones o role-play con personajes ficticios.</li>
+                      <li>Emparejar columnas de palabras, frases o significados.</li>
+                      <li>Completar espacios escribiendo o eligiendo opciones.</li>
+                      <li>Multiple choice de una o varias respuestas correctas.</li>
+                      <li>Ordenar palabras para reconstruir una oración.</li>
+                    </ul>
+                  </section>
+
+                  <section class="practice-module-help-section">
+                    <h3>Ejemplos de instrucciones útiles</h3>
+                    <ul>
+                      <li>Practica vocabulario de colores con ejercicios variados y mucha corrección paciente.</li>
+                      <li>Haz mini-conversaciones de restaurante para un nivel básico, con tono amable y situaciones realistas.</li>
+                      <li>Trabaja el pasado simple con frases cortas, completar espacios y multiple choice.</li>
+                      <li>Enfócate en inglés para entrevistas de trabajo con tono formal y correcciones claras.</li>
+                    </ul>
+                  </section>
+
+                  <section class="practice-module-help-section">
+                    <h3>Buenas prácticas</h3>
+                    <ul>
+                      <li>Especifica el tema, el tipo de situación y el nivel aproximado.</li>
+                      <li>Puedes combinar varias dinámicas dentro de un mismo módulo de práctica.</li>
+                      <li>No hace falta describir la interfaz; describe el objetivo pedagógico.</li>
+                      <li>Puedes decir si quieres que el tutor sea más paciente, más exigente o más conversacional.</li>
+                    </ul>
+                  </section>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <section

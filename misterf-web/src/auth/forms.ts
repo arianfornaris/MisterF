@@ -1101,7 +1101,14 @@ export async function renderHome(request: Request, response: Response): Promise<
     }
   }
 
-  response.render('index', {
+  const viewTemplate =
+    currentView === 'practiceModules'
+      ? 'practice-modules'
+      : currentView === 'profiles'
+      ? 'profiles'
+      : 'chat';
+
+  response.render(viewTemplate, {
     practiceModules: ownLessons,
     activeProfile,
     archivedPracticeModules,
