@@ -64,7 +64,9 @@ export const env = {
     smtpPort: readInteger('SMTP_PORT', 587),
     smtpSecure: readBoolean('SMTP_SECURE', false),
     smtpUser: process.env.SMTP_USER ?? '',
-    smtpPassword: process.env.SMTP_PASSWORD ?? '',
+    smtpPassword: process.env.SMTP_PASSWORD ??
+        process.env.RESEND_SMTP_API_KEY ??
+        '',
     mailFrom: process.env.MAIL_FROM ?? '',
     googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',

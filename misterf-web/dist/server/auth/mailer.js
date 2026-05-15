@@ -49,7 +49,7 @@ export function isMailerConfigured() {
         env.mailFrom);
 }
 export function getMailerConfigurationError() {
-    return 'Falta configurar SMTP_HOST, SMTP_USER, SMTP_PASSWORD y MAIL_FROM en ecosystem.config.cjs.';
+    return 'Falta configurar SMTP_HOST, SMTP_USER, SMTP_PASSWORD o RESEND_SMTP_API_KEY, y MAIL_FROM en ecosystem.config.cjs.';
 }
 async function sendMail(message) {
     const transporter = nodemailer.createTransport({

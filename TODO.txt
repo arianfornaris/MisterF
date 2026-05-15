@@ -1,6 +1,9 @@
+Resend.com API key:
+
+re_CECfs1yB_LtW6mFL1VdyN71H4pKjgXbJ4
+
 Hoy
 
-- Configurar nginx para servir los statics
 - Utilizar AWS SES para enviar los emails.
 - Revisar las colecciones puedan tener descripcion.
 
@@ -15,7 +18,7 @@ Hoy
     - Aunque quizas no como grammarly sino como DeepL, que sirva para traducir pero al mismo tiempo nos corrije y loguea al sitio web para luego analizar las dificultades.
 
 ----
-
+x- Configurar nginx para servir los statics
 x- Estoy pensando seriamente que el tutor pueda además administrar las actividades. Quizás deba unificar el chat admin con el pedagogico.
 x- Permitir hacer un exámen, que tiene diferntes tipos de ejercicios. La idea de un examen es que el tutor no lo rectifica, sino que lo evalua y le asigna un nota.
 x- Traducir frase del español al ingles.
