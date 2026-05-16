@@ -25,6 +25,48 @@ export type StoredConversation = {
   updatedAt: string;
 };
 
+export type StoredChatRoom = {
+  id: string;
+  userId: string;
+  profileId: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredChatRoomCharacter = {
+  id: string;
+  roomId: string;
+  name: string;
+  shortDescription: string;
+  fullDescription: string;
+  position: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredChatRoomConversation = {
+  id: string;
+  roomId: string;
+  userId: string;
+  profileId: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ChatRoomMessageSenderType = 'character' | 'system' | 'user';
+
+export type StoredChatRoomMessage = {
+  id: number;
+  conversationId: string;
+  senderType: ChatRoomMessageSenderType;
+  senderName: string;
+  content: string;
+  createdAt: string;
+};
+
 export type StoredPracticeModule = {
   archivedAt: string | null;
   collectionId: string | null;
@@ -106,6 +148,46 @@ type ProfileRow = {
   description: string;
   created_at: string;
   updated_at: string;
+};
+
+type ChatRoomRow = {
+  id: string;
+  user_id: string;
+  profile_id: string;
+  title: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type ChatRoomCharacterRow = {
+  id: string;
+  room_id: string;
+  name: string;
+  short_description: string;
+  full_description: string;
+  position: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type ChatRoomConversationRow = {
+  id: string;
+  room_id: string;
+  user_id: string;
+  profile_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type ChatRoomMessageRow = {
+  id: number;
+  conversation_id: string;
+  sender_type: ChatRoomMessageSenderType;
+  sender_name: string;
+  content: string;
+  created_at: string;
 };
 
 type MessageRow = {
@@ -221,6 +303,60 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     userId: row.user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredChatRoom(row: ChatRoomRow): StoredChatRoom {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    profileId: row.profile_id,
+    title: row.title,
+    description: row.description,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredChatRoomCharacter(
+  row: ChatRoomCharacterRow,
+): StoredChatRoomCharacter {
+  return {
+    id: row.id,
+    roomId: row.room_id,
+    name: row.name,
+    shortDescription: row.short_description,
+    fullDescription: row.full_description,
+    position: row.position,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredChatRoomConversation(
+  row: ChatRoomConversationRow,
+): StoredChatRoomConversation {
+  return {
+    id: row.id,
+    roomId: row.room_id,
+    userId: row.user_id,
+    profileId: row.profile_id,
+    title: row.title,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredChatRoomMessage(
+  row: ChatRoomMessageRow,
+): StoredChatRoomMessage {
+  return {
+    id: row.id,
+    conversationId: row.conversation_id,
+    senderType: row.sender_type,
+    senderName: row.sender_name,
+    content: row.content,
+    createdAt: row.created_at,
   };
 }
 
@@ -590,6 +726,267 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
     .run(id, userId);
 
   return result.changes > 0;
+}
+
+export function createChatRoom(input: {
+  userId: string;
+  profileId: string;
+  title: string;
+  description: string;
+  characters: Array<{
+    name: string;
+    shortDescription?: string;
+    fullDescription: string;
+  }>;
+}): StoredChatRoom {
+  const db = getDb();
+  const roomId = randomUUID();
+  const insertRoom = db.prepare(
+    `
+      INSERT INTO chat_rooms (id, user_id, profile_id, title, description)
+      VALUES (?, ?, ?, ?, ?)
+    `,
+  );
+  const insertCharacter = db.prepare(
+    `
+      INSERT INTO chat_room_characters (
+        id,
+        room_id,
+        name,
+        short_description,
+        full_description,
+        position
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+    `,
+  );
+
+  db.transaction(() => {
+    insertRoom.run(
+      roomId,
+      input.userId,
+      input.profileId,
+      input.title,
+      input.description,
+    );
+
+    input.characters.forEach((character, index) => {
+      insertCharacter.run(
+        randomUUID(),
+        roomId,
+        character.name,
+        character.shortDescription ?? '',
+        character.fullDescription,
+        index,
+      );
+    });
+  })();
+
+  const room = findChatRoomForUser(roomId, input.userId);
+  if (!room) {
+    throw new Error('Could not load newly created chat room.');
+  }
+
+  return room;
+}
+
+export function findChatRoomForUser(
+  id: string,
+  userId: string,
+): StoredChatRoom | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, profile_id, title, description, created_at, updated_at
+        FROM chat_rooms
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as ChatRoomRow | undefined;
+
+  return row ? toStoredChatRoom(row) : null;
+}
+
+export function listChatRoomsForProfile(
+  userId: string,
+  profileId: string,
+): StoredChatRoom[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, user_id, profile_id, title, description, created_at, updated_at
+        FROM chat_rooms
+        WHERE user_id = ? AND profile_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(userId, profileId) as ChatRoomRow[];
+
+  return rows.map(toStoredChatRoom);
+}
+
+export function updateChatRoomForUser(input: {
+  roomId: string;
+  userId: string;
+  title: string;
+  description: string;
+  characters: Array<{
+    name: string;
+    shortDescription?: string;
+    fullDescription: string;
+  }>;
+}): StoredChatRoom | null {
+  const db = getDb();
+  const room = findChatRoomForUser(input.roomId, input.userId);
+  if (!room) {
+    return null;
+  }
+
+  const updateRoom = db.prepare(
+    `
+      UPDATE chat_rooms
+      SET title = ?,
+          description = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `,
+  );
+  const deleteCharacters = db.prepare(
+    'DELETE FROM chat_room_characters WHERE room_id = ?',
+  );
+  const insertCharacter = db.prepare(
+    `
+      INSERT INTO chat_room_characters (
+        id,
+        room_id,
+        name,
+        short_description,
+        full_description,
+        position
+      )
+      VALUES (?, ?, ?, ?, ?, ?)
+    `,
+  );
+
+  db.transaction(() => {
+    updateRoom.run(input.title, input.description, input.roomId, input.userId);
+    deleteCharacters.run(input.roomId);
+
+    input.characters.forEach((character, index) => {
+      insertCharacter.run(
+        randomUUID(),
+        input.roomId,
+        character.name,
+        character.shortDescription ?? '',
+        character.fullDescription,
+        index,
+      );
+    });
+  })();
+
+  return findChatRoomForUser(input.roomId, input.userId);
+}
+
+export function listChatRoomCharacters(
+  roomId: string,
+): StoredChatRoomCharacter[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, room_id, name, short_description, full_description, position, created_at, updated_at
+        FROM chat_room_characters
+        WHERE room_id = ?
+        ORDER BY position ASC, created_at ASC
+      `,
+    )
+    .all(roomId) as ChatRoomCharacterRow[];
+
+  return rows.map(toStoredChatRoomCharacter);
+}
+
+export function createChatRoomConversation(
+  userId: string,
+  room: StoredChatRoom,
+  title = room.title,
+): StoredChatRoomConversation {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO chat_room_conversations (id, room_id, user_id, profile_id, title)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+    )
+    .run(id, room.id, userId, room.profileId, title);
+
+  const conversation = findChatRoomConversationForUser(id, userId);
+  if (!conversation) {
+    throw new Error('Could not load newly created chat room conversation.');
+  }
+
+  return conversation;
+}
+
+export function findChatRoomConversationForUser(
+  id: string,
+  userId: string,
+): StoredChatRoomConversation | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, room_id, user_id, profile_id, title, created_at, updated_at
+        FROM chat_room_conversations
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as ChatRoomConversationRow | undefined;
+
+  return row ? toStoredChatRoomConversation(row) : null;
+}
+
+export function listChatRoomConversationsForRoom(
+  roomId: string,
+  userId: string,
+): StoredChatRoomConversation[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, room_id, user_id, profile_id, title, created_at, updated_at
+        FROM chat_room_conversations
+        WHERE room_id = ? AND user_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+      `,
+    )
+    .all(roomId, userId) as ChatRoomConversationRow[];
+
+  return rows.map(toStoredChatRoomConversation);
+}
+
+export function findLatestChatRoomConversationForRoom(
+  roomId: string,
+  userId: string,
+): StoredChatRoomConversation | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, room_id, user_id, profile_id, title, created_at, updated_at
+        FROM chat_room_conversations
+        WHERE room_id = ? AND user_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(roomId, userId) as ChatRoomConversationRow | undefined;
+
+  return row ? toStoredChatRoomConversation(row) : null;
+}
+
+export function touchChatRoomConversation(conversationId: string): void {
+  getDb()
+    .prepare(
+      'UPDATE chat_room_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+    )
+    .run(conversationId);
 }
 
 export function createPracticeModule(input: {
@@ -1774,6 +2171,54 @@ export function updateMessageMetadata(
     .get(messageId, conversationId) as MessageRow | undefined;
 
   return updated ? toStoredMessage(updated) : null;
+}
+
+export function listChatRoomMessages(
+  conversationId: string,
+): StoredChatRoomMessage[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, conversation_id, sender_type, sender_name, content, created_at
+        FROM chat_room_messages
+        WHERE conversation_id = ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(conversationId) as ChatRoomMessageRow[];
+
+  return rows.map(toStoredChatRoomMessage);
+}
+
+export function addChatRoomMessage(
+  conversationId: string,
+  senderType: ChatRoomMessageSenderType,
+  senderName: string,
+  content: string,
+): StoredChatRoomMessage {
+  const db = getDb();
+  const result = db
+    .prepare(
+      `
+        INSERT INTO chat_room_messages (conversation_id, sender_type, sender_name, content)
+        VALUES (?, ?, ?, ?)
+      `,
+    )
+    .run(conversationId, senderType, senderName, content);
+
+  touchChatRoomConversation(conversationId);
+
+  const row = db
+    .prepare(
+      `
+        SELECT id, conversation_id, sender_type, sender_name, content, created_at
+        FROM chat_room_messages
+        WHERE id = ?
+      `,
+    )
+    .get(result.lastInsertRowid) as ChatRoomMessageRow;
+
+  return toStoredChatRoomMessage(row);
 }
 
 function parseMetadata(metadata: string): Record<string, unknown> | null {

@@ -1,0 +1,316 @@
+<section class="practice-modules-view <%= chatRoomPageMode === 'conversation' ? 'chatrooms-conversation-page' : '' %>" aria-label="Salas de chat">
+  <div class="practice-modules-header <%= chatRoomPageMode !== 'list' ? 'practice-modules-header-has-close' : '' %>">
+    <div class="practice-modules-header-detail">
+      <% if (chatRoomPageMode === 'conversation') { %>
+        <p class="practice-modules-kicker">Sala de chat</p>
+        <p class="mb-0 text-body-secondary small"><%= selectedChatRoom ? selectedChatRoom.title : 'Sala' %></p>
+      <% } else { %>
+        <p class="practice-modules-kicker">Salas de chat</p>
+        <h1 class="practice-modules-title">
+          <%= chatRoomPageMode === 'new'
+            ? 'Nueva sala'
+            : chatRoomPageMode === 'edit'
+            ? 'Editar sala'
+            : chatRoomPageMode === 'history'
+            ? (selectedChatRoom ? selectedChatRoom.title : 'Historial')
+            : 'Salas de chat' %>
+        </h1>
+        <p class="practice-modules-copy">
+          Crea salas con personajes de IA para simular conversaciones sociales y hacer que el usuario escriba con más libertad.
+        </p>
+      <% } %>
+    </div>
+
+    <div class="practice-modules-header-actions">
+      <% if (chatRoomPageMode === 'conversation' && selectedChatRoomConversation) { %>
+        <a class="btn btn-link" href="/chatrooms">Volver</a>
+      <% } else if (selectedChatRoom) { %>
+        <a class="btn btn-link" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history">Volver</a>
+      <% } else { %>
+        <a class="btn btn-link" href="/chatrooms">Volver</a>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (chatRoomPageMode === 'list') { %>
+    <div class="mb-4">
+      <a class="btn btn-dark" href="/chatrooms/new">Crear sala</a>
+    </div>
+  <% } %>
+
+  <% if (chatRoomPageMode === 'new' || chatRoomPageMode === 'edit') { %>
+    <% const editingRoom = selectedChatRoom; %>
+    <% const editingCharacters = selectedChatRoomCharacters || []; %>
+    <div class="card">
+      <form
+        class="card-body d-grid gap-4"
+        method="post"
+        action="<%= chatRoomPageMode === 'edit' && editingRoom ? `/chatrooms/${encodeURIComponent(editingRoom.id)}` : '/chatrooms' %>"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="chatRoomTitle">Nombre de la sala</label>
+            <input
+              class="form-control"
+              id="chatRoomTitle"
+              name="title"
+              type="text"
+              value="<%= editingRoom ? editingRoom.title : '' %>"
+              maxlength="120"
+              required
+            >
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="chatRoomDescription">Descripción de la sala</label>
+            <textarea
+              class="form-control"
+              id="chatRoomDescription"
+              name="description"
+              rows="4"
+              required
+            ><%= editingRoom ? editingRoom.description : '' %></textarea>
+            <div class="form-text">
+              Explica de qué trata la sala, qué tipo de conversación suele ocurrir, el tono general y el tipo de gente que participa.
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <h2 class="fs-5 mb-0">Personajes</h2>
+            <div class="btn-group">
+              <button class="btn btn-outline-dark btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#chatroomCharacter2" aria-expanded="<%= editingCharacters.length >= 2 ? 'true' : 'false' %>">
+                Agregar personaje 2
+              </button>
+              <button class="btn btn-outline-dark btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#chatroomCharacter3" aria-expanded="<%= editingCharacters.length >= 3 ? 'true' : 'false' %>">
+                Agregar personaje 3
+              </button>
+            </div>
+          </div>
+
+          <% for (let index = 0; index < 3; index += 1) { %>
+            <% const character = editingCharacters[index]; %>
+            <% const sectionId = `chatroomCharacter${index + 1}`; %>
+            <% const shouldShow = index === 0 || editingCharacters.length > index; %>
+            <div class="card <%= index === 0 ? '' : 'collapse' %> <%= shouldShow ? 'show' : '' %>" id="<%= sectionId %>">
+              <div class="card-body d-grid gap-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <h3 class="fs-6 mb-0">Personaje <%= index + 1 %></h3>
+                  <% if (index > 0) { %>
+                    <button class="btn btn-link btn-sm px-0" type="button" data-bs-toggle="collapse" data-bs-target="#<%= sectionId %>">
+                      Ocultar
+                    </button>
+                  <% } %>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label" for="characterName<%= index + 1 %>">Nombre</label>
+                    <input
+                      class="form-control"
+                      id="characterName<%= index + 1 %>"
+                      name="characterName<%= index + 1 %>"
+                      type="text"
+                      value="<%= character ? character.name : '' %>"
+                    >
+                  </div>
+
+                  <div class="col-md-8">
+                    <label class="form-label" for="characterShortDescription<%= index + 1 %>">Descripción corta (UI)</label>
+                    <input
+                      class="form-control"
+                      id="characterShortDescription<%= index + 1 %>"
+                      name="characterShortDescription<%= index + 1 %>"
+                      type="text"
+                      value="<%= character ? character.shortDescription : '' %>"
+                    >
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label" for="characterFullDescription<%= index + 1 %>">Descripción completa</label>
+                    <textarea
+                      class="form-control"
+                      id="characterFullDescription<%= index + 1 %>"
+                      name="characterFullDescription<%= index + 1 %>"
+                      rows="4"
+                    ><%= character ? character.fullDescription : '' %></textarea>
+                    <div class="form-text">
+                      Describe su personalidad, tono, opiniones, forma de hablar, nivel de formalidad y actitud frente al tema de la sala.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-dark" type="submit">
+            <%= chatRoomPageMode === 'edit' ? 'Guardar cambios' : 'Crear sala' %>
+          </button>
+          <a class="btn btn-outline-dark" href="<%= editingRoom ? `/chatrooms/${encodeURIComponent(editingRoom.id)}/history` : '/chatrooms' %>">
+            Cancelar
+          </a>
+        </div>
+      </form>
+    </div>
+  <% } else if (chatRoomPageMode === 'history' && selectedChatRoom) { %>
+    <div class="d-grid gap-4">
+      <div class="card">
+        <div class="card-body d-grid gap-3">
+          <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+            <div>
+              <h2 class="fs-4 mb-1"><%= selectedChatRoom.title %></h2>
+              <p class="mb-2 text-body-secondary"><%= selectedChatRoom.description %></p>
+              <div class="d-flex flex-wrap gap-2">
+                <% selectedChatRoomCharacters.forEach((character) => { %>
+                  <span class="badge text-bg-light border">
+                    <%= character.name %><%= character.shortDescription ? ` · ${character.shortDescription}` : '' %>
+                  </span>
+                <% }) %>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <a class="btn btn-outline-dark" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/edit">Editar</a>
+              <form method="post" action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/conversations">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-dark" type="submit">Nueva conversación</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="fs-5 mb-0">Historial</h3>
+            <form method="post" action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/join">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="btn btn-outline-dark btn-sm" type="submit">Unirse</button>
+            </form>
+          </div>
+
+          <% if (chatRoomConversations.length > 0) { %>
+            <div class="list-group">
+              <% chatRoomConversations.forEach((conversation) => { %>
+                <div class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-3">
+                  <div>
+                    <div class="fw-semibold"><%= conversation.title %></div>
+                    <div class="small text-body-secondary">
+                      Última actividad: <%= conversation.updatedAt %>
+                    </div>
+                  </div>
+                  <a class="btn btn-outline-dark btn-sm" href="/chatroom-conversations/<%= encodeURIComponent(conversation.id) %>">
+                    Continuar
+                  </a>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="mb-0 text-body-secondary">Todavía no hay conversaciones en esta sala.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  <% } else if (chatRoomPageMode === 'conversation' && selectedChatRoom && selectedChatRoomConversation) { %>
+    <section class="chat-layout chatroom-layout" data-chatroom-thread>
+      <div class="messages chatroom-viewport" data-chatroom-viewport tabindex="0">
+        <div class="chatroom-messages" data-chatroom-messages></div>
+        <script type="application/json" data-chatroom-initial-messages><%- JSON.stringify(selectedChatRoomMessages.map((message) => ({
+          content: message.content,
+          senderName: message.senderType === 'user' ? 'Tú' : message.senderName,
+          senderType: message.senderType,
+        }))).replace(/</g, '\\u003c') %></script>
+      </div>
+
+      <div class="chatroom-status small text-body-secondary d-none" data-chatroom-status aria-live="polite"></div>
+
+      <form
+        method="post"
+        action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/messages"
+        class="composer chatroom-composer"
+        data-chatroom-form
+        autocomplete="off"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="visually-hidden" for="chatRoomMessageInput">Escribe tu mensaje</label>
+        <span class="composer-prompt" aria-hidden="true">&gt;</span>
+        <div class="composer-input-wrap">
+          <textarea
+            id="chatRoomMessageInput"
+            class="composer-input"
+            name="content"
+            rows="1"
+            maxlength="1200"
+            placeholder="Escribe tu mensaje"
+            autocomplete="off"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            data-chatroom-input
+            required
+          ></textarea>
+        </div>
+        <div class="composer-footer">
+          <button class="btn btn-dark send-button" type="submit" data-chatroom-send aria-label="Enviar" title="Enviar">
+            <i class="bi bi-send" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    </section>
+  <% } else { %>
+    <div class="d-grid gap-4">
+      <p class="mb-0 text-body-secondary">Crea una sala y entra a conversar con personajes de IA en texto plano.</p>
+
+      <% if (chatRooms.length > 0) { %>
+        <div class="row g-3">
+          <% chatRooms.forEach((room) => { %>
+            <div class="col-12 col-xl-6">
+              <div class="card h-100">
+                <div class="card-body d-grid gap-3">
+                  <div>
+                    <h2 class="fs-4 mb-1"><%= room.title %></h2>
+                    <p class="mb-2 text-body-secondary"><%= room.description %></p>
+                    <div class="d-flex flex-wrap gap-2">
+                      <% room.characters.forEach((character) => { %>
+                        <span class="badge text-bg-light border">
+                          <%= character.name %><%= character.shortDescription ? ` · ${character.shortDescription}` : '' %>
+                        </span>
+                      <% }) %>
+                    </div>
+                  </div>
+
+                  <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-outline-dark btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit" aria-label="Editar sala" title="Editar sala">
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </a>
+                    <a class="btn btn-outline-dark btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history" aria-label="Ver historial" title="Ver historial">
+                      <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    </a>
+                    <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/join">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1" type="submit">
+                        <i class="bi bi-chat-text" aria-hidden="true"></i>
+                        <span>Unirse</span>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="card">
+          <div class="card-body">
+            <p class="mb-0 text-body-secondary">Todavía no has creado ninguna sala de chat.</p>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+</section>

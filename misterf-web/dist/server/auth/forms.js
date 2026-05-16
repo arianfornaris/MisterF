@@ -6,10 +6,11 @@ import { hashPassword, verifyPassword } from './password.js';
 import { createAuthActionToken, createLocalUser, createSession, deleteUserById, findUserByAuthActionToken, findUserByEmail, markAuthActionTokenUsed, markEmailVerified, normalizeEmail, revokeSession, revokeUserSessions, updateUserPassword, } from './repository.js';
 import { clearSessionCookie, createSessionCookie, hasKnownVisitorCookie, setKnownVisitorCookie, setSessionCookie, } from './session.js';
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
-import { addPracticeModuleToCollection, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
-import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
+import { addPracticeModuleToCollection, addChatRoomMessage, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
+import { ensureOpenRouterKeyForUser, getOpenRouterApiKeyForUser, } from '../services/openRouterUserKeys.js';
 import { env } from '../config/env.js';
 import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js';
+import { advanceChatRoomConversation } from '../services/chatrooms.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const loginAttempts = new Map();
 const maxAttempts = 12;
@@ -549,6 +550,14 @@ export async function renderHome(request, response) {
     const requestedProfileId = typeof requestedProfileIdRaw === 'string'
         ? requestedProfileIdRaw.trim()
         : '';
+    const requestedChatRoomIdRaw = request.params.roomId;
+    const requestedChatRoomId = typeof requestedChatRoomIdRaw === 'string'
+        ? requestedChatRoomIdRaw.trim()
+        : '';
+    const requestedChatRoomConversationIdRaw = request.params.roomConversationId;
+    const requestedChatRoomConversationId = typeof requestedChatRoomConversationIdRaw === 'string'
+        ? requestedChatRoomConversationIdRaw.trim()
+        : '';
     const isLessonNewPage = request.path === '/practice-modules/new';
     const isLessonEditPage = request.path.endsWith('/edit');
     const isCollectionNewPage = request.path === '/practice-modules/collections/new';
@@ -556,13 +565,21 @@ export async function renderHome(request, response) {
     const isProfilesRoot = request.path === '/profiles';
     const isProfileNewPage = request.path === '/profiles/new';
     const isProfileEditPage = /^\/profiles\/[^/]+\/edit$/.test(request.path);
+    const isChatRoomsRoot = request.path === '/chatrooms';
+    const isChatRoomNewPage = request.path === '/chatrooms/new';
+    const isChatRoomEditPage = /^\/chatrooms\/[^/]+\/edit$/.test(request.path);
+    const isChatRoomHistoryPage = /^\/chatrooms\/[^/]+\/history$/.test(request.path);
+    const isChatRoomConversationPage = /^\/chatroom-conversations\/[^/]+$/.test(request.path);
     let initialConversationId = '';
     const chatMode = 'tutor';
     let currentView = request.path.startsWith('/practice-modules')
         ? 'practiceModules'
-        : request.path.startsWith('/profiles')
-            ? 'profiles'
-            : 'chat';
+        : request.path.startsWith('/chatrooms') ||
+            request.path.startsWith('/chatroom-conversations')
+            ? 'chatrooms'
+            : request.path.startsWith('/profiles')
+                ? 'profiles'
+                : 'chat';
     let practiceModulePageMode = 'list';
     let profilePageMode = 'list';
     let selectedPracticeModule = null;
@@ -577,11 +594,21 @@ export async function renderHome(request, response) {
     let practiceModuleCollectionModules = [];
     let activeProfile = defaultActiveProfile;
     let selectedProfile = null;
+    let chatRoomPageMode = 'list';
+    let selectedChatRoom = null;
+    let selectedChatRoomConversation = null;
+    let selectedChatRoomCharacters = [];
+    let selectedChatRoomMessages = [];
+    let chatRoomConversations = [];
     if (currentView === 'practiceModules' && !user && !requestedPracticeModuleShareId && !requestedCollectionShareId) {
         response.redirect('/');
         return;
     }
     if (currentView === 'profiles' && !user) {
+        response.redirect('/login');
+        return;
+    }
+    if (currentView === 'chatrooms' && !user) {
         response.redirect('/login');
         return;
     }
@@ -685,6 +712,44 @@ export async function renderHome(request, response) {
         }
         selectedProfile = profile;
     }
+    if (requestedChatRoomConversationId && user) {
+        const conversation = findChatRoomConversationForUser(requestedChatRoomConversationId, user.id);
+        if (!conversation) {
+            response.redirect('/chatrooms');
+            return;
+        }
+        selectedChatRoomConversation = conversation;
+        selectedChatRoom = findChatRoomForUser(conversation.roomId, user.id);
+        if (!selectedChatRoom) {
+            response.redirect('/chatrooms');
+            return;
+        }
+        if (!activeProfile || selectedChatRoom.profileId !== activeProfile.id) {
+            activeProfile = findProfileForUser(selectedChatRoom.profileId, user.id);
+            if (activeProfile) {
+                setActiveProfileCookie(response, activeProfile.id);
+            }
+        }
+        selectedChatRoomCharacters = listChatRoomCharacters(selectedChatRoom.id);
+        selectedChatRoomMessages = listChatRoomMessages(selectedChatRoomConversation.id);
+        chatRoomConversations = listChatRoomConversationsForRoom(selectedChatRoom.id, user.id);
+    }
+    else if (requestedChatRoomId && user) {
+        const room = findChatRoomForUser(requestedChatRoomId, user.id);
+        if (!room) {
+            response.redirect('/chatrooms');
+            return;
+        }
+        selectedChatRoom = room;
+        if (!activeProfile || room.profileId !== activeProfile.id) {
+            activeProfile = findProfileForUser(room.profileId, user.id);
+            if (activeProfile) {
+                setActiveProfileCookie(response, activeProfile.id);
+            }
+        }
+        selectedChatRoomCharacters = listChatRoomCharacters(room.id);
+        chatRoomConversations = listChatRoomConversationsForRoom(room.id, user.id);
+    }
     const conversations = user && activeProfile
         ? listConversationsForProfile(user.id, activeProfile.id)
         : [];
@@ -776,6 +841,12 @@ export async function renderHome(request, response) {
         : [];
     const shareTargetPracticeModuleProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModule?.profileId ?? activeProfile?.id));
     const shareTargetPracticeModuleCollectionProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModuleCollection?.profileId ?? activeProfile?.id));
+    const chatRooms = user && activeProfile
+        ? listChatRoomsForProfile(user.id, activeProfile.id).map((room) => ({
+            ...room,
+            characters: listChatRoomCharacters(room.id),
+        }))
+        : [];
     const practiceModuleShareUrl = selectedPracticeModule && selectedPracticeModuleShareLink
         ? buildAbsoluteAppUrl(`/practice-modules/shared/${encodeURIComponent(selectedPracticeModuleShareLink.id)}`)
         : '';
@@ -831,11 +902,30 @@ export async function renderHome(request, response) {
             profilePageMode = 'list';
         }
     }
+    if (currentView === 'chatrooms') {
+        if (selectedChatRoomConversation && selectedChatRoom) {
+            chatRoomPageMode = 'conversation';
+        }
+        else if (isChatRoomNewPage) {
+            chatRoomPageMode = 'new';
+        }
+        else if (selectedChatRoom && isChatRoomEditPage) {
+            chatRoomPageMode = 'edit';
+        }
+        else if (selectedChatRoom && isChatRoomHistoryPage) {
+            chatRoomPageMode = 'history';
+        }
+        else {
+            chatRoomPageMode = 'list';
+        }
+    }
     const viewTemplate = currentView === 'practiceModules'
         ? 'practice-modules'
-        : currentView === 'profiles'
-            ? 'profiles'
-            : 'chat';
+        : currentView === 'chatrooms'
+            ? 'chatrooms'
+            : currentView === 'profiles'
+                ? 'profiles'
+                : 'chat';
     response.render(viewTemplate, {
         practiceModules: ownLessons,
         activeProfile,
@@ -848,6 +938,13 @@ export async function renderHome(request, response) {
         availablePracticeModulesForCollection,
         availableCollectionsForSelectedPracticeModule,
         practiceModulePageMode,
+        chatRooms,
+        chatRoomConversations,
+        chatRoomPageMode,
+        selectedChatRoom,
+        selectedChatRoomCharacters,
+        selectedChatRoomConversation,
+        selectedChatRoomMessages,
         practiceModuleShareQrDataUrl,
         practiceModuleShareUrl,
         practiceModuleShareMode,
@@ -885,6 +982,182 @@ export async function renderHome(request, response) {
         title: appDocumentTitle,
         user,
     });
+}
+export function handleCreateChatRoom(request, response) {
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (!user?.emailVerified || !activeProfile) {
+        response.redirect('/login');
+        return;
+    }
+    const payload = readChatRoomFormPayload(request);
+    const error = validateChatRoomFormPayload(payload);
+    if (error) {
+        response.redirect('/chatrooms/new');
+        return;
+    }
+    const room = createChatRoom({
+        characters: payload.characters,
+        description: payload.description,
+        profileId: activeProfile.id,
+        title: payload.title,
+        userId: user.id,
+    });
+    response.redirect(`/chatrooms/${encodeURIComponent(room.id)}/history`);
+}
+export function handleUpdateChatRoom(request, response) {
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        response.redirect('/login');
+        return;
+    }
+    const roomId = String(request.params.roomId || '').trim();
+    const existingRoom = findChatRoomForUser(roomId, user.id);
+    if (!existingRoom) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const payload = readChatRoomFormPayload(request);
+    const error = validateChatRoomFormPayload(payload);
+    if (error) {
+        response.redirect(`/chatrooms/${encodeURIComponent(roomId)}/edit`);
+        return;
+    }
+    updateChatRoomForUser({
+        characters: payload.characters,
+        description: payload.description,
+        roomId,
+        title: payload.title,
+        userId: user.id,
+    });
+    response.redirect(`/chatrooms/${encodeURIComponent(roomId)}/history`);
+}
+export function handleJoinChatRoom(request, response) {
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        response.redirect('/login');
+        return;
+    }
+    const roomId = String(request.params.roomId || '').trim();
+    const room = findChatRoomForUser(roomId, user.id);
+    if (!room) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const conversation = createChatRoomConversation(user.id, room);
+    seedChatRoomConversation(conversation.id, room, user.fullName);
+    response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+}
+export function handleCreateChatRoomConversation(request, response) {
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        response.redirect('/login');
+        return;
+    }
+    const roomId = String(request.params.roomId || '').trim();
+    const room = findChatRoomForUser(roomId, user.id);
+    if (!room) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const conversation = createChatRoomConversation(user.id, room);
+    seedChatRoomConversation(conversation.id, room, user.fullName);
+    response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+}
+export async function handleChatRoomSendMessage(request, response) {
+    const wantsJson = request.accepts(['html', 'json']) === 'json';
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        if (wantsJson) {
+            response.status(401).json({ ok: false, redirect: '/login' });
+            return;
+        }
+        response.redirect('/login');
+        return;
+    }
+    const conversationId = String(request.params.roomConversationId || '').trim();
+    const conversation = findChatRoomConversationForUser(conversationId, user.id);
+    if (!conversation) {
+        if (wantsJson) {
+            response.status(404).json({ ok: false, redirect: '/chatrooms' });
+            return;
+        }
+        response.redirect('/chatrooms');
+        return;
+    }
+    const room = findChatRoomForUser(conversation.roomId, user.id);
+    if (!room) {
+        if (wantsJson) {
+            response.status(404).json({ ok: false, redirect: '/chatrooms' });
+            return;
+        }
+        response.redirect('/chatrooms');
+        return;
+    }
+    const content = readField(request.body.content);
+    if (!content) {
+        if (wantsJson) {
+            response.status(400).json({ ok: false, error: 'Escribe un mensaje.' });
+            return;
+        }
+        response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+        return;
+    }
+    addChatRoomMessage(conversation.id, 'user', user.fullName, content);
+    const appendedMessages = await advanceChatRoomConversationStep({
+        conversationId: conversation.id,
+        room,
+        trigger: 'user',
+        userId: user.id,
+        userName: user.fullName,
+    });
+    if (wantsJson) {
+        response.json({
+            appendedMessages,
+            ok: true,
+        });
+        return;
+    }
+    response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+}
+export async function handleChatRoomContinue(request, response) {
+    const wantsJson = request.accepts(['html', 'json']) === 'json';
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        if (wantsJson) {
+            response.status(401).json({ ok: false, redirect: '/login' });
+            return;
+        }
+        response.redirect('/login');
+        return;
+    }
+    const conversationId = String(request.params.roomConversationId || '').trim();
+    const conversation = findChatRoomConversationForUser(conversationId, user.id);
+    if (!conversation) {
+        if (wantsJson) {
+            response.status(404).json({ ok: false, redirect: '/chatrooms' });
+            return;
+        }
+        response.redirect('/chatrooms');
+        return;
+    }
+    const room = findChatRoomForUser(conversation.roomId, user.id);
+    if (!room) {
+        if (wantsJson) {
+            response.status(404).json({ ok: false, redirect: '/chatrooms' });
+            return;
+        }
+        response.redirect('/chatrooms');
+        return;
+    }
+    if (wantsJson) {
+        response.json({
+            ok: true,
+            messages: listChatRoomMessages(conversation.id),
+        });
+        return;
+    }
+    response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
 }
 export function handleCreateLesson(request, response) {
     const user = request.authUser;
@@ -1414,6 +1687,94 @@ async function issuePasswordReset(user) {
         userId: user.id,
     });
     await sendPasswordReset(user, token);
+}
+function readChatRoomFormPayload(request) {
+    const characters = [1, 2, 3]
+        .map((index) => ({
+        fullDescription: readField(request.body[`characterFullDescription${index}`]),
+        name: readField(request.body[`characterName${index}`]),
+        shortDescription: readField(request.body[`characterShortDescription${index}`]),
+    }))
+        .filter((character) => character.name || character.fullDescription);
+    return {
+        characters,
+        description: readField(request.body.description),
+        title: readField(request.body.title),
+    };
+}
+function validateChatRoomFormPayload(input) {
+    if (input.title.length < 2) {
+        return 'Escribe un nombre para la sala.';
+    }
+    if (input.description.length < 10) {
+        return 'Describe un poco mejor la sala.';
+    }
+    if (input.characters.length < 1) {
+        return 'Agrega al menos un personaje.';
+    }
+    if (input.characters.length > 3) {
+        return 'Solo se permiten hasta tres personajes.';
+    }
+    for (const character of input.characters) {
+        if (!character.name) {
+            return 'Cada personaje necesita un nombre.';
+        }
+        if (character.fullDescription.length < 10) {
+            return 'Cada personaje necesita una descripción completa.';
+        }
+    }
+    return null;
+}
+function seedChatRoomConversation(conversationId, room, userName) {
+    const characters = listChatRoomCharacters(room.id);
+    for (const character of characters) {
+        addChatRoomMessage(conversationId, 'system', 'Sistema', `${character.name} se unió al chat...`);
+    }
+    addChatRoomMessage(conversationId, 'system', 'Sistema', `${userName} se unió al chat...`);
+}
+async function advanceChatRoomConversationStep(input) {
+    const characters = listChatRoomCharacters(input.room.id);
+    const messages = listChatRoomMessages(input.conversationId);
+    const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+    console.info(`[chatrooms] step:start ${JSON.stringify({
+        characterCount: characters.length,
+        conversationId: input.conversationId,
+        hasOpenRouterKey: Boolean(openRouterApiKey),
+        messageCount: messages.length,
+        roomId: input.room.id,
+        trigger: input.trigger,
+        userId: input.userId,
+    })}`);
+    const nextTurn = await advanceChatRoomConversation({
+        characters,
+        messages,
+        openRouterApiKey,
+        room: input.room,
+        trigger: input.trigger,
+        userName: input.userName,
+    });
+    if (nextTurn.length === 0) {
+        console.info(`[chatrooms] step:no-turn ${JSON.stringify({
+            conversationId: input.conversationId,
+            roomId: input.room.id,
+            trigger: input.trigger,
+            userId: input.userId,
+        })}`);
+        return [];
+    }
+    const appendedMessages = [];
+    for (const turn of nextTurn) {
+        appendedMessages.push(addChatRoomMessage(input.conversationId, 'character', turn.character.name, turn.content));
+    }
+    console.info(`[chatrooms] step:stored-turn ${JSON.stringify({
+        appendedCount: appendedMessages.length,
+        conversationId: input.conversationId,
+        roomId: input.room.id,
+        speakers: appendedMessages.map((message) => message.senderName),
+        trigger: input.trigger,
+        userId: input.userId,
+    })}`);
+    return appendedMessages;
 }
 function renderAuthForm(response, view) {
     response.render('auth', {

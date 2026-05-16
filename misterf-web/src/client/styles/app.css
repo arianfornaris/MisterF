@@ -1,6 +1,7 @@
 @import './base.css';
 @import './app-shell.css';
 @import './chat-content.css';
+@import './chatrooms.css';
 @import './composer.css';
 @import './auth.css';
 @import './responsive.css';

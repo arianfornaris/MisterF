@@ -12,6 +12,7 @@ import { ComposerView } from './ui/ComposerView.js';
 import { ConversationListView } from './ui/ConversationListView.js';
 import { PracticeModuleView } from './ui/PracticeModuleView.js';
 import { createTutorMessageRenderer } from './ui/TutorMessageRenderer.js';
+import { initializeChatroomsPage } from '../chatrooms/index.js';
 import {
   tokenizeSentence,
 } from './shared/exerciseUtils.js';
@@ -69,6 +70,7 @@ const autoOpenSharedPracticeModuleModalEl = document.querySelector(
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const chatMode = 'tutor';
 const currentView = document.body.dataset.currentView || 'chat';
+initializeChatroomsPage({ currentView });
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
 const initialConversationId =

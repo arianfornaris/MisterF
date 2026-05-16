@@ -289,8 +289,89 @@ export const migrations = [
         name: 'add_conversation_model_tier',
         up: `
       ALTER TABLE conversations
-        ADD COLUMN model_tier TEXT NOT NULL DEFAULT 'regular'
-        CHECK (model_tier IN ('regular', 'advanced', 'max'));
+      ADD COLUMN model_tier TEXT NOT NULL DEFAULT 'regular'
+      CHECK (model_tier IN ('regular', 'advanced', 'max'));
+    `,
+    },
+    {
+        id: 6,
+        name: 'create_chatrooms',
+        up: `
+      CREATE TABLE chat_rooms (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_rooms_user_profile_updated
+        ON chat_rooms (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE TABLE chat_room_characters (
+        id TEXT PRIMARY KEY,
+        room_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        short_description TEXT NOT NULL DEFAULT '',
+        full_description TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (room_id)
+          REFERENCES chat_rooms (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_room_characters_room_position
+        ON chat_room_characters (room_id, position ASC, created_at ASC);
+
+      CREATE TABLE chat_room_conversations (
+        id TEXT PRIMARY KEY,
+        room_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (room_id)
+          REFERENCES chat_rooms (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_room_conversations_room_updated
+        ON chat_room_conversations (room_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_chat_room_conversations_user_profile_updated
+        ON chat_room_conversations (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE TABLE chat_room_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversation_id TEXT NOT NULL,
+        sender_type TEXT NOT NULL CHECK (sender_type IN ('system', 'user', 'character')),
+        sender_name TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES chat_room_conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_room_messages_conversation_created
+        ON chat_room_messages (conversation_id, created_at ASC, id ASC);
     `,
     },
 ];

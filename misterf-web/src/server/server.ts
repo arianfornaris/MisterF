@@ -6,9 +6,13 @@ import { csrfProtection } from './auth/csrf.js';
 import {
   handleChangePassword,
   handleCreateLesson,
+  handleCreateChatRoom,
+  handleCreateChatRoomConversation,
   handleCreateLessonConversation,
   handleCreatePracticeModuleCollection,
   handleCreateProfile,
+  handleChatRoomContinue,
+  handleChatRoomSendMessage,
   handleAcceptSharedPracticeModuleCollectionLink,
   handleArchiveLesson,
   handleArchivePracticeModuleCollection,
@@ -23,6 +27,8 @@ import {
   handleSetPracticeModuleCollectionFavorite,
   handleSharePracticeModuleCollectionToProfile,
   handleShareLessonToProfile,
+  handleJoinChatRoom,
+  handleUpdateChatRoom,
   handleUpdateLesson,
   handleUpdatePracticeModuleCollection,
   handleForgotPassword,
@@ -150,6 +156,18 @@ app.get('/profiles/:profileId/edit', renderHome);
 app.post('/profiles', handleCreateProfile);
 app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
+app.get('/chatrooms', renderHome);
+app.get('/chatrooms/new', renderHome);
+app.post('/chatrooms', handleCreateChatRoom);
+app.get('/chatrooms/:roomId', renderHome);
+app.get('/chatrooms/:roomId/edit', renderHome);
+app.post('/chatrooms/:roomId', handleUpdateChatRoom);
+app.get('/chatrooms/:roomId/history', renderHome);
+app.post('/chatrooms/:roomId/join', handleJoinChatRoom);
+app.post('/chatrooms/:roomId/conversations', handleCreateChatRoomConversation);
+app.get('/chatroom-conversations/:roomConversationId', renderHome);
+app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
+app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);
 app.get('/c/:conversationId', renderHome);
 app.get('/', renderHome);
 app.get('/session', (request, response) => {

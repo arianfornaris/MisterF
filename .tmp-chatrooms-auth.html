@@ -1,0 +1,1390 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mr. F, tutor de inglés</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
+    <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
+    <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
+        <link rel="stylesheet" href="/public/build/css/app-72656d92.css">
+
+  </head>
+  <body
+    data-authenticated="true"
+    data-socket-auth-token="eyJleHAiOjE3Nzg4Nzg3NjIsInN1YiI6IjRlMzkzMTQzLTc5ZGEtNGU4MS1hMmNiLTVjNDk3MWJhZWUwMiJ9.l8ddODxZd8flj1jVTnEBDXH4n2kJClhMm67F3kfNSxI"
+    data-auth-message=""
+    data-guest-initial-greeting=""
+    data-initial-conversation-id=""
+    data-chat-mode="tutor"
+    data-current-view="chatrooms"
+  >
+    <main class="app-shell">
+      <div class="chat-workspace has-toolbar">
+        
+          <div class="chat-toolbar" aria-label="Controles del chat">
+            <button
+              class="btn btn-link chat-menu-button d-lg-none"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#conversationPanel"
+              aria-controls="conversationPanel"
+              title="Conversaciones"
+              aria-label="Conversaciones"
+            >
+              <i class="bi bi-list fs-4" aria-hidden="true"></i>
+            </button>
+
+            <button
+              class="btn btn-link translator-button d-lg-none"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#translatorModal"
+              data-open-translator
+              title="Traductor"
+              aria-label="Traductor"
+            >
+              <i class="bi bi-translate fs-5" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <aside
+            class="offcanvas-lg offcanvas-start conversation-panel"
+            tabindex="-1"
+            id="conversationPanel"
+            aria-label="Panel lateral"
+          >
+            <div class="offcanvas-header">
+              <a
+                class="panel-home-link d-lg-none"
+                href="/"
+                title="Ir al inicio"
+                aria-label="Ir al inicio"
+              >
+                <img
+                  class="panel-home-logo"
+                  src="/public/brand/panel-brand-64.png"
+                  alt="Mister F"
+                  width="24"
+                  height="24"
+                >
+              </a>
+              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+            </div>
+            <div class="offcanvas-body">
+              <div class="panel-nav">
+                <a class="panel-nav-link d-none d-lg-inline-flex" href="/">
+                  <img
+                    class="panel-nav-brand-logo"
+                    src="/public/brand/panel-brand-64.png"
+                    alt=""
+                    width="20"
+                    height="20"
+                    aria-hidden="true"
+                  >
+                  Mr. F
+                </a>
+
+                <a class="panel-nav-link" href="/" data-new-conversation>
+                  <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                  Nueva conversación
+                </a>
+
+                <a class="panel-nav-link " href="/practice-modules">
+                  <i class="bi bi-folder" aria-hidden="true"></i>
+                  Módulos de práctica
+                </a>
+
+                <a class="panel-nav-link is-active" href="/chatrooms">
+                  <i class="bi bi-people" aria-hidden="true"></i>
+                  Salas de chat
+                </a>
+
+                <button
+                  class="panel-nav-link d-none d-lg-inline-flex"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#translatorModal"
+                  data-open-translator
+                >
+                  <i class="bi bi-translate" aria-hidden="true"></i>
+                  Traductor
+                </button>
+              </div>
+
+              <div class="panel-recents">
+                <p class="panel-section-label">Recientes</p>
+
+                
+                  <div class="conversation-list">
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="935052da-08c1-4a0d-90ad-37d9542948e7"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/935052da-08c1-4a0d-90ad-37d9542948e7"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-15 18:09:40">
+                              2026-05-15 18:09:40
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="dac8c3c9-37bc-4fd1-9e4c-5cdc0ee17139"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/dac8c3c9-37bc-4fd1-9e4c-5cdc0ee17139"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Practicando Inglés</span>
+                            <time class="conversation-date" datetime="2026-05-15 01:00:07">
+                              2026-05-15 01:00:07
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="3c533cc5-3c5c-4114-a561-ff58888f6860"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/3c533cc5-3c5c-4114-a561-ff58888f6860"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Practicando verbos</span>
+                            <time class="conversation-date" datetime="2026-05-15 00:53:38">
+                              2026-05-15 00:53:38
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="2b98512d-4273-439f-956a-25296bf32a3e"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/2b98512d-4273-439f-956a-25296bf32a3e"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Aprendiendo los colores</span>
+                            <time class="conversation-date" datetime="2026-05-14 20:24:59">
+                              2026-05-14 20:24:59
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="2daaa6ff-ab80-42df-b733-ef110b502c00"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/2daaa6ff-ab80-42df-b733-ef110b502c00"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Vocabulario de frutas</span>
+                            <time class="conversation-date" datetime="2026-05-14 16:09:21">
+                              2026-05-14 16:09:21
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="97bf97ec-87d4-45da-9f4b-5d3f665df745"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/97bf97ec-87d4-45da-9f4b-5d3f665df745"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Frases idiomáticas en EE. UU.</span>
+                            <time class="conversation-date" datetime="2026-05-14 15:46:34">
+                              2026-05-14 15:46:34
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="e9cfa5d1-1c9d-40de-8250-3f43041dac45"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/e9cfa5d1-1c9d-40de-8250-3f43041dac45"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-14 14:38:44">
+                              2026-05-14 14:38:44
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="df30c33c-9ca6-4be0-b6e8-ce10d29f919b"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/df30c33c-9ca6-4be0-b6e8-ce10d29f919b"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Práctica de verbos irregulares</span>
+                            <time class="conversation-date" datetime="2026-05-14 12:50:45">
+                              2026-05-14 12:50:45
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="4d7eaaa2-f7aa-4808-b988-b38bb1feb30e"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/4d7eaaa2-f7aa-4808-b988-b38bb1feb30e"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-14 12:44:40">
+                              2026-05-14 12:44:40
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="25883e0c-5be1-448f-8b62-78038a5137df"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/25883e0c-5be1-448f-8b62-78038a5137df"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-13 22:44:41">
+                              2026-05-13 22:44:41
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="04678482-3348-4a53-a2e9-9f7d98c41b9e"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/04678482-3348-4a53-a2e9-9f7d98c41b9e"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-13 22:39:00">
+                              2026-05-13 22:39:00
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="f244ef27-e30d-4c7f-b48a-37aeeea2ffae"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/f244ef27-e30d-4c7f-b48a-37aeeea2ffae"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-13 18:41:16">
+                              2026-05-13 18:41:16
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="b74604fb-8699-4005-8b4c-8b7a5a1fa3b8"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/b74604fb-8699-4005-8b4c-8b7a5a1fa3b8"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-11 13:03:57">
+                              2026-05-11 13:03:57
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="49a1e874-8f17-4068-9463-02b7cd2234df"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/49a1e874-8f17-4068-9463-02b7cd2234df"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-10 08:58:20">
+                              2026-05-10 08:58:20
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="7cda7204-664f-4ab1-8dcc-f2591fed3775"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/7cda7204-664f-4ab1-8dcc-f2591fed3775"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-10 08:55:40">
+                              2026-05-10 08:55:40
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="5b571ac6-d311-45f1-8c4d-15b2959a0343"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/5b571ac6-d311-45f1-8c4d-15b2959a0343"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Presentando tu software</span>
+                            <time class="conversation-date" datetime="2026-05-10 08:30:59">
+                              2026-05-10 08:30:59
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="4b18fe25-b43c-481a-9a5b-e23fc94bbf42"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/4b18fe25-b43c-481a-9a5b-e23fc94bbf42"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Aprendizaje de inglés para conductores</span>
+                            <time class="conversation-date" datetime="2026-05-10 07:47:03">
+                              2026-05-10 07:47:03
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="c2b7b2d6-0c2f-427f-a447-5013571279ad"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/c2b7b2d6-0c2f-427f-a447-5013571279ad"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-10 07:03:08">
+                              2026-05-10 07:03:08
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="9c85fc6d-258f-4674-849a-9a04bafd5ecc"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/9c85fc6d-258f-4674-849a-9a04bafd5ecc"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-10 06:58:22">
+                              2026-05-10 06:58:22
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="6247c2b3-4258-44e9-a429-7e2aa4af4baa"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/6247c2b3-4258-44e9-a429-7e2aa4af4baa"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Inglés para taxistas</span>
+                            <time class="conversation-date" datetime="2026-05-10 06:32:56">
+                              2026-05-10 06:32:56
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="c9499c21-de5f-4f0b-965f-87cc3c494519"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/c9499c21-de5f-4f0b-965f-87cc3c494519"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Limpiando piscinas</span>
+                            <time class="conversation-date" datetime="2026-05-10 06:30:09">
+                              2026-05-10 06:30:09
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="fbac123b-eadc-42b4-8263-3a703ca73472"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/fbac123b-eadc-42b4-8263-3a703ca73472"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Inglés para el Tránsito</span>
+                            <time class="conversation-date" datetime="2026-05-10 02:27:37">
+                              2026-05-10 02:27:37
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="798c33b4-b3a6-4119-8a53-aba1c7412253"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/798c33b4-b3a6-4119-8a53-aba1c7412253"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Primeros pasos en inglés</span>
+                            <time class="conversation-date" datetime="2026-05-10 02:23:09">
+                              2026-05-10 02:23:09
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="342c3ed6-2123-4073-8e7b-eb8bafb8c9ff"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/342c3ed6-2123-4073-8e7b-eb8bafb8c9ff"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Conociendo a tu tutor</span>
+                            <time class="conversation-date" datetime="2026-05-10 02:10:55">
+                              2026-05-10 02:10:55
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="31971089-a2ba-4bff-9281-e3b19948d149"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/31971089-a2ba-4bff-9281-e3b19948d149"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-09 18:37:06">
+                              2026-05-09 18:37:06
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="c1874f55-ea1d-4743-bcc3-3aaed59d0670"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/c1874f55-ea1d-4743-bcc3-3aaed59d0670"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-07 21:34:02">
+                              2026-05-07 21:34:02
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="aa027b20-4473-4bd0-884c-d3a5a0ee0ba4"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/aa027b20-4473-4bd0-884c-d3a5a0ee0ba4"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Nueva conversación</span>
+                            <time class="conversation-date" datetime="2026-05-07 16:30:30">
+                              2026-05-07 16:30:30
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                      <div
+                        class="conversation-item"
+                        data-conversation-id="c2028c93-9955-4be8-b3ad-07e2c84f1b10"
+                      >
+                        <a
+                          class="conversation-open-button"
+                          href="/c/c2028c93-9955-4be8-b3ad-07e2c84f1b10"
+                          data-open-conversation
+                        >
+                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                          <span class="conversation-open-copy">
+                            <span class="conversation-title">Frases idiomáticas comunes en EE. UU.</span>
+                            <time class="conversation-date" datetime="2026-05-06 22:23:26">
+                              2026-05-06 22:23:26
+                            </time>
+                          </span>
+                        </a>
+
+                        <div class="conversation-actions dropdown">
+                          <button
+                            class="btn btn-link conversation-actions-button"
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                            title="Opciones de conversación"
+                            aria-label="Opciones de conversación"
+                          >
+                            <i class="bi bi-three-dots" aria-hidden="true"></i>
+                          </button>
+                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                          </div>
+                        </div>
+                      </div>
+                    
+                  </div>
+                
+              </div>
+
+              <div class="panel-bottom">
+                <div class="user-menu dropdown">
+                  <button
+                    class="btn btn-link panel-nav-link user-panel-button"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="Arian Admin"
+                    aria-label="Arian Admin"
+                  >
+                    <i class="bi bi-person-circle" aria-hidden="true"></i>
+                    Arian Admin
+                  </button>
+
+                  <div class="dropdown-menu user-menu-panel">
+                    
+                      <p class="user-menu-email"><strong>Arian Admin</strong></p>
+                    
+                    <p class="user-menu-email">boniatillo@gmail.com</p>
+                    <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
+                    <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
+                    <form method="post" action="/logout">
+                      <input type="hidden" name="_csrf" value="1778882362050.5wwE-uazWAke8fqaJh6oYA.1zlqEJ1GJ_dGMD0R_56-jYLZfghlsTqkfBkTtZgIyVg">
+                      <button class="dropdown-item" type="submit">Cerrar sesión</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <div
+            class="modal fade"
+            id="deleteConversationModal"
+            tabindex="-1"
+            aria-labelledby="deleteConversationModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content delete-conversation-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="deleteConversationModalLabel">Eliminar chat</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="mb-0">
+                    ¿Seguro que quieres eliminar “<span data-delete-conversation-title></span>”?
+                    Esta acción no se puede deshacer.
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-danger" data-confirm-delete-conversation>Eliminar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="translatorModal"
+            tabindex="-1"
+            aria-labelledby="translatorModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content translator-modal">
+                <form id="translatorForm" autocomplete="off">
+                  <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="translatorModalLabel">Traductor</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="translator-mode btn-group" role="group" aria-label="Modo de traducción">
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
+                      <label class="btn btn-outline-dark" for="translatorModeAuto">Auto</label>
+
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEsEn" value="es-en">
+                      <label class="btn btn-outline-dark" for="translatorModeEsEn">ES → EN</label>
+
+                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEnEs" value="en-es">
+                      <label class="btn btn-outline-dark" for="translatorModeEnEs">EN → ES</label>
+                    </div>
+
+                    <label class="visually-hidden" for="translatorInput">Texto para traducir</label>
+                    <div class="translator-box">
+                      <textarea
+                        class="form-control translator-textarea"
+                        id="translatorInput"
+                        rows="5"
+                        maxlength="2000"
+                        autocomplete="off"
+                        autocapitalize="none"
+                        autocorrect="off"
+                        spellcheck="false"
+                      ></textarea>
+                      <button
+                        class="translator-copy-button"
+                        type="button"
+                        data-translator-copy="input"
+                        title="Copiar texto"
+                        aria-label="Copiar texto"
+                      >
+                        <i class="bi bi-copy" aria-hidden="true"></i>
+                      </button>
+                    </div>
+
+                    <div class="translator-box translator-result-box">
+                      <div class="translator-result" id="translatorResult" aria-live="polite"></div>
+                      <button
+                        class="translator-copy-button"
+                        type="button"
+                        data-translator-copy="result"
+                        title="Copiar traducción"
+                        aria-label="Copiar traducción"
+                      >
+                        <i class="bi bi-copy" aria-hidden="true"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-dark" data-translator-submit>Traducir</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="creditModal"
+            tabindex="-1"
+            aria-labelledby="creditModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content credit-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="creditModalLabel">Crédito agotado</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p class="mb-0" data-credit-message>
+                    Tu crédito de práctica se agotó por ahora.
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="practiceModuleHelpModal"
+            tabindex="-1"
+            aria-labelledby="practiceModuleHelpModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+              <div class="modal-content translator-modal">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="practiceModuleHelpModalLabel">Qué puede hacer el tutor</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body practice-module-help-modal-body">
+                  <section class="practice-module-help-section">
+                    <h3>Tipos de práctica que puedes pedir</h3>
+                    <ul>
+                      <li>Traducir del español al inglés con corrección guiada.</li>
+                      <li>Comprender frases en inglés y explicarlas en español.</li>
+                      <li>Mini-conversaciones o role-play con personajes ficticios.</li>
+                      <li>Emparejar columnas de palabras, frases o significados.</li>
+                      <li>Completar espacios escribiendo o eligiendo opciones.</li>
+                      <li>Multiple choice de una o varias respuestas correctas.</li>
+                      <li>Ordenar palabras para reconstruir una oración.</li>
+                    </ul>
+                  </section>
+
+                  <section class="practice-module-help-section">
+                    <h3>Ejemplos de instrucciones útiles</h3>
+                    <ul>
+                      <li>Practica vocabulario de colores con ejercicios variados y mucha corrección paciente.</li>
+                      <li>Haz mini-conversaciones de restaurante para un nivel básico, con tono amable y situaciones realistas.</li>
+                      <li>Trabaja el pasado simple con frases cortas, completar espacios y multiple choice.</li>
+                      <li>Enfócate en inglés para entrevistas de trabajo con tono formal y correcciones claras.</li>
+                    </ul>
+                  </section>
+
+                  <section class="practice-module-help-section">
+                    <h3>Buenas prácticas</h3>
+                    <ul>
+                      <li>Especifica el tema, el tipo de situación y el nivel aproximado.</li>
+                      <li>Puedes combinar varias dinámicas dentro de un mismo módulo de práctica.</li>
+                      <li>No hace falta describir la interfaz; describe el objetivo pedagógico.</li>
+                      <li>Puedes decir si quieres que el tutor sea más paciente, más exigente o más conversacional.</li>
+                    </ul>
+                  </section>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        
+
+        <section
+
+<section class="practice-modules-view" aria-label="Salas de chat">
+  <div class="practice-modules-header ">
+    <div class="practice-modules-header-detail">
+      <p class="practice-modules-kicker">Salas de chat</p>
+      <h1 class="practice-modules-title">
+        Salas de chat
+      </h1>
+      <p class="practice-modules-copy">
+        Crea salas con personajes de IA para simular conversaciones sociales y hacer que el usuario escriba con más libertad.
+      </p>
+    </div>
+
+    <div class="practice-modules-header-actions">
+      
+        <a class="btn btn-dark" href="/chatrooms/new">Crear sala</a>
+      
+    </div>
+  </div>
+
+  
+    <div class="d-grid gap-4">
+      <div class="d-flex align-items-center justify-content-between">
+        <p class="mb-0 text-body-secondary">Crea una sala y entra a conversar con personajes de IA en texto plano.</p>
+        <a class="btn btn-dark" href="/chatrooms/new">Crear sala</a>
+      </div>
+
+      
+        <div class="card">
+          <div class="card-body">
+            <p class="mb-0 text-body-secondary">Todavía no has creado ninguna sala de chat.</p>
+          </div>
+        </div>
+      
+    </div>
+  
+</section>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/vendor/dompurify/purify.min.js"></script>
+    <script src="/vendor/marked/marked.umd.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script type="module" src="/public/build/entries/chat-DRY3nf0A.js"></script>
+
+  </body>
+</html>
+
