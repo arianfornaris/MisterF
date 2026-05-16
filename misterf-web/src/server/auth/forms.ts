@@ -127,6 +127,9 @@ const maxAttempts = 12;
 const attemptWindowMs = 10 * 60 * 1000;
 const verificationTtlMs = 24 * 60 * 60 * 1000;
 const passwordResetTtlMs = 60 * 60 * 1000;
+const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
+  numeric: 'auto',
+});
 
 function normalizeSearchText(value: string): string {
   return value
@@ -148,6 +151,54 @@ function normalizeReturnTo(value: string | undefined): string {
   }
 
   return trimmed;
+}
+
+function formatRelativeTime(value: string): string {
+  const timestamp = Date.parse(value);
+  if (Number.isNaN(timestamp)) {
+    return value;
+  }
+
+  const diffMs = timestamp - Date.now();
+  const diffSeconds = Math.round(diffMs / 1000);
+  const absSeconds = Math.abs(diffSeconds);
+
+  if (absSeconds < 60) {
+    return spanishRelativeTimeFormatter.format(diffSeconds, 'second');
+  }
+
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const absMinutes = Math.abs(diffMinutes);
+  if (absMinutes < 60) {
+    return spanishRelativeTimeFormatter.format(diffMinutes, 'minute');
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  const absHours = Math.abs(diffHours);
+  if (absHours < 24) {
+    return spanishRelativeTimeFormatter.format(diffHours, 'hour');
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  const absDays = Math.abs(diffDays);
+  if (absDays < 7) {
+    return spanishRelativeTimeFormatter.format(diffDays, 'day');
+  }
+
+  const diffWeeks = Math.round(diffDays / 7);
+  const absWeeks = Math.abs(diffWeeks);
+  if (absWeeks < 5) {
+    return spanishRelativeTimeFormatter.format(diffWeeks, 'week');
+  }
+
+  const diffMonths = Math.round(diffDays / 30);
+  const absMonths = Math.abs(diffMonths);
+  if (absMonths < 12) {
+    return spanishRelativeTimeFormatter.format(diffMonths, 'month');
+  }
+
+  const diffYears = Math.round(diffDays / 365);
+  return spanishRelativeTimeFormatter.format(diffYears, 'year');
 }
 
 function buildAbsoluteAppUrl(pathname: string): string {
@@ -1150,6 +1201,12 @@ export async function renderHome(request: Request, response: Response): Promise<
           characters: listChatRoomCharacters(room.id),
         }))
       : [];
+  const chatRoomConversationsWithRelativeTime = chatRoomConversations.map(
+    (conversation) => ({
+      ...conversation,
+      relativeUpdatedAt: formatRelativeTime(conversation.updatedAt),
+    }),
+  );
   const practiceModuleShareUrl =
     selectedPracticeModule && selectedPracticeModuleShareLink
       ? buildAbsoluteAppUrl(
@@ -1243,7 +1300,7 @@ export async function renderHome(request: Request, response: Response): Promise<
     availableCollectionsForSelectedPracticeModule,
     practiceModulePageMode,
     chatRooms,
-    chatRoomConversations,
+    chatRoomConversations: chatRoomConversationsWithRelativeTime,
     chatRoomPageMode,
     selectedChatRoom,
     selectedChatRoomCharacters,
