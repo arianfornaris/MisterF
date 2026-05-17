@@ -6,11 +6,11 @@ import { hashPassword, verifyPassword } from './password.js';
 import { createAuthActionToken, createLocalUser, createSession, deleteUserById, findUserByAuthActionToken, findUserByEmail, markAuthActionTokenUsed, markEmailVerified, normalizeEmail, revokeSession, revokeUserSessions, updateUserPassword, } from './repository.js';
 import { clearSessionCookie, createSessionCookie, hasKnownVisitorCookie, setKnownVisitorCookie, setSessionCookie, } from './session.js';
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
-import { addPracticeModuleToCollection, addChatRoomMessage, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
+import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessageEvaluation, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomMessage, findChatRoomForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser, getOpenRouterApiKeyForUser, } from '../services/openRouterUserKeys.js';
 import { env } from '../config/env.js';
 import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js';
-import { advanceChatRoomConversation } from '../services/chatrooms.js';
+import { advanceChatRoomConversation, evaluateChatRoomUserMessage, } from '../services/chatrooms.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const loginAttempts = new Map();
 const maxAttempts = 12;
@@ -1149,22 +1149,72 @@ export async function handleChatRoomSendMessage(request, response) {
         response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
         return;
     }
-    addChatRoomMessage(conversation.id, 'user', user.fullName, content);
-    const appendedMessages = await advanceChatRoomConversationStep({
+    const userMessage = addChatRoomMessage(conversation.id, 'user', user.fullName, content);
+    const stepResult = await advanceChatRoomConversationStep({
         conversationId: conversation.id,
         room,
         trigger: 'user',
         userId: user.id,
         userName: user.fullName,
     });
+    void evaluateChatRoomUserMessageStep({
+        conversationId: conversation.id,
+        room,
+        userId: user.id,
+        userMessage: content,
+        userName: user.fullName,
+    })
+        .then((userMessageEvaluation) => persistChatRoomUserMessageEvaluation({
+        conversationId: conversation.id,
+        evaluation: userMessageEvaluation,
+        messageId: userMessage.id,
+    }))
+        .catch((error) => {
+        console.info(`[chatrooms] evaluation:background-error ${JSON.stringify({
+            conversationId: conversation.id,
+            error: error instanceof Error ? error.message : String(error),
+            messageId: userMessage.id,
+            roomId: room.id,
+            userId: user.id,
+        })}`);
+    });
     if (wantsJson) {
         response.json({
-            appendedMessages,
+            appendedMessages: stepResult.appendedMessages,
             ok: true,
+            userMessage,
         });
         return;
     }
     response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+}
+export function handleGetChatRoomMessageEvaluation(request, response) {
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        response.status(401).json({ ok: false, redirect: '/login' });
+        return;
+    }
+    const conversationId = String(request.params.roomConversationId || '').trim();
+    const messageId = Number(request.params.messageId);
+    if (!conversationId || !Number.isInteger(messageId) || messageId <= 0) {
+        response.status(400).json({ ok: false, error: 'Invalid message id.' });
+        return;
+    }
+    const conversation = findChatRoomConversationForUser(conversationId, user.id);
+    if (!conversation) {
+        response.status(404).json({ ok: false, redirect: '/chatrooms' });
+        return;
+    }
+    const message = findChatRoomMessage(conversation.id, messageId);
+    if (!message || message.senderType !== 'user') {
+        response.status(404).json({ ok: false, error: 'Message not found.' });
+        return;
+    }
+    response.json({
+        message,
+        ok: true,
+        pending: !message.evaluationStatus,
+    });
 }
 export async function handleChatRoomContinue(request, response) {
     const wantsJson = request.accepts(['html', 'json']) === 'json';
@@ -1799,17 +1849,19 @@ async function advanceChatRoomConversationStep(input) {
         trigger: input.trigger,
         userName: input.userName,
     });
-    if (nextTurn.length === 0) {
+    if (nextTurn.messages.length === 0) {
         console.info(`[chatrooms] step:no-turn ${JSON.stringify({
             conversationId: input.conversationId,
             roomId: input.room.id,
             trigger: input.trigger,
             userId: input.userId,
         })}`);
-        return [];
+        return {
+            appendedMessages: [],
+        };
     }
     const appendedMessages = [];
-    for (const turn of nextTurn) {
+    for (const turn of nextTurn.messages) {
         appendedMessages.push(addChatRoomMessage(input.conversationId, 'character', turn.character.name, turn.content));
     }
     console.info(`[chatrooms] step:stored-turn ${JSON.stringify({
@@ -1820,7 +1872,40 @@ async function advanceChatRoomConversationStep(input) {
         trigger: input.trigger,
         userId: input.userId,
     })}`);
-    return appendedMessages;
+    return {
+        appendedMessages,
+    };
+}
+async function evaluateChatRoomUserMessageStep(input) {
+    const messages = listChatRoomMessages(input.conversationId);
+    const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+    return evaluateChatRoomUserMessage({
+        historyText: messages
+            .filter((message) => message.senderType !== 'system')
+            .slice(-18)
+            .map((message) => {
+            const visibleName = message.senderType === 'user' ? 'You' : message.senderName;
+            return `${visibleName}: ${message.content}`;
+        })
+            .join('\n'),
+        openRouterApiKey,
+        room: input.room,
+        userMessage: input.userMessage,
+        userName: input.userName,
+    });
+}
+async function persistChatRoomUserMessageEvaluation(input) {
+    if (!input.evaluation) {
+        return;
+    }
+    updateChatRoomMessageEvaluation({
+        conversationId: input.conversationId,
+        messageId: input.messageId,
+        problem: input.evaluation.status === 'warning'
+            ? input.evaluation.problem
+            : null,
+        status: input.evaluation.status,
+    });
 }
 function renderAuthForm(response, view) {
     response.render('auth', {

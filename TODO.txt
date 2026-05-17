@@ -1,7 +1,9 @@
 Hoy
 
-- (muy complicado, estoy usando Resend por ahora) Utilizar AWS SES para enviar los emails.
-    - Ya tengo cuenta en AWS con boniatillo@gmail.com
+- Evaluar un nuevo tipo de ejercicio que el tutor genere una imagen tipo comics y el usuario tenga que escribir una historia al respecto.
+
+- Quizas adionar un boton + en la caja de texto del usuario donde se escoja un tipo de ejercicio determinado para hacer.
+
 
 - Incorporar voz-a-texto, y texto-a-voz.
 - Permitir usar imagenes en los ejercicios.
@@ -14,6 +16,8 @@ Hoy
 
 ----
 
+x- (muy complicado, estoy usando Resend por ahora) Utilizar AWS SES para enviar los emails.
+    - Ya tengo cuenta en AWS con boniatillo@gmail.com
 x- Configurar nginx para servir los statics
 x- Estoy pensando seriamente que el tutor pueda además administrar las actividades. Quizás deba unificar el chat admin con el pedagogico.
 x- Permitir hacer un exámen, que tiene diferntes tipos de ejercicios. La idea de un examen es que el tutor no lo rectifica, sino que lo evalua y le asigna un nota.

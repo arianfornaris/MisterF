@@ -380,4 +380,19 @@ export const migrations: Migration[] = [
         ON chat_room_messages (conversation_id, created_at ASC, id ASC);
     `,
   },
+  {
+    id: 7,
+    name: 'add_chat_room_message_evaluations',
+    up: `
+      ALTER TABLE chat_room_messages
+      ADD COLUMN evaluation_status TEXT
+      CHECK (evaluation_status IS NULL OR evaluation_status IN ('ok', 'warning'));
+
+      ALTER TABLE chat_room_messages
+      ADD COLUMN evaluation_problem TEXT;
+
+      ALTER TABLE chat_room_messages
+      ADD COLUMN evaluation_created_at TEXT;
+    `,
+  },
 ];

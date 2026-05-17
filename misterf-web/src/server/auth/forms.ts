@@ -42,6 +42,7 @@ import {
 import {
   addPracticeModuleToCollection,
   addChatRoomMessage,
+  updateChatRoomMessageEvaluation,
   archivePracticeModuleForUser,
   archivePracticeModuleCollectionForUser,
   createChatRoom,
@@ -52,6 +53,7 @@ import {
   createConversationFromPracticeModule,
   deletePracticeModuleForUser,
   findChatRoomConversationForUser,
+  findChatRoomMessage,
   findChatRoomForUser,
   findPracticeModuleById,
   findPracticeModuleCollectionById,
@@ -98,7 +100,10 @@ import {
   clearActiveProfileCookie,
   setActiveProfileCookie,
 } from './profiles.js';
-import { advanceChatRoomConversation } from '../services/chatrooms.js';
+import {
+  advanceChatRoomConversation,
+  evaluateChatRoomUserMessage,
+} from '../services/chatrooms.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -1499,8 +1504,8 @@ export async function handleChatRoomSendMessage(
     return;
   }
 
-  addChatRoomMessage(conversation.id, 'user', user.fullName, content);
-  const appendedMessages = await advanceChatRoomConversationStep({
+  const userMessage = addChatRoomMessage(conversation.id, 'user', user.fullName, content);
+  const stepResult = await advanceChatRoomConversationStep({
     conversationId: conversation.id,
     room,
     trigger: 'user',
@@ -1508,15 +1513,78 @@ export async function handleChatRoomSendMessage(
     userName: user.fullName,
   });
 
+  void evaluateChatRoomUserMessageStep({
+    conversationId: conversation.id,
+    room,
+    userId: user.id,
+    userMessage: content,
+    userName: user.fullName,
+  })
+    .then((userMessageEvaluation) =>
+      persistChatRoomUserMessageEvaluation({
+        conversationId: conversation.id,
+        evaluation: userMessageEvaluation,
+        messageId: userMessage.id,
+      }),
+    )
+    .catch((error) => {
+      console.info(
+        `[chatrooms] evaluation:background-error ${JSON.stringify({
+          conversationId: conversation.id,
+          error: error instanceof Error ? error.message : String(error),
+          messageId: userMessage.id,
+          roomId: room.id,
+          userId: user.id,
+        })}`,
+      );
+    });
+
   if (wantsJson) {
     response.json({
-      appendedMessages,
+      appendedMessages: stepResult.appendedMessages,
       ok: true,
+      userMessage,
     });
     return;
   }
 
   response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+}
+
+export function handleGetChatRoomMessageEvaluation(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.status(401).json({ ok: false, redirect: '/login' });
+    return;
+  }
+
+  const conversationId = String(request.params.roomConversationId || '').trim();
+  const messageId = Number(request.params.messageId);
+  if (!conversationId || !Number.isInteger(messageId) || messageId <= 0) {
+    response.status(400).json({ ok: false, error: 'Invalid message id.' });
+    return;
+  }
+
+  const conversation = findChatRoomConversationForUser(conversationId, user.id);
+  if (!conversation) {
+    response.status(404).json({ ok: false, redirect: '/chatrooms' });
+    return;
+  }
+
+  const message = findChatRoomMessage(conversation.id, messageId);
+  if (!message || message.senderType !== 'user') {
+    response.status(404).json({ ok: false, error: 'Message not found.' });
+    return;
+  }
+
+  response.json({
+    message,
+    ok: true,
+    pending: !message.evaluationStatus,
+  });
 }
 
 export async function handleChatRoomContinue(
@@ -2326,7 +2394,9 @@ async function advanceChatRoomConversationStep(input: {
   trigger: 'continue' | 'user';
   userId: string;
   userName: string;
-}): Promise<ReturnType<typeof listChatRoomMessages>> {
+}): Promise<{
+  appendedMessages: ReturnType<typeof listChatRoomMessages>;
+}> {
   const characters = listChatRoomCharacters(input.room.id);
   const messages = listChatRoomMessages(input.conversationId);
   const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
@@ -2350,7 +2420,7 @@ async function advanceChatRoomConversationStep(input: {
     userName: input.userName,
   });
 
-  if (nextTurn.length === 0) {
+  if (nextTurn.messages.length === 0) {
     console.info(
       `[chatrooms] step:no-turn ${JSON.stringify({
         conversationId: input.conversationId,
@@ -2359,11 +2429,13 @@ async function advanceChatRoomConversationStep(input: {
         userId: input.userId,
       })}`,
     );
-    return [];
+    return {
+      appendedMessages: [],
+    };
   }
 
   const appendedMessages: ReturnType<typeof listChatRoomMessages> = [];
-  for (const turn of nextTurn) {
+  for (const turn of nextTurn.messages) {
     appendedMessages.push(
       addChatRoomMessage(
         input.conversationId,
@@ -2385,7 +2457,54 @@ async function advanceChatRoomConversationStep(input: {
     })}`,
   );
 
-  return appendedMessages;
+  return {
+    appendedMessages,
+  };
+}
+
+async function evaluateChatRoomUserMessageStep(input: {
+  conversationId: string;
+  room: StoredChatRoom;
+  userId: string;
+  userMessage: string;
+  userName: string;
+}): Promise<null | { status: 'ok' } | { status: 'warning'; problem: string }> {
+  const messages = listChatRoomMessages(input.conversationId);
+  const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+  return evaluateChatRoomUserMessage({
+    historyText: messages
+      .filter((message) => message.senderType !== 'system')
+      .slice(-18)
+      .map((message) => {
+        const visibleName = message.senderType === 'user' ? 'You' : message.senderName;
+        return `${visibleName}: ${message.content}`;
+      })
+      .join('\n'),
+    openRouterApiKey,
+    room: input.room,
+    userMessage: input.userMessage,
+    userName: input.userName,
+  });
+}
+
+async function persistChatRoomUserMessageEvaluation(input: {
+  conversationId: string;
+  evaluation: null | { status: 'ok' } | { status: 'warning'; problem: string };
+  messageId: number;
+}): Promise<void> {
+  if (!input.evaluation) {
+    return;
+  }
+
+  updateChatRoomMessageEvaluation({
+    conversationId: input.conversationId,
+    messageId: input.messageId,
+    problem:
+      input.evaluation.status === 'warning'
+        ? input.evaluation.problem
+        : null,
+    status: input.evaluation.status,
+  });
 }
 
 function renderAuthForm(response: Response, view: AuthFormView): void {

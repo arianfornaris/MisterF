@@ -67,6 +67,9 @@ function toStoredChatRoomMessage(row) {
         senderType: row.sender_type,
         senderName: row.sender_name,
         content: row.content,
+        evaluationStatus: row.evaluation_status,
+        evaluationProblem: row.evaluation_problem,
+        evaluationCreatedAt: row.evaluation_created_at,
         createdAt: row.created_at,
     };
 }
@@ -1246,13 +1249,41 @@ export function updateMessageMetadata(messageId, conversationId, metadataPatch) 
 export function listChatRoomMessages(conversationId) {
     const rows = getDb()
         .prepare(`
-        SELECT id, conversation_id, sender_type, sender_name, content, created_at
+        SELECT
+          id,
+          conversation_id,
+          sender_type,
+          sender_name,
+          content,
+          evaluation_status,
+          evaluation_problem,
+          evaluation_created_at,
+          created_at
         FROM chat_room_messages
         WHERE conversation_id = ?
         ORDER BY created_at ASC, id ASC
       `)
         .all(conversationId);
     return rows.map(toStoredChatRoomMessage);
+}
+export function findChatRoomMessage(conversationId, messageId) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          id,
+          conversation_id,
+          sender_type,
+          sender_name,
+          content,
+          evaluation_status,
+          evaluation_problem,
+          evaluation_created_at,
+          created_at
+        FROM chat_room_messages
+        WHERE conversation_id = ? AND id = ?
+      `)
+        .get(conversationId, messageId);
+    return row ? toStoredChatRoomMessage(row) : null;
 }
 export function addChatRoomMessage(conversationId, senderType, senderName, content) {
     const db = getDb();
@@ -1265,12 +1296,46 @@ export function addChatRoomMessage(conversationId, senderType, senderName, conte
     touchChatRoomConversation(conversationId);
     const row = db
         .prepare(`
-        SELECT id, conversation_id, sender_type, sender_name, content, created_at
+        SELECT
+          id,
+          conversation_id,
+          sender_type,
+          sender_name,
+          content,
+          evaluation_status,
+          evaluation_problem,
+          evaluation_created_at,
+          created_at
         FROM chat_room_messages
         WHERE id = ?
       `)
         .get(result.lastInsertRowid);
     return toStoredChatRoomMessage(row);
+}
+export function updateChatRoomMessageEvaluation(input) {
+    const db = getDb();
+    db.prepare(`
+      UPDATE chat_room_messages
+      SET evaluation_status = ?,
+          evaluation_problem = ?,
+          evaluation_created_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND conversation_id = ?
+    `).run(input.status, input.status === 'warning' ? (input.problem?.trim() || null) : null, input.messageId, input.conversationId);
+    const row = db.prepare(`
+      SELECT
+        id,
+        conversation_id,
+        sender_type,
+        sender_name,
+        content,
+        evaluation_status,
+        evaluation_problem,
+        evaluation_created_at,
+        created_at
+      FROM chat_room_messages
+      WHERE id = ? AND conversation_id = ?
+    `).get(input.messageId, input.conversationId);
+    return row ? toStoredChatRoomMessage(row) : null;
 }
 function parseMetadata(metadata) {
     try {

@@ -62,7 +62,8 @@ function appendChatRoomStructuredCorrectionRequest(
       'Re-emit the complete response as exactly one JSON object and nothing else.',
       'Do not use markdown fences.',
       'Do not add explanations or extra text before or after the JSON.',
-      'The only valid shape is: {"messages":[{"speakerName":"Character name","content":"Next message"}]}',
+      'The only valid shape is:',
+      '{"messages":[{"speakerName":"Character name","content":"Next message"}]}',
     ].join('\n'),
     role: 'user',
   });
@@ -134,10 +135,12 @@ async function generateChatRoomMessageBlock(input: {
   room: StoredChatRoom;
   userName: string;
 }): Promise<
-  Array<{
-    character: StoredChatRoomCharacter;
-    content: string;
-  }>
+  {
+    messages: Array<{
+      character: StoredChatRoomCharacter;
+      content: string;
+    }>;
+  }
 > {
   const desiredTurnCount =
     input.characters.length === 1 || Math.random() < 0.5 ? 1 : 2;
@@ -320,7 +323,9 @@ async function generateChatRoomMessageBlock(input: {
           roomId: input.room.id,
           speakers: normalizedMessages.map((message) => message.character.name),
         });
-        return normalizedMessages.slice(0, desiredTurnCount);
+        return {
+          messages: normalizedMessages.slice(0, desiredTurnCount),
+        };
       }
 
       logChatRoomEvent('generation:empty-after-validation', {
@@ -340,13 +345,17 @@ async function generateChatRoomMessageBlock(input: {
     logChatRoomEvent('generation:no-usable-messages', {
       roomId: input.room.id,
     });
-    return [];
+    return {
+      messages: [],
+    };
   } catch (error) {
     logChatRoomEvent('generation:error', {
       roomId: input.room.id,
       error: error instanceof Error ? error.message : String(error),
     });
-    return [];
+    return {
+      messages: [],
+    };
   }
 }
 
@@ -357,14 +366,16 @@ export async function advanceChatRoomConversation(input: {
   room: StoredChatRoom;
   trigger: 'continue' | 'user';
   userName: string;
-}): Promise<
-  Array<{
+}): Promise<{
+  messages: Array<{
     character: StoredChatRoomCharacter;
     content: string;
-  }>
-> {
+  }>;
+}> {
   if (input.trigger !== 'user' || input.characters.length === 0) {
-    return [];
+    return {
+      messages: [],
+    };
   }
 
   return generateChatRoomMessageBlock({
@@ -375,4 +386,114 @@ export async function advanceChatRoomConversation(input: {
     room: input.room,
     userName: input.userName,
   });
+}
+
+export async function evaluateChatRoomUserMessage(input: {
+  historyText: string;
+  openRouterApiKey?: string | null;
+  room: StoredChatRoom;
+  userMessage: string;
+  userName: string;
+}): Promise<null | { status: 'ok' } | { status: 'warning'; problem: string }> {
+  const system = [
+    'You evaluate one user message written in English inside a plain-text social chat room.',
+    'You are not one of the characters in the room.',
+    'Use the recent chat history only as context.',
+    'Focus only on the last user message provided separately.',
+    'If the message has no important English mistake, reply with exactly: correct',
+    'If the message has an important mistake, reply with markdown in Spanish explaining the problem briefly.',
+    'Do not return JSON.',
+    'Do not use markdown fences.',
+    'Do not greet.',
+    'Do not roleplay as a character.',
+    'Be selective, not nitpicky.',
+    `Room title: ${input.room.title}`,
+    `Room description: ${input.room.description}`,
+    `User in the room: ${input.userName}`,
+  ].join('\n');
+
+  const messages: ModelMessage[] = [
+    {
+      role: 'user',
+      content: [
+        'Recent chat history:',
+        input.historyText || '(empty)',
+        '',
+        'Last user message to evaluate:',
+        input.userMessage,
+      ].join('\n'),
+    },
+  ];
+
+  logChatRoomEvent('evaluation:start', {
+    hasOpenRouterKey: Boolean(input.openRouterApiKey),
+    roomId: input.room.id,
+    userName: input.userName,
+  });
+
+  try {
+    logLlmRequest(
+      messages,
+      system,
+      {
+        actorLabel: 'Chatroom evaluation',
+        llm: {
+          modelTier: 'regular',
+          openRouterApiKey: input.openRouterApiKey,
+        },
+      },
+      1,
+    );
+
+    const result = await generateText({
+      maxOutputTokens: 500,
+      model: getLanguageModel({
+        modelTier: 'regular',
+        openRouterApiKey: input.openRouterApiKey,
+      }),
+      messages,
+      providerOptions: getProviderOptions(),
+      system,
+      temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.3 : undefined,
+    });
+
+    logLlmResponse(
+      result.text,
+      result.finishReason,
+      result.usage,
+      result.providerMetadata,
+      1,
+      'Chatroom evaluation',
+    );
+
+    const normalized = result.text.trim();
+    if (!normalized) {
+      logChatRoomEvent('evaluation:empty', {
+        roomId: input.room.id,
+      });
+      return null;
+    }
+
+    if (normalized.toLowerCase() === 'correct') {
+      logChatRoomEvent('evaluation:ok', {
+        roomId: input.room.id,
+      });
+      return { status: 'ok' };
+    }
+
+    logChatRoomEvent('evaluation:warning', {
+      roomId: input.room.id,
+      preview: normalized.slice(0, 200),
+    });
+    return {
+      status: 'warning',
+      problem: normalized,
+    };
+  } catch (error) {
+    logChatRoomEvent('evaluation:error', {
+      roomId: input.room.id,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
 }

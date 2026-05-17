@@ -96,6 +96,41 @@
   white-space: pre-wrap;
 }
 
+.chatroom-message-evaluation {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.45rem;
+}
+
+.chatroom-message-evaluation-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.chatroom-message-evaluation-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.chatroom-message-evaluation-button:hover,
+.chatroom-message-evaluation-button:focus-visible {
+  opacity: 0.85;
+}
+
+.chatroom-message-evaluation-detail {
+  margin-top: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 12px;
+  background: rgb(255 193 7 / 11%);
+  color: rgb(118 70 0);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
 .chatroom-system-pill {
   max-width: min(100%, 540px);
   padding: 0.45rem 0.8rem;

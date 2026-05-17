@@ -12,6 +12,7 @@ import {
   handleCreatePracticeModuleCollection,
   handleCreateProfile,
   handleChatRoomContinue,
+  handleGetChatRoomMessageEvaluation,
   handleChatRoomSendMessage,
   handleAcceptSharedPracticeModuleCollectionLink,
   handleArchiveLesson,
@@ -167,6 +168,7 @@ app.post('/chatrooms/:roomId/join', handleJoinChatRoom);
 app.post('/chatrooms/:roomId/conversations', handleCreateChatRoomConversation);
 app.get('/chatroom-conversations/:roomConversationId', renderHome);
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
+app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);
 app.get('/c/:conversationId', renderHome);
 app.get('/', renderHome);

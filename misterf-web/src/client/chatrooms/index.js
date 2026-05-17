@@ -1,3 +1,5 @@
+import { renderMarkdown } from '../chat/shared/markdown.js';
+
 function scrollToBottom(container) {
   if (!container) {
     return;
@@ -28,6 +30,9 @@ function resizeTextarea(textarea) {
 function createMessageRow(message) {
   const row = document.createElement('div');
   row.className = `chatroom-entry is-${message.senderType}`;
+  if (typeof message.id === 'number') {
+    row.dataset.messageId = String(message.id);
+  }
 
   if (message.senderType === 'system') {
     const pill = document.createElement('div');
@@ -51,9 +56,102 @@ function createMessageRow(message) {
   text.className = 'chatroom-entry-text';
   text.textContent = message.content;
   bubble.append(text);
+
+  if (message.senderType === 'user') {
+    applyUserMessageEvaluation(row, bubble, message);
+  }
+
   row.append(bubble);
 
   return row;
+}
+
+async function pollMessageEvaluation({ conversationPath, messageId, onResolved }) {
+  const maxAttempts = 12;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await sleep(1000 + attempt * 250);
+
+    try {
+      const response = await fetch(
+        `${conversationPath}/messages/${messageId}/evaluation`,
+        {
+          headers: {
+            Accept: 'application/json',
+          },
+          credentials: 'same-origin',
+        },
+      );
+
+      if (!response.ok) {
+        return;
+      }
+
+      const payload = await response.json();
+      if (!payload?.ok || !payload?.message) {
+        return;
+      }
+
+      if (payload.pending) {
+        continue;
+      }
+
+      onResolved(payload.message);
+      return;
+    } catch {
+      return;
+    }
+  }
+}
+
+function applyUserMessageEvaluation(row, bubble, message) {
+  if (!row || !bubble) {
+    return;
+  }
+
+  bubble.querySelector('.chatroom-message-evaluation')?.remove();
+  bubble.querySelector('.chatroom-message-evaluation-detail')?.remove();
+
+  if (!message?.evaluationStatus) {
+    return;
+  }
+
+  const evaluation = document.createElement('div');
+  evaluation.className = 'chatroom-message-evaluation';
+
+  if (message.evaluationStatus === 'ok') {
+    const okIcon = document.createElement('span');
+    okIcon.className = 'chatroom-message-evaluation-icon text-success';
+    okIcon.title = 'Mensaje correcto';
+    okIcon.setAttribute('aria-label', 'Mensaje correcto');
+    okIcon.innerHTML = '<i class="bi bi-check-circle-fill" aria-hidden="true"></i>';
+    evaluation.append(okIcon);
+    bubble.append(evaluation);
+    return;
+  }
+
+  const warningButton = document.createElement('button');
+  warningButton.className = 'chatroom-message-evaluation-icon chatroom-message-evaluation-button text-warning';
+  warningButton.type = 'button';
+  warningButton.title = 'Ver problema';
+  warningButton.setAttribute('aria-expanded', 'false');
+  warningButton.setAttribute('aria-label', 'Ver problema');
+  warningButton.innerHTML = '<i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>';
+
+  const detail = document.createElement('div');
+  detail.className = 'chatroom-message-evaluation-detail d-none';
+  detail.innerHTML = renderMarkdown(
+    message.evaluationProblem || 'Hay un problema en este mensaje.',
+  );
+
+  warningButton.addEventListener('click', () => {
+    const isHidden = detail.classList.contains('d-none');
+    detail.classList.toggle('d-none', !isHidden);
+    warningButton.setAttribute('aria-expanded', String(isHidden));
+  });
+
+  evaluation.append(warningButton);
+  bubble.append(evaluation, detail);
 }
 
 function createTypingRow() {
@@ -150,6 +248,7 @@ export function initializeChatroomsPage({ currentView }) {
 
   const csrfEl = formEl.querySelector('input[name="_csrf"]');
   const sendUrl = formEl.getAttribute('action') || '';
+  const conversationPath = sendUrl.replace(/\/messages$/, '');
   let isPending = false;
   let typingRow = null;
   const initialMessages = initialMessagesEl
@@ -229,11 +328,14 @@ export function initializeChatroomsPage({ currentView }) {
     formData.set('_csrf', csrfEl?.value || '');
     formData.set('content', content);
 
-    const optimisticRow = createMessageRow({
+    const optimisticMessage = {
       content,
+      evaluationProblem: null,
+      evaluationStatus: null,
       senderName: 'Tú',
       senderType: 'user',
-    });
+    };
+    const optimisticRow = createMessageRow(optimisticMessage);
     messagesEl.append(optimisticRow);
     scrollToBottom(messagesViewportEl);
     inputEl.value = '';
@@ -245,6 +347,26 @@ export function initializeChatroomsPage({ currentView }) {
       const payload = await postConversationAction(sendUrl, formData);
       if (!payload) {
         return;
+      }
+
+      if (payload.userMessage?.id) {
+        optimisticRow.dataset.messageId = String(payload.userMessage.id);
+      }
+
+      if (payload.userMessage?.evaluationStatus) {
+        applyUserMessageEvaluation(optimisticRow, optimisticRow.querySelector('.chatroom-bubble'), payload.userMessage);
+      } else if (payload.userMessage?.id) {
+        void pollMessageEvaluation({
+          conversationPath,
+          messageId: payload.userMessage.id,
+          onResolved: (resolvedMessage) => {
+            applyUserMessageEvaluation(
+              optimisticRow,
+              optimisticRow.querySelector('.chatroom-bubble'),
+              resolvedMessage,
+            );
+          },
+        });
       }
 
       await appendAssistantMessages(payload.appendedMessages || []);

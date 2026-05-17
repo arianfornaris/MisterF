@@ -21,18 +21,33 @@
       <% } %>
     </div>
 
+    <% if (chatRoomPageMode !== 'list') { %>
     <div class="practice-modules-header-actions">
       <% if (chatRoomPageMode === 'conversation' && selectedChatRoomConversation) { %>
+        <a
+          class="btn-close practice-module-close-button"
+          href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
+          title="Cerrar"
+          aria-label="Cerrar"
+        ></a>
+      <% } else if (chatRoomPageMode === 'history') { %>
         <a
           class="btn-close practice-module-close-button"
           href="/chatrooms"
           title="Cerrar"
           aria-label="Cerrar"
         ></a>
-      <% } else if (selectedChatRoom) { %>
+      <% } else if (chatRoomPageMode === 'edit' && selectedChatRoom) { %>
         <a
           class="btn-close practice-module-close-button"
           href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
+          title="Cerrar"
+          aria-label="Cerrar"
+        ></a>
+      <% } else if (selectedChatRoom) { %>
+        <a
+          class="btn-close practice-module-close-button"
+          href="/chatrooms"
           title="Cerrar"
           aria-label="Cerrar"
         ></a>
@@ -45,6 +60,7 @@
         ></a>
       <% } %>
     </div>
+    <% } %>
   </div>
 
   <% if (chatRoomPageMode === 'list') { %>
@@ -200,6 +216,9 @@
         <div class="chatroom-messages" data-chatroom-messages></div>
         <script type="application/json" data-chatroom-initial-messages><%- JSON.stringify(selectedChatRoomMessages.map((message) => ({
           content: message.content,
+          evaluationProblem: message.evaluationProblem,
+          evaluationStatus: message.evaluationStatus,
+          id: message.id,
           senderName: message.senderType === 'user' ? 'Tú' : message.senderName,
           senderType: message.senderType,
         }))).replace(/</g, '\\u003c') %></script>
