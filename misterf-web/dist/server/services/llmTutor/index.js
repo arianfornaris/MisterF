@@ -2,6 +2,7 @@ import { generateText, stepCountIs, } from 'ai';
 import { env } from '../../config/env.js';
 import { LlmFinishReasonError } from './errors.js';
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, } from './logging.js';
+import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
@@ -28,7 +29,7 @@ async function continueTutorResponseAfterToolUse(input) {
             role: 'user',
             content: [
                 'INTERNAL APP CONTINUATION.',
-                'The previous step already used tools and may have completed practice-module operations successfully.',
+                'The previous step already used tools and may have completed practice-module or chat-room operations successfully.',
                 'Continue the current conversation turn.',
                 'Do not greet the learner.',
                 'Do not introduce yourself.',
@@ -141,12 +142,24 @@ export async function runTutorAgentLoop(history, options) {
         ...options,
     });
     let lastError = null;
-    const tools = buildTutorPracticeModuleTools({
+    const practiceModuleTools = buildTutorPracticeModuleTools({
         currentPracticeModuleId: options.currentPracticeModuleId ?? null,
         onToolCall: options.onToolCall,
         profileId: options.profileId ?? null,
         userId: options.userId ?? null,
     });
+    const chatRoomTools = buildTutorChatRoomTools({
+        onToolCall: options.onToolCall,
+        profileId: options.profileId ?? null,
+        userId: options.userId ?? null,
+    });
+    const mergedTools = {
+        ...(practiceModuleTools || {}),
+        ...(chatRoomTools || {}),
+    };
+    const tools = Object.keys(mergedTools).length > 0
+        ? mergedTools
+        : undefined;
     for (let turn = 0; turn < maxAgentTurns; turn += 1) {
         logLlmRequest(messages, system, options, turn + 1);
         try {

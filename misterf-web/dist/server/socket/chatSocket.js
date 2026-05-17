@@ -871,6 +871,16 @@ function getToolStatusLabel(toolName) {
             return 'Ejecutando herramienta: eliminar módulo de práctica...';
         case 'build_practice_module_link':
             return 'Ejecutando herramienta: preparar enlace del módulo de práctica...';
+        case 'list_chat_rooms':
+            return 'Ejecutando herramienta: buscar salas de chat...';
+        case 'create_chat_room':
+            return 'Ejecutando herramienta: crear sala de chat...';
+        case 'delete_chat_room':
+            return 'Ejecutando herramienta: eliminar sala de chat...';
+        case 'list_chat_room_conversations':
+            return 'Ejecutando herramienta: buscar conversaciones de la sala de chat...';
+        case 'get_chat_room_conversation':
+            return 'Ejecutando herramienta: leer conversación de la sala de chat...';
         default:
             return `Ejecutando herramienta: ${toolName}...`;
     }

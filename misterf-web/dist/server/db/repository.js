@@ -369,6 +369,12 @@ export function listChatRoomsForProfile(userId, profileId) {
         .all(userId, profileId);
     return rows.map(toStoredChatRoom);
 }
+export function deleteChatRoomForUser(roomId, userId) {
+    const result = getDb()
+        .prepare('DELETE FROM chat_rooms WHERE id = ? AND user_id = ?')
+        .run(roomId, userId);
+    return result.changes > 0;
+}
 export function updateChatRoomForUser(input) {
     const db = getDb();
     const room = findChatRoomForUser(input.roomId, input.userId);
