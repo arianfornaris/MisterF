@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import {
   addChatRoomMessage,
   archiveChatRoomForUser,
+  createConversationFromChatRoomReport,
   createPracticeModule,
   createChatRoom,
   createChatRoomConversation,
@@ -1221,6 +1222,44 @@ export async function handleCreatePracticeModuleFromChatRoomConversationReport(
   });
 
   response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+
+export function handlePracticeChatRoomConversationReportWithTutor(
+  request: Request,
+  response: Response,
+): void {
+  const auth = ensureVerifiedChatroomsUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const conversationId = String(request.params.roomConversationId || '').trim();
+  const chatRoomConversation = findChatRoomConversationForUser(conversationId, auth.user.id);
+  if (!chatRoomConversation) {
+    response.redirect('/chatrooms');
+    return;
+  }
+
+  const room = findChatRoomForUser(chatRoomConversation.roomId, auth.user.id);
+  if (!room) {
+    response.redirect('/chatrooms');
+    return;
+  }
+
+  const report = findChatRoomConversationReport(chatRoomConversation.id, auth.user.id);
+  if (!report) {
+    response.redirect(`/chatroom-conversations/${encodeURIComponent(chatRoomConversation.id)}/report`);
+    return;
+  }
+
+  const tutorConversation = createConversationFromChatRoomReport({
+    profileId: chatRoomConversation.profileId,
+    report,
+    room,
+    userId: auth.user.id,
+  });
+
+  response.redirect(`/c/${encodeURIComponent(tutorConversation.id)}`);
 }
 
 export function handleGetChatRoomMessageEvaluation(

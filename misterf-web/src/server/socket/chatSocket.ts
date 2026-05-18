@@ -15,6 +15,7 @@ import {
   deleteConversationForUser,
   findConversationForUser,
   findProfileForUser,
+  getConversationChatRoomReportSnapshot,
   getConversationPracticeModuleSnapshot,
   findMessageInConversation,
   listMessages,
@@ -221,6 +222,7 @@ export function registerChatSocket(io: Server): void {
 
       const messages = listMessages(conversation.id);
       const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
+      const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
       if (messages.length === 0) {
         pendingInitialGreeting = pickInitialGreeting();
       }
@@ -238,13 +240,25 @@ export function registerChatSocket(io: Server): void {
         conversation,
         conversationId: conversation.id,
         messages:
-          practiceModuleSnapshot && messages.length === 0
+          (practiceModuleSnapshot || chatRoomReportSnapshot) && messages.length === 0
             ? []
             : messages.length > 0
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
         pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
       });
+
+      if (chatRoomReportSnapshot && messages.length === 0 && !practiceModuleSnapshot) {
+        void streamAssistantMessage(
+          io,
+          conversation.id,
+          userId,
+          undefined,
+          true,
+          [],
+          conversation.modelTier,
+        );
+      }
     });
 
     socket.on('message:send', async (payload: SendMessagePayload = {}) => {
@@ -267,7 +281,9 @@ export function registerChatSocket(io: Server): void {
 
       const shouldPersistInitialGreeting =
         !conversation ||
-        (listMessages(conversation.id).length === 0 && !conversation.practiceModuleId);
+        (listMessages(conversation.id).length === 0 &&
+          !conversation.practiceModuleId &&
+          !conversation.chatRoomConversationReportId);
       if (!conversation) {
         if (!currentProfile) {
           return;
@@ -1165,6 +1181,7 @@ async function streamAssistantMessage(
       throw new Error('Conversation not found.');
     }
     const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
+    const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
 
     const messages = listMessages(conversationId);
     const llmOptions = await getLlmRequestOptionsForUser(userId);
@@ -1183,8 +1200,19 @@ async function streamAssistantMessage(
           tutorInstructions: practiceModuleSnapshot.tutorInstructions,
         }
       : null;
+    const chatRoomReportContext = chatRoomReportSnapshot
+      ? {
+          chatRoomConversationId: chatRoomReportSnapshot.chatRoomConversationId,
+          reportSummaryDescription: chatRoomReportSnapshot.reportSummaryDescription,
+          reportSummaryTitle: chatRoomReportSnapshot.reportSummaryTitle,
+          roomDescription: chatRoomReportSnapshot.roomDescription,
+          roomTitle: chatRoomReportSnapshot.roomTitle,
+          slidesJson: chatRoomReportSnapshot.slidesJson,
+        }
+      : null;
 
     const result = await runTutorAgentLoop(history, {
+      chatRoomReport: chatRoomReportContext,
       practiceModule: practiceModuleContext,
       abortSignal: abortController.signal,
       currentTitle: conversation.title,

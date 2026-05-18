@@ -1,6 +1,6 @@
 import QRCode from 'qrcode';
 import { env } from '../config/env.js';
-import { addChatRoomMessage, archiveChatRoomForUser, createPracticeModule, createChatRoom, createChatRoomConversation, findChatRoomById, findChatRoomConversationForUser, findChatRoomConversationReport, findChatRoomForUser, findChatRoomMessage, findChatRoomShareLinkById, findPracticeModuleForUser, findProfileById, findProfileForUser, getOrCreateChatRoomShareLink, importChatRoomToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listConversationsForProfile, restoreChatRoomForUser, saveChatRoomConversationReport, setChatRoomConversationReportPracticeModule, updateChatRoomForUser, updateChatRoomMessageEvaluation, } from '../db/repository.js';
+import { addChatRoomMessage, archiveChatRoomForUser, createConversationFromChatRoomReport, createPracticeModule, createChatRoom, createChatRoomConversation, findChatRoomById, findChatRoomConversationForUser, findChatRoomConversationReport, findChatRoomForUser, findChatRoomMessage, findChatRoomShareLinkById, findPracticeModuleForUser, findProfileById, findProfileForUser, getOrCreateChatRoomShareLink, importChatRoomToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listConversationsForProfile, restoreChatRoomForUser, saveChatRoomConversationReport, setChatRoomConversationReportPracticeModule, updateChatRoomForUser, updateChatRoomMessageEvaluation, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, generateChatRoomConversationReport, generatePracticeModuleFromChatRoomConversationReport, } from '../services/chatrooms.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
@@ -920,6 +920,35 @@ export async function handleCreatePracticeModuleFromChatRoomConversationReport(r
         userId: auth.user.id,
     });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+export function handlePracticeChatRoomConversationReportWithTutor(request, response) {
+    const auth = ensureVerifiedChatroomsUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const conversationId = String(request.params.roomConversationId || '').trim();
+    const chatRoomConversation = findChatRoomConversationForUser(conversationId, auth.user.id);
+    if (!chatRoomConversation) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const room = findChatRoomForUser(chatRoomConversation.roomId, auth.user.id);
+    if (!room) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const report = findChatRoomConversationReport(chatRoomConversation.id, auth.user.id);
+    if (!report) {
+        response.redirect(`/chatroom-conversations/${encodeURIComponent(chatRoomConversation.id)}/report`);
+        return;
+    }
+    const tutorConversation = createConversationFromChatRoomReport({
+        profileId: chatRoomConversation.profileId,
+        report,
+        room,
+        userId: auth.user.id,
+    });
+    response.redirect(`/c/${encodeURIComponent(tutorConversation.id)}`);
 }
 export function handleGetChatRoomMessageEvaluation(request, response) {
     const auth = ensureVerifiedChatroomsUser(request, response);

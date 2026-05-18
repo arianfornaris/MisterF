@@ -14,6 +14,7 @@ export type StoredProfile = {
 
 export type StoredConversation = {
   activeAgent: 'tutor';
+  chatRoomConversationReportId: string | null;
   practiceModuleId: string | null;
   id: string;
   modelTier: 'advanced' | 'max' | 'regular';
@@ -180,6 +181,18 @@ export type StoredConversationPracticeModuleSnapshot = {
   tutorInstructions: string;
 };
 
+export type StoredConversationChatRoomReportSnapshot = {
+  chatRoomConversationId: string;
+  chatRoomConversationReportId: string;
+  conversationId: string;
+  createdAt: string;
+  reportSummaryDescription: string;
+  reportSummaryTitle: string;
+  roomDescription: string;
+  roomTitle: string;
+  slidesJson: string;
+};
+
 export type StoredMessage = {
   id: number;
   conversationId: string;
@@ -281,6 +294,7 @@ type MessageRow = {
 
 type ConversationRow = {
   active_agent: string;
+  chat_room_conversation_report_id: string | null;
   practice_module_id: string | null;
   id: string;
   model_tier: 'advanced' | 'max' | 'regular';
@@ -350,6 +364,18 @@ type ConversationPracticeModuleSnapshotRow = {
   tutor_instructions: string;
 };
 
+type ConversationChatRoomReportSnapshotRow = {
+  chat_room_conversation_id: string;
+  chat_room_conversation_report_id: string;
+  conversation_id: string;
+  created_at: string;
+  report_summary_description: string;
+  report_summary_title: string;
+  room_description: string;
+  room_title: string;
+  slides_json: string;
+};
+
 type PracticeModuleCollectionShareLinkRow = {
   collection_id: string;
   created_at: string;
@@ -374,6 +400,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
 function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
     activeAgent: 'tutor',
+    chatRoomConversationReportId: row.chat_room_conversation_report_id,
     practiceModuleId: row.practice_module_id,
     id: row.id,
     modelTier: row.model_tier,
@@ -383,6 +410,22 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     userId: row.user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredConversationChatRoomReportSnapshot(
+  row: ConversationChatRoomReportSnapshotRow,
+): StoredConversationChatRoomReportSnapshot {
+  return {
+    chatRoomConversationId: row.chat_room_conversation_id,
+    chatRoomConversationReportId: row.chat_room_conversation_report_id,
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    reportSummaryDescription: row.report_summary_description,
+    reportSummaryTitle: row.report_summary_title,
+    roomDescription: row.room_description,
+    roomTitle: row.room_title,
+    slidesJson: row.slides_json,
   };
 }
 
@@ -699,6 +742,7 @@ export function createConversation(
   profileId: string,
   title = defaultConversationTitle,
   options: {
+    chatRoomConversationReportId?: string | null;
     modelTier?: 'advanced' | 'max' | 'regular';
     practiceModuleId?: string | null;
   } = {},
@@ -713,10 +757,11 @@ export function createConversation(
           profile_id,
           title,
           practice_module_id,
+          chat_room_conversation_report_id,
           active_agent,
           model_tier
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -725,6 +770,7 @@ export function createConversation(
       profileId,
       title,
       options.practiceModuleId ?? null,
+      options.chatRoomConversationReportId ?? null,
       'tutor',
       options.modelTier ?? 'regular',
     );
@@ -754,6 +800,29 @@ export function createConversationFromPracticeModule(
   return conversation;
 }
 
+export function createConversationFromChatRoomReport(input: {
+  profileId: string;
+  report: StoredChatRoomConversationReport;
+  room: StoredChatRoom;
+  userId: string;
+}): StoredConversation {
+  const conversation = createConversation(
+    input.userId,
+    input.profileId,
+    defaultConversationTitle,
+    {
+      chatRoomConversationReportId: input.report.id,
+    },
+  );
+
+  createConversationChatRoomReportSnapshot(conversation.id, {
+    report: input.report,
+    room: input.room,
+  });
+
+  return conversation;
+}
+
 export function findConversationForUser(
   id: string,
   userId: string,
@@ -762,7 +831,7 @@ export function findConversationForUser(
     .prepare(
       `
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
-             , model_tier
+             , model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -801,7 +870,7 @@ export function listConversationsForProfile(
     .prepare(
       `
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
-             , model_tier
+             , model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -2592,6 +2661,48 @@ export function createConversationPracticeModuleSnapshot(
   return snapshot;
 }
 
+export function createConversationChatRoomReportSnapshot(
+  conversationId: string,
+  input: {
+    report: StoredChatRoomConversationReport;
+    room: StoredChatRoom;
+  },
+): StoredConversationChatRoomReportSnapshot {
+  getDb()
+    .prepare(
+      `
+        INSERT OR REPLACE INTO conversation_chat_room_report_snapshots (
+          conversation_id,
+          chat_room_conversation_report_id,
+          chat_room_conversation_id,
+          room_title,
+          room_description,
+          report_summary_title,
+          report_summary_description,
+          slides_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      conversationId,
+      input.report.id,
+      input.report.conversationId,
+      input.room.title,
+      input.room.description,
+      input.report.summaryTitle,
+      input.report.summaryDescription,
+      JSON.stringify(input.report.slides),
+    );
+
+  const snapshot = getConversationChatRoomReportSnapshot(conversationId);
+  if (!snapshot) {
+    throw new Error('Could not load conversation chat-room-report snapshot.');
+  }
+
+  return snapshot;
+}
+
 export function getConversationPracticeModuleSnapshot(
   conversationId: string,
 ): StoredConversationPracticeModuleSnapshot | null {
@@ -2606,6 +2717,31 @@ export function getConversationPracticeModuleSnapshot(
     .get(conversationId) as ConversationPracticeModuleSnapshotRow | undefined;
 
   return row ? toStoredConversationPracticeModuleSnapshot(row) : null;
+}
+
+export function getConversationChatRoomReportSnapshot(
+  conversationId: string,
+): StoredConversationChatRoomReportSnapshot | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          conversation_id,
+          chat_room_conversation_report_id,
+          chat_room_conversation_id,
+          room_title,
+          room_description,
+          report_summary_title,
+          report_summary_description,
+          slides_json,
+          created_at
+        FROM conversation_chat_room_report_snapshots
+        WHERE conversation_id = ?
+      `,
+    )
+    .get(conversationId) as ConversationChatRoomReportSnapshotRow | undefined;
+
+  return row ? toStoredConversationChatRoomReportSnapshot(row) : null;
 }
 
 export function listMessages(conversationId: string): StoredMessage[] {

@@ -47,6 +47,7 @@ import {
   handleArchiveChatRoom,
   handleChatRoomContinue,
   handleCreatePracticeModuleFromChatRoomConversationReport,
+  handlePracticeChatRoomConversationReportWithTutor,
   handleRestoreChatRoom,
   handleChatRoomSendMessage,
   handleCreateChatRoom,
@@ -207,6 +208,7 @@ app.get('/chatroom-conversations/:roomConversationId', renderChatRoomConversatio
 app.get('/chatroom-conversations/:roomConversationId/report', renderChatRoomConversationReportPage);
 app.post('/chatroom-conversations/:roomConversationId/evaluate', handleEvaluateChatRoomConversation);
 app.post('/chatroom-conversations/:roomConversationId/report/create-practice-module', handleCreatePracticeModuleFromChatRoomConversationReport);
+app.post('/chatroom-conversations/:roomConversationId/report/practice-with-tutor', handlePracticeChatRoomConversationReportWithTutor);
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
 app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);

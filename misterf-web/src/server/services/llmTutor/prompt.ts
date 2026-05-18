@@ -2,6 +2,14 @@ import { renderSystemPrompt } from '../systemPrompts.js';
 import type { TranslationMode } from './types.js';
 
 export function buildAgentSystemInstruction(options: {
+  chatRoomReport?: {
+    chatRoomConversationId: string;
+    reportSummaryDescription: string;
+    reportSummaryTitle: string;
+    roomDescription: string;
+    roomTitle: string;
+    slidesJson: string;
+  } | null;
   practiceModule?: {
     description: string;
     title: string;
@@ -18,10 +26,25 @@ export function buildAgentSystemInstruction(options: {
   });
 
   if (!options.practiceModule) {
-    return base;
+    if (!options.chatRoomReport) {
+      return base;
+    }
+
+    return [
+      base,
+      '',
+      renderSystemPrompt('tutor/chatroom-report-context.md', {
+        CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
+        REPORT_SLIDES_JSON: options.chatRoomReport.slidesJson,
+        REPORT_SUMMARY_DESCRIPTION: options.chatRoomReport.reportSummaryDescription,
+        REPORT_SUMMARY_TITLE: options.chatRoomReport.reportSummaryTitle,
+        ROOM_DESCRIPTION: options.chatRoomReport.roomDescription,
+        ROOM_TITLE: options.chatRoomReport.roomTitle,
+      }),
+    ].join('\n');
   }
 
-  return [
+  const sections = [
     base,
     '',
     renderSystemPrompt('tutor/practice-module-context.md', {
@@ -29,7 +52,23 @@ export function buildAgentSystemInstruction(options: {
       PRACTICE_MODULE_TITLE: options.practiceModule.title,
       PRACTICE_MODULE_TUTOR_INSTRUCTIONS: options.practiceModule.tutorInstructions,
     }),
-  ].join('\n');
+  ];
+
+  if (options.chatRoomReport) {
+    sections.push(
+      '',
+      renderSystemPrompt('tutor/chatroom-report-context.md', {
+        CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
+        REPORT_SLIDES_JSON: options.chatRoomReport.slidesJson,
+        REPORT_SUMMARY_DESCRIPTION: options.chatRoomReport.reportSummaryDescription,
+        REPORT_SUMMARY_TITLE: options.chatRoomReport.reportSummaryTitle,
+        ROOM_DESCRIPTION: options.chatRoomReport.roomDescription,
+        ROOM_TITLE: options.chatRoomReport.roomTitle,
+      }),
+    );
+  }
+
+  return sections.join('\n');
 }
 
 export function buildTranslatorSystemInstruction(mode: TranslationMode): string {

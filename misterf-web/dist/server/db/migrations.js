@@ -242,6 +242,30 @@ export const migrations = [
       CREATE INDEX idx_conversation_practice_module_snapshots_practice_module
         ON conversation_practice_module_snapshots (practice_module_id, created_at DESC);
 
+      CREATE TABLE conversation_chat_room_report_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        chat_room_conversation_report_id TEXT NOT NULL,
+        chat_room_conversation_id TEXT NOT NULL,
+        room_title TEXT NOT NULL,
+        room_description TEXT NOT NULL DEFAULT '',
+        report_summary_title TEXT NOT NULL,
+        report_summary_description TEXT NOT NULL,
+        slides_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (chat_room_conversation_report_id)
+          REFERENCES chat_room_conversation_reports (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (chat_room_conversation_id)
+          REFERENCES chat_room_conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_conversation_chat_room_report_snapshots_report
+        ON conversation_chat_room_report_snapshots (chat_room_conversation_report_id, created_at DESC);
+
       CREATE TABLE practice_module_share_links (
         id TEXT PRIMARY KEY,
         practice_module_id TEXT NOT NULL UNIQUE,
@@ -480,6 +504,43 @@ export const migrations = [
 
       CREATE INDEX idx_chat_room_conversation_reports_user_profile_created
         ON chat_room_conversation_reports (user_id, profile_id, created_at DESC);
+    `,
+    },
+    {
+        id: 11,
+        name: 'add_conversation_chat_room_report_reference',
+        up: `
+      ALTER TABLE conversations
+      ADD COLUMN chat_room_conversation_report_id TEXT
+      REFERENCES chat_room_conversation_reports (id)
+      ON DELETE SET NULL;
+
+      CREATE INDEX idx_conversations_chat_room_report_updated
+        ON conversations (chat_room_conversation_report_id, updated_at DESC, created_at DESC);
+
+      CREATE TABLE conversation_chat_room_report_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        chat_room_conversation_report_id TEXT NOT NULL,
+        chat_room_conversation_id TEXT NOT NULL,
+        room_title TEXT NOT NULL,
+        room_description TEXT NOT NULL DEFAULT '',
+        report_summary_title TEXT NOT NULL,
+        report_summary_description TEXT NOT NULL,
+        slides_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (chat_room_conversation_report_id)
+          REFERENCES chat_room_conversation_reports (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (chat_room_conversation_id)
+          REFERENCES chat_room_conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_conversation_chat_room_report_snapshots_report
+        ON conversation_chat_room_report_snapshots (chat_room_conversation_report_id, created_at DESC);
     `,
     },
 ];
