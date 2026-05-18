@@ -12,7 +12,7 @@
     <div class="practice-modules-header-actions">
       <a
         class="btn-close practice-module-close-button"
-        href="<%= selectedChatRoom ? `/chatrooms/${encodeURIComponent(selectedChatRoom.id)}/history` : '/chatrooms' %>"
+        href="<%= selectedChatRoom ? `/chatrooms/${encodeURIComponent(selectedChatRoom.id)}` : '/chatrooms' %>"
         title="Cerrar"
         aria-label="Cerrar"
       ></a>
@@ -127,7 +127,7 @@
             <button type="submit" class="btn btn-dark">
               <%= chatRoomPageMode === 'edit' ? 'Guardar cambios' : 'Crear sala' %>
             </button>
-            <a class="btn btn-outline-dark" href="<%= editingRoom ? `/chatrooms/${encodeURIComponent(editingRoom.id)}/history` : '/chatrooms' %>">
+            <a class="btn btn-outline-dark" href="<%= editingRoom ? `/chatrooms/${encodeURIComponent(editingRoom.id)}` : '/chatrooms' %>">
               Cancelar
             </a>
           </div>

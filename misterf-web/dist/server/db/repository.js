@@ -28,6 +28,7 @@ function toStoredConversation(row) {
 }
 function toStoredChatRoom(row) {
     return {
+        archivedAt: row.archived_at,
         id: row.id,
         userId: row.user_id,
         profileId: row.profile_id,
@@ -374,6 +375,7 @@ export function findChatRoomForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT
+          archived_at,
           id,
           user_id,
           profile_id,
@@ -395,6 +397,7 @@ export function findChatRoomById(id) {
     const row = getDb()
         .prepare(`
         SELECT
+          archived_at,
           id,
           user_id,
           profile_id,
@@ -416,6 +419,7 @@ export function listChatRoomsForProfile(userId, profileId) {
     const rows = getDb()
         .prepare(`
         SELECT
+          archived_at,
           id,
           user_id,
           profile_id,
@@ -429,7 +433,10 @@ export function listChatRoomsForProfile(userId, profileId) {
           updated_at
         FROM chat_rooms
         WHERE user_id = ? AND profile_id = ?
-        ORDER BY updated_at DESC, created_at DESC
+        ORDER BY
+          CASE WHEN archived_at IS NULL THEN 0 ELSE 1 END ASC,
+          updated_at DESC,
+          created_at DESC
       `)
         .all(userId, profileId);
     return rows.map(toStoredChatRoom);
@@ -474,10 +481,41 @@ export function updateChatRoomForUser(input) {
     })();
     return findChatRoomForUser(input.roomId, input.userId);
 }
+export function archiveChatRoomForUser(roomId, userId) {
+    const room = findChatRoomForUser(roomId, userId);
+    if (!room) {
+        return null;
+    }
+    getDb()
+        .prepare(`
+        UPDATE chat_rooms
+        SET archived_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(roomId, userId);
+    return findChatRoomForUser(roomId, userId);
+}
+export function restoreChatRoomForUser(roomId, userId) {
+    const room = findChatRoomForUser(roomId, userId);
+    if (!room) {
+        return null;
+    }
+    getDb()
+        .prepare(`
+        UPDATE chat_rooms
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(roomId, userId);
+    return findChatRoomForUser(roomId, userId);
+}
 export function findImportedChatRoomForProfile(input) {
     const row = getDb()
         .prepare(`
         SELECT
+          archived_at,
           id,
           user_id,
           profile_id,

@@ -432,5 +432,16 @@ export const migrations = [
         ON chat_room_share_links (room_id, revoked_at, created_at DESC);
     `,
     },
+    {
+        id: 9,
+        name: 'add_chat_room_archiving',
+        up: `
+      ALTER TABLE chat_rooms
+      ADD COLUMN archived_at TEXT;
+
+      CREATE INDEX idx_chat_rooms_profile_archived_updated
+        ON chat_rooms (profile_id, archived_at, updated_at DESC, created_at DESC);
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

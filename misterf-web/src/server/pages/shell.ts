@@ -94,16 +94,6 @@ export function getHomeAuthMessage(request: Request, user: AuthUser | null): str
   return '';
 }
 
-export function pickGuestInitialGreeting(user: AuthUser | null): string {
-  if (user) {
-    return '';
-  }
-
-  return hasKnownVisitorCookie as unknown
-    ? ''
-    : '';
-}
-
 export function resolveGuestInitialGreeting(request: Request, user: AuthUser | null): string {
   if (user) {
     return '';

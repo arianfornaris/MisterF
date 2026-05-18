@@ -1,0 +1,141 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="practice-modules-view" aria-label="Sala de chat">
+  <div class="practice-modules-header practice-modules-header-has-close">
+    <div class="practice-modules-header-detail">
+      <p class="practice-modules-kicker">Sala de chat</p>
+      <h1 class="practice-modules-title"><%= selectedChatRoom.title %></h1>
+      <p class="practice-modules-copy">
+        Revisa la situación de esta sala y sus personajes antes de empezar una conversación nueva o retomar su historial.
+      </p>
+    </div>
+    <div class="practice-modules-header-actions">
+      <a
+        class="btn-close practice-module-close-button"
+        href="/chatrooms"
+        title="Cerrar"
+        aria-label="Cerrar"
+      ></a>
+    </div>
+  </div>
+
+  <section class="practice-module-detail-shell">
+    <div class="d-grid gap-3">
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <% if (selectedChatRoom.sharedVia) { %>
+          <span class="badge text-bg-light border practice-module-shared-badge" role="status">
+            Compartida <%= selectedChatRoom.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+          </span>
+        <% } %>
+        <% if (selectedChatRoomSourceProfileName) { %>
+          <span class="badge text-bg-light border" role="status">
+            Compartida por <%= selectedChatRoomSourceProfileName %>
+          </span>
+        <% } %>
+        <% if (selectedChatRoom.archivedAt) { %>
+          <span class="badge text-bg-light border" role="status">Archivada</span>
+        <% } %>
+      </div>
+
+      <div class="practice-module-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones de la sala de chat">
+        <div class="btn-group" role="group" aria-label="Ver historial">
+          <a
+            class="btn btn-outline-dark"
+            href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
+            title="Ver historial"
+            aria-label="Ver historial"
+          >
+            <i class="bi bi-clock-history" aria-hidden="true"></i>
+          </a>
+        </div>
+        <div class="btn-group" role="group" aria-label="Compartir sala">
+          <button
+            class="btn btn-outline-dark dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            title="Compartir sala"
+            aria-label="Compartir sala"
+          >
+            <i class="bi bi-share" aria-hidden="true"></i>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>?share=profile">Compartir con perfil</a>
+            <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>?share=link">Obtener enlace</a>
+          </div>
+        </div>
+        <div class="btn-group" role="group" aria-label="Editar sala">
+          <a
+            class="btn btn-outline-dark"
+            href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/edit"
+            title="Editar sala"
+            aria-label="Editar sala"
+          >
+            <i class="bi bi-pencil" aria-hidden="true"></i>
+          </a>
+        </div>
+        <div class="btn-group" role="group" aria-label="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>">
+          <form
+            method="post"
+            action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/<%= selectedChatRoom.archivedAt ? 'restore' : 'archive' %>"
+            onsubmit="return window.confirm('<%= selectedChatRoom.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>">
+            <button
+              class="btn btn-outline-dark"
+              type="submit"
+              title="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
+              aria-label="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
+            >
+              <i class="bi <%= selectedChatRoom.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <p class="practiceModule-section-copy">Descripción de la sala</p>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="mb-0"><%= selectedChatRoom.description %></p>
+        </div>
+      </div>
+
+      <p class="practiceModule-section-copy">Conversaciones</p>
+
+      <form
+        class="practice-module-start-form"
+        method="post"
+        action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/join"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn btn-dark">Empezar conversación</button>
+      </form>
+
+      <p class="practiceModule-section-copy">Personajes</p>
+
+      <div class="row g-3">
+        <% selectedChatRoomCharacters.forEach((character) => { %>
+          <div class="col-12 col-lg-6">
+            <article class="card shadow-sm h-100">
+              <div class="card-body d-grid gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <h2 class="h5 mb-0"><%= character.name %></h2>
+                  <% if (character.shortDescription) { %>
+                    <span class="badge text-bg-light border"><%= character.shortDescription %></span>
+                  <% } %>
+                </div>
+                <p class="mb-0 text-body-secondary"><%= character.fullDescription %></p>
+              </div>
+            </article>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <%- include('partials/chatroom-share-modals') %>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'chatrooms-client-script' }) %>

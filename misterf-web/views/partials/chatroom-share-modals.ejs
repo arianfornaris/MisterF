@@ -1,0 +1,91 @@
+<% if (selectedChatRoomShareLink) { %>
+  <div
+    class="modal fade"
+    id="shareChatRoomProfileModal"
+    tabindex="-1"
+    aria-labelledby="shareChatRoomProfileModalLabel"
+    aria-hidden="true"
+    <%= chatRoomShareMode === 'profile' ? 'data-auto-open-share-modal' : '' %>
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="shareChatRoomProfileModalLabel">Compartir con perfil</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <% if (selectedChatRoom && shareTargetChatRoomProfiles.length > 0) { %>
+            <form method="post" action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/share/profile" class="d-grid gap-3">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div>
+                <label class="form-label" for="shareTargetChatRoomProfileId">Perfil destino</label>
+                <select class="form-select" id="shareTargetChatRoomProfileId" name="targetProfileId" required>
+                  <% shareTargetChatRoomProfiles.forEach((profile) => { %>
+                    <option value="<%= profile.id %>"><%= profile.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-dark">Compartir ahora</button>
+              </div>
+            </form>
+          <% } else { %>
+            <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta sala.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="shareChatRoomLinkModal"
+    tabindex="-1"
+    aria-labelledby="shareChatRoomLinkModalLabel"
+    aria-hidden="true"
+    <%= chatRoomShareMode === 'link' ? 'data-auto-open-share-modal' : '' %>
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="shareChatRoomLinkModalLabel">Enlace para compartir</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body d-grid gap-3">
+          <div>
+            <label class="form-label" for="chatRoomShareLinkField">Enlace</label>
+            <input
+              class="form-control"
+              id="chatRoomShareLinkField"
+              type="text"
+              readonly
+              value="<%= chatRoomShareUrl %>"
+              data-chatroom-share-link-field
+            >
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-dark" type="button" data-copy-chatroom-share-link>
+              <i class="bi bi-copy me-1" aria-hidden="true"></i>
+              Copiar
+            </button>
+            <button class="btn btn-outline-dark" type="button" data-native-share-chatroom-link>
+              <i class="bi bi-share me-1" aria-hidden="true"></i>
+              Compartir
+            </button>
+          </div>
+          <% if (chatRoomShareQrDataUrl) { %>
+            <div class="d-flex justify-content-center">
+              <img
+                class="practiceModule-share-qr"
+                src="<%= chatRoomShareQrDataUrl %>"
+                alt="QR del enlace para compartir la sala de chat"
+                width="180"
+                height="180"
+              >
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>

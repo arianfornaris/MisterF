@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import { env } from '../config/env.js';
 import {
   addChatRoomMessage,
+  archiveChatRoomForUser,
   createChatRoom,
   createChatRoomConversation,
   findChatRoomById,
@@ -19,6 +20,7 @@ import {
   listChatRoomMessages,
   listChatRoomsForProfile,
   listConversationsForProfile,
+  restoreChatRoomForUser,
   type StoredChatRoom,
   type StoredChatRoomConversation,
   type StoredChatRoomShareLink,
@@ -106,6 +108,15 @@ function formatRelativeTime(value: string): string {
 
 function readField(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function readReturnTo(value: unknown, fallback: string): string {
+  const returnTo = typeof value === 'string' ? value.trim() : '';
+  if (!returnTo.startsWith('/')) {
+    return fallback;
+  }
+
+  return returnTo;
 }
 
 function wantsJsonResponse(request: Request): boolean {
@@ -383,35 +394,86 @@ function mapChatRoomsForProfile(userId: string, profileId: string) {
   }));
 }
 
+function renderChatRoomPageWithShareState(input: {
+  request: Request;
+  response: Response;
+  activeProfile: NonNullable<Request['activeProfile']>;
+  user: NonNullable<Request['authUser']>;
+  selectedChatRoom: StoredChatRoom;
+  title: string;
+  view: string;
+  viewModel?: Record<string, unknown>;
+}): void {
+  const chatRoomShareModeRaw =
+    typeof input.request.query.share === 'string' ? input.request.query.share : '';
+  const chatRoomShareMode =
+    chatRoomShareModeRaw === 'profile' || chatRoomShareModeRaw === 'link'
+      ? chatRoomShareModeRaw
+      : '';
+
+  const selectedChatRoomShareLink = getOrCreateChatRoomShareLink(input.selectedChatRoom.id);
+  const chatRoomShareUrl = buildAbsoluteAppUrl(
+    `/chatrooms/shared/${encodeURIComponent(selectedChatRoomShareLink.id)}`,
+  );
+  const shareTargetChatRoomProfiles = (input.request.availableProfiles ?? []).filter(
+    (profile) => profile.id !== input.selectedChatRoom.profileId,
+  );
+
+  Promise.resolve(
+    QRCode.toDataURL(chatRoomShareUrl, { margin: 1, width: 180 }),
+  ).then((chatRoomShareQrDataUrl) => {
+    input.response.render(input.view, {
+      ...buildChatroomsShellContext(input.request, {
+        activeProfile: input.activeProfile,
+        title: input.title,
+        user: input.user,
+      }),
+      ...(input.viewModel ?? {}),
+      chatRoomShareMode,
+      chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
+      chatRoomShareUrl,
+      selectedChatRoom: input.selectedChatRoom,
+      selectedChatRoomShareLink,
+      shareTargetChatRoomProfiles,
+    });
+  }).catch(() => {
+    input.response.render(input.view, {
+      ...buildChatroomsShellContext(input.request, {
+        activeProfile: input.activeProfile,
+        title: input.title,
+        user: input.user,
+      }),
+      ...(input.viewModel ?? {}),
+      chatRoomShareMode,
+      chatRoomShareQrDataUrl: '',
+      chatRoomShareUrl,
+      selectedChatRoom: input.selectedChatRoom,
+      selectedChatRoomShareLink,
+      shareTargetChatRoomProfiles,
+    });
+  });
+}
+
 export function renderChatRoomsListPage(request: Request, response: Response): void {
   const auth = ensureVerifiedChatroomsUser(request, response);
   if (!auth) {
     return;
   }
 
-  let activeProfile = auth.activeProfile;
-  let selectedChatRoom: StoredChatRoom | null = null;
-  const roomId = String(request.params.roomId || '').trim();
-  if (roomId) {
-    const resolved = resolveSelectedChatRoomForRequest({
-      request,
-      response,
-      user: auth.user,
-    });
-    if (!resolved) {
-      return;
-    }
-    activeProfile = resolved.activeProfile;
-    selectedChatRoom = resolved.room;
-  }
+  const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
 
+  const selectedRoomId =
+    typeof request.query.room === 'string' ? request.query.room.trim() : '';
+  const selectedChatRoom = selectedRoomId
+    ? findChatRoomForUser(selectedRoomId, auth.user.id)
+    : null;
   const chatRoomShareModeRaw =
     typeof request.query.share === 'string' ? request.query.share : '';
   const chatRoomShareMode =
-    chatRoomShareModeRaw === 'profile' || chatRoomShareModeRaw === 'link'
+    selectedChatRoom &&
+    (chatRoomShareModeRaw === 'profile' || chatRoomShareModeRaw === 'link')
       ? chatRoomShareModeRaw
       : '';
-
   const selectedChatRoomShareLink = selectedChatRoom
     ? getOrCreateChatRoomShareLink(selectedChatRoom.id)
     : null;
@@ -420,44 +482,89 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
         `/chatrooms/shared/${encodeURIComponent(selectedChatRoomShareLink.id)}`,
       )
     : '';
-  const chatRoomShareQrDataUrl = chatRoomShareUrl
-    ? QRCode.toDataURL(chatRoomShareUrl, { margin: 1, width: 180 })
-    : '';
+  const shareTargetChatRoomProfiles = selectedChatRoom
+    ? (request.availableProfiles ?? []).filter(
+        (profile) => profile.id !== selectedChatRoom.profileId,
+      )
+    : [];
+  const chatRooms = mapChatRoomsForProfile(auth.user.id, auth.activeProfile.id).filter(
+    (room) => {
+      if (room.archivedAt && !showArchivedChatRooms) {
+        return false;
+      }
 
-  Promise.resolve(chatRoomShareQrDataUrl).then((resolvedQr) => {
+      return true;
+    },
+  );
+
+  Promise.resolve(
+    chatRoomShareUrl
+      ? QRCode.toDataURL(chatRoomShareUrl, { margin: 1, width: 180 })
+      : '',
+  ).then((chatRoomShareQrDataUrl) => {
     response.render('chatrooms-list', {
       ...buildChatroomsShellContext(request, {
-        activeProfile,
+        activeProfile: auth.activeProfile,
         title: `Salas de chat · ${appDocumentTitle}`,
         user: auth.user,
       }),
       chatRoomShareMode,
-      chatRoomShareQrDataUrl: resolvedQr || '',
+      chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
       chatRoomShareUrl,
-      chatRooms: mapChatRoomsForProfile(auth.user.id, activeProfile.id),
+      chatRooms,
+      showArchivedChatRooms,
       selectedChatRoom,
       selectedChatRoomShareLink,
-      shareTargetChatRoomProfiles: (request.availableProfiles ?? []).filter(
-        (profile) => profile.id !== (selectedChatRoom?.profileId ?? activeProfile.id),
-      ),
+      shareTargetChatRoomProfiles,
     });
   }).catch(() => {
     response.render('chatrooms-list', {
       ...buildChatroomsShellContext(request, {
-        activeProfile,
+        activeProfile: auth.activeProfile,
         title: `Salas de chat · ${appDocumentTitle}`,
         user: auth.user,
       }),
       chatRoomShareMode,
       chatRoomShareQrDataUrl: '',
       chatRoomShareUrl,
-      chatRooms: mapChatRoomsForProfile(auth.user.id, activeProfile.id),
+      chatRooms,
+      showArchivedChatRooms,
       selectedChatRoom,
       selectedChatRoomShareLink,
-      shareTargetChatRoomProfiles: (request.availableProfiles ?? []).filter(
-        (profile) => profile.id !== (selectedChatRoom?.profileId ?? activeProfile.id),
-      ),
+      shareTargetChatRoomProfiles,
     });
+  });
+}
+
+export function renderChatRoomShowPage(request: Request, response: Response): void {
+  const auth = ensureVerifiedChatroomsUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const resolved = resolveSelectedChatRoomForRequest({
+    request,
+    response,
+    user: auth.user,
+  });
+  if (!resolved) {
+    return;
+  }
+
+  renderChatRoomPageWithShareState({
+    activeProfile: resolved.activeProfile,
+    request,
+    response,
+    selectedChatRoom: resolved.room,
+    title: `${resolved.room.title} · ${appDocumentTitle}`,
+    user: auth.user,
+    view: 'chatrooms-show',
+    viewModel: {
+      selectedChatRoomCharacters: listChatRoomCharacters(resolved.room.id),
+      selectedChatRoomSourceProfileName: resolved.room.sourceProfileId
+        ? findProfileById(resolved.room.sourceProfileId)?.name || ''
+        : '',
+    },
   });
 }
 
@@ -635,7 +742,7 @@ export function handleCreateChatRoom(request: Request, response: Response): void
     userId: auth.user.id,
   });
 
-  response.redirect(`/chatrooms/${encodeURIComponent(room.id)}/history`);
+  response.redirect(`/chatrooms/${encodeURIComponent(room.id)}`);
 }
 
 export function handleUpdateChatRoom(request: Request, response: Response): void {
@@ -665,7 +772,7 @@ export function handleUpdateChatRoom(request: Request, response: Response): void
     userId: auth.user.id,
   });
 
-  response.redirect(`/chatrooms/${encodeURIComponent(roomId)}/history`);
+  response.redirect(`/chatrooms/${encodeURIComponent(roomId)}`);
 }
 
 export function handleJoinChatRoom(request: Request, response: Response): void {
@@ -725,6 +832,44 @@ export function handleShareChatRoomToProfile(request: Request, response: Respons
   response.redirect(`/chatrooms/${encodeURIComponent(room.id)}?share=profile`);
 }
 
+export function handleArchiveChatRoom(request: Request, response: Response): void {
+  const auth = ensureVerifiedChatroomsUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const roomId = String(request.params.roomId || '').trim();
+  const fallbackPath = `/chatrooms/${encodeURIComponent(roomId)}`;
+  const returnTo = readReturnTo(request.body.returnTo, fallbackPath);
+
+  const room = archiveChatRoomForUser(roomId, auth.user.id);
+  if (!room) {
+    response.redirect('/chatrooms');
+    return;
+  }
+
+  response.redirect(returnTo);
+}
+
+export function handleRestoreChatRoom(request: Request, response: Response): void {
+  const auth = ensureVerifiedChatroomsUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const roomId = String(request.params.roomId || '').trim();
+  const fallbackPath = `/chatrooms/${encodeURIComponent(roomId)}`;
+  const returnTo = readReturnTo(request.body.returnTo, fallbackPath);
+
+  const room = restoreChatRoomForUser(roomId, auth.user.id);
+  if (!room) {
+    response.redirect('/chatrooms');
+    return;
+  }
+
+  response.redirect(returnTo);
+}
+
 export function handleAcceptSharedChatRoomLink(request: Request, response: Response): void {
   const shareId = String(request.params.shareId || '').trim();
   if (!shareId) {
@@ -756,7 +901,7 @@ export function handleAcceptSharedChatRoomLink(request: Request, response: Respo
     userId: auth.user.id,
   });
 
-  response.redirect(`/chatrooms/${encodeURIComponent(imported.id)}/history`);
+  response.redirect(`/chatrooms/${encodeURIComponent(imported.id)}`);
 }
 
 export async function handleChatRoomSendMessage(

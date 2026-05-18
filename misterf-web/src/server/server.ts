@@ -34,7 +34,6 @@ import {
   handleSwitchProfile,
   handleUpdateProfile,
   handleVerifyEmail,
-  renderHome,
   renderChangePassword,
   renderForgotPassword,
   renderLogin,
@@ -42,9 +41,12 @@ import {
   renderSignup,
   renderVerifyNeeded,
 } from './auth/forms.js';
+import { renderChatPage } from './chat/handlers.js';
 import {
   handleAcceptSharedChatRoomLink,
+  handleArchiveChatRoom,
   handleChatRoomContinue,
+  handleRestoreChatRoom,
   handleChatRoomSendMessage,
   handleCreateChatRoom,
   handleCreateChatRoomConversation,
@@ -54,6 +56,7 @@ import {
   handleUpdateChatRoom,
   renderChatRoomConversationPage,
   renderChatRoomHistoryPage,
+  renderChatRoomShowPage,
   renderChatRoomsListPage,
   renderEditChatRoomPage,
   renderNewChatRoomPage,
@@ -64,6 +67,22 @@ import { loadAuthSession } from './auth/middleware.js';
 import { requireSessionSecret } from './auth/session.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
+import {
+  renderNewPracticeModuleCollectionPage,
+  renderNewPracticeModulePage,
+  renderPracticeModuleCollectionDetailPage,
+  renderPracticeModuleDetailPage,
+  renderPracticeModulesListPage,
+  renderSharedPracticeModuleCollectionPage,
+  renderSharedPracticeModulePage,
+  renderEditPracticeModuleCollectionPage,
+  renderEditPracticeModulePage,
+} from './practiceModules/handlers.js';
+import {
+  renderEditProfilePage,
+  renderNewProfilePage,
+  renderProfilesListPage,
+} from './profiles/handlers.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import {
   handleOpenRouterKeyUpdate,
@@ -132,17 +151,17 @@ app.post('/logout', handleLogout);
 app.get('/superadmin', renderSuperadminUsers);
 app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
-app.get('/practice-modules', renderHome);
-app.get('/practice-modules/new', renderHome);
+app.get('/practice-modules', renderPracticeModulesListPage);
+app.get('/practice-modules/new', renderNewPracticeModulePage);
 app.post('/practice-modules', handleCreateLesson);
-app.get('/practice-modules/collections/new', renderHome);
+app.get('/practice-modules/collections/new', renderNewPracticeModuleCollectionPage);
 app.post('/practice-modules/collections', handleCreatePracticeModuleCollection);
-app.get('/practice-modules/collections/shared/:shareId', renderHome);
+app.get('/practice-modules/collections/shared/:shareId', renderSharedPracticeModuleCollectionPage);
 app.post('/practice-modules/collections/shared/:shareId/accept', handleAcceptSharedPracticeModuleCollectionLink);
-app.get('/practice-modules/shared/:shareId', renderHome);
+app.get('/practice-modules/shared/:shareId', renderSharedPracticeModulePage);
 app.post('/practice-modules/shared/:shareId/accept', handleAcceptSharedPracticeModuleLink);
-app.get('/practice-modules/collections/:collectionId/edit', renderHome);
-app.get('/practice-modules/collections/:collectionId', renderHome);
+app.get('/practice-modules/collections/:collectionId/edit', renderEditPracticeModuleCollectionPage);
+app.get('/practice-modules/collections/:collectionId', renderPracticeModuleCollectionDetailPage);
 app.post('/practice-modules/collections/:collectionId', handleUpdatePracticeModuleCollection);
 app.post('/practice-modules/collections/:collectionId/favorite', handleSetPracticeModuleCollectionFavorite);
 app.post('/practice-modules/collections/:collectionId/archive', handleArchivePracticeModuleCollection);
@@ -152,8 +171,8 @@ app.post('/practice-modules/collections/:collectionId/items', handleAddPracticeM
 app.post('/practice-modules/collections/:collectionId/items/:practiceModuleId/remove', handleRemovePracticeModuleFromCollection);
 app.post('/practice-modules/collections/:collectionId/items/:practiceModuleId/move-up', handleMovePracticeModuleCollectionItem);
 app.post('/practice-modules/collections/:collectionId/items/:practiceModuleId/move-down', handleMovePracticeModuleCollectionItem);
-app.get('/practice-modules/:practiceModuleId/edit', renderHome);
-app.get('/practice-modules/:practiceModuleId', renderHome);
+app.get('/practice-modules/:practiceModuleId/edit', renderEditPracticeModulePage);
+app.get('/practice-modules/:practiceModuleId', renderPracticeModuleDetailPage);
 app.post('/practice-modules/:practiceModuleId', handleUpdateLesson);
 app.post('/practice-modules/:practiceModuleId/favorite', handleSetLessonFavorite);
 app.post('/practice-modules/:practiceModuleId/archive', handleArchiveLesson);
@@ -161,9 +180,9 @@ app.post('/practice-modules/:practiceModuleId/restore', handleRestoreLesson);
 app.post('/practice-modules/:practiceModuleId/delete', handleDeleteLesson);
 app.post('/practice-modules/:practiceModuleId/chats', handleCreateLessonConversation);
 app.post('/practice-modules/:practiceModuleId/share/profile', handleShareLessonToProfile);
-app.get('/profiles', renderHome);
-app.get('/profiles/new', renderHome);
-app.get('/profiles/:profileId/edit', renderHome);
+app.get('/profiles', renderProfilesListPage);
+app.get('/profiles/new', renderNewProfilePage);
+app.get('/profiles/:profileId/edit', renderEditProfilePage);
 app.post('/profiles', handleCreateProfile);
 app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
@@ -172,9 +191,11 @@ app.get('/chatrooms/new', renderNewChatRoomPage);
 app.get('/chatrooms/shared/:shareId', renderSharedChatRoomPage);
 app.post('/chatrooms/shared/:shareId/accept', handleAcceptSharedChatRoomLink);
 app.post('/chatrooms', handleCreateChatRoom);
-app.get('/chatrooms/:roomId', renderChatRoomsListPage);
+app.get('/chatrooms/:roomId', renderChatRoomShowPage);
 app.get('/chatrooms/:roomId/edit', renderEditChatRoomPage);
 app.post('/chatrooms/:roomId', handleUpdateChatRoom);
+app.post('/chatrooms/:roomId/archive', handleArchiveChatRoom);
+app.post('/chatrooms/:roomId/restore', handleRestoreChatRoom);
 app.get('/chatrooms/:roomId/history', renderChatRoomHistoryPage);
 app.post('/chatrooms/:roomId/share/profile', handleShareChatRoomToProfile);
 app.post('/chatrooms/:roomId/join', handleJoinChatRoom);
@@ -183,8 +204,8 @@ app.get('/chatroom-conversations/:roomConversationId', renderChatRoomConversatio
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
 app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);
-app.get('/c/:conversationId', renderHome);
-app.get('/', renderHome);
+app.get('/c/:conversationId', renderChatPage);
+app.get('/', renderChatPage);
 app.get('/session', (request, response) => {
   response.json({
     isAuthenticated: Boolean(request.authUser),
