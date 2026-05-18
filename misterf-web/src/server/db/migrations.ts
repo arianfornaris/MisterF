@@ -395,4 +395,47 @@ export const migrations: Migration[] = [
       ADD COLUMN evaluation_created_at TEXT;
     `,
   },
+  {
+    id: 8,
+    name: 'add_chat_room_sharing',
+    up: `
+      ALTER TABLE chat_rooms
+      ADD COLUMN source_room_id TEXT
+      REFERENCES chat_rooms (id)
+      ON DELETE SET NULL;
+
+      ALTER TABLE chat_rooms
+      ADD COLUMN source_user_id TEXT
+      REFERENCES users (id)
+      ON DELETE SET NULL;
+
+      ALTER TABLE chat_rooms
+      ADD COLUMN source_profile_id TEXT
+      REFERENCES profiles (id)
+      ON DELETE SET NULL;
+
+      ALTER TABLE chat_rooms
+      ADD COLUMN shared_via TEXT
+      CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link'));
+
+      CREATE INDEX idx_chat_rooms_profile_shared
+        ON chat_rooms (profile_id, shared_via, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_chat_rooms_profile_source
+        ON chat_rooms (profile_id, source_room_id, shared_via);
+
+      CREATE TABLE chat_room_share_links (
+        id TEXT PRIMARY KEY,
+        room_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (room_id)
+          REFERENCES chat_rooms (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_room_share_links_room_active
+        ON chat_room_share_links (room_id, revoked_at, created_at DESC);
+    `,
+  },
 ];

@@ -1,8 +1,30 @@
 {
+  "_markdown-DMZsmS-X.js": {
+    "file": "chunks/markdown-DMZsmS-X.js",
+    "name": "markdown"
+  },
   "src/client/chat/index.js": {
-    "file": "entries/chat-Bhfxv5cv.js",
+    "file": "entries/chat-D6VhffZR.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
+    "isEntry": true,
+    "imports": [
+      "_markdown-DMZsmS-X.js"
+    ]
+  },
+  "src/client/chatrooms/main.js": {
+    "file": "entries/chatrooms-BByme_o2.js",
+    "name": "chatrooms",
+    "src": "src/client/chatrooms/main.js",
+    "isEntry": true,
+    "imports": [
+      "_markdown-DMZsmS-X.js"
+    ]
+  },
+  "src/client/practiceModules/index.js": {
+    "file": "entries/practice-modules-BB7j2sC7.js",
+    "name": "practice-modules",
+    "src": "src/client/practiceModules/index.js",
     "isEntry": true
   }
 }

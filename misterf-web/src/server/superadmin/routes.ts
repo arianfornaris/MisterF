@@ -20,6 +20,7 @@ type SuperadminViewBase = {
   error: string;
   formatDate: (value?: string | null) => string;
   formatMoney: (value?: number | null) => string;
+  getEffectiveOpenRouterUsage: (value: OpenRouterRemoteKeyInfo | null) => number | null;
   keyRecord: OpenRouterUserKeyRecord | null;
   mode: 'list' | 'detail';
   openRouterInfo: OpenRouterRemoteKeyInfo | null;
@@ -163,6 +164,7 @@ function buildViewData(
     error: readQueryString(request.query.error),
     formatDate,
     formatMoney,
+    getEffectiveOpenRouterUsage,
     success: readQueryString(request.query.success),
     users: listUsersForSuperadmin(),
   };
@@ -227,4 +229,18 @@ function formatMoney(value?: number | null): string {
     maximumFractionDigits: 4,
     style: 'currency',
   }).format(value);
+}
+
+function getEffectiveOpenRouterUsage(
+  value: OpenRouterRemoteKeyInfo | null,
+): number | null {
+  if (!value) {
+    return null;
+  }
+
+  const usage = value.usage ?? 0;
+  const byokUsage = value.includeByokInLimit ? value.byokUsage ?? 0 : 0;
+  const total = usage + byokUsage;
+
+  return Number.isFinite(total) ? total : null;
 }

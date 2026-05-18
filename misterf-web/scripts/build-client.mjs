@@ -11,6 +11,18 @@ const chatScriptPartialPath = path.join(
   'partials',
   'chat-client-script.ejs',
 );
+const chatroomsScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'chatrooms-client-script.ejs',
+);
+const practiceModulesScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'practice-modules-client-script.ejs',
+);
 const stylesheetPartialPath = path.join(
   projectRoot,
   'views',
@@ -50,16 +62,41 @@ if (viteResult.status !== 0) {
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const chatEntry = manifest['src/client/chat/index.js'];
+const chatroomsEntry = manifest['src/client/chatrooms/main.js'];
+const practiceModulesEntry = manifest['src/client/practiceModules/index.js'];
 
 if (!chatEntry?.file) {
   console.error('Could not find chat entry in Vite manifest.');
   process.exit(1);
 }
+if (!chatroomsEntry?.file) {
+  console.error('Could not find chatrooms entry in Vite manifest.');
+  process.exit(1);
+}
+if (!practiceModulesEntry?.file) {
+  console.error('Could not find practice modules entry in Vite manifest.');
+  process.exit(1);
+}
 
-const scriptPath = `/public/build/${chatEntry.file}`;
-const chatScriptPartialContents = `    <script type="module" src="${scriptPath}"></script>\n`;
+const chatScriptPath = `/public/build/${chatEntry.file}`;
+const chatroomsScriptPath = `/public/build/${chatroomsEntry.file}`;
+const practiceModulesScriptPath = `/public/build/${practiceModulesEntry.file}`;
 
-fs.writeFileSync(chatScriptPartialPath, chatScriptPartialContents, 'utf8');
+fs.writeFileSync(
+  chatScriptPartialPath,
+  `    <script type="module" src="${chatScriptPath}"></script>\n`,
+  'utf8',
+);
+fs.writeFileSync(
+  chatroomsScriptPartialPath,
+  `    <script type="module" src="${chatroomsScriptPath}"></script>\n`,
+  'utf8',
+);
+fs.writeFileSync(
+  practiceModulesScriptPartialPath,
+  `    <script type="module" src="${practiceModulesScriptPath}"></script>\n`,
+  'utf8',
+);
 
 const stylesheetContents = bundleStylesheet(sourceStylesheetPath);
 const stylesheetHash = crypto
@@ -88,7 +125,13 @@ fs.writeFileSync(
 );
 
 console.log(
-  `Generated ${path.relative(projectRoot, chatScriptPartialPath)} -> ${scriptPath}`,
+  `Generated ${path.relative(projectRoot, chatScriptPartialPath)} -> ${chatScriptPath}`,
+);
+console.log(
+  `Generated ${path.relative(projectRoot, chatroomsScriptPartialPath)} -> ${chatroomsScriptPath}`,
+);
+console.log(
+  `Generated ${path.relative(projectRoot, practiceModulesScriptPartialPath)} -> ${practiceModulesScriptPath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, stylesheetPartialPath)} -> ${stylesheetPath}`,

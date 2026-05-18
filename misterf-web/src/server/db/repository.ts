@@ -29,6 +29,10 @@ export type StoredChatRoom = {
   id: string;
   userId: string;
   profileId: string;
+  sharedVia: 'profile' | 'link' | null;
+  sourceRoomId: string | null;
+  sourceProfileId: string | null;
+  sourceUserId: string | null;
   title: string;
   description: string;
   createdAt: string;
@@ -54,6 +58,13 @@ export type StoredChatRoomConversation = {
   title: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type StoredChatRoomShareLink = {
+  roomId: string;
+  createdAt: string;
+  id: string;
+  revokedAt: string | null;
 };
 
 export type ChatRoomMessageSenderType = 'character' | 'system' | 'user';
@@ -158,10 +169,21 @@ type ChatRoomRow = {
   id: string;
   user_id: string;
   profile_id: string;
+  shared_via: 'profile' | 'link' | null;
+  source_room_id: string | null;
+  source_profile_id: string | null;
+  source_user_id: string | null;
   title: string;
   description: string;
   created_at: string;
   updated_at: string;
+};
+
+type ChatRoomShareLinkRow = {
+  room_id: string;
+  created_at: string;
+  id: string;
+  revoked_at: string | null;
 };
 
 type ChatRoomCharacterRow = {
@@ -318,10 +340,25 @@ function toStoredChatRoom(row: ChatRoomRow): StoredChatRoom {
     id: row.id,
     userId: row.user_id,
     profileId: row.profile_id,
+    sharedVia: row.shared_via,
+    sourceRoomId: row.source_room_id,
+    sourceProfileId: row.source_profile_id,
+    sourceUserId: row.source_user_id,
     title: row.title,
     description: row.description,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredChatRoomShareLink(
+  row: ChatRoomShareLinkRow,
+): StoredChatRoomShareLink {
+  return {
+    roomId: row.room_id,
+    createdAt: row.created_at,
+    id: row.id,
+    revokedAt: row.revoked_at,
   };
 }
 
@@ -741,6 +778,10 @@ export function deleteConversationForUser(id: string, userId: string): boolean {
 export function createChatRoom(input: {
   userId: string;
   profileId: string;
+  sharedVia?: 'profile' | 'link' | null;
+  sourceRoomId?: string | null;
+  sourceProfileId?: string | null;
+  sourceUserId?: string | null;
   title: string;
   description: string;
   characters: Array<{
@@ -753,8 +794,18 @@ export function createChatRoom(input: {
   const roomId = randomUUID();
   const insertRoom = db.prepare(
     `
-      INSERT INTO chat_rooms (id, user_id, profile_id, title, description)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO chat_rooms (
+        id,
+        user_id,
+        profile_id,
+        title,
+        description,
+        source_room_id,
+        source_user_id,
+        source_profile_id,
+        shared_via
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
   );
   const insertCharacter = db.prepare(
@@ -778,6 +829,10 @@ export function createChatRoom(input: {
       input.profileId,
       input.title,
       input.description,
+      input.sourceRoomId ?? null,
+      input.sourceUserId ?? null,
+      input.sourceProfileId ?? null,
+      input.sharedVia ?? null,
     );
 
     input.characters.forEach((character, index) => {
@@ -807,12 +862,48 @@ export function findChatRoomForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, profile_id, title, description, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          source_room_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
         FROM chat_rooms
         WHERE id = ? AND user_id = ?
       `,
     )
     .get(id, userId) as ChatRoomRow | undefined;
+
+  return row ? toStoredChatRoom(row) : null;
+}
+
+export function findChatRoomById(id: string): StoredChatRoom | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          source_room_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
+        FROM chat_rooms
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ChatRoomRow | undefined;
 
   return row ? toStoredChatRoom(row) : null;
 }
@@ -824,7 +915,18 @@ export function listChatRoomsForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, profile_id, title, description, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          source_room_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
         FROM chat_rooms
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -905,6 +1007,73 @@ export function updateChatRoomForUser(input: {
   return findChatRoomForUser(input.roomId, input.userId);
 }
 
+export function findImportedChatRoomForProfile(input: {
+  profileId: string;
+  sourceRoomId: string;
+  userId: string;
+}): StoredChatRoom | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          source_room_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
+        FROM chat_rooms
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND source_room_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(input.userId, input.profileId, input.sourceRoomId) as ChatRoomRow | undefined;
+
+  return row ? toStoredChatRoom(row) : null;
+}
+
+export function importChatRoomToProfile(input: {
+  shareKind: 'profile' | 'link';
+  sourceRoom: StoredChatRoom;
+  targetProfileId: string;
+  userId: string;
+}): StoredChatRoom {
+  const existing = findImportedChatRoomForProfile({
+    profileId: input.targetProfileId,
+    sourceRoomId: input.sourceRoom.id,
+    userId: input.userId,
+  });
+  if (existing) {
+    return existing;
+  }
+
+  const characters = listChatRoomCharacters(input.sourceRoom.id).map((character) => ({
+    fullDescription: character.fullDescription,
+    name: character.name,
+    shortDescription: character.shortDescription,
+  }));
+
+  return createChatRoom({
+    characters,
+    description: input.sourceRoom.description,
+    profileId: input.targetProfileId,
+    sharedVia: input.shareKind,
+    sourceProfileId: input.sourceRoom.profileId,
+    sourceRoomId: input.sourceRoom.id,
+    sourceUserId: input.sourceRoom.userId,
+    title: input.sourceRoom.title,
+    userId: input.userId,
+  });
+}
+
 export function listChatRoomCharacters(
   roomId: string,
 ): StoredChatRoomCharacter[] {
@@ -920,6 +1089,68 @@ export function listChatRoomCharacters(
     .all(roomId) as ChatRoomCharacterRow[];
 
   return rows.map(toStoredChatRoomCharacter);
+}
+
+export function findChatRoomShareLinkById(
+  id: string,
+): StoredChatRoomShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, room_id, created_at, revoked_at
+        FROM chat_room_share_links
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ChatRoomShareLinkRow | undefined;
+
+  return row ? toStoredChatRoomShareLink(row) : null;
+}
+
+export function findChatRoomShareLinkForRoom(
+  roomId: string,
+): StoredChatRoomShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, room_id, created_at, revoked_at
+        FROM chat_room_share_links
+        WHERE room_id = ?
+          AND revoked_at IS NULL
+        LIMIT 1
+      `,
+    )
+    .get(roomId) as ChatRoomShareLinkRow | undefined;
+
+  return row ? toStoredChatRoomShareLink(row) : null;
+}
+
+export function getOrCreateChatRoomShareLink(
+  roomId: string,
+): StoredChatRoomShareLink {
+  const existing = findChatRoomShareLinkForRoom(roomId);
+  if (existing) {
+    return existing;
+  }
+
+  const id = randomBytes(18).toString('base64url');
+  getDb()
+    .prepare(
+      `
+        INSERT INTO chat_room_share_links (id, room_id)
+        VALUES (?, ?)
+        ON CONFLICT(room_id) DO UPDATE SET
+          revoked_at = NULL
+      `,
+    )
+    .run(id, roomId);
+
+  const created = findChatRoomShareLinkForRoom(roomId);
+  if (!created) {
+    throw new Error('Could not load newly created chat room share link.');
+  }
+
+  return created;
 }
 
 export function createChatRoomConversation(

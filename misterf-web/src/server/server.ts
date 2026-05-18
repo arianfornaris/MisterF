@@ -6,14 +6,9 @@ import { csrfProtection } from './auth/csrf.js';
 import {
   handleChangePassword,
   handleCreateLesson,
-  handleCreateChatRoom,
-  handleCreateChatRoomConversation,
   handleCreateLessonConversation,
   handleCreatePracticeModuleCollection,
   handleCreateProfile,
-  handleChatRoomContinue,
-  handleGetChatRoomMessageEvaluation,
-  handleChatRoomSendMessage,
   handleAcceptSharedPracticeModuleCollectionLink,
   handleArchiveLesson,
   handleArchivePracticeModuleCollection,
@@ -28,8 +23,6 @@ import {
   handleSetPracticeModuleCollectionFavorite,
   handleSharePracticeModuleCollectionToProfile,
   handleShareLessonToProfile,
-  handleJoinChatRoom,
-  handleUpdateChatRoom,
   handleUpdateLesson,
   handleUpdatePracticeModuleCollection,
   handleForgotPassword,
@@ -49,6 +42,23 @@ import {
   renderSignup,
   renderVerifyNeeded,
 } from './auth/forms.js';
+import {
+  handleAcceptSharedChatRoomLink,
+  handleChatRoomContinue,
+  handleChatRoomSendMessage,
+  handleCreateChatRoom,
+  handleCreateChatRoomConversation,
+  handleGetChatRoomMessageEvaluation,
+  handleJoinChatRoom,
+  handleShareChatRoomToProfile,
+  handleUpdateChatRoom,
+  renderChatRoomConversationPage,
+  renderChatRoomHistoryPage,
+  renderChatRoomsListPage,
+  renderEditChatRoomPage,
+  renderNewChatRoomPage,
+  renderSharedChatRoomPage,
+} from './chatrooms/handlers.js';
 import { finishGoogleLogin, startGoogleLogin } from './auth/google.js';
 import { loadAuthSession } from './auth/middleware.js';
 import { requireSessionSecret } from './auth/session.js';
@@ -157,16 +167,19 @@ app.get('/profiles/:profileId/edit', renderHome);
 app.post('/profiles', handleCreateProfile);
 app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
-app.get('/chatrooms', renderHome);
-app.get('/chatrooms/new', renderHome);
+app.get('/chatrooms', renderChatRoomsListPage);
+app.get('/chatrooms/new', renderNewChatRoomPage);
+app.get('/chatrooms/shared/:shareId', renderSharedChatRoomPage);
+app.post('/chatrooms/shared/:shareId/accept', handleAcceptSharedChatRoomLink);
 app.post('/chatrooms', handleCreateChatRoom);
-app.get('/chatrooms/:roomId', renderHome);
-app.get('/chatrooms/:roomId/edit', renderHome);
+app.get('/chatrooms/:roomId', renderChatRoomsListPage);
+app.get('/chatrooms/:roomId/edit', renderEditChatRoomPage);
 app.post('/chatrooms/:roomId', handleUpdateChatRoom);
-app.get('/chatrooms/:roomId/history', renderHome);
+app.get('/chatrooms/:roomId/history', renderChatRoomHistoryPage);
+app.post('/chatrooms/:roomId/share/profile', handleShareChatRoomToProfile);
 app.post('/chatrooms/:roomId/join', handleJoinChatRoom);
 app.post('/chatrooms/:roomId/conversations', handleCreateChatRoomConversation);
-app.get('/chatroom-conversations/:roomConversationId', renderHome);
+app.get('/chatroom-conversations/:roomConversationId', renderChatRoomConversationPage);
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
 app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);

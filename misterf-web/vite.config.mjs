@@ -10,6 +10,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         chat: path.resolve('src/client/chat/index.js'),
+        chatrooms: path.resolve('src/client/chatrooms/main.js'),
+        'practice-modules': path.resolve('src/client/practiceModules/index.js'),
       },
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',

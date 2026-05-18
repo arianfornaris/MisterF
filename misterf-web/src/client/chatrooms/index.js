@@ -225,10 +225,8 @@ async function postConversationAction(url, formData) {
   return payload;
 }
 
-export function initializeChatroomsPage({ currentView }) {
-  if (currentView !== 'chatrooms') {
-    return;
-  }
+export function initializeChatroomsPage() {
+  initializeChatroomSharingUi();
 
   const threadEl = document.querySelector('[data-chatroom-thread]');
   if (!threadEl) {
@@ -404,5 +402,63 @@ export function initializeChatroomsPage({ currentView }) {
   resizeTextarea(inputEl);
   void replayInitialMessages().then(() => {
     scrollToBottom(messagesViewportEl);
+  });
+}
+
+function initializeChatroomSharingUi() {
+  const autoOpenModalEl =
+    document.querySelector('#shareChatRoomLinkModal[data-auto-open-share-modal]') ||
+    document.querySelector('#shareChatRoomProfileModal[data-auto-open-share-modal]');
+  if (autoOpenModalEl && window.bootstrap?.Modal) {
+    window.setTimeout(() => {
+      window.bootstrap.Modal.getOrCreateInstance(autoOpenModalEl).show();
+    }, 0);
+  }
+
+  const shareFieldEl = document.querySelector('[data-chatroom-share-link-field]');
+  const copyButtonEl = document.querySelector('[data-copy-chatroom-share-link]');
+  const nativeShareButtonEl = document.querySelector('[data-native-share-chatroom-link]');
+
+  if (!shareFieldEl && !copyButtonEl && !nativeShareButtonEl) {
+    return;
+  }
+
+  if (!(shareFieldEl instanceof HTMLInputElement)) {
+    return;
+  }
+
+  copyButtonEl?.addEventListener('click', async () => {
+    const shareUrl = shareFieldEl.value.trim();
+    if (!shareUrl) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      copyButtonEl.blur();
+    } catch {
+      shareFieldEl.focus();
+      shareFieldEl.select();
+    }
+  });
+
+  nativeShareButtonEl?.addEventListener('click', async () => {
+    const shareUrl = shareFieldEl.value.trim();
+    if (!shareUrl) {
+      return;
+    }
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Sala de chat compartida',
+          url: shareUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareUrl);
+      }
+    } catch {
+      // Ignore cancelled share attempts.
+    }
   });
 }

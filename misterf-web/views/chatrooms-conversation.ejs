@@ -1,0 +1,69 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="practice-modules-view chatrooms-conversation-page" aria-label="Salas de chat">
+  <div class="practice-modules-header practice-modules-header-has-close">
+    <div class="practice-modules-header-detail">
+      <p class="practice-modules-kicker">Sala de chat</p>
+      <p class="mb-0 text-body-secondary small"><%= selectedChatRoom ? selectedChatRoom.title : 'Sala' %></p>
+    </div>
+    <div class="practice-modules-header-actions">
+      <a
+        class="btn-close practice-module-close-button"
+        href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
+        title="Cerrar"
+        aria-label="Cerrar"
+      ></a>
+    </div>
+  </div>
+
+  <section class="chat-layout chatroom-layout" data-chatroom-thread>
+    <div class="messages chatroom-viewport" data-chatroom-viewport tabindex="0">
+      <div class="chatroom-messages" data-chatroom-messages></div>
+      <script type="application/json" data-chatroom-initial-messages><%- JSON.stringify(selectedChatRoomMessages.map((message) => ({
+        content: message.content,
+        evaluationProblem: message.evaluationProblem,
+        evaluationStatus: message.evaluationStatus,
+        id: message.id,
+        senderName: message.senderType === 'user' ? 'Tú' : message.senderName,
+        senderType: message.senderType,
+      }))).replace(/</g, '\\u003c') %></script>
+    </div>
+
+    <div class="chatroom-status small text-body-secondary d-none" data-chatroom-status aria-live="polite"></div>
+
+    <form
+      method="post"
+      action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/messages"
+      class="composer chatroom-composer"
+      data-chatroom-form
+      autocomplete="off"
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <label class="visually-hidden" for="chatRoomMessageInput">Escribe tu mensaje</label>
+      <span class="composer-prompt" aria-hidden="true">&gt;</span>
+      <div class="composer-input-wrap">
+        <textarea
+          id="chatRoomMessageInput"
+          class="composer-input"
+          name="content"
+          rows="1"
+          maxlength="1200"
+          placeholder="Escribe tu mensaje"
+          autocomplete="off"
+          autocapitalize="none"
+          autocorrect="off"
+          spellcheck="false"
+          data-chatroom-input
+          required
+        ></textarea>
+      </div>
+      <div class="composer-footer">
+        <button class="btn btn-dark send-button" type="submit" data-chatroom-send aria-label="Enviar" title="Enviar">
+          <i class="bi bi-send" aria-hidden="true"></i>
+        </button>
+      </div>
+    </form>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'chatrooms-client-script' }) %>

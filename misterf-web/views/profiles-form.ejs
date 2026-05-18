@@ -1,0 +1,69 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="practice-modules-view" aria-label="Perfiles">
+  <div class="practice-modules-header practice-modules-header-has-close">
+    <div>
+      <p class="practice-modules-kicker">Perfiles</p>
+      <h1 class="practice-modules-title"><%= profilePageMode === 'edit' ? 'Editar perfil' : 'Nuevo perfil' %></h1>
+      <p class="practice-modules-copy">
+        <%= profilePageMode === 'edit' && selectedProfile
+          ? 'Ajusta el nombre y la descripción de este perfil.'
+          : 'Crea un perfil separado para organizar conversaciones y módulos de práctica sin mezclarlas con las demás.' %>
+      </p>
+    </div>
+
+    <% if (hasSession) { %>
+      <div class="practice-modules-header-actions">
+        <a
+          class="btn-close practice-module-close-button"
+          href="/profiles"
+          title="Cerrar"
+          aria-label="Cerrar"
+        ></a>
+      </div>
+    <% } %>
+  </div>
+
+  <section class="practice-module-form-shell">
+    <div class="practice-module-form-card card shadow-sm">
+      <div class="card-body">
+      <form
+        class="practice-module-form"
+        method="post"
+        action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
+        autocomplete="off"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="hidden" name="returnTo" value="/profiles">
+
+        <label class="form-label" for="profileName">Nombre</label>
+        <input
+          class="form-control"
+          id="profileName"
+          name="name"
+          maxlength="120"
+          value="<%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.name : '' %>"
+          required
+        >
+
+        <label class="form-label" for="profileDescription">Descripción</label>
+        <textarea
+          class="form-control"
+          id="profileDescription"
+          name="description"
+          rows="4"
+          maxlength="500"
+        ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
+
+        <div class="practice-module-form-actions">
+          <button type="submit" class="btn btn-dark">
+            <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
+          </button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close') %>

@@ -148,6 +148,7 @@
                       <% } %>
 
                       <% if (openRouterInfo) { %>
+                        <% const effectiveUsage = getEffectiveOpenRouterUsage(openRouterInfo); %>
                         <div class="table-responsive mb-4">
                           <table class="table table-sm align-middle mb-0">
                             <tbody>
@@ -160,12 +161,24 @@
                                 <td><%= formatMoney(openRouterInfo.limitRemaining) %></td>
                               </tr>
                               <tr>
-                                <th scope="row">Uso total</th>
+                                <th scope="row">Uso contra límite</th>
+                                <td><%= formatMoney(effectiveUsage) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Uso OpenRouter</th>
                                 <td><%= formatMoney(openRouterInfo.usage) %></td>
                               </tr>
                               <tr>
-                                <th scope="row">Uso mensual</th>
+                                <th scope="row">Uso BYOK</th>
+                                <td><%= formatMoney(openRouterInfo.byokUsage) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Uso mensual OpenRouter</th>
                                 <td><%= formatMoney(openRouterInfo.usageMonthly) %></td>
+                              </tr>
+                              <tr>
+                                <th scope="row">Uso mensual BYOK</th>
+                                <td><%= formatMoney(openRouterInfo.byokUsageMonthly) %></td>
                               </tr>
                               <tr>
                                 <th scope="row">Reset</th>

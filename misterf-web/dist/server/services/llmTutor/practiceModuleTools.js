@@ -38,7 +38,7 @@ export function buildTutorPracticeModuleTools(input) {
             },
         }),
         create_practice_module: tool({
-            description: 'Create a new practice module in the current profile, but only when the learner explicitly asks for it or clearly authorizes it. Do not use this tool proactively. You may infer title, description, and tutorInstructions from the user request and chat context only after the learner has explicitly requested or approved creating the practice module. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
+            description: 'Create a new practice module in the current profile, but only when the learner explicitly asks for a module and clearly uses the word "module" or "módulo" in that request. Do not use this tool proactively. Do not use it for requests about inline exercises, practice in the current chat, a plan, a guide, a lesson outline, a set of activities, or general studying help unless the learner explicitly says they want a module. You may infer title, description, and tutorInstructions from the user request and chat context only after the learner has explicitly requested or approved creating the practice module as a module. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
             inputSchema: z.object({
                 description: z.string().trim().min(1).max(1500),
                 title: z.string().trim().min(1).max(220),

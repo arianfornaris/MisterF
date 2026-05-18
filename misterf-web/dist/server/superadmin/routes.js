@@ -97,6 +97,7 @@ function buildViewData(request, response, overrides) {
         error: readQueryString(request.query.error),
         formatDate,
         formatMoney,
+        getEffectiveOpenRouterUsage,
         success: readQueryString(request.query.success),
         users: listUsersForSuperadmin(),
     };
@@ -147,5 +148,14 @@ function formatMoney(value) {
         maximumFractionDigits: 4,
         style: 'currency',
     }).format(value);
+}
+function getEffectiveOpenRouterUsage(value) {
+    if (!value) {
+        return null;
+    }
+    const usage = value.usage ?? 0;
+    const byokUsage = value.includeByokInLimit ? value.byokUsage ?? 0 : 0;
+    const total = usage + byokUsage;
+    return Number.isFinite(total) ? total : null;
 }
 //# sourceMappingURL=routes.js.map

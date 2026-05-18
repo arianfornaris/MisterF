@@ -1,0 +1,47 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="practice-modules-view" aria-label="Salas de chat">
+  <div class="practice-modules-header practice-modules-header-has-close">
+    <div class="practice-modules-header-detail">
+      <p class="practice-modules-kicker">Salas de chat</p>
+      <h1 class="practice-modules-title"><%= selectedChatRoom ? selectedChatRoom.title : 'Historial' %></h1>
+      <p class="practice-modules-copy">
+        Crea salas con personajes de IA para simular conversaciones sociales y hacer que el usuario escriba con más libertad.
+      </p>
+    </div>
+    <div class="practice-modules-header-actions">
+      <a
+        class="btn-close practice-module-close-button"
+        href="/chatrooms"
+        title="Cerrar"
+        aria-label="Cerrar"
+      ></a>
+    </div>
+  </div>
+
+  <div class="d-grid gap-4">
+    <h3 class="fs-5 mb-0">Historial</h3>
+
+    <% if (chatRoomConversations.length > 0) { %>
+      <div class="list-group shadow-sm">
+        <% chatRoomConversations.forEach((conversation) => { %>
+          <div class="list-group-item d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+              <div class="fw-semibold"><%= conversation.title %></div>
+              <div class="small text-body-secondary">
+                Última actividad: <%= conversation.relativeUpdatedAt %>
+              </div>
+            </div>
+            <a class="btn btn-outline-dark btn-sm" href="/chatroom-conversations/<%= encodeURIComponent(conversation.id) %>">
+              Continuar
+            </a>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="mb-0 text-body-secondary">Todavía no hay conversaciones en esta sala.</p>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'chatrooms-client-script' }) %>

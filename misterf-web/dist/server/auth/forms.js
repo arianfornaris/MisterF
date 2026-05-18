@@ -6,7 +6,7 @@ import { hashPassword, verifyPassword } from './password.js';
 import { createAuthActionToken, createLocalUser, createSession, deleteUserById, findUserByAuthActionToken, findUserByEmail, markAuthActionTokenUsed, markEmailVerified, normalizeEmail, revokeSession, revokeUserSessions, updateUserPassword, } from './repository.js';
 import { clearSessionCookie, createSessionCookie, hasKnownVisitorCookie, setKnownVisitorCookie, setSessionCookie, } from './session.js';
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
-import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessageEvaluation, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomMessage, findChatRoomForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
+import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessageEvaluation, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomMessage, findChatRoomById, findChatRoomForUser, findChatRoomShareLinkById, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreateChatRoomShareLink, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importChatRoomToProfile, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser, getOpenRouterApiKeyForUser, } from '../services/openRouterUserKeys.js';
 import { env } from '../config/env.js';
 import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js';
@@ -558,9 +558,13 @@ export async function renderHome(request, response) {
     const authMessage = getHomeAuthMessage(request, user);
     const practiceModuleFilterQueryRaw = typeof request.query.q === 'string' ? request.query.q : '';
     const practiceModuleShareModeRaw = typeof request.query.share === 'string' ? request.query.share : '';
+    const chatRoomShareModeRaw = typeof request.query.share === 'string' ? request.query.share : '';
     const practiceModuleFilterQuery = practiceModuleFilterQueryRaw.trim();
     const practiceModuleShareMode = practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
         ? practiceModuleShareModeRaw
+        : '';
+    const chatRoomShareMode = chatRoomShareModeRaw === 'profile' || chatRoomShareModeRaw === 'link'
+        ? chatRoomShareModeRaw
         : '';
     const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
     const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
@@ -581,9 +585,20 @@ export async function renderHome(request, response) {
     const requestedLessonShareId = typeof requestedLessonShareIdRaw === 'string'
         ? requestedLessonShareIdRaw.trim()
         : '';
+    const requestedChatRoomShareIdRaw = request.params.shareId;
+    const requestedChatRoomShareId = typeof requestedChatRoomShareIdRaw === 'string'
+        ? requestedChatRoomShareIdRaw.trim()
+        : '';
+    const isPracticeModuleSharePath = /^\/practice-modules\/shared\/[^/]+$/.test(request.path);
     const isCollectionSharePath = /^\/practice-modules\/collections\/shared\/[^/]+$/.test(request.path);
     const requestedCollectionShareId = isCollectionSharePath ? requestedLessonShareId : '';
-    const requestedPracticeModuleShareId = isCollectionSharePath ? '' : requestedLessonShareId;
+    const requestedPracticeModuleShareId = isPracticeModuleSharePath
+        ? requestedLessonShareId
+        : '';
+    const isChatRoomSharePath = /^\/chatrooms\/shared\/[^/]+$/.test(request.path);
+    const effectiveRequestedChatRoomShareId = isChatRoomSharePath
+        ? requestedChatRoomShareId
+        : '';
     const requestedCollectionIdRaw = request.params.collectionId;
     const requestedCollectionId = typeof requestedCollectionIdRaw === 'string'
         ? requestedCollectionIdRaw.trim()
@@ -638,6 +653,9 @@ export async function renderHome(request, response) {
     let selectedProfile = null;
     let chatRoomPageMode = 'list';
     let selectedChatRoom = null;
+    let selectedSharedChatRoom = null;
+    let selectedChatRoomShareLink = null;
+    let selectedChatRoomSharedFromProfileName = '';
     let selectedChatRoomConversation = null;
     let selectedChatRoomCharacters = [];
     let selectedChatRoomMessages = [];
@@ -650,7 +668,7 @@ export async function renderHome(request, response) {
         response.redirect('/login');
         return;
     }
-    if (currentView === 'chatrooms' && !user) {
+    if (currentView === 'chatrooms' && !user && !effectiveRequestedChatRoomShareId) {
         response.redirect('/login');
         return;
     }
@@ -727,6 +745,21 @@ export async function renderHome(request, response) {
         selectedPracticeModuleCollectionShareLink = shareLink;
         practiceModuleCollectionModules = listPracticeModulesForCollection(sharedCollection.id, sharedCollection.userId);
     }
+    if (effectiveRequestedChatRoomShareId) {
+        const shareLink = findChatRoomShareLinkById(effectiveRequestedChatRoomShareId);
+        if (!shareLink || shareLink.revokedAt) {
+            response.redirect('/chatrooms');
+            return;
+        }
+        const sharedRoom = findChatRoomById(shareLink.roomId);
+        if (!sharedRoom) {
+            response.redirect('/chatrooms');
+            return;
+        }
+        selectedSharedChatRoom = sharedRoom;
+        selectedChatRoomShareLink = shareLink;
+        selectedChatRoomCharacters = listChatRoomCharacters(sharedRoom.id);
+    }
     if (selectedPracticeModule) {
         selectedPracticeModuleShareLink = getOrCreatePracticeModuleShareLink(selectedPracticeModule.id);
         if (selectedPracticeModule.sourceProfileId) {
@@ -740,6 +773,10 @@ export async function renderHome(request, response) {
             selectedPracticeModuleCollectionSharedFromProfileName =
                 findProfileById(selectedPracticeModuleCollection.sourceProfileId)?.name || '';
         }
+    }
+    if (selectedSharedChatRoom && selectedSharedChatRoom.sourceProfileId) {
+        selectedChatRoomSharedFromProfileName =
+            findProfileById(selectedSharedChatRoom.sourceProfileId)?.name || '';
     }
     if (selectedSharedPracticeModuleCollection &&
         selectedSharedPracticeModuleCollection.sourceProfileId) {
@@ -791,6 +828,13 @@ export async function renderHome(request, response) {
         }
         selectedChatRoomCharacters = listChatRoomCharacters(room.id);
         chatRoomConversations = listChatRoomConversationsForRoom(room.id, user.id);
+    }
+    if (selectedChatRoom) {
+        selectedChatRoomShareLink = getOrCreateChatRoomShareLink(selectedChatRoom.id);
+        if (selectedChatRoom.sourceProfileId) {
+            selectedChatRoomSharedFromProfileName =
+                findProfileById(selectedChatRoom.sourceProfileId)?.name || '';
+        }
     }
     const conversations = user && activeProfile
         ? listConversationsForProfile(user.id, activeProfile.id)
@@ -883,10 +927,14 @@ export async function renderHome(request, response) {
         : [];
     const shareTargetPracticeModuleProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModule?.profileId ?? activeProfile?.id));
     const shareTargetPracticeModuleCollectionProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModuleCollection?.profileId ?? activeProfile?.id));
+    const shareTargetChatRoomProfiles = availableProfiles.filter((profile) => profile.id !== (selectedChatRoom?.profileId ?? activeProfile?.id));
     const chatRooms = user && activeProfile
         ? listChatRoomsForProfile(user.id, activeProfile.id).map((room) => ({
             ...room,
             characters: listChatRoomCharacters(room.id),
+            sourceProfileName: room.sourceProfileId
+                ? findProfileById(room.sourceProfileId)?.name || ''
+                : '',
         }))
         : [];
     const chatRoomConversationsWithRelativeTime = chatRoomConversations.map((conversation) => ({
@@ -907,6 +955,16 @@ export async function renderHome(request, response) {
         : '';
     const practiceModuleCollectionShareQrDataUrl = practiceModuleCollectionShareUrl
         ? await QRCode.toDataURL(practiceModuleCollectionShareUrl, {
+            margin: 1,
+            width: 180,
+        })
+        : '';
+    const activeChatRoomShareLink = selectedChatRoomShareLink;
+    const chatRoomShareUrl = activeChatRoomShareLink
+        ? buildAbsoluteAppUrl(`/chatrooms/shared/${encodeURIComponent(activeChatRoomShareLink.id)}`)
+        : '';
+    const chatRoomShareQrDataUrl = chatRoomShareUrl
+        ? await QRCode.toDataURL(chatRoomShareUrl, {
             margin: 1,
             width: 180,
         })
@@ -961,6 +1019,9 @@ export async function renderHome(request, response) {
         else if (selectedChatRoom && isChatRoomHistoryPage) {
             chatRoomPageMode = 'history';
         }
+        else if (selectedSharedChatRoom && selectedChatRoomShareLink) {
+            chatRoomPageMode = 'share';
+        }
         else {
             chatRoomPageMode = 'list';
         }
@@ -968,9 +1029,19 @@ export async function renderHome(request, response) {
     const viewTemplate = currentView === 'practiceModules'
         ? 'practice-modules'
         : currentView === 'chatrooms'
-            ? 'chatrooms'
+            ? chatRoomPageMode === 'new' || chatRoomPageMode === 'edit'
+                ? 'chatrooms-form'
+                : chatRoomPageMode === 'history'
+                    ? 'chatrooms-history'
+                    : chatRoomPageMode === 'conversation'
+                        ? 'chatrooms-conversation'
+                        : chatRoomPageMode === 'share'
+                            ? 'chatrooms-share'
+                            : 'chatrooms-list'
             : currentView === 'profiles'
-                ? 'profiles'
+                ? profilePageMode === 'new' || profilePageMode === 'edit'
+                    ? 'profiles-form'
+                    : 'profiles-list'
                 : 'chat';
     response.render(viewTemplate, {
         practiceModules: ownLessons,
@@ -987,10 +1058,17 @@ export async function renderHome(request, response) {
         chatRooms,
         chatRoomConversations: chatRoomConversationsWithRelativeTime,
         chatRoomPageMode,
+        chatRoomShareMode,
+        chatRoomShareQrDataUrl,
+        chatRoomShareUrl,
+        shareTargetChatRoomProfiles,
         selectedChatRoom,
         selectedChatRoomCharacters,
         selectedChatRoomConversation,
         selectedChatRoomMessages,
+        selectedChatRoomShareLink,
+        selectedChatRoomSharedFromProfileName,
+        selectedSharedChatRoom,
         practiceModuleShareQrDataUrl,
         practiceModuleShareUrl,
         practiceModuleShareMode,
@@ -1109,6 +1187,66 @@ export function handleCreateChatRoomConversation(request, response) {
     const conversation = createChatRoomConversation(user.id, room);
     seedChatRoomConversation(conversation.id, room, user.fullName);
     response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}`);
+}
+export function handleShareChatRoomToProfile(request, response) {
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        response.redirect('/login');
+        return;
+    }
+    const roomId = String(request.params.roomId || '').trim();
+    const targetProfileId = String(request.body.targetProfileId || '').trim();
+    if (!roomId || !targetProfileId) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const room = findChatRoomForUser(roomId, user.id);
+    if (!room) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const targetProfile = findProfileForUser(targetProfileId, user.id);
+    if (!targetProfile || targetProfile.id === room.profileId) {
+        response.redirect(`/chatrooms/${encodeURIComponent(room.id)}?share=profile`);
+        return;
+    }
+    importChatRoomToProfile({
+        shareKind: 'profile',
+        sourceRoom: room,
+        targetProfileId: targetProfile.id,
+        userId: user.id,
+    });
+    response.redirect(`/chatrooms/${encodeURIComponent(room.id)}?share=profile`);
+}
+export function handleAcceptSharedChatRoomLink(request, response) {
+    const shareId = String(request.params.shareId || '').trim();
+    if (!shareId) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const shareLink = findChatRoomShareLinkById(shareId);
+    if (!shareLink || shareLink.revokedAt) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const sourceRoom = findChatRoomById(shareLink.roomId);
+    if (!sourceRoom) {
+        response.redirect('/chatrooms');
+        return;
+    }
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (!user?.emailVerified || !activeProfile) {
+        response.redirect('/login');
+        return;
+    }
+    const imported = importChatRoomToProfile({
+        shareKind: 'link',
+        sourceRoom,
+        targetProfileId: activeProfile.id,
+        userId: user.id,
+    });
+    response.redirect(`/chatrooms/${encodeURIComponent(imported.id)}/history`);
 }
 export async function handleChatRoomSendMessage(request, response) {
     const wantsJson = request.accepts(['html', 'json']) === 'json';
