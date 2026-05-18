@@ -1,5 +1,6 @@
 import { generateText, stepCountIs, } from 'ai';
 import { env } from '../../config/env.js';
+import { renderSystemPrompt } from '../systemPrompts.js';
 import { LlmFinishReasonError } from './errors.js';
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
@@ -9,9 +10,7 @@ import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFaci
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
-const firstChallengePrompt = `
-Start the session.
-`;
+const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
 const maxAgentTurns = 6;
 function mergeTutorPracticeModuleLinkBlocks(blocks, inferredLinks) {
     const seenPracticeModuleIds = new Set(blocks
@@ -26,24 +25,13 @@ async function continueTutorResponseAfterToolUse(input) {
     const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
     const messages = [
         {
-            role: 'user',
-            content: [
-                'INTERNAL APP CONTINUATION.',
-                'The previous step already used tools and may have completed practice-module or chat-room operations successfully.',
-                'Continue the current conversation turn.',
-                'Do not greet the learner.',
-                'Do not introduce yourself.',
-                'Do not speak as if this were a new conversation or a fresh start.',
-                'Do not call any more tools in this step.',
-                'Now re-emit the complete final TutorResponse as exactly one JSON object and nothing else.',
-                'Do not use markdown fences.',
-                'Use the tool results below as context.',
-                '',
-                JSON.stringify(finalizedToolResults.map((result) => ({
+            content: renderSystemPrompt('tutor/internal-tool-continuation.md', {
+                TOOL_RESULTS_JSON: JSON.stringify(finalizedToolResults.map((result) => ({
                     output: result.output,
                     toolName: result.toolName,
                 })), null, 2),
-            ].join('\n'),
+            }),
+            role: 'user',
         },
     ];
     return generateText({

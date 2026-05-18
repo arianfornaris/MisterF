@@ -90,16 +90,6 @@
                       </button>
                     </form>
                   </div>
-                  <div class="btn-group" role="group" aria-label="Editar colección">
-                    <a
-                      class="btn btn-outline-dark"
-                      href="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/edit"
-                      title="Editar colección"
-                      aria-label="Editar colección"
-                    >
-                      <i class="bi bi-pencil" aria-hidden="true"></i>
-                    </a>
-                  </div>
                   <% if (!selectedPracticeModuleCollection.archivedAt) { %>
                     <div class="btn-group" role="group" aria-label="Compartir colección">
                       <button
@@ -132,6 +122,16 @@
                       </div>
                     </div>
                   <% } %>
+                  <div class="btn-group" role="group" aria-label="Editar colección">
+                    <a
+                      class="btn btn-outline-dark"
+                      href="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/edit"
+                      title="Editar colección"
+                      aria-label="Editar colección"
+                    >
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </a>
+                  </div>
                   <div class="btn-group" role="group" aria-label="<%= selectedPracticeModuleCollection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>">
                     <form
                       method="post"
@@ -335,16 +335,6 @@
                 <% } %>
 
                 <div class="practice-module-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones del módulo de práctica">
-                  <div class="btn-group" role="group" aria-label="Editar módulo de práctica">
-                    <a
-                      class="btn btn-outline-dark"
-                      href="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/edit"
-                      title="Editar módulo de práctica"
-                      aria-label="Editar módulo de práctica"
-                    >
-                      <i class="bi bi-pencil" aria-hidden="true"></i>
-                    </a>
-                  </div>
                   <div class="btn-group" role="group" aria-label="Compartir módulo de práctica">
                     <button
                       class="btn btn-outline-dark dropdown-toggle"
@@ -374,6 +364,16 @@
                         Obtener enlace
                       </button>
                     </div>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="Editar módulo de práctica">
+                    <a
+                      class="btn btn-outline-dark"
+                      href="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/edit"
+                      title="Editar módulo de práctica"
+                      aria-label="Editar módulo de práctica"
+                    >
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </a>
                   </div>
                   <div class="btn-group" role="group" aria-label="<%= selectedPracticeModule.archivedAt ? 'Restaurar módulo de práctica' : 'Archivar módulo de práctica' %>">
                     <form

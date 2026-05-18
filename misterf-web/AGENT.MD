@@ -46,7 +46,7 @@ No hay React.
 - [views/index.ejs](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/views/index.ejs): UI principal.
 - [public/js/chat.js](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/public/js/chat.js): frontend del chat y tabs.
 - [src/client/styles/app.css](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/client/styles/app.css): estilos globales fuente.
-- [gameplays/system-prompt.md](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/gameplays/system-prompt.md): system prompt central del tutor.
+- [system-prompts/tutor/system.md](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/system-prompts/tutor/system.md): system prompt central del tutor.
 - [src/socket/initialGreetings.ts](/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/socket/initialGreetings.ts): saludos iniciales predefinidos.
 
 ## Experiencia actual del usuario

@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
+import { renderSystemPrompt } from './systemPrompts.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
 const maxRecentMessages = 18;
 const maxChatRoomGenerationTurns = 4;
@@ -22,16 +23,9 @@ function appendChatRoomStructuredCorrectionRequest(messages, input) {
         });
     }
     messages.push({
-        content: [
-            'INTERNAL APP CONTINUATION.',
-            '',
-            input.reason,
-            'Re-emit the complete response as exactly one JSON object and nothing else.',
-            'Do not use markdown fences.',
-            'Do not add explanations or extra text before or after the JSON.',
-            'The only valid shape is:',
-            '{"messages":[{"speakerName":"Character name","content":"Next message"}]}',
-        ].join('\n'),
+        content: renderSystemPrompt('chatrooms/structured-correction.md', {
+            CORRECTION_REASON: input.reason,
+        }),
         role: 'user',
     });
     logChatRoomEvent('generation:structured-correction-requested', {
@@ -79,46 +73,27 @@ function resolveCharacterByName(characters, speakerName) {
 }
 async function generateChatRoomMessageBlock(input) {
     const desiredTurnCount = input.characters.length === 1 || Math.random() < 0.5 ? 1 : 2;
-    const system = [
-        'You are the master simulator of a plain-text group chat.',
-        'Generate the next block of chat messages that would appear right after the user message.',
-        'A block may contain one message or more than one message.',
-        'The messages in the block are consecutive messages in the same chat room.',
-        'This is not a tutoring session.',
-        'Nobody explains grammar.',
-        'Nobody uses markdown.',
-        'Write natural English only.',
-        input.isConversationStarting
+    const system = renderSystemPrompt('chatrooms/master-group-chat.md', {
+        CHARACTER_NAMES: input.characters.map((character) => character.name).join(', '),
+        CHARACTER_ROSTER: buildCharacterRoster(input.characters),
+        CONVERSATION_STATE_LINE: input.isConversationStarting
             ? 'The conversation is just starting right now.'
             : 'The conversation is already in progress.',
-        'Return exactly one JSON object and nothing else.',
-        `speakerName must be one of: ${input.characters.map((character) => character.name).join(', ')}.`,
-        `Return exactly ${desiredTurnCount} message${desiredTurnCount === 1 ? '' : 's'}.`,
-        desiredTurnCount === 2
-            ? 'When possible, use two different characters for the two messages.'
-            : 'Use only one character for the message.',
-        'Never write a message for the user.',
-        'Each message may be as short or as long as needed for the conversation.',
-        'Do not artificially shorten the messages.',
-        'Every message must be complete and must not end mid-sentence.',
-        'Your JSON must be complete and valid, with all quotes and braces properly closed.',
-        input.isConversationStarting
+        DESIRED_TURN_COUNT: String(desiredTurnCount),
+        ROOM_DESCRIPTION: input.room.description,
+        ROOM_TITLE: input.room.title,
+        STARTING_GUIDANCE: input.isConversationStarting
             ? 'Since this is the beginning, the messages should feel like greetings, quick introductions, or simple first reactions to the user.'
             : 'Reply naturally to the ongoing conversation without restarting it.',
-        input.isConversationStarting
+        TOPIC_GUIDANCE: input.isConversationStarting
             ? 'Do not jump into random topics or strong opinions before the conversation has been established.'
             : 'Stay consistent with the current topic and tone.',
-        'Use this JSON shape exactly:',
-        '{"messages":[{"speakerName":"Character name","content":"Next message"}]}',
-        '',
-        `Room title: ${input.room.title}`,
-        `Room description: ${input.room.description}`,
-        `User in the room: ${input.userName}`,
-        '',
-        'Available characters:',
-        buildCharacterRoster(input.characters),
-        '',
-    ].join('\n');
+        TURN_COUNT_RULE: desiredTurnCount === 2
+            ? 'When possible, use two different characters for the two messages.'
+            : 'Use only one character for the message.',
+        TURN_COUNT_SUFFIX: desiredTurnCount === 1 ? '' : 's',
+        USER_NAME: input.userName,
+    });
     const messages = [
         {
             role: 'user',
@@ -280,22 +255,11 @@ export async function advanceChatRoomConversation(input) {
     });
 }
 export async function evaluateChatRoomUserMessage(input) {
-    const system = [
-        'You evaluate one user message written in English inside a plain-text social chat room.',
-        'You are not one of the characters in the room.',
-        'Use the recent chat history only as context.',
-        'Focus only on the last user message provided separately.',
-        'If the message has no important English mistake, reply with exactly: correct',
-        'If the message has an important mistake, reply with markdown in Spanish explaining the problem briefly.',
-        'Do not return JSON.',
-        'Do not use markdown fences.',
-        'Do not greet.',
-        'Do not roleplay as a character.',
-        'Be selective, not nitpicky.',
-        `Room title: ${input.room.title}`,
-        `Room description: ${input.room.description}`,
-        `User in the room: ${input.userName}`,
-    ].join('\n');
+    const system = renderSystemPrompt('chatrooms/user-message-evaluation.md', {
+        ROOM_DESCRIPTION: input.room.description,
+        ROOM_TITLE: input.room.title,
+        USER_NAME: input.userName,
+    });
     const messages = [
         {
             role: 'user',
