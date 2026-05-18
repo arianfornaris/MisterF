@@ -3,8 +3,11 @@ import { z } from 'zod';
 import type {
   StoredChatRoom,
   StoredChatRoomCharacter,
+  StoredChatRoomConversationReport,
+  StoredChatRoomConversationReportSlide,
   StoredChatRoomMessage,
 } from '../db/repository.js';
+import { sentenceEvaluationBlockSchema } from './llmTutor/schemas.js';
 import {
   getLanguageModel,
   getProviderOptions,
@@ -19,6 +22,29 @@ import {
 
 const maxRecentMessages = 18;
 const maxChatRoomGenerationTurns = 4;
+const maxChatRoomReportGenerationTurns = 4;
+
+const chatRoomConversationReportSchema = z.object({
+  report: z.object({
+    summary: z.object({
+      title: z.string().trim().min(1).max(220),
+      description: z.string().trim().min(1).max(4000),
+    }).strict(),
+    slides: z.array(
+      z.object({
+        title: z.string().trim().min(1).max(220),
+        evaluationDescription: z.string().trim().min(1).max(4000),
+        messageEvaluation: sentenceEvaluationBlockSchema,
+      }).strict(),
+    ).min(1).max(8),
+  }).strict(),
+}).strict();
+
+const generatedPracticeModuleFromReportSchema = z.object({
+  title: z.string().trim().min(1).max(220),
+  description: z.string().trim().min(1).max(1500),
+  tutorInstructions: z.string().trim().min(1).max(12000),
+}).strict();
 
 const generatedChatRoomBlockSchema = z.object({
   messages: z.array(
@@ -69,6 +95,68 @@ function appendChatRoomStructuredCorrectionRequest(
   });
 }
 
+function appendChatRoomConversationReportCorrectionRequest(
+  messages: ModelMessage[],
+  input: {
+    invalidOutput?: string | null;
+    reason: string;
+    turn: number;
+  },
+): void {
+  const invalidOutput = input.invalidOutput?.trim();
+
+  if (invalidOutput) {
+    messages.push({
+      content: invalidOutput.slice(0, 10000),
+      role: 'assistant',
+    });
+  }
+
+  messages.push({
+    content: renderSystemPrompt('chatrooms/conversation-report-correction.md', {
+      CORRECTION_REASON: input.reason,
+    }),
+    role: 'user',
+  });
+
+  logChatRoomEvent('report:structured-correction-requested', {
+    hadInvalidOutput: Boolean(invalidOutput),
+    reason: input.reason,
+    turn: input.turn,
+  });
+}
+
+function appendChatRoomPracticeModuleCorrectionRequest(
+  messages: ModelMessage[],
+  input: {
+    invalidOutput?: string | null;
+    reason: string;
+    turn: number;
+  },
+): void {
+  const invalidOutput = input.invalidOutput?.trim();
+
+  if (invalidOutput) {
+    messages.push({
+      content: invalidOutput.slice(0, 10000),
+      role: 'assistant',
+    });
+  }
+
+  messages.push({
+    content: renderSystemPrompt('chatrooms/report-to-practice-module-correction.md', {
+      CORRECTION_REASON: input.reason,
+    }),
+    role: 'user',
+  });
+
+  logChatRoomEvent('report-module:structured-correction-requested', {
+    hadInvalidOutput: Boolean(invalidOutput),
+    reason: input.reason,
+    turn: input.turn,
+  });
+}
+
 function formatHistory(messages: StoredChatRoomMessage[]): string {
   return messages
     .filter((message) => message.senderType !== 'system')
@@ -83,6 +171,16 @@ function formatHistory(messages: StoredChatRoomMessage[]): string {
 function isConversationStarting(messages: StoredChatRoomMessage[]): boolean {
   const visibleMessages = messages.filter((message) => message.senderType !== 'system');
   return visibleMessages.length <= 1;
+}
+
+function formatFullConversationTranscript(messages: StoredChatRoomMessage[]): string {
+  return messages
+    .filter((message) => message.senderType !== 'system')
+    .map((message) => {
+      const visibleName = message.senderType === 'user' ? 'You' : message.senderName;
+      return `${visibleName}: ${message.content}`;
+    })
+    .join('\n');
 }
 
 function parseJsonFromModelText(text: string): unknown {
@@ -460,4 +558,283 @@ export async function evaluateChatRoomUserMessage(input: {
     });
     return null;
   }
+}
+
+export async function generateChatRoomConversationReport(input: {
+  messages: StoredChatRoomMessage[];
+  openRouterApiKey?: string | null;
+  room: StoredChatRoom;
+  userName: string;
+}): Promise<{
+  slides: StoredChatRoomConversationReportSlide[];
+  summaryDescription: string;
+  summaryTitle: string;
+}> {
+  const system = renderSystemPrompt('chatrooms/conversation-report.md', {
+    ROOM_DESCRIPTION: input.room.description,
+    ROOM_TITLE: input.room.title,
+    USER_NAME: input.userName,
+  });
+  const transcript = formatFullConversationTranscript(input.messages);
+  const messages: ModelMessage[] = [
+    {
+      role: 'user',
+      content: [
+        'Full conversation transcript:',
+        transcript || '(empty)',
+      ].join('\n'),
+    },
+  ];
+
+  logChatRoomEvent('report:start', {
+    hasOpenRouterKey: Boolean(input.openRouterApiKey),
+    messageCount: input.messages.length,
+    roomId: input.room.id,
+    userName: input.userName,
+  });
+
+  for (let turn = 0; turn < maxChatRoomReportGenerationTurns; turn += 1) {
+    try {
+      logLlmRequest(
+        messages,
+        system,
+        {
+          actorLabel: 'Chatroom report',
+          llm: {
+            modelTier: 'regular',
+            openRouterApiKey: input.openRouterApiKey,
+          },
+        },
+        turn + 1,
+      );
+
+      const result = await generateText({
+        maxOutputTokens: 2200,
+        model: getLanguageModel({
+          modelTier: 'regular',
+          openRouterApiKey: input.openRouterApiKey,
+        }),
+        messages,
+        providerOptions: getProviderOptions(),
+        system,
+        temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
+      });
+
+      logLlmResponse(
+        result.text,
+        result.finishReason,
+        result.usage,
+        result.providerMetadata,
+        turn + 1,
+        'Chatroom report',
+      );
+
+      let parsedSource: unknown;
+      try {
+        parsedSource = parseJsonFromModelText(result.text);
+      } catch (error) {
+        logLlmInvalidRawResponse({
+          actorLabel: 'Chatroom report',
+          error,
+          rawText: result.text,
+          turn: turn + 1,
+        });
+        logChatRoomEvent('report:invalid-json', {
+          attempt: turn + 1,
+          roomId: input.room.id,
+          error: error instanceof Error ? error.message : String(error),
+          textPreview: result.text.slice(0, 300),
+        });
+
+        if (turn < maxChatRoomReportGenerationTurns - 1) {
+          appendChatRoomConversationReportCorrectionRequest(messages, {
+            invalidOutput: result.text,
+            reason: 'Your previous response was not valid JSON because it was truncated or malformed.',
+            turn: turn + 1,
+          });
+        }
+        continue;
+      }
+
+      const parsed = chatRoomConversationReportSchema.safeParse(parsedSource);
+      if (!parsed.success) {
+        logChatRoomEvent('report:schema-mismatch', {
+          attempt: turn + 1,
+          roomId: input.room.id,
+          issues: parsed.error.issues.map((issue) => ({
+            code: issue.code,
+            message: issue.message,
+            path: issue.path.join('.'),
+          })),
+        });
+
+        if (turn < maxChatRoomReportGenerationTurns - 1) {
+          appendChatRoomConversationReportCorrectionRequest(messages, {
+            invalidOutput: result.text,
+            reason: 'Your previous JSON did not match the required schema for the chatroom conversation report.',
+            turn: turn + 1,
+          });
+        }
+        continue;
+      }
+
+      const report = parsed.data.report;
+      logChatRoomEvent('report:success', {
+        attempt: turn + 1,
+        roomId: input.room.id,
+        slideCount: report.slides.length,
+      });
+
+      return {
+        slides: report.slides,
+        summaryDescription: report.summary.description,
+        summaryTitle: report.summary.title,
+      };
+    } catch (error) {
+      logChatRoomEvent('report:error', {
+        attempt: turn + 1,
+        roomId: input.room.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  throw new Error('Could not generate a valid chat room conversation report.');
+}
+
+export async function generatePracticeModuleFromChatRoomConversationReport(input: {
+  openRouterApiKey?: string | null;
+  report: StoredChatRoomConversationReport;
+  room: StoredChatRoom;
+}): Promise<{
+  description: string;
+  title: string;
+  tutorInstructions: string;
+}> {
+  const system = renderSystemPrompt('chatrooms/report-to-practice-module.md');
+  const messages: ModelMessage[] = [
+    {
+      role: 'user',
+      content: JSON.stringify({
+        report: {
+          summary: {
+            description: input.report.summaryDescription,
+            title: input.report.summaryTitle,
+          },
+          slides: input.report.slides,
+        },
+        room: {
+          description: input.room.description,
+          title: input.room.title,
+        },
+      }),
+    },
+  ];
+
+  logChatRoomEvent('report-module:start', {
+    hasOpenRouterKey: Boolean(input.openRouterApiKey),
+    reportId: input.report.id,
+    roomId: input.room.id,
+  });
+
+  for (let turn = 0; turn < maxChatRoomReportGenerationTurns; turn += 1) {
+    try {
+      logLlmRequest(
+        messages,
+        system,
+        {
+          actorLabel: 'Chatroom report module',
+          llm: {
+            modelTier: 'regular',
+            openRouterApiKey: input.openRouterApiKey,
+          },
+        },
+        turn + 1,
+      );
+
+      const result = await generateText({
+        maxOutputTokens: 1400,
+        model: getLanguageModel({
+          modelTier: 'regular',
+          openRouterApiKey: input.openRouterApiKey,
+        }),
+        messages,
+        providerOptions: getProviderOptions(),
+        system,
+        temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
+      });
+
+      logLlmResponse(
+        result.text,
+        result.finishReason,
+        result.usage,
+        result.providerMetadata,
+        turn + 1,
+        'Chatroom report module',
+      );
+
+      let parsedSource: unknown;
+      try {
+        parsedSource = parseJsonFromModelText(result.text);
+      } catch (error) {
+        logLlmInvalidRawResponse({
+          actorLabel: 'Chatroom report module',
+          error,
+          rawText: result.text,
+          turn: turn + 1,
+        });
+        logChatRoomEvent('report-module:invalid-json', {
+          attempt: turn + 1,
+          reportId: input.report.id,
+          error: error instanceof Error ? error.message : String(error),
+          textPreview: result.text.slice(0, 300),
+        });
+
+        if (turn < maxChatRoomReportGenerationTurns - 1) {
+          appendChatRoomPracticeModuleCorrectionRequest(messages, {
+            invalidOutput: result.text,
+            reason: 'Your previous response was not valid JSON because it was truncated or malformed.',
+            turn: turn + 1,
+          });
+        }
+        continue;
+      }
+
+      const parsed = generatedPracticeModuleFromReportSchema.safeParse(parsedSource);
+      if (!parsed.success) {
+        logChatRoomEvent('report-module:schema-mismatch', {
+          attempt: turn + 1,
+          reportId: input.report.id,
+          issues: parsed.error.issues.map((issue) => ({
+            code: issue.code,
+            message: issue.message,
+            path: issue.path.join('.'),
+          })),
+        });
+
+        if (turn < maxChatRoomReportGenerationTurns - 1) {
+          appendChatRoomPracticeModuleCorrectionRequest(messages, {
+            invalidOutput: result.text,
+            reason: 'Your previous JSON did not match the required schema for the practice module payload.',
+            turn: turn + 1,
+          });
+        }
+        continue;
+      }
+
+      logChatRoomEvent('report-module:success', {
+        attempt: turn + 1,
+        reportId: input.report.id,
+      });
+      return parsed.data;
+    } catch (error) {
+      logChatRoomEvent('report-module:error', {
+        attempt: turn + 1,
+        reportId: input.report.id,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  throw new Error('Could not generate a valid practice module from the chat room report.');
 }

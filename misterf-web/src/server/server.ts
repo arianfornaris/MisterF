@@ -46,15 +46,18 @@ import {
   handleAcceptSharedChatRoomLink,
   handleArchiveChatRoom,
   handleChatRoomContinue,
+  handleCreatePracticeModuleFromChatRoomConversationReport,
   handleRestoreChatRoom,
   handleChatRoomSendMessage,
   handleCreateChatRoom,
   handleCreateChatRoomConversation,
+  handleEvaluateChatRoomConversation,
   handleGetChatRoomMessageEvaluation,
   handleJoinChatRoom,
   handleShareChatRoomToProfile,
   handleUpdateChatRoom,
   renderChatRoomConversationPage,
+  renderChatRoomConversationReportPage,
   renderChatRoomHistoryPage,
   renderChatRoomShowPage,
   renderChatRoomsListPage,
@@ -201,6 +204,9 @@ app.post('/chatrooms/:roomId/share/profile', handleShareChatRoomToProfile);
 app.post('/chatrooms/:roomId/join', handleJoinChatRoom);
 app.post('/chatrooms/:roomId/conversations', handleCreateChatRoomConversation);
 app.get('/chatroom-conversations/:roomConversationId', renderChatRoomConversationPage);
+app.get('/chatroom-conversations/:roomConversationId/report', renderChatRoomConversationReportPage);
+app.post('/chatroom-conversations/:roomConversationId/evaluate', handleEvaluateChatRoomConversation);
+app.post('/chatroom-conversations/:roomConversationId/report/create-practice-module', handleCreatePracticeModuleFromChatRoomConversationReport);
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
 app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);

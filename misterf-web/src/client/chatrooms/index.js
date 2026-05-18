@@ -227,6 +227,7 @@ async function postConversationAction(url, formData) {
 
 export function initializeChatroomsPage() {
   initializeChatroomSharingUi();
+  initializeChatroomReportUi();
 
   const threadEl = document.querySelector('[data-chatroom-thread]');
   if (!threadEl) {
@@ -403,6 +404,222 @@ export function initializeChatroomsPage() {
   void replayInitialMessages().then(() => {
     scrollToBottom(messagesViewportEl);
   });
+}
+
+function initializeChatroomReportUi() {
+  const root = document.querySelector('[data-report-root]');
+  if (!root) {
+    return;
+  }
+
+  const reportUrl = root.getAttribute('data-report-url') || '';
+  const counterEl = root.querySelector('[data-report-slide-counter]');
+  const titleEl = root.querySelector('[data-report-slide-title]');
+  const descriptionEl = root.querySelector('[data-report-slide-description]');
+  const partsRoot = root.querySelector('[data-report-sentence-parts]');
+  const panel = root.querySelector('[data-report-explanation-panel]');
+  const panelTitleEl = root.querySelector('[data-report-explanation-title]');
+  const panelBodyEl = root.querySelector('[data-report-explanation-body]');
+  const prevEl = root.querySelector('[data-report-prev]');
+  const nextEl = root.querySelector('[data-report-next]');
+  const paginationEl = root.querySelector('[data-report-pagination]');
+
+  if (
+    !reportUrl ||
+    !counterEl ||
+    !titleEl ||
+    !descriptionEl ||
+    !partsRoot ||
+    !panel ||
+    !panelTitleEl ||
+    !panelBodyEl
+  ) {
+    return;
+  }
+
+  let currentIndex = readCurrentReportSlideIndex();
+
+  function bindExplanationButtons() {
+    for (const button of partsRoot.querySelectorAll('button[data-report-part-explanation]')) {
+      button.addEventListener('click', () => {
+        const status = button.getAttribute('data-report-part-status') || 'improve';
+        const text = button.getAttribute('data-report-part-text') || '';
+        const explanation =
+          button.getAttribute('data-report-part-explanation') ||
+          'Esta parte necesita un ajuste.';
+
+        panelTitleEl.innerHTML = `${
+          status === 'error' ? 'Error' : 'Puede mejorar'
+        }: <span class="text-body-secondary">${escapeHtml(text)}</span>`;
+        panelBodyEl.textContent = explanation;
+        panel.hidden = false;
+
+        for (const currentButton of partsRoot.querySelectorAll('button[data-report-part-explanation]')) {
+          currentButton.classList.toggle('active', currentButton === button);
+        }
+      });
+    }
+  }
+
+  function renderParts(parts) {
+    partsRoot.innerHTML = '';
+
+    for (const [index, part] of parts.entries()) {
+      let node = null;
+      if (part.status === 'correct') {
+        node = document.createElement('span');
+        node.className = 'sentence-part is-correct';
+        node.textContent = part.text;
+      } else {
+        node = document.createElement('button');
+        node.type = 'button';
+        node.className = `sentence-part is-${part.status}`;
+        node.textContent = part.text;
+        node.setAttribute('data-report-part-text', part.text || '');
+        node.setAttribute('data-report-part-status', part.status || 'improve');
+        node.setAttribute(
+          'data-report-part-explanation',
+          part.explanation || 'Esta parte necesita un ajuste.',
+        );
+      }
+
+      partsRoot.append(node);
+      if (index < parts.length - 1) {
+        partsRoot.append(document.createTextNode(' '));
+      }
+    }
+
+    bindExplanationButtons();
+  }
+
+  function renderPanel(parts) {
+    const firstIssue = Array.isArray(parts)
+      ? parts.find((part) => part && part.status !== 'correct')
+      : null;
+
+    if (!firstIssue) {
+      panel.hidden = true;
+      panelTitleEl.textContent = '';
+      panelBodyEl.textContent = '';
+      return;
+    }
+
+    panelTitleEl.innerHTML = `${
+      firstIssue.status === 'error' ? 'Error' : 'Puede mejorar'
+    }: <span class="text-body-secondary">${escapeHtml(firstIssue.text || '')}</span>`;
+    panelBodyEl.textContent = firstIssue.explanation || 'Esta parte necesita un ajuste.';
+    panel.hidden = false;
+  }
+
+  function updateNav(slideCount) {
+    if (prevEl) {
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+      prevEl.setAttribute('href', `${reportUrl}?slide=${prevIndex}`);
+      prevEl.classList.toggle('disabled', currentIndex === 0);
+      prevEl.setAttribute('aria-disabled', String(currentIndex === 0));
+    }
+
+    if (nextEl) {
+      const nextIndex = currentIndex < slideCount - 1 ? currentIndex + 1 : slideCount - 1;
+      nextEl.setAttribute('href', `${reportUrl}?slide=${nextIndex}`);
+      nextEl.classList.toggle('disabled', currentIndex >= slideCount - 1);
+      nextEl.setAttribute('aria-disabled', String(currentIndex >= slideCount - 1));
+    }
+
+    if (!paginationEl) {
+      return;
+    }
+
+    for (const button of paginationEl.querySelectorAll('[data-report-jump]')) {
+      const index = Number(button.getAttribute('data-report-jump'));
+      const isActive = index === currentIndex;
+      button.classList.toggle('btn-dark', isActive);
+      button.classList.toggle('btn-outline-dark', !isActive);
+    }
+  }
+
+  async function loadSlide(nextIndex) {
+    const response = await fetch(`${reportUrl}?slide=${nextIndex}`, {
+      headers: {
+        Accept: 'application/json',
+      },
+      credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+      window.location.href = `${reportUrl}?slide=${nextIndex}`;
+      return;
+    }
+
+    const payload = await response.json();
+    if (!payload?.ok || !payload?.report?.slide) {
+      window.location.href = `${reportUrl}?slide=${nextIndex}`;
+      return;
+    }
+
+    const report = payload.report;
+    const slide = report.slide;
+    currentIndex = Number.isInteger(report.index) ? report.index : nextIndex;
+    counterEl.textContent = `Slide ${currentIndex + 1} de ${report.slideCount}`;
+    titleEl.textContent = slide.title || 'Análisis';
+    descriptionEl.textContent = slide.evaluationDescription || '';
+    renderParts(Array.isArray(slide.messageEvaluation?.parts) ? slide.messageEvaluation.parts : []);
+    renderPanel(Array.isArray(slide.messageEvaluation?.parts) ? slide.messageEvaluation.parts : []);
+    updateNav(report.slideCount || 1);
+    window.history.replaceState({}, '', `${reportUrl}?slide=${currentIndex}`);
+  }
+
+  function handleNavClick(event, nextIndex) {
+    event.preventDefault();
+    if (nextIndex === currentIndex || nextIndex < 0) {
+      return;
+    }
+    void loadSlide(nextIndex);
+  }
+
+  bindExplanationButtons();
+
+  prevEl?.addEventListener('click', (event) => {
+    if (currentIndex <= 0) {
+      event.preventDefault();
+      return;
+    }
+    handleNavClick(event, currentIndex - 1);
+  });
+
+  nextEl?.addEventListener('click', (event) => {
+    const jump = Number(nextEl.getAttribute('href')?.match(/slide=(\d+)/)?.[1] || currentIndex);
+    if (jump === currentIndex) {
+      event.preventDefault();
+      return;
+    }
+    handleNavClick(event, jump);
+  });
+
+  for (const button of root.querySelectorAll('[data-report-jump]')) {
+    button.addEventListener('click', (event) => {
+      const nextIndex = Number(button.getAttribute('data-report-jump'));
+      if (!Number.isInteger(nextIndex)) {
+        return;
+      }
+      handleNavClick(event, nextIndex);
+    });
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function readCurrentReportSlideIndex() {
+  const params = new URLSearchParams(window.location.search);
+  const value = Number(params.get('slide'));
+  return Number.isInteger(value) && value >= 0 ? value : 0;
 }
 
 function initializeChatroomSharingUi() {

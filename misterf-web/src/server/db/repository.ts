@@ -56,7 +56,39 @@ export type StoredChatRoomConversation = {
   roomId: string;
   userId: string;
   profileId: string;
+  reportCreatedAt: string | null;
+  reportId: string | null;
+  reportPracticeModuleId: string | null;
   title: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredChatRoomConversationReportSentenceEvaluation = {
+  type: 'sentence_evaluation';
+  parts: Array<{
+    explanation?: string;
+    status: 'correct' | 'improve' | 'error';
+    text: string;
+  }>;
+};
+
+export type StoredChatRoomConversationReportSlide = {
+  title: string;
+  evaluationDescription: string;
+  messageEvaluation: StoredChatRoomConversationReportSentenceEvaluation;
+};
+
+export type StoredChatRoomConversationReport = {
+  id: string;
+  conversationId: string;
+  roomId: string;
+  userId: string;
+  profileId: string;
+  summaryTitle: string;
+  summaryDescription: string;
+  slides: StoredChatRoomConversationReportSlide[];
+  practiceModuleId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -204,7 +236,24 @@ type ChatRoomConversationRow = {
   room_id: string;
   user_id: string;
   profile_id: string;
+  report_created_at: string | null;
+  report_id: string | null;
+  report_practice_module_id: string | null;
   title: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type ChatRoomConversationReportRow = {
+  id: string;
+  conversation_id: string;
+  room_id: string;
+  user_id: string;
+  profile_id: string;
+  summary_title: string;
+  summary_description: string;
+  slides_json: string;
+  practice_module_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -388,7 +437,41 @@ function toStoredChatRoomConversation(
     roomId: row.room_id,
     userId: row.user_id,
     profileId: row.profile_id,
+    reportCreatedAt: row.report_created_at,
+    reportId: row.report_id,
+    reportPracticeModuleId: row.report_practice_module_id,
     title: row.title,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function parseChatRoomConversationReportSlides(
+  slidesJson: string,
+): StoredChatRoomConversationReportSlide[] {
+  try {
+    const parsed = JSON.parse(slidesJson) as unknown;
+    return Array.isArray(parsed)
+      ? (parsed as StoredChatRoomConversationReportSlide[])
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function toStoredChatRoomConversationReport(
+  row: ChatRoomConversationReportRow,
+): StoredChatRoomConversationReport {
+  return {
+    id: row.id,
+    conversationId: row.conversation_id,
+    roomId: row.room_id,
+    userId: row.user_id,
+    profileId: row.profile_id,
+    summaryTitle: row.summary_title,
+    summaryDescription: row.summary_description,
+    slides: parseChatRoomConversationReportSlides(row.slides_json),
+    practiceModuleId: row.practice_module_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -1239,9 +1322,21 @@ export function findChatRoomConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, room_id, user_id, profile_id, title, created_at, updated_at
-        FROM chat_room_conversations
-        WHERE id = ? AND user_id = ?
+        SELECT
+          c.id,
+          c.room_id,
+          c.user_id,
+          c.profile_id,
+          c.title,
+          c.created_at,
+          c.updated_at,
+          r.id AS report_id,
+          r.created_at AS report_created_at,
+          r.practice_module_id AS report_practice_module_id
+        FROM chat_room_conversations c
+        LEFT JOIN chat_room_conversation_reports r
+          ON r.conversation_id = c.id
+        WHERE c.id = ? AND c.user_id = ?
       `,
     )
     .get(id, userId) as ChatRoomConversationRow | undefined;
@@ -1256,10 +1351,22 @@ export function listChatRoomConversationsForRoom(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, room_id, user_id, profile_id, title, created_at, updated_at
-        FROM chat_room_conversations
-        WHERE room_id = ? AND user_id = ?
-        ORDER BY updated_at DESC, created_at DESC
+        SELECT
+          c.id,
+          c.room_id,
+          c.user_id,
+          c.profile_id,
+          c.title,
+          c.created_at,
+          c.updated_at,
+          r.id AS report_id,
+          r.created_at AS report_created_at,
+          r.practice_module_id AS report_practice_module_id
+        FROM chat_room_conversations c
+        LEFT JOIN chat_room_conversation_reports r
+          ON r.conversation_id = c.id
+        WHERE c.room_id = ? AND c.user_id = ?
+        ORDER BY c.updated_at DESC, c.created_at DESC
       `,
     )
     .all(roomId, userId) as ChatRoomConversationRow[];
@@ -1274,10 +1381,22 @@ export function findLatestChatRoomConversationForRoom(
   const row = getDb()
     .prepare(
       `
-        SELECT id, room_id, user_id, profile_id, title, created_at, updated_at
-        FROM chat_room_conversations
-        WHERE room_id = ? AND user_id = ?
-        ORDER BY updated_at DESC, created_at DESC
+        SELECT
+          c.id,
+          c.room_id,
+          c.user_id,
+          c.profile_id,
+          c.title,
+          c.created_at,
+          c.updated_at,
+          r.id AS report_id,
+          r.created_at AS report_created_at,
+          r.practice_module_id AS report_practice_module_id
+        FROM chat_room_conversations c
+        LEFT JOIN chat_room_conversation_reports r
+          ON r.conversation_id = c.id
+        WHERE c.room_id = ? AND c.user_id = ?
+        ORDER BY c.updated_at DESC, c.created_at DESC
         LIMIT 1
       `,
     )
@@ -1292,6 +1411,133 @@ export function touchChatRoomConversation(conversationId: string): void {
       'UPDATE chat_room_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?',
     )
     .run(conversationId);
+}
+
+export function findChatRoomConversationReport(
+  conversationId: string,
+  userId: string,
+): StoredChatRoomConversationReport | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          conversation_id,
+          room_id,
+          user_id,
+          profile_id,
+          summary_title,
+          summary_description,
+          slides_json,
+          practice_module_id,
+          created_at,
+          updated_at
+        FROM chat_room_conversation_reports
+        WHERE conversation_id = ? AND user_id = ?
+      `,
+    )
+    .get(conversationId, userId) as ChatRoomConversationReportRow | undefined;
+
+  return row ? toStoredChatRoomConversationReport(row) : null;
+}
+
+export function saveChatRoomConversationReport(input: {
+  conversationId: string;
+  profileId: string;
+  roomId: string;
+  slides: StoredChatRoomConversationReportSlide[];
+  summaryDescription: string;
+  summaryTitle: string;
+  userId: string;
+}): StoredChatRoomConversationReport {
+  const existing = findChatRoomConversationReport(input.conversationId, input.userId);
+
+  if (existing) {
+    getDb()
+      .prepare(
+        `
+          UPDATE chat_room_conversation_reports
+          SET summary_title = ?,
+              summary_description = ?,
+              slides_json = ?,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `,
+      )
+      .run(
+        input.summaryTitle,
+        input.summaryDescription,
+        JSON.stringify(input.slides),
+        existing.id,
+      );
+
+    const updated = findChatRoomConversationReport(input.conversationId, input.userId);
+    if (!updated) {
+      throw new Error('Could not load updated chat room conversation report.');
+    }
+
+    touchChatRoomConversation(input.conversationId);
+
+    return updated;
+  }
+
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO chat_room_conversation_reports (
+          id,
+          conversation_id,
+          room_id,
+          user_id,
+          profile_id,
+          summary_title,
+          summary_description,
+          slides_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      id,
+      input.conversationId,
+      input.roomId,
+      input.userId,
+      input.profileId,
+      input.summaryTitle,
+      input.summaryDescription,
+      JSON.stringify(input.slides),
+    );
+
+  const created = findChatRoomConversationReport(input.conversationId, input.userId);
+  if (!created) {
+    throw new Error('Could not load newly created chat room conversation report.');
+  }
+
+  touchChatRoomConversation(input.conversationId);
+
+  return created;
+}
+
+export function setChatRoomConversationReportPracticeModule(input: {
+  conversationId: string;
+  practiceModuleId: string | null;
+  userId: string;
+}): StoredChatRoomConversationReport | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE chat_room_conversation_reports
+        SET practice_module_id = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE conversation_id = ? AND user_id = ?
+      `,
+    )
+    .run(input.practiceModuleId, input.conversationId, input.userId);
+
+  touchChatRoomConversation(input.conversationId);
+
+  return findChatRoomConversationReport(input.conversationId, input.userId);
 }
 
 export function createPracticeModule(input: {

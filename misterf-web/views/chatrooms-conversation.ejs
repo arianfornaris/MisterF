@@ -7,6 +7,23 @@
       <p class="mb-0 text-body-secondary small"><%= selectedChatRoom ? selectedChatRoom.title : 'Sala' %></p>
     </div>
     <div class="practice-modules-header-actions">
+      <% if (selectedChatRoomConversationReport) { %>
+        <a
+          class="btn btn-outline-dark btn-sm"
+          href="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report"
+        >
+          Ver análisis
+        </a>
+      <% } else { %>
+        <form
+          method="post"
+          action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/evaluate"
+          onsubmit="return window.confirm('¿Seguro que quieres terminar esta conversación y generar el análisis?');"
+        >
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-dark btn-sm" type="submit">Terminar y evaluar</button>
+        </form>
+      <% } %>
       <a
         class="btn-close practice-module-close-button"
         href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
@@ -31,38 +48,44 @@
 
     <div class="chatroom-status small text-body-secondary d-none" data-chatroom-status aria-live="polite"></div>
 
-    <form
-      method="post"
-      action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/messages"
-      class="composer chatroom-composer"
-      data-chatroom-form
-      autocomplete="off"
-    >
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <label class="visually-hidden" for="chatRoomMessageInput">Escribe tu mensaje</label>
-      <span class="composer-prompt" aria-hidden="true">&gt;</span>
-      <div class="composer-input-wrap">
-        <textarea
-          id="chatRoomMessageInput"
-          class="composer-input"
-          name="content"
-          rows="1"
-          maxlength="1200"
-          placeholder="Escribe tu mensaje"
-          autocomplete="off"
-          autocapitalize="none"
-          autocorrect="off"
-          spellcheck="false"
-          data-chatroom-input
-          required
-        ></textarea>
+    <% if (selectedChatRoomConversationReport) { %>
+      <div class="alert alert-secondary mb-0" role="status">
+        Esta conversación ya fue evaluada. Puedes revisar el análisis o empezar una conversación nueva desde la sala.
       </div>
-      <div class="composer-footer">
-        <button class="btn btn-dark send-button" type="submit" data-chatroom-send aria-label="Enviar" title="Enviar">
-          <i class="bi bi-send" aria-hidden="true"></i>
-        </button>
-      </div>
-    </form>
+    <% } else { %>
+      <form
+        method="post"
+        action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/messages"
+        class="composer chatroom-composer"
+        data-chatroom-form
+        autocomplete="off"
+      >
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="visually-hidden" for="chatRoomMessageInput">Escribe tu mensaje</label>
+        <span class="composer-prompt" aria-hidden="true">&gt;</span>
+        <div class="composer-input-wrap">
+          <textarea
+            id="chatRoomMessageInput"
+            class="composer-input"
+            name="content"
+            rows="1"
+            maxlength="1200"
+            placeholder="Escribe tu mensaje"
+            autocomplete="off"
+            autocapitalize="none"
+            autocorrect="off"
+            spellcheck="false"
+            data-chatroom-input
+            required
+          ></textarea>
+        </div>
+        <div class="composer-footer">
+          <button class="btn btn-dark send-button" type="submit" data-chatroom-send aria-label="Enviar" title="Enviar">
+            <i class="bi bi-send" aria-hidden="true"></i>
+          </button>
+        </div>
+      </form>
+    <% } %>
   </section>
 </section>
 

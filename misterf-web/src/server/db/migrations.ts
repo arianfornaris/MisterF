@@ -449,4 +449,43 @@ export const migrations: Migration[] = [
         ON chat_rooms (profile_id, archived_at, updated_at DESC, created_at DESC);
     `,
   },
+  {
+    id: 10,
+    name: 'add_chat_room_conversation_reports',
+    up: `
+      CREATE TABLE chat_room_conversation_reports (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL UNIQUE,
+        room_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        summary_title TEXT NOT NULL,
+        summary_description TEXT NOT NULL,
+        slides_json TEXT NOT NULL,
+        practice_module_id TEXT
+          REFERENCES practice_modules (id)
+          ON DELETE SET NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES chat_room_conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (room_id)
+          REFERENCES chat_rooms (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_room_conversation_reports_room_created
+        ON chat_room_conversation_reports (room_id, created_at DESC);
+
+      CREATE INDEX idx_chat_room_conversation_reports_user_profile_created
+        ON chat_room_conversation_reports (user_id, profile_id, created_at DESC);
+    `,
+  },
 ];
