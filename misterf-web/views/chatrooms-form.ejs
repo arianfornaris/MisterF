@@ -21,9 +21,21 @@
 
   <% const editingRoom = selectedChatRoom; %>
   <% const editingCharacters = selectedChatRoomCharacters || []; %>
+  <% const chatRoomDraftValues = typeof chatRoomFormValues === 'object' && chatRoomFormValues ? chatRoomFormValues : {}; %>
   <section class="practice-module-form-shell">
     <div class="practice-module-form-card card shadow-sm">
       <div class="card-body d-grid gap-4">
+        <% if (chatRoomGenerationError) { %>
+          <div class="alert alert-warning mb-0" role="alert">
+            <strong>No pude generar la sala automáticamente.</strong>
+            <div><%= chatRoomGenerationError %></div>
+          </div>
+        <% } else if (chatRoomGenerationPrompt) { %>
+          <div class="alert alert-light border mb-0" role="status">
+            <strong>Borrador generado con IA.</strong>
+            Revísalo y ajusta lo que haga falta antes de crear la sala.
+          </div>
+        <% } %>
         <form
           class="practice-module-form"
           method="post"
@@ -37,7 +49,7 @@
             id="chatRoomTitle"
             name="title"
             type="text"
-            value="<%= editingRoom ? editingRoom.title : '' %>"
+            value="<%= typeof chatRoomDraftValues.title === 'string' ? chatRoomDraftValues.title : (editingRoom ? editingRoom.title : '') %>"
             maxlength="120"
             required
           >
@@ -49,7 +61,7 @@
             name="description"
             rows="4"
             required
-          ><%= editingRoom ? editingRoom.description : '' %></textarea>
+          ><%= typeof chatRoomDraftValues.description === 'string' ? chatRoomDraftValues.description : (editingRoom ? editingRoom.description : '') %></textarea>
           <div class="form-text">
             Explica de qué trata la sala, qué tipo de conversación suele ocurrir, el tono general y el tipo de gente que participa.
           </div>

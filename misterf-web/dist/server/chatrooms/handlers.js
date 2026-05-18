@@ -4,6 +4,7 @@ import { addChatRoomMessage, archiveChatRoomForUser, createConversationFromChatR
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, generateChatRoomConversationReport, generatePracticeModuleFromChatRoomConversationReport, } from '../services/chatrooms.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
     numeric: 'auto',
@@ -130,6 +131,29 @@ function validateChatRoomFormPayload(input) {
         }
     }
     return null;
+}
+function buildChatRoomFormViewModel(input) {
+    const payload = input.payload ?? null;
+    const room = input.room ?? null;
+    const roomCharacters = input.roomCharacters ?? [];
+    return {
+        chatRoomGenerationError: input.generationError || '',
+        chatRoomGenerationModalAutoOpen: false,
+        chatRoomGenerationPrompt: input.generationPrompt || '',
+        chatRoomPageMode: input.pageMode,
+        chatRoomFormValues: {
+            description: payload?.description ?? room?.description ?? '',
+            title: payload?.title ?? room?.title ?? '',
+        },
+        selectedChatRoom: room,
+        selectedChatRoomCharacters: payload?.characters.length
+            ? payload.characters
+            : roomCharacters.map((character) => ({
+                fullDescription: character.fullDescription,
+                name: character.name,
+                shortDescription: character.shortDescription || '',
+            })),
+    };
 }
 function seedChatRoomConversation(conversationId, room, userName) {
     const characters = listChatRoomCharacters(room.id);
@@ -349,6 +373,9 @@ export function renderChatRoomsListPage(request, response) {
                 user: auth.user,
             }),
             chatRoomShareMode,
+            chatRoomGenerationError: '',
+            chatRoomGenerationModalAutoOpen: false,
+            chatRoomGenerationPrompt: '',
             chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
             chatRoomShareUrl,
             chatRooms,
@@ -365,6 +392,9 @@ export function renderChatRoomsListPage(request, response) {
                 user: auth.user,
             }),
             chatRoomShareMode,
+            chatRoomGenerationError: '',
+            chatRoomGenerationModalAutoOpen: false,
+            chatRoomGenerationPrompt: '',
             chatRoomShareQrDataUrl: '',
             chatRoomShareUrl,
             chatRooms,
@@ -415,9 +445,14 @@ export function renderNewChatRoomPage(request, response) {
             title: `Nueva sala · ${appDocumentTitle}`,
             user: auth.user,
         }),
-        chatRoomPageMode: 'new',
-        selectedChatRoom: null,
-        selectedChatRoomCharacters: [],
+        ...buildChatRoomFormViewModel({
+            pageMode: 'new',
+            payload: {
+                characters: [],
+                description: '',
+                title: '',
+            },
+        }),
     });
 }
 export function renderEditChatRoomPage(request, response) {
@@ -439,10 +474,71 @@ export function renderEditChatRoomPage(request, response) {
             title: `Editar sala · ${appDocumentTitle}`,
             user: auth.user,
         }),
-        chatRoomPageMode: 'edit',
-        selectedChatRoom: resolved.room,
-        selectedChatRoomCharacters: listChatRoomCharacters(resolved.room.id),
+        ...buildChatRoomFormViewModel({
+            pageMode: 'edit',
+            room: resolved.room,
+            roomCharacters: listChatRoomCharacters(resolved.room.id),
+        }),
     });
+}
+export async function handleGenerateChatRoomDraft(request, response) {
+    const auth = ensureVerifiedChatroomsUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const prompt = readField(request.body.prompt);
+    if (!prompt) {
+        response.redirect('/chatrooms/new');
+        return;
+    }
+    try {
+        const openRouterApiKey = await getOpenRouterApiKeyForUser(auth.user.id);
+        const draft = await generateChatRoomDraftFromPrompt({
+            openRouterApiKey,
+            prompt,
+        });
+        const room = createChatRoom({
+            characters: draft.characters.map((character) => ({
+                fullDescription: character.fullDescription,
+                name: character.name,
+                shortDescription: character.shortDescription || '',
+            })),
+            description: draft.description,
+            profileId: auth.activeProfile.id,
+            title: draft.title,
+            userId: auth.user.id,
+        });
+        response.redirect(`/chatrooms/${encodeURIComponent(room.id)}`);
+    }
+    catch (error) {
+        const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
+        const chatRooms = mapChatRoomsForProfile(auth.user.id, auth.activeProfile.id).filter((room) => {
+            if (room.archivedAt && !showArchivedChatRooms) {
+                return false;
+            }
+            return true;
+        });
+        response.render('chatrooms-list', {
+            ...buildChatroomsShellContext(request, {
+                activeProfile: auth.activeProfile,
+                title: `Salas de chat · ${appDocumentTitle}`,
+                user: auth.user,
+            }),
+            chatRoomGenerationError: error instanceof Error && error.message
+                ? error.message
+                : 'No pude generar la sala automáticamente.',
+            chatRoomGenerationModalAutoOpen: true,
+            chatRoomGenerationPrompt: prompt,
+            chatRoomShareMode: '',
+            chatRoomShareQrDataUrl: '',
+            chatRoomShareUrl: '',
+            chatRooms,
+            selectedChatRoom: null,
+            selectedChatRoomShareLink: null,
+            shareTargetChatRoomProfiles: [],
+            showArchivedChatRooms,
+        });
+    }
 }
 export function renderChatRoomHistoryPage(request, response) {
     const auth = ensureVerifiedChatroomsUser(request, response);

@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import QRCode from 'qrcode';
 import {
+  createPracticeModule,
   findPracticeModuleById,
   findPracticeModuleCollectionById,
   findPracticeModuleCollectionForUser,
@@ -18,6 +19,8 @@ import {
   listPracticeModulesForProfile,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
 import {
   appDocumentTitle,
   buildAbsoluteAppUrl,
@@ -36,6 +39,17 @@ type PracticeModulePageKind =
   | 'collectionDetail'
   | 'collectionNew'
   | 'collectionEdit';
+
+type PracticeModuleDraftFormValues = {
+  practiceModuleFormValues?: {
+    description: string;
+    title: string;
+    tutorInstructions: string;
+  };
+  practiceModuleGenerationError?: string;
+  practiceModuleGenerationModalAutoOpen?: boolean;
+  practiceModuleGenerationPrompt?: string;
+};
 
 function redirectUnauthedPracticeModules(response: Response): void {
   response.redirect('/');
@@ -417,6 +431,7 @@ async function renderPracticeModulesPage(
   request: Request,
   response: Response,
   pageKind: PracticeModulePageKind,
+  overrides: PracticeModuleDraftFormValues = {},
 ): Promise<void> {
   const viewModel = await buildPracticeModulesPageModel(request, response, pageKind);
   if (!viewModel) {
@@ -471,6 +486,7 @@ async function renderPracticeModulesPage(
     shareTargetPracticeModuleProfiles: viewModel.shareTargetPracticeModuleProfiles,
     sharedLessons: viewModel.sharedLessons,
     showArchivedPracticeModules: viewModel.showArchivedPracticeModules,
+    ...overrides,
   });
 }
 
@@ -480,6 +496,49 @@ export function renderPracticeModulesListPage(request: Request, response: Respon
 
 export function renderNewPracticeModulePage(request: Request, response: Response) {
   return renderPracticeModulesPage(request, response, 'new');
+}
+
+export async function handleGeneratePracticeModuleDraft(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const prompt = typeof request.body.prompt === 'string' ? request.body.prompt.trim() : '';
+  if (!prompt) {
+    response.redirect('/practice-modules/new');
+    return;
+  }
+
+  try {
+    const openRouterApiKey = await getOpenRouterApiKeyForUser(user.id);
+    const draft = await generatePracticeModuleDraft({
+      openRouterApiKey,
+      prompt,
+    });
+    const practiceModule = createPracticeModule({
+      description: draft.description,
+      profileId: activeProfile.id,
+      title: draft.title,
+      tutorInstructions: draft.tutorInstructions,
+      userId: user.id,
+    });
+    response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+  } catch (error) {
+    await renderPracticeModulesPage(request, response, 'list', {
+      practiceModuleGenerationError:
+        error instanceof Error && error.message
+          ? error.message
+          : 'No pude generar el módulo automáticamente.',
+      practiceModuleGenerationModalAutoOpen: true,
+      practiceModuleGenerationPrompt: prompt,
+    });
+  }
 }
 
 export function renderPracticeModuleDetailPage(request: Request, response: Response) {

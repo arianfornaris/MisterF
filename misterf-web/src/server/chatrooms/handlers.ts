@@ -41,6 +41,7 @@ import {
   generatePracticeModuleFromChatRoomConversationReport,
 } from '../services/chatrooms.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
 
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
@@ -55,6 +56,16 @@ type ChatRoomFormPayload = {
     shortDescription?: string;
     fullDescription: string;
   }>;
+};
+
+type ChatRoomFormViewModel = {
+  chatRoomGenerationError?: string;
+  chatRoomGenerationModalAutoOpen?: boolean;
+  chatRoomGenerationPrompt?: string;
+  chatRoomPageMode: 'edit' | 'new';
+  chatRoomFormValues: Pick<ChatRoomFormPayload, 'description' | 'title'>;
+  selectedChatRoom: StoredChatRoom | null;
+  selectedChatRoomCharacters: ChatRoomFormPayload['characters'];
 };
 
 type ChatRoomMessageEvaluation =
@@ -218,6 +229,38 @@ function validateChatRoomFormPayload(input: ChatRoomFormPayload): string | null 
   }
 
   return null;
+}
+
+function buildChatRoomFormViewModel(input: {
+  payload?: ChatRoomFormPayload | null;
+  room?: StoredChatRoom | null;
+  roomCharacters?: ReturnType<typeof listChatRoomCharacters>;
+  pageMode: 'edit' | 'new';
+  generationError?: string;
+  generationPrompt?: string;
+}): ChatRoomFormViewModel {
+  const payload = input.payload ?? null;
+  const room = input.room ?? null;
+  const roomCharacters = input.roomCharacters ?? [];
+
+  return {
+    chatRoomGenerationError: input.generationError || '',
+    chatRoomGenerationModalAutoOpen: false,
+    chatRoomGenerationPrompt: input.generationPrompt || '',
+    chatRoomPageMode: input.pageMode,
+    chatRoomFormValues: {
+      description: payload?.description ?? room?.description ?? '',
+      title: payload?.title ?? room?.title ?? '',
+    },
+    selectedChatRoom: room,
+    selectedChatRoomCharacters: payload?.characters.length
+      ? payload.characters
+      : roomCharacters.map((character) => ({
+          fullDescription: character.fullDescription,
+          name: character.name,
+          shortDescription: character.shortDescription || '',
+        })),
+  };
 }
 
 function seedChatRoomConversation(
@@ -543,6 +586,9 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
         user: auth.user,
       }),
       chatRoomShareMode,
+      chatRoomGenerationError: '',
+      chatRoomGenerationModalAutoOpen: false,
+      chatRoomGenerationPrompt: '',
       chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
       chatRoomShareUrl,
       chatRooms,
@@ -559,6 +605,9 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
         user: auth.user,
       }),
       chatRoomShareMode,
+      chatRoomGenerationError: '',
+      chatRoomGenerationModalAutoOpen: false,
+      chatRoomGenerationPrompt: '',
       chatRoomShareQrDataUrl: '',
       chatRoomShareUrl,
       chatRooms,
@@ -614,9 +663,14 @@ export function renderNewChatRoomPage(request: Request, response: Response): voi
       title: `Nueva sala · ${appDocumentTitle}`,
       user: auth.user,
     }),
-    chatRoomPageMode: 'new',
-    selectedChatRoom: null,
-    selectedChatRoomCharacters: [],
+    ...buildChatRoomFormViewModel({
+      pageMode: 'new',
+      payload: {
+        characters: [],
+        description: '',
+        title: '',
+      },
+    }),
   });
 }
 
@@ -641,10 +695,79 @@ export function renderEditChatRoomPage(request: Request, response: Response): vo
       title: `Editar sala · ${appDocumentTitle}`,
       user: auth.user,
     }),
-    chatRoomPageMode: 'edit',
-    selectedChatRoom: resolved.room,
-    selectedChatRoomCharacters: listChatRoomCharacters(resolved.room.id),
+    ...buildChatRoomFormViewModel({
+      pageMode: 'edit',
+      room: resolved.room,
+      roomCharacters: listChatRoomCharacters(resolved.room.id),
+    }),
   });
+}
+
+export async function handleGenerateChatRoomDraft(request: Request, response: Response): Promise<void> {
+  const auth = ensureVerifiedChatroomsUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const prompt = readField(request.body.prompt);
+  if (!prompt) {
+    response.redirect('/chatrooms/new');
+    return;
+  }
+
+  try {
+    const openRouterApiKey = await getOpenRouterApiKeyForUser(auth.user.id);
+    const draft = await generateChatRoomDraftFromPrompt({
+      openRouterApiKey,
+      prompt,
+    });
+    const room = createChatRoom({
+      characters: draft.characters.map((character) => ({
+        fullDescription: character.fullDescription,
+        name: character.name,
+        shortDescription: character.shortDescription || '',
+      })),
+      description: draft.description,
+      profileId: auth.activeProfile.id,
+      title: draft.title,
+      userId: auth.user.id,
+    });
+
+    response.redirect(`/chatrooms/${encodeURIComponent(room.id)}`);
+  } catch (error) {
+    const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
+    const chatRooms = mapChatRoomsForProfile(auth.user.id, auth.activeProfile.id).filter(
+      (room) => {
+        if (room.archivedAt && !showArchivedChatRooms) {
+          return false;
+        }
+
+        return true;
+      },
+    );
+
+    response.render('chatrooms-list', {
+      ...buildChatroomsShellContext(request, {
+        activeProfile: auth.activeProfile,
+        title: `Salas de chat · ${appDocumentTitle}`,
+        user: auth.user,
+      }),
+      chatRoomGenerationError:
+        error instanceof Error && error.message
+          ? error.message
+          : 'No pude generar la sala automáticamente.',
+      chatRoomGenerationModalAutoOpen: true,
+      chatRoomGenerationPrompt: prompt,
+      chatRoomShareMode: '',
+      chatRoomShareQrDataUrl: '',
+      chatRoomShareUrl: '',
+      chatRooms,
+      selectedChatRoom: null,
+      selectedChatRoomShareLink: null,
+      shareTargetChatRoomProfiles: [],
+      showArchivedChatRooms,
+    });
+  }
 }
 
 export function renderChatRoomHistoryPage(request: Request, response: Response): void {

@@ -1,6 +1,8 @@
 import QRCode from 'qrcode';
-import { findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, listConversationsForPracticeModule, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, } from '../db/repository.js';
+import { createPracticeModule, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, listConversationsForPracticeModule, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 function redirectUnauthedPracticeModules(response) {
     response.redirect('/');
@@ -280,7 +282,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         user,
     };
 }
-async function renderPracticeModulesPage(request, response, pageKind) {
+async function renderPracticeModulesPage(request, response, pageKind, overrides = {}) {
     const viewModel = await buildPracticeModulesPageModel(request, response, pageKind);
     if (!viewModel) {
         return;
@@ -325,6 +327,7 @@ async function renderPracticeModulesPage(request, response, pageKind) {
         shareTargetPracticeModuleProfiles: viewModel.shareTargetPracticeModuleProfiles,
         sharedLessons: viewModel.sharedLessons,
         showArchivedPracticeModules: viewModel.showArchivedPracticeModules,
+        ...overrides,
     });
 }
 export function renderPracticeModulesListPage(request, response) {
@@ -332,6 +335,43 @@ export function renderPracticeModulesListPage(request, response) {
 }
 export function renderNewPracticeModulePage(request, response) {
     return renderPracticeModulesPage(request, response, 'new');
+}
+export async function handleGeneratePracticeModuleDraft(request, response) {
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (!user?.emailVerified || !activeProfile) {
+        response.redirect('/login');
+        return;
+    }
+    const prompt = typeof request.body.prompt === 'string' ? request.body.prompt.trim() : '';
+    if (!prompt) {
+        response.redirect('/practice-modules/new');
+        return;
+    }
+    try {
+        const openRouterApiKey = await getOpenRouterApiKeyForUser(user.id);
+        const draft = await generatePracticeModuleDraft({
+            openRouterApiKey,
+            prompt,
+        });
+        const practiceModule = createPracticeModule({
+            description: draft.description,
+            profileId: activeProfile.id,
+            title: draft.title,
+            tutorInstructions: draft.tutorInstructions,
+            userId: user.id,
+        });
+        response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+    }
+    catch (error) {
+        await renderPracticeModulesPage(request, response, 'list', {
+            practiceModuleGenerationError: error instanceof Error && error.message
+                ? error.message
+                : 'No pude generar el módulo automáticamente.',
+            practiceModuleGenerationModalAutoOpen: true,
+            practiceModuleGenerationPrompt: prompt,
+        });
+    }
 }
 export function renderPracticeModuleDetailPage(request, response) {
     return renderPracticeModulesPage(request, response, 'detail');

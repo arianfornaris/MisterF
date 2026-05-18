@@ -53,6 +53,7 @@ import {
   handleCreateChatRoom,
   handleCreateChatRoomConversation,
   handleEvaluateChatRoomConversation,
+  handleGenerateChatRoomDraft,
   handleGetChatRoomMessageEvaluation,
   handleJoinChatRoom,
   handleShareChatRoomToProfile,
@@ -72,6 +73,7 @@ import { requireSessionSecret } from './auth/session.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
 import {
+  handleGeneratePracticeModuleDraft,
   renderNewPracticeModuleCollectionPage,
   renderNewPracticeModulePage,
   renderPracticeModuleCollectionDetailPage,
@@ -157,6 +159,7 @@ app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
 app.get('/practice-modules', renderPracticeModulesListPage);
 app.get('/practice-modules/new', renderNewPracticeModulePage);
+app.post('/practice-modules/generate-draft', handleGeneratePracticeModuleDraft);
 app.post('/practice-modules', handleCreateLesson);
 app.get('/practice-modules/collections/new', renderNewPracticeModuleCollectionPage);
 app.post('/practice-modules/collections', handleCreatePracticeModuleCollection);
@@ -192,6 +195,7 @@ app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
 app.get('/chatrooms', renderChatRoomsListPage);
 app.get('/chatrooms/new', renderNewChatRoomPage);
+app.post('/chatrooms/generate-draft', handleGenerateChatRoomDraft);
 app.get('/chatrooms/shared/:shareId', renderSharedChatRoomPage);
 app.post('/chatrooms/shared/:shareId/accept', handleAcceptSharedChatRoomLink);
 app.post('/chatrooms', handleCreateChatRoom);

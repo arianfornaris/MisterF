@@ -12,7 +12,14 @@
   </div>
 
   <div class="mb-4">
-    <a class="btn btn-dark" href="/chatrooms/new">Crear sala</a>
+    <button
+      class="btn btn-dark"
+      type="button"
+      data-bs-toggle="modal"
+      data-bs-target="#generateChatRoomModal"
+    >
+      Crear sala
+    </button>
   </div>
 
   <div class="d-grid gap-4">
@@ -128,6 +135,79 @@
   </div>
 
   <%- include('partials/chatroom-share-modals') %>
+
+  <div
+    class="modal fade"
+    id="generateChatRoomModal"
+    tabindex="-1"
+    aria-labelledby="generateChatRoomModalLabel"
+    aria-hidden="true"
+    <% if (chatRoomGenerationModalAutoOpen) { %>data-auto-open-modal="true"<% } %>
+  >
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <form method="post" action="/chatrooms/generate-draft">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="generateChatRoomModalLabel">Crear sala</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body d-grid gap-3">
+            <p class="mb-0 text-body-secondary">
+              Describe la situación, el tema de conversación y cómo deberían ser los personajes. La sala se creará automáticamente y después podrás revisar sus datos y editarla si quieres.
+            </p>
+            <% if (chatRoomGenerationError) { %>
+              <div class="alert alert-warning mb-0" role="alert">
+                <strong>No pude generar la sala automáticamente.</strong>
+                <div><%= chatRoomGenerationError %></div>
+              </div>
+            <% } %>
+            <div class="accordion" id="chatRoomGenerationExamplesAccordion">
+              <div class="accordion-item">
+                <h3 class="accordion-header">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#chatRoomGenerationExamples"
+                    aria-expanded="false"
+                    aria-controls="chatRoomGenerationExamples"
+                  >
+                    Ejemplos útiles de qué puedes incluir
+                  </button>
+                </h3>
+                <div
+                  id="chatRoomGenerationExamples"
+                  class="accordion-collapse collapse"
+                  data-bs-parent="#chatRoomGenerationExamplesAccordion"
+                >
+                  <div class="accordion-body">
+                    <p class="mb-2">
+                      Puedes mencionar cosas como el nivel del usuario, el contexto social o profesional, el tono de la conversación, la relación entre personajes, los temas que deberían debatir y los tipos de opiniones que podrían tener.
+                    </p>
+                    <p class="mb-0 text-body-secondary">
+                      Ejemplo: una sala de compañeros de trabajo debatiendo si la IA mejora o empeora la productividad, con personajes que tengan opiniones distintas y hablen de forma natural.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <label class="form-label mb-0" for="chatRoomGenerationPrompt">Describe la sala que quieres crear</label>
+            <textarea
+              class="form-control"
+              id="chatRoomGenerationPrompt"
+              name="prompt"
+              rows="6"
+              required
+            ><%= chatRoomGenerationPrompt || '' %></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-dark">Crear</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </section>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'chatrooms-client-script' }) %>

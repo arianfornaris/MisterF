@@ -225,9 +225,19 @@ async function postConversationAction(url, formData) {
   return payload;
 }
 
+function initializeAutoOpenModal() {
+  const modalEl = document.querySelector('[data-auto-open-modal]');
+  if (!modalEl || !window.bootstrap?.Modal) {
+    return;
+  }
+
+  window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
 export function initializeChatroomsPage() {
   initializeChatroomSharingUi();
   initializeChatroomReportUi();
+  initializeAutoOpenModal();
 
   const threadEl = document.querySelector('[data-chatroom-thread]');
   if (!threadEl) {

@@ -98,6 +98,15 @@ function initializePracticeModuleCollectionForms() {
   }
 }
 
+function initializeAutoOpenModal() {
+  const modalEl = document.querySelector('[data-auto-open-modal]');
+  if (!modalEl || !window.bootstrap?.Modal) {
+    return;
+  }
+
+  window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
 function initializeCollectionModulePickers() {
   const pickerForms = document.querySelectorAll('[data-collection-module-picker]');
 
@@ -136,3 +145,4 @@ function initializeCollectionModulePickers() {
 initializePracticeModuleSharingUi();
 initializePracticeModuleCollectionForms();
 initializeCollectionModulePickers();
+initializeAutoOpenModal();
