@@ -148,6 +148,7 @@
       <div class="modal-content">
         <form method="post" action="/chatrooms/generate-draft">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <input type="hidden" name="resourceLabel" value="sala">
           <div class="modal-header">
             <h2 class="modal-title fs-5" id="generateChatRoomModalLabel">Crear sala</h2>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -202,9 +203,45 @@
             ><%= chatRoomGenerationPrompt || '' %></textarea>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-dark">Crear</button>
+            <button
+              type="submit"
+              class="btn btn-dark"
+              data-resource-generate-submit
+            >
+              Crear
+            </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="chatRoomGenerationPendingModal"
+    tabindex="-1"
+    aria-labelledby="chatRoomGenerationPendingModalLabel"
+    aria-hidden="true"
+    data-resource-pending-modal
+    data-resource-pending-label="sala"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4 d-grid gap-3">
+          <div
+            class="spinner-border text-dark mx-auto"
+            role="status"
+            aria-hidden="true"
+          ></div>
+          <div>
+            <h2 class="fs-6 mb-1" id="chatRoomGenerationPendingModalLabel">Creando sala...</h2>
+            <p class="mb-0 text-body-secondary small">
+              Esto puede tardar unos segundos.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -486,6 +486,9 @@ async function renderPracticeModulesPage(
     shareTargetPracticeModuleProfiles: viewModel.shareTargetPracticeModuleProfiles,
     sharedLessons: viewModel.sharedLessons,
     showArchivedPracticeModules: viewModel.showArchivedPracticeModules,
+    practiceModuleGenerationError: '',
+    practiceModuleGenerationModalAutoOpen: false,
+    practiceModuleGenerationPrompt: '',
     ...overrides,
   });
 }

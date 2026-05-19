@@ -107,6 +107,39 @@ function initializeAutoOpenModal() {
   window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
 
+function initializeResourceGenerationPendingUi() {
+  if (!window.bootstrap?.Modal) {
+    return;
+  }
+
+  for (const formEl of document.querySelectorAll('form[action="/practice-modules/generate-draft"]')) {
+    if (!(formEl instanceof HTMLFormElement)) {
+      continue;
+    }
+
+    const submitButtonEl = formEl.querySelector('[data-resource-generate-submit]');
+    const parentModalEl = formEl.closest('.modal');
+    const pendingModalEl = document.querySelector('[data-resource-pending-modal]');
+
+    formEl.addEventListener('submit', () => {
+      if (submitButtonEl instanceof HTMLButtonElement) {
+        submitButtonEl.disabled = true;
+        submitButtonEl.textContent = 'Creando...';
+      }
+
+      if (parentModalEl) {
+        window.bootstrap.Modal.getOrCreateInstance(parentModalEl).hide();
+      }
+
+      if (pendingModalEl) {
+        window.setTimeout(() => {
+          window.bootstrap.Modal.getOrCreateInstance(pendingModalEl).show();
+        }, 120);
+      }
+    });
+  }
+}
+
 function initializeCollectionModulePickers() {
   const pickerForms = document.querySelectorAll('[data-collection-module-picker]');
 
@@ -146,3 +179,4 @@ initializePracticeModuleSharingUi();
 initializePracticeModuleCollectionForms();
 initializeCollectionModulePickers();
 initializeAutoOpenModal();
+initializeResourceGenerationPendingUi();
