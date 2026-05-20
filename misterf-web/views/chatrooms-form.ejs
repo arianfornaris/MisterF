@@ -70,10 +70,10 @@
             <div class="d-flex align-items-center justify-content-between">
               <p class="practiceModule-section-copy mb-0">Personajes</p>
               <div class="btn-group">
-                <button class="btn btn-outline-dark btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#chatroomCharacter2" aria-expanded="<%= editingCharacters.length >= 2 ? 'true' : 'false' %>">
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#chatroomCharacter2" aria-expanded="<%= editingCharacters.length >= 2 ? 'true' : 'false' %>">
                   Agregar personaje 2
                 </button>
-                <button class="btn btn-outline-dark btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#chatroomCharacter3" aria-expanded="<%= editingCharacters.length >= 3 ? 'true' : 'false' %>">
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#chatroomCharacter3" aria-expanded="<%= editingCharacters.length >= 3 ? 'true' : 'false' %>">
                   Agregar personaje 3
                 </button>
               </div>
@@ -136,10 +136,10 @@
           </div>
 
           <div class="practice-module-form-actions">
-            <button type="submit" class="btn btn-dark">
+            <button type="submit" class="btn btn-primary">
               <%= chatRoomPageMode === 'edit' ? 'Guardar cambios' : 'Crear sala' %>
             </button>
-            <a class="btn btn-outline-dark" href="<%= editingRoom ? `/chatrooms/${encodeURIComponent(editingRoom.id)}` : '/chatrooms' %>">
+            <a class="btn btn-outline-secondary" href="<%= editingRoom ? `/chatrooms/${encodeURIComponent(editingRoom.id)}` : '/chatrooms' %>">
               Cancelar
             </a>
           </div>

@@ -12,32 +12,49 @@ export function formatConversationDate(value) {
     return value;
   }
 
-  const today = startOfDay(new Date());
-  const target = startOfDay(date);
-  const dayDiff = Math.round((today.getTime() - target.getTime()) / 86400000);
+  const relativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
+    numeric: 'auto',
+  });
+  const diffMs = date.getTime() - Date.now();
+  const diffSeconds = Math.round(diffMs / 1000);
+  const absSeconds = Math.abs(diffSeconds);
 
-  if (dayDiff === 0) {
-    return `Hoy, ${formatConversationTime(date)}`;
+  if (absSeconds < 60) {
+    return relativeTimeFormatter.format(diffSeconds, 'second');
   }
 
-  if (dayDiff === 1) {
-    return `Ayer, ${formatConversationTime(date)}`;
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const absMinutes = Math.abs(diffMinutes);
+  if (absMinutes < 60) {
+    return relativeTimeFormatter.format(diffMinutes, 'minute');
   }
 
-  return new Intl.DateTimeFormat('es', {
-    day: 'numeric',
-    month: 'short',
-    year: date.getFullYear() === today.getFullYear() ? undefined : 'numeric',
-  })
-    .format(date)
-    .replace('.', '');
-}
+  const diffHours = Math.round(diffMinutes / 60);
+  const absHours = Math.abs(diffHours);
+  if (absHours < 24) {
+    return relativeTimeFormatter.format(diffHours, 'hour');
+  }
 
-export function formatConversationTime(date) {
-  return new Intl.DateTimeFormat('es', {
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(date);
+  const diffDays = Math.round(diffHours / 24);
+  const absDays = Math.abs(diffDays);
+  if (absDays < 7) {
+    return relativeTimeFormatter.format(diffDays, 'day');
+  }
+
+  const diffWeeks = Math.round(diffDays / 7);
+  const absWeeks = Math.abs(diffWeeks);
+  if (absWeeks < 5) {
+    return relativeTimeFormatter.format(diffWeeks, 'week');
+  }
+
+  const diffMonths = Math.round(diffDays / 30);
+  const absMonths = Math.abs(diffMonths);
+  if (absMonths < 12) {
+    return relativeTimeFormatter.format(diffMonths, 'month');
+  }
+
+  const diffYears = Math.round(diffDays / 365);
+  return relativeTimeFormatter.format(diffYears, 'year');
 }
 
 export function parseConversationDate(value) {
@@ -48,8 +65,4 @@ export function parseConversationDate(value) {
   const normalized = value.includes('T') ? value : value.replace(' ', 'T');
   const date = new Date(normalized);
   return Number.isNaN(date.getTime()) ? null : date;
-}
-
-export function startOfDay(date) {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }

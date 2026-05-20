@@ -9,7 +9,7 @@
     <div class="practice-modules-header-actions">
       <% if (selectedChatRoomConversationReport) { %>
         <a
-          class="btn btn-outline-dark btn-sm"
+          class="btn btn-outline-secondary btn-sm"
           href="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report"
         >
           Ver análisis
@@ -21,7 +21,7 @@
           onsubmit="return window.confirm('¿Seguro que quieres terminar esta conversación y generar el análisis?');"
         >
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="btn btn-dark btn-sm" type="submit">Terminar y evaluar</button>
+          <button class="btn btn-primary btn-sm" type="submit">Terminar y evaluar</button>
         </form>
       <% } %>
       <a
@@ -80,7 +80,7 @@
           ></textarea>
         </div>
         <div class="composer-footer">
-          <button class="btn btn-dark send-button" type="submit" data-chatroom-send aria-label="Enviar" title="Enviar">
+          <button class="btn btn-primary send-button" type="submit" data-chatroom-send aria-label="Enviar" title="Enviar">
             <i class="bi bi-send" aria-hidden="true"></i>
           </button>
         </div>

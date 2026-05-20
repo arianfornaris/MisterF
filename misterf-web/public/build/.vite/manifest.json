@@ -4,7 +4,7 @@
     "name": "markdown"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-D6VhffZR.js",
+    "file": "entries/chat-B64i0l_E.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
@@ -13,7 +13,7 @@
     ]
   },
   "src/client/chatrooms/main.js": {
-    "file": "entries/chatrooms-CrvXZqHh.js",
+    "file": "entries/chatrooms-CsBYYnGm.js",
     "name": "chatrooms",
     "src": "src/client/chatrooms/main.js",
     "isEntry": true,

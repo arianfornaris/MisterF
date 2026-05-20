@@ -141,7 +141,7 @@ export class ConversationListView {
     item.dataset.itemKind = 'conversation';
 
     const openButton = document.createElement('a');
-    openButton.className = 'conversation-open-button';
+    openButton.className = 'panel-nav-link conversation-open-button';
     openButton.href = this.buildConversationPath(conversation.id);
     openButton.dataset.openConversation = '';
 
@@ -166,7 +166,7 @@ export class ConversationListView {
     wrapper.className = 'conversation-actions dropdown';
 
     const button = document.createElement('button');
-    button.className = 'btn btn-link conversation-actions-button';
+    button.className = 'conversation-actions-button';
     button.type = 'button';
     button.title = 'Opciones de conversación';
     button.setAttribute('aria-label', 'Opciones de conversación');

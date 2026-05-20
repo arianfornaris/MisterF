@@ -122,22 +122,22 @@
                         data-conversation-id="<%= conversation.id %>"
                       >
                         <a
-                          class="conversation-open-button"
+                          class="panel-nav-link conversation-open-button"
                           href="/c/<%= encodeURIComponent(conversation.id) %>"
                           data-open-conversation
                         >
                           <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
                           <span class="conversation-open-copy">
                             <span class="conversation-title"><%= conversation.title %></span>
-                            <time class="conversation-date" datetime="<%= conversation.updatedAt %>">
-                              <%= conversation.updatedAt %>
+                            <time class="conversation-date" datetime="<%= conversation.updatedAt %>" title="<%= conversation.updatedAt %>">
+                              <%= conversation.relativeUpdatedAt || conversation.updatedAt %>
                             </time>
                           </span>
                         </a>
 
                         <div class="conversation-actions dropdown">
                           <button
-                            class="btn btn-link conversation-actions-button"
+                            class="conversation-actions-button"
                             type="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
@@ -234,13 +234,13 @@
                   <div class="modal-body">
                     <div class="translator-mode btn-group" role="group" aria-label="Modo de traducción">
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
-                      <label class="btn btn-outline-dark" for="translatorModeAuto">Auto</label>
+                      <label class="btn btn-outline-secondary" for="translatorModeAuto">Auto</label>
 
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEsEn" value="es-en">
-                      <label class="btn btn-outline-dark" for="translatorModeEsEn">ES → EN</label>
+                      <label class="btn btn-outline-secondary" for="translatorModeEsEn">ES → EN</label>
 
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEnEs" value="en-es">
-                      <label class="btn btn-outline-dark" for="translatorModeEnEs">EN → ES</label>
+                      <label class="btn btn-outline-secondary" for="translatorModeEnEs">EN → ES</label>
                     </div>
 
                     <label class="visually-hidden" for="translatorInput">Texto para traducir</label>
@@ -281,7 +281,7 @@
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-dark" data-translator-submit>Traducir</button>
+                    <button type="submit" class="btn btn-primary" data-translator-submit>Traducir</button>
                   </div>
                 </form>
               </div>
@@ -307,7 +307,7 @@
                   </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
                 </div>
               </div>
             </div>
@@ -361,7 +361,7 @@
                   </section>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Entendido</button>
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
                 </div>
               </div>
             </div>

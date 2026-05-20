@@ -33,11 +33,11 @@
               action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report/practice-with-tutor"
             >
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <button class="btn btn-outline-dark" type="submit">Practicar con Mr. F</button>
+              <button class="btn btn-secondary" type="submit">Practicar con Mr. F</button>
             </form>
             <% if (selectedChatRoomConversationReport.practiceModuleId) { %>
               <a
-                class="btn btn-outline-dark"
+                class="btn btn-outline-secondary"
                 href="/practice-modules/<%= encodeURIComponent(selectedChatRoomConversationReport.practiceModuleId) %>"
               >
                 Ver módulo creado
@@ -49,7 +49,7 @@
                 onsubmit="return window.confirm('¿Quieres crear un módulo de práctica a partir de este análisis?');"
               >
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <button class="btn btn-dark" type="submit">Crear módulo de práctica</button>
+                <button class="btn btn-primary" type="submit">Crear módulo de práctica</button>
               </form>
             <% } %>
           </div>
@@ -75,7 +75,7 @@
           </div>
           <div class="d-flex flex-wrap gap-2">
             <a
-              class="btn btn-outline-dark <%= currentIndex === 0 ? 'disabled' : '' %>"
+              class="btn btn-outline-secondary <%= currentIndex === 0 ? 'disabled' : '' %>"
               href="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report?slide=<%= previousIndex %>"
               aria-disabled="<%= currentIndex === 0 ? 'true' : 'false' %>"
               aria-label="Slide anterior"
@@ -85,7 +85,7 @@
               <i class="bi bi-arrow-left" aria-hidden="true"></i>
             </a>
             <a
-              class="btn btn-outline-dark <%= currentIndex >= slideCount - 1 ? 'disabled' : '' %>"
+              class="btn btn-outline-secondary <%= currentIndex >= slideCount - 1 ? 'disabled' : '' %>"
               href="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report?slide=<%= nextIndex %>"
               aria-disabled="<%= currentIndex >= slideCount - 1 ? 'true' : 'false' %>"
               aria-label="Slide siguiente"
@@ -147,7 +147,7 @@
                 <% selectedChatRoomConversationReport.slides.forEach((slide, index) => { %>
                   <a
                     href="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report?slide=<%= index %>"
-                    class="btn <%= index === currentIndex ? 'btn-dark' : 'btn-outline-dark' %> btn-sm"
+                    class="btn <%= index === currentIndex ? 'btn-primary' : 'btn-outline-secondary' %> btn-sm"
                     aria-label="Ir al hallazgo <%= index + 1 %>"
                     title="<%= slide.title %>"
                     data-report-jump="<%= index %>"

@@ -249,7 +249,6 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 24px;
 }
 
 .practice-modules-header-has-close {
@@ -585,11 +584,8 @@
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
   gap: 9px;
-  padding: 11px 8px 11px 10px;
-  border: 0;
-  background: transparent;
-  color: inherit;
   text-align: left;
+  text-decoration: none;
 }
 
 .conversation-open-icon {
@@ -602,22 +598,14 @@
   min-width: 0;
 }
 
-.conversation-open-button:hover,
-.conversation-open-button:focus,
-.conversation-item.is-active {
+.conversation-item.is-active .conversation-open-button {
   outline: 0;
   background: var(--accent-soft);
   color: var(--accent);
 }
 
-.conversation-open-button:hover,
-.conversation-open-button:focus {
-  border-radius: 8px 0 0 8px;
-}
-
 .conversation-title {
   display: block;
-  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
@@ -643,8 +631,10 @@
   display: inline-grid;
   place-items: center;
   padding: 0;
+  border: 0;
+  background: transparent;
   border-radius: 8px;
-  color: #aaa;
+  color: var(--muted);
   text-decoration: none;
 }
 

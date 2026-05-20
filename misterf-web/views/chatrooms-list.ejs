@@ -13,7 +13,7 @@
 
   <div class="mb-4">
     <button
-      class="btn btn-dark"
+      class="btn btn-primary"
       type="button"
       data-bs-toggle="modal"
       data-bs-target="#generateChatRoomModal"
@@ -27,7 +27,7 @@
 
     <div class="d-flex flex-wrap align-items-center gap-2">
       <a
-        class="btn <%= showArchivedChatRooms ? 'btn-dark' : 'btn-outline-dark' %> btn-sm"
+        class="btn <%= showArchivedChatRooms ? 'btn-primary' : 'btn-secondary' %> btn-sm"
         href="<%= showArchivedChatRooms ? '/chatrooms' : '?archived=1' %>"
       >
         <i class="bi <%= showArchivedChatRooms ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
@@ -71,17 +71,17 @@
                 <div class="d-flex flex-wrap gap-2">
                   <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/join">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button class="btn btn-dark btn-sm d-inline-flex align-items-center gap-1" type="submit">
+                    <button class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" type="submit">
                       <i class="bi bi-chat-text" aria-hidden="true"></i>
                       <span>Unirse</span>
                     </button>
                   </form>
-                  <a class="btn btn-outline-dark btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history" aria-label="Ver historial" title="Ver historial">
+                  <a class="btn btn-outline-secondary btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history" aria-label="Ver historial" title="Ver historial">
                     <i class="bi bi-clock-history" aria-hidden="true"></i>
                   </a>
                   <div class="dropdown">
                     <button
-                      class="btn btn-outline-dark btn-sm dropdown-toggle"
+                      class="btn btn-outline-secondary btn-sm dropdown-toggle"
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
@@ -103,7 +103,7 @@
                       </li>
                     </ul>
                   </div>
-                  <a class="btn btn-outline-dark btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit" aria-label="Editar sala" title="Editar sala">
+                  <a class="btn btn-outline-secondary btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit" aria-label="Editar sala" title="Editar sala">
                     <i class="bi bi-pencil" aria-hidden="true"></i>
                   </a>
                   <form
@@ -113,7 +113,7 @@
                   >
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <input type="hidden" name="returnTo" value="<%= showArchivedChatRooms ? '/chatrooms?archived=1' : '/chatrooms' %>">
-                    <button class="btn btn-outline-dark btn-sm" type="submit" aria-label="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>" title="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>">
+                    <button class="btn btn-outline-secondary btn-sm" type="submit" aria-label="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>" title="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>">
                       <i class="bi <%= room.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
                     </button>
                   </form>
@@ -205,7 +205,7 @@
           <div class="modal-footer">
             <button
               type="submit"
-              class="btn btn-dark"
+              class="btn btn-primary"
               data-resource-generate-submit
             >
               Crear

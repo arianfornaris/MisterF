@@ -577,8 +577,8 @@ function initializeChatroomReportUi() {
     for (const button of paginationEl.querySelectorAll('[data-report-jump]')) {
       const index = Number(button.getAttribute('data-report-jump'));
       const isActive = index === currentIndex;
-      button.classList.toggle('btn-dark', isActive);
-      button.classList.toggle('btn-outline-dark', !isActive);
+      button.classList.toggle('btn-primary', isActive);
+      button.classList.toggle('btn-outline-secondary', !isActive);
     }
   }
 

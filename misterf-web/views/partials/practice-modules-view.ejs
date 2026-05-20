@@ -85,7 +85,7 @@
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <input type="hidden" name="favorite" value="<%= selectedPracticeModuleCollection.isFavorite ? '0' : '1' %>">
                       <input type="hidden" name="returnTo" value="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>">
-                      <button class="btn btn-outline-dark" type="submit" title="<%= selectedPracticeModuleCollection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= selectedPracticeModuleCollection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                      <button class="btn btn-outline-secondary" type="submit" title="<%= selectedPracticeModuleCollection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= selectedPracticeModuleCollection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
                         <i class="bi <%= selectedPracticeModuleCollection.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
                       </button>
                     </form>
@@ -93,7 +93,7 @@
                   <% if (!selectedPracticeModuleCollection.archivedAt) { %>
                     <div class="btn-group" role="group" aria-label="Compartir colección">
                       <button
-                        class="btn btn-outline-dark dropdown-toggle"
+                        class="btn btn-outline-secondary dropdown-toggle"
                         type="button"
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
@@ -124,7 +124,7 @@
                   <% } %>
                   <div class="btn-group" role="group" aria-label="Editar colección">
                     <a
-                      class="btn btn-outline-dark"
+                      class="btn btn-outline-secondary"
                       href="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/edit"
                       title="Editar colección"
                       aria-label="Editar colección"
@@ -140,7 +140,7 @@
                     >
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <input type="hidden" name="returnTo" value="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>">
-                      <button class="btn btn-outline-dark" type="submit" title="<%= selectedPracticeModuleCollection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>" aria-label="<%= selectedPracticeModuleCollection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>">
+                      <button class="btn btn-outline-secondary" type="submit" title="<%= selectedPracticeModuleCollection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>" aria-label="<%= selectedPracticeModuleCollection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>">
                         <i class="bi <%= selectedPracticeModuleCollection.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
                       </button>
                     </form>
@@ -206,7 +206,7 @@
                     ><%= selectedPracticeModuleCollection.description %></textarea>
 
                     <div class="practice-module-form-actions">
-                      <button type="submit" class="btn btn-dark">Guardar cambios</button>
+                      <button type="submit" class="btn btn-primary">Guardar cambios</button>
                     </div>
                   </form>
 
@@ -231,21 +231,21 @@
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/items/<%= encodeURIComponent(entry.practiceModule.id) %>/move-up">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/edit">
-                                  <button class="btn btn-sm btn-outline-dark" type="submit" <%= index === 0 ? 'disabled' : '' %> title="Subir módulo" aria-label="Subir módulo">
+                                  <button class="btn btn-sm btn-outline-secondary" type="submit" <%= index === 0 ? 'disabled' : '' %> title="Subir módulo" aria-label="Subir módulo">
                                     <i class="bi bi-arrow-up" aria-hidden="true"></i>
                                   </button>
                                 </form>
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/items/<%= encodeURIComponent(entry.practiceModule.id) %>/move-down">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/edit">
-                                  <button class="btn btn-sm btn-outline-dark" type="submit" <%= index === practiceModuleCollectionModules.length - 1 ? 'disabled' : '' %> title="Bajar módulo" aria-label="Bajar módulo">
+                                  <button class="btn btn-sm btn-outline-secondary" type="submit" <%= index === practiceModuleCollectionModules.length - 1 ? 'disabled' : '' %> title="Bajar módulo" aria-label="Bajar módulo">
                                     <i class="bi bi-arrow-down" aria-hidden="true"></i>
                                   </button>
                                 </form>
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/items/<%= encodeURIComponent(entry.practiceModule.id) %>/remove">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="/practice-modules/collections/<%= encodeURIComponent(selectedPracticeModuleCollection.id) %>/edit">
-                                  <button class="btn btn-sm btn-outline-dark" type="submit" title="Quitar de la colección" aria-label="Quitar de la colección">
+                                  <button class="btn btn-sm btn-outline-secondary" type="submit" title="Quitar de la colección" aria-label="Quitar de la colección">
                                     <i class="bi bi-x-lg" aria-hidden="true"></i>
                                   </button>
                                 </form>
@@ -305,7 +305,7 @@
                               No encontré módulos con ese filtro.
                             </p>
                             <div class="d-flex justify-content-end">
-                              <button class="btn btn-dark" type="submit">Agregar seleccionados</button>
+                              <button class="btn btn-primary" type="submit">Agregar seleccionados</button>
                             </div>
                           </form>
                         <% } else { %>
@@ -337,7 +337,7 @@
                 <div class="practice-module-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones del módulo de práctica">
                   <div class="btn-group" role="group" aria-label="Compartir módulo de práctica">
                     <button
-                      class="btn btn-outline-dark dropdown-toggle"
+                      class="btn btn-outline-secondary dropdown-toggle"
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
@@ -367,7 +367,7 @@
                   </div>
                   <div class="btn-group" role="group" aria-label="Editar módulo de práctica">
                     <a
-                      class="btn btn-outline-dark"
+                      class="btn btn-outline-secondary"
                       href="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/edit"
                       title="Editar módulo de práctica"
                       aria-label="Editar módulo de práctica"
@@ -384,7 +384,7 @@
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <input type="hidden" name="returnTo" value="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>">
                       <button
-                        class="btn btn-outline-dark"
+                        class="btn btn-outline-secondary"
                         type="submit"
                         title="<%= selectedPracticeModule.archivedAt ? 'Restaurar módulo de práctica' : 'Archivar módulo de práctica' %>"
                         aria-label="<%= selectedPracticeModule.archivedAt ? 'Restaurar módulo de práctica' : 'Archivar módulo de práctica' %>"
@@ -403,7 +403,7 @@
                   action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/chats"
                 >
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <button type="submit" class="btn btn-dark">Comenzar módulo de práctica</button>
+                  <button type="submit" class="btn btn-primary">Comenzar módulo de práctica</button>
                 </form>
 
                 <div class="card shadow-sm">
@@ -447,14 +447,14 @@
           <% if (practiceModulePageMode === 'list') { %>
             <div class="d-flex flex-wrap gap-2 mb-4">
               <button
-                class="btn btn-dark"
+                class="btn btn-primary"
                 type="button"
                 data-bs-toggle="modal"
                 data-bs-target="#generatePracticeModuleModal"
               >
                 Nuevo módulo de práctica
               </button>
-              <a class="btn btn-outline-dark" href="/practice-modules/collections/new">
+              <a class="btn btn-secondary" href="/practice-modules/collections/new">
                 Nueva colección
               </a>
             </div>
@@ -479,7 +479,7 @@
 
             <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
               <a
-                class="btn <%= showArchivedPracticeModules ? 'btn-dark' : 'btn-outline-dark' %> btn-sm"
+                class="btn <%= showArchivedPracticeModules ? 'btn-primary' : 'btn-secondary' %> btn-sm"
                 href="<%= showArchivedPracticeModules ? '/practice-modules' : `/practice-modules${practiceModuleFilterQuery ? `?q=${encodeURIComponent(practiceModuleFilterQuery)}&archived=1` : '?archived=1'}` %>"
               >
                 <i class="bi <%= showArchivedPracticeModules ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
@@ -520,7 +520,7 @@
                     ></textarea>
 
                     <div class="practice-module-form-actions">
-                      <button type="submit" class="btn btn-dark">Crear colección</button>
+                      <button type="submit" class="btn btn-primary">Crear colección</button>
                     </div>
                   </form>
                 </div>
@@ -597,7 +597,7 @@
                   ><%= typeof practiceModuleDraftValues.tutorInstructions === 'string' ? practiceModuleDraftValues.tutorInstructions : (practiceModulePageMode === 'edit' && selectedPracticeModule ? selectedPracticeModule.tutorInstructions : '') %></textarea>
 
                   <div class="practice-module-form-actions">
-                    <button type="submit" class="btn btn-dark">
+                    <button type="submit" class="btn btn-primary">
                       <%= practiceModulePageMode === 'edit' ? 'Guardar cambios' : 'Crear módulo de práctica' %>
                     </button>
                   </div>
@@ -622,11 +622,11 @@
                       <% if (isAuthenticated && activeProfile) { %>
                         <form method="post" action="/practice-modules/shared/<%= encodeURIComponent(selectedPracticeModuleShareLink.id) %>/accept">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-dark" type="submit">Importar módulo</button>
+                          <button class="btn btn-primary" type="submit">Importar módulo</button>
                         </form>
                       <% } else { %>
-                        <a class="btn btn-outline-dark" href="/signup?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Crear cuenta</a>
-                        <a class="btn btn-dark" href="/login?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Iniciar sesión</a>
+                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Crear cuenta</a>
+                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Iniciar sesión</a>
                       <% } %>
                     </div>
                   </div>
@@ -665,11 +665,11 @@
                       <% if (isAuthenticated && activeProfile) { %>
                         <form method="post" action="/practice-modules/collections/shared/<%= encodeURIComponent(selectedPracticeModuleCollectionShareLink.id) %>/accept">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-dark" type="submit">Importar colección</button>
+                          <button class="btn btn-primary" type="submit">Importar colección</button>
                         </form>
                       <% } else { %>
-                        <a class="btn btn-outline-dark" href="/signup?returnTo=<%= encodeURIComponent(`/practice-modules/collections/shared/${selectedPracticeModuleCollectionShareLink.id}`) %>">Crear cuenta</a>
-                        <a class="btn btn-dark" href="/login?returnTo=<%= encodeURIComponent(`/practice-modules/collections/shared/${selectedPracticeModuleCollectionShareLink.id}`) %>">Iniciar sesión</a>
+                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/practice-modules/collections/shared/${selectedPracticeModuleCollectionShareLink.id}`) %>">Crear cuenta</a>
+                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/practice-modules/collections/shared/${selectedPracticeModuleCollectionShareLink.id}`) %>">Iniciar sesión</a>
                       <% } %>
                     </div>
                   </div>
@@ -1176,7 +1176,7 @@
                     <div class="modal-footer">
                       <button
                         type="submit"
-                        class="btn btn-dark"
+                        class="btn btn-primary"
                         data-resource-generate-submit
                       >
                         Crear
@@ -1202,7 +1202,7 @@
                 <div class="modal-content">
                   <div class="modal-body text-center py-4 d-grid gap-3">
                     <div
-                      class="spinner-border text-dark mx-auto"
+                      class="spinner-border text-primary mx-auto"
                       role="status"
                       aria-hidden="true"
                     ></div>
@@ -1247,7 +1247,7 @@
                         </select>
                       </div>
                       <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-dark">Compartir ahora</button>
+                        <button type="submit" class="btn btn-primary">Compartir ahora</button>
                       </div>
                     </form>
                   <% } else { %>
@@ -1285,11 +1285,11 @@
                     >
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-dark" type="button" data-copy-practiceModule-share-link>
+                    <button class="btn btn-outline-secondary" type="button" data-copy-practiceModule-share-link>
                       <i class="bi bi-copy me-1" aria-hidden="true"></i>
                       Copiar
                     </button>
-                    <button class="btn btn-outline-dark" type="button" data-native-share-practiceModule-link>
+                    <button class="btn btn-outline-secondary" type="button" data-native-share-practiceModule-link>
                       <i class="bi bi-share me-1" aria-hidden="true"></i>
                       Compartir
                     </button>
@@ -1339,7 +1339,7 @@
                         </select>
                       </div>
                       <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-dark">Compartir ahora</button>
+                        <button type="submit" class="btn btn-primary">Compartir ahora</button>
                       </div>
                     </form>
                   <% } else { %>
@@ -1377,11 +1377,11 @@
                     >
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-dark" type="button" data-copy-practiceModule-share-link>
+                    <button class="btn btn-outline-secondary" type="button" data-copy-practiceModule-share-link>
                       <i class="bi bi-copy me-1" aria-hidden="true"></i>
                       Copiar
                     </button>
-                    <button class="btn btn-outline-dark" type="button" data-native-share-practiceModule-link>
+                    <button class="btn btn-outline-secondary" type="button" data-native-share-practiceModule-link>
                       <i class="bi bi-share me-1" aria-hidden="true"></i>
                       Compartir
                     </button>

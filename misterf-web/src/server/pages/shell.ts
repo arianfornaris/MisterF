@@ -124,7 +124,12 @@ export function buildAppShellContext(input: {
     chatMode: 'tutor',
     conversations:
       input.user && input.activeProfile
-        ? listConversationsForProfile(input.user.id, input.activeProfile.id)
+        ? listConversationsForProfile(input.user.id, input.activeProfile.id).map(
+            (conversation) => ({
+              ...conversation,
+              relativeUpdatedAt: formatRelativeTime(conversation.updatedAt),
+            }),
+          )
         : [],
     currentPath: input.request.originalUrl || input.request.path,
     currentView: input.currentView,

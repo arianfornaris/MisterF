@@ -12,7 +12,7 @@
 
     <% if (hasSession) { %>
       <div class="practice-modules-header-actions">
-        <a class="btn btn-dark" href="/profiles/new">
+        <a class="btn btn-primary" href="/profiles/new">
           Crear perfil
         </a>
       </div>
@@ -34,7 +34,7 @@
             <p class="mb-0 text-body-secondary"><%= profile.description || 'Sin descripción.' %></p>
             <div class="profile-card-actions">
               <% if (activeProfile && activeProfile.id === profile.id) { %>
-                <a class="btn btn-outline-dark" href="/profiles/<%= encodeURIComponent(profile.id) %>/edit">
+                <a class="btn btn-outline-secondary" href="/profiles/<%= encodeURIComponent(profile.id) %>/edit">
                   Editar perfil
                 </a>
               <% } else { %>
@@ -42,7 +42,7 @@
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="profileId" value="<%= profile.id %>">
                   <input type="hidden" name="returnTo" value="/profiles">
-                  <button class="btn btn-dark" type="submit">Usar este perfil</button>
+                  <button class="btn btn-primary" type="submit">Usar este perfil</button>
                 </form>
               <% } %>
             </div>
