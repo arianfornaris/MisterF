@@ -21,7 +21,7 @@ La app usa OpenRouter como único proveedor LLM.
 - Backend: Node.js + Express
 - Lenguaje: TypeScript
 - Templates: EJS
-- CSS: Bootstrap + Bootswatch Journal
+- CSS: Bootstrap + Bootswatch Flatly
 - Realtime: Socket.IO
 - Base de datos: SQLite (`better-sqlite3`)
 - Process manager: PM2

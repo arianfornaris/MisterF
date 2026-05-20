@@ -40,7 +40,7 @@
       <div class="practice-module-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones de la sala de chat">
         <div class="btn-group" role="group" aria-label="Ver historial">
           <a
-            class="btn btn-outline-secondary"
+            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
             href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
             title="Ver historial"
             aria-label="Ver historial"
@@ -50,7 +50,7 @@
         </div>
         <div class="btn-group" role="group" aria-label="Compartir sala">
           <button
-            class="btn btn-outline-secondary dropdown-toggle"
+            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
@@ -66,7 +66,7 @@
         </div>
         <div class="btn-group" role="group" aria-label="Editar sala">
           <a
-            class="btn btn-outline-secondary"
+            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
             href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/edit"
             title="Editar sala"
             aria-label="Editar sala"
@@ -83,7 +83,7 @@
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="hidden" name="returnTo" value="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>">
             <button
-              class="btn btn-outline-secondary"
+              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
               type="submit"
               title="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
               aria-label="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"

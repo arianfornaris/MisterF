@@ -1,13 +1,7 @@
 <!doctype html>
 <html lang="es">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><%= title %></title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/public/brand/favicon-32.png">
-    <link rel="stylesheet" href="/vendor/bootswatch/journal/bootstrap.min.css">
-    <link rel="stylesheet" href="/vendor/bootstrap-icons/bootstrap-icons.css">
-    <%- include('app-stylesheet') %>
+    <%- include('document-head', { includeBootstrapIcons: true }) %>
   </head>
   <body
     data-authenticated="<%= isAuthenticated ? 'true' : 'false' %>"

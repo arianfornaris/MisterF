@@ -13,7 +13,7 @@ export function formatConversationDate(value) {
   }
 
   const relativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
-    numeric: 'auto',
+    numeric: 'always',
   });
   const diffMs = date.getTime() - Date.now();
   const diffSeconds = Math.round(diffMs / 1000);

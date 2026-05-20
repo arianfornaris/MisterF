@@ -68,55 +68,82 @@
                   </div>
                 </div>
 
-                <div class="d-flex flex-wrap gap-2">
-                  <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/join">
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" type="submit">
-                      <i class="bi bi-chat-text" aria-hidden="true"></i>
-                      <span>Unirse</span>
-                    </button>
-                  </form>
-                  <a class="btn btn-outline-secondary btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history" aria-label="Ver historial" title="Ver historial">
-                    <i class="bi bi-clock-history" aria-hidden="true"></i>
-                  </a>
-                  <div class="dropdown">
-                    <button
-                      class="btn btn-outline-secondary btn-sm dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <i class="bi bi-share" aria-hidden="true"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                      <li>
-                        <a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=profile">
-                          <i class="bi bi-person me-2" aria-hidden="true"></i>
-                          Compartir con perfil
-                        </a>
-                      </li>
-                      <li>
-                        <a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=link">
-                          <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
-                          Compartir por enlace
-                        </a>
-                      </li>
-                    </ul>
+                <div class="btn-toolbar align-items-center gap-3" role="toolbar" aria-label="Acciones de la sala">
+                  <div class="btn-group" role="group" aria-label="Unirse a la sala">
+                    <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/join">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" type="submit">
+                        <i class="bi bi-chat-text" aria-hidden="true"></i>
+                        <span>Unirse</span>
+                      </button>
+                    </form>
                   </div>
-                  <a class="btn btn-outline-secondary btn-sm" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit" aria-label="Editar sala" title="Editar sala">
-                    <i class="bi bi-pencil" aria-hidden="true"></i>
-                  </a>
-                  <form
-                    method="post"
-                    action="/chatrooms/<%= encodeURIComponent(room.id) %>/<%= room.archivedAt ? 'restore' : 'archive' %>"
-                    onsubmit="return window.confirm('<%= room.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');"
-                  >
-                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <input type="hidden" name="returnTo" value="<%= showArchivedChatRooms ? '/chatrooms?archived=1' : '/chatrooms' %>">
-                    <button class="btn btn-outline-secondary btn-sm" type="submit" aria-label="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>" title="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>">
-                      <i class="bi <%= room.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
-                    </button>
-                  </form>
+                  <div class="btn-group" role="group" aria-label="Ver historial">
+                    <a
+                      class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                      href="/chatrooms/<%= encodeURIComponent(room.id) %>/history"
+                      aria-label="Ver historial"
+                      title="Ver historial"
+                    >
+                      <i class="bi bi-clock-history" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="Compartir sala">
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        title="Compartir sala"
+                        aria-label="Compartir sala"
+                      >
+                        <i class="bi bi-share" aria-hidden="true"></i>
+                      </button>
+                      <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                          <a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=profile">
+                            <i class="bi bi-person me-2" aria-hidden="true"></i>
+                            Compartir con perfil
+                          </a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=link">
+                            <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
+                            Compartir por enlace
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="Editar sala">
+                    <a
+                      class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                      href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit"
+                      aria-label="Editar sala"
+                      title="Editar sala"
+                    >
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </a>
+                  </div>
+                  <div class="btn-group" role="group" aria-label="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>">
+                    <form
+                      method="post"
+                      action="/chatrooms/<%= encodeURIComponent(room.id) %>/<%= room.archivedAt ? 'restore' : 'archive' %>"
+                      onsubmit="return window.confirm('<%= room.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');"
+                    >
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="returnTo" value="<%= showArchivedChatRooms ? '/chatrooms?archived=1' : '/chatrooms' %>">
+                      <button
+                        class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                        type="submit"
+                        aria-label="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
+                        title="<%= room.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
+                      >
+                        <i class="bi <%= room.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>

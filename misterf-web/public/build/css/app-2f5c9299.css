@@ -155,8 +155,8 @@ body {
 .translator-button:hover,
 .translator-button:focus {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .conversation-panel {
@@ -206,8 +206,8 @@ body {
 
 .panel-home-link:hover,
 .panel-home-link:focus {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .panel-home-logo {
@@ -247,8 +247,8 @@ body {
 .panel-nav-link:hover,
 .panel-nav-link:focus,
 .panel-nav-link.is-active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .panel-section-label {
@@ -706,8 +706,8 @@ body {
 
 .conversation-item.is-active .conversation-open-button {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .conversation-title {
@@ -2597,51 +2597,36 @@ button.sentence-part:focus {
 
 .composer {
   display: grid;
-  grid-template-columns: auto 1fr;
   grid-template-areas:
-    "prompt input"
-    ". footer";
-  gap: 10px 14px;
+    "input"
+    "footer";
+  gap: 10px;
   align-items: start;
-  padding: 14px 46px 22px;
-  border-top: 0;
-  background: #fff;
-}
-
-.composer-prompt {
-  grid-area: prompt;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: flex-start;
-  color: var(--accent);
-  font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 1.12rem;
-  font-weight: 700;
-  line-height: 1.4;
-  padding-top: 9px;
-  user-select: none;
+  padding: 14px 18px 18px;
+  border-top: 1px solid rgb(44 62 80 / 10%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 95%), rgb(249 251 253 / 98%));
 }
 
 .composer-input-wrap {
   grid-area: input;
   position: relative;
-  min-height: 44px;
-  border-bottom: 1px solid #ced4da;
+  min-height: 46px;
+  border: 1px solid rgb(44 62 80 / 14%);
+  border-radius: 14px;
 }
 
 .composer-input {
-  min-height: 44px;
+  min-height: 46px;
   max-height: 150px;
   width: 100%;
   resize: none;
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--ink);
-  caret-color: var(--accent);
+  caret-color: var(--bs-link-color);
   font: inherit;
   line-height: 1.4;
-  padding: 9px 0 6px;
+  padding: 0.78rem 0.9rem;
 }
 
 .composer-input::placeholder {
@@ -2654,7 +2639,7 @@ button.sentence-part:focus {
 }
 
 .composer:focus-within .composer-input-wrap {
-  border-bottom-color: var(--accent);
+  border-color: rgb(var(--bs-link-color-rgb) / 0.6);
 }
 
 .composer-footer {
@@ -2667,22 +2652,18 @@ button.sentence-part:focus {
 }
 
 .composer-model-button {
-  width: auto;
   min-width: 0;
-  height: auto;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0;
-  border: 0;
+  border-radius: 12px;
   font-size: 0.84rem;
-  text-decoration: none;
   box-shadow: none;
 }
 
 .composer-model-button:hover,
 .composer-model-button:focus {
-  text-decoration: none;
   box-shadow: none;
 }
 
@@ -2737,7 +2718,7 @@ button.sentence-part:focus {
 }
 
 .llm-context-meter-progress {
-  stroke: var(--accent);
+  stroke: var(--bs-link-color);
   stroke-linecap: round;
   transition: stroke-dashoffset 180ms ease, stroke 180ms ease;
 }
@@ -2752,20 +2733,18 @@ button.sentence-part:focus {
 
 .send-button {
   justify-self: end;
-  color: var(--accent);
-  background: transparent;
-  border-color: transparent;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
 }
 
 .send-button[data-mode='stop'] {
-  color: #b64a46;
+  color: var(--bs-danger);
 }
 
 .send-button:hover,
 .send-button:focus {
-  color: #d95e5a;
-  background: var(--accent-soft);
-  border-color: transparent;
+  box-shadow: none;
 }
 
 .send-button:disabled,
@@ -2773,6 +2752,11 @@ button.sentence-part:focus {
   cursor: not-allowed;
 }
 
+@media (min-width: 992px) {
+  .composer {
+    padding: 16px 24px 22px;
+  }
+}
 
 .auth-sheet {
   --bs-card-border-color: var(--line);

@@ -49,8 +49,8 @@
 .translator-button:hover,
 .translator-button:focus {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .conversation-panel {
@@ -100,8 +100,8 @@
 
 .panel-home-link:hover,
 .panel-home-link:focus {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .panel-home-logo {
@@ -141,8 +141,8 @@
 .panel-nav-link:hover,
 .panel-nav-link:focus,
 .panel-nav-link.is-active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .panel-section-label {
@@ -600,8 +600,8 @@
 
 .conversation-item.is-active .conversation-open-button {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .conversation-title {

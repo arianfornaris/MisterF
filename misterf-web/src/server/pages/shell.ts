@@ -15,7 +15,7 @@ import { env } from '../config/env.js';
 export const appDocumentTitle = 'Mr. F, tutor de inglés';
 
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
-  numeric: 'auto',
+  numeric: 'always',
 });
 
 export function normalizeSearchText(value: string): string {

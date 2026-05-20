@@ -705,38 +705,44 @@
                         <% if (collection.sourceProfileName) { %>
                           <p class="mb-0 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
-                        <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
-                          <div class="dropdown">
-                            <button
-                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                              title="Compartir colección"
-                              aria-label="Compartir colección"
-                            >
-                              <i class="bi bi-share" aria-hidden="true"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                              <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile">Compartir con perfil</a>
-                              <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link">Obtener enlace</a>
+                        <div class="practice-module-card-actions btn-toolbar mt-2" role="toolbar" aria-label="Acciones rápidas">
+                          <div class="btn-group" role="group" aria-label="Compartir colección">
+                            <div class="dropdown">
+                              <button
+                                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                title="Compartir colección"
+                                aria-label="Compartir colección"
+                              >
+                                <i class="bi bi-share" aria-hidden="true"></i>
+                              </button>
+                              <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile">Compartir con perfil</a>
+                                <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link">Obtener enlace</a>
+                              </div>
                             </div>
                           </div>
-                          <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/favorite">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="favorite" value="0">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Quitar de favoritas" aria-label="Quitar de favoritas">
-                              <i class="bi bi-star-fill" aria-hidden="true"></i>
-                            </button>
-                          </form>
-                          <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/archive">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar colección" aria-label="Archivar colección">
-                              <i class="bi bi-archive" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                          <div class="btn-group" role="group" aria-label="Quitar de favoritas">
+                            <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/favorite">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="favorite" value="0">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Quitar de favoritas" aria-label="Quitar de favoritas">
+                                <i class="bi bi-star-fill" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
+                          <div class="btn-group" role="group" aria-label="Archivar colección">
+                            <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/archive">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar colección" aria-label="Archivar colección">
+                                <i class="bi bi-archive" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -767,38 +773,44 @@
                         <% if (practiceModule.sourceProfileName) { %>
                           <p class="mb-0 text-body-secondary small">Compartido por <%= practiceModule.sourceProfileName %></p>
                         <% } %>
-                        <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
-                          <div class="dropdown">
-                            <button
-                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                              title="Compartir módulo de práctica"
-                              aria-label="Compartir módulo de práctica"
-                            >
-                              <i class="bi bi-share" aria-hidden="true"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
-                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                        <div class="practice-module-card-actions btn-toolbar mt-2" role="toolbar" aria-label="Acciones rápidas">
+                          <div class="btn-group" role="group" aria-label="Compartir módulo de práctica">
+                            <div class="dropdown">
+                              <button
+                                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                title="Compartir módulo de práctica"
+                                aria-label="Compartir módulo de práctica"
+                              >
+                                <i class="bi bi-share" aria-hidden="true"></i>
+                              </button>
+                              <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
+                                <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                              </div>
                             </div>
                           </div>
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="favorite" value="0">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Quitar de favoritas" aria-label="Quitar de favoritas">
-                              <i class="bi bi-star-fill" aria-hidden="true"></i>
-                            </button>
-                          </form>
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
-                              <i class="bi bi-archive" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                          <div class="btn-group" role="group" aria-label="Quitar de favoritas">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="favorite" value="0">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Quitar de favoritas" aria-label="Quitar de favoritas">
+                                <i class="bi bi-star-fill" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
+                          <div class="btn-group" role="group" aria-label="Archivar módulo de práctica">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
+                                <i class="bi bi-archive" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -838,40 +850,46 @@
                         <% if (collection.sourceProfileName) { %>
                           <p class="mb-0 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
-                        <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
+                        <div class="practice-module-card-actions btn-toolbar mt-2" role="toolbar" aria-label="Acciones rápidas">
                           <% if (!collection.archivedAt) { %>
-                            <div class="dropdown">
-                              <button
-                                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                                title="Compartir colección"
-                                aria-label="Compartir colección"
-                              >
-                                <i class="bi bi-share" aria-hidden="true"></i>
-                              </button>
-                              <div class="dropdown-menu">
-                                <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile">Compartir con perfil</a>
-                                <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link">Obtener enlace</a>
+                            <div class="btn-group" role="group" aria-label="Compartir colección">
+                              <div class="dropdown">
+                                <button
+                                  class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                                  type="button"
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                  title="Compartir colección"
+                                  aria-label="Compartir colección"
+                                >
+                                  <i class="bi bi-share" aria-hidden="true"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                  <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile">Compartir con perfil</a>
+                                  <a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link">Obtener enlace</a>
+                                </div>
                               </div>
                             </div>
                           <% } %>
-                          <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/favorite">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="favorite" value="<%= collection.isFavorite ? '0' : '1' %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
-                              <i class="bi <%= collection.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
-                            </button>
-                          </form>
-                          <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/<%= collection.archivedAt ? 'restore' : 'archive' %>">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= collection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>" aria-label="<%= collection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>">
-                              <i class="bi <%= collection.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                          <div class="btn-group" role="group" aria-label="<%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                            <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/favorite">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="favorite" value="<%= collection.isFavorite ? '0' : '1' %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                                <i class="bi <%= collection.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
+                          <div class="btn-group" role="group" aria-label="<%= collection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>">
+                            <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/<%= collection.archivedAt ? 'restore' : 'archive' %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= collection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>" aria-label="<%= collection.archivedAt ? 'Restaurar colección' : 'Archivar colección' %>">
+                                <i class="bi <%= collection.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -908,38 +926,44 @@
                           </a>
                         </h2>
                         <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
-                        <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
-                          <div class="dropdown">
-                            <button
-                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                              title="Compartir módulo de práctica"
-                              aria-label="Compartir módulo de práctica"
-                            >
-                              <i class="bi bi-share" aria-hidden="true"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
-                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                        <div class="practice-module-card-actions btn-toolbar mt-2" role="toolbar" aria-label="Acciones rápidas">
+                          <div class="btn-group" role="group" aria-label="Compartir módulo de práctica">
+                            <div class="dropdown">
+                              <button
+                                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                title="Compartir módulo de práctica"
+                                aria-label="Compartir módulo de práctica"
+                              >
+                                <i class="bi bi-share" aria-hidden="true"></i>
+                              </button>
+                              <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
+                                <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                              </div>
                             </div>
                           </div>
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
-                              <i class="bi <%= practiceModule.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
-                            </button>
-                          </form>
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
-                              <i class="bi bi-archive" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                          <div class="btn-group" role="group" aria-label="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                                <i class="bi <%= practiceModule.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
+                          <div class="btn-group" role="group" aria-label="Archivar módulo de práctica">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
+                                <i class="bi bi-archive" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -976,38 +1000,44 @@
                           </a>
                         </h2>
                         <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
-                        <div class="practice-module-card-actions btn-group mt-2" role="group" aria-label="Acciones rápidas">
-                          <div class="dropdown">
-                            <button
-                              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-                              type="button"
-                              data-bs-toggle="dropdown"
-                              aria-expanded="false"
-                              title="Compartir módulo de práctica"
-                              aria-label="Compartir módulo de práctica"
-                            >
-                              <i class="bi bi-share" aria-hidden="true"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
-                              <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                        <div class="practice-module-card-actions btn-toolbar mt-2" role="toolbar" aria-label="Acciones rápidas">
+                          <div class="btn-group" role="group" aria-label="Compartir módulo de práctica">
+                            <div class="dropdown">
+                              <button
+                                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                                title="Compartir módulo de práctica"
+                                aria-label="Compartir módulo de práctica"
+                              >
+                                <i class="bi bi-share" aria-hidden="true"></i>
+                              </button>
+                              <div class="dropdown-menu">
+                                <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a>
+                                <a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a>
+                              </div>
                             </div>
                           </div>
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
-                              <i class="bi <%= practiceModule.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
-                            </button>
-                          </form>
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
-                              <i class="bi bi-archive" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                          <div class="btn-group" role="group" aria-label="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>" aria-label="<%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>">
+                                <i class="bi <%= practiceModule.isFavorite ? 'bi-star-fill' : 'bi-star' %>" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
+                          <div class="btn-group" role="group" aria-label="Archivar módulo de práctica">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Archivar módulo de práctica" aria-label="Archivar módulo de práctica">
+                                <i class="bi bi-archive" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </article>
@@ -1045,14 +1075,16 @@
                             <p class="mb-0 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                           <% } %>
                         </div>
-                        <div class="practice-module-card-actions btn-group" role="group" aria-label="Acciones rápidas">
-                          <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/restore">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar colección" aria-label="Restaurar colección">
-                              <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                        <div class="practice-module-card-actions btn-toolbar" role="toolbar" aria-label="Acciones rápidas">
+                          <div class="btn-group" role="group" aria-label="Restaurar colección">
+                            <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/restore">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar colección" aria-label="Restaurar colección">
+                                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1081,14 +1113,16 @@
                             <p class="mb-0 text-body-secondary small">Compartida por <%= practiceModule.sourceProfileName %></p>
                           <% } %>
                         </div>
-                        <div class="practice-module-card-actions btn-group" role="group" aria-label="Acciones rápidas">
-                          <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/restore">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                            <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar módulo de práctica" aria-label="Restaurar módulo de práctica">
-                              <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-                            </button>
-                          </form>
+                        <div class="practice-module-card-actions btn-toolbar" role="toolbar" aria-label="Acciones rápidas">
+                          <div class="btn-group" role="group" aria-label="Restaurar módulo de práctica">
+                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/restore">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar módulo de práctica" aria-label="Restaurar módulo de práctica">
+                                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+                              </button>
+                            </form>
+                          </div>
                         </div>
                       </div>
                     </div>

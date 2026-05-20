@@ -18,17 +18,17 @@ Project-specific agent guidance lives in `.agents/skills`.
 
 ## UI Theme Guidance
 
-This project uses the Bootswatch `Journal` theme.
+This project uses the Bootswatch `Flatly` theme.
 
-Follow the visual language and component behavior of `Journal` instead of inventing a separate style system.
+Follow the visual language and component behavior of `Flatly` instead of inventing a separate style system.
 
 When building or updating UI:
 
-- Prefer standard Bootstrap and Bootswatch `Journal` components, spacing, typography, and states.
-- Treat `btn-dark` as a strong accent, not the default button style for every action.
+- Prefer standard Bootstrap and Bootswatch `Flatly` components, spacing, typography, and states.
+- Treat `btn-primary` as the default primary accent unless a specific context calls for another semantic variant.
 - Preserve clear action hierarchy:
   - one primary action when appropriate
   - quieter secondary actions with outline, link, or lighter variants when they are not primary
-- Avoid custom visual treatments that fight the theme's paper-like, editorial, light appearance.
+- Avoid custom visual treatments that fight the theme's clean, flat, modern appearance.
 - Prefer Bootstrap-native interaction patterns such as modals, accordions, alerts, badges, cards, list groups, and dropdowns before creating custom UI patterns.
-- If a Bootstrap component has a native focus, hover, active, or expanded state in `Journal`, assume that state is intentional unless there is a strong UX reason to refine it.
+- If a Bootstrap component has a native focus, hover, active, or expanded state in `Flatly`, assume that state is intentional unless there is a strong UX reason to refine it.
