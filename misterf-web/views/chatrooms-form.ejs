@@ -11,11 +11,13 @@
     </div>
     <div class="practice-modules-header-actions">
       <a
-        class="btn-close practice-module-close-button"
+        class="practice-module-close-button"
         href="<%= selectedChatRoom ? `/chatrooms/${encodeURIComponent(selectedChatRoom.id)}` : '/chatrooms' %>"
         title="Cerrar"
         aria-label="Cerrar"
-      ></a>
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
     </div>
   </div>
 

@@ -1,98 +1,109 @@
 <%- include('partials/app-shell-open') %>
 
 <section class="practice-modules-view" aria-label="Sala de chat">
-  <div class="practice-modules-header practice-modules-header-has-close">
-    <div class="practice-modules-header-detail">
+  <div class="practice-modules-section-actions">
+    <a
+      class="practice-module-close-button"
+      href="/chatrooms"
+      title="Cerrar"
+      aria-label="Cerrar"
+    >
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="practice-modules-header">
+    <div class="practice-modules-header-detail chatroom-show-header-detail">
       <p class="practice-modules-kicker">Sala de chat</p>
       <h1 class="practice-modules-title"><%= selectedChatRoom.title %></h1>
       <p class="practice-modules-copy">
         Revisa la situación de esta sala y sus personajes antes de empezar una conversación nueva o retomar su historial.
       </p>
     </div>
-    <div class="practice-modules-header-actions">
-      <a
-        class="btn-close practice-module-close-button"
-        href="/chatrooms"
-        title="Cerrar"
-        aria-label="Cerrar"
-      ></a>
-    </div>
   </div>
 
-  <section class="practice-module-detail-shell">
+  <section class="practice-module-detail-shell chatroom-show-detail-shell">
     <div class="d-grid gap-3">
       <div class="d-flex flex-wrap align-items-center gap-2">
-        <% if (selectedChatRoom.sharedVia) { %>
-          <span class="badge text-bg-light border practice-module-shared-badge" role="status">
-            Compartida <%= selectedChatRoom.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
-          </span>
-        <% } %>
-        <% if (selectedChatRoomSourceProfileName) { %>
-          <span class="badge text-bg-light border" role="status">
-            Compartida por <%= selectedChatRoomSourceProfileName %>
-          </span>
-        <% } %>
-        <% if (selectedChatRoom.archivedAt) { %>
-          <span class="badge text-bg-light border" role="status">Archivada</span>
-        <% } %>
-      </div>
+        <form
+          class="practice-module-start-form m-0"
+          method="post"
+          action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/join"
+        >
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-primary">Empezar conversación</button>
+        </form>
 
-      <div class="practice-module-detail-inline-actions btn-toolbar" role="toolbar" aria-label="Acciones de la sala de chat">
-        <div class="btn-group" role="group" aria-label="Ver historial">
-          <a
-            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-            href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
-            title="Ver historial"
-            aria-label="Ver historial"
-          >
-            <i class="bi bi-clock-history" aria-hidden="true"></i>
-          </a>
-        </div>
-        <div class="btn-group" role="group" aria-label="Compartir sala">
+        <div class="dropdown">
           <button
-            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
+            class="btn btn-secondary dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
             aria-expanded="false"
-            title="Compartir sala"
-            aria-label="Compartir sala"
           >
-            <i class="bi bi-share" aria-hidden="true"></i>
+            Opciones
           </button>
-          <div class="dropdown-menu">
-            <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>?share=profile">Compartir con perfil</a>
-            <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>?share=link">Obtener enlace</a>
-          </div>
-        </div>
-        <div class="btn-group" role="group" aria-label="Editar sala">
-          <a
-            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-            href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/edit"
-            title="Editar sala"
-            aria-label="Editar sala"
-          >
-            <i class="bi bi-pencil" aria-hidden="true"></i>
-          </a>
-        </div>
-        <div class="btn-group" role="group" aria-label="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>">
-          <form
-            method="post"
-            action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/<%= selectedChatRoom.archivedAt ? 'restore' : 'archive' %>"
-            onsubmit="return window.confirm('<%= selectedChatRoom.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');"
-          >
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <input type="hidden" name="returnTo" value="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>">
-            <button
-              class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0"
-              type="submit"
-              title="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
-              aria-label="<%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>"
-            >
-              <i class="bi <%= selectedChatRoom.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %>" aria-hidden="true"></i>
-            </button>
-          </form>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history">
+                <i class="bi bi-clock-history me-2" aria-hidden="true"></i>
+                Historial
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>?share=profile">
+                <i class="bi bi-person me-2" aria-hidden="true"></i>
+                Compartir con perfil
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>?share=link">
+                <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
+                Obtener enlace
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/edit">
+                <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+                Editar sala
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form
+                method="post"
+                action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/<%= selectedChatRoom.archivedAt ? 'restore' : 'archive' %>"
+                onsubmit="return window.confirm('<%= selectedChatRoom.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');"
+              >
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="returnTo" value="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>">
+                <button class="dropdown-item" type="submit">
+                  <i class="bi <%= selectedChatRoom.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                  <%= selectedChatRoom.archivedAt ? 'Restaurar sala' : 'Archivar sala' %>
+                </button>
+              </form>
+            </li>
+          </ul>
         </div>
       </div>
+
+      <% if (selectedChatRoom.sharedVia || selectedChatRoomSourceProfileName || selectedChatRoom.archivedAt) { %>
+        <div class="d-flex flex-wrap align-items-center gap-2 chatroom-show-badges">
+          <% if (selectedChatRoom.sharedVia) { %>
+            <span class="badge text-bg-light border practice-module-shared-badge" role="status">
+              Compartida <%= selectedChatRoom.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+            </span>
+          <% } %>
+          <% if (selectedChatRoomSourceProfileName) { %>
+            <span class="badge text-bg-light border" role="status">
+              Compartida por <%= selectedChatRoomSourceProfileName %>
+            </span>
+          <% } %>
+          <% if (selectedChatRoom.archivedAt) { %>
+            <span class="badge text-bg-light border" role="status">Archivada</span>
+          <% } %>
+        </div>
+      <% } %>
 
       <p class="practiceModule-section-copy">Descripción de la sala</p>
 
@@ -101,17 +112,6 @@
           <p class="mb-0"><%= selectedChatRoom.description %></p>
         </div>
       </div>
-
-      <p class="practiceModule-section-copy">Conversaciones</p>
-
-      <form
-        class="practice-module-start-form"
-        method="post"
-        action="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/join"
-      >
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button type="submit" class="btn btn-primary">Empezar conversación</button>
-      </form>
 
       <p class="practiceModule-section-copy">Personajes</p>
 
