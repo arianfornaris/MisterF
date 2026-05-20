@@ -709,8 +709,9 @@
                 <div class="practice-modules-grid mb-4">
                   <% favoritePracticeModuleCollections.forEach((collection) => { %>
                     <article class="practice-module-card card shadow-sm h-100">
-                      <div class="card-body d-grid gap-2 resource-card-body">
-                        <div class="resource-card-menu dropdown">
+                      <div class="card-header bg-info-subtle text-info-emphasis d-flex align-items-center justify-content-between gap-3">
+                        <span>Colección</span>
+                        <div class="dropdown">
                           <button
                             class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -758,33 +759,31 @@
                             </li>
                           </ul>
                         </div>
-                        <div class="practice-module-card-meta">
-                          <p class="practice-module-card-kicker mb-0">Colección</p>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= collection.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= collection.moduleCount %> <%= collection.moduleCount === 1 ? 'módulo' : 'módulos' %>
                           </span>
                         </div>
-                        <h2 class="h4 practice-module-card-title">
-                          <a
-                            class="practice-module-card-link text-decoration-none text-reset"
-                            href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>"
-                          >
-                            <%= collection.title %>
-                          </a>
-                        </h2>
-                        <p class="mb-0 text-body-secondary"><%= collection.description || 'Agrupa varios módulos de práctica bajo un mismo tema o propósito.' %></p>
+                        <p class="card-text mb-2 text-body-secondary"><%= collection.description || 'Agrupa varios módulos de práctica bajo un mismo tema o propósito.' %></p>
                         <% if (collection.sourceProfileName) { %>
-                          <p class="mb-0 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
+                          <p class="card-text mb-2 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
+                      </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
                   <% favoritePracticeModules.forEach((practiceModule) => { %>
                     <article class="practice-module-card card shadow-sm h-100">
-                      <div class="card-body d-grid gap-2 resource-card-body">
-                        <div class="resource-card-menu dropdown">
+                      <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between gap-3">
+                        <span>Módulo de práctica</span>
+                        <div class="dropdown">
                           <button
-                            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
+                            class="btn btn-sm btn-link text-white text-decoration-none p-0 resource-card-menu-button"
                             type="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
@@ -830,29 +829,28 @@
                             </li>
                           </ul>
                         </div>
-                        <div class="practice-module-card-meta">
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <p class="practice-module-card-kicker mb-0">Módulo de práctica</p>
-                            <% if (practiceModule.archivedAt) { %>
-                              <span class="badge text-bg-light border">Archivado</span>
-                            <% } %>
-                          </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
+                          <% if (practiceModule.archivedAt) { %>
+                            <span class="badge text-bg-light border">Archivado</span>
+                          <% } %>
                         </div>
-                        <h2 class="h4 practice-module-card-title">
-                          <a
-                            class="practice-module-card-link text-decoration-none text-reset"
-                            href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
-                          >
-                            <%= practiceModule.title %>
-                          </a>
-                        </h2>
-                        <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
+                        <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
                         <% if (practiceModule.sourceProfileName) { %>
-                          <p class="mb-0 text-body-secondary small">Compartido por <%= practiceModule.sourceProfileName %></p>
+                          <p class="card-text mb-2 text-body-secondary small">Compartido por <%= practiceModule.sourceProfileName %></p>
                         <% } %>
+                      </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
+                        </form>
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
@@ -867,8 +865,9 @@
                 <div class="practice-modules-grid mb-4">
                   <% practiceModuleCollections.forEach((collection) => { %>
                     <article class="practice-module-card card shadow-sm h-100">
-                      <div class="card-body d-grid gap-2 resource-card-body">
-                        <div class="resource-card-menu dropdown">
+                      <div class="card-header bg-info-subtle text-info-emphasis d-flex align-items-center justify-content-between gap-3">
+                        <span>Colección</span>
+                        <div class="dropdown">
                           <button
                             class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -918,29 +917,24 @@
                             </li>
                           </ul>
                         </div>
-                        <div class="practice-module-card-meta">
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <p class="practice-module-card-kicker mb-0">Colección</p>
-                            <% if (collection.archivedAt) { %>
-                              <span class="badge text-bg-light border">Archivado</span>
-                            <% } %>
-                          </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= collection.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= collection.moduleCount %> <%= collection.moduleCount === 1 ? 'módulo' : 'módulos' %>
                           </span>
+                          <% if (collection.archivedAt) { %>
+                            <span class="badge text-bg-light border">Archivado</span>
+                          <% } %>
                         </div>
-                        <h2 class="h4 practice-module-card-title">
-                          <a
-                            class="practice-module-card-link text-decoration-none text-reset"
-                            href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>"
-                          >
-                            <%= collection.title %>
-                          </a>
-                        </h2>
-                        <p class="mb-0 text-body-secondary"><%= collection.description || 'Agrupa varios módulos de práctica bajo un mismo tema o propósito.' %></p>
+                        <p class="card-text mb-2 text-body-secondary"><%= collection.description || 'Agrupa varios módulos de práctica bajo un mismo tema o propósito.' %></p>
                         <% if (collection.sourceProfileName) { %>
-                          <p class="mb-0 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
+                          <p class="card-text mb-2 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
+                      </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
@@ -955,10 +949,11 @@
                 <div class="practice-modules-grid">
                   <% practiceModules.forEach((practiceModule) => { %>
                     <article class="practice-module-card card shadow-sm h-100">
-                      <div class="card-body d-grid gap-2 resource-card-body">
-                        <div class="resource-card-menu dropdown">
+                      <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between gap-3">
+                        <span>Módulo de práctica</span>
+                        <div class="dropdown">
                           <button
-                            class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
+                            class="btn btn-sm btn-link text-white text-decoration-none p-0 resource-card-menu-button"
                             type="button"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
@@ -1004,26 +999,25 @@
                             </li>
                           </ul>
                         </div>
-                        <div class="practice-module-card-meta">
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <p class="practice-module-card-kicker mb-0">Módulo de práctica</p>
-                            <% if (practiceModule.archivedAt) { %>
-                              <span class="badge text-bg-light border">Archivado</span>
-                            <% } %>
-                          </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
+                          <% if (practiceModule.archivedAt) { %>
+                            <span class="badge text-bg-light border">Archivado</span>
+                          <% } %>
                         </div>
-                        <h2 class="h4 practice-module-card-title">
-                          <a
-                            class="practice-module-card-link text-decoration-none text-reset"
-                            href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
-                          >
-                            <%= practiceModule.title %>
-                          </a>
-                        </h2>
-                        <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
+                        <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
+                      </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
+                        </form>
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
@@ -1038,8 +1032,9 @@
                 <div class="practice-modules-grid">
                   <% sharedLessons.forEach((practiceModule) => { %>
                     <article class="practice-module-card card shadow-sm h-100">
-                      <div class="card-body d-grid gap-2 resource-card-body">
-                        <div class="resource-card-menu dropdown">
+                      <div class="card-header bg-secondary-subtle text-secondary-emphasis d-flex align-items-center justify-content-between gap-3">
+                        <span>Compartida</span>
+                        <div class="dropdown">
                           <button
                             class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -1087,26 +1082,25 @@
                             </li>
                           </ul>
                         </div>
-                        <div class="practice-module-card-meta">
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <p class="practice-module-card-kicker mb-0">Compartida</p>
-                            <% if (practiceModule.archivedAt) { %>
-                              <span class="badge text-bg-light border">Archivado</span>
-                            <% } %>
-                          </div>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
                             <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
                           </span>
+                          <% if (practiceModule.archivedAt) { %>
+                            <span class="badge text-bg-light border">Archivado</span>
+                          <% } %>
                         </div>
-                        <h2 class="h4 practice-module-card-title">
-                          <a
-                            class="practice-module-card-link text-decoration-none text-reset"
-                            href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
-                          >
-                            <%= practiceModule.title %>
-                          </a>
-                        </h2>
-                        <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
+                        <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
+                      </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
+                        </form>
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
