@@ -3,7 +3,7 @@
           aria-label="Módulos de práctica"
         >
           <div class="practice-modules-header <%= practiceModulePageMode === 'detail' ? 'practice-modules-header-detail' : '' %> <%= practiceModulePageMode !== 'list' ? 'practice-modules-header-has-close' : '' %>">
-            <div>
+            <div class="<%= practiceModulePageMode === 'list' ? 'practice-modules-header-detail' : '' %>">
               <p class="practice-modules-kicker">Módulos de práctica</p>
               <h1 class="practice-modules-title">
                 <% if (practiceModulePageMode === 'collectionNew') { %>
@@ -1112,82 +1112,58 @@
                   <h2 class="h5 mb-0">Archivados</h2>
                   <span class="badge text-bg-light border"><%= archivedPracticeModuleCollections.length + archivedPracticeModules.length %></span>
                 </div>
-                <div class="list-group shadow-sm">
+                <div class="practice-modules-grid">
                   <% archivedPracticeModuleCollections.forEach((collection) => { %>
-                    <div class="list-group-item">
-                      <div class="d-flex flex-column flex-sm-row align-items-sm-start justify-content-between gap-3">
-                        <div class="min-w-0 d-grid gap-2">
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <p class="practice-module-card-kicker mb-0">Colección</p>
-                            <span class="badge text-bg-light border">Archivado</span>
-                            <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
-                              <%= collection.moduleCount %> <%= collection.moduleCount === 1 ? 'módulo' : 'módulos' %>
-                            </span>
-                          </div>
-                          <h2 class="h5 practice-module-card-title mb-0">
-                            <a
-                              class="practice-module-card-link text-decoration-none text-reset"
-                              href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>"
-                            >
-                              <%= collection.title %>
-                            </a>
-                          </h2>
-                          <p class="mb-0 text-body-secondary"><%= collection.description || 'Agrupa varios módulos de práctica bajo un mismo tema o propósito.' %></p>
-                          <% if (collection.sourceProfileName) { %>
-                            <p class="mb-0 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
-                          <% } %>
+                    <article class="practice-module-card card shadow-sm h-100">
+                      <div class="card-header bg-info-subtle text-info-emphasis">Colección</div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= collection.title %></h2>
+                          <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
+                            <%= collection.moduleCount %> <%= collection.moduleCount === 1 ? 'módulo' : 'módulos' %>
+                          </span>
+                          <span class="badge text-bg-light border">Archivado</span>
                         </div>
-                        <div class="practice-module-card-actions btn-toolbar" role="toolbar" aria-label="Acciones rápidas">
-                          <div class="btn-group" role="group" aria-label="Restaurar colección">
-                            <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/restore">
-                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar colección" aria-label="Restaurar colección">
-                                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-                              </button>
-                            </form>
-                          </div>
-                        </div>
+                        <p class="card-text mb-2 text-body-secondary"><%= collection.description || 'Agrupa varios módulos de práctica bajo un mismo tema o propósito.' %></p>
+                        <% if (collection.sourceProfileName) { %>
+                          <p class="card-text mb-2 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
+                        <% } %>
                       </div>
-                    </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/restore">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Restaurar</button>
+                        </form>
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">Detalles</a>
+                      </div>
+                    </article>
                   <% }) %>
                   <% archivedPracticeModules.forEach((practiceModule) => { %>
-                    <div class="list-group-item">
-                      <div class="d-flex flex-column flex-sm-row align-items-sm-start justify-content-between gap-3">
-                        <div class="min-w-0 d-grid gap-2">
-                          <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <p class="practice-module-card-kicker mb-0">Módulo de práctica</p>
-                            <span class="badge text-bg-light border">Archivado</span>
-                            <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
-                              <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
-                            </span>
-                          </div>
-                          <h2 class="h5 practice-module-card-title mb-0">
-                            <a
-                              class="practice-module-card-link text-decoration-none text-reset"
-                              href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>"
-                            >
-                              <%= practiceModule.title %>
-                            </a>
-                          </h2>
-                          <p class="mb-0 text-body-secondary"><%= practiceModule.description %></p>
-                          <% if (practiceModule.sourceProfileName) { %>
-                            <p class="mb-0 text-body-secondary small">Compartida por <%= practiceModule.sourceProfileName %></p>
-                          <% } %>
+                    <article class="practice-module-card card shadow-sm h-100">
+                      <div class="card-header bg-primary text-white">Módulo de práctica</div>
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                          <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
+                          <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
+                            <%= practiceModule.conversationCount %> <%= practiceModule.conversationCount === 1 ? 'chat' : 'chats' %>
+                          </span>
+                          <span class="badge text-bg-light border">Archivado</span>
                         </div>
-                        <div class="practice-module-card-actions btn-toolbar" role="toolbar" aria-label="Acciones rápidas">
-                          <div class="btn-group" role="group" aria-label="Restaurar módulo de práctica">
-                            <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/restore">
-                              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                              <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                              <button class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0" type="submit" title="Restaurar módulo de práctica" aria-label="Restaurar módulo de práctica">
-                                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
-                              </button>
-                            </form>
-                          </div>
-                        </div>
+                        <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
+                        <% if (practiceModule.sourceProfileName) { %>
+                          <p class="card-text mb-2 text-body-secondary small">Compartida por <%= practiceModule.sourceProfileName %></p>
+                        <% } %>
                       </div>
-                    </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/restore">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Restaurar</button>
+                        </form>
+                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
+                      </div>
+                    </article>
                   <% }) %>
                 </div>
               <% } %>

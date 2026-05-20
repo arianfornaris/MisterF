@@ -49,9 +49,16 @@
                 method="post"
                 action="/chatroom-conversations/<%= encodeURIComponent(selectedChatRoomConversation.id) %>/report/create-practice-module"
                 onsubmit="return window.confirm('¿Quieres crear un módulo de práctica a partir de este análisis?');"
+                data-pending-submit-form
               >
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <button class="btn btn-primary" type="submit">Crear módulo de práctica</button>
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                  data-pending-submit-button
+                >
+                  Crear módulo de práctica
+                </button>
               </form>
             <% } %>
           </div>
@@ -161,6 +168,35 @@
             <% } %>
           </div>
         <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="chatRoomReportPracticeModulePendingModal"
+    tabindex="-1"
+    aria-labelledby="chatRoomReportPracticeModulePendingModalLabel"
+    aria-hidden="true"
+    data-pending-submit-modal
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+  >
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4 d-grid gap-3">
+          <div
+            class="spinner-border text-primary mx-auto"
+            role="status"
+            aria-hidden="true"
+          ></div>
+          <div>
+            <h2 class="fs-6 mb-1" id="chatRoomReportPracticeModulePendingModalLabel">Creando módulo de práctica...</h2>
+            <p class="mb-0 text-body-secondary small">
+              Esto puede tardar unos segundos.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>

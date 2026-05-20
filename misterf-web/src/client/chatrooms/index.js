@@ -267,11 +267,40 @@ function initializeResourceGenerationPendingUi() {
   }
 }
 
+function initializePendingSubmitUi() {
+  if (!window.bootstrap?.Modal) {
+    return;
+  }
+
+  for (const formEl of document.querySelectorAll('form[data-pending-submit-form]')) {
+    if (!(formEl instanceof HTMLFormElement)) {
+      continue;
+    }
+
+    const submitButtonEl = formEl.querySelector('[data-pending-submit-button]');
+    const pendingModalEl = document.querySelector('[data-pending-submit-modal]');
+
+    formEl.addEventListener('submit', () => {
+      if (submitButtonEl instanceof HTMLButtonElement) {
+        submitButtonEl.disabled = true;
+        submitButtonEl.textContent = 'Creando...';
+      }
+
+      if (pendingModalEl) {
+        window.setTimeout(() => {
+          window.bootstrap.Modal.getOrCreateInstance(pendingModalEl).show();
+        }, 120);
+      }
+    });
+  }
+}
+
 export function initializeChatroomsPage() {
   initializeChatroomSharingUi();
   initializeChatroomReportUi();
   initializeAutoOpenModal();
   initializeResourceGenerationPendingUi();
+  initializePendingSubmitUi();
 
   const threadEl = document.querySelector('[data-chatroom-thread]');
   if (!threadEl) {

@@ -1381,7 +1381,7 @@ button.sentence-part:focus {
   height: 1.1em;
   margin-left: 3px;
   transform: translateY(2px);
-  background: var(--accent);
+  background: var(--bs-primary);
   animation: blink 1s step-end infinite;
 }
 
@@ -1390,4 +1390,3 @@ button.sentence-part:focus {
     opacity: 0;
   }
 }
-
