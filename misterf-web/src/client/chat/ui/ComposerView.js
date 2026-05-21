@@ -1,7 +1,8 @@
 import { getModelTierLabel, normalizeModelTier } from '../utils/modelTier.js';
 
 export class ComposerView {
-  constructor({ inputEl, modelTierButtonEl, modelTierLabelEl, sendButtonEl }) {
+  constructor({ composerEl, inputEl, modelTierButtonEl, modelTierLabelEl, sendButtonEl }) {
+    this.composerEl = composerEl;
     this.inputEl = inputEl;
     this.modelTierButtonEl = modelTierButtonEl;
     this.modelTierLabelEl = modelTierLabelEl;
@@ -48,6 +49,10 @@ export class ComposerView {
     }
 
     requestAnimationFrame(() => {
+      this.composerEl?.scrollIntoView({
+        block: 'end',
+        inline: 'nearest',
+      });
       this.inputEl?.focus({ preventScroll: true });
     });
   }

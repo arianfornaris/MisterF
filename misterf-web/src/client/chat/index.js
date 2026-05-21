@@ -111,6 +111,7 @@ const conversationListView = new ConversationListView({
   panelEl: conversationPanelEl,
 });
 const composerView = new ComposerView({
+  composerEl: formEl,
   inputEl,
   modelTierButtonEl,
   modelTierLabelEl,
@@ -394,8 +395,12 @@ function putMessageBackInComposer(content, options = {}) {
   resizeComposerInput();
   focusComposer();
 
+  const isMobileDevice =
+    window.matchMedia('(max-width: 991.98px)').matches &&
+    (window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0);
+
   const selectionText = options.preferredSelectionText?.trim() || '';
-  if (!selectionText) {
+  if (!selectionText || isMobileDevice) {
     moveCaretToEnd(inputEl);
     return;
   }
