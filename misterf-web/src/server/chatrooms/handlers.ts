@@ -564,7 +564,8 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
         (profile) => profile.id !== selectedChatRoom.profileId,
       )
     : [];
-  const chatRooms = mapChatRoomsForProfile(auth.user.id, auth.activeProfile.id).filter(
+  const allChatRooms = mapChatRoomsForProfile(auth.user.id, auth.activeProfile.id);
+  const chatRooms = allChatRooms.filter(
     (room) => {
       if (room.archivedAt && !showArchivedChatRooms) {
         return false;
@@ -573,6 +574,7 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
       return true;
     },
   );
+  const hasArchivedChatRooms = allChatRooms.some((room) => Boolean(room.archivedAt));
 
   Promise.resolve(
     chatRoomShareUrl
@@ -592,6 +594,7 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
       chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
       chatRoomShareUrl,
       chatRooms,
+      hasArchivedChatRooms,
       showArchivedChatRooms,
       selectedChatRoom,
       selectedChatRoomShareLink,
@@ -611,6 +614,7 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
       chatRoomShareQrDataUrl: '',
       chatRoomShareUrl,
       chatRooms,
+      hasArchivedChatRooms,
       showArchivedChatRooms,
       selectedChatRoom,
       selectedChatRoomShareLink,

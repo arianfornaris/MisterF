@@ -389,8 +389,63 @@ export function createTutorMessageRenderer(deps) {
       return;
     }
 
+    const hideAllSentencePopovers = (except = null) => {
+      for (const node of document.querySelectorAll('[data-bs-toggle="popover"]')) {
+        if (node === except) {
+          continue;
+        }
+
+        window.bootstrap.Popover.getOrCreateInstance(node).hide();
+      }
+    };
+
+    if (!document.body.dataset.sentencePopoverDismissBound) {
+      document.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof Node)) {
+          return;
+        }
+
+        const trigger = target instanceof Element
+          ? target.closest('[data-bs-toggle="popover"]')
+          : null;
+        const insidePopover = target instanceof Element
+          ? target.closest('.popover')
+          : null;
+
+        if (trigger || insidePopover) {
+          return;
+        }
+
+        hideAllSentencePopovers();
+      });
+
+      document.body.dataset.sentencePopoverDismissBound = 'true';
+    }
+
     for (const trigger of root.querySelectorAll('[data-bs-toggle="popover"]')) {
-      window.bootstrap.Popover.getOrCreateInstance(trigger);
+      const popover = window.bootstrap.Popover.getOrCreateInstance(trigger);
+
+      if (trigger.dataset.sentencePopoverBound === 'true') {
+        continue;
+      }
+
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const isOpen = trigger.getAttribute('aria-describedby');
+        hideAllSentencePopovers(isOpen ? null : trigger);
+
+        if (isOpen) {
+          popover.hide();
+          return;
+        }
+
+        popover.show();
+      });
+
+      trigger.dataset.sentencePopoverBound = 'true';
     }
   }
 
@@ -493,8 +548,9 @@ export function createTutorMessageRenderer(deps) {
       if (node instanceof HTMLButtonElement) {
         node.type = 'button';
         node.dataset.bsToggle = 'popover';
-        node.dataset.bsTrigger = 'focus';
+        node.dataset.bsTrigger = 'manual';
         node.dataset.bsPlacement = 'top';
+        node.dataset.bsContainer = 'body';
         node.dataset.bsCustomClass = `sentence-popover sentence-popover-${normalizedStatus}`;
         node.dataset.bsTitle =
           normalizedStatus === 'error' ? 'Error' : 'Puede mejorar';

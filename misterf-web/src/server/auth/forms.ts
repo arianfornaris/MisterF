@@ -1147,57 +1147,55 @@ export async function renderHome(request: Request, response: Response): Promise<
     user && activeProfile
       ? listPracticeModulesForProfile(user.id, activeProfile.id)
       : [];
-  const visibleLessons = user
-    ? practiceModules
-        .filter((practiceModule) => {
-          if (practiceModule.archivedAt && !showArchivedPracticeModules) {
-            return false;
-          }
-
-          if (!normalizedpracticeModuleFilterQuery) {
-            return true;
-          }
-
-          const haystack = [
-            practiceModule.title,
-            practiceModule.description,
-            practiceModule.tutorInstructions,
-          ].join('\n');
-
-          return normalizeSearchText(haystack).includes(normalizedpracticeModuleFilterQuery);
-        })
-        .map((practiceModule) => ({
-          ...practiceModule,
-          conversationCount: listConversationsForPracticeModule(
-            practiceModule.id,
-            user.id,
-            practiceModule.profileId,
-          ).length,
-          sourceProfileName: practiceModule.sourceProfileId
-            ? findProfileById(practiceModule.sourceProfileId)?.name || ''
-            : '',
-        }))
+  const allLessons = user
+    ? practiceModules.map((practiceModule) => ({
+        ...practiceModule,
+        conversationCount: listConversationsForPracticeModule(
+          practiceModule.id,
+          user.id,
+          practiceModule.profileId,
+        ).length,
+        sourceProfileName: practiceModule.sourceProfileId
+          ? findProfileById(practiceModule.sourceProfileId)?.name || ''
+          : '',
+      }))
     : [];
-  const visiblePracticeModuleCollections = practiceModuleCollections
-    .filter((collection) => {
-      if (collection.archivedAt && !showArchivedPracticeModules) {
-        return false;
-      }
+  const visibleLessons = allLessons.filter((practiceModule) => {
+    if (practiceModule.archivedAt && !showArchivedPracticeModules) {
+      return false;
+    }
 
-      if (!normalizedpracticeModuleFilterQuery) {
-        return true;
-      }
+    if (!normalizedpracticeModuleFilterQuery) {
+      return true;
+    }
 
-      const haystack = [collection.title, collection.description].join('\n');
-      return normalizeSearchText(haystack).includes(normalizedpracticeModuleFilterQuery);
-    })
-    .map((collection) => ({
-      ...collection,
-      moduleCount: listPracticeModulesForCollection(collection.id, user?.id || '').length,
-      sourceProfileName: collection.sourceProfileId
-        ? findProfileById(collection.sourceProfileId)?.name || ''
-        : '',
-    }));
+    const haystack = [
+      practiceModule.title,
+      practiceModule.description,
+      practiceModule.tutorInstructions,
+    ].join('\n');
+
+    return normalizeSearchText(haystack).includes(normalizedpracticeModuleFilterQuery);
+  });
+  const allPracticeModuleCollections = practiceModuleCollections.map((collection) => ({
+    ...collection,
+    moduleCount: listPracticeModulesForCollection(collection.id, user?.id || '').length,
+    sourceProfileName: collection.sourceProfileId
+      ? findProfileById(collection.sourceProfileId)?.name || ''
+      : '',
+  }));
+  const visiblePracticeModuleCollections = allPracticeModuleCollections.filter((collection) => {
+    if (collection.archivedAt && !showArchivedPracticeModules) {
+      return false;
+    }
+
+    if (!normalizedpracticeModuleFilterQuery) {
+      return true;
+    }
+
+    const haystack = [collection.title, collection.description].join('\n');
+    return normalizeSearchText(haystack).includes(normalizedpracticeModuleFilterQuery);
+  });
   const activeVisiblePracticeModuleCollections = visiblePracticeModuleCollections
     .filter((collection) => !collection.archivedAt)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -1211,6 +1209,9 @@ export async function renderHome(request: Request, response: Response): Promise<
   const archivedPracticeModuleCollections = visiblePracticeModuleCollections
     .filter((collection) => Boolean(collection.archivedAt))
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const hasArchivedPracticeModules =
+    allPracticeModuleCollections.some((collection) => Boolean(collection.archivedAt)) ||
+    allLessons.some((practiceModule) => Boolean(practiceModule.archivedAt));
   const favoritePracticeModules = activeVisibleLessons
     .filter((practiceModule) => !practiceModule.sharedVia && !practiceModule.collectionId && practiceModule.isFavorite)
     .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
@@ -1270,6 +1271,7 @@ export async function renderHome(request: Request, response: Response): Promise<
             : '',
         }))
       : [];
+  const hasArchivedChatRooms = chatRooms.some((room) => Boolean(room.archivedAt));
   const chatRoomConversationsWithRelativeTime = chatRoomConversations.map(
     (conversation) => ({
       ...conversation,
@@ -1413,6 +1415,8 @@ export async function renderHome(request: Request, response: Response): Promise<
     practiceModuleCollectionShareUrl,
     favoritePracticeModules,
     favoritePracticeModuleCollections,
+    hasArchivedPracticeModules,
+    hasArchivedChatRooms,
     authMessage,
     conversations,
     currentView,

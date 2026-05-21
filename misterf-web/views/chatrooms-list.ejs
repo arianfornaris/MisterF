@@ -24,15 +24,17 @@
 
   <div class="d-grid gap-4">
 
-    <div class="d-flex flex-wrap align-items-center gap-2">
-      <a
-        class="btn <%= showArchivedChatRooms ? 'btn-primary' : 'btn-secondary' %> btn-sm"
-        href="<%= showArchivedChatRooms ? '/chatrooms' : '?archived=1' %>"
-      >
-        <i class="bi <%= showArchivedChatRooms ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
-        <span class="ms-1"><%= showArchivedChatRooms ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
-      </a>
-    </div>
+    <% if (hasArchivedChatRooms) { %>
+      <div class="d-flex flex-wrap align-items-center gap-2">
+        <a
+          class="btn <%= showArchivedChatRooms ? 'btn-primary' : 'btn-secondary' %> btn-sm"
+          href="<%= showArchivedChatRooms ? '/chatrooms' : '?archived=1' %>"
+        >
+          <i class="bi <%= showArchivedChatRooms ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
+          <span class="ms-1"><%= showArchivedChatRooms ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
+        </a>
+      </div>
+    <% } %>
 
     <% if (chatRooms.length > 0) { %>
       <div class="row g-3">

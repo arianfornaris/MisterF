@@ -500,15 +500,17 @@
               </div>
             </form>
 
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
-              <a
-                class="btn <%= showArchivedPracticeModules ? 'btn-primary' : 'btn-secondary' %> btn-sm"
-                href="<%= showArchivedPracticeModules ? '/practice-modules' : `/practice-modules${practiceModuleFilterQuery ? `?q=${encodeURIComponent(practiceModuleFilterQuery)}&archived=1` : '?archived=1'}` %>"
-              >
-                <i class="bi <%= showArchivedPracticeModules ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
-                <span class="ms-1"><%= showArchivedPracticeModules ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
-              </a>
-            </div>
+            <% if (hasArchivedPracticeModules) { %>
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
+                <a
+                  class="btn <%= showArchivedPracticeModules ? 'btn-primary' : 'btn-secondary' %> btn-sm"
+                  href="<%= showArchivedPracticeModules ? '/practice-modules' : `/practice-modules${practiceModuleFilterQuery ? `?q=${encodeURIComponent(practiceModuleFilterQuery)}&archived=1` : '?archived=1'}` %>"
+                >
+                  <i class="bi <%= showArchivedPracticeModules ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
+                  <span class="ms-1"><%= showArchivedPracticeModules ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
+                </a>
+              </div>
+            <% } %>
           <% } %>
 
           <% if (practiceModulePageMode === 'collectionNew') { %>
