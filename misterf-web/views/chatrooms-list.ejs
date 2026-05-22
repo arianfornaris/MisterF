@@ -24,19 +24,106 @@
 
   <div class="d-grid gap-4">
 
-    <% if (hasArchivedChatRooms) { %>
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
       <div class="d-flex flex-wrap align-items-center gap-2">
+        <% if (hasArchivedChatRooms) { %>
+          <a
+            class="btn <%= showArchivedChatRooms ? 'btn-primary' : 'btn-secondary' %> btn-sm"
+            href="<%= showArchivedChatRooms ? '/chatrooms' : '?archived=1' %>"
+          >
+            <i class="bi <%= showArchivedChatRooms ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
+            <span class="ms-1"><%= showArchivedChatRooms ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
+          </a>
+        <% } %>
+      </div>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Cambiar presentación del contenido">
         <a
-          class="btn <%= showArchivedChatRooms ? 'btn-primary' : 'btn-secondary' %> btn-sm"
-          href="<%= showArchivedChatRooms ? '/chatrooms' : '?archived=1' %>"
+          href="/chatrooms?<%= new URLSearchParams(Object.fromEntries(Object.entries({ ...(showArchivedChatRooms ? { archived: '1' } : {}), layout: 'cards' })).toString() %>"
+          class="btn <%= chatRoomLayout === 'cards' ? 'btn-primary' : 'btn-secondary' %>"
+          title="Mostrar como cards"
         >
-          <i class="bi <%= showArchivedChatRooms ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
-          <span class="ms-1"><%= showArchivedChatRooms ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
+          <i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
+          <span class="visually-hidden">Mostrar como cards</span>
+        </a>
+        <a
+          href="/chatrooms?<%= new URLSearchParams(Object.fromEntries(Object.entries({ ...(showArchivedChatRooms ? { archived: '1' } : {}), layout: 'list' })).toString() %>"
+          class="btn <%= chatRoomLayout === 'list' ? 'btn-primary' : 'btn-secondary' %>"
+          title="Mostrar como lista"
+        >
+          <i class="bi bi-list-ul" aria-hidden="true"></i>
+          <span class="visually-hidden">Mostrar como lista</span>
         </a>
       </div>
-    <% } %>
+    </div>
 
     <% if (chatRooms.length > 0) { %>
+      <% if (chatRoomLayout === 'list') { %>
+        <div class="list-group shadow-sm">
+          <% chatRooms.forEach((room) => { %>
+            <div class="list-group-item position-relative d-flex align-items-start justify-content-between gap-3">
+              <div class="min-w-0 flex-grow-1">
+                <a class="stretched-link" href="/chatrooms/<%= encodeURIComponent(room.id) %>">
+                  <span class="visually-hidden">Ver detalles de <%= room.title %></span>
+                </a>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <h2 class="h6 fw-normal mb-0"><%= room.title %></h2>
+                  <% if (room.sharedVia) { %>
+                    <span class="badge text-bg-light border" role="status">
+                      Compartida <%= room.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+                    </span>
+                  <% } %>
+                  <% if (room.archivedAt) { %>
+                    <span class="badge text-bg-light border" role="status">Archivada</span>
+                  <% } %>
+                </div>
+                <% if (room.sourceProfileName) { %>
+                  <p class="mb-0 small text-body-secondary">Compartida por <%= room.sourceProfileName %></p>
+                <% } %>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                  <% room.characters.forEach((character) => { %>
+                    <span class="badge text-bg-light border">
+                      <i class="bi bi-person" aria-hidden="true"></i>
+                      <span class="ms-1"><%= character.name %><%= character.shortDescription ? ` · ${character.shortDescription}` : '' %></span>
+                    </span>
+                  <% }) %>
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2 flex-shrink-0 ms-2 position-relative z-1">
+                <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/join">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-primary btn-sm" type="submit">Unirse</button>
+                </form>
+                <div class="dropdown">
+                  <button
+                    class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="Acciones de la sala"
+                    title="Acciones de la sala"
+                  >
+                    <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history">Historial</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=profile">Compartir con perfil</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=link">Compartir por enlace</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit">Editar</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/<%= room.archivedAt ? 'restore' : 'archive' %>" onsubmit="return window.confirm('<%= room.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="hidden" name="returnTo" value="<%= showArchivedChatRooms ? '/chatrooms?archived=1' : '/chatrooms' %>">
+                        <button class="dropdown-item" type="submit"><%= room.archivedAt ? 'Restaurar' : 'Archivar' %></button>
+                      </form>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
       <div class="row g-3">
         <% chatRooms.forEach((room) => { %>
           <div class="col-12 col-xl-6">
@@ -144,6 +231,7 @@
           </div>
         <% }) %>
       </div>
+      <% } %>
     <% } else { %>
       <div class="card">
         <div class="card-body">

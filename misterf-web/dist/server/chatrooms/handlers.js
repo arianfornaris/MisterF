@@ -9,6 +9,9 @@ const appDocumentTitle = 'Mr. F, tutor de inglés';
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
     numeric: 'auto',
 });
+function readResourceLayout(value) {
+    return value === 'list' ? 'list' : 'cards';
+}
 function buildAbsoluteAppUrl(pathname) {
     return new URL(pathname, env.appBaseUrl).toString();
 }
@@ -339,6 +342,7 @@ export function renderChatRoomsListPage(request, response) {
         return;
     }
     const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
+    const chatRoomLayout = readResourceLayout(request.query.layout);
     const selectedRoomId = typeof request.query.room === 'string' ? request.query.room.trim() : '';
     const selectedChatRoom = selectedRoomId
         ? findChatRoomForUser(selectedRoomId, auth.user.id)
@@ -381,6 +385,7 @@ export function renderChatRoomsListPage(request, response) {
             chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
             chatRoomShareUrl,
             chatRooms,
+            chatRoomLayout,
             hasArchivedChatRooms,
             showArchivedChatRooms,
             selectedChatRoom,
@@ -401,6 +406,7 @@ export function renderChatRoomsListPage(request, response) {
             chatRoomShareQrDataUrl: '',
             chatRoomShareUrl,
             chatRooms,
+            chatRoomLayout,
             hasArchivedChatRooms,
             showArchivedChatRooms,
             selectedChatRoom,

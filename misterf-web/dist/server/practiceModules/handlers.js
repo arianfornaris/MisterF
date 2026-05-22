@@ -4,6 +4,9 @@ import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+function readResourceLayout(value) {
+    return value === 'list' ? 'list' : 'cards';
+}
 function redirectUnauthedPracticeModules(response) {
     response.redirect('/');
 }
@@ -22,6 +25,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     const practiceModuleShareMode = practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
         ? practiceModuleShareModeRaw
         : '';
+    const practiceModuleLayout = readResourceLayout(request.query.layout);
     const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
     let selectedPracticeModule = null;
     let selectedPracticeModuleCollection = null;
@@ -247,6 +251,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         practiceModuleCollections: activeVisiblePracticeModuleCollections,
         practiceModuleConversations,
         practiceModulePageMode: pageKind,
+        practiceModuleLayout,
         practiceModuleShareMode,
         practiceModuleShareQrDataUrl,
         practiceModuleShareUrl,
@@ -313,6 +318,7 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         practiceModuleConversations: viewModel.practiceModuleConversations,
         practiceModuleFilterQuery: typeof request.query.q === 'string' ? request.query.q.trim() : '',
         practiceModulePageMode: viewModel.practiceModulePageMode,
+        practiceModuleLayout: viewModel.practiceModuleLayout,
         practiceModuleShareMode: viewModel.practiceModuleShareMode,
         practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
         practiceModuleShareUrl: viewModel.practiceModuleShareUrl,

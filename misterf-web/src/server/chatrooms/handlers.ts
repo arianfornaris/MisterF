@@ -73,6 +73,12 @@ type ChatRoomMessageEvaluation =
   | { status: 'ok' }
   | { status: 'warning'; problem: string };
 
+type ResourceLayout = 'cards' | 'list';
+
+function readResourceLayout(value: unknown): ResourceLayout {
+  return value === 'list' ? 'list' : 'cards';
+}
+
 function buildAbsoluteAppUrl(pathname: string): string {
   return new URL(pathname, env.appBaseUrl).toString();
 }
@@ -538,6 +544,7 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
   }
 
   const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
+  const chatRoomLayout = readResourceLayout(request.query.layout);
 
   const selectedRoomId =
     typeof request.query.room === 'string' ? request.query.room.trim() : '';
@@ -594,6 +601,7 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
       chatRoomShareQrDataUrl: chatRoomShareQrDataUrl || '',
       chatRoomShareUrl,
       chatRooms,
+      chatRoomLayout,
       hasArchivedChatRooms,
       showArchivedChatRooms,
       selectedChatRoom,
@@ -614,6 +622,7 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
       chatRoomShareQrDataUrl: '',
       chatRoomShareUrl,
       chatRooms,
+      chatRoomLayout,
       hasArchivedChatRooms,
       showArchivedChatRooms,
       selectedChatRoom,

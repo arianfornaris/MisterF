@@ -51,6 +51,12 @@ type PracticeModuleDraftFormValues = {
   practiceModuleGenerationPrompt?: string;
 };
 
+type ResourceLayout = 'cards' | 'list';
+
+function readResourceLayout(value: unknown): ResourceLayout {
+  return value === 'list' ? 'list' : 'cards';
+}
+
 function redirectUnauthedPracticeModules(response: Response): void {
   response.redirect('/');
 }
@@ -79,6 +85,7 @@ async function buildPracticeModulesPageModel(
     practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
       ? practiceModuleShareModeRaw
       : '';
+  const practiceModuleLayout = readResourceLayout(request.query.layout);
   const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
 
   let selectedPracticeModule = null;
@@ -393,6 +400,7 @@ async function buildPracticeModulesPageModel(
     practiceModuleCollections: activeVisiblePracticeModuleCollections,
     practiceModuleConversations,
     practiceModulePageMode: pageKind,
+    practiceModuleLayout,
     practiceModuleShareMode,
     practiceModuleShareQrDataUrl,
     practiceModuleShareUrl,
@@ -470,6 +478,7 @@ async function renderPracticeModulesPage(
     practiceModuleFilterQuery:
       typeof request.query.q === 'string' ? request.query.q.trim() : '',
     practiceModulePageMode: viewModel.practiceModulePageMode,
+    practiceModuleLayout: viewModel.practiceModuleLayout,
     practiceModuleShareMode: viewModel.practiceModuleShareMode,
     practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
     practiceModuleShareUrl: viewModel.practiceModuleShareUrl,

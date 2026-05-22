@@ -563,9 +563,11 @@ export async function renderHome(request, response) {
     const practiceModuleShareMode = practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
         ? practiceModuleShareModeRaw
         : '';
+    const practiceModuleLayout = request.query.layout === 'list' ? 'list' : 'cards';
     const chatRoomShareMode = chatRoomShareModeRaw === 'profile' || chatRoomShareModeRaw === 'link'
         ? chatRoomShareModeRaw
         : '';
+    const chatRoomLayout = request.query.layout === 'list' ? 'list' : 'cards';
     const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
     const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
     const guestInitialGreeting = user
@@ -1056,9 +1058,11 @@ export async function renderHome(request, response) {
         availablePracticeModulesForCollection,
         availableCollectionsForSelectedPracticeModule,
         practiceModulePageMode,
+        practiceModuleLayout,
         chatRooms,
         chatRoomConversations: chatRoomConversationsWithRelativeTime,
         chatRoomPageMode,
+        chatRoomLayout,
         chatRoomShareMode,
         chatRoomShareQrDataUrl,
         chatRoomShareUrl,

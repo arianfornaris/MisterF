@@ -489,6 +489,26 @@ body {
   line-height: 1;
 }
 
+.resource-list-item {
+  min-height: 72px;
+}
+
+.list-group-item .stretched-link {
+  z-index: 0;
+}
+
+.list-group-item {
+  position: relative;
+}
+
+.list-group-item .dropdown.show {
+  z-index: 1085;
+}
+
+.list-group-item.dropdown-open {
+  z-index: 1085;
+}
+
 .practice-module-card-actions {
   display: inline-flex;
   align-items: center;
@@ -520,6 +540,66 @@ body {
 .practice-module-card h2,
 .practiceModule-start-title {
   margin: 0;
+}
+
+.practice-modules-view[data-resource-layout='list'] .practice-modules-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item {
+  padding: 0;
+  overflow: hidden;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-body {
+  padding-bottom: 1rem;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-footer {
+  padding-top: 0.75rem;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-text:not(.small) {
+  display: none;
+}
+
+.practice-modules-view[data-resource-layout='list'] .row.g-3,
+.practice-modules-view[data-resource-layout='list'] .list-group {
+  gap: 0;
+}
+
+.practice-modules-view[data-resource-layout='list'] [data-resource-layout-cards-class='col-12 col-xl-6'] {
+  width: 100%;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-header,
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-body,
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-footer {
+  border-left: 0;
+  border-right: 0;
+}
+
+.practice-modules-view[data-resource-layout='list'] .card-header {
+  display: none;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-footer {
+  background: transparent;
+  padding-top: 0;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-title {
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-footer .btn,
+.practice-modules-view[data-resource-layout='list'] .list-group-item .card-footer .btn-sm {
+  --bs-btn-padding-y: 0.18rem;
+  --bs-btn-padding-x: 0.5rem;
+  --bs-btn-font-size: 0.8rem;
 }
 
 .practice-module-card-title {
