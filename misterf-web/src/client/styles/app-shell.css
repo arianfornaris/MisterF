@@ -443,7 +443,7 @@
 }
 
 .practice-modules-view[data-resource-layout='list'] .list-group-item {
-  padding: 0;
+  padding: 0.75rem 1rem;
   overflow: hidden;
 }
 
