@@ -105,16 +105,16 @@
                     <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history">Historial</a></li>
-                    <li><a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=profile">Compartir con perfil</a></li>
-                    <li><a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=link">Compartir por enlace</a></li>
-                    <li><a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit">Editar</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(room.id) %>/history"><i class="bi bi-clock-history me-2" aria-hidden="true"></i>Historial</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms?room=<%= encodeURIComponent(room.id) %>&share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Compartir por enlace</a></li>
+                    <li><a class="dropdown-item" href="/chatrooms/<%= encodeURIComponent(room.id) %>/edit"><i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
                       <form method="post" action="/chatrooms/<%= encodeURIComponent(room.id) %>/<%= room.archivedAt ? 'restore' : 'archive' %>" onsubmit="return window.confirm('<%= room.archivedAt ? '¿Seguro que quieres restaurar esta sala?' : '¿Seguro que quieres archivar esta sala de chat?' %>');">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <input type="hidden" name="returnTo" value="<%= showArchivedChatRooms ? '/chatrooms?archived=1' : '/chatrooms' %>">
-                        <button class="dropdown-item" type="submit"><%= room.archivedAt ? 'Restaurar' : 'Archivar' %></button>
+                        <button class="dropdown-item" type="submit"><i class="bi <%= room.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i><%= room.archivedAt ? 'Restaurar' : 'Archivar' %></button>
                       </form>
                     </li>
                   </ul>

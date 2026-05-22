@@ -773,14 +773,14 @@
                               <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile">Compartir con perfil</a></li>
-                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link">Obtener enlace</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
                               <li>
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/favorite">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="favorite" value="0">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit">Quitar de favoritas</button>
+                                  <button class="dropdown-item" type="submit"><i class="bi bi-star-fill me-2" aria-hidden="true"></i>Quitar de favoritas</button>
                                 </form>
                               </li>
                               <li><hr class="dropdown-divider"></li>
@@ -788,7 +788,7 @@
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/archive">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit">Archivar</button>
+                                  <button class="dropdown-item" type="submit"><i class="bi bi-archive me-2" aria-hidden="true"></i>Archivar</button>
                                 </form>
                               </li>
                             </ul>
@@ -821,14 +821,14 @@
                               <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a></li>
-                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
                               <li>
                                 <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="favorite" value="0">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit">Quitar de favoritas</button>
+                                  <button class="dropdown-item" type="submit"><i class="bi bi-star-fill me-2" aria-hidden="true"></i>Quitar de favoritas</button>
                                 </form>
                               </li>
                               <li><hr class="dropdown-divider"></li>
@@ -836,7 +836,7 @@
                                 <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit">Archivar</button>
+                                  <button class="dropdown-item" type="submit"><i class="bi bi-archive me-2" aria-hidden="true"></i>Archivar</button>
                                 </form>
                               </li>
                             </ul>
@@ -878,14 +878,14 @@
                               <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile">Compartir con perfil</a></li>
-                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link">Obtener enlace</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
                               <li>
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/favorite">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="favorite" value="<%= collection.isFavorite ? '0' : '1' %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit"><%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
+                                  <button class="dropdown-item" type="submit"><i class="bi <%= collection.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i><%= collection.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
                                 </form>
                               </li>
                               <li><hr class="dropdown-divider"></li>
@@ -893,7 +893,7 @@
                                 <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/<%= collection.archivedAt ? 'restore' : 'archive' %>">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit"><%= collection.archivedAt ? 'Restaurar' : 'Archivar' %></button>
+                                  <button class="dropdown-item" type="submit"><i class="bi <%= collection.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i><%= collection.archivedAt ? 'Restaurar' : 'Archivar' %></button>
                                 </form>
                               </li>
                             </ul>
@@ -932,14 +932,14 @@
                               <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a></li>
-                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
                               <li>
                                 <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit"><%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
+                                  <button class="dropdown-item" type="submit"><i class="bi <%= practiceModule.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i><%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
                                 </form>
                               </li>
                               <li><hr class="dropdown-divider"></li>
@@ -947,7 +947,7 @@
                                 <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit">Archivar</button>
+                                  <button class="dropdown-item" type="submit"><i class="bi bi-archive me-2" aria-hidden="true"></i>Archivar</button>
                                 </form>
                               </li>
                             </ul>
@@ -986,14 +986,14 @@
                               <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile">Compartir con perfil</a></li>
-                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link">Obtener enlace</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                              <li><a class="dropdown-item" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
                               <li>
                                 <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/favorite">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="favorite" value="<%= practiceModule.isFavorite ? '0' : '1' %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit"><%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
+                                  <button class="dropdown-item" type="submit"><i class="bi <%= practiceModule.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i><%= practiceModule.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
                                 </form>
                               </li>
                               <li><hr class="dropdown-divider"></li>
@@ -1001,7 +1001,7 @@
                                 <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/archive">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                   <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                                  <button class="dropdown-item" type="submit">Archivar</button>
+                                  <button class="dropdown-item" type="submit"><i class="bi bi-archive me-2" aria-hidden="true"></i>Archivar</button>
                                 </form>
                               </li>
                             </ul>
@@ -1079,10 +1079,10 @@
                 </div>
                 <div class="practice-modules-grid mb-4">
                   <% favoritePracticeModuleCollections.forEach((collection) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-info-subtle text-info-emphasis d-flex align-items-center justify-content-between gap-3">
                         <span>Colección</span>
-                        <div class="dropdown">
+                        <div class="dropdown position-relative z-1">
                           <button
                             class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -1132,6 +1132,9 @@
                         </div>
                       </div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">
+                          <span class="visually-hidden">Ver detalles de la colección <%= collection.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= collection.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1143,16 +1146,13 @@
                           <p class="card-text mb-2 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
                       </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">Detalles</a>
-                      </div>
                     </article>
                   <% }) %>
                   <% favoritePracticeModules.forEach((practiceModule) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between gap-3">
                         <span>Módulo de práctica</span>
-                        <div class="dropdown">
+                        <div class="dropdown position-relative z-1">
                           <button
                             class="btn btn-sm btn-link text-white text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -1202,6 +1202,9 @@
                         </div>
                       </div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">
+                          <span class="visually-hidden">Ver detalles del módulo <%= practiceModule.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1216,13 +1219,6 @@
                           <p class="card-text mb-2 text-body-secondary small">Compartido por <%= practiceModule.sourceProfileName %></p>
                         <% } %>
                       </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
-                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
-                        </form>
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
-                      </div>
                     </article>
                   <% }) %>
                 </div>
@@ -1235,10 +1231,10 @@
                 </div>
                 <div class="practice-modules-grid mb-4">
                   <% practiceModuleCollections.forEach((collection) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-info-subtle text-info-emphasis d-flex align-items-center justify-content-between gap-3">
                         <span>Colección</span>
-                        <div class="dropdown">
+                        <div class="dropdown position-relative z-1">
                           <button
                             class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -1290,6 +1286,9 @@
                         </div>
                       </div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">
+                          <span class="visually-hidden">Ver detalles de la colección <%= collection.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= collection.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1304,9 +1303,6 @@
                           <p class="card-text mb-2 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
                       </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">Detalles</a>
-                      </div>
                     </article>
                   <% }) %>
                 </div>
@@ -1319,10 +1315,10 @@
                 </div>
                 <div class="practice-modules-grid">
                   <% practiceModules.forEach((practiceModule) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between gap-3">
                         <span>Módulo de práctica</span>
-                        <div class="dropdown">
+                        <div class="dropdown position-relative z-1">
                           <button
                             class="btn btn-sm btn-link text-white text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -1372,6 +1368,9 @@
                         </div>
                       </div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">
+                          <span class="visually-hidden">Ver detalles del módulo <%= practiceModule.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1382,13 +1381,6 @@
                           <% } %>
                         </div>
                         <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
-                      </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
-                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
-                        </form>
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
@@ -1402,10 +1394,10 @@
                 </div>
                 <div class="practice-modules-grid">
                   <% sharedLessons.forEach((practiceModule) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-secondary-subtle text-secondary-emphasis d-flex align-items-center justify-content-between gap-3">
                         <span>Compartida</span>
-                        <div class="dropdown">
+                        <div class="dropdown position-relative z-1">
                           <button
                             class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
                             type="button"
@@ -1455,6 +1447,9 @@
                         </div>
                       </div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">
+                          <span class="visually-hidden">Ver detalles del módulo <%= practiceModule.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1465,13 +1460,6 @@
                           <% } %>
                         </div>
                         <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
-                      </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
-                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
-                        </form>
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
@@ -1485,9 +1473,12 @@
                 </div>
                 <div class="practice-modules-grid">
                   <% archivedPracticeModuleCollections.forEach((collection) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-info-subtle text-info-emphasis">Colección</div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">
+                          <span class="visually-hidden">Ver detalles de la colección <%= collection.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= collection.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1500,20 +1491,22 @@
                           <p class="card-text mb-2 text-body-secondary small">Compartida por <%= collection.sourceProfileName %></p>
                         <% } %>
                       </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
                         <form method="post" action="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>/restore">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <input type="hidden" name="returnTo" value="<%= currentPath %>">
                           <button class="btn btn-primary btn-sm" type="submit">Restaurar</button>
                         </form>
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/collections/<%= encodeURIComponent(collection.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
                   <% archivedPracticeModules.forEach((practiceModule) => { %>
-                    <article class="card shadow-sm h-100 practice-module-card">
+                    <article class="card shadow-sm h-100 practice-module-card position-relative">
                       <div class="card-header bg-primary text-white">Módulo de práctica</div>
                       <div class="card-body">
+                        <a class="stretched-link" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">
+                          <span class="visually-hidden">Ver detalles del módulo <%= practiceModule.title %></span>
+                        </a>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
                           <h2 class="card-title h4 mb-0"><%= practiceModule.title %></h2>
                           <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
@@ -1526,13 +1519,12 @@
                           <p class="card-text mb-2 text-body-secondary small">Compartida por <%= practiceModule.sourceProfileName %></p>
                         <% } %>
                       </div>
-                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2">
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
                         <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/restore">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <input type="hidden" name="returnTo" value="<%= currentPath %>">
                           <button class="btn btn-primary btn-sm" type="submit">Restaurar</button>
                         </form>
-                        <a class="btn btn-secondary btn-sm" href="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>">Detalles</a>
                       </div>
                     </article>
                   <% }) %>
