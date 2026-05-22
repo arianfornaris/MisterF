@@ -5,13 +5,11 @@ import { setActiveProfileCookie } from '../auth/profiles.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, generateChatRoomConversationReport, generatePracticeModuleFromChatRoomConversationReport, } from '../services/chatrooms.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
+import { chatroomsLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
     numeric: 'auto',
 });
-function readResourceLayout(value) {
-    return value === 'list' ? 'list' : 'cards';
-}
 function buildAbsoluteAppUrl(pathname) {
     return new URL(pathname, env.appBaseUrl).toString();
 }
@@ -342,7 +340,7 @@ export function renderChatRoomsListPage(request, response) {
         return;
     }
     const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
-    const chatRoomLayout = readResourceLayout(request.query.layout);
+    const chatRoomLayout = resolveResourceLayout(request, response, chatroomsLayoutCookieName);
     const selectedRoomId = typeof request.query.room === 'string' ? request.query.room.trim() : '';
     const selectedChatRoom = selectedRoomId
         ? findChatRoomForUser(selectedRoomId, auth.user.id)

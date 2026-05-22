@@ -310,9 +310,9 @@ function initializePendingSubmitUi() {
 export function initializeChatroomsPage() {
   initializeChatroomSharingUi();
   initializeChatroomReportUi();
-initializeAutoOpenModal();
-initializeResourceGenerationPendingUi();
-initializeListGroupDropdownStacking();
+  initializeAutoOpenModal();
+  initializeResourceGenerationPendingUi();
+  initializeListGroupDropdownStacking();
   initializePendingSubmitUi();
 
   const threadEl = document.querySelector('[data-chatroom-thread]');

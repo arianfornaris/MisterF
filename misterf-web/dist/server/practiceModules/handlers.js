@@ -4,9 +4,7 @@ import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
-function readResourceLayout(value) {
-    return value === 'list' ? 'list' : 'cards';
-}
+import { practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
 function redirectUnauthedPracticeModules(response) {
     response.redirect('/');
 }
@@ -25,7 +23,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     const practiceModuleShareMode = practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
         ? practiceModuleShareModeRaw
         : '';
-    const practiceModuleLayout = readResourceLayout(request.query.layout);
+    const practiceModuleLayout = resolveResourceLayout(request, response, practiceModulesLayoutCookieName);
     const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
     let selectedPracticeModule = null;
     let selectedPracticeModuleCollection = null;

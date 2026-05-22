@@ -28,6 +28,10 @@ import {
   getHomeAuthMessage,
   normalizeSearchText,
 } from '../pages/shell.js';
+import {
+  practiceModulesLayoutCookieName,
+  resolveResourceLayout,
+} from '../pages/resourceLayout.js';
 
 type PracticeModulePageKind =
   | 'list'
@@ -50,12 +54,6 @@ type PracticeModuleDraftFormValues = {
   practiceModuleGenerationModalAutoOpen?: boolean;
   practiceModuleGenerationPrompt?: string;
 };
-
-type ResourceLayout = 'cards' | 'list';
-
-function readResourceLayout(value: unknown): ResourceLayout {
-  return value === 'list' ? 'list' : 'cards';
-}
 
 function redirectUnauthedPracticeModules(response: Response): void {
   response.redirect('/');
@@ -85,7 +83,11 @@ async function buildPracticeModulesPageModel(
     practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
       ? practiceModuleShareModeRaw
       : '';
-  const practiceModuleLayout = readResourceLayout(request.query.layout);
+  const practiceModuleLayout = resolveResourceLayout(
+    request,
+    response,
+    practiceModulesLayoutCookieName,
+  );
   const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
 
   let selectedPracticeModule = null;

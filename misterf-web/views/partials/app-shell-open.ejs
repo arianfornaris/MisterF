@@ -13,8 +13,7 @@
     data-current-view="<%= currentView %>"
   >
     <main class="app-shell">
-      <div class="chat-workspace <%= hasSession ? 'has-toolbar' : '' %>">
-        <% if (hasSession) { %>
+      <div class="chat-workspace has-toolbar">
           <div class="chat-toolbar" aria-label="Controles del chat">
             <button
               class="btn btn-link chat-menu-button d-lg-none"
@@ -28,17 +27,19 @@
               <i class="bi bi-list fs-4" aria-hidden="true"></i>
             </button>
 
-            <button
-              class="btn btn-link translator-button d-lg-none"
-              type="button"
-              data-bs-toggle="modal"
-              data-bs-target="#translatorModal"
-              data-open-translator
-              title="Traductor"
-              aria-label="Traductor"
-            >
-              <i class="bi bi-translate fs-5" aria-hidden="true"></i>
-            </button>
+            <% if (hasSession) { %>
+              <button
+                class="btn btn-link translator-button d-lg-none"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#translatorModal"
+                data-open-translator
+                title="Traductor"
+                aria-label="Traductor"
+              >
+                <i class="bi bi-translate fs-5" aria-hidden="true"></i>
+              </button>
+            <% } %>
           </div>
 
           <aside
@@ -77,109 +78,129 @@
                   >
                   Mr. F
                 </a>
-
-                <a class="panel-nav-link" href="/" data-new-conversation>
-                  <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                  Nueva conversación
-                </a>
-
-                <a class="panel-nav-link <%= currentView === 'practiceModules' ? 'is-active' : '' %>" href="/practice-modules">
-                  <i class="bi bi-folder" aria-hidden="true"></i>
-                  Módulos de práctica
-                </a>
-
-                <a class="panel-nav-link <%= currentView === 'chatrooms' ? 'is-active' : '' %>" href="/chatrooms">
-                  <i class="bi bi-people" aria-hidden="true"></i>
-                  Salas de chat
-                </a>
-
-                <button
-                  class="panel-nav-link d-none d-lg-inline-flex"
-                  type="button"
-                  data-bs-toggle="modal"
-                  data-bs-target="#translatorModal"
-                  data-open-translator
-                >
-                  <i class="bi bi-translate" aria-hidden="true"></i>
-                  Traductor
-                </button>
               </div>
 
-              <div class="panel-recents">
-                <p class="panel-section-label">Recientes</p>
+              <% if (hasSession) { %>
+                <div class="panel-nav">
+                  <a class="panel-nav-link" href="/" data-new-conversation>
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                    Nueva conversación
+                  </a>
 
-                <% if (conversations.length > 0) { %>
-                  <div class="conversation-list">
-                    <% conversations.forEach((conversation) => { %>
-                      <div
-                        class="conversation-item"
-                        data-conversation-id="<%= conversation.id %>"
-                      >
-                        <a
-                          class="panel-nav-link conversation-open-button"
-                          href="/c/<%= encodeURIComponent(conversation.id) %>"
-                          data-open-conversation
+                  <a class="panel-nav-link <%= currentView === 'practiceModules' ? 'is-active' : '' %>" href="/practice-modules">
+                    <i class="bi bi-folder" aria-hidden="true"></i>
+                    Módulos de práctica
+                  </a>
+
+                  <a class="panel-nav-link <%= currentView === 'chatrooms' ? 'is-active' : '' %>" href="/chatrooms">
+                    <i class="bi bi-people" aria-hidden="true"></i>
+                    Salas de chat
+                  </a>
+
+                  <button
+                    class="panel-nav-link d-none d-lg-inline-flex"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#translatorModal"
+                    data-open-translator
+                  >
+                    <i class="bi bi-translate" aria-hidden="true"></i>
+                    Traductor
+                  </button>
+                </div>
+
+                <div class="panel-recents">
+                  <p class="panel-section-label">Recientes</p>
+
+                  <% if (conversations.length > 0) { %>
+                    <div class="conversation-list">
+                      <% conversations.forEach((conversation) => { %>
+                        <div
+                          class="conversation-item"
+                          data-conversation-id="<%= conversation.id %>"
                         >
-                          <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
-                          <span class="conversation-open-copy">
-                            <span class="conversation-title"><%= conversation.title %></span>
-                            <time class="conversation-date" datetime="<%= conversation.updatedAt %>" title="<%= conversation.updatedAt %>">
-                              <%= conversation.relativeUpdatedAt || conversation.updatedAt %>
-                            </time>
-                          </span>
-                        </a>
-
-                        <div class="conversation-actions dropdown">
-                          <button
-                            class="conversation-actions-button"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                            title="Opciones de conversación"
-                            aria-label="Opciones de conversación"
+                          <a
+                            class="panel-nav-link conversation-open-button"
+                            href="/c/<%= encodeURIComponent(conversation.id) %>"
+                            data-open-conversation
                           >
-                            <i class="bi bi-three-dots" aria-hidden="true"></i>
-                          </button>
-                          <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
-                            <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
-                            <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                            <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                            <span class="conversation-open-copy">
+                              <span class="conversation-title"><%= conversation.title %></span>
+                              <time class="conversation-date" datetime="<%= conversation.updatedAt %>" title="<%= conversation.updatedAt %>">
+                                <%= conversation.relativeUpdatedAt || conversation.updatedAt %>
+                              </time>
+                            </span>
+                          </a>
+
+                          <div class="conversation-actions dropdown">
+                            <button
+                              class="conversation-actions-button"
+                              type="button"
+                              data-bs-toggle="dropdown"
+                              aria-expanded="false"
+                              title="Opciones de conversación"
+                              aria-label="Opciones de conversación"
+                            >
+                              <i class="bi bi-three-dots" aria-hidden="true"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                              <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                              <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    <% }) %>
-                  </div>
-                <% } else { %>
-                  <p class="conversation-empty">Todavía no hay conversaciones.</p>
-                <% } %>
-              </div>
-
-              <div class="panel-bottom">
-                <div class="user-menu dropdown">
-                  <button
-                    class="btn btn-link panel-nav-link user-panel-button"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                    title="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
-                    aria-label="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
-                  >
-                    <i class="bi bi-person-circle" aria-hidden="true"></i>
-                    <%= activeProfile ? activeProfile.name : 'Perfil' %>
-                  </button>
-
-                  <div class="dropdown-menu user-menu-panel">
-                    <% if (activeProfile) { %>
-                      <p class="user-menu-email"><strong><%= activeProfile.name %></strong></p>
-                    <% } %>
-                    <p class="user-menu-email"><%= user.email %></p>
-                    <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
-                    <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
-                    <form method="post" action="/logout">
-                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <button class="dropdown-item" type="submit">Cerrar sesión</button>
-                    </form>
+                      <% }) %>
+                    </div>
+                  <% } else { %>
+                    <p class="conversation-empty">Todavía no hay conversaciones.</p>
+                  <% } %>
+                </div>
+              <% } else { %>
+                <div class="panel-recents d-flex flex-column justify-content-center">
+                  <div>
+                    <h2 class="h6 mb-2">Abre una sesión para practicar</h2>
+                    <p class="mb-0 text-body-secondary">
+                      Inicia sesión o crea una cuenta para ver las opciones de práctica con Mr. F, tus módulos, salas de chat y conversaciones guardadas.
+                    </p>
                   </div>
                 </div>
+              <% } %>
+
+              <div class="panel-bottom">
+                <% if (hasSession) { %>
+                  <div class="user-menu dropdown">
+                    <button
+                      class="btn btn-link panel-nav-link user-panel-button"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      title="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
+                      aria-label="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
+                    >
+                      <i class="bi bi-person-circle" aria-hidden="true"></i>
+                      <%= activeProfile ? activeProfile.name : 'Perfil' %>
+                    </button>
+
+                    <div class="dropdown-menu user-menu-panel">
+                      <% if (activeProfile) { %>
+                        <p class="user-menu-email"><strong><%= activeProfile.name %></strong></p>
+                      <% } %>
+                      <p class="user-menu-email"><%= user.email %></p>
+                      <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
+                      <a class="dropdown-item" href="/change-password">Cambiar contraseña</a>
+                      <form method="post" action="/logout">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="dropdown-item" type="submit">Cerrar sesión</button>
+                      </form>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="d-grid gap-2">
+                    <a class="btn btn-primary" href="/login">Iniciar sesión</a>
+                    <a class="btn btn-secondary" href="/signup">Crear cuenta</a>
+                  </div>
+                <% } %>
               </div>
             </div>
           </aside>
@@ -360,6 +381,4 @@
               </div>
             </div>
           </div>
-        <% } %>
-
         <section

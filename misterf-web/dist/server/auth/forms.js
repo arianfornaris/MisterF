@@ -10,6 +10,7 @@ import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessag
 import { ensureOpenRouterKeyForUser, getOpenRouterApiKeyForUser, } from '../services/openRouterUserKeys.js';
 import { env } from '../config/env.js';
 import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js';
+import { chatroomsLayoutCookieName, practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, } from '../services/chatrooms.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const loginAttempts = new Map();
@@ -563,11 +564,11 @@ export async function renderHome(request, response) {
     const practiceModuleShareMode = practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
         ? practiceModuleShareModeRaw
         : '';
-    const practiceModuleLayout = request.query.layout === 'list' ? 'list' : 'cards';
+    const practiceModuleLayout = resolveResourceLayout(request, response, practiceModulesLayoutCookieName);
     const chatRoomShareMode = chatRoomShareModeRaw === 'profile' || chatRoomShareModeRaw === 'link'
         ? chatRoomShareModeRaw
         : '';
-    const chatRoomLayout = request.query.layout === 'list' ? 'list' : 'cards';
+    const chatRoomLayout = resolveResourceLayout(request, response, chatroomsLayoutCookieName);
     const normalizedpracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
     const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
     const guestInitialGreeting = user

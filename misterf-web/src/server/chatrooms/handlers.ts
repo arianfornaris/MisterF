@@ -42,6 +42,10 @@ import {
 } from '../services/chatrooms.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
+import {
+  chatroomsLayoutCookieName,
+  resolveResourceLayout,
+} from '../pages/resourceLayout.js';
 
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
@@ -72,12 +76,6 @@ type ChatRoomMessageEvaluation =
   | null
   | { status: 'ok' }
   | { status: 'warning'; problem: string };
-
-type ResourceLayout = 'cards' | 'list';
-
-function readResourceLayout(value: unknown): ResourceLayout {
-  return value === 'list' ? 'list' : 'cards';
-}
 
 function buildAbsoluteAppUrl(pathname: string): string {
   return new URL(pathname, env.appBaseUrl).toString();
@@ -544,7 +542,11 @@ export function renderChatRoomsListPage(request: Request, response: Response): v
   }
 
   const showArchivedChatRooms = String(request.query.archived || '').trim() === '1';
-  const chatRoomLayout = readResourceLayout(request.query.layout);
+  const chatRoomLayout = resolveResourceLayout(
+    request,
+    response,
+    chatroomsLayoutCookieName,
+  );
 
   const selectedRoomId =
     typeof request.query.room === 'string' ? request.query.room.trim() : '';
