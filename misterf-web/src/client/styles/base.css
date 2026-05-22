@@ -1,5 +1,6 @@
 :root {
   color-scheme: light;
+  --app-serif-font: "Literata", Georgia, "Times New Roman", Times, serif;
   --page: #fff;
   --ink: #222;
   --muted: #777;
@@ -55,7 +56,7 @@ body {
 
 .superadmin-header h1 {
   margin: 0;
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: var(--app-serif-font);
   font-size: clamp(2rem, 4vw, 3.25rem);
 }
 
@@ -102,4 +103,3 @@ body {
   padding-top: 18px;
   border-top: 1px solid var(--line);
 }
-

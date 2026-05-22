@@ -18,14 +18,14 @@
 .auth-kicker {
   margin: 0;
   color: var(--accent);
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: var(--app-serif-font);
   font-size: 1rem;
 }
 
 .auth-copy h1 {
   margin: 0;
   color: var(--ink);
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: var(--app-serif-font);
   font-size: clamp(2rem, 6vw, 3rem);
   letter-spacing: 0;
 }
