@@ -1219,6 +1219,12 @@
                           <p class="card-text mb-2 text-body-secondary small">Compartido por <%= practiceModule.sourceProfileName %></p>
                         <% } %>
                       </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
+                        </form>
+                      </div>
                     </article>
                   <% }) %>
                 </div>
@@ -1382,6 +1388,12 @@
                         </div>
                         <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
                       </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
+                        </form>
+                      </div>
                     </article>
                   <% }) %>
                 </div>
@@ -1460,6 +1472,12 @@
                           <% } %>
                         </div>
                         <p class="card-text mb-2 text-body-secondary"><%= practiceModule.description %></p>
+                      </div>
+                      <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
+                        <form method="post" action="/practice-modules/<%= encodeURIComponent(practiceModule.id) %>/chats">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <button class="btn btn-primary btn-sm" type="submit">Comenzar</button>
+                        </form>
                       </div>
                     </article>
                   <% }) %>
