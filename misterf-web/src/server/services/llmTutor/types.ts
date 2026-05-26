@@ -103,14 +103,14 @@ export type TutorUnscrambleSentenceBlock = {
 };
 
 export type TutorQuizItemOpenText = {
-  kind: 'open_text';
+  kind: 'quiz_open_text';
   prompt: string;
   placeholder?: string;
   rubric?: string;
 };
 
 export type TutorQuizItemTranslateToEnglish = {
-  kind: 'translate_to_english';
+  kind: 'quiz_translate_to_english';
   prompt: string;
   sentence: string;
   acceptableAnswers?: string[];
@@ -118,7 +118,7 @@ export type TutorQuizItemTranslateToEnglish = {
 };
 
 export type TutorQuizItemUnderstandInSpanish = {
-  kind: 'understand_in_spanish';
+  kind: 'quiz_understand_in_spanish';
   prompt: string;
   sentence: string;
   acceptableAnswers?: string[];
@@ -126,7 +126,7 @@ export type TutorQuizItemUnderstandInSpanish = {
 };
 
 export type TutorQuizItemFillInTheBlankInput = {
-  kind: 'fill_in_the_blank_input';
+  kind: 'quiz_fill_in_the_blank_input';
   prompt: string;
   sentence: string;
   blanks: Array<{
@@ -136,7 +136,7 @@ export type TutorQuizItemFillInTheBlankInput = {
 };
 
 export type TutorQuizItemFillInTheBlankChoice = {
-  kind: 'fill_in_the_blank_choice';
+  kind: 'quiz_fill_in_the_blank_choice';
   prompt: string;
   sentence: string;
   blanks: Array<{
@@ -147,7 +147,7 @@ export type TutorQuizItemFillInTheBlankChoice = {
 };
 
 export type TutorQuizItemMultipleChoice = {
-  kind: 'multiple_choice';
+  kind: 'quiz_multiple_choice';
   prompt: string;
   selectionMode: 'single' | 'multiple';
   options: string[];
@@ -156,7 +156,7 @@ export type TutorQuizItemMultipleChoice = {
 };
 
 export type TutorQuizItemMatchingPairs = {
-  kind: 'matching_pairs';
+  kind: 'quiz_matching_pairs';
   prompt: string;
   leftItems: string[];
   rightItems: string[];
@@ -168,7 +168,7 @@ export type TutorQuizItemMatchingPairs = {
 };
 
 export type TutorQuizItemUnscrambleSentence = {
-  kind: 'unscramble_sentence';
+  kind: 'quiz_unscramble_sentence';
   prompt: string;
   tokens: string[];
   acceptableAnswers?: string[];

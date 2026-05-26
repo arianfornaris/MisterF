@@ -265,6 +265,9 @@ Correct pattern:
 
 - If you want to give the learner a self-contained multi-question assessment or review, use `quiz`.
 - A `quiz` is one block that contains several items.
+- Every `quiz` item kind must begin with the `quiz_` prefix.
+- Never use non-prefixed item kinds such as `open_text`, `multiple_choice`, `matching_pairs`, `fill_in_the_blank_choice`, or `unscramble_sentence` inside a `quiz`.
+- Quiz item kinds are intentionally different from top-level block types. Do not reuse the top-level names inside `quiz`.
 - Do not use dialogue practice inside `quiz`.
 - A `quiz` must be self-contained. The learner and the evaluator must be able to understand it without relying on the surrounding conversation.
 - Give the quiz a visible global `prompt` that explains the overall task.
@@ -483,14 +486,14 @@ interface UnscrambleSentenceBlock {
 }
 
 interface QuizOpenTextItem {
-  kind: "open_text";
+  kind: "quiz_open_text";
   prompt: string;
   placeholder?: string;
   rubric?: string;
 }
 
 interface QuizTranslateToEnglishItem {
-  kind: "translate_to_english";
+  kind: "quiz_translate_to_english";
   prompt: string;
   sentence: string;
   acceptableAnswers?: string[];
@@ -498,7 +501,7 @@ interface QuizTranslateToEnglishItem {
 }
 
 interface QuizUnderstandInSpanishItem {
-  kind: "understand_in_spanish";
+  kind: "quiz_understand_in_spanish";
   prompt: string;
   sentence: string;
   acceptableAnswers?: string[];
@@ -506,7 +509,7 @@ interface QuizUnderstandInSpanishItem {
 }
 
 interface QuizFillInTheBlankInputItem {
-  kind: "fill_in_the_blank_input";
+  kind: "quiz_fill_in_the_blank_input";
   prompt: string;
   sentence: string;
   blanks: Array<{
@@ -516,7 +519,7 @@ interface QuizFillInTheBlankInputItem {
 }
 
 interface QuizFillInTheBlankChoiceItem {
-  kind: "fill_in_the_blank_choice";
+  kind: "quiz_fill_in_the_blank_choice";
   prompt: string;
   sentence: string;
   blanks: Array<{
@@ -527,7 +530,7 @@ interface QuizFillInTheBlankChoiceItem {
 }
 
 interface QuizMultipleChoiceItem {
-  kind: "multiple_choice";
+  kind: "quiz_multiple_choice";
   prompt: string;
   selectionMode: "single" | "multiple";
   options: string[];
@@ -536,7 +539,7 @@ interface QuizMultipleChoiceItem {
 }
 
 interface QuizMatchingPairsItem {
-  kind: "matching_pairs";
+  kind: "quiz_matching_pairs";
   prompt: string;
   leftItems: string[];
   rightItems: string[];
@@ -548,7 +551,7 @@ interface QuizMatchingPairsItem {
 }
 
 interface QuizUnscrambleSentenceItem {
-  kind: "unscramble_sentence";
+  kind: "quiz_unscramble_sentence";
   prompt: string;
   tokens: string[];
   acceptableAnswers?: string[];

@@ -84,7 +84,7 @@ export const matchingPairsBlockSchema = z
     .strict();
 const quizOpenTextItemSchema = z
     .object({
-    kind: z.literal('open_text'),
+    kind: z.literal('quiz_open_text'),
     placeholder: z.string().trim().min(1).max(240).optional(),
     prompt: z.string().trim().min(1).max(1600),
     rubric: z.string().trim().min(1).max(1600).optional(),
@@ -93,7 +93,7 @@ const quizOpenTextItemSchema = z
 const quizTranslateToEnglishItemSchema = z
     .object({
     acceptableAnswers: z.array(z.string().trim().min(1).max(320)).min(1).max(16).optional(),
-    kind: z.literal('translate_to_english'),
+    kind: z.literal('quiz_translate_to_english'),
     prompt: z.string().trim().min(1).max(1600),
     rubric: z.string().trim().min(1).max(1600).optional(),
     sentence: z.string().trim().min(1).max(1600),
@@ -102,7 +102,7 @@ const quizTranslateToEnglishItemSchema = z
 const quizUnderstandInSpanishItemSchema = z
     .object({
     acceptableAnswers: z.array(z.string().trim().min(1).max(320)).min(1).max(16).optional(),
-    kind: z.literal('understand_in_spanish'),
+    kind: z.literal('quiz_understand_in_spanish'),
     prompt: z.string().trim().min(1).max(1600),
     rubric: z.string().trim().min(1).max(1600).optional(),
     sentence: z.string().trim().min(1).max(1600),
@@ -119,7 +119,7 @@ const quizFillInTheBlankInputItemSchema = z
         .strict())
         .min(1)
         .max(20),
-    kind: z.literal('fill_in_the_blank_input'),
+    kind: z.literal('quiz_fill_in_the_blank_input'),
     prompt: z.string().trim().min(1).max(1600),
     sentence: z.string().trim().min(1).max(1600),
 })
@@ -140,7 +140,7 @@ const quizFillInTheBlankChoiceItemSchema = z
         .strict())
         .min(1)
         .max(20),
-    kind: z.literal('fill_in_the_blank_choice'),
+    kind: z.literal('quiz_fill_in_the_blank_choice'),
     prompt: z.string().trim().min(1).max(1600),
     sentence: z.string().trim().min(1).max(1600),
 })
@@ -152,7 +152,7 @@ const quizFillInTheBlankChoiceItemSchema = z
 const quizMultipleChoiceItemSchema = z
     .object({
     correctOptions: z.array(z.string().trim().min(1).max(400)).min(1).max(16),
-    kind: z.literal('multiple_choice'),
+    kind: z.literal('quiz_multiple_choice'),
     options: z.array(z.string().trim().min(1).max(400)).min(2).max(16),
     prompt: z.string().trim().min(1).max(1600),
     rubric: z.string().trim().min(1).max(1600).optional(),
@@ -178,7 +178,7 @@ const quizMatchingPairsItemSchema = z
         .strict())
         .min(1)
         .max(24),
-    kind: z.literal('matching_pairs'),
+    kind: z.literal('quiz_matching_pairs'),
     leftItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
     prompt: z.string().trim().min(1).max(1600),
     rightItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
@@ -204,7 +204,7 @@ const quizMatchingPairsItemSchema = z
 const quizUnscrambleSentenceItemSchema = z
     .object({
     acceptableAnswers: z.array(z.string().trim().min(1).max(1600)).min(1).max(16).optional(),
-    kind: z.literal('unscramble_sentence'),
+    kind: z.literal('quiz_unscramble_sentence'),
     prompt: z.string().trim().min(1).max(1600),
     rubric: z.string().trim().min(1).max(1600).optional(),
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),

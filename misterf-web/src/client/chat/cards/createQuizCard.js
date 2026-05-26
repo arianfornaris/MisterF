@@ -145,9 +145,9 @@ export function createQuizCard(block, context, deps) {
 
 function buildInitialQuizItemState(item, itemIndex, exerciseKey, persistedResponse) {
   if (
-    item.kind === 'open_text' ||
-    item.kind === 'translate_to_english' ||
-    item.kind === 'understand_in_spanish'
+    item.kind === 'quiz_open_text' ||
+    item.kind === 'quiz_translate_to_english' ||
+    item.kind === 'quiz_understand_in_spanish'
   ) {
     return {
       kind: item.kind,
@@ -157,8 +157,8 @@ function buildInitialQuizItemState(item, itemIndex, exerciseKey, persistedRespon
   }
 
   if (
-    item.kind === 'fill_in_the_blank_input' ||
-    item.kind === 'fill_in_the_blank_choice'
+    item.kind === 'quiz_fill_in_the_blank_input' ||
+    item.kind === 'quiz_fill_in_the_blank_choice'
   ) {
     const blankCount = Array.isArray(item.blanks) ? item.blanks.length : 0;
     const values = Array.isArray(persistedResponse?.values)
@@ -174,7 +174,7 @@ function buildInitialQuizItemState(item, itemIndex, exerciseKey, persistedRespon
     };
   }
 
-  if (item.kind === 'multiple_choice') {
+  if (item.kind === 'quiz_multiple_choice') {
     return {
       kind: item.kind,
       selectedOptions: new Set(
@@ -185,7 +185,7 @@ function buildInitialQuizItemState(item, itemIndex, exerciseKey, persistedRespon
     };
   }
 
-  if (item.kind === 'matching_pairs') {
+  if (item.kind === 'quiz_matching_pairs') {
     const pairs = Array.isArray(persistedResponse?.pairs)
       ? persistedResponse.pairs
           .filter(
@@ -212,7 +212,7 @@ function buildInitialQuizItemState(item, itemIndex, exerciseKey, persistedRespon
     };
   }
 
-  if (item.kind === 'unscramble_sentence') {
+  if (item.kind === 'quiz_unscramble_sentence') {
     const selectedTokens = Array.isArray(persistedResponse?.selectedTokens)
       ? persistedResponse.selectedTokens.map((value) => String(value || ''))
       : [];
@@ -312,11 +312,11 @@ function syncQuizCardStatus(section, state) {
 
 function renderQuizItemBody(container, item, itemState, state, deps) {
   if (
-    item.kind === 'open_text' ||
-    item.kind === 'translate_to_english' ||
-    item.kind === 'understand_in_spanish'
+    item.kind === 'quiz_open_text' ||
+    item.kind === 'quiz_translate_to_english' ||
+    item.kind === 'quiz_understand_in_spanish'
   ) {
-    if (item.kind !== 'open_text') {
+    if (item.kind !== 'quiz_open_text') {
       const sentence = document.createElement('blockquote');
       sentence.className = 'quiz-item-sentence';
       sentence.textContent = String(item.sentence || '').replace(/\s+/g, ' ').trim();
@@ -344,13 +344,13 @@ function renderQuizItemBody(container, item, itemState, state, deps) {
   }
 
   if (
-    item.kind === 'fill_in_the_blank_input' ||
-    item.kind === 'fill_in_the_blank_choice'
+    item.kind === 'quiz_fill_in_the_blank_input' ||
+    item.kind === 'quiz_fill_in_the_blank_choice'
   ) {
     const sentence = document.createElement('div');
     sentence.className = 'fill-in-the-blank-sentence quiz-fill-sentence';
     const placeholderToken =
-      item.kind === 'fill_in_the_blank_choice' ? '{{blank}}' : '___';
+      item.kind === 'quiz_fill_in_the_blank_choice' ? '{{blank}}' : '___';
     const segments = splitSentenceByBlanks(item.sentence, placeholderToken);
     if (!segments) {
       return;
@@ -371,7 +371,7 @@ function renderQuizItemBody(container, item, itemState, state, deps) {
       const wrap = document.createElement('span');
       wrap.className = 'fill-in-the-blank-blank-wrap';
 
-      if (item.kind === 'fill_in_the_blank_choice') {
+      if (item.kind === 'quiz_fill_in_the_blank_choice') {
         const select = document.createElement('select');
         select.className = 'fill-in-the-blank-select';
         select.disabled = state.submitted || state.aborted;
@@ -420,7 +420,7 @@ function renderQuizItemBody(container, item, itemState, state, deps) {
     return;
   }
 
-  if (item.kind === 'multiple_choice') {
+  if (item.kind === 'quiz_multiple_choice') {
     const optionsWrap = document.createElement('div');
     optionsWrap.className = 'multiple-choice-options quiz-multiple-choice-options';
 
@@ -465,7 +465,7 @@ function renderQuizItemBody(container, item, itemState, state, deps) {
     return;
   }
 
-  if (item.kind === 'matching_pairs') {
+  if (item.kind === 'quiz_matching_pairs') {
     const columns = document.createElement('div');
     columns.className = 'matching-pairs-columns';
 
@@ -608,7 +608,7 @@ function renderQuizItemBody(container, item, itemState, state, deps) {
     return;
   }
 
-  if (item.kind === 'unscramble_sentence') {
+  if (item.kind === 'quiz_unscramble_sentence') {
     const assembled = document.createElement('div');
     assembled.className = 'unscramble-sentence-assembled';
     const bank = document.createElement('div');
@@ -669,29 +669,29 @@ function isQuizReadyToSubmit(state) {
 
 function isQuizItemAnswered(item, itemState) {
   if (
-    item.kind === 'open_text' ||
-    item.kind === 'translate_to_english' ||
-    item.kind === 'understand_in_spanish'
+    item.kind === 'quiz_open_text' ||
+    item.kind === 'quiz_translate_to_english' ||
+    item.kind === 'quiz_understand_in_spanish'
   ) {
     return typeof itemState.text === 'string' && itemState.text.trim().length > 0;
   }
 
   if (
-    item.kind === 'fill_in_the_blank_input' ||
-    item.kind === 'fill_in_the_blank_choice'
+    item.kind === 'quiz_fill_in_the_blank_input' ||
+    item.kind === 'quiz_fill_in_the_blank_choice'
   ) {
     return Array.isArray(itemState.values) && itemState.values.every((value) => value.trim());
   }
 
-  if (item.kind === 'multiple_choice') {
+  if (item.kind === 'quiz_multiple_choice') {
     return itemState.selectedOptions instanceof Set && itemState.selectedOptions.size > 0;
   }
 
-  if (item.kind === 'matching_pairs') {
+  if (item.kind === 'quiz_matching_pairs') {
     return Array.isArray(itemState.pairs) && itemState.pairs.length === item.leftItems.length;
   }
 
-  if (item.kind === 'unscramble_sentence') {
+  if (item.kind === 'quiz_unscramble_sentence') {
     return (
       Array.isArray(itemState.selectedTokens) &&
       itemState.selectedTokens.length === item.tokens.length
@@ -741,9 +741,9 @@ function reportQuizAborted(state, deps) {
 
 function buildQuizResponsePayload(item, itemState) {
   if (
-    item.kind === 'open_text' ||
-    item.kind === 'translate_to_english' ||
-    item.kind === 'understand_in_spanish'
+    item.kind === 'quiz_open_text' ||
+    item.kind === 'quiz_translate_to_english' ||
+    item.kind === 'quiz_understand_in_spanish'
   ) {
     return {
       text: itemState.text || '',
@@ -751,15 +751,15 @@ function buildQuizResponsePayload(item, itemState) {
   }
 
   if (
-    item.kind === 'fill_in_the_blank_input' ||
-    item.kind === 'fill_in_the_blank_choice'
+    item.kind === 'quiz_fill_in_the_blank_input' ||
+    item.kind === 'quiz_fill_in_the_blank_choice'
   ) {
     return {
       values: Array.isArray(itemState.values) ? itemState.values : [],
     };
   }
 
-  if (item.kind === 'multiple_choice') {
+  if (item.kind === 'quiz_multiple_choice') {
     return {
       selectedOptions:
         itemState.selectedOptions instanceof Set
@@ -768,13 +768,13 @@ function buildQuizResponsePayload(item, itemState) {
     };
   }
 
-  if (item.kind === 'matching_pairs') {
+  if (item.kind === 'quiz_matching_pairs') {
     return {
       pairs: Array.isArray(itemState.pairs) ? itemState.pairs : [],
     };
   }
 
-  if (item.kind === 'unscramble_sentence') {
+  if (item.kind === 'quiz_unscramble_sentence') {
     return {
       selectedTokens: Array.isArray(itemState.selectedTokens)
         ? itemState.selectedTokens

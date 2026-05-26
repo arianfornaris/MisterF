@@ -1478,7 +1478,7 @@ function normalizeQuizResponses(
   return items.map((item, index) => {
     const response = responses[index];
 
-    if (item.kind === 'matching_pairs') {
+    if (item.kind === 'quiz_matching_pairs') {
       return {
         kind: item.kind,
         pairs: normalizeQuizMatchingPairsResponse(response, item),
@@ -1486,8 +1486,8 @@ function normalizeQuizResponses(
     }
 
     if (
-      item.kind === 'fill_in_the_blank_input' ||
-      item.kind === 'fill_in_the_blank_choice'
+      item.kind === 'quiz_fill_in_the_blank_input' ||
+      item.kind === 'quiz_fill_in_the_blank_choice'
     ) {
       const normalizedValues = normalizeStringArray(
         (response as { values?: unknown })?.values,
@@ -1497,14 +1497,14 @@ function normalizeQuizResponses(
         completedSentence: fillSentencePlaceholdersForQuiz(
           item.sentence,
           normalizedValues,
-          item.kind === 'fill_in_the_blank_choice' ? '{{blank}}' : '___',
+          item.kind === 'quiz_fill_in_the_blank_choice' ? '{{blank}}' : '___',
         ),
         kind: item.kind,
         values: normalizedValues,
       };
     }
 
-    if (item.kind === 'multiple_choice') {
+    if (item.kind === 'quiz_multiple_choice') {
       return {
         kind: item.kind,
         selectedOptions: normalizeStringArray(
@@ -1514,7 +1514,7 @@ function normalizeQuizResponses(
       };
     }
 
-    if (item.kind === 'unscramble_sentence') {
+    if (item.kind === 'quiz_unscramble_sentence') {
       const selectedTokens = normalizeStringArray(
         (response as { selectedTokens?: unknown })?.selectedTokens,
         120,
@@ -1538,7 +1538,7 @@ function normalizeQuizResponses(
 
 function normalizeQuizMatchingPairsResponse(
   response: unknown,
-  item: TutorQuizBlock['items'][number] & { kind: 'matching_pairs' },
+  item: TutorQuizBlock['items'][number] & { kind: 'quiz_matching_pairs' },
 ): Array<{ left: string; right: string }> {
   const leftItems = new Set(item.leftItems);
   const rightItems = new Set(item.rightItems);
@@ -1845,7 +1845,7 @@ function buildQuizCompletionContext(input: {
     lines.push(`Item ${index + 1} (${item.kind})`);
     lines.push(`Prompt: ${item.prompt}`);
 
-    if (item.kind === 'open_text') {
+    if (item.kind === 'quiz_open_text') {
       if (item.placeholder) {
         lines.push(`Placeholder: ${item.placeholder}`);
       }
@@ -1855,7 +1855,7 @@ function buildQuizCompletionContext(input: {
       lines.push(`Learner response: ${String(response.text || '(empty)')}`);
     }
 
-    if (item.kind === 'translate_to_english' || item.kind === 'understand_in_spanish') {
+    if (item.kind === 'quiz_translate_to_english' || item.kind === 'quiz_understand_in_spanish') {
       lines.push(`Sentence: ${item.sentence}`);
       if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) {
         lines.push(`Acceptable answers: ${item.acceptableAnswers.join(' | ')}`);
@@ -1867,11 +1867,11 @@ function buildQuizCompletionContext(input: {
     }
 
     if (
-      item.kind === 'fill_in_the_blank_input' ||
-      item.kind === 'fill_in_the_blank_choice'
+      item.kind === 'quiz_fill_in_the_blank_input' ||
+      item.kind === 'quiz_fill_in_the_blank_choice'
     ) {
       lines.push(`Sentence: ${item.sentence}`);
-      if (item.kind === 'fill_in_the_blank_choice') {
+      if (item.kind === 'quiz_fill_in_the_blank_choice') {
         item.blanks.forEach((blank, blankIndex) => {
           if (Array.isArray(blank.acceptableAnswers) && blank.acceptableAnswers.length > 0) {
             lines.push(
@@ -1901,7 +1901,7 @@ function buildQuizCompletionContext(input: {
       lines.push(`Learner completed sentence: ${String(response.completedSentence || '(empty)')}`);
     }
 
-    if (item.kind === 'multiple_choice') {
+    if (item.kind === 'quiz_multiple_choice') {
       lines.push(`Selection mode: ${item.selectionMode}`);
       lines.push(`Options: ${item.options.join(' | ')}`);
       lines.push(`Correct options: ${item.correctOptions.join(' | ')}`);
@@ -1913,7 +1913,7 @@ function buildQuizCompletionContext(input: {
       );
     }
 
-    if (item.kind === 'matching_pairs') {
+    if (item.kind === 'quiz_matching_pairs') {
       lines.push(`Left items: ${item.leftItems.join(' | ')}`);
       lines.push(`Right items: ${item.rightItems.join(' | ')}`);
       lines.push(
@@ -1927,7 +1927,7 @@ function buildQuizCompletionContext(input: {
       );
     }
 
-    if (item.kind === 'unscramble_sentence') {
+    if (item.kind === 'quiz_unscramble_sentence') {
       lines.push(`Tokens: ${item.tokens.join(' | ')}`);
       if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) {
         lines.push(`Acceptable answers: ${item.acceptableAnswers.join(' | ')}`);
