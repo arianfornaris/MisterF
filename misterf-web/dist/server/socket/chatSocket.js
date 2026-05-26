@@ -40,7 +40,7 @@ export function registerChatSocket(io) {
                 return;
             }
             currentProfile = resolveSocketProfile(socket, userId);
-            const conversation = payload.conversationId
+            let conversation = payload.conversationId
                 ? findConversationForUser(payload.conversationId, userId)
                 : null;
             if (!conversation) {
@@ -60,6 +60,14 @@ export function registerChatSocket(io) {
             }
             joinConversationRoom(socket, currentConversationId, conversation.id);
             currentConversationId = conversation.id;
+            const conversationProfile = currentProfile?.id === conversation.profileId
+                ? currentProfile
+                : findProfileForUser(conversation.profileId, userId);
+            if (conversationProfile &&
+                conversation.modelTier !== conversationProfile.modelTier) {
+                conversation =
+                    updateConversationModelTierForUser(conversation.id, userId, conversationProfile.modelTier) ?? conversation;
+            }
             const messages = listMessages(conversation.id);
             const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
             const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
@@ -100,7 +108,6 @@ export function registerChatSocket(io) {
                 return;
             }
             currentProfile = resolveSocketProfile(socket, userId);
-            const modelTier = normalizeModelTier(payload.modelTier);
             let conversation = payload.conversationId
                 ? findConversationForUser(payload.conversationId, userId)
                 : null;
@@ -113,13 +120,18 @@ export function registerChatSocket(io) {
                     return;
                 }
                 conversation = createConversation(userId, currentProfile.id, undefined, {
-                    modelTier,
+                    modelTier: currentProfile.modelTier,
                 });
             }
-            else if (conversation.modelTier !== modelTier) {
-                conversation =
-                    updateConversationModelTierForUser(conversation.id, userId, modelTier) ??
-                        conversation;
+            else {
+                const conversationProfile = currentProfile?.id === conversation.profileId
+                    ? currentProfile
+                    : findProfileForUser(conversation.profileId, userId);
+                if (conversationProfile &&
+                    conversation.modelTier !== conversationProfile.modelTier) {
+                    conversation =
+                        updateConversationModelTierForUser(conversation.id, userId, conversationProfile.modelTier) ?? conversation;
+                }
             }
             joinConversationRoom(socket, currentConversationId, conversation.id);
             currentConversationId = conversation.id;
@@ -141,7 +153,7 @@ export function registerChatSocket(io) {
             const userMessage = addMessage(conversation.id, 'user', content);
             emitConversationUpdated(io, conversation.id, userId);
             io.to(conversation.id).emit('message:created', userMessage);
-            await streamAssistantMessage(io, conversation.id, userId, userMessage.id, false, [], modelTier);
+            await streamAssistantMessage(io, conversation.id, userId, userMessage.id, false, [], conversation.modelTier);
         });
         socket.on('conversation:model_tier', (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);

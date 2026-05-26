@@ -417,6 +417,7 @@ function buildChatroomsShellContext(request: Request, options: {
 
   return {
     activeProfile,
+    activeProfileModelTier: activeProfile?.modelTier ?? 'regular',
     authMessage: '',
     chatMode: 'tutor',
     conversations,

@@ -197,7 +197,7 @@ export function registerChatSocket(io: Server): void {
       }
       currentProfile = resolveSocketProfile(socket, userId);
 
-      const conversation = payload.conversationId
+      let conversation = payload.conversationId
         ? findConversationForUser(payload.conversationId, userId)
         : null;
 
@@ -219,6 +219,22 @@ export function registerChatSocket(io: Server): void {
 
       joinConversationRoom(socket, currentConversationId, conversation.id);
       currentConversationId = conversation.id;
+
+      const conversationProfile =
+        currentProfile?.id === conversation.profileId
+          ? currentProfile
+          : findProfileForUser(conversation.profileId, userId);
+      if (
+        conversationProfile &&
+        conversation.modelTier !== conversationProfile.modelTier
+      ) {
+        conversation =
+          updateConversationModelTierForUser(
+            conversation.id,
+            userId,
+            conversationProfile.modelTier,
+          ) ?? conversation;
+      }
 
       const messages = listMessages(conversation.id);
       const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
@@ -274,7 +290,6 @@ export function registerChatSocket(io: Server): void {
       }
       currentProfile = resolveSocketProfile(socket, userId);
 
-      const modelTier = normalizeModelTier(payload.modelTier);
       let conversation = payload.conversationId
         ? findConversationForUser(payload.conversationId, userId)
         : null;
@@ -290,12 +305,25 @@ export function registerChatSocket(io: Server): void {
         }
 
         conversation = createConversation(userId, currentProfile.id, undefined, {
-          modelTier,
+          modelTier: currentProfile.modelTier,
         });
-      } else if (conversation.modelTier !== modelTier) {
-        conversation =
-          updateConversationModelTierForUser(conversation.id, userId, modelTier) ??
-          conversation;
+      } else {
+        const conversationProfile =
+          currentProfile?.id === conversation.profileId
+            ? currentProfile
+            : findProfileForUser(conversation.profileId, userId);
+
+        if (
+          conversationProfile &&
+          conversation.modelTier !== conversationProfile.modelTier
+        ) {
+          conversation =
+            updateConversationModelTierForUser(
+              conversation.id,
+              userId,
+              conversationProfile.modelTier,
+            ) ?? conversation;
+        }
       }
 
       joinConversationRoom(socket, currentConversationId, conversation.id);
@@ -329,7 +357,7 @@ export function registerChatSocket(io: Server): void {
         userMessage.id,
         false,
         [],
-        modelTier,
+        conversation.modelTier,
       );
     });
 

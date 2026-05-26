@@ -27,9 +27,6 @@ const practiceModuleStartDescriptionEl = document.querySelector(
 const practiceModuleStartStatusEl = document.querySelector('[data-practice-module-start-status]');
 const practiceModuleStartButtonEl = document.querySelector('[data-practiceModule-start-button]');
 const sendButtonEl = document.querySelector('[data-send-button]');
-const modelTierButtonEl = document.querySelector('[data-model-tier-button]');
-const modelTierLabelEl = document.querySelector('[data-model-tier-label]');
-const modelTierOptionEls = document.querySelectorAll('[data-model-tier-option]');
 const toolStatusEl = document.querySelector('[data-tool-status]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
 const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
@@ -57,6 +54,7 @@ const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const chatMode = 'tutor';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
+const defaultModelTier = normalizeModelTier(document.body.dataset.activeProfileModelTier || 'regular');
 const initialConversationId =
   document.body.dataset.initialConversationId?.trim() || '';
 const shouldInitializeSocket = isInitiallyAuthenticated;
@@ -113,8 +111,7 @@ const conversationListView = new ConversationListView({
 const composerView = new ComposerView({
   composerEl: formEl,
   inputEl,
-  modelTierButtonEl,
-  modelTierLabelEl,
+  initialModelTier: defaultModelTier,
   sendButtonEl,
 });
 const tutorMessageRenderer = createTutorMessageRenderer({
@@ -263,6 +260,7 @@ if (socket) {
       pendingPracticeModuleStart = value;
     },
     setSelectedModelTier,
+    getDefaultModelTier: () => defaultModelTier,
     setStreamingBubble: (value) => {
       streamingBubble = value;
     },
@@ -313,19 +311,6 @@ practiceModuleStartButtonEl?.addEventListener('click', () => {
 });
 
 translatorController.bindUi();
-
-for (const button of modelTierOptionEls) {
-  button.addEventListener('click', () => {
-    const tier = button.dataset.modelTierOption || 'regular';
-    setSelectedModelTier(tier);
-    if (socket && conversationId) {
-      socket.emit(chatSocketEvents.modelTier, {
-        conversationId,
-        modelTier: normalizeModelTier(tier),
-      });
-    }
-  });
-}
 
 formatConversationDates();
 

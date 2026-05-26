@@ -1,0 +1,95 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="practice-modules-view" aria-label="Ajustes">
+  <div class="practice-modules-header">
+    <div>
+      <p class="practice-modules-kicker">Ajustes</p>
+      <h1 class="practice-modules-title">Ajustes del perfil</h1>
+      <p class="practice-modules-copy">
+        Define cómo quieres que practique Mr. F en el perfil activo.
+      </p>
+    </div>
+  </div>
+
+  <section class="practice-module-detail-shell">
+    <div class="practice-module-section-copy">
+      <p class="practiceModule-section-kicker">Perfil activo</p>
+      <div class="card shadow-sm">
+        <div class="card-body d-flex flex-wrap justify-content-between align-items-start gap-3">
+          <div>
+            <h2 class="h4 mb-1"><%= activeProfile ? activeProfile.name : 'Perfil' %></h2>
+            <p class="mb-0 text-body-secondary">
+              <%= activeProfile?.description || 'Este perfil usará los ajustes que definas aquí para sus conversaciones nuevas.' %>
+            </p>
+          </div>
+          <a class="btn btn-secondary" href="/profiles">Cambiar perfil</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="practice-module-section-copy">
+      <p class="practiceModule-section-kicker">Modelo</p>
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="text-body-secondary">
+            Este ajuste se usará como modelo por defecto en las conversaciones nuevas de este perfil.
+          </p>
+
+          <form method="post" action="/settings" class="d-grid gap-3">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+            <div class="list-group">
+              <label class="list-group-item d-flex gap-3">
+                <input
+                  class="form-check-input flex-shrink-0 mt-1"
+                  type="radio"
+                  name="modelTier"
+                  value="regular"
+                  <%= activeProfile?.modelTier !== 'advanced' && activeProfile?.modelTier !== 'max' ? 'checked' : '' %>
+                >
+                <span class="d-block">
+                  <span class="fw-semibold d-block">Regular</span>
+                  <small class="text-body-secondary">Muy rápido. Ideal para práctica frecuente con costo 1x.</small>
+                </span>
+              </label>
+
+              <label class="list-group-item d-flex gap-3">
+                <input
+                  class="form-check-input flex-shrink-0 mt-1"
+                  type="radio"
+                  name="modelTier"
+                  value="advanced"
+                  <%= activeProfile?.modelTier === 'advanced' ? 'checked' : '' %>
+                >
+                <span class="d-block">
+                  <span class="fw-semibold d-block">Avanzado</span>
+                  <small class="text-body-secondary">Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 2x.</small>
+                </span>
+              </label>
+
+              <label class="list-group-item d-flex gap-3">
+                <input
+                  class="form-check-input flex-shrink-0 mt-1"
+                  type="radio"
+                  name="modelTier"
+                  value="max"
+                  <%= activeProfile?.modelTier === 'max' ? 'checked' : '' %>
+                >
+                <span class="d-block">
+                  <span class="fw-semibold d-block">Max</span>
+                  <small class="text-body-secondary">La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 8x.</small>
+                </span>
+              </label>
+            </div>
+
+            <div>
+              <button class="btn btn-primary" type="submit">Guardar ajustes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close') %>

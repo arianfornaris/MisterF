@@ -89,6 +89,10 @@ import {
   renderNewProfilePage,
   renderProfilesListPage,
 } from './profiles/handlers.js';
+import {
+  handleUpdateSettingsPage,
+  renderSettingsPage,
+} from './settings/handlers.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import {
   handleOpenRouterKeyUpdate,
@@ -193,6 +197,8 @@ app.get('/profiles/:profileId/edit', renderEditProfilePage);
 app.post('/profiles', handleCreateProfile);
 app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
+app.get('/settings', renderSettingsPage);
+app.post('/settings', handleUpdateSettingsPage);
 app.get('/chatrooms', renderChatRoomsListPage);
 app.get('/chatrooms/new', renderNewChatRoomPage);
 app.post('/chatrooms/generate-draft', handleGenerateChatRoomDraft);

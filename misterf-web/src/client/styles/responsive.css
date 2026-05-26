@@ -84,10 +84,6 @@
     gap: 12px;
   }
 
-  .composer-model-button {
-    font-size: 0.82rem;
-  }
-
   .auth-sheet {
     width: 100%;
     min-height: 100vh;

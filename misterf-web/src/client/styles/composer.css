@@ -54,32 +54,6 @@
   min-height: 42px;
 }
 
-.composer-model-button {
-  min-width: 0;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 12px;
-  font-size: 0.84rem;
-  box-shadow: none;
-}
-
-.composer-model-button:hover,
-.composer-model-button:focus {
-  box-shadow: none;
-}
-
-.composer-model-menu {
-  min-width: 190px;
-}
-
-.composer-model-menu .dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
 .composer-status {
   min-height: 1.1rem;
   margin-top: 0.2rem;

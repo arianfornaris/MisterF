@@ -1,11 +1,10 @@
-import { getModelTierLabel, normalizeModelTier } from '../utils/modelTier.js';
+import { normalizeModelTier } from '../utils/modelTier.js';
 
 export class ComposerView {
-  constructor({ composerEl, inputEl, modelTierButtonEl, modelTierLabelEl, sendButtonEl }) {
+  constructor({ composerEl, inputEl, initialModelTier, sendButtonEl }) {
     this.composerEl = composerEl;
     this.inputEl = inputEl;
-    this.modelTierButtonEl = modelTierButtonEl;
-    this.modelTierLabelEl = modelTierLabelEl;
+    this.selectedModelTier = normalizeModelTier(initialModelTier || 'regular');
     this.sendButtonEl = sendButtonEl;
   }
 
@@ -21,9 +20,6 @@ export class ComposerView {
   enable(enabled, isAssistantBusy = false, isAssistantStopping = false) {
     if (this.inputEl) {
       this.inputEl.disabled = !enabled;
-    }
-    if (this.modelTierButtonEl) {
-      this.modelTierButtonEl.disabled = !enabled || isAssistantBusy;
     }
     this.syncSendButton(isAssistantBusy, isAssistantStopping);
   }
@@ -58,21 +54,10 @@ export class ComposerView {
   }
 
   getSelectedModelTier() {
-    return normalizeModelTier(this.modelTierButtonEl?.dataset.modelTier || 'regular');
+    return this.selectedModelTier;
   }
 
   setSelectedModelTier(value) {
-    const tier = normalizeModelTier(value);
-    if (!this.modelTierButtonEl) {
-      return;
-    }
-
-    this.modelTierButtonEl.dataset.modelTier = tier;
-    if (this.modelTierLabelEl) {
-      this.modelTierLabelEl.textContent = getModelTierLabel(tier);
-      return;
-    }
-
-    this.modelTierButtonEl.textContent = getModelTierLabel(tier);
+    this.selectedModelTier = normalizeModelTier(value);
   }
 }

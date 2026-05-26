@@ -82,6 +82,7 @@ export function buildAppShellContext(input) {
     const socketAuthToken = input.user && isAuthenticated ? createSocketAuthToken(input.user) : '';
     return {
         activeProfile: input.activeProfile,
+        activeProfileModelTier: input.activeProfile?.modelTier ?? 'regular',
         authMessage: input.authMessage,
         chatMode: 'tutor',
         conversations: input.user && input.activeProfile

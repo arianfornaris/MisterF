@@ -6,6 +6,7 @@ export type MessageRole = 'user' | 'model';
 export type StoredProfile = {
   id: string;
   userId: string;
+  modelTier: 'advanced' | 'max' | 'regular';
   name: string;
   description: string;
   createdAt: string;
@@ -205,6 +206,7 @@ export type StoredMessage = {
 type ProfileRow = {
   id: string;
   user_id: string;
+  model_tier: 'advanced' | 'max' | 'regular';
   name: string;
   description: string;
   created_at: string;
@@ -390,6 +392,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
   return {
     id: row.id,
     userId: row.user_id,
+    modelTier: row.model_tier,
     name: row.name,
     description: row.description,
     createdAt: row.created_at,
@@ -638,16 +641,17 @@ export function createProfile(input: {
   userId: string;
   name: string;
   description?: string;
+  modelTier?: 'advanced' | 'max' | 'regular';
 }): StoredProfile {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO profiles (id, user_id, name, description)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO profiles (id, user_id, name, description, model_tier)
+        VALUES (?, ?, ?, ?, ?)
       `,
     )
-    .run(id, input.userId, input.name, input.description ?? '');
+    .run(id, input.userId, input.name, input.description ?? '', input.modelTier ?? 'regular');
 
   const profile = findProfileForUser(id, input.userId);
   if (!profile) {
@@ -664,7 +668,7 @@ export function findProfileForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, name, description, created_at, updated_at
+        SELECT id, user_id, name, description, model_tier, created_at, updated_at
         FROM profiles
         WHERE id = ? AND user_id = ?
       `,
@@ -678,7 +682,7 @@ export function findProfileById(id: string): StoredProfile | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, name, description, created_at, updated_at
+        SELECT id, user_id, name, description, model_tier, created_at, updated_at
         FROM profiles
         WHERE id = ?
       `,
@@ -692,7 +696,7 @@ export function listProfilesForUser(userId: string): StoredProfile[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, name, description, created_at, updated_at
+        SELECT id, user_id, name, description, model_tier, created_at, updated_at
         FROM profiles
         WHERE user_id = ?
         ORDER BY created_at ASC, updated_at ASC
@@ -721,6 +725,7 @@ export function updateProfile(input: {
   userId: string;
   name: string;
   description: string;
+  modelTier?: 'advanced' | 'max' | 'regular';
 }): StoredProfile | null {
   getDb()
     .prepare(
@@ -728,13 +733,33 @@ export function updateProfile(input: {
         UPDATE profiles
         SET name = ?,
             description = ?,
+            model_tier = COALESCE(?, model_tier),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(input.name, input.description, input.profileId, input.userId);
+    .run(input.name, input.description, input.modelTier ?? null, input.profileId, input.userId);
 
   return findProfileForUser(input.profileId, input.userId);
+}
+
+export function updateProfileModelTierForUser(
+  profileId: string,
+  userId: string,
+  modelTier: 'advanced' | 'max' | 'regular',
+): StoredProfile | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE profiles
+        SET model_tier = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(modelTier, profileId, userId);
+
+  return findProfileForUser(profileId, userId);
 }
 
 export function createConversation(
@@ -748,6 +773,7 @@ export function createConversation(
   } = {},
 ): StoredConversation {
   const id = randomUUID();
+  const modelTier = options.modelTier ?? findProfileById(profileId)?.modelTier ?? 'regular';
   getDb()
     .prepare(
       `
@@ -772,7 +798,7 @@ export function createConversation(
       options.practiceModuleId ?? null,
       options.chatRoomConversationReportId ?? null,
       'tutor',
-      options.modelTier ?? 'regular',
+      modelTier,
     );
 
   const conversation = findConversationForUser(id, userId);
@@ -920,6 +946,22 @@ export function updateConversationModelTierForUser(
     .run(modelTier, id, userId);
 
   return findConversationForUser(id, userId);
+}
+
+export function updateConversationModelTierForProfile(
+  userId: string,
+  profileId: string,
+  modelTier: 'advanced' | 'max' | 'regular',
+): void {
+  getDb()
+    .prepare(
+      `
+        UPDATE conversations
+        SET model_tier = ?
+        WHERE user_id = ? AND profile_id = ?
+      `,
+    )
+    .run(modelTier, userId, profileId);
 }
 
 export function deleteConversationForUser(id: string, userId: string): boolean {

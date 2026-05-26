@@ -107,7 +107,7 @@ export function resolveGuestInitialGreeting(request: Request, user: AuthUser | n
 export function buildAppShellContext(input: {
   activeProfile: StoredProfile | null;
   authMessage: string;
-  currentView: 'chat' | 'chatrooms' | 'practiceModules' | 'profiles';
+  currentView: 'chat' | 'chatrooms' | 'practiceModules' | 'profiles' | 'settings';
   guestInitialGreeting: string;
   initialConversationId?: string;
   request: Request;
@@ -120,6 +120,7 @@ export function buildAppShellContext(input: {
 
   return {
     activeProfile: input.activeProfile,
+    activeProfileModelTier: input.activeProfile?.modelTier ?? 'regular',
     authMessage: input.authMessage,
     chatMode: 'tutor',
     conversations:

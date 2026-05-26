@@ -41,7 +41,7 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.clearPendingDisconnectNotice();
     deps.setHasHandledInitialConversationReady(true);
     deps.setConversationId(payload.conversationId);
-    deps.setSelectedModelTier(payload.conversation?.modelTier || 'regular');
+    deps.setSelectedModelTier(payload.conversation?.modelTier || deps.getDefaultModelTier());
     deps.conversationListView.upsert(payload.conversation);
     deps.conversationListView.markActive(deps.getConversationId());
     deps.messagesEl.replaceChildren();

@@ -543,5 +543,14 @@ export const migrations = [
         ON conversation_chat_room_report_snapshots (chat_room_conversation_report_id, created_at DESC);
     `,
     },
+    {
+        id: 12,
+        name: 'add_profile_model_tier',
+        up: `
+      ALTER TABLE profiles
+      ADD COLUMN model_tier TEXT NOT NULL DEFAULT 'regular'
+      CHECK (model_tier IN ('regular', 'advanced', 'max'));
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

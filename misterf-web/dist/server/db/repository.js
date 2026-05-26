@@ -6,6 +6,7 @@ function toStoredProfile(row) {
     return {
         id: row.id,
         userId: row.user_id,
+        modelTier: row.model_tier,
         name: row.name,
         description: row.description,
         createdAt: row.created_at,
@@ -214,10 +215,10 @@ export function createProfile(input) {
     const id = randomUUID();
     getDb()
         .prepare(`
-        INSERT INTO profiles (id, user_id, name, description)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO profiles (id, user_id, name, description, model_tier)
+        VALUES (?, ?, ?, ?, ?)
       `)
-        .run(id, input.userId, input.name, input.description ?? '');
+        .run(id, input.userId, input.name, input.description ?? '', input.modelTier ?? 'regular');
     const profile = findProfileForUser(id, input.userId);
     if (!profile) {
         throw new Error('Could not load newly created profile.');
@@ -227,7 +228,7 @@ export function createProfile(input) {
 export function findProfileForUser(id, userId) {
     const row = getDb()
         .prepare(`
-        SELECT id, user_id, name, description, created_at, updated_at
+        SELECT id, user_id, name, description, model_tier, created_at, updated_at
         FROM profiles
         WHERE id = ? AND user_id = ?
       `)
@@ -237,7 +238,7 @@ export function findProfileForUser(id, userId) {
 export function findProfileById(id) {
     const row = getDb()
         .prepare(`
-        SELECT id, user_id, name, description, created_at, updated_at
+        SELECT id, user_id, name, description, model_tier, created_at, updated_at
         FROM profiles
         WHERE id = ?
       `)
@@ -247,7 +248,7 @@ export function findProfileById(id) {
 export function listProfilesForUser(userId) {
     const rows = getDb()
         .prepare(`
-        SELECT id, user_id, name, description, created_at, updated_at
+        SELECT id, user_id, name, description, model_tier, created_at, updated_at
         FROM profiles
         WHERE user_id = ?
         ORDER BY created_at ASC, updated_at ASC
@@ -272,14 +273,27 @@ export function updateProfile(input) {
         UPDATE profiles
         SET name = ?,
             description = ?,
+            model_tier = COALESCE(?, model_tier),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-        .run(input.name, input.description, input.profileId, input.userId);
+        .run(input.name, input.description, input.modelTier ?? null, input.profileId, input.userId);
     return findProfileForUser(input.profileId, input.userId);
+}
+export function updateProfileModelTierForUser(profileId, userId, modelTier) {
+    getDb()
+        .prepare(`
+        UPDATE profiles
+        SET model_tier = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(modelTier, profileId, userId);
+    return findProfileForUser(profileId, userId);
 }
 export function createConversation(userId, profileId, title = defaultConversationTitle, options = {}) {
     const id = randomUUID();
+    const modelTier = options.modelTier ?? findProfileById(profileId)?.modelTier ?? 'regular';
     getDb()
         .prepare(`
         INSERT INTO conversations (
@@ -294,7 +308,7 @@ export function createConversation(userId, profileId, title = defaultConversatio
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, userId, profileId, title, options.practiceModuleId ?? null, options.chatRoomConversationReportId ?? null, 'tutor', options.modelTier ?? 'regular');
+        .run(id, userId, profileId, title, options.practiceModuleId ?? null, options.chatRoomConversationReportId ?? null, 'tutor', modelTier);
     const conversation = findConversationForUser(id, userId);
     if (!conversation) {
         throw new Error('Could not load newly created conversation.');
@@ -378,6 +392,15 @@ export function updateConversationModelTierForUser(id, userId, modelTier) {
       `)
         .run(modelTier, id, userId);
     return findConversationForUser(id, userId);
+}
+export function updateConversationModelTierForProfile(userId, profileId, modelTier) {
+    getDb()
+        .prepare(`
+        UPDATE conversations
+        SET model_tier = ?
+        WHERE user_id = ? AND profile_id = ?
+      `)
+        .run(modelTier, userId, profileId);
 }
 export function deleteConversationForUser(id, userId) {
     const result = getDb()
