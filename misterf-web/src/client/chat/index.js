@@ -403,6 +403,18 @@ function putMessageBackInComposer(content, options = {}) {
   });
 }
 
+function moveCaretToEnd(element) {
+  if (!element) {
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    const valueLength = element.value?.length ?? 0;
+    element.focus({ preventScroll: true });
+    element.setSelectionRange(valueLength, valueLength);
+  });
+}
+
 async function copyTextToClipboard(content) {
   if (!content) {
     return false;
