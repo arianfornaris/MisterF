@@ -8,7 +8,7 @@ import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks 
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
-import { translationResultSchema } from './schemas.js';
+import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
 const maxAgentTurns = 6;
@@ -321,6 +321,37 @@ export async function translateTextWithLlm(input) {
         provider: env.llmProvider,
         translatedText: parsed.data.translatedText,
     };
+}
+export async function evaluateQuizResultItemsWithLlm(input) {
+    const result = await generateText({
+        maxOutputTokens: 1600,
+        messages: [
+            {
+                content: JSON.stringify({
+                    quiz: input.quiz,
+                    responses: input.responses,
+                }, null, 2),
+                role: 'user',
+            },
+        ],
+        model: getLanguageModel(input.llm),
+        providerOptions: getProviderOptions(),
+        system: renderSystemPrompt('tutor/quiz-result-evaluation.md'),
+        temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
+    });
+    const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, undefined, result.providerMetadata);
+    if (userFacingFinishMessage) {
+        throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
+    }
+    const parsed = quizResultEvaluationsSchema.safeParse(parseJsonFromModelText(result.text));
+    if (!parsed.success) {
+        console.error('[Mr. F quiz result evaluation failed]', JSON.stringify({
+            issues: parsed.error.issues,
+            value: result.text,
+        }, null, 2));
+        throw new Error('El evaluador del quiz no devolvió una respuesta válida.');
+    }
+    return parsed.data.items;
 }
 export * from './types.js';
 export * from './errors.js';

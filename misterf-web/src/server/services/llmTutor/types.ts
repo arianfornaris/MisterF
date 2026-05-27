@@ -193,6 +193,137 @@ export type TutorQuizBlock = {
   items: TutorQuizItem[];
 };
 
+export type TutorQuizResultItemOpenText = {
+  kind: 'quiz_open_text';
+  prompt: string;
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    text: string;
+  };
+};
+
+export type TutorQuizResultItemTranslateToEnglish = {
+  kind: 'quiz_translate_to_english';
+  prompt: string;
+  sentence: string;
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    text: string;
+  };
+};
+
+export type TutorQuizResultItemUnderstandInSpanish = {
+  kind: 'quiz_understand_in_spanish';
+  prompt: string;
+  sentence: string;
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    text: string;
+  };
+};
+
+export type TutorQuizResultItemFillInTheBlankInput = {
+  kind: 'quiz_fill_in_the_blank_input';
+  prompt: string;
+  sentence: string;
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    completedSentence?: string;
+    values: string[];
+  };
+};
+
+export type TutorQuizResultItemFillInTheBlankChoice = {
+  kind: 'quiz_fill_in_the_blank_choice';
+  prompt: string;
+  sentence: string;
+  blanks: Array<{
+    choices: string[];
+  }>;
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    completedSentence?: string;
+    values: string[];
+  };
+};
+
+export type TutorQuizResultItemMultipleChoice = {
+  kind: 'quiz_multiple_choice';
+  prompt: string;
+  selectionMode: 'single' | 'multiple';
+  options: string[];
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    selectedOptions: string[];
+  };
+};
+
+export type TutorQuizResultItemMatchingPairs = {
+  kind: 'quiz_matching_pairs';
+  prompt: string;
+  leftItems: string[];
+  rightItems: string[];
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    pairs: Array<{
+      left: string;
+      right: string;
+    }>;
+  };
+};
+
+export type TutorQuizResultItemUnscrambleSentence = {
+  kind: 'quiz_unscramble_sentence';
+  prompt: string;
+  tokens: string[];
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  userResponse: {
+    selectedTokens: string[];
+    sentence?: string;
+  };
+};
+
+export type TutorQuizResultItem =
+  | TutorQuizResultItemOpenText
+  | TutorQuizResultItemTranslateToEnglish
+  | TutorQuizResultItemUnderstandInSpanish
+  | TutorQuizResultItemFillInTheBlankInput
+  | TutorQuizResultItemFillInTheBlankChoice
+  | TutorQuizResultItemMultipleChoice
+  | TutorQuizResultItemMatchingPairs
+  | TutorQuizResultItemUnscrambleSentence;
+
+export type TutorQuizResultBlock = {
+  type: 'quiz_result';
+  title?: string;
+  prompt?: string;
+  items: TutorQuizResultItem[];
+};
+
 export type TutorSentenceEvaluationBlock = {
   type: 'sentence_evaluation';
   parts: Array<{
@@ -214,6 +345,7 @@ export type TutorResponseBlock =
   | TutorDialogueTranscriptBlock
   | TutorMatchingPairsBlock
   | TutorQuizBlock
+  | TutorQuizResultBlock
   | TutorTranslateToEnglishPromptBlock
   | TutorUnderstandInSpanishPromptBlock
   | TutorFillInTheBlankInputBlock

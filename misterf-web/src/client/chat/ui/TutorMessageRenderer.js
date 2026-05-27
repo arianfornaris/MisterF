@@ -2,6 +2,7 @@ import { createFillInTheBlankCard } from '../cards/createFillInTheBlankCard.js';
 import { createMatchingPairsCard } from '../cards/createMatchingPairsCard.js';
 import { createMultipleChoiceCard } from '../cards/multipleChoiceCard.js';
 import { createQuizCard } from '../cards/createQuizCard.js';
+import { createQuizResultCard } from '../cards/createQuizResultCard.js';
 import { createSentenceEvaluationCard } from '../cards/createSentenceEvaluationCard.js';
 import { createUnscrambleSentenceCard } from '../cards/unscrambleSentenceCard.js';
 import { renderMarkdown } from '../utils/formatting.js';
@@ -223,6 +224,15 @@ export function createTutorMessageRenderer(deps) {
             getSocket: deps.getSocket,
           },
         );
+        if (card) {
+          stack.append(card);
+          hasVisualContent = true;
+        }
+        return;
+      }
+
+      if (block.type === 'quiz_result') {
+        const card = createQuizResultCard(block);
         if (card) {
           stack.append(card);
           hasVisualContent = true;

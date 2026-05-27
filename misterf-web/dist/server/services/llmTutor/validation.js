@@ -62,6 +62,7 @@ export function blocksToMarkdown(blocks) {
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
         block.type === 'quiz' ||
+        block.type === 'quiz_result' ||
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt' ||
         block.type === 'fill_in_the_blank_input' ||
@@ -85,6 +86,9 @@ export function blocksToMarkdown(blocks) {
         }
         if (block.type === 'quiz') {
             return block.title?.trim() || block.prompt.trim();
+        }
+        if (block.type === 'quiz_result') {
+            return block.title?.trim() || block.prompt?.trim() || 'Resumen del quiz';
         }
         if (block.type === 'fill_in_the_blank_input' ||
             block.type === 'fill_in_the_blank_choice') {

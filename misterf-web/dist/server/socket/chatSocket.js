@@ -4,7 +4,7 @@ import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
-import { LlmFinishReasonError, MissingLlmApiKeyError, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
+import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
 import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 const runningConversations = new Set();
@@ -665,6 +665,36 @@ export function registerChatSocket(io) {
             if (updatedMessage) {
                 io.to(conversationId).emit('message:updated', updatedMessage);
             }
+            let quizEvaluations;
+            try {
+                const llmOptions = await getLlmRequestOptionsForUser(userId);
+                llmOptions.modelTier = normalizeModelTier(payload.modelTier);
+                quizEvaluations = await evaluateQuizResultItemsWithLlm({
+                    llm: llmOptions,
+                    quiz: block,
+                    responses,
+                });
+            }
+            catch (error) {
+                console.error('Quiz result evaluation failed.', {
+                    conversationId,
+                    error: serializeError(error),
+                    messageId,
+                    userId,
+                });
+                quizEvaluations = buildFallbackQuizEvaluations(block, responses);
+            }
+            const quizResultBlock = buildQuizResultBlock({
+                block,
+                evaluations: quizEvaluations,
+                responses,
+            });
+            const quizResultMessage = addMessage(conversationId, 'model', buildQuizResultMessageContent(quizResultBlock), {
+                blocks: [quizResultBlock],
+                source: 'quiz_result',
+            });
+            emitConversationUpdated(io, conversationId, userId);
+            io.to(conversationId).emit('message:created', quizResultMessage);
             await streamAssistantMessage(io, conversationId, userId, undefined, false, [
                 {
                     content: buildQuizCompletionContext({
@@ -1072,6 +1102,279 @@ function fillSentencePlaceholdersForQuiz(sentence, values, placeholderToken) {
         nextSentence = nextSentence.replace(placeholderToken, value.trim());
     }
     return nextSentence.replace(/\s+/g, ' ').trim();
+}
+function buildQuizResultBlock(input) {
+    return {
+        type: 'quiz_result',
+        title: input.block.title?.trim() || 'Quiz completado',
+        prompt: input.block.prompt.trim(),
+        items: input.block.items.map((item, index) => {
+            const response = input.responses[index] ?? {};
+            const evaluation = input.evaluations[index] ?? {
+                feedback: 'Miremos esta respuesta con más detalle en la siguiente práctica.',
+                status: 'partial',
+            };
+            if (item.kind === 'quiz_open_text') {
+                return {
+                    evaluation,
+                    kind: item.kind,
+                    prompt: item.prompt,
+                    userResponse: {
+                        text: typeof response.text === 'string'
+                            ? response.text
+                            : '',
+                    },
+                };
+            }
+            if (item.kind === 'quiz_translate_to_english' ||
+                item.kind === 'quiz_understand_in_spanish') {
+                return {
+                    evaluation,
+                    kind: item.kind,
+                    prompt: item.prompt,
+                    sentence: item.sentence,
+                    userResponse: {
+                        text: typeof response.text === 'string'
+                            ? response.text
+                            : '',
+                    },
+                };
+            }
+            if (item.kind === 'quiz_fill_in_the_blank_input') {
+                return {
+                    evaluation,
+                    kind: item.kind,
+                    prompt: item.prompt,
+                    sentence: item.sentence,
+                    userResponse: {
+                        completedSentence: typeof response.completedSentence === 'string'
+                            ? response.completedSentence
+                            : undefined,
+                        values: Array.isArray(response.values)
+                            ? response.values.filter((value) => typeof value === 'string')
+                            : [],
+                    },
+                };
+            }
+            if (item.kind === 'quiz_fill_in_the_blank_choice') {
+                return {
+                    kind: item.kind,
+                    evaluation,
+                    prompt: item.prompt,
+                    sentence: item.sentence,
+                    blanks: item.blanks.map((blank) => ({
+                        choices: blank.choices,
+                    })),
+                    userResponse: {
+                        completedSentence: typeof response.completedSentence === 'string'
+                            ? response.completedSentence
+                            : undefined,
+                        values: Array.isArray(response.values)
+                            ? response.values.filter((value) => typeof value === 'string')
+                            : [],
+                    },
+                };
+            }
+            if (item.kind === 'quiz_multiple_choice') {
+                return {
+                    evaluation,
+                    kind: item.kind,
+                    prompt: item.prompt,
+                    selectionMode: item.selectionMode,
+                    options: item.options,
+                    userResponse: {
+                        selectedOptions: Array.isArray(response.selectedOptions)
+                            ? response.selectedOptions.filter((value) => typeof value === 'string')
+                            : [],
+                    },
+                };
+            }
+            if (item.kind === 'quiz_matching_pairs') {
+                return {
+                    evaluation,
+                    kind: item.kind,
+                    prompt: item.prompt,
+                    leftItems: item.leftItems,
+                    rightItems: item.rightItems,
+                    userResponse: {
+                        pairs: Array.isArray(response.pairs)
+                            ? response.pairs.filter((pair) => Boolean(pair &&
+                                typeof pair === 'object' &&
+                                typeof pair.left === 'string' &&
+                                typeof pair.right === 'string'))
+                            : [],
+                    },
+                };
+            }
+            return {
+                evaluation,
+                kind: 'quiz_unscramble_sentence',
+                prompt: item.prompt,
+                tokens: item.tokens,
+                userResponse: {
+                    selectedTokens: Array.isArray(response.selectedTokens)
+                        ? response.selectedTokens.filter((value) => typeof value === 'string')
+                        : [],
+                    sentence: typeof response.sentence === 'string'
+                        ? response.sentence
+                        : undefined,
+                },
+            };
+        }),
+    };
+}
+function buildQuizResultMessageContent(block) {
+    const normalizedTitle = block.title?.replace(/\s+/g, ' ').trim();
+    return normalizedTitle
+        ? `Resumen del quiz: ${normalizedTitle}`
+        : 'Resumen del quiz';
+}
+function buildFallbackQuizEvaluations(block, responses) {
+    return block.items.map((item, index) => {
+        const response = responses[index] ?? {};
+        if (item.kind === 'quiz_multiple_choice') {
+            const selected = Array.isArray(response.selectedOptions)
+                ? response.selectedOptions.filter((value) => typeof value === 'string')
+                : [];
+            const correct = new Set(item.correctOptions.map(normalizeQuizComparableText));
+            const chosen = new Set(selected.map(normalizeQuizComparableText));
+            const correctChosenCount = item.correctOptions.filter((option) => chosen.has(normalizeQuizComparableText(option))).length;
+            const exact = chosen.size === correct.size &&
+                [...correct].every((value) => chosen.has(value));
+            if (exact) {
+                return {
+                    feedback: 'Seleccionaste la opción correcta.',
+                    status: 'correct',
+                };
+            }
+            if (correctChosenCount > 0) {
+                return {
+                    feedback: 'Tu selección va por buen camino, pero todavía le falta precisión.',
+                    status: 'partial',
+                };
+            }
+            return {
+                feedback: 'La selección no coincide con la respuesta esperada.',
+                status: 'incorrect',
+            };
+        }
+        if (item.kind === 'quiz_matching_pairs') {
+            const pairs = Array.isArray(response.pairs)
+                ? response.pairs.filter((pair) => Boolean(pair &&
+                    typeof pair === 'object' &&
+                    typeof pair.left === 'string' &&
+                    typeof pair.right === 'string'))
+                : [];
+            const correctPairs = new Set(item.correctPairs.map((pair) => `${normalizeQuizComparableText(pair.left)}::${normalizeQuizComparableText(pair.right)}`));
+            const matchedCount = pairs.filter((pair) => correctPairs.has(`${normalizeQuizComparableText(pair.left)}::${normalizeQuizComparableText(pair.right)}`)).length;
+            if (matchedCount === item.correctPairs.length && item.correctPairs.length > 0) {
+                return {
+                    feedback: 'Emparejaste correctamente todos los elementos.',
+                    status: 'correct',
+                };
+            }
+            if (matchedCount > 0) {
+                return {
+                    feedback: 'Acertaste algunas parejas, pero todavía había combinaciones incorrectas.',
+                    status: 'partial',
+                };
+            }
+            return {
+                feedback: 'Las parejas no coinciden con las relaciones esperadas.',
+                status: 'incorrect',
+            };
+        }
+        if (item.kind === 'quiz_fill_in_the_blank_input' ||
+            item.kind === 'quiz_fill_in_the_blank_choice') {
+            const values = Array.isArray(response.values)
+                ? response.values.filter((value) => typeof value === 'string')
+                : [];
+            const validCount = item.blanks.reduce((count, blank, blankIndex) => {
+                const normalizedValue = normalizeQuizComparableText(values[blankIndex] ?? '');
+                if (!normalizedValue) {
+                    return count;
+                }
+                const answers = blank.acceptableAnswers?.map(normalizeQuizComparableText).filter(Boolean) ?? [];
+                return answers.includes(normalizedValue) ? count + 1 : count;
+            }, 0);
+            if (validCount === item.blanks.length && item.blanks.length > 0) {
+                return {
+                    feedback: 'Completaste bien todos los espacios.',
+                    status: 'correct',
+                };
+            }
+            if (validCount > 0) {
+                return {
+                    feedback: 'Algunos espacios están bien, pero otros necesitan ajuste.',
+                    status: 'partial',
+                };
+            }
+            return {
+                feedback: 'Las palabras elegidas no completan bien la oración.',
+                status: 'incorrect',
+            };
+        }
+        if (item.kind === 'quiz_unscramble_sentence') {
+            const sentence = typeof response.sentence === 'string'
+                ? normalizeQuizComparableText(response.sentence)
+                : '';
+            const answers = item.acceptableAnswers?.map(normalizeQuizComparableText).filter(Boolean) ?? [];
+            if (sentence && answers.includes(sentence)) {
+                return {
+                    feedback: 'Ordenaste correctamente la oración.',
+                    status: 'correct',
+                };
+            }
+            if (sentence) {
+                return {
+                    feedback: 'La oración todavía no quedó en el orden esperado.',
+                    status: 'incorrect',
+                };
+            }
+            return {
+                feedback: 'No llegaste a formar una respuesta completa.',
+                status: 'incorrect',
+            };
+        }
+        if (item.kind === 'quiz_translate_to_english' ||
+            item.kind === 'quiz_understand_in_spanish') {
+            const text = typeof response.text === 'string'
+                ? normalizeQuizComparableText(response.text)
+                : '';
+            const answers = item.acceptableAnswers?.map(normalizeQuizComparableText).filter(Boolean) ?? [];
+            if (text && answers.length > 0 && answers.includes(text)) {
+                return {
+                    feedback: 'La respuesta transmite correctamente la idea esperada.',
+                    status: 'correct',
+                };
+            }
+            if (text) {
+                return {
+                    feedback: 'Tu respuesta muestra intención, pero conviene revisarla con más detalle.',
+                    status: answers.length > 0 ? 'incorrect' : 'partial',
+                };
+            }
+            return {
+                feedback: 'No respondiste esta consigna.',
+                status: 'incorrect',
+            };
+        }
+        const text = typeof response.text === 'string'
+            ? normalizeQuizComparableText(response.text)
+            : '';
+        return text
+            ? {
+                feedback: 'Tu respuesta se registró y la revisaremos con más detalle en la práctica.',
+                status: 'partial',
+            }
+            : {
+                feedback: 'No respondiste esta pregunta.',
+                status: 'incorrect',
+            };
+    });
+}
+function normalizeQuizComparableText(value) {
+    return value.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 function normalizeIncorrectAttempts(attempts, block) {
     const validPairs = new Set(block.pairs.map((pair) => `${pair.left.trim()}::${pair.right.trim()}`));

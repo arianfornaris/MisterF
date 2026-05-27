@@ -258,6 +258,217 @@ export const quizBlockSchema = z
   })
   .strict();
 
+const quizResultOpenTextItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_open_text'),
+    prompt: z.string().trim().min(1).max(1600),
+    userResponse: z
+      .object({
+        text: z.string().trim().max(2400),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultTranslateToEnglishItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_translate_to_english'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentence: z.string().trim().min(1).max(1600),
+    userResponse: z
+      .object({
+        text: z.string().trim().max(2400),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultUnderstandInSpanishItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_understand_in_spanish'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentence: z.string().trim().min(1).max(1600),
+    userResponse: z
+      .object({
+        text: z.string().trim().max(2400),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultFillInTheBlankInputItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_fill_in_the_blank_input'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentence: z.string().trim().min(1).max(1600),
+    userResponse: z
+      .object({
+        completedSentence: z.string().trim().max(1600).optional(),
+        values: z.array(z.string().trim().max(240)).max(20),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultFillInTheBlankChoiceItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_fill_in_the_blank_choice'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentence: z.string().trim().min(1).max(1600),
+    blanks: z
+      .array(
+        z
+          .object({
+            choices: z.array(z.string().trim().min(1).max(240)).min(2).max(20),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(20),
+    userResponse: z
+      .object({
+        completedSentence: z.string().trim().max(1600).optional(),
+        values: z.array(z.string().trim().max(240)).max(20),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultMultipleChoiceItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_multiple_choice'),
+    prompt: z.string().trim().min(1).max(1600),
+    selectionMode: z.enum(['single', 'multiple']),
+    options: z.array(z.string().trim().min(1).max(400)).min(2).max(16),
+    userResponse: z
+      .object({
+        selectedOptions: z.array(z.string().trim().min(1).max(400)).max(16),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultMatchingPairsItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_matching_pairs'),
+    prompt: z.string().trim().min(1).max(1600),
+    leftItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
+    rightItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
+    userResponse: z
+      .object({
+        pairs: z
+          .array(
+            z
+              .object({
+                left: z.string().trim().min(1).max(600),
+                right: z.string().trim().min(1).max(600),
+              })
+              .strict(),
+          )
+          .max(24),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultUnscrambleSentenceItemSchema = z
+  .object({
+    evaluation: z
+      .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+      })
+      .strict(),
+    kind: z.literal('quiz_unscramble_sentence'),
+    prompt: z.string().trim().min(1).max(1600),
+    tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
+    userResponse: z
+      .object({
+        selectedTokens: z.array(z.string().trim().min(1).max(120)).max(32),
+        sentence: z.string().trim().max(1600).optional(),
+      })
+      .strict(),
+  })
+  .strict();
+
+const quizResultItemSchema = z.union([
+  quizResultOpenTextItemSchema,
+  quizResultTranslateToEnglishItemSchema,
+  quizResultUnderstandInSpanishItemSchema,
+  quizResultFillInTheBlankInputItemSchema,
+  quizResultFillInTheBlankChoiceItemSchema,
+  quizResultMultipleChoiceItemSchema,
+  quizResultMatchingPairsItemSchema,
+  quizResultUnscrambleSentenceItemSchema,
+]);
+
+export const quizResultBlockSchema = z
+  .object({
+    type: z.literal('quiz_result'),
+    title: z.string().trim().min(1).max(200).optional(),
+    prompt: z.string().trim().min(1).max(2000).optional(),
+    items: z.array(quizResultItemSchema).min(1).max(24),
+  })
+  .strict();
+
+export const quizResultEvaluationsSchema = z
+  .object({
+    items: z
+      .array(
+        z
+          .object({
+            feedback: z.string().trim().min(1).max(1200),
+            status: z.enum(['correct', 'partial', 'incorrect']),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(24),
+  })
+  .strict();
+
 export const fillInTheBlankInputBlockSchema = z
   .object({
     type: z.literal('fill_in_the_blank_input'),
@@ -405,6 +616,7 @@ export const tutorResponseSchema = z
           dialogueTranscriptBlockSchema,
           matchingPairsBlockSchema,
           quizBlockSchema,
+          quizResultBlockSchema,
           translateToEnglishPromptBlockSchema,
           understandInSpanishPromptBlockSchema,
           fillInTheBlankInputBlockSchema,
