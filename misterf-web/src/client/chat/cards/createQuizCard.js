@@ -298,15 +298,51 @@ function syncQuizCardStatus(section, state) {
   status.classList.remove('is-success', 'is-error');
 
   if (state.aborted) {
-    status.textContent = 'Quiz cancelado.';
+    setQuizStatusContent(status, 'Quiz cancelado.');
     status.classList.add('is-error');
+  } else if (section.dataset.quizEvaluationComplete === 'true') {
+    setQuizStatusContent(status, 'Quiz evaluado.');
+    status.classList.add('is-success');
   } else if (state.submitted) {
-    status.textContent = 'Quiz enviado. Mister F lo está evaluando.';
+    setQuizStatusContent(status, 'Quiz enviado. Mister F lo está evaluando.', {
+      pending: true,
+    });
     status.classList.add('is-success');
   } else if (isQuizReadyToSubmit(state)) {
-    status.textContent = 'Todo listo. Puedes evaluar el quiz cuando quieras.';
+    setQuizStatusContent(status, 'Todo listo. Puedes evaluar el quiz cuando quieras.');
   } else {
-    status.textContent = 'Responde todas las preguntas antes de evaluar.';
+    setQuizStatusContent(status, 'Responde todas las preguntas antes de evaluar.');
+  }
+}
+
+function setQuizStatusContent(status, text, options = {}) {
+  status.replaceChildren();
+
+  if (options.pending) {
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner-border spinner-border-sm quiz-status-spinner';
+    spinner.setAttribute('aria-hidden', 'true');
+    status.append(spinner);
+  }
+
+  status.append(document.createTextNode(text));
+}
+
+export function markQuizCardEvaluationComplete(messageId, blockIndex) {
+  const exerciseKey = `${Number(messageId) || 0}:${Number(blockIndex) || 0}`;
+  const section = document.querySelector(
+    `.quiz-card[data-exercise-key="${CSS.escape(exerciseKey)}"]`,
+  );
+  if (!(section instanceof HTMLElement)) {
+    return;
+  }
+
+  section.dataset.quizEvaluationComplete = 'true';
+  const status = section.querySelector('.quiz-status');
+  if (status instanceof HTMLParagraphElement) {
+    status.classList.remove('is-error');
+    status.classList.add('is-success');
+    setQuizStatusContent(status, 'Quiz evaluado.');
   }
 }
 

@@ -1,3 +1,5 @@
+import { markQuizCardEvaluationComplete } from '../cards/createQuizCard.js';
+
 export function registerChatSocketHandlers(deps) {
   const { socketClient } = deps;
 
@@ -158,6 +160,19 @@ export function registerChatSocketHandlers(deps) {
   });
 
   socketClient.on('message:created', (message) => {
+    const quizResultSource = message?.metadata?.quizSource;
+    if (
+      message?.role === 'model' &&
+      message?.metadata?.source === 'quiz_result' &&
+      quizResultSource &&
+      typeof quizResultSource === 'object'
+    ) {
+      markQuizCardEvaluationComplete(
+        quizResultSource.messageId,
+        quizResultSource.blockIndex,
+      );
+    }
+
     const bubble = deps.renderer.appendStoredMessage(message);
     if (message.role === 'user') {
       deps.setActiveUserMessageId(message.id);

@@ -1,6 +1,7 @@
 import type { ModelMessage } from 'ai';
 import { logJson } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
+import { TutorResponseValidationError } from './errors.js';
 
 export function appendStructuredCorrectionRequest(
   messages: ModelMessage[],
@@ -38,8 +39,7 @@ export function appendStructuredCorrectionRequest(
 export function buildStructuredValidationReason(error: unknown): string {
   const baseReason =
     'The JSON object was parsed, but it does not satisfy the TutorResponse contract.';
-  const detail =
-    error instanceof Error ? error.message.trim() : 'Unknown validation error.';
+  const detail = buildStructuredValidationDetail(error);
 
   return [baseReason, detail].join('\n');
 }
@@ -57,6 +57,10 @@ export function isCorrectableLlmOutputError(error: unknown): boolean {
 }
 
 export function extractGeneratedTextFromError(error: unknown): string | null {
+  if (error instanceof TutorResponseValidationError) {
+    return error.generatedText;
+  }
+
   if (!error || typeof error !== 'object') {
     return null;
   }
@@ -70,6 +74,15 @@ export function extractGeneratedTextFromError(error: unknown): string | null {
 }
 
 function serializeLlmError(error: unknown): unknown {
+  if (error instanceof TutorResponseValidationError) {
+    return {
+      generatedText: error.generatedText?.slice(0, 6000),
+      issues: error.issues,
+      message: error.message,
+      name: error.name,
+    };
+  }
+
   if (error instanceof Error) {
     return {
       cause: serializeLlmError(error.cause),
@@ -88,4 +101,22 @@ function serializeLlmError(error: unknown): unknown {
   }
 
   return error;
+}
+
+function buildStructuredValidationDetail(error: unknown): string {
+  if (error instanceof TutorResponseValidationError) {
+    if (error.issues.length === 0) {
+      return error.message.trim();
+    }
+
+    return [
+      'Fix the invalid parts and re-emit the full TutorResponse JSON.',
+      ...error.issues.map((issue, index) => {
+        const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+        return `${index + 1}. path=${path} :: ${issue.message}`;
+      }),
+    ].join('\n');
+  }
+
+  return error instanceof Error ? error.message.trim() : 'Unknown validation error.';
 }

@@ -1,4 +1,72 @@
 import { z } from 'zod';
+function hasExplanation(value) {
+    return typeof value === 'string' && value.trim().length > 0;
+}
+const inlineTextPartSchema = z
+    .object({
+    text: z.string().trim().min(1).max(2400),
+    status: z.enum(['correct', 'improve', 'error']),
+    explanation: z.string().trim().max(800).optional(),
+})
+    .strict()
+    .superRefine((part, ctx) => {
+    if (part.status !== 'correct' && !hasExplanation(part.explanation)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'explanation is required when status is improve or error.',
+            path: ['explanation'],
+        });
+    }
+});
+const inlineBlankReviewSchema = z
+    .object({
+    status: z.enum(['correct', 'improve', 'error']),
+    explanation: z.string().trim().max(800).optional(),
+})
+    .strict()
+    .superRefine((blank, ctx) => {
+    if (blank.status !== 'correct' && !hasExplanation(blank.explanation)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'explanation is required when status is improve or error.',
+            path: ['explanation'],
+        });
+    }
+});
+const inlineMultipleChoiceOptionReviewSchema = z
+    .object({
+    text: z.string().trim().min(1).max(400),
+    selectedByUser: z.boolean(),
+    status: z.enum(['correct', 'neutral', 'missed', 'error']),
+    explanation: z.string().trim().max(800).optional(),
+})
+    .strict()
+    .superRefine((option, ctx) => {
+    if ((option.status === 'missed' || option.status === 'error') && !hasExplanation(option.explanation)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'explanation is required when status is missed or error.',
+            path: ['explanation'],
+        });
+    }
+});
+const inlineMatchingPairReviewSchema = z
+    .object({
+    left: z.string().trim().min(1).max(600),
+    right: z.string().trim().min(1).max(600),
+    status: z.enum(['correct', 'error']),
+    explanation: z.string().trim().max(800).optional(),
+})
+    .strict()
+    .superRefine((pair, ctx) => {
+    if (pair.status === 'error' && !hasExplanation(pair.explanation)) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'explanation is required when status is error.',
+            path: ['explanation'],
+        });
+    }
+});
 export const genericTutorResponseJsonSchema = {
     type: 'object',
     additionalProperties: false,
@@ -237,6 +305,15 @@ const quizResultOpenTextItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        parts: z
+            .array(inlineTextPartSchema)
+            .min(1)
+            .max(64),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_open_text'),
     prompt: z.string().trim().min(1).max(1600),
     userResponse: z
@@ -254,6 +331,15 @@ const quizResultTranslateToEnglishItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        parts: z
+            .array(inlineTextPartSchema)
+            .min(1)
+            .max(64),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_translate_to_english'),
     prompt: z.string().trim().min(1).max(1600),
     sentence: z.string().trim().min(1).max(1600),
@@ -272,6 +358,15 @@ const quizResultUnderstandInSpanishItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        parts: z
+            .array(inlineTextPartSchema)
+            .min(1)
+            .max(64),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_understand_in_spanish'),
     prompt: z.string().trim().min(1).max(1600),
     sentence: z.string().trim().min(1).max(1600),
@@ -290,6 +385,14 @@ const quizResultFillInTheBlankInputItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        blanks: z
+            .array(inlineBlankReviewSchema)
+            .max(20),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_fill_in_the_blank_input'),
     prompt: z.string().trim().min(1).max(1600),
     sentence: z.string().trim().min(1).max(1600),
@@ -309,6 +412,14 @@ const quizResultFillInTheBlankChoiceItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        blanks: z
+            .array(inlineBlankReviewSchema)
+            .max(20),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_fill_in_the_blank_choice'),
     prompt: z.string().trim().min(1).max(1600),
     sentence: z.string().trim().min(1).max(1600),
@@ -336,6 +447,14 @@ const quizResultMultipleChoiceItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        options: z
+            .array(inlineMultipleChoiceOptionReviewSchema)
+            .max(16),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_multiple_choice'),
     prompt: z.string().trim().min(1).max(1600),
     selectionMode: z.enum(['single', 'multiple']),
@@ -355,6 +474,14 @@ const quizResultMatchingPairsItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        pairs: z
+            .array(inlineMatchingPairReviewSchema)
+            .max(24),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_matching_pairs'),
     prompt: z.string().trim().min(1).max(1600),
     leftItems: z.array(z.string().trim().min(1).max(600)).min(1).max(24),
@@ -381,6 +508,15 @@ const quizResultUnscrambleSentenceItemSchema = z
         status: z.enum(['correct', 'partial', 'incorrect']),
     })
         .strict(),
+    inlineReview: z
+        .object({
+        parts: z
+            .array(inlineTextPartSchema)
+            .min(1)
+            .max(64),
+    })
+        .strict()
+        .optional(),
     kind: z.literal('quiz_unscramble_sentence'),
     prompt: z.string().trim().min(1).max(1600),
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
@@ -413,12 +549,56 @@ export const quizResultBlockSchema = z
 export const quizResultEvaluationsSchema = z
     .object({
     items: z
-        .array(z
-        .object({
-        feedback: z.string().trim().min(1).max(1200),
-        status: z.enum(['correct', 'partial', 'incorrect']),
-    })
-        .strict())
+        .array(z.union([
+        z
+            .object({
+            feedback: z.string().trim().min(1).max(1200),
+            status: z.enum(['correct', 'partial', 'incorrect']),
+            inlineReview: z
+                .object({
+                parts: z.array(inlineTextPartSchema).min(1).max(64),
+            })
+                .strict()
+                .optional(),
+        })
+            .strict(),
+        z
+            .object({
+            feedback: z.string().trim().min(1).max(1200),
+            status: z.enum(['correct', 'partial', 'incorrect']),
+            inlineReview: z
+                .object({
+                blanks: z.array(inlineBlankReviewSchema).max(20),
+            })
+                .strict()
+                .optional(),
+        })
+            .strict(),
+        z
+            .object({
+            feedback: z.string().trim().min(1).max(1200),
+            status: z.enum(['correct', 'partial', 'incorrect']),
+            inlineReview: z
+                .object({
+                options: z.array(inlineMultipleChoiceOptionReviewSchema).max(16),
+            })
+                .strict()
+                .optional(),
+        })
+            .strict(),
+        z
+            .object({
+            feedback: z.string().trim().min(1).max(1200),
+            status: z.enum(['correct', 'partial', 'incorrect']),
+            inlineReview: z
+                .object({
+                pairs: z.array(inlineMatchingPairReviewSchema).max(24),
+            })
+                .strict()
+                .optional(),
+        })
+            .strict(),
+    ]))
         .min(1)
         .max(24),
 })

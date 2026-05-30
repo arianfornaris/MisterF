@@ -15,6 +15,7 @@ import type {
   TutorTranslateToEnglishPromptBlock,
   TutorUnscrambleSentenceBlock,
 } from './types.js';
+import { TutorResponseValidationError } from './errors.js';
 import { tutorResponseSchema } from './schemas.js';
 
 export function toModelMessage(message: TutorMessage) {
@@ -24,16 +25,20 @@ export function toModelMessage(message: TutorMessage) {
   } as const;
 }
 
-export function validateTutorResponseBlocks(value: unknown): TutorResponseBlock[] {
+export function validateTutorResponseBlocks(
+  value: unknown,
+  options: { generatedText?: string | null } = {},
+): TutorResponseBlock[] {
   const parsed = tutorResponseSchema.safeParse(sanitizeTutorResponse(value));
   if (!parsed.success) {
     console.error('[Mr. F LLM response validation failed]', JSON.stringify({
       issues: parsed.error.issues,
       value,
     }, null, 2));
-    throw new Error(
-      'El modelo no devolvió una respuesta estructurada válida. Intenta de nuevo en unos segundos.',
-    );
+    throw new TutorResponseValidationError({
+      generatedText: options.generatedText,
+      issues: parsed.error.issues,
+    });
   }
 
   return parsed.data.blocks as TutorResponseBlock[];

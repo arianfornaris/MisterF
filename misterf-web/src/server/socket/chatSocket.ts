@@ -1022,6 +1022,7 @@ export function registerChatSocket(io: Server): void {
 
         let quizEvaluations: Array<{
           feedback: string;
+          inlineReview?: Record<string, unknown>;
           status: 'correct' | 'incorrect' | 'partial';
         }>;
         try {
@@ -1039,7 +1040,13 @@ export function registerChatSocket(io: Server): void {
             messageId,
             userId,
           });
-          quizEvaluations = buildFallbackQuizEvaluations(block, responses);
+          emitCreditExhaustedIfNeeded(socket, error);
+          socket.emit('assistant:error', {
+            message: `No pude evaluar el quiz con el modelo: ${
+              error instanceof Error ? error.message : 'ocurrió un error inesperado.'
+            }`,
+          });
+          return;
         }
 
         const quizResultBlock = buildQuizResultBlock({
@@ -1053,6 +1060,10 @@ export function registerChatSocket(io: Server): void {
           buildQuizResultMessageContent(quizResultBlock),
           {
             blocks: [quizResultBlock],
+            quizSource: {
+              blockIndex,
+              messageId,
+            },
             source: 'quiz_result',
           },
         );
@@ -1634,6 +1645,7 @@ function buildQuizResultBlock(input: {
   block: TutorQuizBlock;
   evaluations: Array<{
     feedback: string;
+    inlineReview?: Record<string, unknown>;
     status: 'correct' | 'incorrect' | 'partial';
   }>;
   responses: Array<Record<string, unknown>>;
@@ -1652,6 +1664,7 @@ function buildQuizResultBlock(input: {
       if (item.kind === 'quiz_open_text') {
         return {
           evaluation,
+          inlineReview: normalizeTextInlineReview(evaluation.inlineReview),
           kind: item.kind,
           prompt: item.prompt,
           userResponse: {
@@ -1669,6 +1682,7 @@ function buildQuizResultBlock(input: {
       ) {
         return {
           evaluation,
+          inlineReview: normalizeTextInlineReview(evaluation.inlineReview),
           kind: item.kind,
           prompt: item.prompt,
           sentence: item.sentence,
@@ -1684,6 +1698,10 @@ function buildQuizResultBlock(input: {
       if (item.kind === 'quiz_fill_in_the_blank_input') {
         return {
           evaluation,
+          inlineReview: normalizeBlankInlineReview(
+            evaluation.inlineReview,
+            item.blanks.length,
+          ),
           kind: item.kind,
           prompt: item.prompt,
           sentence: item.sentence,
@@ -1703,6 +1721,10 @@ function buildQuizResultBlock(input: {
         return {
           kind: item.kind,
           evaluation,
+          inlineReview: normalizeBlankInlineReview(
+            evaluation.inlineReview,
+            item.blanks.length,
+          ),
           prompt: item.prompt,
           sentence: item.sentence,
           blanks: item.blanks.map((blank) => ({
@@ -1723,6 +1745,10 @@ function buildQuizResultBlock(input: {
       if (item.kind === 'quiz_multiple_choice') {
         return {
           evaluation,
+          inlineReview: normalizeMultipleChoiceInlineReview(
+            evaluation.inlineReview,
+            item.options,
+          ),
           kind: item.kind,
           prompt: item.prompt,
           selectionMode: item.selectionMode,
@@ -1738,6 +1764,20 @@ function buildQuizResultBlock(input: {
       if (item.kind === 'quiz_matching_pairs') {
         return {
           evaluation,
+          inlineReview: normalizeMatchingPairsInlineReview(
+            evaluation.inlineReview,
+            Array.isArray(response.pairs)
+              ? response.pairs.filter(
+                  (pair): pair is { left: string; right: string } =>
+                    Boolean(
+                      pair &&
+                        typeof pair === 'object' &&
+                        typeof pair.left === 'string' &&
+                        typeof pair.right === 'string',
+                    ),
+                )
+              : [],
+          ),
           kind: item.kind,
           prompt: item.prompt,
           leftItems: item.leftItems,
@@ -1760,6 +1800,7 @@ function buildQuizResultBlock(input: {
 
       return {
         evaluation,
+        inlineReview: normalizeTextInlineReview(evaluation.inlineReview),
         kind: 'quiz_unscramble_sentence',
         prompt: item.prompt,
         tokens: item.tokens,
@@ -1784,208 +1825,158 @@ function buildQuizResultMessageContent(block: TutorQuizResultBlock): string {
     : 'Resumen del quiz';
 }
 
-function buildFallbackQuizEvaluations(
-  block: TutorQuizBlock,
-  responses: Array<Record<string, unknown>>,
-): Array<{
-  feedback: string;
-  status: 'correct' | 'incorrect' | 'partial';
-}> {
-  return block.items.map((item, index) => {
-    const response = responses[index] ?? {};
+function normalizeTextInlineReview(
+  value: Record<string, unknown> | undefined,
+): { parts: Array<{ explanation?: string; status: 'correct' | 'improve' | 'error'; text: string }> } | undefined {
+  const parts = Array.isArray(value?.parts)
+    ? value.parts
+        .filter(
+          (part): part is { explanation?: string; status: 'correct' | 'improve' | 'error'; text: string } =>
+            Boolean(
+              part &&
+                typeof part === 'object' &&
+                typeof part.text === 'string' &&
+                (part.status === 'correct' || part.status === 'improve' || part.status === 'error'),
+            ),
+        )
+        .map((part) => ({
+          text: part.text.replace(/\s+/g, ' ').trim().slice(0, 2400),
+          status: part.status,
+          explanation:
+            typeof part.explanation === 'string'
+              ? part.explanation.replace(/\s+/g, ' ').trim().slice(0, 800)
+              : undefined,
+        }))
+        .filter((part) => part.text)
+    : [];
 
-    if (item.kind === 'quiz_multiple_choice') {
-      const selected = Array.isArray(response.selectedOptions)
-        ? response.selectedOptions.filter((value): value is string => typeof value === 'string')
-        : [];
-      const correct = new Set(item.correctOptions.map(normalizeQuizComparableText));
-      const chosen = new Set(selected.map(normalizeQuizComparableText));
-      const correctChosenCount = item.correctOptions.filter((option) =>
-        chosen.has(normalizeQuizComparableText(option)),
-      ).length;
-      const exact =
-        chosen.size === correct.size &&
-        [...correct].every((value) => chosen.has(value));
-
-      if (exact) {
-        return {
-          feedback: 'Seleccionaste la opción correcta.',
-          status: 'correct',
-        };
-      }
-
-      if (correctChosenCount > 0) {
-        return {
-          feedback: 'Tu selección va por buen camino, pero todavía le falta precisión.',
-          status: 'partial',
-        };
-      }
-
-      return {
-        feedback: 'La selección no coincide con la respuesta esperada.',
-        status: 'incorrect',
-      };
-    }
-
-    if (item.kind === 'quiz_matching_pairs') {
-      const pairs = Array.isArray(response.pairs)
-        ? response.pairs.filter(
-            (pair): pair is { left: string; right: string } =>
-              Boolean(
-                pair &&
-                  typeof pair === 'object' &&
-                  typeof pair.left === 'string' &&
-                  typeof pair.right === 'string',
-              ),
-          )
-        : [];
-      const correctPairs = new Set(
-        item.correctPairs.map(
-          (pair) =>
-            `${normalizeQuizComparableText(pair.left)}::${normalizeQuizComparableText(pair.right)}`,
-        ),
-      );
-      const matchedCount = pairs.filter((pair) =>
-        correctPairs.has(
-          `${normalizeQuizComparableText(pair.left)}::${normalizeQuizComparableText(pair.right)}`,
-        ),
-      ).length;
-
-      if (matchedCount === item.correctPairs.length && item.correctPairs.length > 0) {
-        return {
-          feedback: 'Emparejaste correctamente todos los elementos.',
-          status: 'correct',
-        };
-      }
-
-      if (matchedCount > 0) {
-        return {
-          feedback: 'Acertaste algunas parejas, pero todavía había combinaciones incorrectas.',
-          status: 'partial',
-        };
-      }
-
-      return {
-        feedback: 'Las parejas no coinciden con las relaciones esperadas.',
-        status: 'incorrect',
-      };
-    }
-
-    if (
-      item.kind === 'quiz_fill_in_the_blank_input' ||
-      item.kind === 'quiz_fill_in_the_blank_choice'
-    ) {
-      const values = Array.isArray(response.values)
-        ? response.values.filter((value): value is string => typeof value === 'string')
-        : [];
-      const validCount = item.blanks.reduce((count, blank, blankIndex) => {
-        const normalizedValue = normalizeQuizComparableText(values[blankIndex] ?? '');
-        if (!normalizedValue) {
-          return count;
-        }
-
-        const answers =
-          blank.acceptableAnswers?.map(normalizeQuizComparableText).filter(Boolean) ?? [];
-        return answers.includes(normalizedValue) ? count + 1 : count;
-      }, 0);
-
-      if (validCount === item.blanks.length && item.blanks.length > 0) {
-        return {
-          feedback: 'Completaste bien todos los espacios.',
-          status: 'correct',
-        };
-      }
-
-      if (validCount > 0) {
-        return {
-          feedback: 'Algunos espacios están bien, pero otros necesitan ajuste.',
-          status: 'partial',
-        };
-      }
-
-      return {
-        feedback: 'Las palabras elegidas no completan bien la oración.',
-        status: 'incorrect',
-      };
-    }
-
-    if (item.kind === 'quiz_unscramble_sentence') {
-      const sentence =
-        typeof response.sentence === 'string'
-          ? normalizeQuizComparableText(response.sentence)
-          : '';
-      const answers =
-        item.acceptableAnswers?.map(normalizeQuizComparableText).filter(Boolean) ?? [];
-
-      if (sentence && answers.includes(sentence)) {
-        return {
-          feedback: 'Ordenaste correctamente la oración.',
-          status: 'correct',
-        };
-      }
-
-      if (sentence) {
-        return {
-          feedback: 'La oración todavía no quedó en el orden esperado.',
-          status: 'incorrect',
-        };
-      }
-
-      return {
-        feedback: 'No llegaste a formar una respuesta completa.',
-        status: 'incorrect',
-      };
-    }
-
-    if (
-      item.kind === 'quiz_translate_to_english' ||
-      item.kind === 'quiz_understand_in_spanish'
-    ) {
-      const text =
-        typeof response.text === 'string'
-          ? normalizeQuizComparableText(response.text)
-          : '';
-      const answers =
-        item.acceptableAnswers?.map(normalizeQuizComparableText).filter(Boolean) ?? [];
-
-      if (text && answers.length > 0 && answers.includes(text)) {
-        return {
-          feedback: 'La respuesta transmite correctamente la idea esperada.',
-          status: 'correct',
-        };
-      }
-
-      if (text) {
-        return {
-          feedback: 'Tu respuesta muestra intención, pero conviene revisarla con más detalle.',
-          status: answers.length > 0 ? 'incorrect' : 'partial',
-        };
-      }
-
-      return {
-        feedback: 'No respondiste esta consigna.',
-        status: 'incorrect',
-      };
-    }
-
-    const text =
-      typeof response.text === 'string'
-        ? normalizeQuizComparableText(response.text)
-        : '';
-    return text
-      ? {
-          feedback: 'Tu respuesta se registró y la revisaremos con más detalle en la práctica.',
-          status: 'partial',
-        }
-      : {
-          feedback: 'No respondiste esta pregunta.',
-          status: 'incorrect',
-        };
-  });
+  return parts.length > 0 ? { parts } : undefined;
 }
 
-function normalizeQuizComparableText(value: string): string {
-  return value.replace(/\s+/g, ' ').trim().toLowerCase();
+function normalizeBlankInlineReview(
+  value: Record<string, unknown> | undefined,
+  expectedLength: number,
+): { blanks: Array<{ explanation?: string; status: 'correct' | 'improve' | 'error' }> } | undefined {
+  const blanks = Array.isArray(value?.blanks)
+    ? value.blanks
+        .slice(0, expectedLength)
+        .filter(
+          (blank): blank is { explanation?: string; status: 'correct' | 'improve' | 'error' } =>
+            Boolean(
+              blank &&
+                typeof blank === 'object' &&
+                (blank.status === 'correct' || blank.status === 'improve' || blank.status === 'error'),
+            ),
+        )
+        .map((blank) => ({
+          status: blank.status,
+          explanation:
+            typeof blank.explanation === 'string'
+              ? blank.explanation.replace(/\s+/g, ' ').trim().slice(0, 800)
+              : undefined,
+        }))
+    : [];
+
+  return blanks.length > 0 ? { blanks } : undefined;
+}
+
+function normalizeMultipleChoiceInlineReview(
+  value: Record<string, unknown> | undefined,
+  options: string[],
+): {
+  options: Array<{
+    explanation?: string;
+    selectedByUser: boolean;
+    status: 'correct' | 'neutral' | 'missed' | 'error';
+    text: string;
+  }>;
+} | undefined {
+  const reviews = Array.isArray(value?.options)
+    ? value.options
+        .filter(
+          (
+            option,
+          ): option is {
+            explanation?: string;
+            selectedByUser: boolean;
+            status: 'correct' | 'neutral' | 'missed' | 'error';
+            text: string;
+          } =>
+            Boolean(
+              option &&
+                typeof option === 'object' &&
+                typeof option.text === 'string' &&
+                typeof option.selectedByUser === 'boolean' &&
+                (
+                  option.status === 'correct' ||
+                  option.status === 'neutral' ||
+                  option.status === 'missed' ||
+                  option.status === 'error'
+                ),
+            ),
+        )
+        .map((option) => ({
+          text: option.text.replace(/\s+/g, ' ').trim().slice(0, 400),
+          selectedByUser: option.selectedByUser,
+          status: option.status,
+          explanation:
+            typeof option.explanation === 'string'
+              ? option.explanation.replace(/\s+/g, ' ').trim().slice(0, 800)
+              : undefined,
+        }))
+        .filter((option) => options.includes(option.text))
+    : [];
+
+  return reviews.length > 0 ? { options: reviews } : undefined;
+}
+
+function normalizeMatchingPairsInlineReview(
+  value: Record<string, unknown> | undefined,
+  userPairs: Array<{ left: string; right: string }>,
+): {
+  pairs: Array<{
+    explanation?: string;
+    left: string;
+    right: string;
+    status: 'correct' | 'error';
+  }>;
+} | undefined {
+  const reviews = Array.isArray(value?.pairs)
+    ? value.pairs
+        .filter(
+          (
+            pair,
+          ): pair is {
+            explanation?: string;
+            left: string;
+            right: string;
+            status: 'correct' | 'error';
+          } =>
+            Boolean(
+              pair &&
+                typeof pair === 'object' &&
+                typeof pair.left === 'string' &&
+                typeof pair.right === 'string' &&
+                (pair.status === 'correct' || pair.status === 'error'),
+            ),
+        )
+        .map((pair) => ({
+          left: pair.left.replace(/\s+/g, ' ').trim().slice(0, 600),
+          right: pair.right.replace(/\s+/g, ' ').trim().slice(0, 600),
+          status: pair.status,
+          explanation:
+            typeof pair.explanation === 'string'
+              ? pair.explanation.replace(/\s+/g, ' ').trim().slice(0, 800)
+              : undefined,
+        }))
+        .filter((pair) =>
+          userPairs.some(
+            (userPair) => userPair.left === pair.left && userPair.right === pair.right,
+          ),
+        )
+    : [];
+
+  return reviews.length > 0 ? { pairs: reviews } : undefined;
 }
 
 function normalizeIncorrectAttempts(

@@ -200,6 +200,9 @@ export type TutorQuizResultItemOpenText = {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
   };
+  inlineReview?: {
+    parts: TutorSentenceEvaluationBlock['parts'];
+  };
   userResponse: {
     text: string;
   };
@@ -212,6 +215,9 @@ export type TutorQuizResultItemTranslateToEnglish = {
   evaluation: {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
+  };
+  inlineReview?: {
+    parts: TutorSentenceEvaluationBlock['parts'];
   };
   userResponse: {
     text: string;
@@ -226,6 +232,9 @@ export type TutorQuizResultItemUnderstandInSpanish = {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
   };
+  inlineReview?: {
+    parts: TutorSentenceEvaluationBlock['parts'];
+  };
   userResponse: {
     text: string;
   };
@@ -238,6 +247,12 @@ export type TutorQuizResultItemFillInTheBlankInput = {
   evaluation: {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
+  };
+  inlineReview?: {
+    blanks: Array<{
+      explanation?: string;
+      status: 'correct' | 'improve' | 'error';
+    }>;
   };
   userResponse: {
     completedSentence?: string;
@@ -256,6 +271,12 @@ export type TutorQuizResultItemFillInTheBlankChoice = {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
   };
+  inlineReview?: {
+    blanks: Array<{
+      explanation?: string;
+      status: 'correct' | 'improve' | 'error';
+    }>;
+  };
   userResponse: {
     completedSentence?: string;
     values: string[];
@@ -271,6 +292,14 @@ export type TutorQuizResultItemMultipleChoice = {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
   };
+  inlineReview?: {
+    options: Array<{
+      explanation?: string;
+      selectedByUser: boolean;
+      status: 'correct' | 'neutral' | 'missed' | 'error';
+      text: string;
+    }>;
+  };
   userResponse: {
     selectedOptions: string[];
   };
@@ -284,6 +313,14 @@ export type TutorQuizResultItemMatchingPairs = {
   evaluation: {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
+  };
+  inlineReview?: {
+    pairs: Array<{
+      explanation?: string;
+      left: string;
+      right: string;
+      status: 'correct' | 'error';
+    }>;
   };
   userResponse: {
     pairs: Array<{
@@ -300,6 +337,9 @@ export type TutorQuizResultItemUnscrambleSentence = {
   evaluation: {
     feedback: string;
     status: 'correct' | 'incorrect' | 'partial';
+  };
+  inlineReview?: {
+    parts: TutorSentenceEvaluationBlock['parts'];
   };
   userResponse: {
     selectedTokens: string[];

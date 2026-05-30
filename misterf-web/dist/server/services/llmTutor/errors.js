@@ -14,4 +14,26 @@ export class LlmFinishReasonError extends Error {
         this.name = 'LlmFinishReasonError';
     }
 }
+export class TutorResponseValidationError extends Error {
+    issues;
+    generatedText;
+    constructor(input) {
+        super(input.message ??
+            'El modelo no devolvió una respuesta estructurada válida. Intenta de nuevo en unos segundos.');
+        this.name = 'TutorResponseValidationError';
+        this.issues = input.issues;
+        this.generatedText = input.generatedText?.trim() || null;
+    }
+}
+export class QuizResultEvaluationValidationError extends Error {
+    issues;
+    generatedText;
+    constructor(input) {
+        super(input.message ??
+            'El evaluador del quiz no devolvió una respuesta válida.');
+        this.name = 'QuizResultEvaluationValidationError';
+        this.issues = input.issues;
+        this.generatedText = input.generatedText?.trim() || null;
+    }
+}
 //# sourceMappingURL=errors.js.map

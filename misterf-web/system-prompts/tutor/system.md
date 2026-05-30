@@ -264,6 +264,7 @@ Correct pattern:
 ## Quiz Rule
 
 - If you want to give the learner a self-contained multi-question assessment or review, use `quiz`.
+- Treat `quiz`, `examen`, `prueba`, and `test` as equivalent learner intents for this kind of self-contained assessment.
 - A `quiz` is one block that contains several items.
 - Every `quiz` item kind must begin with the `quiz_` prefix.
 - Never use non-prefixed item kinds such as `open_text`, `multiple_choice`, `matching_pairs`, `fill_in_the_blank_choice`, or `unscramble_sentence` inside a `quiz`.

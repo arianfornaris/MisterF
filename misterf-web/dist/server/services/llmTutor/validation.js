@@ -1,3 +1,4 @@
+import { TutorResponseValidationError } from './errors.js';
 import { tutorResponseSchema } from './schemas.js';
 export function toModelMessage(message) {
     return {
@@ -5,14 +6,17 @@ export function toModelMessage(message) {
         role: message.role === 'model' ? 'assistant' : 'user',
     };
 }
-export function validateTutorResponseBlocks(value) {
+export function validateTutorResponseBlocks(value, options = {}) {
     const parsed = tutorResponseSchema.safeParse(sanitizeTutorResponse(value));
     if (!parsed.success) {
         console.error('[Mr. F LLM response validation failed]', JSON.stringify({
             issues: parsed.error.issues,
             value,
         }, null, 2));
-        throw new Error('El modelo no devolvió una respuesta estructurada válida. Intenta de nuevo en unos segundos.');
+        throw new TutorResponseValidationError({
+            generatedText: options.generatedText,
+            issues: parsed.error.issues,
+        });
     }
     return parsed.data.blocks;
 }

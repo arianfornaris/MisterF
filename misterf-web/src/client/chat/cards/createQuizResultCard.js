@@ -124,11 +124,13 @@ function renderQuizResultCard(section, state) {
     markers.append(button);
   });
 
+  cleanupInlinePopovers(slideHost);
   slideHost.replaceChildren();
   const currentItem = state.items[state.currentIndex];
   const slide = createQuizResultSlide(currentItem, state.currentIndex);
   if (slide) {
     slideHost.append(slide);
+    initializeInlinePopovers(slideHost);
   }
 }
 
@@ -193,7 +195,12 @@ function createQuizResultOpenText(item) {
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
   wrap.append(createResponseLabel('Tu respuesta'));
-  wrap.append(createAnswerTextBlock(item.userResponse?.text || 'No respondió.'));
+  wrap.append(
+    createQuizResultPartsReview(
+      item.inlineReview?.parts,
+      item.userResponse?.text || 'No respondió.',
+    ),
+  );
   return wrap;
 }
 
@@ -209,7 +216,12 @@ function createQuizResultTranslationLike(item) {
 
   wrap.append(sentence);
   wrap.append(createResponseLabel('Tu respuesta'));
-  wrap.append(createAnswerTextBlock(item.userResponse?.text || 'No respondió.'));
+  wrap.append(
+    createQuizResultPartsReview(
+      item.inlineReview?.parts,
+      item.userResponse?.text || 'No respondió.',
+    ),
+  );
   return wrap;
 }
 
@@ -233,6 +245,7 @@ function createQuizResultFillSentence(item, placeholderToken) {
   const sentence = document.createElement('p');
   sentence.className = 'quiz-result-fill-sentence';
   const values = Array.isArray(item.userResponse?.values) ? item.userResponse.values : [];
+  const blankReviews = Array.isArray(item.inlineReview?.blanks) ? item.inlineReview.blanks : [];
 
   for (let index = 0; index < segments.length; index += 1) {
     if (segments[index]) {
@@ -243,10 +256,12 @@ function createQuizResultFillSentence(item, placeholderToken) {
     }
 
     if (index < segments.length - 1) {
-      const value = document.createElement('span');
-      value.className = 'quiz-result-fill-value';
-      value.textContent = (values[index] || '').trim() || '_____';
-      sentence.append(value);
+      sentence.append(
+        createFillBlankInlineNode(
+          (values[index] || '').trim() || '_____',
+          blankReviews[index],
+        ),
+      );
     }
   }
 
@@ -264,25 +279,17 @@ function createQuizResultMultipleChoice(item) {
 
   const options = document.createElement('div');
   options.className = 'quiz-result-option-list';
-  const selectedOptions = new Set(
-    Array.isArray(item.userResponse?.selectedOptions) ? item.userResponse.selectedOptions : [],
-  );
+  const selectedOptions = new Set(Array.isArray(item.userResponse?.selectedOptions) ? item.userResponse.selectedOptions : []);
+  const reviewedOptions = Array.isArray(item.inlineReview?.options) && item.inlineReview.options.length > 0
+    ? item.inlineReview.options
+    : (Array.isArray(item.options) ? item.options : []).map((optionText) => ({
+        text: optionText,
+        selectedByUser: selectedOptions.has(optionText),
+        status: selectedOptions.has(optionText) ? 'neutral' : 'neutral',
+      }));
 
-  for (const optionText of Array.isArray(item.options) ? item.options : []) {
-    const row = document.createElement('div');
-    row.className = 'quiz-result-option';
-    if (selectedOptions.has(optionText)) {
-      row.classList.add('is-selected');
-    }
-
-    const icon = document.createElement('i');
-    icon.className = `bi ${selectedOptions.has(optionText) ? 'bi-check-circle-fill' : 'bi-circle'}`;
-    icon.setAttribute('aria-hidden', 'true');
-
-    const text = document.createElement('span');
-    text.textContent = optionText;
-
-    row.append(icon, text);
+  for (const optionReview of reviewedOptions) {
+    const row = createMultipleChoiceReviewNode(optionReview);
     options.append(row);
   }
 
@@ -298,27 +305,18 @@ function createQuizResultMatchingPairs(item) {
   const pairs = document.createElement('div');
   pairs.className = 'quiz-result-pairs';
   const userPairs = Array.isArray(item.userResponse?.pairs) ? item.userResponse.pairs : [];
+  const reviewedPairs = Array.isArray(item.inlineReview?.pairs) && item.inlineReview.pairs.length > 0
+    ? item.inlineReview.pairs
+    : userPairs.map((pair) => ({
+        ...pair,
+        status: 'correct',
+      }));
 
-  if (!userPairs.length) {
+  if (!reviewedPairs.length) {
     pairs.append(createMutedAnswer('No respondió.'));
   } else {
-    for (const pair of userPairs) {
-      const row = document.createElement('div');
-      row.className = 'quiz-result-pair-row';
-
-      const left = document.createElement('span');
-      left.className = 'quiz-result-pair-side';
-      left.textContent = pair.left;
-
-      const arrow = document.createElement('span');
-      arrow.className = 'quiz-result-pair-arrow';
-      arrow.textContent = '→';
-
-      const right = document.createElement('span');
-      right.className = 'quiz-result-pair-side';
-      right.textContent = pair.right;
-
-      row.append(left, arrow, right);
+    for (const pair of reviewedPairs) {
+      const row = createMatchingPairReviewNode(pair);
       pairs.append(row);
     }
   }
@@ -337,9 +335,12 @@ function createQuizResultUnscramble(item) {
   const finalSentence = typeof item.userResponse?.sentence === 'string'
     ? item.userResponse.sentence.replace(/\s+/g, ' ').trim()
     : '';
-  sentence.textContent = finalSentence || 'No respondió.';
-
-  wrap.append(sentence);
+  wrap.append(
+    createQuizResultPartsReview(
+      item.inlineReview?.parts,
+      finalSentence || 'No respondió.',
+    ),
+  );
   return wrap;
 }
 
@@ -362,6 +363,238 @@ function createMutedAnswer(text) {
   answer.className = 'quiz-result-empty-answer';
   answer.textContent = text;
   return answer;
+}
+
+function createQuizResultPartsReview(partsInput, fallbackText) {
+  const parts = Array.isArray(partsInput)
+    ? partsInput.filter(
+        (part) =>
+          part &&
+          typeof part === 'object' &&
+          typeof part.text === 'string' &&
+          (part.status === 'correct' || part.status === 'improve' || part.status === 'error'),
+      )
+    : [];
+
+  if (!parts.length) {
+    return createAnswerTextBlock(fallbackText);
+  }
+
+  const paragraph = document.createElement('p');
+  paragraph.className = 'sentence-parts quiz-result-parts';
+
+  parts.forEach((part, index) => {
+    paragraph.append(
+      createInlineStatusNode(part.text, part.status, part.explanation),
+    );
+    if (index < parts.length - 1) {
+      paragraph.append(document.createTextNode(' '));
+    }
+  });
+
+  return paragraph;
+}
+
+function createFillBlankInlineNode(text, review) {
+  const normalizedStatus =
+    review?.status === 'error' || review?.status === 'improve' || review?.status === 'correct'
+      ? review.status
+      : 'correct';
+
+  const node = createInlineStatusNode(text, normalizedStatus, review?.explanation, 'quiz-result-fill-value');
+  return node;
+}
+
+function createMultipleChoiceReviewNode(optionReview) {
+  const hasExplanation = typeof optionReview.explanation === 'string' && optionReview.explanation.trim();
+  const interactive = optionReview.status === 'error' || optionReview.status === 'missed' || Boolean(hasExplanation);
+  const row = interactive ? document.createElement('button') : document.createElement('div');
+  row.className = `quiz-result-option is-${optionReview.status}`;
+
+  if (row instanceof HTMLButtonElement) {
+    row.type = 'button';
+    attachPopoverMetadata(
+      row,
+      optionReview.status === 'missed' ? 'Puede mejorar' : 'Error',
+      optionReview.explanation || (optionReview.status === 'missed'
+        ? 'Faltó tener en cuenta esta opción.'
+        : 'Esta opción necesita revisión.'),
+      optionReview.status === 'missed' ? 'improve' : 'error',
+    );
+  }
+
+  const icon = document.createElement('i');
+  icon.className = `bi ${resolveMultipleChoiceIcon(optionReview)}`;
+  icon.setAttribute('aria-hidden', 'true');
+
+  const text = document.createElement('span');
+  text.textContent = optionReview.text;
+
+  row.append(icon, text);
+  return row;
+}
+
+function createMatchingPairReviewNode(pairReview) {
+  const interactive = pairReview.status === 'error' || (typeof pairReview.explanation === 'string' && pairReview.explanation.trim());
+  const row = interactive ? document.createElement('button') : document.createElement('div');
+  row.className = `quiz-result-pair-row is-${pairReview.status}`;
+
+  if (row instanceof HTMLButtonElement) {
+    row.type = 'button';
+    attachPopoverMetadata(
+      row,
+      'Error',
+      pairReview.explanation || 'Esta pareja necesita revisión.',
+      'error',
+    );
+  }
+
+  const left = document.createElement('span');
+  left.className = 'quiz-result-pair-side';
+  left.textContent = pairReview.left;
+
+  const arrow = document.createElement('span');
+  arrow.className = 'quiz-result-pair-arrow';
+  arrow.textContent = '→';
+
+  const right = document.createElement('span');
+  right.className = 'quiz-result-pair-side';
+  right.textContent = pairReview.right;
+
+  row.append(left, arrow, right);
+  return row;
+}
+
+function createInlineStatusNode(text, status, explanation, extraClassName = '') {
+  const interactive = (status === 'error' || status === 'improve') && typeof explanation === 'string' && explanation.trim();
+  const node = interactive ? document.createElement('button') : document.createElement('span');
+  node.className = ['sentence-part', `is-${status}`, extraClassName].filter(Boolean).join(' ');
+  node.textContent = text;
+
+  if (node instanceof HTMLButtonElement) {
+    node.type = 'button';
+    attachPopoverMetadata(
+      node,
+      status === 'error' ? 'Error' : 'Puede mejorar',
+      explanation,
+      status,
+    );
+  }
+
+  return node;
+}
+
+function attachPopoverMetadata(node, title, content, status) {
+  node.dataset.bsToggle = 'popover';
+  node.dataset.bsTrigger = 'manual';
+  node.dataset.bsPlacement = 'top';
+  node.dataset.bsContainer = 'body';
+  node.dataset.bsCustomClass = `sentence-popover sentence-popover-${status === 'error' ? 'error' : 'improve'}`;
+  node.dataset.bsTitle = title;
+  node.dataset.bsContent = content;
+  node.setAttribute('aria-label', `${node.textContent || ''}: ${content}`);
+}
+
+function resolveMultipleChoiceIcon(optionReview) {
+  if (optionReview.status === 'correct' && optionReview.selectedByUser) {
+    return 'bi-check-circle-fill';
+  }
+
+  if (optionReview.status === 'error') {
+    return 'bi-x-circle-fill';
+  }
+
+  if (optionReview.status === 'missed') {
+    return 'bi-exclamation-circle-fill';
+  }
+
+  if (optionReview.selectedByUser) {
+    return 'bi-dot';
+  }
+
+  return 'bi-circle';
+}
+
+function initializeInlinePopovers(root) {
+  if (!window.bootstrap?.Popover || !(root instanceof Element)) {
+    return;
+  }
+
+  const hideAllPopovers = (except = null) => {
+    for (const node of document.querySelectorAll('[data-bs-toggle="popover"]')) {
+      if (node === except) {
+        continue;
+      }
+
+      window.bootstrap.Popover.getOrCreateInstance(node).hide();
+    }
+  };
+
+  if (!document.body.dataset.quizResultPopoverDismissBound) {
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) {
+        return;
+      }
+
+      const trigger = target instanceof Element
+        ? target.closest('[data-bs-toggle="popover"]')
+        : null;
+      const insidePopover = target instanceof Element
+        ? target.closest('.popover')
+        : null;
+
+      if (trigger || insidePopover) {
+        return;
+      }
+
+      hideAllPopovers();
+    });
+    document.body.dataset.quizResultPopoverDismissBound = 'true';
+  }
+
+  for (const node of root.querySelectorAll('[data-bs-toggle="popover"]')) {
+    const popover = window.bootstrap.Popover.getOrCreateInstance(node);
+    if (node.dataset.quizResultPopoverBound === 'true') {
+      continue;
+    }
+
+    node.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const isOpen = Boolean(node.getAttribute('aria-describedby'));
+      hideAllPopovers(isOpen ? null : node);
+      if (isOpen) {
+        popover.hide();
+        return;
+      }
+
+      popover.show();
+    });
+
+    node.dataset.quizResultPopoverBound = 'true';
+  }
+}
+
+function cleanupInlinePopovers(root) {
+  if (!(root instanceof Element) || !window.bootstrap?.Popover) {
+    return;
+  }
+
+  for (const node of root.querySelectorAll('[data-bs-toggle="popover"]')) {
+    const instance = window.bootstrap.Popover.getInstance(node);
+    const describedBy = node.getAttribute('aria-describedby');
+
+    if (instance) {
+      instance.dispose();
+    }
+
+    if (describedBy) {
+      document.getElementById(describedBy)?.remove();
+      node.removeAttribute('aria-describedby');
+    }
+  }
 }
 
 function createEvaluationBadge(status) {

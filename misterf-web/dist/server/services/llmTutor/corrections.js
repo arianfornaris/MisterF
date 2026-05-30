@@ -1,5 +1,6 @@
 import { logJson } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
+import { TutorResponseValidationError } from './errors.js';
 export function appendStructuredCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();
     if (invalidOutput) {
@@ -23,7 +24,7 @@ export function appendStructuredCorrectionRequest(messages, input) {
 }
 export function buildStructuredValidationReason(error) {
     const baseReason = 'The JSON object was parsed, but it does not satisfy the TutorResponse contract.';
-    const detail = error instanceof Error ? error.message.trim() : 'Unknown validation error.';
+    const detail = buildStructuredValidationDetail(error);
     return [baseReason, detail].join('\n');
 }
 export function isCorrectableLlmOutputError(error) {
@@ -36,6 +37,9 @@ export function isCorrectableLlmOutputError(error) {
         text.includes('schema'));
 }
 export function extractGeneratedTextFromError(error) {
+    if (error instanceof TutorResponseValidationError) {
+        return error.generatedText;
+    }
     if (!error || typeof error !== 'object') {
         return null;
     }
@@ -46,6 +50,14 @@ export function extractGeneratedTextFromError(error) {
     return extractGeneratedTextFromError(record.cause);
 }
 function serializeLlmError(error) {
+    if (error instanceof TutorResponseValidationError) {
+        return {
+            generatedText: error.generatedText?.slice(0, 6000),
+            issues: error.issues,
+            message: error.message,
+            name: error.name,
+        };
+    }
     if (error instanceof Error) {
         return {
             cause: serializeLlmError(error.cause),
@@ -62,5 +74,20 @@ function serializeLlmError(error) {
         };
     }
     return error;
+}
+function buildStructuredValidationDetail(error) {
+    if (error instanceof TutorResponseValidationError) {
+        if (error.issues.length === 0) {
+            return error.message.trim();
+        }
+        return [
+            'Fix the invalid parts and re-emit the full TutorResponse JSON.',
+            ...error.issues.map((issue, index) => {
+                const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+                return `${index + 1}. path=${path} :: ${issue.message}`;
+            }),
+        ].join('\n');
+    }
+    return error instanceof Error ? error.message.trim() : 'Unknown validation error.';
 }
 //# sourceMappingURL=corrections.js.map

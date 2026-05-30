@@ -1,7 +1,7 @@
 import { generateText, stepCountIs, } from 'ai';
 import { env } from '../../config/env.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
-import { LlmFinishReasonError } from './errors.js';
+import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './errors.js';
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
@@ -12,6 +12,7 @@ import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
 const maxAgentTurns = 6;
+const maxQuizEvaluationCorrectionAttempts = 3;
 function mergeTutorPracticeModuleLinkBlocks(blocks, inferredLinks) {
     const seenPracticeModuleIds = new Set(blocks
         .filter((block) => block.type === 'practice_module_link')
@@ -180,14 +181,18 @@ export async function runTutorAgentLoop(history, options) {
             else {
                 try {
                     parsedObject = parseJsonFromModelText(result.text);
-                    finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject), extractInferredPracticeModuleLinkBlocks(toolResults));
+                    finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                        generatedText: result.text,
+                    }), extractInferredPracticeModuleLinkBlocks(toolResults));
                 }
                 catch (error) {
                     const embeddedJson = extractEmbeddedTutorResponseJson(result.text);
                     if (embeddedJson) {
                         try {
                             parsedObject = parseJsonFromModelText(embeddedJson);
-                            finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject), extractInferredPracticeModuleLinkBlocks(toolResults));
+                            finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                                generatedText: embeddedJson,
+                            }), extractInferredPracticeModuleLinkBlocks(toolResults));
                         }
                         catch (embeddedError) {
                             logLlmInvalidRawResponse({
@@ -213,7 +218,9 @@ export async function runTutorAgentLoop(history, options) {
                         });
                         try {
                             parsedObject = parseJsonFromModelText(effectiveResult.text);
-                            finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject), extractInferredPracticeModuleLinkBlocks(toolResults));
+                            finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                                generatedText: effectiveResult.text,
+                            }), extractInferredPracticeModuleLinkBlocks(toolResults));
                         }
                         catch (continuationError) {
                             logLlmInvalidRawResponse({
@@ -323,35 +330,103 @@ export async function translateTextWithLlm(input) {
     };
 }
 export async function evaluateQuizResultItemsWithLlm(input) {
-    const result = await generateText({
-        maxOutputTokens: 1600,
-        messages: [
-            {
-                content: JSON.stringify({
-                    quiz: input.quiz,
-                    responses: input.responses,
-                }, null, 2),
-                role: 'user',
-            },
-        ],
-        model: getLanguageModel(input.llm),
-        providerOptions: getProviderOptions(),
-        system: renderSystemPrompt('tutor/quiz-result-evaluation.md'),
-        temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
+    const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
+    const messages = [
+        {
+            content: JSON.stringify({
+                quiz: input.quiz,
+                responses: input.responses,
+            }, null, 2),
+            role: 'user',
+        },
+    ];
+    let lastError = null;
+    for (let attempt = 0; attempt < maxQuizEvaluationCorrectionAttempts; attempt += 1) {
+        const result = await generateText({
+            maxOutputTokens: 1600,
+            messages,
+            model: getLanguageModel(input.llm),
+            providerOptions: getProviderOptions(),
+            system,
+            temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
+        });
+        try {
+            const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, undefined, result.providerMetadata);
+            if (userFacingFinishMessage) {
+                throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
+            }
+            const parsed = quizResultEvaluationsSchema.safeParse(parseJsonFromModelText(result.text));
+            if (!parsed.success) {
+                console.error('[Mr. F quiz result evaluation failed]', JSON.stringify({
+                    issues: parsed.error.issues,
+                    value: result.text,
+                }, null, 2));
+                throw new QuizResultEvaluationValidationError({
+                    generatedText: result.text,
+                    issues: parsed.error.issues,
+                });
+            }
+            return parsed.data.items;
+        }
+        catch (error) {
+            lastError = error;
+            if (attempt >= maxQuizEvaluationCorrectionAttempts - 1) {
+                throw error;
+            }
+            appendQuizResultEvaluationCorrectionRequest(messages, {
+                error,
+                invalidOutput: result.text,
+            });
+        }
+    }
+    throw lastError instanceof Error
+        ? lastError
+        : new Error('El evaluador del quiz no devolvió una respuesta válida.');
+}
+function appendQuizResultEvaluationCorrectionRequest(messages, input) {
+    const invalidOutput = input.invalidOutput?.trim();
+    if (invalidOutput) {
+        messages.push({
+            content: invalidOutput.slice(0, 6000),
+            role: 'assistant',
+        });
+    }
+    messages.push({
+        content: renderSystemPrompt('tutor/quiz-result-evaluation-correction.md', {
+            CORRECTION_REASON: buildQuizResultEvaluationCorrectionReason(input.error),
+        }),
+        role: 'user',
     });
-    const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, undefined, result.providerMetadata);
-    if (userFacingFinishMessage) {
-        throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
+}
+function buildQuizResultEvaluationCorrectionReason(error) {
+    if (error instanceof QuizResultEvaluationValidationError) {
+        if (error.issues.length === 0) {
+            return 'Your previous quiz evaluation JSON did not satisfy the required schema.';
+        }
+        return [
+            'Your previous quiz evaluation JSON did not satisfy the required schema.',
+            'Fix the invalid parts below and re-emit the full JSON object.',
+            ...error.issues.map((issue, index) => {
+                const path = issue.path.length > 0 ? issue.path.join('.') : '(root)';
+                return `${index + 1}. path=${path} :: ${issue.message}`;
+            }),
+        ].join('\n');
     }
-    const parsed = quizResultEvaluationsSchema.safeParse(parseJsonFromModelText(result.text));
-    if (!parsed.success) {
-        console.error('[Mr. F quiz result evaluation failed]', JSON.stringify({
-            issues: parsed.error.issues,
-            value: result.text,
-        }, null, 2));
-        throw new Error('El evaluador del quiz no devolvió una respuesta válida.');
+    if (error instanceof LlmFinishReasonError) {
+        return [
+            'Your previous quiz evaluation response could not be accepted.',
+            error.message,
+            'Re-emit the same evaluation more concisely so it fits, but keep the required structure and required explanations.',
+        ].join('\n');
     }
-    return parsed.data.items;
+    if (error instanceof Error) {
+        return [
+            'Your previous quiz evaluation response could not be accepted.',
+            error.message.trim(),
+            'Re-emit the full JSON object in the required shape.',
+        ].join('\n');
+    }
+    return 'Your previous quiz evaluation response could not be accepted. Re-emit the full JSON object in the required shape.';
 }
 export * from './types.js';
 export * from './errors.js';
