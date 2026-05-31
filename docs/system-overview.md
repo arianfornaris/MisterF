@@ -1,0 +1,152 @@
+# System Overview
+
+## Purpose
+
+Mister F is a web application for guided English practice. It combines:
+
+- a one-on-one tutor chat experience
+- reusable practice modules
+- multi-character chat rooms
+- post-conversation analysis and practice generation
+- profile-scoped personalization, including model selection
+
+The system is designed around structured LLM output rather than free-form text rendering alone. The tutor can emit UI blocks such as:
+
+- message
+- sentence evaluation
+- fill-in-the-blank exercises
+- multiple choice
+- matching pairs
+- unscramble sentence
+- quiz
+- quiz result
+- practice module link
+
+This lets the client render dedicated interactive components instead of treating every assistant response as plain markdown.
+
+## Main Product Areas
+
+### Tutor Chat
+
+The tutor chat is the main conversational surface for Mr. F.
+
+Key characteristics:
+
+- real-time delivery through Socket.IO
+- structured model responses validated on the server
+- optional practice module context
+- optional chat room report context
+- interactive exercises embedded in the message stream
+
+### Practice Modules
+
+Practice modules are reusable tutoring configurations.
+
+They contain:
+
+- title
+- description
+- tutor instructions
+- profile ownership and sharing metadata
+- optional collection membership
+
+Practice modules can be:
+
+- created manually
+- AI-generated from a short prompt
+- generated from a chat room report
+- launched into tutor conversations
+
+### Practice Module Collections
+
+Collections group practice modules into a named set.
+
+Collections support:
+
+- favorites
+- sharing
+- archival
+- ordering of contained practice modules
+
+### Chat Rooms
+
+Chat rooms model guided multi-character conversation scenarios.
+
+A room contains:
+
+- title
+- description
+- ordered characters with short and full descriptions
+
+Users can:
+
+- create rooms manually
+- generate room drafts with AI
+- join a room
+- create chat room conversations
+- evaluate a completed conversation
+- generate a practice module from the resulting report
+
+### Profiles
+
+Profiles let one authenticated user maintain separate learning personas or contexts.
+
+A profile currently influences:
+
+- visible resources
+- active tutor context
+- preferred model tier
+
+### Settings
+
+Settings currently expose profile-level tutor preferences, starting with model tier selection.
+
+The active profile is the source of truth for model tier selection used by the tutor runtime.
+
+## Core Technical Characteristics
+
+### Server-rendered application shell
+
+Views are rendered with EJS on the server. The server is responsible for:
+
+- route handling
+- loading page data
+- choosing the correct layout variant
+- injecting shell-level data into the page
+
+### Client-side enhancement
+
+Once rendered, page-specific client code enhances the UI for:
+
+- chat interactivity
+- exercise handling
+- socket events
+- resource layout toggles
+- modals, dropdowns, and similar behaviors
+
+### Real-time tutor runtime
+
+Tutor conversations are driven through Socket.IO rather than normal request/response pages.
+
+That runtime handles:
+
+- joining a conversation
+- sending user messages
+- streaming assistant output
+- applying structured side effects such as title changes or sentence evaluations
+- completing exercises and quizzes
+
+### Structured validation and correction loops
+
+Structured LLM responses are validated on the server.
+
+If a model returns malformed structured output, the server can ask the model to repair its own response using a correction prompt and the concrete validation errors.
+
+This approach is used to avoid fragile heuristic repair logic.
+
+## High-Level Folder Map
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server`: routes, auth, DB access, LLM services, sockets
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/client`: browser-side chat runtime, page controllers, styles
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/views`: EJS pages and shared partials
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/system-prompts`: prompt source files used by tutors and resource generation flows

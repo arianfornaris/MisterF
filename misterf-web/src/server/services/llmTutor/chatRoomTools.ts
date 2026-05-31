@@ -1,19 +1,25 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { findUserById } from '../../auth/repository.js';
 import {
   createChatRoom,
   deleteChatRoomForUser,
   findChatRoomConversationForUser,
+  findChatRoomConversationReport,
   findChatRoomForUser,
   listChatRoomCharacters,
   listChatRoomConversationsForRoom,
   listChatRoomMessages,
   listChatRoomsForProfile,
+  saveChatRoomConversationReport,
+  type StoredChatRoomConversationReport,
   type StoredChatRoom,
   type StoredChatRoomCharacter,
   type StoredChatRoomConversation,
   type StoredChatRoomMessage,
 } from '../../db/repository.js';
+import { getOpenRouterApiKeyForUser } from '../openRouterUserKeys.js';
+import { generateChatRoomConversationReport } from '../chatrooms.js';
 
 function normalizeSearchText(value: string): string {
   return value
@@ -189,9 +195,119 @@ export function buildTutorChatRoomTools(input: {
           conversation: {
             ...summarizeChatRoomConversation(conversation),
             messageCount: messages.length,
-            transcriptUrl: `/chatrooms/${encodeURIComponent(room.id)}/conversations/${encodeURIComponent(conversation.id)}`,
+            transcriptUrl: `/chatroom-conversations/${encodeURIComponent(conversation.id)}`,
           },
           messages,
+        };
+      },
+    }),
+    evaluate_chat_room_conversation: tool({
+      description:
+        'Evaluate a saved chat-room conversation and create its persistent report. Use this only when the learner explicitly asks to evaluate, assess, review, grade, analyze, or generate a report for a saved chat-room conversation resource. If a report already exists, return it instead of generating a duplicate unless regenerate is explicitly set to true.',
+      inputSchema: z.object({
+        chatRoomConversationId: z.string().trim().min(1),
+        regenerate: z.boolean().optional(),
+      }),
+      execute: async ({ chatRoomConversationId, regenerate }) => {
+        announceToolCall('evaluate_chat_room_conversation');
+        const conversation = findChatRoomConversationForUser(chatRoomConversationId, userId);
+        if (!conversation) {
+          return { error: `No chat room conversation found with id ${chatRoomConversationId}.` };
+        }
+        if (conversation.profileId !== profileId) {
+          return {
+            error: `Chat room conversation ${chatRoomConversationId} does not belong to the current profile.`,
+          };
+        }
+
+        const room = findChatRoomForUser(conversation.roomId, userId);
+        if (!room) {
+          return { error: `Could not load the parent chat room for conversation ${chatRoomConversationId}.` };
+        }
+
+        const existingReport = findChatRoomConversationReport(conversation.id, userId);
+        if (existingReport && !regenerate) {
+          return {
+            chatRoom: summarizeChatRoom(room),
+            conversation: summarizeChatRoomConversation(conversation),
+            report: summarizeChatRoomConversationReport(existingReport),
+          };
+        }
+
+        const currentUser = findUserById(userId);
+        if (!currentUser) {
+          return { error: 'Could not resolve the current user for report generation.' };
+        }
+
+        let savedReport: StoredChatRoomConversationReport;
+        try {
+          const messages = listChatRoomMessages(conversation.id);
+          const openRouterApiKey = await getOpenRouterApiKeyForUser(userId);
+          const generatedReport = await generateChatRoomConversationReport({
+            messages,
+            openRouterApiKey,
+            room,
+            userName: currentUser.fullName,
+          });
+
+          savedReport = saveChatRoomConversationReport({
+            conversationId: conversation.id,
+            profileId: conversation.profileId,
+            roomId: room.id,
+            slides: generatedReport.slides,
+            summaryDescription: generatedReport.summaryDescription,
+            summaryTitle: generatedReport.summaryTitle,
+            userId,
+          });
+        } catch (error) {
+          return {
+            error: error instanceof Error
+              ? `Could not generate the chat room conversation report: ${error.message}`
+              : 'Could not generate the chat room conversation report.',
+          };
+        }
+
+        return {
+          chatRoom: summarizeChatRoom(room),
+          conversation: summarizeChatRoomConversation(conversation),
+          report: summarizeChatRoomConversationReport(savedReport),
+        };
+      },
+    }),
+    get_chat_room_conversation_report: tool({
+      description:
+        'Read the persistent report for a saved chat-room conversation. Use this only when the learner explicitly asks to inspect, review, summarize, or revisit the report of a saved chat-room conversation resource.',
+      inputSchema: z.object({
+        chatRoomConversationId: z.string().trim().min(1),
+      }),
+      execute: async ({ chatRoomConversationId }) => {
+        announceToolCall('get_chat_room_conversation_report');
+        const conversation = findChatRoomConversationForUser(chatRoomConversationId, userId);
+        if (!conversation) {
+          return { error: `No chat room conversation found with id ${chatRoomConversationId}.` };
+        }
+        if (conversation.profileId !== profileId) {
+          return {
+            error: `Chat room conversation ${chatRoomConversationId} does not belong to the current profile.`,
+          };
+        }
+
+        const room = findChatRoomForUser(conversation.roomId, userId);
+        if (!room) {
+          return { error: `Could not load the parent chat room for conversation ${chatRoomConversationId}.` };
+        }
+
+        const report = findChatRoomConversationReport(conversation.id, userId);
+        if (!report) {
+          return {
+            error: `No report exists yet for chat room conversation ${chatRoomConversationId}. Use evaluate_chat_room_conversation first if the learner wants to generate one.`,
+          };
+        }
+
+        return {
+          chatRoom: summarizeChatRoom(room),
+          conversation: summarizeChatRoomConversation(conversation),
+          report: summarizeChatRoomConversationReport(report),
         };
       },
     }),
@@ -220,9 +336,19 @@ function summarizeChatRoomCharacter(character: StoredChatRoomCharacter) {
 }
 
 function summarizeChatRoomConversation(conversation: StoredChatRoomConversation) {
+  const report = findChatRoomConversationReport(conversation.id, conversation.userId);
   return {
     createdAt: conversation.createdAt,
     id: conversation.id,
+    report:
+      report
+        ? {
+            createdAt: report.createdAt,
+            id: report.id,
+            reportUrl: `/chatroom-conversations/${encodeURIComponent(conversation.id)}/report`,
+            summaryTitle: report.summaryTitle,
+          }
+        : null,
     roomId: conversation.roomId,
     title: conversation.title,
     updatedAt: conversation.updatedAt,
@@ -247,5 +373,21 @@ function summarizeChatRoomMessage(message: StoredChatRoomMessage) {
     id: message.id,
     senderName: message.senderName,
     senderType: message.senderType,
+  };
+}
+
+function summarizeChatRoomConversationReport(report: StoredChatRoomConversationReport) {
+  return {
+    createdAt: report.createdAt,
+    id: report.id,
+    practiceModuleId: report.practiceModuleId,
+    reportUrl: `/chatroom-conversations/${encodeURIComponent(report.conversationId)}/report`,
+    slideCount: report.slides.length,
+    slides: report.slides,
+    summary: {
+      description: report.summaryDescription,
+      title: report.summaryTitle,
+    },
+    updatedAt: report.updatedAt,
   };
 }

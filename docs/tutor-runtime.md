@@ -1,0 +1,227 @@
+# Tutor Runtime
+
+## Overview
+
+Mr. F runs as a structured-output tutor agent rather than as a plain chat completion.
+
+The main runtime lives in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/index.ts`
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/socket/chatSocket.ts`
+
+The browser-side runtime lives in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/client/chat`
+
+## Conversation Lifecycle
+
+### Join
+
+When the client joins a conversation:
+
+- the socket authenticates the user
+- the active profile is resolved
+- the conversation is loaded if it exists
+- the conversation model tier is synchronized to the active profile when needed
+- messages are loaded
+- contextual snapshots are loaded
+- the client receives `conversation:ready`
+
+If no persisted conversation exists yet, the UI can render an ephemeral initial greeting.
+
+### Send message
+
+When the user sends a message:
+
+- the message is validated and persisted
+- the conversation is created on demand if needed
+- the active profile is resolved
+- the conversation model tier is synchronized with the profile
+- the assistant response pipeline starts
+
+### Stream assistant response
+
+The assistant response is generated through the tutor agent loop and streamed back to the room.
+
+Important responsibilities in the server flow:
+
+- build prompt context
+- choose provider/model from model tier
+- allow tool use when applicable
+- validate structured output
+- apply server-side runtime effects
+- persist the final assistant message
+
+## Tutor Agent Loop
+
+The main function is:
+
+- `runTutorAgentLoop(...)`
+
+Key characteristics:
+
+- takes tutor message history
+- optionally takes practice module context
+- optionally takes chat room report context
+- can use tools
+- expects structured JSON output
+- can retry on correctable structured output errors
+
+The loop uses:
+
+- `generateText(...)`
+- prompt rendering from prompt files
+- model/provider helpers
+- structured correction prompts
+
+## Structured Output Blocks
+
+The tutor can emit structured blocks such as:
+
+- `message`
+- `conversation_title`
+- `sentence_evaluation`
+- `practice_module_link`
+- `dialogue_character_message`
+- `dialogue_transcript`
+- `translate_to_english_prompt`
+- `understand_in_spanish_prompt`
+- `fill_in_the_blank_input`
+- `fill_in_the_blank_choice`
+- `multiple_choice`
+- `matching_pairs`
+- `unscramble_sentence`
+- `quiz`
+- `quiz_result`
+
+These blocks are validated before they are accepted into the system.
+
+## Runtime Side Effects
+
+Some blocks are not just rendered. They also trigger server-side behavior.
+
+That logic lives in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/tutorWorkflow/index.ts`
+
+Current side effects include:
+
+- applying sentence evaluation metadata to the last user message
+- auto-renaming a conversation when the model emits a conversation title block
+
+Other blocks are render-only and stay inside the message stream.
+
+## Tools Available to Mr. F
+
+Mr. F has a deliberately constrained tool set.
+
+Current tool families:
+
+### Practice module tools
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceModuleTools.ts`
+
+Current tools:
+
+- `list_practice_modules`
+- `create_practice_module`
+- `update_practice_module`
+- `delete_practice_module`
+- `build_practice_module_link`
+
+### Chat room tools
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/chatRoomTools.ts`
+
+Current tools:
+
+- `list_chat_rooms`
+- `create_chat_room`
+- `delete_chat_room`
+- `list_chat_room_conversations`
+- `get_chat_room_conversation`
+
+These tools are only enabled when the tutor has authenticated user/profile context.
+
+## Quizzes
+
+### Quiz generation
+
+A tutor response can contain a `quiz` block. Quiz item kinds are intentionally prefixed with `quiz_` to reduce ambiguity with top-level block types.
+
+Examples:
+
+- `quiz_open_text`
+- `quiz_translate_to_english`
+- `quiz_fill_in_the_blank_input`
+- `quiz_multiple_choice`
+
+### Quiz completion
+
+When the user submits a quiz:
+
+- the client emits a quiz completion event
+- the server resolves the source quiz block
+- a structured quiz result evaluation is requested from the model
+- the result is turned into a `quiz_result` message
+
+### Quiz result evaluation
+
+Quiz result generation does not rely on heuristic fallback responses anymore.
+
+Current behavior:
+
+- the model must return a valid structured evaluation
+- if the shape is invalid, a dedicated correction loop asks the model to fix its own output
+- retries are limited
+- if evaluation still fails, the system surfaces an error rather than fabricating a result
+
+### Quiz result UI
+
+The client renders quiz results with dedicated UI rather than plain text.
+
+Current characteristics:
+
+- slide-by-slide navigation
+- overall per-question tutor assessment
+- inline visual error annotations
+- tappable/clickable explanations through popovers
+
+The original quiz card also transitions from an evaluating state to an evaluated state when the related `quiz_result` arrives.
+
+## Correction Loops
+
+The tutor runtime uses structured correction loops in two important places:
+
+### Main tutor response correction
+
+If the tutor returns invalid JSON or schema-invalid response blocks:
+
+- the runtime can feed the model its own broken output
+- attach the validation errors
+- request a corrected full response
+
+### Quiz result evaluation correction
+
+If quiz evaluation output is invalid:
+
+- the same general idea is used
+- a dedicated quiz-result correction prompt is applied
+
+This design is preferred over heuristic patching because it keeps the model responsible for producing valid structure.
+
+## Model Tier
+
+The tutor model tier is driven from the active profile.
+
+Current tiers include:
+
+- `regular`
+- `advanced`
+- `max`
+
+The conversation model tier is synchronized with the profile when a conversation is joined or used, which keeps the runtime aligned with profile settings.
