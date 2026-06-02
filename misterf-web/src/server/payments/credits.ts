@@ -31,6 +31,10 @@ export function getStripeConfigurationError(): string {
     return 'Falta configurar STRIPE_SECRET_KEY.';
   }
 
+  if (!env.stripeCredits200PriceId) {
+    return 'Falta configurar STRIPE_CREDITS_200_PRICE_ID.';
+  }
+
   return '';
 }
 
@@ -91,14 +95,7 @@ export async function createCreditsCheckoutSession(input: {
     customer_email: input.user.email,
     line_items: [
       {
-        price_data: {
-          currency: packageToBuy.currency,
-          product_data: {
-            description: packageToBuy.description,
-            name: `${packageToBuy.label} para Mister F`,
-          },
-          unit_amount: packageToBuy.customerAmountCents,
-        },
+        price: env.stripeCredits200PriceId,
         quantity: 1,
       },
     ],

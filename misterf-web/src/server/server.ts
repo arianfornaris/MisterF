@@ -78,6 +78,10 @@ import {
   renderCreditsPage,
 } from './payments/handlers.js';
 import {
+  renderPrivacyPage,
+  renderTermsPage,
+} from './legal/handlers.js';
+import {
   handleGeneratePracticeModuleDraft,
   renderNewPracticeModuleCollectionPage,
   renderNewPracticeModulePage,
@@ -207,6 +211,8 @@ app.get('/settings', renderSettingsPage);
 app.post('/settings', handleUpdateSettingsPage);
 app.get('/credits', renderCreditsPage);
 app.post('/credits/checkout', handleCreateCreditsCheckout);
+app.get('/privacy', renderPrivacyPage);
+app.get('/terms', renderTermsPage);
 app.get('/chatrooms', renderChatRoomsListPage);
 app.get('/chatrooms/new', renderNewChatRoomPage);
 app.post('/chatrooms/generate-draft', handleGenerateChatRoomDraft);

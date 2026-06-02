@@ -68,6 +68,7 @@ export const env = {
     openrouterUserKeyLimitReset: process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
+    stripeCredits200PriceId: process.env.STRIPE_CREDITS_200_PRICE_ID ?? '',
     appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
     sessionSecret: process.env.APP_SESSION_SECRET ?? '',
     smtpHost: process.env.SMTP_HOST ?? '',
