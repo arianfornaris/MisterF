@@ -1,7 +1,7 @@
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { constructStripeWebhookEvent, createCreditsCheckoutSession, getCreditBalanceForUser, getStripeConfigurationError, getWebhookConfigurationError, fulfillCheckoutSession, } from './credits.js';
 import { defaultCreditPackage } from './packages.js';
-import { listCreditPurchasesForUser } from './repository.js';
+import { listFulfilledCreditPurchasesForUser } from './repository.js';
 function ensureVerifiedCreditsUser(request, response) {
     const user = request.authUser;
     if (!user?.emailVerified) {
@@ -30,7 +30,7 @@ export async function renderCreditsPage(request, response) {
         checkoutError: readQueryString(request.query.error),
         checkoutStatus: readQueryString(request.query.checkout),
         creditPackage: defaultCreditPackage,
-        purchases: listCreditPurchasesForUser(user.id),
+        purchases: listFulfilledCreditPurchasesForUser(user.id),
         stripeConfigurationError: getStripeConfigurationError(),
     });
 }

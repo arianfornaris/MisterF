@@ -74,6 +74,34 @@ export function listCreditPurchasesForUser(userId) {
         .all(userId);
     return rows.map(toCreditPurchase);
 }
+export function listFulfilledCreditPurchasesForUser(userId) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          id,
+          user_id,
+          stripe_checkout_session_id,
+          stripe_payment_intent_id,
+          stripe_event_id,
+          package_code,
+          customer_amount_cents,
+          credited_amount_cents,
+          status,
+          openrouter_key_hash,
+          remaining_before_usd,
+          remaining_after_usd,
+          failure_reason,
+          created_at,
+          updated_at
+        FROM credit_purchases
+        WHERE user_id = ?
+          AND status = 'fulfilled'
+        ORDER BY datetime(created_at) DESC
+        LIMIT 20
+      `)
+        .all(userId);
+    return rows.map(toCreditPurchase);
+}
 export function markCreditPurchaseFulfilled(input) {
     getDb()
         .prepare(`

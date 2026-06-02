@@ -13,7 +13,7 @@ import {
   fulfillCheckoutSession,
 } from './credits.js';
 import { defaultCreditPackage } from './packages.js';
-import { listCreditPurchasesForUser } from './repository.js';
+import { listFulfilledCreditPurchasesForUser } from './repository.js';
 
 function ensureVerifiedCreditsUser(
   request: Request,
@@ -53,7 +53,7 @@ export async function renderCreditsPage(
     checkoutError: readQueryString(request.query.error),
     checkoutStatus: readQueryString(request.query.checkout),
     creditPackage: defaultCreditPackage,
-    purchases: listCreditPurchasesForUser(user.id),
+    purchases: listFulfilledCreditPurchasesForUser(user.id),
     stripeConfigurationError: getStripeConfigurationError(),
   });
 }
