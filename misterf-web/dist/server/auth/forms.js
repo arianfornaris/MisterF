@@ -11,6 +11,7 @@ import { ensureOpenRouterKeyForUser, getOpenRouterApiKeyForUser, } from '../serv
 import { env } from '../config/env.js';
 import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js';
 import { chatroomsLayoutCookieName, practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
+import { appDocumentTitle as shellAppDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, } from '../services/chatrooms.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const loginAttempts = new Map();
@@ -147,6 +148,8 @@ export function renderChangePassword(request, response) {
         error: '',
         fieldErrors: {},
         hasPassword: Boolean(request.authUser.passwordHash),
+        request,
+        user: request.authUser,
     });
 }
 export async function handleLogin(request, response) {
@@ -377,10 +380,10 @@ export async function handleResetPassword(request, response) {
     revokeUserSessions(user.id);
     clearSessionCookie(response);
     renderAuthMessage(response, {
-        body: 'Tu password fue actualizado. Ya puedes iniciar sesión.',
+        body: 'Tu contraseña fue actualizada. Ya puedes iniciar sesión.',
         linkHref: '/login',
         linkText: 'Iniciar sesión',
-        title: 'Password actualizado',
+        title: 'Contraseña actualizada',
     });
 }
 export async function handleChangePassword(request, response) {
@@ -391,6 +394,7 @@ export async function handleChangePassword(request, response) {
     }
     const currentPassword = readField(request.body.currentPassword);
     const newPassword = readField(request.body.newPassword);
+    const confirmPassword = readField(request.body.confirmPassword);
     const fieldErrors = {};
     if (user.passwordHash && !currentPassword) {
         fieldErrors.currentPassword = 'Escribe tu password actual.';
@@ -398,11 +402,19 @@ export async function handleChangePassword(request, response) {
     if (newPassword.length < 10) {
         fieldErrors.newPassword = 'Usa al menos 10 caracteres.';
     }
+    if (!confirmPassword) {
+        fieldErrors.confirmPassword = 'Repite la nueva contraseña.';
+    }
+    else if (newPassword !== confirmPassword) {
+        fieldErrors.confirmPassword = 'Las contraseñas no coinciden.';
+    }
     if (Object.keys(fieldErrors).length > 0) {
         renderChangePasswordForm(response.status(422), {
             error: '',
             fieldErrors,
             hasPassword: Boolean(user.passwordHash),
+            request,
+            user,
         });
         return;
     }
@@ -413,6 +425,8 @@ export async function handleChangePassword(request, response) {
                 error: 'El password actual no es correcto.',
                 fieldErrors: {},
                 hasPassword: true,
+                request,
+                user,
             });
             return;
         }
@@ -2063,8 +2077,16 @@ function renderAuthForm(response, view) {
 function renderChangePasswordForm(response, view) {
     response.render('change_password', {
         ...view,
+        ...buildAppShellContext({
+            activeProfile: view.request.activeProfile,
+            authMessage: getShellHomeAuthMessage(view.request, view.user),
+            currentView: 'settings',
+            guestInitialGreeting: '',
+            request: view.request,
+            title: `Cambiar contraseña · ${shellAppDocumentTitle}`,
+            user: view.user,
+        }),
         csrfToken: response.locals.csrfToken,
-        title: `Cambiar password · ${appDocumentTitle}`,
     });
 }
 function renderAuthMessage(response, view) {

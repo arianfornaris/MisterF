@@ -20,7 +20,7 @@
   </div>
 
   <% if (profiles && profiles.length > 0) { %>
-    <div class="profiles-list">
+    <div class="profiles-list mt-4">
       <% profiles.forEach((profile) => { %>
         <article class="practice-module-card profile-card card shadow-sm <%= activeProfile && activeProfile.id === profile.id ? 'is-active' : '' %>">
           <div class="card-body d-grid gap-2">
@@ -51,7 +51,7 @@
       <% }) %>
     </div>
   <% } else { %>
-    <div class="practice-module-empty-state alert alert-light border">
+    <div class="practice-module-empty-state alert alert-light border mt-4">
       <p>Todavía no hay perfiles. Crea el primero para separar tu práctica en distintos contextos.</p>
     </div>
   <% } %>

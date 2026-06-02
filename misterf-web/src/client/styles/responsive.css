@@ -84,15 +84,4 @@
     gap: 12px;
   }
 
-  .auth-sheet {
-    width: 100%;
-    min-height: 100vh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
-  .auth-sheet .card-body {
-    padding: 36px 24px;
-  }
 }

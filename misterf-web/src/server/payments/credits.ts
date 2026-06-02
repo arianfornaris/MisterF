@@ -112,6 +112,7 @@ export async function createCreditsCheckoutSession(input: {
         packageCode: packageToBuy.code,
         userId: input.user.id,
       },
+      receipt_email: input.user.email,
     },
     success_url: buildAbsoluteAppUrl(
       '/credits?checkout=success&session_id={CHECKOUT_SESSION_ID}',

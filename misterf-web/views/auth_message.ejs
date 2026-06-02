@@ -1,53 +1,59 @@
 <!doctype html>
 <html lang="es">
   <head>
-    <%- include('partials/document-head', { includeBootstrapIcons: false }) %>
+    <%- include('partials/document-head', { includeBootstrapIcons: true }) %>
   </head>
   <body>
-    <main class="app-shell">
-      <section class="auth-sheet card" aria-label="<%= title %>">
-        <div class="auth-form card-body">
-          <div class="auth-copy">
-            <p class="auth-kicker">Mister F</p>
-            <h1><%= title %></h1>
-          </div>
-
-          <div class="alert alert-info auth-message" role="status"><%= body %></div>
-
-          <% if (showResendVerification) { %>
-            <form method="post" action="/resend-verification">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
-              <button class="btn btn-primary auth-submit" type="submit">Reenviar verificación</button>
-            </form>
-          <% } %>
-
-          <% if (showVerificationCodeForm) { %>
-            <form class="auth-form" method="post" action="/verify-email">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
-              <div class="auth-field mb-0">
-                <label class="form-label" for="code">Código</label>
-                <input
-                  id="code"
-                  class="form-control"
-                  name="code"
-                  type="text"
-                  autocomplete="one-time-code"
-                  inputmode="text"
-                  required
-                  autofocus
-                >
+    <main class="container min-vh-100 d-flex align-items-center py-5">
+      <section class="row justify-content-center w-100" aria-label="<%= title %>">
+        <div class="col-12 col-sm-10 col-md-8 col-lg-5">
+          <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+              <div class="mb-4">
+                <p class="text-uppercase text-body-secondary small fw-semibold mb-2">Mister F</p>
+                <h1 class="h3 mb-0"><%= title %></h1>
               </div>
-              <button class="btn btn-primary auth-submit" type="submit">Verificar correo</button>
-            </form>
-          <% } %>
 
-          <% if (linkHref && linkText) { %>
-            <p class="auth-switch"><a href="<%= linkHref %>"><%= linkText %></a></p>
-          <% } else { %>
-            <p class="auth-switch"><a href="<%= returnTo || '/' %>">Volver</a></p>
-          <% } %>
+              <div class="alert alert-info mb-4" role="status"><%= body %></div>
+
+              <% if (showResendVerification) { %>
+                <form method="post" action="/resend-verification" class="mb-3">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
+                  <button class="btn btn-primary" type="submit">Reenviar verificación</button>
+                </form>
+              <% } %>
+
+              <% if (showVerificationCodeForm) { %>
+                <form class="d-grid gap-3 mb-3" method="post" action="/verify-email">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
+                  <div>
+                    <label class="form-label" for="code">Código</label>
+                    <input
+                      id="code"
+                      class="form-control"
+                      name="code"
+                      type="text"
+                      autocomplete="one-time-code"
+                      inputmode="text"
+                      required
+                      autofocus
+                    >
+                  </div>
+                  <div>
+                    <button class="btn btn-primary" type="submit">Verificar correo</button>
+                  </div>
+                </form>
+              <% } %>
+
+              <% if (linkHref && linkText) { %>
+                <a class="btn btn-secondary" href="<%= linkHref %>"><%= linkText %></a>
+              <% } else { %>
+                <a class="btn btn-secondary" href="<%= returnTo || '/' %>">Volver</a>
+              <% } %>
+            </div>
+          </div>
         </div>
       </section>
     </main>
