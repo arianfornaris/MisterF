@@ -29,14 +29,9 @@ export type OpenRouterUserKeyRecord = {
 };
 
 export type OpenRouterRemoteKeyInfo = {
-  byokUsage?: number;
-  byokUsageDaily?: number;
-  byokUsageMonthly?: number;
-  byokUsageWeekly?: number;
   createdAt?: string;
   disabled?: boolean;
   hash?: string;
-  includeByokInLimit?: boolean;
   label?: string;
   limit?: number | null;
   limitRemaining?: number | null;
@@ -113,7 +108,6 @@ export async function getOpenRouterRemoteKeyInfoForUser(
 
 export async function updateOpenRouterUserKeyLimit(input: {
   disabled: boolean;
-  includeByokInLimit: boolean;
   limitReset: 'daily' | 'weekly' | 'monthly' | null;
   limitUsd: number | null;
   userId: string;
@@ -127,7 +121,7 @@ export async function updateOpenRouterUserKeyLimit(input: {
 
   const remoteInfo = await patchOpenRouterRemoteKey(row.key_hash, {
     disabled: input.disabled,
-    include_byok_in_limit: input.includeByokInLimit,
+    include_byok_in_limit: false,
     limit: input.limitUsd,
     limit_reset: input.limitReset,
   });
@@ -200,7 +194,7 @@ async function createOpenRouterApiKey(name: string): Promise<{
   keyHash: string;
 }> {
   const body: Record<string, unknown> = {
-    include_byok_in_limit: env.openrouterUserKeyIncludeByokInLimit,
+    include_byok_in_limit: false,
     limit: env.openrouterUserKeyLimitUsd,
     limit_reset: null,
     name,
@@ -288,7 +282,7 @@ async function patchOpenRouterRemoteKey(
   keyHash: string,
   body: {
     disabled: boolean;
-    include_byok_in_limit: boolean;
+    include_byok_in_limit: false;
     limit: number | null;
     limit_reset: 'daily' | 'weekly' | 'monthly' | null;
   },
@@ -335,14 +329,9 @@ function toOpenRouterRemoteKeyInfo(
   data: Record<string, unknown>,
 ): OpenRouterRemoteKeyInfo {
   return {
-    byokUsage: readNumberValue(data.byok_usage),
-    byokUsageDaily: readNumberValue(data.byok_usage_daily),
-    byokUsageMonthly: readNumberValue(data.byok_usage_monthly),
-    byokUsageWeekly: readNumberValue(data.byok_usage_weekly),
     createdAt: readStringValue(data.created_at),
     disabled: readBooleanValue(data.disabled),
     hash: readStringValue(data.hash),
-    includeByokInLimit: readBooleanValue(data.include_byok_in_limit),
     label: readStringValue(data.label),
     limit: readNullableNumberValue(data.limit),
     limitRemaining: readNullableNumberValue(data.limit_remaining),

@@ -55,7 +55,6 @@ export async function handleOpenRouterKeyUpdate(request, response) {
     }
     const limitUsd = parseLimitUsd(readField(request.body.limitUsd));
     const limitReset = parseLimitReset(readField(request.body.limitReset));
-    const includeByokInLimit = request.body.includeByokInLimit === 'on';
     const disabled = request.body.disabled === 'on';
     if (limitUsd instanceof Error) {
         response.redirect(`/superadmin/users/${encodeURIComponent(userId)}?error=${encodeURIComponent(limitUsd.message)}#openrouter-key`);
@@ -64,7 +63,6 @@ export async function handleOpenRouterKeyUpdate(request, response) {
     try {
         await updateOpenRouterUserKeyLimit({
             disabled,
-            includeByokInLimit,
             limitReset,
             limitUsd,
             userId,
@@ -97,7 +95,6 @@ function buildViewData(request, response, overrides) {
         error: readQueryString(request.query.error),
         formatDate,
         formatMoney,
-        getEffectiveOpenRouterUsage,
         success: readQueryString(request.query.success),
         users: listUsersForSuperadmin(),
     };
@@ -148,14 +145,5 @@ function formatMoney(value) {
         maximumFractionDigits: 4,
         style: 'currency',
     }).format(value);
-}
-function getEffectiveOpenRouterUsage(value) {
-    if (!value) {
-        return null;
-    }
-    const usage = value.usage ?? 0;
-    const byokUsage = value.includeByokInLimit ? value.byokUsage ?? 0 : 0;
-    const total = usage + byokUsage;
-    return Number.isFinite(total) ? total : null;
 }
 //# sourceMappingURL=routes.js.map

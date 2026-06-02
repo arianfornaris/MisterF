@@ -73,6 +73,11 @@ import { requireSessionSecret } from './auth/session.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
 import {
+  handleCreateCreditsCheckout,
+  handleStripeWebhook,
+  renderCreditsPage,
+} from './payments/handlers.js';
+import {
   handleGeneratePracticeModuleDraft,
   renderNewPracticeModuleCollectionPage,
   renderNewPracticeModulePage,
@@ -133,6 +138,7 @@ app.use(
   express.static(path.join(env.projectRoot, 'node_modules/dompurify/dist')),
 );
 
+app.post('/stripe/webhook', express.raw({ type: 'application/json' }), handleStripeWebhook);
 app.use(express.urlencoded({ extended: false, limit: '32kb' }));
 app.use(csrfProtection);
 app.use(loadAuthSession);
@@ -199,6 +205,8 @@ app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
 app.get('/settings', renderSettingsPage);
 app.post('/settings', handleUpdateSettingsPage);
+app.get('/credits', renderCreditsPage);
+app.post('/credits/checkout', handleCreateCreditsCheckout);
 app.get('/chatrooms', renderChatRoomsListPage);
 app.get('/chatrooms/new', renderNewChatRoomPage);
 app.post('/chatrooms/generate-draft', handleGenerateChatRoomDraft);

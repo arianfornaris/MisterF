@@ -143,7 +143,6 @@
                       <% } %>
 
                       <% if (openRouterInfo) { %>
-                        <% const effectiveUsage = getEffectiveOpenRouterUsage(openRouterInfo); %>
                         <div class="table-responsive mb-4">
                           <table class="table table-sm align-middle mb-0">
                             <tbody>
@@ -156,32 +155,16 @@
                                 <td><%= formatMoney(openRouterInfo.limitRemaining) %></td>
                               </tr>
                               <tr>
-                                <th scope="row">Uso contra límite</th>
-                                <td><%= formatMoney(effectiveUsage) %></td>
-                              </tr>
-                              <tr>
                                 <th scope="row">Uso OpenRouter</th>
                                 <td><%= formatMoney(openRouterInfo.usage) %></td>
-                              </tr>
-                              <tr>
-                                <th scope="row">Uso BYOK</th>
-                                <td><%= formatMoney(openRouterInfo.byokUsage) %></td>
                               </tr>
                               <tr>
                                 <th scope="row">Uso mensual OpenRouter</th>
                                 <td><%= formatMoney(openRouterInfo.usageMonthly) %></td>
                               </tr>
                               <tr>
-                                <th scope="row">Uso mensual BYOK</th>
-                                <td><%= formatMoney(openRouterInfo.byokUsageMonthly) %></td>
-                              </tr>
-                              <tr>
                                 <th scope="row">Reset</th>
                                 <td><%= openRouterInfo.limitReset || 'sin reset' %></td>
-                              </tr>
-                              <tr>
-                                <th scope="row">BYOK incluido</th>
-                                <td><%= openRouterInfo.includeByokInLimit ? 'Sí' : 'No' %></td>
                               </tr>
                               <tr>
                                 <th scope="row">Deshabilitada</th>
@@ -228,18 +211,6 @@
                           </div>
 
                           <div class="col-12">
-                            <div class="form-check">
-                              <input
-                                id="includeByokInLimit"
-                                class="form-check-input"
-                                name="includeByokInLimit"
-                                type="checkbox"
-                                <%= openRouterInfo?.includeByokInLimit === false ? '' : 'checked' %>
-                              >
-                              <label class="form-check-label" for="includeByokInLimit">
-                                Incluir BYOK en el límite de saldo
-                              </label>
-                            </div>
                             <div class="form-check">
                               <input
                                 id="disabled"

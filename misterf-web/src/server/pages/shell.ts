@@ -107,7 +107,13 @@ export function resolveGuestInitialGreeting(request: Request, user: AuthUser | n
 export function buildAppShellContext(input: {
   activeProfile: StoredProfile | null;
   authMessage: string;
-  currentView: 'chat' | 'chatrooms' | 'practiceModules' | 'profiles' | 'settings';
+  currentView:
+    | 'chat'
+    | 'chatrooms'
+    | 'credits'
+    | 'practiceModules'
+    | 'profiles'
+    | 'settings';
   guestInitialGreeting: string;
   initialConversationId?: string;
   request: Request;

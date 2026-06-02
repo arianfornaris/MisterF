@@ -552,5 +552,37 @@ export const migrations = [
       CHECK (model_tier IN ('regular', 'advanced', 'max'));
     `,
     },
+    {
+        id: 13,
+        name: 'add_credit_purchase_ledger',
+        up: `
+      CREATE TABLE credit_purchases (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        stripe_checkout_session_id TEXT NOT NULL UNIQUE,
+        stripe_payment_intent_id TEXT,
+        stripe_event_id TEXT,
+        package_code TEXT NOT NULL,
+        customer_amount_cents INTEGER NOT NULL,
+        credited_amount_cents INTEGER NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'fulfilled', 'failed')),
+        openrouter_key_hash TEXT,
+        remaining_before_usd REAL,
+        remaining_after_usd REAL,
+        failure_reason TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_credit_purchases_user_created
+        ON credit_purchases (user_id, created_at DESC);
+
+      CREATE INDEX idx_credit_purchases_status_updated
+        ON credit_purchases (status, updated_at DESC);
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

@@ -88,10 +88,8 @@ export const env = {
   openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
   openrouterUserKeyLimitReset:
     process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
-  openrouterUserKeyIncludeByokInLimit: readBoolean(
-    'OPENROUTER_USER_KEY_INCLUDE_BYOK_IN_LIMIT',
-    true,
-  ),
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
   appBaseUrl: process.env.APP_BASE_URL ?? `http://localhost:${readInteger('PORT', 3000)}`,
   sessionSecret: process.env.APP_SESSION_SECRET ?? '',
   smtpHost: process.env.SMTP_HOST ?? '',

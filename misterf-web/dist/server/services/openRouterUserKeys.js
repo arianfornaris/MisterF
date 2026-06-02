@@ -41,7 +41,7 @@ export async function updateOpenRouterUserKeyLimit(input) {
     }
     const remoteInfo = await patchOpenRouterRemoteKey(row.key_hash, {
         disabled: input.disabled,
-        include_byok_in_limit: input.includeByokInLimit,
+        include_byok_in_limit: false,
         limit: input.limitUsd,
         limit_reset: input.limitReset,
     });
@@ -87,7 +87,7 @@ async function provisionOpenRouterKeyForUser(userId) {
 }
 async function createOpenRouterApiKey(name) {
     const body = {
-        include_byok_in_limit: env.openrouterUserKeyIncludeByokInLimit,
+        include_byok_in_limit: false,
         limit: env.openrouterUserKeyLimitUsd,
         limit_reset: null,
         name,
@@ -180,14 +180,9 @@ function toOpenRouterUserKeyRecord(row) {
 }
 function toOpenRouterRemoteKeyInfo(data) {
     return {
-        byokUsage: readNumberValue(data.byok_usage),
-        byokUsageDaily: readNumberValue(data.byok_usage_daily),
-        byokUsageMonthly: readNumberValue(data.byok_usage_monthly),
-        byokUsageWeekly: readNumberValue(data.byok_usage_weekly),
         createdAt: readStringValue(data.created_at),
         disabled: readBooleanValue(data.disabled),
         hash: readStringValue(data.hash),
-        includeByokInLimit: readBooleanValue(data.include_byok_in_limit),
         label: readStringValue(data.label),
         limit: readNullableNumberValue(data.limit),
         limitRemaining: readNullableNumberValue(data.limit_remaining),
