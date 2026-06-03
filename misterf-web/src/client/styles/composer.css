@@ -33,7 +33,7 @@
 }
 
 .composer-input::placeholder {
-  color: #aaa;
+  color: var(--bs-secondary-color);
   opacity: 1;
 }
 
@@ -101,11 +101,11 @@
 }
 
 .llm-context-meter[data-context-level='warn'] .llm-context-meter-progress {
-  stroke: #ca7b18;
+  stroke: var(--bs-warning);
 }
 
 .llm-context-meter[data-context-level='danger'] .llm-context-meter-progress {
-  stroke: #c34c47;
+  stroke: var(--bs-danger);
 }
 
 .send-button {
@@ -113,10 +113,6 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-}
-
-.send-button[data-mode='stop'] {
-  color: var(--bs-danger);
 }
 
 .send-button:hover,

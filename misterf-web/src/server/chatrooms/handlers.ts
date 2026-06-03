@@ -40,7 +40,7 @@ import {
   generateChatRoomConversationReport,
   generatePracticeModuleFromChatRoomConversationReport,
 } from '../services/chatrooms.js';
-import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
 import {
   chatroomsLayoutCookieName,
@@ -296,7 +296,7 @@ async function advanceChatRoomConversationStep(input: {
 }> {
   const characters = listChatRoomCharacters(input.room.id);
   const messages = listChatRoomMessages(input.conversationId);
-  const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
 
   console.info(
     `[chatrooms] step:start ${JSON.stringify({
@@ -369,7 +369,7 @@ async function evaluateChatRoomUserMessageStep(input: {
   userName: string;
 }): Promise<ChatRoomMessageEvaluation> {
   const messages = listChatRoomMessages(input.conversationId);
-  const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
   return evaluateChatRoomUserMessage({
     historyText: messages
       .filter((message) => message.senderType !== 'system')
@@ -732,7 +732,7 @@ export async function handleGenerateChatRoomDraft(request: Request, response: Re
   }
 
   try {
-    const openRouterApiKey = await getOpenRouterApiKeyForUser(auth.user.id);
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = await generateChatRoomDraftFromPrompt({
       openRouterApiKey,
       prompt,
@@ -1282,7 +1282,7 @@ export async function handleEvaluateChatRoomConversation(
   }
 
   const messages = listChatRoomMessages(conversation.id);
-  const openRouterApiKey = await getOpenRouterApiKeyForUser(auth.user.id);
+  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
   const report = await generateChatRoomConversationReport({
     messages,
     openRouterApiKey,
@@ -1339,7 +1339,7 @@ export async function handleCreatePracticeModuleFromChatRoomConversationReport(
     }
   }
 
-  const openRouterApiKey = await getOpenRouterApiKeyForUser(auth.user.id);
+  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
   const generatedModule = await generatePracticeModuleFromChatRoomConversationReport({
     openRouterApiKey,
     report,

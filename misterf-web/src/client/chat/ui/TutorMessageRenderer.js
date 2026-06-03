@@ -643,7 +643,7 @@ export function createTutorMessageRenderer(deps) {
 
   function createMessageActionButton({ label, iconClass }) {
     const button = document.createElement('button');
-    button.className = 'message-action-button';
+    button.className = 'btn btn-link btn-sm text-secondary message-action-button';
     button.type = 'button';
     button.title = label;
     button.setAttribute('aria-label', label);
@@ -720,7 +720,7 @@ export function createTutorMessageRenderer(deps) {
     }
 
     const link = document.createElement('a');
-    link.className = 'tutor-message-action-link';
+    link.className = 'btn btn-outline-primary btn-sm rounded-pill tutor-message-action-link';
     link.href = `/practice-modules/${encodeURIComponent(block.practiceModuleId.trim())}`;
     link.textContent = block.label;
     return link;

@@ -40,7 +40,7 @@
   place-items: center;
   padding: 0;
   border-radius: 8px;
-  color: #aaa;
+  color: var(--bs-secondary-color);
   text-decoration: none;
 }
 
@@ -165,7 +165,7 @@
 .panel-bottom {
   margin-top: auto;
   padding-top: 18px;
-  border-top: 1px solid rgb(31 111 139 / 10%);
+  border-top: 1px solid rgb(var(--mf-practice-rgb) / 10%);
 }
 
 @media (min-width: 992px) {
@@ -348,7 +348,7 @@
 
 .practice-module-filter-clear:hover,
 .practice-module-filter-clear:focus {
-  color: var(--accent);
+  color: var(--bs-primary);
 }
 
 .practice-modules-grid,
@@ -787,8 +787,8 @@
 .conversation-actions-button:focus,
 .conversation-actions-button[aria-expanded="true"] {
   outline: 0;
-  background: rgb(235 104 100 / 10%);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .conversation-actions-menu {
@@ -816,7 +816,7 @@
   min-width: 0;
   height: 34px;
   border: 0;
-  border-bottom: 1px solid var(--accent);
+  border-bottom: 1px solid var(--bs-primary);
   outline: 0;
   background: transparent;
   color: var(--ink);
@@ -839,8 +839,8 @@
 .conversation-rename-action:hover,
 .conversation-rename-action:focus {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .conversation-item.is-renaming > :not(.conversation-rename-form) {
@@ -923,13 +923,13 @@
 .translator-copy-button:hover,
 .translator-copy-button:focus {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .translator-copy-button.is-copied {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-success-bg-subtle);
+  color: var(--bs-success-text-emphasis);
 }
 
 .translator-result:empty::before {
@@ -948,7 +948,7 @@
   place-items: center;
   padding: 0;
   border-radius: 8px;
-  color: #aaa;
+  color: var(--bs-secondary-color);
   text-decoration: none;
 }
 
@@ -997,8 +997,8 @@
 .user-menu-button:focus,
 .user-menu-button[aria-expanded="true"] {
   outline: 0;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }
 
 .user-menu-panel {
@@ -1025,6 +1025,6 @@
 
 .user-menu-panel .dropdown-item:hover,
 .user-menu-panel .dropdown-item:focus {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary-text-emphasis);
 }

@@ -45,7 +45,11 @@ import {
   type TutorMultipleChoiceBlock,
   type TutorUnscrambleSentenceBlock,
 } from '../services/llmTutor.js';
-import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import {
+  getCreditCheckedOpenRouterApiKeyForUser,
+  getCreditExhaustedMessage,
+  isCreditExhaustedError,
+} from '../services/creditGate.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 
 type JoinPayload = {
@@ -1232,7 +1236,7 @@ async function getLlmRequestOptionsForUser(
   userId: string,
 ): Promise<LlmRequestOptions> {
   return {
-    openRouterApiKey: await getOpenRouterApiKeyForUser(userId),
+    openRouterApiKey: await getCreditCheckedOpenRouterApiKeyForUser(userId),
     userId,
   };
 }
@@ -1339,7 +1343,10 @@ async function streamAssistantMessage(
       lastUserMessageId,
       userId,
     });
-    emitRoomCreditExhaustedIfNeeded(io, conversationId, error);
+    if (emitRoomCreditExhaustedIfNeeded(io, conversationId, error)) {
+      return;
+    }
+
     io.to(conversationId).emit('assistant:error', {
       message: toUserFacingError(error),
     });
@@ -2384,32 +2391,15 @@ function emitRoomCreditExhaustedIfNeeded(
   io: Server,
   conversationId: string,
   error: unknown,
-): void {
+): boolean {
   if (!isCreditExhaustedError(error)) {
-    return;
+    return false;
   }
 
   io.to(conversationId).emit('llm:credit_exhausted', {
     message: getCreditExhaustedMessage(),
   });
-}
-
-function getCreditExhaustedMessage(): string {
-  return 'Tu crédito de práctica se agotó por ahora. Recarga crédito para seguir usando el tutor o intenta de nuevo cuando tengas crédito disponible.';
-}
-
-function isCreditExhaustedError(error: unknown): boolean {
-  const text = JSON.stringify(serializeError(error)).toLowerCase();
-  return (
-    text.includes('insufficient credit') ||
-    text.includes('insufficient credits') ||
-    text.includes('out of credits') ||
-    text.includes('not enough credits') ||
-    text.includes('credit limit') ||
-    text.includes('credits exhausted') ||
-    (text.includes('balance') && text.includes('credit')) ||
-    (text.includes('402') && text.includes('credit'))
-  );
+  return true;
 }
 
 function serializeError(error: unknown): unknown {

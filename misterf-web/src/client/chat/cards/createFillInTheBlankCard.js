@@ -170,7 +170,7 @@ export function createFillInTheBlankCard(block, context, deps) {
   sentenceRow.append(after);
 
   const confirmButton = document.createElement('button');
-  confirmButton.className = 'exercise-confirm-button';
+  confirmButton.className = 'btn btn-primary exercise-confirm-button';
   confirmButton.type = 'button';
   confirmButton.setAttribute('aria-label', 'Confirmar respuesta');
   confirmButton.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>';

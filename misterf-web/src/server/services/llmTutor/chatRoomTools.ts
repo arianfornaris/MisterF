@@ -18,7 +18,7 @@ import {
   type StoredChatRoomConversation,
   type StoredChatRoomMessage,
 } from '../../db/repository.js';
-import { getOpenRouterApiKeyForUser } from '../openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../creditGate.js';
 import { generateChatRoomConversationReport } from '../chatrooms.js';
 
 function normalizeSearchText(value: string): string {
@@ -242,7 +242,7 @@ export function buildTutorChatRoomTools(input: {
         let savedReport: StoredChatRoomConversationReport;
         try {
           const messages = listChatRoomMessages(conversation.id);
-          const openRouterApiKey = await getOpenRouterApiKeyForUser(userId);
+          const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(userId);
           const generatedReport = await generateChatRoomConversationReport({
             messages,
             openRouterApiKey,

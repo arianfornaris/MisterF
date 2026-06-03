@@ -7,7 +7,8 @@ import { createAuthActionToken, createLocalUser, createSession, deleteUserById, 
 import { clearSessionCookie, createSessionCookie, hasKnownVisitorCookie, setKnownVisitorCookie, setSessionCookie, } from './session.js';
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
 import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessageEvaluation, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomMessage, findChatRoomById, findChatRoomForUser, findChatRoomShareLinkById, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreateChatRoomShareLink, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importChatRoomToProfile, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
-import { ensureOpenRouterKeyForUser, getOpenRouterApiKeyForUser, } from '../services/openRouterUserKeys.js';
+import { ensureOpenRouterKeyForUser, } from '../services/openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { env } from '../config/env.js';
 import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js';
 import { chatroomsLayoutCookieName, practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
@@ -1991,7 +1992,7 @@ function seedChatRoomConversation(conversationId, room, userName) {
 async function advanceChatRoomConversationStep(input) {
     const characters = listChatRoomCharacters(input.room.id);
     const messages = listChatRoomMessages(input.conversationId);
-    const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
     console.info(`[chatrooms] step:start ${JSON.stringify({
         characterCount: characters.length,
         conversationId: input.conversationId,
@@ -2038,7 +2039,7 @@ async function advanceChatRoomConversationStep(input) {
 }
 async function evaluateChatRoomUserMessageStep(input) {
     const messages = listChatRoomMessages(input.conversationId);
-    const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
     return evaluateChatRoomUserMessage({
         historyText: messages
             .filter((message) => message.senderType !== 'system')

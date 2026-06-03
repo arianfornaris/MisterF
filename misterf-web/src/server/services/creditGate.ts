@@ -1,0 +1,64 @@
+import {
+  getOpenRouterApiKeyForUser,
+  getOpenRouterRemoteKeyInfoForUser,
+} from './openRouterUserKeys.js';
+
+const minimumLlmCreditUsd = 0.01;
+
+export class CreditExhaustedError extends Error {
+  constructor(message = getCreditExhaustedMessage()) {
+    super(message);
+    this.name = 'CreditExhaustedError';
+  }
+}
+
+export async function getCreditCheckedOpenRouterApiKeyForUser(
+  userId: string,
+): Promise<string | null> {
+  const apiKey = await getOpenRouterApiKeyForUser(userId);
+  await assertUserHasLlmCredit(userId);
+  return apiKey;
+}
+
+export async function assertUserHasLlmCredit(userId: string): Promise<void> {
+  const remoteInfo = await getOpenRouterRemoteKeyInfoForUser(userId);
+  const remainingUsd = remoteInfo?.limitRemaining;
+
+  if (typeof remainingUsd === 'number' && remainingUsd < minimumLlmCreditUsd) {
+    throw new CreditExhaustedError();
+  }
+}
+
+export function getCreditExhaustedMessage(): string {
+  return 'No tienes créditos suficientes para continuar esta práctica. Compra créditos para seguir usando Mr. F.';
+}
+
+export function isCreditExhaustedError(error: unknown): boolean {
+  if (error instanceof CreditExhaustedError) {
+    return true;
+  }
+
+  const text = JSON.stringify(serializeError(error)).toLowerCase();
+  return (
+    text.includes('insufficient credit') ||
+    text.includes('insufficient credits') ||
+    text.includes('out of credits') ||
+    text.includes('not enough credits') ||
+    text.includes('credit limit') ||
+    text.includes('credits exhausted') ||
+    (text.includes('balance') && text.includes('credit')) ||
+    (text.includes('402') && text.includes('credit'))
+  );
+}
+
+function serializeError(error: unknown): unknown {
+  if (error instanceof Error) {
+    return {
+      cause: serializeError(error.cause),
+      message: error.message,
+      name: error.name,
+    };
+  }
+
+  return error;
+}

@@ -38,6 +38,7 @@ export async function renderCreditsPage(
   }
 
   const balance = await getCreditBalanceForUser(user.id);
+  const returnTo = normalizeReturnTo(request.query.returnTo);
 
   response.render('credits', {
     ...buildAppShellContext({
@@ -54,6 +55,7 @@ export async function renderCreditsPage(
     checkoutStatus: readQueryString(request.query.checkout),
     creditPackage: defaultCreditPackage,
     purchases: listFulfilledCreditPurchasesForUser(user.id),
+    returnTo,
     stripeConfigurationError: getStripeConfigurationError(),
   });
 }
@@ -68,7 +70,9 @@ export async function handleCreateCreditsCheckout(
   }
 
   try {
+    const returnTo = normalizeReturnTo(request.body.returnTo);
     const session = await createCreditsCheckoutSession({
+      returnTo,
       user,
     });
 
@@ -83,7 +87,9 @@ export async function handleCreateCreditsCheckout(
         ? error.message
         : 'No se pudo iniciar el pago con Stripe.';
     response.redirect(
-      `/credits?checkout=error&error=${encodeURIComponent(message)}`,
+      `/credits?checkout=error&error=${encodeURIComponent(message)}&returnTo=${encodeURIComponent(
+        normalizeReturnTo(request.body.returnTo),
+      )}`,
     );
   }
 }
@@ -122,4 +128,22 @@ export async function handleStripeWebhook(
 
 function readQueryString(value: unknown): string {
   return typeof value === 'string' ? value : '';
+}
+
+function normalizeReturnTo(value: unknown): string {
+  const raw = typeof value === 'string' ? value.trim() : '';
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) {
+    return '/credits';
+  }
+
+  const [path = ''] = raw.split('#');
+  if (
+    path.startsWith('/credits/checkout') ||
+    path.startsWith('/logout') ||
+    path.startsWith('/stripe')
+  ) {
+    return '/credits';
+  }
+
+  return path.slice(0, 500);
 }

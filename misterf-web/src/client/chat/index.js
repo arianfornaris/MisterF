@@ -49,6 +49,7 @@ const translatorSubmitEl = document.querySelector('[data-translator-submit]');
 const translatorOpenButtonEls = document.querySelectorAll('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
 const creditModalEl = document.querySelector('#creditModal');
+const creditBuyLinkEl = document.querySelector('[data-credit-buy-link]');
 const creditMessageEl = document.querySelector('[data-credit-message]');
 const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const chatMode = 'tutor';
@@ -361,9 +362,26 @@ function showCreditExhaustedModal(message) {
   const displayMessage =
     message ||
     'Tu crédito de práctica se agotó por ahora. Puedes recargar crédito o intentarlo de nuevo más tarde.';
+  const buyPath = buildCreditsReturnPath();
+
+  if (streamingBubble) {
+    streamingBubble.closest('.message-row')?.remove();
+    streamingBubble = null;
+  }
+
+  toolStatusRow?.remove();
+  toolStatusRow = null;
+  isAssistantBusy = false;
+  isAssistantStopping = false;
+  setComposerEnabled(!pendingPracticeModuleStart);
+  appendCreditTutorMessage(buyPath);
 
   if (creditMessageEl) {
     creditMessageEl.textContent = displayMessage;
+  }
+
+  if (creditBuyLinkEl) {
+    creditBuyLinkEl.href = buyPath;
   }
 
   if (creditModalEl && window.bootstrap?.Modal) {
@@ -373,6 +391,24 @@ function showCreditExhaustedModal(message) {
 
   tutorMessageRenderer.appendMessage('error', displayMessage);
   scrollToBottom();
+}
+
+function appendCreditTutorMessage(buyPath) {
+  const bubble = tutorMessageRenderer.appendMessage(
+    'model',
+    `Me quedé sin créditos para continuar esta práctica ahora mismo. Compra créditos y te traigo de vuelta aquí para seguir justo donde nos quedamos.\n\n[Comprar créditos](${buyPath})`,
+  );
+  const buyLink = Array.from(bubble.querySelectorAll('a')).find(
+    (link) => link.getAttribute('href') === buyPath,
+  );
+  buyLink?.classList.add('btn', 'btn-primary', 'btn-sm', 'mt-2');
+  bubble.closest('.message-row')?.setAttribute('data-credit-exhausted-message', 'true');
+  scrollToBottom();
+}
+
+function buildCreditsReturnPath() {
+  const returnTo = `${window.location.pathname}${window.location.search}`;
+  return `/credits?returnTo=${encodeURIComponent(returnTo || '/')}`;
 }
 
 function putMessageBackInComposer(content, options = {}) {

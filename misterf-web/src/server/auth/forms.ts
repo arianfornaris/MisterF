@@ -98,8 +98,8 @@ import {
 } from '../db/repository.js';
 import {
   ensureOpenRouterKeyForUser,
-  getOpenRouterApiKeyForUser,
 } from '../services/openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { env } from '../config/env.js';
 import {
   clearActiveProfileCookie,
@@ -2611,7 +2611,7 @@ async function advanceChatRoomConversationStep(input: {
 }> {
   const characters = listChatRoomCharacters(input.room.id);
   const messages = listChatRoomMessages(input.conversationId);
-  const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
   console.info(
     `[chatrooms] step:start ${JSON.stringify({
       characterCount: characters.length,
@@ -2682,7 +2682,7 @@ async function evaluateChatRoomUserMessageStep(input: {
   userName: string;
 }): Promise<null | { status: 'ok' } | { status: 'warning'; problem: string }> {
   const messages = listChatRoomMessages(input.conversationId);
-  const openRouterApiKey = await getOpenRouterApiKeyForUser(input.userId);
+  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
   return evaluateChatRoomUserMessage({
     historyText: messages
       .filter((message) => message.senderType !== 'system')

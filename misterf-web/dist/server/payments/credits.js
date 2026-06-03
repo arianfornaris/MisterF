@@ -53,9 +53,13 @@ export async function createCreditsCheckoutSession(input) {
         throw new Error(configurationError);
     }
     const packageToBuy = input.packageToBuy ?? defaultCreditPackage;
+    const returnTo = input.returnTo || '/credits';
     const stripe = getStripeClient();
     const session = await stripe.checkout.sessions.create({
-        cancel_url: buildAbsoluteAppUrl('/credits?checkout=cancelled'),
+        cancel_url: buildAbsoluteAppUrl(appendQueryString('/credits', {
+            checkout: 'cancelled',
+            returnTo,
+        })),
         customer_email: input.user.email,
         line_items: [
             {
@@ -65,17 +69,19 @@ export async function createCreditsCheckoutSession(input) {
         ],
         metadata: {
             packageCode: packageToBuy.code,
+            returnTo,
             userId: input.user.id,
         },
         mode: 'payment',
         payment_intent_data: {
             metadata: {
                 packageCode: packageToBuy.code,
+                returnTo,
                 userId: input.user.id,
             },
             receipt_email: input.user.email,
         },
-        success_url: buildAbsoluteAppUrl('/credits?checkout=success&session_id={CHECKOUT_SESSION_ID}'),
+        success_url: buildAbsoluteAppUrl(appendRawQueryString(returnTo, 'credits=success&session_id={CHECKOUT_SESSION_ID}')),
     });
     createPendingCreditPurchase({
         creditedAmountCents: packageToBuy.creditedAmountCents,
@@ -191,5 +197,13 @@ function resolveOpenRouterUsageUsd(remoteInfo) {
 }
 function roundUsd(value) {
     return Math.round(value * 10000) / 10000;
+}
+function appendQueryString(path, params) {
+    const query = new URLSearchParams(params).toString();
+    return appendRawQueryString(path, query);
+}
+function appendRawQueryString(path, query) {
+    const separator = path.includes('?') ? '&' : '?';
+    return `${path}${separator}${query}`;
 }
 //# sourceMappingURL=credits.js.map

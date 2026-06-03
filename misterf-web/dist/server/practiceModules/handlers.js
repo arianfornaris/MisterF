@@ -1,7 +1,7 @@
 import QRCode from 'qrcode';
 import { createPracticeModule, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, listConversationsForPracticeModule, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
-import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
@@ -358,7 +358,7 @@ export async function handleGeneratePracticeModuleDraft(request, response) {
         return;
     }
     try {
-        const openRouterApiKey = await getOpenRouterApiKeyForUser(user.id);
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
         const draft = await generatePracticeModuleDraft({
             openRouterApiKey,
             prompt,

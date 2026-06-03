@@ -16,6 +16,7 @@ The goal of this documentation is to make the project easier to understand for:
 - [Tutor Runtime](./tutor-runtime.md): how Mr. F conversations, tools, structured outputs, exercises, and quiz evaluation work
 - [Prompts](./prompts.md): prompt families and what each prompt is responsible for
 - [Feature Flows](./feature-flows.md): end-to-end flow descriptions for the most important user journeys
+- [Visual Design](./visual-design.md): theme philosophy, Bootstrap usage, and custom color token rules
 
 ## Scope
 

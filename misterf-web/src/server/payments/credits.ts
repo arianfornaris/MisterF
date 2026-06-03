@@ -81,6 +81,7 @@ export async function getCreditBalanceForUser(
 
 export async function createCreditsCheckoutSession(input: {
   packageToBuy?: CreditPackage;
+  returnTo?: string;
   user: AuthUser;
 }): Promise<Stripe.Checkout.Session> {
   const configurationError = getStripeConfigurationError();
@@ -89,9 +90,15 @@ export async function createCreditsCheckoutSession(input: {
   }
 
   const packageToBuy = input.packageToBuy ?? defaultCreditPackage;
+  const returnTo = input.returnTo || '/credits';
   const stripe = getStripeClient();
   const session = await stripe.checkout.sessions.create({
-    cancel_url: buildAbsoluteAppUrl('/credits?checkout=cancelled'),
+    cancel_url: buildAbsoluteAppUrl(
+      appendQueryString('/credits', {
+        checkout: 'cancelled',
+        returnTo,
+      }),
+    ),
     customer_email: input.user.email,
     line_items: [
       {
@@ -101,18 +108,20 @@ export async function createCreditsCheckoutSession(input: {
     ],
     metadata: {
       packageCode: packageToBuy.code,
+      returnTo,
       userId: input.user.id,
     },
     mode: 'payment',
     payment_intent_data: {
       metadata: {
         packageCode: packageToBuy.code,
+        returnTo,
         userId: input.user.id,
       },
       receipt_email: input.user.email,
     },
     success_url: buildAbsoluteAppUrl(
-      '/credits?checkout=success&session_id={CHECKOUT_SESSION_ID}',
+      appendRawQueryString(returnTo, 'credits=success&session_id={CHECKOUT_SESSION_ID}'),
     ),
   });
 
@@ -277,4 +286,14 @@ function resolveOpenRouterUsageUsd(
 
 function roundUsd(value: number): number {
   return Math.round(value * 10000) / 10000;
+}
+
+function appendQueryString(path: string, params: Record<string, string>): string {
+  const query = new URLSearchParams(params).toString();
+  return appendRawQueryString(path, query);
+}
+
+function appendRawQueryString(path: string, query: string): string {
+  const separator = path.includes('?') ? '&' : '?';
+  return `${path}${separator}${query}`;
 }

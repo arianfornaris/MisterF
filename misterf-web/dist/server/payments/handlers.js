@@ -16,6 +16,7 @@ export async function renderCreditsPage(request, response) {
         return;
     }
     const balance = await getCreditBalanceForUser(user.id);
+    const returnTo = normalizeReturnTo(request.query.returnTo);
     response.render('credits', {
         ...buildAppShellContext({
             activeProfile: request.activeProfile,
@@ -31,6 +32,7 @@ export async function renderCreditsPage(request, response) {
         checkoutStatus: readQueryString(request.query.checkout),
         creditPackage: defaultCreditPackage,
         purchases: listFulfilledCreditPurchasesForUser(user.id),
+        returnTo,
         stripeConfigurationError: getStripeConfigurationError(),
     });
 }
@@ -40,7 +42,9 @@ export async function handleCreateCreditsCheckout(request, response) {
         return;
     }
     try {
+        const returnTo = normalizeReturnTo(request.body.returnTo);
         const session = await createCreditsCheckoutSession({
+            returnTo,
             user,
         });
         if (!session.url) {
@@ -52,7 +56,7 @@ export async function handleCreateCreditsCheckout(request, response) {
         const message = error instanceof Error
             ? error.message
             : 'No se pudo iniciar el pago con Stripe.';
-        response.redirect(`/credits?checkout=error&error=${encodeURIComponent(message)}`);
+        response.redirect(`/credits?checkout=error&error=${encodeURIComponent(message)}&returnTo=${encodeURIComponent(normalizeReturnTo(request.body.returnTo))}`);
     }
 }
 export async function handleStripeWebhook(request, response) {
@@ -81,5 +85,18 @@ export async function handleStripeWebhook(request, response) {
 }
 function readQueryString(value) {
     return typeof value === 'string' ? value : '';
+}
+function normalizeReturnTo(value) {
+    const raw = typeof value === 'string' ? value.trim() : '';
+    if (!raw || !raw.startsWith('/') || raw.startsWith('//')) {
+        return '/credits';
+    }
+    const [path = ''] = raw.split('#');
+    if (path.startsWith('/credits/checkout') ||
+        path.startsWith('/logout') ||
+        path.startsWith('/stripe')) {
+        return '/credits';
+    }
+    return path.slice(0, 500);
 }
 //# sourceMappingURL=handlers.js.map

@@ -2,7 +2,7 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { findUserById } from '../../auth/repository.js';
 import { createChatRoom, deleteChatRoomForUser, findChatRoomConversationForUser, findChatRoomConversationReport, findChatRoomForUser, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, saveChatRoomConversationReport, } from '../../db/repository.js';
-import { getOpenRouterApiKeyForUser } from '../openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../creditGate.js';
 import { generateChatRoomConversationReport } from '../chatrooms.js';
 function normalizeSearchText(value) {
     return value
@@ -193,7 +193,7 @@ export function buildTutorChatRoomTools(input) {
                 let savedReport;
                 try {
                     const messages = listChatRoomMessages(conversation.id);
-                    const openRouterApiKey = await getOpenRouterApiKeyForUser(userId);
+                    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(userId);
                     const generatedReport = await generateChatRoomConversationReport({
                         messages,
                         openRouterApiKey,

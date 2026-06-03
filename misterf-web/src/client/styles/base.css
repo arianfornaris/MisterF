@@ -1,17 +1,56 @@
 :root {
   color-scheme: light;
   --app-serif-font: "Literata", Georgia, "Times New Roman", Times, serif;
-  --page: #fff;
-  --ink: #222;
-  --muted: #777;
-  --line: #eee;
-  --panel: #ffffff;
-  --user: #369;
-  --tutor: #ffffff;
-  --accent: #eb6864;
-  --accent-soft: #fff1f0;
-  --coral: #f57a00;
-  --shadow: 0 18px 50px rgb(34 34 34 / 10%);
+  --page: var(--bs-body-bg);
+  --ink: var(--bs-body-color);
+  --muted: var(--bs-secondary-color);
+  --line: var(--bs-border-color);
+  --panel: var(--bs-card-bg);
+
+  /* Practice/chat visual language. Bootstrap still owns links, buttons, and app chrome. */
+  --mf-dialogue: #6c4b2c;
+  --mf-dialogue-surface: #fffdf7;
+  --mf-dialogue-surface-strong: #fffdf8;
+  --mf-practice-rgb: 31 111 139;
+  --mf-practice: #1f6f8b;
+  --mf-practice-strong: #155e75;
+  --mf-practice-ink: #17212b;
+  --mf-practice-strong-rgb: 21 94 117;
+  --mf-practice-blue: #2f6fed;
+  --mf-choice: #c66b3d;
+  --mf-choice-strong: #9a3412;
+  --mf-quiz-rgb: 79 70 229;
+  --mf-quiz: #4f46e5;
+  --mf-quiz-strong: #4338ca;
+  --mf-teal-rgb: 15 118 110;
+  --mf-teal: #0f766e;
+  --mf-teal-strong: #115e59;
+  --mf-cyan-rgb: 14 116 144;
+  --mf-success-rgb: 22 163 74;
+  --mf-success-soft-rgb: 240 253 244;
+  --mf-success: #166534;
+  --mf-warning-rgb: 217 119 6;
+  --mf-warning-soft-rgb: 255 251 235;
+  --mf-warning: #92400e;
+  --mf-warning-strong: #c98a00;
+  --mf-warning-text: #8a6200;
+  --mf-danger-rgb: 220 38 38;
+  --mf-danger-bootstrap-rgb: 220 53 69;
+  --mf-danger-deep-rgb: 185 28 28;
+  --mf-danger-soft-rgb: 254 242 242;
+  --mf-danger: #991b1b;
+  --mf-danger-strong: #b02a37;
+  --mf-danger-icon: #dc3545;
+  --mf-code-rgb: 15 23 42;
+  --mf-code-bg: #0f172a;
+  --mf-code-text: #e2e8f0;
+  --mf-code-inline: #152234;
+  --mf-blockquote: #475569;
+  --mf-slate-rgb: 148 163 184;
+  --mf-slate-strong-rgb: 100 116 139;
+  --mf-muted-slate: #64748b;
+  --mf-popover-body: #3f4d5a;
+  --mf-error-muted: #9d3b24;
 }
 
 * {
@@ -23,7 +62,7 @@ body {
   margin: 0;
   background:
     linear-gradient(180deg, rgb(255 255 255 / 88%), rgb(248 249 250 / 96%)),
-    radial-gradient(circle at top left, rgb(235 104 100 / 12%), transparent 34%),
+    radial-gradient(circle at top left, rgb(var(--bs-primary-rgb) / 10%), transparent 34%),
     var(--page);
   color: var(--ink);
   font-family: var(--bs-body-font-family);
@@ -62,7 +101,7 @@ body {
 
 .superadmin-kicker {
   margin: 0 0 4px;
-  color: var(--accent);
+  color: var(--bs-primary);
   font-weight: 700;
   text-transform: uppercase;
 }

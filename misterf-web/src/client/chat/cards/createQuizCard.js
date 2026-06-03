@@ -56,7 +56,7 @@ export function createQuizCard(block, context, deps) {
   headerText.append(label, prompt);
 
   const closeButton = document.createElement('button');
-  closeButton.className = 'quiz-close-button';
+  closeButton.className = 'btn btn-outline-secondary quiz-close-button';
   closeButton.type = 'button';
   closeButton.setAttribute('aria-label', 'Cerrar quiz');
   closeButton.innerHTML = '&times;';
@@ -92,7 +92,7 @@ export function createQuizCard(block, context, deps) {
   nav.className = 'quiz-nav';
 
   const previousButton = document.createElement('button');
-  previousButton.className = 'quiz-nav-button';
+  previousButton.className = 'btn btn-outline-secondary quiz-nav-button';
   previousButton.type = 'button';
   previousButton.textContent = 'Atras';
   previousButton.addEventListener('click', () => {
@@ -103,7 +103,7 @@ export function createQuizCard(block, context, deps) {
   });
 
   const nextButton = document.createElement('button');
-  nextButton.className = 'quiz-nav-button';
+  nextButton.className = 'btn btn-outline-secondary quiz-nav-button';
   nextButton.type = 'button';
   nextButton.textContent = 'Siguiente';
   nextButton.addEventListener('click', () => {
@@ -122,7 +122,7 @@ export function createQuizCard(block, context, deps) {
   status.className = 'quiz-status';
 
   const evaluateButton = document.createElement('button');
-  evaluateButton.className = 'quiz-evaluate-button';
+  evaluateButton.className = 'btn btn-primary quiz-evaluate-button';
   evaluateButton.type = 'button';
   evaluateButton.textContent = 'Evaluar';
   evaluateButton.addEventListener('click', () => {

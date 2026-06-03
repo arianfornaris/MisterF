@@ -19,7 +19,7 @@ import {
   listPracticeModulesForProfile,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
-import { getOpenRouterApiKeyForUser } from '../services/openRouterUserKeys.js';
+import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
 import {
   appDocumentTitle,
@@ -535,7 +535,7 @@ export async function handleGeneratePracticeModuleDraft(
   }
 
   try {
-    const openRouterApiKey = await getOpenRouterApiKeyForUser(user.id);
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
     const draft = await generatePracticeModuleDraft({
       openRouterApiKey,
       prompt,
