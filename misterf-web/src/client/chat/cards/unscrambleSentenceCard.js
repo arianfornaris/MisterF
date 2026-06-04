@@ -2,6 +2,7 @@ import { renderMarkdown } from '../shared/markdown.js';
 import {
   createExerciseConfirmButton,
   flashExerciseError,
+  formatTokenSentence,
   normalizeExerciseAnswer,
   seededShuffle,
   tokenizeSentence,
@@ -201,7 +202,7 @@ function handleUnscrambleSentenceSubmit(section, state, deps) {
   }
 
   state.totalAttempts += 1;
-  const completedSentence = state.selectedTokens.join(' ').replace(/\s+/g, ' ').trim();
+  const completedSentence = formatTokenSentence(state.selectedTokens);
   if (state.answersNormalized.has(normalizeExerciseAnswer(completedSentence))) {
     state.completed = true;
     state.completedSentence = completedSentence;

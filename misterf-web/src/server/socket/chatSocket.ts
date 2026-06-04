@@ -1581,7 +1581,7 @@ function normalizeQuizResponses(
       return {
         kind: item.kind,
         selectedTokens: selectedTokens.filter((token) => item.tokens.includes(token)),
-        sentence: selectedTokens.join(' ').replace(/\s+/g, ' ').trim(),
+        sentence: normalizeExerciseSentence(selectedTokens.join(' ')) ?? '',
       };
     }
 
@@ -2052,7 +2052,11 @@ function normalizeExerciseSentence(value: unknown): string | null {
     return null;
   }
 
-  const sentence = value.replace(/\s+/g, ' ').trim();
+  const sentence = value
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,!?;:%)\]}])/g, '$1')
+    .replace(/([¿¡([{])\s+/g, '$1')
+    .trim();
   return sentence ? sentence.slice(0, 1200) : null;
 }
 

@@ -48,8 +48,20 @@ export function fillSentenceBlanks(sentence, values, placeholderToken = '___') {
   return nextSentence.replace(/\s+/g, ' ').trim();
 }
 
+export function normalizeTokenSpacing(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([.,!?;:%)\]}])/g, '$1')
+    .replace(/([¿¡([{])\s+/g, '$1')
+    .trim();
+}
+
+export function formatTokenSentence(tokens) {
+  return normalizeTokenSpacing(Array.isArray(tokens) ? tokens.join(' ') : '');
+}
+
 export function normalizeExerciseAnswer(value) {
-  return String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  return normalizeTokenSpacing(value).toLowerCase();
 }
 
 export function seededShuffle(items, seedText) {

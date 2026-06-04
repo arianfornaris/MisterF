@@ -1,6 +1,7 @@
 import { renderMarkdown } from '../utils/formatting.js';
 import { disableTextAssist } from '../utils/textAssist.js';
 import {
+  formatTokenSentence,
   seededShuffle,
   splitSentenceByBlanks,
 } from '../shared/exerciseUtils.js';
@@ -812,6 +813,7 @@ function buildQuizResponsePayload(item, itemState) {
 
   if (item.kind === 'quiz_unscramble_sentence') {
     return {
+      sentence: formatTokenSentence(itemState.selectedTokens),
       selectedTokens: Array.isArray(itemState.selectedTokens)
         ? itemState.selectedTokens
         : [],
