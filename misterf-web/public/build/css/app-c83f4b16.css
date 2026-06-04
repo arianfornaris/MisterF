@@ -1563,9 +1563,16 @@ body {
   box-shadow: 0 3px 0 rgb(var(--mf-practice-strong-rgb) / 16%);
 }
 
+.fill-in-the-blank-input {
+  width: min(var(--blank-input-width, 14ch), 100%);
+  max-width: min(100%, 42ch);
+}
+
 .fill-in-the-blank-select {
   appearance: none;
   -webkit-appearance: none;
+  width: min(var(--blank-select-width, 14ch), 100%);
+  max-width: min(100%, 42ch);
   min-height: 2.15rem;
   padding-right: 0.35rem;
   background: transparent;
@@ -2046,25 +2053,7 @@ button.quiz-result-pair-row:focus {
 }
 
 .quiz-close-button {
-  width: 34px;
-  height: 34px;
   flex: 0 0 auto;
-  display: inline-grid;
-  place-items: center;
-  padding: 0;
-  border-radius: 999px;
-  font-size: 1.6rem;
-  line-height: 1;
-}
-
-.quiz-close-button:hover,
-.quiz-close-button:focus {
-  outline: 0;
-}
-
-.quiz-close-button:disabled {
-  opacity: 0.55;
-  cursor: default;
 }
 
 .quiz-item-counter {
@@ -2112,39 +2101,11 @@ button.quiz-result-pair-row:focus {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  font-family: var(--bs-body-font-family);
 }
 
 .quiz-nav {
   margin-top: 1rem;
-}
-
-.quiz-nav-button,
-.quiz-evaluate-button,
-.quiz-pair-remove {
-  border-radius: 999px;
-  font-family: var(--bs-body-font-family);
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.quiz-nav-button,
-.quiz-pair-remove {
-  padding: 0.55rem 0.9rem;
-}
-
-.quiz-nav-button:hover,
-.quiz-nav-button:focus,
-.quiz-evaluate-button:hover,
-.quiz-evaluate-button:focus,
-.quiz-pair-remove:hover,
-.quiz-pair-remove:focus {
-  outline: 0;
-}
-
-.quiz-nav-button:disabled,
-.quiz-evaluate-button:disabled,
-.quiz-pair-remove:disabled {
-  cursor: default;
 }
 
 .quiz-footer {
@@ -2174,10 +2135,6 @@ button.quiz-result-pair-row:focus {
 
 .quiz-status-spinner {
   flex-shrink: 0;
-}
-
-.quiz-evaluate-button {
-  padding: 0.65rem 1.1rem;
 }
 
 .quiz-pair-list {
@@ -2439,10 +2396,14 @@ button.quiz-result-pair-row:focus {
     width: 100%;
   }
 
-  .fill-in-the-blank-input,
+  .fill-in-the-blank-input {
+    min-width: 72px;
+    width: min(var(--blank-input-width, 14ch), 82vw);
+  }
+
   .fill-in-the-blank-select {
     min-width: 72px;
-    width: min(140px, 38vw);
+    width: min(var(--blank-select-width, 14ch), 82vw);
   }
 }
 

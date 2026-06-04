@@ -119,6 +119,10 @@ export function createFillInTheBlankCard(block, context, deps) {
       input.className = 'fill-in-the-blank-input';
       input.type = 'text';
       input.dataset.blankIndex = String(index);
+      input.style.setProperty(
+        '--blank-input-width',
+        `${getBlankInputWidthCh(blanks[index].answers)}ch`,
+      );
       disableTextAssist(input);
       input.value = state.values[index] || '';
       input.addEventListener('input', () => {
@@ -136,6 +140,10 @@ export function createFillInTheBlankCard(block, context, deps) {
       const select = document.createElement('select');
       select.className = 'fill-in-the-blank-select';
       select.dataset.blankIndex = String(index);
+      select.style.setProperty(
+        '--blank-select-width',
+        `${getChoiceSelectWidthCh(blanks[index].choices)}ch`,
+      );
 
       const emptyOption = document.createElement('option');
       emptyOption.value = '';
@@ -240,6 +248,22 @@ function renderFillInTheBlankState(section, state) {
           : 'Completa todos los espacios y confirma cuando estés seguro.';
     }
   }
+}
+
+function getChoiceSelectWidthCh(choices) {
+  const longestChoiceLength = choices.reduce(
+    (longest, choice) => Math.max(longest, choice.length),
+    0,
+  );
+  return Math.max(8, Math.min(42, longestChoiceLength + 4));
+}
+
+function getBlankInputWidthCh(answers) {
+  const longestAnswerLength = answers.reduce(
+    (longest, answer) => Math.max(longest, answer.length),
+    0,
+  );
+  return Math.max(8, Math.min(42, longestAnswerLength + 2));
 }
 
 function handleFillInTheBlankSubmit(section, state, deps) {

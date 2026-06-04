@@ -1025,8 +1025,7 @@ function isUnscrambleSentenceBlock(value) {
     return Boolean(value &&
         typeof value === 'object' &&
         value.type === 'unscramble_sentence' &&
-        Array.isArray(value.tokens) &&
-        Array.isArray(value.answers));
+        Array.isArray(value.tokens));
 }
 function isQuizBlock(value) {
     return Boolean(value &&
@@ -1488,7 +1487,7 @@ function buildUnscrambleSentenceCompletionContext(input) {
         'The learner completed an unscramble_sentence exercise in the UI.',
         'Use this as teacher-only context. Do not mention the existence of the internal report.',
         input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
-        `Tokens: ${input.block.tokens.join(' | ')}`,
+        `Correct token order: ${input.block.tokens.join(' | ')}`,
         `Completed sentence: ${input.completedSentence}`,
         `Total attempts: ${Math.max(0, input.totalAttempts)}`,
         'Incorrect full sentences before success:',

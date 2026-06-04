@@ -1,15 +1,14 @@
 import { renderMarkdown } from '../shared/markdown.js';
 import {
+  arraysEqual,
   createExerciseConfirmButton,
   flashExerciseError,
   formatTokenSentence,
-  normalizeExerciseAnswer,
   seededShuffle,
-  tokenizeSentence,
 } from '../shared/exerciseUtils.js';
 
 export function createUnscrambleSentenceCard(block, context, deps) {
-  if (!Array.isArray(block.tokens) || !Array.isArray(block.answers)) {
+  if (!Array.isArray(block.tokens)) {
     return null;
   }
 
@@ -17,11 +16,7 @@ export function createUnscrambleSentenceCard(block, context, deps) {
     .filter((token) => typeof token === 'string')
     .map((token) => token.trim())
     .filter(Boolean);
-  const answers = block.answers
-    .filter((answer) => typeof answer === 'string')
-    .map((answer) => answer.trim())
-    .filter(Boolean);
-  if (tokens.length < 2 || answers.length === 0) {
+  if (tokens.length < 2) {
     return null;
   }
 
@@ -47,14 +42,14 @@ export function createUnscrambleSentenceCard(block, context, deps) {
   bank.className = 'unscramble-sentence-bank';
 
   const state = {
-    answersNormalized: new Set(answers.map(normalizeExerciseAnswer)),
-    availableTokens: seededShuffle(tokens, `${exerciseKey}:unscramble`),
+    availableTokens: createInitialTokenBank(tokens, `${exerciseKey}:unscramble`),
     blockIndex,
     completed: Boolean(context.result?.completedAt),
     completedSentence:
       typeof context.result?.completedSentence === 'string'
         ? context.result.completedSentence
-        : '',
+        : formatTokenSentence(tokens),
+    correctTokens: tokens,
     incorrectSentences: Array.isArray(context.result?.incorrectSentences)
       ? context.result.incorrectSentences
       : [],
@@ -69,7 +64,7 @@ export function createUnscrambleSentenceCard(block, context, deps) {
   };
 
   if (state.completed && state.selectedTokens.length === 0) {
-    state.selectedTokens = tokenizeSentence(state.completedSentence);
+    state.selectedTokens = [...state.correctTokens];
     state.availableTokens = [];
   } else if (state.selectedTokens.length > 0) {
     const remaining = [...tokens];
@@ -196,6 +191,21 @@ function createUnscrambleTokenButton(token, index, isSelected, disabled) {
   return button;
 }
 
+function createInitialTokenBank(tokens, seedText) {
+  const shuffled = seededShuffle(tokens, seedText);
+  if (!arraysEqual(shuffled, tokens)) {
+    return shuffled;
+  }
+
+  const swapIndex = shuffled.findIndex((token) => token !== shuffled[0]);
+  if (swapIndex <= 0) {
+    return shuffled;
+  }
+
+  [shuffled[0], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[0]];
+  return shuffled;
+}
+
 function handleUnscrambleSentenceSubmit(section, state, deps) {
   if (state.completed || state.selectedTokens.length === 0) {
     return;
@@ -203,7 +213,7 @@ function handleUnscrambleSentenceSubmit(section, state, deps) {
 
   state.totalAttempts += 1;
   const completedSentence = formatTokenSentence(state.selectedTokens);
-  if (state.answersNormalized.has(normalizeExerciseAnswer(completedSentence))) {
+  if (arraysEqual(state.selectedTokens, state.correctTokens)) {
     state.completed = true;
     state.completedSentence = completedSentence;
     state.statusText = '';

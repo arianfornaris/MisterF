@@ -99,7 +99,6 @@ export type TutorUnscrambleSentenceBlock = {
   type: 'unscramble_sentence';
   prompt?: string;
   tokens: string[];
-  answers: string[];
 };
 
 export type TutorQuizItemOpenText = {

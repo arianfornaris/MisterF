@@ -677,7 +677,6 @@ export const unscrambleSentenceBlockSchema = z
     type: z.literal('unscramble_sentence'),
     prompt: z.string().trim().min(1).max(1000).optional(),
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
-    answers: z.array(z.string().trim().min(1).max(1600)).min(1).max(12),
 })
     .strict();
 export const translateToEnglishPromptBlockSchema = z

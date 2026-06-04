@@ -57,10 +57,9 @@ export function createQuizCard(block, context, deps) {
   headerText.append(label, prompt);
 
   const closeButton = document.createElement('button');
-  closeButton.className = 'btn btn-outline-secondary quiz-close-button';
+  closeButton.className = 'btn-close quiz-close-button';
   closeButton.type = 'button';
   closeButton.setAttribute('aria-label', 'Cerrar quiz');
-  closeButton.innerHTML = '&times;';
   closeButton.addEventListener('click', () => {
     if (state.submitted || state.aborted) {
       return;
@@ -93,9 +92,9 @@ export function createQuizCard(block, context, deps) {
   nav.className = 'quiz-nav';
 
   const previousButton = document.createElement('button');
-  previousButton.className = 'btn btn-outline-secondary quiz-nav-button';
+  previousButton.className = 'btn btn-primary btn-sm quiz-nav-button';
   previousButton.type = 'button';
-  previousButton.textContent = 'Atras';
+  previousButton.textContent = 'Atrás';
   previousButton.addEventListener('click', () => {
     if (state.currentIndex > 0) {
       state.currentIndex -= 1;
@@ -104,7 +103,7 @@ export function createQuizCard(block, context, deps) {
   });
 
   const nextButton = document.createElement('button');
-  nextButton.className = 'btn btn-outline-secondary quiz-nav-button';
+  nextButton.className = 'btn btn-primary btn-sm quiz-nav-button';
   nextButton.type = 'button';
   nextButton.textContent = 'Siguiente';
   nextButton.addEventListener('click', () => {

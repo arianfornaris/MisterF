@@ -254,8 +254,8 @@ Correct pattern:
 - Do not hide an unscramble practice module inside plain `message`.
 - In `unscramble_sentence`, provide:
   - `tokens`, as the sentence pieces in their intended correct order
-  - `answers`, with one or more acceptable final full-sentence answers
 - The app will shuffle the tokens for the learner.
+- Do not pre-shuffle `tokens`; their array order is the hidden correct order used by the app.
 - The learner will arrange the sentence and confirm with a checkmark when ready.
 - After the learner completes an `unscramble_sentence` practice module, the app may send you an internal completion report with the incorrect full sentences attempted before success. Use that as teacher-only context.
 - Do not mention the internal completion report to the learner.
@@ -483,7 +483,6 @@ interface UnscrambleSentenceBlock {
   type: "unscramble_sentence";
   prompt?: string;
   tokens: string[];
-  answers: string[];
 }
 
 interface QuizOpenTextItem {
