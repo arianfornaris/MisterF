@@ -3,7 +3,8 @@ import { env } from '../config/env.js';
 import { addChatRoomMessage, archiveChatRoomForUser, createConversationFromChatRoomReport, createPracticeModule, createChatRoom, createChatRoomConversation, findChatRoomById, findChatRoomConversationForUser, findChatRoomConversationReport, findChatRoomForUser, findChatRoomMessage, findChatRoomShareLinkById, findPracticeModuleForUser, findProfileById, findProfileForUser, getOrCreateChatRoomShareLink, importChatRoomToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listConversationsForProfile, restoreChatRoomForUser, saveChatRoomConversationReport, setChatRoomConversationReportPracticeModule, updateChatRoomForUser, updateChatRoomMessageEvaluation, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, generateChatRoomConversationReport, generatePracticeModuleFromChatRoomConversationReport, } from '../services/chatrooms.js';
-import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
+import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
+import { recordChatRoomConversationReportProgress } from '../services/learnerProgress.js';
 import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
 import { chatroomsLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
@@ -956,18 +957,32 @@ export async function handleEvaluateChatRoomConversation(request, response) {
     }
     const existingReport = findChatRoomConversationReport(conversation.id, auth.user.id);
     if (existingReport) {
+        recordChatRoomConversationReportProgress({
+            report: existingReport,
+            room,
+        });
         response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}/report`);
         return;
     }
     const messages = listChatRoomMessages(conversation.id);
-    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-    const report = await generateChatRoomConversationReport({
-        messages,
-        openRouterApiKey,
-        room,
-        userName: auth.user.fullName,
-    });
-    saveChatRoomConversationReport({
+    let report;
+    try {
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
+        report = await generateChatRoomConversationReport({
+            messages,
+            openRouterApiKey,
+            room,
+            userName: auth.user.fullName,
+        });
+    }
+    catch (error) {
+        if (isCreditExhaustedError(error)) {
+            response.redirect(buildChatRoomConversationCreditExhaustedPath(conversation.id));
+            return;
+        }
+        throw error;
+    }
+    const savedReport = saveChatRoomConversationReport({
         conversationId: conversation.id,
         profileId: conversation.profileId,
         roomId: room.id,
@@ -975,6 +990,10 @@ export async function handleEvaluateChatRoomConversation(request, response) {
         summaryDescription: report.summaryDescription,
         summaryTitle: report.summaryTitle,
         userId: auth.user.id,
+    });
+    recordChatRoomConversationReportProgress({
+        report: savedReport,
+        room,
     });
     response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}/report`);
 }
@@ -1054,6 +1073,13 @@ export function handlePracticeChatRoomConversationReportWithTutor(request, respo
         userId: auth.user.id,
     });
     response.redirect(`/c/${encodeURIComponent(tutorConversation.id)}`);
+}
+function buildChatRoomConversationCreditExhaustedPath(conversationId) {
+    const params = new URLSearchParams({
+        credit: 'exhausted',
+        creditMessage: getCreditExhaustedMessage(),
+    });
+    return `/chatroom-conversations/${encodeURIComponent(conversationId)}?${params.toString()}`;
 }
 export function handleGetChatRoomMessageEvaluation(request, response) {
     const auth = ensureVerifiedChatroomsUser(request, response);

@@ -201,6 +201,12 @@ export async function runTutorAgentLoop(
       roomTitle: string;
       slidesJson: string;
     } | null;
+    tutorReport?: {
+      reportJson: string;
+      reportSummaryDescription: string;
+      reportSummaryTitle: string;
+      sourceConversationId: string;
+    } | null;
     practiceModule?: {
       description: string;
       title: string;

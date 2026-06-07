@@ -7,21 +7,29 @@ export function buildAgentSystemInstruction(options) {
             : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
     });
     if (!options.practiceModule) {
-        if (!options.chatRoomReport) {
+        if (!options.chatRoomReport && !options.tutorReport) {
             return base;
         }
-        return [
-            base,
-            '',
-            renderSystemPrompt('tutor/chatroom-report-context.md', {
+        const sections = [base];
+        if (options.chatRoomReport) {
+            sections.push('', renderSystemPrompt('tutor/chatroom-report-context.md', {
                 CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
                 REPORT_SLIDES_JSON: options.chatRoomReport.slidesJson,
                 REPORT_SUMMARY_DESCRIPTION: options.chatRoomReport.reportSummaryDescription,
                 REPORT_SUMMARY_TITLE: options.chatRoomReport.reportSummaryTitle,
                 ROOM_DESCRIPTION: options.chatRoomReport.roomDescription,
                 ROOM_TITLE: options.chatRoomReport.roomTitle,
-            }),
-        ].join('\n');
+            }));
+        }
+        if (options.tutorReport) {
+            sections.push('', renderSystemPrompt('tutor/tutor-report-context.md', {
+                REPORT_JSON: options.tutorReport.reportJson,
+                REPORT_SUMMARY_DESCRIPTION: options.tutorReport.reportSummaryDescription,
+                REPORT_SUMMARY_TITLE: options.tutorReport.reportSummaryTitle,
+                SOURCE_CONVERSATION_ID: options.tutorReport.sourceConversationId,
+            }));
+        }
+        return sections.join('\n');
     }
     const sections = [
         base,
@@ -40,6 +48,14 @@ export function buildAgentSystemInstruction(options) {
             REPORT_SUMMARY_TITLE: options.chatRoomReport.reportSummaryTitle,
             ROOM_DESCRIPTION: options.chatRoomReport.roomDescription,
             ROOM_TITLE: options.chatRoomReport.roomTitle,
+        }));
+    }
+    if (options.tutorReport) {
+        sections.push('', renderSystemPrompt('tutor/tutor-report-context.md', {
+            REPORT_JSON: options.tutorReport.reportJson,
+            REPORT_SUMMARY_DESCRIPTION: options.tutorReport.reportSummaryDescription,
+            REPORT_SUMMARY_TITLE: options.tutorReport.reportSummaryTitle,
+            SOURCE_CONVERSATION_ID: options.tutorReport.sourceConversationId,
         }));
     }
     return sections.join('\n');

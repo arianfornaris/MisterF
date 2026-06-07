@@ -36,7 +36,9 @@ Key characteristics:
 - structured model responses validated on the server
 - optional practice module context
 - optional chat room report context
+- optional finalized tutor conversation report context
 - interactive exercises embedded in the message stream
+- finalizable conversations with structured summaries and follow-up practice
 
 ### Practice Modules
 
@@ -86,6 +88,19 @@ Users can:
 - create chat room conversations
 - evaluate a completed conversation
 - generate a practice module from the resulting report
+
+### Tutor Conversation Reports
+
+One-on-one tutor conversations can be finalized and summarized.
+
+Users can:
+
+- finalize a tutor conversation with `Finalizar y resumir`
+- review the original conversation as read-only
+- inspect a structured summary of progress, difficulty areas, vocabulary, and
+  recommendations
+- start a new tutor conversation from that summary
+- generate a practice module from that summary
 
 ### Profiles
 

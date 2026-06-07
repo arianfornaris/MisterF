@@ -55,6 +55,102 @@ Avoid selectors like:
 That kind of rule can accidentally override Bootstrap buttons and make the UI
 feel inconsistent.
 
+## Modals
+
+Use standard Bootstrap modal structure and actions.
+
+Modal rules:
+
+- A dismissible modal should have a header `btn-close`.
+- Do not use `btn-link` or plain links for modal `Cerrar` or `Cancelar` actions.
+- Modal close/cancel actions should be real buttons with
+  `data-bs-dismiss="modal"`.
+- Informational modals can use a primary close action, such as `Cerrar` or
+  `Entendido`.
+- Confirmation, form, destructive, purchase, or generation modals should keep the
+  main action visually dominant and use `btn-secondary` for `Cancelar` or
+  `Cerrar`.
+- Destructive confirmations should place `Cancelar` before the `btn-danger`
+  action.
+- Pending modals with static backdrop/keyboard disabled should not include close
+  controls.
+- Long-running modal submits should disable the submit button, change its label,
+  and show a pending/loading modal or spinner immediately.
+- If a request creates a report, resource, module, checkout, or other server-side
+  result, the UI must not look idle while the browser waits.
+
+The project skill
+`/Users/arian/Documents/GameDev/MatandileGames/MisterF/.agents/skills/bootstrap-modal-conventions`
+contains the operational checklist for future modal work.
+
+## Tutor Exercise UI
+
+Tutor exercise cards may use Mister F custom colors for instructional identity,
+but their interactive controls should still feel native to Bootstrap and the
+Flatly theme.
+
+General rules:
+
+- Exercise cards can use custom tokens for borders, accents, highlights,
+  selected token surfaces, and correctness feedback.
+- Buttons, links, dropdown actions, modal actions, and quiz navigation should
+  use Bootstrap classes and Bootstrap variables.
+- Exercise controls should not look disabled unless they are actually disabled.
+- Long learner-visible text should remain readable after selection.
+- Exercise controls should use the normal UI font when they behave like app
+  controls; reserve the pedagogical serif voice for prompts, sentences, and
+  learning content.
+
+### Scramble blocks
+
+`unscramble_sentence` and `quiz_unscramble_sentence` render shuffled tokens on
+the client, but the model-provided `tokens` array is stored in the correct order.
+
+UI guidance:
+
+- token chips can use Mister F practice tokens for their card identity
+- the submit/check action should use Bootstrap button semantics
+- links or CTAs near the card should use Bootstrap link/button colors
+- feedback text can use semantic danger/success styling, but not arbitrary
+  legacy reds
+
+### Fill-in-the-blank blocks
+
+Inline blank controls need enough room for realistic learner answers.
+
+UI guidance:
+
+- text-input blanks should size generously for the expected answer
+- choice blanks should account for the longest option where practical
+- selected long options should not be clipped in the sentence
+- spacing around cards and headings should use Bootstrap spacing utilities or
+  clearly named local layout rules
+
+### Multiple-choice blocks
+
+Multiple-choice options may contain long phrases or full clauses.
+
+UI guidance:
+
+- selected options should remain readable
+- option layout should wrap/flex instead of truncating meaningful text
+- selection states may use custom practice highlights, but not Bootstrap button
+  colors unless the option is intentionally rendered as a Bootstrap button
+
+### Quiz UI
+
+Quiz UI should follow Bootstrap's control language.
+
+UI guidance:
+
+- close controls should be Bootstrap-friendly and not use bespoke shapes that
+  fight Flatly
+- `Atrás`, `Siguiente`, and `Evaluar` should use `btn-primary`
+- secondary sizing is fine for navigation, but the styling should remain clearly
+  enabled when the action is available
+- `Evaluar` should be disabled only until the quiz has enough input to submit
+- quiz control labels should use the normal UI font
+
 ## Custom Color Tokens
 
 Custom colors are allowed only for the tutor/practice visual language. They are
@@ -190,4 +286,3 @@ When reviewing UI changes, check:
 - New custom colors appear as `--mf-*` tokens in `base.css`.
 - `chat-content.css` colors are only for tutor/practice content.
 - Non-chat pages use Bootstrap and Bootswatch `Flatly` primitives.
-

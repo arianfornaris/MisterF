@@ -41,6 +41,13 @@ const deleteConversationTitleEl = document.querySelector(
 const confirmDeleteConversationButtonEl = document.querySelector(
   '[data-confirm-delete-conversation]',
 );
+const finalizeConversationModalEl = document.querySelector('#finalizeConversationModal');
+const finalizeConversationFormEl = document.querySelector('[data-finalize-conversation-form]');
+const finalizeCurrentConversationButtonEl = document.querySelector(
+  '[data-finalize-current-conversation]',
+);
+const tutorReportPendingModalEl = document.querySelector('[data-tutor-report-pending-modal]');
+const tutorReportPendingTitleEl = document.querySelector('[data-tutor-report-pending-title]');
 const translatorModalEl = document.querySelector('#translatorModal');
 const translatorFormEl = document.querySelector('#translatorForm');
 const translatorInputEl = document.querySelector('#translatorInput');
@@ -103,6 +110,9 @@ const conversationListView = new ConversationListView({
   deleteTitleEl: deleteConversationTitleEl,
   onDelete: ({ conversationId }) => {
     socket?.emit('conversation:delete', { conversationId });
+  },
+  onFinalize: ({ conversationId }) => {
+    openFinalizeConversationModal(conversationId);
   },
   onRename: ({ conversationId, title }) => {
     socket?.emit('conversation:rename', { conversationId, title });
@@ -214,6 +224,8 @@ const translatorController = createTranslatorController({
 disableComposerTextAssist();
 tutorMessageRenderer.initializeStaticMarkdown();
 runtime.initializeLlmContextMeter();
+initializeTutorReportPendingForms();
+initializeCreditExhaustedQueryModal();
 
 if (window.marked) {
   window.marked.setOptions({
@@ -241,6 +253,7 @@ if (socket) {
     setActiveUserMessageId: (value) => {
       activeUserMessageId = value;
     },
+    setCanFinalizeConversation,
     setComposerEnabled,
     setConversationId: (value) => {
       conversationId = value;
@@ -307,6 +320,14 @@ newConversationButtonEl?.addEventListener('click', (event) => {
   runtime.startNewConversation();
 });
 
+finalizeCurrentConversationButtonEl?.addEventListener('click', () => {
+  if (!conversationId || isAssistantBusy) {
+    return;
+  }
+
+  openFinalizeConversationModal(conversationId);
+});
+
 practiceModuleStartButtonEl?.addEventListener('click', () => {
   runtime.startPracticeModuleConversation();
 });
@@ -322,9 +343,97 @@ function disableComposerTextAssist() {
 }
 
 function buildConversationPath(nextConversationId) {
-  return nextConversationId
-    ? `/c/${encodeURIComponent(nextConversationId)}`
+  const nextConversation =
+    typeof nextConversationId === 'object' && nextConversationId !== null
+      ? nextConversationId
+      : { id: nextConversationId };
+
+  return nextConversation.id
+    ? `/c/${encodeURIComponent(nextConversation.id)}${nextConversation.closedAt ? '?tab=summary' : ''}`
     : '/';
+}
+
+function openFinalizeConversationModal(nextConversationId) {
+  if (!nextConversationId || !finalizeConversationFormEl) {
+    return;
+  }
+
+  finalizeConversationFormEl.setAttribute(
+    'action',
+    `/c/${encodeURIComponent(nextConversationId)}/finalize`,
+  );
+
+  if (finalizeConversationModalEl && window.bootstrap?.Modal) {
+    window.bootstrap.Modal.getOrCreateInstance(finalizeConversationModalEl).show();
+    return;
+  }
+
+  finalizeConversationFormEl.submit();
+}
+
+function initializeTutorReportPendingForms() {
+  if (!window.bootstrap?.Modal) {
+    return;
+  }
+
+  finalizeConversationFormEl?.addEventListener('submit', () => {
+    const submitButtonEl = finalizeConversationFormEl.querySelector('[data-finalize-conversation-submit]');
+    if (submitButtonEl instanceof HTMLButtonElement) {
+      submitButtonEl.disabled = true;
+      submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Generando resumen...';
+    }
+
+    showTutorReportPendingModal('Generando resumen...');
+    if (finalizeConversationModalEl) {
+      window.bootstrap.Modal.getOrCreateInstance(finalizeConversationModalEl).hide();
+    }
+  });
+
+  for (const formEl of document.querySelectorAll('form[data-tutor-report-pending-form]')) {
+    if (!(formEl instanceof HTMLFormElement)) {
+      continue;
+    }
+
+    const submitButtonEl = formEl.querySelector('[data-tutor-report-pending-button]');
+    formEl.addEventListener('submit', () => {
+      const label = formEl.dataset.tutorReportPendingLabel || 'Procesando...';
+      if (submitButtonEl instanceof HTMLButtonElement) {
+        submitButtonEl.disabled = true;
+        submitButtonEl.textContent = label;
+      }
+
+      showTutorReportPendingModal(label);
+    });
+  }
+}
+
+function showTutorReportPendingModal(label) {
+  if (tutorReportPendingTitleEl) {
+    tutorReportPendingTitleEl.textContent = label || 'Procesando...';
+  }
+
+  if (tutorReportPendingModalEl && window.bootstrap?.Modal) {
+    window.setTimeout(() => {
+      window.bootstrap.Modal.getOrCreateInstance(tutorReportPendingModalEl).show();
+    }, 120);
+  }
+}
+
+function initializeCreditExhaustedQueryModal() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('credit') !== 'exhausted') {
+    return;
+  }
+
+  showCreditExhaustedModal(params.get('creditMessage') || undefined);
+}
+
+function setCanFinalizeConversation(enabled) {
+  if (!finalizeCurrentConversationButtonEl) {
+    return;
+  }
+
+  finalizeCurrentConversationButtonEl.disabled = !enabled || isAssistantBusy;
 }
 
 
@@ -493,6 +602,7 @@ function resizeComposerInput() {
 
 function setComposerEnabled(enabled) {
   composerView.enable(enabled, isAssistantBusy, isAssistantStopping);
+  setCanFinalizeConversation(Boolean(conversationId));
 }
 
 function syncSendButton() {

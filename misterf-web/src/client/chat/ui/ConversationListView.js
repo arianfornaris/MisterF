@@ -2,13 +2,14 @@ import { formatConversationDate } from '../utils/dates.js';
 import { disableTextAssist } from '../utils/textAssist.js';
 
 export class ConversationListView {
-  constructor({ panelEl, deleteModalEl, deleteTitleEl, confirmDeleteButtonEl, onRename, onDelete, buildConversationPath }) {
+  constructor({ panelEl, deleteModalEl, deleteTitleEl, confirmDeleteButtonEl, onRename, onDelete, onFinalize, buildConversationPath }) {
     this.panelEl = panelEl;
     this.deleteModalEl = deleteModalEl;
     this.deleteTitleEl = deleteTitleEl;
     this.confirmDeleteButtonEl = confirmDeleteButtonEl;
     this.onRename = onRename;
     this.onDelete = onDelete;
+    this.onFinalize = onFinalize;
     this.buildConversationPath = buildConversationPath;
     this.pendingDeleteTarget = null;
 
@@ -65,6 +66,7 @@ export class ConversationListView {
 
     item.querySelector('.conversation-title').textContent =
       conversation.title || 'Nueva conversación';
+    this.syncClosedState(item, conversation);
 
     const date = item.querySelector('.conversation-date');
     date.dateTime = nextUpdatedAt;
@@ -91,6 +93,7 @@ export class ConversationListView {
 
     item.querySelector('.conversation-title').textContent =
       conversation.title || 'Nueva conversación';
+    this.syncClosedState(item, conversation);
 
     const date = item.querySelector('.conversation-date');
     date.dateTime = conversation.updatedAt || '';
@@ -132,6 +135,12 @@ export class ConversationListView {
       ?.addEventListener('click', () => {
         this.requestDelete(item);
       });
+
+    item
+      .querySelector('[data-finalize-conversation]')
+      ?.addEventListener('click', () => {
+        this.requestFinalize(item);
+      });
   }
 
   createItem(conversation) {
@@ -142,7 +151,7 @@ export class ConversationListView {
 
     const openButton = document.createElement('a');
     openButton.className = 'panel-nav-link conversation-open-button';
-    openButton.href = this.buildConversationPath(conversation.id);
+    openButton.href = this.buildConversationPath(conversation);
     openButton.dataset.openConversation = '';
 
     const title = document.createElement('span');
@@ -155,13 +164,38 @@ export class ConversationListView {
     date.textContent = formatConversationDate(conversation.updatedAt || '');
     date.title = conversation.updatedAt || '';
 
-    openButton.append(title, date);
-    item.append(openButton, this.createActions());
+    const icon = document.createElement('i');
+    icon.className = `bi ${conversation.closedAt ? 'bi-check-circle' : 'bi-chat-dots'} conversation-open-icon`;
+    icon.setAttribute('aria-hidden', 'true');
+
+    const copy = document.createElement('span');
+    copy.className = 'conversation-open-copy';
+    copy.append(title, date);
+
+    openButton.append(icon, copy);
+    item.append(openButton, this.createActions(conversation));
     this.configureItem(item);
     return item;
   }
 
-  createActions() {
+  syncClosedState(item, conversation) {
+    const openButton = item.querySelector('[data-open-conversation]');
+    if (openButton instanceof HTMLAnchorElement) {
+      openButton.href = this.buildConversationPath(conversation);
+    }
+
+    const icon = item.querySelector('.conversation-open-icon');
+    if (icon) {
+      icon.classList.toggle('bi-chat-dots', !conversation?.closedAt);
+      icon.classList.toggle('bi-check-circle', Boolean(conversation?.closedAt));
+    }
+
+    if (conversation?.closedAt) {
+      item.querySelector('[data-finalize-conversation]')?.remove();
+    }
+  }
+
+  createActions(conversation) {
     const wrapper = document.createElement('div');
     wrapper.className = 'conversation-actions dropdown';
 
@@ -175,7 +209,7 @@ export class ConversationListView {
     button.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i>';
 
     const menu = document.createElement('div');
-    menu.className = 'dropdown-menu dropdown-menu-end conversation-actions-menu';
+    menu.className = 'dropdown-menu dropdown-menu-end';
 
     const rename = document.createElement('button');
     rename.className = 'dropdown-item';
@@ -183,13 +217,23 @@ export class ConversationListView {
     rename.dataset.renameConversation = '';
     rename.textContent = 'Renombrar';
 
+    const finalize = document.createElement('button');
+    finalize.className = 'dropdown-item';
+    finalize.type = 'button';
+    finalize.dataset.finalizeConversation = '';
+    finalize.textContent = 'Finalizar y resumir';
+
     const remove = document.createElement('button');
     remove.className = 'dropdown-item text-danger';
     remove.type = 'button';
     remove.dataset.deleteConversation = '';
     remove.textContent = 'Eliminar';
 
-    menu.append(rename, remove);
+    menu.append(rename);
+    if (!conversation?.closedAt) {
+      menu.append(finalize);
+    }
+    menu.append(remove);
     wrapper.append(button, menu);
     return wrapper;
   }
@@ -296,6 +340,17 @@ export class ConversationListView {
     if (this.deleteModalEl && window.bootstrap?.Modal) {
       window.bootstrap.Modal.getOrCreateInstance(this.deleteModalEl).show();
     }
+  }
+
+  requestFinalize(item) {
+    const id = item.dataset.conversationId || '';
+    if (!id) {
+      return;
+    }
+
+    this.onFinalize?.({
+      conversationId: id,
+    });
   }
 
   confirmDelete() {

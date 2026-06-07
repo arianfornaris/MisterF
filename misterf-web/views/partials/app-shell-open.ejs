@@ -98,6 +98,11 @@
                     Salas de chat
                   </a>
 
+                  <a class="panel-nav-link <%= currentView === 'progress' ? 'is-active' : '' %>" href="/progress">
+                    <i class="bi bi-graph-up" aria-hidden="true"></i>
+                    Progreso
+                  </a>
+
                   <button
                     class="panel-nav-link d-none d-lg-inline-flex"
                     type="button"
@@ -122,10 +127,10 @@
                         >
                           <a
                             class="panel-nav-link conversation-open-button"
-                            href="/c/<%= encodeURIComponent(conversation.id) %>"
+                            href="/c/<%= encodeURIComponent(conversation.id) %><%= conversation.closedAt ? '?tab=summary' : '' %>"
                             data-open-conversation
                           >
-                            <i class="bi bi-chat-dots conversation-open-icon" aria-hidden="true"></i>
+                            <i class="bi <%= conversation.closedAt ? 'bi-check-circle' : 'bi-chat-dots' %> conversation-open-icon" aria-hidden="true"></i>
                             <span class="conversation-open-copy">
                               <span class="conversation-title"><%= conversation.title %></span>
                               <time class="conversation-date" datetime="<%= conversation.updatedAt %>" title="<%= conversation.updatedAt %>">
@@ -145,8 +150,11 @@
                             >
                               <i class="bi bi-three-dots" aria-hidden="true"></i>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end conversation-actions-menu">
+                            <div class="dropdown-menu dropdown-menu-end">
                               <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                              <% if (!conversation.closedAt) { %>
+                                <button class="dropdown-item" type="button" data-finalize-conversation>Finalizar y resumir</button>
+                              <% } %>
                               <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
                             </div>
                           </div>
@@ -229,8 +237,79 @@
                   </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                   <button type="button" class="btn btn-danger" data-confirm-delete-conversation>Eliminar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="finalizeConversationModal"
+            tabindex="-1"
+            aria-labelledby="finalizeConversationModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <form method="post" data-finalize-conversation-form>
+                  <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="finalizeConversationModalLabel">Finalizar y resumir</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      Mister F generará un resumen de esta conversación con lo que practicaste,
+                      tus avances, dificultades principales, vocabulario importante y recomendaciones.
+                    </p>
+                    <p class="mb-0 text-body-secondary">
+                      Después de finalizarla, la conversación quedará en modo lectura y podrás consultar el resumen cuando quieras.
+                    </p>
+                  </div>
+                  <div class="modal-footer">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      data-finalize-conversation-submit
+                      data-loading-text="Generando resumen..."
+                    >
+                      Finalizar y resumir
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
+            id="tutorReportPendingModal"
+            tabindex="-1"
+            aria-labelledby="tutorReportPendingModalLabel"
+            aria-hidden="true"
+            data-tutor-report-pending-modal
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+          >
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+              <div class="modal-content">
+                <div class="modal-body text-center py-4 d-grid gap-3">
+                  <div
+                    class="spinner-border text-primary mx-auto"
+                    role="status"
+                    aria-hidden="true"
+                  ></div>
+                  <div>
+                    <h2 class="fs-6 mb-1" id="tutorReportPendingModalLabel" data-tutor-report-pending-title>
+                      Generando resumen...
+                    </h2>
+                    <p class="mb-0 text-body-secondary small">
+                      Esto puede tardar unos segundos.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -299,7 +378,7 @@
                     </div>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button type="submit" class="btn btn-primary" data-translator-submit>Traducir</button>
                   </div>
                 </form>
@@ -326,6 +405,7 @@
                   </p>
                 </div>
                 <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                   <a class="btn btn-primary" href="/credits" data-credit-buy-link>Comprar créditos</a>
                 </div>
               </div>
@@ -385,4 +465,3 @@
               </div>
             </div>
           </div>
-        <section

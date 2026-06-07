@@ -17,6 +17,7 @@ import {
   findProfileForUser,
   getConversationChatRoomReportSnapshot,
   getConversationPracticeModuleSnapshot,
+  getConversationTutorReportSnapshot,
   findMessageInConversation,
   listMessages,
   renameConversationForUser,
@@ -245,6 +246,7 @@ export function registerChatSocket(io: Server): void {
       const messages = listMessages(conversation.id);
       const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
       const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
+      const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
       if (messages.length === 0) {
         pendingInitialGreeting = pickInitialGreeting();
       }
@@ -262,7 +264,8 @@ export function registerChatSocket(io: Server): void {
         conversation,
         conversationId: conversation.id,
         messages:
-          (practiceModuleSnapshot || chatRoomReportSnapshot) && messages.length === 0
+          (practiceModuleSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
+          messages.length === 0
             ? []
             : messages.length > 0
             ? messages
@@ -270,7 +273,11 @@ export function registerChatSocket(io: Server): void {
         pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
       });
 
-      if (chatRoomReportSnapshot && messages.length === 0 && !practiceModuleSnapshot) {
+      if (
+        (chatRoomReportSnapshot || tutorReportSnapshot) &&
+        messages.length === 0 &&
+        !practiceModuleSnapshot
+      ) {
         void streamAssistantMessage(
           io,
           conversation.id,
@@ -338,6 +345,13 @@ export function registerChatSocket(io: Server): void {
       if (runningConversations.has(conversation.id)) {
         socket.emit('assistant:error', {
           message: 'Espera un momento: Mister F todavia esta respondiendo.',
+        });
+        return;
+      }
+
+      if (conversation.closedAt) {
+        socket.emit('conversation:error', {
+          message: 'Esta conversación ya fue finalizada. Puedes revisar su resumen o empezar una nueva práctica.',
         });
         return;
       }
@@ -1266,6 +1280,7 @@ async function streamAssistantMessage(
     }
     const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
     const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
+    const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
 
     const messages = listMessages(conversationId);
     const llmOptions = await getLlmRequestOptionsForUser(userId);
@@ -1294,10 +1309,19 @@ async function streamAssistantMessage(
           slidesJson: chatRoomReportSnapshot.slidesJson,
         }
       : null;
+    const tutorReportContext = tutorReportSnapshot
+      ? {
+          reportJson: tutorReportSnapshot.reportJson,
+          reportSummaryDescription: tutorReportSnapshot.reportSummaryDescription,
+          reportSummaryTitle: tutorReportSnapshot.reportSummaryTitle,
+          sourceConversationId: tutorReportSnapshot.sourceConversationId,
+        }
+      : null;
 
     const result = await runTutorAgentLoop(history, {
       chatRoomReport: chatRoomReportContext,
       practiceModule: practiceModuleContext,
+      tutorReport: tutorReportContext,
       abortSignal: abortController.signal,
       currentTitle: conversation.title,
       currentPracticeModuleId: conversation.practiceModuleId,

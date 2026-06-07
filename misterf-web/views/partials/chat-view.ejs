@@ -1,56 +1,202 @@
-        <section class="chat-layout <%= currentView === 'chat' ? '' : 'd-none' %>" aria-label="Chat con Mister F">
+        <% const isTutorConversationClosed = Boolean(selectedTutorConversation && selectedTutorConversation.closedAt); %>
+        <% const activeTutorConversationTab = selectedTutorConversationTab === 'summary' ? 'summary' : 'conversation'; %>
+        <section class="chat-layout <%= currentView === 'chat' ? '' : 'd-none' %> <%= isTutorConversationClosed ? 'is-closed-conversation' : '' %>" aria-label="Chat con Mister F">
+          <% if (isTutorConversationClosed) { %>
+            <div class="bg-body px-3 pt-3">
+              <p class="mb-3 small text-body-secondary">
+                <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
+                Conversación finalizada. Puedes revisar el historial o consultar su resumen.
+              </p>
+              <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <a
+                    class="nav-link <%= activeTutorConversationTab === 'conversation' ? 'active' : '' %>"
+                    href="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>?tab=conversation"
+                  >
+                    Conversación
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a
+                    class="nav-link <%= activeTutorConversationTab === 'summary' ? 'active' : '' %>"
+                    href="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>?tab=summary"
+                  >
+                    Resumen
+                  </a>
+                </li>
+              </ul>
+            </div>
+          <% } %>
           <div
             class="messages"
             id="chatPane"
             tabindex="0"
           >
-            <section class="practice-module-start-panel d-none" data-practice-module-start-panel>
-              <p class="practiceModule-start-kicker">Módulo de práctica</p>
-              <h2 class="practiceModule-start-title" data-practiceModule-start-title></h2>
-              <p class="practiceModule-start-description" data-practiceModule-start-description></p>
-              <p class="practice-module-start-status text-body-secondary d-none" data-practice-module-start-status>
-                Comenzando el módulo de práctica...
-              </p>
-              <button class="btn btn-primary" type="button" data-practiceModule-start-button>
-                Comenzar
-              </button>
-            </section>
-            <div id="messages" aria-live="polite"></div>
+            <% if (isTutorConversationClosed && activeTutorConversationTab === 'summary') { %>
+              <div id="messages" class="d-none" aria-live="polite"></div>
+              <article class="conversation-summary-view mx-auto py-4 px-3 px-md-4">
+                <% if (selectedTutorConversationReport) { %>
+                  <% const report = selectedTutorConversationReport.report; %>
+                  <header class="conversation-summary-header border-bottom pb-3 mb-4">
+                    <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Resumen de conversación</p>
+                    <h1 class="h3 mb-3"><%= selectedTutorConversationReport.summaryTitle %></h1>
+                    <p class="lead mb-0"><%= selectedTutorConversationReport.summaryDescription %></p>
+                  </header>
+
+                  <div class="conversation-summary-actions d-flex flex-wrap gap-2 mb-4">
+                    <form
+                      method="post"
+                      action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/practice"
+                      data-tutor-report-pending-form
+                      data-tutor-report-pending-label="Preparando práctica..."
+                    >
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <button class="btn btn-primary" type="submit" data-tutor-report-pending-button>Practicar estos puntos</button>
+                    </form>
+                    <% if (selectedTutorConversationReport.practiceModuleId) { %>
+                      <a class="btn btn-outline-secondary" href="/practice-modules/<%= encodeURIComponent(selectedTutorConversationReport.practiceModuleId) %>">Ver módulo creado</a>
+                    <% } else { %>
+                      <form
+                        method="post"
+                        action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/create-practice-module"
+                        data-tutor-report-pending-form
+                        data-tutor-report-pending-label="Creando módulo de práctica..."
+                      >
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <button class="btn btn-secondary" type="submit" data-tutor-report-pending-button>Crear módulo de práctica</button>
+                      </form>
+                    <% } %>
+                  </div>
+
+                  <div class="conversation-summary-document">
+                    <section class="mb-4">
+                      <h2 class="h5">Lo que practicaste</h2>
+                      <p class="mb-0"><%= report.practicedTopics.join(' ') %></p>
+                    </section>
+
+                    <section class="mb-4">
+                      <h2 class="h5">Progreso observado</h2>
+                      <ul>
+                        <% report.progressHighlights.forEach((item) => { %><li><%= item %></li><% }) %>
+                      </ul>
+                    </section>
+
+                    <section class="mb-4">
+                      <h2 class="h5">Dificultades principales</h2>
+                      <% report.difficultyAreas.forEach((area) => { %>
+                        <p>
+                          <strong><%= area.title %>.</strong>
+                          <%= area.description %>
+                        </p>
+                      <% }) %>
+                    </section>
+
+                    <section class="mb-4">
+                      <h2 class="h5">Vocabulario importante</h2>
+                      <dl class="conversation-summary-vocabulary">
+                        <% report.vocabulary.forEach((item) => { %>
+                          <dt><%= item.term %></dt>
+                          <dd>
+                            <%= item.meaning %>
+                            <% if (item.example) { %><span class="text-body-secondary"> Ejemplo: <%= item.example %></span><% } %>
+                          </dd>
+                        <% }) %>
+                      </dl>
+                    </section>
+
+                    <section class="mb-4">
+                      <h2 class="h5">Frases útiles</h2>
+                      <ul>
+                        <% report.usefulPhrases.forEach((item) => { %><li><%= item %></li><% }) %>
+                      </ul>
+                    </section>
+
+                    <section class="mb-4">
+                      <h2 class="h5">Recomendaciones</h2>
+                      <ul>
+                        <% report.recommendations.forEach((item) => { %><li><%= item %></li><% }) %>
+                      </ul>
+                    </section>
+
+                    <section>
+                      <h2 class="h5">Próximos pasos</h2>
+                      <ul class="mb-0">
+                        <% report.nextSteps.forEach((item) => { %><li><%= item %></li><% }) %>
+                      </ul>
+                    </section>
+                  </div>
+                <% } else { %>
+                  <div class="alert alert-warning mb-0" role="alert">
+                    <h1 class="h4">Resumen no disponible</h1>
+                    <p class="mb-0">Todavía no hay un resumen guardado para esta conversación.</p>
+                  </div>
+                <% } %>
+              </article>
+            <% } else { %>
+              <section class="practice-module-start-panel d-none" data-practice-module-start-panel>
+                <p class="practiceModule-start-kicker">Módulo de práctica</p>
+                <h2 class="practiceModule-start-title" data-practiceModule-start-title></h2>
+                <p class="practiceModule-start-description" data-practiceModule-start-description></p>
+                <p class="practice-module-start-status text-body-secondary d-none" data-practice-module-start-status>
+                  Comenzando el módulo de práctica...
+                </p>
+                <button class="btn btn-primary" type="button" data-practiceModule-start-button>
+                  Comenzar
+                </button>
+              </section>
+              <div id="messages" aria-live="polite"></div>
+            <% } %>
           </div>
 
-          <form id="chatForm" class="composer" autocomplete="off">
-            <label class="visually-hidden" for="messageInput">Escribe tu mensaje</label>
-            <div class="composer-input-wrap">
-              <textarea
-                id="messageInput"
-                class="composer-input"
-                rows="1"
-                maxlength="1200"
-                placeholder="Escribe tu mensaje"
-                autocomplete="off"
-                autocapitalize="none"
-                autocorrect="off"
-                spellcheck="false"
-                autofocus
-              ></textarea>
-            </div>
-            <div class="composer-footer">
-              <button
-                class="btn btn-primary send-button"
-                type="submit"
-                title="Enviar"
-                aria-label="Enviar"
-                data-send-button
-              >
-                <i class="bi bi-send" aria-hidden="true"></i>
-              </button>
-            </div>
-            <div
-              class="composer-status small text-body-secondary d-none"
-              data-tool-status
-              aria-live="polite"
-            ></div>
-          </form>
+          <% if (!isTutorConversationClosed) { %>
+            <form id="chatForm" class="composer" autocomplete="off">
+              <label class="visually-hidden" for="messageInput">Escribe tu mensaje</label>
+              <div class="composer-input-wrap">
+                <textarea
+                  id="messageInput"
+                  class="composer-input"
+                  rows="1"
+                  maxlength="1200"
+                  placeholder="Escribe tu mensaje"
+                  autocomplete="off"
+                  autocapitalize="none"
+                  autocorrect="off"
+                  spellcheck="false"
+                  autofocus
+                ></textarea>
+              </div>
+              <div class="composer-footer">
+                <% if (hasSession) { %>
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    type="button"
+                    data-finalize-current-conversation
+                    <%= initialConversationId ? '' : 'disabled' %>
+                  >
+                    Finalizar y resumir
+                  </button>
+                <% } %>
+                <button
+                  class="btn btn-primary send-button"
+                  type="submit"
+                  title="Enviar"
+                  aria-label="Enviar"
+                  data-send-button
+                >
+                  <i class="bi bi-send" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div
+                class="composer-status small text-body-secondary d-none"
+                data-tool-status
+                aria-live="polite"
+              ></div>
+            </form>
+          <% } else { %>
+            <form id="chatForm" class="composer d-none" autocomplete="off">
+              <textarea id="messageInput" class="composer-input" rows="1"></textarea>
+              <button class="btn btn-primary send-button" type="submit" data-send-button></button>
+              <div class="composer-status small text-body-secondary d-none" data-tool-status aria-live="polite"></div>
+            </form>
+          <% } %>
         </section>
-      </div>
-    </main>

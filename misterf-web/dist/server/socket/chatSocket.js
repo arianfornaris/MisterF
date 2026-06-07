@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
@@ -71,6 +71,7 @@ export function registerChatSocket(io) {
             const messages = listMessages(conversation.id);
             const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
             const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
+            const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
             if (messages.length === 0) {
                 pendingInitialGreeting = pickInitialGreeting();
             }
@@ -86,14 +87,17 @@ export function registerChatSocket(io) {
                     : null,
                 conversation,
                 conversationId: conversation.id,
-                messages: (practiceModuleSnapshot || chatRoomReportSnapshot) && messages.length === 0
+                messages: (practiceModuleSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
+                    messages.length === 0
                     ? []
                     : messages.length > 0
                         ? messages
                         : [createEphemeralInitialMessage(pendingInitialGreeting)],
                 pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
             });
-            if (chatRoomReportSnapshot && messages.length === 0 && !practiceModuleSnapshot) {
+            if ((chatRoomReportSnapshot || tutorReportSnapshot) &&
+                messages.length === 0 &&
+                !practiceModuleSnapshot) {
                 void streamAssistantMessage(io, conversation.id, userId, undefined, true, [], conversation.modelTier);
             }
         });
@@ -138,6 +142,12 @@ export function registerChatSocket(io) {
             if (runningConversations.has(conversation.id)) {
                 socket.emit('assistant:error', {
                     message: 'Espera un momento: Mister F todavia esta respondiendo.',
+                });
+                return;
+            }
+            if (conversation.closedAt) {
+                socket.emit('conversation:error', {
+                    message: 'Esta conversación ya fue finalizada. Puedes revisar su resumen o empezar una nueva práctica.',
                 });
                 return;
             }
@@ -834,6 +844,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         }
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
         const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
+        const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
         const messages = listMessages(conversationId);
         const llmOptions = await getLlmRequestOptionsForUser(userId);
         llmOptions.modelTier = modelTier;
@@ -861,9 +872,18 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                 slidesJson: chatRoomReportSnapshot.slidesJson,
             }
             : null;
+        const tutorReportContext = tutorReportSnapshot
+            ? {
+                reportJson: tutorReportSnapshot.reportJson,
+                reportSummaryDescription: tutorReportSnapshot.reportSummaryDescription,
+                reportSummaryTitle: tutorReportSnapshot.reportSummaryTitle,
+                sourceConversationId: tutorReportSnapshot.sourceConversationId,
+            }
+            : null;
         const result = await runTutorAgentLoop(history, {
             chatRoomReport: chatRoomReportContext,
             practiceModule: practiceModuleContext,
+            tutorReport: tutorReportContext,
             abortSignal: abortController.signal,
             currentTitle: conversation.title,
             currentPracticeModuleId: conversation.practiceModuleId,

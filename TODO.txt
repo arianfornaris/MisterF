@@ -4,6 +4,7 @@ Hoy
 
 - Quizas adionar un boton + en la caja de texto del usuario donde se escoja un tipo de ejercicio determinado para hacer.
 
+- Ya tenemos una feature de cerrar una conversación con el tutor. Seria bueno que ahora, una vez que se cierre la conversación esta tribute a un Progreso global del usuario. Este progreso global puede ser la fuente de ejercicios futuros y debe estar accesible a todas las tools de la app. Hay dos formas de implementar este progreso. Uno como una valoración general, y otro como una secuencia de eventos donde se explica lo que se practica y el avance del usuario. Entonces este Progreso global, debe actualizarse cada vez que se cierra una conversación o un chat o cualquier otro tipo de practica que el usuario realice.
 
 - Incorporar voz-a-texto, y texto-a-voz.
 - Permitir usar imagenes en los ejercicios.

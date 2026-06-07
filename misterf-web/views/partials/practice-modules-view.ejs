@@ -1641,6 +1641,7 @@
                       ><%= practiceModuleGenerationPrompt || '' %></textarea>
                     </div>
                     <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                       <button
                         type="submit"
                         class="btn btn-primary"
@@ -1713,7 +1714,8 @@
                           <% }) %>
                         </select>
                       </div>
-                      <div class="d-flex justify-content-end">
+                      <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Compartir ahora</button>
                       </div>
                     </form>
@@ -1721,6 +1723,11 @@
                     <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir este módulo de práctica.</p>
                   <% } %>
                 </div>
+                <% if (shareTargetPracticeModuleProfiles.length === 0) { %>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                  </div>
+                <% } %>
               </div>
             </div>
           </div>
@@ -1773,6 +1780,9 @@
                     </div>
                   <% } %>
                 </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1805,7 +1815,8 @@
                           <% }) %>
                         </select>
                       </div>
-                      <div class="d-flex justify-content-end">
+                      <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-primary">Compartir ahora</button>
                       </div>
                     </form>
@@ -1813,6 +1824,11 @@
                     <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta colección.</p>
                   <% } %>
                 </div>
+                <% if (shareTargetPracticeModuleCollectionProfiles.length === 0) { %>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                  </div>
+                <% } %>
               </div>
             </div>
           </div>
@@ -1864,6 +1880,9 @@
                       >
                     </div>
                   <% } %>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
                 </div>
               </div>
             </div>

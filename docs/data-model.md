@@ -92,11 +92,17 @@ Important fields:
 - `modelTier`
 - `title`
 - `titleUpdatedByUser`
+- optional `closedAt`
 
 Conversations may optionally be associated with:
 
 - a practice module snapshot source
 - a chat room report snapshot source
+- a tutor conversation report snapshot source
+
+When `closedAt` is set, the conversation is treated as finalized/read-only. The
+UI can still render the original transcript, but the chat composer is hidden and
+socket message submission is rejected.
 
 ### Message
 
@@ -132,6 +138,42 @@ The snapshot includes:
 - room title and description
 - report summary
 - report slides JSON
+
+### Tutor Conversation Report
+
+Stores the structured summary generated when a tutor conversation is finalized
+with `Finalizar y resumir`.
+
+Important fields:
+
+- `conversationId`
+- `userId`
+- `profileId`
+- `summaryTitle`
+- `summaryDescription`
+- `report`
+- optional `practiceModuleId`
+
+The report JSON contains:
+
+- practiced topics
+- progress highlights
+- difficulty areas
+- vocabulary
+- useful phrases
+- recommendations
+- next steps
+
+`practiceModuleId` is set only when the learner chooses to create a persistent
+practice module from that report.
+
+### Conversation Tutor Report Snapshot
+
+Stores a frozen copy of a tutor conversation report when the learner starts a
+new tutor conversation with `Practicar estos puntos`.
+
+This keeps the new conversation stable even if the original report is changed or
+extended later.
 
 ## Practice Modules
 
@@ -274,5 +316,7 @@ At a high level:
 - one `chatRoom` has many `chatRoomCharacters`
 - one `chatRoom` has many `chatRoomConversations`
 - one `chatRoomConversation` may have one report
+- one tutor `conversation` may have one tutor conversation report
+- one tutor conversation report may create one practice module
 
 This model is strongly profile-scoped, which is an important design assumption across the application.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "LLM Credit Gate"
+  short_description: "Check credits before LLM inference."
+  default_prompt: "Use the Mister F LLM credit gate conventions when adding or reviewing model inference flows."

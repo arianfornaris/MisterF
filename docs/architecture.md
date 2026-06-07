@@ -66,8 +66,29 @@ Important subareas:
 
 - `llmTutor`: tutor model runtime, schemas, providers, validation, tools, prompts
 - `tutorWorkflow`: server-side side effects triggered by structured blocks
+- `tutorReports`: finalized tutor conversation summaries and report-to-module generation
 - `administration`
 - `secretary`
+
+### LLM credit boundary
+
+Every user-scoped server flow that invokes an LLM must pass through the credit
+gate before inference and handle insufficient credit as product UI.
+
+Use:
+
+- `getCreditCheckedOpenRouterApiKeyForUser(...)`
+- `isCreditExhaustedError(...)`
+- `getCreditExhaustedMessage()`
+
+Socket flows should emit `llm:credit_exhausted`. HTTP form flows should redirect
+back to the relevant page with state that opens the credits modal or shows a
+Bootstrap credit message. They must never expose raw stack traces for exhausted
+credit.
+
+The project skill
+`/Users/arian/Documents/GameDev/MatandileGames/MisterF/.agents/skills/llm-credit-gate`
+contains the operational checklist for future LLM work.
 
 ### Socket runtime
 
@@ -79,6 +100,7 @@ This file coordinates:
 
 - socket authentication
 - conversation lifecycle
+- closed conversation enforcement
 - assistant streaming
 - exercise completion events
 - quiz submission and result generation
@@ -146,6 +168,11 @@ Prompt families are separated by responsibility:
 - `tutor/*`: main tutor system and related structured correction/evaluation prompts
 - `chatrooms/*`: chat room conversation and reporting prompts
 - `resources/*`: draft generation for practice modules and chat rooms
+
+Tutor prompts also include finalized conversation reporting prompts. Those
+generate tutor conversation summaries, repair invalid report JSON, convert tutor
+reports into practice modules, and provide report context to new tutor
+conversations.
 
 Prompt rendering is handled server-side, which keeps prompt text versioned in the repository and out of application code strings.
 

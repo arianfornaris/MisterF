@@ -112,6 +112,7 @@ export function buildAppShellContext(input: {
     | 'chatrooms'
     | 'credits'
     | 'practiceModules'
+    | 'progress'
     | 'profiles'
     | 'settings';
   guestInitialGreeting: string;

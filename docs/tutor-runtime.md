@@ -63,6 +63,7 @@ Key characteristics:
 - takes tutor message history
 - optionally takes practice module context
 - optionally takes chat room report context
+- optionally takes tutor conversation report context
 - can use tools
 - expects structured JSON output
 - can retry on correctable structured output errors
@@ -95,6 +96,56 @@ The tutor can emit structured blocks such as:
 - `quiz_result`
 
 These blocks are validated before they are accepted into the system.
+
+## Interactive Exercise Contracts
+
+Interactive blocks are intentionally small contracts between the model and the
+client. The model describes the pedagogical task; the client owns UI state,
+ordering interaction, submission, and local completion behavior.
+
+### Unscramble sentence
+
+`unscramble_sentence` uses the `tokens` array as the canonical correct answer.
+
+Current contract:
+
+- the model sends `tokens` in the correct sentence order
+- the model does not send pre-shuffled tokens
+- the model does not send `acceptableTokenOrders`
+- the client shuffles the tokens before showing them to the learner
+- the client keeps the original `tokens` order as the hidden answer key
+- the learner confirms the assembled sentence with the exercise submit button
+
+This keeps the model's responsibility simple: provide the intended sentence as
+ordered pieces. It also prevents ambiguity where a model-generated shuffled
+array and a separate answer array could drift apart.
+
+Quiz unscramble items follow the same principle: `quiz_unscramble_sentence`
+stores ordered `tokens`; the quiz UI shuffles them for display.
+
+### Fill in the blank
+
+Fill-in-the-blank blocks render inline answers inside the pedagogical sentence.
+
+Current UI expectations:
+
+- input blanks should have enough width for the expected answer
+- choice blanks should allow long selected options to remain readable
+- blank controls should flex with content rather than clipping learner-visible
+  text whenever possible
+
+### Choice blocks
+
+Choice-based blocks keep correctness data inside the structured block, but the
+visual controls should feel like ordinary Bootstrap-era app controls rather than
+custom disabled-looking widgets.
+
+Current UI expectations:
+
+- option labels may be long and must remain readable after selection
+- submit/evaluate actions become enabled only when the learner has provided the
+  required response
+- button/link colors should come from Bootstrap, not exercise accent colors
 
 ## Runtime Side Effects
 
@@ -192,6 +243,50 @@ Current characteristics:
 - tappable/clickable explanations through popovers
 
 The original quiz card also transitions from an evaluating state to an evaluated state when the related `quiz_result` arrives.
+
+### Quiz controls
+
+Quiz navigation follows Bootstrap action hierarchy:
+
+- the close control should use Bootstrap-friendly button styling
+- `Atrás`, `Siguiente`, and `Evaluar` use primary button styling
+- navigation buttons may be smaller than the evaluation button
+- `Evaluar` stays disabled until the quiz can be submitted
+- quiz controls use the normal UI font, not the pedagogical serif content font
+
+## Tutor Conversation Reports
+
+Tutor conversations can be finalized by the learner through `Finalizar y resumir`.
+
+When finalized:
+
+- the server generates a structured conversation report from the transcript
+- the conversation is marked as closed
+- the original message history becomes read-only in the normal chat view
+- the page exposes two tabs:
+  - `Conversación`
+  - `Resumen`
+- the composer is hidden for the closed conversation
+
+The report includes:
+
+- summary title and description
+- practiced topics
+- progress highlights
+- difficulty areas
+- important vocabulary
+- useful phrases
+- recommendations
+- next steps
+
+From the summary, the learner can:
+
+- start a new tutor conversation with `Practicar estos puntos`
+- create a persistent practice module with `Crear módulo de práctica`
+
+`Practicar estos puntos` does not create a module. It creates a new tutor
+conversation seeded with a snapshot of the report, so Mr. F can continue with
+targeted practice based on the finalized conversation.
 
 ## Correction Loops
 

@@ -32,6 +32,108 @@
   box-shadow: 0 16px 45px rgb(34 34 34 / 8%);
 }
 
+.chat-layout.is-closed-conversation {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.conversation-summary-view {
+  max-width: 780px;
+  margin-top: 1.25rem;
+  margin-bottom: 1.75rem;
+  border: 1px solid rgb(var(--mf-practice-rgb) / 14%);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgb(var(--mf-practice-rgb) / 7%), transparent 34%),
+    linear-gradient(180deg, #fff, rgb(255 253 247 / 96%));
+  box-shadow: 0 18px 44px rgb(var(--mf-practice-rgb) / 9%);
+}
+
+.conversation-summary-header {
+  position: relative;
+}
+
+.conversation-summary-header::before {
+  content: "";
+  position: absolute;
+  top: 0.15rem;
+  left: -1rem;
+  width: 4px;
+  height: calc(100% - 0.3rem);
+  border-radius: 999px;
+  background: var(--mf-practice);
+}
+
+.conversation-summary-header h1,
+.conversation-summary-document h2 {
+  color: var(--mf-practice-ink);
+  font-family: var(--app-serif-font);
+}
+
+.conversation-summary-header .lead {
+  color: var(--mf-practice-ink);
+  font-family: var(--app-serif-font);
+  line-height: 1.75;
+}
+
+.conversation-summary-document {
+  color: var(--mf-practice-ink);
+  font-family: var(--app-serif-font);
+  font-size: 1.06rem;
+  line-height: 1.75;
+}
+
+.conversation-summary-document h2 {
+  margin-bottom: 0.75rem;
+  padding-top: 0.25rem;
+  color: var(--mf-practice-strong);
+}
+
+.conversation-summary-document ul {
+  padding-left: 1.25rem;
+}
+
+.conversation-summary-document li + li {
+  margin-top: 0.35rem;
+}
+
+.conversation-summary-vocabulary {
+  display: grid;
+  gap: 0.35rem 1rem;
+}
+
+.conversation-summary-vocabulary dt {
+  color: var(--mf-practice-strong);
+  font-weight: 700;
+}
+
+.conversation-summary-vocabulary dd {
+  margin-bottom: 0.6rem;
+}
+
+.progress-summary-view {
+  max-width: 880px;
+}
+
+.progress-summary-document .text-body-secondary,
+.progress-item-meta {
+  color: rgb(var(--mf-practice-rgb) / 72%) !important;
+}
+
+.progress-summary-meta {
+  font-family: var(--bs-body-font-family);
+}
+
+.progress-log-item:last-child,
+.progress-vocabulary-item:last-child {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+  border-bottom: 0 !important;
+}
+
+.conversation-summary-actions {
+  font-family: var(--bs-body-font-family);
+}
+
 .chat-menu-button,
 .translator-button {
   width: 36px;
@@ -789,18 +891,6 @@
   outline: 0;
   background: var(--bs-primary-bg-subtle);
   color: var(--bs-primary-text-emphasis);
-}
-
-.conversation-actions-menu {
-  min-width: 150px;
-  padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 14px 30px rgb(34 34 34 / 12%);
-}
-
-.conversation-actions-menu .dropdown-item {
-  border-radius: 6px;
 }
 
 .conversation-rename-form {

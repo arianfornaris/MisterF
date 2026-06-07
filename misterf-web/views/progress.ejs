@@ -1,0 +1,287 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const dateFormatter = new Intl.DateTimeFormat('es', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+  const formatDate = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? value : dateFormatter.format(date);
+  };
+  const summary = progressProfile ? progressProfile.summary : null;
+  const hasGeneralProgress = Boolean(summary && (
+    summary.overview ||
+    summary.strengths.length > 0 ||
+    summary.focusAreas.length > 0 ||
+    summary.vocabulary.length > 0 ||
+    summary.recommendedPractice.length > 0
+  ));
+  const renderList = (items) => items && items.length > 0;
+%>
+
+<section class="practice-modules-view" aria-label="Progreso">
+  <div class="practice-modules-header">
+    <div>
+      <p class="practice-modules-kicker">Aprendizaje</p>
+      <h1 class="practice-modules-title">Progreso</h1>
+      <p class="practice-modules-copy">
+        Una vista global y compacta de lo que has practicado con Mr. F.
+      </p>
+    </div>
+  </div>
+
+  <section class="practice-module-detail-shell">
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a
+            class="nav-link <%= selectedProgressTab === 'general' ? 'active' : '' %>"
+            href="/progress?tab=general"
+            role="tab"
+            aria-selected="<%= selectedProgressTab === 'general' ? 'true' : 'false' %>"
+          >
+            General
+          </a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a
+            class="nav-link <%= selectedProgressTab === 'vocabulary' ? 'active' : '' %>"
+            href="/progress?tab=vocabulary"
+            role="tab"
+            aria-selected="<%= selectedProgressTab === 'vocabulary' ? 'true' : 'false' %>"
+          >
+            Vocabulario
+          </a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a
+            class="nav-link <%= selectedProgressTab === 'events' ? 'active' : '' %>"
+            href="/progress?tab=events"
+            role="tab"
+            aria-selected="<%= selectedProgressTab === 'events' ? 'true' : 'false' %>"
+          >
+            Bitácora
+          </a>
+        </li>
+    </ul>
+
+    <div class="tab-content pt-4" id="progressTabsContent">
+      <div
+        class="tab-pane fade <%= selectedProgressTab === 'general' ? 'show active' : '' %>"
+        id="progress-general-pane"
+        role="tabpanel"
+        aria-labelledby="progress-general-tab"
+        tabindex="0"
+      >
+        <% if (hasGeneralProgress) { %>
+          <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
+            <header class="conversation-summary-header border-bottom pb-3 mb-4">
+              <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Resumen general</p>
+              <h2 class="h3 mb-3">Progreso del perfil</h2>
+              <p class="lead mb-0"><%= summary.overview %></p>
+            </header>
+
+            <div class="conversation-summary-document progress-summary-document">
+              <div class="row g-4">
+                <div class="col-12 col-xl-6">
+                  <h2 class="h5">Fortalezas</h2>
+                  <% if (renderList(summary.strengths)) { %>
+                    <ul class="mb-0">
+                      <% summary.strengths.forEach((item) => { %>
+                        <li><%= item %></li>
+                      <% }) %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-body-secondary mb-0">Todavía no hay fortalezas consolidadas.</p>
+                  <% } %>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <h2 class="h5">Focos de práctica</h2>
+                  <% if (renderList(summary.focusAreas)) { %>
+                    <ul class="mb-0">
+                      <% summary.focusAreas.forEach((item) => { %>
+                        <li><%= item %></li>
+                      <% }) %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-body-secondary mb-0">Aún no hay focos claros.</p>
+                  <% } %>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <h2 class="h5">Vocabulario observado</h2>
+                  <% if (renderList(summary.vocabulary)) { %>
+                    <div class="d-flex flex-wrap gap-2">
+                      <% summary.vocabulary.forEach((item) => { %>
+                        <span class="badge text-bg-light border"><%= item %></span>
+                      <% }) %>
+                    </div>
+                  <% } else { %>
+                    <p class="text-body-secondary mb-0">Todavía no hay vocabulario acumulado.</p>
+                  <% } %>
+                </div>
+
+                <div class="col-12 col-xl-6">
+                  <h2 class="h5">Práctica recomendada</h2>
+                  <% if (renderList(summary.recommendedPractice)) { %>
+                    <ul class="mb-0">
+                      <% summary.recommendedPractice.forEach((item) => { %>
+                        <li><%= item %></li>
+                      <% }) %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-body-secondary mb-0">Cierra más prácticas para generar recomendaciones.</p>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+
+            <p class="progress-summary-meta text-body-secondary small border-top pt-3 mt-4 mb-0">
+              Construido a partir de <%= summary.updatedFromEvents %> evento<%= summary.updatedFromEvents === 1 ? '' : 's' %> reciente<%= summary.updatedFromEvents === 1 ? '' : 's' %>.
+            </p>
+          </article>
+        <% } else { %>
+          <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
+            <div class="conversation-summary-document">
+              <h2 class="h5">Todavía no hay progreso global</h2>
+              <p class="text-body-secondary mb-0">
+                Cuando finalices y resumas conversaciones, Mr. F empezará a construir esta vista de progreso.
+              </p>
+            </div>
+          </article>
+        <% } %>
+      </div>
+
+      <div
+        class="tab-pane fade <%= selectedProgressTab === 'vocabulary' ? 'show active' : '' %>"
+        id="progress-vocabulary-pane"
+        role="tabpanel"
+        aria-labelledby="progress-vocabulary-tab"
+        tabindex="0"
+      >
+        <% if (vocabularyItems.length > 0) { %>
+          <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
+            <header class="conversation-summary-header border-bottom pb-3 mb-4">
+              <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Vocabulario a trabajar</p>
+              <h2 class="h3 mb-3">Palabras y frases para reforzar</h2>
+              <p class="lead mb-0">
+                Palabras y frases detectadas en prácticas cerradas que conviene reforzar en próximas conversaciones.
+              </p>
+            </header>
+
+            <div class="conversation-summary-document progress-summary-document">
+              <% vocabularyItems.forEach((item) => { %>
+                <article class="progress-vocabulary-item border-bottom pb-3 mb-3">
+                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div>
+                      <h2 class="h5 mb-1"><%= item.term %></h2>
+                      <p class="progress-item-meta small mb-0">
+                        Visto en <%= item.sourceLabels.join(' y ') %>
+                        <% if (item.sourceTitles.length > 0) { %>
+                          · <%= item.sourceTitles.join(' · ') %>
+                        <% } %>
+                      </p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                      <span class="badge text-bg-primary"><%= item.count %> vez<%= item.count === 1 ? '' : 'es' %></span>
+                      <time class="progress-item-meta small" datetime="<%= item.lastSeenAt %>">
+                        <%= formatDate(item.lastSeenAt) %>
+                      </time>
+                    </div>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+          </article>
+        <% } else { %>
+          <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
+            <div class="conversation-summary-document">
+              <h2 class="h5">Todavía no hay vocabulario específico</h2>
+              <p class="text-body-secondary mb-0">
+                Cuando los reportes detecten palabras o frases a reforzar, aparecerán aquí con su origen y fecha.
+              </p>
+            </div>
+          </article>
+        <% } %>
+      </div>
+
+      <div
+        class="tab-pane fade <%= selectedProgressTab === 'events' ? 'show active' : '' %>"
+        id="progress-events-pane"
+        role="tabpanel"
+        aria-labelledby="progress-events-tab"
+        tabindex="0"
+      >
+        <% if (events.length > 0) { %>
+          <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
+            <header class="conversation-summary-header border-bottom pb-3 mb-4">
+              <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Bitácora</p>
+              <h2 class="h3 mb-3">Prácticas cerradas</h2>
+              <p class="lead mb-0">
+                Un registro compacto de las conversaciones y prácticas que ya alimentan el progreso del perfil.
+              </p>
+            </header>
+
+            <div class="conversation-summary-document progress-summary-document">
+            <% events.forEach((event) => { %>
+              <article class="progress-log-item border-bottom pb-4 mb-4">
+                <div class="d-flex flex-wrap justify-content-between gap-2">
+                  <div>
+                    <p class="practiceModule-section-kicker mb-1">
+                      <%= event.sourceType === 'chat_room_conversation_report' ? 'Sala de chat' : 'Conversación con tutor' %>
+                    </p>
+                    <h2 class="h5 mb-1"><%= event.title %></h2>
+                  </div>
+                  <time class="small text-body-secondary" datetime="<%= event.eventDate %>">
+                    <%= formatDate(event.eventDate) %>
+                  </time>
+                </div>
+                <p class="mb-3"><%= event.summary %></p>
+
+                <% if (
+                  event.details.practiced.length > 0 ||
+                  event.details.difficulties.length > 0 ||
+                  event.details.vocabulary.length > 0
+                ) { %>
+                  <div class="row g-3 progress-item-meta small">
+                    <% if (event.details.practiced.length > 0) { %>
+                      <div class="col-12 col-lg-4">
+                        <strong class="d-block text-body">Practicó</strong>
+                        <%= event.details.practiced.slice(0, 3).join(', ') %>
+                      </div>
+                    <% } %>
+                    <% if (event.details.difficulties.length > 0) { %>
+                      <div class="col-12 col-lg-4">
+                        <strong class="d-block text-body">Foco</strong>
+                        <%= event.details.difficulties.slice(0, 2).join(', ') %>
+                      </div>
+                    <% } %>
+                    <% if (event.details.vocabulary.length > 0) { %>
+                      <div class="col-12 col-lg-4">
+                        <strong class="d-block text-body">Vocabulario</strong>
+                        <%= event.details.vocabulary.slice(0, 4).join(', ') %>
+                      </div>
+                    <% } %>
+                  </div>
+                <% } %>
+              </article>
+            <% }) %>
+            </div>
+          </article>
+        <% } else { %>
+          <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
+            <div class="conversation-summary-document">
+              <h2 class="h5">Todavía no hay eventos</h2>
+              <p class="text-body-secondary mb-0">
+                Los eventos aparecerán aquí con fecha cuando cierres conversaciones o prácticas evaluables.
+              </p>
+            </div>
+          </article>
+        <% } %>
+      </div>
+    </div>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close') %>

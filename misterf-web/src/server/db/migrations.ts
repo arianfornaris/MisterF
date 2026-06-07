@@ -590,4 +590,112 @@ export const migrations: Migration[] = [
         ON credit_purchases (status, updated_at DESC);
     `,
   },
+  {
+    id: 14,
+    name: 'add_tutor_conversation_reports',
+    up: `
+      ALTER TABLE conversations
+      ADD COLUMN closed_at TEXT;
+
+      CREATE INDEX idx_conversations_closed_updated
+        ON conversations (closed_at, updated_at DESC, created_at DESC);
+
+      CREATE TABLE tutor_conversation_reports (
+        id TEXT PRIMARY KEY,
+        conversation_id TEXT NOT NULL UNIQUE,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        summary_title TEXT NOT NULL,
+        summary_description TEXT NOT NULL,
+        report_json TEXT NOT NULL,
+        practice_module_id TEXT
+          REFERENCES practice_modules (id)
+          ON DELETE SET NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_tutor_conversation_reports_user_profile_created
+        ON tutor_conversation_reports (user_id, profile_id, created_at DESC);
+
+      CREATE TABLE conversation_tutor_report_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        tutor_conversation_report_id TEXT NOT NULL,
+        source_conversation_id TEXT NOT NULL,
+        report_summary_title TEXT NOT NULL,
+        report_summary_description TEXT NOT NULL,
+        report_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (tutor_conversation_report_id)
+          REFERENCES tutor_conversation_reports (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_conversation_tutor_report_snapshots_report
+        ON conversation_tutor_report_snapshots (tutor_conversation_report_id, created_at DESC);
+    `,
+  },
+  {
+    id: 15,
+    name: 'add_learner_progress',
+    up: `
+      CREATE TABLE learner_progress_profiles (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        summary_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        UNIQUE (user_id, profile_id)
+      );
+
+      CREATE INDEX idx_learner_progress_profiles_user_profile
+        ON learner_progress_profiles (user_id, profile_id);
+
+      CREATE TABLE learner_progress_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        source_type TEXT NOT NULL,
+        source_id TEXT NOT NULL,
+        event_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        title TEXT NOT NULL,
+        summary TEXT NOT NULL,
+        details_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        UNIQUE (user_id, profile_id, source_type, source_id)
+      );
+
+      CREATE INDEX idx_learner_progress_events_profile_date
+        ON learner_progress_events (user_id, profile_id, event_date DESC, id DESC);
+    `,
+  },
 ];

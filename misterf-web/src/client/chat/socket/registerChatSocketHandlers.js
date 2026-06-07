@@ -44,6 +44,7 @@ export function registerChatSocketHandlers(deps) {
     deps.setHasHandledInitialConversationReady(true);
     deps.setConversationId(payload.conversationId);
     deps.setSelectedModelTier(payload.conversation?.modelTier || deps.getDefaultModelTier());
+    deps.setCanFinalizeConversation?.(Boolean(payload.conversation?.id && !payload.conversation?.closedAt));
     deps.conversationListView.upsert(payload.conversation);
     deps.conversationListView.markActive(deps.getConversationId());
     deps.messagesEl.replaceChildren();
@@ -109,6 +110,7 @@ export function registerChatSocketHandlers(deps) {
 
   socketClient.on(deps.chatSocketEvents.promoted, (payload) => {
     deps.setConversationId(payload.conversationId);
+    deps.setCanFinalizeConversation?.(Boolean(payload.conversationId));
     window.history.replaceState(
       {},
       '',
@@ -124,6 +126,9 @@ export function registerChatSocketHandlers(deps) {
   socketClient.on('conversation:updated', (payload) => {
     deps.conversationListView.update(payload.conversation, { moveToTop: true });
     deps.conversationListView.markActive(deps.getConversationId());
+    if (payload.conversationId === deps.getConversationId()) {
+      deps.setCanFinalizeConversation?.(Boolean(payload.conversation?.id && !payload.conversation?.closedAt));
+    }
   });
 
   socketClient.on(deps.chatSocketEvents.deleted, (payload) => {

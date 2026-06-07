@@ -16,6 +16,7 @@ export type StoredProfile = {
 export type StoredConversation = {
   activeAgent: 'tutor';
   chatRoomConversationReportId: string | null;
+  closedAt: string | null;
   practiceModuleId: string | null;
   id: string;
   modelTier: 'advanced' | 'max' | 'regular';
@@ -194,6 +195,90 @@ export type StoredConversationChatRoomReportSnapshot = {
   slidesJson: string;
 };
 
+export type StoredTutorConversationReportData = {
+  difficultyAreas: Array<{
+    description: string;
+    title: string;
+  }>;
+  nextSteps: string[];
+  practicedTopics: string[];
+  progressHighlights: string[];
+  recommendations: string[];
+  usefulPhrases: string[];
+  vocabulary: Array<{
+    example?: string;
+    meaning: string;
+    term: string;
+  }>;
+};
+
+export type StoredTutorConversationReport = {
+  id: string;
+  conversationId: string;
+  userId: string;
+  profileId: string;
+  summaryTitle: string;
+  summaryDescription: string;
+  report: StoredTutorConversationReportData;
+  practiceModuleId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredConversationTutorReportSnapshot = {
+  conversationId: string;
+  createdAt: string;
+  reportJson: string;
+  reportSummaryDescription: string;
+  reportSummaryTitle: string;
+  sourceConversationId: string;
+  tutorConversationReportId: string;
+};
+
+export type StoredLearnerProgressSummary = {
+  focusAreas: string[];
+  overview: string;
+  recommendedPractice: string[];
+  strengths: string[];
+  updatedFromEvents: number;
+  vocabulary: string[];
+};
+
+export type StoredLearnerProgressProfile = {
+  id: string;
+  profileId: string;
+  summary: StoredLearnerProgressSummary;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type StoredLearnerProgressEventDetails = {
+  difficulties: string[];
+  practiced: string[];
+  progress: string[];
+  recommendations: string[];
+  vocabulary: string[];
+};
+
+export type LearnerProgressSourceType =
+  | 'chat_room_conversation_report'
+  | 'tutor_conversation_report';
+
+export type StoredLearnerProgressEvent = {
+  id: number;
+  details: StoredLearnerProgressEventDetails;
+  eventDate: string;
+  profileId: string;
+  sourceId: string;
+  sourceType: LearnerProgressSourceType;
+  summary: string;
+  title: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type StoredMessage = {
   id: number;
   conversationId: string;
@@ -297,6 +382,7 @@ type MessageRow = {
 type ConversationRow = {
   active_agent: string;
   chat_room_conversation_report_id: string | null;
+  closed_at: string | null;
   practice_module_id: string | null;
   id: string;
   model_tier: 'advanced' | 'max' | 'regular';
@@ -304,6 +390,19 @@ type ConversationRow = {
   title: string;
   title_updated_by_user: number;
   user_id: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type TutorConversationReportRow = {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  profile_id: string;
+  summary_title: string;
+  summary_description: string;
+  report_json: string;
+  practice_module_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -378,6 +477,39 @@ type ConversationChatRoomReportSnapshotRow = {
   slides_json: string;
 };
 
+type ConversationTutorReportSnapshotRow = {
+  conversation_id: string;
+  created_at: string;
+  report_json: string;
+  report_summary_description: string;
+  report_summary_title: string;
+  source_conversation_id: string;
+  tutor_conversation_report_id: string;
+};
+
+type LearnerProgressProfileRow = {
+  id: string;
+  user_id: string;
+  profile_id: string;
+  summary_json: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type LearnerProgressEventRow = {
+  id: number;
+  user_id: string;
+  profile_id: string;
+  source_type: LearnerProgressSourceType;
+  source_id: string;
+  event_date: string;
+  title: string;
+  summary: string;
+  details_json: string;
+  created_at: string;
+  updated_at: string;
+};
+
 type PracticeModuleCollectionShareLinkRow = {
   collection_id: string;
   created_at: string;
@@ -404,6 +536,7 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
   return {
     activeAgent: 'tutor',
     chatRoomConversationReportId: row.chat_room_conversation_report_id,
+    closedAt: row.closed_at,
     practiceModuleId: row.practice_module_id,
     id: row.id,
     modelTier: row.model_tier,
@@ -411,6 +544,50 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     title: row.title,
     titleUpdatedByUser: Boolean(row.title_updated_by_user),
     userId: row.user_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function parseTutorConversationReportData(
+  reportJson: string,
+): StoredTutorConversationReportData {
+  try {
+    const parsed = JSON.parse(reportJson) as StoredTutorConversationReportData;
+    return {
+      difficultyAreas: Array.isArray(parsed.difficultyAreas) ? parsed.difficultyAreas : [],
+      nextSteps: Array.isArray(parsed.nextSteps) ? parsed.nextSteps : [],
+      practicedTopics: Array.isArray(parsed.practicedTopics) ? parsed.practicedTopics : [],
+      progressHighlights: Array.isArray(parsed.progressHighlights) ? parsed.progressHighlights : [],
+      recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+      usefulPhrases: Array.isArray(parsed.usefulPhrases) ? parsed.usefulPhrases : [],
+      vocabulary: Array.isArray(parsed.vocabulary) ? parsed.vocabulary : [],
+    };
+  } catch {
+    return {
+      difficultyAreas: [],
+      nextSteps: [],
+      practicedTopics: [],
+      progressHighlights: [],
+      recommendations: [],
+      usefulPhrases: [],
+      vocabulary: [],
+    };
+  }
+}
+
+function toStoredTutorConversationReport(
+  row: TutorConversationReportRow,
+): StoredTutorConversationReport {
+  return {
+    id: row.id,
+    conversationId: row.conversation_id,
+    userId: row.user_id,
+    profileId: row.profile_id,
+    summaryTitle: row.summary_title,
+    summaryDescription: row.summary_description,
+    report: parseTutorConversationReportData(row.report_json),
+    practiceModuleId: row.practice_module_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -429,6 +606,104 @@ function toStoredConversationChatRoomReportSnapshot(
     roomDescription: row.room_description,
     roomTitle: row.room_title,
     slidesJson: row.slides_json,
+  };
+}
+
+function toStoredConversationTutorReportSnapshot(
+  row: ConversationTutorReportSnapshotRow,
+): StoredConversationTutorReportSnapshot {
+  return {
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    reportJson: row.report_json,
+    reportSummaryDescription: row.report_summary_description,
+    reportSummaryTitle: row.report_summary_title,
+    sourceConversationId: row.source_conversation_id,
+    tutorConversationReportId: row.tutor_conversation_report_id,
+  };
+}
+
+function parseLearnerProgressSummary(summaryJson: string): StoredLearnerProgressSummary {
+  const fallback: StoredLearnerProgressSummary = {
+    focusAreas: [],
+    overview: '',
+    recommendedPractice: [],
+    strengths: [],
+    updatedFromEvents: 0,
+    vocabulary: [],
+  };
+
+  try {
+    const parsed = JSON.parse(summaryJson) as Partial<StoredLearnerProgressSummary>;
+    return {
+      focusAreas: Array.isArray(parsed.focusAreas) ? parsed.focusAreas : [],
+      overview: typeof parsed.overview === 'string' ? parsed.overview : '',
+      recommendedPractice: Array.isArray(parsed.recommendedPractice)
+        ? parsed.recommendedPractice
+        : [],
+      strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+      updatedFromEvents:
+        typeof parsed.updatedFromEvents === 'number' ? parsed.updatedFromEvents : 0,
+      vocabulary: Array.isArray(parsed.vocabulary) ? parsed.vocabulary : [],
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function parseLearnerProgressEventDetails(
+  detailsJson: string,
+): StoredLearnerProgressEventDetails {
+  const fallback: StoredLearnerProgressEventDetails = {
+    difficulties: [],
+    practiced: [],
+    progress: [],
+    recommendations: [],
+    vocabulary: [],
+  };
+
+  try {
+    const parsed = JSON.parse(detailsJson) as Partial<StoredLearnerProgressEventDetails>;
+    return {
+      difficulties: Array.isArray(parsed.difficulties) ? parsed.difficulties : [],
+      practiced: Array.isArray(parsed.practiced) ? parsed.practiced : [],
+      progress: Array.isArray(parsed.progress) ? parsed.progress : [],
+      recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+      vocabulary: Array.isArray(parsed.vocabulary) ? parsed.vocabulary : [],
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function toStoredLearnerProgressProfile(
+  row: LearnerProgressProfileRow,
+): StoredLearnerProgressProfile {
+  return {
+    id: row.id,
+    profileId: row.profile_id,
+    summary: parseLearnerProgressSummary(row.summary_json),
+    userId: row.user_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function toStoredLearnerProgressEvent(
+  row: LearnerProgressEventRow,
+): StoredLearnerProgressEvent {
+  return {
+    id: row.id,
+    details: parseLearnerProgressEventDetails(row.details_json),
+    eventDate: row.event_date,
+    profileId: row.profile_id,
+    sourceId: row.source_id,
+    sourceType: row.source_type,
+    summary: row.summary,
+    title: row.title,
+    userId: row.user_id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
   };
 }
 
@@ -849,6 +1124,22 @@ export function createConversationFromChatRoomReport(input: {
   return conversation;
 }
 
+export function createConversationFromTutorReport(input: {
+  profileId: string;
+  report: StoredTutorConversationReport;
+  userId: string;
+}): StoredConversation {
+  const conversation = createConversation(
+    input.userId,
+    input.profileId,
+    defaultConversationTitle,
+  );
+
+  createConversationTutorReportSnapshot(conversation.id, input.report);
+
+  return conversation;
+}
+
 export function findConversationForUser(
   id: string,
   userId: string,
@@ -856,7 +1147,7 @@ export function findConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_module_id, profile_id, active_agent
              , model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE id = ? AND user_id = ?
@@ -888,6 +1179,24 @@ export function touchConversation(conversationId: string): void {
     .run(conversationId);
 }
 
+export function closeConversationForUser(
+  conversationId: string,
+  userId: string,
+): StoredConversation | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE conversations
+        SET closed_at = COALESCE(closed_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(conversationId, userId);
+
+  return findConversationForUser(conversationId, userId);
+}
+
 export function listConversationsForProfile(
   userId: string,
   profileId: string,
@@ -895,7 +1204,7 @@ export function listConversationsForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_module_id, profile_id, active_agent
              , model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
@@ -1651,6 +1960,292 @@ export function setChatRoomConversationReportPracticeModule(input: {
   return findChatRoomConversationReport(input.conversationId, input.userId);
 }
 
+export function findTutorConversationReport(
+  conversationId: string,
+  userId: string,
+): StoredTutorConversationReport | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          conversation_id,
+          user_id,
+          profile_id,
+          summary_title,
+          summary_description,
+          report_json,
+          practice_module_id,
+          created_at,
+          updated_at
+        FROM tutor_conversation_reports
+        WHERE conversation_id = ? AND user_id = ?
+      `,
+    )
+    .get(conversationId, userId) as TutorConversationReportRow | undefined;
+
+  return row ? toStoredTutorConversationReport(row) : null;
+}
+
+export function saveTutorConversationReport(input: {
+  conversationId: string;
+  profileId: string;
+  report: StoredTutorConversationReportData;
+  summaryDescription: string;
+  summaryTitle: string;
+  userId: string;
+}): StoredTutorConversationReport {
+  const existing = findTutorConversationReport(input.conversationId, input.userId);
+
+  if (existing) {
+    getDb()
+      .prepare(
+        `
+          UPDATE tutor_conversation_reports
+          SET summary_title = ?,
+              summary_description = ?,
+              report_json = ?,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `,
+      )
+      .run(
+        input.summaryTitle,
+        input.summaryDescription,
+        JSON.stringify(input.report),
+        existing.id,
+      );
+
+    const updated = findTutorConversationReport(input.conversationId, input.userId);
+    if (!updated) {
+      throw new Error('Could not load updated tutor conversation report.');
+    }
+
+    touchConversation(input.conversationId);
+    return updated;
+  }
+
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO tutor_conversation_reports (
+          id,
+          conversation_id,
+          user_id,
+          profile_id,
+          summary_title,
+          summary_description,
+          report_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      id,
+      input.conversationId,
+      input.userId,
+      input.profileId,
+      input.summaryTitle,
+      input.summaryDescription,
+      JSON.stringify(input.report),
+    );
+
+  const created = findTutorConversationReport(input.conversationId, input.userId);
+  if (!created) {
+    throw new Error('Could not load newly created tutor conversation report.');
+  }
+
+  touchConversation(input.conversationId);
+  return created;
+}
+
+export function setTutorConversationReportPracticeModule(input: {
+  conversationId: string;
+  practiceModuleId: string | null;
+  userId: string;
+}): StoredTutorConversationReport | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE tutor_conversation_reports
+        SET practice_module_id = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE conversation_id = ? AND user_id = ?
+      `,
+    )
+    .run(input.practiceModuleId, input.conversationId, input.userId);
+
+  touchConversation(input.conversationId);
+
+  return findTutorConversationReport(input.conversationId, input.userId);
+}
+
+export function findLearnerProgressProfile(
+  userId: string,
+  profileId: string,
+): StoredLearnerProgressProfile | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          summary_json,
+          created_at,
+          updated_at
+        FROM learner_progress_profiles
+        WHERE user_id = ? AND profile_id = ?
+      `,
+    )
+    .get(userId, profileId) as LearnerProgressProfileRow | undefined;
+
+  return row ? toStoredLearnerProgressProfile(row) : null;
+}
+
+export function upsertLearnerProgressProfile(input: {
+  profileId: string;
+  summary: StoredLearnerProgressSummary;
+  userId: string;
+}): StoredLearnerProgressProfile {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO learner_progress_profiles (
+          id,
+          user_id,
+          profile_id,
+          summary_json
+        )
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(user_id, profile_id) DO UPDATE SET
+          summary_json = excluded.summary_json,
+          updated_at = CURRENT_TIMESTAMP
+      `,
+    )
+    .run(id, input.userId, input.profileId, JSON.stringify(input.summary));
+
+  const profile = findLearnerProgressProfile(input.userId, input.profileId);
+  if (!profile) {
+    throw new Error('Could not load learner progress profile.');
+  }
+
+  return profile;
+}
+
+export function listLearnerProgressEvents(input: {
+  limit?: number;
+  profileId: string;
+  userId: string;
+}): StoredLearnerProgressEvent[] {
+  const limit = Math.max(1, Math.min(input.limit ?? 50, 100));
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          source_type,
+          source_id,
+          event_date,
+          title,
+          summary,
+          details_json,
+          created_at,
+          updated_at
+        FROM learner_progress_events
+        WHERE user_id = ? AND profile_id = ?
+        ORDER BY event_date DESC, id DESC
+        LIMIT ?
+      `,
+    )
+    .all(input.userId, input.profileId, limit) as LearnerProgressEventRow[];
+
+  return rows.map(toStoredLearnerProgressEvent);
+}
+
+export function upsertLearnerProgressEvent(input: {
+  details: StoredLearnerProgressEventDetails;
+  eventDate?: string;
+  profileId: string;
+  sourceId: string;
+  sourceType: LearnerProgressSourceType;
+  summary: string;
+  title: string;
+  userId: string;
+}): StoredLearnerProgressEvent {
+  getDb()
+    .prepare(
+      `
+        INSERT INTO learner_progress_events (
+          user_id,
+          profile_id,
+          source_type,
+          source_id,
+          event_date,
+          title,
+          summary,
+          details_json
+        )
+        VALUES (?, ?, ?, ?, COALESCE(?, CURRENT_TIMESTAMP), ?, ?, ?)
+        ON CONFLICT(user_id, profile_id, source_type, source_id) DO UPDATE SET
+          event_date = excluded.event_date,
+          title = excluded.title,
+          summary = excluded.summary,
+          details_json = excluded.details_json,
+          updated_at = CURRENT_TIMESTAMP
+      `,
+    )
+    .run(
+      input.userId,
+      input.profileId,
+      input.sourceType,
+      input.sourceId,
+      input.eventDate ?? null,
+      input.title,
+      input.summary,
+      JSON.stringify(input.details),
+    );
+
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          source_type,
+          source_id,
+          event_date,
+          title,
+          summary,
+          details_json,
+          created_at,
+          updated_at
+        FROM learner_progress_events
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND source_type = ?
+          AND source_id = ?
+      `,
+    )
+    .get(
+      input.userId,
+      input.profileId,
+      input.sourceType,
+      input.sourceId,
+    ) as LearnerProgressEventRow | undefined;
+
+  if (!row) {
+    throw new Error('Could not load learner progress event.');
+  }
+
+  return toStoredLearnerProgressEvent(row);
+}
+
 export function createPracticeModule(input: {
   collectionId?: string | null;
   positionInCollection?: number | null;
@@ -2392,7 +2987,7 @@ export function listConversationsForPracticeModule(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, practice_module_id, profile_id, active_agent, model_tier
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_module_id, profile_id, active_agent, model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE user_id = ? AND profile_id = ? AND practice_module_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -2745,6 +3340,41 @@ export function createConversationChatRoomReportSnapshot(
   return snapshot;
 }
 
+export function createConversationTutorReportSnapshot(
+  conversationId: string,
+  report: StoredTutorConversationReport,
+): StoredConversationTutorReportSnapshot {
+  getDb()
+    .prepare(
+      `
+        INSERT OR REPLACE INTO conversation_tutor_report_snapshots (
+          conversation_id,
+          tutor_conversation_report_id,
+          source_conversation_id,
+          report_summary_title,
+          report_summary_description,
+          report_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+      `,
+    )
+    .run(
+      conversationId,
+      report.id,
+      report.conversationId,
+      report.summaryTitle,
+      report.summaryDescription,
+      JSON.stringify(report.report),
+    );
+
+  const snapshot = getConversationTutorReportSnapshot(conversationId);
+  if (!snapshot) {
+    throw new Error('Could not load conversation tutor-report snapshot.');
+  }
+
+  return snapshot;
+}
+
 export function getConversationPracticeModuleSnapshot(
   conversationId: string,
 ): StoredConversationPracticeModuleSnapshot | null {
@@ -2784,6 +3414,29 @@ export function getConversationChatRoomReportSnapshot(
     .get(conversationId) as ConversationChatRoomReportSnapshotRow | undefined;
 
   return row ? toStoredConversationChatRoomReportSnapshot(row) : null;
+}
+
+export function getConversationTutorReportSnapshot(
+  conversationId: string,
+): StoredConversationTutorReportSnapshot | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          conversation_id,
+          tutor_conversation_report_id,
+          source_conversation_id,
+          report_summary_title,
+          report_summary_description,
+          report_json,
+          created_at
+        FROM conversation_tutor_report_snapshots
+        WHERE conversation_id = ?
+      `,
+    )
+    .get(conversationId) as ConversationTutorReportSnapshotRow | undefined;
+
+  return row ? toStoredConversationTutorReportSnapshot(row) : null;
 }
 
 export function listMessages(conversationId: string): StoredMessage[] {

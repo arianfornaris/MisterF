@@ -30,9 +30,14 @@ Important files:
 - `internal-tool-continuation.md`: continuation prompt after tool calls
 - `practice-module-context.md`: context block for tutor conversations started from a practice module
 - `chatroom-report-context.md`: context block for tutor conversations started from a chat room report
+- `tutor-report-context.md`: context block for tutor conversations started from a finalized tutor conversation report
 - `translator.md`: prompt for translator mode
 - `quiz-result-evaluation.md`: prompt for structured quiz result assessment
 - `quiz-result-evaluation-correction.md`: repair prompt for invalid quiz result evaluation output
+- `conversation-report.md`: turns a finalized tutor conversation transcript into a structured progress report
+- `conversation-report-correction.md`: repair prompt for invalid tutor conversation report output
+- `report-to-practice-module.md`: turns a tutor conversation report into a practice module draft
+- `report-to-practice-module-correction.md`: repair prompt for invalid report-to-module output
 
 ### Chat room prompts
 
@@ -112,6 +117,22 @@ as equivalent learner intents for a self-contained evaluation flow.
 Quiz item kinds are prefixed with `quiz_` for clarity and to avoid ambiguity with top-level block kinds.
 
 This is an important convention because earlier designs were more prone to schema confusion between top-level blocks and quiz item types.
+
+### Unscramble token ordering
+
+For `unscramble_sentence` and `quiz_unscramble_sentence`, the model must provide
+`tokens` in the correct order.
+
+The client is responsible for shuffling those tokens for display and preserving
+the original order as the answer key.
+
+The model should not emit:
+
+- pre-shuffled `tokens`
+- `acceptableTokenOrders`
+- a separate full-sentence answer field for the same task
+
+This keeps the prompt contract simple and avoids duplicate sources of truth.
 
 ### Mandatory explanations for flagged quiz result annotations
 

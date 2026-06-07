@@ -4,7 +4,7 @@ import path from 'node:path';
 import { Server } from 'socket.io';
 import { csrfProtection } from './auth/csrf.js';
 import { handleChangePassword, handleCreateLesson, handleCreateLessonConversation, handleCreatePracticeModuleCollection, handleCreateProfile, handleAcceptSharedPracticeModuleCollectionLink, handleArchiveLesson, handleArchivePracticeModuleCollection, handleAddPracticeModuleToCollection, handleDeleteLesson, handleAcceptSharedPracticeModuleLink, handleMovePracticeModuleCollectionItem, handleRemovePracticeModuleFromCollection, handleRestoreLesson, handleRestorePracticeModuleCollection, handleSetLessonFavorite, handleSetPracticeModuleCollectionFavorite, handleSharePracticeModuleCollectionToProfile, handleShareLessonToProfile, handleUpdateLesson, handleUpdatePracticeModuleCollection, handleForgotPassword, handleLogin, handleLogout, handleResendVerification, handleResetPassword, handleSignup, handleSwitchProfile, handleUpdateProfile, handleVerifyEmail, renderChangePassword, renderForgotPassword, renderLogin, renderResetPassword, renderSignup, renderVerifyNeeded, } from './auth/forms.js';
-import { renderChatPage } from './chat/handlers.js';
+import { handleCreatePracticeModuleFromTutorConversationReport, handleFinalizeTutorConversation, handlePracticeTutorConversationReport, renderChatPage, } from './chat/handlers.js';
 import { handleAcceptSharedChatRoomLink, handleArchiveChatRoom, handleChatRoomContinue, handleCreatePracticeModuleFromChatRoomConversationReport, handlePracticeChatRoomConversationReportWithTutor, handleRestoreChatRoom, handleChatRoomSendMessage, handleCreateChatRoom, handleCreateChatRoomConversation, handleEvaluateChatRoomConversation, handleGenerateChatRoomDraft, handleGetChatRoomMessageEvaluation, handleJoinChatRoom, handleShareChatRoomToProfile, handleUpdateChatRoom, renderChatRoomConversationPage, renderChatRoomConversationReportPage, renderChatRoomHistoryPage, renderChatRoomShowPage, renderChatRoomsListPage, renderEditChatRoomPage, renderNewChatRoomPage, renderSharedChatRoomPage, } from './chatrooms/handlers.js';
 import { finishGoogleLogin, startGoogleLogin } from './auth/google.js';
 import { loadAuthSession } from './auth/middleware.js';
@@ -15,6 +15,7 @@ import { handleCreateCreditsCheckout, handleStripeWebhook, renderCreditsPage, } 
 import { renderPrivacyPage, renderTermsPage, } from './legal/handlers.js';
 import { handleGeneratePracticeModuleDraft, renderNewPracticeModuleCollectionPage, renderNewPracticeModulePage, renderPracticeModuleCollectionDetailPage, renderPracticeModuleDetailPage, renderPracticeModulesListPage, renderSharedPracticeModuleCollectionPage, renderSharedPracticeModulePage, renderEditPracticeModuleCollectionPage, renderEditPracticeModulePage, } from './practiceModules/handlers.js';
 import { renderEditProfilePage, renderNewProfilePage, renderProfilesListPage, } from './profiles/handlers.js';
+import { renderProgressPage } from './progress/handlers.js';
 import { handleUpdateSettingsPage, renderSettingsPage, } from './settings/handlers.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import { handleOpenRouterKeyUpdate, renderSuperadminUser, renderSuperadminUsers, } from './superadmin/routes.js';
@@ -102,6 +103,7 @@ app.get('/credits', renderCreditsPage);
 app.post('/credits/checkout', handleCreateCreditsCheckout);
 app.get('/privacy', renderPrivacyPage);
 app.get('/terms', renderTermsPage);
+app.get('/progress', renderProgressPage);
 app.get('/chatrooms', renderChatRoomsListPage);
 app.get('/chatrooms/new', renderNewChatRoomPage);
 app.post('/chatrooms/generate-draft', handleGenerateChatRoomDraft);
@@ -125,6 +127,9 @@ app.post('/chatroom-conversations/:roomConversationId/report/practice-with-tutor
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
 app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);
+app.post('/c/:conversationId/finalize', handleFinalizeTutorConversation);
+app.post('/c/:conversationId/report/practice', handlePracticeTutorConversationReport);
+app.post('/c/:conversationId/report/create-practice-module', handleCreatePracticeModuleFromTutorConversationReport);
 app.get('/c/:conversationId', renderChatPage);
 app.get('/', renderChatPage);
 app.get('/session', (request, response) => {

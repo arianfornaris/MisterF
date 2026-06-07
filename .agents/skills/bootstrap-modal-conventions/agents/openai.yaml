@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bootstrap Modal Conventions"
+  short_description: "Keep Mister F modals consistent with Bootstrap and Flatly."
+  default_prompt: "Use the Mister F Bootstrap modal conventions when creating or reviewing app modals."

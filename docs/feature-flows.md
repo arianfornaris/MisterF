@@ -15,6 +15,36 @@
    - conversation title updates
 7. The client renders the returned structured blocks.
 
+## Tutor Conversation Summary Flow
+
+1. The user chooses `Finalizar y resumir` from the composer footer or from the
+   conversation dropdown in the sidebar.
+2. The app shows a Bootstrap confirmation modal explaining that Mr. F will
+   summarize the conversation, extract progress, difficulty areas, vocabulary,
+   and recommendations.
+3. When the user confirms, the server loads the conversation transcript and
+   checks that the user has enough LLM credit to generate the report.
+4. The server asks the model to generate a structured tutor conversation report.
+5. The report is validated and persisted.
+6. The conversation is marked as closed.
+7. The user is redirected to `/c/:conversationId?tab=summary`.
+8. Closed conversations show two tabs:
+   - `Conversación`, which shows the original read-only chat history
+   - `Resumen`, which shows the structured report
+
+From the summary page:
+
+- `Practicar estos puntos` creates a new tutor conversation seeded with a
+  snapshot of the report.
+- `Crear módulo de práctica` asks the model to convert the report into a
+  persistent practice module.
+- If a module was already created from the report, the UI links to that existing
+  module instead of creating another one.
+
+Closed conversations cannot accept new chat messages. If a stale client tries to
+send into a closed conversation, the socket handler rejects the message with a
+read-only conversation error.
+
 ## Practice Module Flow
 
 ### Create manually

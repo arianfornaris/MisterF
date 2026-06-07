@@ -40,7 +40,12 @@ import {
   generateChatRoomConversationReport,
   generatePracticeModuleFromChatRoomConversationReport,
 } from '../services/chatrooms.js';
-import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
+import {
+  getCreditCheckedOpenRouterApiKeyForUser,
+  getCreditExhaustedMessage,
+  isCreditExhaustedError,
+} from '../services/creditGate.js';
+import { recordChatRoomConversationReportProgress } from '../services/learnerProgress.js';
 import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
 import {
   chatroomsLayoutCookieName,
@@ -1277,20 +1282,34 @@ export async function handleEvaluateChatRoomConversation(
 
   const existingReport = findChatRoomConversationReport(conversation.id, auth.user.id);
   if (existingReport) {
+    recordChatRoomConversationReportProgress({
+      report: existingReport,
+      room,
+    });
     response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}/report`);
     return;
   }
 
   const messages = listChatRoomMessages(conversation.id);
-  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-  const report = await generateChatRoomConversationReport({
-    messages,
-    openRouterApiKey,
-    room,
-    userName: auth.user.fullName,
-  });
+  let report: Awaited<ReturnType<typeof generateChatRoomConversationReport>>;
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
+    report = await generateChatRoomConversationReport({
+      messages,
+      openRouterApiKey,
+      room,
+      userName: auth.user.fullName,
+    });
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect(buildChatRoomConversationCreditExhaustedPath(conversation.id));
+      return;
+    }
 
-  saveChatRoomConversationReport({
+    throw error;
+  }
+
+  const savedReport = saveChatRoomConversationReport({
     conversationId: conversation.id,
     profileId: conversation.profileId,
     roomId: room.id,
@@ -1298,6 +1317,10 @@ export async function handleEvaluateChatRoomConversation(
     summaryDescription: report.summaryDescription,
     summaryTitle: report.summaryTitle,
     userId: auth.user.id,
+  });
+  recordChatRoomConversationReportProgress({
+    report: savedReport,
+    room,
   });
 
   response.redirect(`/chatroom-conversations/${encodeURIComponent(conversation.id)}/report`);
@@ -1399,6 +1422,15 @@ export function handlePracticeChatRoomConversationReportWithTutor(
   });
 
   response.redirect(`/c/${encodeURIComponent(tutorConversation.id)}`);
+}
+
+function buildChatRoomConversationCreditExhaustedPath(conversationId: string): string {
+  const params = new URLSearchParams({
+    credit: 'exhausted',
+    creditMessage: getCreditExhaustedMessage(),
+  });
+
+  return `/chatroom-conversations/${encodeURIComponent(conversationId)}?${params.toString()}`;
 }
 
 export function handleGetChatRoomMessageEvaluation(

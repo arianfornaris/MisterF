@@ -41,7 +41,12 @@ import {
   renderSignup,
   renderVerifyNeeded,
 } from './auth/forms.js';
-import { renderChatPage } from './chat/handlers.js';
+import {
+  handleCreatePracticeModuleFromTutorConversationReport,
+  handleFinalizeTutorConversation,
+  handlePracticeTutorConversationReport,
+  renderChatPage,
+} from './chat/handlers.js';
 import {
   handleAcceptSharedChatRoomLink,
   handleArchiveChatRoom,
@@ -98,6 +103,7 @@ import {
   renderNewProfilePage,
   renderProfilesListPage,
 } from './profiles/handlers.js';
+import { renderProgressPage } from './progress/handlers.js';
 import {
   handleUpdateSettingsPage,
   renderSettingsPage,
@@ -213,6 +219,7 @@ app.get('/credits', renderCreditsPage);
 app.post('/credits/checkout', handleCreateCreditsCheckout);
 app.get('/privacy', renderPrivacyPage);
 app.get('/terms', renderTermsPage);
+app.get('/progress', renderProgressPage);
 app.get('/chatrooms', renderChatRoomsListPage);
 app.get('/chatrooms/new', renderNewChatRoomPage);
 app.post('/chatrooms/generate-draft', handleGenerateChatRoomDraft);
@@ -236,6 +243,9 @@ app.post('/chatroom-conversations/:roomConversationId/report/practice-with-tutor
 app.post('/chatroom-conversations/:roomConversationId/messages', handleChatRoomSendMessage);
 app.get('/chatroom-conversations/:roomConversationId/messages/:messageId/evaluation', handleGetChatRoomMessageEvaluation);
 app.post('/chatroom-conversations/:roomConversationId/continue', handleChatRoomContinue);
+app.post('/c/:conversationId/finalize', handleFinalizeTutorConversation);
+app.post('/c/:conversationId/report/practice', handlePracticeTutorConversationReport);
+app.post('/c/:conversationId/report/create-practice-module', handleCreatePracticeModuleFromTutorConversationReport);
 app.get('/c/:conversationId', renderChatPage);
 app.get('/', renderChatPage);
 app.get('/session', (request, response) => {
