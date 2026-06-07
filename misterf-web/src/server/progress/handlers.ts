@@ -2,8 +2,8 @@ import type { Request, Response } from 'express';
 import {
   findLearnerProgressProfile,
   listLearnerProgressEvents,
-  type StoredLearnerProgressEvent,
 } from '../db/repository.js';
+import { buildLearnerProgressVocabularyItems } from '../services/learnerProgressView.js';
 import {
   appDocumentTitle,
   buildAppShellContext,
@@ -43,7 +43,7 @@ export function renderProgressPage(request: Request, response: Response): void {
     profileId: request.activeProfile.id,
     userId: user.id,
   });
-  const vocabularyItems = buildVocabularyItems(events);
+  const vocabularyItems = buildLearnerProgressVocabularyItems(events);
 
   response.render('progress', {
     ...buildAppShellContext({
@@ -64,69 +64,4 @@ export function renderProgressPage(request: Request, response: Response): void {
 
 function normalizeProgressTab(value: unknown): 'events' | 'general' | 'vocabulary' {
   return value === 'events' || value === 'vocabulary' ? value : 'general';
-}
-
-function buildVocabularyItems(events: StoredLearnerProgressEvent[]) {
-  const items = new Map<
-    string,
-    {
-      count: number;
-      lastSeenAt: string;
-      sourceLabels: string[];
-      sourceTitles: string[];
-      term: string;
-    }
-  >();
-
-  for (const event of events) {
-    for (const rawTerm of event.details.vocabulary) {
-      const term = rawTerm.replace(/\s+/g, ' ').trim();
-      if (!term) {
-        continue;
-      }
-
-      const key = term.toLowerCase();
-      const existing = items.get(key);
-      const sourceLabel =
-        event.sourceType === 'chat_room_conversation_report'
-          ? 'Sala de chat'
-          : 'Tutor';
-
-      if (existing) {
-        existing.count += 1;
-        if (Date.parse(event.eventDate) > Date.parse(existing.lastSeenAt)) {
-          existing.lastSeenAt = event.eventDate;
-        }
-        pushUnique(existing.sourceLabels, sourceLabel, 3);
-        pushUnique(existing.sourceTitles, event.title, 3);
-        continue;
-      }
-
-      items.set(key, {
-        count: 1,
-        lastSeenAt: event.eventDate,
-        sourceLabels: [sourceLabel],
-        sourceTitles: [event.title],
-        term,
-      });
-    }
-  }
-
-  return Array.from(items.values()).sort((a, b) => {
-    if (b.count !== a.count) {
-      return b.count - a.count;
-    }
-
-    return Date.parse(b.lastSeenAt) - Date.parse(a.lastSeenAt);
-  });
-}
-
-function pushUnique(items: string[], value: string, limit: number): void {
-  if (!items.includes(value)) {
-    items.push(value);
-  }
-
-  if (items.length > limit) {
-    items.length = limit;
-  }
 }

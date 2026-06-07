@@ -19,6 +19,7 @@ import {
 } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
+import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
@@ -249,9 +250,15 @@ export async function runTutorAgentLoop(
     profileId: options.profileId ?? null,
     userId: options.userId ?? null,
   });
+  const progressTools = buildTutorProgressTools({
+    onToolCall: options.onToolCall,
+    profileId: options.profileId ?? null,
+    userId: options.userId ?? null,
+  });
   const mergedTools = {
     ...(practiceModuleTools || {}),
     ...(chatRoomTools || {}),
+    ...(progressTools || {}),
   };
   const tools: ToolSet | undefined = Object.keys(mergedTools).length > 0
     ? (mergedTools as ToolSet)
