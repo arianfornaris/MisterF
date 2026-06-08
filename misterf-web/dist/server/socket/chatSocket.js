@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
@@ -55,6 +55,7 @@ export function registerChatSocket(io) {
                     conversationId: null,
                     messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
                     pendingPracticeModuleStart: false,
+                    tutorPlan: null,
                 });
                 return;
             }
@@ -72,6 +73,7 @@ export function registerChatSocket(io) {
             const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
             const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
             const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
+            const tutorPlan = getConversationTutorPlan(conversation.id);
             if (messages.length === 0) {
                 pendingInitialGreeting = pickInitialGreeting();
             }
@@ -94,6 +96,7 @@ export function registerChatSocket(io) {
                         ? messages
                         : [createEphemeralInitialMessage(pendingInitialGreeting)],
                 pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
+                tutorPlan,
             });
             if ((chatRoomReportSnapshot || tutorReportSnapshot) &&
                 messages.length === 0 &&
@@ -214,6 +217,7 @@ export function registerChatSocket(io) {
                 conversationId: null,
                 messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
                 pendingPracticeModuleStart: false,
+                tutorPlan: null,
             });
         });
         socket.on('conversation:rename', (payload = {}) => {
@@ -294,6 +298,7 @@ export function registerChatSocket(io) {
                 conversationId: null,
                 messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
                 pendingPracticeModuleStart: false,
+                tutorPlan: null,
             });
         });
         socket.on('practice-module:start', async (payload = {}) => {
@@ -847,6 +852,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
         const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
+        const tutorPlan = getConversationTutorPlan(conversationId);
         const messages = listMessages(conversationId);
         const llmOptions = await getLlmRequestOptionsForUser(userId);
         llmOptions.modelTier = modelTier;
@@ -895,6 +901,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             profileId: conversation.profileId,
             startConversation,
             titleUpdatedByUser: conversation.titleUpdatedByUser,
+            tutorPlan,
             userId,
         });
         const trimmedContent = result.content.trim();

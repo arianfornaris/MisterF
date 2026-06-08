@@ -8,6 +8,7 @@ import type {
   TutorMultipleChoiceBlock,
   TutorQuizBlock,
   TutorQuizResultBlock,
+  TutorSentenceEvaluationBlock,
   TutorUnderstandInSpanishPromptBlock,
   TutorMessage,
   TutorMessageBlock,
@@ -109,7 +110,8 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorFillInTheBlankInputBlock
         | TutorFillInTheBlankChoiceBlock
         | TutorMultipleChoiceBlock
-        | TutorUnscrambleSentenceBlock =>
+        | TutorUnscrambleSentenceBlock
+        | TutorSentenceEvaluationBlock =>
         block.type === 'message' ||
         block.type === 'practice_module_link' ||
         block.type === 'dialogue_character_message' ||
@@ -122,9 +124,14 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block.type === 'fill_in_the_blank_input' ||
         block.type === 'fill_in_the_blank_choice' ||
         block.type === 'multiple_choice' ||
-        block.type === 'unscramble_sentence',
+        block.type === 'unscramble_sentence' ||
+        block.type === 'sentence_evaluation',
     )
     .map((block) => {
+      if (block.type === 'sentence_evaluation') {
+        return 'Revisemos esta parte:';
+      }
+
       if (block.type === 'dialogue_character_message') {
         return `**${block.name}:** ${block.markdown.trim()}`;
       }

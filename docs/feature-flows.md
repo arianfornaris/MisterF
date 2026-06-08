@@ -13,7 +13,21 @@
 6. The server applies runtime side effects such as:
    - sentence evaluation metadata
    - conversation title updates
+   - visible tutor plan creation or updates
 7. The client renders the returned structured blocks.
+
+## Visible Tutor Plan Flow
+
+1. Before each tutor turn, the server loads the current fused tutor plan for the
+   conversation, if one exists.
+2. The server injects that plan into the tutor model context as teacher-only
+   authoritative state.
+3. If the tutor starts a multi-step path, it emits `tutor_plan`.
+4. If the tutor advances, skips, renames, or appends steps, it emits
+   `tutor_plan_update`.
+5. The server validates plan mutations against the stored plan state.
+6. The server persists the newly fused plan.
+7. The client updates the plan panel near the composer.
 
 ## Tutor Conversation Summary Flow
 

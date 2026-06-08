@@ -11,6 +11,7 @@ import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFaci
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
+import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
@@ -130,6 +131,7 @@ export async function runTutorAgentLoop(history, options) {
     }
     const system = buildAgentSystemInstruction({
         ...options,
+        tutorPlanText: formatTutorPlanForModel(options.tutorPlan ?? null),
     });
     let lastError = null;
     const practiceModuleTools = buildTutorPracticeModuleTools({
@@ -257,6 +259,7 @@ export async function runTutorAgentLoop(history, options) {
                     throw new Error('The model returned no usable response blocks.');
                 }
                 options.validateBlocks?.(finalBlocks);
+                applyTutorPlanBlocks(finalBlocks, options.tutorPlan ?? null);
                 return {
                     blocks: finalBlocks,
                     content: blocksToMarkdown(finalBlocks),

@@ -1,5 +1,7 @@
-import { findConversationForUser, renameConversationForUser, updateMessageMetadata, } from '../../db/repository.js';
+import { findConversationForUser, getConversationTutorPlan, renameConversationForUser, saveConversationTutorPlan, updateMessageMetadata, } from '../../db/repository.js';
+import { applyTutorPlanBlocks } from '../tutorPlans.js';
 export function applyTutorBlocksRuntime(input) {
+    let handledTutorPlan = false;
     for (const block of input.blocks) {
         switch (block.type) {
             case 'sentence_evaluation':
@@ -18,6 +20,17 @@ export function applyTutorBlocksRuntime(input) {
                     userId: input.userId,
                 });
                 break;
+            case 'tutor_plan':
+            case 'tutor_plan_update':
+                if (!handledTutorPlan) {
+                    handleTutorPlanBlock({
+                        blocks: input.blocks,
+                        conversationId: input.conversationId,
+                        io: input.io,
+                    });
+                    handledTutorPlan = true;
+                }
+                break;
             case 'message':
             case 'practice_module_link':
             case 'dialogue_character_message':
@@ -33,6 +46,29 @@ export function applyTutorBlocksRuntime(input) {
             case 'unscramble_sentence':
                 break;
         }
+    }
+}
+function handleTutorPlanBlock(input) {
+    try {
+        const currentPlan = getConversationTutorPlan(input.conversationId);
+        const nextPlan = applyTutorPlanBlocks(input.blocks, currentPlan);
+        if (!nextPlan) {
+            return;
+        }
+        const savedPlan = saveConversationTutorPlan({
+            conversationId: input.conversationId,
+            plan: nextPlan,
+        });
+        input.io.to(input.conversationId).emit('tutor_plan:updated', {
+            conversationId: input.conversationId,
+            tutorPlan: savedPlan,
+        });
+    }
+    catch (error) {
+        console.error('Tutor plan side effect failed.', {
+            conversationId: input.conversationId,
+            error,
+        });
     }
 }
 function handleSentenceEvaluationBlock(input) {

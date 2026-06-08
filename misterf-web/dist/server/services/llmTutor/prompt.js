@@ -7,10 +7,11 @@ export function buildAgentSystemInstruction(options) {
             : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
     });
     if (!options.practiceModule) {
-        if (!options.chatRoomReport && !options.tutorReport) {
+        if (!options.chatRoomReport && !options.tutorReport && !options.tutorPlanText) {
             return base;
         }
         const sections = [base];
+        appendTutorPlanContext(sections, options.tutorPlanText);
         if (options.chatRoomReport) {
             sections.push('', renderSystemPrompt('tutor/chatroom-report-context.md', {
                 CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
@@ -40,6 +41,7 @@ export function buildAgentSystemInstruction(options) {
             PRACTICE_MODULE_TUTOR_INSTRUCTIONS: options.practiceModule.tutorInstructions,
         }),
     ];
+    appendTutorPlanContext(sections, options.tutorPlanText);
     if (options.chatRoomReport) {
         sections.push('', renderSystemPrompt('tutor/chatroom-report-context.md', {
             CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
@@ -59,6 +61,15 @@ export function buildAgentSystemInstruction(options) {
         }));
     }
     return sections.join('\n');
+}
+function appendTutorPlanContext(sections, tutorPlanText) {
+    const text = tutorPlanText?.trim();
+    if (!text) {
+        return;
+    }
+    sections.push('', renderSystemPrompt('tutor/visible-plan-context.md', {
+        TUTOR_PLAN_TEXT: text,
+    }));
 }
 export function buildTranslatorSystemInstruction(mode) {
     const translationDirection = mode === 'es-en'

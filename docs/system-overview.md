@@ -18,6 +18,7 @@ The system is designed around structured LLM output rather than free-form text r
 - multiple choice
 - matching pairs
 - unscramble sentence
+- visible tutor plan
 - quiz
 - quiz result
 - practice module link

@@ -48,6 +48,7 @@ export function registerChatSocketHandlers(deps) {
     deps.conversationListView.upsert(payload.conversation);
     deps.conversationListView.markActive(deps.getConversationId());
     deps.messagesEl.replaceChildren();
+    deps.tutorPlanView?.render(payload.tutorPlan || null);
     deps.setStreamingBubble(null);
     deps.pendingSentenceEvaluations.clear();
     deps.setActiveUserMessageId(null);
@@ -129,6 +130,14 @@ export function registerChatSocketHandlers(deps) {
     if (payload.conversationId === deps.getConversationId()) {
       deps.setCanFinalizeConversation?.(Boolean(payload.conversation?.id && !payload.conversation?.closedAt));
     }
+  });
+
+  socketClient.on('tutor_plan:updated', (payload) => {
+    if (payload?.conversationId !== deps.getConversationId()) {
+      return;
+    }
+
+    deps.tutorPlanView?.render(payload.tutorPlan || null);
   });
 
   socketClient.on(deps.chatSocketEvents.deleted, (payload) => {

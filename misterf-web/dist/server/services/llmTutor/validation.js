@@ -72,8 +72,12 @@ export function blocksToMarkdown(blocks) {
         block.type === 'fill_in_the_blank_input' ||
         block.type === 'fill_in_the_blank_choice' ||
         block.type === 'multiple_choice' ||
-        block.type === 'unscramble_sentence')
+        block.type === 'unscramble_sentence' ||
+        block.type === 'sentence_evaluation')
         .map((block) => {
+        if (block.type === 'sentence_evaluation') {
+            return 'Revisemos esta parte:';
+        }
         if (block.type === 'dialogue_character_message') {
             return `**${block.name}:** ${block.markdown.trim()}`;
         }

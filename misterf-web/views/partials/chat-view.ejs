@@ -150,6 +150,11 @@
 
           <% if (!isTutorConversationClosed) { %>
             <form id="chatForm" class="composer" autocomplete="off">
+              <section
+                class="tutor-plan-panel card d-none"
+                data-tutor-plan-panel
+                aria-live="polite"
+              ></section>
               <label class="visually-hidden" for="messageInput">Escribe tu mensaje</label>
               <div class="composer-input-wrap">
                 <textarea

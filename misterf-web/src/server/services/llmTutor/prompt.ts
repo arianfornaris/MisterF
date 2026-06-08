@@ -23,6 +23,7 @@ export function buildAgentSystemInstruction(options: {
   } | null;
   currentTitle?: string;
   titleUpdatedByUser?: boolean;
+  tutorPlanText?: string | null;
 }): string {
   const base = renderSystemPrompt('tutor/system.md', {
     CURRENT_TITLE: options.currentTitle || 'Nueva conversación',
@@ -32,11 +33,13 @@ export function buildAgentSystemInstruction(options: {
   });
 
   if (!options.practiceModule) {
-    if (!options.chatRoomReport && !options.tutorReport) {
+    if (!options.chatRoomReport && !options.tutorReport && !options.tutorPlanText) {
       return base;
     }
 
     const sections = [base];
+
+    appendTutorPlanContext(sections, options.tutorPlanText);
 
     if (options.chatRoomReport) {
       sections.push(
@@ -77,6 +80,8 @@ export function buildAgentSystemInstruction(options: {
     }),
   ];
 
+  appendTutorPlanContext(sections, options.tutorPlanText);
+
   if (options.chatRoomReport) {
     sections.push(
       '',
@@ -104,6 +109,20 @@ export function buildAgentSystemInstruction(options: {
   }
 
   return sections.join('\n');
+}
+
+function appendTutorPlanContext(sections: string[], tutorPlanText?: string | null): void {
+  const text = tutorPlanText?.trim();
+  if (!text) {
+    return;
+  }
+
+  sections.push(
+    '',
+    renderSystemPrompt('tutor/visible-plan-context.md', {
+      TUTOR_PLAN_TEXT: text,
+    }),
+  );
 }
 
 export function buildTranslatorSystemInstruction(mode: TranslationMode): string {

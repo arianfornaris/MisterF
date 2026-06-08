@@ -679,6 +679,75 @@ export const unscrambleSentenceBlockSchema = z
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
 })
     .strict();
+const tutorPlanStepIdSchema = z.string().trim().min(1).max(48).regex(/^[a-z][a-z0-9_-]*$/, 'step id must start with a lowercase letter and contain only lowercase letters, numbers, underscores, or hyphens.');
+const tutorPlanStepSchema = z
+    .object({
+    id: tutorPlanStepIdSchema,
+    label: z.string().trim().min(1).max(160),
+    status: z.enum(['pending', 'active', 'done']),
+})
+    .strict();
+export const tutorPlanBlockSchema = z
+    .object({
+    type: z.literal('tutor_plan'),
+    title: z.string().trim().min(1).max(160),
+    summary: z.string().trim().min(1).max(500).optional(),
+    steps: z.array(tutorPlanStepSchema).min(2).max(10),
+})
+    .strict()
+    .superRefine((block, ctx) => {
+    const ids = new Set();
+    for (const [index, step] of block.steps.entries()) {
+        if (ids.has(step.id)) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'tutor_plan step ids must be unique.',
+                path: ['steps', index, 'id'],
+            });
+        }
+        ids.add(step.id);
+    }
+    const activeCount = block.steps.filter((step) => step.status === 'active').length;
+    if (activeCount !== 1) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'tutor_plan must include exactly one active step.',
+            path: ['steps'],
+        });
+    }
+});
+const tutorPlanUpdateStepOperationSchema = z
+    .object({
+    action: z.literal('update_step'),
+    id: tutorPlanStepIdSchema,
+    label: z.string().trim().min(1).max(160).optional(),
+    status: z.enum(['pending', 'active', 'done', 'skipped']).optional(),
+})
+    .strict()
+    .refine((operation) => Boolean(operation.label || operation.status), {
+    message: 'update_step must include label or status.',
+});
+const tutorPlanAddStepOperationSchema = z
+    .object({
+    action: z.literal('add_step'),
+    afterId: tutorPlanStepIdSchema.optional(),
+    id: tutorPlanStepIdSchema,
+    label: z.string().trim().min(1).max(160),
+    status: z.enum(['pending', 'active']).optional(),
+})
+    .strict();
+export const tutorPlanUpdateBlockSchema = z
+    .object({
+    type: z.literal('tutor_plan_update'),
+    operations: z
+        .array(z.union([
+        tutorPlanUpdateStepOperationSchema,
+        tutorPlanAddStepOperationSchema,
+    ]))
+        .min(1)
+        .max(8),
+})
+    .strict();
 export const translateToEnglishPromptBlockSchema = z
     .object({
     type: z.literal('translate_to_english_prompt'),
@@ -735,6 +804,8 @@ export const tutorResponseSchema = z
         fillInTheBlankChoiceBlockSchema,
         multipleChoiceBlockSchema,
         unscrambleSentenceBlockSchema,
+        tutorPlanBlockSchema,
+        tutorPlanUpdateBlockSchema,
         sentenceEvaluationBlockSchema,
         conversationTitleBlockSchema,
     ]))

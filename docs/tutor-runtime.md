@@ -92,6 +92,8 @@ The tutor can emit structured blocks such as:
 - `multiple_choice`
 - `matching_pairs`
 - `unscramble_sentence`
+- `tutor_plan`
+- `tutor_plan_update`
 - `quiz`
 - `quiz_result`
 
@@ -158,9 +160,25 @@ That logic lives in:
 Current side effects include:
 
 - applying sentence evaluation metadata to the last user message
+- creating or updating the visible tutor plan for the conversation
 - auto-renaming a conversation when the model emits a conversation title block
 
 Other blocks are render-only and stay inside the message stream.
+
+## Visible Tutor Plans
+
+Tutor conversations can have one visible teaching plan at a time. The plan is
+rendered near the composer so the learner can see the current step, completed
+steps, and upcoming steps while working.
+
+The model can create a plan with `tutor_plan` and mutate it with
+`tutor_plan_update` operations. The server stores the fused plan in
+conversation-level state and re-injects that stored plan into every later tutor
+turn as teacher-only authoritative context.
+
+This means the model does not reconstruct plan state by reading old plan blocks
+from the transcript. It receives the current DB-backed plan directly before
+each response.
 
 ## Tools Available to Mr. F
 

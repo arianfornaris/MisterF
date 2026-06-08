@@ -335,6 +335,18 @@ function toStoredMessage(row) {
         createdAt: row.created_at,
     };
 }
+function toStoredTutorPlan(row) {
+    const parsed = parseTutorPlanJson(row.plan_json);
+    if (!parsed) {
+        return null;
+    }
+    return {
+        ...parsed,
+        conversationId: row.conversation_id,
+        createdAt: row.created_at,
+        updatedAt: row.updated_at,
+    };
+}
 export function createProfile(input) {
     const id = randomUUID();
     getDb()
@@ -2039,6 +2051,47 @@ export function updateMessageMetadata(messageId, conversationId, metadataPatch) 
         .get(messageId, conversationId);
     return updated ? toStoredMessage(updated) : null;
 }
+export function getConversationTutorPlan(conversationId) {
+    const row = getDb()
+        .prepare(`
+        SELECT conversation_id, plan_json, created_at, updated_at
+        FROM conversation_tutor_plans
+        WHERE conversation_id = ?
+      `)
+        .get(conversationId);
+    return row ? toStoredTutorPlan(row) : null;
+}
+export function saveConversationTutorPlan(input) {
+    const planJson = JSON.stringify({
+        steps: input.plan.steps,
+        summary: input.plan.summary,
+        title: input.plan.title,
+    });
+    getDb()
+        .prepare(`
+        INSERT INTO conversation_tutor_plans (conversation_id, plan_json)
+        VALUES (?, ?)
+        ON CONFLICT(conversation_id) DO UPDATE SET
+          plan_json = excluded.plan_json,
+          updated_at = CURRENT_TIMESTAMP
+      `)
+        .run(input.conversationId, planJson);
+    touchConversation(input.conversationId);
+    const plan = getConversationTutorPlan(input.conversationId);
+    if (!plan) {
+        throw new Error('Tutor plan was not saved.');
+    }
+    return plan;
+}
+export function deleteConversationTutorPlan(conversationId) {
+    getDb()
+        .prepare(`
+        DELETE FROM conversation_tutor_plans
+        WHERE conversation_id = ?
+      `)
+        .run(conversationId);
+    touchConversation(conversationId);
+}
 export function listChatRoomMessages(conversationId) {
     const rows = getDb()
         .prepare(`
@@ -2136,6 +2189,55 @@ function parseMetadata(metadata) {
         return parsed && typeof parsed === 'object'
             ? parsed
             : null;
+    }
+    catch {
+        return null;
+    }
+}
+function parseTutorPlanJson(planJson) {
+    try {
+        const parsed = JSON.parse(planJson);
+        if (!parsed || typeof parsed !== 'object') {
+            return null;
+        }
+        const record = parsed;
+        const title = typeof record.title === 'string' ? record.title.trim() : '';
+        const summary = typeof record.summary === 'string' && record.summary.trim()
+            ? record.summary.trim()
+            : undefined;
+        const rawSteps = Array.isArray(record.steps) ? record.steps : [];
+        const steps = rawSteps
+            .map((step) => {
+            if (!step || typeof step !== 'object') {
+                return null;
+            }
+            const stepRecord = step;
+            const id = typeof stepRecord.id === 'string' ? stepRecord.id.trim() : '';
+            const label = typeof stepRecord.label === 'string' ? stepRecord.label.trim() : '';
+            const status = stepRecord.status;
+            if (!id ||
+                !label ||
+                (status !== 'active' &&
+                    status !== 'done' &&
+                    status !== 'pending' &&
+                    status !== 'skipped')) {
+                return null;
+            }
+            return {
+                id,
+                label,
+                status,
+            };
+        })
+            .filter((step) => Boolean(step));
+        if (!title || steps.length === 0) {
+            return null;
+        }
+        return {
+            steps,
+            summary,
+            title,
+        };
     }
     catch {
         return null;

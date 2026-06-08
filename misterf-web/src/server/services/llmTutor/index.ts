@@ -25,6 +25,8 @@ import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFaci
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
+import type { StoredTutorPlan } from '../../db/repository.js';
+import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseBlock, TutorResponseValidator } from './types.js';
 
 const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
@@ -222,6 +224,7 @@ export async function runTutorAgentLoop(
     profileId?: string | null;
     startConversation?: boolean;
     titleUpdatedByUser?: boolean;
+    tutorPlan?: StoredTutorPlan | null;
     userId?: string | null;
     validateBlocks?: TutorResponseValidator;
   },
@@ -237,6 +240,7 @@ export async function runTutorAgentLoop(
 
   const system = buildAgentSystemInstruction({
     ...options,
+    tutorPlanText: formatTutorPlanForModel(options.tutorPlan ?? null),
   });
   let lastError: unknown = null;
   const practiceModuleTools = buildTutorPracticeModuleTools({
@@ -390,6 +394,7 @@ export async function runTutorAgentLoop(
           throw new Error('The model returned no usable response blocks.');
         }
         options.validateBlocks?.(finalBlocks);
+        applyTutorPlanBlocks(finalBlocks, options.tutorPlan ?? null);
 
         return {
           blocks: finalBlocks,

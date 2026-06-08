@@ -101,6 +101,39 @@ export type TutorUnscrambleSentenceBlock = {
   tokens: string[];
 };
 
+export type TutorPlanStepStatus = 'active' | 'done' | 'pending';
+
+export type TutorPlanBlock = {
+  type: 'tutor_plan';
+  title: string;
+  summary?: string;
+  steps: Array<{
+    id: string;
+    label: string;
+    status: TutorPlanStepStatus;
+  }>;
+};
+
+export type TutorPlanUpdateOperation =
+  | {
+      action: 'update_step';
+      id: string;
+      label?: string;
+      status?: TutorPlanStepStatus | 'skipped';
+    }
+  | {
+      action: 'add_step';
+      afterId?: string;
+      id: string;
+      label: string;
+      status?: 'active' | 'pending';
+    };
+
+export type TutorPlanUpdateBlock = {
+  type: 'tutor_plan_update';
+  operations: TutorPlanUpdateOperation[];
+};
+
 export type TutorQuizItemOpenText = {
   kind: 'quiz_open_text';
   prompt: string;
@@ -391,6 +424,8 @@ export type TutorResponseBlock =
   | TutorFillInTheBlankChoiceBlock
   | TutorMultipleChoiceBlock
   | TutorUnscrambleSentenceBlock
+  | TutorPlanBlock
+  | TutorPlanUpdateBlock
   | TutorSentenceEvaluationBlock
   | TutorConversationTitleBlock;
 

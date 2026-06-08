@@ -11,6 +11,7 @@ import { consumeGuestDraft, getGuestDraft, preserveGuestDraft } from './utils/st
 import { ComposerView } from './ui/ComposerView.js';
 import { ConversationListView } from './ui/ConversationListView.js';
 import { PracticeModuleView } from './ui/PracticeModuleView.js';
+import { TutorPlanView } from './ui/TutorPlanView.js';
 import { createTutorMessageRenderer } from './ui/TutorMessageRenderer.js';
 import {
   tokenizeSentence,
@@ -26,6 +27,7 @@ const practiceModuleStartDescriptionEl = document.querySelector(
 );
 const practiceModuleStartStatusEl = document.querySelector('[data-practice-module-start-status]');
 const practiceModuleStartButtonEl = document.querySelector('[data-practiceModule-start-button]');
+const tutorPlanPanelEl = document.querySelector('[data-tutor-plan-panel]');
 const sendButtonEl = document.querySelector('[data-send-button]');
 const toolStatusEl = document.querySelector('[data-tool-status]');
 const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
@@ -102,6 +104,9 @@ const practiceModuleView = new PracticeModuleView({
   panelEl: practiceModuleStartPanelEl,
   statusEl: practiceModuleStartStatusEl,
   titleEl: practiceModuleStartTitleEl,
+});
+const tutorPlanView = new TutorPlanView({
+  panelEl: tutorPlanPanelEl,
 });
 const conversationListView = new ConversationListView({
   buildConversationPath,
@@ -285,6 +290,7 @@ if (socket) {
     showCreditExhaustedModal,
     socketClient,
     translatorController,
+    tutorPlanView,
   });
 }
 

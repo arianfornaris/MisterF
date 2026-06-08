@@ -692,5 +692,20 @@ export const migrations = [
         ON learner_progress_events (user_id, profile_id, event_date DESC, id DESC);
     `,
     },
+    {
+        id: 16,
+        name: 'add_conversation_tutor_plans',
+        up: `
+      CREATE TABLE conversation_tutor_plans (
+        conversation_id TEXT PRIMARY KEY,
+        plan_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

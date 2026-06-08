@@ -175,6 +175,29 @@ new tutor conversation with `Practicar estos puntos`.
 This keeps the new conversation stable even if the original report is changed or
 extended later.
 
+### Conversation Tutor Plan
+
+Stores the current fused visible teaching plan for a tutor conversation.
+
+Important fields:
+
+- `conversationId`
+- `planJson`
+- `createdAt`
+- `updatedAt`
+
+The plan JSON contains:
+
+- Spanish title
+- optional Spanish summary
+- ordered steps with stable internal ids
+- Spanish learner-facing labels
+- step status (`pending`, `active`, `done`, or `skipped`)
+
+The server re-injects this stored plan into each tutor turn as teacher-only
+authoritative context so the model does not need to reconstruct plan state from
+older transcript blocks.
+
 ## Practice Modules
 
 ### Practice Module

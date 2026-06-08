@@ -17,6 +17,7 @@ import {
   findProfileForUser,
   getConversationChatRoomReportSnapshot,
   getConversationPracticeModuleSnapshot,
+  getConversationTutorPlan,
   getConversationTutorReportSnapshot,
   findMessageInConversation,
   listMessages,
@@ -220,6 +221,7 @@ export function registerChatSocket(io: Server): void {
           conversationId: null,
           messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
           pendingPracticeModuleStart: false,
+          tutorPlan: null,
         });
         return;
       }
@@ -247,6 +249,7 @@ export function registerChatSocket(io: Server): void {
       const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
       const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
       const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
+      const tutorPlan = getConversationTutorPlan(conversation.id);
       if (messages.length === 0) {
         pendingInitialGreeting = pickInitialGreeting();
       }
@@ -271,6 +274,7 @@ export function registerChatSocket(io: Server): void {
             ? messages
             : [createEphemeralInitialMessage(pendingInitialGreeting)],
         pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
+        tutorPlan,
       });
 
       if (
@@ -442,6 +446,7 @@ export function registerChatSocket(io: Server): void {
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
         pendingPracticeModuleStart: false,
+        tutorPlan: null,
       });
     });
 
@@ -538,6 +543,7 @@ export function registerChatSocket(io: Server): void {
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
         pendingPracticeModuleStart: false,
+        tutorPlan: null,
       });
     });
 
@@ -1281,6 +1287,7 @@ async function streamAssistantMessage(
     const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
     const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
     const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
+    const tutorPlan = getConversationTutorPlan(conversationId);
 
     const messages = listMessages(conversationId);
     const llmOptions = await getLlmRequestOptionsForUser(userId);
@@ -1331,6 +1338,7 @@ async function streamAssistantMessage(
       profileId: conversation.profileId,
       startConversation,
       titleUpdatedByUser: conversation.titleUpdatedByUser,
+      tutorPlan,
       userId,
     });
 
