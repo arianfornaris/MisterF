@@ -137,6 +137,12 @@ UI guidance:
 - selection states may use custom practice highlights, but not Bootstrap button
   colors unless the option is intentionally rendered as a Bootstrap button
 
+- loading/pending states should use Bootstrap spinners or disabled button states
+- evaluation focus labels should use Bootstrap badges before custom badge styles
+- the submitted state should make the textarea read-only/disabled and show a
+  clear completed status
+- do not color the submit button with practice accent tokens
+
 ### Quiz UI
 
 Quiz UI should follow Bootstrap's control language.

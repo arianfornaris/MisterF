@@ -262,6 +262,8 @@ When finalized:
 
 - the server generates a structured conversation report from the transcript
 - the conversation is marked as closed
+- if the conversation still has a generic title and was not manually renamed,
+  the report summary title becomes the conversation title
 - the original message history becomes read-only in the normal chat view
 - the page exposes two tabs:
   - `Conversación`

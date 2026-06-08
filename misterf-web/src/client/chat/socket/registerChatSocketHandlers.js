@@ -292,7 +292,10 @@ export function registerChatSocketHandlers(deps) {
     }
 
     deps.runtime.setToolStatus('');
-    deps.renderer.appendMessage('error', message);
+    deps.renderer.appendMessage(
+      'model',
+      message || 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.',
+    );
     deps.setIsAssistantBusy(false);
     deps.setIsAssistantStopping(false);
     deps.setComposerEnabled(!deps.getPendingPracticeModuleStart());

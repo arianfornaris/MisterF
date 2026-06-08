@@ -19,7 +19,7 @@ export class TutorResponseValidationError extends Error {
     generatedText;
     constructor(input) {
         super(input.message ??
-            'El modelo no devolvió una respuesta estructurada válida. Intenta de nuevo en unos segundos.');
+            'No pude preparar una respuesta clara para el estudiante. Intenta de nuevo en unos segundos.');
         this.name = 'TutorResponseValidationError';
         this.issues = input.issues;
         this.generatedText = input.generatedText?.trim() || null;

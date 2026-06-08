@@ -343,6 +343,7 @@ export function createTutorMessageRenderer(deps) {
       evaluation,
       findEvaluationTargetUserContent,
       findFirstIncorrectEvaluationPart,
+      getEvaluationSourceText,
       isValidSentenceEvaluation,
       putMessageBackInComposer,
     });
@@ -673,6 +674,25 @@ export function createTutorMessageRenderer(deps) {
     }
 
     return '';
+  }
+
+  function getEvaluationSourceText(evaluation) {
+    if (typeof evaluation?.sourceText === 'string' && evaluation.sourceText.trim()) {
+      return evaluation.sourceText.trim();
+    }
+
+    if (!isValidSentenceEvaluation(evaluation)) {
+      return '';
+    }
+
+    return evaluation.parts
+      .map((part) => (typeof part.text === 'string' ? part.text.trim() : ''))
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+([.,!?;:%)\]}])/g, '$1')
+      .replace(/([¿¡([{])\s+/g, '$1')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   function findFirstIncorrectEvaluationPart(evaluation) {

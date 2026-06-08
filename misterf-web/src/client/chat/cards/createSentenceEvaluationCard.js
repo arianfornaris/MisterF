@@ -5,6 +5,7 @@ export function createSentenceEvaluationCard({
   evaluation,
   findEvaluationTargetUserContent,
   findFirstIncorrectEvaluationPart,
+  getEvaluationSourceText,
   isValidSentenceEvaluation,
   putMessageBackInComposer,
 }) {
@@ -33,7 +34,7 @@ export function createSentenceEvaluationCard({
 
   const partsLabel = document.createElement('p');
   partsLabel.className = 'sentence-evaluation-parts-label';
-  partsLabel.textContent = 'Tu último mensaje, por partes';
+  partsLabel.textContent = 'Texto analizado, por partes';
 
   body.append(partsLabel);
   body.append(createSentencePartsElement(evaluation.parts));
@@ -42,12 +43,13 @@ export function createSentenceEvaluationCard({
   actions.className = 'sentence-evaluation-actions';
 
   const editButton = createMessageActionButton({
-    label: 'Editar mensaje',
+    label: 'Editar texto',
     iconClass: 'bi-pencil',
   });
   editButton.classList.add('sentence-evaluation-action');
   editButton.addEventListener('click', () => {
-    const userContent = findEvaluationTargetUserContent(element);
+    const userContent =
+      getEvaluationSourceText(evaluation) || findEvaluationTargetUserContent(element);
     if (!userContent) {
       return;
     }

@@ -27,8 +27,10 @@
 4. The server asks the model to generate a structured tutor conversation report.
 5. The report is validated and persisted.
 6. The conversation is marked as closed.
-7. The user is redirected to `/c/:conversationId?tab=summary`.
-8. Closed conversations show two tabs:
+7. If the conversation still has a generic title and the user did not manually
+   rename it, the server uses the report summary title as the conversation name.
+8. The user is redirected to `/c/:conversationId?tab=summary`.
+9. Closed conversations show two tabs:
    - `Conversación`, which shows the original read-only chat history
    - `Resumen`, which shows the structured report
 

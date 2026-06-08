@@ -692,9 +692,11 @@ export function registerChatSocket(io) {
                     messageId,
                     userId,
                 });
-                emitCreditExhaustedIfNeeded(socket, error);
+                if (emitCreditExhaustedIfNeeded(socket, error)) {
+                    return;
+                }
                 socket.emit('assistant:error', {
-                    message: `No pude evaluar el quiz con el modelo: ${error instanceof Error ? error.message : 'ocurrió un error inesperado.'}`,
+                    message: toUserFacingError(error),
                 });
                 return;
             }
@@ -1627,23 +1629,21 @@ function toUserFacingError(error) {
         return getCreditExhaustedMessage();
     }
     if (error instanceof MissingLlmApiKeyError) {
-        return `Falta configurar la API key del proveedor "${error.provider}" en ecosystem.config.cjs.`;
+        return 'Ahora mismo no puedo responder bien. Hay una configuración del tutor que necesita atención.';
     }
     if (error instanceof LlmFinishReasonError) {
-        return error.message;
+        return 'Mi respuesta se cortó antes de estar lista. Inténtalo otra vez en unos segundos.';
     }
-    if (error instanceof Error) {
-        return `No pude hablar con el modelo: ${error.message}`;
-    }
-    return 'No pude hablar con el modelo por un error inesperado.';
+    return 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.';
 }
 function emitCreditExhaustedIfNeeded(socket, error) {
     if (!isCreditExhaustedError(error)) {
-        return;
+        return false;
     }
     socket.emit('llm:credit_exhausted', {
         message: getCreditExhaustedMessage(),
     });
+    return true;
 }
 function emitRoomCreditExhaustedIfNeeded(io, conversationId, error) {
     if (!isCreditExhaustedError(error)) {

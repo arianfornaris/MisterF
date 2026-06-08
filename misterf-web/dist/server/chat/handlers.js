@@ -1,4 +1,4 @@
-import { closeConversationForUser, createConversationFromTutorReport, createPracticeModule, findConversationForUser, findPracticeModuleForUser, findProfileForUser, findTutorConversationReport, listMessages, saveTutorConversationReport, setTutorConversationReportPracticeModule, } from '../db/repository.js';
+import { closeConversationForUser, createConversationFromTutorReport, createPracticeModule, findConversationForUser, findPracticeModuleForUser, findProfileForUser, findTutorConversationReport, listMessages, renameConversationForUser, saveTutorConversationReport, setTutorConversationReportPracticeModule, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
@@ -74,6 +74,7 @@ export async function handleFinalizeTutorConversation(request, response) {
     const existingReport = findTutorConversationReport(conversation.id, user.id);
     if (existingReport) {
         closeConversationForUser(conversation.id, user.id);
+        renameGenericConversationFromReportTitle(conversation, existingReport.summaryTitle);
         recordTutorConversationReportProgress(existingReport);
         response.redirect(`/c/${encodeURIComponent(conversation.id)}?tab=summary`);
         return;
@@ -96,6 +97,7 @@ export async function handleFinalizeTutorConversation(request, response) {
         throw error;
     }
     closeConversationForUser(conversation.id, user.id);
+    renameGenericConversationFromReportTitle(conversation, generatedReport.summaryTitle);
     const savedReport = saveTutorConversationReport({
         conversationId: conversation.id,
         profileId: conversation.profileId,
@@ -193,5 +195,35 @@ function buildConversationCreditExhaustedPath(conversationId, tab) {
         params.set('tab', tab);
     }
     return `/c/${encodeURIComponent(conversationId)}?${params.toString()}`;
+}
+function renameGenericConversationFromReportTitle(conversation, reportTitle) {
+    if (!shouldUseReportTitleForConversation(conversation)) {
+        return;
+    }
+    const title = normalizeGeneratedConversationTitle(reportTitle);
+    if (!title) {
+        return;
+    }
+    renameConversationForUser(conversation.id, conversation.userId, title);
+}
+function shouldUseReportTitleForConversation(conversation) {
+    if (conversation.titleUpdatedByUser) {
+        return false;
+    }
+    const normalizedTitle = normalizeTitleForComparison(conversation.title);
+    return (!normalizedTitle ||
+        normalizedTitle === 'nueva conversacion' ||
+        normalizedTitle === 'new conversation');
+}
+function normalizeGeneratedConversationTitle(title) {
+    return title.replace(/\s+/g, ' ').trim().slice(0, 90);
+}
+function normalizeTitleForComparison(title) {
+    return title
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toLowerCase();
 }
 //# sourceMappingURL=handlers.js.map

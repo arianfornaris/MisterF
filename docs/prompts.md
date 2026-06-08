@@ -98,6 +98,46 @@ When output structure is wrong, the preferred strategy is:
 
 This is why correction prompts are first-class files in the repository.
 
+### Model output is the source of truth
+
+Do not silently rewrite, translate, or reinterpret learner-visible semantic
+fields in the UI when the model could be instructed to produce the correct
+output instead.
+
+The preferred strategy is:
+
+- make the prompt contract explicit
+- validate structure at the schema boundary
+- ask the model to repair invalid structure when needed
+- render learner-visible labels as authored by the model
+
+Client-side normalization is appropriate for UI mechanics such as whitespace,
+layout, ordering, or disabled state. It should not be used to mask an imprecise
+model contract for content the learner will read.
+
+### No invented inline teaching formats
+
+The model must not invent mini-formats inside `message` when a specialized block
+exists.
+
+Forbidden examples include:
+
+- `___` or `{{blank}}` for blanks
+- `[word]`, `[wrong word]`, `[correction]`, or bracketed error markers
+- plain markdown option lists when the options are the exercise
+- shuffled word lists inside a normal tutor message
+
+Use the proper block instead:
+
+- blanks go in `fill_in_the_blank_input` or `fill_in_the_blank_choice`
+- visible learner text corrections go in `sentence_evaluation`
+- choices go in `multiple_choice`
+- reorder tasks go in `unscramble_sentence`
+
+If the text being reviewed is teacher-only context rather than a visible learner
+message, the tutor should explain the issue in normal prose without fake inline
+annotations.
+
 ## Important Current Conventions
 
 ### Quiz terminology

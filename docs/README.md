@@ -15,8 +15,10 @@ The goal of this documentation is to make the project easier to understand for:
 - [Data Model](./data-model.md): core entities stored by the application and how they relate
 - [Tutor Runtime](./tutor-runtime.md): how Mr. F conversations, tools, structured outputs, exercises, and quiz evaluation work
 - [Prompts](./prompts.md): prompt families and what each prompt is responsible for
+- [Structured Block Post-Processing](./structured-block-postprocessing.md): future linter/repair loop for keeping tutor content in the right block type
 - [Feature Flows](./feature-flows.md): end-to-end flow descriptions for the most important user journeys
 - [Visual Design](./visual-design.md): theme philosophy, Bootstrap usage, and custom color token rules
+- [Writing Practice Ideas](./writing-practice-ideas.md): future writing-first practice patterns
 
 ## Scope
 

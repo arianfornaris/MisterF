@@ -8,8 +8,10 @@ import {
   findProfileForUser,
   findTutorConversationReport,
   listMessages,
+  renameConversationForUser,
   saveTutorConversationReport,
   setTutorConversationReportPracticeModule,
+  type StoredConversation,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import {
@@ -112,6 +114,7 @@ export async function handleFinalizeTutorConversation(
   const existingReport = findTutorConversationReport(conversation.id, user.id);
   if (existingReport) {
     closeConversationForUser(conversation.id, user.id);
+    renameGenericConversationFromReportTitle(conversation, existingReport.summaryTitle);
     recordTutorConversationReportProgress(existingReport);
     response.redirect(`/c/${encodeURIComponent(conversation.id)}?tab=summary`);
     return;
@@ -136,6 +139,7 @@ export async function handleFinalizeTutorConversation(
   }
 
   closeConversationForUser(conversation.id, user.id);
+  renameGenericConversationFromReportTitle(conversation, generatedReport.summaryTitle);
   const savedReport = saveTutorConversationReport({
     conversationId: conversation.id,
     profileId: conversation.profileId,
@@ -258,4 +262,46 @@ function buildConversationCreditExhaustedPath(
   }
 
   return `/c/${encodeURIComponent(conversationId)}?${params.toString()}`;
+}
+
+function renameGenericConversationFromReportTitle(
+  conversation: StoredConversation,
+  reportTitle: string,
+): void {
+  if (!shouldUseReportTitleForConversation(conversation)) {
+    return;
+  }
+
+  const title = normalizeGeneratedConversationTitle(reportTitle);
+  if (!title) {
+    return;
+  }
+
+  renameConversationForUser(conversation.id, conversation.userId, title);
+}
+
+function shouldUseReportTitleForConversation(conversation: StoredConversation): boolean {
+  if (conversation.titleUpdatedByUser) {
+    return false;
+  }
+
+  const normalizedTitle = normalizeTitleForComparison(conversation.title);
+  return (
+    !normalizedTitle ||
+    normalizedTitle === 'nueva conversacion' ||
+    normalizedTitle === 'new conversation'
+  );
+}
+
+function normalizeGeneratedConversationTitle(title: string): string {
+  return title.replace(/\s+/g, ' ').trim().slice(0, 90);
+}
+
+function normalizeTitleForComparison(title: string): string {
+  return title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 }

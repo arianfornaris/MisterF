@@ -192,6 +192,17 @@ This gives the system three important properties:
 - invalid responses can be detected early
 - correction loops can be based on exact schema errors
 
+When adding a new top-level tutor block, update the contract in all relevant
+places:
+
+- server type union in `llmTutor/types.ts`
+- Zod schema union in `llmTutor/schemas.ts`
+- markdown/history conversion in `llmTutor/validation.ts`
+- client renderer/card under `src/client/chat`
+- socket lifecycle event if the block submits learner input
+- prompt contract and structured correction prompt
+- docs in this folder
+
 ## Tool Architecture
 
 Mr. F can use a limited tool set when the current request is associated with an authenticated user and active profile.

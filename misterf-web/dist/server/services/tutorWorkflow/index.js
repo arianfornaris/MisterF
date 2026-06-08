@@ -43,10 +43,12 @@ function handleSentenceEvaluationBlock(input) {
     if (!hasIssues) {
         return;
     }
+    const sentenceEvaluation = {
+        parts: input.block.parts,
+        sourceText: partsToSourceText(input.block.parts),
+    };
     const message = updateMessageMetadata(input.lastUserMessageId, input.conversationId, {
-        sentenceEvaluation: {
-            parts: input.block.parts,
-        },
+        sentenceEvaluation,
     });
     if (!message) {
         return;
@@ -55,10 +57,18 @@ function handleSentenceEvaluationBlock(input) {
         conversationId: input.conversationId,
         message,
         messageId: message.id,
-        sentenceEvaluation: {
-            parts: input.block.parts,
-        },
+        sentenceEvaluation,
     });
+}
+function partsToSourceText(parts) {
+    return parts
+        .map((part) => part.text.trim())
+        .filter(Boolean)
+        .join(' ')
+        .replace(/\s+([.,!?;:%)\]}])/g, '$1')
+        .replace(/([¿¡([{])\s+/g, '$1')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 function handleConversationTitleBlock(input) {
     const conversation = findConversationForUser(input.conversationId, input.userId);

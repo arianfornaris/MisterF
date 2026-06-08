@@ -5,6 +5,7 @@ INTERNAL APP CONTINUATION.
 Re-emit the complete response as exactly one JSON object and nothing else.
 Do not use markdown fences.
 Do not add explanations or extra text before or after the JSON.
+Keep `summary.title` short, Spanish, human-friendly, and suitable for naming the finalized conversation in the sidebar.
 
 The only valid shape is:
 
