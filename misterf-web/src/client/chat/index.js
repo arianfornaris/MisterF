@@ -48,6 +48,8 @@ const finalizeConversationFormEl = document.querySelector('[data-finalize-conver
 const finalizeCurrentConversationButtonEl = document.querySelector(
   '[data-finalize-current-conversation]',
 );
+const closeTutorPlanModalEl = document.querySelector('#closeTutorPlanModal');
+const confirmCloseTutorPlanButtonEl = document.querySelector('[data-confirm-close-tutor-plan]');
 const tutorReportPendingModalEl = document.querySelector('[data-tutor-report-pending-modal]');
 const tutorReportPendingTitleEl = document.querySelector('[data-tutor-report-pending-title]');
 const translatorModalEl = document.querySelector('#translatorModal');
@@ -91,6 +93,7 @@ let guestPromptTimerId = 0;
 let disconnectNoticeTimerId = 0;
 const pendingSentenceEvaluations = chatState.pendingSentenceEvaluations;
 let pendingTranslatorSelection = '';
+let pendingTutorPlanClose = false;
 let userInputHistory = [];
 let userInputHistoryIndex = -1;
 let userInputDraftBeforeHistory = '';
@@ -106,6 +109,7 @@ const practiceModuleView = new PracticeModuleView({
   titleEl: practiceModuleStartTitleEl,
 });
 const tutorPlanView = new TutorPlanView({
+  onCloseRequest: requestCloseTutorPlan,
   panelEl: tutorPlanPanelEl,
 });
 const conversationListView = new ConversationListView({
@@ -334,6 +338,20 @@ finalizeCurrentConversationButtonEl?.addEventListener('click', () => {
   openFinalizeConversationModal(conversationId);
 });
 
+confirmCloseTutorPlanButtonEl?.addEventListener('click', () => {
+  if (!pendingTutorPlanClose) {
+    return;
+  }
+
+  pendingTutorPlanClose = false;
+  window.bootstrap?.Modal.getInstance(closeTutorPlanModalEl)?.hide();
+  closeTutorPlan();
+});
+
+closeTutorPlanModalEl?.addEventListener('hidden.bs.modal', () => {
+  pendingTutorPlanClose = false;
+});
+
 practiceModuleStartButtonEl?.addEventListener('click', () => {
   runtime.startPracticeModuleConversation();
 });
@@ -375,6 +393,40 @@ function openFinalizeConversationModal(nextConversationId) {
   }
 
   finalizeConversationFormEl.submit();
+}
+
+function requestCloseTutorPlan(plan) {
+  if (!conversationId || isAssistantBusy) {
+    return;
+  }
+
+  if (isTutorPlanComplete(plan)) {
+    closeTutorPlan();
+    return;
+  }
+
+  pendingTutorPlanClose = true;
+  if (closeTutorPlanModalEl && window.bootstrap?.Modal) {
+    window.bootstrap.Modal.getOrCreateInstance(closeTutorPlanModalEl).show();
+    return;
+  }
+
+  closeTutorPlan();
+}
+
+function closeTutorPlan() {
+  if (!conversationId || !socket) {
+    return;
+  }
+
+  socket.emit('tutor_plan:close', { conversationId });
+}
+
+function isTutorPlanComplete(plan) {
+  const steps = Array.isArray(plan?.steps) ? plan.steps : [];
+  return steps.length > 0 && steps.every((step) => (
+    step?.status === 'done' || step?.status === 'skipped'
+  ));
 }
 
 function initializeTutorReportPendingForms() {

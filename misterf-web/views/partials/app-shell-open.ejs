@@ -246,6 +246,36 @@
 
           <div
             class="modal fade"
+            id="closeTutorPlanModal"
+            tabindex="-1"
+            aria-labelledby="closeTutorPlanModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h2 class="modal-title fs-5" id="closeTutorPlanModalLabel">Concluir plan</h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                  <p>
+                    Este plan todavía tiene pasos pendientes. Si lo concluyes ahora,
+                    dejará de aparecer como guía activa en esta conversación.
+                  </p>
+                  <p class="mb-0 text-body-secondary">
+                    La conversación no se borra y puedes seguir practicando normalmente con Mr. F.
+                  </p>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-primary" data-confirm-close-tutor-plan>Concluir plan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
             id="finalizeConversationModal"
             tabindex="-1"
             aria-labelledby="finalizeConversationModalLabel"

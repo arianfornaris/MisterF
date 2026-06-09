@@ -21,6 +21,18 @@
   padding: 0.8rem 0.95rem;
 }
 
+.tutor-plan-header > p {
+  min-width: 0;
+}
+
+.tutor-plan-action-button {
+  --bs-btn-padding-x: 0.4rem;
+  --bs-btn-padding-y: 0.2rem;
+  --bs-btn-border-width: 0;
+  text-decoration: none;
+  line-height: 1;
+}
+
 .tutor-plan-steps .list-group-item {
   padding: 0.55rem 0.95rem;
 }

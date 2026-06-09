@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
@@ -298,6 +298,36 @@ export function registerChatSocket(io) {
                 conversationId: null,
                 messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
                 pendingPracticeModuleStart: false,
+                tutorPlan: null,
+            });
+        });
+        socket.on('tutor_plan:close', (payload = {}) => {
+            const userId = getAuthenticatedUserId(socket);
+            if (!userId) {
+                emitAuthRequired(socket);
+                return;
+            }
+            const conversationId = payload.conversationId?.trim();
+            if (!conversationId) {
+                return;
+            }
+            const conversation = findConversationForUser(conversationId, userId);
+            if (!conversation) {
+                socket.emit('conversation:error', {
+                    message: 'No pude encontrar esa conversación.',
+                });
+                return;
+            }
+            if (conversation.closedAt) {
+                socket.emit('conversation:error', {
+                    message: 'Esta conversación ya fue finalizada.',
+                });
+                return;
+            }
+            deleteConversationTutorPlan(conversation.id);
+            emitConversationUpdated(io, conversation.id, userId);
+            io.to(conversation.id).emit('tutor_plan:updated', {
+                conversationId: conversation.id,
                 tutorPlan: null,
             });
         });

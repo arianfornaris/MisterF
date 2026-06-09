@@ -13,6 +13,7 @@ import {
   ensureUserHasProfile,
   createConversation,
   deleteConversationForUser,
+  deleteConversationTutorPlan,
   findConversationForUser,
   findProfileForUser,
   getConversationChatRoomReportSnapshot,
@@ -70,6 +71,10 @@ type RenamePayload = {
 };
 
 type DeletePayload = {
+  conversationId?: string | null;
+};
+
+type TutorPlanClosePayload = {
   conversationId?: string | null;
 };
 
@@ -543,6 +548,41 @@ export function registerChatSocket(io: Server): void {
         conversationId: null,
         messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
         pendingPracticeModuleStart: false,
+        tutorPlan: null,
+      });
+    });
+
+    socket.on('tutor_plan:close', (payload: TutorPlanClosePayload = {}) => {
+      const userId = getAuthenticatedUserId(socket);
+      if (!userId) {
+        emitAuthRequired(socket);
+        return;
+      }
+
+      const conversationId = payload.conversationId?.trim();
+      if (!conversationId) {
+        return;
+      }
+
+      const conversation = findConversationForUser(conversationId, userId);
+      if (!conversation) {
+        socket.emit('conversation:error', {
+          message: 'No pude encontrar esa conversación.',
+        });
+        return;
+      }
+
+      if (conversation.closedAt) {
+        socket.emit('conversation:error', {
+          message: 'Esta conversación ya fue finalizada.',
+        });
+        return;
+      }
+
+      deleteConversationTutorPlan(conversation.id);
+      emitConversationUpdated(io, conversation.id, userId);
+      io.to(conversation.id).emit('tutor_plan:updated', {
+        conversationId: conversation.id,
         tutorPlan: null,
       });
     });
