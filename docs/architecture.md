@@ -207,19 +207,58 @@ places:
 
 Mr. F can use a limited tool set when the current request is associated with an authenticated user and active profile.
 
-Current tool families:
+Tool definitions are intentionally centralized under
+`misterf-web/src/server/services/llmTutor/`. This section is the entry point for
+finding every tutor-accessible tool without scanning the whole project.
 
-- practice module tools
-- chat room tools
+### Practice module tools
 
-These tools are built in:
+Defined in:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceModuleTools.ts`
+
+Tools:
+
+- `list_practice_modules`
+- `create_practice_module`
+- `update_practice_module`
+- `delete_practice_module`
+- `build_practice_module_link`
+
+### Chat room tools
+
+Defined in:
+
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/chatRoomTools.ts`
+
+Tools:
+
+- `list_chat_rooms`
+- `create_chat_room`
+- `delete_chat_room`
+- `list_chat_room_conversations`
+- `get_chat_room_conversation`
+- `evaluate_chat_room_conversation`
+- `get_chat_room_conversation_report`
+
+### Learner progress tools
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/progressTools.ts`
+
+Tools:
+
+- `get_learner_progress`
 
 They are merged into the tutor agent loop inside:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/index.ts`
+
+Every model-facing tool must document both the tool and each input parameter.
+See the project skill:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/.agents/skills/llm-tool-documentation/SKILL.md`
 
 ## Error Prevention Strategy
 

@@ -183,6 +183,9 @@ each response.
 ## Tools Available to Mr. F
 
 Mr. F has a deliberately constrained tool set.
+Tools are defined with AI SDK `tool(...)` schemas. Each tool must document both
+the tool itself and every input parameter because that documentation is part of
+the model-facing contract.
 
 Current tool families:
 
@@ -200,6 +203,9 @@ Current tools:
 - `delete_practice_module`
 - `build_practice_module_link`
 
+Use these for explicit administration of saved practice module resources. Do
+not use them merely because the current conversation was started from a module.
+
 ### Chat room tools
 
 Defined in:
@@ -213,8 +219,26 @@ Current tools:
 - `delete_chat_room`
 - `list_chat_room_conversations`
 - `get_chat_room_conversation`
+- `evaluate_chat_room_conversation`
+- `get_chat_room_conversation_report`
+
+Use these for explicit administration, inspection, and report generation for
+standalone chat room resources and their saved conversations.
+
+### Learner progress tools
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/progressTools.ts`
+
+Current tools:
+
+- `get_learner_progress`
 
 These tools are only enabled when the tutor has authenticated user/profile context.
+They are merged into the tutor agent loop in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/index.ts`
 
 ## Quizzes
 

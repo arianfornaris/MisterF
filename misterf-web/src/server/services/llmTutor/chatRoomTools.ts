@@ -50,7 +50,9 @@ export function buildTutorChatRoomTools(input: {
       description:
         'List the persistent chat rooms in the current profile. These chat rooms are standalone resources the learner can open later from the app to do separate social-writing practice. They are not inline exercises and they are not a continuation of the current Mr. F chat turn. Optionally filter by a text query in the title or description.',
       inputSchema: z.object({
-        query: z.string().trim().min(1).optional(),
+        query: z.string().trim().min(1)
+          .describe('Optional Spanish or English search text from the learner request. Use only to narrow the saved chat-room list by title or description. Do not invent a query when the learner asks to list all chat rooms.')
+          .optional(),
       }),
       execute: async ({ query }) => {
         announceToolCall('list_chat_rooms');
@@ -76,13 +78,20 @@ export function buildTutorChatRoomTools(input: {
       inputSchema: z.object({
         characters: z.array(
           z.object({
-            fullDescription: z.string().trim().min(1).max(4000),
-            name: z.string().trim().min(1).max(120),
-            shortDescription: z.string().trim().max(220).optional(),
+            fullDescription: z.string().trim().min(1).max(4000)
+              .describe('Spanish persistent character instructions for how this AI character should behave in the saved chat room: role, personality, speaking style, relationship to the learner, and practice purpose. Do not include temporary current-chat instructions.'),
+            name: z.string().trim().min(1).max(120)
+              .describe('Short visible character name for the saved chat room. Use a natural name or role from the learner request; do not invent unrelated characters when the learner specified them.'),
+            shortDescription: z.string().trim().max(220)
+              .describe('Optional short Spanish visible summary of the character role. Omit if the full description already makes the role obvious or the learner did not provide enough detail.')
+              .optional(),
           }),
-        ).min(1).max(3),
-        description: z.string().trim().min(1).max(2000),
-        title: z.string().trim().min(1).max(220),
+        ).min(1).max(3)
+          .describe('One to three persistent AI characters for the saved chat room. Include only characters that fit the learner-authorized room concept.'),
+        description: z.string().trim().min(1).max(2000)
+          .describe('Spanish learner-facing description of what the saved chat room is for, what kind of English practice it supports, and the social situation it simulates. Do not describe the current tutor conversation.'),
+        title: z.string().trim().min(1).max(220)
+          .describe('Short Spanish title for the saved chat-room resource. Infer only from an explicit chat-room creation request or authorization.'),
       }),
       execute: async ({ characters, description, title }) => {
         announceToolCall('create_chat_room');
@@ -101,7 +110,8 @@ export function buildTutorChatRoomTools(input: {
       description:
         'Delete a persistent chat room from the current profile. This is for administering standalone chat-room resources that live outside the current Mr. F conversation. Only use it when the learner explicitly asks to delete a chat room resource.',
       inputSchema: z.object({
-        chatRoomId: z.string().trim().min(1),
+        chatRoomId: z.string().trim().min(1)
+          .describe('Real saved chat-room id to delete, obtained from tool results, current context, or stored records. Never invent, slugify, translate, or guess this id.'),
       }),
       execute: async ({ chatRoomId }) => {
         announceToolCall('delete_chat_room');
@@ -130,8 +140,11 @@ export function buildTutorChatRoomTools(input: {
       description:
         'List the saved conversations inside one persistent chat-room resource. Use this only when the learner explicitly asks to inspect, review, or browse the history of a standalone chat room that exists outside the current Mr. F conversation. This is not for continuing the current tutor thread and not for inline exercises.',
       inputSchema: z.object({
-        chatRoomId: z.string().trim().min(1),
-        limit: z.number().int().min(1).max(50).optional(),
+        chatRoomId: z.string().trim().min(1)
+          .describe('Real saved chat-room id whose conversation history should be listed. Use an id from tool results, current context, or stored records; never invent, slugify, translate, or guess it.'),
+        limit: z.number().int().min(1).max(50)
+          .describe('Optional maximum number of saved chat-room conversations to return. Omit for the default recent-history size unless the learner asks for a specific amount.')
+          .optional(),
       }),
       execute: async ({ chatRoomId, limit }) => {
         announceToolCall('list_chat_room_conversations');
@@ -162,8 +175,11 @@ export function buildTutorChatRoomTools(input: {
       description:
         'Read a specific saved chat-room conversation transcript from a persistent chat-room resource. Use this only when the learner explicitly asks to inspect or review that saved conversation. This is a standalone resource outside the current Mr. F conversation, not an inline exercise and not a continuation of the current tutor thread.',
       inputSchema: z.object({
-        chatRoomConversationId: z.string().trim().min(1),
-        messageLimit: z.number().int().min(1).max(200).optional(),
+        chatRoomConversationId: z.string().trim().min(1)
+          .describe('Real saved chat-room conversation id to read, obtained from tool results, current context, or stored records. Never invent, slugify, translate, or guess this id.'),
+        messageLimit: z.number().int().min(1).max(200)
+          .describe('Optional maximum number of transcript messages to return from the saved conversation. Omit for the default recent transcript size unless the learner asks for a specific amount or the transcript is too long.')
+          .optional(),
       }),
       execute: async ({ chatRoomConversationId, messageLimit }) => {
         announceToolCall('get_chat_room_conversation');
@@ -205,8 +221,11 @@ export function buildTutorChatRoomTools(input: {
       description:
         'Evaluate a saved chat-room conversation and create its persistent report. Use this only when the learner explicitly asks to evaluate, assess, review, grade, analyze, or generate a report for a saved chat-room conversation resource. If a report already exists, return it instead of generating a duplicate unless regenerate is explicitly set to true.',
       inputSchema: z.object({
-        chatRoomConversationId: z.string().trim().min(1),
-        regenerate: z.boolean().optional(),
+        chatRoomConversationId: z.string().trim().min(1)
+          .describe('Real saved chat-room conversation id to evaluate, obtained from tool results, current context, or stored records. Never invent, slugify, translate, or guess this id.'),
+        regenerate: z.boolean()
+          .describe('Set true only when the learner explicitly asks to regenerate or redo an existing report. Omit or false to reuse an existing report when one already exists.')
+          .optional(),
       }),
       execute: async ({ chatRoomConversationId, regenerate }) => {
         announceToolCall('evaluate_chat_room_conversation');
@@ -278,7 +297,8 @@ export function buildTutorChatRoomTools(input: {
       description:
         'Read the persistent report for a saved chat-room conversation. Use this only when the learner explicitly asks to inspect, review, summarize, or revisit the report of a saved chat-room conversation resource.',
       inputSchema: z.object({
-        chatRoomConversationId: z.string().trim().min(1),
+        chatRoomConversationId: z.string().trim().min(1)
+          .describe('Real saved chat-room conversation id whose persistent report should be read. Use an id from tool results, current context, or stored records; never invent, slugify, translate, or guess it.'),
       }),
       execute: async ({ chatRoomConversationId }) => {
         announceToolCall('get_chat_room_conversation_report');
