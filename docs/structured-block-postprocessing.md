@@ -1,8 +1,8 @@
 # Structured Block Post-Processing
 
-This document describes a future improvement for the tutor runtime: a review
-loop that detects when Mr. F expresses a valid pedagogical intention in the
-wrong block type.
+This document describes the structured block review layer for the tutor
+runtime: the current high-confidence repair loop plus future deeper semantic
+review ideas.
 
 ## Problem
 
@@ -35,9 +35,9 @@ The desired behavior is:
 - reorder tasks use `unscramble_sentence`
 - matching tasks use `matching_pairs`
 
-## Proposed Architecture
+## Current Architecture
 
-Use a three-layer pipeline after the model returns blocks and before those
+The runtime uses a three-layer pipeline after the model returns blocks and before those
 blocks are emitted to the client.
 
 1. Hard validation
@@ -47,7 +47,7 @@ valid JSON and uses known block shapes.
 
 2. Semantic block lint
 
-Add a lightweight local linter that scans valid blocks for suspicious patterns.
+`blockRepair.ts` includes a lightweight local detector that scans valid blocks for suspicious patterns.
 This linter should be deterministic and cheap.
 
 Initial checks can include:
@@ -86,8 +86,8 @@ suspicious enough to justify repair.
 
 ## Current Prompt-Level Guard
 
-Until this post-processing exists, the system prompt should explicitly forbid
-invented inline formats inside `message`, including:
+The system prompt explicitly forbids invented inline formats inside `message`,
+including:
 
 - `___`
 - `{{blank}}`
@@ -103,19 +103,17 @@ fake annotations.
 
 ## Open Design Questions
 
-- Should lint failures be logged only at first, before enabling automatic
-  repair?
 - Which violations should trigger repair and which should only warn?
 - Should repaired responses replace the original in LLM logs, or should both be
   stored for debugging?
 - Should repeated violations become prompt examples in the system prompt?
 - How should we handle `sentence_evaluation` when the source text is card state
   instead of a normal visible user message?
+- Should the detector grow into a typed fixture suite with examples from logs?
 
-## Suggested Rollout
+## Future Rollout
 
-1. Add lint-only logging for `message` blocks.
-2. Review logs and tune false positives.
-3. Enable model repair for high-confidence violations.
-4. Add regression fixtures for common failures.
-5. Promote stable lint rules into project skills and docs.
+1. Review block repair logs and tune false positives.
+2. Add regression fixtures for common failures.
+3. Promote stable lint rules into project skills and docs.
+4. Consider a deeper semantic review loop for multi-block responses that are valid but pedagogically awkward.

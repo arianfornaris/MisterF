@@ -2,6 +2,7 @@ import type { ModelMessage } from 'ai';
 import { logJson } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { TutorResponseValidationError } from './errors.js';
+import { renderTutorBlockProtocol } from './blockProtocol.js';
 
 export function appendStructuredCorrectionRequest(
   messages: ModelMessage[],
@@ -23,6 +24,7 @@ export function appendStructuredCorrectionRequest(
 
   messages.push({
     content: renderSystemPrompt('tutor/structured-correction.md', {
+      BLOCK_PROTOCOL: renderTutorBlockProtocol(),
       CORRECTION_REASON: input.reason,
     }),
     role: 'user',
@@ -45,6 +47,10 @@ export function buildStructuredValidationReason(error: unknown): string {
 }
 
 export function isCorrectableLlmOutputError(error: unknown): boolean {
+  if (error instanceof TutorResponseValidationError) {
+    return true;
+  }
+
   const text = JSON.stringify(serializeLlmError(error)).toLowerCase();
   return (
     text.includes('no object generated') ||

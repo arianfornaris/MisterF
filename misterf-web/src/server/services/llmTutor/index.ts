@@ -18,6 +18,7 @@ import {
   logLlmToolCalls,
 } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
+import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
@@ -392,6 +393,18 @@ export async function runTutorAgentLoop(
       try {
         if (!finalBlocks || finalBlocks.length === 0) {
           throw new Error('The model returned no usable response blocks.');
+        }
+        const repairResult = await repairTutorResponseBlocks({
+          abortSignal: options.abortSignal,
+          blocks: finalBlocks,
+          llm: options.llm,
+        });
+        finalBlocks = repairResult.blocks;
+        if (repairResult.repaired) {
+          console.log('[Mr. F repaired response blocks]', JSON.stringify({
+            blockTypes: finalBlocks.map((block) => block.type),
+            turn: turn + 1,
+          }, null, 2));
         }
         options.validateBlocks?.(finalBlocks);
         applyTutorPlanBlocks(finalBlocks, options.tutorPlan ?? null);

@@ -1,6 +1,7 @@
 import { logJson } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { TutorResponseValidationError } from './errors.js';
+import { renderTutorBlockProtocol } from './blockProtocol.js';
 export function appendStructuredCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();
     if (invalidOutput) {
@@ -11,6 +12,7 @@ export function appendStructuredCorrectionRequest(messages, input) {
     }
     messages.push({
         content: renderSystemPrompt('tutor/structured-correction.md', {
+            BLOCK_PROTOCOL: renderTutorBlockProtocol(),
             CORRECTION_REASON: input.reason,
         }),
         role: 'user',
@@ -28,6 +30,9 @@ export function buildStructuredValidationReason(error) {
     return [baseReason, detail].join('\n');
 }
 export function isCorrectableLlmOutputError(error) {
+    if (error instanceof TutorResponseValidationError) {
+        return true;
+    }
     const text = JSON.stringify(serializeLlmError(error)).toLowerCase();
     return (text.includes('no object generated') ||
         text.includes('json parsing failed') ||

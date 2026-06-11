@@ -185,6 +185,9 @@ Key pieces:
 - types: `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/types.ts`
 - schemas: `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/schemas.ts`
 - validation: `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/validation.ts`
+- protocol source: `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/system-prompts/tutor/blocks/*.md`
+- protocol composition: `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/blockProtocol.ts`
+- valid-block repair pass: `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/blockRepair.ts`
 
 This gives the system three important properties:
 
@@ -200,7 +203,7 @@ places:
 - markdown/history conversion in `llmTutor/validation.ts`
 - client renderer/card under `src/client/chat`
 - socket lifecycle event if the block submits learner input
-- prompt contract and structured correction prompt
+- per-block protocol file, protocol composition list, structured correction prompt, and block repair prompt
 - docs in this folder
 
 ## Tool Architecture
@@ -269,6 +272,7 @@ Examples:
 - route handlers are separated by feature
 - structured outputs are validated against schemas
 - correction loops ask the model to repair invalid structure
+- the tutor block repair loop asks the model to move leaked task payloads into typed blocks instead of patching UI output heuristically
 - profile model tier is treated as the source of truth rather than leaving stale chat-local selectors
 
 This is consistent with the project guidance in `AGENTS.md`.

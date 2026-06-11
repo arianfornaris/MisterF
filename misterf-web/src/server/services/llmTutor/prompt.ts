@@ -1,4 +1,5 @@
 import { renderSystemPrompt } from '../systemPrompts.js';
+import { renderTutorBlockProtocol } from './blockProtocol.js';
 import type { TranslationMode } from './types.js';
 
 export function buildAgentSystemInstruction(options: {
@@ -25,7 +26,8 @@ export function buildAgentSystemInstruction(options: {
   titleUpdatedByUser?: boolean;
   tutorPlanText?: string | null;
 }): string {
-  const base = renderSystemPrompt('tutor/system.md', {
+  const base = renderTutorSystemPrompt({
+    BLOCK_PROTOCOL: renderTutorBlockProtocol(),
     CURRENT_TITLE: options.currentTitle || 'Nueva conversación',
     TITLE_RULE: options.titleUpdatedByUser
       ? 'The user has already changed this title manually. Do not include conversation_title.'
@@ -136,4 +138,43 @@ export function buildTranslatorSystemInstruction(mode: TranslationMode): string 
   return renderSystemPrompt('tutor/translator.md', {
     TRANSLATION_DIRECTION: translationDirection,
   });
+}
+
+function renderTutorSystemPrompt(placeholders: Record<string, string>): string {
+  const rendered = renderSystemPrompt('tutor/system.md', placeholders);
+
+  if (rendered.includes(placeholders.BLOCK_PROTOCOL)) {
+    return rendered;
+  }
+
+  const startMarker = '## Structured Response Protocol';
+  const endMarker = '## Practical Guidance';
+  const startIndex = rendered.indexOf(startMarker);
+  const endIndex = rendered.indexOf(endMarker, startIndex);
+
+  if (startIndex === -1 || endIndex === -1) {
+    return rendered;
+  }
+
+  const protocolSection = [
+    startMarker,
+    '',
+    'You must always respond with exactly one JSON object and nothing else.',
+    '',
+    '```ts',
+    'interface TutorResponse {',
+    '  /** Ordered visible response blocks to render in the tutor chat. */',
+    '  blocks: TutorResponseBlock[];',
+    '}',
+    '',
+    placeholders.BLOCK_PROTOCOL,
+    '```',
+    '',
+  ].join('\n');
+
+  return [
+    rendered.slice(0, startIndex),
+    protocolSection,
+    rendered.slice(endIndex),
+  ].join('');
 }

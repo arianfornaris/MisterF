@@ -74,6 +74,7 @@ The loop uses:
 - prompt rendering from prompt files
 - model/provider helpers
 - structured correction prompts
+- a dedicated block repair pass for valid-but-misplaced exercise payloads
 
 ## Structured Output Blocks
 
@@ -98,6 +99,12 @@ The tutor can emit structured blocks such as:
 - `quiz_result`
 
 These blocks are validated before they are accepted into the system.
+
+The block protocol source lives in
+`/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/system-prompts/tutor/blocks/*.md`.
+`blockProtocol.ts` composes those files into the main tutor prompt and the
+block repair prompt, so block documentation is written once and reused by every
+LLM loop that needs the contract.
 
 ## Interactive Exercise Contracts
 
@@ -350,6 +357,15 @@ If quiz evaluation output is invalid:
 
 - the same general idea is used
 - a dedicated quiz-result correction prompt is applied
+
+### Message task leakage repair
+
+If a schema-valid response puts an exercise payload inside a `message` block,
+the runtime runs a smaller repair loop before returning blocks to the client.
+This catches high-confidence patterns such as blanks, translation prompts,
+unscramble instructions, matching prompts, multiple-choice prompts, and
+bracketed correction markup. The repair prompt receives only the current blocks,
+the detected issues, and the shared block protocol.
 
 This design is preferred over heuristic patching because it keeps the model responsible for producing valid structure.
 
