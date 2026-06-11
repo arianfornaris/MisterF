@@ -34,7 +34,9 @@ Main route areas:
 - `auth`
 - `chat`
 - `chatrooms`
+- `payments`
 - `practiceModules`
+- `progress`
 - `profiles`
 - `settings`
 - `superadmin`
@@ -67,6 +69,7 @@ Important subareas:
 - `llmTutor`: tutor model runtime, schemas, providers, validation, tools, prompts
 - `tutorWorkflow`: server-side side effects triggered by structured blocks
 - `tutorReports`: finalized tutor conversation summaries and report-to-module generation
+- `learnerProgress`: compact global progress and vocabulary aggregation from completed practice
 - `administration`
 - `secretary`
 
@@ -166,6 +169,7 @@ Prompt source files live under:
 Prompt families are separated by responsibility:
 
 - `tutor/*`: main tutor system and related structured correction/evaluation prompts
+- `tutor/blocks/*`: source-of-truth tutor response block protocol files
 - `chatrooms/*`: chat room conversation and reporting prompts
 - `resources/*`: draft generation for practice modules and chat rooms
 

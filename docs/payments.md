@@ -277,13 +277,13 @@ This means:
 Recommended visible information:
 
 - current credits
-- optional small note like `Shared across all profiles`
 - buy credits CTA
+- recent fulfilled purchase history
 
 Optional later additions:
 
-- purchase history
 - last top-up date
+- admin/support views for pending or failed fulfillments
 
 ### Display wording
 
@@ -351,10 +351,10 @@ Possible future policy choices:
 - provision free starter key with `$0.10` on user creation
 - top up existing managed OpenRouter key by `$2.00` on successful package purchase
 - expose current account credit balance in the UI
+- show recent fulfilled purchases in the credits page
 
 ### Phase 2
 
-- add purchase history UI
 - add admin visibility into payment and fulfillment state
 - add operational retry tooling for failed fulfillments
 

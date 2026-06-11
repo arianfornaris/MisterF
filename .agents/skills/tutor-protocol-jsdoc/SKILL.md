@@ -24,6 +24,11 @@ Rules:
 - Update `src/server/services/llmTutor/types.ts` and `schemas.ts` in the same change as the protocol.
 - If a block has contextual validation that Zod cannot know, document that behavior in the block JSDoc and implement it in a shared server service.
 - If a block is a side-effect block rather than a normal chat bubble, document where it renders or how the client consumes it.
+- Treat `quiz_result` as a server-generated/persisted quiz-evaluation block, not
+  as part of the normal tutor response protocol. It may exist in schemas,
+  renderers, and persisted messages, but do not add it to
+  `system-prompts/tutor/blocks/tutor-response-block.md` unless the runtime is
+  intentionally changed so the main tutor can emit it directly.
 
 Checklist:
 

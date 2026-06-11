@@ -27,10 +27,12 @@ Important files:
 - `system.md`: main system instruction for Mr. F
 - `start-session.md`: first-turn nudge for new tutor sessions
 - `structured-correction.md`: repair prompt for invalid tutor structured output
+- `block-repair.md`: repair prompt for schema-valid tutor output that leaks exercise payloads into `message`
 - `internal-tool-continuation.md`: continuation prompt after tool calls
 - `practice-module-context.md`: context block for tutor conversations started from a practice module
 - `chatroom-report-context.md`: context block for tutor conversations started from a chat room report
 - `tutor-report-context.md`: context block for tutor conversations started from a finalized tutor conversation report
+- `visible-plan-context.md`: teacher-only context with the current fused visible tutor plan
 - `translator.md`: prompt for translator mode
 - `quiz-result-evaluation.md`: prompt for structured quiz result assessment
 - `quiz-result-evaluation-correction.md`: repair prompt for invalid quiz result evaluation output
@@ -38,6 +40,16 @@ Important files:
 - `conversation-report-correction.md`: repair prompt for invalid tutor conversation report output
 - `report-to-practice-module.md`: turns a tutor conversation report into a practice module draft
 - `report-to-practice-module-correction.md`: repair prompt for invalid report-to-module output
+
+Tutor block protocol files live in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/system-prompts/tutor/blocks`
+
+Those files are the source of truth for tutor response block documentation.
+`blockProtocol.ts` composes them into the main tutor system prompt, structured
+correction prompt, and block repair prompt. Block-level rules should be written
+next to the TypeScript-like interface for that block, not duplicated in
+`system.md`.
 
 ### Chat room prompts
 
@@ -97,6 +109,16 @@ When output structure is wrong, the preferred strategy is:
 - retry a limited number of times
 
 This is why correction prompts are first-class files in the repository.
+
+There are two related repair categories:
+
+- invalid structured output, handled by structured correction prompts
+- valid JSON with the wrong block boundary, handled by `tutor/block-repair.md`
+
+The block repair loop is intentionally narrow. It catches high-confidence
+patterns such as blanks, translation prompts, multiple-choice payloads,
+unscramble tasks, matching tasks, bracketed correction markup, or raw
+evaluation JSON embedded inside a normal `message`.
 
 ### Model output is the source of truth
 

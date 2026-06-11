@@ -17,8 +17,11 @@ so it remains visible while the learner works through the current step.
 - A conversation can have at most one active tutor plan at a time.
 - The plan is visible to the learner.
 - The learner can see the current step, completed steps, and upcoming steps.
-- Initially, the learner cannot edit the plan.
-- Later, the UI can add actions such as skipping a step or cancelling the plan.
+- The learner can minimize or expand the plan UI.
+- The learner can conclude the plan from the UI.
+- If all steps are complete, concluding the plan removes it immediately.
+- If steps remain incomplete, concluding the plan shows a confirmation modal.
+- The learner cannot edit or skip individual steps yet.
 - The tutor may update the plan as the learner succeeds, struggles, changes
   topic, or asks for a different direction.
 - The tutor must update the plan in the same response where it tells the
@@ -218,9 +221,10 @@ Desktop layout:
 
 Mobile layout:
 
-- A compact collapsed summary by default.
-- Show the current step first.
-- Allow expanding to see all steps.
+- The same plan can be minimized to a compact summary.
+- The minimized view shows the current step using the same step visual language
+  as the expanded plan.
+- The minimized view exposes controls to expand or conclude the plan.
 
 Initial status rendering:
 
@@ -229,8 +233,10 @@ Initial status rendering:
 - `pending`: neutral upcoming style.
 - `skipped`: muted skipped style.
 
-Buttons such as `Saltar paso` or `Cancelar plan` should be added later, not in
-the first implementation.
+The close/conclude and minimize controls are icon-only buttons without custom
+backgrounds. They should feel like standard lightweight Bootstrap UI controls,
+similar in spirit to modal close buttons. `Saltar paso` has not been
+implemented yet.
 
 ## Prompt Guidance
 
@@ -260,7 +266,6 @@ Important model instructions:
 ## Future Extensions
 
 - Learner can skip the active step.
-- Learner can cancel the plan.
 - Learner can ask Mr. F to revise the plan.
 - Plan state can inform progress summaries.
 - Plan steps can be used as future practice-module seeds.

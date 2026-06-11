@@ -165,6 +165,23 @@ Not every bracket is automatically bad. For example, `[Nombre]` or `[Destino]`
 may be a placeholder in a natural example. The risky pattern is bracketed text
 used to mark the learner's actual errors inside a sentence under review.
 
+### Inline Evaluation JSON
+
+Observed:
+
+```text
+Tu último mensaje, por partes:
+{"parts":[{"text":"When I dance","status":"correct","explanation":"..."}]}
+```
+
+Why it is a problem:
+
+- The message contains an object that looks like a structured
+  `sentence_evaluation` payload.
+- The JSON is learner-visible noise instead of UI state.
+- The tutor should emit `sentence_evaluation` when it wants the client to render
+  reviewed text by parts.
+
 ## Lower-Confidence Pattern: Lettered Options
 
 The model often uses lettered lists:
@@ -200,6 +217,8 @@ High-confidence signals inside a `message` block:
 - `Une cada...`
 - `Relaciona...`
 - bracketed learner-error tokens such as `[huracans]`, `[taugh]`, `[bigest]`
+- JSON-like snippets with keys such as `"parts"`, `"text"`, `"status"`, and
+  `"explanation"` inside `message`
 
 Medium-confidence signals:
 
@@ -225,11 +244,12 @@ Implementation files:
 - `misterf-web/system-prompts/tutor/block-repair.md`
 - `misterf-web/system-prompts/tutor/blocks/*.md`
 
-The detector only flags high-confidence task leakage inside `message`. It does
-not rewrite blocks in code and it does not run in the client. When leakage is
-found, the server sends the current response blocks plus the shared block
-protocol to a small repair prompt. The repair prompt returns the complete
-`TutorResponse` again, with prose and typed task payloads separated.
+The detector only flags high-confidence task leakage inside `message`, including
+raw JSON/pseudo-block evaluation payloads. It does not rewrite blocks in code
+and it does not run in the client. When leakage is found, the server sends the
+current response blocks plus the shared block protocol to a small repair prompt.
+The repair prompt returns the complete `TutorResponse` again, with prose and
+typed task payloads separated.
 
 This keeps the tutor model responsible for structured output while avoiding a
 client-side heuristic rewrite layer.

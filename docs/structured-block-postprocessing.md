@@ -56,6 +56,8 @@ Initial checks can include:
 - `message` contains bracketed error markers such as `[word]`
 - `message` contains option lists like `a)`, `b)`, `c)` after a question
 - `message` contains shuffled token instructions
+- `message` contains raw JSON or pseudo-block payloads such as `"parts"` with
+  `status` values that look like a `sentence_evaluation`
 - `message` is unusually long and appears to combine feedback plus a new task
 
 The linter should report structured issues, not rewrite content itself.
@@ -73,8 +75,10 @@ The repair prompt should include:
 - the instruction to preserve the pedagogical intent while moving content to
   the correct block type
 
-If repair fails, the server can fall back to the original response or a safe
-plain message depending on severity.
+If repair still leaves detected leakage, the repair layer raises a structured
+validation error. The normal tutor correction loop can then ask the model to
+emit a corrected full response instead of silently accepting the original
+message.
 
 ## Why Not Always Run A Second Model Call?
 
@@ -101,11 +105,16 @@ instead. If the text being reviewed is teacher-only context rather than a
 visible learner message, he should explain the issue in normal prose without
 fake annotations.
 
+## Logging
+
+The runtime keeps the original LLM output in the normal tutor logs, logs the
+detected repair issues, and logs the repaired block types when repair succeeds.
+This preserves enough context for debugging without storing a second full copy
+of every repaired payload in normal logs.
+
 ## Open Design Questions
 
-- Which violations should trigger repair and which should only warn?
-- Should repaired responses replace the original in LLM logs, or should both be
-  stored for debugging?
+- Which additional violations should trigger repair and which should only warn?
 - Should repeated violations become prompt examples in the system prompt?
 - How should we handle `sentence_evaluation` when the source text is card state
   instead of a normal visible user message?

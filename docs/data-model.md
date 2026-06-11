@@ -59,6 +59,23 @@ Used for flows such as:
 - email verification
 - password reset
 
+### User OpenRouter Key
+
+Stores the managed OpenRouter key assigned to a user account for app-funded LLM
+usage.
+
+Important fields:
+
+- `userId`
+- encrypted key material
+- OpenRouter key hash/label metadata
+- status and last error
+- configured limit and reset policy
+- timestamps
+
+This is account-scoped rather than profile-scoped. All profiles under the same
+user draw from the same managed key.
+
 ## Profiles
 
 ### Profile
@@ -198,6 +215,85 @@ The server re-injects this stored plan into each tutor turn as teacher-only
 authoritative context so the model does not need to reconstruct plan state from
 older transcript blocks.
 
+## Learner Progress
+
+Learner progress is profile-scoped and summarizes practice across tutor
+conversation reports and chat room conversation reports.
+
+### Learner Progress Profile
+
+Stores the current compact global progress summary for one user/profile pair.
+
+Important fields:
+
+- `id`
+- `userId`
+- `profileId`
+- `summary`
+- `createdAt`
+- `updatedAt`
+
+The summary JSON contains:
+
+- overview
+- strengths
+- focus areas
+- recommended practice
+- vocabulary
+- count of source events used
+
+### Learner Progress Event
+
+Stores one compact progress event extracted from a completed practice source.
+
+Important fields:
+
+- numeric `id`
+- `userId`
+- `profileId`
+- `sourceType`
+- `sourceId`
+- `eventDate`
+- `title`
+- `summary`
+- `details`
+- timestamps
+
+Current source types:
+
+- `tutor_conversation_report`
+- `chat_room_conversation_report`
+
+The event details JSON contains compact lists of practiced topics,
+difficulties, progress notes, recommendations, and vocabulary. Events are the
+source used to rebuild the global progress summary and the vocabulary tab.
+
+## Payments And Credits
+
+### Credit Purchase
+
+Stores Stripe Checkout purchases and fulfillment state for credit top-ups.
+
+Important fields:
+
+- `id`
+- `userId`
+- `stripeCheckoutSessionId`
+- `stripePaymentIntentId`
+- `stripeEventId`
+- `packageCode`
+- `customerAmountCents`
+- `creditedAmountCents`
+- status (`pending`, `fulfilled`, or `failed`)
+- OpenRouter key hash affected by fulfillment
+- remaining-balance snapshots before and after fulfillment
+- optional failure reason
+- timestamps
+
+The credits page shows only fulfilled purchases to learners. Pending and failed
+records remain in the ledger for idempotency, auditability, support, and future
+admin tooling.
+
 ## Practice Modules
 
 ### Practice Module
@@ -332,10 +428,13 @@ Allows link-based room sharing.
 At a high level:
 
 - one `user` has many `profiles`
+- one `user` has one managed OpenRouter key for account-level credits
 - one `profile` has many `conversations`
 - one `profile` has many `practiceModules`
 - one `profile` has many `practiceModuleCollections`
 - one `profile` has many `chatRooms`
+- one `profile` has one learner progress profile
+- one `profile` has many learner progress events
 - one `chatRoom` has many `chatRoomCharacters`
 - one `chatRoom` has many `chatRoomConversations`
 - one `chatRoomConversation` may have one report

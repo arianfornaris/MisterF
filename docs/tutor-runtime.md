@@ -96,7 +96,6 @@ The tutor can emit structured blocks such as:
 - `tutor_plan`
 - `tutor_plan_update`
 - `quiz`
-- `quiz_result`
 
 These blocks are validated before they are accepted into the system.
 
@@ -105,6 +104,11 @@ The block protocol source lives in
 `blockProtocol.ts` composes those files into the main tutor prompt and the
 block repair prompt, so block documentation is written once and reused by every
 LLM loop that needs the contract.
+
+`quiz_result` is a special server-generated/persisted block used by the quiz
+completion flow. It exists in the schema and renderer because the app stores and
+displays quiz evaluations, but the normal tutor response protocol does not ask
+Mr. F to emit `quiz_result` directly.
 
 ## Interactive Exercise Contracts
 
@@ -339,9 +343,10 @@ From the summary, the learner can:
 conversation seeded with a snapshot of the report, so Mr. F can continue with
 targeted practice based on the finalized conversation.
 
-## Correction Loops
+## Correction And Repair Loops
 
-The tutor runtime uses structured correction loops in two important places:
+The tutor runtime uses structured correction and repair loops at several
+boundaries:
 
 ### Main tutor response correction
 
@@ -364,8 +369,9 @@ If a schema-valid response puts an exercise payload inside a `message` block,
 the runtime runs a smaller repair loop before returning blocks to the client.
 This catches high-confidence patterns such as blanks, translation prompts,
 unscramble instructions, matching prompts, multiple-choice prompts, and
-bracketed correction markup. The repair prompt receives only the current blocks,
-the detected issues, and the shared block protocol.
+bracketed correction markup. It also catches raw JSON or pseudo-block
+evaluation payloads embedded inside message prose. The repair prompt receives
+only the current blocks, the detected issues, and the shared block protocol.
 
 This design is preferred over heuristic patching because it keeps the model responsible for producing valid structure.
 
