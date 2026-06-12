@@ -1400,7 +1400,6 @@ async function streamAssistantMessage(
       blocks: result.blocks,
       conversationId,
       io,
-      lastUserMessageId,
       userId,
     });
   } catch (error) {
@@ -1483,9 +1482,22 @@ function getToolStatusLabel(toolName: string): string {
 
 function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
   return messages.map((message) => ({
-    content: message.content,
+    content: getTutorHistoryContent(message),
     role: message.role,
   }));
+}
+
+function getTutorHistoryContent(message: StoredMessage): string {
+  if (message.role !== 'model') {
+    return message.content;
+  }
+
+  const blocks = message.metadata?.blocks;
+  if (!Array.isArray(blocks)) {
+    return message.content;
+  }
+
+  return JSON.stringify({ blocks }, null, 2);
 }
 
 function isAbortError(error: unknown, signal?: AbortSignal): boolean {

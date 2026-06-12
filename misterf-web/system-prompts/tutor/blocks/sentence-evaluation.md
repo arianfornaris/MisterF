@@ -21,9 +21,14 @@ interface EvaluationPart {
  * Inline evaluation of one concrete learner text.
  *
  * Use when the learner writes or asks you to review English text that should
- * be corrected. Usually this evaluates the latest answer, but it may evaluate
- * an earlier learner message when the learner explicitly asks for it or when
- * you are deliberately breaking down a long previous text for study.
+ * be corrected. This block is a standalone tutor response block: it is not
+ * attached to a user message by id, metadata, or hidden state.
+ *
+ * You may evaluate the latest learner answer or an earlier learner text when
+ * the learner explicitly asks for it or when you are deliberately breaking down
+ * a long previous text for study. In every case, include the exact visible text
+ * fragments being evaluated in `parts`; do not rely on external message
+ * references.
  *
  * Only include this block when at least one part should be marked `improve` or
  * `error`. If the evaluated learner text is fully correct, do not emit this
@@ -37,6 +42,6 @@ interface EvaluationPart {
 interface SentenceEvaluationBlock {
   /** Literal discriminator. */
   type: "sentence_evaluation";
-  /** Ordered fragments covering the learner text being reviewed. */
+  /** Ordered fragments covering the learner text being reviewed; preserve the learner's original language in `text`. */
   parts: EvaluationPart[];
 }

@@ -3,17 +3,15 @@ export function createSentenceEvaluationCard({
   createSentencePartsElement,
   element,
   evaluation,
-  findEvaluationTargetUserContent,
   findFirstIncorrectEvaluationPart,
   getEvaluationSourceText,
   isValidSentenceEvaluation,
   putMessageBackInComposer,
 }) {
-  if (!element) {
-    return null;
+  if (element) {
+    element.querySelector('.sentence-evaluation')?.remove();
   }
 
-  element.querySelector('.sentence-evaluation')?.remove();
   if (!isValidSentenceEvaluation(evaluation)) {
     return null;
   }
@@ -48,8 +46,7 @@ export function createSentenceEvaluationCard({
   });
   editButton.classList.add('sentence-evaluation-action');
   editButton.addEventListener('click', () => {
-    const userContent =
-      getEvaluationSourceText(evaluation) || findEvaluationTargetUserContent(element);
+    const userContent = getEvaluationSourceText(evaluation);
     if (!userContent) {
       return;
     }

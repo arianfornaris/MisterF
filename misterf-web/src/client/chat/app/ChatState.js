@@ -4,13 +4,11 @@ export class ChatState {
     this.streamingBubble = null;
     this.isAssistantBusy = false;
     this.pendingDeleteTarget = null;
-    this.activeUserMessageId = null;
     this.pendingPracticeModuleStart = false;
     this.isAssistantStopping = false;
     this.isGuestPromptPending = false;
     this.guestPromptTimerId = 0;
     this.disconnectNoticeTimerId = 0;
-    this.pendingSentenceEvaluations = new Map();
     this.pendingTranslatorSelection = '';
     this.userInputHistory = [];
     this.userInputHistoryIndex = -1;

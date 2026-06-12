@@ -14,8 +14,4 @@ export class MessageRenderer {
   updateRenderedMessage(...args) {
     return this.methods.updateRenderedMessage(...args);
   }
-
-  renderSentenceEvaluationOnLastAssistant(...args) {
-    return this.methods.renderSentenceEvaluationOnLastAssistant(...args);
-  }
 }

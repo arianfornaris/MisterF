@@ -945,7 +945,6 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             blocks: result.blocks,
             conversationId,
             io,
-            lastUserMessageId,
             userId,
         });
     }
@@ -1016,9 +1015,19 @@ function getToolStatusLabel(toolName) {
 }
 function toTutorHistory(messages) {
     return messages.map((message) => ({
-        content: message.content,
+        content: getTutorHistoryContent(message),
         role: message.role,
     }));
+}
+function getTutorHistoryContent(message) {
+    if (message.role !== 'model') {
+        return message.content;
+    }
+    const blocks = message.metadata?.blocks;
+    if (!Array.isArray(blocks)) {
+        return message.content;
+    }
+    return JSON.stringify({ blocks }, null, 2);
 }
 function isAbortError(error, signal) {
     if (signal?.aborted) {

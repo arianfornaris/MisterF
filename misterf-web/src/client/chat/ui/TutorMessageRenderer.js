@@ -240,6 +240,15 @@ export function createTutorMessageRenderer(deps) {
         return;
       }
 
+      if (block.type === 'sentence_evaluation') {
+        const card = createStandaloneSentenceEvaluationCard(block);
+        if (card) {
+          stack.append(card);
+          hasVisualContent = true;
+        }
+        return;
+      }
+
       if (
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt'
@@ -274,11 +283,10 @@ export function createTutorMessageRenderer(deps) {
     element.append(stack);
   }
 
-  function appendStoredMessage(message, options = {}) {
+  function appendStoredMessage(message) {
     return appendMessage(message.role, message.content, {
       id: message.id,
       metadata: message.metadata,
-      sentenceEvaluation: options.sentenceEvaluation,
     });
   }
 
@@ -307,10 +315,6 @@ export function createTutorMessageRenderer(deps) {
       appendUserMessageActions(bubble);
     }
 
-    if (role === 'model') {
-      renderSentenceEvaluation(bubble, options.sentenceEvaluation);
-    }
-
     if (options.streaming) {
       bubble.classList.add('typing-caret');
     }
@@ -321,35 +325,17 @@ export function createTutorMessageRenderer(deps) {
     return bubble;
   }
 
-  function renderSentenceEvaluationOnLastAssistant(evaluation) {
-    const modelRows = deps.messagesEl.querySelectorAll('.message-row.is-model');
-    const lastModelRow = modelRows[modelRows.length - 1];
-    if (!lastModelRow) {
-      return;
-    }
-
-    renderSentenceEvaluation(
-      lastModelRow.querySelector('.message-bubble'),
-      evaluation,
-    );
-    initializeSentencePopovers(lastModelRow);
-  }
-
-  function renderSentenceEvaluation(element, evaluation) {
-    const card = createSentenceEvaluationCard({
+  function createStandaloneSentenceEvaluationCard(evaluation, element = null) {
+    return createSentenceEvaluationCard({
       createMessageActionButton,
       createSentencePartsElement,
       element,
       evaluation,
-      findEvaluationTargetUserContent,
       findFirstIncorrectEvaluationPart,
       getEvaluationSourceText,
       isValidSentenceEvaluation,
       putMessageBackInComposer,
     });
-    if (card) {
-      element.append(card);
-    }
   }
 
   function attachMessageMetadata(row, metadata) {
@@ -656,26 +642,6 @@ export function createTutorMessageRenderer(deps) {
     deps.putMessageBackInComposer(content, options);
   }
 
-  function findEvaluationTargetUserContent(element) {
-    const row = element.closest('.message-row.is-model');
-    let current = row?.previousElementSibling ?? null;
-
-    while (current) {
-      if (
-        current instanceof HTMLDivElement &&
-        current.classList.contains('message-row') &&
-        current.classList.contains('is-user')
-      ) {
-        const bubble = current.querySelector('.message-bubble');
-        return bubble?.dataset.rawContent || '';
-      }
-
-      current = current.previousElementSibling;
-    }
-
-    return '';
-  }
-
   function getEvaluationSourceText(evaluation) {
     if (typeof evaluation?.sourceText === 'string' && evaluation.sourceText.trim()) {
       return evaluation.sourceText.trim();
@@ -780,8 +746,6 @@ export function createTutorMessageRenderer(deps) {
     appendStoredMessage,
     initializeSentencePopovers,
     markTutorMessageArrived,
-    renderSentenceEvaluation,
-    renderSentenceEvaluationOnLastAssistant,
     setMessageContent,
     setModelBubbleContent,
     updateRenderedMessage,

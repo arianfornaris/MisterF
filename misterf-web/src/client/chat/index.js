@@ -85,13 +85,11 @@ let conversationId = chatState.conversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
 let pendingDeleteTarget = null;
-let activeUserMessageId = null;
 let pendingPracticeModuleStart = false;
 let isAssistantStopping = false;
 let isGuestPromptPending = false;
 let guestPromptTimerId = 0;
 let disconnectNoticeTimerId = 0;
-const pendingSentenceEvaluations = chatState.pendingSentenceEvaluations;
 let pendingTranslatorSelection = '';
 let pendingTutorPlanClose = false;
 let userInputHistory = [];
@@ -248,20 +246,14 @@ if (socket) {
     chatSocketEvents,
     conversationListView,
     focusComposer,
-    getActiveUserMessageId: () => activeUserMessageId,
     getConversationId: () => conversationId,
-    getIsAssistantBusy: () => isAssistantBusy,
     getPendingPracticeModuleStart: () => pendingPracticeModuleStart,
     getStreamingBubble: () => streamingBubble,
     messagesEl,
-    pendingSentenceEvaluations,
     practiceModuleView,
     renderer: tutorMessageRenderer,
     runtime,
     scrollToBottom,
-    setActiveUserMessageId: (value) => {
-      activeUserMessageId = value;
-    },
     setCanFinalizeConversation,
     setComposerEnabled,
     setConversationId: (value) => {

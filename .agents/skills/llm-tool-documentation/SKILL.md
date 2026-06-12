@@ -26,8 +26,8 @@ When creating or modifying a tool:
 
 When adding, renaming, deleting, moving, or changing the purpose of a tool, update the project docs in the same task:
 
-- `docs/architecture.md`: keep the Tool Architecture section as the architectural entry point listing every tutor-accessible tool family, every tool name, and the source file where each family is defined.
-- `docs/tutor-runtime.md`: keep Tools Available to Mr. F aligned with the runtime behavior, including current tool families, full tool lists, availability constraints, and high-level usage boundaries.
+- `docs/architecture/architecture.md`: keep the Tool Architecture section as the architectural entry point listing every tutor-accessible tool family, every tool name, and the source file where each family is defined.
+- `docs/tutor/runtime.md`: keep Tools Available to Mr. F aligned with the runtime behavior, including current tool families, full tool lists, availability constraints, and high-level usage boundaries.
 
 If only parameter wording changes and the tool list/purpose does not change, docs may not need a content update, but still verify that the docs remain accurate.
 
@@ -39,8 +39,8 @@ Before finishing tool work, inspect the final tool definition and confirm:
 - Each `inputSchema` field has parameter-level documentation.
 - Optional fields document their fallback behavior or omission rule.
 - The documentation prevents the most likely misuse of the tool.
-- `docs/architecture.md` lists any new, renamed, moved, or removed tools and points to the correct source files.
-- `docs/tutor-runtime.md` lists the current tools available to Mr. F and accurately describes their runtime use.
+- `docs/architecture/architecture.md` lists any new, renamed, moved, or removed tools and points to the correct source files.
+- `docs/tutor/runtime.md` lists the current tools available to Mr. F and accurately describes their runtime use.
 - The compiled server still typechecks.
 
 ## Example Pattern

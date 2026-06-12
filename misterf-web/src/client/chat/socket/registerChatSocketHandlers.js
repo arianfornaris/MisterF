@@ -50,8 +50,6 @@ export function registerChatSocketHandlers(deps) {
     deps.messagesEl.replaceChildren();
     deps.tutorPlanView?.render(payload.tutorPlan || null);
     deps.setStreamingBubble(null);
-    deps.pendingSentenceEvaluations.clear();
-    deps.setActiveUserMessageId(null);
     deps.setUserInputHistory(
       (payload.messages ?? [])
         .filter((message) => message?.role === 'user' && typeof message.content === 'string')
@@ -69,21 +67,8 @@ export function registerChatSocketHandlers(deps) {
       visible: deps.getPendingPracticeModuleStart(),
     });
 
-    let queuedSentenceEvaluation = null;
     for (const message of payload.messages ?? []) {
-      if (message.role === 'user') {
-        queuedSentenceEvaluation = message.metadata?.sentenceEvaluation ?? null;
-        deps.renderer.appendStoredMessage(message);
-        if (typeof message.id === 'number') {
-          deps.setActiveUserMessageId(message.id);
-        }
-        continue;
-      }
-
-      deps.renderer.appendStoredMessage(message, {
-        sentenceEvaluation: queuedSentenceEvaluation,
-      });
-      queuedSentenceEvaluation = null;
+      deps.renderer.appendStoredMessage(message);
     }
 
     if (payload.assistantPending) {
@@ -188,9 +173,7 @@ export function registerChatSocketHandlers(deps) {
     }
 
     const bubble = deps.renderer.appendStoredMessage(message);
-    if (message.role === 'user') {
-      deps.setActiveUserMessageId(message.id);
-    } else {
+    if (message.role !== 'user') {
       deps.renderer.markTutorMessageArrived(bubble.closest('.message-row'));
     }
     deps.scrollToBottom();
@@ -240,10 +223,6 @@ export function registerChatSocketHandlers(deps) {
       return;
     }
 
-    const sentenceEvaluation = deps.getActiveUserMessageId()
-      ? deps.pendingSentenceEvaluations.get(deps.getActiveUserMessageId())
-      : null;
-
     if (deps.getStreamingBubble()) {
       deps.renderer.setModelBubbleContent(
         deps.getStreamingBubble(),
@@ -254,21 +233,13 @@ export function registerChatSocketHandlers(deps) {
       deps.getStreamingBubble().classList.remove('typing-caret');
       const streamingRow = deps.getStreamingBubble().closest('.message-row');
       streamingRow?.setAttribute('data-message-id', message.id);
-      deps.renderer.renderSentenceEvaluation(
-        deps.getStreamingBubble(),
-        sentenceEvaluation,
-      );
       deps.renderer.initializeSentencePopovers(deps.getStreamingBubble());
       deps.renderer.markTutorMessageArrived(streamingRow);
     } else {
-      const bubble = deps.renderer.appendStoredMessage(message, { sentenceEvaluation });
+      const bubble = deps.renderer.appendStoredMessage(message);
       deps.renderer.markTutorMessageArrived(bubble.closest('.message-row'));
     }
 
-    if (deps.getActiveUserMessageId()) {
-      deps.pendingSentenceEvaluations.delete(deps.getActiveUserMessageId());
-    }
-    deps.setActiveUserMessageId(null);
     deps.setStreamingBubble(null);
     deps.runtime.setToolStatus('');
     deps.setIsAssistantBusy(false);
@@ -309,24 +280,6 @@ export function registerChatSocketHandlers(deps) {
     deps.setIsAssistantStopping(false);
     deps.setComposerEnabled(!deps.getPendingPracticeModuleStart());
     deps.scrollToBottom();
-  });
-
-  socketClient.on('message:evaluation_updated', ({ message }) => {
-    if (!message?.id) {
-      return;
-    }
-
-    deps.pendingSentenceEvaluations.set(
-      message.id,
-      message.metadata?.sentenceEvaluation,
-    );
-
-    if (!deps.getIsAssistantBusy()) {
-      deps.renderer.renderSentenceEvaluationOnLastAssistant(
-        message.metadata?.sentenceEvaluation,
-      );
-      deps.scrollToBottom();
-    }
   });
 
   socketClient.on('message:updated', (message) => {

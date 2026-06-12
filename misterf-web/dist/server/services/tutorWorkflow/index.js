@@ -1,16 +1,10 @@
-import { findConversationForUser, getConversationTutorPlan, renameConversationForUser, saveConversationTutorPlan, updateMessageMetadata, } from '../../db/repository.js';
+import { findConversationForUser, getConversationTutorPlan, renameConversationForUser, saveConversationTutorPlan, } from '../../db/repository.js';
 import { applyTutorPlanBlocks } from '../tutorPlans.js';
 export function applyTutorBlocksRuntime(input) {
     let handledTutorPlan = false;
     for (const block of input.blocks) {
         switch (block.type) {
             case 'sentence_evaluation':
-                handleSentenceEvaluationBlock({
-                    block,
-                    conversationId: input.conversationId,
-                    io: input.io,
-                    lastUserMessageId: input.lastUserMessageId,
-                });
                 break;
             case 'conversation_title':
                 handleConversationTitleBlock({
@@ -70,41 +64,6 @@ function handleTutorPlanBlock(input) {
             error,
         });
     }
-}
-function handleSentenceEvaluationBlock(input) {
-    if (!input.lastUserMessageId) {
-        return;
-    }
-    const hasIssues = input.block.parts.some((part) => part.status === 'improve' || part.status === 'error');
-    if (!hasIssues) {
-        return;
-    }
-    const sentenceEvaluation = {
-        parts: input.block.parts,
-        sourceText: partsToSourceText(input.block.parts),
-    };
-    const message = updateMessageMetadata(input.lastUserMessageId, input.conversationId, {
-        sentenceEvaluation,
-    });
-    if (!message) {
-        return;
-    }
-    input.io.to(input.conversationId).emit('message:evaluation_updated', {
-        conversationId: input.conversationId,
-        message,
-        messageId: message.id,
-        sentenceEvaluation,
-    });
-}
-function partsToSourceText(parts) {
-    return parts
-        .map((part) => part.text.trim())
-        .filter(Boolean)
-        .join(' ')
-        .replace(/\s+([.,!?;:%)\]}])/g, '$1')
-        .replace(/([¿¡([{])\s+/g, '$1')
-        .replace(/\s+/g, ' ')
-        .trim();
 }
 function handleConversationTitleBlock(input) {
     const conversation = findConversationForUser(input.conversationId, input.userId);
