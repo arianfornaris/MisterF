@@ -343,6 +343,16 @@ From the summary, the learner can:
 conversation seeded with a snapshot of the report, so Mr. F can continue with
 targeted practice based on the finalized conversation.
 
+Report-seeded tutor conversations split context into two layers:
+
+- The persistent report context stays in the tutor system prompt as the
+  conversation objective and background.
+- A one-shot internal start message is added only for the first assistant turn of
+  an empty report-seeded conversation.
+
+This prevents later turns from repeatedly behaving like a fresh start while
+still keeping the report available as pedagogical context.
+
 ## Correction And Repair Loops
 
 The tutor runtime uses structured correction and repair loops at several

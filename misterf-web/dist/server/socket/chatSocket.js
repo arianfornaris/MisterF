@@ -4,6 +4,7 @@ import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
+import { renderSystemPrompt } from '../services/systemPrompts.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
@@ -101,7 +102,10 @@ export function registerChatSocket(io) {
             if ((chatRoomReportSnapshot || tutorReportSnapshot) &&
                 messages.length === 0 &&
                 !practiceModuleSnapshot) {
-                void streamAssistantMessage(io, conversation.id, userId, undefined, true, [], conversation.modelTier);
+                void streamAssistantMessage(io, conversation.id, userId, undefined, false, buildReportConversationStartMessages({
+                    chatRoomReportSnapshot,
+                    tutorReportSnapshot,
+                }), conversation.modelTier);
             }
         });
         socket.on('message:send', async (payload = {}) => {
@@ -1052,6 +1056,22 @@ function buildPracticeModuleStartMessage(practiceModule) {
             'Do not ask unnecessary setup questions if the practice module already provides enough direction.',
         ].join('\n'),
     };
+}
+function buildReportConversationStartMessages(input) {
+    const messages = [];
+    if (input.chatRoomReportSnapshot) {
+        messages.push({
+            role: 'user',
+            content: renderSystemPrompt('tutor/chatroom-report-start.md', {}),
+        });
+    }
+    if (input.tutorReportSnapshot) {
+        messages.push({
+            role: 'user',
+            content: renderSystemPrompt('tutor/tutor-report-start.md', {}),
+        });
+    }
+    return messages;
 }
 function emitConversationUpdated(io, conversationId, userId) {
     const conversation = findConversationForUser(conversationId, userId);

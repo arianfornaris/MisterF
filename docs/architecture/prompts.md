@@ -31,7 +31,9 @@ Important files:
 - `internal-tool-continuation.md`: continuation prompt after tool calls
 - `practice-module-context.md`: context block for tutor conversations started from a practice module
 - `chatroom-report-context.md`: context block for tutor conversations started from a chat room report
+- `chatroom-report-start.md`: one-shot internal first-turn nudge for conversations created from a chat room report
 - `tutor-report-context.md`: context block for tutor conversations started from a finalized tutor conversation report
+- `tutor-report-start.md`: one-shot internal first-turn nudge for conversations created from a finalized tutor report
 - `visible-plan-context.md`: teacher-only context with the current fused visible tutor plan
 - `translator.md`: prompt for translator mode
 - `quiz-result-evaluation.md`: prompt for structured quiz result assessment
@@ -50,6 +52,16 @@ Those files are the source of truth for tutor response block documentation.
 correction prompt, and block repair prompt. Block-level rules should be written
 next to the TypeScript-like interface for that block, not duplicated in
 `system.md`.
+
+Report-based tutor conversations separate persistent context from first-turn
+behavior:
+
+- `chatroom-report-context.md` and `tutor-report-context.md` describe the stable
+  conversation objective and remain safe to include on every turn.
+- `chatroom-report-start.md` and `tutor-report-start.md` are one-shot internal
+  messages used only when an empty report-seeded conversation auto-starts.
+- Start commands such as "begin with..." or "start practicing..." should live in
+  the one-shot start prompts, not in persistent report context prompts.
 
 ### Chat room prompts
 

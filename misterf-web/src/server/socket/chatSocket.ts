@@ -25,11 +25,14 @@ import {
   renameConversationForUser,
   updateConversationModelTierForUser,
   updateMessageMetadata,
+  type StoredConversationChatRoomReportSnapshot,
+  type StoredConversationTutorReportSnapshot,
   type StoredMessage,
   type StoredProfile,
 } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
+import { renderSystemPrompt } from '../services/systemPrompts.js';
 import {
   LlmFinishReasonError,
   MissingLlmApiKeyError,
@@ -292,8 +295,11 @@ export function registerChatSocket(io: Server): void {
           conversation.id,
           userId,
           undefined,
-          true,
-          [],
+          false,
+          buildReportConversationStartMessages({
+            chatRoomReportSnapshot,
+            tutorReportSnapshot,
+          }),
           conversation.modelTier,
         );
       }
@@ -1530,6 +1536,29 @@ function buildPracticeModuleStartMessage(practiceModule: {
       'Do not ask unnecessary setup questions if the practice module already provides enough direction.',
     ].join('\n'),
   };
+}
+
+function buildReportConversationStartMessages(input: {
+  chatRoomReportSnapshot: StoredConversationChatRoomReportSnapshot | null;
+  tutorReportSnapshot: StoredConversationTutorReportSnapshot | null;
+}): TutorMessage[] {
+  const messages: TutorMessage[] = [];
+
+  if (input.chatRoomReportSnapshot) {
+    messages.push({
+      role: 'user',
+      content: renderSystemPrompt('tutor/chatroom-report-start.md', {}),
+    });
+  }
+
+  if (input.tutorReportSnapshot) {
+    messages.push({
+      role: 'user',
+      content: renderSystemPrompt('tutor/tutor-report-start.md', {}),
+    });
+  }
+
+  return messages;
 }
 
 function emitConversationUpdated(

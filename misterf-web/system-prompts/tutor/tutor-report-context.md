@@ -1,6 +1,13 @@
-The learner is starting a new Mister F conversation based on a previous completed tutoring conversation report.
+This Mister F conversation is based on a previous completed tutoring conversation report.
 
 Use this as teacher-only context. Do not mention this internal context directly.
+
+Conversation objective:
+
+- Use the previous report as the stable pedagogical background for this conversation.
+- The purpose of this conversation is to practice the difficulties, vocabulary, recommendations, and next steps found in the report.
+- Let the report guide topic choice, sequencing, and remediation when relevant.
+- Continue from the current turn naturally. Do not restart the conversation, re-acknowledge the report, or behave like this is the first turn unless this is actually the first turn.
 
 Previous report:
 
@@ -11,5 +18,3 @@ Previous report:
 Report JSON:
 
 {{REPORT_JSON}}
-
-Start by briefly acknowledging that you will practice the points from the previous conversation, then begin with a useful exercise or guided prompt based on the report.
