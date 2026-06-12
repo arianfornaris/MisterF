@@ -143,6 +143,18 @@ UI guidance:
   clear completed status
 - do not color the submit button with practice accent tokens
 
+### Direction-choice blocks
+
+`direction_choice` is a navigation control, not an exercise.
+
+UI guidance:
+
+- render with Bootstrap card/list-group/badge primitives
+- use generated A/B/C badges for scanability
+- keep the normal UI font because the options behave like app controls
+- do not use custom correctness, selected-answer, or exercise-evaluation states
+- keep it visually distinct from `multiple_choice`
+
 ### Quiz UI
 
 Quiz UI should follow Bootstrap's control language.

@@ -150,6 +150,24 @@ export const dialogueTranscriptBlockSchema = z
   })
   .strict();
 
+export const directionChoiceBlockSchema = z
+  .object({
+    type: z.literal('direction_choice'),
+    prompt: z.string().trim().min(1).max(800),
+    options: z
+      .array(
+        z
+          .object({
+            label: z.string().trim().min(1).max(240),
+            description: z.string().trim().min(1).max(400).optional(),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(6),
+  })
+  .strict();
+
 export const matchingPairsBlockSchema = z
   .object({
     type: z.literal('matching_pairs'),
@@ -873,6 +891,7 @@ const tutorAgentResponseBlockSchema = z.union([
   practiceModuleLinkBlockSchema,
   dialogueCharacterMessageBlockSchema,
   dialogueTranscriptBlockSchema,
+  directionChoiceBlockSchema,
   matchingPairsBlockSchema,
   quizBlockSchema,
   translateToEnglishPromptBlockSchema,

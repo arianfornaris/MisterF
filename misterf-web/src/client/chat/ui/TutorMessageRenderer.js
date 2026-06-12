@@ -1,4 +1,5 @@
 import { createFillInTheBlankCard } from '../cards/createFillInTheBlankCard.js';
+import { createDirectionChoiceCard } from '../cards/createDirectionChoiceCard.js';
 import { createMatchingPairsCard } from '../cards/createMatchingPairsCard.js';
 import { createMultipleChoiceCard } from '../cards/multipleChoiceCard.js';
 import { createQuizCard } from '../cards/createQuizCard.js';
@@ -103,6 +104,17 @@ export function createTutorMessageRenderer(deps) {
         section.append(label, turns);
         stack.append(section);
         hasVisualContent = true;
+        return;
+      }
+
+      if (block.type === 'direction_choice') {
+        const card = createDirectionChoiceCard(block, {
+          sendDirectionChoiceMessage: deps.sendDirectionChoiceMessage,
+        });
+        if (card) {
+          stack.append(card);
+          hasVisualContent = true;
+        }
         return;
       }
 

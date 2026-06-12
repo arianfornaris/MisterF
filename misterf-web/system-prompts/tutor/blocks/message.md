@@ -6,8 +6,9 @@
  *
  * Do not use this block to simulate another typed block. It must not contain
  * fictional dialogue lines, fill-in-the-blank placeholders, multiple-choice
- * questions or options, matching items, shuffled tokens, translation prompt
- * sentences, quiz items, or any learner-facing task payload.
+ * questions or options, optional direction-choice menus, matching items,
+ * shuffled tokens, translation prompt sentences, quiz items, or any
+ * learner-facing task payload.
  *
  * Do not split a structured task across `message` and another block. If a
  * response needs both tutor prose and a learner task, keep the prose here and
@@ -16,13 +17,16 @@
  * Do not imitate a typed block with markdown or prose conventions such as
  * speaker labels (`Anna: ...`), fill-in-the-blank markers (`___` or
  * `{{blank}}`), bracketed correction markup (`[word]`, `[wrong word]`,
- * `[correction]`), visible answer lists, token lists, matching columns, or raw
- * JSON snippets.
+ * `[correction]`), visible answer lists, lettered option menus, token lists,
+ * matching columns, or raw JSON snippets.
  *
  * If you need to mark visible learner text as correct, improvable, or wrong,
  * use `sentence_evaluation`. If the text being reviewed is teacher-only
  * context rather than visible learner text, explain the issue in Spanish prose
  * without bracket markers or fake annotations.
+ *
+ * If you need to offer optional next directions with no correct answer, use
+ * `direction_choice`.
  */
 interface MessageBlock {
   /** Literal discriminator. */

@@ -46,7 +46,7 @@ to the implementation log.
 | `TLR-005` | The word "plan" means both internal teaching direction and visible `tutor_plan` | `implemented` | `system.md` | Internal strategy is renamed to avoid confusing it with visible plans |
 | `TLR-006` | Protocol labels are forbidden without clarifying learner-visible scope | `implemented` | `system.md` | Model may use protocol labels in JSON but not in learner-visible text |
 | `TLR-007` | Block separation rules are repeated across too many prompt layers | `implemented` | `system.md`, `tutor/blocks/*.md`, `structured-correction.md`, `block-repair.md` | Global prompt is shorter; exact block rules remain in JSDoc-style protocol files |
-| `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `not_started` | `system.md`, `message.md`, `blockRepair.ts` if needed | `a)`, `b)`, `c)` are allowed only for navigation choices with no correct answer |
+| `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `implemented` | `direction-choice.md`, `system.md`, `message.md`, schemas/renderers | Optional navigation choices use `direction_choice`; `message` no longer carries lettered option menus |
 | `TLR-009` | `start-session.md` is too weak | `not_started` | `start-session.md` | First turn nudges Mr. F toward concise greeting plus useful diagnostic practice |
 | `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `implemented` | `structured-correction.md` | Valid block list is removed in favor of the injected protocol |
 | `TLR-011` | `block-repair.md` fallback can encourage returning unresolved original blocks | `implemented` | `block-repair.md` | Repair prompt prefers conservative typed repair and only returns original blocks for false positives/impossible repairs |
@@ -238,17 +238,22 @@ Problem:
 - Lettered lists can be valid navigation choices or invalid fake
   multiple-choice exercises.
 
-Solution:
+Selected solution:
 
-- Update `system.md` and `message.md` to say:
-  - lettered lists in `message` are allowed only for navigation choices
-  - they must not have a hidden correct answer
-  - any evaluable choice with correct answers must use `multiple_choice`
+- Add a dedicated `direction_choice` block for optional navigation choices.
+- Keep `message` as pure tutor prose and stop using lettered option menus there.
+- Render `direction_choice` differently from `multiple_choice`: Bootstrap card,
+  list-group buttons, and generated A/B/C badges.
+- Clicking a direction choice sends a normal learner message. The learner can
+  still ignore the choices and type anything else.
+- Any evaluable choice with correct answers must still use `multiple_choice` or
+  `quiz`.
 
 Acceptance criteria:
 
 - The model can offer user navigation options without simulating exercises.
 - Repair detection does not need to infer intent from ambiguous wording as often.
+- Direction choices cannot carry `isCorrect` or any answer key.
 
 ### `TLR-009`: Strengthen `start-session.md`
 
@@ -362,6 +367,7 @@ Acceptance criteria:
 | 2026-06-12 | Implemented `TLR-010` manual block list removal | `TLR-010`: `not_started` -> `implemented` | Removed the hand-written valid block type list from `structured-correction.md`; the correction prompt now relies on the injected `TutorResponseBlock` contract | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-011` sharper block repair fallback | `TLR-011`: `not_started` -> `implemented` | Reworded `block-repair.md` to prefer conservative typed repair and preserve originals only for false positives or repairs that would require inventing missing content | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-012` tool rule de-duplication | `TLR-012`: `not_started` -> `implemented` | Reduced tool policy in `system.md` to high-level boundaries and reinforced `list_chat_rooms` so explicit-use policy lives in the tool description | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-008` with `direction_choice` | `TLR-008`: `not_started` -> `implemented` | Added a non-evaluable direction-choice block, removed lettered option menus from `message`, and rendered choices as Bootstrap list-group buttons with A/B/C badges | `npm run typecheck`; schema smoke test; `npm run pm2:restart` |
 
 ## How To Update This Tracker
 

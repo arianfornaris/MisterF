@@ -46,6 +46,15 @@ export type TutorDialogueTranscriptBlock = {
   }>;
 };
 
+export type TutorDirectionChoiceBlock = {
+  type: 'direction_choice';
+  prompt: string;
+  options: Array<{
+    description?: string;
+    label: string;
+  }>;
+};
+
 export type TutorMatchingPairsBlock = {
   type: 'matching_pairs';
   prompt?: string;
@@ -415,6 +424,7 @@ export type TutorResponseBlock =
   | TutorPracticeModuleLinkBlock
   | TutorDialogueCharacterMessageBlock
   | TutorDialogueTranscriptBlock
+  | TutorDirectionChoiceBlock
   | TutorMatchingPairsBlock
   | TutorQuizBlock
   | TutorQuizResultBlock

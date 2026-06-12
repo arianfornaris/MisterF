@@ -14,6 +14,7 @@ The system is designed around structured LLM output rather than free-form text r
 
 - message
 - sentence evaluation
+- direction choices
 - fill-in-the-blank exercises
 - multiple choice
 - matching pairs

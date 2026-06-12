@@ -86,6 +86,7 @@ The tutor can emit structured blocks such as:
 - `practice_module_link`
 - `dialogue_character_message`
 - `dialogue_transcript`
+- `direction_choice`
 - `translate_to_english_prompt`
 - `understand_in_spanish_prompt`
 - `fill_in_the_blank_input`
@@ -166,6 +167,24 @@ Current UI expectations:
 - submit/evaluate actions become enabled only when the learner has provided the
   required response
 - button/link colors should come from Bootstrap, not exercise accent colors
+
+### Direction choices
+
+`direction_choice` is a non-evaluable navigation block for optional learner
+directions.
+
+Current contract:
+
+- the model provides a Spanish `prompt` and 2 to 6 Spanish option labels
+- the block must not contain correctness data
+- the client renders the options as Bootstrap list-group buttons with generated
+  A/B/C badges
+- clicking an option sends a normal learner message such as
+  `Elijo la opción A: ...`
+- the learner may ignore the choices and type any other request
+
+Use `multiple_choice` or `quiz` instead when the learner is being tested and one
+or more options are correct.
 
 ## Runtime Side Effects
 

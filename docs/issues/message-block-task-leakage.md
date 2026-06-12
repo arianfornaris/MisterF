@@ -192,16 +192,15 @@ b) Probar con otros verbos irregulares un poco más difíciles.
 c) Hacer una mini conversación donde usemos estos verbos en pasado.
 ```
 
-This is not automatically wrong. The system prompt currently allows short
-lettered lists in `message` when the tutor is offering learner-facing choices
-about how to continue.
+This used to be ambiguous because navigation choices could appear as plain
+lettered lists in `message`.
 
 Risk:
 
 - If `a)`, `b)`, `c)` represent answer options to an evaluable question, the
   correct block is usually `multiple_choice`.
-- If they are navigation choices with no hidden correct answer, `message` may be
-  appropriate.
+- If they are navigation choices with no hidden correct answer, the correct
+  block is now `direction_choice`.
 
 Therefore, lettered options alone are not a reliable violation detector.
 

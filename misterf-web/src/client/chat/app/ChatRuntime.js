@@ -2,7 +2,7 @@ export function createChatRuntime(deps) {
   function sendMessage() {
     const content = deps.inputEl.value.trim();
     if (!content || deps.getIsAssistantBusy() || deps.getIsGuestPromptPending()) {
-      return;
+      return false;
     }
 
     if (!deps.getSocket()) {
@@ -13,7 +13,7 @@ export function createChatRuntime(deps) {
       deps.inputEl.style.height = 'auto';
       resetUserInputHistoryNavigation();
       showGuestAuthPromptWithDelay();
-      return;
+      return true;
     }
 
     rememberUserInput(content);
@@ -26,6 +26,18 @@ export function createChatRuntime(deps) {
       conversationId: deps.getConversationId(),
       modelTier: deps.getSelectedModelTier(),
     });
+    return true;
+  }
+
+  function sendMessageContent(content) {
+    const normalized = typeof content === 'string' ? content.trim() : '';
+    if (!normalized || deps.getIsAssistantBusy() || deps.getIsGuestPromptPending()) {
+      return false;
+    }
+
+    deps.inputEl.value = normalized;
+    deps.resizeComposerInput();
+    return sendMessage();
   }
 
   function stopAssistantResponse() {
@@ -410,6 +422,7 @@ export function createChatRuntime(deps) {
     rememberUserInput,
     resetUserInputHistoryNavigation,
     sendMessage,
+    sendMessageContent,
     setToolStatus,
     showAuthRequiredMessage,
     showGuestAuthPromptWithDelay,
