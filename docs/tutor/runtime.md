@@ -110,6 +110,13 @@ completion flow. It exists in the schema and renderer because the app stores and
 displays quiz evaluations, but the normal tutor response protocol does not ask
 Mr. F to emit `quiz_result` directly.
 
+The runtime keeps that boundary in code:
+
+- `tutorAgentResponseSchema` validates normal Mr. F model output and rejects
+  `quiz_result`.
+- `persistedTutorResponseSchema` describes renderable/persisted blocks and
+  includes `quiz_result`.
+
 ## Interactive Exercise Contracts
 
 Interactive blocks are intentionally small contracts between the model and the
@@ -279,8 +286,9 @@ When the user submits a quiz:
 
 - the client emits a quiz completion event
 - the server resolves the source quiz block
-- a structured quiz result evaluation is requested from the model
-- the result is turned into a `quiz_result` message
+- a structured quiz-result evaluation is requested from the model
+- the server combines the original quiz, the user's responses, and the
+  evaluation into a persisted `quiz_result` message
 
 ### Quiz result evaluation
 

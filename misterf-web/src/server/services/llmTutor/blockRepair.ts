@@ -5,7 +5,7 @@ import { renderTutorBlockProtocol } from './blockProtocol.js';
 import { TutorResponseValidationError } from './errors.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './providers.js';
 import { validateTutorResponseBlocks } from './validation.js';
-import type { LlmRequestOptions, TutorResponseBlock } from './types.js';
+import type { LlmRequestOptions, TutorAgentResponseBlock } from './types.js';
 
 type MessageTaskLeakageKind =
   | 'blank_placeholder'
@@ -27,12 +27,12 @@ type MessageTaskLeakageIssue = {
 const maxRepairAttempts = 2;
 
 export type TutorBlockRepairResult = {
-  blocks: TutorResponseBlock[];
+  blocks: TutorAgentResponseBlock[];
   repaired: boolean;
 };
 
 export function detectMessageTaskLeakage(
-  blocks: TutorResponseBlock[],
+  blocks: TutorAgentResponseBlock[],
 ): MessageTaskLeakageIssue[] {
   return blocks.flatMap((block, blockIndex) => {
     if (block.type !== 'message') {
@@ -49,7 +49,7 @@ export function detectMessageTaskLeakage(
 
 export async function repairTutorResponseBlocks(input: {
   abortSignal?: AbortSignal;
-  blocks: TutorResponseBlock[];
+  blocks: TutorAgentResponseBlock[];
   llm?: LlmRequestOptions;
 }): Promise<TutorBlockRepairResult> {
   const initialIssues = detectMessageTaskLeakage(input.blocks);

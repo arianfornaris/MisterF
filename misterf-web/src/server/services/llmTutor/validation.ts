@@ -6,6 +6,7 @@ import type {
   TutorPracticeModuleLinkBlock,
   TutorMatchingPairsBlock,
   TutorMultipleChoiceBlock,
+  TutorAgentResponseBlock,
   TutorQuizBlock,
   TutorQuizResultBlock,
   TutorSentenceEvaluationBlock,
@@ -17,7 +18,7 @@ import type {
   TutorUnscrambleSentenceBlock,
 } from './types.js';
 import { TutorResponseValidationError } from './errors.js';
-import { tutorResponseSchema } from './schemas.js';
+import { tutorAgentResponseSchema } from './schemas.js';
 
 export function toModelMessage(message: TutorMessage) {
   return {
@@ -29,8 +30,8 @@ export function toModelMessage(message: TutorMessage) {
 export function validateTutorResponseBlocks(
   value: unknown,
   options: { generatedText?: string | null } = {},
-): TutorResponseBlock[] {
-  const parsed = tutorResponseSchema.safeParse(sanitizeTutorResponse(value));
+): TutorAgentResponseBlock[] {
+  const parsed = tutorAgentResponseSchema.safeParse(sanitizeTutorResponse(value));
   if (!parsed.success) {
     console.error('[Mr. F LLM response validation failed]', JSON.stringify({
       issues: parsed.error.issues,
@@ -42,7 +43,7 @@ export function validateTutorResponseBlocks(
     });
   }
 
-  return parsed.data.blocks as TutorResponseBlock[];
+  return parsed.data.blocks as TutorAgentResponseBlock[];
 }
 
 function sanitizeTutorResponse(value: unknown): unknown {

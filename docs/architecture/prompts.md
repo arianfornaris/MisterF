@@ -58,8 +58,8 @@ boundaries such as what `message` may not contain belong in the relevant block
 JSDoc. Correction and repair prompts should defer to the injected protocol
 instead of carrying their own long copies of block-specific rules.
 The tutor structured-correction prompt must not maintain a manual valid-block
-list; valid blocks are exactly the `TutorResponseBlock` union from the injected
-protocol.
+list; valid model-emitted blocks are exactly the block union from the injected
+tutor protocol.
 The block repair prompt should prefer conservative typed repair and preserve
 the original blocks only for false positives or when repair would require
 inventing missing content.

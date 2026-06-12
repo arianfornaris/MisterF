@@ -28,7 +28,7 @@ import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 import type { StoredTutorPlan } from '../../db/repository.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
-import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseBlock, TutorResponseValidator } from './types.js';
+import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResponseBlock, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseValidator } from './types.js';
 
 const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
 
@@ -36,13 +36,13 @@ const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
 
 function mergeTutorPracticeModuleLinkBlocks(
-  blocks: TutorResponseBlock[],
-  inferredLinks: Array<Extract<TutorResponseBlock, { type: 'practice_module_link' }>>,
-): TutorResponseBlock[] {
+  blocks: TutorAgentResponseBlock[],
+  inferredLinks: Array<Extract<TutorAgentResponseBlock, { type: 'practice_module_link' }>>,
+): TutorAgentResponseBlock[] {
   const seenPracticeModuleIds = new Set(
     blocks
       .filter(
-        (block): block is Extract<TutorResponseBlock, { type: 'practice_module_link' }> =>
+        (block): block is Extract<TutorAgentResponseBlock, { type: 'practice_module_link' }> =>
           block.type === 'practice_module_link',
       )
       .map((block) => block.practiceModuleId),
@@ -178,7 +178,7 @@ function buildFallbackBlocksFromPlainText(input: {
     preliminary?: boolean;
     toolName: string;
   }>;
-}): TutorResponseBlock[] {
+}): TutorAgentResponseBlock[] {
   const inferredLinks = extractInferredPracticeModuleLinkBlocks(input.toolResults);
   const trimmedText = input.text.trim();
 
@@ -290,7 +290,7 @@ export async function runTutorAgentLoop(
       });
       const toolResults = result.steps.flatMap((step) => step.toolResults);
       let effectiveResult = result;
-      let finalBlocks: TutorResponseBlock[] | null = null;
+      let finalBlocks: TutorAgentResponseBlock[] | null = null;
       let parsedObject: unknown = null;
       const initialText = result.text.trim();
 

@@ -868,30 +868,43 @@ export const conversationTitleBlockSchema = z
   })
   .strict();
 
-export const tutorResponseSchema = z
+const tutorAgentResponseBlockSchema = z.union([
+  messageBlockSchema,
+  practiceModuleLinkBlockSchema,
+  dialogueCharacterMessageBlockSchema,
+  dialogueTranscriptBlockSchema,
+  matchingPairsBlockSchema,
+  quizBlockSchema,
+  translateToEnglishPromptBlockSchema,
+  understandInSpanishPromptBlockSchema,
+  fillInTheBlankInputBlockSchema,
+  fillInTheBlankChoiceBlockSchema,
+  multipleChoiceBlockSchema,
+  unscrambleSentenceBlockSchema,
+  tutorPlanBlockSchema,
+  tutorPlanUpdateBlockSchema,
+  sentenceEvaluationBlockSchema,
+  conversationTitleBlockSchema,
+]);
+
+export const persistedTutorResponseBlockSchema = z.union([
+  tutorAgentResponseBlockSchema,
+  quizResultBlockSchema,
+]);
+
+export const tutorAgentResponseSchema = z
   .object({
     blocks: z
-      .array(
-  z.union([
-    messageBlockSchema,
-    practiceModuleLinkBlockSchema,
-  dialogueCharacterMessageBlockSchema,
-          dialogueTranscriptBlockSchema,
-          matchingPairsBlockSchema,
-          quizBlockSchema,
-          quizResultBlockSchema,
-          translateToEnglishPromptBlockSchema,
-          understandInSpanishPromptBlockSchema,
-          fillInTheBlankInputBlockSchema,
-          fillInTheBlankChoiceBlockSchema,
-          multipleChoiceBlockSchema,
-          unscrambleSentenceBlockSchema,
-          tutorPlanBlockSchema,
-          tutorPlanUpdateBlockSchema,
-          sentenceEvaluationBlockSchema,
-          conversationTitleBlockSchema,
-        ]),
-      )
+      .array(tutorAgentResponseBlockSchema)
+      .min(1)
+      .max(16),
+  })
+  .strict();
+
+export const persistedTutorResponseSchema = z
+  .object({
+    blocks: z
+      .array(persistedTutorResponseBlockSchema)
       .min(1)
       .max(16),
   })

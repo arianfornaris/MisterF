@@ -132,9 +132,11 @@ read-only conversation error.
 2. The client renders an interactive quiz card.
 3. The user completes and submits the quiz.
 4. The card enters an evaluating state.
-5. The server asks the model to produce a structured `quiz_result`.
-6. If the structure is invalid, the model is asked to fix its own output.
-7. When the valid result arrives:
+5. The server asks the model to evaluate the original quiz and the user's
+   submitted responses.
+6. If the evaluation structure is invalid, the model is asked to fix its own
+   output.
+7. When the valid evaluation arrives, the server builds the `quiz_result` block:
    - a `quiz_result` message is persisted
    - the client renders the result as a dedicated slide-based review UI
    - the original quiz card is marked as evaluated

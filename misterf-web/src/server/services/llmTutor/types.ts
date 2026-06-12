@@ -429,10 +429,12 @@ export type TutorResponseBlock =
   | TutorSentenceEvaluationBlock
   | TutorConversationTitleBlock;
 
-export type TutorResponseValidator = (blocks: TutorResponseBlock[]) => void;
+export type TutorAgentResponseBlock = Exclude<TutorResponseBlock, TutorQuizResultBlock>;
+
+export type TutorResponseValidator = (blocks: TutorAgentResponseBlock[]) => void;
 
 export type TutorAgentResult = {
-  blocks: TutorResponseBlock[];
+  blocks: TutorAgentResponseBlock[];
   content: string;
   model: string;
   provider: string;

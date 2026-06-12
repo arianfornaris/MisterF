@@ -1,5 +1,5 @@
 import { TutorResponseValidationError } from './errors.js';
-import { tutorResponseSchema } from './schemas.js';
+import { tutorAgentResponseSchema } from './schemas.js';
 export function toModelMessage(message) {
     return {
         content: message.content,
@@ -7,7 +7,7 @@ export function toModelMessage(message) {
     };
 }
 export function validateTutorResponseBlocks(value, options = {}) {
-    const parsed = tutorResponseSchema.safeParse(sanitizeTutorResponse(value));
+    const parsed = tutorAgentResponseSchema.safeParse(sanitizeTutorResponse(value));
     if (!parsed.success) {
         console.error('[Mr. F LLM response validation failed]', JSON.stringify({
             issues: parsed.error.issues,

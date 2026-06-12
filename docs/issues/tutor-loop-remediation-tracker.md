@@ -39,7 +39,7 @@ to the implementation log.
 
 | ID | Issue | Status | Primary Files | Target Outcome |
 | --- | --- | --- | --- | --- |
-| `TLR-001` | `quiz_result` is accepted by the normal tutor response schema | `not_started` | `schemas.ts`, `types.ts`, `validation.ts` | Normal tutor responses cannot emit `quiz_result`; persisted/renderable history still can |
+| `TLR-001` | `quiz_result` is accepted by the normal tutor response schema | `implemented` | `schemas.ts`, `types.ts`, `validation.ts`, `blockRepair.ts`, `index.ts` | Normal tutor responses cannot emit `quiz_result`; persisted/renderable history still can |
 | `TLR-002` | `sentence_evaluation` can claim to evaluate earlier messages, but runtime attaches it to latest user message | `implemented` | `sentence-evaluation.md`, `tutorWorkflow/index.ts`, chat client renderer/socket files | `sentence_evaluation` renders only as a standalone tutor block and no longer attaches metadata to user messages |
 | `TLR-003` | First-turn context prompts are re-injected every turn | `implemented` | `chatSocket.ts`, `tutor-report-context.md`, `chatroom-report-context.md`, report start prompts | Persistent context no longer contains "start by" behavior; first-turn nudges run only once |
 | `TLR-004` | Structured blocks are converted to lossy markdown before returning to the model as history | `implemented` | `chatSocket.ts` | Model-facing history sends the final accepted/repaired `{ blocks: [...] }` JSON when stored blocks exist |
@@ -352,6 +352,7 @@ Acceptance criteria:
 | Date | Entry | Status Change | Notes | Verification |
 | --- | --- | --- | --- | --- |
 | 2026-06-12 | Created remediation tracker | all issues initialized as `not_started` | Tracker created from `docs/issues/tutor-loop-prompt-audit.md` findings | Documentation-only change |
+| 2026-06-12 | Implemented `TLR-001` normal vs persisted tutor block schemas | `TLR-001`: `not_started` -> `implemented` | Added `tutorAgentResponseSchema` without `quiz_result`, kept `persistedTutorResponseSchema` with `quiz_result`, and typed normal tutor output as `TutorAgentResponseBlock` | `npm run typecheck`; schema smoke tests; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-002` standalone sentence evaluations | `TLR-002`: `not_started` -> `implemented` | Removed the runtime side effect that wrote `metadata.sentenceEvaluation`, removed the client pending-evaluation path, and documented the block as standalone | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-003` report first-turn split | `TLR-003`: `not_started` -> `implemented` | Persistent report contexts now describe the conversation objective without start commands; report-start prompts are injected once via `extraHistory` for empty report conversations | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-004` simple structured history | `TLR-004`: `not_started` -> `implemented` | Assistant messages with `metadata.blocks` now return the final accepted/repaired `{ blocks: [...] }` JSON to the model history; removed the over-designed solution doc | `npm run typecheck`; `npm run pm2:restart` |
