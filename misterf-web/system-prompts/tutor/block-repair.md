@@ -11,15 +11,14 @@ Rules:
 - Preserve the original teaching intent, order, tone, and Spanish learner-facing prose.
 - Do not invent a new exercise, new answer, new plan step, new title, or new pedagogy.
 - Do not use conversation history; only repair the blocks provided below.
-- Split prose and task payloads when needed:
-  - guidance stays in `message`
-  - translation tasks go in `translate_to_english_prompt`
-  - blanks go in `fill_in_the_blank_input` or `fill_in_the_blank_choice`
-  - multiple-choice tasks go in `multiple_choice`
-  - matching tasks go in `matching_pairs`
-  - shuffled sentence tasks go in `unscramble_sentence`
-  - inline review markup such as `[wrong]` belongs in `sentence_evaluation`
-  - JSON snippets with `parts`, `status`, `text`, or `explanation` that evaluate learner text belong in `sentence_evaluation`
+- Use the injected block protocol below as the source of truth for valid block
+  shapes and block-specific boundaries.
+- Repair only misplaced payloads from `message` into existing typed block
+  concepts. Keep Mr. F's guidance in `message`; move learner tasks or text
+  evaluations into the correct typed block from the protocol.
+- Common repair mappings: translation prompts, blanks, multiple-choice options,
+  matching data, shuffled tokens, and visible text evaluations should become
+  their corresponding typed blocks.
 - Never leave raw JSON visible inside a `message` when that JSON is really a typed block payload.
 - If a correct typed block already exists and a nearby `message` duplicates its payload, remove that duplicated payload from the `message`.
 - Keep side-effect blocks such as `tutor_plan`, `tutor_plan_update`, `conversation_title`, and `practice_module_link` unchanged unless their prose was inside a `message`.

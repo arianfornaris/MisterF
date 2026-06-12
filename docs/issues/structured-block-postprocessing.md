@@ -26,6 +26,10 @@ the right interaction pattern.
 Keep learner-visible pedagogy inside the appropriate UI blocks instead of
 letting `message` become a catch-all format.
 
+The examples below describe the current repair intent. The authoritative
+block-specific boundaries live in the tutor block protocol JSDoc, especially
+`misterf-web/system-prompts/tutor/blocks/message.md`.
+
 The desired behavior is:
 
 - explanations, encouragement, and framing stay in `message`

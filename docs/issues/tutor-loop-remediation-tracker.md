@@ -45,7 +45,7 @@ to the implementation log.
 | `TLR-004` | Structured blocks are converted to lossy markdown before returning to the model as history | `implemented` | `chatSocket.ts` | Model-facing history sends the final accepted/repaired `{ blocks: [...] }` JSON when stored blocks exist |
 | `TLR-005` | The word "plan" means both internal teaching direction and visible `tutor_plan` | `implemented` | `system.md` | Internal strategy is renamed to avoid confusing it with visible plans |
 | `TLR-006` | Protocol labels are forbidden without clarifying learner-visible scope | `implemented` | `system.md` | Model may use protocol labels in JSON but not in learner-visible text |
-| `TLR-007` | Block separation rules are repeated across too many prompt layers | `not_started` | `system.md`, `tutor/blocks/*.md`, `structured-correction.md`, `block-repair.md` | Global prompt becomes shorter; exact block rules remain in JSDoc-style protocol files |
+| `TLR-007` | Block separation rules are repeated across too many prompt layers | `implemented` | `system.md`, `tutor/blocks/*.md`, `structured-correction.md`, `block-repair.md` | Global prompt is shorter; exact block rules remain in JSDoc-style protocol files |
 | `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `not_started` | `system.md`, `message.md`, `blockRepair.ts` if needed | `a)`, `b)`, `c)` are allowed only for navigation choices with no correct answer |
 | `TLR-009` | `start-session.md` is too weak | `not_started` | `start-session.md` | First turn nudges Mr. F toward concise greeting plus useful diagnostic practice |
 | `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `not_started` | `structured-correction.md`, `blockProtocol.ts`, `corrections.ts` | Valid block list is generated from protocol source or removed in favor of injected protocol |
@@ -221,6 +221,9 @@ Solution:
 - Keep a concise global rule in `system.md`.
 - Keep exact block-specific boundaries in `tutor/blocks/*.md`.
 - Keep correction/repair prompts task-specific and driven by injected protocol.
+- `MessageBlock` carries the detailed "do not simulate typed blocks in
+  markdown" rules because that is the contract most directly involved in block
+  leakage.
 
 Acceptance criteria:
 
@@ -353,6 +356,7 @@ Acceptance criteria:
 | 2026-06-12 | Implemented `TLR-004` simple structured history | `TLR-004`: `not_started` -> `implemented` | Assistant messages with `metadata.blocks` now return the final accepted/repaired `{ blocks: [...] }` JSON to the model history; removed the over-designed solution doc | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-005` internal plan wording cleanup | `TLR-005`: `not_started` -> `implemented` | Replaced ambiguous internal "plan" wording in `system.md` with "internal teaching hypothesis" and "pedagogical direction"; kept `tutor_plan` for the visible UI plan | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-006` protocol label scope clarification | `TLR-006`: `not_started` -> `implemented` | Clarified that protocol labels are required in JSON discriminators but forbidden in learner-visible text fields | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-007` block separation prompt de-duplication | `TLR-007`: `not_started` -> `implemented` | Shortened the global block separation rule, moved detailed `message` boundaries into `MessageBlock` JSDoc, and made correction/repair prompts defer to the injected protocol | `npm run typecheck`; `npm run pm2:restart` |
 
 ## How To Update This Tracker
 

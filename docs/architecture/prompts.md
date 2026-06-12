@@ -53,6 +53,11 @@ correction prompt, and block repair prompt. Block-level rules should be written
 next to the TypeScript-like interface for that block, not duplicated in
 `system.md`.
 
+The global tutor prompt may keep a short block separation rule, but exact
+boundaries such as what `message` may not contain belong in the relevant block
+JSDoc. Correction and repair prompts should defer to the injected protocol
+instead of carrying their own long copies of block-specific rules.
+
 Report-based tutor conversations separate persistent context from first-turn
 behavior:
 
@@ -162,25 +167,9 @@ model contract for content the learner will read.
 ### No invented inline teaching formats
 
 The model must not invent mini-formats inside `message` when a specialized block
-exists.
-
-Forbidden examples include:
-
-- `___` or `{{blank}}` for blanks
-- `[word]`, `[wrong word]`, `[correction]`, or bracketed error markers
-- plain markdown option lists when the options are the exercise
-- shuffled word lists inside a normal tutor message
-
-Use the proper block instead:
-
-- blanks go in `fill_in_the_blank_input` or `fill_in_the_blank_choice`
-- visible learner text corrections go in `sentence_evaluation`
-- choices go in `multiple_choice`
-- reorder tasks go in `unscramble_sentence`
-
-If the text being reviewed is teacher-only context rather than a visible learner
-message, the tutor should explain the issue in normal prose without fake inline
-annotations.
+exists. The detailed forbidden patterns and replacement blocks are documented in
+the `MessageBlock` JSDoc inside
+`misterf-web/system-prompts/tutor/blocks/message.md`.
 
 ## Important Current Conventions
 
