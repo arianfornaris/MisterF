@@ -48,7 +48,7 @@ to the implementation log.
 | `TLR-007` | Block separation rules are repeated across too many prompt layers | `implemented` | `system.md`, `tutor/blocks/*.md`, `structured-correction.md`, `block-repair.md` | Global prompt is shorter; exact block rules remain in JSDoc-style protocol files |
 | `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `not_started` | `system.md`, `message.md`, `blockRepair.ts` if needed | `a)`, `b)`, `c)` are allowed only for navigation choices with no correct answer |
 | `TLR-009` | `start-session.md` is too weak | `not_started` | `start-session.md` | First turn nudges Mr. F toward concise greeting plus useful diagnostic practice |
-| `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `not_started` | `structured-correction.md`, `blockProtocol.ts`, `corrections.ts` | Valid block list is generated from protocol source or removed in favor of injected protocol |
+| `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `implemented` | `structured-correction.md` | Valid block list is removed in favor of the injected protocol |
 | `TLR-011` | `block-repair.md` fallback can encourage returning unresolved original blocks | `not_started` | `block-repair.md` | Repair prompt prefers conservative typed repair and only returns original blocks for false positives/impossible repairs |
 | `TLR-012` | Tool-use rules are duplicated between `system.md` and tool descriptions | `not_started` | `system.md`, `practiceModuleTools.ts`, `chatRoomTools.ts`, `progressTools.ts` | System prompt keeps high-level boundaries; exact use/omit rules live in tool descriptions |
 | `TLR-013` | No regression fixtures protect prompt/runtime behavior | `not_started` | test files to be created | Common tutor-loop failure patterns are covered by tests or repeatable fixtures |
@@ -278,8 +278,7 @@ Problem:
 
 Solution:
 
-- Remove the manual list and rely on `BLOCK_PROTOCOL`, or inject a generated
-  list from `tutorBlockProtocolNames`.
+- Remove the manual list and rely on `BLOCK_PROTOCOL`.
 
 Acceptance criteria:
 
@@ -357,6 +356,7 @@ Acceptance criteria:
 | 2026-06-12 | Implemented `TLR-005` internal plan wording cleanup | `TLR-005`: `not_started` -> `implemented` | Replaced ambiguous internal "plan" wording in `system.md` with "internal teaching hypothesis" and "pedagogical direction"; kept `tutor_plan` for the visible UI plan | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-006` protocol label scope clarification | `TLR-006`: `not_started` -> `implemented` | Clarified that protocol labels are required in JSON discriminators but forbidden in learner-visible text fields | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-007` block separation prompt de-duplication | `TLR-007`: `not_started` -> `implemented` | Shortened the global block separation rule, moved detailed `message` boundaries into `MessageBlock` JSDoc, and made correction/repair prompts defer to the injected protocol | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-010` manual block list removal | `TLR-010`: `not_started` -> `implemented` | Removed the hand-written valid block type list from `structured-correction.md`; the correction prompt now relies on the injected `TutorResponseBlock` contract | `npm run typecheck`; `npm run pm2:restart` |
 
 ## How To Update This Tracker
 

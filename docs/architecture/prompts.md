@@ -57,6 +57,9 @@ The global tutor prompt may keep a short block separation rule, but exact
 boundaries such as what `message` may not contain belong in the relevant block
 JSDoc. Correction and repair prompts should defer to the injected protocol
 instead of carrying their own long copies of block-specific rules.
+The tutor structured-correction prompt must not maintain a manual valid-block
+list; valid blocks are exactly the `TutorResponseBlock` union from the injected
+protocol.
 
 Report-based tutor conversations separate persistent context from first-turn
 behavior:
