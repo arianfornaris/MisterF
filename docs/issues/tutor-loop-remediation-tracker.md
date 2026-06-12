@@ -49,8 +49,8 @@ to the implementation log.
 | `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `not_started` | `system.md`, `message.md`, `blockRepair.ts` if needed | `a)`, `b)`, `c)` are allowed only for navigation choices with no correct answer |
 | `TLR-009` | `start-session.md` is too weak | `not_started` | `start-session.md` | First turn nudges Mr. F toward concise greeting plus useful diagnostic practice |
 | `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `implemented` | `structured-correction.md` | Valid block list is removed in favor of the injected protocol |
-| `TLR-011` | `block-repair.md` fallback can encourage returning unresolved original blocks | `not_started` | `block-repair.md` | Repair prompt prefers conservative typed repair and only returns original blocks for false positives/impossible repairs |
-| `TLR-012` | Tool-use rules are duplicated between `system.md` and tool descriptions | `not_started` | `system.md`, `practiceModuleTools.ts`, `chatRoomTools.ts`, `progressTools.ts` | System prompt keeps high-level boundaries; exact use/omit rules live in tool descriptions |
+| `TLR-011` | `block-repair.md` fallback can encourage returning unresolved original blocks | `implemented` | `block-repair.md` | Repair prompt prefers conservative typed repair and only returns original blocks for false positives/impossible repairs |
+| `TLR-012` | Tool-use rules are duplicated between `system.md` and tool descriptions | `implemented` | `system.md`, `chatRoomTools.ts` | System prompt keeps high-level boundaries; exact use/omit rules live in tool descriptions |
 | `TLR-013` | No regression fixtures protect prompt/runtime behavior | `not_started` | test files to be created | Common tutor-loop failure patterns are covered by tests or repeatable fixtures |
 
 ## Detailed Solution Plan
@@ -322,6 +322,8 @@ Acceptance criteria:
 
 - Tool-use behavior remains guarded.
 - Future tool wording changes have fewer duplicated prompt sections to update.
+- The system prompt describes broad tool boundaries while exact use/omit rules,
+  parameter requirements, and id rules live in tool descriptions.
 
 ### `TLR-013`: Add Regression Fixtures
 
@@ -357,6 +359,8 @@ Acceptance criteria:
 | 2026-06-12 | Implemented `TLR-006` protocol label scope clarification | `TLR-006`: `not_started` -> `implemented` | Clarified that protocol labels are required in JSON discriminators but forbidden in learner-visible text fields | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-007` block separation prompt de-duplication | `TLR-007`: `not_started` -> `implemented` | Shortened the global block separation rule, moved detailed `message` boundaries into `MessageBlock` JSDoc, and made correction/repair prompts defer to the injected protocol | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-010` manual block list removal | `TLR-010`: `not_started` -> `implemented` | Removed the hand-written valid block type list from `structured-correction.md`; the correction prompt now relies on the injected `TutorResponseBlock` contract | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-011` sharper block repair fallback | `TLR-011`: `not_started` -> `implemented` | Reworded `block-repair.md` to prefer conservative typed repair and preserve originals only for false positives or repairs that would require inventing missing content | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-012` tool rule de-duplication | `TLR-012`: `not_started` -> `implemented` | Reduced tool policy in `system.md` to high-level boundaries and reinforced `list_chat_rooms` so explicit-use policy lives in the tool description | `npm run typecheck`; `npm run pm2:restart` |
 
 ## How To Update This Tracker
 

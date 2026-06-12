@@ -203,6 +203,10 @@ Tools are defined with AI SDK `tool(...)` schemas. Each tool must document both
 the tool itself and every input parameter because that documentation is part of
 the model-facing contract.
 
+The tutor system prompt carries broad tool boundaries only. Exact use cases,
+non-use cases, id rules, optional-parameter behavior, and language requirements
+belong in each tool description and parameter description.
+
 Current tool families:
 
 ### Practice module tools

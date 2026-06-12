@@ -22,7 +22,11 @@ Rules:
 - Never leave raw JSON visible inside a `message` when that JSON is really a typed block payload.
 - If a correct typed block already exists and a nearby `message` duplicates its payload, remove that duplicated payload from the `message`.
 - Keep side-effect blocks such as `tutor_plan`, `tutor_plan_update`, `conversation_title`, and `practice_module_link` unchanged unless their prose was inside a `message`.
-- If no safe repair is possible, return the original blocks unchanged.
+- Prefer a conservative valid typed repair whenever the misplaced payload is
+  clear from the provided blocks.
+- Return the original blocks unchanged only when the detected issue is a false
+  positive or when a repair would require inventing missing content that is not
+  present in the provided blocks.
 
 Available block protocol:
 

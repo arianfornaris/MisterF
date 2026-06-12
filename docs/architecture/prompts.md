@@ -60,6 +60,9 @@ instead of carrying their own long copies of block-specific rules.
 The tutor structured-correction prompt must not maintain a manual valid-block
 list; valid blocks are exactly the `TutorResponseBlock` union from the injected
 protocol.
+The block repair prompt should prefer conservative typed repair and preserve
+the original blocks only for false positives or when repair would require
+inventing missing content.
 
 Report-based tutor conversations separate persistent context from first-turn
 behavior:

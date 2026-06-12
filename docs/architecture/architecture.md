@@ -218,6 +218,10 @@ Tool definitions are intentionally centralized under
 `misterf-web/src/server/services/llmTutor/`. This section is the entry point for
 finding every tutor-accessible tool without scanning the whole project.
 
+The tutor system prompt should keep only high-level tool boundaries. Precise
+use/omit rules, parameter requirements, id rules, and language requirements live
+in the individual tool descriptions and parameter `.describe(...)` calls.
+
 ### Practice module tools
 
 Defined in:

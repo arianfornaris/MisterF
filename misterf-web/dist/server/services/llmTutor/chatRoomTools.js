@@ -22,7 +22,7 @@ export function buildTutorChatRoomTools(input) {
     }
     return {
         list_chat_rooms: tool({
-            description: 'List the persistent chat rooms in the current profile. These chat rooms are standalone resources the learner can open later from the app to do separate social-writing practice. They are not inline exercises and they are not a continuation of the current Mr. F chat turn. Optionally filter by a text query in the title or description.',
+            description: 'List the persistent chat rooms in the current profile only when the learner explicitly asks to find, list, show, open, or choose saved chat rooms. These chat rooms are standalone resources the learner can open later from the app to do separate social-writing practice. They are not inline exercises and they are not a continuation of the current Mr. F chat turn. Optionally filter by a text query in the title or description.',
             inputSchema: z.object({
                 query: z.string().trim().min(1)
                     .describe('Optional Spanish or English search text from the learner request. Use only to narrow the saved chat-room list by title or description. Do not invent a query when the learner asks to list all chat rooms.')
