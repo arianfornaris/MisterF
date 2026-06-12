@@ -43,8 +43,8 @@ to the implementation log.
 | `TLR-002` | `sentence_evaluation` can claim to evaluate earlier messages, but runtime attaches it to latest user message | `implemented` | `sentence-evaluation.md`, `tutorWorkflow/index.ts`, chat client renderer/socket files | `sentence_evaluation` renders only as a standalone tutor block and no longer attaches metadata to user messages |
 | `TLR-003` | First-turn context prompts are re-injected every turn | `implemented` | `chatSocket.ts`, `tutor-report-context.md`, `chatroom-report-context.md`, report start prompts | Persistent context no longer contains "start by" behavior; first-turn nudges run only once |
 | `TLR-004` | Structured blocks are converted to lossy markdown before returning to the model as history | `implemented` | `chatSocket.ts` | Model-facing history sends the final accepted/repaired `{ blocks: [...] }` JSON when stored blocks exist |
-| `TLR-005` | The word "plan" means both internal teaching direction and visible `tutor_plan` | `not_started` | `system.md`, `visible-plan-context.md`, block protocol docs | Internal strategy is renamed to avoid confusing it with visible plans |
-| `TLR-006` | Protocol labels are forbidden without clarifying learner-visible scope | `not_started` | `system.md`, possibly correction prompts | Model may use protocol labels in JSON but not in learner-visible text |
+| `TLR-005` | The word "plan" means both internal teaching direction and visible `tutor_plan` | `implemented` | `system.md` | Internal strategy is renamed to avoid confusing it with visible plans |
+| `TLR-006` | Protocol labels are forbidden without clarifying learner-visible scope | `implemented` | `system.md` | Model may use protocol labels in JSON but not in learner-visible text |
 | `TLR-007` | Block separation rules are repeated across too many prompt layers | `not_started` | `system.md`, `tutor/blocks/*.md`, `structured-correction.md`, `block-repair.md` | Global prompt becomes shorter; exact block rules remain in JSDoc-style protocol files |
 | `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `not_started` | `system.md`, `message.md`, `blockRepair.ts` if needed | `a)`, `b)`, `c)` are allowed only for navigation choices with no correct answer |
 | `TLR-009` | `start-session.md` is too weak | `not_started` | `start-session.md` | First turn nudges Mr. F toward concise greeting plus useful diagnostic practice |
@@ -178,6 +178,10 @@ Solution:
 - In `system.md`, replace internal "plan" wording with "working diagnosis",
   "teaching hypothesis", or "pedagogical direction".
 - Reserve "visible plan" for the UI-backed `tutor_plan` blocks.
+- Keep `tutor_plan` and `tutor_plan_update` as the protocol names for the
+  visible plan UI.
+- Do not use plain "plan" for the tutor's private adaptive reasoning. Use
+  "internal teaching hypothesis" or "pedagogical direction" instead.
 
 Acceptance criteria:
 
@@ -198,6 +202,8 @@ Solution:
 - Replace the broad prohibition with:
   - protocol labels are required inside JSON discriminators
   - protocol labels must never appear in learner-visible text fields
+- Learner-visible text fields include `message.markdown`, prompts, titles,
+  labels, options, and explanations.
 
 Acceptance criteria:
 
@@ -345,6 +351,8 @@ Acceptance criteria:
 | 2026-06-12 | Implemented `TLR-002` standalone sentence evaluations | `TLR-002`: `not_started` -> `implemented` | Removed the runtime side effect that wrote `metadata.sentenceEvaluation`, removed the client pending-evaluation path, and documented the block as standalone | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-003` report first-turn split | `TLR-003`: `not_started` -> `implemented` | Persistent report contexts now describe the conversation objective without start commands; report-start prompts are injected once via `extraHistory` for empty report conversations | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Implemented `TLR-004` simple structured history | `TLR-004`: `not_started` -> `implemented` | Assistant messages with `metadata.blocks` now return the final accepted/repaired `{ blocks: [...] }` JSON to the model history; removed the over-designed solution doc | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-005` internal plan wording cleanup | `TLR-005`: `not_started` -> `implemented` | Replaced ambiguous internal "plan" wording in `system.md` with "internal teaching hypothesis" and "pedagogical direction"; kept `tutor_plan` for the visible UI plan | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-12 | Implemented `TLR-006` protocol label scope clarification | `TLR-006`: `not_started` -> `implemented` | Clarified that protocol labels are required in JSON discriminators but forbidden in learner-visible text fields | `npm run typecheck`; `npm run pm2:restart` |
 
 ## How To Update This Tracker
 

@@ -170,17 +170,22 @@ That logic lives in:
 
 Current side effects include:
 
-- applying sentence evaluation metadata to the last user message
 - creating or updating the visible tutor plan for the conversation
 - auto-renaming a conversation when the model emits a conversation title block
 
-Other blocks are render-only and stay inside the message stream.
+Other blocks are render-only and stay inside the message stream. For example,
+`sentence_evaluation` is rendered as a standalone tutor block and does not attach
+metadata to a learner message.
 
 ## Visible Tutor Plans
 
 Tutor conversations can have one visible teaching plan at a time. The plan is
 rendered near the composer so the learner can see the current step, completed
 steps, and upcoming steps while working.
+
+Prompt wording reserves "visible plan" for this UI-backed feature. The tutor's
+private adaptive reasoning should be described as an internal teaching
+hypothesis or pedagogical direction, not as a plain "plan".
 
 The model can create a plan with `tutor_plan` and mutate it with
 `tutor_plan_update` operations. The server stores the fused plan in

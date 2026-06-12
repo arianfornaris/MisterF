@@ -63,6 +63,16 @@ behavior:
 - Start commands such as "begin with..." or "start practicing..." should live in
   the one-shot start prompts, not in persistent report context prompts.
 
+Internal tutor reasoning should avoid the plain word "plan" unless it refers to
+the visible `tutor_plan` UI. Use terms such as "internal teaching hypothesis" or
+"pedagogical direction" for the tutor's private adaptive reasoning. Reserve
+"visible plan" for `tutor_plan`, `tutor_plan_update`, and the DB-backed fused
+plan state.
+
+Protocol labels are required inside JSON structure, especially `type`
+discriminators. They must not appear in learner-visible text fields such as
+`message.markdown`, prompts, titles, labels, options, or explanations.
+
 ### Chat room prompts
 
 Folder:
