@@ -1,5 +1,5 @@
 const initialGreetings = [
-  `¡Hola, soy Mr. F, tu tutor de inglés. ¿Qué quieres repasar hoy?`,
+  `¡Hola! Soy Mr. F, tu tutor de inglés. ¿Qué quieres repasar hoy?`,
 
   `¡Bienvenido! Soy Mr. F, tu tutor de inglés. ¿Qué tema te gustaría practicar hoy?`,
 
@@ -7,7 +7,7 @@ const initialGreetings = [
 
   `¡Qué bueno verte! Soy Mr. F, tu tutor de inglés. ¿Qué quieres repasar?`,
 
-  `¡Hola, soy Mr. F, tu tutor de inglés. ¿Qué parte quieres practicar hoy?`,
+  `¡Hola! Soy Mr. F, tu tutor de inglés. ¿Qué parte quieres practicar hoy?`,
 
   `¡Empezamos! Soy Mr. F, tu tutor de inglés. ¿Qué te gustaría mejorar hoy?`,
 
@@ -17,7 +17,7 @@ const initialGreetings = [
 
   `¡Hola! Soy Mr. F, tu tutor de inglés. ¿Qué quieres repasar: una situación, una duda o un tema?`,
 
-  `¡Hola, soy Mr. F, tu tutor de inglés. ¿Qué necesitas practicar hoy?`,
+  `¡Hola! Soy Mr. F, tu tutor de inglés. ¿Qué necesitas practicar hoy?`,
 ];
 
 const knownVisitorGreetings = [

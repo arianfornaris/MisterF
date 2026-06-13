@@ -64,6 +64,11 @@ The block repair prompt should prefer conservative typed repair and preserve
 the original blocks only for false positives or when repair would require
 inventing missing content.
 
+Tool continuation prompts must treat teacher-only context envelopes as external
+app context. Envelopes marked with `audience: "teacher_only"` and flags such as
+`notUserMessage` or `notAssistantMessage` are not chat transcript and must not
+be attributed to the learner or to Mr. F.
+
 Report-based tutor conversations separate persistent context from first-turn
 behavior:
 

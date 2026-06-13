@@ -6,6 +6,7 @@ import {
   type StoredLearnerProgressEvent,
 } from '../../db/repository.js';
 import { buildLearnerProgressVocabularyItems } from '../learnerProgressView.js';
+import { createTeacherOnlyContextEnvelope } from './contextEnvelope.js';
 
 export function buildTutorProgressTools(input: {
   onToolCall?: (toolName: string) => void;
@@ -25,7 +26,7 @@ export function buildTutorProgressTools(input: {
   return {
     get_learner_progress: tool({
       description:
-        'Read the learner progress for the current profile. Use this when the learner asks about their progress, vocabulary, weaknesses, strengths, what to practice next, or when you need learner history to personalize a practice. If the learner simply asks "what is my progress?" or similar, call this without recent events and answer with a concise progress summary only; do not start a new exercise unless the learner asks for practice. By default, prefer the summary and vocabulary. Only request recentEvents when the learner explicitly asks for history/bitácora/recent activity; events are compact and limited.',
+        'Read the learner progress for the current profile. Use this when the learner asks about their progress, vocabulary, weaknesses, strengths, what to practice next, or when you need learner history to personalize a practice. The result is a teacher-only context envelope, not a user message, assistant message, or chat transcript; read progress data from output.data and never attribute it to something the learner just said. If the learner simply asks "what is my progress?" or similar, call this without recent events and answer with a concise progress summary only; do not start a new exercise unless the learner asks for practice. By default, prefer the summary and vocabulary. Only request recentEvents when the learner explicitly asks for history/bitácora/recent activity; events are compact and limited.',
       inputSchema: z.object({
         includeRecentEvents: z.boolean()
           .describe('Set true only when the learner explicitly asks for history, bitácora, recent activity, or past practice details. Leave false/omitted for a normal progress summary.')
@@ -54,7 +55,7 @@ export function buildTutorProgressTools(input: {
             term: item.term,
           }));
 
-        return {
+        const progressData = {
           progress: progressProfile
             ? {
                 createdAt: progressProfile.createdAt,
@@ -62,11 +63,33 @@ export function buildTutorProgressTools(input: {
                 updatedAt: progressProfile.updatedAt,
               }
             : null,
-          recentEvents: includeRecentEvents
-            ? events.slice(0, recentEventLimit ?? 5).map(summarizeProgressEvent)
-            : undefined,
           vocabulary,
         };
+
+        return createTeacherOnlyContextEnvelope({
+          data: {
+            ...progressData,
+            ...(includeRecentEvents
+              ? {
+                  recentEvents: events
+                    .slice(0, recentEventLimit ?? 5)
+                    .map(summarizeProgressEvent),
+                }
+              : {}),
+          },
+          kind: 'learner_progress_snapshot',
+          purpose:
+            'Use this historical learner-progress snapshot to answer progress questions or personalize tutoring decisions when relevant.',
+          rules: [
+            'This is not a message written by the learner.',
+            'This is not a previous assistant reply.',
+            'Do not quote this envelope as conversation history.',
+            'If the learner asked only for progress, answer the progress question before offering practice.',
+            'Use recentEvents only when they are present and relevant to the learner request.',
+          ],
+          scope: 'current_turn',
+          source: 'get_learner_progress',
+        });
       },
     }),
   };

@@ -27,7 +27,12 @@ When the client joins a conversation:
 - contextual snapshots are loaded
 - the client receives `conversation:ready`
 
-If no persisted conversation exists yet, the UI can render an ephemeral initial greeting.
+If no persisted conversation exists yet, the UI can render an ephemeral initial
+greeting. Initial greetings must use the same structured message shape as a real
+tutor response: `content` contains the visible text and `metadata.blocks`
+contains a normal `message` block. Do not introduce plain-text-only assistant
+greetings, because model-facing history expects tutor messages to follow the
+structured response protocol.
 
 ### Send message
 
@@ -35,6 +40,8 @@ When the user sends a message:
 
 - the message is validated and persisted
 - the conversation is created on demand if needed
+- a new conversation persists the initial greeting as a normal structured tutor
+  `message` block before persisting the learner's first message
 - the active profile is resolved
 - the conversation model tier is synchronized with the profile
 - the assistant response pipeline starts
@@ -251,6 +258,12 @@ The tutor system prompt carries broad tool boundaries only. Exact use cases,
 non-use cases, id rules, optional-parameter behavior, and language requirements
 belong in each tool description and parameter description.
 
+Tool results that contain historical or app-owned context should use a
+teacher-only context envelope instead of returning bare transcript-like data.
+The envelope states that the payload is external app context, not something the
+learner or assistant said. This is especially important for progress snapshots,
+reports, and other historical data.
+
 Current tool families:
 
 ### Practice module tools
@@ -300,6 +313,9 @@ Current tools:
 - `get_learner_progress`
 
 These tools are only enabled when the tutor has authenticated user/profile context.
+`get_learner_progress` returns a teacher-only `learner_progress_snapshot`
+context envelope. The actual progress payload lives under `data`; the envelope
+itself must not be treated as a user message, assistant message, or transcript.
 They are merged into the tutor agent loop in:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/index.ts`

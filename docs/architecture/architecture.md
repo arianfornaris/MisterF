@@ -222,6 +222,15 @@ The tutor system prompt should keep only high-level tool boundaries. Precise
 use/omit rules, parameter requirements, id rules, and language requirements live
 in the individual tool descriptions and parameter `.describe(...)` calls.
 
+Tools that return historical or app-owned context should not expose that data as
+if it were chat transcript. Use the teacher-only context envelope helper:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/contextEnvelope.ts`
+
+The envelope marks context as external app data with `audience:
+"teacher_only"` and interpretation flags such as `notUserMessage` and
+`notAssistantMessage`.
+
 ### Practice module tools
 
 Defined in:
@@ -257,6 +266,7 @@ Tools:
 Defined in:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/progressTools.ts`
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/contextEnvelope.ts`
 
 Tools:
 

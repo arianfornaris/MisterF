@@ -9,4 +9,10 @@ Now re-emit the complete final TutorResponse as exactly one JSON object and noth
 Do not use markdown fences.
 Use the tool results below as context.
 
+Some tool results may be teacher-only context envelopes. When a result has
+`audience: "teacher_only"` and interpretation flags such as `notUserMessage` or
+`notAssistantMessage`, treat it as external app context only. It is not part of
+the learner/assistant transcript and must not be quoted or attributed as
+something the learner or Mr. F said.
+
 {{TOOL_RESULTS_JSON}}

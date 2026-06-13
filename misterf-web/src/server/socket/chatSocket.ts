@@ -47,6 +47,7 @@ import {
   type TutorQuizResultBlock,
   type TranslationMode,
   type TutorMessage,
+  type TutorMessageBlock,
   type TutorMatchingPairsBlock,
   type TutorMultipleChoiceBlock,
   type TutorUnscrambleSentenceBlock,
@@ -169,6 +170,13 @@ type AuthenticatedSocketData = {
   authenticatedUser?: {
     exp: number;
     sub: string;
+  };
+};
+
+type InitialGreetingMessage = TutorMessage & {
+  metadata: {
+    blocks: TutorMessageBlock[];
+    source: 'initial_greeting';
   };
 };
 
@@ -372,9 +380,12 @@ export function registerChatSocket(io: Server): void {
       }
 
       if (shouldPersistInitialGreeting) {
-        addMessage(conversation.id, 'model', pendingInitialGreeting, {
-          source: 'initial_greeting',
-        });
+        addMessage(
+          conversation.id,
+          'model',
+          pendingInitialGreeting,
+          createInitialGreetingMetadata(pendingInitialGreeting),
+        );
         socket.emit('conversation:promoted', {
           conversation,
           conversationId: conversation.id,
@@ -1283,10 +1294,25 @@ function leaveConversationRoom(
   }
 }
 
-function createEphemeralInitialMessage(content: string): TutorMessage {
+function createEphemeralInitialMessage(content: string): InitialGreetingMessage {
   return {
     content,
+    metadata: createInitialGreetingMetadata(content),
     role: 'model',
+  };
+}
+
+function createInitialGreetingMetadata(content: string): InitialGreetingMessage['metadata'] {
+  return {
+    blocks: [createInitialGreetingBlock(content)],
+    source: 'initial_greeting',
+  };
+}
+
+function createInitialGreetingBlock(content: string): TutorMessageBlock {
+  return {
+    markdown: content,
+    type: 'message',
   };
 }
 
@@ -1500,6 +1526,14 @@ function getTutorHistoryContent(message: StoredMessage): string {
 
   const blocks = message.metadata?.blocks;
   if (!Array.isArray(blocks)) {
+    if (message.metadata?.source === 'initial_greeting') {
+      return JSON.stringify(
+        { blocks: [createInitialGreetingBlock(message.content)] },
+        null,
+        2,
+      );
+    }
+
     return message.content;
   }
 

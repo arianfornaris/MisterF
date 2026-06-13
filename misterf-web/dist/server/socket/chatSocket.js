@@ -159,9 +159,7 @@ export function registerChatSocket(io) {
                 return;
             }
             if (shouldPersistInitialGreeting) {
-                addMessage(conversation.id, 'model', pendingInitialGreeting, {
-                    source: 'initial_greeting',
-                });
+                addMessage(conversation.id, 'model', pendingInitialGreeting, createInitialGreetingMetadata(pendingInitialGreeting));
                 socket.emit('conversation:promoted', {
                     conversation,
                     conversationId: conversation.id,
@@ -855,7 +853,20 @@ function leaveConversationRoom(socket, conversationId) {
 function createEphemeralInitialMessage(content) {
     return {
         content,
+        metadata: createInitialGreetingMetadata(content),
         role: 'model',
+    };
+}
+function createInitialGreetingMetadata(content) {
+    return {
+        blocks: [createInitialGreetingBlock(content)],
+        source: 'initial_greeting',
+    };
+}
+function createInitialGreetingBlock(content) {
+    return {
+        markdown: content,
+        type: 'message',
     };
 }
 function normalizeConversationTitle(title) {
@@ -1029,6 +1040,9 @@ function getTutorHistoryContent(message) {
     }
     const blocks = message.metadata?.blocks;
     if (!Array.isArray(blocks)) {
+        if (message.metadata?.source === 'initial_greeting') {
+            return JSON.stringify({ blocks: [createInitialGreetingBlock(message.content)] }, null, 2);
+        }
         return message.content;
     }
     return JSON.stringify({ blocks }, null, 2);

@@ -118,7 +118,9 @@ Users can inspect:
 - a dated bitácora of compact progress events
 
 The tutor can also read the progress summary and vocabulary through a constrained
-tool when the learner asks about progress or when personalization is useful.
+tool when the learner asks about progress or when personalization is useful. The
+tool returns a teacher-only context envelope so historical progress data is not
+confused with chat transcript.
 
 ### Profiles
 
