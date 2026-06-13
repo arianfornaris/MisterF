@@ -191,6 +191,13 @@ The tutor system prompt explicitly treats:
 
 as equivalent learner intents for a self-contained evaluation flow.
 
+The tutor prompt also distinguishes quiz usage from regular exercises:
+
+- `quiz` means an exam-style assessment, diagnostic check, or checkpoint review
+- ordinary one-question practice should use regular top-level practice blocks
+- the `quiz` schema requires at least 2 items so one-question checks do not
+  become fake quizzes
+
 ### Quiz item kinds
 
 Quiz item kinds are prefixed with `quiz_` for clarity and to avoid ambiguity with top-level block kinds.

@@ -186,6 +186,24 @@ Current contract:
 Use `multiple_choice` or `quiz` instead when the learner is being tested and one
 or more options are correct.
 
+### Dialogue practice
+
+`dialogue_character_message` and `dialogue_transcript` are for role-play scenes
+with fictional in-scene characters.
+
+Current contract:
+
+- Mr. F remains the tutor outside the scene and must not be cast as a character
+- scene speakers should use invented proper names such as `Ana`, `Luis`,
+  `Marta`, `Carlos`, `Emma`, or `James`
+- tutor guidance, correction, scene setup, and reminders belong in `message`
+- if the learner's current dialogue reply has unresolved errors, the tutor
+  should correct or scaffold that reply before advancing to the next character
+  turn
+- the runtime schema rejects dialogue speakers such as `Mr. F`, `Mr F`,
+  `Mr. Fornaris`, `Fornaris`, `Tutor`, `Teacher`, `Profesor`, `Maestro`,
+  `Assistant`, or `AI`
+
 ## Runtime Side Effects
 
 Some blocks are not just rendered. They also trigger server-side behavior.
@@ -291,6 +309,22 @@ They are merged into the tutor agent loop in:
 ### Quiz generation
 
 A tutor response can contain a `quiz` block. Quiz item kinds are intentionally prefixed with `quiz_` to reduce ambiguity with top-level block types.
+
+`quiz` is an exam-style resource, not the normal format for everyday practice.
+Use regular top-level blocks such as `multiple_choice`,
+`fill_in_the_blank_input`, `fill_in_the_blank_choice`, `matching_pairs`,
+`unscramble_sentence`, translation prompts, dialogue blocks, or `message` for
+ordinary one-step exercises.
+
+Appropriate quiz use cases:
+
+- the learner explicitly asks for a quiz, test, exam, prueba, or examen
+- the tutor intentionally needs a short diagnostic across several related items
+- the tutor wants to verify what has been learned after a meaningful practice
+  segment
+
+The runtime schema requires at least 2 quiz items. A one-question check should
+be represented as a regular practice block instead of `quiz`.
 
 Examples:
 

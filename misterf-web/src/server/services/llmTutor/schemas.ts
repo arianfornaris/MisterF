@@ -4,6 +4,44 @@ function hasExplanation(value: string | undefined): boolean {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+const forbiddenTutorDialogueSpeakerNames = new Set([
+  'ai',
+  'assistant',
+  'asistente',
+  'el profesor',
+  'el tutor',
+  'fornaris',
+  'maestro',
+  'mr f',
+  'mr fornaris',
+  'mrf',
+  'mister f',
+  'mister fornaris',
+  'profesor',
+  'teacher',
+  'tutor',
+]);
+
+const forbiddenTutorDialogueSpeakerTokenPattern =
+  /(?:^|\s)(ai|assistant|asistente|maestro|profesor|profesora|teacher|tutor)(?:\s|$)/;
+
+function isForbiddenTutorDialogueSpeakerName(value: string): boolean {
+  const normalized = value
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+
+  return (
+    forbiddenTutorDialogueSpeakerNames.has(normalized) ||
+    normalized.includes('fornaris') ||
+    normalized.includes('mister f') ||
+    normalized.includes('mr f') ||
+    forbiddenTutorDialogueSpeakerTokenPattern.test(normalized)
+  );
+}
+
 const inlineTextPartSchema = z
   .object({
     text: z.string().trim().min(1).max(2400),
@@ -131,7 +169,12 @@ export const dialogueCharacterMessageBlockSchema = z
     name: z.string().trim().min(1).max(120),
     markdown: z.string().trim().min(1).max(3000),
   })
-  .strict();
+  .strict()
+  .refine((block) => !isForbiddenTutorDialogueSpeakerName(block.name), {
+    message:
+      'dialogue_character_message.name must be an invented fictional character, not Mr. F, the tutor, teacher, assistant, or AI.',
+    path: ['name'],
+  });
 
 export const dialogueTranscriptBlockSchema = z
   .object({
@@ -148,7 +191,21 @@ export const dialogueTranscriptBlockSchema = z
       .min(2)
       .max(40),
   })
-  .strict();
+  .strict()
+  .superRefine((block, ctx) => {
+    for (const [index, turn] of block.turns.entries()) {
+      if (!isForbiddenTutorDialogueSpeakerName(turn.speaker)) {
+        continue;
+      }
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'dialogue_transcript.turns speaker must be a fictional character or learner label, not Mr. F, the tutor, teacher, assistant, or AI.',
+        path: ['turns', index, 'speaker'],
+      });
+    }
+  });
 
 export const directionChoiceBlockSchema = z
   .object({
@@ -345,7 +402,7 @@ export const quizBlockSchema = z
     title: z.string().trim().min(1).max(200).optional(),
     prompt: z.string().trim().min(1).max(2000),
     rubric: z.string().trim().min(1).max(3000).optional(),
-    items: z.array(quizItemSchema).min(1).max(24),
+    items: z.array(quizItemSchema).min(2).max(24),
   })
   .strict();
 

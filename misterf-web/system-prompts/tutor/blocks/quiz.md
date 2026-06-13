@@ -164,9 +164,20 @@ type QuizItem =
 /**
  * Self-contained multi-question assessment or review.
  *
- * Use when the learner asks for a quiz, examen, prueba, test, or when a
- * self-contained review is pedagogically useful. A quiz contains several items
- * and is submitted as a whole; the app will not auto-correct items one by one.
+ * Treat this block like an exam, test, diagnostic check, or checkpoint review,
+ * not like a regular exercise. Use it when the learner asks for a quiz, examen,
+ * prueba, or test; when you intentionally need to explore what the learner
+ * already knows across several related items; or when you want to verify what
+ * has been learned after a meaningful stretch of practice.
+ *
+ * Do not use `quiz` for ordinary single-question practice, especially at the
+ * beginning of a conversation. For regular practice, use the specific top-level
+ * exercise blocks such as `multiple_choice`, `fill_in_the_blank_input`,
+ * `fill_in_the_blank_choice`, `matching_pairs`, `unscramble_sentence`,
+ * translation prompts, dialogue blocks, or normal `message` guidance.
+ *
+ * A quiz contains several items and is submitted as a whole; the app will not
+ * auto-correct items one by one.
  *
  * Every item kind must begin with `quiz_`. Never use non-prefixed item kinds
  * such as `open_text`, `multiple_choice`, `matching_pairs`,
@@ -189,6 +200,6 @@ interface QuizBlock {
   prompt: string;
   /** Optional hidden evaluator guidance for the whole quiz; must be Spanish. */
   rubric?: string;
-  /** Ordered quiz questions/items shown one at a time. */
+  /** Ordered quiz questions/items shown one at a time; at least 2 items because a one-question check should use a regular exercise block. */
   items: QuizItem[];
 }
