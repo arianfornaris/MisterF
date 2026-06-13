@@ -93,7 +93,6 @@ The tutor can emit structured blocks such as:
 - `practice_module_link`
 - `dialogue_character_message`
 - `dialogue_transcript`
-- `direction_choice`
 - `translate_to_english_prompt`
 - `understand_in_spanish_prompt`
 - `fill_in_the_blank_input`
@@ -175,23 +174,22 @@ Current UI expectations:
   required response
 - button/link colors should come from Bootstrap, not exercise accent colors
 
-### Direction choices
+### Optional direction lists
 
-`direction_choice` is a non-evaluable navigation block for optional learner
-directions.
+Optional learner directions are not structured exercise blocks. When Mr. F
+needs to offer several possible next directions and none of them is correct or
+incorrect, he may write a short lettered list inside `message.markdown`.
 
 Current contract:
 
-- the model provides a Spanish `prompt` and 2 to 6 Spanish option labels
-- the block must not contain correctness data
-- the client renders the options as Bootstrap list-group buttons with generated
-  A/B/C badges
-- clicking an option sends a normal learner message such as
-  `Elijo la opción A: ...`
+- direction labels must be Spanish learner-facing prose
+- use simple `a)`, `b)`, `c)` labels
+- the list must be short and genuinely optional
 - the learner may ignore the choices and type any other request
+- do not use `multiple_choice` or `quiz` for these direction lists
 
-Use `multiple_choice` or `quiz` instead when the learner is being tested and one
-or more options are correct.
+Use `multiple_choice` or `quiz` only when the learner is being tested and one or
+more options are correct.
 
 ### Dialogue practice
 

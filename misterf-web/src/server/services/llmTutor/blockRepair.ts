@@ -152,11 +152,11 @@ function detectMessageIssues(
     });
   }
 
-  if (/\b(?:elige|escoge|selecciona|marca)\b[\s\S]{0,180}\b(?:opci[oó]n correcta|respuesta correcta|la correcta|mejor opci[oó]n)\b/i.test(markdown)) {
+  if (/\b(?:elige|escoge|selecciona|marca)\b[\s\S]{0,180}\b(?:opci[oó]n correcta|respuesta correcta|la correcta)\b/i.test(markdown)) {
     issues.push({
       expectedBlockTypes: ['multiple_choice', 'quiz'],
       kind: 'multiple_choice_prompt',
-      reason: 'A message asks the learner to choose among options.',
+      reason: 'A message asks the learner to choose a correct answer among options.',
     });
   }
 

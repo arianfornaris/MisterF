@@ -140,7 +140,6 @@ const tutorMessageRenderer = createTutorMessageRenderer({
   messagesEl,
   putMessageBackInComposer,
   scrollToBottom,
-  sendDirectionChoiceMessage,
 });
 const runtime = createChatRuntime({
   chatSocketEvents,
@@ -667,10 +666,6 @@ function focusComposer() {
 function scrollToBottom() {
   const scrollTarget = chatPaneEl || messagesEl;
   scrollTarget.scrollTop = scrollTarget.scrollHeight;
-}
-
-function sendDirectionChoiceMessage(content) {
-  return runtime.sendMessageContent(content);
 }
 
 function getSelectedModelTier() {

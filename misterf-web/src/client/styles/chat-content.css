@@ -1304,20 +1304,6 @@ button.quiz-result-pair-row:focus {
   gap: 0.9rem;
 }
 
-.direction-choice-card {
-  overflow: hidden;
-  font-family: var(--bs-body-font-family);
-}
-
-.direction-choice-card .list-group-item {
-  line-height: 1.35;
-}
-
-.direction-choice-badge {
-  flex: 0 0 auto;
-  margin-top: 0.1rem;
-}
-
 .message-row.is-model.tutor-message-enter .message-bubble {
   animation: tutor-message-bubble-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
   transform-origin: left top;

@@ -58,7 +58,8 @@ Initial checks can include:
 
 - `message` contains `___` or `{{blank}}`
 - `message` contains bracketed error markers such as `[word]`
-- `message` contains option lists like `a)`, `b)`, `c)` after a question
+- `message` contains evaluable answer lists like `a)`, `b)`, `c)` after a
+  question asking for the correct answer
 - `message` contains shuffled token instructions
 - `message` contains raw JSON or pseudo-block payloads such as `"parts"` with
   `status` values that look like a `sentence_evaluation`

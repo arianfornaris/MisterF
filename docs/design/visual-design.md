@@ -143,17 +143,17 @@ UI guidance:
   clear completed status
 - do not color the submit button with practice accent tokens
 
-### Direction-choice blocks
+### Optional direction lists
 
-`direction_choice` is a navigation control, not an exercise.
+Optional next-step choices are learner navigation text, not interactive exercise
+widgets.
 
 UI guidance:
 
-- render with Bootstrap card/list-group/badge primitives
-- use generated A/B/C badges for scanability
-- keep the normal UI font because the options behave like app controls
-- do not use custom correctness, selected-answer, or exercise-evaluation states
-- keep it visually distinct from `multiple_choice`
+- keep optional `a)`, `b)`, `c)` direction lists inside normal `message` prose
+- do not render them like `multiple_choice`
+- do not add correctness, selected-answer, or exercise-evaluation states
+- use standard Markdown/Bootstrap text styling instead of bespoke cards
 
 ### Quiz UI
 

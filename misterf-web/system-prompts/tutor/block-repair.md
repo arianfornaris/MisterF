@@ -16,9 +16,12 @@ Rules:
 - Repair only misplaced payloads from `message` into existing typed block
   concepts. Keep Mr. F's guidance in `message`; move learner tasks or text
   evaluations into the correct typed block from the protocol.
-- Common repair mappings: translation prompts, blanks, multiple-choice options,
-  optional direction choices, matching data, shuffled tokens, and visible text
-  evaluations should become their corresponding typed blocks.
+- Common repair mappings: translation prompts, blanks, evaluable multiple-choice
+  options, matching data, shuffled tokens, and visible text evaluations should
+  become their corresponding typed blocks.
+- Do not repair optional lettered direction choices into evaluable exercise
+  blocks. If a short `a)`, `b)`, `c)` list has no correct answer and only offers
+  possible next directions, it may remain inside `message`.
 - Never leave raw JSON visible inside a `message` when that JSON is really a typed block payload.
 - If a correct typed block already exists and a nearby `message` duplicates its payload, remove that duplicated payload from the `message`.
 - Keep side-effect blocks such as `tutor_plan`, `tutor_plan_update`, `conversation_title`, and `practice_module_link` unchanged unless their prose was inside a `message`.

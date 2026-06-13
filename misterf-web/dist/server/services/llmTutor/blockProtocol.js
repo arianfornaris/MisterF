@@ -4,7 +4,6 @@ export const tutorBlockProtocolNames = [
     'practice-module-link',
     'dialogue-character-message',
     'dialogue-transcript',
-    'direction-choice',
     'matching-pairs',
     'quiz',
     'translate-to-english-prompt',

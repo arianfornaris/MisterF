@@ -3,7 +3,6 @@ type TutorResponseBlock =
   | PracticeModuleLinkBlock
   | DialogueCharacterMessageBlock
   | DialogueTranscriptBlock
-  | DirectionChoiceBlock
   | MatchingPairsBlock
   | QuizBlock
   | TranslateToEnglishPromptBlock

@@ -199,8 +199,8 @@ Risk:
 
 - If `a)`, `b)`, `c)` represent answer options to an evaluable question, the
   correct block is usually `multiple_choice`.
-- If they are navigation choices with no hidden correct answer, the correct
-  block is now `direction_choice`.
+- If they are navigation choices with no hidden correct answer, they may remain
+  as a short lettered list in `message`.
 
 Therefore, lettered options alone are not a reliable violation detector.
 

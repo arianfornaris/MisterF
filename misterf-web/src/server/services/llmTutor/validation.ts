@@ -1,7 +1,6 @@
 import type {
   TutorDialogueCharacterMessageBlock,
   TutorDialogueTranscriptBlock,
-  TutorDirectionChoiceBlock,
   TutorFillInTheBlankChoiceBlock,
   TutorFillInTheBlankInputBlock,
   TutorPracticeModuleLinkBlock,
@@ -104,7 +103,6 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorPracticeModuleLinkBlock
         | TutorDialogueCharacterMessageBlock
         | TutorDialogueTranscriptBlock
-        | TutorDirectionChoiceBlock
         | TutorMatchingPairsBlock
         | TutorQuizBlock
         | TutorQuizResultBlock
@@ -119,7 +117,6 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block.type === 'practice_module_link' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
-        block.type === 'direction_choice' ||
         block.type === 'matching_pairs' ||
         block.type === 'quiz' ||
         block.type === 'quiz_result' ||
@@ -148,20 +145,6 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         return block.turns
           .map((turn) => `**${turn.speaker.trim()}:** ${turn.markdown.trim()}`)
           .join('\n\n');
-      }
-
-      if (block.type === 'direction_choice') {
-        const options = block.options
-          .map((option, index) => {
-            const label = option.label.trim();
-            const description = option.description?.trim();
-            const prefix = `${String.fromCharCode(65 + index)}.`;
-            return description
-              ? `${prefix} ${label} - ${description}`
-              : `${prefix} ${label}`;
-          })
-          .join('\n');
-        return `${block.prompt.trim()}\n${options}`.trim();
       }
 
       if (block.type === 'matching_pairs') {
