@@ -226,11 +226,14 @@ Other blocks are render-only and stay inside the message stream. For example,
 `sentence_evaluation` is rendered as a standalone tutor block and does not attach
 metadata to a learner message.
 
-`sentence_evaluation.sourceText` is the complete evaluated learner text. Its
-`parts` array must cover that whole text, not only the errors. The server
-validates this by comparing `sourceText` with the concatenated `parts[].text`
-after lowercasing and ignoring whitespace and punctuation. This keeps the UI
-from showing only isolated problem fragments.
+`sentence_evaluation.sourceText` is the complete evaluated learner text or
+excerpt. For long writing practice, the tutor may evaluate one complete
+sentence, clause, or meaningful excerpt from a larger text, then continue with
+other excerpts in later turns. Its `parts` array must cover the whole
+`sourceText`, not only the errors. The server validates this by comparing
+`sourceText` with the concatenated `parts[].text` after lowercasing and ignoring
+whitespace and punctuation. This keeps the UI from showing only isolated
+problem fragments.
 
 ## Visible Tutor Plans
 

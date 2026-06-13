@@ -30,10 +30,15 @@ interface EvaluationPart {
  * be corrected. This block is a standalone tutor response block: it is not
  * attached to a user message by id, metadata, or hidden state.
  *
+ * This block does not have to evaluate an entire long learner text at once.
+ * When studying a long text step by step, use it to evaluate one complete
+ * sentence, clause, or meaningful excerpt extracted from that larger text.
+ * After that, continue with the next excerpt in later turns as needed.
+ *
  * You may evaluate the latest learner answer or an earlier learner text when
  * the learner explicitly asks for it or when you are deliberately breaking down
  * a long previous text for study. In every case, include the complete evaluated
- * text in `sourceText`; do not rely on external message references.
+ * excerpt in `sourceText`; do not rely on external message references.
  *
  * `parts` must be an ordered partition of `sourceText`. If the `text` values in
  * `parts` are concatenated, they must match `sourceText` after normalizing by
@@ -52,7 +57,7 @@ interface EvaluationPart {
 interface SentenceEvaluationBlock {
   /** Literal discriminator. */
   type: "sentence_evaluation";
-  /** Complete learner text being reviewed; preserve the learner's original language. */
+  /** Complete learner text or excerpt being reviewed; preserve the learner's original language. */
   sourceText: string;
   /** Ordered partition of `sourceText`; include correct, improvable, and erroneous fragments, preserving original language in each `text`. */
   parts: EvaluationPart[];
