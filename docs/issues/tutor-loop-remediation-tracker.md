@@ -91,8 +91,8 @@ Selected solution:
 - Do not add message ids or `sourceMessageId` yet.
 - Do not attach sentence evaluations to user-message metadata.
 - Render the block directly from the tutor message's own `metadata.blocks`.
-- Let the "Editar texto" action reconstruct the reviewed text from
-  `sentence_evaluation.parts`, not from the nearest or latest user message.
+- Let the "Editar texto" action use `sentence_evaluation.sourceText`, with old
+  stored blocks falling back to reconstructing from `parts`.
 - Revisit explicit source references only if the product later needs true
   message-level annotations.
 
@@ -104,6 +104,8 @@ Acceptance criteria:
   card directly from the tutor block.
 - Editing/reviewing a sentence evaluation no longer points to unrelated latest
   user text.
+- `sentence_evaluation.parts` covers the complete `sourceText` rather than only
+  the problem fragments.
 
 ### `TLR-003`: Split Persistent Context From First-Turn Nudge
 

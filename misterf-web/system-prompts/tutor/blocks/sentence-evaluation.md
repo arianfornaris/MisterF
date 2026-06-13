@@ -1,15 +1,21 @@
 /**
  * One visible part of learner text being evaluated.
  *
- * `text` must be actual visible text from the learner text under review. Never
- * use an empty string, whitespace, or placeholder fragment for missing words.
- * If words are missing, explain that in `explanation` or a separate `message`.
+ * `text` must be an actual contiguous fragment from `sourceText`. Never use an
+ * empty string, whitespace, or placeholder fragment for missing words. If words
+ * are missing, explain that in `explanation` or a separate `message`.
  *
- * Use `correct`, `improve`, or `error`. Keep explanations short, specific, and
- * useful.
+ * The ordered `EvaluationPart.text` values are not a list of only the errors.
+ * Together, they must reconstruct the complete `sourceText`. Include correct,
+ * improvable, and erroneous fragments so the UI can show the whole evaluated
+ * text.
+ *
+ * Use `correct`, `improve`, or `error`. Use `correct` for text that is part of
+ * the reviewed sentence but does not need feedback. Keep explanations short,
+ * specific, and useful.
  */
 interface EvaluationPart {
-  /** Exact visible learner text fragment being evaluated; preserve its original language. */
+  /** Exact visible learner text fragment from `sourceText`; preserve its original language. */
   text: string;
   /** Evaluation status for this fragment. */
   status: "correct" | "improve" | "error";
@@ -26,9 +32,13 @@ interface EvaluationPart {
  *
  * You may evaluate the latest learner answer or an earlier learner text when
  * the learner explicitly asks for it or when you are deliberately breaking down
- * a long previous text for study. In every case, include the exact visible text
- * fragments being evaluated in `parts`; do not rely on external message
- * references.
+ * a long previous text for study. In every case, include the complete evaluated
+ * text in `sourceText`; do not rely on external message references.
+ *
+ * `parts` must be an ordered partition of `sourceText`. If the `text` values in
+ * `parts` are concatenated, they must match `sourceText` after normalizing by
+ * lowercasing and ignoring whitespace and punctuation. This means `parts` must
+ * include the correct text between problems, not only the problem fragments.
  *
  * Only include this block when at least one part should be marked `improve` or
  * `error`. If the evaluated learner text is fully correct, do not emit this
@@ -42,6 +52,8 @@ interface EvaluationPart {
 interface SentenceEvaluationBlock {
   /** Literal discriminator. */
   type: "sentence_evaluation";
-  /** Ordered fragments covering the learner text being reviewed; preserve the learner's original language in `text`. */
+  /** Complete learner text being reviewed; preserve the learner's original language. */
+  sourceText: string;
+  /** Ordered partition of `sourceText`; include correct, improvable, and erroneous fragments, preserving original language in each `text`. */
   parts: EvaluationPart[];
 }

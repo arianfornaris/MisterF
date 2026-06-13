@@ -407,6 +407,7 @@ export type TutorQuizResultBlock = {
 
 export type TutorSentenceEvaluationBlock = {
   type: 'sentence_evaluation';
+  sourceText: string;
   parts: Array<{
     explanation?: string;
     status: 'correct' | 'improve' | 'error';

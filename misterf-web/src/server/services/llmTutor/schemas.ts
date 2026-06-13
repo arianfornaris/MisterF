@@ -911,6 +911,13 @@ function countSentencePlaceholders(sentence: string, placeholder: string): numbe
   return sentence.split(placeholder).length - 1;
 }
 
+function normalizeSentenceEvaluationCoverageText(value: string): string {
+  return value
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[\s\p{P}]+/gu, '');
+}
+
 export const understandInSpanishPromptBlockSchema = z
   .object({
     type: z.literal('understand_in_spanish_prompt'),
@@ -921,6 +928,7 @@ export const understandInSpanishPromptBlockSchema = z
 export const sentenceEvaluationBlockSchema = z
   .object({
     type: z.literal('sentence_evaluation'),
+    sourceText: z.string().trim().min(1).max(8000),
     parts: z
       .array(
         z
@@ -933,6 +941,21 @@ export const sentenceEvaluationBlockSchema = z
       )
       .min(1)
       .max(64),
+  })
+  .superRefine((block, ctx) => {
+    const normalizedSourceText = normalizeSentenceEvaluationCoverageText(block.sourceText);
+    const normalizedPartsText = normalizeSentenceEvaluationCoverageText(
+      block.parts.map((part) => part.text).join(''),
+    );
+
+    if (normalizedSourceText !== normalizedPartsText) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'sentence_evaluation.parts must reconstruct sourceText after lowercasing and ignoring whitespace and punctuation. Include correct, improvable, and erroneous text parts so the whole evaluated text is covered.',
+        path: ['parts'],
+      });
+    }
   })
   .strict();
 
