@@ -30,8 +30,6 @@ import type { StoredTutorPlan } from '../../db/repository.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResponseBlock, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseValidator } from './types.js';
 
-const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
-
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
 
@@ -223,7 +221,6 @@ export async function runTutorAgentLoop(
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     onToolCall?: (toolName: string) => void;
     profileId?: string | null;
-    startConversation?: boolean;
     titleUpdatedByUser?: boolean;
     tutorPlan?: StoredTutorPlan | null;
     userId?: string | null;
@@ -231,13 +228,6 @@ export async function runTutorAgentLoop(
   },
 ): Promise<TutorAgentResult> {
   const messages = history.map(toModelMessage);
-
-  if (options.startConversation || messages.length === 0) {
-    messages.push({
-      content: firstChallengePrompt,
-      role: 'user',
-    });
-  }
 
   const system = buildAgentSystemInstruction({
     ...options,

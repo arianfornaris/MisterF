@@ -25,7 +25,6 @@ Folder:
 Important files:
 
 - `system.md`: main system instruction for Mr. F
-- `start-session.md`: first-turn nudge for new tutor sessions
 - `structured-correction.md`: repair prompt for invalid tutor structured output
 - `block-repair.md`: repair prompt for schema-valid tutor output that leaks exercise payloads into `message`
 - `internal-tool-continuation.md`: continuation prompt after tool calls
@@ -78,6 +77,11 @@ behavior:
   messages used only when an empty report-seeded conversation auto-starts.
 - Start commands such as "begin with..." or "start practicing..." should live in
   the one-shot start prompts, not in persistent report context prompts.
+
+Normal tutor conversations do not use a generic one-shot `start-session` prompt.
+The UI may show an ephemeral greeting before the learner writes, but the first
+model turn should be grounded in the learner's actual message or in a
+feature-specific one-shot context such as a report or practice-module start.
 
 Internal tutor reasoning should avoid the plain word "plan" unless it refers to
 the visible `tutor_plan` UI. Use terms such as "internal teaching hypothesis" or

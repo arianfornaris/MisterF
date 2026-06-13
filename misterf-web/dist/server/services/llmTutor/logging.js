@@ -17,7 +17,6 @@ export function logLlmRequest(messages, system, options, turn) {
         options: {
             currentTitle: options.currentTitle,
             hasUserScopedOpenRouterKey: Boolean(options.llm?.openRouterApiKey),
-            startConversation: options.startConversation,
             titleUpdatedByUser: options.titleUpdatedByUser,
             userId: options.llm?.userId,
         },

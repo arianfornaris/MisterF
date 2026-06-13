@@ -13,7 +13,6 @@ import { appendStructuredCorrectionRequest, buildStructuredValidationReason, ext
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
-const firstChallengePrompt = renderSystemPrompt('tutor/start-session.md');
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
 function mergeTutorPracticeModuleLinkBlocks(blocks, inferredLinks) {
@@ -124,12 +123,6 @@ function buildFallbackBlocksFromPlainText(input) {
 }
 export async function runTutorAgentLoop(history, options) {
     const messages = history.map(toModelMessage);
-    if (options.startConversation || messages.length === 0) {
-        messages.push({
-            content: firstChallengePrompt,
-            role: 'user',
-        });
-    }
     const system = buildAgentSystemInstruction({
         ...options,
         tutorPlanText: formatTutorPlanForModel(options.tutorPlan ?? null),

@@ -102,7 +102,7 @@ export function registerChatSocket(io) {
             if ((chatRoomReportSnapshot || tutorReportSnapshot) &&
                 messages.length === 0 &&
                 !practiceModuleSnapshot) {
-                void streamAssistantMessage(io, conversation.id, userId, undefined, false, buildReportConversationStartMessages({
+                void streamAssistantMessage(io, conversation.id, userId, undefined, buildReportConversationStartMessages({
                     chatRoomReportSnapshot,
                     tutorReportSnapshot,
                 }), conversation.modelTier);
@@ -168,7 +168,7 @@ export function registerChatSocket(io) {
             const userMessage = addMessage(conversation.id, 'user', content);
             emitConversationUpdated(io, conversation.id, userId);
             io.to(conversation.id).emit('message:created', userMessage);
-            await streamAssistantMessage(io, conversation.id, userId, userMessage.id, false, [], conversation.modelTier);
+            await streamAssistantMessage(io, conversation.id, userId, userMessage.id, [], conversation.modelTier);
         });
         socket.on('conversation:model_tier', (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -360,7 +360,7 @@ export function registerChatSocket(io) {
             if (listMessages(conversation.id).length > 0) {
                 return;
             }
-            await streamAssistantMessage(io, conversation.id, userId, undefined, false, [buildPracticeModuleStartMessage(practiceModuleSnapshot)], normalizeModelTier(payload.modelTier));
+            await streamAssistantMessage(io, conversation.id, userId, undefined, [buildPracticeModuleStartMessage(practiceModuleSnapshot)], normalizeModelTier(payload.modelTier));
         });
         socket.on('translator:translate', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -451,7 +451,7 @@ export function registerChatSocket(io) {
             if (updatedMessage) {
                 io.to(conversationId).emit('message:updated', updatedMessage);
             }
-            await streamAssistantMessage(io, conversationId, userId, undefined, false, [
+            await streamAssistantMessage(io, conversationId, userId, undefined, [
                 {
                     content: buildMatchingPairsCompletionContext({
                         block,
@@ -517,7 +517,7 @@ export function registerChatSocket(io) {
             if (updatedMessage) {
                 io.to(conversationId).emit('message:updated', updatedMessage);
             }
-            await streamAssistantMessage(io, conversationId, userId, undefined, false, [
+            await streamAssistantMessage(io, conversationId, userId, undefined, [
                 {
                     content: buildFillInTheBlankCompletionContext({
                         block,
@@ -583,7 +583,7 @@ export function registerChatSocket(io) {
             if (updatedMessage) {
                 io.to(conversationId).emit('message:updated', updatedMessage);
             }
-            await streamAssistantMessage(io, conversationId, userId, undefined, false, [
+            await streamAssistantMessage(io, conversationId, userId, undefined, [
                 {
                     content: buildMultipleChoiceCompletionContext({
                         block,
@@ -650,7 +650,7 @@ export function registerChatSocket(io) {
             if (updatedMessage) {
                 io.to(conversationId).emit('message:updated', updatedMessage);
             }
-            await streamAssistantMessage(io, conversationId, userId, undefined, false, [
+            await streamAssistantMessage(io, conversationId, userId, undefined, [
                 {
                     content: buildUnscrambleSentenceCompletionContext({
                         block,
@@ -752,7 +752,7 @@ export function registerChatSocket(io) {
             });
             emitConversationUpdated(io, conversationId, userId);
             io.to(conversationId).emit('message:created', quizResultMessage);
-            await streamAssistantMessage(io, conversationId, userId, undefined, false, [
+            await streamAssistantMessage(io, conversationId, userId, undefined, [
                 {
                     content: buildQuizCompletionContext({
                         block,
@@ -881,7 +881,7 @@ async function getLlmRequestOptionsForUser(userId) {
         userId,
     };
 }
-async function streamAssistantMessage(io, conversationId, userId, lastUserMessageId, startConversation = false, extraHistory = [], modelTier = 'regular') {
+async function streamAssistantMessage(io, conversationId, userId, lastUserMessageId, extraHistory = [], modelTier = 'regular') {
     if (runningConversations.has(conversationId)) {
         return;
     }
@@ -944,7 +944,6 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             onTokenUsage,
             onToolCall,
             profileId: conversation.profileId,
-            startConversation,
             titleUpdatedByUser: conversation.titleUpdatedByUser,
             tutorPlan,
             userId,

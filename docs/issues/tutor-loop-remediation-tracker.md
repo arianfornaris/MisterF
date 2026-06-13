@@ -47,7 +47,7 @@ to the implementation log.
 | `TLR-006` | Protocol labels are forbidden without clarifying learner-visible scope | `implemented` | `system.md` | Model may use protocol labels in JSON but not in learner-visible text |
 | `TLR-007` | Block separation rules are repeated across too many prompt layers | `implemented` | `system.md`, `tutor/blocks/*.md`, `structured-correction.md`, `block-repair.md` | Global prompt is shorter; exact block rules remain in JSDoc-style protocol files |
 | `TLR-008` | Lettered navigation choices can be confused with multiple-choice exercises | `implemented` | `system.md`, `message.md`, schemas/renderers | Optional navigation choices use short `a)`, `b)`, `c)` lists in `message`; evaluable choices still require typed exercise blocks |
-| `TLR-009` | `start-session.md` is too weak | `not_started` | `start-session.md` | First turn nudges Mr. F toward concise greeting plus useful diagnostic practice |
+| `TLR-009` | Generic `start-session.md` nudge is unnecessary | `removed` | `index.ts`, `chatSocket.ts`, prompt docs | Normal conversations no longer inject a generic first-turn prompt |
 | `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `implemented` | `structured-correction.md` | Valid block list is removed in favor of the injected protocol |
 | `TLR-011` | `block-repair.md` fallback can encourage returning unresolved original blocks | `implemented` | `block-repair.md` | Repair prompt prefers conservative typed repair and only returns original blocks for false positives/impossible repairs |
 | `TLR-012` | Tool-use rules are duplicated between `system.md` and tool descriptions | `implemented` | `system.md`, `chatRoomTools.ts` | System prompt keeps high-level boundaries; exact use/omit rules live in tool descriptions |
@@ -257,25 +257,31 @@ Acceptance criteria:
   blocks.
 - Optional direction lists cannot carry `isCorrect` or any answer key.
 
-### `TLR-009`: Strengthen `start-session.md`
+### `TLR-009`: Remove Generic `start-session.md`
 
 Problem:
 
-- The prompt only says "Start the session."
+- The generic prompt only said "Start the session."
+- Strengthening it would still keep a broad first-turn nudge that can compete
+  with the actual learner message or with feature-specific starts.
+- Normal conversations already have an ephemeral UI greeting before the learner
+  writes.
 
 Solution:
 
-- Replace it with a concise first-turn instruction:
-  - speak in Spanish
-  - greet briefly
-  - avoid too many setup questions
-  - if the user already gave a topic, start there
-  - otherwise begin with a small diagnostic practice prompt
+- Remove `start-session.md` and stop injecting it in the tutor loop.
+- Keep one-shot first-turn prompts only for feature-specific starts, such as
+  report-seeded or practice-module conversations.
+- Let ordinary tutor turns be grounded in persisted history, the learner's
+  actual message, or explicit feature-specific `extraHistory`.
 
 Acceptance criteria:
 
-- New conversations start with a useful, concise tutor move.
-- Mr. F does not default to broad setup menus.
+- No generic `start-session.md` prompt remains in `system-prompts/tutor`.
+- `runTutorAgentLoop` does not add an artificial "Start the session" user
+  message.
+- Report and practice-module starts still use their dedicated one-shot context
+  messages.
 
 ### `TLR-010`: Remove Manual Block List Drift In Correction Prompt
 
@@ -371,6 +377,7 @@ Acceptance criteria:
 | 2026-06-12 | Implemented `TLR-012` tool rule de-duplication | `TLR-012`: `not_started` -> `implemented` | Reduced tool policy in `system.md` to high-level boundaries and reinforced `list_chat_rooms` so explicit-use policy lives in the tool description | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-12 | Tried `TLR-008` with a dedicated direction block | `TLR-008`: `not_started` -> `implemented` | Added a non-evaluable direction block as an intermediate solution with Bootstrap list-group rendering | `npm run typecheck`; schema smoke test; `npm run pm2:restart` |
 | 2026-06-13 | Simplified `TLR-008` back to lettered direction lists | `TLR-008`: `implemented` | Removed the dedicated direction block from the tutor protocol/client, allowed optional `a)`, `b)`, `c)` navigation lists in `message`, and kept evaluable choices restricted to typed exercise blocks | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-13 | Removed generic tutor start-session nudge | `TLR-009`: `not_started` -> `removed` | Deleted `start-session.md`, removed `startConversation` injection/logging, and left normal first turns grounded in real user/history or feature-specific starts | `npm run typecheck`; `npm run pm2:restart` |
 
 ## How To Update This Tracker
 

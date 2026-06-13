@@ -255,20 +255,21 @@ Recommended fix:
 
 Current state:
 
-- `start-session.md` only says: "Start the session."
+- Superseded. The generic `start-session.md` prompt and its runtime injection
+  were removed.
 
 Why this is a problem:
 
-- It does not reinforce the desired first-turn behavior.
-- It can lead to generic greetings, broad questions, or weak agenda setting.
+- A generic first-turn prompt can lead to generic greetings, broad questions, or
+  weak agenda setting.
+- It is also unnecessary while normal conversations already have an ephemeral UI
+  greeting and feature-specific starts use dedicated context messages.
 
-Recommended fix:
+Current direction:
 
-- Replace it with a concise first-turn nudge:
-  - greet briefly in Spanish
-  - do not ask many setup questions
-  - start with a useful diagnostic micro-practice when no topic is known
-  - if the learner already gave a topic, start directly there
+- Do not use a generic `start-session` prompt for now.
+- Keep first-turn commands only in feature-specific one-shot prompts such as
+  report or practice-module starts.
 
 ## Correction And Repair Prompt Issues
 
@@ -364,7 +365,7 @@ Recommended fix:
 - Move exact block rules into `tutor/blocks/*.md`.
 - Clarify that protocol labels are forbidden only in learner-visible text.
 - Replace internal "plan" wording with "teaching hypothesis" or similar.
-- Strengthen `start-session.md`.
+- Remove the generic `start-session.md` nudge unless a future need justifies it.
 - Remove or generate manual valid-block lists from correction prompts.
 
 ### Phase 4: Add Regression Fixtures

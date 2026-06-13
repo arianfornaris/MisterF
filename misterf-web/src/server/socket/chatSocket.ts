@@ -303,7 +303,6 @@ export function registerChatSocket(io: Server): void {
           conversation.id,
           userId,
           undefined,
-          false,
           buildReportConversationStartMessages({
             chatRoomReportSnapshot,
             tutorReportSnapshot,
@@ -401,7 +400,6 @@ export function registerChatSocket(io: Server): void {
         conversation.id,
         userId,
         userMessage.id,
-        false,
         [],
         conversation.modelTier,
       );
@@ -641,7 +639,6 @@ export function registerChatSocket(io: Server): void {
         conversation.id,
         userId,
         undefined,
-        false,
         [buildPracticeModuleStartMessage(practiceModuleSnapshot)],
         normalizeModelTier(payload.modelTier),
       );
@@ -756,7 +753,6 @@ export function registerChatSocket(io: Server): void {
           conversationId,
           userId,
           undefined,
-          false,
           [
             {
               content: buildMatchingPairsCompletionContext({
@@ -845,7 +841,6 @@ export function registerChatSocket(io: Server): void {
           conversationId,
           userId,
           undefined,
-          false,
           [
             {
               content: buildFillInTheBlankCompletionContext({
@@ -934,7 +929,6 @@ export function registerChatSocket(io: Server): void {
           conversationId,
           userId,
           undefined,
-          false,
           [
             {
               content: buildMultipleChoiceCompletionContext({
@@ -1024,7 +1018,6 @@ export function registerChatSocket(io: Server): void {
           conversationId,
           userId,
           undefined,
-          false,
           [
             {
               content: buildUnscrambleSentenceCompletionContext({
@@ -1156,7 +1149,6 @@ export function registerChatSocket(io: Server): void {
           conversationId,
           userId,
           undefined,
-          false,
           [
             {
               content: buildQuizCompletionContext({
@@ -1338,7 +1330,6 @@ async function streamAssistantMessage(
   conversationId: string,
   userId: string,
   lastUserMessageId?: number,
-  startConversation = false,
   extraHistory: TutorMessage[] = [],
   modelTier: 'advanced' | 'max' | 'regular' = 'regular',
 ): Promise<void> {
@@ -1408,7 +1399,6 @@ async function streamAssistantMessage(
       onTokenUsage,
       onToolCall,
       profileId: conversation.profileId,
-      startConversation,
       titleUpdatedByUser: conversation.titleUpdatedByUser,
       tutorPlan,
       userId,

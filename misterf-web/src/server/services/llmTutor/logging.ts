@@ -20,7 +20,6 @@ export function logLlmRequest(
     actorLabel?: string;
     currentTitle?: string;
     llm?: LlmRequestOptions;
-    startConversation?: boolean;
     titleUpdatedByUser?: boolean;
   },
   turn: number,
@@ -37,7 +36,6 @@ export function logLlmRequest(
     options: {
       currentTitle: options.currentTitle,
       hasUserScopedOpenRouterKey: Boolean(options.llm?.openRouterApiKey),
-      startConversation: options.startConversation,
       titleUpdatedByUser: options.titleUpdatedByUser,
       userId: options.llm?.userId,
     },
