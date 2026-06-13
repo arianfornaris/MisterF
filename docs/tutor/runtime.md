@@ -290,6 +290,13 @@ Current tools:
 Use these for explicit administration of saved practice module resources. Do
 not use them merely because the current conversation was started from a module.
 
+`create_practice_module` is model-facing administration for saved modules. The
+tutor must use it only when the learner explicitly asks for or approves creating
+a saved "módulo"/"module". Requests for a plan, practice plan, route, guide,
+lesson outline, sequence of activities, exercises, or next steps must stay in
+normal tutoring mode and use response blocks such as `tutor_plan` when a visible
+in-chat plan is appropriate.
+
 ### Chat room tools
 
 Defined in:

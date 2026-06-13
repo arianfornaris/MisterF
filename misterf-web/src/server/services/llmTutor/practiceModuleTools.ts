@@ -30,7 +30,12 @@ export function buildTutorPracticeModuleTools(input: {
     return undefined;
   }
 
-  const { currentPracticeModuleId, onToolCall, profileId, userId } = input;
+  const {
+    currentPracticeModuleId,
+    onToolCall,
+    profileId,
+    userId,
+  } = input;
 
   function announceToolCall(toolName: string) {
     onToolCall?.(toolName);
@@ -65,7 +70,7 @@ export function buildTutorPracticeModuleTools(input: {
     }),
     create_practice_module: tool({
       description:
-        'Create a new practice module in the current profile, but only when the learner explicitly asks for a module and clearly uses the word "module" or "módulo" in that request. Do not use this tool proactively. Do not use it for requests about inline exercises, practice in the current chat, a plan, a guide, a lesson outline, a set of activities, or general studying help unless the learner explicitly says they want a module. You may infer title, description, and tutorInstructions from the user request and chat context only after the learner has explicitly requested or approved creating the practice module as a module. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
+        'Create a new saved practice module in the current profile, but only when the learner explicitly asks to create a module and clearly uses the word "module" or "módulo", or when the learner clearly approves a previous assistant proposal to create a module. Do not use this tool proactively. Do not use it for inline exercises, ordinary tutoring, a visible tutor plan, a practice plan, a guide, a lesson outline, a sequence of activities, review points, or general studying help unless the learner explicitly says they want a module. Creating or updating `tutor_plan` is never permission to create a practice module. You may infer title, description, and tutorInstructions from the user request and chat context only after the learner has explicitly requested or approved creating the practice module as a module. All three fields must be written in Spanish. Never write title, description, or tutorInstructions in English.',
       inputSchema: z.object({
         description: z.string().trim().min(1).max(1500)
           .describe('Spanish learner-facing description of what the saved module is for. Summarize the module goal and scope; do not include transient chat progress.'),
