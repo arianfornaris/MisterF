@@ -74,7 +74,7 @@ export function buildTutorChatRoomTools(input: {
     }),
     create_chat_room: tool({
       description:
-        'Create a new persistent chat room in the current profile, but only when the learner explicitly asks for it or clearly authorizes it. A chat room is a standalone reusable resource the learner can access later from the app for separate chat-based practice. It is not an inline exercise for the current turn and it must not be treated as a continuation of the current Mr. F conversation. You may infer details from the learner request only after explicit authorization. The room needs a title, a description, and 1 to 3 AI characters.',
+        'Create a new persistent chat room in the current profile, but only when the learner explicitly asks for it or explicitly confirms your immediately preceding proposal to create it. A chat room is a standalone reusable resource the learner can access later from the app for separate chat-based practice. It is not an inline exercise for the current turn and it must not be treated as a continuation of the current Mr. F conversation. You may infer details from the learner request only after an explicit creation request or confirmation. The room needs a title, a description, and 1 to 3 AI characters.',
       inputSchema: z.object({
         characters: z.array(
           z.object({
@@ -91,7 +91,7 @@ export function buildTutorChatRoomTools(input: {
         description: z.string().trim().min(1).max(2000)
           .describe('Spanish learner-facing description of what the saved chat room is for, what kind of English practice it supports, and the social situation it simulates. Do not describe the current tutor conversation.'),
         title: z.string().trim().min(1).max(220)
-          .describe('Short Spanish title for the saved chat-room resource. Infer only from an explicit chat-room creation request or authorization.'),
+          .describe('Short Spanish title for the saved chat-room resource. Infer only from an explicit chat-room creation request or confirmation.'),
       }),
       execute: async ({ characters, description, title }) => {
         announceToolCall('create_chat_room');

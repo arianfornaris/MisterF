@@ -294,15 +294,22 @@ Current tools:
 - `delete_practice_module`
 - `build_practice_module_link`
 
-Use these for explicit administration of saved practice module resources. Do
-not use them merely because the current conversation was started from a module.
+Use these only by explicit learner mandate for administration of saved practice
+module resources. Do not use them merely because the current conversation was
+started from a module, a visible tutor plan changed, an exercise completed, or a
+module-related action could be pedagogically useful.
 
 `create_practice_module` is model-facing administration for saved modules. The
-tutor must use it only when the learner explicitly asks for or approves creating
-a saved "módulo"/"module". Requests for a plan, practice plan, route, guide,
-lesson outline, sequence of activities, exercises, or next steps must stay in
-normal tutoring mode and use response blocks such as `tutor_plan` when a visible
-in-chat plan is appropriate.
+tutor must use it only when the learner explicitly asks for or explicitly
+confirms creating a saved "módulo"/"module". Requests for a plan, new plan,
+practice plan, route, guide, lesson outline, sequence of activities, exercises,
+or next steps must stay in normal tutoring mode and use response blocks such as
+`tutor_plan` when a visible in-chat plan is appropriate.
+
+`update_practice_module`, `delete_practice_module`, `list_practice_modules`,
+and `build_practice_module_link` follow the same rule: the learner must
+explicitly command that exact saved-module action. Current module context is
+pedagogical guidance only; it is not permission to administer the saved module.
 
 ### Chat room tools
 

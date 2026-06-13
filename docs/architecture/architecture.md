@@ -245,10 +245,16 @@ Tools:
 - `delete_practice_module`
 - `build_practice_module_link`
 
-`create_practice_module` is reserved for explicit saved-module administration.
-Visible tutor plans and generic practice requests must remain in the tutor
-response protocol, not become saved modules unless the learner explicitly asks
-for or approves creating a "módulo"/"module".
+Practice module tools are reserved for explicit learner-mandated saved-module
+administration. Visible tutor plans, generic practice requests, completed
+exercises, and conversations already attached to a module must remain in the
+tutor response protocol unless the learner explicitly asks for that exact saved
+module action.
+
+`create_practice_module` must only run when the learner explicitly asks for or
+explicitly confirms creating a saved "módulo"/"module". A request for a plan,
+new plan, route, guide, exercise sequence, review, or next step is not a module
+creation request.
 
 ### Chat room tools
 
