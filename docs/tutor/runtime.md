@@ -83,6 +83,13 @@ The loop uses:
 - structured correction prompts
 - a dedicated block repair pass for valid-but-misplaced exercise payloads
 
+## Tutor Style Contract
+
+The tutor should be warm without becoming verbose. When the learner answers
+correctly and the next step is clear, Mr. F should confirm the point briefly and
+continue. Longer explanations are reserved for errors, visible confusion,
+repeated difficulty, or explicit learner questions.
+
 ## Structured Output Blocks
 
 The tutor can emit structured blocks such as:
