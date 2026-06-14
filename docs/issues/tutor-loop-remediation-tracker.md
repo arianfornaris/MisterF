@@ -51,7 +51,7 @@ to the implementation log.
 | `TLR-010` | `structured-correction.md` manually duplicates the valid block list | `implemented` | `structured-correction.md` | Valid block list is removed in favor of the injected protocol |
 | `TLR-011` | `block-repair.md` fallback can encourage returning unresolved original blocks | `implemented` | `block-repair.md` | Repair prompt prefers conservative typed repair and only returns original blocks for false positives/impossible repairs |
 | `TLR-012` | Tool-use rules are duplicated between `system.md` and tool descriptions | `implemented` | `system.md`, `chatRoomTools.ts` | System prompt keeps high-level boundaries; exact use/omit rules live in tool descriptions |
-| `TLR-013` | No regression fixtures protect prompt/runtime behavior | `not_started` | test files to be created | Common tutor-loop failure patterns are covered by tests or repeatable fixtures |
+| `TLR-013` | No regression fixtures protect prompt/runtime behavior | `implemented` | `vitest.config.ts`, `tsconfig.test.json`, `tests/llmTutor/*.test.ts`, `history.ts` | Common tutor-loop failure patterns are covered by deterministic Vitest fixtures |
 
 ## Detailed Solution Plan
 
@@ -347,13 +347,34 @@ Problem:
 
 Solution:
 
-- Add tests or scripted fixtures for:
+- Add standard Vitest tests for deterministic tutor-loop boundaries:
   - `message` leaking blanks
   - `message` leaking answer options
   - `message` leaking raw `sentence_evaluation` JSON
   - normal tutor output attempting `quiz_result`
   - `sentence_evaluation` source behavior
-  - first-turn report context not repeating later
+  - model-facing history preserving structured `{ blocks: [...] }`
+  - removed prompt/protocol concepts staying removed
+
+Implemented baseline:
+
+- Added Vitest with `npm test`, `npm run test:watch`, and
+  `npm run test:typecheck`.
+- Added `tests/llmTutor/schemas.test.ts`,
+  `tests/llmTutor/blockRepair.test.ts`,
+  `tests/llmTutor/promptContracts.test.ts`, and
+  `tests/llmTutor/history.test.ts`.
+- Extracted tutor history serialization into
+  `src/server/services/llmTutor/history.ts` so it can be tested without
+  importing the full Socket.IO runtime.
+- Documented the testing standard in `docs/architecture/testing.md`.
+
+Acceptance criteria:
+
+- Regression tests run without calling a real LLM or external service.
+- Tests cover the main prompt/runtime bugs fixed in this tracker.
+- Test files are typechecked through `tsconfig.test.json`.
+- Future prompt/protocol changes have a standard place for fixtures.
 
 Acceptance criteria:
 
@@ -378,6 +399,7 @@ Acceptance criteria:
 | 2026-06-12 | Tried `TLR-008` with a dedicated direction block | `TLR-008`: `not_started` -> `implemented` | Added a non-evaluable direction block as an intermediate solution with Bootstrap list-group rendering | `npm run typecheck`; schema smoke test; `npm run pm2:restart` |
 | 2026-06-13 | Simplified `TLR-008` back to lettered direction lists | `TLR-008`: `implemented` | Removed the dedicated direction block from the tutor protocol/client, allowed optional `a)`, `b)`, `c)` navigation lists in `message`, and kept evaluable choices restricted to typed exercise blocks | `npm run typecheck`; `npm run pm2:restart` |
 | 2026-06-13 | Removed generic tutor start-session nudge | `TLR-009`: `not_started` -> `removed` | Deleted `start-session.md`, removed `startConversation` injection/logging, and left normal first turns grounded in real user/history or feature-specific starts | `npm run typecheck`; `npm run pm2:restart` |
+| 2026-06-14 | Implemented Vitest tutor-loop regression baseline | `TLR-013`: `not_started` -> `implemented` | Added Vitest config, test scripts, typed test tsconfig, tutor schema/leakage/prompt/history fixtures, and extracted history serialization for deterministic testing | `npm test`; `npm run test:typecheck`; `npm run typecheck` |
 
 ## How To Update This Tracker
 

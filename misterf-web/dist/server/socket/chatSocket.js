@@ -4,6 +4,7 @@ import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
+import { toTutorHistory } from '../services/llmTutor/history.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -1026,25 +1027,6 @@ function getToolStatusLabel(toolName) {
         default:
             return `Ejecutando herramienta: ${toolName}...`;
     }
-}
-function toTutorHistory(messages) {
-    return messages.map((message) => ({
-        content: getTutorHistoryContent(message),
-        role: message.role,
-    }));
-}
-function getTutorHistoryContent(message) {
-    if (message.role !== 'model') {
-        return message.content;
-    }
-    const blocks = message.metadata?.blocks;
-    if (!Array.isArray(blocks)) {
-        if (message.metadata?.source === 'initial_greeting') {
-            return JSON.stringify({ blocks: [createInitialGreetingBlock(message.content)] }, null, 2);
-        }
-        return message.content;
-    }
-    return JSON.stringify({ blocks }, null, 2);
 }
 function isAbortError(error, signal) {
     if (signal?.aborted) {

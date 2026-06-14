@@ -32,6 +32,7 @@ import {
 } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
+import { toTutorHistory } from '../services/llmTutor/history.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
 import {
   LlmFinishReasonError,
@@ -1500,34 +1501,6 @@ function getToolStatusLabel(toolName: string): string {
     default:
       return `Ejecutando herramienta: ${toolName}...`;
   }
-}
-
-function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
-  return messages.map((message) => ({
-    content: getTutorHistoryContent(message),
-    role: message.role,
-  }));
-}
-
-function getTutorHistoryContent(message: StoredMessage): string {
-  if (message.role !== 'model') {
-    return message.content;
-  }
-
-  const blocks = message.metadata?.blocks;
-  if (!Array.isArray(blocks)) {
-    if (message.metadata?.source === 'initial_greeting') {
-      return JSON.stringify(
-        { blocks: [createInitialGreetingBlock(message.content)] },
-        null,
-        2,
-      );
-    }
-
-    return message.content;
-  }
-
-  return JSON.stringify({ blocks }, null, 2);
 }
 
 function isAbortError(error: unknown, signal?: AbortSignal): boolean {
