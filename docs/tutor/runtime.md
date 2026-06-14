@@ -71,6 +71,7 @@ Key characteristics:
 - optionally takes practice module context
 - optionally takes chat room report context
 - optionally takes tutor conversation report context
+- optionally takes learner profile context
 - can use tools
 - expects structured JSON output
 - can retry on correctable structured output errors
@@ -509,4 +510,15 @@ Current tiers include:
 - `advanced`
 - `max`
 
-The conversation model tier is synchronized with the profile when a conversation is joined or used, which keeps the runtime aligned with profile settings.
+The conversation model tier is synchronized with the profile when a conversation is joined or used, which keeps the runtime aligned with the profile form.
+
+## Learner Profile Context
+
+Each tutor turn loads the profile associated with the conversation and can
+inject that profile's name, short description, and learning context into the
+system prompt through `tutor/profile-context.md`.
+
+This context is teacher-only background. It should help Mr. F choose examples,
+topics, difficulty, tone, and practice situations, but it is not a learner
+message, not a first-turn command, and not a replacement for the progress tool
+or report-derived context.

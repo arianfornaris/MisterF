@@ -9,6 +9,8 @@ function toStoredProfile(row) {
         modelTier: row.model_tier,
         name: row.name,
         description: row.description,
+        learningContext: row.learning_context,
+        profileOnboardingCompletedAt: row.profile_onboarding_completed_at,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
     };
@@ -351,10 +353,18 @@ export function createProfile(input) {
     const id = randomUUID();
     getDb()
         .prepare(`
-        INSERT INTO profiles (id, user_id, name, description, model_tier)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO profiles (
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.userId, input.name, input.description ?? '', input.modelTier ?? 'regular');
+        .run(id, input.userId, input.name, input.description ?? '', input.learningContext ?? '', input.modelTier ?? 'regular', input.profileOnboardingCompleted === false ? null : new Date().toISOString());
     const profile = findProfileForUser(id, input.userId);
     if (!profile) {
         throw new Error('Could not load newly created profile.');
@@ -364,7 +374,16 @@ export function createProfile(input) {
 export function findProfileForUser(id, userId) {
     const row = getDb()
         .prepare(`
-        SELECT id, user_id, name, description, model_tier, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at,
+          created_at,
+          updated_at
         FROM profiles
         WHERE id = ? AND user_id = ?
       `)
@@ -374,7 +393,16 @@ export function findProfileForUser(id, userId) {
 export function findProfileById(id) {
     const row = getDb()
         .prepare(`
-        SELECT id, user_id, name, description, model_tier, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at,
+          created_at,
+          updated_at
         FROM profiles
         WHERE id = ?
       `)
@@ -384,7 +412,16 @@ export function findProfileById(id) {
 export function listProfilesForUser(userId) {
     const rows = getDb()
         .prepare(`
-        SELECT id, user_id, name, description, model_tier, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at,
+          created_at,
+          updated_at
         FROM profiles
         WHERE user_id = ?
         ORDER BY created_at ASC, updated_at ASC
@@ -400,6 +437,7 @@ export function ensureUserHasProfile(userId) {
     return createProfile({
         description: '',
         name: defaultProfileName,
+        profileOnboardingCompleted: false,
         userId,
     });
 }
@@ -409,11 +447,30 @@ export function updateProfile(input) {
         UPDATE profiles
         SET name = ?,
             description = ?,
+            learning_context = COALESCE(?, learning_context),
             model_tier = COALESCE(?, model_tier),
+            profile_onboarding_completed_at = CASE
+              WHEN ? = 1 THEN COALESCE(profile_onboarding_completed_at, CURRENT_TIMESTAMP)
+              ELSE profile_onboarding_completed_at
+            END,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-        .run(input.name, input.description, input.modelTier ?? null, input.profileId, input.userId);
+        .run(input.name, input.description, input.learningContext ?? null, input.modelTier ?? null, input.profileOnboardingCompleted ? 1 : 0, input.profileId, input.userId);
+    return findProfileForUser(input.profileId, input.userId);
+}
+export function markProfileOnboardingCompleted(input) {
+    getDb()
+        .prepare(`
+        UPDATE profiles
+        SET profile_onboarding_completed_at = COALESCE(
+              profile_onboarding_completed_at,
+              CURRENT_TIMESTAMP
+            ),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(input.profileId, input.userId);
     return findProfileForUser(input.profileId, input.userId);
 }
 export function updateProfileModelTierForUser(profileId, userId, modelTier) {

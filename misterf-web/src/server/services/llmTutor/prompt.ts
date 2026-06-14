@@ -3,6 +3,11 @@ import { renderTutorBlockProtocol } from './blockProtocol.js';
 import type { TranslationMode } from './types.js';
 
 export function buildAgentSystemInstruction(options: {
+  learnerProfile?: {
+    description: string;
+    learningContext: string;
+    name: string;
+  } | null;
   chatRoomReport?: {
     chatRoomConversationId: string;
     reportSummaryDescription: string;
@@ -36,11 +41,14 @@ export function buildAgentSystemInstruction(options: {
 
   if (!options.practiceModule) {
     if (!options.chatRoomReport && !options.tutorReport && !options.tutorPlanText) {
-      return base;
+      const sections = [base];
+      appendLearnerProfileContext(sections, options.learnerProfile);
+      return sections.join('\n');
     }
 
     const sections = [base];
 
+    appendLearnerProfileContext(sections, options.learnerProfile);
     appendTutorPlanContext(sections, options.tutorPlanText);
 
     if (options.chatRoomReport) {
@@ -82,6 +90,7 @@ export function buildAgentSystemInstruction(options: {
     }),
   ];
 
+  appendLearnerProfileContext(sections, options.learnerProfile);
   appendTutorPlanContext(sections, options.tutorPlanText);
 
   if (options.chatRoomReport) {
@@ -111,6 +120,35 @@ export function buildAgentSystemInstruction(options: {
   }
 
   return sections.join('\n');
+}
+
+function appendLearnerProfileContext(
+  sections: string[],
+  learnerProfile?: {
+    description: string;
+    learningContext: string;
+    name: string;
+  } | null,
+): void {
+  if (!learnerProfile) {
+    return;
+  }
+
+  const name = learnerProfile.name.trim();
+  const description = learnerProfile.description.trim();
+  const learningContext = learnerProfile.learningContext.trim();
+  if (!name && !description && !learningContext) {
+    return;
+  }
+
+  sections.push(
+    '',
+    renderSystemPrompt('tutor/profile-context.md', {
+      PROFILE_DESCRIPTION: description || 'No especificada.',
+      PROFILE_LEARNING_CONTEXT: learningContext || 'No especificado.',
+      PROFILE_NAME: name || 'No especificado.',
+    }),
+  );
 }
 
 function appendTutorPlanContext(sections: string[], tutorPlanText?: string | null): void {

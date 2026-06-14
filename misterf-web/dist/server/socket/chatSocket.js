@@ -895,6 +895,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         if (!conversation) {
             throw new Error('Conversation not found.');
         }
+        const learnerProfile = findProfileForUser(conversation.profileId, userId);
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
         const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
@@ -936,6 +937,13 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             : null;
         const result = await runTutorAgentLoop(history, {
             chatRoomReport: chatRoomReportContext,
+            learnerProfile: learnerProfile
+                ? {
+                    description: learnerProfile.description,
+                    learningContext: learnerProfile.learningContext,
+                    name: learnerProfile.name,
+                }
+                : null,
             practiceModule: practiceModuleContext,
             tutorReport: tutorReportContext,
             abortSignal: abortController.signal,

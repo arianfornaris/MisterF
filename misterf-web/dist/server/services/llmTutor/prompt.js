@@ -10,9 +10,12 @@ export function buildAgentSystemInstruction(options) {
     });
     if (!options.practiceModule) {
         if (!options.chatRoomReport && !options.tutorReport && !options.tutorPlanText) {
-            return base;
+            const sections = [base];
+            appendLearnerProfileContext(sections, options.learnerProfile);
+            return sections.join('\n');
         }
         const sections = [base];
+        appendLearnerProfileContext(sections, options.learnerProfile);
         appendTutorPlanContext(sections, options.tutorPlanText);
         if (options.chatRoomReport) {
             sections.push('', renderSystemPrompt('tutor/chatroom-report-context.md', {
@@ -43,6 +46,7 @@ export function buildAgentSystemInstruction(options) {
             PRACTICE_MODULE_TUTOR_INSTRUCTIONS: options.practiceModule.tutorInstructions,
         }),
     ];
+    appendLearnerProfileContext(sections, options.learnerProfile);
     appendTutorPlanContext(sections, options.tutorPlanText);
     if (options.chatRoomReport) {
         sections.push('', renderSystemPrompt('tutor/chatroom-report-context.md', {
@@ -63,6 +67,22 @@ export function buildAgentSystemInstruction(options) {
         }));
     }
     return sections.join('\n');
+}
+function appendLearnerProfileContext(sections, learnerProfile) {
+    if (!learnerProfile) {
+        return;
+    }
+    const name = learnerProfile.name.trim();
+    const description = learnerProfile.description.trim();
+    const learningContext = learnerProfile.learningContext.trim();
+    if (!name && !description && !learningContext) {
+        return;
+    }
+    sections.push('', renderSystemPrompt('tutor/profile-context.md', {
+        PROFILE_DESCRIPTION: description || 'No especificada.',
+        PROFILE_LEARNING_CONTEXT: learningContext || 'No especificado.',
+        PROFILE_NAME: name || 'No especificado.',
+    }));
 }
 function appendTutorPlanContext(sections, tutorPlanText) {
     const text = tutorPlanText?.trim();

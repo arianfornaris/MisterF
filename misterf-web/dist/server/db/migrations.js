@@ -707,5 +707,20 @@ export const migrations = [
       );
     `,
     },
+    {
+        id: 17,
+        name: 'add_profile_learning_context',
+        up: `
+      ALTER TABLE profiles
+      ADD COLUMN learning_context TEXT NOT NULL DEFAULT '';
+
+      ALTER TABLE profiles
+      ADD COLUMN profile_onboarding_completed_at TEXT;
+
+      UPDATE profiles
+      SET profile_onboarding_completed_at = CURRENT_TIMESTAMP
+      WHERE profile_onboarding_completed_at IS NULL;
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

@@ -53,6 +53,7 @@ known technical/product issues.
 - [Tutor Loop Remediation Tracker](./issues/tutor-loop-remediation-tracker.md): living implementation plan and status log for tutor-loop prompt/runtime fixes
 - [Structured Block Post-Processing](./issues/structured-block-postprocessing.md): current repair loop and future deeper semantic review ideas for tutor block output
 - [Message Block Task Leakage](./issues/message-block-task-leakage.md): observed and repaired patterns where `message` blocks leak exercise payloads that should be typed blocks
+- [UI Style Consistency Audit](./issues/ui-style-consistency-audit.md): future audit for shared CSS, semantic class names, and app-wide UI consistency
 
 ## Scope
 

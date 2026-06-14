@@ -197,10 +197,8 @@
                       <% } %>
                       <p class="user-menu-email"><%= user.email %></p>
                       <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
-                      <a class="dropdown-item" href="/settings">Ajustes</a>
+                      <a class="dropdown-item" href="/settings">Ajustes de cuenta</a>
                       <a class="dropdown-item" href="/credits">Créditos</a>
-                      <a class="dropdown-item" href="/privacy">Privacidad</a>
-                      <a class="dropdown-item" href="/terms">Términos</a>
                       <form method="post" action="/logout">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <button class="dropdown-item" type="submit">Cerrar sesión</button>

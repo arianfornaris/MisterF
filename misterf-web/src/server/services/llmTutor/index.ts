@@ -195,6 +195,11 @@ function buildFallbackBlocksFromPlainText(input: {
 export async function runTutorAgentLoop(
   history: TutorMessage[],
   options: {
+    learnerProfile?: {
+      description: string;
+      learningContext: string;
+      name: string;
+    } | null;
     chatRoomReport?: {
       chatRoomConversationId: string;
       reportSummaryDescription: string;

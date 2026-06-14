@@ -9,6 +9,8 @@ export type StoredProfile = {
   modelTier: 'advanced' | 'max' | 'regular';
   name: string;
   description: string;
+  learningContext: string;
+  profileOnboardingCompletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -315,6 +317,8 @@ type ProfileRow = {
   model_tier: 'advanced' | 'max' | 'regular';
   name: string;
   description: string;
+  learning_context: string;
+  profile_onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -555,6 +559,8 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
     modelTier: row.model_tier,
     name: row.name,
     description: row.description,
+    learningContext: row.learning_context,
+    profileOnboardingCompletedAt: row.profile_onboarding_completed_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -958,17 +964,35 @@ export function createProfile(input: {
   userId: string;
   name: string;
   description?: string;
+  learningContext?: string;
   modelTier?: 'advanced' | 'max' | 'regular';
+  profileOnboardingCompleted?: boolean;
 }): StoredProfile {
   const id = randomUUID();
   getDb()
     .prepare(
       `
-        INSERT INTO profiles (id, user_id, name, description, model_tier)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO profiles (
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(id, input.userId, input.name, input.description ?? '', input.modelTier ?? 'regular');
+    .run(
+      id,
+      input.userId,
+      input.name,
+      input.description ?? '',
+      input.learningContext ?? '',
+      input.modelTier ?? 'regular',
+      input.profileOnboardingCompleted === false ? null : new Date().toISOString(),
+    );
 
   const profile = findProfileForUser(id, input.userId);
   if (!profile) {
@@ -985,7 +1009,16 @@ export function findProfileForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, name, description, model_tier, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at,
+          created_at,
+          updated_at
         FROM profiles
         WHERE id = ? AND user_id = ?
       `,
@@ -999,7 +1032,16 @@ export function findProfileById(id: string): StoredProfile | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, name, description, model_tier, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at,
+          created_at,
+          updated_at
         FROM profiles
         WHERE id = ?
       `,
@@ -1013,7 +1055,16 @@ export function listProfilesForUser(userId: string): StoredProfile[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, name, description, model_tier, created_at, updated_at
+        SELECT
+          id,
+          user_id,
+          name,
+          description,
+          learning_context,
+          model_tier,
+          profile_onboarding_completed_at,
+          created_at,
+          updated_at
         FROM profiles
         WHERE user_id = ?
         ORDER BY created_at ASC, updated_at ASC
@@ -1033,6 +1084,7 @@ export function ensureUserHasProfile(userId: string): StoredProfile {
   return createProfile({
     description: '',
     name: defaultProfileName,
+    profileOnboardingCompleted: false,
     userId,
   });
 }
@@ -1042,7 +1094,9 @@ export function updateProfile(input: {
   userId: string;
   name: string;
   description: string;
+  learningContext?: string;
   modelTier?: 'advanced' | 'max' | 'regular';
+  profileOnboardingCompleted?: boolean;
 }): StoredProfile | null {
   getDb()
     .prepare(
@@ -1050,12 +1104,46 @@ export function updateProfile(input: {
         UPDATE profiles
         SET name = ?,
             description = ?,
+            learning_context = COALESCE(?, learning_context),
             model_tier = COALESCE(?, model_tier),
+            profile_onboarding_completed_at = CASE
+              WHEN ? = 1 THEN COALESCE(profile_onboarding_completed_at, CURRENT_TIMESTAMP)
+              ELSE profile_onboarding_completed_at
+            END,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(input.name, input.description, input.modelTier ?? null, input.profileId, input.userId);
+    .run(
+      input.name,
+      input.description,
+      input.learningContext ?? null,
+      input.modelTier ?? null,
+      input.profileOnboardingCompleted ? 1 : 0,
+      input.profileId,
+      input.userId,
+    );
+
+  return findProfileForUser(input.profileId, input.userId);
+}
+
+export function markProfileOnboardingCompleted(input: {
+  profileId: string;
+  userId: string;
+}): StoredProfile | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE profiles
+        SET profile_onboarding_completed_at = COALESCE(
+              profile_onboarding_completed_at,
+              CURRENT_TIMESTAMP
+            ),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(input.profileId, input.userId);
 
   return findProfileForUser(input.profileId, input.userId);
 }

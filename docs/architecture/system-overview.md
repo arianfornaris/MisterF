@@ -129,13 +129,19 @@ A profile currently influences:
 
 - visible resources
 - active tutor context
+- teacher-only learner profile context for the tutor
 - preferred model tier
+
+New accounts get an automatically created first profile. After email
+verification, the app asks the learner to complete or skip a short profile
+onboarding form with name, description, and learning context for Mr. F.
 
 ### Settings
 
-Settings currently expose profile-level tutor preferences, starting with model tier selection.
+Settings expose account-level options such as password management.
 
-The active profile is the source of truth for model tier selection used by the tutor runtime.
+Profile data and profile-scoped tutor preferences, including model tier
+selection, are edited from the profile form rather than from account settings.
 
 ## Core Technical Characteristics
 

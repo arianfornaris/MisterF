@@ -143,11 +143,23 @@ read-only conversation error.
 
 ## Profile and Settings Flow
 
-1. An authenticated user can create or switch profiles.
-2. The active profile is carried through cookies/session-aware server rendering.
-3. The settings page edits profile-scoped preferences.
-4. The current important preference is `modelTier`.
-5. Tutor conversations synchronize to the profile model tier when they are opened or used.
+1. New account signup creates the account first and keeps the signup form short.
+2. The first profile is created automatically with a default name.
+3. After email verification, a profile onboarding page asks for:
+   - profile name
+   - short profile description
+   - learning context for Mr. F
+4. The learner may save the onboarding form or skip it. Either action marks the
+   onboarding as completed so the app does not keep interrupting navigation.
+5. An authenticated user can create or switch profiles.
+6. New manually created profiles are considered user-created and do not trigger
+   first-run onboarding.
+7. The active profile is carried through cookies/session-aware server rendering.
+8. The profile form edits profile data and profile-scoped preferences.
+9. Profile data includes name, description, learning context, and model tier.
+10. The tutor receives profile context as teacher-only background when building
+    its system prompt.
+11. The settings page is reserved for account-level options such as password management.
 
 ## Guest Flow
 

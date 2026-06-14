@@ -25,4 +25,20 @@ describe('tutor prompt contracts', () => {
     expect(system).not.toContain('Start the session.');
     expect(system).not.toContain('start-session');
   });
+
+  it('injects learner profile context as teacher-only background', () => {
+    const system = buildAgentSystemInstruction({
+      currentTitle: 'Nueva conversación',
+      learnerProfile: {
+        description: 'Perfil para inglés profesional.',
+        learningContext: 'Trabajo en software y quiero practicar reuniones.',
+        name: 'Arian',
+      },
+    });
+
+    expect(system).toContain('## Learner Profile Context');
+    expect(system).toContain('Trabajo en software y quiero practicar reuniones.');
+    expect(system).toContain('It is not a');
+    expect(system).toContain('current-turn');
+  });
 });

@@ -28,6 +28,7 @@ Important files:
 - `structured-correction.md`: repair prompt for invalid tutor structured output
 - `block-repair.md`: repair prompt for schema-valid tutor output that leaks exercise payloads into `message`
 - `internal-tool-continuation.md`: continuation prompt after tool calls
+- `profile-context.md`: teacher-only context block with learner-authored profile background
 - `practice-module-context.md`: context block for tutor conversations started from a practice module
 - `chatroom-report-context.md`: context block for tutor conversations started from a chat room report
 - `chatroom-report-start.md`: one-shot internal first-turn nudge for conversations created from a chat room report
@@ -82,6 +83,12 @@ Normal tutor conversations do not use a generic one-shot `start-session` prompt.
 The UI may show an ephemeral greeting before the learner writes, but the first
 model turn should be grounded in the learner's actual message or in a
 feature-specific one-shot context such as a report or practice-module start.
+
+Learner profile context is persistent teacher-only background, not a one-shot
+command. `profile-context.md` may include profile name, short description, and
+learning context written by the learner. The tutor should use it quietly for
+topic choice, examples, difficulty, and tone when useful, without quoting it
+back or treating it as the learner's current message.
 
 Internal tutor reasoning should avoid the plain word "plan" unless it refers to
 the visible `tutor_plan` UI. Use terms such as "internal teaching hypothesis" or

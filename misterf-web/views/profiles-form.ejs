@@ -7,8 +7,8 @@
       <h1 class="practice-modules-title"><%= profilePageMode === 'edit' ? 'Editar perfil' : 'Nuevo perfil' %></h1>
       <p class="practice-modules-copy">
         <%= profilePageMode === 'edit' && selectedProfile
-          ? 'Ajusta el nombre y la descripción de este perfil.'
-          : 'Crea un perfil separado para organizar conversaciones y módulos de práctica sin mezclarlas con las demás.' %>
+          ? 'Ajusta los datos y preferencias de práctica de este perfil.'
+          : 'Crea un perfil separado para organizar conversaciones, módulos y preferencias sin mezclarlas con las demás.' %>
       </p>
     </div>
 
@@ -27,44 +27,108 @@
   </div>
 
   <section class="practice-module-form-shell">
-    <div class="practice-module-form-card card shadow-sm">
-      <div class="card-body">
-      <form
-        class="practice-module-form"
-        method="post"
-        action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
-        autocomplete="off"
+    <form
+      class="practice-module-form"
+      method="post"
+      action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
+      autocomplete="off"
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="returnTo" value="/profiles">
+      <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'regular'; %>
+
+      <label class="form-label" for="profileName">Nombre</label>
+      <input
+        class="form-control"
+        id="profileName"
+        name="name"
+        maxlength="<%= profileFieldLimits.name %>"
+        value="<%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.name : '' %>"
+        required
       >
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <input type="hidden" name="returnTo" value="/profiles">
 
-        <label class="form-label" for="profileName">Nombre</label>
-        <input
-          class="form-control"
-          id="profileName"
-          name="name"
-          maxlength="120"
-          value="<%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.name : '' %>"
-          required
-        >
-
-        <label class="form-label" for="profileDescription">Descripción</label>
-        <textarea
-          class="form-control"
-          id="profileDescription"
-          name="description"
-          rows="4"
-          maxlength="500"
-        ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
-
-        <div class="practice-module-form-actions">
-          <button type="submit" class="btn btn-primary">
-            <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
-          </button>
-        </div>
-      </form>
+      <label class="form-label" for="profileDescription">Descripción</label>
+      <textarea
+        class="form-control"
+        id="profileDescription"
+        name="description"
+        rows="4"
+        maxlength="<%= profileFieldLimits.description %>"
+      ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
+      <div class="form-text mb-3">
+        Una nota breve para distinguir este perfil.
       </div>
-    </div>
+
+      <label class="form-label" for="profileLearningContext">Contexto para Mr. F</label>
+      <textarea
+        class="form-control"
+        id="profileLearningContext"
+        name="learningContext"
+        rows="6"
+        maxlength="<%= profileFieldLimits.learningContext %>"
+        aria-describedby="profileLearningContextHelp"
+      ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.learningContext : '' %></textarea>
+      <div class="form-text" id="profileLearningContextHelp">
+        Puedes mencionar tus objetivos, intereses, trabajo, estudios, nivel aproximado o situaciones donde quieres usar inglés.
+      </div>
+
+      <fieldset class="mt-4">
+        <legend class="form-label mb-2">Modelo por defecto</legend>
+        <p class="text-body-secondary small mb-3">
+          Este modelo se usará en las conversaciones nuevas de este perfil.
+        </p>
+
+        <div class="list-group">
+          <label class="list-group-item d-flex gap-3">
+            <input
+              class="form-check-input flex-shrink-0 mt-1"
+              type="radio"
+              name="modelTier"
+              value="regular"
+              <%= selectedModelTier !== 'advanced' && selectedModelTier !== 'max' ? 'checked' : '' %>
+            >
+            <span class="d-block">
+              <span class="fw-semibold d-block">Regular</span>
+              <small class="text-body-secondary">Muy rápido. Ideal para práctica frecuente con costo 1x.</small>
+            </span>
+          </label>
+
+          <label class="list-group-item d-flex gap-3">
+            <input
+              class="form-check-input flex-shrink-0 mt-1"
+              type="radio"
+              name="modelTier"
+              value="advanced"
+              <%= selectedModelTier === 'advanced' ? 'checked' : '' %>
+            >
+            <span class="d-block">
+              <span class="fw-semibold d-block">Avanzado</span>
+              <small class="text-body-secondary">Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 2x.</small>
+            </span>
+          </label>
+
+          <label class="list-group-item d-flex gap-3">
+            <input
+              class="form-check-input flex-shrink-0 mt-1"
+              type="radio"
+              name="modelTier"
+              value="max"
+              <%= selectedModelTier === 'max' ? 'checked' : '' %>
+            >
+            <span class="d-block">
+              <span class="fw-semibold d-block">Max</span>
+              <small class="text-body-secondary">La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 8x.</small>
+            </span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class="practice-module-form-actions">
+        <button type="submit" class="btn btn-primary">
+          <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
+        </button>
+      </div>
+    </form>
   </section>
 </section>
 

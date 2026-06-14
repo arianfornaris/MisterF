@@ -6,7 +6,7 @@ import { hashPassword, verifyPassword } from './password.js';
 import { createAuthActionToken, createLocalUser, createSession, deleteUserById, findUserByAuthActionToken, findUserByEmail, markAuthActionTokenUsed, markEmailVerified, normalizeEmail, revokeSession, revokeUserSessions, updateUserPassword, } from './repository.js';
 import { clearSessionCookie, createSessionCookie, hasKnownVisitorCookie, setKnownVisitorCookie, setSessionCookie, } from './session.js';
 import { createActionToken, hashActionToken, normalizeActionToken, } from './tokens.js';
-import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessageEvaluation, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomMessage, findChatRoomById, findChatRoomForUser, findChatRoomShareLinkById, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreateChatRoomShareLink, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importChatRoomToProfile, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
+import { addPracticeModuleToCollection, addChatRoomMessage, updateChatRoomMessageEvaluation, archivePracticeModuleForUser, archivePracticeModuleCollectionForUser, createChatRoom, createChatRoomConversation, createProfile, createPracticeModuleCollection, createPracticeModule, createConversationFromPracticeModule, deletePracticeModuleForUser, findChatRoomConversationForUser, findChatRoomMessage, findChatRoomById, findChatRoomForUser, findChatRoomShareLinkById, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleShareLinkById, findPracticeModuleForUser, findConversationForUser, findProfileById, getOrCreateChatRoomShareLink, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, findProfileForUser, importChatRoomToProfile, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listChatRoomCharacters, listChatRoomConversationsForRoom, listChatRoomMessages, listChatRoomsForProfile, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, listConversationsForPracticeModule, listConversationsForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleForUser, restorePracticeModuleCollectionForUser, setPracticeModuleFavoriteForUser, setPracticeModuleCollectionFavoriteForUser, updateConversationModelTierForProfile, updateProfile, updateChatRoomForUser, updatePracticeModuleCollection, updatePracticeModule, } from '../db/repository.js';
 import { ensureOpenRouterKeyForUser, } from '../services/openRouterUserKeys.js';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { env } from '../config/env.js';
@@ -14,7 +14,14 @@ import { clearActiveProfileCookie, setActiveProfileCookie, } from './profiles.js
 import { chatroomsLayoutCookieName, practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
 import { appDocumentTitle as shellAppDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
 import { advanceChatRoomConversation, evaluateChatRoomUserMessage, } from '../services/chatrooms.js';
+import { buildProfileOnboardingPath, normalizeProfileText, profileDescriptionMaxLength, profileLearningContextMaxLength, profileNameMaxLength, } from '../profiles/fields.js';
+import { normalizeProfileModelTier } from '../profiles/modelTier.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
+const profileFieldLimits = {
+    description: profileDescriptionMaxLength,
+    learningContext: profileLearningContextMaxLength,
+    name: profileNameMaxLength,
+};
 const loginAttempts = new Map();
 const maxAttempts = 12;
 const attemptWindowMs = 10 * 60 * 1000;
@@ -486,9 +493,9 @@ export async function handleVerifyEmail(request, response) {
         userId: user.id,
     });
     renderAuthMessage(response, {
-        body: 'Tu correo ya está verificado. Puedes empezar a practicar.',
-        linkHref: returnTo,
-        linkText: 'Ir al chat',
+        body: 'Tu correo ya está verificado. Completa tu perfil de aprendizaje para que Mr. F pueda adaptar mejor la práctica.',
+        linkHref: buildProfileOnboardingPath(returnTo),
+        linkText: 'Completar perfil',
         returnTo,
         title: 'Correo verificado',
     });
@@ -1110,6 +1117,7 @@ export async function renderHome(request, response) {
         initialConversationId,
         isAuthenticated: isVerified,
         profiles: availableProfiles,
+        profileFieldLimits,
         profilePageMode,
         showArchivedPracticeModules,
         shareTargetPracticeModuleProfiles,
@@ -1485,14 +1493,21 @@ export function handleCreateProfile(request, response) {
         response.redirect('/login');
         return;
     }
-    const name = String(request.body.name || '').trim();
+    const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+    const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
+    const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
+    const modelTier = normalizeProfileModelTier(request.body.modelTier);
     const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
     if (!name) {
         response.redirect(returnTo);
         return;
     }
     const profile = createProfile({
-        name: name.slice(0, 120),
+        description,
+        learningContext,
+        modelTier,
+        name,
+        profileOnboardingCompleted: true,
         userId: user.id,
     });
     setActiveProfileCookie(response, profile.id);
@@ -1509,22 +1524,28 @@ export function handleUpdateProfile(request, response) {
         response.redirect('/profiles');
         return;
     }
-    const name = String(request.body.name || '').trim();
-    const description = String(request.body.description || '').trim();
+    const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+    const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
+    const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
+    const modelTier = normalizeProfileModelTier(request.body.modelTier);
     if (!name) {
         response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
         return;
     }
     const profile = updateProfile({
-        description: description.slice(0, 500),
-        name: name.slice(0, 120),
+        description,
+        learningContext,
+        modelTier,
+        name,
         profileId,
+        profileOnboardingCompleted: true,
         userId: user.id,
     });
     if (!profile) {
         response.redirect('/profiles');
         return;
     }
+    updateConversationModelTierForProfile(user.id, profile.id, modelTier);
     response.redirect('/profiles');
 }
 export function handleUpdateLesson(request, response) {

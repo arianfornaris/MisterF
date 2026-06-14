@@ -88,6 +88,7 @@ import {
   restorePracticeModuleCollectionForUser,
   setPracticeModuleFavoriteForUser,
   setPracticeModuleCollectionFavoriteForUser,
+  updateConversationModelTierForProfile,
   updateProfile,
   updateChatRoomForUser,
   updatePracticeModuleCollection,
@@ -119,10 +120,23 @@ import {
   advanceChatRoomConversation,
   evaluateChatRoomUserMessage,
 } from '../services/chatrooms.js';
+import {
+  buildProfileOnboardingPath,
+  normalizeProfileText,
+  profileDescriptionMaxLength,
+  profileLearningContextMaxLength,
+  profileNameMaxLength,
+} from '../profiles/fields.js';
+import { normalizeProfileModelTier } from '../profiles/modelTier.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
 const appDocumentTitle = 'Mr. F, tutor de inglés';
+const profileFieldLimits = {
+  description: profileDescriptionMaxLength,
+  learningContext: profileLearningContextMaxLength,
+  name: profileNameMaxLength,
+};
 
 type AuthFormView = {
   error: string;
@@ -705,9 +719,9 @@ export async function handleVerifyEmail(
   });
 
   renderAuthMessage(response, {
-    body: 'Tu correo ya está verificado. Puedes empezar a practicar.',
-    linkHref: returnTo,
-    linkText: 'Ir al chat',
+    body: 'Tu correo ya está verificado. Completa tu perfil de aprendizaje para que Mr. F pueda adaptar mejor la práctica.',
+    linkHref: buildProfileOnboardingPath(returnTo),
+    linkText: 'Completar perfil',
     returnTo,
     title: 'Correo verificado',
   });
@@ -1465,6 +1479,7 @@ export async function renderHome(request: Request, response: Response): Promise<
     initialConversationId,
     isAuthenticated: isVerified,
     profiles: availableProfiles,
+    profileFieldLimits,
     profilePageMode,
     showArchivedPracticeModules,
     shareTargetPracticeModuleProfiles,
@@ -1934,7 +1949,16 @@ export function handleCreateProfile(request: Request, response: Response): void 
     return;
   }
 
-  const name = String(request.body.name || '').trim();
+  const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+  const description = normalizeProfileText(
+    request.body.description,
+    profileDescriptionMaxLength,
+  );
+  const learningContext = normalizeProfileText(
+    request.body.learningContext,
+    profileLearningContextMaxLength,
+  );
+  const modelTier = normalizeProfileModelTier(request.body.modelTier);
   const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
   if (!name) {
     response.redirect(returnTo);
@@ -1942,7 +1966,11 @@ export function handleCreateProfile(request: Request, response: Response): void 
   }
 
   const profile = createProfile({
-    name: name.slice(0, 120),
+    description,
+    learningContext,
+    modelTier,
+    name,
+    profileOnboardingCompleted: true,
     userId: user.id,
   });
   setActiveProfileCookie(response, profile.id);
@@ -1962,23 +1990,36 @@ export function handleUpdateProfile(request: Request, response: Response): void 
     return;
   }
 
-  const name = String(request.body.name || '').trim();
-  const description = String(request.body.description || '').trim();
+  const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+  const description = normalizeProfileText(
+    request.body.description,
+    profileDescriptionMaxLength,
+  );
+  const learningContext = normalizeProfileText(
+    request.body.learningContext,
+    profileLearningContextMaxLength,
+  );
+  const modelTier = normalizeProfileModelTier(request.body.modelTier);
   if (!name) {
     response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
     return;
   }
 
   const profile = updateProfile({
-    description: description.slice(0, 500),
-    name: name.slice(0, 120),
+    description,
+    learningContext,
+    modelTier,
+    name,
     profileId,
+    profileOnboardingCompleted: true,
     userId: user.id,
   });
   if (!profile) {
     response.redirect('/profiles');
     return;
   }
+
+  updateConversationModelTierForProfile(user.id, profile.id, modelTier);
 
   response.redirect('/profiles');
 }

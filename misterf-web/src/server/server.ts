@@ -99,15 +99,16 @@ import {
   renderEditPracticeModulePage,
 } from './practiceModules/handlers.js';
 import {
+  handleProfileOnboarding,
+  handleSkipProfileOnboarding,
+  renderProfileOnboardingPage,
   renderEditProfilePage,
   renderNewProfilePage,
   renderProfilesListPage,
 } from './profiles/handlers.js';
+import { redirectIncompleteProfileOnboarding } from './profiles/onboardingMiddleware.js';
 import { renderProgressPage } from './progress/handlers.js';
-import {
-  handleUpdateSettingsPage,
-  renderSettingsPage,
-} from './settings/handlers.js';
+import { renderSettingsPage } from './settings/handlers.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import {
   handleOpenRouterKeyUpdate,
@@ -174,6 +175,10 @@ app.get('/callback', (_request, response) => {
   response.redirect('/');
 });
 app.post('/logout', handleLogout);
+app.get('/profiles/onboarding', renderProfileOnboardingPage);
+app.post('/profiles/onboarding', handleProfileOnboarding);
+app.post('/profiles/onboarding/skip', handleSkipProfileOnboarding);
+app.use(redirectIncompleteProfileOnboarding);
 app.get('/superadmin', renderSuperadminUsers);
 app.get('/superadmin/users/:userId', renderSuperadminUser);
 app.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
@@ -214,7 +219,6 @@ app.post('/profiles', handleCreateProfile);
 app.post('/profiles/switch', handleSwitchProfile);
 app.post('/profiles/:profileId', handleUpdateProfile);
 app.get('/settings', renderSettingsPage);
-app.post('/settings', handleUpdateSettingsPage);
 app.get('/credits', renderCreditsPage);
 app.post('/credits/checkout', handleCreateCreditsCheckout);
 app.get('/privacy', renderPrivacyPage);

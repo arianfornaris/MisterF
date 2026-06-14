@@ -88,9 +88,19 @@ Important fields:
 - `userId`
 - `name`
 - `description`
+- `learningContext`
 - `modelTier`
+- `profileOnboardingCompletedAt`
 
 `modelTier` is especially important because it now drives tutor model selection from the profile rather than from a per-chat UI selector.
+
+`learningContext` stores learner-authored background for Mr. F, such as goals,
+interests, work or study context, and reasons for learning English. The tutor
+receives it as teacher-only prompt context.
+
+`profileOnboardingCompletedAt` records whether the first-run profile onboarding
+has been saved or intentionally skipped. Existing profiles are marked completed
+by migration so current users are not forced through onboarding.
 
 ## Tutor Conversations
 
