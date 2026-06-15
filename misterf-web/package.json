@@ -10,6 +10,7 @@
     "build:server": "rm -rf dist && tsc",
     "build:client": "node scripts/build-client.mjs",
     "start": "node dist/server/server.js",
+    "sync-prod-to-dev": "bash scripts/sync-prod-to-dev.sh",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:typecheck": "tsc -p tsconfig.test.json --noEmit",

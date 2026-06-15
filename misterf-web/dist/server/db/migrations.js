@@ -89,6 +89,10 @@ export const migrations = [
         user_id TEXT NOT NULL,
         name TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
+        model_tier TEXT NOT NULL DEFAULT 'regular'
+          CHECK (model_tier IN ('regular', 'advanced', 'max')),
+        learning_context TEXT NOT NULL DEFAULT '',
+        profile_onboarding_completed_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id)
@@ -194,139 +198,17 @@ export const migrations = [
       CREATE INDEX idx_practice_modules_collection_position
         ON practice_modules (collection_id, position_in_collection, updated_at DESC, created_at DESC);
 
-      CREATE TABLE conversations (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        profile_id TEXT NOT NULL,
-        active_agent TEXT NOT NULL DEFAULT 'tutor' CHECK (active_agent IN ('tutor')),
-        practice_module_id TEXT,
-        title TEXT NOT NULL DEFAULT 'Nueva conversación',
-        title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (profile_id)
-          REFERENCES profiles (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
-          ON DELETE SET NULL
-      );
-
-      CREATE INDEX idx_conversations_user_profile_updated
-        ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_conversations_practice_module_updated
-        ON conversations (practice_module_id, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_conversations_active_agent
-        ON conversations (active_agent, updated_at DESC, created_at DESC);
-
-      CREATE TABLE conversation_practice_module_snapshots (
-        conversation_id TEXT PRIMARY KEY,
-        practice_module_id TEXT,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        tutor_instructions TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
-          ON DELETE SET NULL
-      );
-
-      CREATE INDEX idx_conversation_practice_module_snapshots_practice_module
-        ON conversation_practice_module_snapshots (practice_module_id, created_at DESC);
-
-      CREATE TABLE conversation_chat_room_report_snapshots (
-        conversation_id TEXT PRIMARY KEY,
-        chat_room_conversation_report_id TEXT NOT NULL,
-        chat_room_conversation_id TEXT NOT NULL,
-        room_title TEXT NOT NULL,
-        room_description TEXT NOT NULL DEFAULT '',
-        report_summary_title TEXT NOT NULL,
-        report_summary_description TEXT NOT NULL,
-        slides_json TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (chat_room_conversation_report_id)
-          REFERENCES chat_room_conversation_reports (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (chat_room_conversation_id)
-          REFERENCES chat_room_conversations (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_conversation_chat_room_report_snapshots_report
-        ON conversation_chat_room_report_snapshots (chat_room_conversation_report_id, created_at DESC);
-
-      CREATE TABLE practice_module_share_links (
-        id TEXT PRIMARY KEY,
-        practice_module_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_practice_module_share_links_active
-        ON practice_module_share_links (practice_module_id, revoked_at, created_at DESC);
-
-      CREATE TABLE practice_module_collection_share_links (
-        id TEXT PRIMARY KEY,
-        collection_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (collection_id)
-          REFERENCES practice_module_collections (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_practice_module_collection_share_links_active
-        ON practice_module_collection_share_links (collection_id, revoked_at, created_at DESC);
-
-      CREATE TABLE messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        conversation_id TEXT NOT NULL,
-        role TEXT NOT NULL CHECK (role IN ('user', 'model')),
-        content TEXT NOT NULL,
-        metadata TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_messages_conversation_created
-        ON messages (conversation_id, created_at, id);
-    `,
-    },
-    {
-        id: 5,
-        name: 'add_conversation_model_tier',
-        up: `
-      ALTER TABLE conversations
-      ADD COLUMN model_tier TEXT NOT NULL DEFAULT 'regular'
-      CHECK (model_tier IN ('regular', 'advanced', 'max'));
-    `,
-    },
-    {
-        id: 6,
-        name: 'create_chatrooms',
-        up: `
       CREATE TABLE chat_rooms (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
+        source_room_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        archived_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id)
@@ -334,11 +216,29 @@ export const migrations = [
           ON DELETE CASCADE,
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
-          ON DELETE CASCADE
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_room_id)
+          REFERENCES chat_rooms (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
       );
 
       CREATE INDEX idx_chat_rooms_user_profile_updated
         ON chat_rooms (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_chat_rooms_profile_shared
+        ON chat_rooms (profile_id, shared_via, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_chat_rooms_profile_source
+        ON chat_rooms (profile_id, source_room_id, shared_via);
+
+      CREATE INDEX idx_chat_rooms_profile_archived_updated
+        ON chat_rooms (profile_id, archived_at, updated_at DESC, created_at DESC);
 
       CREATE TABLE chat_room_characters (
         id TEXT PRIMARY KEY,
@@ -388,6 +288,10 @@ export const migrations = [
         sender_type TEXT NOT NULL CHECK (sender_type IN ('system', 'user', 'character')),
         sender_name TEXT NOT NULL,
         content TEXT NOT NULL,
+        evaluation_status TEXT
+          CHECK (evaluation_status IS NULL OR evaluation_status IN ('ok', 'warning')),
+        evaluation_problem TEXT,
+        evaluation_created_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversation_id)
           REFERENCES chat_room_conversations (id)
@@ -396,81 +300,7 @@ export const migrations = [
 
       CREATE INDEX idx_chat_room_messages_conversation_created
         ON chat_room_messages (conversation_id, created_at ASC, id ASC);
-    `,
-    },
-    {
-        id: 7,
-        name: 'add_chat_room_message_evaluations',
-        up: `
-      ALTER TABLE chat_room_messages
-      ADD COLUMN evaluation_status TEXT
-      CHECK (evaluation_status IS NULL OR evaluation_status IN ('ok', 'warning'));
 
-      ALTER TABLE chat_room_messages
-      ADD COLUMN evaluation_problem TEXT;
-
-      ALTER TABLE chat_room_messages
-      ADD COLUMN evaluation_created_at TEXT;
-    `,
-    },
-    {
-        id: 8,
-        name: 'add_chat_room_sharing',
-        up: `
-      ALTER TABLE chat_rooms
-      ADD COLUMN source_room_id TEXT
-      REFERENCES chat_rooms (id)
-      ON DELETE SET NULL;
-
-      ALTER TABLE chat_rooms
-      ADD COLUMN source_user_id TEXT
-      REFERENCES users (id)
-      ON DELETE SET NULL;
-
-      ALTER TABLE chat_rooms
-      ADD COLUMN source_profile_id TEXT
-      REFERENCES profiles (id)
-      ON DELETE SET NULL;
-
-      ALTER TABLE chat_rooms
-      ADD COLUMN shared_via TEXT
-      CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link'));
-
-      CREATE INDEX idx_chat_rooms_profile_shared
-        ON chat_rooms (profile_id, shared_via, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_chat_rooms_profile_source
-        ON chat_rooms (profile_id, source_room_id, shared_via);
-
-      CREATE TABLE chat_room_share_links (
-        id TEXT PRIMARY KEY,
-        room_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (room_id)
-          REFERENCES chat_rooms (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_chat_room_share_links_room_active
-        ON chat_room_share_links (room_id, revoked_at, created_at DESC);
-    `,
-    },
-    {
-        id: 9,
-        name: 'add_chat_room_archiving',
-        up: `
-      ALTER TABLE chat_rooms
-      ADD COLUMN archived_at TEXT;
-
-      CREATE INDEX idx_chat_rooms_profile_archived_updated
-        ON chat_rooms (profile_id, archived_at, updated_at DESC, created_at DESC);
-    `,
-    },
-    {
-        id: 10,
-        name: 'add_chat_room_conversation_reports',
-        up: `
       CREATE TABLE chat_room_conversation_reports (
         id TEXT PRIMARY KEY,
         conversation_id TEXT NOT NULL UNIQUE,
@@ -504,19 +334,79 @@ export const migrations = [
 
       CREATE INDEX idx_chat_room_conversation_reports_user_profile_created
         ON chat_room_conversation_reports (user_id, profile_id, created_at DESC);
-    `,
-    },
-    {
-        id: 11,
-        name: 'add_conversation_chat_room_report_reference',
-        up: `
-      ALTER TABLE conversations
-      ADD COLUMN chat_room_conversation_report_id TEXT
-      REFERENCES chat_room_conversation_reports (id)
-      ON DELETE SET NULL;
+
+      CREATE TABLE chat_room_share_links (
+        id TEXT PRIMARY KEY,
+        room_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (room_id)
+          REFERENCES chat_rooms (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_chat_room_share_links_room_active
+        ON chat_room_share_links (room_id, revoked_at, created_at DESC);
+
+      CREATE TABLE conversations (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        active_agent TEXT NOT NULL DEFAULT 'tutor' CHECK (active_agent IN ('tutor')),
+        practice_module_id TEXT,
+        chat_room_conversation_report_id TEXT
+          REFERENCES chat_room_conversation_reports (id)
+          ON DELETE SET NULL,
+        model_tier TEXT NOT NULL DEFAULT 'regular'
+          CHECK (model_tier IN ('regular', 'advanced', 'max')),
+        title TEXT NOT NULL DEFAULT 'Nueva conversación',
+        title_updated_by_user INTEGER NOT NULL DEFAULT 0 CHECK (title_updated_by_user IN (0, 1)),
+        closed_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (practice_module_id)
+          REFERENCES practice_modules (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_conversations_user_profile_updated
+        ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_conversations_practice_module_updated
+        ON conversations (practice_module_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_conversations_active_agent
+        ON conversations (active_agent, updated_at DESC, created_at DESC);
 
       CREATE INDEX idx_conversations_chat_room_report_updated
         ON conversations (chat_room_conversation_report_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_conversations_closed_updated
+        ON conversations (closed_at, updated_at DESC, created_at DESC);
+
+      CREATE TABLE conversation_practice_module_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        practice_module_id TEXT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        tutor_instructions TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (practice_module_id)
+          REFERENCES practice_modules (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_conversation_practice_module_snapshots_practice_module
+        ON conversation_practice_module_snapshots (practice_module_id, created_at DESC);
 
       CREATE TABLE conversation_chat_room_report_snapshots (
         conversation_id TEXT PRIMARY KEY,
@@ -541,58 +431,6 @@ export const migrations = [
 
       CREATE INDEX idx_conversation_chat_room_report_snapshots_report
         ON conversation_chat_room_report_snapshots (chat_room_conversation_report_id, created_at DESC);
-    `,
-    },
-    {
-        id: 12,
-        name: 'add_profile_model_tier',
-        up: `
-      ALTER TABLE profiles
-      ADD COLUMN model_tier TEXT NOT NULL DEFAULT 'regular'
-      CHECK (model_tier IN ('regular', 'advanced', 'max'));
-    `,
-    },
-    {
-        id: 13,
-        name: 'add_credit_purchase_ledger',
-        up: `
-      CREATE TABLE credit_purchases (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        stripe_checkout_session_id TEXT NOT NULL UNIQUE,
-        stripe_payment_intent_id TEXT,
-        stripe_event_id TEXT,
-        package_code TEXT NOT NULL,
-        customer_amount_cents INTEGER NOT NULL,
-        credited_amount_cents INTEGER NOT NULL,
-        status TEXT NOT NULL CHECK (status IN ('pending', 'fulfilled', 'failed')),
-        openrouter_key_hash TEXT,
-        remaining_before_usd REAL,
-        remaining_after_usd REAL,
-        failure_reason TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_credit_purchases_user_created
-        ON credit_purchases (user_id, created_at DESC);
-
-      CREATE INDEX idx_credit_purchases_status_updated
-        ON credit_purchases (status, updated_at DESC);
-    `,
-    },
-    {
-        id: 14,
-        name: 'add_tutor_conversation_reports',
-        up: `
-      ALTER TABLE conversations
-      ADD COLUMN closed_at TEXT;
-
-      CREATE INDEX idx_conversations_closed_updated
-        ON conversations (closed_at, updated_at DESC, created_at DESC);
 
       CREATE TABLE tutor_conversation_reports (
         id TEXT PRIMARY KEY,
@@ -642,12 +480,85 @@ export const migrations = [
 
       CREATE INDEX idx_conversation_tutor_report_snapshots_report
         ON conversation_tutor_report_snapshots (tutor_conversation_report_id, created_at DESC);
-    `,
-    },
-    {
-        id: 15,
-        name: 'add_learner_progress',
-        up: `
+
+      CREATE TABLE conversation_tutor_plans (
+        conversation_id TEXT PRIMARY KEY,
+        plan_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE TABLE practice_module_share_links (
+        id TEXT PRIMARY KEY,
+        practice_module_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (practice_module_id)
+          REFERENCES practice_modules (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_practice_module_share_links_active
+        ON practice_module_share_links (practice_module_id, revoked_at, created_at DESC);
+
+      CREATE TABLE practice_module_collection_share_links (
+        id TEXT PRIMARY KEY,
+        collection_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (collection_id)
+          REFERENCES practice_module_collections (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_practice_module_collection_share_links_active
+        ON practice_module_collection_share_links (collection_id, revoked_at, created_at DESC);
+
+      CREATE TABLE messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conversation_id TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('user', 'model')),
+        content TEXT NOT NULL,
+        metadata TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_messages_conversation_created
+        ON messages (conversation_id, created_at, id);
+
+      CREATE TABLE credit_purchases (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        stripe_checkout_session_id TEXT NOT NULL UNIQUE,
+        stripe_payment_intent_id TEXT,
+        stripe_event_id TEXT,
+        package_code TEXT NOT NULL,
+        customer_amount_cents INTEGER NOT NULL,
+        credited_amount_cents INTEGER NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'fulfilled', 'failed')),
+        openrouter_key_hash TEXT,
+        remaining_before_usd REAL,
+        remaining_after_usd REAL,
+        failure_reason TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_credit_purchases_user_created
+        ON credit_purchases (user_id, created_at DESC);
+
+      CREATE INDEX idx_credit_purchases_status_updated
+        ON credit_purchases (status, updated_at DESC);
+
       CREATE TABLE learner_progress_profiles (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -690,36 +601,6 @@ export const migrations = [
 
       CREATE INDEX idx_learner_progress_events_profile_date
         ON learner_progress_events (user_id, profile_id, event_date DESC, id DESC);
-    `,
-    },
-    {
-        id: 16,
-        name: 'add_conversation_tutor_plans',
-        up: `
-      CREATE TABLE conversation_tutor_plans (
-        conversation_id TEXT PRIMARY KEY,
-        plan_json TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE
-      );
-    `,
-    },
-    {
-        id: 17,
-        name: 'add_profile_learning_context',
-        up: `
-      ALTER TABLE profiles
-      ADD COLUMN learning_context TEXT NOT NULL DEFAULT '';
-
-      ALTER TABLE profiles
-      ADD COLUMN profile_onboarding_completed_at TEXT;
-
-      UPDATE profiles
-      SET profile_onboarding_completed_at = CURRENT_TIMESTAMP
-      WHERE profile_onboarding_completed_at IS NULL;
     `,
     },
 ];
