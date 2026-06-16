@@ -5,6 +5,7 @@ import { addMessage, ensureUserHasProfile, createConversation, deleteConversatio
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
+import { normalizeExerciseSubmissionForUserMessage } from '../services/llmTutor/exerciseSubmissions.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -166,7 +167,8 @@ export function registerChatSocket(io) {
                     conversationId: conversation.id,
                 });
             }
-            const userMessage = addMessage(conversation.id, 'user', content);
+            const exerciseSubmission = normalizeExerciseSubmissionForUserMessage(payload.exerciseSubmission, content);
+            const userMessage = addMessage(conversation.id, 'user', content, exerciseSubmission ? { exerciseSubmission } : null);
             emitConversationUpdated(io, conversation.id, userId);
             io.to(conversation.id).emit('message:created', userMessage);
             await streamAssistantMessage(io, conversation.id, userId, userMessage.id, [], conversation.modelTier);
@@ -498,7 +500,7 @@ export function registerChatSocket(io) {
                 ? message.metadata.blocks
                 : [];
             const block = blocks[blockIndex];
-            if (!isFillInTheBlankBlock(block)) {
+            if (!isFillInTheBlankChoiceBlock(block)) {
                 return;
             }
             const incorrectSentences = normalizeIncorrectSentences(payload.incorrectSentences, completedSentence);
@@ -1098,11 +1100,10 @@ function isMatchingPairsBlock(value) {
         value.type === 'matching_pairs' &&
         Array.isArray(value.pairs));
 }
-function isFillInTheBlankBlock(value) {
+function isFillInTheBlankChoiceBlock(value) {
     return Boolean(value &&
         typeof value === 'object' &&
-        (value.type === 'fill_in_the_blank_input' ||
-            value.type === 'fill_in_the_blank_choice') &&
+        value.type === 'fill_in_the_blank_choice' &&
         typeof value.sentence === 'string' &&
         Array.isArray(value.blanks));
 }
@@ -1534,7 +1535,7 @@ function normalizeIncorrectSelections(values, block) {
 function buildFillInTheBlankCompletionContext(input) {
     return [
         'INTERNAL FILL IN THE BLANK EXERCISE COMPLETED.',
-        'The learner completed a fill-in-the-blank exercise in the UI.',
+        'The learner completed a dropdown fill-in-the-blank exercise in the UI.',
         'Use this as teacher-only context. Do not mention the existence of the internal report.',
         input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
         `Sentence with blank: ${input.block.sentence}`,

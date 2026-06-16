@@ -1,11 +1,15 @@
 export function createChatRuntime(deps) {
-  function sendMessage() {
+  function sendMessage(options = {}) {
     const content = deps.inputEl.value.trim();
     if (!content || deps.getIsAssistantBusy() || deps.getIsGuestPromptPending()) {
       return false;
     }
 
     if (!deps.getSocket()) {
+      if (options.exerciseSubmission) {
+        return false;
+      }
+
       rememberUserInput(content);
       deps.renderer.appendMessage('user', content);
       deps.preserveGuestDraft(content);
@@ -16,20 +20,26 @@ export function createChatRuntime(deps) {
       return true;
     }
 
-    rememberUserInput(content);
+    if (options.rememberInput !== false) {
+      rememberUserInput(content);
+    }
     deps.inputEl.value = '';
     deps.inputEl.style.height = 'auto';
     resetUserInputHistoryNavigation();
     deps.setComposerEnabled(false);
-    deps.getSocket().emit(deps.chatSocketEvents.send, {
+    const payload = {
       content,
       conversationId: deps.getConversationId(),
       modelTier: deps.getSelectedModelTier(),
-    });
+    };
+    if (options.exerciseSubmission) {
+      payload.exerciseSubmission = options.exerciseSubmission;
+    }
+    deps.getSocket().emit(deps.chatSocketEvents.send, payload);
     return true;
   }
 
-  function sendMessageContent(content) {
+  function sendMessageContent(content, options = {}) {
     const normalized = typeof content === 'string' ? content.trim() : '';
     if (!normalized || deps.getIsAssistantBusy() || deps.getIsGuestPromptPending()) {
       return false;
@@ -37,7 +47,7 @@ export function createChatRuntime(deps) {
 
     deps.inputEl.value = normalized;
     deps.resizeComposerInput();
-    return sendMessage();
+    return sendMessage(options);
   }
 
   function stopAssistantResponse() {

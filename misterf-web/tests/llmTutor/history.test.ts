@@ -91,4 +91,61 @@ describe('model-facing tutor history', () => {
       },
     ]);
   });
+
+  it('serializes open-ended exercise submissions with source block context', () => {
+    const message = buildMessage({
+      content: 'I usually drink coffee in the morning.',
+      metadata: {
+        exerciseSubmission: {
+          block: {
+            prompt: 'Completa la oración con una opción natural.',
+            sentence: 'I usually ___ coffee in the morning.',
+            type: 'fill_in_the_blank_input',
+          },
+          completedSentence: 'I usually drink coffee in the morning.',
+          type: 'fill_in_the_blank_input',
+          values: ['drink'],
+        },
+      },
+      role: 'user',
+    });
+
+    expect(JSON.parse(getTutorHistoryContent(message))).toEqual({
+      exerciseSubmission: {
+        block: {
+          prompt: 'Completa la oración con una opción natural.',
+          sentence: 'I usually ___ coffee in the morning.',
+          type: 'fill_in_the_blank_input',
+        },
+        completedSentence: 'I usually drink coffee in the morning.',
+        type: 'fill_in_the_blank_input',
+        values: ['drink'],
+      },
+      kind: 'learner_exercise_submission',
+      visibleContent: 'I usually drink coffee in the morning.',
+    });
+  });
+
+  it('falls back to plain learner content when exercise submission metadata is incomplete', () => {
+    const messages = toTutorHistory([
+      buildMessage({
+        content: 'I usually drink coffee in the morning.',
+        metadata: {
+          exerciseSubmission: {
+            completedSentence: 'I usually drink coffee in the morning.',
+            type: 'fill_in_the_blank_input',
+            values: ['drink'],
+          },
+        },
+        role: 'user',
+      }),
+    ]);
+
+    expect(messages).toEqual([
+      {
+        content: 'I usually drink coffee in the morning.',
+        role: 'user',
+      },
+    ]);
+  });
 });

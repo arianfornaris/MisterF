@@ -151,6 +151,7 @@ export function createTutorMessageRenderer(deps) {
             getConversationId: deps.getConversationId,
             getSelectedModelTier: deps.getSelectedModelTier,
             getSocket: deps.getSocket,
+            sendMessageContent: deps.sendMessageContent,
           },
         );
         if (card) {
@@ -284,10 +285,23 @@ export function createTutorMessageRenderer(deps) {
   }
 
   function appendStoredMessage(message) {
+    if (isHiddenExerciseSubmissionMessage(message)) {
+      return null;
+    }
+
     return appendMessage(message.role, message.content, {
       id: message.id,
       metadata: message.metadata,
     });
+  }
+
+  function isHiddenExerciseSubmissionMessage(message) {
+    return Boolean(
+      message?.role === 'user' &&
+      message.metadata &&
+      typeof message.metadata === 'object' &&
+      message.metadata.exerciseSubmission,
+    );
   }
 
   function appendMessage(role, content, options = {}) {

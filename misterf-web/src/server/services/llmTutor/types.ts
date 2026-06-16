@@ -69,9 +69,6 @@ export type TutorFillInTheBlankInputBlock = {
   type: 'fill_in_the_blank_input';
   prompt?: string;
   sentence: string;
-  blanks: Array<{
-    answers: string[];
-  }>;
 };
 
 export type TutorFillInTheBlankChoiceBlock = {

@@ -33,6 +33,7 @@ import {
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
+import { normalizeExerciseSubmissionForUserMessage } from '../services/llmTutor/exerciseSubmissions.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
 import {
   LlmFinishReasonError,
@@ -41,7 +42,6 @@ import {
   runTutorAgentLoop,
   translateTextWithLlm,
   type TutorFillInTheBlankChoiceBlock,
-  type TutorFillInTheBlankInputBlock,
   type LlmRequestOptions,
   type LlmRequestTokenUsage,
   type TutorQuizBlock,
@@ -67,6 +67,7 @@ type JoinPayload = {
 type SendMessagePayload = {
   conversationId?: string | null;
   content?: string;
+  exerciseSubmission?: unknown;
   modelTier?: string;
 };
 
@@ -392,7 +393,16 @@ export function registerChatSocket(io: Server): void {
         });
       }
 
-      const userMessage = addMessage(conversation.id, 'user', content);
+      const exerciseSubmission = normalizeExerciseSubmissionForUserMessage(
+        payload.exerciseSubmission,
+        content,
+      );
+      const userMessage = addMessage(
+        conversation.id,
+        'user',
+        content,
+        exerciseSubmission ? { exerciseSubmission } : null,
+      );
       emitConversationUpdated(io, conversation.id, userId);
       io.to(conversation.id).emit('message:created', userMessage);
 
@@ -811,7 +821,7 @@ export function registerChatSocket(io: Server): void {
           ? message.metadata.blocks
           : [];
         const block = blocks[blockIndex];
-        if (!isFillInTheBlankBlock(block)) {
+        if (!isFillInTheBlankChoiceBlock(block)) {
           return;
         }
 
@@ -1599,16 +1609,13 @@ function isMatchingPairsBlock(value: unknown): value is TutorMatchingPairsBlock 
   );
 }
 
-function isFillInTheBlankBlock(
+function isFillInTheBlankChoiceBlock(
   value: unknown,
-): value is TutorFillInTheBlankInputBlock | TutorFillInTheBlankChoiceBlock {
+): value is TutorFillInTheBlankChoiceBlock {
   return Boolean(
     value &&
       typeof value === 'object' &&
-      (
-        (value as Record<string, unknown>).type === 'fill_in_the_blank_input' ||
-        (value as Record<string, unknown>).type === 'fill_in_the_blank_choice'
-      ) &&
+      (value as Record<string, unknown>).type === 'fill_in_the_blank_choice' &&
       typeof (value as Record<string, unknown>).sentence === 'string' &&
       Array.isArray((value as Record<string, unknown>).blanks),
   );
@@ -2264,14 +2271,14 @@ function normalizeIncorrectSelections(
 }
 
 function buildFillInTheBlankCompletionContext(input: {
-  block: TutorFillInTheBlankInputBlock | TutorFillInTheBlankChoiceBlock;
+  block: TutorFillInTheBlankChoiceBlock;
   completedSentence: string;
   incorrectSentences: string[];
   totalAttempts: number;
 }): string {
   return [
     'INTERNAL FILL IN THE BLANK EXERCISE COMPLETED.',
-    'The learner completed a fill-in-the-blank exercise in the UI.',
+    'The learner completed a dropdown fill-in-the-blank exercise in the UI.',
     'Use this as teacher-only context. Do not mention the existence of the internal report.',
     input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
     `Sentence with blank: ${input.block.sentence}`,

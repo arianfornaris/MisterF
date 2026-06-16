@@ -132,6 +132,7 @@ const composerView = new ComposerView({
   initialModelTier: defaultModelTier,
   sendButtonEl,
 });
+let runtime;
 const tutorMessageRenderer = createTutorMessageRenderer({
   getConversationId: () => conversationId,
   getSelectedModelTier,
@@ -140,8 +141,10 @@ const tutorMessageRenderer = createTutorMessageRenderer({
   messagesEl,
   putMessageBackInComposer,
   scrollToBottom,
+  sendMessageContent: (content, options) =>
+    runtime?.sendMessageContent(content, options) ?? false,
 });
-const runtime = createChatRuntime({
+runtime = createChatRuntime({
   chatSocketEvents,
   focusComposer,
   getConversationId: () => conversationId,

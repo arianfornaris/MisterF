@@ -39,6 +39,11 @@ structured response protocol.
 When the user sends a message:
 
 - the message is validated and persisted
+- open-ended fill-in-the-blank submissions persist the completed sentence as
+  learner message content and store `metadata.exerciseSubmission` with the
+  source block, typed values, and completed sentence; the chat UI does not
+  render that stored learner message as a separate bubble because the answer
+  remains visible in the inline exercise
 - the conversation is created on demand if needed
 - a new conversation persists the initial greeting as a normal structured tutor
   `message` block before persisting the learner's first message

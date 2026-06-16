@@ -17,6 +17,18 @@ describe('tutor prompt contracts', () => {
     expect(protocol).not.toContain('QuizResultBlock');
   });
 
+  it('documents fill-in-the-blank input as a free-form learner reply', () => {
+    const protocol = renderTutorBlockProtocol();
+
+    expect(protocol).toContain('interface FillInTheBlankInputBlock');
+    expect(protocol).toContain('This block is intentionally open-ended.');
+    expect(protocol).toContain('model-facing learner message');
+    expect(protocol).toContain('exerciseSubmission');
+    expect(protocol).toContain('does not render a separate learner chat bubble');
+    expect(protocol).not.toContain('next normal chat message');
+    expect(protocol).not.toContain('Acceptable English typed answers for this blank.');
+  });
+
   it('does not inject the removed generic start-session prompt', () => {
     const system = buildAgentSystemInstruction({
       currentTitle: 'Nueva conversación',

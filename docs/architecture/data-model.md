@@ -148,6 +148,7 @@ Message metadata is used for features such as:
 
 - sentence evaluation overlays
 - exercise source tracking
+- open-ended exercise submissions, including the source block and learner answer
 - quiz result source tracking
 
 ### Conversation Practice Module Snapshot

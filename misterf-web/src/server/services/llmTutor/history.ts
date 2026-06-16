@@ -1,4 +1,5 @@
 import type { StoredMessage } from '../../db/repository.js';
+import { formatExerciseSubmissionForTutorHistory } from './exerciseSubmissions.js';
 import type { TutorMessage, TutorMessageBlock } from './types.js';
 
 export function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
@@ -9,8 +10,8 @@ export function toTutorHistory(messages: StoredMessage[]): TutorMessage[] {
 }
 
 export function getTutorHistoryContent(message: StoredMessage): string {
-  if (message.role !== 'model') {
-    return message.content;
+  if (message.role === 'user') {
+    return getLearnerHistoryContent(message);
   }
 
   const blocks = message.metadata?.blocks;
@@ -27,6 +28,14 @@ export function getTutorHistoryContent(message: StoredMessage): string {
   }
 
   return JSON.stringify({ blocks }, null, 2);
+}
+
+function getLearnerHistoryContent(message: StoredMessage): string {
+  const exerciseSubmission = formatExerciseSubmissionForTutorHistory(
+    message.metadata?.exerciseSubmission,
+    message.content,
+  );
+  return exerciseSubmission ?? message.content;
 }
 
 function createInitialGreetingBlock(content: string): TutorMessageBlock {

@@ -52,7 +52,12 @@ export function registerChatSocketHandlers(deps) {
     deps.setStreamingBubble(null);
     deps.setUserInputHistory(
       (payload.messages ?? [])
-        .filter((message) => message?.role === 'user' && typeof message.content === 'string')
+        .filter(
+          (message) =>
+            message?.role === 'user' &&
+            typeof message.content === 'string' &&
+            !isHiddenExerciseSubmissionMessage(message),
+        )
         .map((message) => message.content)
         .filter((content) => content.trim().length > 0),
     );
@@ -173,7 +178,7 @@ export function registerChatSocketHandlers(deps) {
     }
 
     const bubble = deps.renderer.appendStoredMessage(message);
-    if (message.role !== 'user') {
+    if (bubble && message.role !== 'user') {
       deps.renderer.markTutorMessageArrived(bubble.closest('.message-row'));
     }
     deps.scrollToBottom();
@@ -289,4 +294,13 @@ export function registerChatSocketHandlers(deps) {
 
     deps.renderer.updateRenderedMessage(message);
   });
+}
+
+function isHiddenExerciseSubmissionMessage(message) {
+  return Boolean(
+    message?.role === 'user' &&
+    message.metadata &&
+    typeof message.metadata === 'object' &&
+    message.metadata.exerciseSubmission,
+  );
 }

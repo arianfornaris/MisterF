@@ -1,3 +1,4 @@
+import { formatExerciseSubmissionForTutorHistory } from './exerciseSubmissions.js';
 export function toTutorHistory(messages) {
     return messages.map((message) => ({
         content: getTutorHistoryContent(message),
@@ -5,8 +6,8 @@ export function toTutorHistory(messages) {
     }));
 }
 export function getTutorHistoryContent(message) {
-    if (message.role !== 'model') {
-        return message.content;
+    if (message.role === 'user') {
+        return getLearnerHistoryContent(message);
     }
     const blocks = message.metadata?.blocks;
     if (!Array.isArray(blocks)) {
@@ -16,6 +17,10 @@ export function getTutorHistoryContent(message) {
         return message.content;
     }
     return JSON.stringify({ blocks }, null, 2);
+}
+function getLearnerHistoryContent(message) {
+    const exerciseSubmission = formatExerciseSubmissionForTutorHistory(message.metadata?.exerciseSubmission, message.content);
+    return exerciseSubmission ?? message.content;
 }
 function createInitialGreetingBlock(content) {
     return {

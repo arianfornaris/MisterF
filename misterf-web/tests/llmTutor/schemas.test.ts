@@ -6,6 +6,66 @@ import {
 import { validateTutorResponseBlocks } from '../../src/server/services/llmTutor/validation.js';
 
 describe('normal tutor response schema', () => {
+  it('accepts free-form fill-in-the-blank input blocks without an answer key', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'fill_in_the_blank_input',
+          prompt: 'Completa la oración con una opción natural.',
+          sentence: 'I usually ___ coffee in the morning.',
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects answer keys on free-form fill-in-the-blank input blocks', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'fill_in_the_blank_input',
+          prompt: 'Completa la oración.',
+          sentence: 'I usually ___ coffee in the morning.',
+          blanks: [
+            {
+              answers: ['drink'],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('strips legacy answer keys from persisted free-form fill-in-the-blank input blocks', () => {
+    const result = persistedTutorResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'fill_in_the_blank_input',
+          prompt: 'Completa la oración.',
+          sentence: 'I usually ___ coffee in the morning.',
+          blanks: [
+            {
+              answers: ['drink'],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) {
+      return;
+    }
+    expect(result.data.blocks[0]).toEqual({
+      type: 'fill_in_the_blank_input',
+      prompt: 'Completa la oración.',
+      sentence: 'I usually ___ coffee in the morning.',
+    });
+  });
+
   it('rejects quiz_result from normal tutor output', () => {
     const result = tutorAgentResponseSchema.safeParse({
       blocks: [

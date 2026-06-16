@@ -711,27 +711,41 @@ export const quizResultEvaluationsSchema = z
   })
   .strict();
 
-export const fillInTheBlankInputBlockSchema = z
+const fillInTheBlankInputShape = {
+  type: z.literal('fill_in_the_blank_input'),
+  prompt: z.string().trim().min(1).max(1000).optional(),
+  sentence: z.string().trim().min(1).max(1600),
+};
+
+const legacyFillInTheBlankInputBlankSchema = z
   .object({
-    type: z.literal('fill_in_the_blank_input'),
-    prompt: z.string().trim().min(1).max(1000).optional(),
-    sentence: z.string().trim().min(1).max(1600),
-    blanks: z
-      .array(
-        z
-          .object({
-            answers: z.array(z.string().trim().min(1).max(240)).min(1).max(16),
-          })
-          .strict(),
-      )
-      .min(1)
-      .max(20),
+    answers: z.array(z.string().trim().min(1).max(240)).min(1).max(16),
   })
+  .strict();
+
+export const fillInTheBlankInputBlockSchema = z
+  .object(fillInTheBlankInputShape)
   .strict()
-  .refine((block) => countSentencePlaceholders(block.sentence, '___') === block.blanks.length, {
-    message: 'sentence must contain exactly one ___ placeholder per blanks entry.',
+  .refine((block) => countSentencePlaceholders(block.sentence, '___') > 0, {
+    message: 'sentence must contain at least one ___ placeholder.',
     path: ['sentence'],
   });
+
+const persistedFillInTheBlankInputBlockSchema = z
+  .object({
+    ...fillInTheBlankInputShape,
+    blanks: z.array(legacyFillInTheBlankInputBlankSchema).min(1).max(20).optional(),
+  })
+  .strict()
+  .refine((block) => countSentencePlaceholders(block.sentence, '___') > 0, {
+    message: 'sentence must contain at least one ___ placeholder.',
+    path: ['sentence'],
+  })
+  .transform((block) => ({
+    type: block.type,
+    ...(block.prompt ? { prompt: block.prompt } : {}),
+    sentence: block.sentence,
+  }));
 
 export const fillInTheBlankChoiceBlockSchema = z
   .object({
@@ -969,6 +983,7 @@ const tutorAgentResponseBlockSchema = z.union([
 
 export const persistedTutorResponseBlockSchema = z.union([
   tutorAgentResponseBlockSchema,
+  persistedFillInTheBlankInputBlockSchema,
   quizResultBlockSchema,
 ]);
 

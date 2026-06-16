@@ -1,29 +1,31 @@
 /**
- * Fill-in-the-blank exercise where the learner types the answer.
+ * Fill-in-the-blank exercise where the learner types a free-form answer.
  *
  * Use for one sentence containing one or more writable blanks. The sentence
- * must contain one `___` placeholder for each entry in `blanks`. If the correct
- * answer is a multi-word phrase such as "ice cream", use one `___` placeholder
- * and put the whole phrase in one `answers` entry. Do not write `___ ___`
- * unless there are two independently answered blanks.
+ * must contain one or more `___` placeholders. If the expected learner answer
+ * is a multi-word phrase such as "ice cream", use one `___` placeholder for the
+ * whole phrase. Do not write `___ ___` unless there are two independently
+ * answered blanks.
  *
- * Each blank must include one or more acceptable answers. The app shows a
- * confirmation control, so the learner may think, edit, and submit when ready.
+ * This block is intentionally open-ended. Do not include a hidden answer key,
+ * accepted answer list, rubric, or correctness status in this block. When the
+ * learner submits the completed sentence, the app sends it as the next
+ * model-facing learner message with structured exerciseSubmission context
+ * containing this block, the learner's typed values, and the completed
+ * sentence. The app does not render a separate learner chat bubble for that
+ * submission; the visible answer remains in the inline exercise. Evaluate and
+ * respond naturally in Spanish according to the conversation context, instead
+ * of relying on local UI validation.
  *
- * After completion, the app may send an internal report with the completed
- * sentence and incorrect attempted full sentences. Use it as teacher-only
- * context, do not mention the report.
+ * The app shows a confirmation control, so the learner may think, edit, and
+ * submit when ready. After submission, the app disables the inline input while
+ * Mr. F responds in the normal conversation flow.
  */
 interface FillInTheBlankInputBlock {
   /** Literal discriminator. */
   type: "fill_in_the_blank_input";
   /** Optional Spanish instruction shown above the sentence. */
   prompt?: string;
-  /** English practice sentence with one `___` placeholder per blank. */
+  /** English practice sentence with one or more `___` placeholders. */
   sentence: string;
-  /** One entry per `___` placeholder, in sentence order. */
-  blanks: Array<{
-    /** Acceptable English typed answers for this blank. */
-    answers: string[];
-  }>;
 }

@@ -8,18 +8,29 @@ import {
 } from '../shared/exerciseUtils.js';
 
 export function createFillInTheBlankCard(block, context, deps) {
+  const isChoiceBlock = block.type === 'fill_in_the_blank_choice';
   const placeholderToken =
-    block.type === 'fill_in_the_blank_choice' ? '{{blank}}' : '___';
+    isChoiceBlock ? '{{blank}}' : '___';
   if (
     typeof block.sentence !== 'string' ||
-    !Array.isArray(block.blanks) ||
     !block.sentence.includes(placeholderToken)
   ) {
     return null;
   }
 
   const sentence = block.sentence.replace(/\s+/g, ' ').trim();
-  const blanks = block.blanks
+  const segments = splitSentenceByBlanks(sentence, placeholderToken);
+  if (!segments) {
+    return null;
+  }
+
+  const blankCount = segments.length - 1;
+  if (!sentence || blankCount <= 0) {
+    return null;
+  }
+
+  const rawBlanks = Array.isArray(block.blanks) ? block.blanks : [];
+  const blanks = rawBlanks
     .filter((blank) => blank && typeof blank === 'object')
     .map((blank) => ({
       answers: Array.isArray(blank.answers)
@@ -36,14 +47,17 @@ export function createFillInTheBlankCard(block, context, deps) {
               .filter(Boolean)
           : [],
     }));
-  if (!sentence || blanks.length === 0) {
+
+  if (isChoiceBlock && blanks.length !== blankCount) {
     return null;
   }
 
-  const segments = splitSentenceByBlanks(sentence, placeholderToken);
-  if (!segments || segments.length !== blanks.length + 1) {
-    return null;
-  }
+  const normalizedBlanks = isChoiceBlock
+    ? blanks
+    : Array.from({ length: blankCount }, (_unused, index) => ({
+        answers: blanks[index]?.answers || [],
+        choices: [],
+      }));
 
   const blockIndex = Number(context.blockIndex) || 0;
   const messageId = Number(context.messageId) || 0;
@@ -73,7 +87,7 @@ export function createFillInTheBlankCard(block, context, deps) {
 
   const state = {
     blockIndex,
-    blanks: blanks.map((blank) => ({
+    blanks: normalizedBlanks.map((blank) => ({
       answersNormalized: new Set(blank.answers.map(normalizeExerciseAnswer)),
       choices: blank.choices,
     })),
@@ -96,16 +110,17 @@ export function createFillInTheBlankCard(block, context, deps) {
     sentence,
     statusTone: '',
     statusText: '',
+    submitted: false,
     totalAttempts: Number(context.fillResult?.totalAttempts) || 0,
     type: block.type,
     placeholderToken,
     values:
-      persistedValues.length === blanks.length
+      persistedValues.length === normalizedBlanks.length
         ? persistedValues
-        : new Array(blanks.length).fill(''),
+        : new Array(normalizedBlanks.length).fill(''),
   };
 
-  for (let index = 0; index < blanks.length; index += 1) {
+  for (let index = 0; index < normalizedBlanks.length; index += 1) {
     const before = document.createElement('span');
     before.className = 'fill-in-the-blank-text';
     before.textContent = segments[index] || '';
@@ -121,7 +136,7 @@ export function createFillInTheBlankCard(block, context, deps) {
       input.dataset.blankIndex = String(index);
       input.style.setProperty(
         '--blank-input-width',
-        `${getBlankInputWidthCh(blanks[index].answers)}ch`,
+        `${getBlankInputWidthCh(normalizedBlanks[index].answers)}ch`,
       );
       disableTextAssist(input);
       input.value = state.values[index] || '';
@@ -133,7 +148,7 @@ export function createFillInTheBlankCard(block, context, deps) {
       });
       blankWrap.append(input);
     } else {
-      if (blanks[index].choices.length < 2) {
+      if (normalizedBlanks[index].choices.length < 2) {
         return null;
       }
 
@@ -142,7 +157,7 @@ export function createFillInTheBlankCard(block, context, deps) {
       select.dataset.blankIndex = String(index);
       select.style.setProperty(
         '--blank-select-width',
-        `${getChoiceSelectWidthCh(blanks[index].choices)}ch`,
+        `${getChoiceSelectWidthCh(normalizedBlanks[index].choices)}ch`,
       );
 
       const emptyOption = document.createElement('option');
@@ -150,7 +165,7 @@ export function createFillInTheBlankCard(block, context, deps) {
       emptyOption.textContent = '';
       select.append(emptyOption);
 
-      seededShuffle(blanks[index].choices, `${exerciseKey}:choices:${index}`).forEach(
+      seededShuffle(normalizedBlanks[index].choices, `${exerciseKey}:choices:${index}`).forEach(
         (choice) => {
           const option = document.createElement('option');
           option.value = choice;
@@ -210,7 +225,7 @@ function renderFillInTheBlankState(section, state) {
     if (input.value !== nextValue) {
       input.value = nextValue;
     }
-    input.disabled = state.completed;
+    input.disabled = state.completed || state.submitted;
   }
 
   for (const select of section.querySelectorAll('.fill-in-the-blank-select')) {
@@ -226,14 +241,16 @@ function renderFillInTheBlankState(section, state) {
   const confirmButton = section.querySelector('.exercise-confirm-button');
   if (confirmButton instanceof HTMLButtonElement) {
     confirmButton.disabled =
-      state.completed || state.values.some((value) => !value.trim());
+      state.completed || state.submitted || state.values.some((value) => !value.trim());
     confirmButton.classList.toggle('is-success', state.completed);
   }
 
   const status = section.querySelector('.fill-in-the-blank-status');
   if (status) {
     status.classList.remove('is-error', 'is-success');
-    if (state.completed) {
+    if (state.type === 'fill_in_the_blank_input' && state.submitted) {
+      status.textContent = 'Enviado. Mr. F está respondiendo.';
+    } else if (state.completed) {
       status.textContent = 'Completado. Buen trabajo.';
       status.classList.add('is-success');
     } else if (state.statusText) {
@@ -259,6 +276,10 @@ function getChoiceSelectWidthCh(choices) {
 }
 
 function getBlankInputWidthCh(answers) {
+  if (!Array.isArray(answers) || answers.length === 0) {
+    return 16;
+  }
+
   const longestAnswerLength = answers.reduce(
     (longest, answer) => Math.max(longest, answer.length),
     0,
@@ -286,6 +307,14 @@ function handleFillInTheBlankSubmit(section, state, deps) {
     return;
   }
 
+  if (state.type === 'fill_in_the_blank_input') {
+    submitFillInTheBlankInputAnswer(section, state, deps, {
+      completedSentence,
+      values,
+    });
+    return;
+  }
+
   const isCorrect = state.blanks.every((blank, index) =>
     blank.answersNormalized.has(normalizeExerciseAnswer(values[index] || '')),
   );
@@ -305,6 +334,35 @@ function handleFillInTheBlankSubmit(section, state, deps) {
   state.statusText = 'Todavía no. Revísalo y vuelve a intentarlo.';
   state.statusTone = 'error';
   flashFillInTheBlankError(section);
+  renderFillInTheBlankState(section, state);
+}
+
+function submitFillInTheBlankInputAnswer(section, state, deps, submission) {
+  const sent = deps.sendMessageContent?.(submission.completedSentence, {
+    exerciseSubmission: {
+      block: {
+        ...(state.prompt ? { prompt: state.prompt } : {}),
+        sentence: state.sentence,
+        type: 'fill_in_the_blank_input',
+      },
+      completedSentence: submission.completedSentence,
+      type: 'fill_in_the_blank_input',
+      values: submission.values,
+    },
+    rememberInput: false,
+  });
+  if (!sent) {
+    state.statusText = 'No pude enviar la respuesta. Intenta de nuevo.';
+    state.statusTone = 'error';
+    flashFillInTheBlankError(section);
+    renderFillInTheBlankState(section, state);
+    return;
+  }
+
+  state.submitted = true;
+  state.completedSentence = submission.completedSentence;
+  state.statusText = '';
+  state.statusTone = '';
   renderFillInTheBlankState(section, state);
 }
 
