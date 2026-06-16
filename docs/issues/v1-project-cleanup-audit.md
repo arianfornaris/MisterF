@@ -13,15 +13,13 @@ The project is close to a functional v1. The current checks pass:
 - `npm test`
 - `npm run build:client`
 
-The existing automated tests now include fresh database migration coverage and structured tutor response contracts. They do not yet cover web routes, payments, auth, chatroom flows, or full UI smoke paths.
+The existing automated tests now include fresh database migration coverage, anonymous main route smoke coverage, and structured tutor response contracts. They do not yet cover authenticated web workflows, payments, chatroom flows, or full browser-level UI smoke paths.
 
-The main v1 risks are:
+The remaining main v1 risks are:
 
 - **Resolved critical:** fresh installation migrations were broken and are now covered by `tests/db/migrations.test.ts`.
-- **High:** empty database files and temporary artifacts are tracked despite ignore rules.
-- **High:** the migration from an old monolithic controller to domain handlers is incomplete.
+- **Resolved high:** the migration from the old monolithic controller to domain handlers is now complete for Phase 2.
 - **Medium:** CSS and class names mix unrelated domains, making UI cleanup fragile.
-- **Medium:** `public/build` contains many stale hashed assets.
 - **Medium:** LLM credit gating exists at important edges, but there is no automated guardrail to prevent future ungated LLM calls.
 
 ## Verification Performed
@@ -30,9 +28,10 @@ From `misterf-web/`:
 
 - `npm run typecheck`: passed.
 - `npm run test:typecheck`: passed.
-- `npm test`: passed, 5 files and 16 tests.
+- `npm test`: passed, 7 files and 27 tests.
 - `npm run build:client`: passed.
 - Fresh SQLite migration test with a temporary `DATABASE_PATH`: passed after the v1 baseline migration reset.
+- Local PM2 HTTP smoke on `http://127.0.0.1:5005`: public routes returned `200`, and anonymous protected routes returned expected `302` redirects.
 
 ## Findings
 
@@ -44,7 +43,7 @@ From `misterf-web/`:
 
 A new database cannot apply the full migration list. Migration `id: 1` is named `create_current_schema`, but it already creates objects that later migrations attempt to create again.
 
-Evidence:
+Original evidence:
 
 - `misterf-web/src/server/db/migrations.ts:9` defines `id: 1`, `create_current_schema`.
 - `misterf-web/src/server/db/migrations.ts:251` creates `conversation_chat_room_report_snapshots`.
@@ -65,6 +64,8 @@ The project chose a v1 baseline strategy: `id: 1` is the current schema bootstra
 
 **Severity:** High
 
+**Status:** Resolved on 2026-06-15. The empty tracked files were removed, and ignore rules now cover generated SQLite and DB files.
+
 Two empty database files are versioned:
 
 - `misterf-web/data.sqlite`
@@ -76,24 +77,32 @@ Evidence:
 
 - `misterf-web/.gitignore:7` ignores `data/*.sqlite`.
 - `misterf-web/.gitignore:8` ignores `data/*.sqlite-*`.
-- `git ls-files` includes `misterf-web/data.sqlite` and `misterf-web/data/app.db`.
+- `git ls-files` included `misterf-web/data.sqlite` and `misterf-web/data/app.db`.
 - `env.databasePath` defaults to `./data/misterf.sqlite` in `misterf-web/src/server/config/env.ts:42`.
 
-Recommendation:
+Resolution:
 
-Remove the empty database files from the repo and extend `.gitignore` to cover generated SQLite and DB files:
+Removed the empty files from version control:
 
-- `data/*.db`
-- `data/*.db-*`
-- optionally root-level `*.sqlite` if root database files should never be committed.
+- `misterf-web/data.sqlite`
+- `misterf-web/data/app.db`
 
-### 3. The Controller Split Is Incomplete
+Updated ignore rules to cover:
+
+- root-level `data.sqlite` in `misterf-web`
+- generated `data/*.sqlite`
+- generated `data/*.db`
+- SQLite sidecar files
+
+### 3. The Controller Split Was Incomplete
 
 **Severity:** High
 
-The app already has domain-specific handlers for chat, chatrooms, practice modules, profiles, payments, and progress. However, `server.ts` still imports practice module, profile, sharing, archive, restore, and resource actions from `auth/forms.ts`.
+**Status:** Resolved on 2026-06-15. Practice module and profile mutations now live in their domain handlers, and `auth/forms.ts` is scoped to authentication form flows.
 
-Evidence:
+The app already has domain-specific handlers for chat, chatrooms, practice modules, profiles, payments, and progress. Previously, `server.ts` still imported practice module, profile, sharing, archive, restore, and resource actions from `auth/forms.ts`.
+
+Original evidence:
 
 - `misterf-web/src/server/server.ts:6` through `misterf-web/src/server/server.ts:43` import many non-auth handlers from `./auth/forms.js`.
 - `misterf-web/src/server/practiceModules/handlers.ts:512` already renders the practice module list page.
@@ -108,38 +117,42 @@ Impact:
 
 Recommendation:
 
-Finish the extraction:
+Completed extraction:
 
-- Move remaining practice module actions from `auth/forms.ts` to `practiceModules/handlers.ts`.
-- Move remaining profile actions from `auth/forms.ts` to `profiles/handlers.ts`.
-- Keep `auth/forms.ts` focused on login, signup, password, verification, and session flows.
-- Remove unused legacy render/model helpers after the route imports no longer depend on them.
+- Practice module create/update/archive/restore/delete/favorite/share handlers moved to `src/server/practiceModules/handlers.ts`.
+- Profile create/update/switch handlers moved to `src/server/profiles/handlers.ts`.
+- `auth/forms.ts` now keeps login, signup, forgot/reset password, change password, email verification, logout, and session helpers.
+- `tests/server/routeArchitecture.test.ts` verifies that chatroom and practice module logic does not return to `auth/forms.ts`.
 
-### 4. The Central Router Has Too Much Responsibility
+### 4. The Central Router Had Too Much Responsibility
 
 **Severity:** Medium-High
 
-`server.ts` works, but it owns global middleware, static vendor configuration, all HTTP routes, socket registration, migration startup, and the listener.
+**Status:** Resolved on 2026-06-15. HTTP routes are now grouped into domain routers and mounted from `server.ts`.
 
-Evidence:
+`server.ts` still owns infrastructure composition, global middleware, static vendor configuration, socket registration, migration startup, and the listener. It no longer owns the full HTTP route table directly.
+
+Original evidence:
 
 - `misterf-web/src/server/server.ts:130` through `misterf-web/src/server/server.ts:150` configure static vendor routes.
 - `misterf-web/src/server/server.ts:157` through `misterf-web/src/server/server.ts:254` register nearly the full HTTP surface.
 
 Recommendation:
 
-Create route modules by domain:
+Completed route split:
 
 - `auth/routes.ts`
+- `chat/routes.ts`
 - `profiles/routes.ts`
 - `practiceModules/routes.ts`
 - `chatrooms/routes.ts`
 - `payments/routes.ts`
 - `legal/routes.ts`
 - `progress/routes.ts`
+- `settings/routes.ts`
 - `superadmin/routes.ts`
 
-Then keep `server.ts` as infrastructure composition: config, middleware, static assets, route mounting, sockets, and `listen`.
+`server.ts` now mounts those routers after global middleware. Stripe webhook raw body handling still runs before URL encoding, CSRF, session loading, and onboarding redirects.
 
 ### 5. Domain-Specific CSS Classes Are Reused Across Unrelated Pages
 
@@ -197,6 +210,8 @@ Do not rewrite the UI before v1. Prefer a safe cleanup:
 
 **Severity:** Medium
 
+**Status:** Resolved on 2026-06-15. `public/build` remains committed by policy, but stale generated Vite output is cleaned before each client build.
+
 `public/build/entries` contains many stale hashed versions of `chat`, `chatrooms`, and `practice-modules` bundles. The current build points to only a few generated entry files through `views/partials/*-client-script.ejs`.
 
 Evidence:
@@ -211,22 +226,20 @@ Impact:
 - Risk of inspecting or serving stale assets by mistake.
 - Larger and less understandable repository.
 
-Recommendation:
+Resolution:
 
-Choose a build artifact policy:
+The project intentionally commits `public/build` so the lightweight production server does not need to build client assets during deployment.
 
-- If production builds on the server, stop tracking generated `public/build` files except non-generated static assets.
-- If deployment requires committed assets, clean stale JS entries before each build and commit only current manifest, partials, and current assets.
+`scripts/build-client.mjs` now removes stale generated Vite output before running `vite build`, while preserving non-generated brand assets. The committed build output should contain only the active manifest, current entry bundles, current shared chunks, current generated CSS, sourcemaps, and brand assets.
 
-The current script cleans old CSS files, but not old JS entry files.
+After cleanup, `public/build` contains 12 current files instead of the previous accumulated historical bundle set.
 
-### 8. Test Coverage Is Too Narrow For A V1 Freeze
+### 8. Test Coverage Is Still Too Narrow For A V1 Freeze
 
 **Severity:** Medium
 
-The existing tests pass, but they focus on `llmTutor`. Missing coverage includes:
+The existing tests pass and now cover fresh migrations, anonymous main route rendering, protected-route redirects, and `llmTutor` contracts. Missing coverage still includes:
 
-- Fresh migrations.
 - Local and Google auth happy/error paths.
 - CSRF behavior on critical forms.
 - Practice module CRUD and sharing.
@@ -237,8 +250,9 @@ The existing tests pass, but they focus on `llmTutor`. Missing coverage includes
 
 Evidence:
 
-- The only test files found are under `tests/llmTutor/*.test.ts`.
-- The fresh migration failure was not caught by the test suite.
+- Fresh migration coverage exists in `misterf-web/tests/db/migrations.test.ts`.
+- Main anonymous route smoke coverage exists in `misterf-web/tests/server/routes.test.ts`.
+- Authenticated workflow, payment, and full feature-flow coverage is still missing.
 
 Recommendation:
 
@@ -313,15 +327,17 @@ Update README as the v1 operating guide. Convert `TODO.txt` into a curated backl
 
 **Severity:** Low
 
-Local and temporary files are present:
+**Status:** Resolved for tracked temporary artifacts on 2026-06-15. `.tmp-chatrooms-auth.html` was removed and root temporary artifacts are now ignored.
 
-- `.tmp-chatrooms-auth.html` is tracked.
+Original evidence:
+
+- `.tmp-chatrooms-auth.html` was tracked.
 - `misterf-web/src/server/services/.DS_Store` appears as ignored local junk.
 - `misterf-web/.DS_Store` appears as ignored local junk.
 
-Recommendation:
+Resolution:
 
-Remove `.tmp-chatrooms-auth.html` from the repo if it is not an intentional fixture. Keep `.DS_Store` ignored and remove local copies.
+`.tmp-chatrooms-auth.html` was not referenced by source, scripts, docs, or tests except as cleanup debt, so it was removed. The repository root now ignores `.tmp-*` and `.DS_Store`.
 
 ## Strengths
 
@@ -343,9 +359,7 @@ Remove `.tmp-chatrooms-auth.html` from the repo if it is not an intentional fixt
 ### Phase 1: Blocking Cleanup
 
 1. Fix `migrations.ts` so a fresh SQLite database migrates without error.
-2. Remove `misterf-web/data.sqlite`, `misterf-web/data/app.db`, and `.tmp-chatrooms-auth.html` if they are not intentional fixtures.
-3. Extend `.gitignore` for generated SQLite/DB files and real temporary artifacts.
-4. Define the `public/build` policy and remove stale hashed assets.
+2. Keep `public/build` committed, but regenerate it locally before deploy so stale hashed assets do not accumulate.
 
 ### Phase 2: Architecture Cleanup Without Product Changes
 

@@ -4,7 +4,11 @@ tmp/
 .env
 .env.*
 !.env.example
+/data.sqlite
+/data.sqlite-*
 data/*.sqlite
 data/*.sqlite-*
+data/*.db
+data/*.db-*
 npm-debug.log*
 .DS_Store

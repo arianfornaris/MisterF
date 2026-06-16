@@ -1,0 +1,1 @@
+{"version":3,"file":"routes.js","sourceRoot":"","sources":["../../../src/server/progress/routes.ts"],"names":[],"mappings":"AAAA,OAAO,OAAO,MAAM,SAAS,CAAC;AAC9B,OAAO,EAAE,kBAAkB,EAAE,MAAM,eAAe,CAAC;AAEnD,MAAM,CAAC,MAAM,cAAc,GAAG,OAAO,CAAC,MAAM,EAAE,CAAC;AAE/C,cAAc,CAAC,GAAG,CAAC,WAAW,EAAE,kBAAkB,CAAC,CAAC"}

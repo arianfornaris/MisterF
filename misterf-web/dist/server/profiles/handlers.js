@@ -1,6 +1,8 @@
-import { findProfileForUser, markProfileOnboardingCompleted, updateProfile, } from '../db/repository.js';
+import { createProfile, findProfileForUser, markProfileOnboardingCompleted, updateConversationModelTierForProfile, updateProfile, } from '../db/repository.js';
+import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { normalizeProfileReturnTo, normalizeProfileText, profileDescriptionMaxLength, profileLearningContextMaxLength, profileNameMaxLength, } from './fields.js';
+import { normalizeProfileModelTier } from './modelTier.js';
 const profileFieldLimits = {
     description: profileDescriptionMaxLength,
     learningContext: profileLearningContextMaxLength,
@@ -13,6 +15,16 @@ function ensureVerifiedProfileUser(request, response) {
         return null;
     }
     return user;
+}
+function normalizeReturnTo(value) {
+    if (!value) {
+        return '/';
+    }
+    const trimmed = value.trim();
+    if (!trimmed.startsWith('/')) {
+        return '/';
+    }
+    return trimmed;
 }
 export function renderProfilesListPage(request, response) {
     const user = ensureVerifiedProfileUser(request, response);
@@ -175,5 +187,83 @@ export function handleSkipProfileOnboarding(request, response) {
         userId: user.id,
     });
     response.redirect(normalizeProfileReturnTo(request.body.returnTo));
+}
+export function handleSwitchProfile(request, response) {
+    const user = ensureVerifiedProfileUser(request, response);
+    if (!user) {
+        return;
+    }
+    const profileId = String(request.body.profileId || '').trim();
+    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+    if (!profileId) {
+        response.redirect(returnTo);
+        return;
+    }
+    const profile = findProfileForUser(profileId, user.id);
+    if (!profile) {
+        response.redirect(returnTo);
+        return;
+    }
+    setActiveProfileCookie(response, profile.id);
+    response.redirect(returnTo);
+}
+export function handleCreateProfile(request, response) {
+    const user = ensureVerifiedProfileUser(request, response);
+    if (!user) {
+        return;
+    }
+    const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+    const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
+    const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
+    const modelTier = normalizeProfileModelTier(request.body.modelTier);
+    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+    if (!name) {
+        response.redirect(returnTo);
+        return;
+    }
+    const profile = createProfile({
+        description,
+        learningContext,
+        modelTier,
+        name,
+        profileOnboardingCompleted: true,
+        userId: user.id,
+    });
+    setActiveProfileCookie(response, profile.id);
+    response.redirect(returnTo);
+}
+export function handleUpdateProfile(request, response) {
+    const user = ensureVerifiedProfileUser(request, response);
+    if (!user) {
+        return;
+    }
+    const profileId = String(request.params.profileId || '').trim();
+    if (!profileId) {
+        response.redirect('/profiles');
+        return;
+    }
+    const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+    const description = normalizeProfileText(request.body.description, profileDescriptionMaxLength);
+    const learningContext = normalizeProfileText(request.body.learningContext, profileLearningContextMaxLength);
+    const modelTier = normalizeProfileModelTier(request.body.modelTier);
+    if (!name) {
+        response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
+        return;
+    }
+    const profile = updateProfile({
+        description,
+        learningContext,
+        modelTier,
+        name,
+        profileId,
+        profileOnboardingCompleted: true,
+        userId: user.id,
+    });
+    if (!profile) {
+        response.redirect('/profiles');
+        return;
+    }
+    updateConversationModelTierForProfile(user.id, profile.id, modelTier);
+    response.redirect('/profiles');
 }
 //# sourceMappingURL=handlers.js.map

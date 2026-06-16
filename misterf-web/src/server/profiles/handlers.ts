@@ -1,9 +1,12 @@
 import type { Request, Response } from 'express';
 import {
+  createProfile,
   findProfileForUser,
   markProfileOnboardingCompleted,
+  updateConversationModelTierForProfile,
   updateProfile,
 } from '../db/repository.js';
+import { setActiveProfileCookie } from '../auth/profiles.js';
 import {
   appDocumentTitle,
   buildAppShellContext,
@@ -16,6 +19,7 @@ import {
   profileLearningContextMaxLength,
   profileNameMaxLength,
 } from './fields.js';
+import { normalizeProfileModelTier } from './modelTier.js';
 
 const profileFieldLimits = {
   description: profileDescriptionMaxLength,
@@ -34,6 +38,19 @@ function ensureVerifiedProfileUser(
   }
 
   return user;
+}
+
+function normalizeReturnTo(value: string | undefined): string {
+  if (!value) {
+    return '/';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed.startsWith('/')) {
+    return '/';
+  }
+
+  return trimmed;
 }
 
 export function renderProfilesListPage(request: Request, response: Response): void {
@@ -233,4 +250,107 @@ export function handleSkipProfileOnboarding(
   });
 
   response.redirect(normalizeProfileReturnTo(request.body.returnTo));
+}
+
+export function handleSwitchProfile(request: Request, response: Response): void {
+  const user = ensureVerifiedProfileUser(request, response);
+  if (!user) {
+    return;
+  }
+
+  const profileId = String(request.body.profileId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  if (!profileId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const profile = findProfileForUser(profileId, user.id);
+  if (!profile) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  setActiveProfileCookie(response, profile.id);
+  response.redirect(returnTo);
+}
+
+export function handleCreateProfile(request: Request, response: Response): void {
+  const user = ensureVerifiedProfileUser(request, response);
+  if (!user) {
+    return;
+  }
+
+  const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+  const description = normalizeProfileText(
+    request.body.description,
+    profileDescriptionMaxLength,
+  );
+  const learningContext = normalizeProfileText(
+    request.body.learningContext,
+    profileLearningContextMaxLength,
+  );
+  const modelTier = normalizeProfileModelTier(request.body.modelTier);
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
+  if (!name) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const profile = createProfile({
+    description,
+    learningContext,
+    modelTier,
+    name,
+    profileOnboardingCompleted: true,
+    userId: user.id,
+  });
+  setActiveProfileCookie(response, profile.id);
+  response.redirect(returnTo);
+}
+
+export function handleUpdateProfile(request: Request, response: Response): void {
+  const user = ensureVerifiedProfileUser(request, response);
+  if (!user) {
+    return;
+  }
+
+  const profileId = String(request.params.profileId || '').trim();
+  if (!profileId) {
+    response.redirect('/profiles');
+    return;
+  }
+
+  const name = normalizeProfileText(request.body.name, profileNameMaxLength);
+  const description = normalizeProfileText(
+    request.body.description,
+    profileDescriptionMaxLength,
+  );
+  const learningContext = normalizeProfileText(
+    request.body.learningContext,
+    profileLearningContextMaxLength,
+  );
+  const modelTier = normalizeProfileModelTier(request.body.modelTier);
+  if (!name) {
+    response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
+    return;
+  }
+
+  const profile = updateProfile({
+    description,
+    learningContext,
+    modelTier,
+    name,
+    profileId,
+    profileOnboardingCompleted: true,
+    userId: user.id,
+  });
+  if (!profile) {
+    response.redirect('/profiles');
+    return;
+  }
+
+  updateConversationModelTierForProfile(user.id, profile.id, modelTier);
+
+  response.redirect('/profiles');
 }

@@ -36,25 +36,36 @@ Notes:
 
 ### 0.2 Add Main Route Smoke Coverage
 
-- [ ] Add minimal render smoke tests for `/`, `/login`, `/signup`, `/practice-modules`, `/chatrooms`, `/progress`, `/credits`, `/settings`.
-- [ ] Seed or mock the minimum auth/profile state needed for authenticated routes.
-- [ ] Cover unauthenticated redirects for protected pages.
+- [x] Add minimal render smoke tests for `/`, `/login`, `/signup`, `/practice-modules`, `/chatrooms`, `/progress`, `/credits`, `/settings`.
+- [x] Seed or mock the minimum auth/profile state needed for authenticated routes.
+- [x] Cover unauthenticated redirects for protected pages.
 
 Verification:
 
 - `npm test`
 - Smoke tests fail on missing templates or broken render data.
 
+Notes:
+
+- Implemented in `tests/server/routes.test.ts`.
+- The server now exports `app`, `server`, `io`, and `startServer()` so tests can import it without opening the configured app port.
+- Anonymous smoke coverage verifies public route rendering and protected route redirects.
+
 ### 0.3 Document Runtime Environment
 
-- [ ] Update `.env.example` if any active setting is missing.
-- [ ] Update README with dev, build, start, migration, and production notes.
-- [ ] Document required versus optional integrations: OpenRouter, Stripe, SMTP, Google OAuth.
+- [x] Update `.env.example` if any active setting is missing.
+- [x] Update README with dev, build, start, migration, and production notes.
+- [x] Document required versus optional integrations: OpenRouter, Stripe, SMTP, Google OAuth.
 
 Verification:
 
 - README matches `src/server/config/env.ts`.
 - `.env.example` contains no secrets.
+
+Notes:
+
+- `.env.example` now includes `DATABASE_PATH` and removes the stale `OPENROUTER_USER_KEY_INCLUDE_BYOK_IN_LIMIT` entry.
+- `README.md` now documents setup, scripts, environment files, migrations, production PM2 usage, and production-to-development database sync.
 
 ## Phase 1: Blocking Cleanup
 
@@ -80,56 +91,76 @@ Notes:
 
 ### 1.2 Remove Tracked Empty Databases
 
-- [ ] Remove `misterf-web/data.sqlite` from version control.
-- [ ] Remove `misterf-web/data/app.db` from version control.
-- [ ] Confirm neither file is referenced by code, docs, or deployment scripts.
+- [x] Remove `misterf-web/data.sqlite` from version control.
+- [x] Remove `misterf-web/data/app.db` from version control.
+- [x] Confirm neither file is referenced by code, docs, or deployment scripts.
 
 Verification:
 
 - `git ls-files` no longer lists those files.
 - App still uses `DATABASE_PATH` or the default `./data/misterf.sqlite`.
 
+Notes:
+
+- Both files were empty and not used by the app.
+- The runtime database remains `DATABASE_PATH` or `./data/misterf.sqlite`.
+
 ### 1.3 Tighten Ignore Rules
 
-- [ ] Ignore generated SQLite and DB files consistently.
-- [ ] Ignore SQLite WAL/SHM sidecars for every allowed database extension.
-- [ ] Keep `.env.example` tracked.
-- [ ] Confirm local `.DS_Store`, `.env.*`, and database files stay ignored.
+- [x] Ignore generated SQLite and DB files consistently.
+- [x] Ignore SQLite WAL/SHM sidecars for every allowed database extension.
+- [x] Keep `.env.example` tracked.
+- [x] Confirm local `.DS_Store`, `.env.*`, and database files stay ignored.
 
 Verification:
 
 - `git status --ignored --short`
 - No real source files are accidentally ignored.
 
+Notes:
+
+- `misterf-web/.gitignore` now covers root-level `data.sqlite`, SQLite sidecars, and generated `data/*.db` files.
+- The repository root `.gitignore` now ignores `.DS_Store` and `.tmp-*` artifacts.
+
 ### 1.4 Remove Temporary Tracked Artifacts
 
-- [ ] Decide whether `.tmp-chatrooms-auth.html` is an intentional fixture.
-- [ ] Remove it if it is temporary.
-- [ ] If it is intentional, rename it into a documented fixture location.
+- [x] Decide whether `.tmp-chatrooms-auth.html` is an intentional fixture.
+- [x] Remove it if it is temporary.
+- [x] If it is intentional, rename it into a documented fixture location.
 
 Verification:
 
 - No root-level temporary HTML artifacts remain.
 
+Notes:
+
+- `.tmp-chatrooms-auth.html` was not referenced by source, docs, scripts, or tests except as cleanup debt, so it was removed instead of renamed.
+
 ### 1.5 Clean Build Artifact Policy
 
-- [ ] Decide whether `public/build` should be committed.
-- [ ] If committed, update `scripts/build-client.mjs` to clean stale JS entries before build.
-- [ ] If not committed, update `.gitignore` and deployment docs.
-- [ ] Remove stale hashed assets according to the chosen policy.
+- [x] Decide whether `public/build` should be committed.
+- [x] If committed, update `scripts/build-client.mjs` to clean stale JS entries before build.
+- [x] If not committed, update `.gitignore` and deployment docs.
+- [x] Remove stale hashed assets according to the chosen policy.
 
 Verification:
 
 - `npm run build:client`
 - Only current build artifacts remain, or generated artifacts are untracked by design.
 
+Notes:
+
+- `public/build` is intentionally committed so the lightweight production server does not need to build client assets during deploy.
+- `scripts/build-client.mjs` now removes stale Vite output before each local client build while preserving non-generated brand assets.
+- The current committed build output is limited to the active manifest, brand images, CSS, shared chunk, and current entry bundles.
+
 ## Phase 2: Route And Handler Architecture
 
 ### 2.1 Move Practice Module Actions Out Of Auth
 
-- [ ] Move create/update/archive/restore/delete/favorite/share collection actions from `auth/forms.ts` to `practiceModules/handlers.ts`.
-- [ ] Keep route behavior and redirects unchanged.
-- [ ] Remove unused imports from `auth/forms.ts`.
+- [x] Move create/update/archive/restore/delete/favorite/share collection actions from `auth/forms.ts` to `practiceModules/handlers.ts`.
+- [x] Keep route behavior and redirects unchanged.
+- [x] Remove unused imports from `auth/forms.ts`.
 
 Verification:
 
@@ -137,39 +168,64 @@ Verification:
 - `npm test`
 - Manual smoke: create, edit, archive, restore, share, and delete a practice module.
 
+Notes:
+
+- Practice module mutations now live in `src/server/practiceModules/handlers.ts`.
+- Legacy `Lesson` handler names were replaced at the route layer with `PracticeModule` names.
+- Route redirects were copied from the existing handlers.
+
 ### 2.2 Move Profile Actions Out Of Auth
 
-- [ ] Move create/update/switch profile handlers to `profiles/handlers.ts`.
-- [ ] Keep onboarding behavior intact.
-- [ ] Remove profile-related repository imports from `auth/forms.ts` where possible.
+- [x] Move create/update/switch profile handlers to `profiles/handlers.ts`.
+- [x] Keep onboarding behavior intact.
+- [x] Remove profile-related repository imports from `auth/forms.ts` where possible.
 
 Verification:
 
 - `npm run typecheck`
 - Manual smoke: create profile, switch profile, edit profile, onboarding save/skip.
 
+Notes:
+
+- Profile create/update/switch handlers now live in `src/server/profiles/handlers.ts`.
+- Profile onboarding remains mounted before `redirectIncompleteProfileOnboarding`.
+- Profile switch/create `returnTo` behavior remains compatible with the previous handlers.
+
 ### 2.3 Reduce `auth/forms.ts` To Auth Concerns
 
-- [ ] Keep login, signup, forgot/reset password, change password, email verification, logout, and session helpers.
-- [ ] Delete legacy page-model code that no route uses.
-- [ ] Confirm `auth/forms.ts` no longer imports chatroom or practice module repositories.
+- [x] Keep login, signup, forgot/reset password, change password, email verification, logout, and session helpers.
+- [x] Delete legacy page-model code that no route uses.
+- [x] Confirm `auth/forms.ts` no longer imports chatroom or practice module repositories.
 
 Verification:
 
 - `rg "PracticeModule|ChatRoom|practice-modules|chatrooms" src/server/auth/forms.ts` returns no unrelated resource logic.
 - `npm run typecheck`
 
+Notes:
+
+- `auth/forms.ts` was reduced from about 2900 lines to the auth-only form handlers and helpers.
+- `tests/server/routeArchitecture.test.ts` now guards against reintroducing chatroom or practice module logic into `auth/forms.ts`.
+
 ### 2.4 Split Domain Routers
 
-- [ ] Create route modules for auth, profiles, practice modules, chatrooms, payments, legal, progress, and superadmin.
-- [ ] Mount routers from `server.ts`.
-- [ ] Keep middleware ordering unchanged, especially Stripe raw body, URL encoding, CSRF, session loading, and onboarding redirects.
+- [x] Create route modules for auth, profiles, practice modules, chatrooms, payments, legal, progress, and superadmin.
+- [x] Mount routers from `server.ts`.
+- [x] Keep middleware ordering unchanged, especially Stripe raw body, URL encoding, CSRF, session loading, and onboarding redirects.
 
 Verification:
 
 - `npm run typecheck`
 - `npm test`
 - Manual smoke of representative routes.
+
+Notes:
+
+- New route modules were added for auth, chat, chatrooms, legal, payments, practice modules, profiles, progress, and settings.
+- `superadmin/routes.ts` now exports `superadminRouter`.
+- `server.ts` now mounts routers after global middleware and keeps Stripe webhook raw body handling before URL encoding.
+- `tests/server/routeArchitecture.test.ts` verifies the critical middleware ordering.
+- Local PM2 HTTP smoke on `http://127.0.0.1:5005` returned `200` for `/`, `/login`, and `/signup`, and expected `302` redirects for anonymous protected routes.
 
 ## Phase 3: UI And Styling Cleanup
 

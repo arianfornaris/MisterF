@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const projectRoot = path.resolve(new URL('..', import.meta.url).pathname);
+const buildDir = path.join(projectRoot, 'public', 'build');
 const manifestPath = path.join(projectRoot, 'public', 'build', '.vite', 'manifest.json');
 const chatScriptPartialPath = path.join(
   projectRoot,
@@ -32,6 +33,28 @@ const stylesheetPartialPath = path.join(
 const sourceStylesheetPath = path.join(projectRoot, 'src', 'client', 'styles', 'app.css');
 const buildCssDir = path.join(projectRoot, 'public', 'build', 'css');
 
+function cleanGeneratedClientBuildArtifacts() {
+  fs.mkdirSync(buildDir, { recursive: true });
+
+  for (const directoryName of ['.vite', 'assets', 'chunks', 'entries']) {
+    fs.rmSync(path.join(buildDir, directoryName), {
+      force: true,
+      recursive: true,
+    });
+  }
+
+  for (const fileName of fs.readdirSync(buildDir)) {
+    const filePath = path.join(buildDir, fileName);
+    if (!fs.statSync(filePath).isFile()) {
+      continue;
+    }
+
+    if (/\.js(?:\.map)?$/.test(fileName)) {
+      fs.rmSync(filePath);
+    }
+  }
+}
+
 function bundleStylesheet(filePath, seen = new Set()) {
   const normalizedPath = path.normalize(filePath);
   if (seen.has(normalizedPath)) {
@@ -49,6 +72,8 @@ function bundleStylesheet(filePath, seen = new Set()) {
     },
   );
 }
+
+cleanGeneratedClientBuildArtifacts();
 
 const viteResult = spawnSync('npx', ['vite', 'build'], {
   cwd: projectRoot,

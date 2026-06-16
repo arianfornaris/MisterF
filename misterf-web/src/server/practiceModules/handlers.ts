@@ -1,7 +1,13 @@
 import type { Request, Response } from 'express';
 import QRCode from 'qrcode';
 import {
+  addPracticeModuleToCollection,
+  archivePracticeModuleCollectionForUser,
+  archivePracticeModuleForUser,
+  createConversationFromPracticeModule,
   createPracticeModule,
+  createPracticeModuleCollection,
+  deletePracticeModuleForUser,
   findPracticeModuleById,
   findPracticeModuleCollectionById,
   findPracticeModuleCollectionForUser,
@@ -12,11 +18,21 @@ import {
   findProfileForUser,
   getOrCreatePracticeModuleCollectionShareLink,
   getOrCreatePracticeModuleShareLink,
+  importPracticeModuleCollectionToProfile,
+  importPracticeModuleToProfile,
   listConversationsForPracticeModule,
   listPracticeModuleCollectionsContainingModule,
   listPracticeModuleCollectionsForProfile,
   listPracticeModulesForCollection,
   listPracticeModulesForProfile,
+  movePracticeModuleCollectionItem,
+  removePracticeModuleFromCollection,
+  restorePracticeModuleCollectionForUser,
+  restorePracticeModuleForUser,
+  setPracticeModuleCollectionFavoriteForUser,
+  setPracticeModuleFavoriteForUser,
+  updatePracticeModule,
+  updatePracticeModuleCollection,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
@@ -57,6 +73,19 @@ type PracticeModuleDraftFormValues = {
 
 function redirectUnauthedPracticeModules(response: Response): void {
   response.redirect('/');
+}
+
+function normalizeReturnTo(value: string | undefined): string {
+  if (!value) {
+    return '/';
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed.startsWith('/')) {
+    return '/';
+  }
+
+  return trimmed;
 }
 
 async function buildPracticeModulesPageModel(
@@ -586,4 +615,543 @@ export function renderEditPracticeModuleCollectionPage(request: Request, respons
 
 export function renderSharedPracticeModuleCollectionPage(request: Request, response: Response) {
   return renderPracticeModulesPage(request, response, 'collectionShare');
+}
+
+export function handleCreatePracticeModule(request: Request, response: Response): void {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim();
+  const tutorInstructions = String(request.body.tutorInstructions || '').trim();
+
+  if (!title || !description || !tutorInstructions) {
+    response.redirect('/practice-modules/new');
+    return;
+  }
+
+  const practiceModule = createPracticeModule({
+    profileId: activeProfile.id,
+    userId: user.id,
+    title,
+    description,
+    tutorInstructions,
+  });
+
+  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+
+export function handleCreatePracticeModuleConversation(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleIdRaw = request.params.practiceModuleId;
+  const practiceModuleId =
+    typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+  if (!practiceModuleId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
+  if (!practiceModule) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const conversation = createConversationFromPracticeModule(user.id, practiceModule);
+
+  response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
+}
+
+export function handleUpdatePracticeModule(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleIdRaw = request.params.practiceModuleId;
+  const practiceModuleId =
+    typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+  if (!practiceModuleId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim();
+  const tutorInstructions = String(request.body.tutorInstructions || '').trim();
+  if (!title || !description || !tutorInstructions) {
+    response.redirect(`/practice-modules/${encodeURIComponent(practiceModuleId)}/edit`);
+    return;
+  }
+
+  const practiceModule = updatePracticeModule({
+    practiceModuleId,
+    description,
+    title,
+    tutorInstructions,
+    userId: user.id,
+  });
+
+  if (!practiceModule) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+
+export function handleSetPracticeModuleFavorite(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+  if (!practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const favoriteValue = String(request.body.favorite || '').trim();
+  const isFavorite = favoriteValue === '1' || favoriteValue === 'true';
+  setPracticeModuleFavoriteForUser(practiceModuleId, user.id, isFavorite);
+  response.redirect(returnTo);
+}
+
+export function handleArchivePracticeModule(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+  if (!practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  archivePracticeModuleForUser(practiceModuleId, user.id);
+  response.redirect(returnTo);
+}
+
+export function handleRestorePracticeModule(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules?archived=1'));
+  if (!practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  restorePracticeModuleForUser(practiceModuleId, user.id);
+  response.redirect(returnTo);
+}
+
+export function handleDeletePracticeModule(request: Request, response: Response): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleIdRaw = request.params.practiceModuleId;
+  const practiceModuleId =
+    typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+  if (!practiceModuleId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  deletePracticeModuleForUser(practiceModuleId, user.id);
+  response.redirect('/practice-modules');
+}
+
+export function handleCreatePracticeModuleCollection(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim();
+  if (!title) {
+    response.redirect('/practice-modules/collections/new');
+    return;
+  }
+
+  const collection = createPracticeModuleCollection({
+    description,
+    profileId: activeProfile.id,
+    title,
+    userId: user.id,
+  });
+
+  response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
+}
+
+export function handleUpdatePracticeModuleCollection(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const title = String(request.body.title || '').trim();
+  const description = String(request.body.description || '').trim();
+  if (!collectionId || !title) {
+    response.redirect(collectionId ? `/practice-modules/collections/${encodeURIComponent(collectionId)}/edit` : '/practice-modules');
+    return;
+  }
+
+  const collection = updatePracticeModuleCollection({
+    collectionId,
+    description,
+    title,
+    userId: user.id,
+  });
+  if (!collection) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
+}
+
+export function handleSetPracticeModuleCollectionFavorite(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+  if (!collectionId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const favoriteValue = String(request.body.favorite || '').trim();
+  const isFavorite = favoriteValue === '1' || favoriteValue === 'true';
+  setPracticeModuleCollectionFavoriteForUser(collectionId, user.id, isFavorite);
+  response.redirect(returnTo);
+}
+
+export function handleArchivePracticeModuleCollection(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+  if (!collectionId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  archivePracticeModuleCollectionForUser(collectionId, user.id);
+  response.redirect(returnTo);
+}
+
+export function handleRestorePracticeModuleCollection(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules?archived=1'));
+  if (!collectionId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  restorePracticeModuleCollectionForUser(collectionId, user.id);
+  response.redirect(returnTo);
+}
+
+export function handleAddPracticeModuleToCollection(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const practiceModuleIdsRaw = request.body.practiceModuleId;
+  const returnTo = normalizeReturnTo(
+    String(request.body.returnTo || `/practice-modules/collections/${collectionId}`),
+  );
+  const practiceModuleIds = Array.isArray(practiceModuleIdsRaw)
+    ? practiceModuleIdsRaw.map((value) => String(value || '').trim()).filter(Boolean)
+    : [String(practiceModuleIdsRaw || '').trim()].filter(Boolean);
+  if (!collectionId || practiceModuleIds.length === 0) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  for (const practiceModuleId of practiceModuleIds) {
+    addPracticeModuleToCollection({
+      collectionId,
+      practiceModuleId,
+      userId: user.id,
+    });
+  }
+  response.redirect(returnTo);
+}
+
+export function handleRemovePracticeModuleFromCollection(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const returnTo = normalizeReturnTo(
+    String(request.body.returnTo || `/practice-modules/collections/${collectionId}`),
+  );
+  if (!collectionId || !practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  removePracticeModuleFromCollection({
+    collectionId,
+    practiceModuleId,
+    userId: user.id,
+  });
+  response.redirect(returnTo);
+}
+
+export function handleMovePracticeModuleCollectionItem(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const direction = request.path.endsWith('/move-up') ? 'up' : 'down';
+  const returnTo = normalizeReturnTo(
+    String(request.body.returnTo || `/practice-modules/collections/${collectionId}`),
+  );
+  if (!collectionId || !practiceModuleId) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  movePracticeModuleCollectionItem({
+    collectionId,
+    direction,
+    practiceModuleId,
+    userId: user.id,
+  });
+  response.redirect(returnTo);
+}
+
+export function handleSharePracticeModuleToProfile(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+  const targetProfileId = String(request.body.targetProfileId || '').trim();
+  if (!practiceModuleId || !targetProfileId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
+  if (!practiceModule) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const targetProfile = findProfileForUser(targetProfileId, user.id);
+  if (!targetProfile || targetProfile.id === practiceModule.profileId) {
+    response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+    return;
+  }
+
+  importPracticeModuleToProfile({
+    shareKind: 'profile',
+    sourcePracticeModule: practiceModule,
+    targetProfileId: targetProfile.id,
+    userId: user.id,
+  });
+  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+
+export function handleSharePracticeModuleCollectionToProfile(
+  request: Request,
+  response: Response,
+): void {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const collectionId = String(request.params.collectionId || '').trim();
+  const targetProfileId = String(request.body.targetProfileId || '').trim();
+  if (!collectionId || !targetProfileId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const collection = findPracticeModuleCollectionForUser(collectionId, user.id);
+  if (!collection) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const targetProfile = findProfileForUser(targetProfileId, user.id);
+  if (!targetProfile || targetProfile.id === collection.profileId) {
+    response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
+    return;
+  }
+
+  importPracticeModuleCollectionToProfile({
+    shareKind: 'profile',
+    sourceCollection: collection,
+    targetProfileId: targetProfile.id,
+    userId: user.id,
+  });
+  response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
+}
+
+export function handleAcceptSharedPracticeModuleLink(
+  request: Request,
+  response: Response,
+): void {
+  const shareId = String(request.params.shareId || '').trim();
+  if (!shareId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const shareLink = findPracticeModuleShareLinkById(shareId);
+  if (!shareLink || shareLink.revokedAt) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const sourcePracticeModule = findPracticeModuleById(shareLink.practiceModuleId);
+  if (!sourcePracticeModule) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const imported = importPracticeModuleToProfile({
+    shareKind: 'link',
+    sourcePracticeModule,
+    targetProfileId: activeProfile.id,
+    userId: user.id,
+  });
+  response.redirect(`/practice-modules/${encodeURIComponent(imported.id)}`);
+}
+
+export function handleAcceptSharedPracticeModuleCollectionLink(
+  request: Request,
+  response: Response,
+): void {
+  const shareId = String(request.params.shareId || '').trim();
+  if (!shareId) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const shareLink = findPracticeModuleCollectionShareLinkById(shareId);
+  if (!shareLink || shareLink.revokedAt) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const sourceCollection = findPracticeModuleCollectionById(shareLink.collectionId);
+  if (!sourceCollection) {
+    response.redirect('/practice-modules');
+    return;
+  }
+
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return;
+  }
+
+  const imported = importPracticeModuleCollectionToProfile({
+    shareKind: 'link',
+    sourceCollection,
+    targetProfileId: activeProfile.id,
+    userId: user.id,
+  });
+  response.redirect(`/practice-modules/collections/${encodeURIComponent(imported.id)}`);
 }

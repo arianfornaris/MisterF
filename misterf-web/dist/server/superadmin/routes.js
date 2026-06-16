@@ -1,6 +1,11 @@
+import express from 'express';
 import { env } from '../config/env.js';
 import { findUserForSuperadmin, listUsersForSuperadmin, normalizeEmail, } from '../auth/repository.js';
 import { getOpenRouterKeyRecordForUser, getOpenRouterRemoteKeyInfoForUser, updateOpenRouterUserKeyLimit, } from '../services/openRouterUserKeys.js';
+export const superadminRouter = express.Router();
+superadminRouter.get('/superadmin', renderSuperadminUsers);
+superadminRouter.get('/superadmin/users/:userId', renderSuperadminUser);
+superadminRouter.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
 export async function renderSuperadminUsers(request, response) {
     if (!requireSuperadmin(request, response)) {
         return;

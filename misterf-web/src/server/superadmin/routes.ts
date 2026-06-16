@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import express from 'express';
 import { env } from '../config/env.js';
 import {
   findUserForSuperadmin,
@@ -13,6 +14,12 @@ import {
   type OpenRouterRemoteKeyInfo,
   type OpenRouterUserKeyRecord,
 } from '../services/openRouterUserKeys.js';
+
+export const superadminRouter = express.Router();
+
+superadminRouter.get('/superadmin', renderSuperadminUsers);
+superadminRouter.get('/superadmin/users/:userId', renderSuperadminUser);
+superadminRouter.post('/superadmin/users/:userId/openrouter-key', handleOpenRouterKeyUpdate);
 
 type SuperadminViewBase = {
   activeUser: SuperadminUser | null;
