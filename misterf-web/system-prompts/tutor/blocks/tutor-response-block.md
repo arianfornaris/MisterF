@@ -13,5 +13,4 @@ type TutorResponseBlock =
   | UnscrambleSentenceBlock
   | TutorPlanBlock
   | TutorPlanUpdateBlock
-  | SentenceEvaluationBlock
-  | ConversationTitleBlock;
+  | SentenceEvaluationBlock;

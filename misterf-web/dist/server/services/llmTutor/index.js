@@ -5,6 +5,7 @@ import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './er
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
+import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
@@ -144,10 +145,17 @@ export async function runTutorAgentLoop(history, options) {
         profileId: options.profileId ?? null,
         userId: options.userId ?? null,
     });
+    const conversationTools = buildTutorConversationTools({
+        conversationId: options.conversationId ?? null,
+        onConversationRenamed: options.onConversationRenamed,
+        onToolCall: options.onToolCall,
+        userId: options.userId ?? null,
+    });
     const mergedTools = {
         ...(practiceModuleTools || {}),
         ...(chatRoomTools || {}),
         ...(progressTools || {}),
+        ...(conversationTools || {}),
     };
     const tools = Object.keys(mergedTools).length > 0
         ? mergedTools

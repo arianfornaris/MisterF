@@ -949,9 +949,16 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             practiceModule: practiceModuleContext,
             tutorReport: tutorReportContext,
             abortSignal: abortController.signal,
+            conversationId,
             currentTitle: conversation.title,
             currentPracticeModuleId: conversation.practiceModuleId,
             llm: llmOptions,
+            onConversationRenamed: (renamedConversation) => {
+                io.to(conversationId).emit('conversation:renamed', {
+                    conversation: renamedConversation,
+                    conversationId,
+                });
+            },
             onTokenUsage,
             onToolCall,
             profileId: conversation.profileId,
@@ -970,7 +977,6 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             blocks: result.blocks,
             conversationId,
             io,
-            userId,
         });
     }
     catch (error) {

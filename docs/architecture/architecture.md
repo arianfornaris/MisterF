@@ -231,6 +231,24 @@ The envelope marks context as external app data with `audience:
 "teacher_only"` and interpretation flags such as `notUserMessage` and
 `notAssistantMessage`.
 
+### Conversation runtime tools
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/conversationTools.ts`
+
+Tools:
+
+- `update_conversation_title`
+
+This tool updates app-owned conversation state, not learner-visible chat
+content. The tutor should use it at most once for the first automatic title,
+when the current title is generic and the conversation purpose has become
+clear. Later title changes require an explicit learner request in the current
+turn. The server rejects no-op and generic titles, suppresses automatic updates
+after manual or already-specific titles, and marks explicit learner-requested
+renames as user updates.
+
 ### Practice module tools
 
 Defined in:

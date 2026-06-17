@@ -1,8 +1,6 @@
 import type { Server } from 'socket.io';
 import {
-  findConversationForUser,
   getConversationTutorPlan,
-  renameConversationForUser,
   saveConversationTutorPlan,
 } from '../../db/repository.js';
 import { applyTutorPlanBlocks } from '../tutorPlans.js';
@@ -12,22 +10,12 @@ export function applyTutorBlocksRuntime(input: {
   blocks: TutorResponseBlock[];
   conversationId: string;
   io: Server;
-  userId: string;
 }): void {
   let handledTutorPlan = false;
 
   for (const block of input.blocks) {
     switch (block.type) {
       case 'sentence_evaluation':
-        break;
-
-      case 'conversation_title':
-        handleConversationTitleBlock({
-          conversationId: input.conversationId,
-          io: input.io,
-          title: block.title,
-          userId: input.userId,
-        });
         break;
 
       case 'tutor_plan':
@@ -87,39 +75,4 @@ function handleTutorPlanBlock(input: {
       error,
     });
   }
-}
-
-function handleConversationTitleBlock(input: {
-  conversationId: string;
-  io: Server;
-  title: string;
-  userId: string;
-}): void {
-  const conversation = findConversationForUser(input.conversationId, input.userId);
-  if (!conversation || conversation.titleUpdatedByUser) {
-    return;
-  }
-
-  const title = normalizeConversationTitle(input.title);
-  if (!title || title.toLowerCase() === 'nueva conversación') {
-    return;
-  }
-
-  const renamedConversation = renameConversationForUser(
-    input.conversationId,
-    input.userId,
-    title,
-  );
-  if (!renamedConversation) {
-    return;
-  }
-
-  input.io.to(input.conversationId).emit('conversation:renamed', {
-    conversation: renamedConversation,
-    conversationId: input.conversationId,
-  });
-}
-
-function normalizeConversationTitle(title?: string): string {
-  return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
 }

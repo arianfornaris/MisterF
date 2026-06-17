@@ -1412,9 +1412,16 @@ async function streamAssistantMessage(
       practiceModule: practiceModuleContext,
       tutorReport: tutorReportContext,
       abortSignal: abortController.signal,
+      conversationId,
       currentTitle: conversation.title,
       currentPracticeModuleId: conversation.practiceModuleId,
       llm: llmOptions,
+      onConversationRenamed: (renamedConversation) => {
+        io.to(conversationId).emit('conversation:renamed', {
+          conversation: renamedConversation,
+          conversationId,
+        });
+      },
       onTokenUsage,
       onToolCall,
       profileId: conversation.profileId,
@@ -1441,7 +1448,6 @@ async function streamAssistantMessage(
       blocks: result.blocks,
       conversationId,
       io,
-      userId,
     });
   } catch (error) {
     if (isAbortError(error, abortController.signal)) {

@@ -1,18 +1,10 @@
-import { findConversationForUser, getConversationTutorPlan, renameConversationForUser, saveConversationTutorPlan, } from '../../db/repository.js';
+import { getConversationTutorPlan, saveConversationTutorPlan, } from '../../db/repository.js';
 import { applyTutorPlanBlocks } from '../tutorPlans.js';
 export function applyTutorBlocksRuntime(input) {
     let handledTutorPlan = false;
     for (const block of input.blocks) {
         switch (block.type) {
             case 'sentence_evaluation':
-                break;
-            case 'conversation_title':
-                handleConversationTitleBlock({
-                    conversationId: input.conversationId,
-                    io: input.io,
-                    title: block.title,
-                    userId: input.userId,
-                });
                 break;
             case 'tutor_plan':
             case 'tutor_plan_update':
@@ -64,26 +56,5 @@ function handleTutorPlanBlock(input) {
             error,
         });
     }
-}
-function handleConversationTitleBlock(input) {
-    const conversation = findConversationForUser(input.conversationId, input.userId);
-    if (!conversation || conversation.titleUpdatedByUser) {
-        return;
-    }
-    const title = normalizeConversationTitle(input.title);
-    if (!title || title.toLowerCase() === 'nueva conversación') {
-        return;
-    }
-    const renamedConversation = renameConversationForUser(input.conversationId, input.userId, title);
-    if (!renamedConversation) {
-        return;
-    }
-    input.io.to(input.conversationId).emit('conversation:renamed', {
-        conversation: renamedConversation,
-        conversationId: input.conversationId,
-    });
-}
-function normalizeConversationTitle(title) {
-    return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
 }
 //# sourceMappingURL=index.js.map

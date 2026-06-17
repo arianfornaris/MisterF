@@ -1,12 +1,15 @@
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
+import { isGenericConversationTitle } from './conversationTitles.js';
 export function buildAgentSystemInstruction(options) {
+    const currentTitle = options.currentTitle?.trim() || 'Nueva conversación';
     const base = renderTutorSystemPrompt({
         BLOCK_PROTOCOL: renderTutorBlockProtocol(),
-        CURRENT_TITLE: options.currentTitle || 'Nueva conversación',
-        TITLE_RULE: options.titleUpdatedByUser
-            ? 'The user has already changed this title manually. Do not include conversation_title.'
-            : 'You may include conversation_title if the topic or purpose is clear and the current title is generic.',
+        CURRENT_TITLE: currentTitle,
+        TITLE_RULE: buildConversationTitleRule({
+            currentTitle,
+            titleUpdatedByUser: Boolean(options.titleUpdatedByUser),
+        }),
     });
     if (!options.practiceModule) {
         if (!options.chatRoomReport && !options.tutorReport && !options.tutorPlanText) {
@@ -67,6 +70,20 @@ export function buildAgentSystemInstruction(options) {
         }));
     }
     return sections.join('\n');
+}
+function buildConversationTitleRule(input) {
+    if (input.titleUpdatedByUser) {
+        return 'The user has already changed this title manually. Do not call update_conversation_title unless the learner explicitly asks to rename the conversation in the current turn; in that case call it once with reason "explicit_user_request".';
+    }
+    if (!isGenericConversationTitle(input.currentTitle)) {
+        return 'The current title is already specific. Do not call update_conversation_title unless the learner explicitly asks to rename the conversation in the current turn; in that case call it once with reason "explicit_user_request".';
+    }
+    return [
+        'The current title is generic. If the learner has provided a clear topic, purpose, exercise direction, scenario, or repeated practice thread, call update_conversation_title at most once with reason "initial_topic" before or while producing your response.',
+        'If the conversation is still only a greeting or the purpose is genuinely unclear, do not call update_conversation_title until the first response where the purpose becomes clear.',
+        'After any title update attempt in this response, do not call update_conversation_title again unless the learner explicitly asks to rename the conversation in a later turn.',
+        'The title must be short, Spanish, human-friendly, and specific; avoid generic titles such as "Práctica de inglés", "Conversación", or "Resumen de conversación".',
+    ].join(' ');
 }
 function appendLearnerProfileContext(sections, learnerProfile) {
     if (!learnerProfile) {

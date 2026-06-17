@@ -8,6 +8,8 @@ describe('tutor prompt contracts', () => {
 
     expect(protocol).not.toContain('DirectionChoiceBlock');
     expect(protocol).not.toContain('direction_choice');
+    expect(protocol).not.toContain('ConversationTitleBlock');
+    expect(protocol).not.toContain('conversation_title');
   });
 
   it('keeps quiz_result out of the normal tutor protocol', () => {
@@ -52,5 +54,34 @@ describe('tutor prompt contracts', () => {
     expect(system).toContain('Trabajo en software y quiero practicar reuniones.');
     expect(system).toContain('It is not a');
     expect(system).toContain('current-turn');
+  });
+
+  it('allows one automatic conversation title once a generic conversation has a clear purpose', () => {
+    const system = buildAgentSystemInstruction({
+      currentTitle: 'Nueva conversación',
+    });
+
+    expect(system).toContain('The current title is generic.');
+    expect(system).toContain('call update_conversation_title at most once');
+    expect(system).toContain('reason "initial_topic"');
+    expect(system).toContain('purpose becomes clear');
+    expect(system).toContain('do not call update_conversation_title again');
+  });
+
+  it('protects manual or already-specific conversation titles', () => {
+    const manualTitleSystem = buildAgentSystemInstruction({
+      currentTitle: 'Práctica de reuniones',
+      titleUpdatedByUser: true,
+    });
+    const specificTitleSystem = buildAgentSystemInstruction({
+      currentTitle: 'Práctica de reuniones',
+    });
+
+    expect(manualTitleSystem).toContain('changed this title manually');
+    expect(manualTitleSystem).toContain('unless the learner explicitly asks to rename');
+    expect(manualTitleSystem).toContain('reason "explicit_user_request"');
+    expect(specificTitleSystem).toContain('already specific');
+    expect(specificTitleSystem).toContain('unless the learner explicitly asks to rename');
+    expect(specificTitleSystem).toContain('reason "explicit_user_request"');
   });
 });

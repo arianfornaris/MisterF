@@ -204,8 +204,7 @@ from the database instead of deriving state from scattered transcript fragments.
     context.
 
 The plan blocks should not render as ordinary message bubbles. They should be
-handled as side-effect blocks similar in spirit to `conversation_title`, but
-with visible client state.
+handled as side-effect blocks with visible client state.
 
 ## UI
 

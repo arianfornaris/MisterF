@@ -403,11 +403,6 @@ export type TutorSentenceEvaluationBlock = {
   }>;
 };
 
-export type TutorConversationTitleBlock = {
-  title: string;
-  type: 'conversation_title';
-};
-
 export type TutorResponseBlock =
   | TutorMessageBlock
   | TutorPracticeModuleLinkBlock
@@ -424,8 +419,7 @@ export type TutorResponseBlock =
   | TutorUnscrambleSentenceBlock
   | TutorPlanBlock
   | TutorPlanUpdateBlock
-  | TutorSentenceEvaluationBlock
-  | TutorConversationTitleBlock;
+  | TutorSentenceEvaluationBlock;
 
 export type TutorAgentResponseBlock = Exclude<TutorResponseBlock, TutorQuizResultBlock>;
 

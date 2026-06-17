@@ -92,6 +92,19 @@ describe('normal tutor response schema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects legacy conversation_title blocks from normal tutor output', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'conversation_title',
+          title: 'Práctica de updates técnicos',
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('still accepts quiz_result in persisted/renderable history', () => {
     const result = persistedTutorResponseSchema.safeParse({
       blocks: [
@@ -116,6 +129,19 @@ describe('normal tutor response schema', () => {
     });
 
     expect(result.success).toBe(true);
+  });
+
+  it('rejects conversation_title from persisted/renderable history', () => {
+    const result = persistedTutorResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'conversation_title',
+          title: 'Práctica de updates técnicos',
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
   });
 });
 

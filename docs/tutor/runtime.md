@@ -101,7 +101,6 @@ repeated difficulty, or explicit learner questions.
 The tutor can emit structured blocks such as:
 
 - `message`
-- `conversation_title`
 - `sentence_evaluation`
 - `practice_module_link`
 - `dialogue_character_message`
@@ -233,7 +232,9 @@ That logic lives in:
 Current side effects include:
 
 - creating or updating the visible tutor plan for the conversation
-- auto-renaming a conversation when the model emits a conversation title block
+
+Conversation renaming is handled by the `update_conversation_title` tool rather
+than by a response block.
 
 Other blocks are render-only and stay inside the message stream. For example,
 `sentence_evaluation` is rendered as a standalone tutor block and does not attach
@@ -285,6 +286,34 @@ learner or assistant said. This is especially important for progress snapshots,
 reports, and other historical data.
 
 Current tool families:
+
+### Conversation runtime tools
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/conversationTools.ts`
+
+Current tools:
+
+- `update_conversation_title`
+
+Use this internal runtime tool at most once for the first automatic title, when
+the current conversation title is still generic and the learner's topic,
+purpose, exercise direction, scenario, or repeated practice thread is clear.
+After that, use it only when the learner explicitly asks in the current turn to
+rename the conversation.
+
+The tool input includes a required `reason`:
+
+- `initial_topic` for the first automatic title while the current title is
+  generic
+- `explicit_user_request` only when the learner explicitly asks to rename the
+  conversation
+
+The server ignores no-op or generic titles and suppresses automatic updates
+after a manual rename or already-specific title. This runtime tool does not emit
+learner-visible chat tool status; successful renames update the conversation
+state through the conversation rename event.
 
 ### Practice module tools
 

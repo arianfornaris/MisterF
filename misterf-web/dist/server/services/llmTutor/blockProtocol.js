@@ -15,7 +15,6 @@ export const tutorBlockProtocolNames = [
     'tutor-plan',
     'tutor-plan-update',
     'sentence-evaluation',
-    'conversation-title',
     'tutor-response-block',
 ];
 const tutorBlockProtocolNameSet = new Set(tutorBlockProtocolNames);

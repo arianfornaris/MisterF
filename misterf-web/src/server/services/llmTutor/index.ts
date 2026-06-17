@@ -19,6 +19,7 @@ import {
 } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
+import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
@@ -26,7 +27,7 @@ import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFaci
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
-import type { StoredTutorPlan } from '../../db/repository.js';
+import type { StoredConversation, StoredTutorPlan } from '../../db/repository.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResponseBlock, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseValidator } from './types.js';
 
@@ -220,11 +221,13 @@ export async function runTutorAgentLoop(
       tutorInstructions: string;
     } | null;
     abortSignal?: AbortSignal;
+    conversationId?: string | null;
     currentTitle?: string;
     currentPracticeModuleId?: string | null;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     onToolCall?: (toolName: string) => void;
+    onConversationRenamed?: (conversation: StoredConversation) => void;
     profileId?: string | null;
     titleUpdatedByUser?: boolean;
     tutorPlan?: StoredTutorPlan | null;
@@ -255,10 +258,17 @@ export async function runTutorAgentLoop(
     profileId: options.profileId ?? null,
     userId: options.userId ?? null,
   });
+  const conversationTools = buildTutorConversationTools({
+    conversationId: options.conversationId ?? null,
+    onConversationRenamed: options.onConversationRenamed,
+    onToolCall: options.onToolCall,
+    userId: options.userId ?? null,
+  });
   const mergedTools = {
     ...(practiceModuleTools || {}),
     ...(chatRoomTools || {}),
     ...(progressTools || {}),
+    ...(conversationTools || {}),
   };
   const tools: ToolSet | undefined = Object.keys(mergedTools).length > 0
     ? (mergedTools as ToolSet)

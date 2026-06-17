@@ -859,12 +859,6 @@ export const sentenceEvaluationBlockSchema = z
     }
 })
     .strict();
-export const conversationTitleBlockSchema = z
-    .object({
-    type: z.literal('conversation_title'),
-    title: z.string().trim().min(1).max(160),
-})
-    .strict();
 const tutorAgentResponseBlockSchema = z.union([
     messageBlockSchema,
     practiceModuleLinkBlockSchema,
@@ -881,7 +875,6 @@ const tutorAgentResponseBlockSchema = z.union([
     tutorPlanBlockSchema,
     tutorPlanUpdateBlockSchema,
     sentenceEvaluationBlockSchema,
-    conversationTitleBlockSchema,
 ]);
 export const persistedTutorResponseBlockSchema = z.union([
     tutorAgentResponseBlockSchema,
