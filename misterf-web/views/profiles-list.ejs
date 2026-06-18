@@ -1,17 +1,17 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="practice-modules-view" aria-label="Perfiles">
-  <div class="practice-modules-header">
+<section class="app-resource-view" aria-label="Perfiles">
+  <div class="resource-page-header">
     <div>
-      <p class="practice-modules-kicker">Perfiles</p>
-      <h1 class="practice-modules-title">Cambiar perfil</h1>
-      <p class="practice-modules-copy">
+      <p class="resource-page-kicker">Perfiles</p>
+      <h1 class="resource-page-title">Cambiar perfil</h1>
+      <p class="resource-page-copy">
         Cada perfil mantiene separadas sus conversaciones y módulos de práctica.
       </p>
     </div>
 
     <% if (hasSession) { %>
-      <div class="practice-modules-header-actions">
+      <div class="resource-page-header-actions">
         <a class="btn btn-primary" href="/profiles/new">
           Crear perfil
         </a>

@@ -1,5 +1,7 @@
 @import './base.css';
 @import './app-shell.css';
+@import './resource-pages.css';
+@import './practice-modules.css';
 @import './chat-content.css';
 @import './chatrooms.css';
 @import './composer.css';

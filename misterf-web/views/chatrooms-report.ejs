@@ -1,17 +1,17 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="practice-modules-view" aria-label="Análisis de conversación">
-  <div class="practice-modules-header practice-modules-header-has-close">
-    <div class="practice-modules-header-detail">
-      <p class="practice-modules-kicker">Análisis de conversación</p>
-      <h1 class="practice-modules-title"><%= selectedChatRoom.title %></h1>
-      <p class="practice-modules-copy">
+<section class="app-resource-view" aria-label="Análisis de conversación">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div class="resource-page-header-detail">
+      <p class="resource-page-kicker">Análisis de conversación</p>
+      <h1 class="resource-page-title"><%= selectedChatRoom.title %></h1>
+      <p class="resource-page-copy">
         Este análisis resume los patrones principales del chat y los convierte en focos concretos para seguir practicando.
       </p>
     </div>
-    <div class="practice-modules-header-actions">
+    <div class="resource-page-header-actions">
       <a
-        class="practice-module-close-button"
+        class="resource-page-close-button"
         href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
         title="Cerrar"
         aria-label="Cerrar"

@@ -1,9 +1,9 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="practice-modules-view" aria-label="Sala de chat">
-  <div class="practice-modules-section-actions">
+<section class="app-resource-view" aria-label="Sala de chat">
+  <div class="resource-page-section-actions">
     <a
-      class="practice-module-close-button"
+      class="resource-page-close-button"
       href="/chatrooms"
       title="Cerrar"
       aria-label="Cerrar"
@@ -12,17 +12,17 @@
     </a>
   </div>
 
-  <div class="practice-modules-header">
-    <div class="practice-modules-header-detail chatroom-show-header-detail">
-      <p class="practice-modules-kicker">Sala de chat</p>
-      <h1 class="practice-modules-title"><%= selectedChatRoom.title %></h1>
-      <p class="practice-modules-copy">
+  <div class="resource-page-header">
+    <div class="resource-page-header-detail chatroom-show-header-detail">
+      <p class="resource-page-kicker">Sala de chat</p>
+      <h1 class="resource-page-title"><%= selectedChatRoom.title %></h1>
+      <p class="resource-page-copy">
         Revisa la situación de esta sala y sus personajes antes de empezar una conversación nueva o retomar su historial.
       </p>
     </div>
   </div>
 
-  <section class="practice-module-detail-shell chatroom-show-detail-shell">
+  <section class="resource-page-detail-shell chatroom-show-detail-shell">
     <div class="d-grid gap-3">
       <div class="d-flex flex-wrap align-items-center gap-2">
         <form
@@ -105,7 +105,7 @@
         </div>
       <% } %>
 
-      <p class="practiceModule-section-copy">Descripción de la sala</p>
+      <p class="resource-page-section-copy">Descripción de la sala</p>
 
       <div class="card shadow-sm">
         <div class="card-body">
@@ -113,7 +113,7 @@
         </div>
       </div>
 
-      <p class="practiceModule-section-copy">Personajes</p>
+      <p class="resource-page-section-copy">Personajes</p>
 
       <div class="row g-3">
         <% selectedChatRoomCharacters.forEach((character) => { %>

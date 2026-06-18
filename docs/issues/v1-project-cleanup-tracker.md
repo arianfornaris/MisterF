@@ -231,37 +231,56 @@ Notes:
 
 ### 3.1 Replace Misleading Shared Class Names
 
-- [ ] Introduce a neutral shared layout class for resource pages.
-- [ ] Replace non-practice-module uses of `practice-modules-view`.
-- [ ] Keep domain-specific classes only where the page has domain-specific styling.
+- [x] Introduce a neutral shared layout class for resource pages.
+- [x] Replace non-practice-module uses of `practice-modules-view`.
+- [x] Keep domain-specific classes only where the page has domain-specific styling.
 
 Verification:
 
-- `rg "practice-modules-view" views` only returns actual practice module usage or intentional compatibility wrappers.
+- `rg "practice-modules-view" views src/client/styles` returns no results.
 - Visual smoke on credits, progress, profiles, settings, chatrooms, and practice modules.
+
+Notes:
+
+- Shared resource pages now use `app-resource-view` and `resource-page-*` classes.
+- The practice module library has an explicit `practice-modules-page` class and `data-resource-layout` state for list/card styling.
+- `tests/server/uiClassArchitecture.test.ts` guards against reintroducing the misleading shared class names.
 
 ### 3.2 Organize CSS By Responsibility
 
-- [ ] Identify reusable app shell styles.
-- [ ] Identify resource list/detail styles.
-- [ ] Identify tutor block and exercise card styles.
-- [ ] Move styles in small batches without visual redesign.
+- [x] Identify reusable app shell styles.
+- [x] Identify resource list/detail styles.
+- [x] Identify tutor block and exercise card styles.
+- [x] Move styles in small batches without visual redesign.
 
 Verification:
 
 - `npm run build:client`
 - Visual smoke on desktop and mobile widths.
 
+Notes:
+
+- `app-shell.css` now focuses on the app shell, conversation panel, chat layout, translator, and user menu.
+- `resource-pages.css` contains shared resource page containers, headers, forms, card menus, and profile-list helpers.
+- `practice-modules.css` contains the practice module library, module cards, module forms, module markdown, and module-specific helpers.
+- Tutor block and exercise card styles remain in `chat-content.css`; composer styles remain in `composer.css`.
+
 ### 3.3 Align Custom Styling With Flatly
 
-- [ ] Review custom gradients, shadows, and color tokens.
-- [ ] Remove or reduce styles that duplicate Bootstrap/Bootswatch behavior.
-- [ ] Keep app-specific tutor/exercise styling where Bootstrap has no equivalent.
+- [x] Review custom gradients, shadows, and color tokens.
+- [x] Remove or reduce styles that duplicate Bootstrap/Bootswatch behavior.
+- [x] Keep app-specific tutor/exercise styling where Bootstrap has no equivalent.
 
 Verification:
 
 - Main pages still read as Bootswatch Flatly.
 - Buttons, alerts, cards, nav, modals, and forms use Bootstrap semantics.
+
+Notes:
+
+- Touched shared resource and practice-module styles now use Bootstrap variables such as `--bs-secondary-color`, `--bs-border-radius`, and `--bs-box-shadow-sm`.
+- Letter spacing in client CSS was normalized to `0`.
+- App-specific tutor, exercise, chatroom, and composer styling was preserved where Bootstrap does not provide an equivalent interaction pattern.
 
 ## Phase 4: LLM, Credit, And Payment Guardrails
 

@@ -1,17 +1,17 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="practice-modules-view" aria-label="Salas de chat">
-  <div class="practice-modules-header practice-modules-header-has-close">
-    <div class="practice-modules-header-detail">
-      <p class="practice-modules-kicker">Salas de chat</p>
-      <h1 class="practice-modules-title"><%= selectedSharedChatRoom ? selectedSharedChatRoom.title : 'Sala compartida' %></h1>
-      <p class="practice-modules-copy">
+<section class="app-resource-view" aria-label="Salas de chat">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div class="resource-page-header-detail">
+      <p class="resource-page-kicker">Salas de chat</p>
+      <h1 class="resource-page-title"><%= selectedSharedChatRoom ? selectedSharedChatRoom.title : 'Sala compartida' %></h1>
+      <p class="resource-page-copy">
         Esta sala fue compartida contigo para que puedas reutilizar los mismos personajes y la misma situación en tu propio perfil.
       </p>
     </div>
-    <div class="practice-modules-header-actions">
+    <div class="resource-page-header-actions">
       <a
-        class="practice-module-close-button"
+        class="resource-page-close-button"
         href="<%= isAuthenticated ? '/chatrooms' : '/' %>"
         title="Cerrar"
         aria-label="Cerrar"
@@ -21,8 +21,8 @@
     </div>
   </div>
 
-  <section class="practice-module-form-shell">
-    <div class="practice-module-form-card card shadow-sm">
+  <section class="resource-page-form-shell">
+    <div class="resource-page-form-card card shadow-sm">
       <div class="card-body d-grid gap-3">
         <p class="mb-0 text-body-secondary">
           <% if (activeProfile) { %>

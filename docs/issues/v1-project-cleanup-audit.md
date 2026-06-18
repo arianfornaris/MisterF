@@ -158,7 +158,13 @@ Completed route split:
 
 **Severity:** Medium
 
-Several pages use `practice-modules-view` even when they are not practice module pages.
+**Status:** Resolved on 2026-06-18. Shared resource pages now use
+`app-resource-view` and `resource-page-*` classes. The practice module library
+uses the domain-specific `practice-modules-page` class only where module-specific
+styling is needed.
+
+Several pages previously used `practice-modules-view` even when they were not
+practice module pages.
 
 Evidence:
 
@@ -173,19 +179,32 @@ Impact:
 
 A practice module style change can accidentally alter credits, progress, profiles, settings, and chatrooms. The HTML also becomes harder to reason about semantically.
 
-Recommendation:
+Resolution:
 
-Introduce a neutral shared layout class such as `resource-view`, `app-resource-view`, or `app-section-view`. Keep domain classes only for real domain-specific differences such as `practice-modules-page`, `chatrooms-page`, and `progress-page`.
+Implemented neutral shared classes and a static guard:
+
+- Resource containers use `app-resource-view`.
+- Shared page pieces use `resource-page-*`.
+- The practice module library uses `practice-modules-page` for its own layout-state styles.
+- `tests/server/uiClassArchitecture.test.ts` prevents the old misleading class names from returning.
 
 ### 6. Custom CSS Has Grown Into a Parallel System
 
 **Severity:** Medium
 
-The project uses Bootswatch Flatly, but there are 3420 lines of custom CSS:
+**Status:** Partially resolved on 2026-06-18. CSS is now split by clearer
+responsibility, and touched shared styles lean on Bootstrap/Bootswatch variables.
+The tutor and exercise surfaces still intentionally keep custom CSS because they
+have interactions Bootstrap does not provide.
+
+The project uses Bootswatch Flatly, but there were 3420 lines of custom CSS
+before the Phase 3 cleanup:
 
 - `src/client/styles/chat-content.css`: 1687 lines.
-- `src/client/styles/app-shell.css`: 1120 lines.
-- `src/client/styles/chatrooms.css`: 210 lines.
+- `src/client/styles/app-shell.css`: 1120 lines, reduced to 629 lines.
+- `src/client/styles/resource-pages.css`: 158 lines after extraction.
+- `src/client/styles/practice-modules.css`: 312 lines after extraction.
+- `src/client/styles/chatrooms.css`: 228 lines after moving chatroom-specific resource helpers.
 - `src/client/styles/composer.css`: 164 lines.
 
 Some of this is justified by rich tutor blocks and exercises, but the CSS now contains many custom colors, gradients, shadows, z-index values, and panel treatments.
@@ -197,14 +216,16 @@ Evidence:
 - Custom app panels in `misterf-web/src/client/styles/app-shell.css:43`.
 - Many exercise card treatments in `misterf-web/src/client/styles/chat-content.css`.
 
-Recommendation:
+Resolution:
 
-Do not rewrite the UI before v1. Prefer a safe cleanup:
+The UI was not redesigned. Instead, CSS ownership was clarified:
 
-- Keep Bootstrap and Bootswatch Flatly as the default visual language.
-- Name indispensable custom tokens clearly.
-- Split CSS by real component responsibility: shell, resource lists, tutor blocks, exercise cards, composer.
-- Reduce selectors that rely on incorrect domain names.
+- `app-shell.css` now focuses on shell, navigation, conversation panel, translator, and user-menu behavior.
+- `resource-pages.css` owns shared resource containers, headers, form shells, card menus, and profile-list helpers.
+- `practice-modules.css` owns the module library, module cards, module forms, markdown, and module-specific helpers.
+- `chat-content.css` remains the tutor block and exercise-card stylesheet.
+- `composer.css` remains the composer stylesheet.
+- Letter spacing in client CSS was normalized to `0`.
 
 ### 7. Generated Build Artifacts Have Accumulated
 
@@ -370,10 +391,10 @@ Resolution:
 
 ### Phase 3: UI Cleanup
 
-1. Replace `practice-modules-view` with a neutral shared layout class.
-2. Split CSS by real component responsibility.
-3. Review main screens on desktop and mobile.
-4. Keep Bootswatch Flatly as the visual baseline.
+1. Completed: replace `practice-modules-view` with neutral shared resource classes.
+2. Completed: split resource page and practice module CSS out of `app-shell.css`.
+3. Completed: add a static UI class architecture guard.
+4. Keep Bootswatch Flatly as the visual baseline for future UI work.
 
 ### Phase 4: AI And Payments Guardrails
 

@@ -20,18 +20,18 @@
   const renderList = (items) => items && items.length > 0;
 %>
 
-<section class="practice-modules-view" aria-label="Progreso">
-  <div class="practice-modules-header">
+<section class="app-resource-view" aria-label="Progreso">
+  <div class="resource-page-header">
     <div>
-      <p class="practice-modules-kicker">Aprendizaje</p>
-      <h1 class="practice-modules-title">Progreso</h1>
-      <p class="practice-modules-copy">
+      <p class="resource-page-kicker">Aprendizaje</p>
+      <h1 class="resource-page-title">Progreso</h1>
+      <p class="resource-page-copy">
         Una vista global y compacta de lo que has practicado con Mr. F.
       </p>
     </div>
   </div>
 
-  <section class="practice-module-detail-shell">
+  <section class="resource-page-detail-shell">
     <ul class="nav nav-pills" role="tablist">
         <li class="nav-item" role="presentation">
           <a
@@ -228,7 +228,7 @@
               <article class="progress-log-item border-bottom pb-4 mb-4">
                 <div class="d-flex flex-wrap justify-content-between gap-2">
                   <div>
-                    <p class="practiceModule-section-kicker mb-1">
+                    <p class="resource-page-section-kicker mb-1">
                       <%= event.sourceType === 'chat_room_conversation_report' ? 'Sala de chat' : 'Conversación con tutor' %>
                     </p>
                     <h2 class="h5 mb-1"><%= event.title %></h2>

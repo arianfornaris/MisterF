@@ -1,12 +1,12 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="practice-modules-view chatrooms-conversation-page" aria-label="Salas de chat">
-  <div class="practice-modules-header practice-modules-header-has-close">
-    <div class="practice-modules-header-detail">
-      <p class="practice-modules-kicker">Sala de chat</p>
+<section class="app-resource-view chatrooms-conversation-page" aria-label="Salas de chat">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div class="resource-page-header-detail">
+      <p class="resource-page-kicker">Sala de chat</p>
       <p class="mb-0 text-body-secondary small"><%= selectedChatRoom ? selectedChatRoom.title : 'Sala' %></p>
     </div>
-    <div class="practice-modules-header-actions">
+    <div class="resource-page-header-actions">
       <% if (selectedChatRoomConversationReport) { %>
         <a
           class="btn btn-outline-secondary btn-sm"
@@ -25,7 +25,7 @@
         </form>
       <% } %>
       <a
-        class="practice-module-close-button"
+        class="resource-page-close-button"
         href="/chatrooms/<%= encodeURIComponent(selectedChatRoom.id) %>/history"
         title="Cerrar"
         aria-label="Cerrar"

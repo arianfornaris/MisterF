@@ -29,18 +29,18 @@
   };
 %>
 
-<section class="practice-modules-view" aria-label="Créditos">
-  <div class="practice-modules-header">
+<section class="app-resource-view" aria-label="Créditos">
+  <div class="resource-page-header">
     <div>
-      <p class="practice-modules-kicker">Cuenta</p>
-      <h1 class="practice-modules-title">Créditos</h1>
-      <p class="practice-modules-copy">
+      <p class="resource-page-kicker">Cuenta</p>
+      <h1 class="resource-page-title">Créditos</h1>
+      <p class="resource-page-copy">
         Usa tus créditos para practicar con Mr. F en cualquiera de tus perfiles.
       </p>
     </div>
   </div>
 
-  <section class="practice-module-detail-shell">
+  <section class="resource-page-detail-shell">
     <% if (checkoutStatus === 'success') { %>
       <div class="alert alert-success" role="status">
         Pago recibido. Stripe confirmará el pago por webhook y actualizaremos tus créditos automáticamente.
@@ -61,7 +61,7 @@
           <div class="card-body">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
               <div>
-                <p class="practiceModule-section-kicker mb-2">Saldo actual</p>
+                <p class="resource-page-section-kicker mb-2">Saldo actual</p>
                 <h2 class="display-5 fw-semibold mb-1">
                   <% if (balance.availableCredits === null) { %>
                     No disponible
@@ -88,7 +88,7 @@
       <div class="col-12 col-xl-5">
         <div class="card shadow-sm h-100">
           <div class="card-body d-flex flex-column">
-            <p class="practiceModule-section-kicker mb-2">Comprar créditos</p>
+            <p class="resource-page-section-kicker mb-2">Comprar créditos</p>
             <h2 class="h3 mb-2"><%= creditPackage.label %></h2>
             <p class="text-body-secondary">
               <%= creditPackage.description %>
@@ -126,8 +126,8 @@
       </div>
     </div>
 
-    <div class="practice-module-section-copy mt-4">
-      <p class="practiceModule-section-kicker">Historial reciente</p>
+    <div class="resource-page-section-copy mt-4">
+      <p class="resource-page-section-kicker">Historial reciente</p>
       <div class="card shadow-sm">
         <div class="card-body">
           <% if (purchases.length > 0) { %>

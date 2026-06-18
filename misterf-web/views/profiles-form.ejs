@@ -1,11 +1,11 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="practice-modules-view" aria-label="Perfiles">
-  <div class="practice-modules-header practice-modules-header-has-close">
+<section class="app-resource-view" aria-label="Perfiles">
+  <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="practice-modules-kicker">Perfiles</p>
-      <h1 class="practice-modules-title"><%= profilePageMode === 'edit' ? 'Editar perfil' : 'Nuevo perfil' %></h1>
-      <p class="practice-modules-copy">
+      <p class="resource-page-kicker">Perfiles</p>
+      <h1 class="resource-page-title"><%= profilePageMode === 'edit' ? 'Editar perfil' : 'Nuevo perfil' %></h1>
+      <p class="resource-page-copy">
         <%= profilePageMode === 'edit' && selectedProfile
           ? 'Ajusta los datos y preferencias de práctica de este perfil.'
           : 'Crea un perfil separado para organizar conversaciones, módulos y preferencias sin mezclarlas con las demás.' %>
@@ -13,9 +13,9 @@
     </div>
 
     <% if (hasSession) { %>
-      <div class="practice-modules-header-actions">
+      <div class="resource-page-header-actions">
         <a
-          class="practice-module-close-button"
+          class="resource-page-close-button"
           href="/profiles"
           title="Cerrar"
           aria-label="Cerrar"
@@ -26,7 +26,7 @@
     <% } %>
   </div>
 
-  <section class="practice-module-form-shell">
+  <section class="resource-page-form-shell">
     <form
       class="practice-module-form"
       method="post"
