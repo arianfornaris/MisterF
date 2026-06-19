@@ -1,4 +1,5 @@
-import { logJson } from './logging.js';
+import { logger } from '../logger.js';
+import { shouldLogFullLlmTrace } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { TutorResponseValidationError } from './errors.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
@@ -17,9 +18,12 @@ export function appendStructuredCorrectionRequest(messages, input) {
         }),
         role: 'user',
     });
-    logJson('[Mr. F LLM structured correction requested]', {
-        error: serializeLlmError(input.error),
+    const fullTrace = shouldLogFullLlmTrace();
+    logger.info('llm_structured_correction_requested', {
+        error: serializeLlmError(input.error, fullTrace),
+        fullTrace,
         hadInvalidOutput: Boolean(invalidOutput),
+        invalidOutputLength: invalidOutput?.length ?? 0,
         reason: input.reason,
         turn: input.turn,
     });
@@ -33,7 +37,7 @@ export function isCorrectableLlmOutputError(error) {
     if (error instanceof TutorResponseValidationError) {
         return true;
     }
-    const text = JSON.stringify(serializeLlmError(error)).toLowerCase();
+    const text = JSON.stringify(serializeLlmError(error, true)).toLowerCase();
     return (text.includes('no object generated') ||
         text.includes('json parsing failed') ||
         text.includes('could not parse') ||
@@ -54,10 +58,12 @@ export function extractGeneratedTextFromError(error) {
     }
     return extractGeneratedTextFromError(record.cause);
 }
-function serializeLlmError(error) {
+function serializeLlmError(error, includeGeneratedText) {
     if (error instanceof TutorResponseValidationError) {
         return {
-            generatedText: error.generatedText?.slice(0, 6000),
+            generatedText: includeGeneratedText
+                ? error.generatedText?.slice(0, 6000)
+                : undefined,
             issues: error.issues,
             message: error.message,
             name: error.name,
@@ -65,7 +71,7 @@ function serializeLlmError(error) {
     }
     if (error instanceof Error) {
         return {
-            cause: serializeLlmError(error.cause),
+            cause: serializeLlmError(error.cause, includeGeneratedText),
             message: error.message,
             name: error.name,
         };
@@ -75,7 +81,9 @@ function serializeLlmError(error) {
         return {
             message: typeof record.message === 'string' ? record.message : undefined,
             name: typeof record.name === 'string' ? record.name : undefined,
-            text: typeof record.text === 'string' ? record.text.slice(0, 6000) : undefined,
+            text: includeGeneratedText && typeof record.text === 'string'
+                ? record.text.slice(0, 6000)
+                : undefined,
         };
     }
     return error;

@@ -7,6 +7,7 @@ import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
 import { clearActiveProfileCookie } from './profiles.js';
 import { appDocumentTitle as shellAppDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
 import { buildProfileOnboardingPath } from '../profiles/fields.js';
+import { logger } from '../services/logger.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
 const loginAttempts = new Map();
 const maxAttempts = 12;
@@ -24,7 +25,10 @@ function normalizeReturnTo(value) {
     return trimmed;
 }
 function logAuthReturnTo(event, details) {
-    console.log(`[auth returnTo] ${event}`, details);
+    logger.debug('auth_return_to', {
+        authEvent: event,
+        ...details,
+    });
 }
 export function renderLogin(request, response) {
     const returnTo = normalizeReturnTo(typeof request.query.returnTo === 'string' ? request.query.returnTo : '/');
@@ -525,7 +529,7 @@ async function signInUser(request, response, userId, returnTo = '/') {
     response.redirect(returnTo);
 }
 function toOpenRouterProvisioningErrorMessage(error) {
-    console.error('OpenRouter user key provisioning failed during auth.', error);
+    logger.error('openrouter_user_key_provisioning_failed', { error });
     return error instanceof Error
         ? `No pude preparar la cuenta de IA para este usuario: ${error.message}`
         : 'No pude preparar la cuenta de IA para este usuario.';

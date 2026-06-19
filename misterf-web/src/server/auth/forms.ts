@@ -40,6 +40,7 @@ import {
   getHomeAuthMessage as getShellHomeAuthMessage,
 } from '../pages/shell.js';
 import { buildProfileOnboardingPath } from '../profiles/fields.js';
+import { logger } from '../services/logger.js';
 
 type AuthMode = 'login' | 'signup' | 'forgot' | 'reset';
 
@@ -85,7 +86,10 @@ function normalizeReturnTo(value: string | undefined): string {
 }
 
 function logAuthReturnTo(event: string, details: Record<string, unknown>) {
-  console.log(`[auth returnTo] ${event}`, details);
+  logger.debug('auth_return_to', {
+    authEvent: event,
+    ...details,
+  });
 }
 
 export function renderLogin(request: Request, response: Response): void {
@@ -685,7 +689,7 @@ async function signInUser(
 }
 
 function toOpenRouterProvisioningErrorMessage(error: unknown): string {
-  console.error('OpenRouter user key provisioning failed during auth.', error);
+  logger.error('openrouter_user_key_provisioning_failed', { error });
   return error instanceof Error
     ? `No pude preparar la cuenta de IA para este usuario: ${error.message}`
     : 'No pude preparar la cuenta de IA para este usuario.';

@@ -3,6 +3,7 @@ import type {
   TutorDialogueTranscriptBlock,
   TutorFillInTheBlankChoiceBlock,
   TutorFillInTheBlankInputBlock,
+  LlmRequestOptions,
   TutorPracticeModuleLinkBlock,
   TutorMatchingPairsBlock,
   TutorMultipleChoiceBlock,
@@ -18,6 +19,8 @@ import type {
   TutorUnscrambleSentenceBlock,
 } from './types.js';
 import { TutorResponseValidationError } from './errors.js';
+import { logger } from '../logger.js';
+import { shouldLogFullLlmTrace } from './logging.js';
 import { tutorAgentResponseSchema } from './schemas.js';
 
 export function toModelMessage(message: TutorMessage) {
@@ -29,14 +32,29 @@ export function toModelMessage(message: TutorMessage) {
 
 export function validateTutorResponseBlocks(
   value: unknown,
-  options: { generatedText?: string | null } = {},
+  options: {
+    conversationId?: string | null;
+    generatedText?: string | null;
+    llm?: LlmRequestOptions;
+    operation?: string;
+    userId?: string | null;
+  } = {},
 ): TutorAgentResponseBlock[] {
   const parsed = tutorAgentResponseSchema.safeParse(sanitizeTutorResponse(value));
   if (!parsed.success) {
-    console.error('[Mr. F LLM response validation failed]', JSON.stringify({
+    const fullTrace = shouldLogFullLlmTrace({
+      conversationId: options.conversationId,
+      userId: options.userId ?? options.llm?.userId ?? null,
+    });
+    logger.warn('llm_response_validation_failed', {
+      conversationId: options.conversationId ?? null,
+      fullTrace,
       issues: parsed.error.issues,
-      value,
-    }, null, 2));
+      operation: options.operation ?? 'tutor',
+      userId: options.userId ?? options.llm?.userId ?? null,
+      value: fullTrace ? value : undefined,
+      valueSummary: summarizeInvalidTutorResponse(value),
+    });
     throw new TutorResponseValidationError({
       generatedText: options.generatedText,
       issues: parsed.error.issues,
@@ -44,6 +62,28 @@ export function validateTutorResponseBlocks(
   }
 
   return parsed.data.blocks as TutorAgentResponseBlock[];
+}
+
+function summarizeInvalidTutorResponse(value: unknown): unknown {
+  if (!value || typeof value !== 'object') {
+    return {
+      type: value === null ? 'null' : typeof value,
+    };
+  }
+
+  if (Array.isArray(value)) {
+    return {
+      itemCount: value.length,
+      type: 'array',
+    };
+  }
+
+  const record = value as { blocks?: unknown };
+  return {
+    blockCount: Array.isArray(record.blocks) ? record.blocks.length : null,
+    keys: Object.keys(value),
+    type: 'object',
+  };
 }
 
 function sanitizeTutorResponse(value: unknown): unknown {

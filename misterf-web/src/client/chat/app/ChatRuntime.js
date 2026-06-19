@@ -250,7 +250,7 @@ export function createChatRuntime(deps) {
   }
 
   function logLlmRequestTokens(usage) {
-    if (!usage) {
+    if (!usage || window.MisterFDebug?.logLlmTokens !== true) {
       return;
     }
 

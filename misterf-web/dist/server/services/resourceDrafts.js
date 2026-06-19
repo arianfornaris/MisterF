@@ -2,6 +2,7 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
+import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 const maxDraftGenerationTurns = 4;
 const practiceModuleDraftSchema = z.object({
@@ -35,11 +36,12 @@ function appendCorrectionRequest(messages, input) {
         }),
         role: 'user',
     });
-    console.info(`[resource-drafts] ${input.actorLabel}:structured-correction ${JSON.stringify({
+    logger.info('resource_draft_structured_correction', {
+        actorLabel: input.actorLabel,
         hadInvalidOutput: Boolean(invalidOutput),
         reason: input.reason,
         turn: input.turn,
-    })}`);
+    });
 }
 async function generateStructuredDraft(input) {
     const system = renderSystemPrompt(input.systemPromptPath);
@@ -56,6 +58,7 @@ async function generateStructuredDraft(input) {
                 modelTier: 'regular',
                 openRouterApiKey: input.openRouterApiKey,
             },
+            operation: 'resource_draft',
         }, turn + 1);
         const result = await generateText({
             maxOutputTokens: 1800,
@@ -68,7 +71,10 @@ async function generateStructuredDraft(input) {
             system,
             temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
         });
-        logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, input.actorLabel);
+        logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
+            actorLabel: input.actorLabel,
+            operation: 'resource_draft',
+        });
         let parsedJson;
         try {
             parsedJson = parseJsonFromModelText(result.text);
@@ -77,6 +83,7 @@ async function generateStructuredDraft(input) {
             logLlmInvalidRawResponse({
                 actorLabel: input.actorLabel,
                 error,
+                operation: 'resource_draft',
                 rawText: result.text,
                 turn: turn + 1,
             });

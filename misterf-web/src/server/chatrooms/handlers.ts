@@ -46,6 +46,7 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import { recordChatRoomConversationReportProgress } from '../services/learnerProgress.js';
+import { logger } from '../services/logger.js';
 import { generateChatRoomDraft as generateChatRoomDraftFromPrompt } from '../services/resourceDrafts.js';
 import {
   chatroomsLayoutCookieName,
@@ -303,17 +304,15 @@ async function advanceChatRoomConversationStep(input: {
   const messages = listChatRoomMessages(input.conversationId);
   const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
 
-  console.info(
-    `[chatrooms] step:start ${JSON.stringify({
-      characterCount: characters.length,
-      conversationId: input.conversationId,
-      hasOpenRouterKey: Boolean(openRouterApiKey),
-      messageCount: messages.length,
-      roomId: input.room.id,
-      trigger: input.trigger,
-      userId: input.userId,
-    })}`,
-  );
+  logger.debug('chatroom_step_start', {
+    characterCount: characters.length,
+    conversationId: input.conversationId,
+    hasOpenRouterKey: Boolean(openRouterApiKey),
+    messageCount: messages.length,
+    roomId: input.room.id,
+    trigger: input.trigger,
+    userId: input.userId,
+  });
 
   const nextTurn = await advanceChatRoomConversation({
     characters,
@@ -325,14 +324,12 @@ async function advanceChatRoomConversationStep(input: {
   });
 
   if (nextTurn.messages.length === 0) {
-    console.info(
-      `[chatrooms] step:no-turn ${JSON.stringify({
-        conversationId: input.conversationId,
-        roomId: input.room.id,
-        trigger: input.trigger,
-        userId: input.userId,
-      })}`,
-    );
+    logger.warn('chatroom_step_no_turn', {
+      conversationId: input.conversationId,
+      roomId: input.room.id,
+      trigger: input.trigger,
+      userId: input.userId,
+    });
     return {
       appendedMessages: [],
     };
@@ -350,16 +347,13 @@ async function advanceChatRoomConversationStep(input: {
     );
   }
 
-  console.info(
-    `[chatrooms] step:stored-turn ${JSON.stringify({
-      appendedCount: appendedMessages.length,
-      conversationId: input.conversationId,
-      roomId: input.room.id,
-      speakers: appendedMessages.map((message) => message.senderName),
-      trigger: input.trigger,
-      userId: input.userId,
-    })}`,
-  );
+  logger.debug('chatroom_step_stored_turn', {
+    appendedCount: appendedMessages.length,
+    conversationId: input.conversationId,
+    roomId: input.room.id,
+    trigger: input.trigger,
+    userId: input.userId,
+  });
 
   return {
     appendedMessages,
@@ -1235,15 +1229,13 @@ export async function handleChatRoomSendMessage(
       }),
     )
     .catch((error) => {
-      console.info(
-        `[chatrooms] evaluation:background-error ${JSON.stringify({
-          conversationId: conversation.id,
-          error: error instanceof Error ? error.message : String(error),
-          messageId: userMessage.id,
-          roomId: room.id,
-          userId: auth.user.id,
-        })}`,
-      );
+      logger.error('chatroom_evaluation_background_error', {
+        conversationId: conversation.id,
+        error,
+        messageId: userMessage.id,
+        roomId: room.id,
+        userId: auth.user.id,
+      });
     });
 
   if (wantsJson) {
@@ -1302,6 +1294,12 @@ export async function handleEvaluateChatRoomConversation(
     });
   } catch (error) {
     if (isCreditExhaustedError(error)) {
+      logger.warn('credit_exhausted_http_redirect', {
+        conversationId: conversation.id,
+        roomId: room.id,
+        surface: 'chatroom_report',
+        userId: auth.user.id,
+      });
       response.redirect(buildChatRoomConversationCreditExhaustedPath(conversation.id));
       return;
     }
@@ -1372,6 +1370,13 @@ export async function handleCreatePracticeModuleFromChatRoomConversationReport(
     });
   } catch (error) {
     if (isCreditExhaustedError(error)) {
+      logger.warn('credit_exhausted_http_redirect', {
+        conversationId: conversation.id,
+        reportId: report.id,
+        roomId: room.id,
+        surface: 'chatroom_report_module',
+        userId: auth.user.id,
+      });
       response.redirect(buildChatRoomConversationCreditExhaustedPath(conversation.id, 'report'));
       return;
     }

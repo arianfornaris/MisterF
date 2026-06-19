@@ -7,6 +7,7 @@ import {
   getSessionTokenFromCookieHeader,
   hashSessionToken,
 } from '../auth/session.js';
+import { logger } from '../services/logger.js';
 
 const maxPayloadLength = 16 * 1024;
 const maxReportsPerWindow = 20;
@@ -204,7 +205,6 @@ function logClientErrorTelemetry(input: {
   const payload = {
     column: input.event.column,
     conversationId: input.event.conversationId || null,
-    event: 'frontend_error',
     fingerprint: input.event.fingerprint,
     ip: input.ip || null,
     level: input.event.level,
@@ -220,24 +220,20 @@ function logClientErrorTelemetry(input: {
     userId: input.user?.id ?? null,
   };
 
-  const line = `[client-telemetry] ${JSON.stringify(payload)}`;
   if (input.event.level === 'warning') {
-    console.warn(line);
+    logger.warn('frontend_error', payload);
     return;
   }
 
-  console.error(line);
+  logger.error('frontend_error', payload);
 }
 
 function logClientTelemetryRateLimit(input: {
   key: string;
 }): void {
-  console.warn(
-    `[client-telemetry] ${JSON.stringify({
-      event: 'frontend_error_rate_limited',
-      key: input.key.slice(0, 80),
-    })}`,
-  );
+  logger.warn('frontend_error_rate_limited', {
+    key: input.key.slice(0, 80),
+  });
 }
 
 function getSessionTokenHashFromRequest(request: Request): string {

@@ -34,15 +34,29 @@ function readBoolean(name, fallback) {
     }
     return ['1', 'true', 'yes'].includes(rawValue.toLowerCase());
 }
+function readCsvList(name) {
+    const rawValue = process.env[name];
+    if (!rawValue) {
+        return [];
+    }
+    return rawValue
+        .split(',')
+        .map((value) => value.trim())
+        .filter(Boolean);
+}
 function resolveProjectPath(value) {
     return path.isAbsolute(value) ? value : path.resolve(projectRoot, value);
 }
+const nodeEnv = process.env.NODE_ENV ?? 'development';
 export const env = {
     projectRoot,
+    nodeEnv,
     host: process.env.HOST ??
-        (process.env.NODE_ENV === 'production' ? '127.0.0.1' : '0.0.0.0'),
+        (nodeEnv === 'production' ? '127.0.0.1' : '0.0.0.0'),
     port: readInteger('PORT', 3000),
     databasePath: resolveProjectPath(process.env.DATABASE_PATH ?? './data/misterf.sqlite'),
+    logLevel: process.env.LOG_LEVEL ??
+        (nodeEnv === 'production' ? 'info' : 'debug'),
     llmProvider: 'openrouter',
     llmRegularModel: process.env.LLM_MODEL_REGULAR ??
         process.env.LLM_MODEL ??
@@ -59,6 +73,10 @@ export const env = {
     llmContextWindow: readInteger('LLM_CONTEXT_WINDOW', 128000),
     openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
     openrouterBaseUrl: process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1',
+    llmTraceMode: process.env.LLM_TRACE_MODE ??
+        (nodeEnv === 'production' ? 'metadata' : 'full'),
+    llmTraceFullConversationIds: readCsvList('LLM_TRACE_FULL_CONVERSATION_IDS'),
+    llmTraceFullUserIds: readCsvList('LLM_TRACE_FULL_USER_IDS'),
     openrouterKeyEncryptionSecret: process.env.OPENROUTER_KEY_ENCRYPTION_SECRET ??
         process.env.APP_SESSION_SECRET ??
         '',

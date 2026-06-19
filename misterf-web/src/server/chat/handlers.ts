@@ -30,6 +30,7 @@ import {
   generateTutorConversationReport,
 } from '../services/tutorReports.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
+import { logger } from '../services/logger.js';
 
 export function renderChatPage(request: Request, response: Response): void {
   const user = request.authUser;
@@ -131,6 +132,11 @@ export async function handleFinalizeTutorConversation(
     });
   } catch (error) {
     if (isCreditExhaustedError(error)) {
+      logger.warn('credit_exhausted_http_redirect', {
+        conversationId: conversation.id,
+        surface: 'tutor_report',
+        userId: user.id,
+      });
       response.redirect(buildConversationCreditExhaustedPath(conversation.id));
       return;
     }
@@ -225,6 +231,11 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(
     });
   } catch (error) {
     if (isCreditExhaustedError(error)) {
+      logger.warn('credit_exhausted_http_redirect', {
+        conversationId: conversation.id,
+        surface: 'tutor_report_module',
+        userId: user.id,
+      });
       response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
       return;
     }

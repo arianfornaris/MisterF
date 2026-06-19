@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { sentenceEvaluationBlockSchema } from './llmTutor/schemas.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
-import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
+import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, shouldLogFullLlmTrace, } from './llmTutor/logging.js';
+import { logger } from './logger.js';
 const maxRecentMessages = 18;
 const maxChatRoomGenerationTurns = 4;
 const maxChatRoomReportGenerationTurns = 4;
@@ -32,7 +33,42 @@ const generatedChatRoomBlockSchema = z.object({
     })).min(1).max(2),
 });
 function logChatRoomEvent(event, details) {
-    console.info(`[chatrooms] ${event} ${JSON.stringify(details)}`);
+    const logEvent = `chatroom_${event.replace(/[^a-z0-9]+/gi, '_')}`;
+    const payload = sanitizeChatRoomLogDetails({
+        ...details,
+        chatRoomEvent: event,
+    });
+    if (event.endsWith(':error')) {
+        logger.error(logEvent, payload);
+        return;
+    }
+    if (event.includes('structured-correction')) {
+        logger.info(logEvent, payload);
+        return;
+    }
+    if (event.includes('invalid-json') ||
+        event.includes('schema-mismatch') ||
+        event.includes('discarded') ||
+        event.includes('empty') ||
+        event.includes('no-usable') ||
+        event.includes('warning')) {
+        logger.warn(logEvent, payload);
+        return;
+    }
+    logger.debug(logEvent, payload);
+}
+function sanitizeChatRoomLogDetails(details) {
+    if (shouldLogFullLlmTrace()) {
+        return details;
+    }
+    const sanitized = { ...details };
+    delete sanitized.preview;
+    delete sanitized.roomTitle;
+    delete sanitized.speakerName;
+    delete sanitized.speakers;
+    delete sanitized.textPreview;
+    delete sanitized.userName;
+    return sanitized;
 }
 function appendChatRoomStructuredCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();
@@ -189,6 +225,7 @@ async function generateChatRoomMessageBlock(input) {
                     modelTier: 'regular',
                     openRouterApiKey: input.openRouterApiKey,
                 },
+                operation: 'chatroom_generation',
             }, turn + 1);
             const result = await generateText({
                 maxOutputTokens: 1000,
@@ -201,7 +238,10 @@ async function generateChatRoomMessageBlock(input) {
                 system,
                 temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.65 : undefined,
             });
-            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, 'Chatroom');
+            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
+                actorLabel: 'Chatroom',
+                operation: 'chatroom_generation',
+            });
             let parsedSource;
             try {
                 parsedSource = parseJsonFromModelText(result.text);
@@ -210,6 +250,7 @@ async function generateChatRoomMessageBlock(input) {
                 logLlmInvalidRawResponse({
                     actorLabel: 'Chatroom',
                     error,
+                    operation: 'chatroom_generation',
                     rawText: result.text,
                     turn: turn + 1,
                 });
@@ -353,6 +394,7 @@ export async function evaluateChatRoomUserMessage(input) {
                 modelTier: 'regular',
                 openRouterApiKey: input.openRouterApiKey,
             },
+            operation: 'chatroom_evaluation',
         }, 1);
         const result = await generateText({
             maxOutputTokens: 500,
@@ -365,7 +407,10 @@ export async function evaluateChatRoomUserMessage(input) {
             system,
             temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.3 : undefined,
         });
-        logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, 1, 'Chatroom evaluation');
+        logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, 1, {
+            actorLabel: 'Chatroom evaluation',
+            operation: 'chatroom_evaluation',
+        });
         const normalized = result.text.trim();
         if (!normalized) {
             logChatRoomEvent('evaluation:empty', {
@@ -426,6 +471,7 @@ export async function generateChatRoomConversationReport(input) {
                     modelTier: 'regular',
                     openRouterApiKey: input.openRouterApiKey,
                 },
+                operation: 'chatroom_report',
             }, turn + 1);
             const result = await generateText({
                 maxOutputTokens: 2200,
@@ -438,7 +484,10 @@ export async function generateChatRoomConversationReport(input) {
                 system,
                 temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
             });
-            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, 'Chatroom report');
+            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
+                actorLabel: 'Chatroom report',
+                operation: 'chatroom_report',
+            });
             let parsedSource;
             try {
                 parsedSource = parseJsonFromModelText(result.text);
@@ -447,6 +496,7 @@ export async function generateChatRoomConversationReport(input) {
                 logLlmInvalidRawResponse({
                     actorLabel: 'Chatroom report',
                     error,
+                    operation: 'chatroom_report',
                     rawText: result.text,
                     turn: turn + 1,
                 });
@@ -540,6 +590,7 @@ export async function generatePracticeModuleFromChatRoomConversationReport(input
                     modelTier: 'regular',
                     openRouterApiKey: input.openRouterApiKey,
                 },
+                operation: 'chatroom_report_module',
             }, turn + 1);
             const result = await generateText({
                 maxOutputTokens: 1400,
@@ -552,7 +603,10 @@ export async function generatePracticeModuleFromChatRoomConversationReport(input
                 system,
                 temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
             });
-            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, 'Chatroom report module');
+            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
+                actorLabel: 'Chatroom report module',
+                operation: 'chatroom_report_module',
+            });
             let parsedSource;
             try {
                 parsedSource = parseJsonFromModelText(result.text);
@@ -561,6 +615,7 @@ export async function generatePracticeModuleFromChatRoomConversationReport(input
                 logLlmInvalidRawResponse({
                     actorLabel: 'Chatroom report module',
                     error,
+                    operation: 'chatroom_report_module',
                     rawText: result.text,
                     turn: turn + 1,
                 });

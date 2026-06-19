@@ -1,8 +1,9 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
-import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
+import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, shouldLogFullLlmTrace, } from './llmTutor/logging.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { logger } from './logger.js';
 const maxTutorReportGenerationTurns = 4;
 const tutorConversationReportSchema = z
     .object({
@@ -48,7 +49,32 @@ const generatedPracticeModuleFromTutorReportSchema = z
 })
     .strict();
 function logTutorReportEvent(event, details) {
-    console.info(`[tutor-report] ${event} ${JSON.stringify(details)}`);
+    const logEvent = `tutor_report_${event.replace(/[^a-z0-9]+/gi, '_')}`;
+    const payload = sanitizeTutorReportLogDetails({
+        ...details,
+        tutorReportEvent: event,
+    });
+    if (event.endsWith(':error')) {
+        logger.error(logEvent, payload);
+        return;
+    }
+    if (event.includes('structured-correction')) {
+        logger.info(logEvent, payload);
+        return;
+    }
+    if (event.includes('schema-mismatch')) {
+        logger.warn(logEvent, payload);
+        return;
+    }
+    logger.debug(logEvent, payload);
+}
+function sanitizeTutorReportLogDetails(details) {
+    if (shouldLogFullLlmTrace()) {
+        return details;
+    }
+    const sanitized = { ...details };
+    delete sanitized.userName;
+    return sanitized;
 }
 function parseJsonFromModelText(text) {
     return JSON.parse(text.trim());
@@ -109,6 +135,7 @@ export async function generateTutorConversationReport(input) {
                     modelTier: 'regular',
                     openRouterApiKey: input.openRouterApiKey,
                 },
+                operation: 'tutor_report',
             }, turnNumber);
             const result = await generateText({
                 maxOutputTokens: 2600,
@@ -121,7 +148,10 @@ export async function generateTutorConversationReport(input) {
                 system,
                 temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.4 : undefined,
             });
-            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, 'Tutor report');
+            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, {
+                actorLabel: 'Tutor report',
+                operation: 'tutor_report',
+            });
             let parsedSource;
             try {
                 parsedSource = parseJsonFromModelText(result.text);
@@ -130,6 +160,7 @@ export async function generateTutorConversationReport(input) {
                 logLlmInvalidRawResponse({
                     actorLabel: 'Tutor report',
                     error,
+                    operation: 'tutor_report',
                     rawText: result.text,
                     turn: turnNumber,
                 });
@@ -212,6 +243,7 @@ export async function generatePracticeModuleFromTutorConversationReport(input) {
                     modelTier: 'regular',
                     openRouterApiKey: input.openRouterApiKey,
                 },
+                operation: 'tutor_report_module',
             }, turnNumber);
             const result = await generateText({
                 maxOutputTokens: 1400,
@@ -224,7 +256,10 @@ export async function generatePracticeModuleFromTutorConversationReport(input) {
                 system,
                 temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
             });
-            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, 'Tutor report module');
+            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, {
+                actorLabel: 'Tutor report module',
+                operation: 'tutor_report_module',
+            });
             let parsedSource;
             try {
                 parsedSource = parseJsonFromModelText(result.text);
@@ -233,6 +268,7 @@ export async function generatePracticeModuleFromTutorConversationReport(input) {
                 logLlmInvalidRawResponse({
                     actorLabel: 'Tutor report module',
                     error,
+                    operation: 'tutor_report_module',
                     rawText: result.text,
                     turn: turnNumber,
                 });

@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { renderSystemPrompt } from '../systemPrompts.js';
+import { logger } from '../logger.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
 import { TutorResponseValidationError } from './errors.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './providers.js';
@@ -44,15 +45,20 @@ export async function repairTutorResponseBlocks(input) {
             temperature: shouldUseTemperature(input.llm) ? 0.1 : undefined,
         });
         lastGeneratedText = result.text;
-        const repairedBlocks = validateTutorResponseBlocks(parseJsonFromModelText(result.text), { generatedText: result.text });
+        const repairedBlocks = validateTutorResponseBlocks(parseJsonFromModelText(result.text), {
+            generatedText: result.text,
+            llm: input.llm,
+            operation: 'tutor_block_repair',
+        });
         const remainingIssues = detectMessageTaskLeakage(repairedBlocks);
-        console.log('[Mr. F block repair]', JSON.stringify({
+        logger.info('llm_block_repair_attempt', {
             attempt: attempt + 1,
             issueKinds: currentIssues.map((issue) => issue.kind),
             initialIssueCount: initialIssues.length,
             repairedBlockTypes: repairedBlocks.map((block) => block.type),
             remainingIssueCount: remainingIssues.length,
-        }, null, 2));
+            userId: input.llm?.userId ?? null,
+        });
         if (remainingIssues.length === 0) {
             return {
                 blocks: repairedBlocks,

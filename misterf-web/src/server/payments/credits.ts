@@ -13,6 +13,7 @@ import {
   markCreditPurchaseFailed,
   markCreditPurchaseFulfilled,
 } from './repository.js';
+import { logger } from '../services/logger.js';
 import { defaultCreditPackage, findCreditPackage } from './packages.js';
 import type { AuthUser } from '../auth/repository.js';
 import type { CreditPackage } from './packages.js';
@@ -133,6 +134,15 @@ export async function createCreditsCheckoutSession(input: {
     userId: input.user.id,
   });
 
+  logger.info('credit_checkout_session_created', {
+    creditedAmountCents: packageToBuy.creditedAmountCents,
+    customerAmountCents: packageToBuy.customerAmountCents,
+    packageCode: packageToBuy.code,
+    returnTo,
+    stripeCheckoutSessionId: session.id,
+    userId: input.user.id,
+  });
+
   return session;
 }
 
@@ -163,6 +173,11 @@ export async function fulfillCheckoutSession(input: {
   const sessionId = input.session.id;
   const existingPurchase = findCreditPurchaseByCheckoutSession(sessionId);
   if (existingPurchase?.status === 'fulfilled') {
+    logger.info('credit_fulfillment_duplicate_ignored', {
+      stripeCheckoutSessionId: sessionId,
+      stripeEventId: input.eventId,
+      userId: existingPurchase.userId,
+    });
     return;
   }
 
@@ -171,6 +186,12 @@ export async function fulfillCheckoutSession(input: {
   const paymentIntentId = readStripeId(input.session.payment_intent);
 
   if (!packageToBuy || !userId) {
+    logger.error('credit_fulfillment_metadata_missing', {
+      hasPackageCode: Boolean(input.session.metadata?.packageCode),
+      hasUserId: Boolean(userId),
+      stripeCheckoutSessionId: sessionId,
+      stripeEventId: input.eventId,
+    });
     throw new Error('Stripe session metadata is missing packageCode or userId.');
   }
 
@@ -198,6 +219,17 @@ export async function fulfillCheckoutSession(input: {
       stripeEventId: input.eventId,
       stripePaymentIntentId: paymentIntentId,
     });
+
+    logger.info('credit_fulfillment_succeeded', {
+      creditedAmountCents: purchase.creditedAmountCents,
+      packageCode: purchase.packageCode,
+      remainingAfterUsd: result.remainingAfterUsd,
+      remainingBeforeUsd: result.remainingBeforeUsd,
+      stripeCheckoutSessionId: sessionId,
+      stripeEventId: input.eventId,
+      stripePaymentIntentId: paymentIntentId,
+      userId: purchase.userId,
+    });
   } catch (error) {
     markCreditPurchaseFailed({
       failureReason:
@@ -205,6 +237,14 @@ export async function fulfillCheckoutSession(input: {
       stripeCheckoutSessionId: sessionId,
       stripeEventId: input.eventId,
       stripePaymentIntentId: paymentIntentId,
+    });
+    logger.error('credit_fulfillment_failed', {
+      error,
+      packageCode: purchase.packageCode,
+      stripeCheckoutSessionId: sessionId,
+      stripeEventId: input.eventId,
+      stripePaymentIntentId: paymentIntentId,
+      userId: purchase.userId,
     });
     throw error;
   }

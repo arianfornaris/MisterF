@@ -2,6 +2,7 @@ import { generateText, type ModelMessage } from 'ai';
 import { z } from 'zod';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
+import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 
 const maxDraftGenerationTurns = 4;
@@ -53,13 +54,12 @@ function appendCorrectionRequest(messages: ModelMessage[], input: {
     role: 'user',
   });
 
-  console.info(
-    `[resource-drafts] ${input.actorLabel}:structured-correction ${JSON.stringify({
-      hadInvalidOutput: Boolean(invalidOutput),
-      reason: input.reason,
-      turn: input.turn,
-    })}`,
-  );
+  logger.info('resource_draft_structured_correction', {
+    actorLabel: input.actorLabel,
+    hadInvalidOutput: Boolean(invalidOutput),
+    reason: input.reason,
+    turn: input.turn,
+  });
 }
 
 async function generateStructuredDraft<T>(input: {
@@ -88,6 +88,7 @@ async function generateStructuredDraft<T>(input: {
           modelTier: 'regular',
           openRouterApiKey: input.openRouterApiKey,
         },
+        operation: 'resource_draft',
       },
       turn + 1,
     );
@@ -110,7 +111,10 @@ async function generateStructuredDraft<T>(input: {
       result.usage,
       result.providerMetadata,
       turn + 1,
-      input.actorLabel,
+      {
+        actorLabel: input.actorLabel,
+        operation: 'resource_draft',
+      },
     );
 
     let parsedJson: unknown;
@@ -120,6 +124,7 @@ async function generateStructuredDraft<T>(input: {
       logLlmInvalidRawResponse({
         actorLabel: input.actorLabel,
         error,
+        operation: 'resource_draft',
         rawText: result.text,
         turn: turn + 1,
       });

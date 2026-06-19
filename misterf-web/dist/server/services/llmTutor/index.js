@@ -2,7 +2,7 @@ import { generateText, stepCountIs, } from 'ai';
 import { env } from '../../config/env.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './errors.js';
-import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, } from './logging.js';
+import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, shouldLogFullLlmTrace, } from './logging.js';
 import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorConversationTools } from './conversationTools.js';
@@ -14,6 +14,7 @@ import { appendStructuredCorrectionRequest, buildStructuredValidationReason, ext
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
+import { logger } from '../logger.js';
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
 function mergeTutorPracticeModuleLinkBlocks(blocks, inferredLinks) {
@@ -175,8 +176,14 @@ export async function runTutorAgentLoop(history, options) {
                 tools,
             });
             logLlmToolCalls({
+                actorLabel: 'Mr. F',
+                conversationId: options.conversationId ?? null,
+                llm: options.llm,
+                operation: 'tutor',
+                profileId: options.profileId ?? null,
                 steps: result.steps,
                 turn: turn + 1,
+                userId: options.userId ?? null,
             });
             const toolResults = result.steps.flatMap((step) => step.toolResults);
             let effectiveResult = result;
@@ -193,7 +200,11 @@ export async function runTutorAgentLoop(history, options) {
                 try {
                     parsedObject = parseJsonFromModelText(result.text);
                     finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                        conversationId: options.conversationId ?? null,
                         generatedText: result.text,
+                        llm: options.llm,
+                        operation: 'tutor',
+                        userId: options.userId ?? null,
                     }), extractInferredPracticeModuleLinkBlocks(toolResults));
                 }
                 catch (error) {
@@ -202,14 +213,24 @@ export async function runTutorAgentLoop(history, options) {
                         try {
                             parsedObject = parseJsonFromModelText(embeddedJson);
                             finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                                conversationId: options.conversationId ?? null,
                                 generatedText: embeddedJson,
+                                llm: options.llm,
+                                operation: 'tutor',
+                                userId: options.userId ?? null,
                             }), extractInferredPracticeModuleLinkBlocks(toolResults));
                         }
                         catch (embeddedError) {
                             logLlmInvalidRawResponse({
+                                actorLabel: 'Mr. F',
+                                conversationId: options.conversationId ?? null,
                                 error: embeddedError,
+                                llm: options.llm,
+                                operation: 'tutor',
+                                profileId: options.profileId ?? null,
                                 rawText: result.text,
                                 turn: turn + 1,
+                                userId: options.userId ?? null,
                             });
                             throw embeddedError;
                         }
@@ -230,21 +251,38 @@ export async function runTutorAgentLoop(history, options) {
                         try {
                             parsedObject = parseJsonFromModelText(effectiveResult.text);
                             finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                                conversationId: options.conversationId ?? null,
                                 generatedText: effectiveResult.text,
+                                llm: options.llm,
+                                operation: 'tutor',
+                                userId: options.userId ?? null,
                             }), extractInferredPracticeModuleLinkBlocks(toolResults));
                         }
                         catch (continuationError) {
                             logLlmInvalidRawResponse({
+                                actorLabel: 'Mr. F',
+                                conversationId: options.conversationId ?? null,
                                 error: continuationError,
+                                llm: options.llm,
+                                operation: 'tutor',
+                                profileId: options.profileId ?? null,
                                 rawText: effectiveResult.text,
                                 turn: turn + 1,
+                                userId: options.userId ?? null,
                             });
                             throw continuationError;
                         }
                     }
                 }
             }
-            logLlmResponse(parsedObject ?? { blocks: finalBlocks }, effectiveResult.finishReason, effectiveResult.usage, effectiveResult.providerMetadata, turn + 1);
+            logLlmResponse(parsedObject ?? { blocks: finalBlocks }, effectiveResult.finishReason, effectiveResult.usage, effectiveResult.providerMetadata, turn + 1, {
+                actorLabel: 'Mr. F',
+                conversationId: options.conversationId ?? null,
+                llm: options.llm,
+                operation: 'tutor',
+                profileId: options.profileId ?? null,
+                userId: options.userId ?? null,
+            });
             options.onTokenUsage?.(await buildLlmRequestTokenUsage({
                 llm: options.llm,
                 messages,
@@ -267,10 +305,14 @@ export async function runTutorAgentLoop(history, options) {
                 });
                 finalBlocks = repairResult.blocks;
                 if (repairResult.repaired) {
-                    console.log('[Mr. F repaired response blocks]', JSON.stringify({
+                    logger.info('llm_response_repaired', {
+                        actorLabel: 'Mr. F',
                         blockTypes: finalBlocks.map((block) => block.type),
+                        conversationId: options.conversationId ?? null,
+                        profileId: options.profileId ?? null,
                         turn: turn + 1,
-                    }, null, 2));
+                        userId: options.userId ?? null,
+                    });
                 }
                 options.validateBlocks?.(finalBlocks);
                 applyTutorPlanBlocks(finalBlocks, options.tutorPlan ?? null);
@@ -334,18 +376,26 @@ export async function translateTextWithLlm(input) {
     }
     const parsed = translationResultSchema.safeParse(parseJsonFromModelText(result.text));
     if (!parsed.success) {
-        console.error('[Mr. F translator validation failed]', JSON.stringify({
+        const fullTrace = shouldLogFullLlmTrace({
+            userId: input.llm?.userId ?? null,
+        });
+        logger.warn('llm_translator_validation_failed', {
+            fullTrace,
             issues: parsed.error.issues,
-            value: result.text,
-        }, null, 2));
+            model: getConfiguredModelId(input.llm),
+            provider: env.llmProvider,
+            value: fullTrace ? result.text : undefined,
+            valueLength: result.text.length,
+        });
         throw new Error('El traductor no devolvió una respuesta válida.');
     }
-    console.log('[Mr. F translator response]', JSON.stringify({
+    logger.debug('llm_translator_response', {
         detectedLanguage: parsed.data.detectedLanguage,
         mode: input.mode,
         model: getConfiguredModelId(input.llm),
         provider: env.llmProvider,
-    }, null, 2));
+        userId: input.llm?.userId ?? null,
+    });
     return {
         detectedLanguage: parsed.data.detectedLanguage,
         model: getConfiguredModelId(input.llm),
@@ -381,10 +431,17 @@ export async function evaluateQuizResultItemsWithLlm(input) {
             }
             const parsed = quizResultEvaluationsSchema.safeParse(parseJsonFromModelText(result.text));
             if (!parsed.success) {
-                console.error('[Mr. F quiz result evaluation failed]', JSON.stringify({
+                const fullTrace = shouldLogFullLlmTrace({
+                    userId: input.llm?.userId ?? null,
+                });
+                logger.warn('llm_quiz_result_evaluation_failed', {
+                    fullTrace,
                     issues: parsed.error.issues,
-                    value: result.text,
-                }, null, 2));
+                    model: getConfiguredModelId(input.llm),
+                    provider: env.llmProvider,
+                    value: fullTrace ? result.text : undefined,
+                    valueLength: result.text.length,
+                });
                 throw new QuizResultEvaluationValidationError({
                     generatedText: result.text,
                     issues: parsed.error.issues,

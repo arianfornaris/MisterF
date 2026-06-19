@@ -9,6 +9,7 @@ import {
   logLlmInvalidRawResponse,
   logLlmRequest,
   logLlmResponse,
+  shouldLogFullLlmTrace,
 } from './llmTutor/logging.js';
 import {
   getLanguageModel,
@@ -16,6 +17,7 @@ import {
   shouldUseTemperature,
 } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { logger } from './logger.js';
 
 const maxTutorReportGenerationTurns = 4;
 
@@ -72,7 +74,40 @@ function logTutorReportEvent(
   event: string,
   details: Record<string, unknown>,
 ): void {
-  console.info(`[tutor-report] ${event} ${JSON.stringify(details)}`);
+  const logEvent = `tutor_report_${event.replace(/[^a-z0-9]+/gi, '_')}`;
+  const payload = sanitizeTutorReportLogDetails({
+    ...details,
+    tutorReportEvent: event,
+  });
+
+  if (event.endsWith(':error')) {
+    logger.error(logEvent, payload);
+    return;
+  }
+
+  if (event.includes('structured-correction')) {
+    logger.info(logEvent, payload);
+    return;
+  }
+
+  if (event.includes('schema-mismatch')) {
+    logger.warn(logEvent, payload);
+    return;
+  }
+
+  logger.debug(logEvent, payload);
+}
+
+function sanitizeTutorReportLogDetails(
+  details: Record<string, unknown>,
+): Record<string, unknown> {
+  if (shouldLogFullLlmTrace()) {
+    return details;
+  }
+
+  const sanitized = { ...details };
+  delete sanitized.userName;
+  return sanitized;
 }
 
 function parseJsonFromModelText(text: string): unknown {
@@ -160,6 +195,7 @@ export async function generateTutorConversationReport(input: {
             modelTier: 'regular',
             openRouterApiKey: input.openRouterApiKey,
           },
+          operation: 'tutor_report',
         },
         turnNumber,
       );
@@ -182,7 +218,10 @@ export async function generateTutorConversationReport(input: {
         result.usage,
         result.providerMetadata,
         turnNumber,
-        'Tutor report',
+        {
+          actorLabel: 'Tutor report',
+          operation: 'tutor_report',
+        },
       );
 
       let parsedSource: unknown;
@@ -192,6 +231,7 @@ export async function generateTutorConversationReport(input: {
         logLlmInvalidRawResponse({
           actorLabel: 'Tutor report',
           error,
+          operation: 'tutor_report',
           rawText: result.text,
           turn: turnNumber,
         });
@@ -288,6 +328,7 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
             modelTier: 'regular',
             openRouterApiKey: input.openRouterApiKey,
           },
+          operation: 'tutor_report_module',
         },
         turnNumber,
       );
@@ -310,7 +351,10 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
         result.usage,
         result.providerMetadata,
         turnNumber,
-        'Tutor report module',
+        {
+          actorLabel: 'Tutor report module',
+          operation: 'tutor_report_module',
+        },
       );
 
       let parsedSource: unknown;
@@ -320,6 +364,7 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
         logLlmInvalidRawResponse({
           actorLabel: 'Tutor report module',
           error,
+          operation: 'tutor_report_module',
           rawText: result.text,
           turn: turnNumber,
         });

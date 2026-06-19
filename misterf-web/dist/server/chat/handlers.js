@@ -4,6 +4,7 @@ import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isC
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
 import { generatePracticeModuleFromTutorConversationReport, generateTutorConversationReport, } from '../services/tutorReports.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
+import { logger } from '../services/logger.js';
 export function renderChatPage(request, response) {
     const user = request.authUser;
     let activeProfile = request.activeProfile;
@@ -91,6 +92,11 @@ export async function handleFinalizeTutorConversation(request, response) {
     }
     catch (error) {
         if (isCreditExhaustedError(error)) {
+            logger.warn('credit_exhausted_http_redirect', {
+                conversationId: conversation.id,
+                surface: 'tutor_report',
+                userId: user.id,
+            });
             response.redirect(buildConversationCreditExhaustedPath(conversation.id));
             return;
         }
@@ -167,6 +173,11 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(requ
     }
     catch (error) {
         if (isCreditExhaustedError(error)) {
+            logger.warn('credit_exhausted_http_redirect', {
+                conversationId: conversation.id,
+                surface: 'tutor_report_module',
+                userId: user.id,
+            });
             response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
             return;
         }

@@ -17,6 +17,7 @@ import { redirectIncompleteProfileOnboarding } from './profiles/onboardingMiddle
 import { profileOnboardingRouter, profilesRouter } from './profiles/routes.js';
 import { progressRouter } from './progress/routes.js';
 import { settingsRouter } from './settings/routes.js';
+import { logger } from './services/logger.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import { superadminRouter } from './superadmin/routes.js';
 import { clientTelemetryRouter } from './telemetry/clientErrors.js';
@@ -66,10 +67,28 @@ app.get('/session', (request, response) => {
 app.get('/health', (_request, response) => {
     response.json({ ok: true });
 });
+app.use((error, request, response, next) => {
+    logger.error('http_request_error', {
+        error,
+        method: request.method,
+        path: request.path,
+        statusCode: response.statusCode >= 400 ? response.statusCode : 500,
+        userId: request.authUser?.id ?? null,
+    });
+    if (response.headersSent) {
+        next(error);
+        return;
+    }
+    response.status(500).send('Ocurrió un error inesperado.');
+});
 registerChatSocket(io);
 export function startServer() {
     server.listen(env.port, env.host, () => {
-        console.log(`Mister F listening on http://${env.host}:${env.port}`);
+        logger.info('server_started', {
+            host: env.host,
+            port: env.port,
+            url: `http://${env.host}:${env.port}`,
+        });
     });
 }
 if (process.env.NODE_ENV !== 'test' && process.env.VITEST !== 'true') {

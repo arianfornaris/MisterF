@@ -1,4 +1,5 @@
 import { env } from '../../config/env.js';
+import { logger } from '../logger.js';
 
 type OpenRouterModelRecord = {
   context_length?: number;
@@ -86,24 +87,11 @@ export async function resolveContextWindowTokens(
     const resolved = contexts.get(modelId);
     return Math.max(1, resolved ?? env.llmContextWindow);
   } catch (error) {
-    console.warn(
-      '[Mr. F OpenRouter model metadata fallback]',
-      JSON.stringify(
-        {
-          error:
-            error instanceof Error
-              ? {
-                  message: error.message,
-                  name: error.name,
-                }
-              : error,
-          fallbackContextWindowTokens: env.llmContextWindow,
-          model: modelId,
-        },
-        null,
-        2,
-      ),
-    );
+    logger.warn('openrouter_model_metadata_fallback', {
+      error,
+      fallbackContextWindowTokens: env.llmContextWindow,
+      model: modelId,
+    });
     return Math.max(1, env.llmContextWindow);
   }
 }

@@ -14,6 +14,7 @@ import {
 } from './credits.js';
 import { defaultCreditPackage } from './packages.js';
 import { listFulfilledCreditPurchasesForUser } from './repository.js';
+import { logger } from '../services/logger.js';
 
 function ensureVerifiedCreditsUser(
   request: Request,
@@ -82,6 +83,11 @@ export async function handleCreateCreditsCheckout(
 
     response.redirect(303, session.url);
   } catch (error) {
+    logger.error('credit_checkout_session_failed', {
+      error,
+      returnTo: normalizeReturnTo(request.body.returnTo),
+      userId: user.id,
+    });
     const message =
       error instanceof Error
         ? error.message
@@ -108,6 +114,10 @@ export async function handleStripeWebhook(
       body: request.body as Buffer,
       signature: request.headers['stripe-signature'],
     });
+    logger.debug('stripe_webhook_received', {
+      stripeEventId: event.id,
+      type: event.type,
+    });
 
     if (
       event.type === 'checkout.session.completed' ||
@@ -117,11 +127,16 @@ export async function handleStripeWebhook(
         eventId: event.id,
         session: event.data.object,
       });
+    } else {
+      logger.debug('stripe_webhook_ignored', {
+        stripeEventId: event.id,
+        type: event.type,
+      });
     }
 
     response.json({ received: true });
   } catch (error) {
-    console.error('Stripe webhook error:', error);
+    logger.error('stripe_webhook_error', { error });
     response.status(400).send('Stripe webhook error.');
   }
 }

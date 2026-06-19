@@ -18,7 +18,9 @@ import {
   logLlmInvalidRawResponse,
   logLlmRequest,
   logLlmResponse,
+  shouldLogFullLlmTrace,
 } from './llmTutor/logging.js';
+import { logger } from './logger.js';
 
 const maxRecentMessages = 18;
 const maxChatRoomGenerationTurns = 4;
@@ -59,9 +61,52 @@ function logChatRoomEvent(
   event: string,
   details: Record<string, unknown>,
 ): void {
-  console.info(
-    `[chatrooms] ${event} ${JSON.stringify(details)}`,
-  );
+  const logEvent = `chatroom_${event.replace(/[^a-z0-9]+/gi, '_')}`;
+  const payload = sanitizeChatRoomLogDetails({
+    ...details,
+    chatRoomEvent: event,
+  });
+
+  if (event.endsWith(':error')) {
+    logger.error(logEvent, payload);
+    return;
+  }
+
+  if (event.includes('structured-correction')) {
+    logger.info(logEvent, payload);
+    return;
+  }
+
+  if (
+    event.includes('invalid-json') ||
+    event.includes('schema-mismatch') ||
+    event.includes('discarded') ||
+    event.includes('empty') ||
+    event.includes('no-usable') ||
+    event.includes('warning')
+  ) {
+    logger.warn(logEvent, payload);
+    return;
+  }
+
+  logger.debug(logEvent, payload);
+}
+
+function sanitizeChatRoomLogDetails(
+  details: Record<string, unknown>,
+): Record<string, unknown> {
+  if (shouldLogFullLlmTrace()) {
+    return details;
+  }
+
+  const sanitized = { ...details };
+  delete sanitized.preview;
+  delete sanitized.roomTitle;
+  delete sanitized.speakerName;
+  delete sanitized.speakers;
+  delete sanitized.textPreview;
+  delete sanitized.userName;
+  return sanitized;
 }
 
 function appendChatRoomStructuredCorrectionRequest(
@@ -288,6 +333,7 @@ async function generateChatRoomMessageBlock(input: {
             modelTier: 'regular',
             openRouterApiKey: input.openRouterApiKey,
           },
+          operation: 'chatroom_generation',
         },
         turn + 1,
       );
@@ -310,7 +356,10 @@ async function generateChatRoomMessageBlock(input: {
         result.usage,
         result.providerMetadata,
         turn + 1,
-        'Chatroom',
+        {
+          actorLabel: 'Chatroom',
+          operation: 'chatroom_generation',
+        },
       );
 
       let parsedSource: unknown;
@@ -320,6 +369,7 @@ async function generateChatRoomMessageBlock(input: {
         logLlmInvalidRawResponse({
           actorLabel: 'Chatroom',
           error,
+          operation: 'chatroom_generation',
           rawText: result.text,
           turn: turn + 1,
         });
@@ -497,13 +547,14 @@ export async function evaluateChatRoomUserMessage(input: {
     logLlmRequest(
       messages,
       system,
-      {
-        actorLabel: 'Chatroom evaluation',
-        llm: {
-          modelTier: 'regular',
-          openRouterApiKey: input.openRouterApiKey,
+        {
+          actorLabel: 'Chatroom evaluation',
+          llm: {
+            modelTier: 'regular',
+            openRouterApiKey: input.openRouterApiKey,
+          },
+          operation: 'chatroom_evaluation',
         },
-      },
       1,
     );
 
@@ -525,7 +576,10 @@ export async function evaluateChatRoomUserMessage(input: {
       result.usage,
       result.providerMetadata,
       1,
-      'Chatroom evaluation',
+      {
+        actorLabel: 'Chatroom evaluation',
+        operation: 'chatroom_evaluation',
+      },
     );
 
     const normalized = result.text.trim();
@@ -604,6 +658,7 @@ export async function generateChatRoomConversationReport(input: {
             modelTier: 'regular',
             openRouterApiKey: input.openRouterApiKey,
           },
+          operation: 'chatroom_report',
         },
         turn + 1,
       );
@@ -626,7 +681,10 @@ export async function generateChatRoomConversationReport(input: {
         result.usage,
         result.providerMetadata,
         turn + 1,
-        'Chatroom report',
+        {
+          actorLabel: 'Chatroom report',
+          operation: 'chatroom_report',
+        },
       );
 
       let parsedSource: unknown;
@@ -636,6 +694,7 @@ export async function generateChatRoomConversationReport(input: {
         logLlmInvalidRawResponse({
           actorLabel: 'Chatroom report',
           error,
+          operation: 'chatroom_report',
           rawText: result.text,
           turn: turn + 1,
         });
@@ -748,6 +807,7 @@ export async function generatePracticeModuleFromChatRoomConversationReport(input
             modelTier: 'regular',
             openRouterApiKey: input.openRouterApiKey,
           },
+          operation: 'chatroom_report_module',
         },
         turn + 1,
       );
@@ -770,7 +830,10 @@ export async function generatePracticeModuleFromChatRoomConversationReport(input
         result.usage,
         result.providerMetadata,
         turn + 1,
-        'Chatroom report module',
+        {
+          actorLabel: 'Chatroom report module',
+          operation: 'chatroom_report_module',
+        },
       );
 
       let parsedSource: unknown;
@@ -780,6 +843,7 @@ export async function generatePracticeModuleFromChatRoomConversationReport(input
         logLlmInvalidRawResponse({
           actorLabel: 'Chatroom report module',
           error,
+          operation: 'chatroom_report_module',
           rawText: result.text,
           turn: turn + 1,
         });

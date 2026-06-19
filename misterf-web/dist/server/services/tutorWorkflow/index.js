@@ -1,4 +1,5 @@
 import { getConversationTutorPlan, saveConversationTutorPlan, } from '../../db/repository.js';
+import { logger } from '../logger.js';
 import { applyTutorPlanBlocks } from '../tutorPlans.js';
 export function applyTutorBlocksRuntime(input) {
     let handledTutorPlan = false;
@@ -51,7 +52,7 @@ function handleTutorPlanBlock(input) {
         });
     }
     catch (error) {
-        console.error('Tutor plan side effect failed.', {
+        logger.error('tutor_plan_side_effect_failed', {
             conversationId: input.conversationId,
             error,
         });

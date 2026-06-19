@@ -59,6 +59,7 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
+import { logger } from '../services/logger.js';
 import {
   emitCreditExhaustedIfNeeded,
   emitRoomCreditExhaustedIfNeeded,
@@ -686,12 +687,17 @@ export function registerChatSocket(io: Server): void {
           translation,
         });
       } catch (error) {
-        console.error('Translator request failed.', {
-          error: serializeError(error),
-          mode,
+        const creditExhausted = emitCreditExhaustedIfNeeded(socket, error, {
+          surface: 'translator',
           userId,
         });
-        emitCreditExhaustedIfNeeded(socket, error);
+        if (!creditExhausted) {
+          logger.error('translator_request_failed', {
+            error,
+            mode,
+            userId,
+          });
+        }
         socket.emit('translator:error', {
           message: toUserFacingError(error),
         });
@@ -1123,15 +1129,20 @@ export function registerChatSocket(io: Server): void {
             responses,
           });
         } catch (error) {
-          console.error('Quiz result evaluation failed.', {
+          if (emitCreditExhaustedIfNeeded(socket, error, {
             conversationId,
-            error: serializeError(error),
+            messageId,
+            surface: 'quiz_result_evaluation',
+            userId,
+          })) {
+            return;
+          }
+          logger.error('quiz_result_evaluation_failed', {
+            conversationId,
+            error,
             messageId,
             userId,
           });
-          if (emitCreditExhaustedIfNeeded(socket, error)) {
-            return;
-          }
           socket.emit('assistant:error', {
             message: toUserFacingError(error),
           });
@@ -1459,15 +1470,19 @@ async function streamAssistantMessage(
       return;
     }
 
-    console.error('Assistant response failed.', {
+    if (emitRoomCreditExhaustedIfNeeded(io, conversationId, error, {
+      messageId: lastUserMessageId,
+      surface: 'tutor_response',
+      userId,
+    })) {
+      return;
+    }
+    logger.error('assistant_response_failed', {
       conversationId,
-      error: serializeError(error),
+      error,
       lastUserMessageId,
       userId,
     });
-    if (emitRoomCreditExhaustedIfNeeded(io, conversationId, error)) {
-      return;
-    }
 
     io.to(conversationId).emit('assistant:error', {
       message: toUserFacingError(error),
@@ -2509,26 +2524,4 @@ function toUserFacingError(error: unknown): string {
   }
 
   return 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.';
-}
-
-function serializeError(error: unknown): unknown {
-  if (error instanceof Error) {
-    return {
-      cause: serializeError(error.cause),
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-    };
-  }
-
-  if (error && typeof error === 'object') {
-    const record = error as Record<string, unknown>;
-    return {
-      message: typeof record.message === 'string' ? record.message : undefined,
-      name: typeof record.name === 'string' ? record.name : undefined,
-      text: typeof record.text === 'string' ? record.text.slice(0, 6000) : undefined,
-    };
-  }
-
-  return error;
 }

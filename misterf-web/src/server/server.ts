@@ -1,4 +1,8 @@
-import express from 'express';
+import express, {
+  type NextFunction,
+  type Request,
+  type Response,
+} from 'express';
 import http from 'node:http';
 import path from 'node:path';
 import { Server } from 'socket.io';
@@ -17,6 +21,7 @@ import { redirectIncompleteProfileOnboarding } from './profiles/onboardingMiddle
 import { profileOnboardingRouter, profilesRouter } from './profiles/routes.js';
 import { progressRouter } from './progress/routes.js';
 import { settingsRouter } from './settings/routes.js';
+import { logger } from './services/logger.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import { superadminRouter } from './superadmin/routes.js';
 import { clientTelemetryRouter } from './telemetry/clientErrors.js';
@@ -89,11 +94,39 @@ app.get('/health', (_request, response) => {
   response.json({ ok: true });
 });
 
+app.use(
+  (
+    error: unknown,
+    request: Request,
+    response: Response,
+    next: NextFunction,
+  ) => {
+    logger.error('http_request_error', {
+      error,
+      method: request.method,
+      path: request.path,
+      statusCode: response.statusCode >= 400 ? response.statusCode : 500,
+      userId: request.authUser?.id ?? null,
+    });
+
+    if (response.headersSent) {
+      next(error);
+      return;
+    }
+
+    response.status(500).send('Ocurrió un error inesperado.');
+  },
+);
+
 registerChatSocket(io);
 
 export function startServer(): void {
   server.listen(env.port, env.host, () => {
-    console.log(`Mister F listening on http://${env.host}:${env.port}`);
+    logger.info('server_started', {
+      host: env.host,
+      port: env.port,
+      url: `http://${env.host}:${env.port}`,
+    });
   });
 }
 

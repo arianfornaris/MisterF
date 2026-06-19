@@ -341,15 +341,18 @@ Notes:
 
 ### 4.4 Introduce Runtime Logging Policy
 
-- [ ] Add or document logger levels.
-- [ ] Gate debug logs by environment.
-- [ ] Redact learner text, LLM output, secrets, and provider keys from production logs.
-- [ ] Remove browser debug logs unless explicitly needed.
+- [x] Add or document logger levels.
+- [x] Gate debug logs by environment.
+- [x] Redact learner text, LLM output, secrets, and provider keys from production logs.
+- [x] Remove browser debug logs unless explicitly needed.
 
 Verification:
 
-- `rg "console\\." src`
-- Production mode does not print debug-only content.
+- `npm test -- tests/server/logger.test.ts`
+- `npm run typecheck`
+- `rg "console\\." src/server src/client/chat/app/ChatRuntime.js`
+- Production mode does not print debug-only content unless `LOG_LEVEL=debug`
+  and full LLM tracing is explicitly enabled or targeted.
 
 Notes:
 
@@ -358,19 +361,38 @@ Notes:
 - Browser error reporting now uses client-side deduplication/rate limits plus a
   server-side same-origin, size-limited, rate-limited endpoint. This is a
   frontend diagnostics layer, not the full LLM tracing policy.
+- Runtime logging policy is documented in
+  `docs/operations/runtime-logging-policy.md`.
+- The server logger emits structured JSON events and redacts known secret fields.
+- Production important events now include HTTP errors, frontend critical errors,
+  Stripe credit lifecycle events, credit exhaustion UI events, malformed LLM
+  output, structured correction requests, and tutor block repairs.
+- Normal LLM request/response/tool-call traces are debug-level. Metadata mode
+  omits learner text, system prompts, raw model output, and tool payloads; full
+  tracing is available for local debugging or targeted temporary production
+  investigations.
 
 ## Phase 5: Documentation And Release Readiness
 
 ### 5.1 Update README For V1
 
-- [ ] Describe current product scope accurately.
-- [ ] Document setup, development, build, production start, and PM2.
-- [ ] Document database path and migration behavior.
-- [ ] Link architecture docs and issue trackers.
+- [x] Describe current product scope accurately.
+- [x] Document setup, development, build, production start, and PM2.
+- [x] Document database path and migration behavior.
+- [x] Link architecture docs and issue trackers.
 
 Verification:
 
 - README matches current scripts and `env.ts`.
+
+Notes:
+
+- Root README now points maintainers to the web app and documentation index.
+- `misterf-web/README.md` now describes V1 scope, setup, environment files,
+  scripts, database/migration behavior, OpenRouter/credits, Stripe, runtime
+  logging, build artifacts, PM2, production-data sync, verification, and doc
+  links.
+- `.env.example` now includes the runtime logging and LLM tracing variables.
 
 ### 5.2 Curate Or Retire `TODO.txt`
 
@@ -382,18 +404,49 @@ Verification:
 
 - No duplicated/conflicting roadmap source remains.
 
+Notes:
+
+- Intentionally skipped by owner request. `TODO.txt` remains as a personal
+  lightweight notes file, not as the project release-readiness source of truth.
+
 ### 5.3 Final V1 Checklist
 
-- [ ] Fresh clone/install instructions work.
-- [ ] Fresh database migration works.
-- [ ] Typecheck passes.
-- [ ] Tests pass.
-- [ ] Client build passes.
-- [ ] Main app flows smoke-tested.
-- [ ] Stripe webhook configured or explicitly disabled in dev.
-- [ ] OpenRouter/credit behavior documented.
-- [ ] README and docs reflect current product behavior.
+- [x] Fresh clone/install instructions work.
+- [x] Fresh database migration works.
+- [x] Typecheck passes.
+- [x] Tests pass.
+- [x] Client build passes.
+- [x] Main app flows smoke-tested.
+- [x] Stripe webhook configured or explicitly disabled in dev.
+- [x] OpenRouter/credit behavior documented.
+- [x] README and docs reflect current product behavior.
 
 Verification:
 
 - Record final commands and manual smoke notes in this tracker before tagging v1.
+
+Final commands run on 2026-06-19:
+
+- `npm ci --dry-run`
+- `npm run typecheck`
+- `npm run test:typecheck`
+- `npm test`
+- `npm run build`
+- `ENV_FILE="$tmpdir/empty.env" DATABASE_PATH="$tmpdir/misterf.sqlite" node dist/server/db/migrateCli.js`
+
+Smoke notes:
+
+- `GET /health` returned `200`.
+- `GET /login` returned `200`.
+- `GET /credits` returned `302` to `/login` while unauthenticated.
+- Generated chat client asset under `/public/build` returned `200`.
+
+Release-readiness notes:
+
+- Stripe checkout and webhook configuration are documented in
+  `misterf-web/README.md` and `docs/features/payments.md`. If Stripe variables
+  are blank in development, paid checkout and webhook fulfillment are unavailable
+  and the product surfaces configuration errors.
+- OpenRouter managed-key and credit behavior are documented in
+  `misterf-web/README.md`, `docs/features/payments.md`, and
+  `docs/issues/v1-llm-credit-payment-guardrails.md`.

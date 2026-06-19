@@ -44,6 +44,15 @@ Use `design/` for visual design, UI conventions, and theme philosophy.
 
 - [Visual Design](./design/visual-design.md): theme philosophy, Bootstrap usage, and custom color token rules
 
+### Operations
+
+Use `operations/` for runbooks, local/prod sync workflows, observability, and
+runtime support procedures.
+
+- [Sync Production To Development](./operations/sync-production-to-development.md): local production-data sync workflow for migration rehearsal
+- [Client Error Telemetry](./operations/client-error-telemetry.md): browser critical-error reporting, deduplication, and server rate limits
+- [Runtime Logging Policy](./operations/runtime-logging-policy.md): structured server logs, LLM trace modes, redaction, and production/debug expectations
+
 ### Issues
 
 Use `issues/` for problem analysis, remediation plans, and living trackers for

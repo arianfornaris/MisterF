@@ -1,4 +1,5 @@
 import { env } from '../../config/env.js';
+import { logger } from '../logger.js';
 const OPENROUTER_MODELS_CACHE_TTL_MS = 1000 * 60 * 60 * 6;
 let cachedModelsAt = 0;
 let cachedModelContexts = new Map();
@@ -54,16 +55,11 @@ export async function resolveContextWindowTokens(modelId) {
         return Math.max(1, resolved ?? env.llmContextWindow);
     }
     catch (error) {
-        console.warn('[Mr. F OpenRouter model metadata fallback]', JSON.stringify({
-            error: error instanceof Error
-                ? {
-                    message: error.message,
-                    name: error.name,
-                }
-                : error,
+        logger.warn('openrouter_model_metadata_fallback', {
+            error,
             fallbackContextWindowTokens: env.llmContextWindow,
             model: modelId,
-        }, null, 2));
+        });
         return Math.max(1, env.llmContextWindow);
     }
 }
