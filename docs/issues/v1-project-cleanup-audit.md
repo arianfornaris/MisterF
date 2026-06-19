@@ -398,10 +398,10 @@ Resolution:
 
 ### Phase 4: AI And Payments Guardrails
 
-1. Add credit gate tests or static checks around LLM entry points.
-2. Add Stripe webhook idempotency coverage.
+1. Completed on 2026-06-18: add credit gate tests and static checks around LLM entry points.
+2. Completed on 2026-06-18: add Stripe webhook and fulfillment idempotency coverage.
 3. Review runtime logs for sensitive content.
-4. Document credit flow and credit-exhausted errors.
+4. Completed on 2026-06-18: document credit flow and credit-exhausted errors in `docs/issues/v1-llm-credit-payment-guardrails.md`.
 
 ### Phase 5: Final Documentation
 

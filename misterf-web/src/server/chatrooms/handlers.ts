@@ -1362,12 +1362,22 @@ export async function handleCreatePracticeModuleFromChatRoomConversationReport(
     }
   }
 
-  const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-  const generatedModule = await generatePracticeModuleFromChatRoomConversationReport({
-    openRouterApiKey,
-    report,
-    room,
-  });
+  let generatedModule: Awaited<ReturnType<typeof generatePracticeModuleFromChatRoomConversationReport>>;
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
+    generatedModule = await generatePracticeModuleFromChatRoomConversationReport({
+      openRouterApiKey,
+      report,
+      room,
+    });
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect(buildChatRoomConversationCreditExhaustedPath(conversation.id, 'report'));
+      return;
+    }
+
+    throw error;
+  }
 
   const practiceModule = createPracticeModule({
     description: generatedModule.description,
@@ -1424,13 +1434,17 @@ export function handlePracticeChatRoomConversationReportWithTutor(
   response.redirect(`/c/${encodeURIComponent(tutorConversation.id)}`);
 }
 
-function buildChatRoomConversationCreditExhaustedPath(conversationId: string): string {
+function buildChatRoomConversationCreditExhaustedPath(
+  conversationId: string,
+  target: 'conversation' | 'report' = 'conversation',
+): string {
   const params = new URLSearchParams({
     credit: 'exhausted',
     creditMessage: getCreditExhaustedMessage(),
   });
+  const suffix = target === 'report' ? '/report' : '';
 
-  return `/chatroom-conversations/${encodeURIComponent(conversationId)}?${params.toString()}`;
+  return `/chatroom-conversations/${encodeURIComponent(conversationId)}${suffix}?${params.toString()}`;
 }
 
 export function handleGetChatRoomMessageEvaluation(

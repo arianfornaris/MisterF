@@ -19,6 +19,7 @@ import { progressRouter } from './progress/routes.js';
 import { settingsRouter } from './settings/routes.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import { superadminRouter } from './superadmin/routes.js';
+import { clientTelemetryRouter } from './telemetry/clientErrors.js';
 
 requireSessionSecret();
 migrate();
@@ -54,6 +55,7 @@ app.use(
 );
 
 app.use(stripeWebhookRouter);
+app.use(clientTelemetryRouter);
 app.use(express.urlencoded({ extended: false, limit: '32kb' }));
 app.use(csrfProtection);
 app.use(loadAuthSession);

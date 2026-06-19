@@ -59,6 +59,10 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
+import {
+  emitCreditExhaustedIfNeeded,
+  emitRoomCreditExhaustedIfNeeded,
+} from './creditExhaustion.js';
 
 type JoinPayload = {
   conversationId?: string | null;
@@ -2505,32 +2509,6 @@ function toUserFacingError(error: unknown): string {
   }
 
   return 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.';
-}
-
-function emitCreditExhaustedIfNeeded(socket: Socket, error: unknown): boolean {
-  if (!isCreditExhaustedError(error)) {
-    return false;
-  }
-
-  socket.emit('llm:credit_exhausted', {
-    message: getCreditExhaustedMessage(),
-  });
-  return true;
-}
-
-function emitRoomCreditExhaustedIfNeeded(
-  io: Server,
-  conversationId: string,
-  error: unknown,
-): boolean {
-  if (!isCreditExhaustedError(error)) {
-    return false;
-  }
-
-  io.to(conversationId).emit('llm:credit_exhausted', {
-    message: getCreditExhaustedMessage(),
-  });
-  return true;
 }
 
 function serializeError(error: unknown): unknown {

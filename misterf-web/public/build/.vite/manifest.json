@@ -1,30 +1,36 @@
 {
-  "_markdown-DMZsmS-X.js": {
-    "file": "chunks/markdown-DMZsmS-X.js",
+  "_markdown-CPxK2rJi.js": {
+    "file": "chunks/markdown-CPxK2rJi.js",
     "name": "markdown"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-BcvxhthF.js",
+    "file": "entries/chat-D1Px2UH5.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
-      "_markdown-DMZsmS-X.js"
+      "_markdown-CPxK2rJi.js"
     ]
   },
   "src/client/chatrooms/main.js": {
-    "file": "entries/chatrooms-DuiqxdYB.js",
+    "file": "entries/chatrooms-DrYPhKCb.js",
     "name": "chatrooms",
     "src": "src/client/chatrooms/main.js",
     "isEntry": true,
     "imports": [
-      "_markdown-DMZsmS-X.js"
+      "_markdown-CPxK2rJi.js"
     ]
   },
   "src/client/practiceModules/index.js": {
-    "file": "entries/practice-modules-BbTgFtTs.js",
+    "file": "entries/practice-modules-Cty7bsTU.js",
     "name": "practice-modules",
     "src": "src/client/practiceModules/index.js",
+    "isEntry": true
+  },
+  "src/client/telemetry/clientErrorReporter.js": {
+    "file": "entries/client-error-telemetry-DK9fv7Kk.js",
+    "name": "client-error-telemetry",
+    "src": "src/client/telemetry/clientErrorReporter.js",
     "isEntry": true
   }
 }

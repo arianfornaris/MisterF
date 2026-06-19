@@ -10,6 +10,7 @@ import { renderSystemPrompt } from '../services/systemPrompts.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
+import { emitCreditExhaustedIfNeeded, emitRoomCreditExhaustedIfNeeded, } from './creditExhaustion.js';
 const runningConversations = new Set();
 const runningConversationControllers = new Map();
 export function registerChatSocket(io) {
@@ -1711,24 +1712,6 @@ function toUserFacingError(error) {
         return 'Mi respuesta se cortó antes de estar lista. Inténtalo otra vez en unos segundos.';
     }
     return 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.';
-}
-function emitCreditExhaustedIfNeeded(socket, error) {
-    if (!isCreditExhaustedError(error)) {
-        return false;
-    }
-    socket.emit('llm:credit_exhausted', {
-        message: getCreditExhaustedMessage(),
-    });
-    return true;
-}
-function emitRoomCreditExhaustedIfNeeded(io, conversationId, error) {
-    if (!isCreditExhaustedError(error)) {
-        return false;
-    }
-    io.to(conversationId).emit('llm:credit_exhausted', {
-        message: getCreditExhaustedMessage(),
-    });
-    return true;
 }
 function serializeError(error) {
     if (error instanceof Error) {

@@ -19,6 +19,7 @@ import { progressRouter } from './progress/routes.js';
 import { settingsRouter } from './settings/routes.js';
 import { registerChatSocket } from './socket/chatSocket.js';
 import { superadminRouter } from './superadmin/routes.js';
+import { clientTelemetryRouter } from './telemetry/clientErrors.js';
 requireSessionSecret();
 migrate();
 export const app = express();
@@ -34,6 +35,7 @@ app.use('/vendor/bootstrap-icons', express.static(path.join(env.projectRoot, 'no
 app.use('/vendor/marked', express.static(path.join(env.projectRoot, 'node_modules/marked/lib')));
 app.use('/vendor/dompurify', express.static(path.join(env.projectRoot, 'node_modules/dompurify/dist')));
 app.use(stripeWebhookRouter);
+app.use(clientTelemetryRouter);
 app.use(express.urlencoded({ extended: false, limit: '32kb' }));
 app.use(csrfProtection);
 app.use(loadAuthSession);

@@ -11,6 +11,9 @@ export default defineConfig({
       input: {
         chat: path.resolve('src/client/chat/index.js'),
         chatrooms: path.resolve('src/client/chatrooms/main.js'),
+        'client-error-telemetry': path.resolve(
+          'src/client/telemetry/clientErrorReporter.js',
+        ),
         'practice-modules': path.resolve('src/client/practiceModules/index.js'),
       },
       output: {

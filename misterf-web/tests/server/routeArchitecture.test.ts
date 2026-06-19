@@ -37,6 +37,7 @@ describe('server route architecture', () => {
     expect(server).toContain("import { progressRouter } from './progress/routes.js';");
     expect(server).toContain("import { settingsRouter } from './settings/routes.js';");
     expect(server).toContain("import { superadminRouter } from './superadmin/routes.js';");
+    expect(server).toContain("import { clientTelemetryRouter } from './telemetry/clientErrors.js';");
     expect(server).not.toContain('/handlers.js');
   });
 
@@ -44,6 +45,7 @@ describe('server route architecture', () => {
     const server = readProjectFile('src/server/server.ts');
 
     expectBefore(server, 'app.use(stripeWebhookRouter);', 'app.use(express.urlencoded');
+    expectBefore(server, 'app.use(clientTelemetryRouter);', 'app.use(express.urlencoded');
     expectBefore(server, 'app.use(express.urlencoded', 'app.use(csrfProtection);');
     expectBefore(server, 'app.use(csrfProtection);', 'app.use(loadAuthSession);');
     expectBefore(server, 'app.use(loadAuthSession);', 'app.use(authRouter);');

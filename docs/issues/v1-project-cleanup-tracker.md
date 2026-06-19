@@ -286,37 +286,58 @@ Notes:
 
 ### 4.1 Add Credit Gate Coverage
 
-- [ ] Inventory every server-side `generateText` call.
-- [ ] Document whether each call is behind a handler/socket/tool credit check.
-- [ ] Add a test or static check that flags new ungated LLM entry points.
+- [x] Inventory every server-side `generateText` call.
+- [x] Document whether each call is behind a handler/socket/tool credit check.
+- [x] Add a test or static check that flags new ungated LLM entry points.
 
 Verification:
 
 - `rg "generateText" src/server`
-- Credit gate test/check passes.
+- `npm test -- tests/server/llmCreditGateArchitecture.test.ts`
+
+Notes:
+
+- The inventory lives in `docs/issues/v1-llm-credit-payment-guardrails.md`.
+- `tests/server/llmCreditGateArchitecture.test.ts` locks direct `generateText`
+  calls to inventoried service modules and checks that LLM entrypoints still use
+  `getCreditCheckedOpenRouterApiKeyForUser`.
 
 ### 4.2 Improve Credit Exhaustion UI Coverage
 
-- [ ] Test web handler behavior when credit is exhausted.
-- [ ] Test socket event behavior when credit is exhausted.
-- [ ] Confirm user-facing errors do not expose stack traces.
+- [x] Test web handler behavior when credit is exhausted.
+- [x] Test socket event behavior when credit is exhausted.
+- [x] Confirm user-facing errors do not expose stack traces.
 
 Verification:
 
-- Unit or integration tests for `isCreditExhaustedError` paths.
-- Manual smoke with mocked exhausted credit.
+- `npm test -- tests/server/creditExhaustion.test.ts tests/server/creditExhaustionHandlers.test.ts`
+- Mocked exhausted-credit handler tests assert product redirects/events instead
+  of stack traces.
+
+Notes:
+
+- Socket credit exhaustion emission moved to `src/server/socket/creditExhaustion.ts`
+  so it can be tested without booting Socket.IO.
+- Chat room report practice-module generation now catches `CreditExhaustedError`
+  and redirects back to the report view with credit modal query state.
 
 ### 4.3 Add Stripe Webhook Idempotency Tests
 
-- [ ] Cover `checkout.session.completed`.
-- [ ] Cover duplicate event/session handling.
-- [ ] Cover failed fulfillment status.
-- [ ] Confirm credited balance is not duplicated.
+- [x] Cover `checkout.session.completed`.
+- [x] Cover duplicate event/session handling.
+- [x] Cover failed fulfillment status.
+- [x] Confirm credited balance is not duplicated.
 
 Verification:
 
-- `npm test`
+- `npm test -- tests/server/paymentsWebhook.test.ts tests/server/stripeFulfillment.test.ts`
 - Payment repository state matches expected ledger entries.
+
+Notes:
+
+- Stripe webhook dispatch is covered separately from fulfillment state.
+- Fulfillment tests use a real temporary SQLite database and mocked OpenRouter
+  remote-credit calls.
 
 ### 4.4 Introduce Runtime Logging Policy
 
@@ -329,6 +350,14 @@ Verification:
 
 - `rg "console\\." src`
 - Production mode does not print debug-only content.
+
+Notes:
+
+- Client critical error telemetry is documented in
+  `docs/operations/client-error-telemetry.md`.
+- Browser error reporting now uses client-side deduplication/rate limits plus a
+  server-side same-origin, size-limited, rate-limited endpoint. This is a
+  frontend diagnostics layer, not the full LLM tracing policy.
 
 ## Phase 5: Documentation And Release Readiness
 
