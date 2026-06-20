@@ -1,7 +1,10 @@
 # Mister F
 
-Mister F is a web application for English practice with an AI tutor. The main
-application lives in `misterf-web/`; system documentation lives in `docs/`.
+Mister F is a web application for English practice with an AI tutor. It supports
+self-directed learners today, and its product direction also includes
+teacher-assisted practice where human teachers create targeted work for
+students. The main application lives in `misterf-web/`; system documentation
+lives in `docs/`.
 
 ## Quick Links
 

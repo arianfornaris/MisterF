@@ -85,6 +85,68 @@ read-only conversation error.
 3. A snapshot of the practice module context is stored.
 4. The tutor receives the module instructions as part of the system context.
 
+## Teacher-Assigned Practice Flow
+
+This flow supports human teachers who want students to practice a class topic
+independently. The Spanish UI label is `Tareas`.
+
+### Create assignment
+
+1. The teacher opens the assignments section below practice modules.
+2. The teacher starts an authoring session with a natural-language prompt.
+3. The server checks the teacher's credits for AI-assisted authoring.
+4. Mr. F generates a strict quiz-compatible assignment draft.
+5. The authoring workspace opens on a `Design` tab that shows the assignment as
+   editable blocks.
+6. Each block shows a visible number, such as `Block 1`, so the teacher can
+   reference it in the `AI chat` tab.
+7. The teacher can update assignment metadata and reorder, delete, duplicate,
+   or add blocks in the `Design` tab.
+8. Reordering updates visible block numbers while preserving stable internal
+   block ids for AI revision context.
+9. Adding a block shows the supported block types, then opens a modal where the
+   teacher describes the block for AI generation.
+10. The `AI chat` tab lets the teacher ask Mr. F for broader assignment changes
+    using block-number references.
+11. AI-generated blocks and AI revisions replace the current structured draft
+    only after validation against the supported quiz item contract.
+12. The teacher opens `Preview` to see the student-facing Tarea shape before
+    publishing.
+13. The teacher can test the assignment from the student perspective and submit
+    a preview attempt for AI evaluation.
+14. Teacher preview/test evaluation is charged as authoring usage and does not
+    write learner progress.
+15. The assignment stores a fixed quiz-compatible payload with title,
+    description, target topic, instructions, rubric, and ordered items.
+16. The teacher publishes the assignment and shares a link with students.
+
+### Complete assignment
+
+1. The student opens the shared assignment link.
+2. If unauthenticated, the app still lets the student complete the Tarea.
+3. If authenticated, the student starts or resumes an attempt under the active
+   profile.
+4. The student answers the full sequence.
+5. The student submits the attempt.
+6. The server asks the model to evaluate the responses for free to the student.
+7. The evaluated result is stored and rendered as a structured review.
+8. If the attempt is associated with an account, it contributes a progress event
+   to the student's profile.
+9. If the student is a guest, the result page invites them to create an account
+   to save the result and continue practicing.
+
+### Continue practice
+
+1. From the result page, the student can choose to practice the detected
+   difficulties or the original assignment topic with Mr. F.
+2. If the student is a guest, the app asks them to create an account or log in.
+3. The standard account credit policy applies to follow-up tutoring.
+4. The server creates a tutor conversation with an assignment-attempt snapshot.
+5. The tutor receives the assignment, responses, result, and focus areas as
+   teacher-only context.
+6. Mr. F continues with targeted practice instead of grading the same attempt
+   again.
+
 ## Practice Module Collection Flow
 
 1. The user creates a collection.

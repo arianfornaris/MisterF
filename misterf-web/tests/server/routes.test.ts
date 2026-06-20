@@ -74,6 +74,10 @@ describe('main route smoke tests', () => {
 
   it.each([
     {
+      location: '/login',
+      route: '/assignments',
+    },
+    {
       location: '/',
       route: '/practice-modules',
     },

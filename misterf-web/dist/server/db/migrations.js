@@ -603,5 +603,182 @@ export const migrations = [
         ON learner_progress_events (user_id, profile_id, event_date DESC, id DESC);
     `,
     },
+    {
+        id: 2,
+        name: 'add_teacher_assigned_practice',
+        up: `
+      CREATE TABLE assignments (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        target_topic TEXT NOT NULL DEFAULT '',
+        level TEXT NOT NULL DEFAULT '',
+        estimated_minutes INTEGER,
+        instructions TEXT NOT NULL DEFAULT '',
+        rubric TEXT NOT NULL DEFAULT '',
+        quiz_json TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
+        archived_at TEXT,
+        source_assignment_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        published_at TEXT,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_assignments_user_profile_updated
+        ON assignments (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_assignments_profile_archive_favorite
+        ON assignments (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_assignments_profile_source
+        ON assignments (profile_id, source_assignment_id, shared_via);
+
+      CREATE TABLE assignment_authoring_sessions (
+        id TEXT PRIMARY KEY,
+        assignment_id TEXT,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'drafting' CHECK (status IN ('drafting', 'published', 'discarded')),
+        initial_prompt TEXT NOT NULL DEFAULT '',
+        messages_json TEXT NOT NULL DEFAULT '[]',
+        current_draft_json TEXT NOT NULL,
+        last_validated_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_assignment_authoring_sessions_user_profile_updated
+        ON assignment_authoring_sessions (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_assignment_authoring_sessions_assignment
+        ON assignment_authoring_sessions (assignment_id, updated_at DESC);
+
+      CREATE TABLE assignment_authoring_revisions (
+        id TEXT PRIMARY KEY,
+        authoring_session_id TEXT NOT NULL,
+        source TEXT NOT NULL CHECK (source IN ('assistant', 'manual', 'block_add', 'block_revision', 'preview_test')),
+        user_message TEXT,
+        assistant_message TEXT,
+        draft_json TEXT NOT NULL,
+        validation_status TEXT NOT NULL DEFAULT 'valid' CHECK (validation_status IN ('valid', 'invalid')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (authoring_session_id)
+          REFERENCES assignment_authoring_sessions (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_assignment_authoring_revisions_session_created
+        ON assignment_authoring_revisions (authoring_session_id, created_at ASC);
+
+      CREATE TABLE assignment_share_links (
+        id TEXT PRIMARY KEY,
+        assignment_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_assignment_share_links_assignment_active
+        ON assignment_share_links (assignment_id, revoked_at, created_at DESC);
+
+      CREATE TABLE assignment_attempts (
+        id TEXT PRIMARY KEY,
+        assignment_id TEXT NOT NULL,
+        user_id TEXT,
+        profile_id TEXT,
+        guest_token TEXT UNIQUE,
+        claim_token TEXT UNIQUE,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'evaluating', 'evaluated', 'failed')),
+        is_preview INTEGER NOT NULL DEFAULT 0 CHECK (is_preview IN (0, 1)),
+        snapshot_json TEXT NOT NULL,
+        responses_json TEXT NOT NULL DEFAULT '[]',
+        result_json TEXT,
+        progress_event_id INTEGER,
+        started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        submitted_at TEXT,
+        evaluated_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (progress_event_id)
+          REFERENCES learner_progress_events (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_assignment_attempts_assignment_created
+        ON assignment_attempts (assignment_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_user_profile_created
+        ON assignment_attempts (user_id, profile_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_guest_token
+        ON assignment_attempts (guest_token);
+
+      CREATE INDEX idx_assignment_attempts_claim_token
+        ON assignment_attempts (claim_token);
+
+      CREATE TABLE conversation_assignment_attempt_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        assignment_attempt_id TEXT NOT NULL,
+        assignment_title TEXT NOT NULL,
+        assignment_description TEXT NOT NULL DEFAULT '',
+        assignment_target_topic TEXT NOT NULL DEFAULT '',
+        assignment_snapshot_json TEXT NOT NULL,
+        responses_json TEXT NOT NULL,
+        result_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (assignment_attempt_id)
+          REFERENCES assignment_attempts (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_conversation_assignment_attempt_snapshots_attempt
+        ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

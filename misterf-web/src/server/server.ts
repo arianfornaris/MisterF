@@ -6,6 +6,7 @@ import express, {
 import http from 'node:http';
 import path from 'node:path';
 import { Server } from 'socket.io';
+import { assignmentsRouter } from './assignments/routes.js';
 import { csrfProtection } from './auth/csrf.js';
 import { loadAuthSession } from './auth/middleware.js';
 import { authRouter } from './auth/routes.js';
@@ -70,6 +71,7 @@ app.use(profileOnboardingRouter);
 app.use(redirectIncompleteProfileOnboarding);
 app.use(superadminRouter);
 app.use(practiceModulesRouter);
+app.use(assignmentsRouter);
 app.use(profilesRouter);
 app.use(settingsRouter);
 app.use(paymentsRouter);

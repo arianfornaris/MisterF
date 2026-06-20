@@ -126,6 +126,7 @@ Conversations may optionally be associated with:
 - a practice module snapshot source
 - a chat room report snapshot source
 - a tutor conversation report snapshot source
+- an assignment-attempt snapshot source
 
 When `closedAt` is set, the conversation is treated as finalized/read-only. The
 UI can still render the original transcript, but the chat composer is hidden and
@@ -226,10 +227,126 @@ The server re-injects this stored plan into each tutor turn as teacher-only
 authoritative context so the model does not need to reconstruct plan state from
 older transcript blocks.
 
+### Conversation Assignment Attempt Snapshot
+
+Stores a frozen copy of an evaluated assignment attempt when a learner starts
+follow-up tutoring from a `Tarea` result.
+
+Important fields:
+
+- `conversationId`
+- `assignmentAttemptId`
+- assignment title, description, and target topic
+- assignment snapshot JSON
+- submitted responses JSON
+- evaluated result JSON
+
+The tutor receives this snapshot as teacher-only context so the follow-up chat
+can target the detected difficulties without depending on mutable assignment
+records.
+
+## Teacher-Assigned Practice
+
+Teacher-assigned practice is labeled `Tareas` in Spanish UI and uses
+`Assignment` as the internal domain name.
+
+### Assignment
+
+Represents a teacher-authored, profile-scoped fixed practice sequence.
+
+Important fields:
+
+- `id`
+- `userId`
+- `profileId`
+- `title`
+- `description`
+- `targetTopic`
+- `level`
+- optional `estimatedMinutes`
+- `instructions`
+- `rubric`
+- `quiz`
+- `status` (`draft` or `published`)
+- favorite/archive metadata
+- optional source/share metadata
+- optional `publishedAt`
+
+`quiz` stores the validated assignment draft. The draft uses ordered blocks with
+stable internal block ids and existing tutor `quiz` item payloads. This keeps
+assignment evaluation aligned with the live tutor quiz contract.
+
+### Assignment Authoring Session
+
+Represents the AI-assisted workspace where a teacher iterates before publishing.
+
+Important fields:
+
+- `id`
+- optional `assignmentId`
+- `userId`
+- `profileId`
+- `status`
+- `initialPrompt`
+- `messages`
+- `currentDraft`
+- optional `lastValidatedAt`
+
+The current draft is replaced only after validation. The message list is a small
+authoring transcript, not a learner conversation.
+
+### Assignment Authoring Revision
+
+Stores validated draft snapshots produced during authoring.
+
+Important fields:
+
+- `authoringSessionId`
+- `source` (`assistant`, `manual`, `block_add`, `block_revision`, or
+  `preview_test`)
+- optional teacher/user message
+- optional assistant message
+- `draft`
+- `validationStatus`
+
+### Assignment Share Link
+
+Stores the public link token for a published assignment.
+
+Important fields:
+
+- `id`
+- `assignmentId`
+- optional `revokedAt`
+
+### Assignment Attempt
+
+Represents a student or teacher-preview submission against a frozen assignment
+snapshot.
+
+Important fields:
+
+- `id`
+- `assignmentId`
+- optional `userId`
+- optional `profileId`
+- optional guest and claim tokens
+- `status` (`draft`, `submitted`, `evaluating`, `evaluated`, or `failed`)
+- `isPreview`
+- `snapshot`
+- `responses`
+- optional `result`
+- optional `progressEventId`
+- timestamps for start, submit, and evaluation
+
+Guest attempts use isolated tokens and can be claimed after login. Preview
+attempts never write learner progress.
+
 ## Learner Progress
 
 Learner progress is profile-scoped and summarizes practice across tutor
-conversation reports and chat room conversation reports.
+conversation reports, chat room conversation reports, and evaluated assignment
+attempts.
 
 ### Learner Progress Profile
 

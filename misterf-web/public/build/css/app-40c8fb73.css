@@ -1245,6 +1245,132 @@ body {
   font-size: 0.98rem;
 }
 
+.assignments-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.assignment-tabs {
+  gap: 0.5rem;
+}
+
+.assignment-authoring-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: start;
+}
+
+.assignment-block-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.assignment-block-card {
+  border-radius: 0.5rem;
+}
+
+.assignment-block-card .btn-group form {
+  display: inline-flex;
+}
+
+.assignment-sentence {
+  font-size: 1.05rem;
+}
+
+.assignment-chat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.assignment-authoring-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 30rem;
+  overflow-y: auto;
+}
+
+.assignment-authoring-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.assignment-authoring-message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.assignment-authoring-message.is-assistant {
+  max-width: 48rem;
+}
+
+.assignment-authoring-message.is-user {
+  align-self: flex-end;
+  max-width: 48rem;
+  text-align: right;
+}
+
+.assignment-block-kind-list {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.assignment-block-kind {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.65rem;
+}
+
+.assignment-block-kind span {
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
+}
+
+.assignment-preview-toolbar,
+.assignment-submit-bar,
+.resource-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.assignment-submit-bar {
+  justify-content: flex-end;
+  padding-bottom: 1rem;
+}
+
+.assignment-response-snapshot {
+  background: var(--bs-tertiary-bg);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+.assignment-inline-review {
+  align-items: center;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+}
+
+@media (max-width: 991.98px) {
+  .assignment-authoring-layout,
+  .assignment-block-kind-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 
 .send-button {
   width: 42px;

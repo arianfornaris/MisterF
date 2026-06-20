@@ -1,0 +1,82 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view assignments-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Recursos</p>
+      <h1>Tareas</h1>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2">
+    <a class="btn btn-primary" href="/assignments/new">
+      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nueva tarea
+    </a>
+  </div>
+
+  <form class="resource-filter-bar d-flex flex-column flex-md-row align-items-stretch align-items-md-center gap-2" method="get" action="/assignments">
+    <div class="input-group flex-grow-1">
+      <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+      <input class="form-control" name="q" value="<%= assignmentQuery %>" placeholder="Buscar tareas">
+      <% if (showArchivedAssignments) { %>
+        <input type="hidden" name="archived" value="1">
+      <% } %>
+      <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+    </div>
+    <% if (hasArchivedAssignments) { %>
+      <a class="btn btn-outline-secondary flex-shrink-0" href="/assignments<%= showArchivedAssignments ? '' : '?archived=1' %>">
+        <i class="bi <%= showArchivedAssignments ? 'bi-inbox' : 'bi-archive' %> me-1" aria-hidden="true"></i>
+        <%= showArchivedAssignments ? 'Activas' : 'Archivadas' %>
+      </a>
+    <% } %>
+  </form>
+
+  <% if (assignmentItems.length === 0) { %>
+    <div class="resource-empty-state">
+      <h2 class="h5">No hay tareas todavía.</h2>
+      <a class="btn btn-primary" href="/assignments/new">Crear una tarea</a>
+    </div>
+  <% } else { %>
+    <div class="list-group resource-list">
+      <% assignmentItems.forEach((assignment) => { %>
+        <a class="list-group-item list-group-item-action" href="/assignments/<%= encodeURIComponent(assignment.id) %>">
+          <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
+            <div>
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <h2 class="h5 mb-1"><%= assignment.title %></h2>
+                <% if (assignment.isFavorite) { %><span class="badge text-bg-warning">Favorita</span><% } %>
+                <% if (assignment.archivedAt) { %><span class="badge text-bg-secondary">Archivada</span><% } %>
+                <% if (assignment.status === 'draft') { %><span class="badge text-bg-light border">Borrador</span><% } %>
+              </div>
+              <p class="mb-2 text-body-secondary"><%= assignment.description || assignment.targetTopic || 'Sin descripción' %></p>
+              <div class="resource-meta-row">
+                <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= assignment.blockCount %> bloques</span>
+                <% if (assignment.estimatedMinutes) { %><span><i class="bi bi-clock" aria-hidden="true"></i> <%= assignment.estimatedMinutes %> min</span><% } %>
+                <span><i class="bi bi-calendar" aria-hidden="true"></i> <%= assignment.relativeUpdatedAt %></span>
+              </div>
+            </div>
+            <i class="bi bi-chevron-right text-body-secondary" aria-hidden="true"></i>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <% if (recentAttempts.length > 0) { %>
+    <div class="resource-section">
+      <h2 class="h5">Entregas recientes</h2>
+      <div class="list-group">
+        <% recentAttempts.forEach((attempt) => { %>
+          <a class="list-group-item list-group-item-action" href="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/result">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <span class="badge <%= attempt.statusBadgeClass %>"><%= attempt.statusLabel %></span>
+              <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

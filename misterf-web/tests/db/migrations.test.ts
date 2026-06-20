@@ -59,6 +59,10 @@ describe('database migrations', () => {
         id: 1,
         name: 'create_current_schema',
       },
+      {
+        id: 2,
+        name: 'add_teacher_assigned_practice',
+      },
     ]);
 
     const tableNames = (db
@@ -68,10 +72,16 @@ describe('database migrations', () => {
 
     expect(tableNames).toEqual(expect.arrayContaining([
       'auth_action_tokens',
+      'assignment_attempts',
+      'assignment_authoring_revisions',
+      'assignment_authoring_sessions',
+      'assignment_share_links',
+      'assignments',
       'chat_room_conversation_reports',
       'chat_room_messages',
       'chat_rooms',
       'conversation_chat_room_report_snapshots',
+      'conversation_assignment_attempt_snapshots',
       'conversation_tutor_plans',
       'conversation_tutor_report_snapshots',
       'conversations',
@@ -103,6 +113,17 @@ describe('database migrations', () => {
       'evaluation_created_at',
       'evaluation_problem',
       'evaluation_status',
+    ]));
+    expect(getColumnNames(db, 'assignments')).toEqual(expect.arrayContaining([
+      'quiz_json',
+      'published_at',
+      'target_topic',
+    ]));
+    expect(getColumnNames(db, 'assignment_attempts')).toEqual(expect.arrayContaining([
+      'claim_token',
+      'guest_token',
+      'result_json',
+      'snapshot_json',
     ]));
   });
 });

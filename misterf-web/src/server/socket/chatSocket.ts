@@ -16,6 +16,7 @@ import {
   deleteConversationTutorPlan,
   findConversationForUser,
   findProfileForUser,
+  getConversationAssignmentAttemptSnapshot,
   getConversationChatRoomReportSnapshot,
   getConversationPracticeModuleSnapshot,
   getConversationTutorPlan,
@@ -25,6 +26,7 @@ import {
   renameConversationForUser,
   updateConversationModelTierForUser,
   updateMessageMetadata,
+  type StoredConversationAssignmentAttemptSnapshot,
   type StoredConversationChatRoomReportSnapshot,
   type StoredConversationTutorReportSnapshot,
   type StoredMessage,
@@ -270,6 +272,7 @@ export function registerChatSocket(io: Server): void {
 
       const messages = listMessages(conversation.id);
       const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
+      const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
       const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
       const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
       const tutorPlan = getConversationTutorPlan(conversation.id);
@@ -290,7 +293,10 @@ export function registerChatSocket(io: Server): void {
         conversation,
         conversationId: conversation.id,
         messages:
-          (practiceModuleSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
+          (practiceModuleSnapshot ||
+            assignmentAttemptSnapshot ||
+            chatRoomReportSnapshot ||
+            tutorReportSnapshot) &&
           messages.length === 0
             ? []
             : messages.length > 0
@@ -301,7 +307,7 @@ export function registerChatSocket(io: Server): void {
       });
 
       if (
-        (chatRoomReportSnapshot || tutorReportSnapshot) &&
+        (assignmentAttemptSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
         messages.length === 0 &&
         !practiceModuleSnapshot
       ) {
@@ -311,6 +317,7 @@ export function registerChatSocket(io: Server): void {
           userId,
           undefined,
           buildReportConversationStartMessages({
+            assignmentAttemptSnapshot,
             chatRoomReportSnapshot,
             tutorReportSnapshot,
           }),
@@ -1375,6 +1382,7 @@ async function streamAssistantMessage(
     }
     const learnerProfile = findProfileForUser(conversation.profileId, userId);
     const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
+    const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
     const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
     const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
     const tutorPlan = getConversationTutorPlan(conversationId);
@@ -1406,6 +1414,20 @@ async function streamAssistantMessage(
           slidesJson: chatRoomReportSnapshot.slidesJson,
         }
       : null;
+    const assignmentAttemptContext = assignmentAttemptSnapshot
+      ? {
+          assignmentDescription: assignmentAttemptSnapshot.assignmentDescription,
+          assignmentSnapshotJson: JSON.stringify(
+            assignmentAttemptSnapshot.assignmentSnapshot,
+            null,
+            2,
+          ),
+          assignmentTargetTopic: assignmentAttemptSnapshot.assignmentTargetTopic,
+          assignmentTitle: assignmentAttemptSnapshot.assignmentTitle,
+          responsesJson: JSON.stringify(assignmentAttemptSnapshot.responses, null, 2),
+          resultJson: JSON.stringify(assignmentAttemptSnapshot.result, null, 2),
+        }
+      : null;
     const tutorReportContext = tutorReportSnapshot
       ? {
           reportJson: tutorReportSnapshot.reportJson,
@@ -1416,6 +1438,7 @@ async function streamAssistantMessage(
       : null;
 
     const result = await runTutorAgentLoop(history, {
+      assignmentAttempt: assignmentAttemptContext,
       chatRoomReport: chatRoomReportContext,
       learnerProfile: learnerProfile
         ? {
@@ -1579,10 +1602,23 @@ function buildPracticeModuleStartMessage(practiceModule: {
 }
 
 function buildReportConversationStartMessages(input: {
+  assignmentAttemptSnapshot: StoredConversationAssignmentAttemptSnapshot | null;
   chatRoomReportSnapshot: StoredConversationChatRoomReportSnapshot | null;
   tutorReportSnapshot: StoredConversationTutorReportSnapshot | null;
 }): TutorMessage[] {
   const messages: TutorMessage[] = [];
+
+  if (input.assignmentAttemptSnapshot) {
+    messages.push({
+      role: 'user',
+      content: [
+        'INTERNAL ASSIGNMENT FOLLOW-UP START.',
+        'The learner chose to practice after a completed teacher-assigned task.',
+        'Use the assignment context in the system prompt to start with the most useful remediation step.',
+        'Do not mention the internal signal.',
+      ].join('\n'),
+    });
+  }
 
   if (input.chatRoomReportSnapshot) {
     messages.push({

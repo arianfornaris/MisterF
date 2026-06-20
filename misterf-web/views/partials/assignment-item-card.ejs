@@ -1,0 +1,193 @@
+<%
+  const item = block.item;
+  const fieldPrefix = typeof responseIndex === 'number' ? `response_${responseIndex}` : '';
+  const isAttemptMode = assignmentItemMode === 'attempt';
+  const isDesignMode = assignmentItemMode === 'design';
+  const isPreviewMode = assignmentItemMode === 'preview';
+%>
+
+<article class="card assignment-block-card">
+  <div class="card-body">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+      <div>
+        <p class="text-body-secondary small mb-1">Bloque <%= index + 1 %></p>
+        <h3 class="h6 mb-1"><%= item.prompt %></h3>
+        <span class="badge text-bg-secondary"><%= item.kind.replace('quiz_', '').replaceAll('_', ' ') %></span>
+      </div>
+
+      <% if (isDesignMode) { %>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones del bloque <%= index + 1 %>">
+          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-outline-secondary" type="submit" title="Subir" aria-label="Subir" <%= index === 0 ? 'disabled' : '' %>>
+              <i class="bi bi-arrow-up" aria-hidden="true"></i>
+            </button>
+          </form>
+          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/move-down">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-outline-secondary" type="submit" title="Bajar" aria-label="Bajar" <%= index === draft.blocks.length - 1 ? 'disabled' : '' %>>
+              <i class="bi bi-arrow-down" aria-hidden="true"></i>
+            </button>
+          </form>
+          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/duplicate">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-outline-secondary" type="submit" title="Duplicar" aria-label="Duplicar">
+              <i class="bi bi-copy" aria-hidden="true"></i>
+            </button>
+          </form>
+          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/delete">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-outline-danger" type="submit" title="Eliminar" aria-label="Eliminar" <%= draft.blocks.length <= 1 ? 'disabled' : '' %>>
+              <i class="bi bi-trash" aria-hidden="true"></i>
+            </button>
+          </form>
+        </div>
+      <% } %>
+    </div>
+
+    <% if (item.kind === 'quiz_open_text') { %>
+      <% if (isAttemptMode) { %>
+        <label class="form-label" for="<%= fieldPrefix %>_text"><%= item.placeholder || 'Tu respuesta' %></label>
+        <textarea class="form-control" id="<%= fieldPrefix %>_text" name="<%= fieldPrefix %>_text" rows="4" required></textarea>
+      <% } else if (isPreviewMode) { %>
+        <label class="form-label"><%= item.placeholder || 'Tu respuesta' %></label>
+        <textarea class="form-control" rows="4" disabled></textarea>
+      <% } else { %>
+        <p class="mb-2 text-body-secondary"><%= item.placeholder || 'Respuesta abierta' %></p>
+        <% if (item.rubric) { %><p class="small mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+      <% } %>
+    <% } %>
+
+    <% if (item.kind === 'quiz_translate_to_english' || item.kind === 'quiz_understand_in_spanish') { %>
+      <p class="assignment-sentence mb-3"><%= item.sentence %></p>
+      <% if (isAttemptMode) { %>
+        <label class="form-label" for="<%= fieldPrefix %>_text">Respuesta</label>
+        <textarea class="form-control" id="<%= fieldPrefix %>_text" name="<%= fieldPrefix %>_text" rows="3" required></textarea>
+      <% } else if (isPreviewMode) { %>
+        <label class="form-label">Respuesta</label>
+        <textarea class="form-control" rows="3" disabled></textarea>
+      <% } else { %>
+        <% if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) { %>
+          <p class="small mb-2"><strong>Accepted:</strong> <%= item.acceptableAnswers.join(' | ') %></p>
+        <% } %>
+        <% if (item.rubric) { %><p class="small mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+      <% } %>
+    <% } %>
+
+    <% if (item.kind === 'quiz_fill_in_the_blank_input' || item.kind === 'quiz_fill_in_the_blank_choice') { %>
+      <p class="assignment-sentence mb-3"><%= item.sentence %></p>
+      <div class="row g-3">
+        <% item.blanks.forEach((blank, blankIndex) => { %>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="<%= fieldPrefix %>_blank_<%= blankIndex %>">Espacio <%= blankIndex + 1 %></label>
+            <% if (isAttemptMode && item.kind === 'quiz_fill_in_the_blank_choice') { %>
+              <select class="form-select" id="<%= fieldPrefix %>_blank_<%= blankIndex %>" name="<%= fieldPrefix %>_blank_<%= blankIndex %>" required>
+                <option value="">Selecciona</option>
+                <% blank.choices.forEach((choice) => { %>
+                  <option value="<%= choice %>"><%= choice %></option>
+                <% }) %>
+              </select>
+            <% } else if (isAttemptMode) { %>
+              <input class="form-control" id="<%= fieldPrefix %>_blank_<%= blankIndex %>" name="<%= fieldPrefix %>_blank_<%= blankIndex %>" autocomplete="off" required>
+            <% } else if (isPreviewMode && item.kind === 'quiz_fill_in_the_blank_choice') { %>
+              <select class="form-select" disabled>
+                <option>Selecciona</option>
+                <% blank.choices.forEach((choice) => { %>
+                  <option><%= choice %></option>
+                <% }) %>
+              </select>
+            <% } else if (isPreviewMode) { %>
+              <input class="form-control" disabled>
+            <% } else { %>
+              <% if (item.kind === 'quiz_fill_in_the_blank_choice') { %>
+                <p class="small mb-1"><strong>Choices:</strong> <%= blank.choices.join(' | ') %></p>
+              <% } %>
+              <% if (Array.isArray(blank.acceptableAnswers) && blank.acceptableAnswers.length > 0) { %>
+                <p class="small mb-1"><strong>Accepted:</strong> <%= blank.acceptableAnswers.join(' | ') %></p>
+              <% } %>
+              <% if (blank.rubric) { %><p class="small mb-0"><strong>Rubric:</strong> <%= blank.rubric %></p><% } %>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <% if (item.kind === 'quiz_multiple_choice') { %>
+      <div class="vstack gap-2">
+        <% item.options.forEach((option, optionIndex) => { %>
+          <label class="form-check">
+            <input
+              class="form-check-input"
+              type="<%= item.selectionMode === 'multiple' ? 'checkbox' : 'radio' %>"
+              name="<%= fieldPrefix %>_selectedOptions"
+              value="<%= option %>"
+              <%= isAttemptMode ? '' : 'disabled' %>
+              <%= isAttemptMode && item.selectionMode === 'single' && optionIndex === 0 ? 'required' : '' %>
+            >
+            <span class="form-check-label">
+              <%= option %>
+              <% if (isDesignMode && item.correctOptions.includes(option)) { %>
+                <span class="badge text-bg-success ms-2">Correct</span>
+              <% } %>
+            </span>
+          </label>
+        <% }) %>
+      </div>
+      <% if (isDesignMode && item.rubric) { %><p class="small mt-3 mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+    <% } %>
+
+    <% if (item.kind === 'quiz_matching_pairs') { %>
+      <div class="row g-3">
+        <% item.leftItems.forEach((left, pairIndex) => { %>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="<%= fieldPrefix %>_pair_<%= pairIndex %>"><%= left %></label>
+            <% if (isAttemptMode) { %>
+              <select class="form-select" id="<%= fieldPrefix %>_pair_<%= pairIndex %>" name="<%= fieldPrefix %>_pair_<%= pairIndex %>" required>
+                <option value="">Selecciona</option>
+                <% item.rightItems.forEach((right) => { %>
+                  <option value="<%= right %>"><%= right %></option>
+                <% }) %>
+              </select>
+            <% } else if (isPreviewMode) { %>
+              <select class="form-select" disabled>
+                <option>Selecciona</option>
+                <% item.rightItems.forEach((right) => { %>
+                  <option><%= right %></option>
+                <% }) %>
+              </select>
+            <% } else { %>
+              <p class="form-control-plaintext">
+                <%= (item.correctPairs.find((pair) => pair.left === left) || {}).right || '' %>
+              </p>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+      <% if (isDesignMode && item.rubric) { %><p class="small mt-3 mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+    <% } %>
+
+    <% if (item.kind === 'quiz_unscramble_sentence') { %>
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <% item.tokens.forEach((token) => { %>
+          <span class="badge text-bg-light border"><%= token %></span>
+        <% }) %>
+      </div>
+      <% if (isAttemptMode) { %>
+        <label class="form-label" for="<%= fieldPrefix %>_sentence">Oración</label>
+        <input class="form-control" id="<%= fieldPrefix %>_sentence" name="<%= fieldPrefix %>_sentence" required>
+      <% } else if (isPreviewMode) { %>
+        <label class="form-label">Oración</label>
+        <input class="form-control" disabled>
+      <% } else { %>
+        <% if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) { %>
+          <p class="small mb-2"><strong>Accepted:</strong> <%= item.acceptableAnswers.join(' | ') %></p>
+        <% } %>
+        <% if (item.rubric) { %><p class="small mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+      <% } %>
+    <% } %>
+
+    <% if (isDesignMode) { %>
+      <p class="small text-body-secondary mt-3 mb-0">ID: <code><%= block.id %></code></p>
+    <% } %>
+  </div>
+</article>

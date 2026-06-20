@@ -94,6 +94,126 @@ function toStoredConversationTutorReportSnapshot(row) {
         tutorConversationReportId: row.tutor_conversation_report_id,
     };
 }
+function parseJsonRecord(value) {
+    if (!value) {
+        return {};
+    }
+    try {
+        const parsed = JSON.parse(value);
+        return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+            ? parsed
+            : {};
+    }
+    catch {
+        return {};
+    }
+}
+function parseJsonArray(value) {
+    if (!value) {
+        return [];
+    }
+    try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+    }
+    catch {
+        return [];
+    }
+}
+function toStoredAssignment(row) {
+    return {
+        archivedAt: row.archived_at,
+        createdAt: row.created_at,
+        description: row.description,
+        estimatedMinutes: row.estimated_minutes,
+        id: row.id,
+        instructions: row.instructions,
+        isFavorite: Boolean(row.is_favorite),
+        level: row.level,
+        profileId: row.profile_id,
+        publishedAt: row.published_at,
+        quiz: parseJsonRecord(row.quiz_json),
+        rubric: row.rubric,
+        sharedVia: row.shared_via,
+        sourceAssignmentId: row.source_assignment_id,
+        sourceProfileId: row.source_profile_id,
+        sourceUserId: row.source_user_id,
+        status: row.status,
+        targetTopic: row.target_topic,
+        title: row.title,
+        updatedAt: row.updated_at,
+        userId: row.user_id,
+    };
+}
+function toStoredAssignmentShareLink(row) {
+    return {
+        assignmentId: row.assignment_id,
+        createdAt: row.created_at,
+        id: row.id,
+        revokedAt: row.revoked_at,
+    };
+}
+function toStoredAssignmentAuthoringSession(row) {
+    return {
+        assignmentId: row.assignment_id,
+        createdAt: row.created_at,
+        currentDraft: parseJsonRecord(row.current_draft_json),
+        id: row.id,
+        initialPrompt: row.initial_prompt,
+        lastValidatedAt: row.last_validated_at,
+        messages: parseJsonArray(row.messages_json),
+        profileId: row.profile_id,
+        status: row.status,
+        updatedAt: row.updated_at,
+        userId: row.user_id,
+    };
+}
+function toStoredAssignmentAuthoringRevision(row) {
+    return {
+        assistantMessage: row.assistant_message,
+        authoringSessionId: row.authoring_session_id,
+        createdAt: row.created_at,
+        draft: parseJsonRecord(row.draft_json),
+        id: row.id,
+        source: row.source,
+        userMessage: row.user_message,
+        validationStatus: row.validation_status,
+    };
+}
+function toStoredAssignmentAttempt(row) {
+    return {
+        assignmentId: row.assignment_id,
+        claimToken: row.claim_token,
+        createdAt: row.created_at,
+        evaluatedAt: row.evaluated_at,
+        guestToken: row.guest_token,
+        id: row.id,
+        isPreview: Boolean(row.is_preview),
+        profileId: row.profile_id,
+        progressEventId: row.progress_event_id,
+        responses: parseJsonArray(row.responses_json),
+        result: row.result_json ? parseJsonRecord(row.result_json) : null,
+        snapshot: parseJsonRecord(row.snapshot_json),
+        startedAt: row.started_at,
+        status: row.status,
+        submittedAt: row.submitted_at,
+        updatedAt: row.updated_at,
+        userId: row.user_id,
+    };
+}
+function toStoredConversationAssignmentAttemptSnapshot(row) {
+    return {
+        assignmentAttemptId: row.assignment_attempt_id,
+        assignmentDescription: row.assignment_description,
+        assignmentSnapshot: parseJsonRecord(row.assignment_snapshot_json),
+        assignmentTargetTopic: row.assignment_target_topic,
+        assignmentTitle: row.assignment_title,
+        conversationId: row.conversation_id,
+        createdAt: row.created_at,
+        responses: parseJsonArray(row.responses_json),
+        result: parseJsonRecord(row.result_json),
+    };
+}
 function parseLearnerProgressSummary(summaryJson) {
     const fallback = {
         focusAreas: [],
@@ -1249,6 +1369,628 @@ export function upsertLearnerProgressEvent(input) {
         throw new Error('Could not load learner progress event.');
     }
     return toStoredLearnerProgressEvent(row);
+}
+export function createAssignment(input) {
+    const id = randomUUID();
+    const status = input.status ?? 'draft';
+    getDb()
+        .prepare(`
+        INSERT INTO assignments (
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          target_topic,
+          level,
+          estimated_minutes,
+          instructions,
+          rubric,
+          quiz_json,
+          status,
+          source_assignment_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          published_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN CURRENT_TIMESTAMP ELSE NULL END)
+      `)
+        .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.estimatedMinutes ?? null, input.instructions ?? '', input.rubric ?? '', JSON.stringify(input.quiz), status, input.sourceAssignmentId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null, status);
+    const assignment = findAssignmentForUser(id, input.userId);
+    if (!assignment) {
+        throw new Error('Could not load newly created assignment.');
+    }
+    return assignment;
+}
+export function findAssignmentForUser(id, userId) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          archived_at,
+          created_at,
+          description,
+          estimated_minutes,
+          id,
+          instructions,
+          is_favorite,
+          level,
+          profile_id,
+          published_at,
+          quiz_json,
+          rubric,
+          shared_via,
+          source_assignment_id,
+          source_profile_id,
+          source_user_id,
+          status,
+          target_topic,
+          title,
+          updated_at,
+          user_id
+        FROM assignments
+        WHERE id = ? AND user_id = ?
+      `)
+        .get(id, userId);
+    return row ? toStoredAssignment(row) : null;
+}
+export function findAssignmentById(id) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          archived_at,
+          created_at,
+          description,
+          estimated_minutes,
+          id,
+          instructions,
+          is_favorite,
+          level,
+          profile_id,
+          published_at,
+          quiz_json,
+          rubric,
+          shared_via,
+          source_assignment_id,
+          source_profile_id,
+          source_user_id,
+          status,
+          target_topic,
+          title,
+          updated_at,
+          user_id
+        FROM assignments
+        WHERE id = ?
+      `)
+        .get(id);
+    return row ? toStoredAssignment(row) : null;
+}
+export function listAssignmentsForProfile(input) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          archived_at,
+          created_at,
+          description,
+          estimated_minutes,
+          id,
+          instructions,
+          is_favorite,
+          level,
+          profile_id,
+          published_at,
+          quiz_json,
+          rubric,
+          shared_via,
+          source_assignment_id,
+          source_profile_id,
+          source_user_id,
+          status,
+          target_topic,
+          title,
+          updated_at,
+          user_id
+        FROM assignments
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND (? = 1 OR archived_at IS NULL)
+        ORDER BY
+          CASE WHEN archived_at IS NULL THEN 0 ELSE 1 END ASC,
+          is_favorite DESC,
+          updated_at DESC,
+          created_at DESC
+      `)
+        .all(input.userId, input.profileId, input.includeArchived ? 1 : 0);
+    return rows.map(toStoredAssignment);
+}
+export function updateAssignment(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignments
+        SET title = ?,
+            description = ?,
+            target_topic = ?,
+            level = ?,
+            estimated_minutes = ?,
+            instructions = ?,
+            rubric = ?,
+            quiz_json = ?,
+            status = ?,
+            published_at = CASE
+              WHEN ? = 'published' THEN COALESCE(published_at, CURRENT_TIMESTAMP)
+              ELSE published_at
+            END,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(input.title, input.description, input.targetTopic, input.level, input.estimatedMinutes ?? null, input.instructions, input.rubric, JSON.stringify(input.quiz), input.status, input.status, input.assignmentId, input.userId);
+    return findAssignmentForUser(input.assignmentId, input.userId);
+}
+export function setAssignmentFavoriteForUser(assignmentId, userId, isFavorite) {
+    getDb()
+        .prepare(`
+        UPDATE assignments
+        SET is_favorite = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(isFavorite ? 1 : 0, assignmentId, userId);
+    return findAssignmentForUser(assignmentId, userId);
+}
+export function archiveAssignmentForUser(assignmentId, userId) {
+    getDb()
+        .prepare(`
+        UPDATE assignments
+        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(assignmentId, userId);
+    return findAssignmentForUser(assignmentId, userId);
+}
+export function restoreAssignmentForUser(assignmentId, userId) {
+    getDb()
+        .prepare(`
+        UPDATE assignments
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(assignmentId, userId);
+    return findAssignmentForUser(assignmentId, userId);
+}
+export function deleteAssignmentForUser(assignmentId, userId) {
+    const result = getDb()
+        .prepare('DELETE FROM assignments WHERE id = ? AND user_id = ?')
+        .run(assignmentId, userId);
+    return result.changes > 0;
+}
+export function findAssignmentShareLinkById(id) {
+    const row = getDb()
+        .prepare(`
+        SELECT id, assignment_id, created_at, revoked_at
+        FROM assignment_share_links
+        WHERE id = ?
+      `)
+        .get(id);
+    return row ? toStoredAssignmentShareLink(row) : null;
+}
+export function findAssignmentShareLinkForAssignment(assignmentId) {
+    const row = getDb()
+        .prepare(`
+        SELECT id, assignment_id, created_at, revoked_at
+        FROM assignment_share_links
+        WHERE assignment_id = ?
+          AND revoked_at IS NULL
+        LIMIT 1
+      `)
+        .get(assignmentId);
+    return row ? toStoredAssignmentShareLink(row) : null;
+}
+export function getOrCreateAssignmentShareLink(assignmentId) {
+    const existing = findAssignmentShareLinkForAssignment(assignmentId);
+    if (existing) {
+        return existing;
+    }
+    const id = randomBytes(18).toString('base64url');
+    getDb()
+        .prepare(`
+        INSERT INTO assignment_share_links (id, assignment_id)
+        VALUES (?, ?)
+        ON CONFLICT(assignment_id) DO UPDATE SET
+          revoked_at = NULL
+      `)
+        .run(id, assignmentId);
+    const created = findAssignmentShareLinkForAssignment(assignmentId);
+    if (!created) {
+        throw new Error('Could not load newly created assignment share link.');
+    }
+    return created;
+}
+export function createAssignmentAuthoringSession(input) {
+    const id = randomUUID();
+    getDb()
+        .prepare(`
+        INSERT INTO assignment_authoring_sessions (
+          id,
+          user_id,
+          profile_id,
+          initial_prompt,
+          messages_json,
+          current_draft_json,
+          last_validated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `)
+        .run(id, input.userId, input.profileId, input.initialPrompt, JSON.stringify(input.messages ?? []), JSON.stringify(input.currentDraft));
+    const session = findAssignmentAuthoringSessionForUser(id, input.userId);
+    if (!session) {
+        throw new Error('Could not load newly created assignment authoring session.');
+    }
+    return session;
+}
+export function findAssignmentAuthoringSessionForUser(id, userId) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          assignment_id,
+          created_at,
+          current_draft_json,
+          id,
+          initial_prompt,
+          last_validated_at,
+          messages_json,
+          profile_id,
+          status,
+          updated_at,
+          user_id
+        FROM assignment_authoring_sessions
+        WHERE id = ? AND user_id = ?
+      `)
+        .get(id, userId);
+    return row ? toStoredAssignmentAuthoringSession(row) : null;
+}
+export function updateAssignmentAuthoringSession(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_authoring_sessions
+        SET assignment_id = COALESCE(?, assignment_id),
+            current_draft_json = ?,
+            messages_json = COALESCE(?, messages_json),
+            status = COALESCE(?, status),
+            last_validated_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(input.assignmentId ?? null, JSON.stringify(input.currentDraft), input.messages ? JSON.stringify(input.messages) : null, input.status ?? null, input.sessionId, input.userId);
+    return findAssignmentAuthoringSessionForUser(input.sessionId, input.userId);
+}
+export function createAssignmentAuthoringRevision(input) {
+    const id = randomUUID();
+    getDb()
+        .prepare(`
+        INSERT INTO assignment_authoring_revisions (
+          id,
+          authoring_session_id,
+          source,
+          user_message,
+          assistant_message,
+          draft_json,
+          validation_status
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `)
+        .run(id, input.sessionId, input.source, input.userMessage ?? null, input.assistantMessage ?? null, JSON.stringify(input.draft), input.validationStatus ?? 'valid');
+    const revision = findAssignmentAuthoringRevisionById(id);
+    if (!revision) {
+        throw new Error('Could not load newly created assignment authoring revision.');
+    }
+    return revision;
+}
+export function findAssignmentAuthoringRevisionById(id) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          assistant_message,
+          authoring_session_id,
+          created_at,
+          draft_json,
+          id,
+          source,
+          user_message,
+          validation_status
+        FROM assignment_authoring_revisions
+        WHERE id = ?
+      `)
+        .get(id);
+    return row ? toStoredAssignmentAuthoringRevision(row) : null;
+}
+export function listAssignmentAuthoringRevisions(sessionId) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          assistant_message,
+          authoring_session_id,
+          created_at,
+          draft_json,
+          id,
+          source,
+          user_message,
+          validation_status
+        FROM assignment_authoring_revisions
+        WHERE authoring_session_id = ?
+        ORDER BY created_at ASC
+      `)
+        .all(sessionId);
+    return rows.map(toStoredAssignmentAuthoringRevision);
+}
+export function createAssignmentAttempt(input) {
+    const id = randomUUID();
+    const isGuest = !input.userId;
+    const guestToken = isGuest ? randomBytes(24).toString('base64url') : null;
+    const claimToken = isGuest ? randomBytes(24).toString('base64url') : null;
+    getDb()
+        .prepare(`
+        INSERT INTO assignment_attempts (
+          id,
+          assignment_id,
+          user_id,
+          profile_id,
+          guest_token,
+          claim_token,
+          is_preview,
+          snapshot_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `)
+        .run(id, input.assignmentId, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, input.isPreview ? 1 : 0, JSON.stringify(input.snapshot));
+    const attempt = findAssignmentAttemptById(id);
+    if (!attempt) {
+        throw new Error('Could not load newly created assignment attempt.');
+    }
+    return attempt;
+}
+export function findAssignmentAttemptById(id) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          assignment_id,
+          claim_token,
+          created_at,
+          evaluated_at,
+          guest_token,
+          id,
+          is_preview,
+          profile_id,
+          progress_event_id,
+          responses_json,
+          result_json,
+          snapshot_json,
+          started_at,
+          status,
+          submitted_at,
+          updated_at,
+          user_id
+        FROM assignment_attempts
+        WHERE id = ?
+      `)
+        .get(id);
+    return row ? toStoredAssignmentAttempt(row) : null;
+}
+export function findAssignmentAttemptForUser(id, userId) {
+    const attempt = findAssignmentAttemptById(id);
+    return attempt?.userId === userId ? attempt : null;
+}
+export function findAssignmentAttemptByGuestToken(guestToken) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          assignment_id,
+          claim_token,
+          created_at,
+          evaluated_at,
+          guest_token,
+          id,
+          is_preview,
+          profile_id,
+          progress_event_id,
+          responses_json,
+          result_json,
+          snapshot_json,
+          started_at,
+          status,
+          submitted_at,
+          updated_at,
+          user_id
+        FROM assignment_attempts
+        WHERE guest_token = ?
+      `)
+        .get(guestToken);
+    return row ? toStoredAssignmentAttempt(row) : null;
+}
+export function findAssignmentAttemptByClaimToken(claimToken) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          assignment_id,
+          claim_token,
+          created_at,
+          evaluated_at,
+          guest_token,
+          id,
+          is_preview,
+          profile_id,
+          progress_event_id,
+          responses_json,
+          result_json,
+          snapshot_json,
+          started_at,
+          status,
+          submitted_at,
+          updated_at,
+          user_id
+        FROM assignment_attempts
+        WHERE claim_token = ?
+      `)
+        .get(claimToken);
+    return row ? toStoredAssignmentAttempt(row) : null;
+}
+export function listAssignmentAttemptsForUser(input) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          assignment_id,
+          claim_token,
+          created_at,
+          evaluated_at,
+          guest_token,
+          id,
+          is_preview,
+          profile_id,
+          progress_event_id,
+          responses_json,
+          result_json,
+          snapshot_json,
+          started_at,
+          status,
+          submitted_at,
+          updated_at,
+          user_id
+        FROM assignment_attempts
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND (? IS NULL OR assignment_id = ?)
+        ORDER BY created_at DESC
+      `)
+        .all(input.userId, input.profileId, input.assignmentId ?? null, input.assignmentId ?? null);
+    return rows.map(toStoredAssignmentAttempt);
+}
+export function submitAssignmentAttempt(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_attempts
+        SET responses_json = ?,
+            status = 'submitted',
+            submitted_at = COALESCE(submitted_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND status IN ('draft', 'failed')
+      `)
+        .run(JSON.stringify(input.responses), input.attemptId);
+    return findAssignmentAttemptById(input.attemptId);
+}
+export function markAssignmentAttemptEvaluating(attemptId) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_attempts
+        SET status = 'evaluating',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `)
+        .run(attemptId);
+    return findAssignmentAttemptById(attemptId);
+}
+export function saveAssignmentAttemptResult(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_attempts
+        SET result_json = ?,
+            status = 'evaluated',
+            evaluated_at = COALESCE(evaluated_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `)
+        .run(JSON.stringify(input.result), input.attemptId);
+    return findAssignmentAttemptById(input.attemptId);
+}
+export function markAssignmentAttemptFailed(attemptId) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_attempts
+        SET status = 'failed',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `)
+        .run(attemptId);
+    return findAssignmentAttemptById(attemptId);
+}
+export function attachAssignmentAttemptToUser(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_attempts
+        SET user_id = ?,
+            profile_id = ?,
+            claim_token = NULL,
+            guest_token = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND claim_token = ?
+          AND user_id IS NULL
+      `)
+        .run(input.userId, input.profileId, input.attemptId, input.claimToken);
+    return findAssignmentAttemptById(input.attemptId);
+}
+export function setAssignmentAttemptProgressEvent(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignment_attempts
+        SET progress_event_id = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `)
+        .run(input.progressEventId, input.attemptId);
+    return findAssignmentAttemptById(input.attemptId);
+}
+export function createConversationFromAssignmentAttempt(input) {
+    const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
+    const conversation = createConversation(input.userId, input.profileId, `Practicar: ${title}`);
+    createConversationAssignmentAttemptSnapshot(conversation.id, input.attempt);
+    return conversation;
+}
+export function createConversationAssignmentAttemptSnapshot(conversationId, attempt) {
+    getDb()
+        .prepare(`
+        INSERT OR REPLACE INTO conversation_assignment_attempt_snapshots (
+          conversation_id,
+          assignment_attempt_id,
+          assignment_title,
+          assignment_description,
+          assignment_target_topic,
+          assignment_snapshot_json,
+          responses_json,
+          result_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `)
+        .run(conversationId, attempt.id, readStringFromRecord(attempt.snapshot, 'title'), readStringFromRecord(attempt.snapshot, 'description'), readStringFromRecord(attempt.snapshot, 'targetTopic'), JSON.stringify(attempt.snapshot), JSON.stringify(attempt.responses), JSON.stringify(attempt.result ?? {}));
+    const snapshot = getConversationAssignmentAttemptSnapshot(conversationId);
+    if (!snapshot) {
+        throw new Error('Could not load conversation assignment-attempt snapshot.');
+    }
+    return snapshot;
+}
+export function getConversationAssignmentAttemptSnapshot(conversationId) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          assignment_attempt_id,
+          assignment_description,
+          assignment_snapshot_json,
+          assignment_target_topic,
+          assignment_title,
+          conversation_id,
+          created_at,
+          responses_json,
+          result_json
+        FROM conversation_assignment_attempt_snapshots
+        WHERE conversation_id = ?
+      `)
+        .get(conversationId);
+    return row ? toStoredConversationAssignmentAttemptSnapshot(row) : null;
+}
+function readStringFromRecord(record, key) {
+    const value = record[key];
+    return typeof value === 'string' ? value : '';
 }
 export function createPracticeModule(input) {
     const id = randomUUID();

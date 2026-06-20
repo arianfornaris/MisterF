@@ -296,6 +296,47 @@ Avoid user-facing wording that explains credits as a direct OpenRouter dollar
 conversion. Users buy and spend Mister F credits; OpenRouter balance details are
 an implementation detail.
 
+## Feature-Specific Credit Policies
+
+### Tareas
+
+`Tareas` are a teacher-assigned practice feature and an acquisition
+path.
+
+Credit policy:
+
+- creating a Tarea requires an authenticated teacher account
+- the Tarea authoring flow is credit-gated for the teacher
+- AI draft generation, single-block generation from the add-block modal,
+  AI-assisted revisions, and teacher preview/test evaluation are teacher-paid
+  authoring usage
+- manual edits inside the authoring workspace do not consume LLM credits unless
+  they trigger AI validation or evaluation
+- opening the student-facing `Preview` does not consume LLM credits unless the
+  teacher submits preview answers for AI evaluation
+- a shared Tarea can be completed by a student without an account
+- the AI evaluation after a shared Tarea submission is free to the student
+- free shared-Tarea evaluation is product-funded acquisition usage, not usage
+  charged to an anonymous student and not a hidden post-share charge to the
+  teacher
+- after seeing the result, follow-up practice with Mr. F requires the student to
+  create an account or log in
+- follow-up tutor conversations use the standard account credit policy
+
+Operational requirements:
+
+- the UI should distinguish teacher-paid authoring usage from free student
+  evaluation
+- free guest evaluations must be rate-limited and abuse-resistant
+- production logs should record assignment ids, attempt ids, and status metadata
+  without storing full learner answers unless full LLM tracing is explicitly
+  enabled
+- if a guest creates an account after evaluation, the app may attach the result
+  to the new profile and then record progress
+- teacher-funded or organization-funded student follow-up can be explored later,
+  but it should be explicit billing functionality rather than an exception to
+  normal user credit behavior
+
 ## Security and Operational Considerations
 
 ### Webhook verification
@@ -378,3 +419,10 @@ The agreed rules for the first implementation are:
 - displayed credits are rounded from remaining USD balance
 - payment fulfillment is driven by Stripe webhook
 - Mister F keeps an internal ledger for purchases and fulfillment
+- creating a Tarea is an authenticated, credit-gated teacher authoring workflow
+- AI-assisted Tarea draft generation, single-block generation, revision, and
+  teacher preview/test evaluation are teacher-paid usage
+- shared Tarea completion can be free for students without accounts through a
+  product-funded evaluation policy
+- post-result follow-up tutoring from a Tarea uses the student's standard
+  account and credit policy

@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
@@ -76,6 +76,7 @@ export function registerChatSocket(io) {
             }
             const messages = listMessages(conversation.id);
             const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
+            const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
             const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
             const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
             const tutorPlan = getConversationTutorPlan(conversation.id);
@@ -94,7 +95,10 @@ export function registerChatSocket(io) {
                     : null,
                 conversation,
                 conversationId: conversation.id,
-                messages: (practiceModuleSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
+                messages: (practiceModuleSnapshot ||
+                    assignmentAttemptSnapshot ||
+                    chatRoomReportSnapshot ||
+                    tutorReportSnapshot) &&
                     messages.length === 0
                     ? []
                     : messages.length > 0
@@ -103,10 +107,11 @@ export function registerChatSocket(io) {
                 pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
                 tutorPlan,
             });
-            if ((chatRoomReportSnapshot || tutorReportSnapshot) &&
+            if ((assignmentAttemptSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
                 messages.length === 0 &&
                 !practiceModuleSnapshot) {
                 void streamAssistantMessage(io, conversation.id, userId, undefined, buildReportConversationStartMessages({
+                    assignmentAttemptSnapshot,
                     chatRoomReportSnapshot,
                     tutorReportSnapshot,
                 }), conversation.modelTier);
@@ -911,6 +916,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         }
         const learnerProfile = findProfileForUser(conversation.profileId, userId);
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
+        const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
         const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
         const tutorPlan = getConversationTutorPlan(conversationId);
@@ -941,6 +947,16 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                 slidesJson: chatRoomReportSnapshot.slidesJson,
             }
             : null;
+        const assignmentAttemptContext = assignmentAttemptSnapshot
+            ? {
+                assignmentDescription: assignmentAttemptSnapshot.assignmentDescription,
+                assignmentSnapshotJson: JSON.stringify(assignmentAttemptSnapshot.assignmentSnapshot, null, 2),
+                assignmentTargetTopic: assignmentAttemptSnapshot.assignmentTargetTopic,
+                assignmentTitle: assignmentAttemptSnapshot.assignmentTitle,
+                responsesJson: JSON.stringify(assignmentAttemptSnapshot.responses, null, 2),
+                resultJson: JSON.stringify(assignmentAttemptSnapshot.result, null, 2),
+            }
+            : null;
         const tutorReportContext = tutorReportSnapshot
             ? {
                 reportJson: tutorReportSnapshot.reportJson,
@@ -950,6 +966,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             }
             : null;
         const result = await runTutorAgentLoop(history, {
+            assignmentAttempt: assignmentAttemptContext,
             chatRoomReport: chatRoomReportContext,
             learnerProfile: learnerProfile
                 ? {
@@ -1086,6 +1103,17 @@ function buildPracticeModuleStartMessage(practiceModule) {
 }
 function buildReportConversationStartMessages(input) {
     const messages = [];
+    if (input.assignmentAttemptSnapshot) {
+        messages.push({
+            role: 'user',
+            content: [
+                'INTERNAL ASSIGNMENT FOLLOW-UP START.',
+                'The learner chose to practice after a completed teacher-assigned task.',
+                'Use the assignment context in the system prompt to start with the most useful remediation step.',
+                'Do not mention the internal signal.',
+            ].join('\n'),
+        });
+    }
     if (input.chatRoomReportSnapshot) {
         messages.push({
             role: 'user',

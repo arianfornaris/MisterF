@@ -1,5 +1,44 @@
-import { listLearnerProgressEvents, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
+import { listLearnerProgressEvents, setAssignmentAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
+import { buildAssignmentEvaluationSummary, parseAssignmentDraft, } from './assignments.js';
+import { quizResultBlockSchema } from './llmTutor/schemas.js';
 const maxTimelineSummaryLength = 280;
+export function recordAssignmentAttemptProgress(attempt) {
+    if (attempt.isPreview ||
+        !attempt.userId ||
+        !attempt.profileId ||
+        !attempt.result) {
+        return;
+    }
+    const result = quizResultBlockSchema.safeParse(attempt.result);
+    if (!result.success) {
+        return;
+    }
+    const draft = parseAssignmentDraft(attempt.snapshot);
+    const summary = buildAssignmentEvaluationSummary(result.data);
+    const title = compactText(`Tarea: ${draft.title}`, 120);
+    const event = upsertLearnerProgressEvent({
+        details: buildAssignmentAttemptEventDetails({
+            attempt,
+            draft,
+            result: result.data,
+        }),
+        eventDate: attempt.evaluatedAt ?? attempt.submittedAt ?? attempt.updatedAt,
+        profileId: attempt.profileId,
+        sourceId: attempt.id,
+        sourceType: 'assignment_attempt',
+        summary: compactText(`Completaste ${summary.totalCount} ejercicios: ${summary.correctCount} correctos, ${summary.partialCount} parciales y ${summary.incorrectCount} por mejorar.`, maxTimelineSummaryLength),
+        title,
+        userId: attempt.userId,
+    });
+    setAssignmentAttemptProgressEvent({
+        attemptId: attempt.id,
+        progressEventId: event.id,
+    });
+    refreshLearnerProgressSummary({
+        profileId: attempt.profileId,
+        userId: attempt.userId,
+    });
+}
 export function recordChatRoomConversationReportProgress(input) {
     upsertLearnerProgressEvent({
         details: buildChatRoomReportEventDetails(input),
@@ -117,6 +156,46 @@ function buildChatRoomReportEventDetails(input) {
             .filter((part) => part.status !== 'correct')
             .map((part) => part.text)), 12).map((item) => compactText(item, 80)),
     };
+}
+function buildAssignmentAttemptEventDetails(input) {
+    const missedItems = input.result.items.filter((item) => item.evaluation.status !== 'correct');
+    const correctItems = input.result.items.filter((item) => item.evaluation.status === 'correct');
+    return {
+        difficulties: uniqueLimited(missedItems.map((item) => compactText(`${item.prompt}: ${item.evaluation.feedback}`, 140)), 4),
+        practiced: uniqueLimited([
+            input.draft.title,
+            input.draft.targetTopic,
+            input.draft.level,
+        ].filter(Boolean), 5),
+        progress: uniqueLimited(correctItems.map((item) => compactText(`${item.prompt}: ${item.evaluation.feedback}`, 140)), 4),
+        recommendations: uniqueLimited(missedItems.map((item) => compactText(item.evaluation.feedback, 140)), 5),
+        vocabulary: uniqueLimited(extractAssignmentInlineReviewText(input.result), 12)
+            .map((item) => compactText(item, 80)),
+    };
+}
+function extractAssignmentInlineReviewText(result) {
+    return result.items.flatMap((item) => {
+        const inlineReview = item.inlineReview;
+        if (!inlineReview) {
+            return [];
+        }
+        if ('parts' in inlineReview) {
+            return inlineReview.parts
+                .filter((part) => part.status !== 'correct')
+                .map((part) => part.text);
+        }
+        if ('options' in inlineReview) {
+            return inlineReview.options
+                .filter((option) => option.status === 'missed' || option.status === 'error')
+                .map((option) => option.text);
+        }
+        if ('pairs' in inlineReview) {
+            return inlineReview.pairs
+                .filter((pair) => pair.status === 'error')
+                .map((pair) => `${pair.left} -> ${pair.right}`);
+        }
+        return [];
+    });
 }
 function buildOverview(input) {
     if (input.eventCount === 0) {

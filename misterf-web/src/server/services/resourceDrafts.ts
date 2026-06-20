@@ -1,5 +1,11 @@
 import { generateText, type ModelMessage } from 'ai';
 import { z } from 'zod';
+import {
+  assignmentBlockSchema,
+  assignmentDraftSchema,
+  type AssignmentBlock,
+  type AssignmentDraft,
+} from './assignments.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
@@ -66,6 +72,7 @@ async function generateStructuredDraft<T>(input: {
   actorLabel: string;
   correctionPromptPath: string;
   initialUserMessage: string;
+  maxOutputTokens?: number;
   openRouterApiKey?: string | null;
   schema: z.ZodType<T>;
   systemPromptPath: string;
@@ -94,7 +101,7 @@ async function generateStructuredDraft<T>(input: {
     );
 
     const result = await generateText({
-      maxOutputTokens: 1800,
+      maxOutputTokens: input.maxOutputTokens ?? 1800,
       model: getLanguageModel({
         modelTier: 'regular',
         openRouterApiKey: input.openRouterApiKey,
@@ -189,5 +196,68 @@ export async function generateChatRoomDraft(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: chatRoomDraftSchema,
     systemPromptPath: 'resources/chatroom-draft.md',
+  });
+}
+
+export async function generateAssignmentDraft(input: {
+  openRouterApiKey?: string | null;
+  prompt: string;
+}): Promise<AssignmentDraft> {
+  return generateStructuredDraft({
+    actorLabel: 'Assignment draft',
+    correctionPromptPath: 'resources/assignment-draft-correction.md',
+    initialUserMessage: input.prompt,
+    maxOutputTokens: 6000,
+    openRouterApiKey: input.openRouterApiKey,
+    schema: assignmentDraftSchema,
+    systemPromptPath: 'resources/assignment-draft.md',
+  });
+}
+
+export async function generateAssignmentRevision(input: {
+  currentDraft: AssignmentDraft;
+  openRouterApiKey?: string | null;
+  prompt: string;
+}): Promise<AssignmentDraft> {
+  return generateStructuredDraft({
+    actorLabel: 'Assignment revision',
+    correctionPromptPath: 'resources/assignment-draft-correction.md',
+    initialUserMessage: JSON.stringify(
+      {
+        currentDraft: input.currentDraft,
+        requestedChange: input.prompt,
+      },
+      null,
+      2,
+    ),
+    maxOutputTokens: 7000,
+    openRouterApiKey: input.openRouterApiKey,
+    schema: assignmentDraftSchema,
+    systemPromptPath: 'resources/assignment-revision.md',
+  });
+}
+
+export async function generateAssignmentBlock(input: {
+  blockKind: string;
+  currentDraft: AssignmentDraft;
+  openRouterApiKey?: string | null;
+  prompt: string;
+}): Promise<AssignmentBlock> {
+  return generateStructuredDraft({
+    actorLabel: 'Assignment block',
+    correctionPromptPath: 'resources/assignment-block-correction.md',
+    initialUserMessage: JSON.stringify(
+      {
+        blockKind: input.blockKind,
+        currentDraft: input.currentDraft,
+        requestedBlock: input.prompt,
+      },
+      null,
+      2,
+    ),
+    maxOutputTokens: 2400,
+    openRouterApiKey: input.openRouterApiKey,
+    schema: assignmentBlockSchema,
+    systemPromptPath: 'resources/assignment-block.md',
   });
 }

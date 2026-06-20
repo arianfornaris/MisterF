@@ -35,6 +35,8 @@ interactive behavior.
 Use `features/` for product areas, feature concepts, and future feature ideas.
 
 - [Chat Rooms](./features/chatrooms.md): multi-character chat room behavior and implementation notes
+- [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Tareas` workflow for human teachers and students, including free guest evaluation and account-based follow-up practice
+- [Home Start Experience](./features/home-start-experience.md): exploration of personalized start suggestions and a built-in practice topic library
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
 - [Writing Practice Ideas](./features/writing-practice-ideas.md): future writing-first practice patterns
 
@@ -60,6 +62,7 @@ known technical/product issues.
 
 - [Tutor Loop Prompt Audit](./issues/tutor-loop-prompt-audit.md): prompt/runtime contradictions and cleanup plan for the tutor loop
 - [Tutor Loop Remediation Tracker](./issues/tutor-loop-remediation-tracker.md): living implementation plan and status log for tutor-loop prompt/runtime fixes
+- [Teacher-Assigned Practice Implementation Tracker](./issues/teacher-assigned-practice-implementation-tracker.md): living implementation tracker for the AI-assisted `Tareas` feature
 - [Structured Block Post-Processing](./issues/structured-block-postprocessing.md): current repair loop and future deeper semantic review ideas for tutor block output
 - [Message Block Task Leakage](./issues/message-block-task-leakage.md): observed and repaired patterns where `message` blocks leak exercise payloads that should be typed blocks
 - [UI Style Consistency Audit](./issues/ui-style-consistency-audit.md): future audit for shared CSS, semantic class names, and app-wide UI consistency

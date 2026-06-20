@@ -325,7 +325,7 @@ const quizUnscrambleSentenceItemSchema = z
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
 })
     .strict();
-const quizItemSchema = z.union([
+export const quizItemSchema = z.union([
     quizOpenTextItemSchema,
     quizTranslateToEnglishItemSchema,
     quizUnderstandInSpanishItemSchema,

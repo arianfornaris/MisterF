@@ -1,0 +1,116 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view assignments-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Tarea</p>
+      <h1><%= selectedAssignment.title %></h1>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-secondary" href="/assignments">
+        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver
+      </a>
+      <a class="btn btn-outline-primary" href="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/edit">
+        <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
+      </a>
+      <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#assignmentShareModal">
+        <i class="bi bi-share me-1" aria-hidden="true"></i>Compartir
+      </button>
+    </div>
+  </div>
+
+  <div class="resource-detail-summary">
+    <p><%= selectedAssignment.description || draft.targetTopic || 'Sin descripción' %></p>
+    <div class="resource-meta-row">
+      <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+      <% if (draft.estimatedMinutes) { %><span><i class="bi bi-clock" aria-hidden="true"></i> <%= draft.estimatedMinutes %> min</span><% } %>
+      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
+    </div>
+  </div>
+
+  <div class="resource-action-row">
+    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/preview-attempts">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-outline-primary" type="submit">
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+      </button>
+    </form>
+    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/favorite">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-outline-secondary" type="submit">
+        <i class="bi <%= selectedAssignment.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-1" aria-hidden="true"></i>
+        <%= selectedAssignment.isFavorite ? 'Quitar favorito' : 'Favorita' %>
+      </button>
+    </form>
+    <% if (selectedAssignment.archivedAt) { %>
+      <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/restore">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-outline-secondary" type="submit">Restaurar</button>
+      </form>
+    <% } else { %>
+      <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/archive">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-outline-secondary" type="submit">Archivar</button>
+      </form>
+    <% } %>
+    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/delete">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-outline-danger" type="submit">Eliminar</button>
+    </form>
+  </div>
+
+  <div class="assignment-block-list">
+    <% draft.blocks.forEach((block, index) => { %>
+      <%- include('partials/assignment-item-card', { assignmentItemMode: 'preview', block, csrfToken, draft, index, selectedSession: null }) %>
+    <% }) %>
+  </div>
+
+  <% if (assignmentAttempts.length > 0) { %>
+    <div class="resource-section">
+      <h2 class="h5">Entregas</h2>
+      <div class="list-group">
+        <% assignmentAttempts.forEach((attempt) => { %>
+          <a class="list-group-item list-group-item-action" href="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/result">
+            <div class="d-flex flex-wrap justify-content-between gap-2">
+              <span><%= attempt.isPreview ? 'Preview' : 'Entrega' %> · <%= attempt.status %></span>
+              <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<div
+  class="modal fade"
+  id="assignmentShareModal"
+  tabindex="-1"
+  aria-labelledby="assignmentShareModalLabel"
+  aria-hidden="true"
+  <%= shareAutoOpen ? 'data-auto-open-assignment-share-modal' : '' %>
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="assignmentShareModalLabel">Compartir tarea</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="assignmentShareLink">Link</label>
+        <div class="input-group">
+          <input class="form-control" id="assignmentShareLink" value="<%= shareUrl %>" readonly data-assignment-share-link-field>
+          <button class="btn btn-outline-secondary" type="button" data-copy-assignment-share-link>
+            <i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

@@ -1,0 +1,59 @@
+import express from 'express';
+import {
+  handleAddAssignmentBlock,
+  handleArchiveAssignment,
+  handleClaimAssignmentAttempt,
+  handleCreateAssignmentDraft,
+  handleCreateAssignmentFollowUpConversation,
+  handleDeleteAssignment,
+  handleDeleteAssignmentBlock,
+  handleDuplicateAssignmentBlock,
+  handleMoveAssignmentBlock,
+  handlePublishAssignment,
+  handleRestoreAssignment,
+  handleReviseAssignmentDraft,
+  handleSetAssignmentFavorite,
+  handleStartAssignmentAttempt,
+  handleStartAssignmentPreviewAttempt,
+  handleStartAssignmentSessionPreviewAttempt,
+  handleSubmitAssignmentAttempt,
+  handleUpdateAssignmentDraftMetadata,
+  renderAssignmentAttemptPage,
+  renderAssignmentAuthoringPage,
+  renderAssignmentEditPage,
+  renderAssignmentNewPage,
+  renderAssignmentResultPage,
+  renderAssignmentsListPage,
+  renderAssignmentShowPage,
+  renderSharedAssignmentPage,
+} from './handlers.js';
+
+export const assignmentsRouter = express.Router();
+
+assignmentsRouter.get('/assignments', renderAssignmentsListPage);
+assignmentsRouter.get('/assignments/new', renderAssignmentNewPage);
+assignmentsRouter.post('/assignments/generate-draft', handleCreateAssignmentDraft);
+assignmentsRouter.get('/assignments/shared/:shareId', renderSharedAssignmentPage);
+assignmentsRouter.post('/assignments/shared/:shareId/start', handleStartAssignmentAttempt);
+assignmentsRouter.get('/assignments/authoring/:sessionId', renderAssignmentAuthoringPage);
+assignmentsRouter.post('/assignments/authoring/:sessionId/save', handleUpdateAssignmentDraftMetadata);
+assignmentsRouter.post('/assignments/authoring/:sessionId/revise', handleReviseAssignmentDraft);
+assignmentsRouter.post('/assignments/authoring/:sessionId/publish', handlePublishAssignment);
+assignmentsRouter.post('/assignments/authoring/:sessionId/preview-attempts', handleStartAssignmentSessionPreviewAttempt);
+assignmentsRouter.post('/assignments/authoring/:sessionId/blocks', handleAddAssignmentBlock);
+assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/delete', handleDeleteAssignmentBlock);
+assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/duplicate', handleDuplicateAssignmentBlock);
+assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/move-up', handleMoveAssignmentBlock);
+assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/move-down', handleMoveAssignmentBlock);
+assignmentsRouter.get('/assignments/:assignmentId/edit', renderAssignmentEditPage);
+assignmentsRouter.get('/assignments/:assignmentId', renderAssignmentShowPage);
+assignmentsRouter.post('/assignments/:assignmentId/favorite', handleSetAssignmentFavorite);
+assignmentsRouter.post('/assignments/:assignmentId/archive', handleArchiveAssignment);
+assignmentsRouter.post('/assignments/:assignmentId/restore', handleRestoreAssignment);
+assignmentsRouter.post('/assignments/:assignmentId/delete', handleDeleteAssignment);
+assignmentsRouter.post('/assignments/:assignmentId/preview-attempts', handleStartAssignmentPreviewAttempt);
+assignmentsRouter.get('/assignment-attempts/:attemptId', renderAssignmentAttemptPage);
+assignmentsRouter.get('/assignment-attempts/:attemptId/result', renderAssignmentResultPage);
+assignmentsRouter.post('/assignment-attempts/:attemptId/claim', handleClaimAssignmentAttempt);
+assignmentsRouter.post('/assignment-attempts/:attemptId/submit', handleSubmitAssignmentAttempt);
+assignmentsRouter.post('/assignment-attempts/:attemptId/practice', handleCreateAssignmentFollowUpConversation);

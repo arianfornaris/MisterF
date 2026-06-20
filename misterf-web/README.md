@@ -1,7 +1,8 @@
 # Mister F Web
 
 Mister F is a web app for Spanish-speaking learners practicing English with an
-AI tutor. V1 includes:
+AI tutor. It is also intended to support human teachers who want students to
+practice class topics with structured AI-assisted feedback. V1 includes:
 
 - Tutor conversations with structured exercise blocks and visible tutor plans.
 - Learner profiles, model tiers, progress summaries, and tutor reports.
@@ -13,6 +14,12 @@ AI tutor. V1 includes:
 - Stripe Checkout credit purchases backed by managed OpenRouter user keys.
 - Share/import flows for practice modules, collections, and chat rooms.
 - Client critical-error telemetry and structured server runtime logs.
+
+Teacher-facing work includes shareable assignments where a human teacher uses
+an AI-assisted authoring workflow to create and revise a quiz-like practice
+sequence, students complete it individually, AI evaluates the attempt for free
+to the student, and students can then create an account to save progress or
+continue with Mr. F under the standard credit policy.
 
 ## Stack
 
@@ -309,6 +316,7 @@ Start with:
 - [System Overview](../docs/architecture/system-overview.md)
 - [Architecture](../docs/architecture/architecture.md)
 - [Feature Flows](../docs/architecture/feature-flows.md)
+- [Teacher-Assigned Practice](../docs/features/teacher-assigned-practice.md)
 - [Prompts](../docs/architecture/prompts.md)
 - [Testing](../docs/architecture/testing.md)
 - [Tutor Runtime](../docs/tutor/runtime.md)

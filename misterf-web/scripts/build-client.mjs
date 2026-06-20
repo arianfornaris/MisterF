@@ -24,6 +24,12 @@ const practiceModulesScriptPartialPath = path.join(
   'partials',
   'practice-modules-client-script.ejs',
 );
+const assignmentsScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'assignments-client-script.ejs',
+);
 const clientErrorTelemetryScriptPartialPath = path.join(
   projectRoot,
   'views',
@@ -92,11 +98,16 @@ if (viteResult.status !== 0) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const assignmentsEntry = manifest['src/client/assignments/index.js'];
 const chatEntry = manifest['src/client/chat/index.js'];
 const chatroomsEntry = manifest['src/client/chatrooms/main.js'];
 const clientErrorTelemetryEntry = manifest['src/client/telemetry/clientErrorReporter.js'];
 const practiceModulesEntry = manifest['src/client/practiceModules/index.js'];
 
+if (!assignmentsEntry?.file) {
+  console.error('Could not find assignments entry in Vite manifest.');
+  process.exit(1);
+}
 if (!chatEntry?.file) {
   console.error('Could not find chat entry in Vite manifest.');
   process.exit(1);
@@ -114,11 +125,17 @@ if (!practiceModulesEntry?.file) {
   process.exit(1);
 }
 
+const assignmentsScriptPath = `/public/build/${assignmentsEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
 const chatroomsScriptPath = `/public/build/${chatroomsEntry.file}`;
 const clientErrorTelemetryScriptPath = `/public/build/${clientErrorTelemetryEntry.file}`;
 const practiceModulesScriptPath = `/public/build/${practiceModulesEntry.file}`;
 
+fs.writeFileSync(
+  assignmentsScriptPartialPath,
+  `    <script type="module" src="${assignmentsScriptPath}"></script>\n`,
+  'utf8',
+);
 fs.writeFileSync(
   chatScriptPartialPath,
   `    <script type="module" src="${chatScriptPath}"></script>\n`,
@@ -166,6 +183,9 @@ fs.writeFileSync(
   'utf8',
 );
 
+console.log(
+  `Generated ${path.relative(projectRoot, assignmentsScriptPartialPath)} -> ${assignmentsScriptPath}`,
+);
 console.log(
   `Generated ${path.relative(projectRoot, chatScriptPartialPath)} -> ${chatScriptPath}`,
 );

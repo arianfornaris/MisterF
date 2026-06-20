@@ -367,7 +367,7 @@ const quizUnscrambleSentenceItemSchema = z
   })
   .strict();
 
-const quizItemSchema = z.union([
+export const quizItemSchema = z.union([
   quizOpenTextItemSchema,
   quizTranslateToEnglishItemSchema,
   quizUnderstandInSpanishItemSchema,

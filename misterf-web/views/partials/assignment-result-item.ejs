@@ -1,0 +1,90 @@
+<%
+  const statusVariant = resultItem.evaluation.status === 'correct'
+    ? 'success'
+    : resultItem.evaluation.status === 'partial'
+      ? 'warning'
+      : 'danger';
+%>
+
+<article class="card assignment-block-card">
+  <div class="card-body">
+    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+      <div>
+        <p class="text-body-secondary small mb-1">Bloque <%= index + 1 %></p>
+        <h3 class="h6 mb-1"><%= resultItem.prompt %></h3>
+      </div>
+      <span class="badge text-bg-<%= statusVariant %>"><%= resultItem.evaluation.status %></span>
+    </div>
+
+    <p class="mb-3"><%= resultItem.evaluation.feedback %></p>
+
+    <% if (resultItem.userResponse) { %>
+      <div class="assignment-response-snapshot mb-3">
+        <% if (resultItem.userResponse.text !== undefined) { %>
+          <p class="small mb-1"><strong>Respuesta:</strong> <%= resultItem.userResponse.text || 'Sin respuesta' %></p>
+        <% } %>
+        <% if (Array.isArray(resultItem.userResponse.values)) { %>
+          <p class="small mb-1"><strong>Valores:</strong> <%= resultItem.userResponse.values.join(' | ') || 'Sin respuesta' %></p>
+        <% } %>
+        <% if (Array.isArray(resultItem.userResponse.selectedOptions)) { %>
+          <p class="small mb-1"><strong>Selección:</strong> <%= resultItem.userResponse.selectedOptions.join(' | ') || 'Sin respuesta' %></p>
+        <% } %>
+        <% if (Array.isArray(resultItem.userResponse.pairs)) { %>
+          <p class="small mb-1"><strong>Pares:</strong> <%= resultItem.userResponse.pairs.map((pair) => `${pair.left} -> ${pair.right}`).join(' ; ') || 'Sin respuesta' %></p>
+        <% } %>
+        <% if (Array.isArray(resultItem.userResponse.selectedTokens)) { %>
+          <p class="small mb-1"><strong>Oración:</strong> <%= resultItem.userResponse.sentence || resultItem.userResponse.selectedTokens.join(' ') || 'Sin respuesta' %></p>
+        <% } %>
+      </div>
+    <% } %>
+
+    <% if (resultItem.inlineReview) { %>
+      <% if (Array.isArray(resultItem.inlineReview.parts)) { %>
+        <div class="vstack gap-2">
+          <% resultItem.inlineReview.parts.forEach((part) => { %>
+            <div class="assignment-inline-review">
+              <span class="badge text-bg-<%= part.status === 'correct' ? 'success' : part.status === 'improve' ? 'warning' : 'danger' %>"><%= part.status %></span>
+              <span><%= part.text %></span>
+              <% if (part.explanation) { %><small class="text-body-secondary"><%= part.explanation %></small><% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (Array.isArray(resultItem.inlineReview.blanks)) { %>
+        <div class="vstack gap-2">
+          <% resultItem.inlineReview.blanks.forEach((blank, blankIndex) => { %>
+            <div class="assignment-inline-review">
+              <span class="badge text-bg-<%= blank.status === 'correct' ? 'success' : blank.status === 'improve' ? 'warning' : 'danger' %>">Espacio <%= blankIndex + 1 %></span>
+              <% if (blank.explanation) { %><small class="text-body-secondary"><%= blank.explanation %></small><% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (Array.isArray(resultItem.inlineReview.options)) { %>
+        <div class="vstack gap-2">
+          <% resultItem.inlineReview.options.forEach((option) => { %>
+            <div class="assignment-inline-review">
+              <span class="badge text-bg-<%= option.status === 'correct' || option.status === 'neutral' ? 'secondary' : option.status === 'missed' ? 'warning' : 'danger' %>"><%= option.status %></span>
+              <span><%= option.text %></span>
+              <% if (option.explanation) { %><small class="text-body-secondary"><%= option.explanation %></small><% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+
+      <% if (Array.isArray(resultItem.inlineReview.pairs)) { %>
+        <div class="vstack gap-2">
+          <% resultItem.inlineReview.pairs.forEach((pair) => { %>
+            <div class="assignment-inline-review">
+              <span class="badge text-bg-<%= pair.status === 'correct' ? 'success' : 'danger' %>"><%= pair.status %></span>
+              <span><%= pair.left %> -> <%= pair.right %></span>
+              <% if (pair.explanation) { %><small class="text-body-secondary"><%= pair.explanation %></small><% } %>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</article>

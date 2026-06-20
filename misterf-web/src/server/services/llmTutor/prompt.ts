@@ -23,6 +23,14 @@ export function buildAgentSystemInstruction(options: {
     reportSummaryTitle: string;
     sourceConversationId: string;
   } | null;
+  assignmentAttempt?: {
+    assignmentDescription: string;
+    assignmentSnapshotJson: string;
+    assignmentTargetTopic: string;
+    assignmentTitle: string;
+    responsesJson: string;
+    resultJson: string;
+  } | null;
   practiceModule?: {
     description: string;
     title: string;
@@ -43,7 +51,12 @@ export function buildAgentSystemInstruction(options: {
   });
 
   if (!options.practiceModule) {
-    if (!options.chatRoomReport && !options.tutorReport && !options.tutorPlanText) {
+    if (
+      !options.assignmentAttempt &&
+      !options.chatRoomReport &&
+      !options.tutorReport &&
+      !options.tutorPlanText
+    ) {
       const sections = [base];
       appendLearnerProfileContext(sections, options.learnerProfile);
       return sections.join('\n');
@@ -53,6 +66,10 @@ export function buildAgentSystemInstruction(options: {
 
     appendLearnerProfileContext(sections, options.learnerProfile);
     appendTutorPlanContext(sections, options.tutorPlanText);
+
+    if (options.assignmentAttempt) {
+      appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+    }
 
     if (options.chatRoomReport) {
       sections.push(
@@ -96,6 +113,10 @@ export function buildAgentSystemInstruction(options: {
   appendLearnerProfileContext(sections, options.learnerProfile);
   appendTutorPlanContext(sections, options.tutorPlanText);
 
+  if (options.assignmentAttempt) {
+    appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+  }
+
   if (options.chatRoomReport) {
     sections.push(
       '',
@@ -123,6 +144,30 @@ export function buildAgentSystemInstruction(options: {
   }
 
   return sections.join('\n');
+}
+
+function appendAssignmentAttemptContext(
+  sections: string[],
+  assignmentAttempt: {
+    assignmentDescription: string;
+    assignmentSnapshotJson: string;
+    assignmentTargetTopic: string;
+    assignmentTitle: string;
+    responsesJson: string;
+    resultJson: string;
+  },
+): void {
+  sections.push(
+    '',
+    renderSystemPrompt('tutor/assignment-attempt-context.md', {
+      ASSIGNMENT_DESCRIPTION: assignmentAttempt.assignmentDescription,
+      ASSIGNMENT_SNAPSHOT_JSON: assignmentAttempt.assignmentSnapshotJson,
+      ASSIGNMENT_TARGET_TOPIC: assignmentAttempt.assignmentTargetTopic,
+      ASSIGNMENT_TITLE: assignmentAttempt.assignmentTitle,
+      RESPONSES_JSON: assignmentAttempt.responsesJson,
+      RESULT_JSON: assignmentAttempt.resultJson,
+    }),
+  );
 }
 
 function buildConversationTitleRule(input: {

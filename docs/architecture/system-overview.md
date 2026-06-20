@@ -2,13 +2,22 @@
 
 ## Purpose
 
-Mister F is a web application for guided English practice. It combines:
+Mister F is a web application for guided English practice. It serves
+self-directed learners and is also intended to support human teachers who want
+students to practice targeted class material with AI-assisted feedback. It
+combines:
 
 - a one-on-one tutor chat experience
 - reusable practice modules
 - multi-character chat rooms
 - post-conversation analysis and practice generation
 - profile-scoped personalization, including model selection
+
+The current application supports shareable practice resources and follow-up
+tutoring. The teacher-assigned practice area, `Tareas`, deepens the
+human-teacher use case by letting teachers create shareable quiz-like
+assignments that students can complete individually, including as guests before
+creating an account.
 
 The system is designed around structured LLM output rather than free-form text rendering alone. The tutor can emit UI blocks such as:
 
@@ -61,6 +70,27 @@ Practice modules can be:
 - AI-generated from a short prompt
 - generated from a chat room report
 - launched into tutor conversations
+
+### Teacher-Assigned Practice
+
+Teacher-assigned practice, labeled `Tareas` in the Spanish UI, is a resource
+area for human teachers.
+
+It should let teachers:
+
+- create a fixed sequence of quiz-compatible questions through an iterative
+  AI-assisted authoring workflow
+- start from a natural-language prompt, then revise the assignment with Mr. F
+- share the sequence with students
+- let students complete and submit individual attempts, even before they have an
+  account
+- evaluate shared attempts with AI for free to the student
+- invite students to create an account after the result
+- update learner progress when the result is associated with an account
+- start standard credit-backed follow-up tutoring from detected difficulties
+
+This area reuses the existing `quiz` and `quiz_result` contracts while
+remaining a standalone resource flow rather than a fake chat conversation.
 
 ### Practice Module Collections
 

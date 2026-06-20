@@ -1,0 +1,34 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view assignments-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Tarea compartida</p>
+      <h1><%= selectedAssignment.title %></h1>
+    </div>
+    <form method="post" action="/assignments/shared/<%= encodeURIComponent(shareLink.id) %>/start">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Empezar
+      </button>
+    </form>
+  </div>
+
+  <div class="resource-detail-summary">
+    <p><%= selectedAssignment.description || draft.targetTopic || 'Sin descripción' %></p>
+    <div class="resource-meta-row">
+      <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+      <% if (draft.estimatedMinutes) { %><span><i class="bi bi-clock" aria-hidden="true"></i> <%= draft.estimatedMinutes %> min</span><% } %>
+      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
+    </div>
+  </div>
+
+  <div class="assignment-block-list">
+    <% draft.blocks.forEach((block, index) => { %>
+      <%- include('partials/assignment-item-card', { assignmentItemMode: 'preview', block, csrfToken, draft, index, selectedSession: null }) %>
+    <% }) %>
+  </div>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

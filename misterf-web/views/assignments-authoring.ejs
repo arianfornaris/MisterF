@@ -1,0 +1,197 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view assignments-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Tarea en edición</p>
+      <h1><%= draft.title %></h1>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-secondary" href="/assignments">
+        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Salir
+      </a>
+      <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/publish">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-send-check me-1" aria-hidden="true"></i>Publicar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <% if (authoringError) { %>
+    <div class="alert alert-danger" role="alert"><%= authoringError %></div>
+  <% } %>
+
+  <ul class="nav nav-pills assignment-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link <%= activeTab === 'design' ? 'active' : '' %>" href="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>?tab=design">
+        <i class="bi bi-ui-checks-grid me-1" aria-hidden="true"></i>Diseño
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link <%= activeTab === 'chat' ? 'active' : '' %>" href="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>?tab=chat">
+        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Chat IA
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link <%= activeTab === 'preview' ? 'active' : '' %>" href="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>?tab=preview">
+        <i class="bi bi-eye me-1" aria-hidden="true"></i>Preview
+      </a>
+    </li>
+  </ul>
+
+  <% if (activeTab === 'design') { %>
+    <div class="assignment-authoring-layout">
+      <form class="card resource-form-card" method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/save">
+        <div class="card-body">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="assignmentTitle">Título</label>
+              <input class="form-control" id="assignmentTitle" name="title" value="<%= draft.title %>" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="assignmentDescription">Descripción</label>
+              <textarea class="form-control" id="assignmentDescription" name="description" rows="3"><%= draft.description %></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="assignmentTopic">Tema</label>
+              <input class="form-control" id="assignmentTopic" name="targetTopic" value="<%= draft.targetTopic %>">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="assignmentLevel">Nivel</label>
+              <input class="form-control" id="assignmentLevel" name="level" value="<%= draft.level %>">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="assignmentMinutes">Minutos</label>
+              <input class="form-control" id="assignmentMinutes" name="estimatedMinutes" type="number" min="1" max="180" value="<%= draft.estimatedMinutes || '' %>">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="assignmentInstructions">Instrucciones</label>
+              <textarea class="form-control" id="assignmentInstructions" name="instructions" rows="4"><%= draft.instructions %></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="assignmentRubric">Rúbrica</label>
+              <textarea class="form-control" id="assignmentRubric" name="rubric" rows="4"><%= draft.rubric %></textarea>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-save me-1" aria-hidden="true"></i>Guardar
+            </button>
+            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#assignmentAddBlockModal">
+              <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Agregar bloque
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="assignment-block-list">
+        <% draft.blocks.forEach((block, index) => { %>
+          <%- include('partials/assignment-item-card', { assignmentItemMode: 'design', block, csrfToken, draft, index, selectedSession }) %>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (activeTab === 'chat') { %>
+    <div class="assignment-chat-panel">
+      <div class="card">
+        <div class="card-body assignment-authoring-messages">
+          <% if (authoringMessages.length === 0) { %>
+            <p class="text-body-secondary mb-0">Todavía no hay mensajes.</p>
+          <% } else { %>
+            <% authoringMessages.forEach((message) => { %>
+              <div class="assignment-authoring-message is-<%= message.role %>">
+                <span class="badge text-bg-<%= message.role === 'assistant' ? 'primary' : 'secondary' %>"><%= message.role === 'assistant' ? 'Mister F' : 'Tú' %></span>
+                <p><%= message.content %></p>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+      <form class="card resource-form-card" method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/revise" data-assignment-generate-form>
+        <div class="card-body">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="form-label" for="assignmentRevisionMessage">Mensaje</label>
+          <textarea class="form-control" id="assignmentRevisionMessage" name="message" rows="5" required></textarea>
+          <button class="btn btn-primary mt-3" type="submit" data-assignment-generate-submit>
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  <% } %>
+
+  <% if (activeTab === 'preview') { %>
+    <div class="assignment-preview-toolbar">
+      <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/preview-attempts">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-outline-primary" type="submit">
+          <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+        </button>
+      </form>
+      <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/publish">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-send-check me-1" aria-hidden="true"></i>Publicar
+        </button>
+      </form>
+    </div>
+    <div class="assignment-block-list">
+      <% draft.blocks.forEach((block, index) => { %>
+        <%- include('partials/assignment-item-card', { assignmentItemMode: 'preview', block, csrfToken, draft, index, selectedSession }) %>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<div class="modal fade" id="assignmentAddBlockModal" tabindex="-1" aria-labelledby="assignmentAddBlockModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks" data-assignment-generate-form>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="assignmentAddBlockModalLabel">Agregar bloque</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="assignmentBlockKind">Tipo</label>
+          <select class="form-select" id="assignmentBlockKind" name="blockKind" required>
+            <% assignmentBlockKinds.forEach((kind) => { %>
+              <option value="<%= kind.value %>"><%= kind.label %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="assignment-block-kind-list mb-3">
+          <% assignmentBlockKinds.forEach((kind) => { %>
+            <div class="assignment-block-kind">
+              <strong><%= kind.label %></strong>
+              <span><%= kind.description %></span>
+            </div>
+          <% }) %>
+        </div>
+        <label class="form-label" for="assignmentBlockPrompt">Prompt</label>
+        <textarea class="form-control" id="assignmentBlockPrompt" name="prompt" rows="5" required></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" type="submit" data-assignment-generate-submit>Crear bloque</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-assignment-pending-modal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Actualizando la tarea...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

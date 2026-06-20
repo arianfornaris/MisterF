@@ -108,6 +108,7 @@ export function buildAppShellContext(input: {
   activeProfile: StoredProfile | null;
   authMessage: string;
   currentView:
+    | 'assignments'
     | 'chat'
     | 'chatrooms'
     | 'credits'

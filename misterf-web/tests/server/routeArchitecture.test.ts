@@ -27,6 +27,7 @@ describe('server route architecture', () => {
   it('mounts domain routers from the server composition root', () => {
     const server = readProjectFile('src/server/server.ts');
 
+    expect(server).toContain("import { assignmentsRouter } from './assignments/routes.js';");
     expect(server).toContain("import { authRouter } from './auth/routes.js';");
     expect(server).toContain("import { chatRouter } from './chat/routes.js';");
     expect(server).toContain("import { chatroomsRouter } from './chatrooms/routes.js';");
@@ -51,5 +52,6 @@ describe('server route architecture', () => {
     expectBefore(server, 'app.use(loadAuthSession);', 'app.use(authRouter);');
     expectBefore(server, 'app.use(profileOnboardingRouter);', 'app.use(redirectIncompleteProfileOnboarding);');
     expectBefore(server, 'app.use(redirectIncompleteProfileOnboarding);', 'app.use(practiceModulesRouter);');
+    expectBefore(server, 'app.use(practiceModulesRouter);', 'app.use(assignmentsRouter);');
   });
 });

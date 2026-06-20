@@ -217,6 +217,14 @@ export async function runTutorAgentLoop(
       reportSummaryTitle: string;
       sourceConversationId: string;
     } | null;
+    assignmentAttempt?: {
+      assignmentDescription: string;
+      assignmentSnapshotJson: string;
+      assignmentTargetTopic: string;
+      assignmentTitle: string;
+      responsesJson: string;
+      resultJson: string;
+    } | null;
     practiceModule?: {
       description: string;
       title: string;
