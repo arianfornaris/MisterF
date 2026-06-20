@@ -41,6 +41,7 @@ import {
 } from '../pages/shell.js';
 import {
   appendAssignmentBlock,
+  assignmentDraftToStudentQuizBlock,
   buildAssignmentEvaluationSummary,
   buildAssignmentResultTitle,
   createAssignmentDraftFromManualInput,
@@ -153,6 +154,25 @@ function renderAssignmentsView(
   model: Record<string, unknown>,
 ): void {
   response.render(view, model);
+}
+
+function serializeViewJson(value: unknown): string {
+  return (JSON.stringify(value) ?? 'null').replace(/[<>&\u2028\u2029]/g, (character) => {
+    switch (character) {
+      case '<':
+        return '\\u003c';
+      case '>':
+        return '\\u003e';
+      case '&':
+        return '\\u0026';
+      case '\u2028':
+        return '\\u2028';
+      case '\u2029':
+        return '\\u2029';
+      default:
+        return character;
+    }
+  });
 }
 
 function readField(value: unknown, maxLength = 8000): string {
@@ -318,6 +338,7 @@ function renderAssignmentAuthoring(
     }),
     activeTab: input.activeTab ?? 'design',
     assignmentBlockKinds,
+    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
     authoringError: input.error || '',
     authoringMessages: normalizeAuthoringMessages(input.session.messages),
     draft,
@@ -448,6 +469,7 @@ function renderAssignmentAttempt(
     }),
     attempt: input.attempt,
     attemptError: input.error || '',
+    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
     draft,
     guestToken: input.attempt.guestToken || '',
   });
@@ -475,6 +497,7 @@ function renderAssignmentResult(
     attempt,
     draft,
     guestToken: attempt.guestToken || '',
+    resultBlockJson: serializeViewJson(result.data),
     resultBlock: result.data,
     resultTitle: buildAssignmentResultTitle(result.data),
     summary,
@@ -1056,6 +1079,7 @@ export function renderAssignmentShowPage(request: Request, response: Response): 
       user: resolved.user,
     }),
     assignmentAttempts: buildAssignmentAttemptListItems(attempts),
+    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
     draft,
     selectedAssignment: resolved.assignment,
     shareAutoOpen: readField(request.query.share, 20) === 'link',
@@ -1133,6 +1157,7 @@ export function renderSharedAssignmentPage(request: Request, response: Response)
       title: `${assignment.title} - ${appDocumentTitle}`,
       user: request.authUser ?? null,
     }),
+    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
     draft,
     selectedAssignment: assignment,
     shareLink,

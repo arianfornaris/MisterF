@@ -69,6 +69,56 @@ export type AssignmentEvaluationSummary = {
   totalCount: number;
 };
 
+export type AssignmentStudentQuizItem =
+  | {
+      kind: 'quiz_open_text';
+      placeholder?: string;
+      prompt: string;
+    }
+  | {
+      kind: 'quiz_translate_to_english' | 'quiz_understand_in_spanish';
+      prompt: string;
+      sentence: string;
+    }
+  | {
+      blanks: Array<Record<string, never>>;
+      kind: 'quiz_fill_in_the_blank_input';
+      prompt: string;
+      sentence: string;
+    }
+  | {
+      blanks: Array<{
+        choices: string[];
+      }>;
+      kind: 'quiz_fill_in_the_blank_choice';
+      prompt: string;
+      sentence: string;
+    }
+  | {
+      kind: 'quiz_multiple_choice';
+      options: string[];
+      prompt: string;
+      selectionMode: 'single' | 'multiple';
+    }
+  | {
+      kind: 'quiz_matching_pairs';
+      leftItems: string[];
+      prompt: string;
+      rightItems: string[];
+    }
+  | {
+      kind: 'quiz_unscramble_sentence';
+      prompt: string;
+      tokens: string[];
+    };
+
+export type AssignmentStudentQuizBlock = {
+  items: AssignmentStudentQuizItem[];
+  prompt: string;
+  title: string;
+  type: 'quiz';
+};
+
 export function parseAssignmentDraft(value: unknown): AssignmentDraft {
   return assignmentDraftSchema.parse(value);
 }
@@ -106,6 +156,77 @@ export function assignmentDraftToQuizBlock(draft: AssignmentDraft): TutorQuizBlo
   };
 
   return quizBlockSchema.parse(quiz);
+}
+
+export function assignmentDraftToStudentQuizBlock(draft: AssignmentDraft): AssignmentStudentQuizBlock {
+  return {
+    items: draft.blocks.map((block) => buildStudentQuizItem(block.item)),
+    prompt: draft.instructions || draft.description || draft.title,
+    title: draft.title,
+    type: 'quiz',
+  };
+}
+
+function buildStudentQuizItem(item: TutorQuizItem): AssignmentStudentQuizItem {
+  if (item.kind === 'quiz_open_text') {
+    return {
+      kind: item.kind,
+      ...(item.placeholder ? { placeholder: item.placeholder } : {}),
+      prompt: item.prompt,
+    };
+  }
+
+  if (item.kind === 'quiz_translate_to_english' || item.kind === 'quiz_understand_in_spanish') {
+    return {
+      kind: item.kind,
+      prompt: item.prompt,
+      sentence: item.sentence,
+    };
+  }
+
+  if (item.kind === 'quiz_fill_in_the_blank_input') {
+    return {
+      blanks: item.blanks.map(() => ({})),
+      kind: item.kind,
+      prompt: item.prompt,
+      sentence: item.sentence,
+    };
+  }
+
+  if (item.kind === 'quiz_fill_in_the_blank_choice') {
+    return {
+      blanks: item.blanks.map((blank) => ({
+        choices: blank.choices,
+      })),
+      kind: item.kind,
+      prompt: item.prompt,
+      sentence: item.sentence,
+    };
+  }
+
+  if (item.kind === 'quiz_multiple_choice') {
+    return {
+      kind: item.kind,
+      options: item.options,
+      prompt: item.prompt,
+      selectionMode: item.selectionMode,
+    };
+  }
+
+  if (item.kind === 'quiz_matching_pairs') {
+    return {
+      kind: item.kind,
+      leftItems: item.leftItems,
+      prompt: item.prompt,
+      rightItems: item.rightItems,
+    };
+  }
+
+  return {
+    kind: item.kind,
+    prompt: item.prompt,
+    tokens: item.tokens,
+  };
 }
 
 export function createAssignmentDraftFromManualInput(input: {

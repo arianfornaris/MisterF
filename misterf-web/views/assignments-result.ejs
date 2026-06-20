@@ -39,11 +39,14 @@
     </div>
   </div>
 
-  <div class="assignment-block-list">
+  <div data-assignment-result-host></div>
+  <div class="assignment-block-list" data-assignment-result-fallback>
     <% resultBlock.items.forEach((resultItem, index) => { %>
       <%- include('partials/assignment-result-item', { index, resultItem }) %>
     <% }) %>
   </div>
 </section>
+
+<script type="application/json" data-assignment-result-json><%- resultBlockJson %></script>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

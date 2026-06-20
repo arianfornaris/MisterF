@@ -12,12 +12,14 @@
     <div class="alert alert-danger" role="alert"><%= attemptError %></div>
   <% } %>
 
-  <form method="post" action="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/submit" data-assignment-submit-form>
+  <form method="post" action="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/submit" data-assignment-submit-form data-assignment-quiz-form>
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <% if (guestToken) { %>
       <input type="hidden" name="guestToken" value="<%= guestToken %>">
     <% } %>
-    <div class="assignment-block-list">
+    <div data-assignment-quiz-host data-assignment-quiz-mode="attempt"></div>
+    <div data-assignment-quiz-inputs hidden></div>
+    <div class="assignment-block-list" data-assignment-quiz-fallback>
       <% draft.blocks.forEach((block, index) => { %>
         <%- include('partials/assignment-item-card', { assignmentItemMode: 'attempt', block, csrfToken, draft, index, responseIndex: index, selectedSession: null }) %>
       <% }) %>
@@ -40,5 +42,7 @@
     </div>
   </div>
 </div>
+
+<script type="application/json" data-assignment-quiz-json><%- assignmentQuizJson %></script>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

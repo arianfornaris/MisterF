@@ -1,7 +1,7 @@
 import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createAssignmentAuthoringRevision, createAssignmentAuthoringSession, createConversationFromAssignmentAttempt, deleteAssignmentForUser, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findAssignmentAuthoringSessionForUser, findProfileForUser, getOrCreateAssignmentShareLink, listAssignmentAttemptsForUser, listAssignmentAuthoringRevisions, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringSession, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
-import { appendAssignmentBlock, buildAssignmentEvaluationSummary, buildAssignmentResultTitle, createAssignmentDraftFromManualInput, duplicateAssignmentBlock, evaluateAssignmentAttempt, moveAssignmentBlock, normalizeAssignmentResponses, removeAssignmentBlock, safeParseAssignmentDraft, } from '../services/assignments.js';
+import { appendAssignmentBlock, assignmentDraftToStudentQuizBlock, buildAssignmentEvaluationSummary, buildAssignmentResultTitle, createAssignmentDraftFromManualInput, duplicateAssignmentBlock, evaluateAssignmentAttempt, moveAssignmentBlock, normalizeAssignmentResponses, removeAssignmentBlock, safeParseAssignmentDraft, } from '../services/assignments.js';
 import { generateAssignmentBlock, generateAssignmentDraft, generateAssignmentRevision, } from '../services/resourceDrafts.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordAssignmentAttemptProgress } from '../services/learnerProgress.js';
@@ -71,6 +71,24 @@ function buildAssignmentsShellContext(request, options) {
 }
 function renderAssignmentsView(response, view, model) {
     response.render(view, model);
+}
+function serializeViewJson(value) {
+    return (JSON.stringify(value) ?? 'null').replace(/[<>&\u2028\u2029]/g, (character) => {
+        switch (character) {
+            case '<':
+                return '\\u003c';
+            case '>':
+                return '\\u003e';
+            case '&':
+                return '\\u0026';
+            case '\u2028':
+                return '\\u2028';
+            case '\u2029':
+                return '\\u2029';
+            default:
+                return character;
+        }
+    });
 }
 function readField(value, maxLength = 8000) {
     if (Array.isArray(value)) {
@@ -200,6 +218,7 @@ function renderAssignmentAuthoring(request, response, input) {
         }),
         activeTab: input.activeTab ?? 'design',
         assignmentBlockKinds,
+        assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
         authoringError: input.error || '',
         authoringMessages: normalizeAuthoringMessages(input.session.messages),
         draft,
@@ -289,6 +308,7 @@ function renderAssignmentAttempt(request, response, input) {
         }),
         attempt: input.attempt,
         attemptError: input.error || '',
+        assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
         draft,
         guestToken: input.attempt.guestToken || '',
     });
@@ -310,6 +330,7 @@ function renderAssignmentResult(request, response, attempt) {
         attempt,
         draft,
         guestToken: attempt.guestToken || '',
+        resultBlockJson: serializeViewJson(result.data),
         resultBlock: result.data,
         resultTitle: buildAssignmentResultTitle(result.data),
         summary,
@@ -817,6 +838,7 @@ export function renderAssignmentShowPage(request, response) {
             user: resolved.user,
         }),
         assignmentAttempts: buildAssignmentAttemptListItems(attempts),
+        assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
         draft,
         selectedAssignment: resolved.assignment,
         shareAutoOpen: readField(request.query.share, 20) === 'link',
@@ -878,6 +900,7 @@ export function renderSharedAssignmentPage(request, response) {
             title: `${assignment.title} - ${appDocumentTitle}`,
             user: request.authUser ?? null,
         }),
+        assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
         draft,
         selectedAssignment: assignment,
         shareLink,

@@ -72,6 +72,69 @@ export function assignmentDraftToQuizBlock(draft) {
     };
     return quizBlockSchema.parse(quiz);
 }
+export function assignmentDraftToStudentQuizBlock(draft) {
+    return {
+        items: draft.blocks.map((block) => buildStudentQuizItem(block.item)),
+        prompt: draft.instructions || draft.description || draft.title,
+        title: draft.title,
+        type: 'quiz',
+    };
+}
+function buildStudentQuizItem(item) {
+    if (item.kind === 'quiz_open_text') {
+        return {
+            kind: item.kind,
+            ...(item.placeholder ? { placeholder: item.placeholder } : {}),
+            prompt: item.prompt,
+        };
+    }
+    if (item.kind === 'quiz_translate_to_english' || item.kind === 'quiz_understand_in_spanish') {
+        return {
+            kind: item.kind,
+            prompt: item.prompt,
+            sentence: item.sentence,
+        };
+    }
+    if (item.kind === 'quiz_fill_in_the_blank_input') {
+        return {
+            blanks: item.blanks.map(() => ({})),
+            kind: item.kind,
+            prompt: item.prompt,
+            sentence: item.sentence,
+        };
+    }
+    if (item.kind === 'quiz_fill_in_the_blank_choice') {
+        return {
+            blanks: item.blanks.map((blank) => ({
+                choices: blank.choices,
+            })),
+            kind: item.kind,
+            prompt: item.prompt,
+            sentence: item.sentence,
+        };
+    }
+    if (item.kind === 'quiz_multiple_choice') {
+        return {
+            kind: item.kind,
+            options: item.options,
+            prompt: item.prompt,
+            selectionMode: item.selectionMode,
+        };
+    }
+    if (item.kind === 'quiz_matching_pairs') {
+        return {
+            kind: item.kind,
+            leftItems: item.leftItems,
+            prompt: item.prompt,
+            rightItems: item.rightItems,
+        };
+    }
+    return {
+        kind: item.kind,
+        prompt: item.prompt,
+        tokens: item.tokens,
+    };
+}
 export function createAssignmentDraftFromManualInput(input) {
     return assignmentDraftSchema.parse({
         ...input.previousDraft,

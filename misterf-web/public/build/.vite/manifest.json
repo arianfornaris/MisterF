@@ -3,18 +3,30 @@
     "file": "chunks/markdown-BmNuvlLQ.js",
     "name": "markdown"
   },
+  "_quizItemRenderer-BFWwRRBG.js": {
+    "file": "chunks/quizItemRenderer-BFWwRRBG.js",
+    "name": "quizItemRenderer",
+    "imports": [
+      "_markdown-BmNuvlLQ.js"
+    ]
+  },
   "src/client/assignments/index.js": {
-    "file": "entries/assignments-DLIn0QpS.js",
+    "file": "entries/assignments-cDrn5q97.js",
     "name": "assignments",
     "src": "src/client/assignments/index.js",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_quizItemRenderer-BFWwRRBG.js",
+      "_markdown-BmNuvlLQ.js"
+    ]
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-BZFw0XDo.js",
+    "file": "entries/chat-Co2umqqG.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
+      "_quizItemRenderer-BFWwRRBG.js",
       "_markdown-BmNuvlLQ.js"
     ]
   },
