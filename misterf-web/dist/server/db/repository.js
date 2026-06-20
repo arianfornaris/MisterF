@@ -131,14 +131,12 @@ function toStoredAssignment(row) {
         isFavorite: Boolean(row.is_favorite),
         level: row.level,
         profileId: row.profile_id,
-        publishedAt: row.published_at,
         quiz: parseJsonRecord(row.quiz_json),
         rubric: row.rubric,
         sharedVia: row.shared_via,
         sourceAssignmentId: row.source_assignment_id,
         sourceProfileId: row.source_profile_id,
         sourceUserId: row.source_user_id,
-        status: row.status,
         targetTopic: row.target_topic,
         title: row.title,
         updatedAt: row.updated_at,
@@ -183,6 +181,7 @@ function toStoredAssignmentAuthoringRevision(row) {
 function toStoredAssignmentAttempt(row) {
     return {
         assignmentId: row.assignment_id,
+        authoringSessionId: row.authoring_session_id,
         claimToken: row.claim_token,
         createdAt: row.created_at,
         evaluatedAt: row.evaluated_at,
@@ -1372,7 +1371,6 @@ export function upsertLearnerProgressEvent(input) {
 }
 export function createAssignment(input) {
     const id = randomUUID();
-    const status = input.status ?? 'draft';
     getDb()
         .prepare(`
         INSERT INTO assignments (
@@ -1387,16 +1385,14 @@ export function createAssignment(input) {
           instructions,
           rubric,
           quiz_json,
-          status,
           source_assignment_id,
           source_user_id,
           source_profile_id,
-          shared_via,
-          published_at
+          shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CASE WHEN ? = 'published' THEN CURRENT_TIMESTAMP ELSE NULL END)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.estimatedMinutes ?? null, input.instructions ?? '', input.rubric ?? '', JSON.stringify(input.quiz), status, input.sourceAssignmentId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null, status);
+        .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.estimatedMinutes ?? null, input.instructions ?? '', input.rubric ?? '', JSON.stringify(input.quiz), input.sourceAssignmentId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
     const assignment = findAssignmentForUser(id, input.userId);
     if (!assignment) {
         throw new Error('Could not load newly created assignment.');
@@ -1416,14 +1412,12 @@ export function findAssignmentForUser(id, userId) {
           is_favorite,
           level,
           profile_id,
-          published_at,
           quiz_json,
           rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
           source_user_id,
-          status,
           target_topic,
           title,
           updated_at,
@@ -1447,14 +1441,12 @@ export function findAssignmentById(id) {
           is_favorite,
           level,
           profile_id,
-          published_at,
           quiz_json,
           rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
           source_user_id,
-          status,
           target_topic,
           title,
           updated_at,
@@ -1478,14 +1470,12 @@ export function listAssignmentsForProfile(input) {
           is_favorite,
           level,
           profile_id,
-          published_at,
           quiz_json,
           rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
           source_user_id,
-          status,
           target_topic,
           title,
           updated_at,
@@ -1515,15 +1505,10 @@ export function updateAssignment(input) {
             instructions = ?,
             rubric = ?,
             quiz_json = ?,
-            status = ?,
-            published_at = CASE
-              WHEN ? = 'published' THEN COALESCE(published_at, CURRENT_TIMESTAMP)
-              ELSE published_at
-            END,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-        .run(input.title, input.description, input.targetTopic, input.level, input.estimatedMinutes ?? null, input.instructions, input.rubric, JSON.stringify(input.quiz), input.status, input.status, input.assignmentId, input.userId);
+        .run(input.title, input.description, input.targetTopic, input.level, input.estimatedMinutes ?? null, input.instructions, input.rubric, JSON.stringify(input.quiz), input.assignmentId, input.userId);
     return findAssignmentForUser(input.assignmentId, input.userId);
 }
 export function setAssignmentFavoriteForUser(assignmentId, userId, isFavorite) {
@@ -1725,6 +1710,9 @@ export function listAssignmentAuthoringRevisions(sessionId) {
     return rows.map(toStoredAssignmentAuthoringRevision);
 }
 export function createAssignmentAttempt(input) {
+    if (!input.assignmentId && !input.authoringSessionId) {
+        throw new Error('Assignment attempts require an assignment or authoring session.');
+    }
     const id = randomUUID();
     const isGuest = !input.userId;
     const guestToken = isGuest ? randomBytes(24).toString('base64url') : null;
@@ -1734,6 +1722,7 @@ export function createAssignmentAttempt(input) {
         INSERT INTO assignment_attempts (
           id,
           assignment_id,
+          authoring_session_id,
           user_id,
           profile_id,
           guest_token,
@@ -1741,9 +1730,9 @@ export function createAssignmentAttempt(input) {
           is_preview,
           snapshot_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.assignmentId, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, input.isPreview ? 1 : 0, JSON.stringify(input.snapshot));
+        .run(id, input.assignmentId ?? null, input.authoringSessionId ?? null, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, input.isPreview ? 1 : 0, JSON.stringify(input.snapshot));
     const attempt = findAssignmentAttemptById(id);
     if (!attempt) {
         throw new Error('Could not load newly created assignment attempt.');
@@ -1755,6 +1744,7 @@ export function findAssignmentAttemptById(id) {
         .prepare(`
         SELECT
           assignment_id,
+          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -1786,6 +1776,7 @@ export function findAssignmentAttemptByGuestToken(guestToken) {
         .prepare(`
         SELECT
           assignment_id,
+          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -1813,6 +1804,7 @@ export function findAssignmentAttemptByClaimToken(claimToken) {
         .prepare(`
         SELECT
           assignment_id,
+          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -1840,6 +1832,7 @@ export function listAssignmentAttemptsForUser(input) {
         .prepare(`
         SELECT
           assignment_id,
+          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,

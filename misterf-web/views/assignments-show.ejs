@@ -72,8 +72,11 @@
       <div class="list-group">
         <% assignmentAttempts.forEach((attempt) => { %>
           <a class="list-group-item list-group-item-action" href="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/result">
-            <div class="d-flex flex-wrap justify-content-between gap-2">
-              <span><%= attempt.isPreview ? 'Preview' : 'Entrega' %> · <%= attempt.status %></span>
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <span>
+                <%= attempt.isPreview ? 'Preview' : 'Entrega' %>
+                <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
+              </span>
               <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
             </div>
           </a>

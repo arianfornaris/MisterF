@@ -514,11 +514,6 @@ export function renderAssignmentsListPage(request: Request, response: Response):
       assignment.level,
     ].join('\n')).includes(normalizedQuery);
   });
-  const attempts = listAssignmentAttemptsForUser({
-    profileId: auth.activeProfile.id,
-    userId: auth.user.id,
-  });
-
   renderAssignmentsView(response, 'assignments-list', {
     ...buildAssignmentsShellContext(request, {
       activeProfile: auth.activeProfile,
@@ -528,7 +523,6 @@ export function renderAssignmentsListPage(request: Request, response: Response):
     assignmentItems: buildAssignmentListItems(assignments),
     assignmentQuery: query,
     hasArchivedAssignments,
-    recentAttempts: buildAssignmentAttemptListItems(attempts.slice(0, 8)),
     showArchivedAssignments: showArchived,
   });
 }
@@ -881,7 +875,7 @@ function updateDraftBlocks(
   response.redirect(`/assignments/authoring/${encodeURIComponent(resolved.session.id)}?tab=design`);
 }
 
-export function handlePublishAssignment(request: Request, response: Response): void {
+export function handleSaveAuthoredAssignment(request: Request, response: Response): void {
   const resolved = resolveAuthoringSession(request, response);
   if (!resolved) {
     return;
@@ -909,7 +903,6 @@ export function handlePublishAssignment(request: Request, response: Response): v
         level: draft.level,
         quiz: draft,
         rubric: draft.rubric,
-        status: 'published',
         targetTopic: draft.targetTopic,
         title: draft.title,
         userId: resolved.user.id,
@@ -922,7 +915,6 @@ export function handlePublishAssignment(request: Request, response: Response): v
         profileId: resolved.activeProfile.id,
         quiz: draft,
         rubric: draft.rubric,
-        status: 'published',
         targetTopic: draft.targetTopic,
         title: draft.title,
         userId: resolved.user.id,
@@ -932,7 +924,7 @@ export function handlePublishAssignment(request: Request, response: Response): v
     renderAssignmentAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'design',
-      error: 'No pude publicar la tarea.',
+      error: 'No pude guardar la tarea.',
     });
     return;
   }
@@ -941,10 +933,10 @@ export function handlePublishAssignment(request: Request, response: Response): v
     assignmentId: assignment.id,
     currentDraft: draft,
     sessionId: resolved.session.id,
-    status: 'published',
+    status: 'saved',
     userId: resolved.user.id,
   });
-  logger.info('assignment_published', {
+  logger.info('assignment_saved', {
     assignmentId: assignment.id,
     blockCount: draft.blocks.length,
     profileId: assignment.profileId,
@@ -952,7 +944,7 @@ export function handlePublishAssignment(request: Request, response: Response): v
     userId: resolved.user.id,
   });
 
-  response.redirect(`/assignments/${encodeURIComponent(assignment.id)}?share=link`);
+  response.redirect(`/assignments/${encodeURIComponent(assignment.id)}`);
 }
 
 export function handleStartAssignmentSessionPreviewAttempt(
@@ -974,34 +966,8 @@ export function handleStartAssignmentSessionPreviewAttempt(
     return;
   }
 
-  const existingAssignment = resolved.session.assignmentId
-    ? findAssignmentForUser(resolved.session.assignmentId, resolved.user.id)
-    : null;
-  const assignment = existingAssignment ?? createAssignment({
-    description: draft.description,
-    estimatedMinutes: draft.estimatedMinutes,
-    instructions: draft.instructions,
-    level: draft.level,
-    profileId: resolved.activeProfile.id,
-    quiz: draft,
-    rubric: draft.rubric,
-    status: 'draft',
-    targetTopic: draft.targetTopic,
-    title: draft.title,
-    userId: resolved.user.id,
-  });
-
-  if (!existingAssignment) {
-    updateAssignmentAuthoringSession({
-      assignmentId: assignment.id,
-      currentDraft: draft,
-      sessionId: resolved.session.id,
-      userId: resolved.user.id,
-    });
-  }
-
   const attempt = createAssignmentAttempt({
-    assignmentId: assignment.id,
+    authoringSessionId: resolved.session.id,
     isPreview: true,
     profileId: resolved.activeProfile.id,
     snapshot: draft,
@@ -1014,7 +980,6 @@ export function handleStartAssignmentSessionPreviewAttempt(
     userMessage: 'Teacher started a preview attempt.',
   });
   logger.info('assignment_preview_attempt_started', {
-    assignmentId: assignment.id,
     attemptId: attempt.id,
     profileId: resolved.activeProfile.id,
     sessionId: resolved.session.id,
@@ -1037,7 +1002,7 @@ export function renderAssignmentEditPage(request: Request, response: Response): 
 
   const session = createAssignmentAuthoringSession({
     currentDraft: draft,
-    initialPrompt: `Edit published assignment: ${resolved.assignment.title}`,
+    initialPrompt: `Edit assignment: ${resolved.assignment.title}`,
     messages: [
       {
         content: 'Abrí esta tarea para edición.',
@@ -1090,10 +1055,7 @@ export function renderAssignmentShowPage(request: Request, response: Response): 
       title: `${resolved.assignment.title} - ${appDocumentTitle}`,
       user: resolved.user,
     }),
-    assignmentAttempts: attempts.map((attempt) => ({
-      ...attempt,
-      relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
-    })),
+    assignmentAttempts: buildAssignmentAttemptListItems(attempts),
     draft,
     selectedAssignment: resolved.assignment,
     shareAutoOpen: readField(request.query.share, 20) === 'link',
@@ -1155,7 +1117,7 @@ export function renderSharedAssignmentPage(request: Request, response: Response)
   }
 
   const assignment = findAssignmentById(shareLink.assignmentId);
-  if (!assignment || assignment.status !== 'published' || assignment.archivedAt) {
+  if (!assignment || assignment.archivedAt) {
     response.redirect('/assignments');
     return;
   }
@@ -1186,7 +1148,7 @@ export function handleStartAssignmentAttempt(request: Request, response: Respons
   }
 
   const assignment = findAssignmentById(shareLink.assignmentId);
-  if (!assignment || assignment.status !== 'published' || assignment.archivedAt) {
+  if (!assignment || assignment.archivedAt) {
     response.redirect('/assignments');
     return;
   }

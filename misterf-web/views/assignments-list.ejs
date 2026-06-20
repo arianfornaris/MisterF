@@ -46,7 +46,6 @@
                 <h2 class="h5 mb-1"><%= assignment.title %></h2>
                 <% if (assignment.isFavorite) { %><span class="badge text-bg-warning">Favorita</span><% } %>
                 <% if (assignment.archivedAt) { %><span class="badge text-bg-secondary">Archivada</span><% } %>
-                <% if (assignment.status === 'draft') { %><span class="badge text-bg-light border">Borrador</span><% } %>
               </div>
               <p class="mb-2 text-body-secondary"><%= assignment.description || assignment.targetTopic || 'Sin descripción' %></p>
               <div class="resource-meta-row">
@@ -62,21 +61,6 @@
     </div>
   <% } %>
 
-  <% if (recentAttempts.length > 0) { %>
-    <div class="resource-section">
-      <h2 class="h5">Entregas recientes</h2>
-      <div class="list-group">
-        <% recentAttempts.forEach((attempt) => { %>
-          <a class="list-group-item list-group-item-action" href="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/result">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-              <span class="badge <%= attempt.statusBadgeClass %>"><%= attempt.statusLabel %></span>
-              <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
-            </div>
-          </a>
-        <% }) %>
-      </div>
-    </div>
-  <% } %>
 </section>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

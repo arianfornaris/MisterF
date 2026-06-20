@@ -15,7 +15,7 @@ F under the normal credit policy.
 Assignment creation should be iterative and AI-assisted. The teacher starts with
 a natural-language prompt, reviews the draft created by Mr. F, tries the
 assignment as if they were a student, and keeps asking the assistant for changes
-until the assignment is ready to publish.
+until the assignment is ready to save and share.
 
 Tareas are also an acquisition path. Teachers need an account and credits to
 create them, but students should be able to complete a shared Tarea before they
@@ -37,7 +37,7 @@ The first V1 implementation is in place:
 - Blocks are numbered for human reference and keep stable internal ids.
 - Teachers can update metadata, reorder, delete, duplicate, and AI-generate
   blocks.
-- Teachers can publish, share, and run preview attempts.
+- Teachers can save, share, and run preview attempts.
 - Students can complete shared links as guests.
 - Shared-student evaluation is product-funded and free to the student.
 - Authenticated attempts update learner progress.
@@ -154,7 +154,7 @@ Included:
 - assignment content uses the quiz item contract
 - assignment creation is an AI-assisted authoring workflow
 - teachers can start from a natural-language prompt
-- teachers can chat with Mr. F to revise the draft before publishing
+- teachers can chat with Mr. F to revise the draft before saving or sharing
 - teachers can use a `Design` tab to reorder, delete, duplicate, edit, and add
   assignment blocks
 - adding a block uses a block-type chooser followed by an AI prompt modal
@@ -253,8 +253,8 @@ Show teacher-facing names, short examples, and best-use hints for:
 - matching
 - unscramble sentence
 
-The prompt intake submits into an authoring session rather than directly
-publishing an assignment.
+The prompt intake submits into an authoring session rather than directly saving
+an assignment.
 
 ### AI-Assisted Authoring Workspace
 
@@ -296,7 +296,7 @@ The `Design` tab should also expose assignment-level metadata:
 - title, description, topic, level, and estimated time
 - overall student instructions
 - overall rubric
-- publish/share readiness state
+- save/share readiness state
 - `Preview` action for the student-facing assignment view
 
 Block operations:
@@ -321,7 +321,7 @@ The assistant chat should let the teacher ask for changes such as:
 
 Assistant revisions should update the structured assignment draft, not just
 return prose instructions. The UI should make it clear when a draft has changed
-and should allow the teacher to review the result before publishing.
+and should allow the teacher to review the result before saving or sharing.
 
 The `AI chat` tab is for assignment-level or multi-block changes. It should not
 replace the `Design` tab as the place where the teacher understands the current
@@ -542,8 +542,7 @@ Primary follow-up actions:
    quiz item contract before replacing the current draft.
 13. Optional teacher preview evaluation is treated as authoring usage and is
    charged to the teacher's account.
-14. When ready, the teacher publishes or saves the assignment as an owned
-   resource.
+14. When ready, the teacher saves the assignment as an owned resource.
 15. The teacher shares the assignment link.
 
 ### Student Completes Assignment
@@ -589,8 +588,8 @@ Possible first-pass tables:
 - `id`
 - `user_id`
 - `profile_id`
-- optional `assignment_id` after publishing
-- `status` (`drafting`, `published`, `discarded`)
+- optional `assignment_id` after the assignment is saved
+- `status` (`drafting`, `saved`, `discarded`)
 - `initial_prompt`
 - `messages_json`
 - `current_draft_json`
@@ -615,7 +614,7 @@ saved step.
 
 Revision history can start as a compact audit log rather than a full undo
 system. It gives support and future AI agents enough context to understand how a
-published assignment was produced.
+saved assignment was produced.
 
 ### `assignments`
 
@@ -655,7 +654,9 @@ This can mirror existing resource share-link patterns.
 ### `assignment_attempts`
 
 - `id`
-- `assignment_id`
+- optional `assignment_id`
+- optional `authoring_session_id` for teacher previews before the assignment is
+  saved
 - optional `user_id`
 - optional `profile_id`
 - guest/session identifier or claim token for unauthenticated attempts
@@ -694,7 +695,7 @@ LLM calls can happen when:
 - the teacher generates a single new block from the add-block modal
 - the teacher asks for an AI revision during authoring
 - the teacher submits a preview attempt for AI evaluation during authoring
-- the teacher creates/publishes a Tarea through the credit-gated creation flow
+- the teacher creates or saves a Tarea through the credit-gated creation flow
 - the student submits an assignment for free evaluation
 - the student starts follow-up tutoring from a result
 

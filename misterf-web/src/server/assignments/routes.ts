@@ -9,9 +9,9 @@ import {
   handleDeleteAssignmentBlock,
   handleDuplicateAssignmentBlock,
   handleMoveAssignmentBlock,
-  handlePublishAssignment,
   handleRestoreAssignment,
   handleReviseAssignmentDraft,
+  handleSaveAuthoredAssignment,
   handleSetAssignmentFavorite,
   handleStartAssignmentAttempt,
   handleStartAssignmentPreviewAttempt,
@@ -38,7 +38,7 @@ assignmentsRouter.post('/assignments/shared/:shareId/start', handleStartAssignme
 assignmentsRouter.get('/assignments/authoring/:sessionId', renderAssignmentAuthoringPage);
 assignmentsRouter.post('/assignments/authoring/:sessionId/save', handleUpdateAssignmentDraftMetadata);
 assignmentsRouter.post('/assignments/authoring/:sessionId/revise', handleReviseAssignmentDraft);
-assignmentsRouter.post('/assignments/authoring/:sessionId/publish', handlePublishAssignment);
+assignmentsRouter.post('/assignments/authoring/:sessionId/save-assignment', handleSaveAuthoredAssignment);
 assignmentsRouter.post('/assignments/authoring/:sessionId/preview-attempts', handleStartAssignmentSessionPreviewAttempt);
 assignmentsRouter.post('/assignments/authoring/:sessionId/blocks', handleAddAssignmentBlock);
 assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/delete', handleDeleteAssignmentBlock);

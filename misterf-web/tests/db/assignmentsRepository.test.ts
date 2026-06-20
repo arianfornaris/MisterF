@@ -105,7 +105,6 @@ describe('assignment repository', () => {
       profileId: profile.id,
       quiz: assignmentDraft,
       rubric: assignmentDraft.rubric,
-      status: 'published',
       targetTopic: assignmentDraft.targetTopic,
       title: assignmentDraft.title,
       userId: user.id,
@@ -126,7 +125,6 @@ describe('assignment repository', () => {
         estimatedMinutes: 9,
       },
       rubric: assignmentDraft.rubric,
-      status: 'published',
       targetTopic: assignmentDraft.targetTopic,
       title: 'Updated assignment',
       userId: user.id,
@@ -149,6 +147,17 @@ describe('assignment repository', () => {
       userMessage: 'Build a present perfect task.',
     });
     expect(listAssignmentAuthoringRevisions(session.id)).toHaveLength(1);
+
+    const previewAttempt = createAssignmentAttempt({
+      authoringSessionId: session.id,
+      isPreview: true,
+      profileId: profile.id,
+      snapshot: assignmentDraft,
+      userId: user.id,
+    });
+    expect(previewAttempt.assignmentId).toBeNull();
+    expect(previewAttempt.authoringSessionId).toBe(session.id);
+    expect(previewAttempt.isPreview).toBe(true);
 
     const attempt = createAssignmentAttempt({
       assignmentId: assignment.id,

@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentDraft, handleCreateAssignmentFollowUpConversation, handleDeleteAssignment, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleMoveAssignmentBlock, handlePublishAssignment, handleRestoreAssignment, handleReviseAssignmentDraft, handleSetAssignmentFavorite, handleStartAssignmentAttempt, handleStartAssignmentPreviewAttempt, handleStartAssignmentSessionPreviewAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentDraftMetadata, renderAssignmentAttemptPage, renderAssignmentAuthoringPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentsListPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
+import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentDraft, handleCreateAssignmentFollowUpConversation, handleDeleteAssignment, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignmentDraft, handleSaveAuthoredAssignment, handleSetAssignmentFavorite, handleStartAssignmentAttempt, handleStartAssignmentPreviewAttempt, handleStartAssignmentSessionPreviewAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentDraftMetadata, renderAssignmentAttemptPage, renderAssignmentAuthoringPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentsListPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
 export const assignmentsRouter = express.Router();
 assignmentsRouter.get('/assignments', renderAssignmentsListPage);
 assignmentsRouter.get('/assignments/new', renderAssignmentNewPage);
@@ -9,7 +9,7 @@ assignmentsRouter.post('/assignments/shared/:shareId/start', handleStartAssignme
 assignmentsRouter.get('/assignments/authoring/:sessionId', renderAssignmentAuthoringPage);
 assignmentsRouter.post('/assignments/authoring/:sessionId/save', handleUpdateAssignmentDraftMetadata);
 assignmentsRouter.post('/assignments/authoring/:sessionId/revise', handleReviseAssignmentDraft);
-assignmentsRouter.post('/assignments/authoring/:sessionId/publish', handlePublishAssignment);
+assignmentsRouter.post('/assignments/authoring/:sessionId/save-assignment', handleSaveAuthoredAssignment);
 assignmentsRouter.post('/assignments/authoring/:sessionId/preview-attempts', handleStartAssignmentSessionPreviewAttempt);
 assignmentsRouter.post('/assignments/authoring/:sessionId/blocks', handleAddAssignmentBlock);
 assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/delete', handleDeleteAssignmentBlock);

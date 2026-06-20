@@ -786,4 +786,277 @@ export const migrations: Migration[] = [
         ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
     `,
   },
+  {
+    id: 3,
+    name: 'simplify_assignment_lifecycle',
+    up: `
+      PRAGMA defer_foreign_keys = ON;
+
+      ALTER TABLE assignments DROP COLUMN status;
+      ALTER TABLE assignments DROP COLUMN published_at;
+
+      ALTER TABLE assignment_authoring_sessions
+        RENAME TO assignment_authoring_sessions_old;
+
+      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_user_profile_updated;
+      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_assignment;
+
+      CREATE TABLE assignment_authoring_sessions (
+        id TEXT PRIMARY KEY,
+        assignment_id TEXT,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'drafting' CHECK (status IN ('drafting', 'saved', 'discarded')),
+        initial_prompt TEXT NOT NULL DEFAULT '',
+        messages_json TEXT NOT NULL DEFAULT '[]',
+        current_draft_json TEXT NOT NULL,
+        last_validated_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO assignment_authoring_sessions (
+        id,
+        assignment_id,
+        user_id,
+        profile_id,
+        status,
+        initial_prompt,
+        messages_json,
+        current_draft_json,
+        last_validated_at,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        assignment_id,
+        user_id,
+        profile_id,
+        CASE status
+          WHEN 'published' THEN 'saved'
+          ELSE status
+        END,
+        initial_prompt,
+        messages_json,
+        current_draft_json,
+        last_validated_at,
+        created_at,
+        updated_at
+      FROM assignment_authoring_sessions_old;
+
+      CREATE INDEX idx_assignment_authoring_sessions_user_profile_updated
+        ON assignment_authoring_sessions (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_assignment_authoring_sessions_assignment
+        ON assignment_authoring_sessions (assignment_id, updated_at DESC);
+
+      ALTER TABLE assignment_authoring_revisions
+        RENAME TO assignment_authoring_revisions_old;
+
+      DROP INDEX IF EXISTS idx_assignment_authoring_revisions_session_created;
+
+      CREATE TABLE assignment_authoring_revisions (
+        id TEXT PRIMARY KEY,
+        authoring_session_id TEXT NOT NULL,
+        source TEXT NOT NULL CHECK (source IN ('assistant', 'manual', 'block_add', 'block_revision', 'preview_test')),
+        user_message TEXT,
+        assistant_message TEXT,
+        draft_json TEXT NOT NULL,
+        validation_status TEXT NOT NULL DEFAULT 'valid' CHECK (validation_status IN ('valid', 'invalid')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (authoring_session_id)
+          REFERENCES assignment_authoring_sessions (id)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO assignment_authoring_revisions (
+        id,
+        authoring_session_id,
+        source,
+        user_message,
+        assistant_message,
+        draft_json,
+        validation_status,
+        created_at
+      )
+      SELECT
+        id,
+        authoring_session_id,
+        source,
+        user_message,
+        assistant_message,
+        draft_json,
+        validation_status,
+        created_at
+      FROM assignment_authoring_revisions_old;
+
+      CREATE INDEX idx_assignment_authoring_revisions_session_created
+        ON assignment_authoring_revisions (authoring_session_id, created_at ASC);
+
+      ALTER TABLE assignment_attempts
+        RENAME TO assignment_attempts_old;
+
+      DROP INDEX IF EXISTS idx_assignment_attempts_assignment_created;
+      DROP INDEX IF EXISTS idx_assignment_attempts_user_profile_created;
+      DROP INDEX IF EXISTS idx_assignment_attempts_guest_token;
+      DROP INDEX IF EXISTS idx_assignment_attempts_claim_token;
+
+      CREATE TABLE assignment_attempts (
+        id TEXT PRIMARY KEY,
+        assignment_id TEXT,
+        authoring_session_id TEXT,
+        user_id TEXT,
+        profile_id TEXT,
+        guest_token TEXT UNIQUE,
+        claim_token TEXT UNIQUE,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'evaluating', 'evaluated', 'failed')),
+        is_preview INTEGER NOT NULL DEFAULT 0 CHECK (is_preview IN (0, 1)),
+        snapshot_json TEXT NOT NULL,
+        responses_json TEXT NOT NULL DEFAULT '[]',
+        result_json TEXT,
+        progress_event_id INTEGER,
+        started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        submitted_at TEXT,
+        evaluated_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CHECK (assignment_id IS NOT NULL OR authoring_session_id IS NOT NULL),
+        FOREIGN KEY (assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (authoring_session_id)
+          REFERENCES assignment_authoring_sessions (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (progress_event_id)
+          REFERENCES learner_progress_events (id)
+          ON DELETE SET NULL
+      );
+
+      INSERT INTO assignment_attempts (
+        id,
+        assignment_id,
+        authoring_session_id,
+        user_id,
+        profile_id,
+        guest_token,
+        claim_token,
+        status,
+        is_preview,
+        snapshot_json,
+        responses_json,
+        result_json,
+        progress_event_id,
+        started_at,
+        submitted_at,
+        evaluated_at,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        assignment_id,
+        NULL,
+        user_id,
+        profile_id,
+        guest_token,
+        claim_token,
+        status,
+        is_preview,
+        snapshot_json,
+        responses_json,
+        result_json,
+        progress_event_id,
+        started_at,
+        submitted_at,
+        evaluated_at,
+        created_at,
+        updated_at
+      FROM assignment_attempts_old;
+
+      CREATE INDEX idx_assignment_attempts_assignment_created
+        ON assignment_attempts (assignment_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_authoring_session_created
+        ON assignment_attempts (authoring_session_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_user_profile_created
+        ON assignment_attempts (user_id, profile_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_guest_token
+        ON assignment_attempts (guest_token);
+
+      CREATE INDEX idx_assignment_attempts_claim_token
+        ON assignment_attempts (claim_token);
+
+      ALTER TABLE conversation_assignment_attempt_snapshots
+        RENAME TO conversation_assignment_attempt_snapshots_old;
+
+      DROP INDEX IF EXISTS idx_conversation_assignment_attempt_snapshots_attempt;
+
+      CREATE TABLE conversation_assignment_attempt_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        assignment_attempt_id TEXT NOT NULL,
+        assignment_title TEXT NOT NULL,
+        assignment_description TEXT NOT NULL DEFAULT '',
+        assignment_target_topic TEXT NOT NULL DEFAULT '',
+        assignment_snapshot_json TEXT NOT NULL,
+        responses_json TEXT NOT NULL,
+        result_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (assignment_attempt_id)
+          REFERENCES assignment_attempts (id)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO conversation_assignment_attempt_snapshots (
+        conversation_id,
+        assignment_attempt_id,
+        assignment_title,
+        assignment_description,
+        assignment_target_topic,
+        assignment_snapshot_json,
+        responses_json,
+        result_json,
+        created_at
+      )
+      SELECT
+        conversation_id,
+        assignment_attempt_id,
+        assignment_title,
+        assignment_description,
+        assignment_target_topic,
+        assignment_snapshot_json,
+        responses_json,
+        result_json,
+        created_at
+      FROM conversation_assignment_attempt_snapshots_old;
+
+      CREATE INDEX idx_conversation_assignment_attempt_snapshots_attempt
+        ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
+
+      DROP TABLE conversation_assignment_attempt_snapshots_old;
+      DROP TABLE assignment_attempts_old;
+      DROP TABLE assignment_authoring_revisions_old;
+      DROP TABLE assignment_authoring_sessions_old;
+    `,
+  },
 ];

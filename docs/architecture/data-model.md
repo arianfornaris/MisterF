@@ -267,10 +267,8 @@ Important fields:
 - `instructions`
 - `rubric`
 - `quiz`
-- `status` (`draft` or `published`)
 - favorite/archive metadata
 - optional source/share metadata
-- optional `publishedAt`
 
 `quiz` stores the validated assignment draft. The draft uses ordered blocks with
 stable internal block ids and existing tutor `quiz` item payloads. This keeps
@@ -278,7 +276,8 @@ assignment evaluation aligned with the live tutor quiz contract.
 
 ### Assignment Authoring Session
 
-Represents the AI-assisted workspace where a teacher iterates before publishing.
+Represents the AI-assisted workspace where a teacher iterates before saving an
+assignment resource.
 
 Important fields:
 
@@ -311,7 +310,7 @@ Important fields:
 
 ### Assignment Share Link
 
-Stores the public link token for a published assignment.
+Stores the public-but-unlisted link token for a shared assignment.
 
 Important fields:
 
@@ -327,7 +326,9 @@ snapshot.
 Important fields:
 
 - `id`
-- `assignmentId`
+- optional `assignmentId`
+- optional `authoringSessionId` for teacher previews before the assignment is
+  saved
 - optional `userId`
 - optional `profileId`
 - optional guest and claim tokens
