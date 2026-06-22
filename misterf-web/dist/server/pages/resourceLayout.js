@@ -1,6 +1,7 @@
 import { env } from '../config/env.js';
 export const practiceModulesLayoutCookieName = 'misterf_practice_modules_layout';
 export const chatroomsLayoutCookieName = 'misterf_chatrooms_layout';
+export const assignmentsLayoutCookieName = 'misterf_assignments_layout';
 function readCookieValue(cookieHeader, cookieName) {
     if (!cookieHeader) {
         return null;

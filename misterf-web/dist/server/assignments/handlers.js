@@ -1,6 +1,7 @@
-import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createAssignmentAuthoringRevision, createAssignmentAuthoringSession, createConversationFromAssignmentAttempt, deleteAssignmentForUser, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findAssignmentAuthoringSessionForUser, findProfileForUser, getOrCreateAssignmentShareLink, listAssignmentAttemptsForUser, listAssignmentAuthoringRevisions, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringSession, } from '../db/repository.js';
+import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createAssignmentAuthoringRevision, createAssignmentAuthoringSession, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findAssignmentAuthoringSessionForUser, findProfileForUser, getOrCreateAssignmentShareLink, listAssignmentAttemptsForUser, listAssignmentAuthoringRevisions, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringSession, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+import { assignmentsLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
 import { appendAssignmentBlock, assignmentDraftToStudentQuizBlock, buildAssignmentEvaluationSummary, buildAssignmentResultTitle, createAssignmentDraftFromManualInput, duplicateAssignmentBlock, evaluateAssignmentAttempt, moveAssignmentBlock, normalizeAssignmentResponses, removeAssignmentBlock, safeParseAssignmentDraft, } from '../services/assignments.js';
 import { generateAssignmentBlock, generateAssignmentDraft, generateAssignmentRevision, } from '../services/resourceDrafts.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -49,6 +50,49 @@ const assignmentBlockKinds = [
         value: 'quiz_unscramble_sentence',
     },
 ];
+function normalizeOutlineText(value) {
+    return value.replace(/\s+/g, ' ').trim();
+}
+function formatFallbackBlockKindLabel(kind) {
+    return kind.replace(/^quiz_/, '').replaceAll('_', ' ');
+}
+function formatCountLabel(count, singular, plural) {
+    return `${count} ${count === 1 ? singular : plural}`;
+}
+function buildAssignmentBlockOutlineItems(draft) {
+    return draft.blocks.map((block, index) => {
+        const item = block.item;
+        const kind = assignmentBlockKinds.find((candidate) => candidate.value === item.kind);
+        const metaItems = [];
+        let sentence = '';
+        if (item.kind === 'quiz_translate_to_english' ||
+            item.kind === 'quiz_understand_in_spanish' ||
+            item.kind === 'quiz_fill_in_the_blank_input' ||
+            item.kind === 'quiz_fill_in_the_blank_choice') {
+            sentence = normalizeOutlineText(item.sentence);
+        }
+        if (item.kind === 'quiz_fill_in_the_blank_input' ||
+            item.kind === 'quiz_fill_in_the_blank_choice') {
+            metaItems.push(formatCountLabel(item.blanks.length, 'espacio', 'espacios'));
+        }
+        if (item.kind === 'quiz_multiple_choice') {
+            metaItems.push(formatCountLabel(item.options.length, 'opción', 'opciones'));
+        }
+        if (item.kind === 'quiz_matching_pairs') {
+            metaItems.push(formatCountLabel(item.leftItems.length, 'par', 'pares'));
+        }
+        if (item.kind === 'quiz_unscramble_sentence') {
+            metaItems.push(formatCountLabel(item.tokens.length, 'palabra', 'palabras'));
+        }
+        return {
+            blockNumber: index + 1,
+            kindLabel: kind?.label ?? formatFallbackBlockKindLabel(item.kind),
+            metaItems,
+            prompt: item.prompt,
+            sentence,
+        };
+    });
+}
 function ensureVerifiedAssignmentUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -344,6 +388,7 @@ export function renderAssignmentsListPage(request, response) {
     const showArchived = readField(request.query.archived, 10) === '1';
     const query = readField(request.query.q, 240);
     const normalizedQuery = normalizeSearchText(query);
+    const assignmentLayout = resolveResourceLayout(request, response, assignmentsLayoutCookieName);
     const allAssignments = listAssignmentsForProfile({
         includeArchived: true,
         profileId: auth.activeProfile.id,
@@ -370,6 +415,7 @@ export function renderAssignmentsListPage(request, response) {
             title: `Tareas - ${appDocumentTitle}`,
             user: auth.user,
         }),
+        assignmentLayout,
         assignmentItems: buildAssignmentListItems(assignments),
         assignmentQuery: query,
         hasArchivedAssignments,
@@ -838,7 +884,7 @@ export function renderAssignmentShowPage(request, response) {
             user: resolved.user,
         }),
         assignmentAttempts: buildAssignmentAttemptListItems(attempts),
-        assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
+        assignmentBlockOutlineItems: buildAssignmentBlockOutlineItems(draft),
         draft,
         selectedAssignment: resolved.assignment,
         shareAutoOpen: readField(request.query.share, 20) === 'link',
@@ -851,32 +897,27 @@ export function handleSetAssignmentFavorite(request, response) {
     if (!resolved) {
         return;
     }
+    const returnTo = readReturnTo(request.body.returnTo, `/assignments/${encodeURIComponent(resolved.assignment.id)}`);
     setAssignmentFavoriteForUser(resolved.assignment.id, resolved.user.id, !resolved.assignment.isFavorite);
-    response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
+    response.redirect(returnTo);
 }
 export function handleArchiveAssignment(request, response) {
     const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
     }
+    const returnTo = readReturnTo(request.body.returnTo, '/assignments');
     archiveAssignmentForUser(resolved.assignment.id, resolved.user.id);
-    response.redirect('/assignments');
+    response.redirect(returnTo);
 }
 export function handleRestoreAssignment(request, response) {
     const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
     }
+    const returnTo = readReturnTo(request.body.returnTo, `/assignments/${encodeURIComponent(resolved.assignment.id)}`);
     restoreAssignmentForUser(resolved.assignment.id, resolved.user.id);
-    response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
-}
-export function handleDeleteAssignment(request, response) {
-    const resolved = resolveOwnAssignment(request, response);
-    if (!resolved) {
-        return;
-    }
-    deleteAssignmentForUser(resolved.assignment.id, resolved.user.id);
-    response.redirect('/assignments');
+    response.redirect(returnTo);
 }
 export function renderSharedAssignmentPage(request, response) {
     const shareId = readField(request.params.shareId, 120);

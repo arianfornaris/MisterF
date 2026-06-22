@@ -1544,12 +1544,6 @@ export function restoreAssignmentForUser(assignmentId, userId) {
         .run(assignmentId, userId);
     return findAssignmentForUser(assignmentId, userId);
 }
-export function deleteAssignmentForUser(assignmentId, userId) {
-    const result = getDb()
-        .prepare('DELETE FROM assignments WHERE id = ? AND user_id = ?')
-        .run(assignmentId, userId);
-    return result.changes > 0;
-}
 export function findAssignmentShareLinkById(id) {
     const row = getDb()
         .prepare(`

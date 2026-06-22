@@ -7,7 +7,6 @@ import {
   createAssignmentAuthoringRevision,
   createAssignmentAuthoringSession,
   createConversationFromAssignmentAttempt,
-  deleteAssignmentForUser,
   findAssignmentAttemptById,
   findAssignmentById,
   findAssignmentForUser,
@@ -39,6 +38,10 @@ import {
   getHomeAuthMessage,
   normalizeSearchText,
 } from '../pages/shell.js';
+import {
+  assignmentsLayoutCookieName,
+  resolveResourceLayout,
+} from '../pages/resourceLayout.js';
 import {
   appendAssignmentBlock,
   assignmentDraftToStudentQuizBlock,
@@ -72,6 +75,14 @@ type AssignmentAuthoringMessage = {
   content: string;
   role: 'assistant' | 'user';
   timestamp: string;
+};
+
+type AssignmentBlockOutlineItem = {
+  blockNumber: number;
+  kindLabel: string;
+  metaItems: string[];
+  prompt: string;
+  sentence: string;
 };
 
 const assignmentBlockKinds = [
@@ -116,6 +127,63 @@ const assignmentBlockKinds = [
     value: 'quiz_unscramble_sentence',
   },
 ] as const;
+
+function normalizeOutlineText(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function formatFallbackBlockKindLabel(kind: string): string {
+  return kind.replace(/^quiz_/, '').replaceAll('_', ' ');
+}
+
+function formatCountLabel(count: number, singular: string, plural: string): string {
+  return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function buildAssignmentBlockOutlineItems(draft: AssignmentDraft): AssignmentBlockOutlineItem[] {
+  return draft.blocks.map((block, index) => {
+    const item = block.item;
+    const kind = assignmentBlockKinds.find((candidate) => candidate.value === item.kind);
+    const metaItems: string[] = [];
+    let sentence = '';
+
+    if (
+      item.kind === 'quiz_translate_to_english' ||
+      item.kind === 'quiz_understand_in_spanish' ||
+      item.kind === 'quiz_fill_in_the_blank_input' ||
+      item.kind === 'quiz_fill_in_the_blank_choice'
+    ) {
+      sentence = normalizeOutlineText(item.sentence);
+    }
+
+    if (
+      item.kind === 'quiz_fill_in_the_blank_input' ||
+      item.kind === 'quiz_fill_in_the_blank_choice'
+    ) {
+      metaItems.push(formatCountLabel(item.blanks.length, 'espacio', 'espacios'));
+    }
+
+    if (item.kind === 'quiz_multiple_choice') {
+      metaItems.push(formatCountLabel(item.options.length, 'opción', 'opciones'));
+    }
+
+    if (item.kind === 'quiz_matching_pairs') {
+      metaItems.push(formatCountLabel(item.leftItems.length, 'par', 'pares'));
+    }
+
+    if (item.kind === 'quiz_unscramble_sentence') {
+      metaItems.push(formatCountLabel(item.tokens.length, 'palabra', 'palabras'));
+    }
+
+    return {
+      blockNumber: index + 1,
+      kindLabel: kind?.label ?? formatFallbackBlockKindLabel(item.kind),
+      metaItems,
+      prompt: item.prompt,
+      sentence,
+    };
+  });
+}
 
 function ensureVerifiedAssignmentUser(
   request: Request,
@@ -513,6 +581,11 @@ export function renderAssignmentsListPage(request: Request, response: Response):
   const showArchived = readField(request.query.archived, 10) === '1';
   const query = readField(request.query.q, 240);
   const normalizedQuery = normalizeSearchText(query);
+  const assignmentLayout = resolveResourceLayout(
+    request,
+    response,
+    assignmentsLayoutCookieName,
+  );
   const allAssignments = listAssignmentsForProfile({
     includeArchived: true,
     profileId: auth.activeProfile.id,
@@ -543,6 +616,7 @@ export function renderAssignmentsListPage(request: Request, response: Response):
       title: `Tareas - ${appDocumentTitle}`,
       user: auth.user,
     }),
+    assignmentLayout,
     assignmentItems: buildAssignmentListItems(assignments),
     assignmentQuery: query,
     hasArchivedAssignments,
@@ -1079,7 +1153,7 @@ export function renderAssignmentShowPage(request: Request, response: Response): 
       user: resolved.user,
     }),
     assignmentAttempts: buildAssignmentAttemptListItems(attempts),
-    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
+    assignmentBlockOutlineItems: buildAssignmentBlockOutlineItems(draft),
     draft,
     selectedAssignment: resolved.assignment,
     shareAutoOpen: readField(request.query.share, 20) === 'link',
@@ -1094,12 +1168,16 @@ export function handleSetAssignmentFavorite(request: Request, response: Response
     return;
   }
 
+  const returnTo = readReturnTo(
+    request.body.returnTo,
+    `/assignments/${encodeURIComponent(resolved.assignment.id)}`,
+  );
   setAssignmentFavoriteForUser(
     resolved.assignment.id,
     resolved.user.id,
     !resolved.assignment.isFavorite,
   );
-  response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
+  response.redirect(returnTo);
 }
 
 export function handleArchiveAssignment(request: Request, response: Response): void {
@@ -1108,8 +1186,9 @@ export function handleArchiveAssignment(request: Request, response: Response): v
     return;
   }
 
+  const returnTo = readReturnTo(request.body.returnTo, '/assignments');
   archiveAssignmentForUser(resolved.assignment.id, resolved.user.id);
-  response.redirect('/assignments');
+  response.redirect(returnTo);
 }
 
 export function handleRestoreAssignment(request: Request, response: Response): void {
@@ -1118,18 +1197,12 @@ export function handleRestoreAssignment(request: Request, response: Response): v
     return;
   }
 
+  const returnTo = readReturnTo(
+    request.body.returnTo,
+    `/assignments/${encodeURIComponent(resolved.assignment.id)}`,
+  );
   restoreAssignmentForUser(resolved.assignment.id, resolved.user.id);
-  response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
-}
-
-export function handleDeleteAssignment(request: Request, response: Response): void {
-  const resolved = resolveOwnAssignment(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  deleteAssignmentForUser(resolved.assignment.id, resolved.user.id);
-  response.redirect('/assignments');
+  response.redirect(returnTo);
 }
 
 export function renderSharedAssignmentPage(request: Request, response: Response): void {

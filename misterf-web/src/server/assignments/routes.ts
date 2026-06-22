@@ -5,7 +5,6 @@ import {
   handleClaimAssignmentAttempt,
   handleCreateAssignmentDraft,
   handleCreateAssignmentFollowUpConversation,
-  handleDeleteAssignment,
   handleDeleteAssignmentBlock,
   handleDuplicateAssignmentBlock,
   handleMoveAssignmentBlock,
@@ -50,7 +49,6 @@ assignmentsRouter.get('/assignments/:assignmentId', renderAssignmentShowPage);
 assignmentsRouter.post('/assignments/:assignmentId/favorite', handleSetAssignmentFavorite);
 assignmentsRouter.post('/assignments/:assignmentId/archive', handleArchiveAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/restore', handleRestoreAssignment);
-assignmentsRouter.post('/assignments/:assignmentId/delete', handleDeleteAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/preview-attempts', handleStartAssignmentPreviewAttempt);
 assignmentsRouter.get('/assignment-attempts/:attemptId', renderAssignmentAttemptPage);
 assignmentsRouter.get('/assignment-attempts/:attemptId/result', renderAssignmentResultPage);

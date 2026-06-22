@@ -1,6 +1,6 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view assignments-page">
+<section class="app-resource-view assignments-page" data-resource-layout="<%= assignmentLayout %>">
   <div class="resource-page-header">
     <div>
       <p class="resource-eyebrow">Recursos</p>
@@ -23,13 +23,65 @@
       <% } %>
       <button class="btn btn-outline-secondary" type="submit">Buscar</button>
     </div>
-    <% if (hasArchivedAssignments) { %>
-      <a class="btn btn-outline-secondary flex-shrink-0" href="/assignments<%= showArchivedAssignments ? '' : '?archived=1' %>">
-        <i class="bi <%= showArchivedAssignments ? 'bi-inbox' : 'bi-archive' %> me-1" aria-hidden="true"></i>
-        <%= showArchivedAssignments ? 'Activas' : 'Archivadas' %>
-      </a>
-    <% } %>
   </form>
+
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <% if (hasArchivedAssignments) { %>
+        <%
+          const assignmentArchiveParams = new URLSearchParams();
+          if (assignmentQuery) {
+            assignmentArchiveParams.set('q', assignmentQuery);
+          }
+          if (!showArchivedAssignments) {
+            assignmentArchiveParams.set('archived', '1');
+          }
+          const assignmentArchiveHref = `/assignments${assignmentArchiveParams.toString() ? `?${assignmentArchiveParams.toString()}` : ''}`;
+        %>
+        <a
+          class="btn <%= showArchivedAssignments ? 'btn-primary' : 'btn-secondary' %> btn-sm"
+          href="<%= assignmentArchiveHref %>"
+        >
+          <i class="bi <%= showArchivedAssignments ? 'bi-archive-fill' : 'bi-archive' %>" aria-hidden="true"></i>
+          <span class="ms-1"><%= showArchivedAssignments ? 'Ocultar archivadas' : 'Ver archivadas' %></span>
+        </a>
+      <% } %>
+    </div>
+    <%
+      const assignmentCardsLayoutParams = new URLSearchParams();
+      const assignmentListLayoutParams = new URLSearchParams();
+      if (assignmentQuery) {
+        assignmentCardsLayoutParams.set('q', assignmentQuery);
+        assignmentListLayoutParams.set('q', assignmentQuery);
+      }
+      if (showArchivedAssignments) {
+        assignmentCardsLayoutParams.set('archived', '1');
+        assignmentListLayoutParams.set('archived', '1');
+      }
+      assignmentCardsLayoutParams.set('layout', 'cards');
+      assignmentListLayoutParams.set('layout', 'list');
+      const assignmentCardsLayoutHref = `/assignments?${assignmentCardsLayoutParams.toString()}`;
+      const assignmentListLayoutHref = `/assignments?${assignmentListLayoutParams.toString()}`;
+    %>
+    <div class="btn-group btn-group-sm" role="group" aria-label="Cambiar presentación de tareas">
+      <a
+        href="<%= assignmentCardsLayoutHref %>"
+        class="btn <%= assignmentLayout === 'cards' ? 'btn-primary' : 'btn-secondary' %>"
+        title="Mostrar como cards"
+      >
+        <i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
+        <span class="visually-hidden">Mostrar como cards</span>
+      </a>
+      <a
+        href="<%= assignmentListLayoutHref %>"
+        class="btn <%= assignmentLayout === 'list' ? 'btn-primary' : 'btn-secondary' %>"
+        title="Mostrar como lista"
+      >
+        <i class="bi bi-list-ul" aria-hidden="true"></i>
+        <span class="visually-hidden">Mostrar como lista</span>
+      </a>
+    </div>
+  </div>
 
   <% if (assignmentItems.length === 0) { %>
     <div class="resource-empty-state">
@@ -37,28 +89,152 @@
       <a class="btn btn-primary" href="/assignments/new">Crear una tarea</a>
     </div>
   <% } else { %>
-    <div class="list-group resource-list">
-      <% assignmentItems.forEach((assignment) => { %>
-        <a class="list-group-item list-group-item-action" href="/assignments/<%= encodeURIComponent(assignment.id) %>">
-          <div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
-            <div>
-              <div class="d-flex flex-wrap align-items-center gap-2">
-                <h2 class="h5 mb-1"><%= assignment.title %></h2>
-                <% if (assignment.isFavorite) { %><span class="badge text-bg-warning">Favorita</span><% } %>
-                <% if (assignment.archivedAt) { %><span class="badge text-bg-secondary">Archivada</span><% } %>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h5 mb-0"><%= showArchivedAssignments ? 'Tareas archivadas' : 'Tus tareas' %></h2>
+      <span class="badge text-bg-light border"><%= assignmentItems.length %></span>
+    </div>
+    <% if (assignmentLayout === 'list') { %>
+      <div class="list-group shadow-sm">
+        <% assignmentItems.forEach((assignment) => { %>
+          <div class="list-group-item position-relative d-flex align-items-start justify-content-between gap-2">
+            <div class="min-w-0 flex-grow-1">
+              <a class="stretched-link" href="/assignments/<%= encodeURIComponent(assignment.id) %>">
+                <span class="visually-hidden">Ver detalles de la tarea <%= assignment.title %></span>
+              </a>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h3 class="h6 fw-normal mb-0">
+                  <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i><%= assignment.title %>
+                </h3>
+                <span class="badge rounded-pill text-bg-light border"><%= assignment.blockCount %> <%= assignment.blockCount === 1 ? 'bloque' : 'bloques' %></span>
+                <% if (assignment.isFavorite) { %><span class="badge text-bg-light border">Favorita</span><% } %>
+                <% if (assignment.archivedAt) { %><span class="badge text-bg-light border">Archivada</span><% } %>
               </div>
-              <p class="mb-2 text-body-secondary"><%= assignment.description || assignment.targetTopic || 'Sin descripción' %></p>
+              <p class="mb-0 small text-body-secondary">
+                <%= assignment.description || assignment.targetTopic || 'Sin descripción' %>
+                <span class="mx-1">·</span>
+                <%= assignment.relativeUpdatedAt %>
+              </p>
+            </div>
+            <div class="dropdown position-relative z-1 flex-shrink-0 ms-2">
+              <button
+                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Acciones de la tarea"
+                title="Acciones de la tarea"
+              >
+                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <% if (!assignment.archivedAt) { %>
+                  <li><a class="dropdown-item" href="/assignments/<%= encodeURIComponent(assignment.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
+                <% } %>
+                <li>
+                  <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/favorite">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                    <button class="dropdown-item" type="submit"><i class="bi <%= assignment.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i><%= assignment.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %></button>
+                  </form>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/<%= assignment.archivedAt ? 'restore' : 'archive' %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                    <button class="dropdown-item" type="submit"><i class="bi <%= assignment.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i><%= assignment.archivedAt ? 'Restaurar' : 'Archivar' %></button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="practice-modules-grid assignments-grid">
+        <% assignmentItems.forEach((assignment) => { %>
+          <article class="card shadow-sm h-100 practice-module-card assignment-list-card position-relative">
+            <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between gap-3">
+              <span><i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea</span>
+              <div class="dropdown position-relative z-1">
+                <button
+                  class="btn btn-sm btn-link text-white text-decoration-none p-0 resource-card-menu-button"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Acciones de la tarea"
+                  title="Acciones de la tarea"
+                >
+                  <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <% if (!assignment.archivedAt) { %>
+                    <li>
+                      <a class="dropdown-item" href="/assignments/<%= encodeURIComponent(assignment.id) %>?share=link">
+                        <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
+                        Obtener enlace
+                      </a>
+                    </li>
+                  <% } %>
+                  <li>
+                    <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/favorite">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                      <button class="dropdown-item" type="submit">
+                        <i class="bi <%= assignment.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i>
+                        <%= assignment.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>
+                      </button>
+                    </form>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/<%= assignment.archivedAt ? 'restore' : 'archive' %>">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                      <button class="dropdown-item" type="submit">
+                        <i class="bi <%= assignment.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                        <%= assignment.archivedAt ? 'Restaurar' : 'Archivar' %>
+                      </button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-body">
+              <a class="stretched-link" href="/assignments/<%= encodeURIComponent(assignment.id) %>">
+                <span class="visually-hidden">Ver detalles de la tarea <%= assignment.title %></span>
+              </a>
+              <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                <h2 class="card-title h4 mb-0"><%= assignment.title %></h2>
+                <span class="badge rounded-pill text-bg-light border practice-module-chat-count-badge">
+                  <%= assignment.blockCount %> <%= assignment.blockCount === 1 ? 'bloque' : 'bloques' %>
+                </span>
+                <% if (assignment.isFavorite) { %>
+                  <span class="badge text-bg-light border">Favorita</span>
+                <% } %>
+                <% if (assignment.archivedAt) { %>
+                  <span class="badge text-bg-light border">Archivada</span>
+                <% } %>
+              </div>
+              <p class="card-text mb-2 text-body-secondary"><%= assignment.description || assignment.targetTopic || 'Sin descripción' %></p>
               <div class="resource-meta-row">
-                <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= assignment.blockCount %> bloques</span>
+                <% if (assignment.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= assignment.targetTopic %></span><% } %>
                 <% if (assignment.estimatedMinutes) { %><span><i class="bi bi-clock" aria-hidden="true"></i> <%= assignment.estimatedMinutes %> min</span><% } %>
                 <span><i class="bi bi-calendar" aria-hidden="true"></i> <%= assignment.relativeUpdatedAt %></span>
               </div>
             </div>
-            <i class="bi bi-chevron-right text-body-secondary" aria-hidden="true"></i>
-          </div>
-        </a>
-      <% }) %>
-    </div>
+            <% if (!assignment.archivedAt) { %>
+              <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
+                <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/preview-attempts">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button class="btn btn-primary btn-sm" type="submit">Probar</button>
+                </form>
+              </div>
+            <% } %>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
   <% } %>
 
 </section>

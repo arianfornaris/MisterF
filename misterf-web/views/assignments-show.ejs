@@ -32,40 +32,77 @@
   <div class="resource-action-row">
     <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/preview-attempts">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn btn-outline-primary" type="submit">
+      <button class="btn btn-primary" type="submit">
         <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
       </button>
     </form>
-    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/favorite">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn btn-outline-secondary" type="submit">
-        <i class="bi <%= selectedAssignment.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-1" aria-hidden="true"></i>
-        <%= selectedAssignment.isFavorite ? 'Quitar favorito' : 'Favorita' %>
+    <div class="dropdown">
+      <button
+        class="btn btn-secondary dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        Opciones
       </button>
-    </form>
-    <% if (selectedAssignment.archivedAt) { %>
-      <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/restore">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn btn-outline-secondary" type="submit">Restaurar</button>
-      </form>
-    <% } else { %>
-      <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/archive">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn btn-outline-secondary" type="submit">Archivar</button>
-      </form>
-    <% } %>
-    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/delete">
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn btn-outline-danger" type="submit">Eliminar</button>
-    </form>
+      <ul class="dropdown-menu">
+        <li>
+          <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/favorite">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="dropdown-item" type="submit">
+              <i class="bi <%= selectedAssignment.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i>
+              <%= selectedAssignment.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>
+            </button>
+          </form>
+        </li>
+        <li>
+          <form
+            method="post"
+            action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/<%= selectedAssignment.archivedAt ? 'restore' : 'archive' %>"
+            onsubmit="return window.confirm('<%= selectedAssignment.archivedAt ? '¿Seguro que quieres restaurar esta tarea?' : '¿Seguro que quieres archivar esta tarea? Podrás recuperarla después desde Archivadas.' %>');"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="dropdown-item" type="submit">
+              <i class="bi <%= selectedAssignment.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+              <%= selectedAssignment.archivedAt ? 'Restaurar tarea' : 'Archivar tarea' %>
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <div data-assignment-quiz-host data-assignment-quiz-mode="preview"></div>
-  <div class="assignment-block-list" data-assignment-quiz-fallback>
-    <% draft.blocks.forEach((block, index) => { %>
-      <%- include('partials/assignment-item-card', { assignmentItemMode: 'preview', block, csrfToken, draft, index, selectedSession: null }) %>
-    <% }) %>
-  </div>
+  <section class="resource-section">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <h2 class="h5 mb-0">Bloques</h2>
+      <span class="badge text-bg-light border"><%= draft.blocks.length %></span>
+    </div>
+    <div class="list-group shadow-sm">
+      <% assignmentBlockOutlineItems.forEach((block) => { %>
+        <article class="list-group-item">
+          <div class="d-flex align-items-start gap-3">
+            <span class="badge rounded-pill text-bg-light border flex-shrink-0">#<%= block.blockNumber %></span>
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <h3 class="h6 mb-0 text-break"><%= block.prompt %></h3>
+                <span class="badge text-bg-secondary"><%= block.kindLabel %></span>
+              </div>
+              <% if (block.sentence) { %>
+                <p class="mb-2 text-body-secondary text-break"><%= block.sentence %></p>
+              <% } %>
+              <% if (block.metaItems.length > 0) { %>
+                <div class="d-flex flex-wrap gap-2">
+                  <% block.metaItems.forEach((item) => { %>
+                    <span class="badge text-bg-light border"><%= item %></span>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
 
   <% if (assignmentAttempts.length > 0) { %>
     <div class="resource-section">
@@ -116,7 +153,5 @@
     </div>
   </div>
 </div>
-
-<script type="application/json" data-assignment-quiz-json><%- assignmentQuizJson %></script>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>
