@@ -266,41 +266,8 @@ export type StoredAssignmentShareLink = {
   revokedAt: string | null;
 };
 
-export type StoredAssignmentAuthoringSession = {
-  assignmentId: string | null;
-  createdAt: string;
-  currentDraft: Record<string, unknown>;
-  id: string;
-  initialPrompt: string;
-  lastValidatedAt: string | null;
-  messages: unknown[];
-  profileId: string;
-  status: 'discarded' | 'drafting' | 'saved';
-  updatedAt: string;
-  userId: string;
-};
-
-export type AssignmentAuthoringRevisionSource =
-  | 'assistant'
-  | 'block_add'
-  | 'block_revision'
-  | 'manual'
-  | 'preview_test';
-
-export type StoredAssignmentAuthoringRevision = {
-  assistantMessage: string | null;
-  authoringSessionId: string;
-  createdAt: string;
-  draft: Record<string, unknown>;
-  id: string;
-  source: AssignmentAuthoringRevisionSource;
-  userMessage: string | null;
-  validationStatus: 'invalid' | 'valid';
-};
-
 export type StoredAssignmentAttempt = {
-  assignmentId: string | null;
-  authoringSessionId: string | null;
+  assignmentId: string;
   claimToken: string | null;
   createdAt: string;
   evaluatedAt: string | null;
@@ -643,34 +610,8 @@ type AssignmentShareLinkRow = {
   revoked_at: string | null;
 };
 
-type AssignmentAuthoringSessionRow = {
-  assignment_id: string | null;
-  created_at: string;
-  current_draft_json: string;
-  id: string;
-  initial_prompt: string;
-  last_validated_at: string | null;
-  messages_json: string;
-  profile_id: string;
-  status: 'discarded' | 'drafting' | 'saved';
-  updated_at: string;
-  user_id: string;
-};
-
-type AssignmentAuthoringRevisionRow = {
-  assistant_message: string | null;
-  authoring_session_id: string;
-  created_at: string;
-  draft_json: string;
-  id: string;
-  source: AssignmentAuthoringRevisionSource;
-  user_message: string | null;
-  validation_status: 'invalid' | 'valid';
-};
-
 type AssignmentAttemptRow = {
-  assignment_id: string | null;
-  authoring_session_id: string | null;
+  assignment_id: string;
   claim_token: string | null;
   created_at: string;
   evaluated_at: string | null;
@@ -902,43 +843,9 @@ function toStoredAssignmentShareLink(
   };
 }
 
-function toStoredAssignmentAuthoringSession(
-  row: AssignmentAuthoringSessionRow,
-): StoredAssignmentAuthoringSession {
-  return {
-    assignmentId: row.assignment_id,
-    createdAt: row.created_at,
-    currentDraft: parseJsonRecord(row.current_draft_json),
-    id: row.id,
-    initialPrompt: row.initial_prompt,
-    lastValidatedAt: row.last_validated_at,
-    messages: parseJsonArray(row.messages_json),
-    profileId: row.profile_id,
-    status: row.status,
-    updatedAt: row.updated_at,
-    userId: row.user_id,
-  };
-}
-
-function toStoredAssignmentAuthoringRevision(
-  row: AssignmentAuthoringRevisionRow,
-): StoredAssignmentAuthoringRevision {
-  return {
-    assistantMessage: row.assistant_message,
-    authoringSessionId: row.authoring_session_id,
-    createdAt: row.created_at,
-    draft: parseJsonRecord(row.draft_json),
-    id: row.id,
-    source: row.source,
-    userMessage: row.user_message,
-    validationStatus: row.validation_status,
-  };
-}
-
 function toStoredAssignmentAttempt(row: AssignmentAttemptRow): StoredAssignmentAttempt {
   return {
     assignmentId: row.assignment_id,
-    authoringSessionId: row.authoring_session_id,
     claimToken: row.claim_token,
     createdAt: row.created_at,
     evaluatedAt: row.evaluated_at,
@@ -3109,210 +3016,13 @@ export function getOrCreateAssignmentShareLink(
   return created;
 }
 
-export function createAssignmentAuthoringSession(input: {
-  currentDraft: Record<string, unknown>;
-  initialPrompt: string;
-  messages?: unknown[];
-  profileId: string;
-  userId: string;
-}): StoredAssignmentAuthoringSession {
-  const id = randomUUID();
-  getDb()
-    .prepare(
-      `
-        INSERT INTO assignment_authoring_sessions (
-          id,
-          user_id,
-          profile_id,
-          initial_prompt,
-          messages_json,
-          current_draft_json,
-          last_validated_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-      `,
-    )
-    .run(
-      id,
-      input.userId,
-      input.profileId,
-      input.initialPrompt,
-      JSON.stringify(input.messages ?? []),
-      JSON.stringify(input.currentDraft),
-    );
-
-  const session = findAssignmentAuthoringSessionForUser(id, input.userId);
-  if (!session) {
-    throw new Error('Could not load newly created assignment authoring session.');
-  }
-
-  return session;
-}
-
-export function findAssignmentAuthoringSessionForUser(
-  id: string,
-  userId: string,
-): StoredAssignmentAuthoringSession | null {
-  const row = getDb()
-    .prepare(
-      `
-        SELECT
-          assignment_id,
-          created_at,
-          current_draft_json,
-          id,
-          initial_prompt,
-          last_validated_at,
-          messages_json,
-          profile_id,
-          status,
-          updated_at,
-          user_id
-        FROM assignment_authoring_sessions
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .get(id, userId) as AssignmentAuthoringSessionRow | undefined;
-
-  return row ? toStoredAssignmentAuthoringSession(row) : null;
-}
-
-export function updateAssignmentAuthoringSession(input: {
-  assignmentId?: string | null;
-  currentDraft: Record<string, unknown>;
-  messages?: unknown[];
-  sessionId: string;
-  status?: 'discarded' | 'drafting' | 'saved';
-  userId: string;
-}): StoredAssignmentAuthoringSession | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE assignment_authoring_sessions
-        SET assignment_id = COALESCE(?, assignment_id),
-            current_draft_json = ?,
-            messages_json = COALESCE(?, messages_json),
-            status = COALESCE(?, status),
-            last_validated_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(
-      input.assignmentId ?? null,
-      JSON.stringify(input.currentDraft),
-      input.messages ? JSON.stringify(input.messages) : null,
-      input.status ?? null,
-      input.sessionId,
-      input.userId,
-    );
-
-  return findAssignmentAuthoringSessionForUser(input.sessionId, input.userId);
-}
-
-export function createAssignmentAuthoringRevision(input: {
-  assistantMessage?: string | null;
-  draft: Record<string, unknown>;
-  sessionId: string;
-  source: AssignmentAuthoringRevisionSource;
-  userMessage?: string | null;
-  validationStatus?: 'invalid' | 'valid';
-}): StoredAssignmentAuthoringRevision {
-  const id = randomUUID();
-  getDb()
-    .prepare(
-      `
-        INSERT INTO assignment_authoring_revisions (
-          id,
-          authoring_session_id,
-          source,
-          user_message,
-          assistant_message,
-          draft_json,
-          validation_status
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-    )
-    .run(
-      id,
-      input.sessionId,
-      input.source,
-      input.userMessage ?? null,
-      input.assistantMessage ?? null,
-      JSON.stringify(input.draft),
-      input.validationStatus ?? 'valid',
-    );
-
-  const revision = findAssignmentAuthoringRevisionById(id);
-  if (!revision) {
-    throw new Error('Could not load newly created assignment authoring revision.');
-  }
-
-  return revision;
-}
-
-export function findAssignmentAuthoringRevisionById(
-  id: string,
-): StoredAssignmentAuthoringRevision | null {
-  const row = getDb()
-    .prepare(
-      `
-        SELECT
-          assistant_message,
-          authoring_session_id,
-          created_at,
-          draft_json,
-          id,
-          source,
-          user_message,
-          validation_status
-        FROM assignment_authoring_revisions
-        WHERE id = ?
-      `,
-    )
-    .get(id) as AssignmentAuthoringRevisionRow | undefined;
-
-  return row ? toStoredAssignmentAuthoringRevision(row) : null;
-}
-
-export function listAssignmentAuthoringRevisions(
-  sessionId: string,
-): StoredAssignmentAuthoringRevision[] {
-  const rows = getDb()
-    .prepare(
-      `
-        SELECT
-          assistant_message,
-          authoring_session_id,
-          created_at,
-          draft_json,
-          id,
-          source,
-          user_message,
-          validation_status
-        FROM assignment_authoring_revisions
-        WHERE authoring_session_id = ?
-        ORDER BY created_at ASC
-      `,
-    )
-    .all(sessionId) as AssignmentAuthoringRevisionRow[];
-
-  return rows.map(toStoredAssignmentAuthoringRevision);
-}
-
 export function createAssignmentAttempt(input: {
-  assignmentId?: string | null;
-  authoringSessionId?: string | null;
+  assignmentId: string;
   isPreview?: boolean;
   profileId?: string | null;
   snapshot: Record<string, unknown>;
   userId?: string | null;
 }): StoredAssignmentAttempt {
-  if (!input.assignmentId && !input.authoringSessionId) {
-    throw new Error('Assignment attempts require an assignment or authoring session.');
-  }
-
   const id = randomUUID();
   const isGuest = !input.userId;
   const guestToken = isGuest ? randomBytes(24).toString('base64url') : null;
@@ -3323,7 +3033,6 @@ export function createAssignmentAttempt(input: {
         INSERT INTO assignment_attempts (
           id,
           assignment_id,
-          authoring_session_id,
           user_id,
           profile_id,
           guest_token,
@@ -3331,13 +3040,12 @@ export function createAssignmentAttempt(input: {
           is_preview,
           snapshot_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
       id,
-      input.assignmentId ?? null,
-      input.authoringSessionId ?? null,
+      input.assignmentId,
       input.userId ?? null,
       input.profileId ?? null,
       guestToken,
@@ -3360,7 +3068,6 @@ export function findAssignmentAttemptById(id: string): StoredAssignmentAttempt |
       `
         SELECT
           assignment_id,
-          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -3402,7 +3109,6 @@ export function findAssignmentAttemptByGuestToken(
       `
         SELECT
           assignment_id,
-          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -3436,7 +3142,6 @@ export function findAssignmentAttemptByClaimToken(
       `
         SELECT
           assignment_id,
-          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -3464,6 +3169,7 @@ export function findAssignmentAttemptByClaimToken(
 
 export function listAssignmentAttemptsForUser(input: {
   assignmentId?: string;
+  includePreview?: boolean;
   profileId: string;
   userId: string;
 }): StoredAssignmentAttempt[] {
@@ -3472,7 +3178,6 @@ export function listAssignmentAttemptsForUser(input: {
       `
         SELECT
           assignment_id,
-          authoring_session_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -3493,6 +3198,7 @@ export function listAssignmentAttemptsForUser(input: {
         WHERE user_id = ?
           AND profile_id = ?
           AND (? IS NULL OR assignment_id = ?)
+          AND (? = 1 OR is_preview = 0)
         ORDER BY created_at DESC
       `,
     )
@@ -3501,6 +3207,7 @@ export function listAssignmentAttemptsForUser(input: {
       input.profileId,
       input.assignmentId ?? null,
       input.assignmentId ?? null,
+      input.includePreview ? 1 : 0,
     ) as AssignmentAttemptRow[];
 
   return rows.map(toStoredAssignmentAttempt);

@@ -583,39 +583,6 @@ When a student chooses follow-up practice:
 
 Possible first-pass tables:
 
-### `assignment_authoring_sessions`
-
-- `id`
-- `user_id`
-- `profile_id`
-- optional `assignment_id` after the assignment is saved
-- `status` (`drafting`, `saved`, `discarded`)
-- `initial_prompt`
-- `messages_json`
-- `current_draft_json`
-- `last_validated_at`
-- timestamps
-
-Authoring sessions preserve the conversation and current draft while the teacher
-iterates with Mr. F. The current draft should remain quiz-compatible at every
-saved step.
-
-### `assignment_authoring_revisions`
-
-- `id`
-- `authoring_session_id`
-- `source` (`assistant`, `manual`, `block_add`, `block_revision`,
-  `preview_test`)
-- optional `user_message`
-- optional `assistant_message`
-- `draft_json`
-- `validation_status`
-- `created_at`
-
-Revision history can start as a compact audit log rather than a full undo
-system. It gives support and future AI agents enough context to understand how a
-saved assignment was produced.
-
 ### `assignments`
 
 - `id`
@@ -654,9 +621,7 @@ This can mirror existing resource share-link patterns.
 ### `assignment_attempts`
 
 - `id`
-- optional `assignment_id`
-- optional `authoring_session_id` for teacher previews before the assignment is
-  saved
+- `assignment_id`
 - optional `user_id`
 - optional `profile_id`
 - guest/session identifier or claim token for unauthenticated attempts
@@ -883,8 +848,8 @@ answers unless full LLM tracing is explicitly enabled.
    module, or offer both?
 10. Should AI-generated blocks be inserted immediately as draft blocks, or
     require an explicit `Accept block` action after preview?
-11. Should authoring revisions consume credits per LLM call, or should the app
-    present an estimated authoring-session cost before generation?
+11. Should assignment authoring show an estimated session cost before each
+    generation request, or only charge per accepted AI operation?
 
 ## Implementation Roadmap
 
@@ -902,8 +867,7 @@ Goal: create the persistent model without exposing the feature broadly yet.
 Scope:
 
 - Add a new forward-only migration for assignment tables.
-- Add `assignments`, `assignment_authoring_sessions`,
-  `assignment_authoring_revisions`, and `assignment_share_links`.
+- Add `assignments` and `assignment_share_links`.
 - Add `assignment_attempts` if the first migration should reserve the student
   runtime shape from the start.
 - Add optional conversation snapshot storage only if follow-up tutoring is part

@@ -1053,5 +1053,245 @@ export const migrations = [
       DROP TABLE assignment_authoring_sessions_old;
     `,
     },
+    {
+        id: 4,
+        name: 'remove_assignment_authoring_revisions',
+        up: `
+      DROP INDEX IF EXISTS idx_assignment_authoring_revisions_session_created;
+      DROP TABLE IF EXISTS assignment_authoring_revisions;
+    `,
+    },
+    {
+        id: 5,
+        name: 'remove_assignment_authoring_sessions',
+        up: `
+      PRAGMA defer_foreign_keys = ON;
+
+      INSERT INTO assignments (
+        id,
+        user_id,
+        profile_id,
+        title,
+        description,
+        target_topic,
+        level,
+        estimated_minutes,
+        instructions,
+        rubric,
+        quiz_json,
+        created_at,
+        updated_at
+      )
+      SELECT
+        session.id,
+        session.user_id,
+        session.profile_id,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN COALESCE(NULLIF(json_extract(session.current_draft_json, '$.title'), ''), NULLIF(session.initial_prompt, ''), 'Imported assignment')
+          ELSE COALESCE(NULLIF(session.initial_prompt, ''), 'Imported assignment')
+        END,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN COALESCE(json_extract(session.current_draft_json, '$.description'), '')
+          ELSE ''
+        END,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN COALESCE(json_extract(session.current_draft_json, '$.targetTopic'), '')
+          ELSE ''
+        END,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN COALESCE(json_extract(session.current_draft_json, '$.level'), '')
+          ELSE ''
+        END,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN json_extract(session.current_draft_json, '$.estimatedMinutes')
+          ELSE NULL
+        END,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN COALESCE(json_extract(session.current_draft_json, '$.instructions'), '')
+          ELSE ''
+        END,
+        CASE
+          WHEN json_valid(session.current_draft_json)
+            THEN COALESCE(json_extract(session.current_draft_json, '$.rubric'), '')
+          ELSE ''
+        END,
+        session.current_draft_json,
+        session.created_at,
+        session.updated_at
+      FROM assignment_authoring_sessions AS session
+      WHERE session.assignment_id IS NULL
+        AND session.status <> 'discarded'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM assignments
+          WHERE assignments.id = session.id
+        );
+
+      ALTER TABLE assignment_attempts
+        RENAME TO assignment_attempts_old;
+
+      DROP INDEX IF EXISTS idx_assignment_attempts_assignment_created;
+      DROP INDEX IF EXISTS idx_assignment_attempts_authoring_session_created;
+      DROP INDEX IF EXISTS idx_assignment_attempts_user_profile_created;
+      DROP INDEX IF EXISTS idx_assignment_attempts_guest_token;
+      DROP INDEX IF EXISTS idx_assignment_attempts_claim_token;
+
+      CREATE TABLE assignment_attempts (
+        id TEXT PRIMARY KEY,
+        assignment_id TEXT NOT NULL,
+        user_id TEXT,
+        profile_id TEXT,
+        guest_token TEXT UNIQUE,
+        claim_token TEXT UNIQUE,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'evaluating', 'evaluated', 'failed')),
+        is_preview INTEGER NOT NULL DEFAULT 0 CHECK (is_preview IN (0, 1)),
+        snapshot_json TEXT NOT NULL,
+        responses_json TEXT NOT NULL DEFAULT '[]',
+        result_json TEXT,
+        progress_event_id INTEGER,
+        started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        submitted_at TEXT,
+        evaluated_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (assignment_id)
+          REFERENCES assignments (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (progress_event_id)
+          REFERENCES learner_progress_events (id)
+          ON DELETE SET NULL
+      );
+
+      INSERT INTO assignment_attempts (
+        id,
+        assignment_id,
+        user_id,
+        profile_id,
+        guest_token,
+        claim_token,
+        status,
+        is_preview,
+        snapshot_json,
+        responses_json,
+        result_json,
+        progress_event_id,
+        started_at,
+        submitted_at,
+        evaluated_at,
+        created_at,
+        updated_at
+      )
+      SELECT
+        attempt.id,
+        COALESCE(attempt.assignment_id, session.assignment_id, attempt.authoring_session_id),
+        attempt.user_id,
+        attempt.profile_id,
+        attempt.guest_token,
+        attempt.claim_token,
+        attempt.status,
+        attempt.is_preview,
+        attempt.snapshot_json,
+        attempt.responses_json,
+        attempt.result_json,
+        attempt.progress_event_id,
+        attempt.started_at,
+        attempt.submitted_at,
+        attempt.evaluated_at,
+        attempt.created_at,
+        attempt.updated_at
+      FROM assignment_attempts_old AS attempt
+      LEFT JOIN assignment_authoring_sessions AS session
+        ON session.id = attempt.authoring_session_id
+      WHERE EXISTS (
+        SELECT 1
+        FROM assignments
+        WHERE assignments.id = COALESCE(attempt.assignment_id, session.assignment_id, attempt.authoring_session_id)
+      );
+
+      CREATE INDEX idx_assignment_attempts_assignment_created
+        ON assignment_attempts (assignment_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_user_profile_created
+        ON assignment_attempts (user_id, profile_id, created_at DESC);
+
+      CREATE INDEX idx_assignment_attempts_guest_token
+        ON assignment_attempts (guest_token);
+
+      CREATE INDEX idx_assignment_attempts_claim_token
+        ON assignment_attempts (claim_token);
+
+      ALTER TABLE conversation_assignment_attempt_snapshots
+        RENAME TO conversation_assignment_attempt_snapshots_old;
+
+      DROP INDEX IF EXISTS idx_conversation_assignment_attempt_snapshots_attempt;
+
+      CREATE TABLE conversation_assignment_attempt_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        assignment_attempt_id TEXT NOT NULL,
+        assignment_title TEXT NOT NULL,
+        assignment_description TEXT NOT NULL DEFAULT '',
+        assignment_target_topic TEXT NOT NULL DEFAULT '',
+        assignment_snapshot_json TEXT NOT NULL,
+        responses_json TEXT NOT NULL,
+        result_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (assignment_attempt_id)
+          REFERENCES assignment_attempts (id)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO conversation_assignment_attempt_snapshots (
+        conversation_id,
+        assignment_attempt_id,
+        assignment_title,
+        assignment_description,
+        assignment_target_topic,
+        assignment_snapshot_json,
+        responses_json,
+        result_json,
+        created_at
+      )
+      SELECT
+        snapshot.conversation_id,
+        snapshot.assignment_attempt_id,
+        snapshot.assignment_title,
+        snapshot.assignment_description,
+        snapshot.assignment_target_topic,
+        snapshot.assignment_snapshot_json,
+        snapshot.responses_json,
+        snapshot.result_json,
+        snapshot.created_at
+      FROM conversation_assignment_attempt_snapshots_old AS snapshot
+      WHERE EXISTS (
+        SELECT 1
+        FROM assignment_attempts
+        WHERE assignment_attempts.id = snapshot.assignment_attempt_id
+      );
+
+      CREATE INDEX idx_conversation_assignment_attempt_snapshots_attempt
+        ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
+
+      DROP TABLE conversation_assignment_attempt_snapshots_old;
+      DROP TABLE assignment_attempts_old;
+      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_user_profile_updated;
+      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_assignment;
+      DROP TABLE IF EXISTS assignment_authoring_sessions;
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

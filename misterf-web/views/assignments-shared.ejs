@@ -27,7 +27,7 @@
   <div data-assignment-quiz-host data-assignment-quiz-mode="preview"></div>
   <div class="assignment-block-list" data-assignment-quiz-fallback>
     <% draft.blocks.forEach((block, index) => { %>
-      <%- include('partials/assignment-item-card', { assignmentItemMode: 'preview', block, csrfToken, draft, index, selectedSession: null }) %>
+      <%- include('partials/assignment-item-card', { assignmentItemMode: 'preview', block, csrfToken, draft, index, selectedAssignment: null }) %>
     <% }) %>
   </div>
 </section>

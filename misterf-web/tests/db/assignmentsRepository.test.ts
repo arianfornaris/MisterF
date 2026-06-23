@@ -65,13 +65,11 @@ afterEach(async () => {
 });
 
 describe('assignment repository', () => {
-  it('stores assignments, share links, authoring revisions, attempts, and follow-up snapshots', async () => {
+  it('stores assignments, share links, attempts, and follow-up snapshots', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       createAssignment,
       createAssignmentAttempt,
-      createAssignmentAuthoringRevision,
-      createAssignmentAuthoringSession,
       createConversationFromAssignmentAttempt,
       createProfile,
       findAssignmentForUser,
@@ -79,7 +77,6 @@ describe('assignment repository', () => {
       getConversationAssignmentAttemptSnapshot,
       getOrCreateAssignmentShareLink,
       listAssignmentAttemptsForUser,
-      listAssignmentAuthoringRevisions,
       listAssignmentsForProfile,
       saveAssignmentAttemptResult,
       submitAssignmentAttempt,
@@ -162,29 +159,14 @@ describe('assignment repository', () => {
       userId: user.id,
     })).toHaveLength(1);
 
-    const session = createAssignmentAuthoringSession({
-      currentDraft: assignmentDraft,
-      initialPrompt: 'Build a present perfect task.',
-      profileId: profile.id,
-      userId: user.id,
-    });
-    createAssignmentAuthoringRevision({
-      draft: assignmentDraft,
-      sessionId: session.id,
-      source: 'assistant',
-      userMessage: 'Build a present perfect task.',
-    });
-    expect(listAssignmentAuthoringRevisions(session.id)).toHaveLength(1);
-
     const previewAttempt = createAssignmentAttempt({
-      authoringSessionId: session.id,
+      assignmentId: assignment.id,
       isPreview: true,
       profileId: profile.id,
       snapshot: assignmentDraft,
       userId: user.id,
     });
-    expect(previewAttempt.assignmentId).toBeNull();
-    expect(previewAttempt.authoringSessionId).toBe(session.id);
+    expect(previewAttempt.assignmentId).toBe(assignment.id);
     expect(previewAttempt.isPreview).toBe(true);
 
     const attempt = createAssignmentAttempt({

@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createAssignmentAuthoringRevision, createAssignmentAuthoringSession, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findAssignmentAuthoringSessionForUser, findProfileById, findProfileForUser, getOrCreateAssignmentShareLink, importAssignmentToProfile, listAssignmentAttemptsForUser, listAssignmentAuthoringRevisions, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringSession, } from '../db/repository.js';
+import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, getOrCreateAssignmentShareLink, importAssignmentToProfile, listAssignmentAttemptsForUser, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { assignmentsLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
@@ -51,6 +51,7 @@ const assignmentBlockKinds = [
         value: 'quiz_unscramble_sentence',
     },
 ];
+const defaultAssignmentAuthoringTab = 'general';
 function normalizeOutlineText(value) {
     return value.replace(/\s+/g, ' ').trim();
 }
@@ -166,41 +167,25 @@ function readAssignmentShareMode(value) {
     const mode = readField(value, 20);
     return mode === 'link' || mode === 'profile' ? mode : '';
 }
+function readAssignmentAuthoringTab(value) {
+    const tab = readField(value, 20);
+    if (tab === 'blocks' || tab === 'chat' || tab === 'general' || tab === 'preview') {
+        return tab;
+    }
+    if (tab === 'design') {
+        return 'general';
+    }
+    return defaultAssignmentAuthoringTab;
+}
+function buildAssignmentAuthoringPath(assignmentId, tab) {
+    return `/assignments/${encodeURIComponent(assignmentId)}/edit?tab=${tab}`;
+}
 function appendGuestToken(pathname, attempt) {
     if (!attempt.guestToken) {
         return pathname;
     }
     const separator = pathname.includes('?') ? '&' : '?';
     return `${pathname}${separator}guestToken=${encodeURIComponent(attempt.guestToken)}`;
-}
-function normalizeAuthoringMessages(messages) {
-    return messages
-        .map((message) => {
-        if (!message || typeof message !== 'object') {
-            return null;
-        }
-        const record = message;
-        const role = record.role === 'assistant' || record.role === 'user'
-            ? record.role
-            : null;
-        const content = typeof record.content === 'string'
-            ? record.content.trim()
-            : '';
-        const timestamp = typeof record.timestamp === 'string'
-            ? record.timestamp
-            : new Date().toISOString();
-        return role && content ? { content, role, timestamp } : null;
-    })
-        .filter((message) => Boolean(message));
-}
-function appendAuthoringMessage(session, message) {
-    return [
-        ...normalizeAuthoringMessages(session.messages),
-        {
-            ...message,
-            timestamp: new Date().toISOString(),
-        },
-    ];
 }
 function assignmentToDraftOrRedirect(assignment, response) {
     const draft = safeParseAssignmentDraft(assignment.quiz);
@@ -209,6 +194,20 @@ function assignmentToDraftOrRedirect(assignment, response) {
         return null;
     }
     return draft;
+}
+function updateAssignmentWithDraft(assignment, userId, draft) {
+    return updateAssignment({
+        assignmentId: assignment.id,
+        description: draft.description,
+        estimatedMinutes: draft.estimatedMinutes,
+        instructions: draft.instructions,
+        level: draft.level,
+        quiz: draft,
+        rubric: draft.rubric,
+        targetTopic: draft.targetTopic,
+        title: draft.title,
+        userId,
+    });
 }
 function buildAssignmentListItems(assignments) {
     return assignments.map((assignment) => ({
@@ -254,9 +253,9 @@ function getAssignmentAttemptStatusView(status) {
     }
 }
 function renderAssignmentAuthoring(request, response, input) {
-    const draft = safeParseAssignmentDraft(input.session.currentDraft);
+    const draft = safeParseAssignmentDraft(input.assignment.quiz);
     if (!draft) {
-        response.redirect('/assignments/new');
+        response.redirect('/assignments');
         return;
     }
     renderAssignmentsView(response, 'assignments-authoring', {
@@ -265,42 +264,13 @@ function renderAssignmentAuthoring(request, response, input) {
             title: `${draft.title} - ${appDocumentTitle}`,
             user: input.user,
         }),
-        activeTab: input.activeTab ?? 'design',
+        activeTab: input.activeTab ?? defaultAssignmentAuthoringTab,
         assignmentBlockKinds,
         assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
         authoringError: input.error || '',
-        authoringMessages: normalizeAuthoringMessages(input.session.messages),
         draft,
-        revisions: listAssignmentAuthoringRevisions(input.session.id),
-        selectedSession: input.session,
+        selectedAssignment: input.assignment,
     });
-}
-function resolveAuthoringSession(request, response) {
-    const auth = ensureVerifiedAssignmentUser(request, response);
-    if (!auth) {
-        return null;
-    }
-    const sessionId = readField(request.params.sessionId, 120);
-    const session = findAssignmentAuthoringSessionForUser(sessionId, auth.user.id);
-    if (!session) {
-        response.redirect('/assignments');
-        return null;
-    }
-    let activeProfile = auth.activeProfile;
-    if (session.profileId !== activeProfile.id) {
-        const profile = findProfileForUser(session.profileId, auth.user.id);
-        if (!profile) {
-            response.redirect('/assignments');
-            return null;
-        }
-        activeProfile = profile;
-        setActiveProfileCookie(response, profile.id);
-    }
-    return {
-        activeProfile,
-        session,
-        user: auth.user,
-    };
 }
 function resolveOwnAssignment(request, response) {
     const auth = ensureVerifiedAssignmentUser(request, response);
@@ -442,7 +412,7 @@ export function renderAssignmentNewPage(request, response) {
         generationPrompt: '',
     });
 }
-export async function handleCreateAssignmentDraft(request, response) {
+export async function handleGenerateAssignment(request, response) {
     const auth = ensureVerifiedAssignmentUser(request, response);
     if (!auth) {
         return;
@@ -466,41 +436,28 @@ export async function handleCreateAssignmentDraft(request, response) {
             openRouterApiKey,
             prompt,
         });
-        const session = createAssignmentAuthoringSession({
-            currentDraft: draft,
-            initialPrompt: prompt,
-            messages: [
-                {
-                    content: prompt,
-                    role: 'user',
-                    timestamp: new Date().toISOString(),
-                },
-                {
-                    content: `Creé un primer borrador con ${draft.blocks.length} bloques. Revísalo y dime qué quieres ajustar.`,
-                    role: 'assistant',
-                    timestamp: new Date().toISOString(),
-                },
-            ],
+        const assignment = createAssignment({
+            description: draft.description,
+            estimatedMinutes: draft.estimatedMinutes,
+            instructions: draft.instructions,
+            level: draft.level,
             profileId: auth.activeProfile.id,
+            quiz: draft,
+            rubric: draft.rubric,
+            targetTopic: draft.targetTopic,
+            title: draft.title,
             userId: auth.user.id,
         });
-        createAssignmentAuthoringRevision({
-            assistantMessage: 'Initial AI draft created.',
-            draft,
-            sessionId: session.id,
-            source: 'assistant',
-            userMessage: prompt,
-        });
-        logger.info('assignment_draft_created', {
+        logger.info('assignment_created_from_prompt', {
+            assignmentId: assignment.id,
             blockCount: draft.blocks.length,
             profileId: auth.activeProfile.id,
-            sessionId: session.id,
             userId: auth.user.id,
         });
-        response.redirect(`/assignments/authoring/${encodeURIComponent(session.id)}`);
+        response.redirect(buildAssignmentAuthoringPath(assignment.id, defaultAssignmentAuthoringTab));
     }
     catch (error) {
-        logger.error('assignment_draft_generation_failed', {
+        logger.error('assignment_generation_failed', {
             error,
             userId: auth.user.id,
         });
@@ -518,26 +475,14 @@ export async function handleCreateAssignmentDraft(request, response) {
         });
     }
 }
-export function renderAssignmentAuthoringPage(request, response) {
-    const resolved = resolveAuthoringSession(request, response);
+export function handleUpdateAssignmentMetadata(request, response) {
+    const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
     }
-    const requestedTab = readField(request.query.tab, 20);
-    const activeTab = requestedTab === 'chat' || requestedTab === 'preview' ? requestedTab : 'design';
-    renderAssignmentAuthoring(request, response, {
-        ...resolved,
-        activeTab,
-    });
-}
-export function handleUpdateAssignmentDraftMetadata(request, response) {
-    const resolved = resolveAuthoringSession(request, response);
-    if (!resolved) {
-        return;
-    }
-    const draft = safeParseAssignmentDraft(resolved.session.currentDraft);
+    const draft = safeParseAssignmentDraft(resolved.assignment.quiz);
     if (!draft) {
-        response.redirect('/assignments/new');
+        response.redirect('/assignments');
         return;
     }
     const updatedDraft = createAssignmentDraftFromManualInput({
@@ -550,25 +495,23 @@ export function handleUpdateAssignmentDraftMetadata(request, response) {
         targetTopic: readField(request.body.targetTopic, 220),
         title: readField(request.body.title, 220) || draft.title,
     });
-    updateAssignmentAuthoringSession({
-        currentDraft: updatedDraft,
-        sessionId: resolved.session.id,
-        userId: resolved.user.id,
-    });
-    createAssignmentAuthoringRevision({
-        draft: updatedDraft,
-        sessionId: resolved.session.id,
-        source: 'manual',
-        userMessage: 'Metadata saved from the design tab.',
-    });
-    response.redirect(`/assignments/authoring/${encodeURIComponent(resolved.session.id)}?tab=design`);
+    const updatedAssignment = updateAssignmentWithDraft(resolved.assignment, resolved.user.id, updatedDraft);
+    if (!updatedAssignment) {
+        renderAssignmentAuthoring(request, response.status(422), {
+            ...resolved,
+            activeTab: 'general',
+            error: 'No pude guardar los detalles de la tarea.',
+        });
+        return;
+    }
+    response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'general'));
 }
-export async function handleReviseAssignmentDraft(request, response) {
-    const resolved = resolveAuthoringSession(request, response);
+export async function handleReviseAssignment(request, response) {
+    const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
     }
-    const draft = safeParseAssignmentDraft(resolved.session.currentDraft);
+    const draft = safeParseAssignmentDraft(resolved.assignment.quiz);
     const userMessage = readMultilineField(request.body.message, 4000);
     if (!draft || userMessage.length < 3) {
         renderAssignmentAuthoring(request, response, {
@@ -585,39 +528,26 @@ export async function handleReviseAssignmentDraft(request, response) {
             openRouterApiKey,
             prompt: userMessage,
         });
-        const messages = appendAuthoringMessage(resolved.session, {
-            content: userMessage,
-            role: 'user',
-        });
-        messages.push({
-            content: `Actualicé la tarea. Ahora tiene ${revisedDraft.blocks.length} bloques.`,
-            role: 'assistant',
-            timestamp: new Date().toISOString(),
-        });
-        updateAssignmentAuthoringSession({
-            currentDraft: revisedDraft,
-            messages,
-            sessionId: resolved.session.id,
-            userId: resolved.user.id,
-        });
-        createAssignmentAuthoringRevision({
-            assistantMessage: 'AI revised the assignment draft.',
-            draft: revisedDraft,
-            sessionId: resolved.session.id,
-            source: 'assistant',
-            userMessage,
-        });
-        logger.info('assignment_draft_revised', {
+        const updatedAssignment = updateAssignmentWithDraft(resolved.assignment, resolved.user.id, revisedDraft);
+        if (!updatedAssignment) {
+            renderAssignmentAuthoring(request, response.status(422), {
+                ...resolved,
+                activeTab: 'chat',
+                error: 'No pude aplicar ese cambio ahora mismo.',
+            });
+            return;
+        }
+        logger.info('assignment_revised', {
+            assignmentId: resolved.assignment.id,
             blockCount: revisedDraft.blocks.length,
-            sessionId: resolved.session.id,
             userId: resolved.user.id,
         });
-        response.redirect(`/assignments/authoring/${encodeURIComponent(resolved.session.id)}?tab=design`);
+        response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
     }
     catch (error) {
         logger.error('assignment_revision_failed', {
+            assignmentId: resolved.assignment.id,
             error,
-            sessionId: resolved.session.id,
             userId: resolved.user.id,
         });
         renderAssignmentAuthoring(request, response.status(422), {
@@ -630,17 +560,17 @@ export async function handleReviseAssignmentDraft(request, response) {
     }
 }
 export async function handleAddAssignmentBlock(request, response) {
-    const resolved = resolveAuthoringSession(request, response);
+    const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
     }
-    const draft = safeParseAssignmentDraft(resolved.session.currentDraft);
+    const draft = safeParseAssignmentDraft(resolved.assignment.quiz);
     const blockKind = readField(request.body.blockKind, 120);
     const prompt = readMultilineField(request.body.prompt, 3000);
     if (!draft || prompt.length < 3) {
         renderAssignmentAuthoring(request, response.status(422), {
             ...resolved,
-            activeTab: 'design',
+            activeTab: 'blocks',
             error: 'Describe el bloque que quieres agregar.',
         });
         return;
@@ -654,35 +584,32 @@ export async function handleAddAssignmentBlock(request, response) {
             prompt,
         });
         const updatedDraft = appendAssignmentBlock(draft, block);
-        updateAssignmentAuthoringSession({
-            currentDraft: updatedDraft,
-            sessionId: resolved.session.id,
-            userId: resolved.user.id,
-        });
-        createAssignmentAuthoringRevision({
-            assistantMessage: 'AI added a block.',
-            draft: updatedDraft,
-            sessionId: resolved.session.id,
-            source: 'block_add',
-            userMessage: prompt,
-        });
+        const updatedAssignment = updateAssignmentWithDraft(resolved.assignment, resolved.user.id, updatedDraft);
+        if (!updatedAssignment) {
+            renderAssignmentAuthoring(request, response.status(422), {
+                ...resolved,
+                activeTab: 'blocks',
+                error: 'No pude guardar ese bloque ahora mismo.',
+            });
+            return;
+        }
         logger.info('assignment_block_added', {
+            assignmentId: resolved.assignment.id,
             blockCount: updatedDraft.blocks.length,
             blockKind: block.item.kind,
-            sessionId: resolved.session.id,
             userId: resolved.user.id,
         });
-        response.redirect(`/assignments/authoring/${encodeURIComponent(resolved.session.id)}?tab=design`);
+        response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
     }
     catch (error) {
         logger.error('assignment_block_generation_failed', {
+            assignmentId: resolved.assignment.id,
             error,
-            sessionId: resolved.session.id,
             userId: resolved.user.id,
         });
         renderAssignmentAuthoring(request, response.status(422), {
             ...resolved,
-            activeTab: 'design',
+            activeTab: 'blocks',
             error: isCreditExhaustedError(error)
                 ? getCreditExhaustedMessage()
                 : 'No pude crear ese bloque ahora mismo.',
@@ -700,136 +627,33 @@ export function handleMoveAssignmentBlock(request, response) {
     updateDraftBlocks(request, response, (draft, blockId) => moveAssignmentBlock(draft, blockId, direction));
 }
 function updateDraftBlocks(request, response, updater) {
-    const resolved = resolveAuthoringSession(request, response);
+    const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
     }
-    const draft = safeParseAssignmentDraft(resolved.session.currentDraft);
+    const draft = safeParseAssignmentDraft(resolved.assignment.quiz);
     const blockId = readField(request.params.blockId, 120);
     if (!draft || !blockId) {
-        response.redirect(`/assignments/authoring/${encodeURIComponent(resolved.session.id)}?tab=design`);
+        response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
         return;
     }
     const updatedDraft = updater(draft, blockId);
-    updateAssignmentAuthoringSession({
-        currentDraft: updatedDraft,
-        sessionId: resolved.session.id,
-        userId: resolved.user.id,
-    });
-    createAssignmentAuthoringRevision({
-        draft: updatedDraft,
-        sessionId: resolved.session.id,
-        source: 'manual',
-        userMessage: `Updated block order or block list for ${blockId}.`,
-    });
+    const updatedAssignment = updateAssignmentWithDraft(resolved.assignment, resolved.user.id, updatedDraft);
+    if (!updatedAssignment) {
+        renderAssignmentAuthoring(request, response.status(422), {
+            ...resolved,
+            activeTab: 'blocks',
+            error: 'No pude actualizar los bloques ahora mismo.',
+        });
+        return;
+    }
     logger.info('assignment_blocks_updated', {
+        assignmentId: resolved.assignment.id,
         blockCount: updatedDraft.blocks.length,
         blockId,
-        sessionId: resolved.session.id,
         userId: resolved.user.id,
     });
-    response.redirect(`/assignments/authoring/${encodeURIComponent(resolved.session.id)}?tab=design`);
-}
-export function handleSaveAuthoredAssignment(request, response) {
-    const resolved = resolveAuthoringSession(request, response);
-    if (!resolved) {
-        return;
-    }
-    const draft = safeParseAssignmentDraft(resolved.session.currentDraft);
-    if (!draft) {
-        renderAssignmentAuthoring(request, response.status(422), {
-            ...resolved,
-            activeTab: 'design',
-            error: 'La tarea tiene datos inválidos.',
-        });
-        return;
-    }
-    const existingAssignment = resolved.session.assignmentId
-        ? findAssignmentForUser(resolved.session.assignmentId, resolved.user.id)
-        : null;
-    const assignment = existingAssignment
-        ? updateAssignment({
-            assignmentId: existingAssignment.id,
-            description: draft.description,
-            estimatedMinutes: draft.estimatedMinutes,
-            instructions: draft.instructions,
-            level: draft.level,
-            quiz: draft,
-            rubric: draft.rubric,
-            targetTopic: draft.targetTopic,
-            title: draft.title,
-            userId: resolved.user.id,
-        })
-        : createAssignment({
-            description: draft.description,
-            estimatedMinutes: draft.estimatedMinutes,
-            instructions: draft.instructions,
-            level: draft.level,
-            profileId: resolved.activeProfile.id,
-            quiz: draft,
-            rubric: draft.rubric,
-            targetTopic: draft.targetTopic,
-            title: draft.title,
-            userId: resolved.user.id,
-        });
-    if (!assignment) {
-        renderAssignmentAuthoring(request, response.status(422), {
-            ...resolved,
-            activeTab: 'design',
-            error: 'No pude guardar la tarea.',
-        });
-        return;
-    }
-    updateAssignmentAuthoringSession({
-        assignmentId: assignment.id,
-        currentDraft: draft,
-        sessionId: resolved.session.id,
-        status: 'saved',
-        userId: resolved.user.id,
-    });
-    logger.info('assignment_saved', {
-        assignmentId: assignment.id,
-        blockCount: draft.blocks.length,
-        profileId: assignment.profileId,
-        sessionId: resolved.session.id,
-        userId: resolved.user.id,
-    });
-    response.redirect(`/assignments/${encodeURIComponent(assignment.id)}`);
-}
-export function handleStartAssignmentSessionPreviewAttempt(request, response) {
-    const resolved = resolveAuthoringSession(request, response);
-    if (!resolved) {
-        return;
-    }
-    const draft = safeParseAssignmentDraft(resolved.session.currentDraft);
-    if (!draft) {
-        renderAssignmentAuthoring(request, response.status(422), {
-            ...resolved,
-            activeTab: 'preview',
-            error: 'La tarea tiene datos inválidos.',
-        });
-        return;
-    }
-    const attempt = createAssignmentAttempt({
-        authoringSessionId: resolved.session.id,
-        isPreview: true,
-        profileId: resolved.activeProfile.id,
-        snapshot: draft,
-        userId: resolved.user.id,
-    });
-    createAssignmentAuthoringRevision({
-        draft,
-        sessionId: resolved.session.id,
-        source: 'preview_test',
-        userMessage: 'Teacher started a preview attempt.',
-    });
-    logger.info('assignment_preview_attempt_started', {
-        attemptId: attempt.id,
-        profileId: resolved.activeProfile.id,
-        sessionId: resolved.session.id,
-        userId: resolved.user.id,
-    });
-    response.redirect(`/assignment-attempts/${encodeURIComponent(attempt.id)}`);
+    response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
 }
 export function renderAssignmentEditPage(request, response) {
     const resolved = resolveOwnAssignment(request, response);
@@ -840,29 +664,11 @@ export function renderAssignmentEditPage(request, response) {
     if (!draft) {
         return;
     }
-    const session = createAssignmentAuthoringSession({
-        currentDraft: draft,
-        initialPrompt: `Edit assignment: ${resolved.assignment.title}`,
-        messages: [
-            {
-                content: 'Abrí esta tarea para edición.',
-                role: 'assistant',
-                timestamp: new Date().toISOString(),
-            },
-        ],
-        profileId: resolved.assignment.profileId,
-        userId: resolved.user.id,
-    });
-    const updatedSession = updateAssignmentAuthoringSession({
-        assignmentId: resolved.assignment.id,
-        currentDraft: draft,
-        sessionId: session.id,
-        userId: resolved.user.id,
-    }) ?? session;
+    const activeTab = readAssignmentAuthoringTab(request.query.tab);
     renderAssignmentAuthoring(request, response, {
         activeProfile: resolved.activeProfile,
-        activeTab: 'design',
-        session: updatedSession,
+        activeTab,
+        assignment: resolved.assignment,
         user: resolved.user,
     });
 }

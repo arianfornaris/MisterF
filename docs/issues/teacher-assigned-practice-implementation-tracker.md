@@ -39,7 +39,7 @@ Status legend:
   teacher-paid authoring usage.
 - [x] Do not let teacher preview/test attempts update learner progress.
 - [x] Preserve full validation before storing AI-generated assignment drafts,
-  blocks, revisions, attempts, or results.
+  blocks, attempts, or results.
 - [x] Log ids and status metadata in production without storing full learner
   answers unless full LLM tracing is explicitly enabled.
 
@@ -103,9 +103,9 @@ Tasks:
   waits for the student runtime slice.
 - [x] Add a new forward-only migration after `create_current_schema`.
 - [x] Add `assignments`.
-- [x] Add `assignment_authoring_sessions`.
-- [x] Add `assignment_authoring_revisions`.
 - [x] Add `assignment_share_links`.
+- [x] Remove separate assignment authoring sessions; generated assignments are
+  persisted directly as assignments.
 - [x] Add `assignment_attempts` if included in this slice.
 - [x] Add optional conversation assignment-attempt snapshot table only if
   follow-up tutoring is in the same release train.
@@ -270,8 +270,8 @@ Tasks:
 - [x] Add revision prompt.
 - [x] Add revision correction prompt.
 - [x] Validate revised drafts before replacing the current draft.
-- [x] Store assistant revisions in `assignment_authoring_revisions`.
-- [x] Store manual revisions when relevant.
+- [x] Keep only the current validated draft in the authoring session for V1.
+- [x] Remove separate authoring revision history from the persisted model.
 - [ ] Show concise changed-block summaries using visible block numbers.
 - [x] Log revision requested/applied/failed events.
 

@@ -8,13 +8,6 @@
   gap: 0.5rem;
 }
 
-.assignment-authoring-layout {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  align-items: start;
-}
-
 .assignment-block-list {
   display: flex;
   flex-direction: column;
@@ -124,7 +117,6 @@
 }
 
 @media (max-width: 991.98px) {
-  .assignment-authoring-layout,
   .assignment-block-kind-list {
     grid-template-columns: 1fr;
   }

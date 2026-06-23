@@ -67,6 +67,14 @@ describe('database migrations', () => {
         id: 3,
         name: 'simplify_assignment_lifecycle',
       },
+      {
+        id: 4,
+        name: 'remove_assignment_authoring_revisions',
+      },
+      {
+        id: 5,
+        name: 'remove_assignment_authoring_sessions',
+      },
     ]);
 
     const tableNames = (db
@@ -77,8 +85,6 @@ describe('database migrations', () => {
     expect(tableNames).toEqual(expect.arrayContaining([
       'auth_action_tokens',
       'assignment_attempts',
-      'assignment_authoring_revisions',
-      'assignment_authoring_sessions',
       'assignment_share_links',
       'assignments',
       'chat_room_conversation_reports',
@@ -102,6 +108,8 @@ describe('database migrations', () => {
       'user_sessions',
       'users',
     ]));
+    expect(tableNames).not.toContain('assignment_authoring_revisions');
+    expect(tableNames).not.toContain('assignment_authoring_sessions');
 
     expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
       'learning_context',
@@ -131,12 +139,12 @@ describe('database migrations', () => {
       'status',
     ]));
     expect(getColumnNames(db, 'assignment_attempts')).toEqual(expect.arrayContaining([
-      'authoring_session_id',
       'claim_token',
       'guest_token',
       'result_json',
       'snapshot_json',
     ]));
+    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
   });
 
   it('migrates existing assignment lifecycle data without losing attempts', async () => {
@@ -249,23 +257,113 @@ describe('database migrations', () => {
       'published_at',
       'status',
     ]));
-    expect(getColumnNames(db, 'assignment_attempts')).toEqual(expect.arrayContaining([
-      'authoring_session_id',
-    ]));
-    expect(db.prepare('SELECT status FROM assignment_authoring_sessions WHERE id = ?')
-      .get('session_1')).toEqual({ status: 'saved' });
-    expect(db.prepare('SELECT assignment_id, authoring_session_id FROM assignment_attempts WHERE id = ?')
-      .get('attempt_1')).toEqual({
-      assignment_id: 'assignment_1',
-      authoring_session_id: null,
-    });
+    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
+    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_sessions'")
+      .get()).toBeUndefined();
+    expect(db.prepare('SELECT assignment_id FROM assignment_attempts WHERE id = ?')
+      .get('attempt_1')).toEqual({ assignment_id: 'assignment_1' });
     expect(db.prepare('SELECT assignment_attempt_id FROM conversation_assignment_attempt_snapshots WHERE conversation_id = ?')
       .get('conversation_1')).toEqual({ assignment_attempt_id: 'attempt_1' });
+    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_revisions'")
+      .get()).toBeUndefined();
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
     expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'conversation_assignment_attempt_snapshots'")
       .get()).toEqual(expect.objectContaining({
       sql: expect.stringContaining('REFERENCES assignment_attempts'),
     }));
+  });
+
+  it('promotes legacy authoring sessions before removing the session table', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-authoring-'));
+    process.env.DATABASE_PATH = path.join(tempDir, 'authoring.sqlite');
+    process.env.ENV_FILE = '/dev/null';
+    vi.resetModules();
+
+    const { getDb } = await import('../../src/server/db/database.js');
+    const { migrations } = await import('../../src/server/db/migrations.js');
+    const { migrate } = await import('../../src/server/db/migrator.js');
+    const db = getDb();
+
+    db.exec(`
+      CREATE TABLE schema_migrations (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    for (const migration of migrations.filter((migration) => migration.id <= 4)) {
+      db.exec(migration.up);
+      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
+        .run(migration.id, migration.name);
+    }
+
+    const draftJson = JSON.stringify({
+      blocks: [
+        {
+          id: 'open_text',
+          item: {
+            kind: 'quiz_open_text',
+            prompt: 'Write one sentence.',
+          },
+        },
+      ],
+      description: 'Legacy generated homework.',
+      estimatedMinutes: 7,
+      instructions: 'Answer carefully.',
+      level: 'A2',
+      rubric: 'Check clarity.',
+      targetTopic: 'Simple past',
+      title: 'Legacy Generated Task',
+    });
+
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, email_verified)
+      VALUES ('user_1', 'legacy-authoring@example.com', 'Legacy Authoring User', 1)
+    `).run();
+    db.prepare(`
+      INSERT INTO profiles (id, user_id, name)
+      VALUES ('profile_1', 'user_1', 'Legacy Profile')
+    `).run();
+    db.prepare(`
+      INSERT INTO assignment_authoring_sessions (
+        id,
+        user_id,
+        profile_id,
+        status,
+        initial_prompt,
+        current_draft_json
+      )
+      VALUES ('session_orphan', 'user_1', 'profile_1', 'drafting', 'Create a legacy task.', ?)
+    `).run(draftJson);
+    db.prepare(`
+      INSERT INTO assignment_attempts (
+        id,
+        authoring_session_id,
+        user_id,
+        profile_id,
+        is_preview,
+        snapshot_json
+      )
+      VALUES ('attempt_preview', 'session_orphan', 'user_1', 'profile_1', 1, ?)
+    `).run(draftJson);
+
+    migrate();
+
+    expect(db.prepare('SELECT title, target_topic FROM assignments WHERE id = ?')
+      .get('session_orphan')).toEqual({
+      target_topic: 'Simple past',
+      title: 'Legacy Generated Task',
+    });
+    expect(db.prepare('SELECT assignment_id, is_preview FROM assignment_attempts WHERE id = ?')
+      .get('attempt_preview')).toEqual({
+      assignment_id: 'session_orphan',
+      is_preview: 1,
+    });
+    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
+    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_sessions'")
+      .get()).toBeUndefined();
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 });
 

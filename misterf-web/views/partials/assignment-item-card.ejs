@@ -4,6 +4,10 @@
   const isAttemptMode = assignmentItemMode === 'attempt';
   const isDesignMode = assignmentItemMode === 'design';
   const isPreviewMode = assignmentItemMode === 'preview';
+  const assignmentEditBasePath =
+    typeof selectedAssignment !== 'undefined' && selectedAssignment
+      ? `/assignments/${encodeURIComponent(selectedAssignment.id)}/edit`
+      : '';
 %>
 
 <article class="card assignment-block-card">
@@ -17,25 +21,25 @@
 
       <% if (isDesignMode) { %>
         <div class="btn-group btn-group-sm" role="group" aria-label="Acciones del bloque <%= index + 1 %>">
-          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
+          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn btn-outline-secondary" type="submit" title="Subir" aria-label="Subir" <%= index === 0 ? 'disabled' : '' %>>
               <i class="bi bi-arrow-up" aria-hidden="true"></i>
             </button>
           </form>
-          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/move-down">
+          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-down">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn btn-outline-secondary" type="submit" title="Bajar" aria-label="Bajar" <%= index === draft.blocks.length - 1 ? 'disabled' : '' %>>
               <i class="bi bi-arrow-down" aria-hidden="true"></i>
             </button>
           </form>
-          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/duplicate">
+          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/duplicate">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn btn-outline-secondary" type="submit" title="Duplicar" aria-label="Duplicar">
               <i class="bi bi-copy" aria-hidden="true"></i>
             </button>
           </form>
-          <form method="post" action="/assignments/authoring/<%= encodeURIComponent(selectedSession.id) %>/blocks/<%= encodeURIComponent(block.id) %>/delete">
+          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/delete">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button class="btn btn-outline-danger" type="submit" title="Eliminar" aria-label="Eliminar" <%= draft.blocks.length <= 1 ? 'disabled' : '' %>>
               <i class="bi bi-trash" aria-hidden="true"></i>

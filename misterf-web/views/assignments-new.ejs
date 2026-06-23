@@ -17,7 +17,7 @@
 
   <div class="card resource-form-card">
     <div class="card-body">
-      <form method="post" action="/assignments/generate-draft" data-assignment-generate-form>
+      <form method="post" action="/assignments/generate" data-assignment-generate-form>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="mb-3">
           <label class="form-label" for="assignmentPrompt">Describe la tarea</label>
@@ -32,7 +32,7 @@
         </div>
         <div class="d-flex flex-wrap gap-2">
           <button class="btn btn-primary" type="submit" data-assignment-generate-submit>
-            <i class="bi bi-stars me-1" aria-hidden="true"></i>Crear borrador
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>Crear tarea
           </button>
           <a class="btn btn-outline-secondary" href="/assignments">Cancelar</a>
         </div>

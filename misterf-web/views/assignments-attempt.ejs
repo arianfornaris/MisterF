@@ -21,7 +21,7 @@
     <div data-assignment-quiz-inputs hidden></div>
     <div class="assignment-block-list" data-assignment-quiz-fallback>
       <% draft.blocks.forEach((block, index) => { %>
-        <%- include('partials/assignment-item-card', { assignmentItemMode: 'attempt', block, csrfToken, draft, index, responseIndex: index, selectedSession: null }) %>
+        <%- include('partials/assignment-item-card', { assignmentItemMode: 'attempt', block, csrfToken, draft, index, responseIndex: index, selectedAssignment: null }) %>
       <% }) %>
     </div>
     <div class="assignment-submit-bar">

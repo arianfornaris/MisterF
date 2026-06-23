@@ -274,40 +274,6 @@ Important fields:
 stable internal block ids and existing tutor `quiz` item payloads. This keeps
 assignment evaluation aligned with the live tutor quiz contract.
 
-### Assignment Authoring Session
-
-Represents the AI-assisted workspace where a teacher iterates before saving an
-assignment resource.
-
-Important fields:
-
-- `id`
-- optional `assignmentId`
-- `userId`
-- `profileId`
-- `status`
-- `initialPrompt`
-- `messages`
-- `currentDraft`
-- optional `lastValidatedAt`
-
-The current draft is replaced only after validation. The message list is a small
-authoring transcript, not a learner conversation.
-
-### Assignment Authoring Revision
-
-Stores validated draft snapshots produced during authoring.
-
-Important fields:
-
-- `authoringSessionId`
-- `source` (`assistant`, `manual`, `block_add`, `block_revision`, or
-  `preview_test`)
-- optional teacher/user message
-- optional assistant message
-- `draft`
-- `validationStatus`
-
 ### Assignment Share Link
 
 Stores the public-but-unlisted link token for a shared assignment.
@@ -326,9 +292,7 @@ snapshot.
 Important fields:
 
 - `id`
-- optional `assignmentId`
-- optional `authoringSessionId` for teacher previews before the assignment is
-  saved
+- `assignmentId`
 - optional `userId`
 - optional `profileId`
 - optional guest and claim tokens
