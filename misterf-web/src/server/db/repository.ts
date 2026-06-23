@@ -2916,6 +2916,82 @@ export function updateAssignment(input: {
   return findAssignmentForUser(input.assignmentId, input.userId);
 }
 
+export function findImportedAssignmentForProfile(input: {
+  profileId: string;
+  sourceAssignmentId: string;
+  userId: string;
+}): StoredAssignment | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          archived_at,
+          created_at,
+          description,
+          estimated_minutes,
+          id,
+          instructions,
+          is_favorite,
+          level,
+          profile_id,
+          quiz_json,
+          rubric,
+          shared_via,
+          source_assignment_id,
+          source_profile_id,
+          source_user_id,
+          target_topic,
+          title,
+          updated_at,
+          user_id
+        FROM assignments
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND source_assignment_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(input.userId, input.profileId, input.sourceAssignmentId) as
+    | AssignmentRow
+    | undefined;
+
+  return row ? toStoredAssignment(row) : null;
+}
+
+export function importAssignmentToProfile(input: {
+  shareKind: 'profile' | 'link';
+  sourceAssignment: StoredAssignment;
+  targetProfileId: string;
+  userId: string;
+}): StoredAssignment {
+  const existing = findImportedAssignmentForProfile({
+    profileId: input.targetProfileId,
+    sourceAssignmentId: input.sourceAssignment.id,
+    userId: input.userId,
+  });
+  if (existing) {
+    return existing;
+  }
+
+  return createAssignment({
+    description: input.sourceAssignment.description,
+    estimatedMinutes: input.sourceAssignment.estimatedMinutes,
+    instructions: input.sourceAssignment.instructions,
+    level: input.sourceAssignment.level,
+    profileId: input.targetProfileId,
+    quiz: input.sourceAssignment.quiz,
+    rubric: input.sourceAssignment.rubric,
+    sharedVia: input.shareKind,
+    sourceAssignmentId: input.sourceAssignment.id,
+    sourceProfileId: input.sourceAssignment.profileId,
+    sourceUserId: input.sourceAssignment.userId,
+    targetTopic: input.sourceAssignment.targetTopic,
+    title: input.sourceAssignment.title,
+    userId: input.userId,
+  });
+}
+
 export function setAssignmentFavoriteForUser(
   assignmentId: string,
   userId: string,

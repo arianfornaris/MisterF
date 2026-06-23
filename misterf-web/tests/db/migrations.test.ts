@@ -120,6 +120,10 @@ describe('database migrations', () => {
     ]));
     expect(getColumnNames(db, 'assignments')).toEqual(expect.arrayContaining([
       'quiz_json',
+      'shared_via',
+      'source_assignment_id',
+      'source_profile_id',
+      'source_user_id',
       'target_topic',
     ]));
     expect(getColumnNames(db, 'assignments')).not.toEqual(expect.arrayContaining([

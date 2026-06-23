@@ -12,6 +12,7 @@ import {
   handleReviseAssignmentDraft,
   handleSaveAuthoredAssignment,
   handleSetAssignmentFavorite,
+  handleShareAssignmentToProfile,
   handleStartAssignmentAttempt,
   handleStartAssignmentPreviewAttempt,
   handleStartAssignmentSessionPreviewAttempt,
@@ -47,6 +48,7 @@ assignmentsRouter.post('/assignments/authoring/:sessionId/blocks/:blockId/move-d
 assignmentsRouter.get('/assignments/:assignmentId/edit', renderAssignmentEditPage);
 assignmentsRouter.get('/assignments/:assignmentId', renderAssignmentShowPage);
 assignmentsRouter.post('/assignments/:assignmentId/favorite', handleSetAssignmentFavorite);
+assignmentsRouter.post('/assignments/:assignmentId/share/profile', handleShareAssignmentToProfile);
 assignmentsRouter.post('/assignments/:assignmentId/archive', handleArchiveAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/restore', handleRestoreAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/preview-attempts', handleStartAssignmentPreviewAttempt);

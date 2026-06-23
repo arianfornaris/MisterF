@@ -46,6 +46,7 @@ const repositoryMocks = vi.hoisted(() => ({
   getConversationTutorPlan: vi.fn(),
   getConversationTutorReportSnapshot: vi.fn(),
   getOrCreateChatRoomShareLink: vi.fn(),
+  importAssignmentToProfile: vi.fn(),
   importChatRoomToProfile: vi.fn(),
   listChatRoomCharacters: vi.fn(),
   listChatRoomConversationsForRoom: vi.fn(),

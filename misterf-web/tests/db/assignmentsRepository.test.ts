@@ -75,6 +75,7 @@ describe('assignment repository', () => {
       createConversationFromAssignmentAttempt,
       createProfile,
       findAssignmentForUser,
+      importAssignmentToProfile,
       getConversationAssignmentAttemptSnapshot,
       getOrCreateAssignmentShareLink,
       listAssignmentAttemptsForUser,
@@ -94,6 +95,10 @@ describe('assignment repository', () => {
     });
     const profile = createProfile({
       name: 'Class profile',
+      userId: user.id,
+    });
+    const targetProfile = createProfile({
+      name: 'Homework profile',
       userId: user.id,
     });
 
@@ -133,6 +138,29 @@ describe('assignment repository', () => {
 
     const shareLink = getOrCreateAssignmentShareLink(assignment.id);
     expect(getOrCreateAssignmentShareLink(assignment.id).id).toBe(shareLink.id);
+
+    const importedAssignment = importAssignmentToProfile({
+      shareKind: 'profile',
+      sourceAssignment: updated ?? assignment,
+      targetProfileId: targetProfile.id,
+      userId: user.id,
+    });
+    expect(importedAssignment.profileId).toBe(targetProfile.id);
+    expect(importedAssignment.sharedVia).toBe('profile');
+    expect(importedAssignment.sourceAssignmentId).toBe(assignment.id);
+    expect(importedAssignment.sourceProfileId).toBe(profile.id);
+    expect(importedAssignment.title).toBe('Updated assignment');
+    expect(importedAssignment.quiz.title).toBe('Present Perfect Check');
+    expect(importAssignmentToProfile({
+      shareKind: 'profile',
+      sourceAssignment: updated ?? assignment,
+      targetProfileId: targetProfile.id,
+      userId: user.id,
+    }).id).toBe(importedAssignment.id);
+    expect(listAssignmentsForProfile({
+      profileId: targetProfile.id,
+      userId: user.id,
+    })).toHaveLength(1);
 
     const session = createAssignmentAuthoringSession({
       currentDraft: assignmentDraft,

@@ -985,6 +985,10 @@ body {
   text-decoration: none;
 }
 
+.practice-module-card .dropdown {
+  z-index: 3 !important;
+}
+
 .practice-module-card-actions {
   display: inline-flex;
   align-items: center;
@@ -1027,6 +1031,10 @@ body {
 .practice-modules-page[data-resource-layout='list'] .list-group-item {
   padding: 0.75rem 1rem;
   overflow: hidden;
+}
+
+.practice-modules-page[data-resource-layout='list'] .list-group-item.dropdown-open {
+  overflow: visible;
 }
 
 .practice-modules-page[data-resource-layout='list'] .list-group-item .card-body {

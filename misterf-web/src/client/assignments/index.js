@@ -46,6 +46,7 @@ async function copyTextToClipboard(content) {
 function initializeAssignmentSharingUi() {
   const shareFieldEl = document.querySelector('[data-assignment-share-link-field]');
   const copyButtonEl = document.querySelector('[data-copy-assignment-share-link]');
+  const nativeShareButtonEl = document.querySelector('[data-native-share-assignment-link]');
   const autoOpenModalEl = document.querySelector('[data-auto-open-assignment-share-modal]');
 
   if (copyButtonEl && shareFieldEl instanceof HTMLInputElement) {
@@ -56,6 +57,27 @@ function initializeAssignmentSharingUi() {
         copyButtonEl.innerHTML = '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
       }, 1200);
     });
+  }
+
+  if (nativeShareButtonEl) {
+    if (typeof navigator.share !== 'function') {
+      nativeShareButtonEl.classList.add('d-none');
+    } else if (shareFieldEl instanceof HTMLInputElement) {
+      nativeShareButtonEl.addEventListener('click', async () => {
+        if (!shareFieldEl.value) {
+          return;
+        }
+
+        try {
+          await navigator.share({
+            title: 'Tarea compartida',
+            url: shareFieldEl.value,
+          });
+        } catch {
+          // Ignore cancelled share attempts.
+        }
+      });
+    }
   }
 
   if (autoOpenModalEl && window.bootstrap?.Modal) {

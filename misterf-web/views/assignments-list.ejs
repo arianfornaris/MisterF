@@ -128,6 +128,7 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <% if (!assignment.archivedAt) { %>
+                  <li><a class="dropdown-item" href="/assignments/<%= encodeURIComponent(assignment.id) %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
                   <li><a class="dropdown-item" href="/assignments/<%= encodeURIComponent(assignment.id) %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
                 <% } %>
                 <li>
@@ -169,6 +170,12 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                   <% if (!assignment.archivedAt) { %>
+                    <li>
+                      <a class="dropdown-item" href="/assignments/<%= encodeURIComponent(assignment.id) %>?share=profile">
+                        <i class="bi bi-person me-2" aria-hidden="true"></i>
+                        Compartir con perfil
+                      </a>
+                    </li>
                     <li>
                       <a class="dropdown-item" href="/assignments/<%= encodeURIComponent(assignment.id) %>?share=link">
                         <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>

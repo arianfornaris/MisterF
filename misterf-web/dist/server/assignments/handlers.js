@@ -1,4 +1,5 @@
-import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createAssignmentAuthoringRevision, createAssignmentAuthoringSession, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findAssignmentAuthoringSessionForUser, findProfileForUser, getOrCreateAssignmentShareLink, listAssignmentAttemptsForUser, listAssignmentAuthoringRevisions, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringSession, } from '../db/repository.js';
+import QRCode from 'qrcode';
+import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createAssignmentAuthoringRevision, createAssignmentAuthoringSession, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findAssignmentAuthoringSessionForUser, findProfileById, findProfileForUser, getOrCreateAssignmentShareLink, importAssignmentToProfile, listAssignmentAttemptsForUser, listAssignmentAuthoringRevisions, listAssignmentsForProfile, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, setAssignmentFavoriteForUser, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringSession, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { assignmentsLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
@@ -160,6 +161,10 @@ function readEstimatedMinutes(value) {
 function readReturnTo(value, fallback) {
     const returnTo = readField(value, 1200);
     return returnTo.startsWith('/') ? returnTo : fallback;
+}
+function readAssignmentShareMode(value) {
+    const mode = readField(value, 20);
+    return mode === 'link' || mode === 'profile' ? mode : '';
 }
 function appendGuestToken(pathname, attempt) {
     if (!attempt.guestToken) {
@@ -861,7 +866,7 @@ export function renderAssignmentEditPage(request, response) {
         user: resolved.user,
     });
 }
-export function renderAssignmentShowPage(request, response) {
+export async function renderAssignmentShowPage(request, response) {
     const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
@@ -872,6 +877,15 @@ export function renderAssignmentShowPage(request, response) {
     }
     const shareLink = getOrCreateAssignmentShareLink(resolved.assignment.id);
     const shareUrl = buildAbsoluteAppUrl(`/assignments/shared/${encodeURIComponent(shareLink.id)}`);
+    const assignmentShareQrDataUrl = await QRCode.toDataURL(shareUrl, {
+        margin: 1,
+        width: 180,
+    });
+    const assignmentShareMode = readAssignmentShareMode(request.query.share);
+    const selectedAssignmentSharedFromProfileName = resolved.assignment.sourceProfileId
+        ? findProfileById(resolved.assignment.sourceProfileId)?.name || ''
+        : '';
+    const shareTargetAssignmentProfiles = (request.availableProfiles ?? []).filter((profile) => profile.id !== resolved.assignment.profileId);
     const attempts = listAssignmentAttemptsForUser({
         assignmentId: resolved.assignment.id,
         profileId: resolved.assignment.profileId,
@@ -885,10 +899,13 @@ export function renderAssignmentShowPage(request, response) {
         }),
         assignmentAttempts: buildAssignmentAttemptListItems(attempts),
         assignmentBlockOutlineItems: buildAssignmentBlockOutlineItems(draft),
+        assignmentShareMode,
+        assignmentShareQrDataUrl,
         draft,
         selectedAssignment: resolved.assignment,
-        shareAutoOpen: readField(request.query.share, 20) === 'link',
+        selectedAssignmentSharedFromProfileName,
         shareLink,
+        shareTargetAssignmentProfiles,
         shareUrl,
     });
 }
@@ -900,6 +917,25 @@ export function handleSetAssignmentFavorite(request, response) {
     const returnTo = readReturnTo(request.body.returnTo, `/assignments/${encodeURIComponent(resolved.assignment.id)}`);
     setAssignmentFavoriteForUser(resolved.assignment.id, resolved.user.id, !resolved.assignment.isFavorite);
     response.redirect(returnTo);
+}
+export function handleShareAssignmentToProfile(request, response) {
+    const resolved = resolveOwnAssignment(request, response);
+    if (!resolved) {
+        return;
+    }
+    const targetProfileId = readField(request.body.targetProfileId, 120);
+    const targetProfile = findProfileForUser(targetProfileId, resolved.user.id);
+    if (!targetProfile || targetProfile.id === resolved.assignment.profileId) {
+        response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
+        return;
+    }
+    importAssignmentToProfile({
+        shareKind: 'profile',
+        sourceAssignment: resolved.assignment,
+        targetProfileId: targetProfile.id,
+        userId: resolved.user.id,
+    });
+    response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
 }
 export function handleArchiveAssignment(request, response) {
     const resolved = resolveOwnAssignment(request, response);

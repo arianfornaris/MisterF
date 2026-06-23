@@ -50,7 +50,18 @@
             class="dropdown-item"
             type="button"
             data-bs-toggle="modal"
-            data-bs-target="#assignmentShareModal"
+            data-bs-target="#assignmentShareProfileModal"
+          >
+            <i class="bi bi-person me-2" aria-hidden="true"></i>
+            Compartir con perfil
+          </button>
+        </li>
+        <li>
+          <button
+            class="dropdown-item"
+            type="button"
+            data-bs-toggle="modal"
+            data-bs-target="#assignmentShareLinkModal"
           >
             <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
             Obtener enlace
@@ -90,6 +101,20 @@
       </ul>
     </div>
   </div>
+
+  <% if (selectedAssignment.sharedVia) { %>
+    <div class="d-flex">
+      <% if (selectedAssignmentSharedFromProfileName) { %>
+        <span class="badge text-bg-light border" role="status">
+          Compartida por <%= selectedAssignmentSharedFromProfileName %>
+        </span>
+      <% } else { %>
+        <span class="badge text-bg-light border" role="status">
+          Compartida <%= selectedAssignment.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+        </span>
+      <% } %>
+    </div>
+  <% } %>
 
   <section class="resource-section">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
@@ -145,29 +170,87 @@
 
 <div
   class="modal fade"
-  id="assignmentShareModal"
+  id="assignmentShareProfileModal"
   tabindex="-1"
-  aria-labelledby="assignmentShareModalLabel"
+  aria-labelledby="assignmentShareProfileModalLabel"
   aria-hidden="true"
-  <%= shareAutoOpen ? 'data-auto-open-assignment-share-modal' : '' %>
+  <%= assignmentShareMode === 'profile' ? 'data-auto-open-assignment-share-modal' : '' %>
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="assignmentShareModalLabel">Compartir tarea</h2>
+        <h2 class="modal-title fs-5" id="assignmentShareProfileModalLabel">Compartir con perfil</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <label class="form-label" for="assignmentShareLink">Link</label>
-        <div class="input-group">
-          <input class="form-control" id="assignmentShareLink" value="<%= shareUrl %>" readonly data-assignment-share-link-field>
+        <% if (shareTargetAssignmentProfiles.length > 0) { %>
+          <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/share/profile" class="d-grid gap-3">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div>
+              <label class="form-label" for="shareTargetAssignmentProfileId">Perfil destino</label>
+              <select class="form-select" id="shareTargetAssignmentProfileId" name="targetProfileId" required>
+                <% shareTargetAssignmentProfiles.forEach((profile) => { %>
+                  <option value="<%= profile.id %>"><%= profile.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Compartir ahora</button>
+            </div>
+          </form>
+        <% } else { %>
+          <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta tarea.</p>
+        <% } %>
+      </div>
+      <% if (shareTargetAssignmentProfiles.length === 0) { %>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="assignmentShareLinkModal"
+  tabindex="-1"
+  aria-labelledby="assignmentShareLinkModalLabel"
+  aria-hidden="true"
+  <%= assignmentShareMode === 'link' ? 'data-auto-open-assignment-share-modal' : '' %>
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="assignmentShareLinkModalLabel">Enlace para compartir</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body d-grid gap-3">
+        <label class="form-label" for="assignmentShareLink">Enlace</label>
+        <input class="form-control" id="assignmentShareLink" value="<%= shareUrl %>" readonly data-assignment-share-link-field>
+        <div class="d-flex flex-wrap gap-2">
           <button class="btn btn-outline-secondary" type="button" data-copy-assignment-share-link>
             <i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar
           </button>
+          <button class="btn btn-outline-secondary" type="button" data-native-share-assignment-link>
+            <i class="bi bi-share me-1" aria-hidden="true"></i>Compartir
+          </button>
         </div>
+        <% if (assignmentShareQrDataUrl) { %>
+          <div class="d-flex justify-content-center">
+            <img
+              class="assignment-share-qr"
+              src="<%= assignmentShareQrDataUrl %>"
+              alt="QR del enlace para compartir la tarea"
+              width="180"
+              height="180"
+            >
+          </div>
+        <% } %>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
