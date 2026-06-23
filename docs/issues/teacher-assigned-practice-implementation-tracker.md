@@ -37,7 +37,7 @@ Status legend:
 - [x] Credit-gate all teacher AI authoring operations.
 - [x] Keep shared student evaluation free to the student and separate from
   teacher-paid authoring usage.
-- [x] Do not let teacher preview/test attempts update learner progress.
+- [x] Do not let teacher test attempts update learner progress.
 - [x] Preserve full validation before storing AI-generated assignment drafts,
   blocks, attempts, or results.
 - [x] Log ids and status metadata in production without storing full learner
@@ -54,9 +54,9 @@ Implemented in this pass:
   block generation.
 - [x] `Tareas` navigation, list, create, authoring, detail, share, public
   shared-link, attempt, and result pages.
-- [x] `Design`, `AI chat`, and `Preview` authoring tabs.
+- [x] `General`, `Bloques`, and `AI chat` authoring tabs.
 - [x] Numbered blocks with stable ids and reorder/delete/duplicate/add actions.
-- [x] Teacher preview attempts before publication.
+- [x] Teacher test attempts with the student-facing UI.
 - [x] Shared guest attempts and free product-funded evaluation.
 - [x] Authenticated progress events and guest result claiming after login.
 - [x] Follow-up tutor conversations seeded with assignment-attempt snapshots.
@@ -83,7 +83,7 @@ Goal: make sure the feature agreement is captured before implementation begins.
 - [x] Document the AI-assisted authoring workflow.
 - [x] Document the `Design` / `AI chat` tab model.
 - [x] Document numbered blocks and stable internal block ids.
-- [x] Document `Preview` versus teacher test/evaluation.
+- [x] Document teacher test/evaluation behavior.
 - [x] Add an implementation roadmap to the feature document.
 - [x] Create this implementation tracker.
 
@@ -146,21 +146,21 @@ Tasks:
 - [x] Add archive/restore actions.
 - [x] Add share-link route and owner share modal.
 - [ ] Add static manual assignment JSON support for development/debugging.
-- [x] Add student-facing `Preview` surface that does not create attempts.
+- [x] Add `Probar` action that creates teacher-owned test attempts.
 - [x] Add EJS views that follow resource-page conventions.
 
 Exit criteria:
 
 - [ ] A teacher can create a simple assignment without AI.
 - [x] A teacher can list, open, edit, archive, restore, and share an assignment.
-- [x] Preview renders the student-facing shape without recording progress or
-  consuming credits.
+- [x] Test attempts render the student-facing shape without recording progress
+  or consuming credits before submission.
 
 Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [x] EJS render smoke of list/new/detail/edit/share/preview.
+- [x] EJS render smoke of list/new/detail/edit/share/test.
 
 ## Slice 3: Assignment Contract And Quiz Renderer Reuse
 
@@ -178,20 +178,20 @@ Tasks:
 - [x] Add server-side validation for saved drafts.
 - [x] Extract/adapt quiz renderer helpers so they work outside chat without
   `messageId:blockIndex`.
-- [x] Render every supported exercise type in preview.
+- [x] Render every supported exercise type in test attempts.
 - [x] Add tests for valid and invalid assignment payloads.
 
 Exit criteria:
 
 - [x] Invalid assignment payloads are rejected before persistence.
 - [x] Reordering preserves stable ids and updates visible block numbers.
-- [x] Preview supports the full supported exercise catalog.
+- [x] Test attempts support the full supported exercise catalog.
 
 Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [x] EJS preview smoke for each exercise type.
+- [x] EJS test-attempt smoke for each exercise type.
 
 ## Slice 4: AI-Assisted Initial Authoring
 
@@ -287,32 +287,32 @@ Verification:
 - [x] `npm test`
 - [ ] Prompt contract fixtures for assignment revisions.
 
-## Slice 7: Teacher Preview And Test Evaluation
+## Slice 7: Teacher Test Evaluation
 
 Goal: let the teacher inspect and optionally test the full student experience.
 
 Tasks:
 
-- [x] Finalize `Preview` as the shared-link student layout shape.
+- [x] Finalize teacher test attempts as the shared-link student layout shape.
 - [x] Hide authoring controls, validation badges, rubrics, and teacher-only
-  notes from preview.
-- [x] Add optional teacher preview attempt mode.
-- [x] Let the teacher submit preview answers for evaluation.
-- [x] Credit-gate teacher preview/test evaluation.
-- [x] Ensure preview attempts do not update learner progress.
-- [x] Log preview started/submitted/evaluated events.
+  notes from teacher test attempts.
+- [x] Add optional teacher test attempt mode.
+- [x] Let the teacher submit test answers for evaluation.
+- [x] Credit-gate teacher test evaluation.
+- [x] Ensure teacher test attempts do not update learner progress.
+- [x] Log test started/submitted/evaluated events.
 
 Exit criteria:
 
-- [x] Opening `Preview` does not consume LLM credits.
-- [x] Submitting preview answers consumes teacher authoring credits.
-- [x] Preview activity does not appear as real student progress.
+- [x] Starting a test attempt does not consume LLM credits.
+- [x] Submitting test answers consumes teacher authoring credits.
+- [x] Test activity does not appear as real student progress.
 
 Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [x] EJS smoke of preview and teacher test pages.
+- [x] EJS smoke of teacher test pages.
 
 ## Slice 8: Shared Student Runtime
 

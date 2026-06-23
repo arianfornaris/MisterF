@@ -12,9 +12,7 @@ The only valid top-level shape is:
   "description": "...",
   "targetTopic": "...",
   "level": "...",
-  "estimatedMinutes": 10,
   "instructions": "...",
-  "rubric": "...",
   "blocks": [
     {
       "id": "block_1",

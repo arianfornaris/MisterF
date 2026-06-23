@@ -68,7 +68,7 @@ import { recordAssignmentAttemptProgress } from '../services/learnerProgress.js'
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
 
-type AssignmentAuthoringTab = 'blocks' | 'chat' | 'general' | 'preview';
+type AssignmentAuthoringTab = 'blocks' | 'chat' | 'general';
 
 type AssignmentBlockOutlineItem = {
   blockNumber: number;
@@ -258,15 +258,6 @@ function readMultilineField(value: unknown, maxLength = 8000): string {
     : '';
 }
 
-function readEstimatedMinutes(value: unknown): number | null {
-  const raw = Number(readField(value, 20));
-  if (!Number.isInteger(raw) || raw < 1 || raw > 180) {
-    return null;
-  }
-
-  return raw;
-}
-
 function readReturnTo(value: unknown, fallback: string): string {
   const returnTo = readField(value, 1200);
   return returnTo.startsWith('/') ? returnTo : fallback;
@@ -279,11 +270,11 @@ function readAssignmentShareMode(value: unknown): 'link' | 'profile' | '' {
 
 function readAssignmentAuthoringTab(value: unknown): AssignmentAuthoringTab {
   const tab = readField(value, 20);
-  if (tab === 'blocks' || tab === 'chat' || tab === 'general' || tab === 'preview') {
+  if (tab === 'blocks' || tab === 'chat' || tab === 'general') {
     return tab;
   }
 
-  if (tab === 'design') {
+  if (tab === 'design' || tab === 'preview') {
     return 'general';
   }
 
@@ -324,11 +315,9 @@ function updateAssignmentWithDraft(
   return updateAssignment({
     assignmentId: assignment.id,
     description: draft.description,
-    estimatedMinutes: draft.estimatedMinutes,
     instructions: draft.instructions,
     level: draft.level,
     quiz: draft,
-    rubric: draft.rubric,
     targetTopic: draft.targetTopic,
     title: draft.title,
     userId,
@@ -406,7 +395,6 @@ function renderAssignmentAuthoring(
     }),
     activeTab: input.activeTab ?? defaultAssignmentAuthoringTab,
     assignmentBlockKinds,
-    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
     authoringError: input.error || '',
     draft,
     selectedAssignment: input.assignment,
@@ -631,12 +619,10 @@ export async function handleGenerateAssignment(
     });
     const assignment = createAssignment({
       description: draft.description,
-      estimatedMinutes: draft.estimatedMinutes,
       instructions: draft.instructions,
       level: draft.level,
       profileId: auth.activeProfile.id,
       quiz: draft,
-      rubric: draft.rubric,
       targetTopic: draft.targetTopic,
       title: draft.title,
       userId: auth.user.id,
@@ -685,11 +671,9 @@ export function handleUpdateAssignmentMetadata(request: Request, response: Respo
 
   const updatedDraft = createAssignmentDraftFromManualInput({
     description: readMultilineField(request.body.description, 1500),
-    estimatedMinutes: readEstimatedMinutes(request.body.estimatedMinutes),
     instructions: readMultilineField(request.body.instructions, 3000),
     level: readField(request.body.level, 120),
     previousDraft: draft,
-    rubric: readMultilineField(request.body.rubric, 3000),
     targetTopic: readField(request.body.targetTopic, 220),
     title: readField(request.body.title, 220) || draft.title,
   });
@@ -1108,7 +1092,7 @@ export function handleStartAssignmentAttempt(request: Request, response: Respons
   response.redirect(appendGuestToken(`/assignment-attempts/${encodeURIComponent(attempt.id)}`, attempt));
 }
 
-export function handleStartAssignmentPreviewAttempt(
+export function handleStartAssignmentTestAttempt(
   request: Request,
   response: Response,
 ): void {

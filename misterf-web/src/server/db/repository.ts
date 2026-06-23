@@ -241,14 +241,12 @@ export type StoredAssignment = {
   archivedAt: string | null;
   createdAt: string;
   description: string;
-  estimatedMinutes: number | null;
   id: string;
   instructions: string;
   isFavorite: boolean;
   level: string;
   profileId: string;
   quiz: Record<string, unknown>;
-  rubric: string;
   sharedVia: 'link' | 'profile' | null;
   sourceAssignmentId: string | null;
   sourceProfileId: string | null;
@@ -585,14 +583,12 @@ type AssignmentRow = {
   archived_at: string | null;
   created_at: string;
   description: string;
-  estimated_minutes: number | null;
   id: string;
   instructions: string;
   is_favorite: number;
   level: string;
   profile_id: string;
   quiz_json: string;
-  rubric: string;
   shared_via: 'link' | 'profile' | null;
   source_assignment_id: string | null;
   source_profile_id: string | null;
@@ -813,14 +809,12 @@ function toStoredAssignment(row: AssignmentRow): StoredAssignment {
     archivedAt: row.archived_at,
     createdAt: row.created_at,
     description: row.description,
-    estimatedMinutes: row.estimated_minutes,
     id: row.id,
     instructions: row.instructions,
     isFavorite: Boolean(row.is_favorite),
     level: row.level,
     profileId: row.profile_id,
     quiz: parseJsonRecord(row.quiz_json),
-    rubric: row.rubric,
     sharedVia: row.shared_via,
     sourceAssignmentId: row.source_assignment_id,
     sourceProfileId: row.source_profile_id,
@@ -2602,12 +2596,10 @@ export function upsertLearnerProgressEvent(input: {
 
 export function createAssignment(input: {
   description?: string;
-  estimatedMinutes?: number | null;
   instructions?: string;
   level?: string;
   profileId: string;
   quiz: Record<string, unknown>;
-  rubric?: string;
   sharedVia?: 'link' | 'profile' | null;
   sourceAssignmentId?: string | null;
   sourceProfileId?: string | null;
@@ -2628,16 +2620,14 @@ export function createAssignment(input: {
           description,
           target_topic,
           level,
-          estimated_minutes,
           instructions,
-          rubric,
           quiz_json,
           source_assignment_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -2648,9 +2638,7 @@ export function createAssignment(input: {
       input.description ?? '',
       input.targetTopic ?? '',
       input.level ?? '',
-      input.estimatedMinutes ?? null,
       input.instructions ?? '',
-      input.rubric ?? '',
       JSON.stringify(input.quiz),
       input.sourceAssignmentId ?? null,
       input.sourceUserId ?? null,
@@ -2677,14 +2665,12 @@ export function findAssignmentForUser(
           archived_at,
           created_at,
           description,
-          estimated_minutes,
           id,
           instructions,
           is_favorite,
           level,
           profile_id,
           quiz_json,
-          rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
@@ -2710,14 +2696,12 @@ export function findAssignmentById(id: string): StoredAssignment | null {
           archived_at,
           created_at,
           description,
-          estimated_minutes,
           id,
           instructions,
           is_favorite,
           level,
           profile_id,
           quiz_json,
-          rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
@@ -2747,14 +2731,12 @@ export function listAssignmentsForProfile(input: {
           archived_at,
           created_at,
           description,
-          estimated_minutes,
           id,
           instructions,
           is_favorite,
           level,
           profile_id,
           quiz_json,
-          rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
@@ -2782,11 +2764,9 @@ export function listAssignmentsForProfile(input: {
 export function updateAssignment(input: {
   assignmentId: string;
   description: string;
-  estimatedMinutes?: number | null;
   instructions: string;
   level: string;
   quiz: Record<string, unknown>;
-  rubric: string;
   targetTopic: string;
   title: string;
   userId: string;
@@ -2799,9 +2779,7 @@ export function updateAssignment(input: {
             description = ?,
             target_topic = ?,
             level = ?,
-            estimated_minutes = ?,
             instructions = ?,
-            rubric = ?,
             quiz_json = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
@@ -2812,9 +2790,7 @@ export function updateAssignment(input: {
       input.description,
       input.targetTopic,
       input.level,
-      input.estimatedMinutes ?? null,
       input.instructions,
-      input.rubric,
       JSON.stringify(input.quiz),
       input.assignmentId,
       input.userId,
@@ -2835,14 +2811,12 @@ export function findImportedAssignmentForProfile(input: {
           archived_at,
           created_at,
           description,
-          estimated_minutes,
           id,
           instructions,
           is_favorite,
           level,
           profile_id,
           quiz_json,
-          rubric,
           shared_via,
           source_assignment_id,
           source_profile_id,
@@ -2883,12 +2857,10 @@ export function importAssignmentToProfile(input: {
 
   return createAssignment({
     description: input.sourceAssignment.description,
-    estimatedMinutes: input.sourceAssignment.estimatedMinutes,
     instructions: input.sourceAssignment.instructions,
     level: input.sourceAssignment.level,
     profileId: input.targetProfileId,
     quiz: input.sourceAssignment.quiz,
-    rubric: input.sourceAssignment.rubric,
     sharedVia: input.shareKind,
     sourceAssignmentId: input.sourceAssignment.id,
     sourceProfileId: input.sourceAssignment.profileId,

@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentFollowUpConversation, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleGenerateAssignment, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignment, handleSetAssignmentFavorite, handleShareAssignmentToProfile, handleStartAssignmentAttempt, handleStartAssignmentPreviewAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentMetadata, renderAssignmentAttemptPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentsListPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
+import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentFollowUpConversation, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleGenerateAssignment, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignment, handleSetAssignmentFavorite, handleShareAssignmentToProfile, handleStartAssignmentAttempt, handleStartAssignmentTestAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentMetadata, renderAssignmentAttemptPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentsListPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
 export const assignmentsRouter = express.Router();
 assignmentsRouter.get('/assignments', renderAssignmentsListPage);
 assignmentsRouter.get('/assignments/new', renderAssignmentNewPage);
@@ -20,7 +20,7 @@ assignmentsRouter.post('/assignments/:assignmentId/favorite', handleSetAssignmen
 assignmentsRouter.post('/assignments/:assignmentId/share/profile', handleShareAssignmentToProfile);
 assignmentsRouter.post('/assignments/:assignmentId/archive', handleArchiveAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/restore', handleRestoreAssignment);
-assignmentsRouter.post('/assignments/:assignmentId/preview-attempts', handleStartAssignmentPreviewAttempt);
+assignmentsRouter.post('/assignments/:assignmentId/test-attempts', handleStartAssignmentTestAttempt);
 assignmentsRouter.get('/assignment-attempts/:attemptId', renderAssignmentAttemptPage);
 assignmentsRouter.get('/assignment-attempts/:attemptId/result', renderAssignmentResultPage);
 assignmentsRouter.post('/assignment-attempts/:attemptId/claim', handleClaimAssignmentAttempt);

@@ -13,9 +13,7 @@ Use this JSON shape exactly:
   "description": "...",
   "targetTopic": "...",
   "level": "...",
-  "estimatedMinutes": 10,
   "instructions": "...",
-  "rubric": "...",
   "blocks": [
     {
       "id": "block_1",
@@ -29,9 +27,7 @@ Field guidance:
 - description: concise learner-facing description of the task.
 - targetTopic: the main grammar, vocabulary, reading, writing, listening-style text, or communicative skill.
 - level: CEFR-like level or clear learner level when the request implies one.
-- estimatedMinutes: realistic integer between 1 and 180.
 - instructions: teacher-facing guidance about what the task checks and how it should be evaluated.
-- rubric: general evaluation rubric for the whole task.
 - blocks: 3 to 10 quiz items unless the user clearly asks for a different size.
 
 Every block id must:
@@ -46,8 +42,7 @@ Supported quiz item shapes:
 {
   "kind": "quiz_open_text",
   "prompt": "...",
-  "placeholder": "...",
-  "rubric": "..."
+  "placeholder": "..."
 }
 
 2. Translate to English
@@ -55,8 +50,7 @@ Supported quiz item shapes:
   "kind": "quiz_translate_to_english",
   "prompt": "...",
   "sentence": "...",
-  "acceptableAnswers": ["..."],
-  "rubric": "..."
+  "acceptableAnswers": ["..."]
 }
 
 3. Understand in Spanish
@@ -64,8 +58,7 @@ Supported quiz item shapes:
   "kind": "quiz_understand_in_spanish",
   "prompt": "...",
   "sentence": "...",
-  "acceptableAnswers": ["..."],
-  "rubric": "..."
+  "acceptableAnswers": ["..."]
 }
 
 4. Fill in the blank with typed answers
@@ -76,8 +69,7 @@ Use ___ once per blank.
   "sentence": "I ___ breakfast at seven.",
   "blanks": [
     {
-      "acceptableAnswers": ["eat", "have"],
-      "rubric": "..."
+      "acceptableAnswers": ["eat", "have"]
     }
   ]
 }
@@ -91,8 +83,7 @@ Use {{blank}} once per blank.
   "blanks": [
     {
       "choices": ["go", "goes", "going"],
-      "acceptableAnswers": ["goes"],
-      "rubric": "..."
+      "acceptableAnswers": ["goes"]
     }
   ]
 }
@@ -103,8 +94,7 @@ Use {{blank}} once per blank.
   "prompt": "...",
   "selectionMode": "single",
   "options": ["...", "..."],
-  "correctOptions": ["..."],
-  "rubric": "..."
+  "correctOptions": ["..."]
 }
 
 7. Matching pairs
@@ -115,8 +105,7 @@ Use {{blank}} once per blank.
   "rightItems": ["...", "..."],
   "correctPairs": [
     { "left": "...", "right": "..." }
-  ],
-  "rubric": "..."
+  ]
 }
 
 8. Unscramble sentence
@@ -124,16 +113,15 @@ Use {{blank}} once per blank.
   "kind": "quiz_unscramble_sentence",
   "prompt": "...",
   "tokens": ["She", "is", "studying", "English"],
-  "acceptableAnswers": ["She is studying English."],
-  "rubric": "..."
+  "acceptableAnswers": ["She is studying English."]
 }
 
 Quality rules:
-- Write title, description, targetTopic, instructions, rubric, prompts, feedback-oriented rubrics, and visible learner text in Spanish unless the user clearly asks for another language.
+- Write title, description, targetTopic, instructions, prompts, accepted answers, and visible learner text in Spanish unless the user clearly asks for another language.
 - Keep the task focused on one coherent learning goal or a tight cluster of related goals.
 - Mix item types when that helps learning, but do not force variety at the expense of clarity.
-- For open-ended items, include a rubric instead of pretending there is only one exact answer.
-- For typed fill-in-the-blank items, include acceptableAnswers only when there are clear accepted answers. Otherwise include a rubric that the evaluator can use.
+- For open-ended items, make the prompt specific enough that the evaluator can judge the answer from the item and assignment context.
+- For typed fill-in-the-blank items, include acceptableAnswers only when there are clear accepted answers.
 - Make the task self-contained. The evaluator should not need hidden context outside the JSON.
 - Prefer concrete learner prompts over generic instructions.
 - Do not mention internal schemas, blocks, JSON, or AI to the learner-facing text.

@@ -308,12 +308,12 @@ Credit policy:
 - creating a Tarea requires an authenticated teacher account
 - the Tarea authoring flow is credit-gated for the teacher
 - AI draft generation, single-block generation from the add-block modal,
-  AI-assisted revisions, and teacher preview/test evaluation are teacher-paid
+  AI-assisted revisions, and teacher test evaluation are teacher-paid
   authoring usage
 - manual edits inside the authoring workspace do not consume LLM credits unless
   they trigger AI validation or evaluation
-- opening the student-facing `Preview` does not consume LLM credits unless the
-  teacher submits preview answers for AI evaluation
+- starting a teacher test attempt with `Probar` does not consume LLM credits
+  unless the teacher submits answers for AI evaluation
 - a shared Tarea can be completed by a student without an account
 - the AI evaluation after a shared Tarea submission is free to the student
 - free shared-Tarea evaluation is product-funded acquisition usage, not usage
@@ -421,7 +421,7 @@ The agreed rules for the first implementation are:
 - Mister F keeps an internal ledger for purchases and fulfillment
 - creating a Tarea is an authenticated, credit-gated teacher authoring workflow
 - AI-assisted Tarea draft generation, single-block generation, revision, and
-  teacher preview/test evaluation are teacher-paid usage
+  teacher test evaluation are teacher-paid usage
 - shared Tarea completion can be free for students without accounts through a
   product-funded evaluation policy
 - post-result follow-up tutoring from a Tarea uses the student's standard

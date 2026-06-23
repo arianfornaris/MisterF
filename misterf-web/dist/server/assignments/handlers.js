@@ -152,13 +152,6 @@ function readMultilineField(value, maxLength = 8000) {
         ? value.replace(/\r\n/g, '\n').trim().slice(0, maxLength)
         : '';
 }
-function readEstimatedMinutes(value) {
-    const raw = Number(readField(value, 20));
-    if (!Number.isInteger(raw) || raw < 1 || raw > 180) {
-        return null;
-    }
-    return raw;
-}
 function readReturnTo(value, fallback) {
     const returnTo = readField(value, 1200);
     return returnTo.startsWith('/') ? returnTo : fallback;
@@ -169,10 +162,10 @@ function readAssignmentShareMode(value) {
 }
 function readAssignmentAuthoringTab(value) {
     const tab = readField(value, 20);
-    if (tab === 'blocks' || tab === 'chat' || tab === 'general' || tab === 'preview') {
+    if (tab === 'blocks' || tab === 'chat' || tab === 'general') {
         return tab;
     }
-    if (tab === 'design') {
+    if (tab === 'design' || tab === 'preview') {
         return 'general';
     }
     return defaultAssignmentAuthoringTab;
@@ -199,11 +192,9 @@ function updateAssignmentWithDraft(assignment, userId, draft) {
     return updateAssignment({
         assignmentId: assignment.id,
         description: draft.description,
-        estimatedMinutes: draft.estimatedMinutes,
         instructions: draft.instructions,
         level: draft.level,
         quiz: draft,
-        rubric: draft.rubric,
         targetTopic: draft.targetTopic,
         title: draft.title,
         userId,
@@ -266,7 +257,6 @@ function renderAssignmentAuthoring(request, response, input) {
         }),
         activeTab: input.activeTab ?? defaultAssignmentAuthoringTab,
         assignmentBlockKinds,
-        assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
         authoringError: input.error || '',
         draft,
         selectedAssignment: input.assignment,
@@ -438,12 +428,10 @@ export async function handleGenerateAssignment(request, response) {
         });
         const assignment = createAssignment({
             description: draft.description,
-            estimatedMinutes: draft.estimatedMinutes,
             instructions: draft.instructions,
             level: draft.level,
             profileId: auth.activeProfile.id,
             quiz: draft,
-            rubric: draft.rubric,
             targetTopic: draft.targetTopic,
             title: draft.title,
             userId: auth.user.id,
@@ -487,11 +475,9 @@ export function handleUpdateAssignmentMetadata(request, response) {
     }
     const updatedDraft = createAssignmentDraftFromManualInput({
         description: readMultilineField(request.body.description, 1500),
-        estimatedMinutes: readEstimatedMinutes(request.body.estimatedMinutes),
         instructions: readMultilineField(request.body.instructions, 3000),
         level: readField(request.body.level, 120),
         previousDraft: draft,
-        rubric: readMultilineField(request.body.rubric, 3000),
         targetTopic: readField(request.body.targetTopic, 220),
         title: readField(request.body.title, 220) || draft.title,
     });
@@ -823,7 +809,7 @@ export function handleStartAssignmentAttempt(request, response) {
     });
     response.redirect(appendGuestToken(`/assignment-attempts/${encodeURIComponent(attempt.id)}`, attempt));
 }
-export function handleStartAssignmentPreviewAttempt(request, response) {
+export function handleStartAssignmentTestAttempt(request, response) {
     const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;

@@ -263,9 +263,7 @@ Important fields:
 - `description`
 - `targetTopic`
 - `level`
-- optional `estimatedMinutes`
 - `instructions`
-- `rubric`
 - `quiz`
 - favorite/archive metadata
 - optional source/share metadata
@@ -286,7 +284,7 @@ Important fields:
 
 ### Assignment Attempt
 
-Represents a student or teacher-preview submission against a frozen assignment
+Represents a student submission or teacher test submission against a frozen assignment
 snapshot.
 
 Important fields:
@@ -304,8 +302,8 @@ Important fields:
 - optional `progressEventId`
 - timestamps for start, submit, and evaluation
 
-Guest attempts use isolated tokens and can be claimed after login. Preview
-attempts never write learner progress.
+Guest attempts use isolated tokens and can be claimed after login. Teacher test
+attempts use `isPreview` and never write learner progress.
 
 ## Learner Progress
 

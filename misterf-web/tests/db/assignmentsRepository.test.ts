@@ -13,7 +13,6 @@ const assignmentDraft = {
       item: {
         kind: 'quiz_open_text',
         prompt: 'Write one sentence with present perfect.',
-        rubric: 'Accept clear present perfect usage.',
       },
     },
     {
@@ -28,10 +27,8 @@ const assignmentDraft = {
     },
   ],
   description: 'Present perfect practice.',
-  estimatedMinutes: 8,
   instructions: 'Evaluate present perfect meaning and form.',
   level: 'B1',
-  rubric: 'Look for meaning, form, and clarity.',
   targetTopic: 'Present perfect',
   title: 'Present Perfect Check',
 };
@@ -101,12 +98,10 @@ describe('assignment repository', () => {
 
     const assignment = createAssignment({
       description: assignmentDraft.description,
-      estimatedMinutes: assignmentDraft.estimatedMinutes,
       instructions: assignmentDraft.instructions,
       level: assignmentDraft.level,
       profileId: profile.id,
       quiz: assignmentDraft,
-      rubric: assignmentDraft.rubric,
       targetTopic: assignmentDraft.targetTopic,
       title: assignmentDraft.title,
       userId: user.id,
@@ -118,15 +113,12 @@ describe('assignment repository', () => {
     const updated = updateAssignment({
       assignmentId: assignment.id,
       description: 'Updated description.',
-      estimatedMinutes: 9,
       instructions: assignmentDraft.instructions,
       level: assignmentDraft.level,
       quiz: {
         ...assignmentDraft,
         description: 'Updated description.',
-        estimatedMinutes: 9,
       },
-      rubric: assignmentDraft.rubric,
       targetTopic: assignmentDraft.targetTopic,
       title: 'Updated assignment',
       userId: user.id,

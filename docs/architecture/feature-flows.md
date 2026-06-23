@@ -110,11 +110,10 @@ independently. The Spanish UI label is `Tareas`.
     using block-number references.
 11. AI-generated blocks and AI revisions replace the current structured draft
     only after validation against the supported quiz item contract.
-12. The teacher opens `Preview` to see the student-facing Tarea shape before
-    saving or sharing it.
+12. The teacher clicks `Probar` to execute the student-facing Tarea shape.
 13. The teacher can test the assignment from the student perspective and submit
-    a preview attempt for AI evaluation.
-14. Teacher preview/test evaluation is charged as authoring usage and does not
+    the test attempt for AI evaluation.
+14. Teacher test evaluation is charged as authoring usage and does not
     write learner progress.
 15. The assignment stores a fixed quiz-compatible payload with title,
     description, target topic, instructions, rubric, and ordered items.

@@ -30,8 +30,8 @@ Rules:
 - Choose the item kind that best matches blockKind and requestedBlock.
 - Use a new id that is not present in currentDraft.blocks.
 - The id must match ^[a-z][a-z0-9_-]*$.
-- Make the new block coherent with currentDraft.title, currentDraft.targetTopic, currentDraft.level, and currentDraft.rubric.
+- Make the new block coherent with currentDraft.title, currentDraft.targetTopic, and currentDraft.level.
 - Write visible learner text in Spanish unless the teacher clearly asks for another language.
 - Keep the block self-contained for evaluation.
-- For open-ended items, include a rubric instead of pretending there is only one exact answer.
-- For typed fill-in-the-blank items, include acceptableAnswers only when there are clear accepted answers. Otherwise include a rubric that the evaluator can use.
+- For open-ended items, make the prompt specific enough that the evaluator can judge the answer from the item and assignment context.
+- For typed fill-in-the-blank items, include acceptableAnswers only when there are clear accepted answers.

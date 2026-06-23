@@ -32,10 +32,8 @@ const validDraft = {
     },
   ],
   description: 'Short diagnostic.',
-  estimatedMinutes: 5,
   instructions: 'Evaluate clearly.',
   level: 'B1',
-  rubric: 'Meaning and form.',
   targetTopic: 'Present perfect',
   title: 'Present Perfect Diagnostic',
 };
@@ -44,6 +42,16 @@ describe('assignment service', () => {
   it('accepts valid assignment drafts and rejects duplicate block ids', () => {
     expect(parseAssignmentDraft(validDraft).blocks).toHaveLength(2);
     expect(assignmentDraftToQuizBlock(parseAssignmentDraft(validDraft)).items).toHaveLength(2);
+    expect(Object.hasOwn(parseAssignmentDraft({
+      ...validDraft,
+      estimatedMinutes: 5,
+      rubric: 'Legacy task-level rubric.',
+    }), 'estimatedMinutes')).toBe(false);
+    expect(Object.hasOwn(parseAssignmentDraft({
+      ...validDraft,
+      rubric: 'Legacy task-level rubric.',
+    }), 'rubric')).toBe(false);
+    expect(Object.hasOwn(parseAssignmentDraft(validDraft).blocks[0]?.item ?? {}, 'rubric')).toBe(false);
 
     expect(safeParseAssignmentDraft({
       ...validDraft,

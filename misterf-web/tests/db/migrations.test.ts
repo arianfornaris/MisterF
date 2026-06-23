@@ -75,6 +75,14 @@ describe('database migrations', () => {
         id: 5,
         name: 'remove_assignment_authoring_sessions',
       },
+      {
+        id: 6,
+        name: 'drop_assignment_estimated_minutes',
+      },
+      {
+        id: 7,
+        name: 'drop_assignment_rubric',
+      },
     ]);
 
     const tableNames = (db
@@ -135,7 +143,9 @@ describe('database migrations', () => {
       'target_topic',
     ]));
     expect(getColumnNames(db, 'assignments')).not.toEqual(expect.arrayContaining([
+      'estimated_minutes',
       'published_at',
+      'rubric',
       'status',
     ]));
     expect(getColumnNames(db, 'assignment_attempts')).toEqual(expect.arrayContaining([
@@ -254,10 +264,14 @@ describe('database migrations', () => {
     migrate();
 
     expect(getColumnNames(db, 'assignments')).not.toEqual(expect.arrayContaining([
+      'estimated_minutes',
       'published_at',
+      'rubric',
       'status',
     ]));
     expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'assignments')).not.toContain('estimated_minutes');
+    expect(getColumnNames(db, 'assignments')).not.toContain('rubric');
     expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_sessions'")
       .get()).toBeUndefined();
     expect(db.prepare('SELECT assignment_id FROM assignment_attempts WHERE id = ?')
@@ -309,10 +323,8 @@ describe('database migrations', () => {
         },
       ],
       description: 'Legacy generated homework.',
-      estimatedMinutes: 7,
       instructions: 'Answer carefully.',
       level: 'A2',
-      rubric: 'Check clarity.',
       targetTopic: 'Simple past',
       title: 'Legacy Generated Task',
     });

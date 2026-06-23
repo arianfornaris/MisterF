@@ -18,8 +18,27 @@ import type {
 
 const maxAssignmentBlocks = 24;
 
-export const assignmentBlockSchema = z
-  .object({
+function stripAssignmentUnsupportedFields(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(stripAssignmentUnsupportedFields);
+  }
+
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+
+  const draft = { ...(value as Record<string, unknown>) };
+  delete draft.estimatedMinutes;
+  delete draft.rubric;
+  for (const [key, nestedValue] of Object.entries(draft)) {
+    draft[key] = stripAssignmentUnsupportedFields(nestedValue);
+  }
+  return draft;
+}
+
+export const assignmentBlockSchema = z.preprocess(
+  stripAssignmentUnsupportedFields,
+  z.object({
     id: z
       .string()
       .trim()
@@ -28,16 +47,16 @@ export const assignmentBlockSchema = z
       .regex(/^[a-z][a-z0-9_-]*$/),
     item: quizItemSchema,
   })
-  .strict();
+  .strict(),
+);
 
-export const assignmentDraftSchema = z
-  .object({
+export const assignmentDraftSchema = z.preprocess(
+  stripAssignmentUnsupportedFields,
+  z.object({
     blocks: z.array(assignmentBlockSchema).min(1).max(maxAssignmentBlocks),
     description: z.string().trim().max(1500).default(''),
-    estimatedMinutes: z.number().int().min(1).max(180).nullable().default(null),
     instructions: z.string().trim().max(3000).default(''),
     level: z.string().trim().max(120).default(''),
-    rubric: z.string().trim().max(3000).default(''),
     targetTopic: z.string().trim().max(220).default(''),
     title: z.string().trim().min(1).max(220),
   })
@@ -57,7 +76,8 @@ export const assignmentDraftSchema = z
 
       seenIds.add(normalizedId);
     });
-  });
+  }),
+);
 
 export type AssignmentBlock = z.infer<typeof assignmentBlockSchema>;
 export type AssignmentDraft = z.infer<typeof assignmentDraftSchema>;
@@ -137,10 +157,8 @@ export function storedAssignmentToDraft(assignment: StoredAssignment): Assignmen
   return {
     blocks: [],
     description: assignment.description,
-    estimatedMinutes: assignment.estimatedMinutes,
     instructions: assignment.instructions,
     level: assignment.level,
-    rubric: assignment.rubric,
     targetTopic: assignment.targetTopic,
     title: assignment.title,
   };
@@ -150,7 +168,6 @@ export function assignmentDraftToQuizBlock(draft: AssignmentDraft): TutorQuizBlo
   const quiz = {
     items: draft.blocks.map((block) => block.item),
     prompt: draft.instructions || draft.description || draft.title,
-    ...(draft.rubric ? { rubric: draft.rubric } : {}),
     title: draft.title,
     type: 'quiz' as const,
   };
@@ -231,21 +248,17 @@ function buildStudentQuizItem(item: TutorQuizItem): AssignmentStudentQuizItem {
 
 export function createAssignmentDraftFromManualInput(input: {
   description: string;
-  estimatedMinutes: number | null;
   instructions: string;
   level: string;
   previousDraft: AssignmentDraft;
-  rubric: string;
   targetTopic: string;
   title: string;
 }): AssignmentDraft {
   return assignmentDraftSchema.parse({
     ...input.previousDraft,
     description: input.description,
-    estimatedMinutes: input.estimatedMinutes,
     instructions: input.instructions,
     level: input.level,
-    rubric: input.rubric,
     targetTopic: input.targetTopic,
     title: input.title,
   });

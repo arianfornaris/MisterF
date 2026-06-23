@@ -226,13 +226,12 @@
               <p class="card-text mb-2 text-body-secondary"><%= assignment.description || assignment.targetTopic || 'Sin descripción' %></p>
               <div class="resource-meta-row">
                 <% if (assignment.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= assignment.targetTopic %></span><% } %>
-                <% if (assignment.estimatedMinutes) { %><span><i class="bi bi-clock" aria-hidden="true"></i> <%= assignment.estimatedMinutes %> min</span><% } %>
                 <span><i class="bi bi-calendar" aria-hidden="true"></i> <%= assignment.relativeUpdatedAt %></span>
               </div>
             </div>
             <% if (!assignment.archivedAt) { %>
               <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
-                <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/preview-attempts">
+                <form method="post" action="/assignments/<%= encodeURIComponent(assignment.id) %>/test-attempts">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <button class="btn btn-primary btn-sm" type="submit">Probar</button>
                 </form>

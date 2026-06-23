@@ -1299,4 +1299,20 @@ export const migrations: Migration[] = [
       DROP TABLE IF EXISTS assignment_authoring_sessions;
     `,
   },
+  {
+    id: 6,
+    name: 'drop_assignment_estimated_minutes',
+    up: `
+      ALTER TABLE assignments
+        DROP COLUMN estimated_minutes;
+    `,
+  },
+  {
+    id: 7,
+    name: 'drop_assignment_rubric',
+    up: `
+      ALTER TABLE assignments
+        DROP COLUMN rubric;
+    `,
+  },
 ];

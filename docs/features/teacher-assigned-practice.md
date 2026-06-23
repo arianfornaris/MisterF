@@ -32,12 +32,12 @@ side effects, and follow-up actions.
 The first V1 implementation is in place:
 
 - `Tareas` appears in the authenticated sidebar below `Módulos de práctica`.
-- Teachers create an AI-generated draft from a natural-language prompt.
-- The authoring workspace includes `Design`, `AI chat`, and `Preview` tabs.
+- Teachers create an AI-generated assignment from a natural-language prompt.
+- The authoring workspace includes `General`, `Bloques`, and `AI chat` tabs.
 - Blocks are numbered for human reference and keep stable internal ids.
 - Teachers can update metadata, reorder, delete, duplicate, and AI-generate
   blocks.
-- Teachers can save, share, and run preview attempts.
+- Teachers can share assignments and run test attempts with `Probar`.
 - Students can complete shared links as guests.
 - Shared-student evaluation is product-funded and free to the student.
 - Authenticated attempts update learner progress.
@@ -155,10 +155,10 @@ Included:
 - assignment creation is an AI-assisted authoring workflow
 - teachers can start from a natural-language prompt
 - teachers can chat with Mr. F to revise the draft before saving or sharing
-- teachers can use a `Design` tab to reorder, delete, duplicate, edit, and add
+- teachers can use a `Bloques` tab to reorder, delete, duplicate, edit, and add
   assignment blocks
 - adding a block uses a block-type chooser followed by an AI prompt modal
-- teachers can preview and test the assignment from the student perspective
+- teachers can run a teacher test attempt from the student perspective
 - assignment AI generation, single-block generation, revision, and teacher test
   evaluation are credit-gated for the teacher
 - shared assignments can be completed by students without an account
@@ -219,7 +219,6 @@ Each list item should show:
 - short description
 - target topic or tags
 - item count
-- estimated time
 - updated date
 - share status
 - attempt count when available
@@ -232,7 +231,7 @@ The teacher can describe the assignment in natural language:
 
 - topic or class objective
 - student level
-- number of items or estimated time
+- number of items
 - preferred exercise types
 - content to practice
 - constraints, such as "no translation", "include matching", or "focus on
@@ -285,19 +284,16 @@ Each block should show:
 
 - current block number
 - exercise type label
-- prompt preview
-- learner-facing preview
-- answer/rubric readiness status
+- prompt summary
+- learner-facing test readiness
+- answer readiness status
 - validation status
 - action buttons for reorder, edit, duplicate, delete, and AI-assisted edit
 
-The `Design` tab should also expose assignment-level metadata:
+The `General` tab should expose assignment-level metadata:
 
-- title, description, topic, level, and estimated time
+- title, description, topic, and level
 - overall student instructions
-- overall rubric
-- save/share readiness state
-- `Preview` action for the student-facing assignment view
 
 Block operations:
 
@@ -373,17 +369,18 @@ The modal should follow the standard Bootstrap modal pattern:
 The add-block prompt should generate only the requested block. It should not
 rewrite unrelated assignment metadata or existing blocks.
 
-### Preview And Teacher Testing
+### Teacher Testing
 
-The authoring workspace must include a `Preview` option so the teacher can see
-the Tarea exactly as a student will receive it.
+The authoring workspace should expose a clear `Probar` action so the teacher can
+execute the Tarea exactly as a student will receive it.
 
-Preview requirements:
+Test requirements:
 
-- launch from the `Design` tab
+- launch from the authoring page header
+- create a teacher-owned test attempt with `is_preview = true`
 - render the same student-facing assignment layout used by shared links
-- hide authoring controls, validation badges, rubrics, and teacher-only notes
-- preserve the current draft order and block numbers
+- hide authoring controls, validation badges, and teacher-only notes
+- preserve the current assignment order and block numbers
 - show student-facing title, description, instructions, item prompts, and
   expected interactions
 - support desktop and mobile responsive layouts
@@ -393,15 +390,15 @@ Preview requirements:
 
 The teacher should also be able to test the full student flow:
 
-- the teacher can open a student-style preview
+- the teacher can open a student-style test attempt
 - the teacher can answer the assignment themselves
-- the teacher can submit the preview attempt to see the evaluation behavior
-- teacher preview attempts do not update learner progress
-- teacher preview evaluation is part of the paid authoring workflow, not the
+- the teacher can submit the test attempt to see the evaluation behavior
+- teacher test attempts do not update learner progress
+- teacher test evaluation is part of the paid authoring workflow, not the
   free guest-student evaluation policy
 
 The workspace should avoid making the teacher choose between "form editing" and
-"AI editing". Manual edits, assistant revisions, and preview testing all operate
+"AI editing". Manual edits, assistant revisions, and teacher testing all operate
 on the same current draft.
 
 ### Create/Edit Page
@@ -414,9 +411,7 @@ Fields:
 - description
 - target topic
 - optional level
-- optional estimated time
 - overall instructions for students
-- overall rubric
 - attempt policy
 - ordered quiz items
 
@@ -425,13 +420,12 @@ Item editor controls:
 - item type selector
 - prompt
 - type-specific fields
-- rubric or teacher note for model evaluation
 - optional acceptable answers for open/translation/blank/unscramble items
 - add block through the type chooser and AI prompt modal
 - reorder
 - duplicate
 - delete
-- preview
+- test with `Probar`
 
 The authoring UI should not expose internal protocol names like
 `quiz_fill_in_the_blank_input` to teachers. Use product names:
@@ -458,7 +452,7 @@ The assignment detail page should serve two modes:
 
 Owner mode:
 
-- preview assignment
+- test assignment
 - edit
 - share
 - archive
@@ -470,7 +464,7 @@ Student mode:
 
 - assignment title and description
 - teacher/creator name when safe to show
-- item count and estimated time
+- item count
 - start/resume button
 - previous attempt summary if any
 
@@ -478,7 +472,7 @@ Guest student mode:
 
 - assignment title and description
 - teacher/creator name when safe to show
-- item count and estimated time
+- item count
 - clear note that the student can complete the Tarea without an account
 - clear note that saving progress and follow-up tutoring require an account
 
@@ -535,12 +529,11 @@ Primary follow-up actions:
 8. When adding a block, the teacher selects a block type and describes the
    desired block in an AI prompt modal.
 9. The teacher can ask Mr. F for broader revisions in the `AI chat` tab.
-10. The teacher can open `Preview` to see the exact student-facing Tarea.
-11. The teacher can test the assignment as a student and optionally submit the
-   preview attempt for AI evaluation.
+10. The teacher can click `Probar` to execute the exact student-facing Tarea.
+11. The teacher can submit the test attempt for AI evaluation.
 12. Each AI generation or revision validates the updated payload against the
    quiz item contract before replacing the current draft.
-13. Optional teacher preview evaluation is treated as authoring usage and is
+13. Optional teacher test evaluation is treated as authoring usage and is
    charged to the teacher's account.
 14. When ready, the teacher saves the assignment as an owned resource.
 15. The teacher shares the assignment link.
@@ -592,9 +585,7 @@ Possible first-pass tables:
 - `description`
 - `target_topic`
 - `level`
-- `estimated_minutes`
 - `instructions`
-- `rubric`
 - `quiz_json`
 - `attempt_policy`
 - `is_favorite`
@@ -659,13 +650,13 @@ LLM calls can happen when:
 - the teacher generates an assignment draft with AI
 - the teacher generates a single new block from the add-block modal
 - the teacher asks for an AI revision during authoring
-- the teacher submits a preview attempt for AI evaluation during authoring
+- the teacher submits a test attempt for AI evaluation during authoring
 - the teacher creates or saves a Tarea through the credit-gated creation flow
 - the student submits an assignment for free evaluation
 - the student starts follow-up tutoring from a result
 
 Teacher creation is account-required and credit-gated. AI draft generation,
-single-block generation, AI-assisted revisions, and teacher preview/test
+single-block generation, AI-assisted revisions, and teacher test
 evaluation belong to the teacher's paid authoring workflow. This is part of the
 product acquisition model: teachers spend credits to create useful work they can
 share.
@@ -741,8 +732,8 @@ Assignment generation prompt:
 - should know and explain the available exercise types
 - should avoid creating hidden teacher-only answer explanations in learner
   prompts
-- should include rubrics for open-ended items when correctness is not a simple
-  answer key
+- should make open-ended prompts specific enough for model evaluation when
+  correctness is not a simple answer key
 
 Assignment revision prompt:
 
@@ -766,7 +757,8 @@ Single-block generation prompt:
 - should generate exactly one valid block of the selected type
 - should assign or return a stable internal block id for the new block
 - should not rewrite existing blocks or assignment-level metadata
-- should include enough rubric or accepted-answer data for later evaluation
+- should include enough prompt detail or accepted-answer data for later
+  evaluation
 - should preserve the language and learner level implied by the assignment
 
 Assignment evaluation prompt:
@@ -780,7 +772,7 @@ Follow-up tutor context:
 
 - should be a teacher-only context envelope
 - should tell Mr. F to practice the detected weakness, not to grade again
-- should preserve the human teacher's original topic and rubric
+- should preserve the human teacher's original topic and intent
 
 ## Analytics And Logging
 
@@ -794,10 +786,10 @@ Important events:
 - assignment block generation applied
 - assignment block deleted
 - assignment block reordered
-- assignment preview opened
+- assignment test opened
 - assignment authoring validation failed
-- assignment preview test submitted
-- assignment preview test evaluated
+- assignment test submitted
+- assignment test evaluated
 - assignment created
 - assignment shared
 - assignment attempt started
@@ -814,7 +806,7 @@ answers unless full LLM tracing is explicitly enabled.
 
 - The `Tareas` label may make self-study users assume the feature is only for
   formal classes.
-- If the authoring chat and assignment preview are separated too much, teachers
+- If the authoring chat and assignment test flow are separated too much, teachers
   may lose track of what the assistant changed.
 - If the exercise type catalog is hidden, teachers may only request simple
   multiple-choice work and miss the richer practice formats already supported.
@@ -847,7 +839,7 @@ answers unless full LLM tracing is explicitly enabled.
 9. Should assignment follow-up create a normal tutor conversation, a practice
    module, or offer both?
 10. Should AI-generated blocks be inserted immediately as draft blocks, or
-    require an explicit `Accept block` action after preview?
+    require an explicit `Accept block` action after review?
 11. Should assignment authoring show an estimated session cost before each
     generation request, or only charge per accepted AI operation?
 
@@ -897,14 +889,14 @@ Scope:
 - Add EJS views that follow the existing resource page conventions.
 - Add static, manually-authored assignment JSON support for development and
   debugging.
-- Add student-facing `Preview` that renders the current draft without authoring
-  controls.
+- Add a `Probar` action that creates a teacher-owned test attempt.
 
 Exit criteria:
 
 - A teacher can create a simple assignment without AI.
 - The assignment can be listed, opened, edited, archived, and shared.
-- Preview renders the student-facing shape without creating a student attempt.
+- Test attempts render the student-facing shape without creating learner
+  progress.
 
 ### Slice 3: Assignment Contract And Quiz Renderer Reuse
 
@@ -917,14 +909,14 @@ Scope:
 - Add stable internal block ids and visible block-number mapping.
 - Extract or adapt quiz rendering helpers so they can run outside chat without
   relying on `messageId:blockIndex`.
-- Render every supported exercise type in assignment preview.
+- Render every supported exercise type in assignment attempts.
 - Add server-side validation for saved drafts.
 
 Exit criteria:
 
 - Invalid assignment payloads are rejected before persistence.
 - Reordering blocks preserves stable ids and updates visible block numbers.
-- Preview supports the full supported exercise catalog.
+- Test attempts support the full supported exercise catalog.
 
 ### Slice 4: AI-Assisted Initial Authoring
 
@@ -986,23 +978,23 @@ Exit criteria:
 - The AI updates the structured draft, not just prose.
 - Revisions cannot silently corrupt unsupported block types.
 
-### Slice 7: Teacher Preview And Test Evaluation
+### Slice 7: Teacher Test Evaluation
 
 Goal: let the teacher inspect and optionally test the full student experience.
 
 Scope:
 
-- Finalize `Preview` as the exact shared-link student layout.
-- Add optional teacher preview attempt mode.
-- Allow the teacher to submit preview answers for evaluation.
-- Credit-gate teacher preview/test evaluation.
-- Ensure teacher preview attempts do not update learner progress.
+- Finalize teacher test attempts as the exact shared-link student layout.
+- Add optional teacher test attempt mode with `is_preview = true`.
+- Allow the teacher to submit test answers for evaluation.
+- Credit-gate teacher test evaluation.
+- Ensure teacher test attempts do not update learner progress.
 
 Exit criteria:
 
-- Opening `Preview` does not consume LLM credits.
-- Submitting preview answers for evaluation consumes teacher authoring credits.
-- No preview activity appears as real student progress.
+- Starting a test attempt does not consume LLM credits.
+- Submitting test answers for evaluation consumes teacher authoring credits.
+- No test activity appears as real student progress.
 
 ### Slice 8: Shared Student Runtime
 

@@ -13,7 +13,7 @@ import {
   handleSetAssignmentFavorite,
   handleShareAssignmentToProfile,
   handleStartAssignmentAttempt,
-  handleStartAssignmentPreviewAttempt,
+  handleStartAssignmentTestAttempt,
   handleSubmitAssignmentAttempt,
   handleUpdateAssignmentMetadata,
   renderAssignmentAttemptPage,
@@ -46,7 +46,7 @@ assignmentsRouter.post('/assignments/:assignmentId/favorite', handleSetAssignmen
 assignmentsRouter.post('/assignments/:assignmentId/share/profile', handleShareAssignmentToProfile);
 assignmentsRouter.post('/assignments/:assignmentId/archive', handleArchiveAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/restore', handleRestoreAssignment);
-assignmentsRouter.post('/assignments/:assignmentId/preview-attempts', handleStartAssignmentPreviewAttempt);
+assignmentsRouter.post('/assignments/:assignmentId/test-attempts', handleStartAssignmentTestAttempt);
 assignmentsRouter.get('/assignment-attempts/:attemptId', renderAssignmentAttemptPage);
 assignmentsRouter.get('/assignment-attempts/:attemptId/result', renderAssignmentResultPage);
 assignmentsRouter.post('/assignment-attempts/:attemptId/claim', handleClaimAssignmentAttempt);

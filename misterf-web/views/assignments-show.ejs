@@ -23,13 +23,12 @@
     <div class="resource-meta-row">
       <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
       <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
-      <% if (draft.estimatedMinutes) { %><span><i class="bi bi-clock" aria-hidden="true"></i> <%= draft.estimatedMinutes %> min</span><% } %>
       <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
     </div>
   </div>
 
   <div class="resource-action-row">
-    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/preview-attempts">
+    <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/test-attempts">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button class="btn btn-primary" type="submit">
         <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
@@ -156,7 +155,7 @@
           <a class="list-group-item list-group-item-action" href="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/result">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
               <span>
-                <%= attempt.isPreview ? 'Preview' : 'Entrega' %>
+                <%= attempt.isPreview ? 'Prueba' : 'Entrega' %>
                 <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
               </span>
               <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
