@@ -170,8 +170,12 @@ function readAssignmentAuthoringTab(value) {
     }
     return defaultAssignmentAuthoringTab;
 }
-function buildAssignmentAuthoringPath(assignmentId, tab) {
-    return `/assignments/${encodeURIComponent(assignmentId)}/edit?tab=${tab}`;
+function buildAssignmentBlockAnchorId(blockId) {
+    return `assignment-block-${blockId}`;
+}
+function buildAssignmentAuthoringPath(assignmentId, tab, anchorId) {
+    const path = `/assignments/${encodeURIComponent(assignmentId)}/edit?tab=${tab}`;
+    return anchorId ? `${path}#${encodeURIComponent(anchorId)}` : path;
 }
 function appendGuestToken(pathname, attempt) {
     if (!attempt.guestToken) {
@@ -610,9 +614,9 @@ export function handleDuplicateAssignmentBlock(request, response) {
 }
 export function handleMoveAssignmentBlock(request, response) {
     const direction = request.path.endsWith('/move-down') ? 'down' : 'up';
-    updateDraftBlocks(request, response, (draft, blockId) => moveAssignmentBlock(draft, blockId, direction));
+    updateDraftBlocks(request, response, (draft, blockId) => moveAssignmentBlock(draft, blockId, direction), { focusMovedBlock: true });
 }
-function updateDraftBlocks(request, response, updater) {
+function updateDraftBlocks(request, response, updater, options = {}) {
     const resolved = resolveOwnAssignment(request, response);
     if (!resolved) {
         return;
@@ -639,7 +643,7 @@ function updateDraftBlocks(request, response, updater) {
         blockId,
         userId: resolved.user.id,
     });
-    response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
+    response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks', options.focusMovedBlock ? buildAssignmentBlockAnchorId(blockId) : undefined));
 }
 export function renderAssignmentEditPage(request, response) {
     const resolved = resolveOwnAssignment(request, response);

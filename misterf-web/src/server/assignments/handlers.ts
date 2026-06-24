@@ -281,8 +281,17 @@ function readAssignmentAuthoringTab(value: unknown): AssignmentAuthoringTab {
   return defaultAssignmentAuthoringTab;
 }
 
-function buildAssignmentAuthoringPath(assignmentId: string, tab: AssignmentAuthoringTab): string {
-  return `/assignments/${encodeURIComponent(assignmentId)}/edit?tab=${tab}`;
+function buildAssignmentBlockAnchorId(blockId: string): string {
+  return `assignment-block-${blockId}`;
+}
+
+function buildAssignmentAuthoringPath(
+  assignmentId: string,
+  tab: AssignmentAuthoringTab,
+  anchorId?: string,
+): string {
+  const path = `/assignments/${encodeURIComponent(assignmentId)}/edit?tab=${tab}`;
+  return anchorId ? `${path}#${encodeURIComponent(anchorId)}` : path;
 }
 
 function appendGuestToken(pathname: string, attempt: StoredAssignmentAttempt): string {
@@ -835,8 +844,11 @@ export function handleDuplicateAssignmentBlock(request: Request, response: Respo
 
 export function handleMoveAssignmentBlock(request: Request, response: Response): void {
   const direction = request.path.endsWith('/move-down') ? 'down' : 'up';
-  updateDraftBlocks(request, response, (draft, blockId) =>
-    moveAssignmentBlock(draft, blockId, direction),
+  updateDraftBlocks(
+    request,
+    response,
+    (draft, blockId) => moveAssignmentBlock(draft, blockId, direction),
+    { focusMovedBlock: true },
   );
 }
 
@@ -844,6 +856,7 @@ function updateDraftBlocks(
   request: Request,
   response: Response,
   updater: (draft: AssignmentDraft, blockId: string) => AssignmentDraft,
+  options: { focusMovedBlock?: boolean } = {},
 ): void {
   const resolved = resolveOwnAssignment(request, response);
   if (!resolved) {
@@ -878,7 +891,13 @@ function updateDraftBlocks(
     userId: resolved.user.id,
   });
 
-  response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
+  response.redirect(
+    buildAssignmentAuthoringPath(
+      resolved.assignment.id,
+      'blocks',
+      options.focusMovedBlock ? buildAssignmentBlockAnchorId(blockId) : undefined,
+    ),
+  );
 }
 
 export function renderAssignmentEditPage(request: Request, response: Response): void {
