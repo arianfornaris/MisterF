@@ -239,6 +239,7 @@ export type StoredConversationTutorReportSnapshot = {
 
 export type StoredAssignment = {
   archivedAt: string | null;
+  authoringMessages: AssignmentAuthoringMessage[];
   createdAt: string;
   description: string;
   id: string;
@@ -255,6 +256,13 @@ export type StoredAssignment = {
   title: string;
   updatedAt: string;
   userId: string;
+};
+
+export type AssignmentAuthoringMessage = {
+  content: string;
+  createdAt: string;
+  draftSnapshot?: Record<string, unknown>;
+  role: 'assistant' | 'user';
 };
 
 export type StoredAssignmentShareLink = {
@@ -581,6 +589,7 @@ type ConversationTutorReportSnapshotRow = {
 
 type AssignmentRow = {
   archived_at: string | null;
+  authoring_messages_json: string;
   created_at: string;
   description: string;
   id: string;
@@ -804,9 +813,39 @@ function parseJsonArray(value: string | null | undefined): unknown[] {
   }
 }
 
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
+function parseAssignmentAuthoringMessages(
+  value: string | null | undefined,
+): AssignmentAuthoringMessage[] {
+  return parseJsonArray(value)
+    .flatMap((item): AssignmentAuthoringMessage[] => {
+      if (!isPlainRecord(item)) {
+        return [];
+      }
+
+      const role = item.role;
+      const content = typeof item.content === 'string' ? item.content.trim() : '';
+      if ((role !== 'assistant' && role !== 'user') || !content) {
+        return [];
+      }
+
+      return [{
+        content,
+        createdAt: typeof item.createdAt === 'string' ? item.createdAt.trim() : '',
+        draftSnapshot: isPlainRecord(item.draftSnapshot) ? item.draftSnapshot : undefined,
+        role,
+      }];
+    })
+    .slice(-50);
+}
+
 function toStoredAssignment(row: AssignmentRow): StoredAssignment {
   return {
     archivedAt: row.archived_at,
+    authoringMessages: parseAssignmentAuthoringMessages(row.authoring_messages_json),
     createdAt: row.created_at,
     description: row.description,
     id: row.id,
@@ -2595,6 +2634,7 @@ export function upsertLearnerProgressEvent(input: {
 }
 
 export function createAssignment(input: {
+  authoringMessages?: AssignmentAuthoringMessage[];
   description?: string;
   instructions?: string;
   level?: string;
@@ -2622,12 +2662,13 @@ export function createAssignment(input: {
           level,
           instructions,
           quiz_json,
+          authoring_messages_json,
           source_assignment_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -2640,6 +2681,7 @@ export function createAssignment(input: {
       input.level ?? '',
       input.instructions ?? '',
       JSON.stringify(input.quiz),
+      JSON.stringify(input.authoringMessages ?? []),
       input.sourceAssignmentId ?? null,
       input.sourceUserId ?? null,
       input.sourceProfileId ?? null,
@@ -2663,6 +2705,7 @@ export function findAssignmentForUser(
       `
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
@@ -2694,6 +2737,7 @@ export function findAssignmentById(id: string): StoredAssignment | null {
       `
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
@@ -2729,6 +2773,7 @@ export function listAssignmentsForProfile(input: {
       `
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
@@ -2763,6 +2808,7 @@ export function listAssignmentsForProfile(input: {
 
 export function updateAssignment(input: {
   assignmentId: string;
+  authoringMessages?: AssignmentAuthoringMessage[];
   description: string;
   instructions: string;
   level: string;
@@ -2781,6 +2827,7 @@ export function updateAssignment(input: {
             level = ?,
             instructions = ?,
             quiz_json = ?,
+            authoring_messages_json = COALESCE(?, authoring_messages_json),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
@@ -2792,6 +2839,32 @@ export function updateAssignment(input: {
       input.level,
       input.instructions,
       JSON.stringify(input.quiz),
+      input.authoringMessages === undefined
+        ? null
+        : JSON.stringify(input.authoringMessages),
+      input.assignmentId,
+      input.userId,
+    );
+
+  return findAssignmentForUser(input.assignmentId, input.userId);
+}
+
+export function updateAssignmentAuthoringMessages(input: {
+  assignmentId: string;
+  messages: AssignmentAuthoringMessage[];
+  userId: string;
+}): StoredAssignment | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE assignments
+        SET authoring_messages_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(
+      JSON.stringify(input.messages),
       input.assignmentId,
       input.userId,
     );
@@ -2809,6 +2882,7 @@ export function findImportedAssignmentForProfile(input: {
       `
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,

@@ -20,6 +20,10 @@ const chatRoomDraftSchema = z.object({
     description: z.string().trim().min(1).max(1500),
     title: z.string().trim().min(1).max(220),
 }).strict();
+const assignmentRevisionSchema = z.object({
+    assistantMessage: z.string().trim().min(1).max(2000),
+    draft: assignmentDraftSchema,
+}).strict();
 function parseJsonFromModelText(text) {
     return JSON.parse(text.trim());
 }
@@ -237,16 +241,50 @@ export async function generateAssignmentDraft(input) {
 export async function generateAssignmentRevision(input) {
     return generateStructuredDraft({
         actorLabel: 'Assignment revision',
-        correctionPromptPath: 'resources/assignment-draft-correction.md',
+        correctionPromptPath: 'resources/assignment-revision-correction.md',
         initialUserMessage: JSON.stringify({
+            conversationHistory: normalizeAssignmentRevisionConversationHistory(input.conversationHistory ?? []),
             currentDraft: input.currentDraft,
             requestedChange: input.prompt,
         }, null, 2),
-        maxOutputTokens: 7000,
+        maxOutputTokens: 7600,
         openRouterApiKey: input.openRouterApiKey,
-        schema: assignmentDraftSchema,
+        schema: assignmentRevisionSchema,
         systemPromptPath: 'resources/assignment-revision.md',
     });
+}
+function normalizeAssignmentRevisionConversationHistory(messages) {
+    const recentMessages = messages
+        .flatMap((message) => {
+        const content = message.content.trim();
+        if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
+            return [];
+        }
+        const draftSnapshot = assignmentDraftSchema.safeParse(message.draftSnapshot);
+        return [{
+                content: content.slice(0, 4000),
+                createdAt: message.createdAt?.trim() || undefined,
+                draftSnapshot: draftSnapshot.success ? draftSnapshot.data : undefined,
+                role: message.role,
+            }];
+    })
+        .slice(-24);
+    let includedSnapshots = 0;
+    return recentMessages
+        .slice()
+        .reverse()
+        .map((message) => {
+        if (!message.draftSnapshot || includedSnapshots >= 6) {
+            return {
+                content: message.content,
+                createdAt: message.createdAt,
+                role: message.role,
+            };
+        }
+        includedSnapshots += 1;
+        return message;
+    })
+        .reverse();
 }
 export async function generateAssignmentBlock(input) {
     return generateStructuredDraft({

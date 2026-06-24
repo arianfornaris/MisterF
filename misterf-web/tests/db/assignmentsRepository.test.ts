@@ -78,6 +78,7 @@ describe('assignment repository', () => {
       saveAssignmentAttemptResult,
       submitAssignmentAttempt,
       updateAssignment,
+      updateAssignmentAuthoringMessages,
     } = await import('../../src/server/db/repository.js');
 
     const user = createExternalUser({
@@ -97,6 +98,13 @@ describe('assignment repository', () => {
     });
 
     const assignment = createAssignment({
+      authoringMessages: [
+        {
+          content: 'Create a present perfect check.',
+          createdAt: '2026-06-24T12:00:00.000Z',
+          role: 'user',
+        },
+      ],
       description: assignmentDraft.description,
       instructions: assignmentDraft.instructions,
       level: assignmentDraft.level,
@@ -108,6 +116,13 @@ describe('assignment repository', () => {
     });
 
     expect(findAssignmentForUser(assignment.id, user.id)?.title).toBe(assignmentDraft.title);
+    expect(findAssignmentForUser(assignment.id, user.id)?.authoringMessages).toEqual([
+      {
+        content: 'Create a present perfect check.',
+        createdAt: '2026-06-24T12:00:00.000Z',
+        role: 'user',
+      },
+    ]);
     expect(listAssignmentsForProfile({ profileId: profile.id, userId: user.id })).toHaveLength(1);
 
     const updated = updateAssignment({
@@ -124,13 +139,44 @@ describe('assignment repository', () => {
       userId: user.id,
     });
     expect(updated?.title).toBe('Updated assignment');
+    expect(updated?.authoringMessages).toHaveLength(1);
+
+    const assignmentWithAuthoringMessages = updateAssignmentAuthoringMessages({
+      assignmentId: assignment.id,
+      messages: [
+        ...(updated?.authoringMessages ?? []),
+        {
+          content: 'Listo. Apliqué el cambio.',
+          createdAt: '2026-06-24T12:05:00.000Z',
+          draftSnapshot: {
+            ...assignmentDraft,
+            description: 'Updated description.',
+          },
+          role: 'assistant',
+        },
+      ],
+      userId: user.id,
+    });
+    expect(assignmentWithAuthoringMessages?.authoringMessages).toHaveLength(2);
+    const lastAuthoringMessage = assignmentWithAuthoringMessages?.authoringMessages[
+      (assignmentWithAuthoringMessages?.authoringMessages.length ?? 1) - 1
+    ];
+    expect(lastAuthoringMessage).toEqual({
+      content: 'Listo. Apliqué el cambio.',
+      createdAt: '2026-06-24T12:05:00.000Z',
+      draftSnapshot: {
+        ...assignmentDraft,
+        description: 'Updated description.',
+      },
+      role: 'assistant',
+    });
 
     const shareLink = getOrCreateAssignmentShareLink(assignment.id);
     expect(getOrCreateAssignmentShareLink(assignment.id).id).toBe(shareLink.id);
 
     const importedAssignment = importAssignmentToProfile({
       shareKind: 'profile',
-      sourceAssignment: updated ?? assignment,
+      sourceAssignment: assignmentWithAuthoringMessages ?? updated ?? assignment,
       targetProfileId: targetProfile.id,
       userId: user.id,
     });
@@ -140,9 +186,10 @@ describe('assignment repository', () => {
     expect(importedAssignment.sourceProfileId).toBe(profile.id);
     expect(importedAssignment.title).toBe('Updated assignment');
     expect(importedAssignment.quiz.title).toBe('Present Perfect Check');
+    expect(importedAssignment.authoringMessages).toEqual([]);
     expect(importAssignmentToProfile({
       shareKind: 'profile',
-      sourceAssignment: updated ?? assignment,
+      sourceAssignment: assignmentWithAuthoringMessages ?? updated ?? assignment,
       targetProfileId: targetProfile.id,
       userId: user.id,
     }).id).toBe(importedAssignment.id);

@@ -23,6 +23,8 @@ import {
   setAssignmentFavoriteForUser,
   submitAssignmentAttempt,
   updateAssignment,
+  updateAssignmentAuthoringMessages,
+  type AssignmentAuthoringMessage,
   type StoredAssignment,
   type StoredAssignmentAttempt,
 } from '../db/repository.js';
@@ -122,6 +124,8 @@ const assignmentBlockKinds = [
 ] as const;
 
 const defaultAssignmentAuthoringTab: AssignmentAuthoringTab = 'general';
+const maxAssignmentAuthoringMessages = 40;
+const maxAssignmentAuthoringMessageLength = 6000;
 
 function normalizeOutlineText(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
@@ -133,6 +137,71 @@ function formatFallbackBlockKindLabel(kind: string): string {
 
 function formatCountLabel(count: number, singular: string, plural: string): string {
   return `${count} ${count === 1 ? singular : plural}`;
+}
+
+function normalizeAssignmentAuthoringMessageContent(content: string): string {
+  return content.trim().slice(0, maxAssignmentAuthoringMessageLength);
+}
+
+function createAssignmentAuthoringMessage(
+  role: AssignmentAuthoringMessage['role'],
+  content: string,
+  draftSnapshot?: AssignmentDraft,
+): AssignmentAuthoringMessage {
+  const message: AssignmentAuthoringMessage = {
+    content: normalizeAssignmentAuthoringMessageContent(content),
+    createdAt: new Date().toISOString(),
+    role,
+  };
+
+  if (draftSnapshot) {
+    message.draftSnapshot = draftSnapshot;
+  }
+
+  return message;
+}
+
+function appendAssignmentAuthoringMessages(
+  existingMessages: AssignmentAuthoringMessage[],
+  ...messages: AssignmentAuthoringMessage[]
+): AssignmentAuthoringMessage[] {
+  return [...existingMessages, ...messages]
+    .flatMap((message): AssignmentAuthoringMessage[] => {
+      const content = normalizeAssignmentAuthoringMessageContent(message.content);
+      if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
+        return [];
+      }
+
+      return [{
+        content,
+        createdAt: message.createdAt || new Date().toISOString(),
+        draftSnapshot: message.draftSnapshot,
+        role: message.role,
+      }];
+    })
+    .slice(-maxAssignmentAuthoringMessages);
+}
+
+function summarizeAssignmentDraftCreation(draft: AssignmentDraft): string {
+  return `Listo. Creé una primera versión de "${draft.title}" con ${formatCountLabel(draft.blocks.length, 'bloque', 'bloques')}.`;
+}
+
+function saveAssignmentAuthoringTurn(input: {
+  assignment: StoredAssignment;
+  assistantMessage: string;
+  draftSnapshot?: AssignmentDraft;
+  userId: string;
+  userMessage: string;
+}): StoredAssignment | null {
+  return updateAssignmentAuthoringMessages({
+    assignmentId: input.assignment.id,
+    messages: appendAssignmentAuthoringMessages(
+      input.assignment.authoringMessages,
+      createAssignmentAuthoringMessage('user', input.userMessage),
+      createAssignmentAuthoringMessage('assistant', input.assistantMessage, input.draftSnapshot),
+    ),
+    userId: input.userId,
+  });
 }
 
 function buildAssignmentBlockOutlineItems(draft: AssignmentDraft): AssignmentBlockOutlineItem[] {
@@ -320,9 +389,11 @@ function updateAssignmentWithDraft(
   assignment: StoredAssignment,
   userId: string,
   draft: AssignmentDraft,
+  authoringMessages?: AssignmentAuthoringMessage[],
 ): StoredAssignment | null {
   return updateAssignment({
     assignmentId: assignment.id,
+    authoringMessages,
     description: draft.description,
     instructions: draft.instructions,
     level: draft.level,
@@ -404,6 +475,7 @@ function renderAssignmentAuthoring(
     }),
     activeTab: input.activeTab ?? defaultAssignmentAuthoringTab,
     assignmentBlockKinds,
+    assignmentAuthoringMessages: input.assignment.authoringMessages,
     authoringError: input.error || '',
     draft,
     selectedAssignment: input.assignment,
@@ -627,6 +699,11 @@ export async function handleGenerateAssignment(
       prompt,
     });
     const assignment = createAssignment({
+      authoringMessages: appendAssignmentAuthoringMessages(
+        [],
+        createAssignmentAuthoringMessage('user', prompt),
+        createAssignmentAuthoringMessage('assistant', summarizeAssignmentDraftCreation(draft), draft),
+      ),
       description: draft.description,
       instructions: draft.instructions,
       level: draft.level,
@@ -726,20 +803,40 @@ export async function handleReviseAssignment(
 
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
-    const revisedDraft = await generateAssignmentRevision({
+    const revision = await generateAssignmentRevision({
+      conversationHistory: resolved.assignment.authoringMessages.map((message) => ({
+        content: message.content,
+        createdAt: message.createdAt,
+        draftSnapshot: message.draftSnapshot,
+        role: message.role,
+      })),
       currentDraft: draft,
       openRouterApiKey,
       prompt: userMessage,
     });
+    const revisedDraft = revision.draft;
+    const nextAuthoringMessages = appendAssignmentAuthoringMessages(
+      resolved.assignment.authoringMessages,
+      createAssignmentAuthoringMessage('user', userMessage),
+      createAssignmentAuthoringMessage('assistant', revision.assistantMessage, revisedDraft),
+    );
     const updatedAssignment = updateAssignmentWithDraft(
       resolved.assignment,
       resolved.user.id,
       revisedDraft,
+      nextAuthoringMessages,
     );
     if (!updatedAssignment) {
+      const assignmentWithFailureMessage = saveAssignmentAuthoringTurn({
+        assignment: resolved.assignment,
+        assistantMessage: 'No pude aplicar ese cambio ahora mismo.',
+        userId: resolved.user.id,
+        userMessage,
+      });
       renderAssignmentAuthoring(request, response.status(422), {
         ...resolved,
         activeTab: 'chat',
+        assignment: assignmentWithFailureMessage ?? resolved.assignment,
         error: 'No pude aplicar ese cambio ahora mismo.',
       });
       return;
@@ -750,8 +847,17 @@ export async function handleReviseAssignment(
       userId: resolved.user.id,
     });
 
-    response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
+    response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'chat'));
   } catch (error) {
+    const failureMessage = isCreditExhaustedError(error)
+      ? getCreditExhaustedMessage()
+      : 'No pude aplicar ese cambio ahora mismo.';
+    const assignmentWithFailureMessage = saveAssignmentAuthoringTurn({
+      assignment: resolved.assignment,
+      assistantMessage: failureMessage,
+      userId: resolved.user.id,
+      userMessage,
+    });
     logger.error('assignment_revision_failed', {
       assignmentId: resolved.assignment.id,
       error,
@@ -760,9 +866,8 @@ export async function handleReviseAssignment(
     renderAssignmentAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'chat',
-      error: isCreditExhaustedError(error)
-        ? getCreditExhaustedMessage()
-        : 'No pude aplicar ese cambio ahora mismo.',
+      assignment: assignmentWithFailureMessage ?? resolved.assignment,
+      error: failureMessage,
     });
   }
 }

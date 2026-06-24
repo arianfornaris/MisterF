@@ -1,6 +1,6 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view assignments-page">
+<section class="app-resource-view assignments-page <%= activeTab === 'blocks' ? 'assignment-authoring-blocks-page' : '' %>">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
       <p class="resource-eyebrow">Tarea en edición</p>
@@ -97,14 +97,14 @@
   <% } %>
 
   <% if (activeTab === 'blocks') { %>
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <h2 class="h5 mb-0">Bloques</h2>
-      <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#assignmentAddBlockModal">
-        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Agregar bloque
-      </button>
-    </div>
-    <div class="d-grid gap-3">
-      <div class="assignment-block-list">
+    <div class="assignment-blocks-panel">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h2 class="h5 mb-0">Bloques</h2>
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#assignmentAddBlockModal">
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Agregar bloque
+        </button>
+      </div>
+      <div class="assignment-block-list" aria-label="Bloques de la tarea">
         <% draft.blocks.forEach((block, index) => { %>
           <%- include('partials/assignment-item-card', { assignmentItemMode: 'design', block, csrfToken, draft, index, selectedAssignment }) %>
         <% }) %>
@@ -114,12 +114,50 @@
 
   <% if (activeTab === 'chat') { %>
     <div class="assignment-chat-panel">
-      <form class="card resource-form-card" method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/edit/revise" data-assignment-generate-form>
-        <div class="card-body">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <label class="form-label" for="assignmentRevisionMessage">Mensaje</label>
-          <textarea class="form-control" id="assignmentRevisionMessage" name="message" rows="5" required></textarea>
-          <button class="btn btn-primary mt-3" type="submit" data-assignment-generate-submit>
+      <div class="assignment-chat-context">
+        <div class="assignment-chat-context-icon" aria-hidden="true">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div>
+          <h2 class="assignment-chat-context-title">Modificar la tarea con IA</h2>
+          <p class="assignment-chat-context-copy mb-0">
+            Usa este chat para pedir cambios concretos a la tarea. Mister F actualizará los detalles o bloques y te responderá qué modificó.
+          </p>
+        </div>
+      </div>
+      <div class="assignment-chat-history messages" aria-label="Historial del chat de autoría">
+        <% if (assignmentAuthoringMessages.length === 0) { %>
+          <article class="message-row is-model assignment-chat-message-row">
+            <div class="message-bubble assignment-chat-message-bubble">
+              <p class="assignment-chat-message-content mb-0">Cuéntame qué quieres ajustar en esta tarea.</p>
+            </div>
+          </article>
+        <% } else { %>
+          <% assignmentAuthoringMessages.forEach((message) => { %>
+            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> assignment-chat-message-row">
+              <div class="message-bubble assignment-chat-message-bubble">
+                <p class="assignment-chat-message-content mb-0"><%= message.content %></p>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+      <form class="composer assignment-chat-composer" method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/edit/revise" data-assignment-generate-form>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="visually-hidden" for="assignmentRevisionMessage">Mensaje</label>
+        <div class="composer-input-wrap">
+          <textarea
+            class="composer-input"
+            id="assignmentRevisionMessage"
+            name="message"
+            rows="2"
+            maxlength="4000"
+            placeholder="Describe los cambios que deseas aplicar"
+            required
+          ></textarea>
+        </div>
+        <div class="composer-footer">
+          <button class="btn btn-primary assignment-chat-submit-button" type="submit" data-assignment-generate-submit>
             <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
           </button>
         </div>

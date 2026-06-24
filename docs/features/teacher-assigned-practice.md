@@ -34,6 +34,8 @@ The first V1 implementation is in place:
 - `Tareas` appears in the authenticated sidebar below `Módulos de práctica`.
 - Teachers create an AI-generated assignment from a natural-language prompt.
 - The authoring workspace includes `General`, `Bloques`, and `AI chat` tabs.
+- The `AI chat` tab persists teacher/assistant history and sends that history
+  as context on later assignment revisions.
 - Blocks are numbered for human reference and keep stable internal ids.
 - Teachers can update metadata, reorder, delete, duplicate, and AI-generate
   blocks.
@@ -252,8 +254,9 @@ Show teacher-facing names, short examples, and best-use hints for:
 - matching
 - unscramble sentence
 
-The prompt intake submits into an authoring session rather than directly saving
-an assignment.
+The prompt intake creates a validated assignment draft, persists it as an
+assignment, stores the initial prompt in the assignment `AI chat` history, and
+opens the authoring workspace.
 
 ### AI-Assisted Authoring Workspace
 
@@ -262,14 +265,15 @@ assignment draft and the assistant conversation stay connected.
 
 Use a tabbed workspace as the primary interaction model:
 
-- `Design`: shows the current assignment structure as editable blocks
+- `General`: shows assignment-level metadata
+- `Bloques`: shows the current assignment structure as editable blocks
 - `AI chat`: lets the teacher ask Mr. F for broader assignment changes
 
 Use Bootstrap `nav-pills` for the tab control. The tab state should be preserved
 in the URL if the page is server-rendered. Client-side tabs are acceptable only
 if the whole authoring workspace is already a client-side interaction surface.
 
-The `Design` tab is the source-of-truth editing surface for the current draft.
+The `Bloques` tab is the source-of-truth editing surface for the current draft.
 It should show each assignment item as a block in design mode, not as a submitted
 student attempt.
 
@@ -318,9 +322,22 @@ The assistant chat should let the teacher ask for changes such as:
 Assistant revisions should update the structured assignment draft, not just
 return prose instructions. The UI should make it clear when a draft has changed
 and should allow the teacher to review the result before saving or sharing.
+The revision model response should include both a validated updated draft and a
+teacher-facing assistant message, so the `AI chat` tab remains conversational
+without relying on unstructured text outside the JSON payload.
+
+The `AI chat` history should be persisted with the assignment and displayed in
+the authoring workspace. Each revision request should include the prior chat
+turns as context alongside the current structured draft. The current draft stays
+authoritative; chat history helps Mr. F understand teacher preferences and prior
+requests, but it must not be copied into learner-facing assignment text.
+Successful assistant turns should store recent draft snapshots in the chat
+history so later requests can refer to earlier assignment states. The revision
+flow still replaces the validated full draft instead of applying model tools or
+database-level block patches.
 
 The `AI chat` tab is for assignment-level or multi-block changes. It should not
-replace the `Design` tab as the place where the teacher understands the current
+replace the `Bloques` tab as the place where the teacher understands the current
 structure.
 
 When the teacher sends an `AI chat` message, the request context should include
@@ -330,7 +347,7 @@ left Blocks 1-3 unchanged."
 
 ### Add Block Flow
 
-Adding a block starts from the `Design` tab.
+Adding a block starts from the `Bloques` tab.
 
 Recommended flow:
 
@@ -343,7 +360,7 @@ Recommended flow:
 7. Mr. F generates one block of the selected type.
 8. The server validates the generated block against the quiz item contract.
 9. The block is inserted into the current draft at the selected position.
-10. The `Design` tab highlights the new block so the teacher can review it.
+10. The `Bloques` tab highlights the new block so the teacher can review it.
 
 The chooser should reuse the exercise type catalog:
 
@@ -517,13 +534,13 @@ Primary follow-up actions:
 ### Teacher Creates Assignment
 
 1. The teacher opens the assignments section.
-2. The teacher starts a new authoring session with a natural-language prompt.
+2. The teacher starts a new assignment with a natural-language prompt.
 3. The server checks the teacher's LLM credits before the first AI generation
    step.
 4. Mr. F generates a strict quiz-compatible assignment draft.
-5. The teacher reviews the draft in the `Design` tab.
+5. The teacher reviews the draft in the `Bloques` tab.
 6. The teacher can reorder, delete, duplicate, edit, or add blocks from the
-   `Design` tab.
+   `Bloques` tab.
 7. The UI keeps every block visibly numbered so the teacher can reference it in
    the `AI chat` tab.
 8. When adding a block, the teacher selects a block type and describes the
@@ -740,8 +757,8 @@ Assignment revision prompt:
 - should receive the current assignment draft, the teacher's requested change,
   and relevant authoring history
 - should receive the current visible block-number map and stable block ids
-- should return the full updated quiz-compatible assignment draft, not only a
-  textual suggestion
+- should return a teacher-facing assistant message plus the full updated
+  quiz-compatible assignment draft, not only a textual suggestion
 - should preserve good existing items unless the teacher asks to change them
 - should explain important changes briefly in the authoring chat
 - should keep item ids or stable client keys when possible so the UI can show
@@ -778,7 +795,7 @@ Follow-up tutor context:
 
 Important events:
 
-- assignment authoring session started
+- assignment authoring started
 - assignment draft generated
 - assignment authoring revision requested
 - assignment authoring revision applied
@@ -929,7 +946,7 @@ Scope:
 - Extend the structured draft generation service or create an assignment-specific
   service using the same JSON correction pattern.
 - Credit-gate initial AI generation with the teacher's account.
-- Store the authoring session, initial prompt, messages, and validated current
+- Store the assignment, initial prompt in chat history, and validated current
   draft.
 - Log generation success, validation failure, and credit exhaustion events.
 
@@ -939,13 +956,13 @@ Exit criteria:
 - Credit exhaustion shows product UI instead of a raw error.
 - The generated draft opens in the authoring workspace.
 
-### Slice 5: Design Tab Editing
+### Slice 5: Bloques Tab Editing
 
 Goal: make the teacher able to shape the assignment without AI chat.
 
 Scope:
 
-- Add the `Design` tab with numbered editable blocks.
+- Add the `Bloques` tab with numbered editable blocks.
 - Add reorder, delete, duplicate, and manual edit operations.
 - Add the exercise type catalog.
 - Add `Add block` flow: type chooser, Bootstrap modal, and AI prompt field.
@@ -954,7 +971,7 @@ Scope:
 
 Exit criteria:
 
-- The teacher can edit the assignment structure from the `Design` tab.
+- The teacher can edit the assignment structure from the `Bloques` tab.
 - Block numbers are always visible and updated after reordering.
 - Single-block generation inserts exactly one validated block.
 
@@ -967,9 +984,10 @@ Scope:
 
 - Add the `AI chat` tab.
 - Send the current numbered block outline and stable block ids as context.
-- Add revision prompts that return the full updated assignment draft.
+- Add revision prompts that return a teacher-facing assistant message and the
+  full updated assignment draft.
 - Validate the revised draft before replacing the current draft.
-- Store each assistant/manual/block revision in revision history.
+- Store teacher/assistant authoring chat history on the assignment.
 - Show a concise summary of what changed, using visible block numbers.
 
 Exit criteria:

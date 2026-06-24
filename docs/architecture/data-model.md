@@ -265,12 +265,21 @@ Important fields:
 - `level`
 - `instructions`
 - `quiz`
+- `authoringMessages`
 - favorite/archive metadata
 - optional source/share metadata
 
 `quiz` stores the validated assignment draft. The draft uses ordered blocks with
 stable internal block ids and existing tutor `quiz` item payloads. This keeps
 assignment evaluation aligned with the live tutor quiz contract.
+
+`authoringMessages` stores the lightweight teacher/assistant chat history used
+by the assignment authoring `AI chat` tab. The history is sent as context when
+the teacher asks Mr. F to revise the assignment, but the current `quiz` draft
+remains the source of truth for the assignment content.
+Assistant messages may also include a draft snapshot so future revision requests
+can resolve teacher references to earlier assignment states without restoring a
+separate authoring revision table.
 
 ### Assignment Share Link
 

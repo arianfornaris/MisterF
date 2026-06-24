@@ -1309,5 +1309,13 @@ export const migrations = [
         DROP COLUMN rubric;
     `,
     },
+    {
+        id: 8,
+        name: 'add_assignment_authoring_messages',
+        up: `
+      ALTER TABLE assignments
+        ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

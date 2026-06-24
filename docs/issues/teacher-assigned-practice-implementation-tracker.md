@@ -55,6 +55,8 @@ Implemented in this pass:
 - [x] `Tareas` navigation, list, create, authoring, detail, share, public
   shared-link, attempt, and result pages.
 - [x] `General`, `Bloques`, and `AI chat` authoring tabs.
+- [x] Persist `AI chat` history on the assignment and send it as context for
+  later revisions.
 - [x] Numbered blocks with stable ids and reorder/delete/duplicate/add actions.
 - [x] Teacher test attempts with the student-facing UI.
 - [x] Shared guest attempts and free product-funded evaluation.
@@ -65,7 +67,7 @@ Implemented in this pass:
 Remaining hardening:
 
 - [ ] Add abuse protection/rate limiting for free guest evaluations.
-- [ ] Add deeper manual per-block content editing in the `Design` tab.
+- [ ] Add deeper manual per-block content editing in the `Bloques` tab.
 - [ ] Add teacher-facing result dashboards and student roster workflows in the
   deferred classroom layer.
 - [ ] Add prompt-contract fixtures that validate representative generated
@@ -81,7 +83,7 @@ Goal: make sure the feature agreement is captured before implementation begins.
   students can complete shared Tareas before account creation.
 - [x] Document free shared-student evaluation and standard-credit follow-up.
 - [x] Document the AI-assisted authoring workflow.
-- [x] Document the `Design` / `AI chat` tab model.
+- [x] Document the `Bloques` / `AI chat` tab model.
 - [x] Document numbered blocks and stable internal block ids.
 - [x] Document teacher test/evaluation behavior.
 - [x] Add an implementation roadmap to the feature document.
@@ -206,8 +208,9 @@ Tasks:
   service.
 - [x] Validate generated drafts with assignment schemas.
 - [x] Credit-gate initial generation with the teacher account.
-- [x] Store authoring session data.
-- [x] Store initial prompt and current validated draft.
+- [x] Store authoring data directly on the assignment.
+- [x] Store initial prompt in the assignment `AI chat` history and persist the
+  current validated draft.
 - [x] Log generation success, validation failure, malformed output repair, and
   credit exhaustion.
 - [x] Add UI pending/loading state for generation.
@@ -224,13 +227,13 @@ Verification:
 - [x] `npm test`
 - [ ] Prompt contract fixtures for generated assignment JSON.
 
-## Slice 5: Design Tab Editing
+## Slice 5: Bloques Tab Editing
 
 Goal: let the teacher shape the assignment structure without AI chat.
 
 Tasks:
 
-- [x] Add `Design` tab with Bootstrap `nav-pills`.
+- [x] Add `Bloques` tab with Bootstrap `nav-pills`.
 - [x] Show every block with visible `Block N` numbering.
 - [x] Show stable type labels.
 - [x] Add reorder controls.
@@ -247,7 +250,7 @@ Tasks:
 
 Exit criteria:
 
-- [x] The teacher can edit the assignment structure from `Design`.
+- [x] The teacher can edit the assignment structure from `Bloques`.
 - [x] Block numbers stay correct after every operation.
 - [x] Single-block generation inserts exactly one validated block.
 
@@ -267,12 +270,16 @@ Tasks:
 - [x] Add `AI chat` tab with Bootstrap `nav-pills`.
 - [x] Send the current draft with stable block ids to the model.
 - [x] Send stable block ids alongside visible block numbers through the draft.
+- [x] Persist teacher/assistant chat history with the assignment.
+- [x] Send prior authoring chat turns with each revision request.
 - [x] Add revision prompt.
 - [x] Add revision correction prompt.
+- [x] Return and display the model's teacher-facing revision response.
 - [x] Validate revised drafts before replacing the current draft.
-- [x] Keep only the current validated draft in the authoring session for V1.
+- [x] Keep the current validated draft as the authoritative assignment state
+  for V1.
 - [x] Remove separate authoring revision history from the persisted model.
-- [ ] Show concise changed-block summaries using visible block numbers.
+- [x] Show concise changed-block summaries using visible block numbers.
 - [x] Log revision requested/applied/failed events.
 
 Exit criteria:

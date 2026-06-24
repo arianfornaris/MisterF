@@ -120,9 +120,33 @@ function parseJsonArray(value) {
         return [];
     }
 }
+function isPlainRecord(value) {
+    return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+function parseAssignmentAuthoringMessages(value) {
+    return parseJsonArray(value)
+        .flatMap((item) => {
+        if (!isPlainRecord(item)) {
+            return [];
+        }
+        const role = item.role;
+        const content = typeof item.content === 'string' ? item.content.trim() : '';
+        if ((role !== 'assistant' && role !== 'user') || !content) {
+            return [];
+        }
+        return [{
+                content,
+                createdAt: typeof item.createdAt === 'string' ? item.createdAt.trim() : '',
+                draftSnapshot: isPlainRecord(item.draftSnapshot) ? item.draftSnapshot : undefined,
+                role,
+            }];
+    })
+        .slice(-50);
+}
 function toStoredAssignment(row) {
     return {
         archivedAt: row.archived_at,
+        authoringMessages: parseAssignmentAuthoringMessages(row.authoring_messages_json),
         createdAt: row.created_at,
         description: row.description,
         id: row.id,
@@ -1353,14 +1377,15 @@ export function createAssignment(input) {
           level,
           instructions,
           quiz_json,
+          authoring_messages_json,
           source_assignment_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.instructions ?? '', JSON.stringify(input.quiz), input.sourceAssignmentId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
+        .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.instructions ?? '', JSON.stringify(input.quiz), JSON.stringify(input.authoringMessages ?? []), input.sourceAssignmentId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
     const assignment = findAssignmentForUser(id, input.userId);
     if (!assignment) {
         throw new Error('Could not load newly created assignment.');
@@ -1372,6 +1397,7 @@ export function findAssignmentForUser(id, userId) {
         .prepare(`
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
@@ -1399,6 +1425,7 @@ export function findAssignmentById(id) {
         .prepare(`
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
@@ -1426,6 +1453,7 @@ export function listAssignmentsForProfile(input) {
         .prepare(`
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
@@ -1465,10 +1493,24 @@ export function updateAssignment(input) {
             level = ?,
             instructions = ?,
             quiz_json = ?,
+            authoring_messages_json = COALESCE(?, authoring_messages_json),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-        .run(input.title, input.description, input.targetTopic, input.level, input.instructions, JSON.stringify(input.quiz), input.assignmentId, input.userId);
+        .run(input.title, input.description, input.targetTopic, input.level, input.instructions, JSON.stringify(input.quiz), input.authoringMessages === undefined
+        ? null
+        : JSON.stringify(input.authoringMessages), input.assignmentId, input.userId);
+    return findAssignmentForUser(input.assignmentId, input.userId);
+}
+export function updateAssignmentAuthoringMessages(input) {
+    getDb()
+        .prepare(`
+        UPDATE assignments
+        SET authoring_messages_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(JSON.stringify(input.messages), input.assignmentId, input.userId);
     return findAssignmentForUser(input.assignmentId, input.userId);
 }
 export function findImportedAssignmentForProfile(input) {
@@ -1476,6 +1518,7 @@ export function findImportedAssignmentForProfile(input) {
         .prepare(`
         SELECT
           archived_at,
+          authoring_messages_json,
           created_at,
           description,
           id,
