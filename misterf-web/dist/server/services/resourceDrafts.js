@@ -44,6 +44,83 @@ function appendCorrectionRequest(messages, input) {
         turn: input.turn,
     });
 }
+function summarizeParsedJsonShape(value) {
+    if (!isPlainRecord(value)) {
+        return {
+            valueType: Array.isArray(value) ? 'array' : typeof value,
+        };
+    }
+    const blocks = Array.isArray(value.blocks) ? value.blocks : null;
+    return {
+        blockCount: blocks?.length,
+        itemKinds: blocks?.slice(0, 32).map((block, index) => {
+            const blockRecord = isPlainRecord(block) ? block : {};
+            const itemRecord = isPlainRecord(blockRecord.item) ? blockRecord.item : {};
+            return {
+                id: typeof blockRecord.id === 'string' ? blockRecord.id : undefined,
+                index,
+                kind: typeof itemRecord.kind === 'string' ? itemRecord.kind : undefined,
+            };
+        }),
+        topLevelKeys: Object.keys(value).slice(0, 24),
+    };
+}
+function summarizeZodIssues(issues, maxIssues = 16) {
+    const summaries = [];
+    const addIssue = (issue, pathPrefix = []) => {
+        if (summaries.length >= maxIssues) {
+            return;
+        }
+        const issueRecord = issue;
+        summaries.push({
+            code: issue.code,
+            expected: issueRecord.expected,
+            keys: issueRecord.keys,
+            message: issue.message,
+            path: formatZodPath([...pathPrefix, ...issue.path]),
+            values: issueRecord.values,
+        });
+    };
+    const visitIssue = (issue, pathPrefix = []) => {
+        if (summaries.length >= maxIssues) {
+            return;
+        }
+        const issueRecord = issue;
+        const nestedErrors = issueRecord.errors;
+        if (issue.code === 'invalid_union' && Array.isArray(nestedErrors)) {
+            const nestedPath = [...pathPrefix, ...issue.path];
+            for (const branch of nestedErrors) {
+                if (!Array.isArray(branch)) {
+                    continue;
+                }
+                for (const childIssue of branch) {
+                    visitIssue(childIssue, nestedPath);
+                    if (summaries.length >= maxIssues) {
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+        addIssue(issue, pathPrefix);
+    };
+    for (const issue of issues) {
+        visitIssue(issue);
+        if (summaries.length >= maxIssues) {
+            break;
+        }
+    }
+    return summaries;
+}
+function formatZodPath(path) {
+    if (path.length === 0) {
+        return '(root)';
+    }
+    return path.map((segment) => String(segment)).join('.');
+}
+function isPlainRecord(value) {
+    return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
 async function generateStructuredDraft(input) {
     const system = renderSystemPrompt(input.systemPromptPath);
     const messages = [
@@ -102,6 +179,14 @@ async function generateStructuredDraft(input) {
         }
         const parsed = input.schema.safeParse(parsedJson);
         if (!parsed.success) {
+            logger.warn('resource_draft_validation_failed', {
+                actorLabel: input.actorLabel,
+                issueCount: parsed.error.issues.length,
+                issues: summarizeZodIssues(parsed.error.issues),
+                operation: 'resource_draft',
+                parsedShape: summarizeParsedJsonShape(parsedJson),
+                turn: turn + 1,
+            });
             if (turn < maxDraftGenerationTurns - 1) {
                 appendCorrectionRequest(messages, {
                     actorLabel: input.actorLabel,

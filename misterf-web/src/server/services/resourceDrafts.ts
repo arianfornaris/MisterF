@@ -68,6 +68,107 @@ function appendCorrectionRequest(messages: ModelMessage[], input: {
   });
 }
 
+function summarizeParsedJsonShape(value: unknown): Record<string, unknown> {
+  if (!isPlainRecord(value)) {
+    return {
+      valueType: Array.isArray(value) ? 'array' : typeof value,
+    };
+  }
+
+  const blocks = Array.isArray(value.blocks) ? value.blocks : null;
+
+  return {
+    blockCount: blocks?.length,
+    itemKinds: blocks?.slice(0, 32).map((block, index) => {
+      const blockRecord = isPlainRecord(block) ? block : {};
+      const itemRecord = isPlainRecord(blockRecord.item) ? blockRecord.item : {};
+      return {
+        id: typeof blockRecord.id === 'string' ? blockRecord.id : undefined,
+        index,
+        kind: typeof itemRecord.kind === 'string' ? itemRecord.kind : undefined,
+      };
+    }),
+    topLevelKeys: Object.keys(value).slice(0, 24),
+  };
+}
+
+function summarizeZodIssues(
+  issues: z.ZodIssue[],
+  maxIssues = 16,
+): Array<Record<string, unknown>> {
+  const summaries: Array<Record<string, unknown>> = [];
+
+  const addIssue = (
+    issue: z.ZodIssue,
+    pathPrefix: PropertyKey[] = [],
+  ): void => {
+    if (summaries.length >= maxIssues) {
+      return;
+    }
+
+    const issueRecord = issue as unknown as Record<string, unknown>;
+    summaries.push({
+      code: issue.code,
+      expected: issueRecord.expected,
+      keys: issueRecord.keys,
+      message: issue.message,
+      path: formatZodPath([...pathPrefix, ...issue.path]),
+      values: issueRecord.values,
+    });
+  };
+
+  const visitIssue = (
+    issue: z.ZodIssue,
+    pathPrefix: PropertyKey[] = [],
+  ): void => {
+    if (summaries.length >= maxIssues) {
+      return;
+    }
+
+    const issueRecord = issue as unknown as Record<string, unknown>;
+    const nestedErrors = issueRecord.errors;
+    if (issue.code === 'invalid_union' && Array.isArray(nestedErrors)) {
+      const nestedPath = [...pathPrefix, ...issue.path];
+      for (const branch of nestedErrors) {
+        if (!Array.isArray(branch)) {
+          continue;
+        }
+
+        for (const childIssue of branch) {
+          visitIssue(childIssue as z.ZodIssue, nestedPath);
+          if (summaries.length >= maxIssues) {
+            return;
+          }
+        }
+      }
+      return;
+    }
+
+    addIssue(issue, pathPrefix);
+  };
+
+  for (const issue of issues) {
+    visitIssue(issue);
+    if (summaries.length >= maxIssues) {
+      break;
+    }
+  }
+
+  return summaries;
+}
+
+function formatZodPath(path: PropertyKey[]): string {
+  if (path.length === 0) {
+    return '(root)';
+  }
+
+  return path.map((segment) => String(segment)).join('.');
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+}
+
 async function generateStructuredDraft<T>(input: {
   actorLabel: string;
   correctionPromptPath: string;
@@ -151,6 +252,15 @@ async function generateStructuredDraft<T>(input: {
 
     const parsed = input.schema.safeParse(parsedJson);
     if (!parsed.success) {
+      logger.warn('resource_draft_validation_failed', {
+        actorLabel: input.actorLabel,
+        issueCount: parsed.error.issues.length,
+        issues: summarizeZodIssues(parsed.error.issues),
+        operation: 'resource_draft',
+        parsedShape: summarizeParsedJsonShape(parsedJson),
+        turn: turn + 1,
+      });
+
       if (turn < maxDraftGenerationTurns - 1) {
         appendCorrectionRequest(messages, {
           actorLabel: input.actorLabel,
