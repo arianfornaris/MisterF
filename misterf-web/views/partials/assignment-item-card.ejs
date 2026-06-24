@@ -11,42 +11,55 @@
 %>
 
 <article class="card assignment-block-card">
-  <div class="card-body">
-    <div class="d-flex flex-wrap align-items-start justify-content-between gap-2 mb-3">
+  <div class="card-body <%= isDesignMode ? 'resource-card-body' : '' %>">
+    <% if (isDesignMode) { %>
+      <div class="dropdown resource-card-menu">
+        <button
+          class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="Acciones del bloque <%= index + 1 %>"
+          title="Acciones del bloque"
+        >
+          <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="dropdown-item" type="submit" <%= index === 0 ? 'disabled' : '' %>>
+                <i class="bi bi-arrow-up me-2" aria-hidden="true"></i>Subir
+              </button>
+            </form>
+          </li>
+          <li>
+            <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-down">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="dropdown-item" type="submit" <%= index === draft.blocks.length - 1 ? 'disabled' : '' %>>
+                <i class="bi bi-arrow-down me-2" aria-hidden="true"></i>Bajar
+              </button>
+            </form>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/delete">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="dropdown-item text-danger" type="submit" <%= draft.blocks.length <= 1 ? 'disabled' : '' %>>
+                <i class="bi bi-trash me-2" aria-hidden="true"></i>Eliminar
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    <% } %>
+
+    <div class="d-flex flex-wrap align-items-start gap-2 mb-3">
       <div>
         <p class="text-body-secondary small mb-1">Bloque <%= index + 1 %></p>
         <h3 class="h6 mb-1"><%= item.prompt %></h3>
         <span class="badge text-bg-secondary"><%= item.kind.replace('quiz_', '').replaceAll('_', ' ') %></span>
       </div>
-
-      <% if (isDesignMode) { %>
-        <div class="btn-group btn-group-sm" role="group" aria-label="Acciones del bloque <%= index + 1 %>">
-          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn btn-outline-secondary" type="submit" title="Subir" aria-label="Subir" <%= index === 0 ? 'disabled' : '' %>>
-              <i class="bi bi-arrow-up" aria-hidden="true"></i>
-            </button>
-          </form>
-          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-down">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn btn-outline-secondary" type="submit" title="Bajar" aria-label="Bajar" <%= index === draft.blocks.length - 1 ? 'disabled' : '' %>>
-              <i class="bi bi-arrow-down" aria-hidden="true"></i>
-            </button>
-          </form>
-          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/duplicate">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn btn-outline-secondary" type="submit" title="Duplicar" aria-label="Duplicar">
-              <i class="bi bi-copy" aria-hidden="true"></i>
-            </button>
-          </form>
-          <form method="post" action="<%= assignmentEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/delete">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="btn btn-outline-danger" type="submit" title="Eliminar" aria-label="Eliminar" <%= draft.blocks.length <= 1 ? 'disabled' : '' %>>
-              <i class="bi bi-trash" aria-hidden="true"></i>
-            </button>
-          </form>
-        </div>
-      <% } %>
     </div>
 
     <% if (item.kind === 'quiz_open_text') { %>
