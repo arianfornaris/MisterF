@@ -15,14 +15,6 @@ probably create a plan and explicitly mention the types of exercises that will
 be generated.
 
 ---
-
-New tool feature idea: assessment design, or "test" design. The user could
-create and share a test, then the student could keep practicing or create a
-practice module from the results. The main naming concern is that "quiz" already
-exists as an in-chat tutor block, so this feature may need a different product
-name.
-
----
 Un refactoring de los recursos:
 - Eliminar el recurso de Salas de Chat.
 - Introducir un nuevo recurso: Dialogos.
