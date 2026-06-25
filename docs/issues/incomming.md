@@ -39,6 +39,8 @@ Un refactoring de los recursos:
 
 ---
 
+Debemos pensar en standarizar los niveles de los recursos: A!, A2, B1, B2, C1, C2. Esto nos permitirá filtrar y organizar los recursos de manera más eficiente. Hay que seguir los estandares que se usan en la Florida en la enseñanza de idiomas.
+
 - Pensar en el Dashboard del profesor.
 
 ---

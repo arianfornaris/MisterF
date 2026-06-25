@@ -1,0 +1,4 @@
+interface:
+  display_name: "Theme Surface Conventions"
+  short_description: "Keep Mister F surfaces theme-friendly."
+  default_prompt: "Use this skill when editing Mister F UI surfaces, page containers, backgrounds, borders, border radii, shadows, gradients, or theme-related CSS."

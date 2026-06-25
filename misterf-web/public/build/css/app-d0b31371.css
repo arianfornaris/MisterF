@@ -6,6 +6,10 @@
   --muted: var(--bs-secondary-color);
   --line: var(--bs-border-color);
   --panel: var(--bs-card-bg);
+  --app-main-panel-bg: var(--bs-card-bg);
+  --app-main-panel-shadow:
+    0 18px 45px rgba(var(--bs-primary-rgb), 0.1),
+    0 2px 8px rgba(var(--bs-black-rgb), 0.035);
 
   /* Practice/chat visual language. Bootstrap still owns links, buttons, and app chrome. */
   --mf-dialogue: #6c4b2c;
@@ -60,10 +64,7 @@
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 88%), rgb(248 249 250 / 96%)),
-    radial-gradient(circle at top left, rgb(var(--bs-primary-rgb) / 10%), transparent 34%),
-    var(--page);
+  background: var(--page);
   color: var(--ink);
   font-family: var(--bs-body-font-family);
 }
@@ -107,8 +108,7 @@ body {
 }
 
 .superadmin-card {
-  border-radius: 8px;
-  box-shadow: 0 14px 36px rgb(34 34 34 / 7%);
+  border-radius: var(--bs-card-border-radius);
 }
 
 .superadmin-user-list {
@@ -171,10 +171,10 @@ body {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 16px 45px rgb(34 34 34 / 8%);
+  border: 0;
+  border-radius: var(--bs-card-border-radius);
+  background: var(--app-main-panel-bg);
+  box-shadow: var(--app-main-panel-shadow);
 }
 
 .chat-layout.is-closed-conversation {
@@ -186,11 +186,8 @@ body {
   margin-top: 1.25rem;
   margin-bottom: 1.75rem;
   border: 1px solid rgb(var(--mf-practice-rgb) / 14%);
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgb(var(--mf-practice-rgb) / 7%), transparent 34%),
-    linear-gradient(180deg, #fff, rgb(255 253 247 / 96%));
-  box-shadow: 0 18px 44px rgb(var(--mf-practice-rgb) / 9%);
+  border-radius: var(--bs-card-border-radius);
+  background: var(--bs-card-bg);
 }
 
 .conversation-summary-header {
@@ -302,7 +299,7 @@ body {
 
 .conversation-panel {
   width: min(86vw, 360px);
-  border-right: 1px solid var(--line);
+  border-right: 0;
 }
 
 .conversation-panel .offcanvas-header {
@@ -435,10 +432,10 @@ body {
     visibility: visible;
     width: 100%;
     height: 100%;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 16px 45px rgb(34 34 34 / 8%);
+    border: 0;
+    border-radius: var(--bs-card-border-radius);
+    background: var(--app-main-panel-bg);
+    box-shadow: var(--app-main-panel-shadow);
   }
 
   .conversation-panel .offcanvas-body {
@@ -750,7 +747,6 @@ body {
   padding: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 18px 40px rgb(34 34 34 / 12%);
 }
 
 .user-menu-email {
@@ -780,10 +776,10 @@ body {
   min-height: 0;
   overflow-y: auto;
   padding: 28px 32px 34px;
-  background: var(--bs-card-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color-translucent);
+  background: var(--app-main-panel-bg);
+  border: 0;
   border-radius: var(--bs-card-border-radius);
-  box-shadow: var(--bs-box-shadow-sm);
+  box-shadow: var(--app-main-panel-shadow);
 }
 
 .resource-page-header {
@@ -1403,7 +1399,7 @@ body {
 }
 
 .assignment-design-choice.is-correct {
-  border-color: rgb(var(--bs-success-rgb) / 36%);
+  border-color: rgba(var(--bs-success-rgb), 0.36);
 }
 
 .assignment-design-pair-row {
@@ -1448,9 +1444,8 @@ body {
   height: clamp(28rem, calc(100vh - 17rem), 42rem);
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--bs-card-border-radius);
   background: #fff;
-  box-shadow: 0 16px 45px rgb(34 34 34 / 8%);
 }
 
 .assignment-chat-context {
@@ -1459,7 +1454,7 @@ body {
   gap: 0.85rem;
   padding: 1rem 1.15rem;
   border-bottom: 1px solid rgb(44 62 80 / 10%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(249 251 253 / 98%));
+  background: var(--bs-tertiary-bg);
 }
 
 .assignment-chat-context-icon {
@@ -2288,8 +2283,8 @@ button.quiz-result-option:focus {
 }
 
 .quiz-result-option.is-missed {
-  border-color: rgb(var(--bs-warning-rgb) / 32%);
-  background: rgb(var(--bs-warning-rgb) / 10%);
+  border-color: rgba(var(--bs-warning-rgb), 0.32);
+  background: rgba(var(--bs-warning-rgb), 0.1);
   color: var(--mf-warning-text);
 }
 
@@ -3121,14 +3116,14 @@ button.sentence-part:focus {
 }
 
 .sentence-part.is-improve {
-  background: rgb(var(--bs-warning-rgb) / 18%);
+  background: rgba(var(--bs-warning-rgb), 0.18);
   text-decoration-color: var(--mf-warning-strong);
 }
 
 .sentence-part.is-improve:hover,
 .sentence-part.is-improve:focus {
-  background: rgb(var(--bs-warning-rgb) / 28%);
-  box-shadow: 0 0 0 3px rgb(var(--bs-warning-rgb) / 14%);
+  background: rgba(var(--bs-warning-rgb), 0.28);
+  box-shadow: 0 0 0 3px rgba(var(--bs-warning-rgb), 0.14);
 }
 
 .sentence-part.is-error {
@@ -3300,18 +3295,14 @@ button.sentence-part:focus {
   height: 100%;
   min-height: 0;
   grid-template-rows: minmax(0, 1fr) auto auto;
-  border-radius: 14px;
-  box-shadow: 0 18px 42px rgb(34 34 34 / 8%);
+  border-radius: var(--bs-card-border-radius);
 }
 
 .chatroom-viewport {
   min-height: 0;
   overflow-y: auto;
   padding: 28px 28px 20px;
-  background:
-    radial-gradient(circle at top right, rgb(var(--mf-practice-rgb) / 4%), transparent 26%),
-    linear-gradient(180deg, rgb(250 252 255 / 98%), rgb(255 255 255 / 98%)),
-    #fff;
+  background: var(--bs-body-bg);
 }
 
 .chatroom-messages {
@@ -3417,7 +3408,7 @@ button.sentence-part:focus {
   margin-top: 0.55rem;
   padding: 0.55rem 0.7rem;
   border-radius: 12px;
-  background: rgb(var(--bs-warning-rgb) / 11%);
+  background: rgba(var(--bs-warning-rgb), 0.11);
   color: var(--mf-warning-text);
   font-size: 0.88rem;
   line-height: 1.45;
@@ -3463,13 +3454,13 @@ button.sentence-part:focus {
   gap: 10px;
   padding: 14px 18px 18px;
   border-top: 1px solid rgb(var(--mf-practice-rgb) / 10%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 95%), rgb(249 251 253 / 98%));
+  background: var(--bs-body-bg);
 }
 
 .chatroom-composer .composer-input-wrap {
+  border: 1px solid rgb(var(--mf-practice-rgb) / 12%);
   border-radius: 14px;
   background: #fff;
-  box-shadow: inset 0 0 0 1px rgb(var(--mf-practice-rgb) / 12%);
 }
 
 .chatroom-composer .composer-input {
@@ -3511,12 +3502,12 @@ button.sentence-part:focus {
   align-items: start;
   padding: 14px 18px 18px;
   border-top: 1px solid rgb(44 62 80 / 10%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 95%), rgb(249 251 253 / 98%));
+  background: var(--bs-body-bg);
 }
 
 .tutor-plan-panel {
   grid-area: plan;
-  border-color: rgb(var(--bs-primary-rgb) / 0.18);
+  border-color: rgba(var(--bs-primary-rgb), 0.18);
   overflow: hidden;
 }
 
@@ -3541,7 +3532,7 @@ button.sentence-part:focus {
 }
 
 .tutor-plan-step-active {
-  background: rgb(var(--bs-primary-rgb) / 0.06);
+  background: rgba(var(--bs-primary-rgb), 0.06);
 }
 
 .composer-input-wrap {
@@ -3576,7 +3567,7 @@ button.sentence-part:focus {
 }
 
 .composer:focus-within .composer-input-wrap {
-  border-color: rgb(var(--bs-primary-rgb) / 0.6);
+  border-color: rgba(var(--bs-primary-rgb), 0.6);
 }
 
 .composer-footer {
@@ -3696,6 +3687,7 @@ button.sentence-part:focus {
     min-height: 0;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
   }
 
   .app-resource-view {

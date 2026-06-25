@@ -26,6 +26,7 @@
     min-height: 0;
     border: 0;
     border-radius: 0;
+    box-shadow: none;
   }
 
   .app-resource-view {

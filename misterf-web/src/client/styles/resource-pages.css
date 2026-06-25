@@ -5,10 +5,10 @@
   min-height: 0;
   overflow-y: auto;
   padding: 28px 32px 34px;
-  background: var(--bs-card-bg);
-  border: var(--bs-border-width) solid var(--bs-border-color-translucent);
+  background: var(--app-main-panel-bg);
+  border: 0;
   border-radius: var(--bs-card-border-radius);
-  box-shadow: var(--bs-box-shadow-sm);
+  box-shadow: var(--app-main-panel-shadow);
 }
 
 .resource-page-header {

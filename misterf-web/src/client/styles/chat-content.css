@@ -702,8 +702,8 @@ button.quiz-result-option:focus {
 }
 
 .quiz-result-option.is-missed {
-  border-color: rgb(var(--bs-warning-rgb) / 32%);
-  background: rgb(var(--bs-warning-rgb) / 10%);
+  border-color: rgba(var(--bs-warning-rgb), 0.32);
+  background: rgba(var(--bs-warning-rgb), 0.1);
   color: var(--mf-warning-text);
 }
 
@@ -1535,14 +1535,14 @@ button.sentence-part:focus {
 }
 
 .sentence-part.is-improve {
-  background: rgb(var(--bs-warning-rgb) / 18%);
+  background: rgba(var(--bs-warning-rgb), 0.18);
   text-decoration-color: var(--mf-warning-strong);
 }
 
 .sentence-part.is-improve:hover,
 .sentence-part.is-improve:focus {
-  background: rgb(var(--bs-warning-rgb) / 28%);
-  box-shadow: 0 0 0 3px rgb(var(--bs-warning-rgb) / 14%);
+  background: rgba(var(--bs-warning-rgb), 0.28);
+  box-shadow: 0 0 0 3px rgba(var(--bs-warning-rgb), 0.14);
 }
 
 .sentence-part.is-error {

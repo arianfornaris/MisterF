@@ -148,7 +148,7 @@
 }
 
 .assignment-design-choice.is-correct {
-  border-color: rgb(var(--bs-success-rgb) / 36%);
+  border-color: rgba(var(--bs-success-rgb), 0.36);
 }
 
 .assignment-design-pair-row {
@@ -193,9 +193,8 @@
   height: clamp(28rem, calc(100vh - 17rem), 42rem);
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--bs-card-border-radius);
   background: #fff;
-  box-shadow: 0 16px 45px rgb(34 34 34 / 8%);
 }
 
 .assignment-chat-context {
@@ -204,7 +203,7 @@
   gap: 0.85rem;
   padding: 1rem 1.15rem;
   border-bottom: 1px solid rgb(44 62 80 / 10%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(249 251 253 / 98%));
+  background: var(--bs-tertiary-bg);
 }
 
 .assignment-chat-context-icon {
