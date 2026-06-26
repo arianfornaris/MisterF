@@ -15,12 +15,10 @@ import {
   getOrCreateAssignmentShareLink,
   importAssignmentToProfile,
   listAssignmentAttemptsForUser,
-  listAssignmentsForProfile,
   markAssignmentAttemptEvaluating,
   markAssignmentAttemptFailed,
   restoreAssignmentForUser,
   saveAssignmentAttemptResult,
-  setAssignmentFavoriteForUser,
   submitAssignmentAttempt,
   updateAssignment,
   updateAssignmentAuthoringMessages,
@@ -35,12 +33,7 @@ import {
   buildAppShellContext,
   formatRelativeTime,
   getHomeAuthMessage,
-  normalizeSearchText,
 } from '../pages/shell.js';
-import {
-  assignmentsLayoutCookieName,
-  resolveResourceLayout,
-} from '../pages/resourceLayout.js';
 import {
   appendAssignmentBlock,
   assignmentDraftToStudentQuizBlock,
@@ -272,7 +265,7 @@ function buildAssignmentsShellContext(request: Request, options: {
   return buildAppShellContext({
     activeProfile: options.activeProfile ?? null,
     authMessage: getHomeAuthMessage(request, options.user ?? null),
-    currentView: 'assignments',
+    currentView: 'resources',
     guestInitialGreeting: '',
     request,
     title: options.title,
@@ -378,7 +371,7 @@ function assignmentToDraftOrRedirect(
 ): AssignmentDraft | null {
   const draft = safeParseAssignmentDraft(assignment.quiz);
   if (!draft) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return null;
   }
 
@@ -402,14 +395,6 @@ function updateAssignmentWithDraft(
     title: draft.title,
     userId,
   });
-}
-
-function buildAssignmentListItems(assignments: StoredAssignment[]) {
-  return assignments.map((assignment) => ({
-    ...assignment,
-    blockCount: safeParseAssignmentDraft(assignment.quiz)?.blocks.length ?? 0,
-    relativeUpdatedAt: formatRelativeTime(assignment.updatedAt),
-  }));
 }
 
 function buildAssignmentAttemptListItems(attempts: StoredAssignmentAttempt[]) {
@@ -463,7 +448,7 @@ function renderAssignmentAuthoring(
 ): void {
   const draft = safeParseAssignmentDraft(input.assignment.quiz);
   if (!draft) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
@@ -498,7 +483,7 @@ function resolveOwnAssignment(
   const assignmentId = readField(request.params.assignmentId, 120);
   const assignment = findAssignmentForUser(assignmentId, auth.user.id);
   if (!assignment) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return null;
   }
 
@@ -506,7 +491,7 @@ function resolveOwnAssignment(
   if (assignment.profileId !== activeProfile.id) {
     const profile = findProfileForUser(assignment.profileId, auth.user.id);
     if (!profile) {
-      response.redirect('/assignments');
+      response.redirect('/resources');
       return null;
     }
 
@@ -524,7 +509,7 @@ function resolveAccessibleAttempt(
   const attemptId = readField(request.params.attemptId, 120);
   const attempt = findAssignmentAttemptById(attemptId);
   if (!attempt) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return null;
   }
 
@@ -553,7 +538,7 @@ function renderAssignmentAttempt(
 ): void {
   const draft = safeParseAssignmentDraft(input.attempt.snapshot);
   if (!draft) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
@@ -597,58 +582,6 @@ function renderAssignmentResult(
     resultBlock: result.data,
     resultTitle: buildAssignmentResultTitle(result.data),
     summary,
-  });
-}
-
-export function renderAssignmentsListPage(request: Request, response: Response): void {
-  const auth = ensureVerifiedAssignmentUser(request, response);
-  if (!auth) {
-    return;
-  }
-
-  const showArchived = readField(request.query.archived, 10) === '1';
-  const query = readField(request.query.q, 240);
-  const normalizedQuery = normalizeSearchText(query);
-  const assignmentLayout = resolveResourceLayout(
-    request,
-    response,
-    assignmentsLayoutCookieName,
-  );
-  const allAssignments = listAssignmentsForProfile({
-    includeArchived: true,
-    profileId: auth.activeProfile.id,
-    userId: auth.user.id,
-  });
-  const hasArchivedAssignments = allAssignments.some((assignment) =>
-    Boolean(assignment.archivedAt),
-  );
-  const assignments = allAssignments.filter((assignment) => {
-    if (assignment.archivedAt && !showArchived) {
-      return false;
-    }
-
-    if (!normalizedQuery) {
-      return true;
-    }
-
-    return normalizeSearchText([
-      assignment.title,
-      assignment.description,
-      assignment.targetTopic,
-      assignment.level,
-    ].join('\n')).includes(normalizedQuery);
-  });
-  renderAssignmentsView(response, 'assignments-list', {
-    ...buildAssignmentsShellContext(request, {
-      activeProfile: auth.activeProfile,
-      title: `Tareas - ${appDocumentTitle}`,
-      user: auth.user,
-    }),
-    assignmentLayout,
-    assignmentItems: buildAssignmentListItems(assignments),
-    assignmentQuery: query,
-    hasArchivedAssignments,
-    showArchivedAssignments: showArchived,
   });
 }
 
@@ -751,7 +684,7 @@ export function handleUpdateAssignmentMetadata(request: Request, response: Respo
 
   const draft = safeParseAssignmentDraft(resolved.assignment.quiz);
   if (!draft) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
@@ -1080,24 +1013,6 @@ export async function renderAssignmentShowPage(
   });
 }
 
-export function handleSetAssignmentFavorite(request: Request, response: Response): void {
-  const resolved = resolveOwnAssignment(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  const returnTo = readReturnTo(
-    request.body.returnTo,
-    `/assignments/${encodeURIComponent(resolved.assignment.id)}`,
-  );
-  setAssignmentFavoriteForUser(
-    resolved.assignment.id,
-    resolved.user.id,
-    !resolved.assignment.isFavorite,
-  );
-  response.redirect(returnTo);
-}
-
 export function handleShareAssignmentToProfile(request: Request, response: Response): void {
   const resolved = resolveOwnAssignment(request, response);
   if (!resolved) {
@@ -1126,7 +1041,7 @@ export function handleArchiveAssignment(request: Request, response: Response): v
     return;
   }
 
-  const returnTo = readReturnTo(request.body.returnTo, '/assignments');
+  const returnTo = readReturnTo(request.body.returnTo, '/resources');
   archiveAssignmentForUser(resolved.assignment.id, resolved.user.id);
   response.redirect(returnTo);
 }
@@ -1149,13 +1064,13 @@ export function renderSharedAssignmentPage(request: Request, response: Response)
   const shareId = readField(request.params.shareId, 120);
   const shareLink = findAssignmentShareLinkById(shareId);
   if (!shareLink || shareLink.revokedAt) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
   const assignment = findAssignmentById(shareLink.assignmentId);
   if (!assignment || assignment.archivedAt) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
@@ -1181,13 +1096,13 @@ export function handleStartAssignmentAttempt(request: Request, response: Respons
   const shareId = readField(request.params.shareId, 120);
   const shareLink = findAssignmentShareLinkById(shareId);
   if (!shareLink || shareLink.revokedAt) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
   const assignment = findAssignmentById(shareLink.assignmentId);
   if (!assignment || assignment.archivedAt) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 
@@ -1274,7 +1189,7 @@ export async function handleSubmitAssignmentAttempt(
 
   const draft = safeParseAssignmentDraft(attempt.snapshot);
   if (!draft) {
-    response.redirect('/assignments');
+    response.redirect('/resources');
     return;
   }
 

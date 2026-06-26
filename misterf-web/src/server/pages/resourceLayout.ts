@@ -6,6 +6,7 @@ export type ResourceLayout = 'cards' | 'list';
 export const practiceModulesLayoutCookieName = 'misterf_practice_modules_layout';
 export const chatroomsLayoutCookieName = 'misterf_chatrooms_layout';
 export const assignmentsLayoutCookieName = 'misterf_assignments_layout';
+export const resourcesLayoutCookieName = 'misterf_resources_layout';
 
 function readCookieValue(
   cookieHeader: string | undefined,

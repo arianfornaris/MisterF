@@ -14,8 +14,6 @@ import {
   handleRemovePracticeModuleFromCollection,
   handleRestorePracticeModule,
   handleRestorePracticeModuleCollection,
-  handleSetPracticeModuleCollectionFavorite,
-  handleSetPracticeModuleFavorite,
   handleSharePracticeModuleCollectionToProfile,
   handleSharePracticeModuleToProfile,
   handleUpdatePracticeModule,
@@ -26,14 +24,15 @@ import {
   renderNewPracticeModulePage,
   renderPracticeModuleCollectionDetailPage,
   renderPracticeModuleDetailPage,
-  renderPracticeModulesListPage,
   renderSharedPracticeModuleCollectionPage,
   renderSharedPracticeModulePage,
 } from './handlers.js';
 
 export const practiceModulesRouter = express.Router();
 
-practiceModulesRouter.get('/practice-modules', renderPracticeModulesListPage);
+practiceModulesRouter.get('/practice-modules', (_request, response) => {
+  response.redirect('/resources');
+});
 practiceModulesRouter.get('/practice-modules/new', renderNewPracticeModulePage);
 practiceModulesRouter.post('/practice-modules/generate-draft', handleGeneratePracticeModuleDraft);
 practiceModulesRouter.post('/practice-modules', handleCreatePracticeModule);
@@ -46,7 +45,6 @@ practiceModulesRouter.post('/practice-modules/shared/:shareId/accept', handleAcc
 practiceModulesRouter.get('/practice-modules/collections/:collectionId/edit', renderEditPracticeModuleCollectionPage);
 practiceModulesRouter.get('/practice-modules/collections/:collectionId', renderPracticeModuleCollectionDetailPage);
 practiceModulesRouter.post('/practice-modules/collections/:collectionId', handleUpdatePracticeModuleCollection);
-practiceModulesRouter.post('/practice-modules/collections/:collectionId/favorite', handleSetPracticeModuleCollectionFavorite);
 practiceModulesRouter.post('/practice-modules/collections/:collectionId/archive', handleArchivePracticeModuleCollection);
 practiceModulesRouter.post('/practice-modules/collections/:collectionId/restore', handleRestorePracticeModuleCollection);
 practiceModulesRouter.post('/practice-modules/collections/:collectionId/share/profile', handleSharePracticeModuleCollectionToProfile);
@@ -57,7 +55,6 @@ practiceModulesRouter.post('/practice-modules/collections/:collectionId/items/:p
 practiceModulesRouter.get('/practice-modules/:practiceModuleId/edit', renderEditPracticeModulePage);
 practiceModulesRouter.get('/practice-modules/:practiceModuleId', renderPracticeModuleDetailPage);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId', handleUpdatePracticeModule);
-practiceModulesRouter.post('/practice-modules/:practiceModuleId/favorite', handleSetPracticeModuleFavorite);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId/archive', handleArchivePracticeModule);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId/restore', handleRestorePracticeModule);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId/delete', handleDeletePracticeModule);

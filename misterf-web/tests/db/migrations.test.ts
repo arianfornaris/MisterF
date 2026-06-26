@@ -87,6 +87,10 @@ describe('database migrations', () => {
         id: 8,
         name: 'add_assignment_authoring_messages',
       },
+      {
+        id: 9,
+        name: 'add_resource_foundation',
+      },
     ]);
 
     const tableNames = (db
@@ -114,6 +118,10 @@ describe('database migrations', () => {
       'practice_module_collections',
       'practice_modules',
       'profiles',
+      'resource_folder_items',
+      'resource_folders',
+      'resource_share_links',
+      'resources',
       'schema_migrations',
       'tutor_conversation_reports',
       'user_openrouter_keys',
@@ -149,6 +157,7 @@ describe('database migrations', () => {
     ]));
     expect(getColumnNames(db, 'assignments')).not.toEqual(expect.arrayContaining([
       'estimated_minutes',
+      'is_favorite',
       'published_at',
       'rubric',
       'status',
@@ -160,6 +169,169 @@ describe('database migrations', () => {
       'snapshot_json',
     ]));
     expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'resources')).toEqual(expect.arrayContaining([
+      'archived_at',
+      'description',
+      'id',
+      'level',
+      'profile_id',
+      'shared_via',
+      'source_resource_id',
+      'title',
+      'topic',
+      'type',
+      'user_id',
+    ]));
+    expect(getColumnNames(db, 'resources')).not.toContain('is_favorite');
+    expect(getColumnNames(db, 'resource_folder_items')).toEqual(expect.arrayContaining([
+      'folder_id',
+      'position',
+      'resource_id',
+      'resource_type',
+    ]));
+  });
+
+  it('backfills resources, folders, folder items, and share links from legacy resource tables', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-resources-'));
+    process.env.DATABASE_PATH = path.join(tempDir, 'resources.sqlite');
+    process.env.ENV_FILE = '/dev/null';
+    vi.resetModules();
+
+    const { getDb } = await import('../../src/server/db/database.js');
+    const { migrations } = await import('../../src/server/db/migrations.js');
+    const { migrate } = await import('../../src/server/db/migrator.js');
+    const db = getDb();
+
+    db.exec(`
+      CREATE TABLE schema_migrations (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    for (const migration of migrations.filter((migration) => migration.id <= 8)) {
+      db.exec(migration.up);
+      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
+        .run(migration.id, migration.name);
+    }
+
+    const assignmentDraft = JSON.stringify({
+      blocks: [],
+      title: 'Resource assignment',
+    });
+
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, email_verified)
+      VALUES ('user_1', 'resources@example.com', 'Resources User', 1)
+    `).run();
+    db.prepare(`
+      INSERT INTO profiles (id, user_id, name)
+      VALUES ('profile_1', 'user_1', 'Resources Profile')
+    `).run();
+    db.prepare(`
+      INSERT INTO assignments (
+        id,
+        user_id,
+        profile_id,
+        title,
+        description,
+        target_topic,
+        level,
+        quiz_json,
+        authoring_messages_json
+      )
+      VALUES (
+        'assignment_1',
+        'user_1',
+        'profile_1',
+        'Resource Assignment',
+        'Assignment description.',
+        'Past perfect',
+        'B2',
+        ?,
+        '[]'
+      )
+    `).run(assignmentDraft);
+    db.prepare(`
+      INSERT INTO practice_module_collections (
+        id,
+        user_id,
+        profile_id,
+        title,
+        description
+      )
+      VALUES (
+        'collection_1',
+        'user_1',
+        'profile_1',
+        'Legacy Collection',
+        'Collection description.'
+      )
+    `).run();
+    db.prepare(`
+      INSERT INTO practice_modules (
+        id,
+        user_id,
+        profile_id,
+        title,
+        description,
+        tutor_instructions,
+        collection_id,
+        position_in_collection
+      )
+      VALUES (
+        'module_1',
+        'user_1',
+        'profile_1',
+        'Legacy Module',
+        'Module description.',
+        'Practice modal verbs.',
+        'collection_1',
+        2
+      )
+    `).run();
+    db.prepare(`
+      INSERT INTO assignment_share_links (id, assignment_id)
+      VALUES ('assignment_link_1', 'assignment_1')
+    `).run();
+    db.prepare(`
+      INSERT INTO practice_module_share_links (id, practice_module_id)
+      VALUES ('module_link_1', 'module_1')
+    `).run();
+    db.prepare(`
+      INSERT INTO practice_module_collection_share_links (id, collection_id)
+      VALUES ('collection_link_1', 'collection_1')
+    `).run();
+
+    migrate();
+
+    expect(db.prepare('SELECT type, topic, level FROM resources WHERE id = ?')
+      .get('assignment_1')).toEqual({
+      level: 'B2',
+      topic: 'Past perfect',
+      type: 'assignment',
+    });
+    expect(db.prepare('SELECT type FROM resources WHERE id = ?')
+      .get('module_1')).toEqual({ type: 'practice_guide' });
+    expect(db.prepare('SELECT type FROM resources WHERE id = ?')
+      .get('collection_1')).toEqual({ type: 'resource_folder' });
+    expect(db.prepare('SELECT id FROM resource_folders WHERE id = ?')
+      .get('collection_1')).toEqual({ id: 'collection_1' });
+    expect(db.prepare('SELECT folder_id, resource_id, resource_type, position FROM resource_folder_items WHERE resource_id = ?')
+      .get('module_1')).toEqual({
+      folder_id: 'collection_1',
+      position: 2,
+      resource_id: 'module_1',
+      resource_type: 'practice_guide',
+    });
+    expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
+      .get('assignment_link_1')).toEqual({ resource_id: 'assignment_1' });
+    expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
+      .get('module_link_1')).toEqual({ resource_id: 'module_1' });
+    expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
+      .get('collection_link_1')).toEqual({ resource_id: 'collection_1' });
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
   it('migrates existing assignment lifecycle data without losing attempts', async () => {

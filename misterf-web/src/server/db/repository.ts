@@ -30,6 +30,44 @@ export type StoredConversation = {
   updatedAt: string;
 };
 
+export type ResourceType = 'assignment' | 'practice_guide' | 'resource_folder';
+export type ResourceShareKind = 'link' | 'profile';
+
+export type StoredResource = {
+  archivedAt: string | null;
+  createdAt: string;
+  description: string;
+  id: string;
+  level: string;
+  profileId: string;
+  sharedVia: ResourceShareKind | null;
+  sourceProfileId: string | null;
+  sourceResourceId: string | null;
+  sourceUserId: string | null;
+  title: string;
+  topic: string;
+  type: ResourceType;
+  updatedAt: string;
+  userId: string;
+};
+
+export type StoredResourceFolderItem = {
+  createdAt: string;
+  folderId: string;
+  position: number;
+  resource: StoredResource;
+  resourceId: string;
+  resourceType: Exclude<ResourceType, 'resource_folder'>;
+  updatedAt: string;
+};
+
+export type StoredResourceShareLink = {
+  createdAt: string;
+  id: string;
+  resourceId: string;
+  revokedAt: string | null;
+};
+
 export type StoredChatRoom = {
   archivedAt: string | null;
   id: string;
@@ -124,7 +162,6 @@ export type StoredPracticeModule = {
   archivedAt: string | null;
   collectionId: string | null;
   id: string;
-  isFavorite: boolean;
   positionInCollection: number | null;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
@@ -142,7 +179,6 @@ export type StoredPracticeModule = {
 export type StoredPracticeModuleCollection = {
   archivedAt: string | null;
   id: string;
-  isFavorite: boolean;
   userId: string;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
@@ -244,7 +280,6 @@ export type StoredAssignment = {
   description: string;
   id: string;
   instructions: string;
-  isFavorite: boolean;
   level: string;
   profileId: string;
   quiz: Record<string, unknown>;
@@ -494,6 +529,40 @@ type ConversationRow = {
   updated_at: string;
 };
 
+type ResourceRow = {
+  archived_at: string | null;
+  created_at: string;
+  description: string;
+  id: string;
+  level: string;
+  profile_id: string;
+  shared_via: ResourceShareKind | null;
+  source_profile_id: string | null;
+  source_resource_id: string | null;
+  source_user_id: string | null;
+  title: string;
+  topic: string;
+  type: ResourceType;
+  updated_at: string;
+  user_id: string;
+};
+
+type ResourceFolderItemRow = ResourceRow & {
+  folder_id: string;
+  position: number;
+  resource_id: string;
+  resource_type: Exclude<ResourceType, 'resource_folder'>;
+  item_created_at: string;
+  item_updated_at: string;
+};
+
+type ResourceShareLinkRow = {
+  created_at: string;
+  id: string;
+  resource_id: string;
+  revoked_at: string | null;
+};
+
 type TutorConversationReportRow = {
   id: string;
   conversation_id: string;
@@ -511,7 +580,6 @@ type PracticeModuleRow = {
   archived_at: string | null;
   collection_id: string | null;
   id: string;
-  is_favorite: number;
   position_in_collection: number | null;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
@@ -536,7 +604,6 @@ type PracticeModuleShareLinkRow = {
 type PracticeModuleCollectionRow = {
   archived_at: string | null;
   id: string;
-  is_favorite: number;
   user_id: string;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
@@ -594,7 +661,6 @@ type AssignmentRow = {
   description: string;
   id: string;
   instructions: string;
-  is_favorite: number;
   level: string;
   profile_id: string;
   quiz_json: string;
@@ -708,6 +774,49 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     userId: row.user_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function toStoredResource(row: ResourceRow): StoredResource {
+  return {
+    archivedAt: row.archived_at,
+    createdAt: row.created_at,
+    description: row.description,
+    id: row.id,
+    level: row.level,
+    profileId: row.profile_id,
+    sharedVia: row.shared_via,
+    sourceProfileId: row.source_profile_id,
+    sourceResourceId: row.source_resource_id,
+    sourceUserId: row.source_user_id,
+    title: row.title,
+    topic: row.topic,
+    type: row.type,
+    updatedAt: row.updated_at,
+    userId: row.user_id,
+  };
+}
+
+function toStoredResourceFolderItem(
+  row: ResourceFolderItemRow,
+): StoredResourceFolderItem {
+  return {
+    createdAt: row.item_created_at,
+    folderId: row.folder_id,
+    position: row.position,
+    resource: toStoredResource(row),
+    resourceId: row.resource_id,
+    resourceType: row.resource_type,
+    updatedAt: row.item_updated_at,
+  };
+}
+
+function toStoredResourceShareLink(row: ResourceShareLinkRow): StoredResourceShareLink {
+  return {
+    createdAt: row.created_at,
+    id: row.id,
+    resourceId: row.resource_id,
+    revokedAt: row.revoked_at,
   };
 }
 
@@ -850,7 +959,6 @@ function toStoredAssignment(row: AssignmentRow): StoredAssignment {
     description: row.description,
     id: row.id,
     instructions: row.instructions,
-    isFavorite: Boolean(row.is_favorite),
     level: row.level,
     profileId: row.profile_id,
     quiz: parseJsonRecord(row.quiz_json),
@@ -1110,7 +1218,6 @@ function toStoredPracticeModule(row: PracticeModuleRow): StoredPracticeModule {
     archivedAt: row.archived_at,
     collectionId: row.collection_id,
     id: row.id,
-    isFavorite: Boolean(row.is_favorite),
     positionInCollection: row.position_in_collection,
     profileId: row.profile_id,
     sharedVia: row.shared_via,
@@ -1132,7 +1239,6 @@ function toStoredPracticeModuleCollection(
   return {
     archivedAt: row.archived_at,
     id: row.id,
-    isFavorite: Boolean(row.is_favorite),
     userId: row.user_id,
     profileId: row.profile_id,
     sharedVia: row.shared_via,
@@ -1215,6 +1321,708 @@ function toStoredTutorPlan(row: ConversationTutorPlanRow): StoredTutorPlan | nul
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+function insertResource(
+  db: ReturnType<typeof getDb>,
+  input: {
+    archivedAt?: string | null;
+    description?: string;
+    id: string;
+    level?: string;
+    profileId: string;
+    sharedVia?: ResourceShareKind | null;
+    sourceProfileId?: string | null;
+    sourceResourceId?: string | null;
+    sourceUserId?: string | null;
+    title: string;
+    topic?: string;
+    type: ResourceType;
+    userId: string;
+  },
+): void {
+  db.prepare(
+    `
+      INSERT INTO resources (
+        id,
+        user_id,
+        profile_id,
+        type,
+        title,
+        description,
+        topic,
+        level,
+        archived_at,
+        source_resource_id,
+        source_user_id,
+        source_profile_id,
+        shared_via
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+  ).run(
+    input.id,
+    input.userId,
+    input.profileId,
+    input.type,
+    input.title,
+    input.description ?? '',
+    input.topic ?? '',
+    input.level ?? '',
+    input.archivedAt ?? null,
+    input.sourceResourceId ?? null,
+    input.sourceUserId ?? null,
+    input.sourceProfileId ?? null,
+    input.sharedVia ?? null,
+  );
+}
+
+function updateResourceMetadata(
+  db: ReturnType<typeof getDb>,
+  input: {
+    description: string;
+    id: string;
+    level?: string;
+    title: string;
+    topic?: string;
+    userId: string;
+  },
+): void {
+  db.prepare(
+    `
+      UPDATE resources
+      SET title = ?,
+          description = ?,
+          topic = COALESCE(?, topic),
+          level = COALESCE(?, level),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `,
+  ).run(
+    input.title,
+    input.description,
+    input.topic ?? null,
+    input.level ?? null,
+    input.id,
+    input.userId,
+  );
+}
+
+function archiveResource(
+  db: ReturnType<typeof getDb>,
+  resourceId: string,
+  userId: string,
+): void {
+  db.prepare(
+    `
+      UPDATE resources
+      SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `,
+  ).run(resourceId, userId);
+}
+
+function restoreResource(
+  db: ReturnType<typeof getDb>,
+  resourceId: string,
+  userId: string,
+): void {
+  db.prepare(
+    `
+      UPDATE resources
+      SET archived_at = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ? AND user_id = ?
+    `,
+  ).run(resourceId, userId);
+}
+
+function upsertResourceShareLink(
+  db: ReturnType<typeof getDb>,
+  id: string,
+  resourceId: string,
+): void {
+  db.prepare(
+    `
+      INSERT INTO resource_share_links (id, resource_id)
+      VALUES (?, ?)
+      ON CONFLICT(resource_id) DO UPDATE SET
+        revoked_at = NULL
+    `,
+  ).run(id, resourceId);
+}
+
+function normalizeResourceFolderPositions(folderId: string): void {
+  const db = getDb();
+  const rows = db
+    .prepare(
+      `
+        SELECT resource_id
+        FROM resource_folder_items
+        WHERE folder_id = ?
+        ORDER BY position ASC, created_at ASC
+      `,
+    )
+    .all(folderId) as Array<{ resource_id: string }>;
+
+  const update = db.prepare(
+    `
+      UPDATE resource_folder_items
+      SET position = ?,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE folder_id = ? AND resource_id = ?
+    `,
+  );
+
+  rows.forEach((row, index) => {
+    update.run(index + 1, folderId, row.resource_id);
+  });
+}
+
+export function findResourceForUser(
+  resourceId: string,
+  userId: string,
+): StoredResource | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          type,
+          title,
+          description,
+          topic,
+          level,
+          archived_at,
+          source_resource_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
+        FROM resources
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(resourceId, userId) as ResourceRow | undefined;
+
+  return row ? toStoredResource(row) : null;
+}
+
+export function listResourcesForProfile(input: {
+  folderId?: string | null;
+  includeArchived?: boolean;
+  profileId: string;
+  type?: ResourceType | null;
+  userId: string;
+}): StoredResource[] {
+  const includeArchived = input.includeArchived ? 1 : 0;
+  if (input.folderId) {
+    const rows = getDb()
+      .prepare(
+        `
+          SELECT
+            resource.id,
+            resource.user_id,
+            resource.profile_id,
+            resource.type,
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+            resource.archived_at,
+            resource.source_resource_id,
+            resource.source_user_id,
+            resource.source_profile_id,
+            resource.shared_via,
+            resource.created_at,
+            resource.updated_at
+          FROM resource_folder_items AS item
+          JOIN resources AS resource
+            ON resource.id = item.resource_id
+          JOIN resources AS folder
+            ON folder.id = item.folder_id
+          WHERE item.folder_id = ?
+            AND folder.user_id = ?
+            AND folder.profile_id = ?
+            AND resource.user_id = ?
+            AND resource.profile_id = ?
+            AND (? IS NULL OR resource.type = ?)
+            AND (? = 1 OR resource.archived_at IS NULL)
+          ORDER BY item.position ASC, item.created_at ASC
+        `,
+      )
+      .all(
+        input.folderId,
+        input.userId,
+        input.profileId,
+        input.userId,
+        input.profileId,
+        input.type ?? null,
+        input.type ?? null,
+        includeArchived,
+      ) as ResourceRow[];
+
+    return rows.map(toStoredResource);
+  }
+
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          type,
+          title,
+          description,
+          topic,
+          level,
+          archived_at,
+          source_resource_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
+        FROM resources
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND (? IS NULL OR type = ?)
+          AND (? = 1 OR archived_at IS NULL)
+        ORDER BY
+          CASE WHEN archived_at IS NULL THEN 0 ELSE 1 END ASC,
+          updated_at DESC,
+          created_at DESC
+      `,
+    )
+    .all(
+      input.userId,
+      input.profileId,
+      input.type ?? null,
+      input.type ?? null,
+      includeArchived,
+    ) as ResourceRow[];
+
+  return rows.map(toStoredResource);
+}
+
+export function createResourceFolder(input: {
+  description?: string;
+  profileId: string;
+  title: string;
+  userId: string;
+}): StoredResource {
+  const id = randomUUID();
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    insertResource(db, {
+      description: input.description ?? '',
+      id,
+      profileId: input.profileId,
+      title: input.title,
+      type: 'resource_folder',
+      userId: input.userId,
+    });
+    db.prepare('INSERT INTO resource_folders (id) VALUES (?)').run(id);
+  });
+
+  transaction();
+
+  const folder = findResourceForUser(id, input.userId);
+  if (!folder) {
+    throw new Error('Could not load newly created resource folder.');
+  }
+
+  return folder;
+}
+
+export function updateResourceFolder(input: {
+  description: string;
+  folderId: string;
+  title: string;
+  userId: string;
+}): StoredResource | null {
+  const folder = findResourceForUser(input.folderId, input.userId);
+  if (folder?.type !== 'resource_folder') {
+    return null;
+  }
+
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    updateResourceMetadata(db, {
+      description: input.description,
+      id: input.folderId,
+      title: input.title,
+      userId: input.userId,
+    });
+    db.prepare(
+      `
+        UPDATE practice_module_collections
+        SET title = ?,
+            description = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(input.title, input.description, input.folderId, input.userId);
+  });
+
+  transaction();
+  return findResourceForUser(input.folderId, input.userId);
+}
+
+export function archiveResourceForUser(
+  resourceId: string,
+  userId: string,
+): StoredResource | null {
+  const resource = findResourceForUser(resourceId, userId);
+  if (!resource) {
+    return null;
+  }
+
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    archiveResource(db, resourceId, userId);
+    if (resource.type === 'assignment') {
+      db.prepare(
+        `
+          UPDATE assignments
+          SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    } else if (resource.type === 'practice_guide') {
+      db.prepare(
+        `
+          UPDATE practice_modules
+          SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    } else {
+      db.prepare(
+        `
+          UPDATE practice_module_collections
+          SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    }
+  });
+
+  transaction();
+  return findResourceForUser(resourceId, userId);
+}
+
+export function restoreResourceForUser(
+  resourceId: string,
+  userId: string,
+): StoredResource | null {
+  const resource = findResourceForUser(resourceId, userId);
+  if (!resource) {
+    return null;
+  }
+
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    restoreResource(db, resourceId, userId);
+    if (resource.type === 'assignment') {
+      db.prepare(
+        `
+          UPDATE assignments
+          SET archived_at = NULL,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    } else if (resource.type === 'practice_guide') {
+      db.prepare(
+        `
+          UPDATE practice_modules
+          SET archived_at = NULL,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    } else {
+      db.prepare(
+        `
+          UPDATE practice_module_collections
+          SET archived_at = NULL,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    }
+  });
+
+  transaction();
+  return findResourceForUser(resourceId, userId);
+}
+
+export function addResourceToFolder(input: {
+  folderId: string;
+  resourceId: string;
+  userId: string;
+}): boolean {
+  const folder = findResourceForUser(input.folderId, input.userId);
+  const resource = findResourceForUser(input.resourceId, input.userId);
+  if (
+    folder?.type !== 'resource_folder'
+    || !resource
+    || resource.type === 'resource_folder'
+    || folder.profileId !== resource.profileId
+  ) {
+    return false;
+  }
+
+  const db = getDb();
+  const previous = db
+    .prepare('SELECT folder_id FROM resource_folder_items WHERE resource_id = ?')
+    .get(input.resourceId) as { folder_id: string } | undefined;
+  const nextPositionRow = db
+    .prepare(
+      `
+        SELECT COALESCE(MAX(position), 0) AS max_position
+        FROM resource_folder_items
+        WHERE folder_id = ?
+      `,
+    )
+    .get(input.folderId) as { max_position: number };
+
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        INSERT INTO resource_folder_items (
+          folder_id,
+          resource_id,
+          resource_type,
+          position
+        )
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(resource_id) DO UPDATE SET
+          folder_id = excluded.folder_id,
+          resource_type = excluded.resource_type,
+          position = excluded.position,
+          updated_at = CURRENT_TIMESTAMP
+      `,
+    ).run(
+      input.folderId,
+      input.resourceId,
+      resource.type,
+      nextPositionRow.max_position + 1,
+    );
+    db.prepare(
+      `
+        UPDATE resources
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id IN (?, ?)
+      `,
+    ).run(input.folderId, input.resourceId);
+  });
+
+  transaction();
+  if (previous?.folder_id && previous.folder_id !== input.folderId) {
+    normalizeResourceFolderPositions(previous.folder_id);
+  }
+  normalizeResourceFolderPositions(input.folderId);
+
+  return true;
+}
+
+export function removeResourceFromFolder(input: {
+  folderId: string;
+  resourceId: string;
+  userId: string;
+}): boolean {
+  const folder = findResourceForUser(input.folderId, input.userId);
+  const resource = findResourceForUser(input.resourceId, input.userId);
+  if (folder?.type !== 'resource_folder' || !resource) {
+    return false;
+  }
+
+  const result = getDb()
+    .prepare(
+      `
+        DELETE FROM resource_folder_items
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    )
+    .run(input.folderId, input.resourceId);
+
+  if (result.changes < 1) {
+    return false;
+  }
+
+  normalizeResourceFolderPositions(input.folderId);
+  return true;
+}
+
+export function listResourceFolderItems(
+  folderId: string,
+  userId: string,
+): StoredResourceFolderItem[] {
+  const folder = findResourceForUser(folderId, userId);
+  if (folder?.type !== 'resource_folder') {
+    return [];
+  }
+
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          item.folder_id,
+          item.resource_id,
+          item.resource_type,
+          item.position,
+          item.created_at AS item_created_at,
+          item.updated_at AS item_updated_at,
+          resource.id,
+          resource.user_id,
+          resource.profile_id,
+          resource.type,
+          resource.title,
+          resource.description,
+          resource.topic,
+          resource.level,
+          resource.archived_at,
+          resource.source_resource_id,
+          resource.source_user_id,
+          resource.source_profile_id,
+          resource.shared_via,
+          resource.created_at,
+          resource.updated_at
+        FROM resource_folder_items AS item
+        JOIN resources AS resource
+          ON resource.id = item.resource_id
+        WHERE item.folder_id = ?
+          AND resource.user_id = ?
+        ORDER BY item.position ASC, item.created_at ASC
+      `,
+    )
+    .all(folderId, userId) as ResourceFolderItemRow[];
+
+  return rows.map(toStoredResourceFolderItem);
+}
+
+export function moveResourceFolderItem(input: {
+  direction: 'down' | 'up';
+  folderId: string;
+  resourceId: string;
+  userId: string;
+}): boolean {
+  const items = listResourceFolderItems(input.folderId, input.userId);
+  const index = items.findIndex((item) => item.resourceId === input.resourceId);
+  if (index < 0) {
+    return false;
+  }
+
+  const swapIndex = input.direction === 'up' ? index - 1 : index + 1;
+  if (swapIndex < 0 || swapIndex >= items.length) {
+    return false;
+  }
+
+  const current = items[index];
+  const other = items[swapIndex];
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        UPDATE resource_folder_items
+        SET position = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    ).run(-1, input.folderId, current.resourceId);
+
+    db.prepare(
+      `
+        UPDATE resource_folder_items
+        SET position = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    ).run(current.position, input.folderId, other.resourceId);
+
+    db.prepare(
+      `
+        UPDATE resource_folder_items
+        SET position = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    ).run(other.position, input.folderId, current.resourceId);
+
+    db.prepare(
+      `
+        UPDATE resources
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(input.folderId);
+  });
+
+  transaction();
+  return true;
+}
+
+export function findResourceShareLinkById(
+  id: string,
+): StoredResourceShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, resource_id, created_at, revoked_at
+        FROM resource_share_links
+        WHERE id = ?
+      `,
+    )
+    .get(id) as ResourceShareLinkRow | undefined;
+
+  return row ? toStoredResourceShareLink(row) : null;
+}
+
+export function findResourceShareLinkForResource(
+  resourceId: string,
+): StoredResourceShareLink | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT id, resource_id, created_at, revoked_at
+        FROM resource_share_links
+        WHERE resource_id = ?
+          AND revoked_at IS NULL
+        LIMIT 1
+      `,
+    )
+    .get(resourceId) as ResourceShareLinkRow | undefined;
+
+  return row ? toStoredResourceShareLink(row) : null;
+}
+
+export function getOrCreateResourceShareLink(
+  resourceId: string,
+): StoredResourceShareLink {
+  const existing = findResourceShareLinkForResource(resourceId);
+  if (existing) {
+    return existing;
+  }
+
+  const id = randomBytes(18).toString('base64url');
+  upsertResourceShareLink(getDb(), id, resourceId);
+
+  const created = findResourceShareLinkForResource(resourceId);
+  if (!created) {
+    throw new Error('Could not load newly created resource share link.');
+  }
+
+  return created;
 }
 
 export function createProfile(input: {
@@ -2649,8 +3457,23 @@ export function createAssignment(input: {
   userId: string;
 }): StoredAssignment {
   const id = randomUUID();
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    insertResource(db, {
+      description: input.description ?? '',
+      id,
+      level: input.level ?? '',
+      profileId: input.profileId,
+      sharedVia: input.sharedVia ?? null,
+      sourceProfileId: input.sourceProfileId ?? null,
+      sourceResourceId: input.sourceAssignmentId ?? null,
+      sourceUserId: input.sourceUserId ?? null,
+      title: input.title,
+      topic: input.targetTopic ?? '',
+      type: 'assignment',
+      userId: input.userId,
+    });
+    db.prepare(
       `
         INSERT INTO assignments (
           id,
@@ -2671,22 +3494,25 @@ export function createAssignment(input: {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(
-      id,
-      input.userId,
-      input.profileId,
-      input.title,
-      input.description ?? '',
-      input.targetTopic ?? '',
-      input.level ?? '',
-      input.instructions ?? '',
-      JSON.stringify(input.quiz),
-      JSON.stringify(input.authoringMessages ?? []),
-      input.sourceAssignmentId ?? null,
-      input.sourceUserId ?? null,
-      input.sourceProfileId ?? null,
-      input.sharedVia ?? null,
-    );
+      .run(
+        id,
+        input.userId,
+        input.profileId,
+        input.title,
+        input.description ?? '',
+        input.targetTopic ?? '',
+        input.level ?? '',
+        input.instructions ?? '',
+        JSON.stringify(input.quiz),
+        JSON.stringify(input.authoringMessages ?? []),
+        input.sourceAssignmentId ?? null,
+        input.sourceUserId ?? null,
+        input.sourceProfileId ?? null,
+        input.sharedVia ?? null,
+      );
+  });
+
+  transaction();
 
   const assignment = findAssignmentForUser(id, input.userId);
   if (!assignment) {
@@ -2710,7 +3536,6 @@ export function findAssignmentForUser(
           description,
           id,
           instructions,
-          is_favorite,
           level,
           profile_id,
           quiz_json,
@@ -2742,7 +3567,6 @@ export function findAssignmentById(id: string): StoredAssignment | null {
           description,
           id,
           instructions,
-          is_favorite,
           level,
           profile_id,
           quiz_json,
@@ -2778,7 +3602,6 @@ export function listAssignmentsForProfile(input: {
           description,
           id,
           instructions,
-          is_favorite,
           level,
           profile_id,
           quiz_json,
@@ -2796,7 +3619,6 @@ export function listAssignmentsForProfile(input: {
           AND (? = 1 OR archived_at IS NULL)
         ORDER BY
           CASE WHEN archived_at IS NULL THEN 0 ELSE 1 END ASC,
-          is_favorite DESC,
           updated_at DESC,
           created_at DESC
       `,
@@ -2817,8 +3639,17 @@ export function updateAssignment(input: {
   title: string;
   userId: string;
 }): StoredAssignment | null {
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    updateResourceMetadata(db, {
+      description: input.description,
+      id: input.assignmentId,
+      level: input.level,
+      title: input.title,
+      topic: input.targetTopic,
+      userId: input.userId,
+    });
+    db.prepare(
       `
         UPDATE assignments
         SET title = ?,
@@ -2832,19 +3663,22 @@ export function updateAssignment(input: {
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(
-      input.title,
-      input.description,
-      input.targetTopic,
-      input.level,
-      input.instructions,
-      JSON.stringify(input.quiz),
-      input.authoringMessages === undefined
-        ? null
-        : JSON.stringify(input.authoringMessages),
-      input.assignmentId,
-      input.userId,
-    );
+      .run(
+        input.title,
+        input.description,
+        input.targetTopic,
+        input.level,
+        input.instructions,
+        JSON.stringify(input.quiz),
+        input.authoringMessages === undefined
+          ? null
+          : JSON.stringify(input.authoringMessages),
+        input.assignmentId,
+        input.userId,
+      );
+  });
+
+  transaction();
 
   return findAssignmentForUser(input.assignmentId, input.userId);
 }
@@ -2854,8 +3688,16 @@ export function updateAssignmentAuthoringMessages(input: {
   messages: AssignmentAuthoringMessage[];
   userId: string;
 }): StoredAssignment | null {
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        UPDATE resources
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(input.assignmentId, input.userId);
+    db.prepare(
       `
         UPDATE assignments
         SET authoring_messages_json = ?,
@@ -2863,11 +3705,14 @@ export function updateAssignmentAuthoringMessages(input: {
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(
-      JSON.stringify(input.messages),
-      input.assignmentId,
-      input.userId,
-    );
+      .run(
+        JSON.stringify(input.messages),
+        input.assignmentId,
+        input.userId,
+      );
+  });
+
+  transaction();
 
   return findAssignmentForUser(input.assignmentId, input.userId);
 }
@@ -2887,7 +3732,6 @@ export function findImportedAssignmentForProfile(input: {
           description,
           id,
           instructions,
-          is_favorite,
           level,
           profile_id,
           quiz_json,
@@ -2945,31 +3789,14 @@ export function importAssignmentToProfile(input: {
   });
 }
 
-export function setAssignmentFavoriteForUser(
-  assignmentId: string,
-  userId: string,
-  isFavorite: boolean,
-): StoredAssignment | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE assignments
-        SET is_favorite = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(isFavorite ? 1 : 0, assignmentId, userId);
-
-  return findAssignmentForUser(assignmentId, userId);
-}
-
 export function archiveAssignmentForUser(
   assignmentId: string,
   userId: string,
 ): StoredAssignment | null {
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    archiveResource(db, assignmentId, userId);
+    db.prepare(
       `
         UPDATE assignments
         SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
@@ -2977,7 +3804,10 @@ export function archiveAssignmentForUser(
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(assignmentId, userId);
+      .run(assignmentId, userId);
+  });
+
+  transaction();
 
   return findAssignmentForUser(assignmentId, userId);
 }
@@ -2986,8 +3816,10 @@ export function restoreAssignmentForUser(
   assignmentId: string,
   userId: string,
 ): StoredAssignment | null {
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    restoreResource(db, assignmentId, userId);
+    db.prepare(
       `
         UPDATE assignments
         SET archived_at = NULL,
@@ -2995,7 +3827,10 @@ export function restoreAssignmentForUser(
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(assignmentId, userId);
+      .run(assignmentId, userId);
+  });
+
+  transaction();
 
   return findAssignmentForUser(assignmentId, userId);
 }
@@ -3039,12 +3874,14 @@ export function getOrCreateAssignmentShareLink(
 ): StoredAssignmentShareLink {
   const existing = findAssignmentShareLinkForAssignment(assignmentId);
   if (existing) {
+    upsertResourceShareLink(getDb(), existing.id, assignmentId);
     return existing;
   }
 
   const id = randomBytes(18).toString('base64url');
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
       `
         INSERT INTO assignment_share_links (id, assignment_id)
         VALUES (?, ?)
@@ -3052,7 +3889,11 @@ export function getOrCreateAssignmentShareLink(
           revoked_at = NULL
       `,
     )
-    .run(id, assignmentId);
+      .run(id, assignmentId);
+    upsertResourceShareLink(db, id, assignmentId);
+  });
+
+  transaction();
 
   const created = findAssignmentShareLinkForAssignment(assignmentId);
   if (!created) {
@@ -3479,8 +4320,21 @@ export function createPracticeModule(input: {
   tutorInstructions: string;
 }): StoredPracticeModule {
   const id = randomUUID();
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    insertResource(db, {
+      description: input.description,
+      id,
+      profileId: input.profileId,
+      sharedVia: input.sharedVia ?? null,
+      sourceProfileId: input.sourceProfileId ?? null,
+      sourceResourceId: input.sourcePracticeModuleId ?? null,
+      sourceUserId: input.sourceUserId ?? null,
+      title: input.title,
+      type: 'practice_guide',
+      userId: input.userId,
+    });
+    db.prepare(
       `
         INSERT INTO practice_modules (
           id,
@@ -3499,20 +4353,50 @@ export function createPracticeModule(input: {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
-    .run(
-      id,
-      input.userId,
-      input.profileId,
-      input.title,
-      input.description,
-      input.tutorInstructions,
-      input.collectionId ?? null,
-      input.positionInCollection ?? null,
-      input.sourcePracticeModuleId ?? null,
-      input.sourceUserId ?? null,
-      input.sourceProfileId ?? null,
-      input.sharedVia ?? null,
-    );
+      .run(
+        id,
+        input.userId,
+        input.profileId,
+        input.title,
+        input.description,
+        input.tutorInstructions,
+        input.collectionId ?? null,
+        input.positionInCollection ?? null,
+        input.sourcePracticeModuleId ?? null,
+        input.sourceUserId ?? null,
+        input.sourceProfileId ?? null,
+        input.sharedVia ?? null,
+      );
+
+    if (input.collectionId) {
+      const nextPositionRow = db
+        .prepare(
+          `
+            SELECT COALESCE(MAX(position), 0) AS max_position
+            FROM resource_folder_items
+            WHERE folder_id = ?
+          `,
+        )
+        .get(input.collectionId) as { max_position: number };
+      db.prepare(
+        `
+          INSERT INTO resource_folder_items (
+            folder_id,
+            resource_id,
+            resource_type,
+            position
+          )
+          VALUES (?, ?, 'practice_guide', ?)
+        `,
+      ).run(
+        input.collectionId,
+        id,
+        input.positionInCollection ?? nextPositionRow.max_position + 1,
+      );
+    }
+  });
+
+  transaction();
 
   const practiceModule = findPracticeModuleForUser(id, input.userId);
   if (!practiceModule) {
@@ -3533,7 +4417,6 @@ export function findPracticeModuleForUser(
           archived_at,
           collection_id,
           id,
-          is_favorite,
           position_in_collection,
           user_id,
           title,
@@ -3563,7 +4446,6 @@ export function findPracticeModuleById(id: string): StoredPracticeModule | null 
           archived_at,
           collection_id,
           id,
-          is_favorite,
           position_in_collection,
           user_id,
           title,
@@ -3596,7 +4478,6 @@ export function listPracticeModulesForProfile(
           archived_at,
           collection_id,
           id,
-          is_favorite,
           position_in_collection,
           user_id,
           title,
@@ -3630,8 +4511,22 @@ export function createPracticeModuleCollection(input: {
   description: string;
 }): StoredPracticeModuleCollection {
   const id = randomUUID();
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    insertResource(db, {
+      description: input.description,
+      id,
+      profileId: input.profileId,
+      sharedVia: input.sharedVia ?? null,
+      sourceProfileId: input.sourceProfileId ?? null,
+      sourceResourceId: input.sourceCollectionId ?? null,
+      sourceUserId: input.sourceUserId ?? null,
+      title: input.title,
+      type: 'resource_folder',
+      userId: input.userId,
+    });
+    db.prepare('INSERT INTO resource_folders (id) VALUES (?)').run(id);
+    db.prepare(
       `
         INSERT INTO practice_module_collections (
           id,
@@ -3639,27 +4534,29 @@ export function createPracticeModuleCollection(input: {
           profile_id,
           title,
           description,
-          is_favorite,
           archived_at,
           source_collection_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, 0, NULL, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, NULL, ?, ?, ?, ?)
       `,
     )
-    .run(
-      id,
-      input.userId,
-      input.profileId,
-      input.title,
-      input.description,
-      input.sourceCollectionId ?? null,
-      input.sourceUserId ?? null,
-      input.sourceProfileId ?? null,
-      input.sharedVia ?? null,
-    );
+      .run(
+        id,
+        input.userId,
+        input.profileId,
+        input.title,
+        input.description,
+        input.sourceCollectionId ?? null,
+        input.sourceUserId ?? null,
+        input.sourceProfileId ?? null,
+        input.sharedVia ?? null,
+      );
+  });
+
+  transaction();
 
   const collection = findPracticeModuleCollectionForUser(id, input.userId);
   if (!collection) {
@@ -3676,7 +4573,7 @@ export function findPracticeModuleCollectionForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
         FROM practice_module_collections
         WHERE id = ? AND user_id = ?
       `,
@@ -3692,7 +4589,7 @@ export function findPracticeModuleCollectionById(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
         FROM practice_module_collections
         WHERE id = ?
       `,
@@ -3709,7 +4606,7 @@ export function listPracticeModuleCollectionsForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
         FROM practice_module_collections
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -3726,8 +4623,15 @@ export function updatePracticeModuleCollection(input: {
   title: string;
   description: string;
 }): StoredPracticeModuleCollection | null {
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    updateResourceMetadata(db, {
+      description: input.description,
+      id: input.collectionId,
+      title: input.title,
+      userId: input.userId,
+    });
+    db.prepare(
       `
         UPDATE practice_module_collections
         SET title = ?,
@@ -3736,7 +4640,10 @@ export function updatePracticeModuleCollection(input: {
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(input.title, input.description, input.collectionId, input.userId);
+      .run(input.title, input.description, input.collectionId, input.userId);
+  });
+
+  transaction();
 
   return findPracticeModuleCollectionForUser(input.collectionId, input.userId);
 }
@@ -3749,7 +4656,7 @@ export function findImportedPracticeModuleCollectionForProfile(input: {
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, profile_id, title, description, is_favorite, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
+        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
         FROM practice_module_collections
         WHERE user_id = ?
           AND profile_id = ?
@@ -3765,29 +4672,6 @@ export function findImportedPracticeModuleCollectionForProfile(input: {
   return row ? toStoredPracticeModuleCollection(row) : null;
 }
 
-export function setPracticeModuleCollectionFavoriteForUser(
-  collectionId: string,
-  userId: string,
-  isFavorite: boolean,
-): StoredPracticeModuleCollection | null {
-  const result = getDb()
-    .prepare(
-      `
-        UPDATE practice_module_collections
-        SET is_favorite = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(isFavorite ? 1 : 0, collectionId, userId);
-
-  if (result.changes < 1) {
-    return null;
-  }
-
-  return findPracticeModuleCollectionForUser(collectionId, userId);
-}
-
 export function archivePracticeModuleCollectionForUser(
   collectionId: string,
   userId: string,
@@ -3799,10 +4683,11 @@ export function archivePracticeModuleCollectionForUser(
 
   const db = getDb();
   const transaction = db.transaction(() => {
+    archiveResource(db, collectionId, userId);
     db.prepare(
       `
         UPDATE practice_module_collections
-        SET archived_at = CURRENT_TIMESTAMP,
+        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
@@ -3811,9 +4696,23 @@ export function archivePracticeModuleCollectionForUser(
     db.prepare(
       `
         UPDATE practice_modules
-        SET archived_at = CURRENT_TIMESTAMP,
+        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
             updated_at = CURRENT_TIMESTAMP
         WHERE user_id = ? AND collection_id = ?
+      `,
+    ).run(userId, collectionId);
+
+    db.prepare(
+      `
+        UPDATE resources
+        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ?
+          AND id IN (
+            SELECT resource_id
+            FROM resource_folder_items
+            WHERE folder_id = ?
+          )
       `,
     ).run(userId, collectionId);
   });
@@ -3833,6 +4732,7 @@ export function restorePracticeModuleCollectionForUser(
 
   const db = getDb();
   const transaction = db.transaction(() => {
+    restoreResource(db, collectionId, userId);
     db.prepare(
       `
         UPDATE practice_module_collections
@@ -3848,6 +4748,20 @@ export function restorePracticeModuleCollectionForUser(
         SET archived_at = NULL,
             updated_at = CURRENT_TIMESTAMP
         WHERE user_id = ? AND collection_id = ?
+      `,
+    ).run(userId, collectionId);
+
+    db.prepare(
+      `
+        UPDATE resources
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = ?
+          AND id IN (
+            SELECT resource_id
+            FROM resource_folder_items
+            WHERE folder_id = ?
+          )
       `,
     ).run(userId, collectionId);
   });
@@ -3901,7 +4815,6 @@ function listPracticeModulesByCollectionId(
           archived_at,
           collection_id,
           id,
-          is_favorite,
           position_in_collection,
           user_id,
           title,
@@ -3987,7 +4900,7 @@ export function addPracticeModuleToCollection(input: {
   const nextPositionRow = db
     .prepare(
       `
-        SELECT COALESCE(MAX(position), 0) AS max_position
+        SELECT COALESCE(MAX(position_in_collection), 0) AS max_position
         FROM practice_modules
         WHERE collection_id = ?
       `,
@@ -3995,6 +4908,7 @@ export function addPracticeModuleToCollection(input: {
     .get(input.collectionId) as { max_position: number };
 
   const previousCollectionId = practiceModule.collectionId;
+  const nextPosition = nextPositionRow.max_position + 1;
   db.prepare(
     `
       UPDATE practice_modules
@@ -4003,10 +4917,28 @@ export function addPracticeModuleToCollection(input: {
           updated_at = CURRENT_TIMESTAMP
       WHERE id = ? AND user_id = ?
     `,
-  ).run(input.collectionId, nextPositionRow.max_position + 1, input.practiceModuleId, input.userId);
+  ).run(input.collectionId, nextPosition, input.practiceModuleId, input.userId);
+
+  db.prepare(
+    `
+      INSERT INTO resource_folder_items (
+        folder_id,
+        resource_id,
+        resource_type,
+        position
+      )
+      VALUES (?, ?, 'practice_guide', ?)
+      ON CONFLICT(resource_id) DO UPDATE SET
+        folder_id = excluded.folder_id,
+        resource_type = excluded.resource_type,
+        position = excluded.position,
+        updated_at = CURRENT_TIMESTAMP
+    `,
+  ).run(input.collectionId, input.practiceModuleId, nextPosition);
 
   if (previousCollectionId) {
     normalizePracticeModuleCollectionPositions(previousCollectionId);
+    normalizeResourceFolderPositions(previousCollectionId);
   }
 
   db.prepare(
@@ -4016,6 +4948,16 @@ export function addPracticeModuleToCollection(input: {
       WHERE id IN (?, ?)
     `,
   ).run(input.collectionId, previousCollectionId ?? input.collectionId);
+
+  db.prepare(
+    `
+      UPDATE resources
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id IN (?, ?, ?)
+    `,
+  ).run(input.collectionId, previousCollectionId ?? input.collectionId, input.practiceModuleId);
+
+  normalizeResourceFolderPositions(input.collectionId);
 
   return true;
 }
@@ -4045,7 +4987,15 @@ export function removePracticeModuleFromCollection(input: {
     return false;
   }
 
+  db.prepare(
+    `
+      DELETE FROM resource_folder_items
+      WHERE folder_id = ? AND resource_id = ?
+    `,
+  ).run(input.collectionId, input.practiceModuleId);
+
   normalizePracticeModuleCollectionPositions(input.collectionId);
+  normalizeResourceFolderPositions(input.collectionId);
   db.prepare(
     `
       UPDATE practice_module_collections
@@ -4053,6 +5003,13 @@ export function removePracticeModuleFromCollection(input: {
       WHERE id = ?
     `,
   ).run(input.collectionId);
+  db.prepare(
+    `
+      UPDATE resources
+      SET updated_at = CURRENT_TIMESTAMP
+      WHERE id IN (?, ?)
+    `,
+  ).run(input.collectionId, input.practiceModuleId);
 
   return true;
 }
@@ -4117,6 +5074,41 @@ export function movePracticeModuleCollectionItem(input: {
         WHERE id = ?
       `,
     ).run(input.collectionId);
+
+    db.prepare(
+      `
+        UPDATE resource_folder_items
+        SET position = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    ).run(-1, input.collectionId, current.practiceModuleId);
+
+    db.prepare(
+      `
+        UPDATE resource_folder_items
+        SET position = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    ).run(current.position, input.collectionId, other.practiceModuleId);
+
+    db.prepare(
+      `
+        UPDATE resource_folder_items
+        SET position = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE folder_id = ? AND resource_id = ?
+      `,
+    ).run(other.position, input.collectionId, current.practiceModuleId);
+
+    db.prepare(
+      `
+        UPDATE resources
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(input.collectionId);
   });
 
   transaction();
@@ -4124,50 +5116,37 @@ export function movePracticeModuleCollectionItem(input: {
 }
 
 export function deletePracticeModuleForUser(id: string, userId: string): boolean {
-  const result = getDb()
-    .prepare('DELETE FROM practice_modules WHERE id = ? AND user_id = ?')
-    .run(id, userId);
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare('DELETE FROM resource_folder_items WHERE resource_id = ?').run(id);
+    db.prepare('DELETE FROM resources WHERE id = ? AND user_id = ?').run(id, userId);
+    return db.prepare('DELETE FROM practice_modules WHERE id = ? AND user_id = ?').run(id, userId);
+  });
+
+  const result = transaction();
 
   return result.changes > 0;
-}
-
-export function setPracticeModuleFavoriteForUser(
-  practiceModuleId: string,
-  userId: string,
-  isFavorite: boolean,
-): StoredPracticeModule | null {
-  const result = getDb()
-    .prepare(
-      `
-        UPDATE practice_modules
-        SET is_favorite = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(isFavorite ? 1 : 0, practiceModuleId, userId);
-
-  if (result.changes < 1) {
-    return null;
-  }
-
-  return findPracticeModuleForUser(practiceModuleId, userId);
 }
 
 export function archivePracticeModuleForUser(
   practiceModuleId: string,
   userId: string,
 ): StoredPracticeModule | null {
-  const result = getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    archiveResource(db, practiceModuleId, userId);
+    return db.prepare(
       `
         UPDATE practice_modules
-        SET archived_at = CURRENT_TIMESTAMP,
+        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(practiceModuleId, userId);
+      .run(practiceModuleId, userId);
+  });
+
+  const result = transaction();
 
   if (result.changes < 1) {
     return null;
@@ -4180,8 +5159,10 @@ export function restorePracticeModuleForUser(
   practiceModuleId: string,
   userId: string,
 ): StoredPracticeModule | null {
-  const result = getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    restoreResource(db, practiceModuleId, userId);
+    return db.prepare(
       `
         UPDATE practice_modules
         SET archived_at = NULL,
@@ -4189,7 +5170,10 @@ export function restorePracticeModuleForUser(
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(practiceModuleId, userId);
+      .run(practiceModuleId, userId);
+  });
+
+  const result = transaction();
 
   if (result.changes < 1) {
     return null;
@@ -4224,8 +5208,15 @@ export function updatePracticeModule(input: {
   tutorInstructions: string;
   userId: string;
 }): StoredPracticeModule | null {
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    updateResourceMetadata(db, {
+      description: input.description,
+      id: input.practiceModuleId,
+      title: input.title,
+      userId: input.userId,
+    });
+    db.prepare(
       `
         UPDATE practice_modules
         SET title = ?,
@@ -4235,13 +5226,16 @@ export function updatePracticeModule(input: {
         WHERE id = ? AND user_id = ?
       `,
     )
-    .run(
-      input.title,
-      input.description,
-      input.tutorInstructions,
-      input.practiceModuleId,
-      input.userId,
-    );
+      .run(
+        input.title,
+        input.description,
+        input.tutorInstructions,
+        input.practiceModuleId,
+        input.userId,
+      );
+  });
+
+  transaction();
 
   return findPracticeModuleForUser(input.practiceModuleId, input.userId);
 }
@@ -4258,7 +5252,6 @@ export function findImportedPracticeModuleForProfile(input: {
           archived_at,
           collection_id,
           id,
-          is_favorite,
           position_in_collection,
           user_id,
           title,
@@ -4433,12 +5426,14 @@ export function getOrCreatePracticeModuleShareLink(
 ): StoredPracticeModuleShareLink {
   const existing = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
   if (existing) {
+    upsertResourceShareLink(getDb(), existing.id, practiceModuleId);
     return existing;
   }
 
   const id = randomBytes(18).toString('base64url');
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
       `
         INSERT INTO practice_module_share_links (id, practice_module_id)
         VALUES (?, ?)
@@ -4446,7 +5441,11 @@ export function getOrCreatePracticeModuleShareLink(
           revoked_at = NULL
       `,
     )
-    .run(id, practiceModuleId);
+      .run(id, practiceModuleId);
+    upsertResourceShareLink(db, id, practiceModuleId);
+  });
+
+  transaction();
 
   const created = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
   if (!created) {
@@ -4461,12 +5460,14 @@ export function getOrCreatePracticeModuleCollectionShareLink(
 ): StoredPracticeModuleCollectionShareLink {
   const existing = findPracticeModuleCollectionShareLinkForCollection(collectionId);
   if (existing) {
+    upsertResourceShareLink(getDb(), existing.id, collectionId);
     return existing;
   }
 
   const id = randomBytes(18).toString('base64url');
-  getDb()
-    .prepare(
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
       `
         INSERT INTO practice_module_collection_share_links (id, collection_id)
         VALUES (?, ?)
@@ -4474,7 +5475,11 @@ export function getOrCreatePracticeModuleCollectionShareLink(
           revoked_at = NULL
       `,
     )
-    .run(id, collectionId);
+      .run(id, collectionId);
+    upsertResourceShareLink(db, id, collectionId);
+  });
+
+  transaction();
 
   const created = findPracticeModuleCollectionShareLinkForCollection(collectionId);
   if (!created) {

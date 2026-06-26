@@ -102,6 +102,154 @@ receives it as teacher-only prompt context.
 has been saved or intentionally skipped. Existing profiles are marked completed
 by migration so current users are not forced through onboarding.
 
+## V2 Resource Catalog Foundation
+
+This section documents the Slice 1 schema plan for
+[Resource Simplification V2](../features/resource-simplification-v2.md). The
+first implementation lives in migration `add_resource_foundation`. The old V1
+tables still remain during the transition, and existing assignment/practice
+module repository operations mirror their shared metadata into `resources`.
+
+The current V1 schema stores resource-like entities in separate table families:
+
+- `assignments`
+- `assignment_share_links`
+- `practice_modules`
+- `practice_module_collections`
+- `practice_module_share_links`
+- `practice_module_collection_share_links`
+- `chat_rooms`
+- `chat_room_share_links`
+- chat room conversation, message, and report tables
+
+V2 should consolidate reusable learning objects under a generic `resources`
+header table plus type-specific tables. `Diálogos` are intentionally deferred
+until the final feature slice, but the schema may reserve the type if V2 lands
+as part of a pre-production baseline reset.
+
+### Resource
+
+Represents the shared header for every reusable learning object.
+
+Recommended fields:
+
+- `id`
+- `userId`
+- `profileId`
+- `type` (`assignment`, `practice_guide`, `resource_folder`, and eventually
+  `dialogue`)
+- `title`
+- `description`
+- optional `topic`
+- optional `level`
+- optional `archivedAt`
+- optional `sourceResourceId`
+- optional source user/profile metadata
+- optional `sharedVia`
+- timestamps
+
+The resource header owns cross-cutting behavior: list/grid rendering, search,
+filtering, archive state, shared/imported metadata, and the generic
+options menu.
+
+Recommended indexes:
+
+- `(userId, profileId, archivedAt, updatedAt DESC, createdAt DESC)`
+- `(profileId, type, archivedAt, updatedAt DESC, createdAt DESC)`
+- `(profileId, archivedAt, updatedAt DESC, createdAt DESC)`
+- `(profileId, sourceResourceId, sharedVia)`
+- `(id, type)` as a unique composite key for folder membership constraints
+
+### Type-Specific Resource Tables
+
+Each concrete resource type should keep its runtime data in a separate table.
+The recommended design is to use the same id as the generic resource:
+
+- `assignments.id` references `resources.id`
+- `practice_guides.id` references `resources.id`
+- `resource_folders.id` references `resources.id`
+- `dialogues.id` references `resources.id` after the final dialogue slice
+
+This keeps URLs and authorization simpler because a resource id is also the
+type-specific id.
+
+`assignments` should keep assignment-specific fields such as instructions,
+quiz JSON, and authoring messages.
+
+`practice_guides` should keep tutor-specific fields such as tutor instructions.
+
+`resource_folders` may not need extra fields at first; the row exists to make
+foreign keys and authorization explicit.
+
+`dialogues` should not be implemented until the final feature slice. If the
+baseline reserves the `dialogue` type early, the UI should still hide dialogue
+creation until that slice.
+
+### Resource Folder Item
+
+Represents membership in a resource folder.
+
+Recommended fields:
+
+- `folderId`
+- `resourceId`
+- `resourceType`
+- `position`
+- timestamps
+
+V2 folders do not support nesting. A folder can contain assignments, practice
+guides, and eventually dialogues, but it cannot contain another folder.
+
+The persistence model should prevent nesting rather than relying only on UI
+checks. One way to do this in SQLite is:
+
+- store `resourceType` on the membership row
+- constrain it to non-folder resource types
+- add a composite foreign key from `(resourceId, resourceType)` to
+  `resources(id, type)`
+
+For V2, each resource belongs to zero or one folder. Enforce that with a unique
+constraint on `resourceId`.
+
+Recommended indexes:
+
+- `(folderId, position ASC, createdAt ASC)`
+- `(resourceId)` unique
+- `(folderId, resourceId)` unique
+
+### Resource Share Link
+
+Represents one generic public-but-unlisted share token for any shareable
+resource.
+
+Recommended fields:
+
+- `id`
+- `resourceId`
+- `createdAt`
+- optional `revokedAt`
+
+Recommended indexes:
+
+- `(resourceId, revokedAt, createdAt DESC)`
+
+Profile sharing and folder sharing should start as snapshot/copy flows. Copied
+resources should store `sourceResourceId`, source user/profile metadata, and
+`sharedVia` on the resource header. A live grant table should be added only if a
+future classroom workflow needs teacher-managed live updates.
+
+### V2 URL Compatibility
+
+If V2 lands before production, old V1 links can be removed or redirected as a
+developer convenience. If any V1 links reach production, the migration must
+preserve or redirect:
+
+- assignment detail/share URLs
+- practice module detail/share URLs
+- practice module collection share URLs, mapped to resource folders
+- chat room URLs, either removed with a clear redirect or migrated into
+  dialogue-like resources if the product decision changes
+
 ## Tutor Conversations
 
 ### Conversation
@@ -266,7 +414,7 @@ Important fields:
 - `instructions`
 - `quiz`
 - `authoringMessages`
-- favorite/archive metadata
+- archive metadata
 - optional source/share metadata
 
 `quiz` stores the validated assignment draft. The draft uses ordered blocks with
@@ -408,7 +556,7 @@ Important fields:
 - `title`
 - `description`
 - `tutorInstructions`
-- favorite/archive/share metadata
+- archive/share metadata
 - optional source metadata
 - optional collection linkage
 
@@ -423,7 +571,7 @@ Important fields:
 - `profileId`
 - `title`
 - `description`
-- favorite/archive/share metadata
+- archive/share metadata
 - optional source metadata
 
 ### Practice Module Collection Item

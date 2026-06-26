@@ -158,7 +158,7 @@ Notes:
 
 ### 2.1 Move Practice Module Actions Out Of Auth
 
-- [x] Move create/update/archive/restore/delete/favorite/share collection actions from `auth/forms.ts` to `practiceModules/handlers.ts`.
+- [x] Move create/update/archive/restore/delete/share collection actions from `auth/forms.ts` to `practiceModules/handlers.ts`.
 - [x] Keep route behavior and redirects unchanged.
 - [x] Remove unused imports from `auth/forms.ts`.
 

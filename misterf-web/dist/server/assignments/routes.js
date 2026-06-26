@@ -1,7 +1,9 @@
 import express from 'express';
-import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentFollowUpConversation, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleGenerateAssignment, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignment, handleSetAssignmentFavorite, handleShareAssignmentToProfile, handleStartAssignmentAttempt, handleStartAssignmentTestAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentMetadata, renderAssignmentAttemptPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentsListPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
+import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentFollowUpConversation, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleGenerateAssignment, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignment, handleShareAssignmentToProfile, handleStartAssignmentAttempt, handleStartAssignmentTestAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentMetadata, renderAssignmentAttemptPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
 export const assignmentsRouter = express.Router();
-assignmentsRouter.get('/assignments', renderAssignmentsListPage);
+assignmentsRouter.get('/assignments', (_request, response) => {
+    response.redirect('/resources');
+});
 assignmentsRouter.get('/assignments/new', renderAssignmentNewPage);
 assignmentsRouter.post('/assignments/generate', handleGenerateAssignment);
 assignmentsRouter.post('/assignments/generate-draft', handleGenerateAssignment);
@@ -16,7 +18,6 @@ assignmentsRouter.post('/assignments/:assignmentId/edit/blocks/:blockId/duplicat
 assignmentsRouter.post('/assignments/:assignmentId/edit/blocks/:blockId/move-up', handleMoveAssignmentBlock);
 assignmentsRouter.post('/assignments/:assignmentId/edit/blocks/:blockId/move-down', handleMoveAssignmentBlock);
 assignmentsRouter.get('/assignments/:assignmentId', renderAssignmentShowPage);
-assignmentsRouter.post('/assignments/:assignmentId/favorite', handleSetAssignmentFavorite);
 assignmentsRouter.post('/assignments/:assignmentId/share/profile', handleShareAssignmentToProfile);
 assignmentsRouter.post('/assignments/:assignmentId/archive', handleArchiveAssignment);
 assignmentsRouter.post('/assignments/:assignmentId/restore', handleRestoreAssignment);

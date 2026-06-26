@@ -115,6 +115,7 @@ export function buildAppShellContext(input: {
     | 'practiceModules'
     | 'progress'
     | 'profiles'
+    | 'resources'
     | 'settings';
   guestInitialGreeting: string;
   initialConversationId?: string;

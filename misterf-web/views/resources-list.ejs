@@ -1,0 +1,321 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const resourcesBasePath = selectedFolder
+    ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}`
+    : '/resources';
+  function buildResourcesHref(overrides = {}) {
+    const params = new URLSearchParams();
+    const nextLayout = Object.prototype.hasOwnProperty.call(overrides, 'layout') ? overrides.layout : '';
+
+    if (nextLayout) {
+      params.set('layout', nextLayout);
+    }
+
+    const queryString = params.toString();
+    return `${resourcesBasePath}${queryString ? `?${queryString}` : ''}`;
+  }
+%>
+
+<section class="app-resource-view resources-page" data-resource-layout="<%= resourceLayout %>">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-page-kicker">Biblioteca</p>
+      <h1 class="resource-page-title"><%= selectedFolder ? selectedFolder.title : 'Recursos' %></h1>
+      <% if (selectedFolder) { %>
+        <p class="resource-page-copy">
+          <a href="/resources">Recursos</a>
+          <span class="mx-1">/</span>
+          <span><%= selectedFolder.title %></span>
+        </p>
+      <% } else { %>
+        <p class="resource-page-copy">Tareas, Guías de Práctica y carpetas en un solo lugar.</p>
+      <% } %>
+    </div>
+
+    <div class="resource-page-header-actions">
+      <div class="dropdown">
+        <button
+          class="btn btn-primary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item" href="/assignments/new">
+              <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="/practice-modules/new">
+              <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de Práctica
+            </a>
+          </li>
+          <% if (!selectedFolder) { %>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button
+                class="dropdown-item"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#createResourceFolderModal"
+              >
+                <i class="bi bi-folder-plus me-2" aria-hidden="true"></i>Carpeta
+              </button>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="resource-layout-bar d-flex justify-content-end">
+    <div class="btn-group btn-group-sm" role="group" aria-label="Cambiar presentación de recursos">
+      <a
+        href="<%= buildResourcesHref({ layout: 'cards' }) %>"
+        class="btn <%= resourceLayout === 'cards' ? 'btn-primary' : 'btn-secondary' %>"
+        title="Mostrar como cards"
+      >
+        <i class="bi bi-grid-3x3-gap-fill" aria-hidden="true"></i>
+        <span class="visually-hidden">Mostrar como cards</span>
+      </a>
+      <a
+        href="<%= buildResourcesHref({ layout: 'list' }) %>"
+        class="btn <%= resourceLayout === 'list' ? 'btn-primary' : 'btn-secondary' %>"
+        title="Mostrar como lista"
+      >
+        <i class="bi bi-list-ul" aria-hidden="true"></i>
+        <span class="visually-hidden">Mostrar como lista</span>
+      </a>
+    </div>
+  </div>
+
+  <% if (selectedFolder) { %>
+    <div class="alert alert-light border mb-0" role="status">
+      <i class="bi bi-folder me-1" aria-hidden="true"></i>
+      <%= selectedFolderItemCount %> <%= selectedFolderItemCount === 1 ? 'recurso' : 'recursos' %> en esta carpeta.
+    </div>
+  <% } %>
+
+  <% if (resourceItems.length === 0) { %>
+    <div class="resource-empty-state">
+      <h2 class="h5"><%= selectedFolder ? 'Esta carpeta está vacía.' : 'No hay recursos todavía.' %></h2>
+    </div>
+  <% } else { %>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h2 class="h5 mb-0">Tus recursos</h2>
+      <span class="badge text-bg-light border"><%= resourceItems.length %></span>
+    </div>
+
+    <% if (resourceLayout === 'list') { %>
+      <div class="list-group shadow-sm">
+        <% resourceItems.forEach((resource) => { %>
+          <div class="list-group-item position-relative d-flex align-items-start justify-content-between gap-2">
+            <div class="min-w-0 flex-grow-1">
+              <a class="stretched-link" href="<%= resource.detailPath %>">
+                <span class="visually-hidden">Abrir <%= resource.label %> <%= resource.title %></span>
+              </a>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h3 class="h6 fw-normal mb-0">
+                  <i class="bi <%= resource.iconClass %> me-2" aria-hidden="true"></i><%= resource.title %>
+                </h3>
+                <span class="badge rounded-pill text-bg-light border"><%= resource.label %></span>
+                <% if (resource.archivedAt) { %><span class="badge text-bg-light border">Archivado</span><% } %>
+              </div>
+              <p class="mb-0 small text-body-secondary">
+                <%= resource.descriptionText %>
+                <span class="mx-1">·</span>
+                <%= resource.relativeUpdatedAt %>
+              </p>
+            </div>
+            <div class="dropdown position-relative z-1 flex-shrink-0 ms-2">
+              <button
+                class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Acciones de <%= resource.title %>"
+                title="Acciones"
+              >
+                <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <% if (!resource.archivedAt && resource.type !== 'resource_folder') { %>
+                  <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                  <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
+                <% } %>
+                <% if (!resource.archivedAt && resource.type !== 'resource_folder' && (selectedFolder || folderOptions.length > 0)) { %>
+                  <li><hr class="dropdown-divider"></li>
+                  <% if (folderOptions.length > 0) { %>
+                    <li><h3 class="dropdown-header">Mover a carpeta</h3></li>
+                    <% folderOptions.forEach((folder) => { %>
+                      <li>
+                        <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/folder">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <input type="hidden" name="folderId" value="<%= folder.id %>">
+                          <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                          <button class="dropdown-item" type="submit">
+                            <i class="bi bi-folder me-2" aria-hidden="true"></i><%= folder.title %>
+                          </button>
+                        </form>
+                      </li>
+                    <% }) %>
+                  <% } %>
+                  <% if (selectedFolder) { %>
+                    <li>
+                      <form method="post" action="/resources/folders/<%= encodeURIComponent(selectedFolder.id) %>/items/<%= encodeURIComponent(resource.id) %>/remove">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                        <button class="dropdown-item" type="submit">
+                          <i class="bi bi-box-arrow-up me-2" aria-hidden="true"></i>Quitar de esta carpeta
+                        </button>
+                      </form>
+                    </li>
+                  <% } %>
+                <% } %>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/<%= resource.archivedAt ? 'restore' : 'archive' %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                    <button class="dropdown-item" type="submit">
+                      <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                      <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="practice-modules-grid">
+        <% resourceItems.forEach((resource) => { %>
+          <article class="card shadow-sm h-100 practice-module-card position-relative">
+            <div class="card-header <%= resource.headerClass %> d-flex align-items-center justify-content-between gap-3">
+              <span><i class="bi <%= resource.iconClass %> me-2" aria-hidden="true"></i><%= resource.label %></span>
+              <div class="dropdown position-relative z-1">
+                <button
+                  class="btn btn-sm btn-link <%= resource.headerClass.includes('text-white') ? 'text-white' : 'link-body-emphasis' %> text-decoration-none p-0 resource-card-menu-button"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="Acciones de <%= resource.title %>"
+                  title="Acciones"
+                >
+                  <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <% if (!resource.archivedAt && resource.type !== 'resource_folder') { %>
+                    <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                    <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
+                  <% } %>
+                  <% if (!resource.archivedAt && resource.type !== 'resource_folder' && (selectedFolder || folderOptions.length > 0)) { %>
+                    <li><hr class="dropdown-divider"></li>
+                    <% if (folderOptions.length > 0) { %>
+                      <li><h3 class="dropdown-header">Mover a carpeta</h3></li>
+                      <% folderOptions.forEach((folder) => { %>
+                        <li>
+                          <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/folder">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <input type="hidden" name="folderId" value="<%= folder.id %>">
+                            <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                            <button class="dropdown-item" type="submit">
+                              <i class="bi bi-folder me-2" aria-hidden="true"></i><%= folder.title %>
+                            </button>
+                          </form>
+                        </li>
+                      <% }) %>
+                    <% } %>
+                    <% if (selectedFolder) { %>
+                      <li>
+                        <form method="post" action="/resources/folders/<%= encodeURIComponent(selectedFolder.id) %>/items/<%= encodeURIComponent(resource.id) %>/remove">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                          <button class="dropdown-item" type="submit">
+                            <i class="bi bi-box-arrow-up me-2" aria-hidden="true"></i>Quitar de esta carpeta
+                          </button>
+                        </form>
+                      </li>
+                    <% } %>
+                  <% } %>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/<%= resource.archivedAt ? 'restore' : 'archive' %>">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                      <button class="dropdown-item" type="submit">
+                        <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                        <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
+                      </button>
+                    </form>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="card-body">
+              <a class="stretched-link" href="<%= resource.detailPath %>">
+                <span class="visually-hidden">Abrir <%= resource.label %> <%= resource.title %></span>
+              </a>
+              <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+                <h2 class="card-title h4 mb-0"><%= resource.title %></h2>
+                <% if (resource.archivedAt) { %><span class="badge text-bg-light border">Archivado</span><% } %>
+              </div>
+              <p class="card-text mb-2 text-body-secondary"><%= resource.descriptionText %></p>
+              <div class="resource-meta-row">
+                <% if (resource.topic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= resource.topic %></span><% } %>
+                <% if (resource.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= resource.level %></span><% } %>
+                <span><i class="bi bi-calendar" aria-hidden="true"></i> <%= resource.relativeUpdatedAt %></span>
+              </div>
+            </div>
+            <% if (!resource.archivedAt) { %>
+              <div class="card-footer bg-transparent d-flex flex-wrap gap-2 position-relative z-1">
+                <% if (resource.actionMethod === 'post') { %>
+                  <form method="post" action="<%= resource.actionPath %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <button class="btn btn-primary btn-sm" type="submit"><%= resource.actionLabel %></button>
+                  </form>
+                <% } else { %>
+                  <a class="btn btn-primary btn-sm" href="<%= resource.actionPath %>"><%= resource.actionLabel %></a>
+                <% } %>
+              </div>
+            <% } %>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  <% } %>
+</section>
+
+<div class="modal fade" id="createResourceFolderModal" tabindex="-1" aria-labelledby="createResourceFolderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="/resources/folders">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="createResourceFolderModalLabel">Nueva carpeta</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="resourceFolderTitle">Nombre</label>
+          <input class="form-control" id="resourceFolderTitle" name="title" maxlength="160" required>
+        </div>
+        <div>
+          <label class="form-label" for="resourceFolderDescription">Descripción</label>
+          <textarea class="form-control" id="resourceFolderDescription" name="description" rows="3" maxlength="800"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear carpeta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close') %>

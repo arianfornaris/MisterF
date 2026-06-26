@@ -152,7 +152,7 @@ independently. The Spanish UI label is `Tareas`.
 2. Practice modules are added to the collection.
 3. Ordered collection membership is stored in the database.
 4. The detail page shows the collection and its modules.
-5. The collection can be shared, favorited, archived, or restored.
+5. The collection can be shared, archived, or restored.
 
 ## Chat Room Flow
 

@@ -74,11 +74,11 @@ describe('main route smoke tests', () => {
 
   it.each([
     {
-      location: '/login',
+      location: '/resources',
       route: '/assignments',
     },
     {
-      location: '/',
+      location: '/resources',
       route: '/practice-modules',
     },
     {
@@ -88,6 +88,14 @@ describe('main route smoke tests', () => {
     {
       location: '/login',
       route: '/progress',
+    },
+    {
+      location: '/login',
+      route: '/resources',
+    },
+    {
+      location: '/login',
+      route: '/resources/folders/test-folder',
     },
     {
       location: '/login',

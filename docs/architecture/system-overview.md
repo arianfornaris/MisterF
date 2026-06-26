@@ -98,7 +98,6 @@ Collections group practice modules into a named set.
 
 Collections support:
 
-- favorites
 - sharing
 - archival
 - ordering of contained practice modules

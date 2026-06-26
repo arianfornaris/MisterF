@@ -152,7 +152,7 @@ Included:
 
 - authenticated users can create assignments
 - assignments belong to a profile, like practice modules
-- assignments can be listed, viewed, edited, archived, favorited, and shared
+- assignments can be listed, viewed, edited, archived, and shared
 - assignment content uses the quiz item contract
 - assignment creation is an AI-assisted authoring workflow
 - teachers can start from a natural-language prompt
@@ -213,7 +213,7 @@ Primary controls:
 - generate draft with AI
 - search/filter
 - layout toggle if resource pages already support it
-- favorite/archive states
+- archive states
 
 Each list item should show:
 
@@ -605,7 +605,6 @@ Possible first-pass tables:
 - `instructions`
 - `quiz_json`
 - `attempt_policy`
-- `is_favorite`
 - `archived_at`
 - source/copy metadata for shared imports
 - timestamps

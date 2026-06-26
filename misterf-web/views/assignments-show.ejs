@@ -9,7 +9,7 @@
     <div class="resource-page-header-actions">
       <a
         class="resource-page-close-button"
-        href="/assignments"
+        href="/resources"
         title="Cerrar"
         aria-label="Cerrar"
       >
@@ -71,16 +71,6 @@
             <i class="bi bi-pencil me-2" aria-hidden="true"></i>
             Editar tarea
           </a>
-        </li>
-        <li>
-          <form method="post" action="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/favorite">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <input type="hidden" name="returnTo" value="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>">
-            <button class="dropdown-item" type="submit">
-              <i class="bi <%= selectedAssignment.isFavorite ? 'bi-star-fill' : 'bi-star' %> me-2" aria-hidden="true"></i>
-              <%= selectedAssignment.isFavorite ? 'Quitar de favoritas' : 'Marcar como favorita' %>
-            </button>
-          </form>
         </li>
         <li><hr class="dropdown-divider"></li>
         <li>

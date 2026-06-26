@@ -119,7 +119,7 @@ Recommendation:
 
 Completed extraction:
 
-- Practice module create/update/archive/restore/delete/favorite/share handlers moved to `src/server/practiceModules/handlers.ts`.
+- Practice module create/update/archive/restore/delete/share handlers moved to `src/server/practiceModules/handlers.ts`.
 - Profile create/update/switch handlers moved to `src/server/profiles/handlers.ts`.
 - `auth/forms.ts` now keeps login, signup, forgot/reset password, change password, email verification, logout, and session helpers.
 - `tests/server/routeArchitecture.test.ts` verifies that chatroom and practice module logic does not return to `auth/forms.ts`.

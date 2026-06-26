@@ -36,6 +36,7 @@ describe('server route architecture', () => {
     expect(server).toContain("import { practiceModulesRouter } from './practiceModules/routes.js';");
     expect(server).toContain("import { profileOnboardingRouter, profilesRouter } from './profiles/routes.js';");
     expect(server).toContain("import { progressRouter } from './progress/routes.js';");
+    expect(server).toContain("import { resourcesRouter } from './resources/routes.js';");
     expect(server).toContain("import { settingsRouter } from './settings/routes.js';");
     expect(server).toContain("import { superadminRouter } from './superadmin/routes.js';");
     expect(server).toContain("import { clientTelemetryRouter } from './telemetry/clientErrors.js';");
@@ -51,7 +52,15 @@ describe('server route architecture', () => {
     expectBefore(server, 'app.use(csrfProtection);', 'app.use(loadAuthSession);');
     expectBefore(server, 'app.use(loadAuthSession);', 'app.use(authRouter);');
     expectBefore(server, 'app.use(profileOnboardingRouter);', 'app.use(redirectIncompleteProfileOnboarding);');
-    expectBefore(server, 'app.use(redirectIncompleteProfileOnboarding);', 'app.use(practiceModulesRouter);');
+    expectBefore(server, 'app.use(redirectIncompleteProfileOnboarding);', 'app.use(resourcesRouter);');
+    expectBefore(server, 'app.use(resourcesRouter);', 'app.use(practiceModulesRouter);');
     expectBefore(server, 'app.use(practiceModulesRouter);', 'app.use(assignmentsRouter);');
+  });
+
+  it('keeps practice module pages visible under the resources navigation entry', () => {
+    const view = readProjectFile('views/partials/practice-modules-view.ejs');
+
+    expect(view).not.toContain("currentView === 'practiceModules'");
+    expect(view).not.toContain("practice-modules-page <%= currentView");
   });
 });

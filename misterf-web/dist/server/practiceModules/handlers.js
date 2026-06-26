@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { addPracticeModuleToCollection, archivePracticeModuleCollectionForUser, archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, createPracticeModuleCollection, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listConversationsForPracticeModule, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleCollectionForUser, restorePracticeModuleForUser, setPracticeModuleCollectionFavoriteForUser, setPracticeModuleFavoriteForUser, updatePracticeModule, updatePracticeModuleCollection, } from '../db/repository.js';
+import { addPracticeModuleToCollection, archivePracticeModuleCollectionForUser, archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, createPracticeModuleCollection, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listConversationsForPracticeModule, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleCollectionForUser, restorePracticeModuleForUser, updatePracticeModule, updatePracticeModuleCollection, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
@@ -64,7 +64,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         }
         selectedPracticeModule = findPracticeModuleForUser(requestedPracticeModuleId, user.id);
         if (!selectedPracticeModule) {
-            response.redirect('/practice-modules');
+            response.redirect('/resources');
             return null;
         }
         if (!activeProfile || selectedPracticeModule.profileId !== activeProfile.id) {
@@ -82,7 +82,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         }
         selectedPracticeModuleCollection = findPracticeModuleCollectionForUser(requestedCollectionId, user.id);
         if (!selectedPracticeModuleCollection) {
-            response.redirect('/practice-modules');
+            response.redirect('/resources');
             return null;
         }
         if (!activeProfile || selectedPracticeModuleCollection.profileId !== activeProfile.id) {
@@ -96,24 +96,24 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     if (pageKind === 'share') {
         selectedPracticeModuleShareLink = findPracticeModuleShareLinkById(requestedShareId);
         if (!selectedPracticeModuleShareLink || selectedPracticeModuleShareLink.revokedAt) {
-            response.redirect('/practice-modules');
+            response.redirect('/resources');
             return null;
         }
         selectedSharedPracticeModule = findPracticeModuleById(selectedPracticeModuleShareLink.practiceModuleId);
         if (!selectedSharedPracticeModule) {
-            response.redirect('/practice-modules');
+            response.redirect('/resources');
             return null;
         }
     }
     if (pageKind === 'collectionShare') {
         selectedPracticeModuleCollectionShareLink = findPracticeModuleCollectionShareLinkById(requestedShareId);
         if (!selectedPracticeModuleCollectionShareLink || selectedPracticeModuleCollectionShareLink.revokedAt) {
-            response.redirect('/practice-modules');
+            response.redirect('/resources');
             return null;
         }
         selectedSharedPracticeModuleCollection = findPracticeModuleCollectionById(selectedPracticeModuleCollectionShareLink.collectionId);
         if (!selectedSharedPracticeModuleCollection) {
-            response.redirect('/practice-modules');
+            response.redirect('/resources');
             return null;
         }
         practiceModuleCollectionModules = listPracticeModulesForCollection(selectedSharedPracticeModuleCollection.id, selectedSharedPracticeModuleCollection.userId);
@@ -194,28 +194,17 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     const archivedPracticeModules = visibleLessons
         .filter((practiceModule) => Boolean(practiceModule.archivedAt))
         .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const favoritePracticeModuleCollections = activeVisiblePracticeModuleCollections
-        .filter((collection) => collection.isFavorite)
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     const archivedPracticeModuleCollections = visiblePracticeModuleCollections
         .filter((collection) => Boolean(collection.archivedAt))
         .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     const hasArchivedPracticeModules = allPracticeModuleCollections.some((collection) => Boolean(collection.archivedAt)) ||
         allLessons.some((practiceModule) => Boolean(practiceModule.archivedAt));
-    const favoritePracticeModules = activeVisibleLessons
-        .filter((practiceModule) => !practiceModule.sharedVia && !practiceModule.collectionId && practiceModule.isFavorite)
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     const ownLessons = activeVisibleLessons
-        .filter((practiceModule) => !practiceModule.sharedVia && !practiceModule.isFavorite && !practiceModule.collectionId)
+        .filter((practiceModule) => !practiceModule.sharedVia && !practiceModule.collectionId)
         .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     const sharedLessons = activeVisibleLessons
         .filter((practiceModule) => Boolean(practiceModule.sharedVia) && !practiceModule.collectionId)
-        .sort((a, b) => {
-        if (a.isFavorite !== b.isFavorite) {
-            return a.isFavorite ? -1 : 1;
-        }
-        return b.updatedAt.localeCompare(a.updatedAt);
-    });
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     const availablePracticeModulesForCollection = user && activeProfile && selectedPracticeModuleCollection
         ? activeVisibleLessons.filter((practiceModule) => practiceModule.profileId === selectedPracticeModuleCollection.profileId &&
             !practiceModule.collectionId)
@@ -249,8 +238,6 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         availableCollectionsForSelectedPracticeModule,
         availablePracticeModulesForCollection,
         containingCollectionsForSelectedPracticeModule,
-        favoritePracticeModuleCollections,
-        favoritePracticeModules,
         hasArchivedPracticeModules,
         ownLessons,
         practiceModuleCollectionModules,
@@ -305,7 +292,7 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         ...buildAppShellContext({
             activeProfile: viewModel.activeProfile,
             authMessage: viewModel.authMessage,
-            currentView: 'practiceModules',
+            currentView: 'resources',
             guestInitialGreeting: '',
             request,
             title: viewModel.title,
@@ -316,8 +303,6 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         availableCollectionsForSelectedPracticeModule: viewModel.availableCollectionsForSelectedPracticeModule,
         availablePracticeModulesForCollection: viewModel.availablePracticeModulesForCollection,
         containingCollectionsForSelectedPracticeModule: viewModel.containingCollectionsForSelectedPracticeModule,
-        favoritePracticeModuleCollections: viewModel.favoritePracticeModuleCollections,
-        favoritePracticeModules: viewModel.favoritePracticeModules,
         hasArchivedPracticeModules: viewModel.hasArchivedPracticeModules,
         practiceModuleCollectionModules: viewModel.practiceModuleCollectionModules,
         practiceModuleCollectionShareQrDataUrl: viewModel.practiceModuleCollectionShareQrDataUrl,
@@ -348,9 +333,6 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         practiceModuleGenerationPrompt: '',
         ...overrides,
     });
-}
-export function renderPracticeModulesListPage(request, response) {
-    return renderPracticeModulesPage(request, response, 'list');
 }
 export function renderNewPracticeModulePage(request, response) {
     return renderPracticeModulesPage(request, response, 'new');
@@ -445,12 +427,12 @@ export function handleCreatePracticeModuleConversation(request, response) {
     const practiceModuleIdRaw = request.params.practiceModuleId;
     const practiceModuleId = typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
     if (!practiceModuleId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
     if (!practiceModule) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const conversation = createConversationFromPracticeModule(user.id, practiceModule);
@@ -465,7 +447,7 @@ export function handleUpdatePracticeModule(request, response) {
     const practiceModuleIdRaw = request.params.practiceModuleId;
     const practiceModuleId = typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
     if (!practiceModuleId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const title = String(request.body.title || '').trim();
@@ -483,27 +465,10 @@ export function handleUpdatePracticeModule(request, response) {
         userId: user.id,
     });
     if (!practiceModule) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
-}
-export function handleSetPracticeModuleFavorite(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const practiceModuleId = String(request.params.practiceModuleId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
-    if (!practiceModuleId) {
-        response.redirect(returnTo);
-        return;
-    }
-    const favoriteValue = String(request.body.favorite || '').trim();
-    const isFavorite = favoriteValue === '1' || favoriteValue === 'true';
-    setPracticeModuleFavoriteForUser(practiceModuleId, user.id, isFavorite);
-    response.redirect(returnTo);
 }
 export function handleArchivePracticeModule(request, response) {
     const user = request.authUser;
@@ -512,7 +477,7 @@ export function handleArchivePracticeModule(request, response) {
         return;
     }
     const practiceModuleId = String(request.params.practiceModuleId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/resources'));
     if (!practiceModuleId) {
         response.redirect(returnTo);
         return;
@@ -527,7 +492,7 @@ export function handleRestorePracticeModule(request, response) {
         return;
     }
     const practiceModuleId = String(request.params.practiceModuleId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules?archived=1'));
+    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/resources'));
     if (!practiceModuleId) {
         response.redirect(returnTo);
         return;
@@ -544,11 +509,11 @@ export function handleDeletePracticeModule(request, response) {
     const practiceModuleIdRaw = request.params.practiceModuleId;
     const practiceModuleId = typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
     if (!practiceModuleId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     deletePracticeModuleForUser(practiceModuleId, user.id);
-    response.redirect('/practice-modules');
+    response.redirect('/resources');
 }
 export function handleCreatePracticeModuleCollection(request, response) {
     const user = request.authUser;
@@ -581,7 +546,7 @@ export function handleUpdatePracticeModuleCollection(request, response) {
     const title = String(request.body.title || '').trim();
     const description = String(request.body.description || '').trim();
     if (!collectionId || !title) {
-        response.redirect(collectionId ? `/practice-modules/collections/${encodeURIComponent(collectionId)}/edit` : '/practice-modules');
+        response.redirect(collectionId ? `/practice-modules/collections/${encodeURIComponent(collectionId)}/edit` : '/resources');
         return;
     }
     const collection = updatePracticeModuleCollection({
@@ -591,27 +556,10 @@ export function handleUpdatePracticeModuleCollection(request, response) {
         userId: user.id,
     });
     if (!collection) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
-}
-export function handleSetPracticeModuleCollectionFavorite(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
-    if (!collectionId) {
-        response.redirect(returnTo);
-        return;
-    }
-    const favoriteValue = String(request.body.favorite || '').trim();
-    const isFavorite = favoriteValue === '1' || favoriteValue === 'true';
-    setPracticeModuleCollectionFavoriteForUser(collectionId, user.id, isFavorite);
-    response.redirect(returnTo);
 }
 export function handleArchivePracticeModuleCollection(request, response) {
     const user = request.authUser;
@@ -620,7 +568,7 @@ export function handleArchivePracticeModuleCollection(request, response) {
         return;
     }
     const collectionId = String(request.params.collectionId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules'));
+    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/resources'));
     if (!collectionId) {
         response.redirect(returnTo);
         return;
@@ -635,7 +583,7 @@ export function handleRestorePracticeModuleCollection(request, response) {
         return;
     }
     const collectionId = String(request.params.collectionId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/practice-modules?archived=1'));
+    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/resources'));
     if (!collectionId) {
         response.redirect(returnTo);
         return;
@@ -719,12 +667,12 @@ export function handleSharePracticeModuleToProfile(request, response) {
     const practiceModuleId = String(request.params.practiceModuleId || '').trim();
     const targetProfileId = String(request.body.targetProfileId || '').trim();
     if (!practiceModuleId || !targetProfileId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
     if (!practiceModule) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const targetProfile = findProfileForUser(targetProfileId, user.id);
@@ -749,12 +697,12 @@ export function handleSharePracticeModuleCollectionToProfile(request, response) 
     const collectionId = String(request.params.collectionId || '').trim();
     const targetProfileId = String(request.body.targetProfileId || '').trim();
     if (!collectionId || !targetProfileId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const collection = findPracticeModuleCollectionForUser(collectionId, user.id);
     if (!collection) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const targetProfile = findProfileForUser(targetProfileId, user.id);
@@ -773,17 +721,17 @@ export function handleSharePracticeModuleCollectionToProfile(request, response) 
 export function handleAcceptSharedPracticeModuleLink(request, response) {
     const shareId = String(request.params.shareId || '').trim();
     if (!shareId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const shareLink = findPracticeModuleShareLinkById(shareId);
     if (!shareLink || shareLink.revokedAt) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const sourcePracticeModule = findPracticeModuleById(shareLink.practiceModuleId);
     if (!sourcePracticeModule) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const user = request.authUser;
@@ -803,17 +751,17 @@ export function handleAcceptSharedPracticeModuleLink(request, response) {
 export function handleAcceptSharedPracticeModuleCollectionLink(request, response) {
     const shareId = String(request.params.shareId || '').trim();
     if (!shareId) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const shareLink = findPracticeModuleCollectionShareLinkById(shareId);
     if (!shareLink || shareLink.revokedAt) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const sourceCollection = findPracticeModuleCollectionById(shareLink.collectionId);
     if (!sourceCollection) {
-        response.redirect('/practice-modules');
+        response.redirect('/resources');
         return;
     }
     const user = request.authUser;

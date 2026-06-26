@@ -115,7 +115,6 @@ export const migrations: Migration[] = [
         profile_id TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
-        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
         archived_at TEXT,
         source_collection_id TEXT,
         source_user_id TEXT,
@@ -143,8 +142,8 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_practice_module_collections_profile_updated
         ON practice_module_collections (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_practice_module_collections_profile_archive_favorite
-        ON practice_module_collections (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_module_collections_profile_archived_updated
+        ON practice_module_collections (profile_id, archived_at, updated_at DESC, created_at DESC);
 
       CREATE INDEX idx_practice_module_collections_profile_shared
         ON practice_module_collections (profile_id, shared_via, updated_at DESC, created_at DESC);
@@ -165,7 +164,6 @@ export const migrations: Migration[] = [
         source_user_id TEXT,
         source_profile_id TEXT,
         shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
-        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
         archived_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -198,8 +196,8 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_practice_modules_profile_source
         ON practice_modules (profile_id, source_practice_module_id, shared_via);
 
-      CREATE INDEX idx_practice_modules_profile_archive_favorite
-        ON practice_modules (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_modules_profile_archived_updated
+        ON practice_modules (profile_id, archived_at, updated_at DESC, created_at DESC);
 
       CREATE INDEX idx_practice_modules_collection_position
         ON practice_modules (collection_id, position_in_collection, updated_at DESC, created_at DESC);
@@ -626,7 +624,6 @@ export const migrations: Migration[] = [
         rubric TEXT NOT NULL DEFAULT '',
         quiz_json TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
-        is_favorite INTEGER NOT NULL DEFAULT 0 CHECK (is_favorite IN (0, 1)),
         archived_at TEXT,
         source_assignment_id TEXT,
         source_user_id TEXT,
@@ -655,8 +652,8 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_assignments_user_profile_updated
         ON assignments (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_assignments_profile_archive_favorite
-        ON assignments (profile_id, archived_at, is_favorite, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_assignments_profile_archived_updated
+        ON assignments (profile_id, archived_at, updated_at DESC, created_at DESC);
 
       CREATE INDEX idx_assignments_profile_source
         ON assignments (profile_id, source_assignment_id, shared_via);
@@ -1321,6 +1318,297 @@ export const migrations: Migration[] = [
     up: `
       ALTER TABLE assignments
         ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
+    `,
+  },
+  {
+    id: 9,
+    name: 'add_resource_foundation',
+    up: `
+      CREATE TABLE resources (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('assignment', 'practice_guide', 'resource_folder')),
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        topic TEXT NOT NULL DEFAULT '',
+        level TEXT NOT NULL DEFAULT '',
+        archived_at TEXT,
+        source_resource_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_resource_id)
+          REFERENCES resources (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE UNIQUE INDEX idx_resources_id_type
+        ON resources (id, type);
+
+      CREATE INDEX idx_resources_user_profile_updated
+        ON resources (user_id, profile_id, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_resources_profile_type_updated
+        ON resources (profile_id, type, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_resources_profile_archived_updated
+        ON resources (profile_id, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_resources_profile_source
+        ON resources (profile_id, source_resource_id, shared_via);
+
+      CREATE TABLE resource_folders (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE TABLE resource_folder_items (
+        folder_id TEXT NOT NULL,
+        resource_id TEXT NOT NULL UNIQUE,
+        resource_type TEXT NOT NULL CHECK (resource_type IN ('assignment', 'practice_guide')),
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (folder_id, resource_id),
+        FOREIGN KEY (folder_id)
+          REFERENCES resource_folders (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (resource_id, resource_type)
+          REFERENCES resources (id, type)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_resource_folder_items_folder_position
+        ON resource_folder_items (folder_id, position ASC, created_at ASC);
+
+      CREATE TABLE resource_share_links (
+        id TEXT PRIMARY KEY,
+        resource_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (resource_id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_resource_share_links_resource_active
+        ON resource_share_links (resource_id, revoked_at, created_at DESC);
+
+      INSERT INTO resources (
+        id,
+        user_id,
+        profile_id,
+        type,
+        title,
+        description,
+        topic,
+        level,
+        archived_at,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        user_id,
+        profile_id,
+        'assignment',
+        title,
+        description,
+        target_topic,
+        level,
+        archived_at,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      FROM assignments;
+
+      INSERT INTO resources (
+        id,
+        user_id,
+        profile_id,
+        type,
+        title,
+        description,
+        archived_at,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        user_id,
+        profile_id,
+        'practice_guide',
+        title,
+        description,
+        archived_at,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      FROM practice_modules;
+
+      INSERT INTO resources (
+        id,
+        user_id,
+        profile_id,
+        type,
+        title,
+        description,
+        archived_at,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        user_id,
+        profile_id,
+        'resource_folder',
+        title,
+        description,
+        archived_at,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      FROM practice_module_collections;
+
+      UPDATE resources
+      SET source_resource_id = (
+        SELECT source_assignment_id
+        FROM assignments
+        WHERE assignments.id = resources.id
+      )
+      WHERE type = 'assignment'
+        AND EXISTS (
+          SELECT 1
+          FROM assignments
+          JOIN resources AS source_resource
+            ON source_resource.id = assignments.source_assignment_id
+          WHERE assignments.id = resources.id
+        );
+
+      UPDATE resources
+      SET source_resource_id = (
+        SELECT source_practice_module_id
+        FROM practice_modules
+        WHERE practice_modules.id = resources.id
+      )
+      WHERE type = 'practice_guide'
+        AND EXISTS (
+          SELECT 1
+          FROM practice_modules
+          JOIN resources AS source_resource
+            ON source_resource.id = practice_modules.source_practice_module_id
+          WHERE practice_modules.id = resources.id
+        );
+
+      UPDATE resources
+      SET source_resource_id = (
+        SELECT source_collection_id
+        FROM practice_module_collections
+        WHERE practice_module_collections.id = resources.id
+      )
+      WHERE type = 'resource_folder'
+        AND EXISTS (
+          SELECT 1
+          FROM practice_module_collections
+          JOIN resources AS source_resource
+            ON source_resource.id = practice_module_collections.source_collection_id
+          WHERE practice_module_collections.id = resources.id
+        );
+
+      INSERT INTO resource_folders (id, created_at, updated_at)
+      SELECT id, created_at, updated_at
+      FROM resources
+      WHERE type = 'resource_folder';
+
+      INSERT INTO resource_folder_items (
+        folder_id,
+        resource_id,
+        resource_type,
+        position,
+        created_at,
+        updated_at
+      )
+      SELECT
+        collection_id,
+        id,
+        'practice_guide',
+        COALESCE(position_in_collection, 0),
+        created_at,
+        updated_at
+      FROM practice_modules
+      WHERE collection_id IS NOT NULL
+        AND EXISTS (
+          SELECT 1
+          FROM resource_folders
+          WHERE resource_folders.id = practice_modules.collection_id
+        )
+        AND EXISTS (
+          SELECT 1
+          FROM resources
+          WHERE resources.id = practice_modules.id
+            AND resources.type = 'practice_guide'
+        );
+
+      INSERT INTO resource_share_links (id, resource_id, created_at, revoked_at)
+      SELECT id, assignment_id, created_at, revoked_at
+      FROM assignment_share_links
+      WHERE EXISTS (
+        SELECT 1
+        FROM resources
+        WHERE resources.id = assignment_share_links.assignment_id
+      );
+
+      INSERT OR IGNORE INTO resource_share_links (id, resource_id, created_at, revoked_at)
+      SELECT id, practice_module_id, created_at, revoked_at
+      FROM practice_module_share_links
+      WHERE EXISTS (
+        SELECT 1
+        FROM resources
+        WHERE resources.id = practice_module_share_links.practice_module_id
+      );
+
+      INSERT OR IGNORE INTO resource_share_links (id, resource_id, created_at, revoked_at)
+      SELECT id, collection_id, created_at, revoked_at
+      FROM practice_module_collection_share_links
+      WHERE EXISTS (
+        SELECT 1
+        FROM resources
+        WHERE resources.id = practice_module_collection_share_links.collection_id
+      );
     `,
   },
 ];

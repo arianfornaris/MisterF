@@ -225,7 +225,6 @@ The suggestion engine can use existing product data.
 ### Resource Signals
 
 - saved practice modules
-- favorites
 - recently used modules
 - collections
 - shared/imported resources
