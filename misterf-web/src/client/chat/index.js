@@ -237,13 +237,6 @@ runtime.initializeLlmContextMeter();
 initializeTutorReportPendingForms();
 initializeCreditExhaustedQueryModal();
 
-if (window.marked) {
-  window.marked.setOptions({
-    breaks: true,
-    gfm: true,
-  });
-}
-
 if (socket) {
   registerChatSocketHandlers({
     chatSocketEvents,

@@ -15,13 +15,13 @@
 interface FillInTheBlankChoiceBlock {
   /** Literal discriminator. */
   type: "fill_in_the_blank_choice";
-  /** Optional Spanish instruction shown above the sentence. */
+  /** Optional Spanish instruction shown above the sentence. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
-  /** English practice sentence with one `{{blank}}` placeholder per blank. */
+  /** English practice sentence with one `{{blank}}` placeholder per blank. Plain text, not Markdown. */
   sentence: string;
   /** One entry per `{{blank}}` placeholder, in sentence order. */
   blanks: Array<{
-    /** Visible dropdown choices, normally English words or phrases. */
+    /** Visible dropdown choices, normally English words or phrases. Plain text, not Markdown. */
     choices: string[];
     /** Choice values, normally English, that should be accepted as correct. */
     answers: string[];

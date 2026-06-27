@@ -1,5 +1,6 @@
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
+import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 import {
   buildInitialQuizItemState,
   buildQuizResponsePayload,
@@ -468,3 +469,4 @@ initializeAssignmentQuizUi();
 initializeAssignmentResultUi();
 initializeAssignmentSharingUi();
 initializeAssignmentPendingUi();
+initializeStaticMarkdown();

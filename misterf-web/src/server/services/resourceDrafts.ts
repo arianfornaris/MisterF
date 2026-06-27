@@ -308,6 +308,29 @@ export async function generatePracticeModuleDraft(input: {
   });
 }
 
+export async function generatePracticeModuleRevision(input: {
+  currentModule: PracticeModuleDraft;
+  openRouterApiKey?: string | null;
+  prompt: string;
+}): Promise<PracticeModuleDraft> {
+  return generateStructuredDraft({
+    actorLabel: 'Practice module revision',
+    correctionPromptPath: 'resources/practice-module-revision-correction.md',
+    initialUserMessage: JSON.stringify(
+      {
+        currentModule: input.currentModule,
+        requestedChange: input.prompt,
+      },
+      null,
+      2,
+    ),
+    maxOutputTokens: 4000,
+    openRouterApiKey: input.openRouterApiKey,
+    schema: practiceModuleDraftSchema,
+    systemPromptPath: 'resources/practice-module-revision.md',
+  });
+}
+
 export async function generateChatRoomDraft(input: {
   openRouterApiKey?: string | null;
   prompt: string;

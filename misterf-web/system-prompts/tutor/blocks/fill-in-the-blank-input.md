@@ -24,8 +24,8 @@
 interface FillInTheBlankInputBlock {
   /** Literal discriminator. */
   type: "fill_in_the_blank_input";
-  /** Optional Spanish instruction shown above the sentence. */
+  /** Optional Spanish instruction shown above the sentence. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
-  /** English practice sentence with one or more `___` placeholders. */
+  /** English practice sentence with one or more `___` placeholders. Plain text, not Markdown. */
   sentence: string;
 }

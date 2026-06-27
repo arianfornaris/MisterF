@@ -21,15 +21,15 @@
 interface MultipleChoiceBlock {
   /** Literal discriminator. */
   type: "multiple_choice";
-  /** Optional Spanish setup shown above the question. */
+  /** Optional Spanish setup shown above the question. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
-  /** Learner-facing question; Spanish by default unless English text is the practice content. */
+  /** Learner-facing question; Spanish by default unless English text is the practice content. Supports concise Markdown for emphasis and line breaks. */
   question: string;
   /** `single` for one correct option; `multiple` for several possible correct options. */
   selectionMode: "single" | "multiple";
   /** Visible answer options. */
   options: Array<{
-    /** Learner-facing option text; Spanish by default unless English text is the answer content. */
+    /** Learner-facing option text; Spanish by default unless English text is the answer content. Plain text, not Markdown. */
     text: string;
     /** Whether this option is correct. */
     isCorrect: boolean;

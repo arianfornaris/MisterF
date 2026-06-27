@@ -6,6 +6,7 @@ import { createQuizCard } from '../cards/createQuizCard.js';
 import { createQuizResultCard } from '../cards/createQuizResultCard.js';
 import { createSentenceEvaluationCard } from '../cards/createSentenceEvaluationCard.js';
 import { createUnscrambleSentenceCard } from '../cards/unscrambleSentenceCard.js';
+import { initializeStaticMarkdown as initializeSharedStaticMarkdown } from '../../shared/staticMarkdown.js';
 import { renderMarkdown } from '../utils/formatting.js';
 
 export function createTutorMessageRenderer(deps) {
@@ -784,9 +785,7 @@ export function createTutorMessageRenderer(deps) {
     updateRenderedMessage,
     copyTextToClipboard,
     initializeStaticMarkdown() {
-      for (const element of document.querySelectorAll('[data-render-markdown]')) {
-        setMessageContent(element, element.textContent || '');
-      }
+      initializeSharedStaticMarkdown();
     },
   };
 }

@@ -858,6 +858,23 @@ body {
   color: var(--bs-secondary-color);
 }
 
+.resource-markdown {
+  overflow-wrap: anywhere;
+}
+
+.resource-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.resource-markdown ul,
+.resource-markdown ol {
+  padding-left: 1.25rem;
+}
+
+.resource-markdown li + li {
+  margin-top: 0.25rem;
+}
+
 .resource-empty-state {
   align-items: center;
   border: 1px dashed var(--bs-border-color);

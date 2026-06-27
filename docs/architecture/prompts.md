@@ -126,10 +126,12 @@ Important files:
 
 - `practice-module-draft.md`
 - `practice-module-draft-correction.md`
+- `practice-module-revision.md`
+- `practice-module-revision-correction.md`
 - `chatroom-draft.md`
 - `chatroom-draft-correction.md`
 
-These are used when the app generates first drafts for user-editable resources.
+These are used when the app generates or revises user-editable resources.
 
 Practice-module generation prompts are part of the tutor interaction contract.
 Many practice modules are created by AI, so their `tutorInstructions` must avoid
@@ -139,6 +141,11 @@ should describe sequential exercise progression: one item, feedback, then the
 next item. If several items must be answered together, the generated
 instructions should explicitly frame that section as a quiz, test, checkpoint,
 or batch assessment.
+
+Practice-module `title` should remain plain text. Longer editable fields such
+as `description` and `tutorInstructions` should be generated as Markdown inside
+their JSON string values, without wrapping the whole JSON response in markdown
+fences.
 
 ## Design Principles
 

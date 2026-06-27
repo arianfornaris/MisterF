@@ -137,6 +137,24 @@ The runtime keeps that boundary in code:
 - `persistedTutorResponseSchema` describes renderable/persisted blocks and
   includes `quiz_result`.
 
+### Markdown in Block UI
+
+Learner-facing instruction fields are Markdown-capable when they behave like
+prompts or instructions rather than as answer values. This includes `message.markdown`,
+dialogue markdown fields, top-level exercise `prompt` fields,
+`multiple_choice.question`, `quiz.prompt`, and quiz item `prompt` fields.
+
+The client renders those fields through the shared Markdown helper, which uses
+`marked` with GitHub-flavored Markdown and line breaks enabled, then sanitizes
+the resulting HTML with DOMPurify. If the libraries are unavailable, the helper
+falls back to escaped text with line breaks.
+
+Fields that participate in controls, answer matching, or placeholder parsing
+remain plain text: answer options, matching-pair values, sentence fields,
+fill-in-the-blank placeholder sentences, tokens, placeholders, labels, and
+hidden rubrics. This avoids introducing formatting markup into values that the
+runtime compares, shuffles, submits, or evaluates.
+
 ## Interactive Exercise Contracts
 
 Interactive blocks are intentionally small contracts between the model and the

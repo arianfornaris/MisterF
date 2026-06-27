@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAcceptSharedPracticeModuleLink, handleArchivePracticeModule, handleCreatePracticeModule, handleCreatePracticeModuleConversation, handleDeletePracticeModule, handleGeneratePracticeModuleDraft, handleRestorePracticeModule, handleSharePracticeModuleToProfile, handleUpdatePracticeModule, renderEditPracticeModulePage, renderNewPracticeModulePage, renderPracticeModuleDetailPage, renderSharedPracticeModulePage, } from './handlers.js';
+import { handleAcceptSharedPracticeModuleLink, handleArchivePracticeModule, handleCreatePracticeModule, handleCreatePracticeModuleConversation, handleDeletePracticeModule, handleGeneratePracticeModuleDraft, handleRevisePracticeModule, handleRestorePracticeModule, handleSharePracticeModuleToProfile, handleUpdatePracticeModule, renderEditPracticeModulePage, renderNewPracticeModulePage, renderPracticeModuleDetailPage, renderSharedPracticeModulePage, } from './handlers.js';
 export const practiceModulesRouter = express.Router();
 practiceModulesRouter.get('/practice-modules', (_request, response) => {
     response.redirect('/resources');
@@ -11,6 +11,7 @@ practiceModulesRouter.get('/practice-modules/shared/:shareId', renderSharedPract
 practiceModulesRouter.post('/practice-modules/shared/:shareId/accept', handleAcceptSharedPracticeModuleLink);
 practiceModulesRouter.get('/practice-modules/:practiceModuleId/edit', renderEditPracticeModulePage);
 practiceModulesRouter.get('/practice-modules/:practiceModuleId', renderPracticeModuleDetailPage);
+practiceModulesRouter.post('/practice-modules/:practiceModuleId/revise', handleRevisePracticeModule);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId', handleUpdatePracticeModule);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId/archive', handleArchivePracticeModule);
 practiceModulesRouter.post('/practice-modules/:practiceModuleId/restore', handleRestorePracticeModule);

@@ -1,65 +1,76 @@
 {
-  "_listGroupDropdownStacking-GAUWzZat.js": {
-    "file": "chunks/listGroupDropdownStacking-GAUWzZat.js",
+  "_listGroupDropdownStacking-C2oiFQb2.js": {
+    "file": "chunks/listGroupDropdownStacking-C2oiFQb2.js",
     "name": "listGroupDropdownStacking"
   },
-  "_markdown-CINCgO1R.js": {
-    "file": "chunks/markdown-CINCgO1R.js",
+  "_markdown-BEcjJFmG.js": {
+    "file": "chunks/markdown-BEcjJFmG.js",
     "name": "markdown"
   },
-  "_quizItemRenderer-D42GMjVc.js": {
-    "file": "chunks/quizItemRenderer-D42GMjVc.js",
+  "_quizItemRenderer-CLh8x_G9.js": {
+    "file": "chunks/quizItemRenderer-CLh8x_G9.js",
     "name": "quizItemRenderer",
     "imports": [
-      "_markdown-CINCgO1R.js"
+      "_markdown-BEcjJFmG.js"
+    ]
+  },
+  "_staticMarkdown-gnKtkYtm.js": {
+    "file": "chunks/staticMarkdown-gnKtkYtm.js",
+    "name": "staticMarkdown",
+    "imports": [
+      "_markdown-BEcjJFmG.js"
     ]
   },
   "src/client/assignments/index.js": {
-    "file": "entries/assignments-BwFZIpIJ.js",
+    "file": "entries/assignments-DwIxj0ox.js",
     "name": "assignments",
     "src": "src/client/assignments/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-D42GMjVc.js",
-      "_markdown-CINCgO1R.js"
+      "_quizItemRenderer-CLh8x_G9.js",
+      "_markdown-BEcjJFmG.js",
+      "_staticMarkdown-gnKtkYtm.js"
     ]
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-DuZmn3TX.js",
+    "file": "entries/chat-DCDb-XAj.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-D42GMjVc.js",
-      "_markdown-CINCgO1R.js"
+      "_quizItemRenderer-CLh8x_G9.js",
+      "_markdown-BEcjJFmG.js",
+      "_staticMarkdown-gnKtkYtm.js"
     ]
   },
   "src/client/chatrooms/main.js": {
-    "file": "entries/chatrooms-B1eT4bxK.js",
+    "file": "entries/chatrooms-B6I2_BqY.js",
     "name": "chatrooms",
     "src": "src/client/chatrooms/main.js",
     "isEntry": true,
     "imports": [
-      "_markdown-CINCgO1R.js",
-      "_listGroupDropdownStacking-GAUWzZat.js"
+      "_markdown-BEcjJFmG.js",
+      "_listGroupDropdownStacking-C2oiFQb2.js"
     ]
   },
   "src/client/practiceModules/index.js": {
-    "file": "entries/practice-modules-DAI66Aw3.js",
+    "file": "entries/practice-modules-Mjtw1GiO.js",
     "name": "practice-modules",
     "src": "src/client/practiceModules/index.js",
     "isEntry": true,
     "imports": [
-      "_listGroupDropdownStacking-GAUWzZat.js"
+      "_listGroupDropdownStacking-C2oiFQb2.js",
+      "_staticMarkdown-gnKtkYtm.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-C46SJ16y.js",
+    "file": "entries/resources-BbA6Hpue.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
-      "_listGroupDropdownStacking-GAUWzZat.js"
+      "_listGroupDropdownStacking-C2oiFQb2.js",
+      "_staticMarkdown-gnKtkYtm.js"
     ]
   },
   "src/client/telemetry/clientErrorReporter.js": {

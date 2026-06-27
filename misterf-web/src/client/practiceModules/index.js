@@ -1,4 +1,5 @@
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
+import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
 function fallbackCopyText(content) {
   const textarea = document.createElement('textarea');
@@ -92,7 +93,7 @@ function initializeResourceGenerationPendingUi() {
     return;
   }
 
-  for (const formEl of document.querySelectorAll('form[action="/practice-modules/generate-draft"]')) {
+  for (const formEl of document.querySelectorAll('[data-resource-generate-form]')) {
     if (!(formEl instanceof HTMLFormElement)) {
       continue;
     }
@@ -104,7 +105,7 @@ function initializeResourceGenerationPendingUi() {
     formEl.addEventListener('submit', () => {
       if (submitButtonEl instanceof HTMLButtonElement) {
         submitButtonEl.disabled = true;
-        submitButtonEl.textContent = 'Creando...';
+        submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Procesando...';
       }
 
       if (parentModalEl) {
@@ -124,3 +125,4 @@ initializePracticeModuleSharingUi();
 initializeAutoOpenModal();
 initializeResourceGenerationPendingUi();
 initializeListGroupDropdownStacking();
+initializeStaticMarkdown();

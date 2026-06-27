@@ -217,6 +217,20 @@ export async function generatePracticeModuleDraft(input) {
         systemPromptPath: 'resources/practice-module-draft.md',
     });
 }
+export async function generatePracticeModuleRevision(input) {
+    return generateStructuredDraft({
+        actorLabel: 'Practice module revision',
+        correctionPromptPath: 'resources/practice-module-revision-correction.md',
+        initialUserMessage: JSON.stringify({
+            currentModule: input.currentModule,
+            requestedChange: input.prompt,
+        }, null, 2),
+        maxOutputTokens: 4000,
+        openRouterApiKey: input.openRouterApiKey,
+        schema: practiceModuleDraftSchema,
+        systemPromptPath: 'resources/practice-module-revision.md',
+    });
+}
 export async function generateChatRoomDraft(input) {
     return generateStructuredDraft({
         actorLabel: 'Chatroom draft',

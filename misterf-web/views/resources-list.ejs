@@ -11,6 +11,9 @@
           <span class="mx-1">/</span>
           <span><%= selectedFolder.title %></span>
         </p>
+        <% if (selectedFolder.description) { %>
+          <div class="resource-page-copy resource-markdown mt-2" data-render-markdown><%= selectedFolder.description %></div>
+        <% } %>
       <% } else { %>
         <p class="resource-page-copy">Tareas, Guías de Práctica y carpetas en un solo lugar.</p>
       <% } %>

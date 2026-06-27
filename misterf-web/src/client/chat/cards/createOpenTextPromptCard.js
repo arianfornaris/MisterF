@@ -6,7 +6,7 @@ const MAX_RESPONSE_LENGTH = 2400;
 const MAX_SUBMIT_LABEL_LENGTH = 60;
 
 export function createOpenTextPromptCard(block, context, deps) {
-  const prompt = normalizeInlineText(block?.prompt);
+  const prompt = normalizeMarkdownText(block?.prompt);
   if (!prompt) {
     return null;
   }
@@ -155,6 +155,10 @@ function getSubmitLabel(value) {
   return normalized && normalized.length <= MAX_SUBMIT_LABEL_LENGTH
     ? normalized
     : DEFAULT_SUBMIT_LABEL;
+}
+
+function normalizeMarkdownText(value) {
+  return typeof value === 'string' ? value.replace(/\r\n?/g, '\n').trim() : '';
 }
 
 function normalizeInlineText(value) {

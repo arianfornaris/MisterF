@@ -1,8 +1,8 @@
 import QRCode from 'qrcode';
 import { archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleShareLink, importPracticeModuleToProfile, listConversationsForPracticeModule, restorePracticeModuleForUser, updatePracticeModule, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
-import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
-import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
+import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
+import { generatePracticeModuleDraft, generatePracticeModuleRevision, } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 const emptyPracticeModuleFormValues = {
     description: '',
@@ -31,6 +31,9 @@ function normalizeReturnTo(value) {
         return '/';
     }
     return trimmed;
+}
+function readMultilineField(value, maxLength) {
+    return String(value || '').trim().slice(0, maxLength);
 }
 async function buildPracticeModulesPageModel(request, response, pageKind) {
     const user = request.authUser;
@@ -136,10 +139,16 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         }),
         practiceModuleConversations: viewModel.practiceModuleConversations,
         practiceModuleFormValues: getDefaultPracticeModuleFormValues(pageKind, viewModel.selectedPracticeModule),
+        practiceModuleGenerationCreditExhausted: false,
         practiceModuleGenerationError: '',
         practiceModuleGenerationModalAutoOpen: false,
         practiceModuleGenerationPrompt: '',
         practiceModulePageMode: viewModel.practiceModulePageMode,
+        practiceModuleRevisionCreditExhausted: false,
+        practiceModuleRevisionError: '',
+        practiceModuleRevisionModalAutoOpen: false,
+        practiceModuleRevisionPrompt: '',
+        practiceModuleRevisionSuccess: String(request.query.aiRevision || '') === 'success',
         practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
         practiceModuleShareUrl: viewModel.practiceModuleShareUrl,
         selectedPracticeModule: viewModel.selectedPracticeModule,
@@ -181,10 +190,14 @@ export async function handleGeneratePracticeModuleDraft(request, response) {
         response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
     }
     catch (error) {
+        const isCreditError = isCreditExhaustedError(error);
         await renderPracticeModulesPage(request, response, 'new', {
-            practiceModuleGenerationError: error instanceof Error && error.message
-                ? error.message
-                : 'No pude generar la guía automáticamente.',
+            practiceModuleGenerationCreditExhausted: isCreditError,
+            practiceModuleGenerationError: isCreditError
+                ? getCreditExhaustedMessage()
+                : error instanceof Error && error.message
+                    ? error.message
+                    : 'No pude generar la guía automáticamente.',
             practiceModuleGenerationModalAutoOpen: true,
             practiceModuleGenerationPrompt: prompt,
         });
@@ -221,6 +234,71 @@ export function handleCreatePracticeModule(request, response) {
         tutorInstructions,
     });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+}
+export async function handleRevisePracticeModule(request, response) {
+    const user = request.authUser;
+    if (!user?.emailVerified) {
+        response.redirect('/login');
+        return;
+    }
+    const practiceModuleId = String(request.params.practiceModuleId || '').trim();
+    const requestedChange = readMultilineField(request.body.prompt, 4000);
+    if (!practiceModuleId) {
+        response.redirect('/resources');
+        return;
+    }
+    const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
+    if (!practiceModule) {
+        response.redirect('/resources');
+        return;
+    }
+    if (requestedChange.length < 3) {
+        await renderPracticeModulesPage(request, response.status(422), 'edit', {
+            practiceModuleRevisionError: 'Describe los cambios que quieres aplicar.',
+            practiceModuleRevisionModalAutoOpen: true,
+            practiceModuleRevisionPrompt: requestedChange,
+        });
+        return;
+    }
+    try {
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
+        const revision = await generatePracticeModuleRevision({
+            currentModule: {
+                description: practiceModule.description,
+                title: practiceModule.title,
+                tutorInstructions: practiceModule.tutorInstructions,
+            },
+            openRouterApiKey,
+            prompt: requestedChange,
+        });
+        const updatedPracticeModule = updatePracticeModule({
+            description: revision.description,
+            practiceModuleId: practiceModule.id,
+            title: revision.title,
+            tutorInstructions: revision.tutorInstructions,
+            userId: user.id,
+        });
+        if (!updatedPracticeModule) {
+            await renderPracticeModulesPage(request, response.status(422), 'edit', {
+                practiceModuleRevisionError: 'No pude guardar los cambios de la guía.',
+                practiceModuleRevisionModalAutoOpen: true,
+                practiceModuleRevisionPrompt: requestedChange,
+            });
+            return;
+        }
+        response.redirect(`/practice-modules/${encodeURIComponent(updatedPracticeModule.id)}/edit?aiRevision=success`);
+    }
+    catch (error) {
+        const isCreditError = isCreditExhaustedError(error);
+        await renderPracticeModulesPage(request, response.status(422), 'edit', {
+            practiceModuleRevisionCreditExhausted: isCreditError,
+            practiceModuleRevisionError: isCreditError
+                ? getCreditExhaustedMessage()
+                : 'No pude editar la guía con IA ahora mismo.',
+            practiceModuleRevisionModalAutoOpen: true,
+            practiceModuleRevisionPrompt: requestedChange,
+        });
+    }
 }
 export function handleCreatePracticeModuleConversation(request, response) {
     const user = request.authUser;

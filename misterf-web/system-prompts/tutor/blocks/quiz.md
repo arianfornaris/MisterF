@@ -2,7 +2,7 @@
 interface QuizOpenTextItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_open_text";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
   /** Optional textarea placeholder; must be Spanish. */
   placeholder?: string;
@@ -14,9 +14,9 @@ interface QuizOpenTextItem {
 interface QuizTranslateToEnglishItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_translate_to_english";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** Spanish sentence to translate. */
+  /** Spanish sentence to translate. Plain text, not Markdown. */
   sentence: string;
   /** Optional hidden acceptable English answers for evaluation. */
   acceptableAnswers?: string[];
@@ -28,9 +28,9 @@ interface QuizTranslateToEnglishItem {
 interface QuizUnderstandInSpanishItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_understand_in_spanish";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** English sentence to understand. */
+  /** English sentence to understand. Plain text, not Markdown. */
   sentence: string;
   /** Optional hidden acceptable Spanish explanations or meanings. */
   acceptableAnswers?: string[];
@@ -46,9 +46,9 @@ interface QuizUnderstandInSpanishItem {
 interface QuizFillInTheBlankInputItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_fill_in_the_blank_input";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** English practice sentence with one `___` placeholder per blank. */
+  /** English practice sentence with one `___` placeholder per blank. Plain text, not Markdown. */
   sentence: string;
   /** One entry per placeholder, in sentence order. */
   blanks: Array<{
@@ -67,13 +67,13 @@ interface QuizFillInTheBlankInputItem {
 interface QuizFillInTheBlankChoiceItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_fill_in_the_blank_choice";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** English practice sentence with one `{{blank}}` placeholder per blank. */
+  /** English practice sentence with one `{{blank}}` placeholder per blank. Plain text, not Markdown. */
   sentence: string;
   /** One entry per placeholder, in sentence order. */
   blanks: Array<{
-    /** Visible dropdown choices, normally English words or phrases. */
+    /** Visible dropdown choices, normally English words or phrases. Plain text, not Markdown. */
     choices: string[];
     /** Optional hidden accepted choices/answers, normally English. */
     acceptableAnswers?: string[];
@@ -92,11 +92,11 @@ interface QuizFillInTheBlankChoiceItem {
 interface QuizMultipleChoiceItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_multiple_choice";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
   /** `single` for one correct option; `multiple` for several correct options. */
   selectionMode: "single" | "multiple";
-  /** Visible answer option texts; language depends on the question content. */
+  /** Visible answer option texts; language depends on the question content. Plain text, not Markdown. */
   options: string[];
   /** Hidden list of exact option texts that are correct; preserve option language. */
   correctOptions: string[];
@@ -114,11 +114,11 @@ interface QuizMultipleChoiceItem {
 interface QuizMatchingPairsItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_matching_pairs";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** Visible left-column items; may be Spanish, English, or mixed by design. */
+  /** Visible left-column items; may be Spanish, English, or mixed by design. Plain text, not Markdown. */
   leftItems: string[];
-  /** Visible right-column items; may be Spanish, English, or mixed by design. */
+  /** Visible right-column items; may be Spanish, English, or mixed by design. Plain text, not Markdown. */
   rightItems: string[];
   /** Hidden correct pair mapping. */
   correctPairs: Array<{
@@ -141,9 +141,9 @@ interface QuizMatchingPairsItem {
 interface QuizUnscrambleSentenceItem {
   /** Literal quiz item discriminator. */
   kind: "quiz_unscramble_sentence";
-  /** Learner-facing item instruction; must be Spanish. */
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** English sentence pieces in correct order; the app shuffles them for display. */
+  /** English sentence pieces in correct order; the app shuffles them for display. Plain text, not Markdown. */
   tokens: string[];
   /** Optional hidden alternate complete English answers that should be accepted. */
   acceptableAnswers?: string[];
@@ -201,7 +201,7 @@ interface QuizBlock {
   type: "quiz";
   /** Optional short Spanish quiz title. */
   title?: string;
-  /** Global learner-facing instruction for the whole quiz; must be Spanish. */
+  /** Global learner-facing instruction for the whole quiz; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
   /** Optional hidden evaluator guidance for the whole quiz; must be Spanish. */
   rubric?: string;

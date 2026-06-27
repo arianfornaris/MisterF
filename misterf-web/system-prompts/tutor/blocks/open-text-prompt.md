@@ -29,7 +29,7 @@
 interface OpenTextPromptBlock {
   /** Literal discriminator. */
   type: "open_text_prompt";
-  /** Spanish learner-facing instruction shown above the textarea. */
+  /** Spanish learner-facing instruction shown above the textarea. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
   /** Optional visible scaffold text for the textarea; must be Spanish or English depending on the expected answer. */
   placeholder?: string;

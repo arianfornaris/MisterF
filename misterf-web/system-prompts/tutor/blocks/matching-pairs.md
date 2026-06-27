@@ -16,13 +16,13 @@
 interface MatchingPairsBlock {
   /** Literal discriminator. */
   type: "matching_pairs";
-  /** Optional Spanish instruction shown above the matching exercise. */
+  /** Optional Spanish instruction shown above the matching exercise. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
   /** Correct pairs only; the app derives shuffled columns from these values. */
   pairs: Array<{
-    /** Left-side item; may be Spanish, English, or mixed depending on the pairing. */
+    /** Left-side item; may be Spanish, English, or mixed depending on the pairing. Plain text, not Markdown. */
     left: string;
-    /** Correct right-side match for `left`; may be Spanish, English, or mixed. */
+    /** Correct right-side match for `left`; may be Spanish, English, or mixed. Plain text, not Markdown. */
     right: string;
   }>;
 }
