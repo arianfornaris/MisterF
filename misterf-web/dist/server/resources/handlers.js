@@ -1,5 +1,5 @@
 import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceForUser, listResourceFolderItems, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, } from '../db/repository.js';
-import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
+import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -20,6 +20,22 @@ function readField(value, maxLength = 800) {
 function normalizeReturnTo(value) {
     const returnTo = readField(value, 2000);
     return returnTo.startsWith('/') ? returnTo : '/resources';
+}
+function readResourceTypeFilter(value) {
+    const resourceType = readField(value, 40);
+    if (resourceType === 'assignment' ||
+        resourceType === 'practice_guide' ||
+        resourceType === 'resource_folder') {
+        return resourceType;
+    }
+    return 'all';
+}
+function readResourceSort(value) {
+    const sort = readField(value, 40);
+    if (sort === 'title_asc' || sort === 'type') {
+        return sort;
+    }
+    return 'updated_desc';
 }
 function buildResourceDetailPath(resource) {
     if (resource.type === 'assignment') {
@@ -73,7 +89,6 @@ function buildResourceListItem(resource) {
     return {
         ...resource,
         ...action,
-        descriptionText: resource.description || resource.topic || 'Sin descripción',
         detailPath: buildResourceDetailPath(resource),
         headerClass: meta.headerClass,
         iconClass: meta.iconClass,
@@ -87,6 +102,52 @@ function removeFiledResourcesFromRoot(resources, userId) {
         .map((resource) => resource.id);
     const filedResourceIds = new Set(folderIds.flatMap((folderId) => listResourceFolderItems(folderId, userId).map((item) => item.resourceId)));
     return resources.filter((resource) => resource.type === 'resource_folder' || !filedResourceIds.has(resource.id));
+}
+const resourceTypeSortRank = {
+    resource_folder: 0,
+    assignment: 1,
+    practice_guide: 2,
+};
+function compareResourceTitles(left, right) {
+    return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
+}
+function compareResourceDates(left, right) {
+    return (right.updatedAt.localeCompare(left.updatedAt) ||
+        right.createdAt.localeCompare(left.createdAt));
+}
+function compareResourceTypes(left, right) {
+    return resourceTypeSortRank[left.type] - resourceTypeSortRank[right.type];
+}
+function filterAndSortResources(resources, filters) {
+    const normalizedQuery = normalizeSearchText(filters.query);
+    const filteredResources = resources.filter((resource) => {
+        if (filters.type !== 'all' && resource.type !== filters.type) {
+            return false;
+        }
+        if (!normalizedQuery) {
+            return true;
+        }
+        return normalizeSearchText([
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+        ].filter(Boolean).join(' ')).includes(normalizedQuery);
+    });
+    return filteredResources.sort((left, right) => {
+        const folderComparison = compareResourceTypes(left, right);
+        if ((left.type === 'resource_folder' || right.type === 'resource_folder') &&
+            left.type !== right.type) {
+            return folderComparison;
+        }
+        if (filters.sort === 'title_asc') {
+            return compareResourceTitles(left, right) || compareResourceDates(left, right);
+        }
+        if (filters.sort === 'type') {
+            return folderComparison || compareResourceTitles(left, right);
+        }
+        return compareResourceDates(left, right) || compareResourceTitles(left, right);
+    });
 }
 export function renderResourcesListPage(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);
@@ -109,6 +170,12 @@ export function renderResourcesListPage(request, response) {
     const allResources = selectedFolder
         ? scopedResources
         : removeFiledResourcesFromRoot(scopedResources, auth.user.id);
+    const filters = {
+        query: readField(request.query.q, 160),
+        sort: readResourceSort(request.query.sort),
+        type: readResourceTypeFilter(request.query.type),
+    };
+    const resourceItems = filterAndSortResources(allResources, filters);
     const folderOptions = listResourcesForProfile({
         includeArchived: false,
         profileId: auth.activeProfile.id,
@@ -128,7 +195,13 @@ export function renderResourcesListPage(request, response) {
             user: auth.user,
         }),
         folderOptions: folderOptions.map(buildResourceListItem),
-        resourceItems: allResources.map(buildResourceListItem),
+        resourceFilters: {
+            ...filters,
+            hasActiveFilters: Boolean(filters.query) ||
+                filters.type !== 'all' ||
+                filters.sort !== 'updated_desc',
+        },
+        resourceItems: resourceItems.map(buildResourceListItem),
         selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
     });
 }

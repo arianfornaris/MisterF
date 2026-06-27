@@ -15,8 +15,15 @@ export function normalizeSearchText(value) {
         .replace(/\s+/g, ' ')
         .trim();
 }
+function parseAppTimestamp(value) {
+    const trimmed = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(trimmed)) {
+        return Date.parse(`${trimmed.replace(' ', 'T')}Z`);
+    }
+    return Date.parse(trimmed);
+}
 export function formatRelativeTime(value) {
-    const timestamp = Date.parse(value);
+    const timestamp = parseAppTimestamp(value);
     if (Number.isNaN(timestamp)) {
         return value;
     }

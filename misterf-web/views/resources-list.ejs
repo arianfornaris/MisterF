@@ -58,9 +58,62 @@
     </div>
   </div>
 
+  <form
+    class="resource-filter-form mt-4"
+    method="get"
+    action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
+  >
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-lg">
+        <label class="form-label" for="resourceSearch">Buscar</label>
+        <div class="input-group">
+          <span class="input-group-text" aria-hidden="true">
+            <i class="bi bi-search"></i>
+          </span>
+          <input
+            class="form-control"
+            id="resourceSearch"
+            name="q"
+            value="<%= resourceFilters.query %>"
+            placeholder="Buscar por texto"
+          >
+        </div>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <label class="form-label" for="resourceTypeFilter">Tipo</label>
+        <select class="form-select" id="resourceTypeFilter" name="type">
+          <option value="all" <%= resourceFilters.type === 'all' ? 'selected' : '' %>>Todos</option>
+          <option value="resource_folder" <%= resourceFilters.type === 'resource_folder' ? 'selected' : '' %>>Carpetas</option>
+          <option value="assignment" <%= resourceFilters.type === 'assignment' ? 'selected' : '' %>>Tareas</option>
+          <option value="practice_guide" <%= resourceFilters.type === 'practice_guide' ? 'selected' : '' %>>Guías de Práctica</option>
+        </select>
+      </div>
+      <div class="col-12 col-sm-6 col-lg-3">
+        <label class="form-label" for="resourceSort">Ordenar</label>
+        <select class="form-select" id="resourceSort" name="sort">
+          <option value="updated_desc" <%= resourceFilters.sort === 'updated_desc' ? 'selected' : '' %>>Fecha</option>
+          <option value="title_asc" <%= resourceFilters.sort === 'title_asc' ? 'selected' : '' %>>Alfabéticamente</option>
+          <option value="type" <%= resourceFilters.sort === 'type' ? 'selected' : '' %>>Tipo de recurso</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg-auto d-flex gap-2">
+        <button class="btn btn-secondary" type="submit">Filtrar</button>
+        <% if (resourceFilters.hasActiveFilters) { %>
+          <a class="btn btn-outline-secondary" href="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>">Limpiar</a>
+        <% } %>
+      </div>
+    </div>
+  </form>
+
   <% if (resourceItems.length === 0) { %>
     <div class="resource-empty-state mt-4">
-      <h2 class="h5"><%= selectedFolder ? 'Esta carpeta está vacía.' : 'No hay recursos todavía.' %></h2>
+      <h2 class="h5">
+        <% if (resourceFilters.hasActiveFilters) { %>
+          No hay recursos que coincidan con esos filtros.
+        <% } else { %>
+          <%= selectedFolder ? 'Esta carpeta está vacía.' : 'No hay recursos todavía.' %>
+        <% } %>
+      </h2>
     </div>
   <% } else { %>
     <div class="list-group shadow-sm mt-4">
@@ -78,9 +131,7 @@
               <% if (resource.archivedAt) { %><span class="badge text-bg-light border">Archivado</span><% } %>
             </div>
             <p class="mb-0 small text-body-secondary">
-              <%= resource.descriptionText %>
-              <span class="mx-1">·</span>
-              <%= resource.relativeUpdatedAt %>
+              Actualizado <%= resource.relativeUpdatedAt %>
             </p>
           </div>
           <div class="dropdown position-relative z-1 flex-shrink-0 ms-2">

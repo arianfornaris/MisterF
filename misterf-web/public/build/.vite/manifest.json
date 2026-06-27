@@ -54,11 +54,12 @@
     ]
   },
   "src/client/practiceModules/index.js": {
-    "file": "entries/practice-modules-Mjtw1GiO.js",
+    "file": "entries/practice-modules-omVURo_0.js",
     "name": "practice-modules",
     "src": "src/client/practiceModules/index.js",
     "isEntry": true,
     "imports": [
+      "_markdown-BEcjJFmG.js",
       "_listGroupDropdownStacking-C2oiFQb2.js",
       "_staticMarkdown-gnKtkYtm.js"
     ]

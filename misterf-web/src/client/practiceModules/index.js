@@ -1,4 +1,5 @@
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
+import { initializeMarkdownEditors } from '../shared/markdownEditor.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
 function fallbackCopyText(content) {
@@ -125,4 +126,5 @@ initializePracticeModuleSharingUi();
 initializeAutoOpenModal();
 initializeResourceGenerationPendingUi();
 initializeListGroupDropdownStacking();
+initializeMarkdownEditors();
 initializeStaticMarkdown();

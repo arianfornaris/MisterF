@@ -248,7 +248,15 @@
                       rows="4"
                       maxlength="500"
                       required
+                      placeholder="Describe la práctica con Markdown sencillo."
+                      data-markdown-editor
+                      data-markdown-editor-required="true"
+                      data-markdown-editor-error="practiceModuleDescriptionError"
+                      data-markdown-editor-min-height="8rem"
                     ><%= typeof practiceModuleDraftValues.description === 'string' ? practiceModuleDraftValues.description : (practiceModulePageMode === 'edit' && selectedPracticeModule ? selectedPracticeModule.description : '') %></textarea>
+                    <div class="invalid-feedback d-block" id="practiceModuleDescriptionError" hidden>
+                      Escribe una descripción para la guía.
+                    </div>
 
                     <div class="practice-module-help-row">
                       <label class="form-label" for="practiceModuleTutorInstructions">
@@ -270,7 +278,15 @@
                       rows="10"
                       maxlength="4000"
                       required
+                      placeholder="Escribe las instrucciones del tutor con Markdown sencillo."
+                      data-markdown-editor
+                      data-markdown-editor-required="true"
+                      data-markdown-editor-error="practiceModuleTutorInstructionsError"
+                      data-markdown-editor-min-height="18rem"
                     ><%= typeof practiceModuleDraftValues.tutorInstructions === 'string' ? practiceModuleDraftValues.tutorInstructions : (practiceModulePageMode === 'edit' && selectedPracticeModule ? selectedPracticeModule.tutorInstructions : '') %></textarea>
+                    <div class="invalid-feedback d-block" id="practiceModuleTutorInstructionsError" hidden>
+                      Escribe las instrucciones del tutor.
+                    </div>
 
                     <div class="practice-module-form-actions">
                       <button type="submit" class="btn btn-primary">

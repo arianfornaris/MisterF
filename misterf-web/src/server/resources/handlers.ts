@@ -15,13 +15,16 @@ import {
   buildAppShellContext,
   formatRelativeTime,
   getHomeAuthMessage,
+  normalizeSearchText,
 } from '../pages/shell.js';
+
+type ResourceFilterType = StoredResource['type'] | 'all';
+type ResourceSortOption = 'title_asc' | 'type' | 'updated_desc';
 
 type ResourceListItem = StoredResource & {
   actionLabel: string;
   actionMethod: 'get' | 'post';
   actionPath: string;
-  descriptionText: string;
   detailPath: string;
   headerClass: string;
   iconClass: string;
@@ -57,6 +60,28 @@ function readField(value: unknown, maxLength = 800): string {
 function normalizeReturnTo(value: unknown): string {
   const returnTo = readField(value, 2000);
   return returnTo.startsWith('/') ? returnTo : '/resources';
+}
+
+function readResourceTypeFilter(value: unknown): ResourceFilterType {
+  const resourceType = readField(value, 40);
+  if (
+    resourceType === 'assignment' ||
+    resourceType === 'practice_guide' ||
+    resourceType === 'resource_folder'
+  ) {
+    return resourceType;
+  }
+
+  return 'all';
+}
+
+function readResourceSort(value: unknown): ResourceSortOption {
+  const sort = readField(value, 40);
+  if (sort === 'title_asc' || sort === 'type') {
+    return sort;
+  }
+
+  return 'updated_desc';
 }
 
 function buildResourceDetailPath(resource: StoredResource): string {
@@ -122,7 +147,6 @@ function buildResourceListItem(resource: StoredResource): ResourceListItem {
   return {
     ...resource,
     ...action,
-    descriptionText: resource.description || resource.topic || 'Sin descripción',
     detailPath: buildResourceDetailPath(resource),
     headerClass: meta.headerClass,
     iconClass: meta.iconClass,
@@ -144,6 +168,76 @@ function removeFiledResourcesFromRoot(resources: StoredResource[], userId: strin
   return resources.filter((resource) =>
     resource.type === 'resource_folder' || !filedResourceIds.has(resource.id),
   );
+}
+
+const resourceTypeSortRank: Record<StoredResource['type'], number> = {
+  resource_folder: 0,
+  assignment: 1,
+  practice_guide: 2,
+};
+
+function compareResourceTitles(left: StoredResource, right: StoredResource): number {
+  return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
+}
+
+function compareResourceDates(left: StoredResource, right: StoredResource): number {
+  return (
+    right.updatedAt.localeCompare(left.updatedAt) ||
+    right.createdAt.localeCompare(left.createdAt)
+  );
+}
+
+function compareResourceTypes(left: StoredResource, right: StoredResource): number {
+  return resourceTypeSortRank[left.type] - resourceTypeSortRank[right.type];
+}
+
+function filterAndSortResources(
+  resources: StoredResource[],
+  filters: {
+    query: string;
+    sort: ResourceSortOption;
+    type: ResourceFilterType;
+  },
+): StoredResource[] {
+  const normalizedQuery = normalizeSearchText(filters.query);
+  const filteredResources = resources.filter((resource) => {
+    if (filters.type !== 'all' && resource.type !== filters.type) {
+      return false;
+    }
+
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return normalizeSearchText(
+      [
+        resource.title,
+        resource.description,
+        resource.topic,
+        resource.level,
+      ].filter(Boolean).join(' '),
+    ).includes(normalizedQuery);
+  });
+
+  return filteredResources.sort((left, right) => {
+    const folderComparison = compareResourceTypes(left, right);
+    if (
+      (left.type === 'resource_folder' || right.type === 'resource_folder') &&
+      left.type !== right.type
+    ) {
+      return folderComparison;
+    }
+
+    if (filters.sort === 'title_asc') {
+      return compareResourceTitles(left, right) || compareResourceDates(left, right);
+    }
+
+    if (filters.sort === 'type') {
+      return folderComparison || compareResourceTitles(left, right);
+    }
+
+    return compareResourceDates(left, right) || compareResourceTitles(left, right);
+  });
 }
 
 export function renderResourcesListPage(request: Request, response: Response): void {
@@ -169,6 +263,12 @@ export function renderResourcesListPage(request: Request, response: Response): v
   const allResources = selectedFolder
     ? scopedResources
     : removeFiledResourcesFromRoot(scopedResources, auth.user.id);
+  const filters = {
+    query: readField(request.query.q, 160),
+    sort: readResourceSort(request.query.sort),
+    type: readResourceTypeFilter(request.query.type),
+  };
+  const resourceItems = filterAndSortResources(allResources, filters);
   const folderOptions = listResourcesForProfile({
     includeArchived: false,
     profileId: auth.activeProfile.id,
@@ -189,7 +289,14 @@ export function renderResourcesListPage(request: Request, response: Response): v
       user: auth.user,
     }),
     folderOptions: folderOptions.map(buildResourceListItem),
-    resourceItems: allResources.map(buildResourceListItem),
+    resourceFilters: {
+      ...filters,
+      hasActiveFilters:
+        Boolean(filters.query) ||
+        filters.type !== 'all' ||
+        filters.sort !== 'updated_desc',
+    },
+    resourceItems: resourceItems.map(buildResourceListItem),
     selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
   });
 }
