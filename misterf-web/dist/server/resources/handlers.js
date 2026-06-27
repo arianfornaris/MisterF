@@ -1,6 +1,5 @@
 import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceForUser, listResourceFolderItems, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, } from '../db/repository.js';
 import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
-import { resolveResourceLayout, resourcesLayoutCookieName, } from '../pages/resourceLayout.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -100,7 +99,6 @@ export function renderResourcesListPage(request, response) {
         response.redirect('/resources');
         return;
     }
-    const resourceLayout = resolveResourceLayout(request, response, resourcesLayoutCookieName);
     const scopedResources = listResourcesForProfile({
         folderId,
         includeArchived: false,
@@ -111,9 +109,6 @@ export function renderResourcesListPage(request, response) {
     const allResources = selectedFolder
         ? scopedResources
         : removeFiledResourcesFromRoot(scopedResources, auth.user.id);
-    const selectedFolderItemCount = selectedFolder
-        ? listResourceFolderItems(selectedFolder.id, auth.user.id).length
-        : 0;
     const folderOptions = listResourcesForProfile({
         includeArchived: false,
         profileId: auth.activeProfile.id,
@@ -134,9 +129,7 @@ export function renderResourcesListPage(request, response) {
         }),
         folderOptions: folderOptions.map(buildResourceListItem),
         resourceItems: allResources.map(buildResourceListItem),
-        resourceLayout,
         selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
-        selectedFolderItemCount,
     });
 }
 export function handleCreateResourceFolder(request, response) {

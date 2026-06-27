@@ -5,10 +5,10 @@ Date: 2026-06-25
 ## Product Intent
 
 V1 leaves Mister F with several resource-like areas that are useful but
-increasingly redundant: practice modules, practice module collections,
-assignments, chat rooms, and share-link/import flows attached to each resource
-family. V2 should simplify this into one resource system that is easier to
-understand, organize, share, and extend.
+increasingly redundant: practice modules, assignments, chat rooms, and
+share-link/import flows attached to each resource family. V2 should simplify
+this into one resource system that is easier to understand, organize, share,
+and extend.
 
 The goal is not to remove learning power. The goal is to make the product model
 smaller:
@@ -78,21 +78,19 @@ Implementation can happen in stages:
 3. Internal code/table names can be renamed only when the schema refactor is
    ready.
 
-### Remove Practice Guide Collections
+### Use Resource Folders For Organization
 
-Remove the separate collection concept from practice guides.
-
-Collections should not remain a resource-specific feature. Their product role is
-better handled by `Carpeta de recursos`, which can group any resource type:
+Practice guides should not have a separate resource-specific grouping model.
+Their product role is handled by `Carpeta de recursos`, which can group any
+supported resource type:
 
 - assignments
 - practice guides
 - dialogues after the final dialogue slice lands
 - future resource types
 
-If V2 starts before production data exists, the simplest path is to remove
-practice module collection tables and UI from the baseline. If production data
-exists by then, existing collections should migrate into resource folders.
+Because V2 is landing before production data is preserved, the baseline keeps
+only generic resource folders.
 
 ### Introduce Resources
 
@@ -339,7 +337,6 @@ the first production migration history is clean.
 If any V1 schema has already reached production, use forward-only migrations:
 
 - migrate chatroom data only if it exists and should be preserved
-- migrate practice module collections into resource folders
 - migrate practice modules into practice guides/resources
 - migrate assignments into resources
 - create generic share links while preserving old public URLs through redirects
@@ -395,7 +392,7 @@ Implement in this order:
 2. design the generic resource data model
 3. introduce the resource shell without removing old behavior
 4. rename practice modules to practice guides at the UI layer
-5. remove collections by replacing them with folders
+5. make resource folders the only organization model
 6. migrate assignments and practice guides into the resource catalog
 7. remove chatrooms
 8. consolidate generic sharing, progress, docs, and tests

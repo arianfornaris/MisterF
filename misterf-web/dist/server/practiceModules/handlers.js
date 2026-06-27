@@ -1,10 +1,14 @@
 import QRCode from 'qrcode';
-import { addPracticeModuleToCollection, archivePracticeModuleCollectionForUser, archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, createPracticeModuleCollection, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleCollectionById, findPracticeModuleCollectionForUser, findPracticeModuleCollectionShareLinkById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleCollectionShareLink, getOrCreatePracticeModuleShareLink, importPracticeModuleCollectionToProfile, importPracticeModuleToProfile, listConversationsForPracticeModule, listPracticeModuleCollectionsContainingModule, listPracticeModuleCollectionsForProfile, listPracticeModulesForCollection, listPracticeModulesForProfile, movePracticeModuleCollectionItem, removePracticeModuleFromCollection, restorePracticeModuleCollectionForUser, restorePracticeModuleForUser, updatePracticeModule, updatePracticeModuleCollection, } from '../db/repository.js';
+import { archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleShareLink, importPracticeModuleToProfile, listConversationsForPracticeModule, restorePracticeModuleForUser, updatePracticeModule, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import { generatePracticeModuleDraft } from '../services/resourceDrafts.js';
-import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
-import { practiceModulesLayoutCookieName, resolveResourceLayout, } from '../pages/resourceLayout.js';
+import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+const emptyPracticeModuleFormValues = {
+    description: '',
+    title: '',
+    tutorInstructions: '',
+};
 function redirectUnauthedPracticeModules(response) {
     response.redirect('/');
 }
@@ -22,41 +26,19 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     const user = request.authUser;
     const availableProfiles = request.availableProfiles ?? [];
     let activeProfile = request.activeProfile;
-    if (!user?.emailVerified && pageKind !== 'share' && pageKind !== 'collectionShare') {
+    if (!user?.emailVerified && pageKind !== 'share') {
         redirectUnauthedPracticeModules(response);
         return null;
     }
-    const practiceModuleFilterQueryRaw = typeof request.query.q === 'string' ? request.query.q : '';
-    const practiceModuleShareModeRaw = typeof request.query.share === 'string' ? request.query.share : '';
-    const practiceModuleFilterQuery = practiceModuleFilterQueryRaw.trim();
-    const normalizedPracticeModuleFilterQuery = normalizeSearchText(practiceModuleFilterQuery);
-    const practiceModuleShareMode = practiceModuleShareModeRaw === 'profile' || practiceModuleShareModeRaw === 'link'
-        ? practiceModuleShareModeRaw
-        : '';
-    const practiceModuleLayout = resolveResourceLayout(request, response, practiceModulesLayoutCookieName);
-    const showArchivedPracticeModules = String(request.query.archived || '').trim() === '1';
     let selectedPracticeModule = null;
-    let selectedPracticeModuleCollection = null;
     let selectedSharedPracticeModule = null;
     let selectedPracticeModuleShareLink = null;
     let selectedPracticeModuleSharedFromProfileName = '';
-    let selectedSharedPracticeModuleCollection = null;
-    let selectedPracticeModuleCollectionShareLink = null;
-    let selectedPracticeModuleCollectionSharedFromProfileName = '';
     let practiceModuleConversations = [];
-    let practiceModuleCollectionModules = [];
-    const requestedPracticeModuleIdRaw = request.params.practiceModuleId;
-    const requestedPracticeModuleId = typeof requestedPracticeModuleIdRaw === 'string'
-        ? requestedPracticeModuleIdRaw.trim()
+    const requestedPracticeModuleId = typeof request.params.practiceModuleId === 'string'
+        ? request.params.practiceModuleId.trim()
         : '';
-    const requestedCollectionIdRaw = request.params.collectionId;
-    const requestedCollectionId = typeof requestedCollectionIdRaw === 'string'
-        ? requestedCollectionIdRaw.trim()
-        : '';
-    const requestedShareIdRaw = request.params.shareId;
-    const requestedShareId = typeof requestedShareIdRaw === 'string'
-        ? requestedShareIdRaw.trim()
-        : '';
+    const requestedShareId = typeof request.params.shareId === 'string' ? request.params.shareId.trim() : '';
     if (pageKind === 'detail' || pageKind === 'edit') {
         if (!user) {
             redirectUnauthedPracticeModules(response);
@@ -75,24 +57,6 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         }
         practiceModuleConversations = listConversationsForPracticeModule(selectedPracticeModule.id, user.id, selectedPracticeModule.profileId);
     }
-    if (pageKind === 'collectionDetail' || pageKind === 'collectionEdit') {
-        if (!user) {
-            redirectUnauthedPracticeModules(response);
-            return null;
-        }
-        selectedPracticeModuleCollection = findPracticeModuleCollectionForUser(requestedCollectionId, user.id);
-        if (!selectedPracticeModuleCollection) {
-            response.redirect('/resources');
-            return null;
-        }
-        if (!activeProfile || selectedPracticeModuleCollection.profileId !== activeProfile.id) {
-            activeProfile = findProfileForUser(selectedPracticeModuleCollection.profileId, user.id);
-            if (activeProfile) {
-                setActiveProfileCookie(response, activeProfile.id);
-            }
-        }
-        practiceModuleCollectionModules = listPracticeModulesForCollection(selectedPracticeModuleCollection.id, user.id);
-    }
     if (pageKind === 'share') {
         selectedPracticeModuleShareLink = findPracticeModuleShareLinkById(requestedShareId);
         if (!selectedPracticeModuleShareLink || selectedPracticeModuleShareLink.revokedAt) {
@@ -105,19 +69,6 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
             return null;
         }
     }
-    if (pageKind === 'collectionShare') {
-        selectedPracticeModuleCollectionShareLink = findPracticeModuleCollectionShareLinkById(requestedShareId);
-        if (!selectedPracticeModuleCollectionShareLink || selectedPracticeModuleCollectionShareLink.revokedAt) {
-            response.redirect('/resources');
-            return null;
-        }
-        selectedSharedPracticeModuleCollection = findPracticeModuleCollectionById(selectedPracticeModuleCollectionShareLink.collectionId);
-        if (!selectedSharedPracticeModuleCollection) {
-            response.redirect('/resources');
-            return null;
-        }
-        practiceModuleCollectionModules = listPracticeModulesForCollection(selectedSharedPracticeModuleCollection.id, selectedSharedPracticeModuleCollection.userId);
-    }
     if (selectedPracticeModule) {
         selectedPracticeModuleShareLink = getOrCreatePracticeModuleShareLink(selectedPracticeModule.id);
         if (selectedPracticeModule.sourceProfileId) {
@@ -125,161 +76,36 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
                 findProfileById(selectedPracticeModule.sourceProfileId)?.name || '';
         }
     }
-    if (selectedPracticeModuleCollection) {
-        selectedPracticeModuleCollectionShareLink = getOrCreatePracticeModuleCollectionShareLink(selectedPracticeModuleCollection.id);
-        if (selectedPracticeModuleCollection.sourceProfileId) {
-            selectedPracticeModuleCollectionSharedFromProfileName =
-                findProfileById(selectedPracticeModuleCollection.sourceProfileId)?.name || '';
-        }
-    }
-    if (selectedSharedPracticeModuleCollection &&
-        selectedSharedPracticeModuleCollection.sourceProfileId) {
-        selectedPracticeModuleCollectionSharedFromProfileName =
-            findProfileById(selectedSharedPracticeModuleCollection.sourceProfileId)?.name || '';
-    }
-    if (selectedSharedPracticeModule && selectedSharedPracticeModule.sourceProfileId) {
+    if (selectedSharedPracticeModule?.sourceProfileId) {
         selectedPracticeModuleSharedFromProfileName =
             findProfileById(selectedSharedPracticeModule.sourceProfileId)?.name || '';
     }
-    const practiceModuleCollections = user && activeProfile
-        ? listPracticeModuleCollectionsForProfile(user.id, activeProfile.id)
-        : [];
-    const practiceModules = user && activeProfile
-        ? listPracticeModulesForProfile(user.id, activeProfile.id)
-        : [];
-    const allLessons = user
-        ? practiceModules.map((practiceModule) => ({
-            ...practiceModule,
-            conversationCount: listConversationsForPracticeModule(practiceModule.id, user.id, practiceModule.profileId).length,
-            sourceProfileName: practiceModule.sourceProfileId
-                ? findProfileById(practiceModule.sourceProfileId)?.name || ''
-                : '',
-        }))
-        : [];
-    const visibleLessons = allLessons.filter((practiceModule) => {
-        if (practiceModule.archivedAt && !showArchivedPracticeModules) {
-            return false;
-        }
-        if (!normalizedPracticeModuleFilterQuery) {
-            return true;
-        }
-        const haystack = [
-            practiceModule.title,
-            practiceModule.description,
-            practiceModule.tutorInstructions,
-        ].join('\n');
-        return normalizeSearchText(haystack).includes(normalizedPracticeModuleFilterQuery);
-    });
-    const allPracticeModuleCollections = practiceModuleCollections.map((collection) => ({
-        ...collection,
-        moduleCount: listPracticeModulesForCollection(collection.id, user?.id || '').length,
-        sourceProfileName: collection.sourceProfileId
-            ? findProfileById(collection.sourceProfileId)?.name || ''
-            : '',
-    }));
-    const visiblePracticeModuleCollections = allPracticeModuleCollections.filter((collection) => {
-        if (collection.archivedAt && !showArchivedPracticeModules) {
-            return false;
-        }
-        if (!normalizedPracticeModuleFilterQuery) {
-            return true;
-        }
-        const haystack = [collection.title, collection.description].join('\n');
-        return normalizeSearchText(haystack).includes(normalizedPracticeModuleFilterQuery);
-    });
-    const activeVisiblePracticeModuleCollections = visiblePracticeModuleCollections
-        .filter((collection) => !collection.archivedAt)
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const activeVisibleLessons = visibleLessons.filter((practiceModule) => !practiceModule.archivedAt);
-    const archivedPracticeModules = visibleLessons
-        .filter((practiceModule) => Boolean(practiceModule.archivedAt))
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const archivedPracticeModuleCollections = visiblePracticeModuleCollections
-        .filter((collection) => Boolean(collection.archivedAt))
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const hasArchivedPracticeModules = allPracticeModuleCollections.some((collection) => Boolean(collection.archivedAt)) ||
-        allLessons.some((practiceModule) => Boolean(practiceModule.archivedAt));
-    const ownLessons = activeVisibleLessons
-        .filter((practiceModule) => !practiceModule.sharedVia && !practiceModule.collectionId)
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const sharedLessons = activeVisibleLessons
-        .filter((practiceModule) => Boolean(practiceModule.sharedVia) && !practiceModule.collectionId)
-        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    const availablePracticeModulesForCollection = user && activeProfile && selectedPracticeModuleCollection
-        ? activeVisibleLessons.filter((practiceModule) => practiceModule.profileId === selectedPracticeModuleCollection.profileId &&
-            !practiceModule.collectionId)
-        : [];
-    const containingCollectionsForSelectedPracticeModule = user && selectedPracticeModule
-        ? listPracticeModuleCollectionsContainingModule(selectedPracticeModule.id, user.id)
-        : [];
-    const availableCollectionsForSelectedPracticeModule = selectedPracticeModule && activeProfile
-        ? activeVisiblePracticeModuleCollections.filter((collection) => collection.profileId === selectedPracticeModule.profileId &&
-            !containingCollectionsForSelectedPracticeModule.some((existingCollection) => existingCollection.id === collection.id))
-        : [];
     const shareTargetPracticeModuleProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModule?.profileId ?? activeProfile?.id));
-    const shareTargetPracticeModuleCollectionProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModuleCollection?.profileId ?? activeProfile?.id));
     const practiceModuleShareUrl = selectedPracticeModule && selectedPracticeModuleShareLink
         ? buildAbsoluteAppUrl(`/practice-modules/shared/${encodeURIComponent(selectedPracticeModuleShareLink.id)}`)
-        : '';
-    const practiceModuleCollectionShareUrl = selectedPracticeModuleCollection && selectedPracticeModuleCollectionShareLink
-        ? buildAbsoluteAppUrl(`/practice-modules/collections/shared/${encodeURIComponent(selectedPracticeModuleCollectionShareLink.id)}`)
         : '';
     const practiceModuleShareQrDataUrl = practiceModuleShareUrl
         ? await QRCode.toDataURL(practiceModuleShareUrl, { margin: 1, width: 180 })
         : '';
-    const practiceModuleCollectionShareQrDataUrl = practiceModuleCollectionShareUrl
-        ? await QRCode.toDataURL(practiceModuleCollectionShareUrl, { margin: 1, width: 180 })
-        : '';
     return {
         activeProfile,
-        archivedPracticeModuleCollections,
-        archivedPracticeModules,
         authMessage: getHomeAuthMessage(request, user),
-        availableCollectionsForSelectedPracticeModule,
-        availablePracticeModulesForCollection,
-        containingCollectionsForSelectedPracticeModule,
-        hasArchivedPracticeModules,
-        ownLessons,
-        practiceModuleCollectionModules,
-        practiceModuleCollectionShareQrDataUrl,
-        practiceModuleCollectionShareUrl,
-        practiceModuleCollections: activeVisiblePracticeModuleCollections,
         practiceModuleConversations,
         practiceModulePageMode: pageKind,
-        practiceModuleLayout,
-        practiceModuleShareMode,
         practiceModuleShareQrDataUrl,
         practiceModuleShareUrl,
-        practiceModules: ownLessons,
         selectedPracticeModule,
-        selectedPracticeModuleCollection,
-        selectedPracticeModuleCollectionShareLink,
-        selectedPracticeModuleCollectionSharedFromProfileName,
         selectedPracticeModuleShareLink,
         selectedPracticeModuleSharedFromProfileName,
         selectedSharedPracticeModule,
-        selectedSharedPracticeModuleCollection,
-        shareTargetPracticeModuleCollectionProfiles,
         shareTargetPracticeModuleProfiles,
-        sharedLessons,
-        showArchivedPracticeModules,
         title: pageKind === 'new'
-            ? `Nuevo módulo · ${appDocumentTitle}`
+            ? `Nueva guía de práctica · ${appDocumentTitle}`
             : pageKind === 'edit'
-                ? `Editar módulo · ${appDocumentTitle}`
+                ? `Editar guía de práctica · ${appDocumentTitle}`
                 : pageKind === 'detail'
-                    ? `${selectedPracticeModule?.title || 'Módulo'} · ${appDocumentTitle}`
-                    : pageKind === 'collectionNew'
-                        ? `Nueva colección · ${appDocumentTitle}`
-                        : pageKind === 'collectionEdit'
-                            ? `Editar colección · ${appDocumentTitle}`
-                            : pageKind === 'collectionDetail'
-                                ? `${selectedPracticeModuleCollection?.title || 'Colección'} · ${appDocumentTitle}`
-                                : pageKind === 'share'
-                                    ? `${selectedSharedPracticeModule?.title || 'Módulo compartido'} · ${appDocumentTitle}`
-                                    : pageKind === 'collectionShare'
-                                        ? `${selectedSharedPracticeModuleCollection?.title || 'Colección compartida'} · ${appDocumentTitle}`
-                                        : `Módulos de práctica · ${appDocumentTitle}`,
+                    ? `${selectedPracticeModule?.title || 'Guía de práctica'} · ${appDocumentTitle}`
+                    : `${selectedSharedPracticeModule?.title || 'Guía compartida'} · ${appDocumentTitle}`,
         user,
     };
 }
@@ -298,39 +124,19 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
             title: viewModel.title,
             user: viewModel.user,
         }),
-        archivedPracticeModuleCollections: viewModel.archivedPracticeModuleCollections,
-        archivedPracticeModules: viewModel.archivedPracticeModules,
-        availableCollectionsForSelectedPracticeModule: viewModel.availableCollectionsForSelectedPracticeModule,
-        availablePracticeModulesForCollection: viewModel.availablePracticeModulesForCollection,
-        containingCollectionsForSelectedPracticeModule: viewModel.containingCollectionsForSelectedPracticeModule,
-        hasArchivedPracticeModules: viewModel.hasArchivedPracticeModules,
-        practiceModuleCollectionModules: viewModel.practiceModuleCollectionModules,
-        practiceModuleCollectionShareQrDataUrl: viewModel.practiceModuleCollectionShareQrDataUrl,
-        practiceModuleCollectionShareUrl: viewModel.practiceModuleCollectionShareUrl,
-        practiceModuleCollections: viewModel.practiceModuleCollections,
         practiceModuleConversations: viewModel.practiceModuleConversations,
-        practiceModuleFilterQuery: typeof request.query.q === 'string' ? request.query.q.trim() : '',
-        practiceModulePageMode: viewModel.practiceModulePageMode,
-        practiceModuleLayout: viewModel.practiceModuleLayout,
-        practiceModuleShareMode: viewModel.practiceModuleShareMode,
-        practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
-        practiceModuleShareUrl: viewModel.practiceModuleShareUrl,
-        practiceModules: viewModel.practiceModules,
-        selectedPracticeModule: viewModel.selectedPracticeModule,
-        selectedPracticeModuleCollection: viewModel.selectedPracticeModuleCollection,
-        selectedPracticeModuleCollectionShareLink: viewModel.selectedPracticeModuleCollectionShareLink,
-        selectedPracticeModuleCollectionSharedFromProfileName: viewModel.selectedPracticeModuleCollectionSharedFromProfileName,
-        selectedPracticeModuleShareLink: viewModel.selectedPracticeModuleShareLink,
-        selectedPracticeModuleSharedFromProfileName: viewModel.selectedPracticeModuleSharedFromProfileName,
-        selectedSharedPracticeModule: viewModel.selectedSharedPracticeModule,
-        selectedSharedPracticeModuleCollection: viewModel.selectedSharedPracticeModuleCollection,
-        shareTargetPracticeModuleCollectionProfiles: viewModel.shareTargetPracticeModuleCollectionProfiles,
-        shareTargetPracticeModuleProfiles: viewModel.shareTargetPracticeModuleProfiles,
-        sharedLessons: viewModel.sharedLessons,
-        showArchivedPracticeModules: viewModel.showArchivedPracticeModules,
+        practiceModuleFormValues: emptyPracticeModuleFormValues,
         practiceModuleGenerationError: '',
         practiceModuleGenerationModalAutoOpen: false,
         practiceModuleGenerationPrompt: '',
+        practiceModulePageMode: viewModel.practiceModulePageMode,
+        practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
+        practiceModuleShareUrl: viewModel.practiceModuleShareUrl,
+        selectedPracticeModule: viewModel.selectedPracticeModule,
+        selectedPracticeModuleShareLink: viewModel.selectedPracticeModuleShareLink,
+        selectedPracticeModuleSharedFromProfileName: viewModel.selectedPracticeModuleSharedFromProfileName,
+        selectedSharedPracticeModule: viewModel.selectedSharedPracticeModule,
+        shareTargetPracticeModuleProfiles: viewModel.shareTargetPracticeModuleProfiles,
         ...overrides,
     });
 }
@@ -365,10 +171,10 @@ export async function handleGeneratePracticeModuleDraft(request, response) {
         response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
     }
     catch (error) {
-        await renderPracticeModulesPage(request, response, 'list', {
+        await renderPracticeModulesPage(request, response, 'new', {
             practiceModuleGenerationError: error instanceof Error && error.message
                 ? error.message
-                : 'No pude generar el módulo automáticamente.',
+                : 'No pude generar la guía automáticamente.',
             practiceModuleGenerationModalAutoOpen: true,
             practiceModuleGenerationPrompt: prompt,
         });
@@ -382,18 +188,6 @@ export function renderEditPracticeModulePage(request, response) {
 }
 export function renderSharedPracticeModulePage(request, response) {
     return renderPracticeModulesPage(request, response, 'share');
-}
-export function renderNewPracticeModuleCollectionPage(request, response) {
-    return renderPracticeModulesPage(request, response, 'collectionNew');
-}
-export function renderPracticeModuleCollectionDetailPage(request, response) {
-    return renderPracticeModulesPage(request, response, 'collectionDetail');
-}
-export function renderEditPracticeModuleCollectionPage(request, response) {
-    return renderPracticeModulesPage(request, response, 'collectionEdit');
-}
-export function renderSharedPracticeModuleCollectionPage(request, response) {
-    return renderPracticeModulesPage(request, response, 'collectionShare');
 }
 export function handleCreatePracticeModule(request, response) {
     const user = request.authUser;
@@ -424,8 +218,9 @@ export function handleCreatePracticeModuleConversation(request, response) {
         response.redirect('/login');
         return;
     }
-    const practiceModuleIdRaw = request.params.practiceModuleId;
-    const practiceModuleId = typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+    const practiceModuleId = typeof request.params.practiceModuleId === 'string'
+        ? request.params.practiceModuleId.trim()
+        : '';
     if (!practiceModuleId) {
         response.redirect('/resources');
         return;
@@ -444,8 +239,9 @@ export function handleUpdatePracticeModule(request, response) {
         response.redirect('/login');
         return;
     }
-    const practiceModuleIdRaw = request.params.practiceModuleId;
-    const practiceModuleId = typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+    const practiceModuleId = typeof request.params.practiceModuleId === 'string'
+        ? request.params.practiceModuleId.trim()
+        : '';
     if (!practiceModuleId) {
         response.redirect('/resources');
         return;
@@ -506,157 +302,15 @@ export function handleDeletePracticeModule(request, response) {
         response.redirect('/login');
         return;
     }
-    const practiceModuleIdRaw = request.params.practiceModuleId;
-    const practiceModuleId = typeof practiceModuleIdRaw === 'string' ? practiceModuleIdRaw.trim() : '';
+    const practiceModuleId = typeof request.params.practiceModuleId === 'string'
+        ? request.params.practiceModuleId.trim()
+        : '';
     if (!practiceModuleId) {
         response.redirect('/resources');
         return;
     }
     deletePracticeModuleForUser(practiceModuleId, user.id);
     response.redirect('/resources');
-}
-export function handleCreatePracticeModuleCollection(request, response) {
-    const user = request.authUser;
-    const activeProfile = request.activeProfile;
-    if (!user?.emailVerified || !activeProfile) {
-        response.redirect('/login');
-        return;
-    }
-    const title = String(request.body.title || '').trim();
-    const description = String(request.body.description || '').trim();
-    if (!title) {
-        response.redirect('/practice-modules/collections/new');
-        return;
-    }
-    const collection = createPracticeModuleCollection({
-        description,
-        profileId: activeProfile.id,
-        title,
-        userId: user.id,
-    });
-    response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
-}
-export function handleUpdatePracticeModuleCollection(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const title = String(request.body.title || '').trim();
-    const description = String(request.body.description || '').trim();
-    if (!collectionId || !title) {
-        response.redirect(collectionId ? `/practice-modules/collections/${encodeURIComponent(collectionId)}/edit` : '/resources');
-        return;
-    }
-    const collection = updatePracticeModuleCollection({
-        collectionId,
-        description,
-        title,
-        userId: user.id,
-    });
-    if (!collection) {
-        response.redirect('/resources');
-        return;
-    }
-    response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
-}
-export function handleArchivePracticeModuleCollection(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/resources'));
-    if (!collectionId) {
-        response.redirect(returnTo);
-        return;
-    }
-    archivePracticeModuleCollectionForUser(collectionId, user.id);
-    response.redirect(returnTo);
-}
-export function handleRestorePracticeModuleCollection(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || '/resources'));
-    if (!collectionId) {
-        response.redirect(returnTo);
-        return;
-    }
-    restorePracticeModuleCollectionForUser(collectionId, user.id);
-    response.redirect(returnTo);
-}
-export function handleAddPracticeModuleToCollection(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const practiceModuleIdsRaw = request.body.practiceModuleId;
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || `/practice-modules/collections/${collectionId}`));
-    const practiceModuleIds = Array.isArray(practiceModuleIdsRaw)
-        ? practiceModuleIdsRaw.map((value) => String(value || '').trim()).filter(Boolean)
-        : [String(practiceModuleIdsRaw || '').trim()].filter(Boolean);
-    if (!collectionId || practiceModuleIds.length === 0) {
-        response.redirect(returnTo);
-        return;
-    }
-    for (const practiceModuleId of practiceModuleIds) {
-        addPracticeModuleToCollection({
-            collectionId,
-            practiceModuleId,
-            userId: user.id,
-        });
-    }
-    response.redirect(returnTo);
-}
-export function handleRemovePracticeModuleFromCollection(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const practiceModuleId = String(request.params.practiceModuleId || '').trim();
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || `/practice-modules/collections/${collectionId}`));
-    if (!collectionId || !practiceModuleId) {
-        response.redirect(returnTo);
-        return;
-    }
-    removePracticeModuleFromCollection({
-        collectionId,
-        practiceModuleId,
-        userId: user.id,
-    });
-    response.redirect(returnTo);
-}
-export function handleMovePracticeModuleCollectionItem(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const practiceModuleId = String(request.params.practiceModuleId || '').trim();
-    const direction = request.path.endsWith('/move-up') ? 'up' : 'down';
-    const returnTo = normalizeReturnTo(String(request.body.returnTo || `/practice-modules/collections/${collectionId}`));
-    if (!collectionId || !practiceModuleId) {
-        response.redirect(returnTo);
-        return;
-    }
-    movePracticeModuleCollectionItem({
-        collectionId,
-        direction,
-        practiceModuleId,
-        userId: user.id,
-    });
-    response.redirect(returnTo);
 }
 export function handleSharePracticeModuleToProfile(request, response) {
     const user = request.authUser;
@@ -688,36 +342,6 @@ export function handleSharePracticeModuleToProfile(request, response) {
     });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
-export function handleSharePracticeModuleCollectionToProfile(request, response) {
-    const user = request.authUser;
-    if (!user?.emailVerified) {
-        response.redirect('/login');
-        return;
-    }
-    const collectionId = String(request.params.collectionId || '').trim();
-    const targetProfileId = String(request.body.targetProfileId || '').trim();
-    if (!collectionId || !targetProfileId) {
-        response.redirect('/resources');
-        return;
-    }
-    const collection = findPracticeModuleCollectionForUser(collectionId, user.id);
-    if (!collection) {
-        response.redirect('/resources');
-        return;
-    }
-    const targetProfile = findProfileForUser(targetProfileId, user.id);
-    if (!targetProfile || targetProfile.id === collection.profileId) {
-        response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
-        return;
-    }
-    importPracticeModuleCollectionToProfile({
-        shareKind: 'profile',
-        sourceCollection: collection,
-        targetProfileId: targetProfile.id,
-        userId: user.id,
-    });
-    response.redirect(`/practice-modules/collections/${encodeURIComponent(collection.id)}`);
-}
 export function handleAcceptSharedPracticeModuleLink(request, response) {
     const shareId = String(request.params.shareId || '').trim();
     if (!shareId) {
@@ -747,35 +371,5 @@ export function handleAcceptSharedPracticeModuleLink(request, response) {
         userId: user.id,
     });
     response.redirect(`/practice-modules/${encodeURIComponent(imported.id)}`);
-}
-export function handleAcceptSharedPracticeModuleCollectionLink(request, response) {
-    const shareId = String(request.params.shareId || '').trim();
-    if (!shareId) {
-        response.redirect('/resources');
-        return;
-    }
-    const shareLink = findPracticeModuleCollectionShareLinkById(shareId);
-    if (!shareLink || shareLink.revokedAt) {
-        response.redirect('/resources');
-        return;
-    }
-    const sourceCollection = findPracticeModuleCollectionById(shareLink.collectionId);
-    if (!sourceCollection) {
-        response.redirect('/resources');
-        return;
-    }
-    const user = request.authUser;
-    const activeProfile = request.activeProfile;
-    if (!user?.emailVerified || !activeProfile) {
-        response.redirect('/login');
-        return;
-    }
-    const imported = importPracticeModuleCollectionToProfile({
-        shareKind: 'link',
-        sourceCollection,
-        targetProfileId: activeProfile.id,
-        userId: user.id,
-    });
-    response.redirect(`/practice-modules/collections/${encodeURIComponent(imported.id)}`);
 }
 //# sourceMappingURL=handlers.js.map

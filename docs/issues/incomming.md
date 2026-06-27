@@ -15,16 +15,15 @@ probably create a plan and explicitly mention the types of exercises that will
 be generated.
 
 ---
-Un refactoring de los recursos:
-- Eliminar el recurso de Salas de Chat.
-- Introducir un nuevo recurso: Dialogos.
-- Cambiar el nombre de Modulo de Práctica a Guía de Práctica.
-- Quitar el concepto de colección de guia de practica.
-- Introducir el concepto de Recursos, que agrupa a cada recurso de la plataforma:
-    - Tarea
-    - Guía de Práctica
-    - Diálogo: quiás deba permitir más de 1 personaje.
-    - Carpeta de recursos. Para agrupar y organizar los recursos de la plataforma. También se pueden compartir.
+Resource refactor:
+- Remove `Salas de Chat` as a standalone resource.
+- Introduce `Diálogos` as a future resource.
+- Rename `Módulo de Práctica` to `Guía de Práctica`.
+- Introduce `Recursos` as the unified area for platform resources:
+    - `Tarea`
+    - `Guía de Práctica`
+    - `Diálogo`, possibly with more than one character.
+    - `Carpeta de recursos`, used to organize and share resources.
 ---
 
 - Quitar las tools de las converaciones con mister f. Lo mejor es darle la opción al usuario via UI de crear un recurso en el contexto de esa conversación.
@@ -38,4 +37,3 @@ Debemos pensar en standarizar los niveles de los recursos: A!, A2, B1, B2, C1, C
 ---
 
 - Pernsar en un marketplace.
-

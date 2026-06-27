@@ -62,7 +62,6 @@ They contain:
 - description
 - tutor instructions
 - profile ownership and sharing metadata
-- optional collection membership
 
 Practice modules can be:
 
@@ -91,16 +90,6 @@ It should let teachers:
 
 This area reuses the existing `quiz` and `quiz_result` contracts while
 remaining a standalone resource flow rather than a fake chat conversation.
-
-### Practice Module Collections
-
-Collections group practice modules into a named set.
-
-Collections support:
-
-- sharing
-- archival
-- ordering of contained practice modules
 
 ### Chat Rooms
 

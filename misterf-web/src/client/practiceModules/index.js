@@ -1,3 +1,5 @@
+import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
+
 function fallbackCopyText(content) {
   const textarea = document.createElement('textarea');
   textarea.value = content;
@@ -61,7 +63,7 @@ function initializePracticeModuleSharingUi() {
 
         try {
           await navigator.share({
-            title: 'Módulo de práctica compartido',
+            title: 'Guía de práctica compartida',
             url: shareFieldEl.value,
           });
         } catch {
@@ -73,28 +75,6 @@ function initializePracticeModuleSharingUi() {
 
   if (autoOpenModalEl && window.bootstrap?.Modal) {
     window.bootstrap.Modal.getOrCreateInstance(autoOpenModalEl).show();
-  }
-}
-
-function initializePracticeModuleCollectionForms() {
-  const formEls = document.querySelectorAll('[data-practice-module-add-to-collection-form]');
-
-  for (const formEl of formEls) {
-    const selectEl = formEl.querySelector('[data-practice-module-collection-select]');
-    if (!(selectEl instanceof HTMLSelectElement)) {
-      continue;
-    }
-
-    const syncAction = () => {
-      const selectedOption = selectEl.selectedOptions[0];
-      const action = selectedOption?.dataset.action;
-      if (action) {
-        formEl.setAttribute('action', action);
-      }
-    };
-
-    syncAction();
-    selectEl.addEventListener('change', syncAction);
   }
 }
 
@@ -140,56 +120,7 @@ function initializeResourceGenerationPendingUi() {
   }
 }
 
-function initializeCollectionModulePickers() {
-  const pickerForms = document.querySelectorAll('[data-collection-module-picker]');
-
-  for (const formEl of pickerForms) {
-    const filterEl = formEl.querySelector('[data-collection-module-filter]');
-    const itemEls = Array.from(formEl.querySelectorAll('[data-collection-module-item]'));
-    const emptyEl = formEl.querySelector('[data-collection-module-empty]');
-
-    if (!(filterEl instanceof HTMLInputElement) || itemEls.length === 0) {
-      continue;
-    }
-
-    const applyFilter = () => {
-      const query = filterEl.value.trim().toLowerCase();
-      let visibleCount = 0;
-
-      for (const itemEl of itemEls) {
-        const haystack = itemEl.getAttribute('data-search-text') || '';
-        const isVisible = !query || haystack.includes(query);
-        itemEl.classList.toggle('d-none', !isVisible);
-        if (isVisible) {
-          visibleCount += 1;
-        }
-      }
-
-      if (emptyEl) {
-        emptyEl.classList.toggle('d-none', visibleCount > 0);
-      }
-    };
-
-    filterEl.addEventListener('input', applyFilter);
-    applyFilter();
-  }
-}
-
-function initializeListGroupDropdownStacking() {
-  for (const dropdownEl of document.querySelectorAll('.list-group-item .dropdown')) {
-    dropdownEl.addEventListener('show.bs.dropdown', () => {
-      dropdownEl.closest('.list-group-item')?.classList.add('dropdown-open');
-    });
-
-    dropdownEl.addEventListener('hide.bs.dropdown', () => {
-      dropdownEl.closest('.list-group-item')?.classList.remove('dropdown-open');
-    });
-  }
-}
-
 initializePracticeModuleSharingUi();
-initializePracticeModuleCollectionForms();
-initializeCollectionModulePickers();
 initializeAutoOpenModal();
 initializeResourceGenerationPendingUi();
 initializeListGroupDropdownStacking();

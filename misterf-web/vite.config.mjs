@@ -16,6 +16,7 @@ export default defineConfig({
           'src/client/telemetry/clientErrorReporter.js',
         ),
         'practice-modules': path.resolve('src/client/practiceModules/index.js'),
+        resources: path.resolve('src/client/resources/index.js'),
       },
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',

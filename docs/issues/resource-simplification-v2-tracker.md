@@ -39,23 +39,25 @@ Status legend:
 
 ## Implementation Rules
 
-- [ ] Review `misterf-web/src/server/db/migrations.ts` before every persisted
+- [x] Review `misterf-web/src/server/db/migrations.ts` before every persisted
   data change.
-- [ ] Decide whether V2 lands before production baseline reset or after
+- [x] Decide whether V2 lands before production baseline reset or after
   production forward-only migrations begin.
-- [ ] Keep project docs, comments, tests, and code identifiers in English.
-- [ ] Keep Spanish only for intentional learner/user-facing UI copy.
-- [ ] Preserve Bootstrap/Bootswatch conventions and the theme-surface rules.
-- [ ] Avoid keeping old and new resource systems active longer than necessary.
-- [ ] Preserve or redirect public links where data already exists.
+- [x] Keep project docs, comments, tests, and code identifiers in English.
+- [x] Keep Spanish only for intentional learner/user-facing UI copy.
+- [x] Preserve Bootstrap/Bootswatch conventions and the theme-surface rules.
+- [~] Avoid keeping old and new resource systems active longer than necessary.
+- [~] Preserve or redirect public links where data already exists.
 - [ ] Keep credit policy explicit for every AI authoring or evaluation flow.
-- [ ] Add tests at the repository, route, and render layers for each migration
+- [~] Add tests at the repository, route, and render layers for each migration
   slice.
 
 ## Current Milestone
 
-Current status: **Slice 2 resource shell implemented while dedicated assignment
-and practice-module detail routes remain active**.
+Current status: **Slice 2 resource shell is implemented, with parts of Slices
+4, 5, and 6 already in place. Dedicated assignment and practice-module runtime
+routes remain active while the resource catalog owns listing and folder
+organization.**
 
 Completed:
 
@@ -67,24 +69,32 @@ Completed:
 - [x] Draft generic resource schema plan.
 - [x] Add `add_resource_foundation` migration.
 - [x] Add generic resource repository primitives.
-- [x] Mirror assignment, practice module, and legacy collection metadata into
-  `resources`.
+- [x] Mirror assignment and practice module metadata into `resources`.
 - [x] Add migration and repository tests for resource foundation behavior.
 - [x] Add unified `Recursos` page shell.
 - [x] Replace the sidebar assignment/practice-module entries with `Recursos`.
 - [x] List assignments, practice guides, and resource folders together.
-- [x] Add search, type filters, archived toggle, and grid/list layout support.
+- [x] Add grid/list layout support.
+- [x] Keep search and type filters out of the first resource page iteration per
+  product review.
 - [x] Add resource folder creation.
 - [x] Add folder detail pages without folder nesting.
 - [x] Add move-to-folder and remove-from-folder actions for assignable
   resources.
+- [x] Add generic archive/restore actions for resources.
+- [x] Redirect `/assignments` and `/practice-modules` list routes to
+  `/resources`.
 - [x] Keep old assignment and practice-module detail routes reachable from
   resource cards.
+- [x] Keep practice-module detail pages visible while the active navigation
+  entry is `Recursos`.
+- [x] Remove resource favorite state from schema, repository APIs, routes, UI,
+  tests, and current docs.
 
 Next recommended step:
 
-- [ ] Continue with Slice 3: user-facing rename from `Módulo de práctica` to
-  `Guía de Práctica`.
+- [ ] Finish Slice 3 user-facing rename from `Módulo de práctica` to
+  `Guía de Práctica`, then finish folder sharing and generic resource cleanup.
 
 ## Slice 0: Terminology And Scope Freeze
 
@@ -92,35 +102,35 @@ Goal: agree on names and resource boundaries before touching code.
 
 Tasks:
 
-- [ ] Confirm Spanish UI labels:
+- [x] Confirm Spanish UI labels:
   - `Recursos`
   - `Tareas`
   - `Guías de Práctica`
   - `Diálogos`
   - `Carpetas`
-- [ ] Confirm internal names:
+- [x] Confirm internal names:
   - `Resource`
   - `Assignment`
   - `PracticeGuide`
   - `Dialogue`
   - `ResourceFolder`
-- [ ] Decide whether `PracticeModule` is renamed internally in V2 or kept as a
+- [x] Decide whether `PracticeModule` is renamed internally in V2 or kept as a
   compatibility implementation detail.
 - [x] Decide whether folder nesting is in V2.
 - [x] Decide whether folder sharing is live or snapshot/copy based.
 - [ ] Decide whether `Diálogos` are scripted, AI roleplay, or hybrid.
 - [ ] Decide whether chatroom data must be migrated or can be discarded.
-- [ ] Update this tracker with decisions.
+- [x] Update this tracker with decisions.
 
 Exit criteria:
 
-- [ ] No open naming ambiguity blocks schema work.
-- [ ] The V2 resource type list is stable.
-- [ ] The migration strategy is chosen.
+- [x] No open naming ambiguity blocks schema work.
+- [x] The V2 resource type list is stable.
+- [x] The migration strategy is chosen.
 
 Verification:
 
-- [ ] Documentation review.
+- [x] Documentation review.
 
 ## Slice 1: Generic Resource Schema Plan
 
@@ -131,9 +141,7 @@ Tasks:
 - [x] Review current migration history.
 - [x] Inventory existing tables:
   - [x] `practice_modules`
-  - [x] `practice_module_collections`
   - [x] `practice_module_share_links`
-  - [x] `practice_module_collection_share_links`
   - [x] `assignments`
   - [x] `assignment_share_links`
   - [x] `chat_rooms`
@@ -158,7 +166,7 @@ Exit criteria:
 
 - [x] Schema shape is documented before implementation.
 - [x] First implementation is locally testable as an incremental migration.
-- [ ] Migration baseline/reset path is confirmed before production deployment.
+- [x] Migration baseline/reset path is confirmed before production deployment.
 
 Verification:
 
@@ -176,23 +184,23 @@ Tasks:
 - [x] Add resource route shell.
 - [x] Add `Recursos` sidebar entry.
 - [x] Add resource list page.
-- [x] Add type filters.
-- [x] Add search.
+- [x] Keep type filters out of the first implementation per product review.
+- [x] Keep search out of the first implementation per product review.
 - [x] Add grid/list layout support.
 - [x] Add empty states.
-- [x] Add create-resource actions.
+- [x] Add single `Nuevo` create-resource menu.
 - [x] Add resource folder creation.
 - [x] Add resource folder detail pages.
 - [x] Add move-to-folder and remove-from-folder actions.
+- [x] Add generic archive/restore resource actions.
 - [ ] Add common resource card/list-item partials.
 - [x] Keep old routes reachable during this slice.
-- [x] Add render smoke tests.
+- [x] Add route and architecture smoke tests.
 
 Exit criteria:
 
 - [x] Users can open `Recursos`.
-- [x] Existing assignments/practice modules can appear in the resource list, or
-  placeholders are clearly non-destructive while the schema slice is pending.
+- [x] Existing assignments/practice modules appear in the resource list.
 - [x] Old feature pages still work.
 
 Verification:
@@ -200,7 +208,8 @@ Verification:
 - [x] `npm run typecheck`
 - [x] `npm run test:typecheck`
 - [x] `npm test`
-- [x] EJS render smoke for the resource list.
+- [x] Route/architecture smoke for resource list redirects and resource-mounted
+  practice-module pages.
 
 ## Slice 3: Practice Module To Practice Guide
 
@@ -208,55 +217,56 @@ Goal: rename the product concept while preserving behavior.
 
 Tasks:
 
-- [ ] Replace Spanish UI copy `Módulo de práctica` with `Guía de Práctica`.
-- [ ] Replace plural/sidebar/list labels.
-- [ ] Update page titles, buttons, empty states, modals, and share text.
-- [ ] Update docs that mention the user-facing concept.
-- [ ] Keep old URL compatibility or add redirects.
-- [ ] Decide whether code identifiers remain `practiceModule` until schema
+- [~] Replace Spanish UI copy `Módulo de práctica` with `Guía de Práctica`.
+- [x] Replace sidebar/list labels in the unified resource catalog.
+- [~] Update page titles, buttons, empty states, modals, and share text.
+- [~] Update docs that mention the user-facing concept.
+- [x] Keep old URL compatibility or add redirects.
+- [x] Decide whether code identifiers remain `practiceModule` until schema
   consolidation.
 - [ ] Add tests for visible labels where practical.
 
 Exit criteria:
 
 - [ ] Users see `Guía de Práctica` consistently.
-- [ ] Existing practice behavior is unchanged.
+- [x] Existing practice behavior is unchanged.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] Manual UI pass on guide list/detail/share/start.
+- [x] `npm run typecheck`
+- [x] `npm test`
+- [~] Manual UI pass on guide list/detail/share/start.
 
-## Slice 4: Replace Collections With Resource Folders
+## Slice 4: Use Resource Folders As The Organization Model
 
-Goal: remove practice-guide-specific collections and introduce generic folders.
+Goal: keep generic folders as the only resource organization model.
 
 Tasks:
 
-- [ ] Add resource folder data model.
-- [ ] Add folder list/detail UI.
-- [ ] Add create/edit/archive/share folder actions.
-- [ ] Add add-to-folder/remove-from-folder actions.
-- [ ] Add folder breadcrumbs.
-- [ ] Add folder-aware resource list filtering.
-- [ ] Migrate practice module collections into folders if data exists.
-- [ ] Remove collection creation/edit/list UI.
-- [ ] Remove collection share UI after folder sharing exists.
-- [ ] Add repository tests for folder membership and ordering.
+- [x] Add resource folder data model.
+- [x] Add folder list/detail UI.
+- [~] Add create/edit/archive/share folder actions.
+- [x] Add add-to-folder/remove-from-folder actions.
+- [x] Add folder breadcrumbs.
+- [x] Add folder-aware resource list filtering.
+- [x] Discard the old guide-specific grouping path from the pre-production
+  baseline.
+- [x] Remove old guide-specific grouping create/edit/list UI.
+- [x] Remove old guide-specific grouping share UI after generic folders exist.
+- [x] Add repository tests for folder membership and ordering.
 
 Exit criteria:
 
-- [ ] Users can organize guides and assignments in folders.
-- [ ] No collection UI remains.
-- [ ] Existing collection data is migrated or intentionally discarded according
-  to the chosen migration strategy.
+- [x] Users can organize guides and assignments in folders.
+- [x] Only resource folder UI remains for organization.
+- [x] Existing pre-production grouping data is intentionally discarded by the
+  baseline reset strategy.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] Migration tests for fresh and migrated databases.
+- [x] `npm run typecheck`
+- [x] `npm test`
+- [x] Migration tests for fresh and migrated databases.
 
 ## Slice 5: Assignments As Resources
 
@@ -264,27 +274,27 @@ Goal: make `Tareas` first-class items in the resource catalog.
 
 Tasks:
 
-- [ ] Attach assignments to generic resources.
-- [ ] Move assignment list behavior into `Recursos` or redirect it there.
-- [ ] Preserve assignment detail/edit/attempt flows.
-- [ ] Preserve free shared-student evaluation policy.
+- [x] Attach assignments to generic resources.
+- [x] Move assignment list behavior into `Recursos` or redirect it there.
+- [x] Preserve assignment detail/edit/attempt flows.
+- [x] Preserve free shared-student evaluation policy.
 - [ ] Move assignment sharing to generic resource sharing where possible.
-- [ ] Ensure assignment attempts still snapshot assignment content.
-- [ ] Ensure progress events still record evaluated attempts.
-- [ ] Add route compatibility for existing assignment URLs if needed.
-- [ ] Update assignment docs after implementation.
+- [x] Ensure assignment attempts still snapshot assignment content.
+- [x] Ensure progress events still record evaluated attempts.
+- [x] Add route compatibility for existing assignment URLs if needed.
+- [~] Update assignment docs after implementation.
 
 Exit criteria:
 
-- [ ] Tareas appear and behave correctly from the `Recursos` list.
-- [ ] Assignment-specific runtime pages still work.
-- [ ] Existing assignment tests pass.
+- [x] Tareas appear and behave correctly from the `Recursos` list.
+- [x] Assignment-specific runtime pages still work.
+- [x] Existing assignment tests pass.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] Assignment authoring/share/attempt/result smoke.
+- [x] `npm run typecheck`
+- [x] `npm test`
+- [~] Assignment authoring/share/attempt/result smoke.
 
 ## Slice 6: Practice Guides As Resources
 
@@ -292,25 +302,25 @@ Goal: make practice guides first-class items in the resource catalog.
 
 Tasks:
 
-- [ ] Attach practice guides to generic resources.
-- [ ] Preserve guide launch into tutor conversation.
-- [ ] Preserve conversation practice-guide snapshots.
-- [ ] Migrate or redirect old practice guide share links.
-- [ ] Remove duplicated list/archive/share code where generic resource
+- [x] Attach practice guides to generic resources.
+- [x] Preserve guide launch into tutor conversation.
+- [x] Preserve conversation practice-guide snapshots.
+- [x] Migrate or redirect old practice guide share links.
+- [~] Remove duplicated list/archive/share code where generic resource
   behavior now owns it.
 - [ ] Update home suggestions to reference resource ids where useful.
 
 Exit criteria:
 
-- [ ] Practice guides appear and behave correctly from `Recursos`.
-- [ ] Starting tutor practice from a guide still stores a frozen snapshot.
-- [ ] Old practice guide paths have a clear redirect or compatibility path.
+- [x] Practice guides appear and behave correctly from `Recursos`.
+- [x] Starting tutor practice from a guide still stores a frozen snapshot.
+- [x] Old practice guide paths have a clear redirect or compatibility path.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] Guide launch/share/import smoke.
+- [x] `npm run typecheck`
+- [x] `npm test`
+- [~] Guide launch/share/import smoke.
 
 ## Slice 7: Remove Chat Rooms
 
@@ -348,7 +358,7 @@ Goal: remove duplicated sharing models.
 
 Tasks:
 
-- [ ] Add/finish generic resource share links.
+- [x] Add/finish generic resource share links.
 - [ ] Add profile sharing/import support where required.
 - [ ] Migrate old practice guide and assignment links.
 - [ ] Define folder sharing behavior.
@@ -400,7 +410,7 @@ Goal: remove old names, dead code, and stale docs before introducing dialogues.
 
 Tasks:
 
-- [ ] Remove unused practice module collection files/types.
+- [x] Remove unused practice-module grouping files/types.
 - [ ] Remove unused chatroom files/types.
 - [ ] Remove duplicated resource card/list helpers.
 - [ ] Update [README](../README.md).
@@ -412,7 +422,6 @@ Tasks:
 - [ ] Run broad grep for old user-facing labels:
   - `Módulos de práctica`
   - `Practice Module`
-  - `practice module collection`
   - `chatroom`
   - `Salas de chat`
 - [ ] Run full test suite.
@@ -420,7 +429,7 @@ Tasks:
 Exit criteria:
 
 - [ ] The resource model is coherent in code, docs, UI, and tests.
-- [ ] No stale chatroom or collection feature surface remains.
+- [ ] No stale chatroom feature surface remains.
 - [ ] The resource foundation is ready for the final dialogue feature slice.
 
 Verification:

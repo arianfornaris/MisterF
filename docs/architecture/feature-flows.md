@@ -146,14 +146,6 @@ independently. The Spanish UI label is `Tareas`.
 6. Mr. F continues with targeted practice instead of grading the same attempt
    again.
 
-## Practice Module Collection Flow
-
-1. The user creates a collection.
-2. Practice modules are added to the collection.
-3. Ordered collection membership is stored in the database.
-4. The detail page shows the collection and its modules.
-5. The collection can be shared, archived, or restored.
-
 ## Chat Room Flow
 
 ### Create room

@@ -409,9 +409,7 @@ function toStoredChatRoomMessage(row) {
 function toStoredPracticeModule(row) {
     return {
         archivedAt: row.archived_at,
-        collectionId: row.collection_id,
         id: row.id,
-        positionInCollection: row.position_in_collection,
         profileId: row.profile_id,
         sharedVia: row.shared_via,
         sourcePracticeModuleId: row.source_practice_module_id,
@@ -425,41 +423,9 @@ function toStoredPracticeModule(row) {
         updatedAt: row.updated_at,
     };
 }
-function toStoredPracticeModuleCollection(row) {
-    return {
-        archivedAt: row.archived_at,
-        id: row.id,
-        userId: row.user_id,
-        profileId: row.profile_id,
-        sharedVia: row.shared_via,
-        sourceCollectionId: row.source_collection_id,
-        sourceProfileId: row.source_profile_id,
-        sourceUserId: row.source_user_id,
-        title: row.title,
-        description: row.description,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-    };
-}
-function toStoredPracticeModuleCollectionItem(row) {
-    return {
-        collectionId: row.collection_id,
-        practiceModuleId: row.practice_module_id,
-        position: row.position,
-        createdAt: row.created_at,
-    };
-}
 function toStoredPracticeModuleShareLink(row) {
     return {
         practiceModuleId: row.practice_module_id,
-        createdAt: row.created_at,
-        id: row.id,
-        revokedAt: row.revoked_at,
-    };
-}
-function toStoredPracticeModuleCollectionShareLink(row) {
-    return {
-        collectionId: row.collection_id,
         createdAt: row.created_at,
         id: row.id,
         revokedAt: row.revoked_at,
@@ -700,13 +666,6 @@ export function updateResourceFolder(input) {
             title: input.title,
             userId: input.userId,
         });
-        db.prepare(`
-        UPDATE practice_module_collections
-        SET title = ?,
-            description = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `).run(input.title, input.description, input.folderId, input.userId);
     });
     transaction();
     return findResourceForUser(input.folderId, input.userId);
@@ -735,14 +694,6 @@ export function archiveResourceForUser(resourceId, userId) {
           WHERE id = ? AND user_id = ?
         `).run(resourceId, userId);
         }
-        else {
-            db.prepare(`
-          UPDATE practice_module_collections
-          SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = ? AND user_id = ?
-        `).run(resourceId, userId);
-        }
     });
     transaction();
     return findResourceForUser(resourceId, userId);
@@ -766,14 +717,6 @@ export function restoreResourceForUser(resourceId, userId) {
         else if (resource.type === 'practice_guide') {
             db.prepare(`
           UPDATE practice_modules
-          SET archived_at = NULL,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = ? AND user_id = ?
-        `).run(resourceId, userId);
-        }
-        else {
-            db.prepare(`
-          UPDATE practice_module_collections
           SET archived_at = NULL,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -2472,34 +2415,14 @@ export function createPracticeModule(input) {
           title,
           description,
           tutor_instructions,
-          collection_id,
-          position_in_collection,
           source_practice_module_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-            .run(id, input.userId, input.profileId, input.title, input.description, input.tutorInstructions, input.collectionId ?? null, input.positionInCollection ?? null, input.sourcePracticeModuleId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
-        if (input.collectionId) {
-            const nextPositionRow = db
-                .prepare(`
-            SELECT COALESCE(MAX(position), 0) AS max_position
-            FROM resource_folder_items
-            WHERE folder_id = ?
-          `)
-                .get(input.collectionId);
-            db.prepare(`
-          INSERT INTO resource_folder_items (
-            folder_id,
-            resource_id,
-            resource_type,
-            position
-          )
-          VALUES (?, ?, 'practice_guide', ?)
-        `).run(input.collectionId, id, input.positionInCollection ?? nextPositionRow.max_position + 1);
-        }
+            .run(id, input.userId, input.profileId, input.title, input.description, input.tutorInstructions, input.sourcePracticeModuleId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
     });
     transaction();
     const practiceModule = findPracticeModuleForUser(id, input.userId);
@@ -2513,9 +2436,7 @@ export function findPracticeModuleForUser(id, userId) {
         .prepare(`
         SELECT
           archived_at,
-          collection_id,
           id,
-          position_in_collection,
           user_id,
           title,
           description,
@@ -2538,9 +2459,7 @@ export function findPracticeModuleById(id) {
         .prepare(`
         SELECT
           archived_at,
-          collection_id,
           id,
-          position_in_collection,
           user_id,
           title,
           description,
@@ -2563,9 +2482,7 @@ export function listPracticeModulesForProfile(userId, profileId) {
         .prepare(`
         SELECT
           archived_at,
-          collection_id,
           id,
-          position_in_collection,
           user_id,
           title,
           description,
@@ -2583,424 +2500,6 @@ export function listPracticeModulesForProfile(userId, profileId) {
       `)
         .all(userId, profileId);
     return rows.map(toStoredPracticeModule);
-}
-export function createPracticeModuleCollection(input) {
-    const id = randomUUID();
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        insertResource(db, {
-            description: input.description,
-            id,
-            profileId: input.profileId,
-            sharedVia: input.sharedVia ?? null,
-            sourceProfileId: input.sourceProfileId ?? null,
-            sourceResourceId: input.sourceCollectionId ?? null,
-            sourceUserId: input.sourceUserId ?? null,
-            title: input.title,
-            type: 'resource_folder',
-            userId: input.userId,
-        });
-        db.prepare('INSERT INTO resource_folders (id) VALUES (?)').run(id);
-        db.prepare(`
-        INSERT INTO practice_module_collections (
-          id,
-          user_id,
-          profile_id,
-          title,
-          description,
-          archived_at,
-          source_collection_id,
-          source_user_id,
-          source_profile_id,
-          shared_via
-        )
-        VALUES (?, ?, ?, ?, ?, NULL, ?, ?, ?, ?)
-      `)
-            .run(id, input.userId, input.profileId, input.title, input.description, input.sourceCollectionId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
-    });
-    transaction();
-    const collection = findPracticeModuleCollectionForUser(id, input.userId);
-    if (!collection) {
-        throw new Error('Could not load newly created practice module collection.');
-    }
-    return collection;
-}
-export function findPracticeModuleCollectionForUser(id, userId) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
-        FROM practice_module_collections
-        WHERE id = ? AND user_id = ?
-      `)
-        .get(id, userId);
-    return row ? toStoredPracticeModuleCollection(row) : null;
-}
-export function findPracticeModuleCollectionById(id) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
-        FROM practice_module_collections
-        WHERE id = ?
-      `)
-        .get(id);
-    return row ? toStoredPracticeModuleCollection(row) : null;
-}
-export function listPracticeModuleCollectionsForProfile(userId, profileId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
-        FROM practice_module_collections
-        WHERE user_id = ? AND profile_id = ?
-        ORDER BY updated_at DESC, created_at DESC
-      `)
-        .all(userId, profileId);
-    return rows.map(toStoredPracticeModuleCollection);
-}
-export function updatePracticeModuleCollection(input) {
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        updateResourceMetadata(db, {
-            description: input.description,
-            id: input.collectionId,
-            title: input.title,
-            userId: input.userId,
-        });
-        db.prepare(`
-        UPDATE practice_module_collections
-        SET title = ?,
-            description = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `)
-            .run(input.title, input.description, input.collectionId, input.userId);
-    });
-    transaction();
-    return findPracticeModuleCollectionForUser(input.collectionId, input.userId);
-}
-export function findImportedPracticeModuleCollectionForProfile(input) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, user_id, profile_id, title, description, archived_at, source_collection_id, source_user_id, source_profile_id, shared_via, created_at, updated_at
-        FROM practice_module_collections
-        WHERE user_id = ?
-          AND profile_id = ?
-          AND source_collection_id = ?
-        ORDER BY updated_at DESC, created_at DESC
-        LIMIT 1
-      `)
-        .get(input.userId, input.profileId, input.sourceCollectionId);
-    return row ? toStoredPracticeModuleCollection(row) : null;
-}
-export function archivePracticeModuleCollectionForUser(collectionId, userId) {
-    const collection = findPracticeModuleCollectionForUser(collectionId, userId);
-    if (!collection) {
-        return null;
-    }
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        archiveResource(db, collectionId, userId);
-        db.prepare(`
-        UPDATE practice_module_collections
-        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `).run(collectionId, userId);
-        db.prepare(`
-        UPDATE practice_modules
-        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
-            updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = ? AND collection_id = ?
-      `).run(userId, collectionId);
-        db.prepare(`
-        UPDATE resources
-        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
-            updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = ?
-          AND id IN (
-            SELECT resource_id
-            FROM resource_folder_items
-            WHERE folder_id = ?
-          )
-      `).run(userId, collectionId);
-    });
-    transaction();
-    return findPracticeModuleCollectionForUser(collectionId, userId);
-}
-export function restorePracticeModuleCollectionForUser(collectionId, userId) {
-    const collection = findPracticeModuleCollectionForUser(collectionId, userId);
-    if (!collection) {
-        return null;
-    }
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        restoreResource(db, collectionId, userId);
-        db.prepare(`
-        UPDATE practice_module_collections
-        SET archived_at = NULL,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `).run(collectionId, userId);
-        db.prepare(`
-        UPDATE practice_modules
-        SET archived_at = NULL,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = ? AND collection_id = ?
-      `).run(userId, collectionId);
-        db.prepare(`
-        UPDATE resources
-        SET archived_at = NULL,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = ?
-          AND id IN (
-            SELECT resource_id
-            FROM resource_folder_items
-            WHERE folder_id = ?
-          )
-      `).run(userId, collectionId);
-    });
-    transaction();
-    return findPracticeModuleCollectionForUser(collectionId, userId);
-}
-export function listPracticeModuleCollectionItems(collectionId, userId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT
-          collection_id,
-          id AS practice_module_id,
-          COALESCE(position_in_collection, 0) AS position,
-          created_at
-        FROM practice_modules
-        WHERE collection_id = ?
-          AND user_id = ?
-        ORDER BY position_in_collection ASC, created_at ASC
-      `)
-        .all(collectionId, userId);
-    return rows.map(toStoredPracticeModuleCollectionItem);
-}
-export function listPracticeModulesForCollection(collectionId, userId) {
-    return listPracticeModuleCollectionItems(collectionId, userId)
-        .map((item) => {
-        const practiceModule = findPracticeModuleForUser(item.practiceModuleId, userId);
-        return practiceModule ? { ...item, practiceModule } : null;
-    })
-        .filter((entry) => Boolean(entry));
-}
-function listPracticeModulesByCollectionId(collectionId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT
-          archived_at,
-          collection_id,
-          id,
-          position_in_collection,
-          user_id,
-          title,
-          description,
-          tutor_instructions,
-          created_at,
-          updated_at,
-          profile_id,
-          source_practice_module_id,
-          source_user_id,
-          source_profile_id,
-          shared_via
-        FROM practice_modules
-        WHERE collection_id = ?
-        ORDER BY position_in_collection ASC, created_at ASC
-      `)
-        .all(collectionId);
-    return rows.map(toStoredPracticeModule);
-}
-function normalizePracticeModuleCollectionPositions(collectionId) {
-    const db = getDb();
-    const rows = db
-        .prepare(`
-        SELECT
-          collection_id,
-          id AS practice_module_id,
-          COALESCE(position_in_collection, 0) AS position,
-          created_at
-        FROM practice_modules
-        WHERE collection_id = ?
-        ORDER BY position_in_collection ASC, created_at ASC
-      `)
-        .all(collectionId);
-    const update = db.prepare(`
-      UPDATE practice_modules
-      SET position_in_collection = ?,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE collection_id = ? AND id = ?
-    `);
-    rows.forEach((row, index) => {
-        update.run(index + 1, row.collection_id, row.practice_module_id);
-    });
-}
-export function listPracticeModuleCollectionsContainingModule(practiceModuleId, userId) {
-    const practiceModule = findPracticeModuleForUser(practiceModuleId, userId);
-    if (!practiceModule?.collectionId) {
-        return [];
-    }
-    const collection = findPracticeModuleCollectionForUser(practiceModule.collectionId, userId);
-    return collection ? [collection] : [];
-}
-export function addPracticeModuleToCollection(input) {
-    const collection = findPracticeModuleCollectionForUser(input.collectionId, input.userId);
-    const practiceModule = findPracticeModuleForUser(input.practiceModuleId, input.userId);
-    if (!collection || !practiceModule || collection.profileId !== practiceModule.profileId) {
-        return false;
-    }
-    const db = getDb();
-    if (practiceModule.collectionId === input.collectionId) {
-        return true;
-    }
-    const nextPositionRow = db
-        .prepare(`
-        SELECT COALESCE(MAX(position_in_collection), 0) AS max_position
-        FROM practice_modules
-        WHERE collection_id = ?
-      `)
-        .get(input.collectionId);
-    const previousCollectionId = practiceModule.collectionId;
-    const nextPosition = nextPositionRow.max_position + 1;
-    db.prepare(`
-      UPDATE practice_modules
-      SET collection_id = ?,
-          position_in_collection = ?,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND user_id = ?
-    `).run(input.collectionId, nextPosition, input.practiceModuleId, input.userId);
-    db.prepare(`
-      INSERT INTO resource_folder_items (
-        folder_id,
-        resource_id,
-        resource_type,
-        position
-      )
-      VALUES (?, ?, 'practice_guide', ?)
-      ON CONFLICT(resource_id) DO UPDATE SET
-        folder_id = excluded.folder_id,
-        resource_type = excluded.resource_type,
-        position = excluded.position,
-        updated_at = CURRENT_TIMESTAMP
-    `).run(input.collectionId, input.practiceModuleId, nextPosition);
-    if (previousCollectionId) {
-        normalizePracticeModuleCollectionPositions(previousCollectionId);
-        normalizeResourceFolderPositions(previousCollectionId);
-    }
-    db.prepare(`
-      UPDATE practice_module_collections
-      SET updated_at = CURRENT_TIMESTAMP
-      WHERE id IN (?, ?)
-    `).run(input.collectionId, previousCollectionId ?? input.collectionId);
-    db.prepare(`
-      UPDATE resources
-      SET updated_at = CURRENT_TIMESTAMP
-      WHERE id IN (?, ?, ?)
-    `).run(input.collectionId, previousCollectionId ?? input.collectionId, input.practiceModuleId);
-    normalizeResourceFolderPositions(input.collectionId);
-    return true;
-}
-export function removePracticeModuleFromCollection(input) {
-    const collection = findPracticeModuleCollectionForUser(input.collectionId, input.userId);
-    if (!collection) {
-        return false;
-    }
-    const db = getDb();
-    const result = db.prepare(`
-      UPDATE practice_modules
-      SET collection_id = NULL,
-          position_in_collection = NULL,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE collection_id = ? AND id = ? AND user_id = ?
-    `).run(input.collectionId, input.practiceModuleId, input.userId);
-    if (result.changes < 1) {
-        return false;
-    }
-    db.prepare(`
-      DELETE FROM resource_folder_items
-      WHERE folder_id = ? AND resource_id = ?
-    `).run(input.collectionId, input.practiceModuleId);
-    normalizePracticeModuleCollectionPositions(input.collectionId);
-    normalizeResourceFolderPositions(input.collectionId);
-    db.prepare(`
-      UPDATE practice_module_collections
-      SET updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `).run(input.collectionId);
-    db.prepare(`
-      UPDATE resources
-      SET updated_at = CURRENT_TIMESTAMP
-      WHERE id IN (?, ?)
-    `).run(input.collectionId, input.practiceModuleId);
-    return true;
-}
-export function movePracticeModuleCollectionItem(input) {
-    const collection = findPracticeModuleCollectionForUser(input.collectionId, input.userId);
-    if (!collection) {
-        return false;
-    }
-    const items = listPracticeModuleCollectionItems(input.collectionId, input.userId);
-    const index = items.findIndex((item) => item.practiceModuleId === input.practiceModuleId);
-    if (index < 0) {
-        return false;
-    }
-    const swapIndex = input.direction === 'up' ? index - 1 : index + 1;
-    if (swapIndex < 0 || swapIndex >= items.length) {
-        return false;
-    }
-    const current = items[index];
-    const other = items[swapIndex];
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        db.prepare(`
-        UPDATE practice_modules
-        SET position_in_collection = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE collection_id = ? AND id = ?
-      `).run(-1, input.collectionId, current.practiceModuleId);
-        db.prepare(`
-        UPDATE practice_modules
-        SET position_in_collection = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE collection_id = ? AND id = ?
-      `).run(current.position, input.collectionId, other.practiceModuleId);
-        db.prepare(`
-        UPDATE practice_modules
-        SET position_in_collection = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE collection_id = ? AND id = ?
-      `).run(other.position, input.collectionId, current.practiceModuleId);
-        db.prepare(`
-        UPDATE practice_module_collections
-        SET updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `).run(input.collectionId);
-        db.prepare(`
-        UPDATE resource_folder_items
-        SET position = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE folder_id = ? AND resource_id = ?
-      `).run(-1, input.collectionId, current.practiceModuleId);
-        db.prepare(`
-        UPDATE resource_folder_items
-        SET position = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE folder_id = ? AND resource_id = ?
-      `).run(current.position, input.collectionId, other.practiceModuleId);
-        db.prepare(`
-        UPDATE resource_folder_items
-        SET position = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE folder_id = ? AND resource_id = ?
-      `).run(other.position, input.collectionId, current.practiceModuleId);
-        db.prepare(`
-        UPDATE resources
-        SET updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `).run(input.collectionId);
-    });
-    transaction();
-    return true;
 }
 export function deletePracticeModuleForUser(id, userId) {
     const db = getDb();
@@ -3086,9 +2585,7 @@ export function findImportedPracticeModuleForProfile(input) {
         .prepare(`
         SELECT
           archived_at,
-          collection_id,
           id,
-          position_in_collection,
           user_id,
           title,
           description,
@@ -3131,43 +2628,6 @@ export function importPracticeModuleToProfile(input) {
         userId: input.userId,
     });
 }
-export function importPracticeModuleCollectionToProfile(input) {
-    const existing = findImportedPracticeModuleCollectionForProfile({
-        profileId: input.targetProfileId,
-        sourceCollectionId: input.sourceCollection.id,
-        userId: input.userId,
-    });
-    if (existing) {
-        return existing;
-    }
-    const importedCollection = createPracticeModuleCollection({
-        description: input.sourceCollection.description,
-        profileId: input.targetProfileId,
-        sharedVia: input.shareKind,
-        sourceCollectionId: input.sourceCollection.id,
-        sourceProfileId: input.sourceCollection.profileId,
-        sourceUserId: input.sourceCollection.userId,
-        title: input.sourceCollection.title,
-        userId: input.userId,
-    });
-    const sourceModules = listPracticeModulesByCollectionId(input.sourceCollection.id);
-    sourceModules.forEach((sourceModule, index) => {
-        createPracticeModule({
-            collectionId: importedCollection.id,
-            description: sourceModule.description,
-            positionInCollection: index + 1,
-            profileId: input.targetProfileId,
-            sharedVia: input.shareKind,
-            sourcePracticeModuleId: sourceModule.id,
-            sourceProfileId: sourceModule.profileId,
-            sourceUserId: sourceModule.userId,
-            title: sourceModule.title,
-            tutorInstructions: sourceModule.tutorInstructions,
-            userId: input.userId,
-        });
-    });
-    return importedCollection;
-}
 export function findPracticeModuleShareLinkById(id) {
     const row = getDb()
         .prepare(`
@@ -3177,16 +2637,6 @@ export function findPracticeModuleShareLinkById(id) {
       `)
         .get(id);
     return row ? toStoredPracticeModuleShareLink(row) : null;
-}
-export function findPracticeModuleCollectionShareLinkById(id) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, collection_id, created_at, revoked_at
-        FROM practice_module_collection_share_links
-        WHERE id = ?
-      `)
-        .get(id);
-    return row ? toStoredPracticeModuleCollectionShareLink(row) : null;
 }
 export function findPracticeModuleShareLinkForPracticeModule(practiceModuleId) {
     const row = getDb()
@@ -3199,18 +2649,6 @@ export function findPracticeModuleShareLinkForPracticeModule(practiceModuleId) {
       `)
         .get(practiceModuleId);
     return row ? toStoredPracticeModuleShareLink(row) : null;
-}
-export function findPracticeModuleCollectionShareLinkForCollection(collectionId) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, collection_id, created_at, revoked_at
-        FROM practice_module_collection_share_links
-        WHERE collection_id = ?
-          AND revoked_at IS NULL
-        LIMIT 1
-      `)
-        .get(collectionId);
-    return row ? toStoredPracticeModuleCollectionShareLink(row) : null;
 }
 export function getOrCreatePracticeModuleShareLink(practiceModuleId) {
     const existing = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
@@ -3234,31 +2672,6 @@ export function getOrCreatePracticeModuleShareLink(practiceModuleId) {
     const created = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
     if (!created) {
         throw new Error('Could not load newly created practice-module share link.');
-    }
-    return created;
-}
-export function getOrCreatePracticeModuleCollectionShareLink(collectionId) {
-    const existing = findPracticeModuleCollectionShareLinkForCollection(collectionId);
-    if (existing) {
-        upsertResourceShareLink(getDb(), existing.id, collectionId);
-        return existing;
-    }
-    const id = randomBytes(18).toString('base64url');
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        db.prepare(`
-        INSERT INTO practice_module_collection_share_links (id, collection_id)
-        VALUES (?, ?)
-        ON CONFLICT(collection_id) DO UPDATE SET
-          revoked_at = NULL
-      `)
-            .run(id, collectionId);
-        upsertResourceShareLink(db, id, collectionId);
-    });
-    transaction();
-    const created = findPracticeModuleCollectionShareLinkForCollection(collectionId);
-    if (!created) {
-        throw new Error('Could not load newly created practice module collection share link.');
     }
     return created;
 }

@@ -226,7 +226,7 @@ The suggestion engine can use existing product data.
 
 - saved practice modules
 - recently used modules
-- collections
+- resource folders
 - shared/imported resources
 - generated resources not yet practiced
 

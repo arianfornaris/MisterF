@@ -16,10 +16,6 @@ import {
   formatRelativeTime,
   getHomeAuthMessage,
 } from '../pages/shell.js';
-import {
-  resolveResourceLayout,
-  resourcesLayoutCookieName,
-} from '../pages/resourceLayout.js';
 
 type ResourceListItem = StoredResource & {
   actionLabel: string;
@@ -163,11 +159,6 @@ export function renderResourcesListPage(request: Request, response: Response): v
     return;
   }
 
-  const resourceLayout = resolveResourceLayout(
-    request,
-    response,
-    resourcesLayoutCookieName,
-  );
   const scopedResources = listResourcesForProfile({
     folderId,
     includeArchived: false,
@@ -178,9 +169,6 @@ export function renderResourcesListPage(request: Request, response: Response): v
   const allResources = selectedFolder
     ? scopedResources
     : removeFiledResourcesFromRoot(scopedResources, auth.user.id);
-  const selectedFolderItemCount = selectedFolder
-    ? listResourceFolderItems(selectedFolder.id, auth.user.id).length
-    : 0;
   const folderOptions = listResourcesForProfile({
     includeArchived: false,
     profileId: auth.activeProfile.id,
@@ -202,9 +190,7 @@ export function renderResourcesListPage(request: Request, response: Response): v
     }),
     folderOptions: folderOptions.map(buildResourceListItem),
     resourceItems: allResources.map(buildResourceListItem),
-    resourceLayout,
     selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
-    selectedFolderItemCount,
   });
 }
 

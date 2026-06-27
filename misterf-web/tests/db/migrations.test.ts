@@ -115,7 +115,6 @@ describe('database migrations', () => {
       'learner_progress_events',
       'learner_progress_profiles',
       'messages',
-      'practice_module_collections',
       'practice_modules',
       'profiles',
       'resource_folder_items',
@@ -130,6 +129,8 @@ describe('database migrations', () => {
     ]));
     expect(tableNames).not.toContain('assignment_authoring_revisions');
     expect(tableNames).not.toContain('assignment_authoring_sessions');
+    expect(tableNames).not.toContain('practice_module_collections');
+    expect(tableNames).not.toContain('practice_module_collection_share_links');
 
     expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
       'learning_context',
@@ -162,6 +163,10 @@ describe('database migrations', () => {
       'rubric',
       'status',
     ]));
+    expect(getColumnNames(db, 'practice_modules')).not.toEqual(expect.arrayContaining([
+      'collection_id',
+      'position_in_collection',
+    ]));
     expect(getColumnNames(db, 'assignment_attempts')).toEqual(expect.arrayContaining([
       'claim_token',
       'guest_token',
@@ -191,7 +196,7 @@ describe('database migrations', () => {
     ]));
   });
 
-  it('backfills resources, folders, folder items, and share links from legacy resource tables', async () => {
+  it('backfills resources and share links from legacy resource tables', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-resources-'));
     process.env.DATABASE_PATH = path.join(tempDir, 'resources.sqlite');
     process.env.ENV_FILE = '/dev/null';
@@ -254,31 +259,13 @@ describe('database migrations', () => {
       )
     `).run(assignmentDraft);
     db.prepare(`
-      INSERT INTO practice_module_collections (
-        id,
-        user_id,
-        profile_id,
-        title,
-        description
-      )
-      VALUES (
-        'collection_1',
-        'user_1',
-        'profile_1',
-        'Legacy Collection',
-        'Collection description.'
-      )
-    `).run();
-    db.prepare(`
       INSERT INTO practice_modules (
         id,
         user_id,
         profile_id,
         title,
         description,
-        tutor_instructions,
-        collection_id,
-        position_in_collection
+        tutor_instructions
       )
       VALUES (
         'module_1',
@@ -286,9 +273,7 @@ describe('database migrations', () => {
         'profile_1',
         'Legacy Module',
         'Module description.',
-        'Practice modal verbs.',
-        'collection_1',
-        2
+        'Practice modal verbs.'
       )
     `).run();
     db.prepare(`
@@ -298,10 +283,6 @@ describe('database migrations', () => {
     db.prepare(`
       INSERT INTO practice_module_share_links (id, practice_module_id)
       VALUES ('module_link_1', 'module_1')
-    `).run();
-    db.prepare(`
-      INSERT INTO practice_module_collection_share_links (id, collection_id)
-      VALUES ('collection_link_1', 'collection_1')
     `).run();
 
     migrate();
@@ -314,23 +295,12 @@ describe('database migrations', () => {
     });
     expect(db.prepare('SELECT type FROM resources WHERE id = ?')
       .get('module_1')).toEqual({ type: 'practice_guide' });
-    expect(db.prepare('SELECT type FROM resources WHERE id = ?')
-      .get('collection_1')).toEqual({ type: 'resource_folder' });
-    expect(db.prepare('SELECT id FROM resource_folders WHERE id = ?')
-      .get('collection_1')).toEqual({ id: 'collection_1' });
-    expect(db.prepare('SELECT folder_id, resource_id, resource_type, position FROM resource_folder_items WHERE resource_id = ?')
-      .get('module_1')).toEqual({
-      folder_id: 'collection_1',
-      position: 2,
-      resource_id: 'module_1',
-      resource_type: 'practice_guide',
-    });
+    expect(db.prepare('SELECT COUNT(*) AS count FROM resource_folder_items')
+      .get()).toEqual({ count: 0 });
     expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
       .get('assignment_link_1')).toEqual({ resource_id: 'assignment_1' });
     expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
       .get('module_link_1')).toEqual({ resource_id: 'module_1' });
-    expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
-      .get('collection_link_1')).toEqual({ resource_id: 'collection_1' });
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 

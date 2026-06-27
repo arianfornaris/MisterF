@@ -1,0 +1,1 @@
+{"version":3,"file":"resources-C46SJ16y.js","names":[],"sources":["../../../src/client/resources/index.js"],"sourcesContent":["import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';\n\ninitializeListGroupDropdownStacking();\n"],"mappings":"oEAEA,EAAoC"}

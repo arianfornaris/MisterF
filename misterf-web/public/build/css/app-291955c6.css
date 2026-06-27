@@ -789,10 +789,6 @@ body {
   gap: 16px;
 }
 
-.resource-layout-bar {
-  margin: 1rem 0 1.15rem;
-}
-
 .resource-page-header-has-close {
   position: relative;
   padding-right: 52px;
@@ -1045,70 +1041,6 @@ body {
   margin: 0;
 }
 
-.practice-modules-page[data-resource-layout='list'] .practice-modules-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item {
-  padding: 0.75rem 1rem;
-  overflow: hidden;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item.dropdown-open {
-  overflow: visible;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-body {
-  padding-bottom: 1rem;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-footer {
-  padding-top: 0.75rem;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-text:not(.small) {
-  display: none;
-}
-
-.practice-modules-page[data-resource-layout='list'] .row.g-3,
-.practice-modules-page[data-resource-layout='list'] .list-group {
-  gap: 0;
-}
-
-.practice-modules-page[data-resource-layout='list'] [data-resource-layout-cards-class='col-12 col-xl-6'] {
-  width: 100%;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-header,
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-body,
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-footer {
-  border-left: 0;
-  border-right: 0;
-}
-
-.practice-modules-page[data-resource-layout='list'] .card-header {
-  display: none;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-footer {
-  background: transparent;
-  padding-top: 0;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-title {
-  font-size: 1.1rem;
-  font-weight: 400;
-}
-
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-footer .btn,
-.practice-modules-page[data-resource-layout='list'] .list-group-item .card-footer .btn-sm {
-  --bs-btn-padding-y: 0.18rem;
-  --bs-btn-padding-x: 0.5rem;
-  --bs-btn-font-size: 0.8rem;
-}
-
 .practice-module-card-title {
   position: relative;
   z-index: 1;
@@ -1205,11 +1137,6 @@ body {
   justify-content: flex-end;
   gap: 12px;
   margin-top: 8px;
-}
-
-.practice-module-collection-picker-list {
-  max-height: 320px;
-  overflow: auto;
 }
 
 .practice-module-help-row {

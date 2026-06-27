@@ -104,23 +104,10 @@ by migration so current users are not forced through onboarding.
 
 ## V2 Resource Catalog Foundation
 
-This section documents the Slice 1 schema plan for
+This section documents the schema introduced by
 [Resource Simplification V2](../features/resource-simplification-v2.md). The
-first implementation lives in migration `add_resource_foundation`. The old V1
-tables still remain during the transition, and existing assignment/practice
-module repository operations mirror their shared metadata into `resources`.
-
-The current V1 schema stores resource-like entities in separate table families:
-
-- `assignments`
-- `assignment_share_links`
-- `practice_modules`
-- `practice_module_collections`
-- `practice_module_share_links`
-- `practice_module_collection_share_links`
-- `chat_rooms`
-- `chat_room_share_links`
-- chat room conversation, message, and report tables
+resource catalog uses `resources` as the shared header for reusable learning
+objects, while type-specific tables keep runtime data.
 
 V2 should consolidate reusable learning objects under a generic `resources`
 header table plus type-specific tables. `Diálogos` are intentionally deferred
@@ -246,7 +233,6 @@ preserve or redirect:
 
 - assignment detail/share URLs
 - practice module detail/share URLs
-- practice module collection share URLs, mapped to resource folders
 - chat room URLs, either removed with a clear redirect or migrated into
   dialogue-like resources if the product decision changes
 
@@ -558,38 +544,11 @@ Important fields:
 - `tutorInstructions`
 - archive/share metadata
 - optional source metadata
-- optional collection linkage
-
-### Practice Module Collection
-
-Groups multiple practice modules.
-
-Important fields:
-
-- `id`
-- `userId`
-- `profileId`
-- `title`
-- `description`
-- archive/share metadata
-- optional source metadata
-
-### Practice Module Collection Item
-
-Stores collection membership and order.
-
-Important fields:
-
-- `collectionId`
-- `practiceModuleId`
-- `position`
 
 ### Practice Module Share Links
 
-Separate share link entities exist for:
-
-- individual practice modules
-- collections
+Practice module share links support legacy direct guide share URLs and mirror to
+generic `resource_share_links`.
 
 Each includes:
 
@@ -679,7 +638,6 @@ At a high level:
 - one `user` has one managed OpenRouter key for account-level credits
 - one `profile` has many `conversations`
 - one `profile` has many `practiceModules`
-- one `profile` has many `practiceModuleCollections`
 - one `profile` has many `chatRooms`
 - one `profile` has one learner progress profile
 - one `profile` has many learner progress events

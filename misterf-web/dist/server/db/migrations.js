@@ -103,48 +103,6 @@ export const migrations = [
       CREATE INDEX idx_profiles_user_created
         ON profiles (user_id, created_at ASC, updated_at ASC);
 
-      CREATE TABLE practice_module_collections (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        profile_id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        archived_at TEXT,
-        source_collection_id TEXT,
-        source_user_id TEXT,
-        source_profile_id TEXT,
-        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (profile_id)
-          REFERENCES profiles (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (source_collection_id)
-          REFERENCES practice_module_collections (id)
-          ON DELETE SET NULL,
-        FOREIGN KEY (source_user_id)
-          REFERENCES users (id)
-          ON DELETE SET NULL,
-        FOREIGN KEY (source_profile_id)
-          REFERENCES profiles (id)
-          ON DELETE SET NULL
-      );
-
-      CREATE INDEX idx_practice_module_collections_profile_updated
-        ON practice_module_collections (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_practice_module_collections_profile_archived_updated
-        ON practice_module_collections (profile_id, archived_at, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_practice_module_collections_profile_shared
-        ON practice_module_collections (profile_id, shared_via, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_practice_module_collections_profile_source
-        ON practice_module_collections (profile_id, source_collection_id, shared_via);
-
       CREATE TABLE practice_modules (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -152,8 +110,6 @@ export const migrations = [
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         tutor_instructions TEXT NOT NULL,
-        collection_id TEXT,
-        position_in_collection INTEGER,
         source_practice_module_id TEXT,
         source_user_id TEXT,
         source_profile_id TEXT,
@@ -167,9 +123,6 @@ export const migrations = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (collection_id)
-          REFERENCES practice_module_collections (id)
-          ON DELETE SET NULL,
         FOREIGN KEY (source_practice_module_id)
           REFERENCES practice_modules (id)
           ON DELETE SET NULL,
@@ -192,9 +145,6 @@ export const migrations = [
 
       CREATE INDEX idx_practice_modules_profile_archived_updated
         ON practice_modules (profile_id, archived_at, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_practice_modules_collection_position
-        ON practice_modules (collection_id, position_in_collection, updated_at DESC, created_at DESC);
 
       CREATE TABLE chat_rooms (
         id TEXT PRIMARY KEY,
@@ -501,19 +451,6 @@ export const migrations = [
 
       CREATE INDEX idx_practice_module_share_links_active
         ON practice_module_share_links (practice_module_id, revoked_at, created_at DESC);
-
-      CREATE TABLE practice_module_collection_share_links (
-        id TEXT PRIMARY KEY,
-        collection_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (collection_id)
-          REFERENCES practice_module_collections (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_practice_module_collection_share_links_active
-        ON practice_module_collection_share_links (collection_id, revoked_at, created_at DESC);
 
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1469,35 +1406,6 @@ export const migrations = [
         updated_at
       FROM practice_modules;
 
-      INSERT INTO resources (
-        id,
-        user_id,
-        profile_id,
-        type,
-        title,
-        description,
-        archived_at,
-        source_user_id,
-        source_profile_id,
-        shared_via,
-        created_at,
-        updated_at
-      )
-      SELECT
-        id,
-        user_id,
-        profile_id,
-        'resource_folder',
-        title,
-        description,
-        archived_at,
-        source_user_id,
-        source_profile_id,
-        shared_via,
-        created_at,
-        updated_at
-      FROM practice_module_collections;
-
       UPDATE resources
       SET source_resource_id = (
         SELECT source_assignment_id
@@ -1528,54 +1436,10 @@ export const migrations = [
           WHERE practice_modules.id = resources.id
         );
 
-      UPDATE resources
-      SET source_resource_id = (
-        SELECT source_collection_id
-        FROM practice_module_collections
-        WHERE practice_module_collections.id = resources.id
-      )
-      WHERE type = 'resource_folder'
-        AND EXISTS (
-          SELECT 1
-          FROM practice_module_collections
-          JOIN resources AS source_resource
-            ON source_resource.id = practice_module_collections.source_collection_id
-          WHERE practice_module_collections.id = resources.id
-        );
-
       INSERT INTO resource_folders (id, created_at, updated_at)
       SELECT id, created_at, updated_at
       FROM resources
       WHERE type = 'resource_folder';
-
-      INSERT INTO resource_folder_items (
-        folder_id,
-        resource_id,
-        resource_type,
-        position,
-        created_at,
-        updated_at
-      )
-      SELECT
-        collection_id,
-        id,
-        'practice_guide',
-        COALESCE(position_in_collection, 0),
-        created_at,
-        updated_at
-      FROM practice_modules
-      WHERE collection_id IS NOT NULL
-        AND EXISTS (
-          SELECT 1
-          FROM resource_folders
-          WHERE resource_folders.id = practice_modules.collection_id
-        )
-        AND EXISTS (
-          SELECT 1
-          FROM resources
-          WHERE resources.id = practice_modules.id
-            AND resources.type = 'practice_guide'
-        );
 
       INSERT INTO resource_share_links (id, resource_id, created_at, revoked_at)
       SELECT id, assignment_id, created_at, revoked_at
@@ -1595,14 +1459,6 @@ export const migrations = [
         WHERE resources.id = practice_module_share_links.practice_module_id
       );
 
-      INSERT OR IGNORE INTO resource_share_links (id, resource_id, created_at, revoked_at)
-      SELECT id, collection_id, created_at, revoked_at
-      FROM practice_module_collection_share_links
-      WHERE EXISTS (
-        SELECT 1
-        FROM resources
-        WHERE resources.id = practice_module_collection_share_links.collection_id
-      );
     `,
     },
 ];
