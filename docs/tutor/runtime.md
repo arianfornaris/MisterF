@@ -107,6 +107,7 @@ The tutor can emit structured blocks such as:
 - `dialogue_transcript`
 - `translate_to_english_prompt`
 - `understand_in_spanish_prompt`
+- `open_text_prompt`
 - `fill_in_the_blank_input`
 - `fill_in_the_blank_choice`
 - `multiple_choice`
@@ -391,9 +392,17 @@ A tutor response can contain a `quiz` block. Quiz item kinds are intentionally p
 
 `quiz` is an exam-style resource, not the normal format for everyday practice.
 Use regular top-level blocks such as `multiple_choice`,
-`fill_in_the_blank_input`, `fill_in_the_blank_choice`, `matching_pairs`,
-`unscramble_sentence`, translation prompts, dialogue blocks, or `message` for
-ordinary one-step exercises.
+`fill_in_the_blank_input`, `fill_in_the_blank_choice`, `open_text_prompt`,
+`matching_pairs`, `unscramble_sentence`, translation prompts, dialogue blocks,
+or `message` for ordinary one-step exercises.
+
+Normal guided practice should emit at most one top-level learner exercise block
+per tutor response. Feedback blocks and plan blocks may accompany that exercise,
+but the tutor should not emit several `multiple_choice`, `open_text_prompt`,
+fill-in-the-blank, matching, translation, or unscramble blocks in the same
+response. If several items should be answered before feedback, use one `quiz`
+block instead. A `quiz` should not be combined with another learner exercise
+block in the same response.
 
 Appropriate quiz use cases:
 
@@ -405,7 +414,20 @@ Appropriate quiz use cases:
 The runtime schema requires at least 2 quiz items. A one-question check should
 be represented as a regular practice block instead of `quiz`.
 
-Examples:
+### Open production granularity
+
+`open_text_prompt` is for one short model-evaluated response unit at a time:
+one learner-produced sentence, correction, explanation, or example. If a
+practice module, visible plan, report, or teacher instruction calls for several
+open-ended examples, Mr. F should preserve the sequence but run it across
+sequential turns. He should ask for the first item, evaluate it after
+submission, and then continue with the next item.
+
+Batching several open-ended answers into one submission should be reserved for
+flows that are intentionally submitted as a whole, such as a `quiz`, checkpoint
+review, or explicit learner-requested batch.
+
+Examples include:
 
 - `quiz_open_text`
 - `quiz_translate_to_english`
@@ -527,9 +549,10 @@ If quiz evaluation output is invalid:
 If a schema-valid response puts an exercise payload inside a `message` block,
 the runtime runs a smaller repair loop before returning blocks to the client.
 This catches high-confidence patterns such as blanks, translation prompts,
-unscramble instructions, matching prompts, multiple-choice prompts, and
-bracketed correction markup. It also catches raw JSON or pseudo-block
-evaluation payloads embedded inside message prose. The repair prompt receives
+open-ended writing prompts, unscramble instructions, matching prompts,
+multiple-choice prompts, and bracketed correction markup. It also catches raw
+JSON or pseudo-block evaluation payloads embedded inside message prose. The
+repair prompt receives
 only the current blocks, the detected issues, and the shared block protocol.
 
 This design is preferred over heuristic patching because it keeps the model responsible for producing valid structure.

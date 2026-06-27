@@ -34,6 +34,28 @@ describe('message task leakage detection', () => {
     ).toContain('inline_evaluation_json');
   });
 
+  it('flags open-ended writing prompts inside message blocks', () => {
+    expect(
+      detectFromMessage('Por favor, escribe una oración usando in para hablar de un lugar cerrado.'),
+    ).toContain('open_text_prompt');
+  });
+
+  it('flags polite infinitive writing prompts inside message blocks', () => {
+    expect(
+      detectFromMessage(
+        'Ahora, para completar nuestro paso de producción guiada, ¿podrías escribir una oración usando for para indicar una duración?',
+      ),
+    ).toContain('open_text_prompt');
+  });
+
+  it('flags correction-analysis prompts with numbered sentence lists inside message blocks', () => {
+    expect(
+      detectFromMessage(
+        'Aquí tienes un nuevo grupo de oraciones. ¿Podrías decirme cuál es el error en cada una y cómo las corregirías?\n\n1. I have been waiting for the bus in 30 minutes.\n2. The project was completed in my boss.\n3. We are going to meet for 9:00 AM.',
+      ),
+    ).toContain('open_text_prompt');
+  });
+
   it('does not flag optional navigation lists without answer keys', () => {
     expect(
       detectFromMessage(

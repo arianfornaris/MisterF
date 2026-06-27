@@ -24,9 +24,12 @@ The system is designed around structured LLM output rather than free-form text r
 - message
 - sentence evaluation
 - fill-in-the-blank exercises
+- open text prompts
+- translation and comprehension prompts
 - multiple choice
 - matching pairs
 - unscramble sentence
+- dialogue turns and transcripts
 - visible tutor plan
 - quiz
 - practice module link

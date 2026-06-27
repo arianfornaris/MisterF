@@ -39,7 +39,7 @@ Use `features/` for product areas, feature concepts, and future feature ideas.
 - [Resource Simplification V2](./features/resource-simplification-v2.md): planned simplification from separate resource areas into one `Recursos` catalog with assignments, practice guides, folders, and dialogues
 - [Home Start Experience](./features/home-start-experience.md): exploration of personalized start suggestions and a built-in practice topic library
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
-- [Writing Practice Ideas](./features/writing-practice-ideas.md): future writing-first practice patterns
+- [Writing Practice Ideas](./features/writing-practice-ideas.md): writing-first practice patterns that use `open_text_prompt` for structured open responses
 
 ### Design
 

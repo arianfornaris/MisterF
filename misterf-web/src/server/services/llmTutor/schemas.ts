@@ -921,6 +921,16 @@ export const understandInSpanishPromptBlockSchema = z
   })
   .strict();
 
+export const openTextPromptBlockSchema = z
+  .object({
+    type: z.literal('open_text_prompt'),
+    prompt: z.string().trim().min(1).max(1600),
+    placeholder: z.string().trim().min(1).max(240).optional(),
+    submitLabel: z.string().trim().min(1).max(60).optional(),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+  })
+  .strict();
+
 export const sentenceEvaluationBlockSchema = z
   .object({
     type: z.literal('sentence_evaluation'),
@@ -964,6 +974,7 @@ const tutorAgentResponseBlockSchema = z.union([
   quizBlockSchema,
   translateToEnglishPromptBlockSchema,
   understandInSpanishPromptBlockSchema,
+  openTextPromptBlockSchema,
   fillInTheBlankInputBlockSchema,
   fillInTheBlankChoiceBlockSchema,
   multipleChoiceBlockSchema,

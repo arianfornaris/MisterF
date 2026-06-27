@@ -126,6 +126,42 @@ describe('model-facing tutor history', () => {
     });
   });
 
+  it('serializes open text prompt submissions with source block context', () => {
+    const message = buildMessage({
+      content: 'I live in Miami.',
+      metadata: {
+        exerciseSubmission: {
+          block: {
+            placeholder: 'I live in...',
+            prompt: 'Escribe una oración usando in para hablar de un lugar cerrado.',
+            rubric: 'Evalúa si el estudiante usa in correctamente.',
+            submitLabel: 'Enviar respuesta',
+            type: 'open_text_prompt',
+          },
+          response: 'I live in Miami.',
+          type: 'open_text_prompt',
+        },
+      },
+      role: 'user',
+    });
+
+    expect(JSON.parse(getTutorHistoryContent(message))).toEqual({
+      exerciseSubmission: {
+        block: {
+          placeholder: 'I live in...',
+          prompt: 'Escribe una oración usando in para hablar de un lugar cerrado.',
+          rubric: 'Evalúa si el estudiante usa in correctamente.',
+          submitLabel: 'Enviar respuesta',
+          type: 'open_text_prompt',
+        },
+        response: 'I live in Miami.',
+        type: 'open_text_prompt',
+      },
+      kind: 'learner_exercise_submission',
+      visibleContent: 'I live in Miami.',
+    });
+  });
+
   it('falls back to plain learner content when exercise submission metadata is incomplete', () => {
     const messages = toTutorHistory([
       buildMessage({

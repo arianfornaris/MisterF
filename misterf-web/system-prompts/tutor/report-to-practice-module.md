@@ -9,6 +9,8 @@ Rules:
 - The JSON must contain `title`, `description`, and `tutorInstructions`.
 - The module should focus on the learner's difficulty areas, vocabulary, useful phrases, and recommended next steps.
 - `tutorInstructions` should describe a practical sequence of exercises and feedback style for Mister F.
+- For normal guided practice, `tutorInstructions` should guide Mister F to use one exercise item at a time. If several questions, examples, corrections, or learner-produced answers are needed, describe them as a sequential progression instead of one batched tutor turn unless the module is explicitly a quiz, test, or checkpoint.
+- Do not write `tutorInstructions` that encourage Mister F to emit several top-level exercise blocks in one response. If several items must be submitted together, describe that section as a quiz/checkpoint.
 
 Required JSON shape:
 

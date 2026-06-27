@@ -74,7 +74,8 @@ The initial tutor regression suite covers:
   persisted/renderable history.
 - `sentence_evaluation.parts` must reconstruct `sourceText`.
 - `message` leakage detection catches fill-in-the-blank placeholders,
-  evaluable multiple-choice prompts, and inline evaluation JSON.
+  open-ended writing prompts, evaluable multiple-choice prompts, and inline
+  evaluation JSON.
 - Optional lettered navigation lists are not treated as multiple-choice
   exercises.
 - Removed prompt/protocol concepts such as `direction_choice` and the generic

@@ -7,6 +7,7 @@ type TutorResponseBlock =
   | QuizBlock
   | TranslateToEnglishPromptBlock
   | UnderstandInSpanishPromptBlock
+  | OpenTextPromptBlock
   | FillInTheBlankInputBlock
   | FillInTheBlankChoiceBlock
   | MultipleChoiceBlock

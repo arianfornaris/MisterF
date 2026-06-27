@@ -99,6 +99,7 @@ export function blocksToMarkdown(blocks) {
         block.type === 'quiz_result' ||
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt' ||
+        block.type === 'open_text_prompt' ||
         block.type === 'fill_in_the_blank_input' ||
         block.type === 'fill_in_the_blank_choice' ||
         block.type === 'multiple_choice' ||
@@ -146,6 +147,9 @@ export function blocksToMarkdown(blocks) {
         }
         if (block.type === 'understand_in_spanish_prompt') {
             return `Explica en espanol: "${block.sentence.trim()}"`;
+        }
+        if (block.type === 'open_text_prompt') {
+            return block.prompt.trim();
         }
         return block.markdown.trim();
     })

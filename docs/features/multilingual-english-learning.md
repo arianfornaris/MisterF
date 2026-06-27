@@ -184,6 +184,7 @@ Examples of core blocks:
 - `message`
 - `sentence_evaluation`
 - `multiple_choice`
+- `open_text_prompt`
 - `fill_in_the_blank_input`
 - `fill_in_the_blank_choice`
 - `matching_pairs`

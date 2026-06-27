@@ -6,6 +6,36 @@ import {
 import { validateTutorResponseBlocks } from '../../src/server/services/llmTutor/validation.js';
 
 describe('normal tutor response schema', () => {
+  it('accepts open text prompt blocks with an optional submit label', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'open_text_prompt',
+          prompt: 'Escribe una oración usando in para hablar de un lugar cerrado.',
+          placeholder: 'I live in...',
+          submitLabel: 'Enviar respuesta',
+          rubric: 'Evalúa si el estudiante usa in correctamente.',
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects answer keys on open text prompt blocks', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'open_text_prompt',
+          prompt: 'Escribe una oración usando in.',
+          answer: 'I live in Miami.',
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('accepts free-form fill-in-the-blank input blocks without an answer key', () => {
     const result = tutorAgentResponseSchema.safeParse({
       blocks: [

@@ -173,11 +173,16 @@ type QuizItem =
  * Do not use `quiz` for ordinary single-question practice, especially at the
  * beginning of a conversation. For regular practice, use the specific top-level
  * exercise blocks such as `multiple_choice`, `fill_in_the_blank_input`,
- * `fill_in_the_blank_choice`, `matching_pairs`, `unscramble_sentence`,
- * translation prompts, dialogue blocks, or normal `message` guidance.
+ * `fill_in_the_blank_choice`, `open_text_prompt`, `matching_pairs`,
+ * `unscramble_sentence`, translation prompts, dialogue blocks, or normal
+ * `message` guidance.
  *
  * A quiz contains several items and is submitted as a whole; the app will not
  * auto-correct items one by one.
+ *
+ * Do not combine `quiz` with another top-level learner exercise block in the
+ * same response. Use `message` for framing and the `quiz` block for the whole
+ * batch.
  *
  * Every item kind must begin with `quiz_`. Never use non-prefixed item kinds
  * such as `open_text`, `multiple_choice`, `matching_pairs`,

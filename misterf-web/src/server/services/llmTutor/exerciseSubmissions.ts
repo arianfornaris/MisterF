@@ -9,23 +9,48 @@ export type FillInTheBlankInputExerciseSubmission = {
   completedSentence: string;
 };
 
-export type TutorExerciseSubmission = FillInTheBlankInputExerciseSubmission;
+export type OpenTextPromptExerciseSubmission = {
+  type: 'open_text_prompt';
+  block: {
+    type: 'open_text_prompt';
+    prompt: string;
+    placeholder?: string;
+    submitLabel?: string;
+    rubric?: string;
+  };
+  response: string;
+};
+
+export type TutorExerciseSubmission =
+  | FillInTheBlankInputExerciseSubmission
+  | OpenTextPromptExerciseSubmission;
 
 export function normalizeExerciseSubmissionForUserMessage(
   value: unknown,
   content: string,
 ): TutorExerciseSubmission | null {
-  const submission = normalizeFillInTheBlankInputExerciseSubmission(value);
-  if (!submission || submission.completedSentence !== normalizeText(content)) {
+  const fillInTheBlankSubmission = normalizeFillInTheBlankInputExerciseSubmission(value);
+  if (fillInTheBlankSubmission) {
+    if (fillInTheBlankSubmission.completedSentence !== normalizeText(content)) {
+      return null;
+    }
+
+    const computedSentence = fillSentenceBlanks(
+      fillInTheBlankSubmission.block.sentence,
+      fillInTheBlankSubmission.values,
+      '___',
+    );
+    return computedSentence === fillInTheBlankSubmission.completedSentence
+      ? fillInTheBlankSubmission
+      : null;
+  }
+
+  const openTextSubmission = normalizeOpenTextPromptExerciseSubmission(value);
+  if (!openTextSubmission || openTextSubmission.response !== normalizeText(content)) {
     return null;
   }
 
-  const computedSentence = fillSentenceBlanks(
-    submission.block.sentence,
-    submission.values,
-    '___',
-  );
-  return computedSentence === submission.completedSentence ? submission : null;
+  return openTextSubmission;
 }
 
 export function formatExerciseSubmissionForTutorHistory(
@@ -134,6 +159,95 @@ function normalizeFillInTheBlankInputBlock(
     type: 'fill_in_the_blank_input',
     ...(prompt ? { prompt } : {}),
     sentence,
+  };
+}
+
+function normalizeOpenTextPromptExerciseSubmission(
+  value: unknown,
+): OpenTextPromptExerciseSubmission | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as {
+    block?: unknown;
+    response?: unknown;
+    type?: unknown;
+  };
+  if (record.type !== 'open_text_prompt') {
+    return null;
+  }
+
+  const block = normalizeOpenTextPromptBlock(record.block);
+  if (!block) {
+    return null;
+  }
+
+  const response =
+    typeof record.response === 'string' ? normalizeText(record.response) : '';
+  if (!response || response.length > 2400) {
+    return null;
+  }
+
+  return {
+    block,
+    response,
+    type: 'open_text_prompt',
+  };
+}
+
+function normalizeOpenTextPromptBlock(
+  value: unknown,
+): OpenTextPromptExerciseSubmission['block'] | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as {
+    placeholder?: unknown;
+    prompt?: unknown;
+    rubric?: unknown;
+    submitLabel?: unknown;
+    type?: unknown;
+  };
+  if (record.type !== 'open_text_prompt') {
+    return null;
+  }
+
+  const prompt =
+    typeof record.prompt === 'string' ? normalizeText(record.prompt) : '';
+  if (!prompt || prompt.length > 1600) {
+    return null;
+  }
+
+  const placeholder =
+    typeof record.placeholder === 'string'
+      ? normalizeText(record.placeholder)
+      : '';
+  if (placeholder.length > 240) {
+    return null;
+  }
+
+  const submitLabel =
+    typeof record.submitLabel === 'string'
+      ? normalizeText(record.submitLabel)
+      : '';
+  if (submitLabel.length > 60) {
+    return null;
+  }
+
+  const rubric =
+    typeof record.rubric === 'string' ? normalizeText(record.rubric) : '';
+  if (rubric.length > 1600) {
+    return null;
+  }
+
+  return {
+    type: 'open_text_prompt',
+    prompt,
+    ...(placeholder ? { placeholder } : {}),
+    ...(submitLabel ? { submitLabel } : {}),
+    ...(rubric ? { rubric } : {}),
   };
 }
 

@@ -1,10 +1,19 @@
 export function normalizeExerciseSubmissionForUserMessage(value, content) {
-    const submission = normalizeFillInTheBlankInputExerciseSubmission(value);
-    if (!submission || submission.completedSentence !== normalizeText(content)) {
+    const fillInTheBlankSubmission = normalizeFillInTheBlankInputExerciseSubmission(value);
+    if (fillInTheBlankSubmission) {
+        if (fillInTheBlankSubmission.completedSentence !== normalizeText(content)) {
+            return null;
+        }
+        const computedSentence = fillSentenceBlanks(fillInTheBlankSubmission.block.sentence, fillInTheBlankSubmission.values, '___');
+        return computedSentence === fillInTheBlankSubmission.completedSentence
+            ? fillInTheBlankSubmission
+            : null;
+    }
+    const openTextSubmission = normalizeOpenTextPromptExerciseSubmission(value);
+    if (!openTextSubmission || openTextSubmission.response !== normalizeText(content)) {
         return null;
     }
-    const computedSentence = fillSentenceBlanks(submission.block.sentence, submission.values, '___');
-    return computedSentence === submission.completedSentence ? submission : null;
+    return openTextSubmission;
 }
 export function formatExerciseSubmissionForTutorHistory(value, content) {
     const submission = normalizeExerciseSubmissionForUserMessage(value, content);
@@ -73,6 +82,64 @@ function normalizeFillInTheBlankInputBlock(value) {
         type: 'fill_in_the_blank_input',
         ...(prompt ? { prompt } : {}),
         sentence,
+    };
+}
+function normalizeOpenTextPromptExerciseSubmission(value) {
+    if (!value || typeof value !== 'object') {
+        return null;
+    }
+    const record = value;
+    if (record.type !== 'open_text_prompt') {
+        return null;
+    }
+    const block = normalizeOpenTextPromptBlock(record.block);
+    if (!block) {
+        return null;
+    }
+    const response = typeof record.response === 'string' ? normalizeText(record.response) : '';
+    if (!response || response.length > 2400) {
+        return null;
+    }
+    return {
+        block,
+        response,
+        type: 'open_text_prompt',
+    };
+}
+function normalizeOpenTextPromptBlock(value) {
+    if (!value || typeof value !== 'object') {
+        return null;
+    }
+    const record = value;
+    if (record.type !== 'open_text_prompt') {
+        return null;
+    }
+    const prompt = typeof record.prompt === 'string' ? normalizeText(record.prompt) : '';
+    if (!prompt || prompt.length > 1600) {
+        return null;
+    }
+    const placeholder = typeof record.placeholder === 'string'
+        ? normalizeText(record.placeholder)
+        : '';
+    if (placeholder.length > 240) {
+        return null;
+    }
+    const submitLabel = typeof record.submitLabel === 'string'
+        ? normalizeText(record.submitLabel)
+        : '';
+    if (submitLabel.length > 60) {
+        return null;
+    }
+    const rubric = typeof record.rubric === 'string' ? normalizeText(record.rubric) : '';
+    if (rubric.length > 1600) {
+        return null;
+    }
+    return {
+        type: 'open_text_prompt',
+        prompt,
+        ...(placeholder ? { placeholder } : {}),
+        ...(submitLabel ? { submitLabel } : {}),
+        ...(rubric ? { rubric } : {}),
     };
 }
 function fillSentenceBlanks(sentence, values, placeholderToken) {

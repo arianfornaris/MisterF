@@ -11,6 +11,7 @@ import type { LlmRequestOptions, TutorAgentResponseBlock } from './types.js';
 type MessageTaskLeakageKind =
   | 'blank_placeholder'
   | 'translation_prompt'
+  | 'open_text_prompt'
   | 'unscramble_prompt'
   | 'matching_prompt'
   | 'multiple_choice_prompt'
@@ -142,6 +143,14 @@ function detectMessageIssues(
     });
   }
 
+  if (containsOpenTextPrompt(markdown)) {
+    issues.push({
+      expectedBlockTypes: ['open_text_prompt', 'quiz'],
+      kind: 'open_text_prompt',
+      reason: 'A message asks the learner to submit an open-ended written answer.',
+    });
+  }
+
   if (/\b(?:ordena|reordena)\b[\s\S]{0,180}\b(?:palabras|oraci[oó]n|frase)\b/i.test(markdown)) {
     issues.push({
       expectedBlockTypes: ['unscramble_sentence', 'quiz'],
@@ -183,6 +192,61 @@ function detectMessageIssues(
   }
 
   return issues;
+}
+
+function containsOpenTextPrompt(markdown: string): boolean {
+  const openProductionVerb =
+    String.raw`(?:escrib(?:e|es|a|as|an|ir|ir[ií]a(?:s|n)?|iendo)|redact(?:a|as|an|e|es|en|ar|ar[ií]a(?:s|n)?)|crea(?:r|s|n)?|forma(?:r|s|n)?|constru(?:ye|yes|ya|yas|yan|ir|ir[ií]a(?:s|n)?))`;
+  const revisionVerb =
+    String.raw`(?:corrige(?:s|n)?|corrija(?:s|n)?|corregir(?:[ií]a(?:s|n)?)?|reescrib(?:e|es|a|as|an|ir|ir[ií]a(?:s|n)?|iendo))`;
+  const responseVerb =
+    String.raw`(?:respond(?:e|es|a|as|an|er|er[ií]a(?:s|n)?)|contest(?:a|as|an|e|es|en|ar|ar[ií]a(?:s|n)?))`;
+  const openTextObject =
+    String.raw`(?:oraci[oó]n(?:es)?|frase(?:s)?|respuesta|p[aá]rrafo|texto|ejemplo)`;
+  const openWritingTaskPattern = new RegExp(
+    String.raw`\b${openProductionVerb}\b[\s\S]{0,180}\b${openTextObject}\b`,
+    'i',
+  );
+  const revisionTaskPattern = new RegExp(
+    String.raw`\b${revisionVerb}\b[\s\S]{0,180}\b${openTextObject}\b`,
+    'i',
+  );
+  const ownWordsTaskPattern = new RegExp(
+    String.raw`\b${responseVerb}\b[\s\S]{0,180}\bcon\s+tus\s+propias\s+palabras\b`,
+    'i',
+  );
+
+  return (
+    openWritingTaskPattern.test(markdown) ||
+    revisionTaskPattern.test(markdown) ||
+    ownWordsTaskPattern.test(markdown) ||
+    containsCorrectionAnalysisPrompt(markdown)
+  );
+}
+
+function containsCorrectionAnalysisPrompt(markdown: string): boolean {
+  const politeCorrectionQuestionPattern =
+    /\b(?:puedes|podr[ií]as|podr[ií]an|puede[sn]?)\s+(?:decirme|decirnos|identificar|se[nñ]alar|explicar|indicar|encontrar)\b[\s\S]{0,280}\b(?:error(?:es)?|equivocaci[oó]n(?:es)?|problema(?:s)?)\b[\s\S]{0,280}\b(?:corregir(?:lo|la|los|las)?|corregir[ií]as|corregir[ií]an|corrige(?:lo|la|los|las)?|corriges|corrigen|correcci[oó]n|correcciones)\b/i;
+  const directCorrectionQuestionPattern =
+    /\b(?:cu[aá]l(?:es)?\s+(?:es|son)\s+(?:el|los)?\s*error(?:es)?|encuentra\s+(?:el|los)?\s*error(?:es)?|identifica\s+(?:el|los)?\s*error(?:es)?)\b[\s\S]{0,280}\b(?:corregir(?:lo|la|los|las)?|corregir[ií]as|corregir[ií]an|corrige(?:lo|la|los|las)?|corriges|corrigen|correcci[oó]n|correcciones)\b/i;
+
+  return (
+    containsNumberedSentenceList(markdown) &&
+    (
+      politeCorrectionQuestionPattern.test(markdown) ||
+      directCorrectionQuestionPattern.test(markdown)
+    )
+  );
+}
+
+function containsNumberedSentenceList(markdown: string): boolean {
+  const numberedItems = markdown.match(/(?:^|\n)\s*\d+[.)]\s+\S[^\n]{8,240}/gm) ?? [];
+  const sentenceLikeItems = numberedItems.filter((item) => (
+    /[A-Za-z]/.test(item) &&
+    /[.!?]\s*$/.test(item.trim())
+  ));
+
+  return sentenceLikeItems.length >= 2;
 }
 
 function containsInlineCorrectionMarkup(markdown: string): boolean {

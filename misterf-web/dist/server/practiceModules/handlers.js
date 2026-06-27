@@ -9,6 +9,16 @@ const emptyPracticeModuleFormValues = {
     title: '',
     tutorInstructions: '',
 };
+function getDefaultPracticeModuleFormValues(pageKind, selectedPracticeModule) {
+    if (pageKind !== 'edit' || !selectedPracticeModule) {
+        return emptyPracticeModuleFormValues;
+    }
+    return {
+        description: selectedPracticeModule.description,
+        title: selectedPracticeModule.title,
+        tutorInstructions: selectedPracticeModule.tutorInstructions,
+    };
+}
 function redirectUnauthedPracticeModules(response) {
     response.redirect('/');
 }
@@ -125,7 +135,7 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
             user: viewModel.user,
         }),
         practiceModuleConversations: viewModel.practiceModuleConversations,
-        practiceModuleFormValues: emptyPracticeModuleFormValues,
+        practiceModuleFormValues: getDefaultPracticeModuleFormValues(pageKind, viewModel.selectedPracticeModule),
         practiceModuleGenerationError: '',
         practiceModuleGenerationModalAutoOpen: false,
         practiceModuleGenerationPrompt: '',

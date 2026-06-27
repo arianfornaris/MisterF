@@ -1,6 +1,7 @@
 import { createFillInTheBlankCard } from '../cards/createFillInTheBlankCard.js';
 import { createMatchingPairsCard } from '../cards/createMatchingPairsCard.js';
 import { createMultipleChoiceCard } from '../cards/multipleChoiceCard.js';
+import { createOpenTextPromptCard } from '../cards/createOpenTextPromptCard.js';
 import { createQuizCard } from '../cards/createQuizCard.js';
 import { createQuizResultCard } from '../cards/createQuizResultCard.js';
 import { createSentenceEvaluationCard } from '../cards/createSentenceEvaluationCard.js';
@@ -151,6 +152,24 @@ export function createTutorMessageRenderer(deps) {
             getConversationId: deps.getConversationId,
             getSelectedModelTier: deps.getSelectedModelTier,
             getSocket: deps.getSocket,
+            sendMessageContent: deps.sendMessageContent,
+          },
+        );
+        if (card) {
+          stack.append(card);
+          hasVisualContent = true;
+        }
+        return;
+      }
+
+      if (block.type === 'open_text_prompt') {
+        const card = createOpenTextPromptCard(
+          block,
+          {
+            blockIndex,
+            messageId: options.messageId,
+          },
+          {
             sendMessageContent: deps.sendMessageContent,
           },
         );

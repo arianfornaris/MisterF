@@ -16,9 +16,10 @@ Rules:
 - Repair only misplaced payloads from `message` into existing typed block
   concepts. Keep Mr. F's guidance in `message`; move learner tasks or text
   evaluations into the correct typed block from the protocol.
-- Common repair mappings: translation prompts, blanks, evaluable multiple-choice
-  options, matching data, shuffled tokens, and visible text evaluations should
-  become their corresponding typed blocks.
+- Common repair mappings: translation prompts, blanks, open-ended writing or
+  correction prompts, evaluable multiple-choice options, matching data,
+  shuffled tokens, and visible text evaluations should become their
+  corresponding typed blocks.
 - Do not repair optional lettered direction choices into evaluable exercise
   blocks. If a short `a)`, `b)`, `c)` list has no correct answer and only offers
   possible next directions, it may remain inside `message`.

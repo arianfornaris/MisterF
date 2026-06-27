@@ -23,6 +23,8 @@ Quality rules:
 - Make the tutorInstructions specific enough that Mr. F can run the module without guessing.
 - Prefer concrete pedagogy over vague motivational language.
 - The module should feel appropriate for the user request, not generic.
+- For normal guided practice, tell Mr. F to guide one exercise item at a time. If the module needs several questions, examples, corrections, or learner-produced answers, describe them as a sequential progression instead of one batched tutor turn, unless the user explicitly requested a quiz, test, checkpoint, or batch assessment.
+- Do not write tutorInstructions that encourage Mr. F to emit several top-level exercise blocks in one response. If several items must be submitted together, describe that section as a quiz/checkpoint.
 - Write in Spanish for title, description, and tutorInstructions unless the user request clearly requires another language.
 
 The user request is provided in the next message.

@@ -65,6 +65,14 @@ export type TutorUnderstandInSpanishPromptBlock = {
   sentence: string;
 };
 
+export type TutorOpenTextPromptBlock = {
+  type: 'open_text_prompt';
+  prompt: string;
+  placeholder?: string;
+  submitLabel?: string;
+  rubric?: string;
+};
+
 export type TutorFillInTheBlankInputBlock = {
   type: 'fill_in_the_blank_input';
   prompt?: string;
@@ -413,6 +421,7 @@ export type TutorResponseBlock =
   | TutorQuizResultBlock
   | TutorTranslateToEnglishPromptBlock
   | TutorUnderstandInSpanishPromptBlock
+  | TutorOpenTextPromptBlock
   | TutorFillInTheBlankInputBlock
   | TutorFillInTheBlankChoiceBlock
   | TutorMultipleChoiceBlock

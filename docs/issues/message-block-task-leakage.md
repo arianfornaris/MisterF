@@ -8,7 +8,8 @@ The issue is not that `message` is never allowed to introduce an exercise.
 `message` may frame, encourage, explain, or transition. The problem happens
 when the `message` contains the learner-facing payload that should belong to a
 typed block such as `fill_in_the_blank_input`, `translate_to_english_prompt`,
-`multiple_choice`, `matching_pairs`, or `unscramble_sentence`.
+`open_text_prompt`, `multiple_choice`, `matching_pairs`, or
+`unscramble_sentence`.
 
 ## Source
 
@@ -213,6 +214,12 @@ High-confidence signals inside a `message` block:
 - `Traduce la siguiente frase al inglés:`
 - `Ordena las palabras...`
 - `Reordena las palabras...`
+- `Escribe una oración...`
+- `¿Podrías escribir una oración...?`
+- `Redacta...`
+- `Corrige estas oraciones...`
+- `¿Podrías decirme cuál es el error... y cómo las corregirías?` followed by a numbered sentence list
+- `Responde con tus propias palabras...`
 - `Une cada...`
 - `Relaciona...`
 - bracketed learner-error tokens such as `[huracans]`, `[taugh]`, `[bigest]`

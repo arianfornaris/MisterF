@@ -9,6 +9,7 @@ export const tutorBlockProtocolNames = [
   'quiz',
   'translate-to-english-prompt',
   'understand-in-spanish-prompt',
+  'open-text-prompt',
   'fill-in-the-blank-input',
   'fill-in-the-blank-choice',
   'multiple-choice',

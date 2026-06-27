@@ -47,6 +47,21 @@ const emptyPracticeModuleFormValues: PracticeModuleFormValues = {
   tutorInstructions: '',
 };
 
+function getDefaultPracticeModuleFormValues(
+  pageKind: PracticeModulePageKind,
+  selectedPracticeModule: ReturnType<typeof findPracticeModuleForUser>,
+): PracticeModuleFormValues {
+  if (pageKind !== 'edit' || !selectedPracticeModule) {
+    return emptyPracticeModuleFormValues;
+  }
+
+  return {
+    description: selectedPracticeModule.description,
+    title: selectedPracticeModule.title,
+    tutorInstructions: selectedPracticeModule.tutorInstructions,
+  };
+}
+
 function redirectUnauthedPracticeModules(response: Response): void {
   response.redirect('/');
 }
@@ -210,7 +225,10 @@ async function renderPracticeModulesPage(
       user: viewModel.user,
     }),
     practiceModuleConversations: viewModel.practiceModuleConversations,
-    practiceModuleFormValues: emptyPracticeModuleFormValues,
+    practiceModuleFormValues: getDefaultPracticeModuleFormValues(
+      pageKind,
+      viewModel.selectedPracticeModule,
+    ),
     practiceModuleGenerationError: '',
     practiceModuleGenerationModalAutoOpen: false,
     practiceModuleGenerationPrompt: '',

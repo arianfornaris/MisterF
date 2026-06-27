@@ -170,21 +170,21 @@ basta con:
 - Una explicacion breve del error principal.
 - Un mini ejercicio de seguimiento.
 
-## Posible bloque futuro
+## Bloque actual
 
-La implementacion de un bloque estructurado para escritura queda pospuesta. Por
-ahora, estas actividades pueden ocurrir como mensajes normales del tutor y
-respuestas visibles del usuario. Si mas adelante se retoma la idea, conviene
-diseñar un bloque dedicado para tareas de escritura libre o semi-libre.
+Las actividades de escritura libre o semi-libre deben usar `open_text_prompt`
+cuando el usuario necesita enviar una respuesta abierta dentro de la UI del
+bloque. El bloque muestra un textarea, conserva la respuesta junto al prompt y
+envia al modelo la estructura del bloque mas la respuesta del usuario.
 
-Ese bloque futuro deberia hacer que el usuario produzca texto en ingles sin una
-unica respuesta correcta, para luego evaluarlo y practicar en base a los errores
+`open_text_prompt` hace que el usuario produzca texto en ingles sin una unica
+respuesta correcta, para luego evaluarlo y practicar en base a los errores
 cometidos.
 
 ### Frontera con otros bloques
 
-Un bloque futuro de escritura no deberia reemplazar los bloques existentes.
-Deberia usarse solo cuando la tarea exige produccion escrita abierta.
+`open_text_prompt` no deberia reemplazar los bloques existentes. Debe usarse
+solo cuando la tarea exige produccion escrita abierta.
 
 Usar `translate_to_english_prompt` cuando:
 
@@ -204,7 +204,7 @@ Usar `quiz_open_text` cuando:
 - La evaluacion se hace junto con el resto del quiz.
 - El usuario esta en un flujo de examen o prueba multi-pregunta.
 
-Usar un bloque futuro de escritura cuando:
+Usar `open_text_prompt` cuando:
 
 - El usuario debe escribir un parrafo, email, diario, opinion, descripcion o
   mini-historia.
@@ -212,15 +212,16 @@ Usar un bloque futuro de escritura cuando:
 - Queremos evaluar claridad, naturalidad, estructura y errores recurrentes.
 - Queremos que el texto alimente progreso global y practica futura.
 
-Mientras no exista ese bloque, no hay UI especial ni estado de envio para estas
-tareas. La escritura entra al chat como respuesta normal del usuario y puede
-evaluarse con los mecanismos existentes, especialmente `sentence_evaluation`
-cuando el texto visible del usuario necesita correccion.
+La escritura ya no debe entrar como una respuesta normal del usuario cuando el
+tutor esta proponiendo una tarea estructurada de produccion abierta. En ese caso
+debe enviarse desde `open_text_prompt`. `sentence_evaluation` sigue siendo util
+para corregir texto visible del usuario despues de que el modelo evalua la
+respuesta.
 
-### Razon para empezar con un solo bloque
+### Razon para mantener un solo bloque
 
-Aunque existan muchas variantes de escritura, si se retoma esta feature conviene
-empezar con un bloque general.
+Aunque existan muchas variantes de escritura, conviene mantener un bloque
+general para este tipo de produccion abierta.
 
 Encima de ese bloque se pueden implementar distintos modos pedagogicos:
 

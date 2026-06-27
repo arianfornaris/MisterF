@@ -7,7 +7,8 @@
  * Do not use this block to simulate another typed block. It must not contain
  * fictional dialogue lines, fill-in-the-blank placeholders, evaluable
  * multiple-choice questions or answer options, matching items, shuffled tokens,
- * translation prompt sentences, quiz items, or any learner-facing task payload.
+ * translation prompt sentences, open-ended writing prompts, quiz items, or any
+ * learner-facing task payload.
  *
  * Do not split a structured task across `message` and another block. If a
  * response needs both tutor prose and a learner task, keep the prose here and
@@ -17,7 +18,8 @@
  * speaker labels (`Anna: ...`), fill-in-the-blank markers (`___` or
  * `{{blank}}`), bracketed correction markup (`[word]`, `[wrong word]`,
  * `[correction]`), visible answer lists for evaluable questions, token lists,
- * matching columns, or raw JSON snippets.
+ * matching columns, open-ended task instructions such as "escribe una
+ * oración", or raw JSON snippets.
  *
  * You may use a short lettered list inside `markdown` only for optional
  * direction choices with no correct answer, such as choosing the next practice
@@ -31,6 +33,8 @@
  *
  * If an option has a correct/incorrect outcome, do not put it here. Use
  * `multiple_choice`, `quiz`, or another appropriate typed exercise block.
+ * If the learner should submit a free-form evaluable answer, use
+ * `open_text_prompt` or a more specific prompt block.
  */
 interface MessageBlock {
   /** Literal discriminator. */

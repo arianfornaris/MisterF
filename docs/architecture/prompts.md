@@ -131,6 +131,15 @@ Important files:
 
 These are used when the app generates first drafts for user-editable resources.
 
+Practice-module generation prompts are part of the tutor interaction contract.
+Many practice modules are created by AI, so their `tutorInstructions` must avoid
+phrasing that nudges Mr. F into batching several top-level exercise blocks in
+one tutor response. For normal guided practice, generated module instructions
+should describe sequential exercise progression: one item, feedback, then the
+next item. If several items must be answered together, the generated
+instructions should explicitly frame that section as a quiz, test, checkpoint,
+or batch assessment.
+
 ## Design Principles
 
 ### Structured output first
@@ -165,9 +174,9 @@ There are two related repair categories:
 - valid JSON with the wrong block boundary, handled by `tutor/block-repair.md`
 
 The block repair loop is intentionally narrow. It catches high-confidence
-patterns such as blanks, translation prompts, multiple-choice payloads,
-unscramble tasks, matching tasks, bracketed correction markup, or raw
-evaluation JSON embedded inside a normal `message`.
+patterns such as blanks, translation prompts, open-ended writing prompts,
+multiple-choice payloads, unscramble tasks, matching tasks, bracketed correction
+markup, or raw evaluation JSON embedded inside a normal `message`.
 
 ### Model output is the source of truth
 

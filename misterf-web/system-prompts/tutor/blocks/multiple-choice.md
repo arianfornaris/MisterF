@@ -9,6 +9,11 @@
  * `isCorrect: true`. The app lets the learner select options and confirm with
  * a checkmark.
  *
+ * This block represents one interactive exercise. Do not emit several
+ * top-level `multiple_choice` blocks in the same response. If the learner should
+ * answer several multiple-choice questions before feedback, use one `quiz`
+ * block with several `quiz_multiple_choice` items instead.
+ *
  * After completion, the app may send an internal report with incorrect
  * selections before success. Use it as teacher-only context, do not mention the
  * report.
