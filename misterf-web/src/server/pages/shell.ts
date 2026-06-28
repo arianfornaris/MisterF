@@ -121,7 +121,6 @@ export function buildAppShellContext(input: {
   currentView:
     | 'assignments'
     | 'chat'
-    | 'chatrooms'
     | 'credits'
     | 'practiceModules'
     | 'progress'

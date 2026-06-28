@@ -11,15 +11,6 @@ const practiceModuleDraftSchema = z.object({
     title: z.string().trim().min(1).max(220),
     tutorInstructions: z.string().trim().min(1).max(12000),
 }).strict();
-const chatRoomDraftSchema = z.object({
-    characters: z.array(z.object({
-        fullDescription: z.string().trim().min(1).max(4000),
-        name: z.string().trim().min(1).max(120),
-        shortDescription: z.string().trim().max(160).optional().default(''),
-    }).strict()).min(1).max(3),
-    description: z.string().trim().min(1).max(1500),
-    title: z.string().trim().min(1).max(220),
-}).strict();
 const assignmentRevisionSchema = z.object({
     assistantMessage: z.string().trim().min(1).max(2000),
     draft: assignmentDraftSchema,
@@ -229,16 +220,6 @@ export async function generatePracticeModuleRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: practiceModuleDraftSchema,
         systemPromptPath: 'resources/practice-module-revision.md',
-    });
-}
-export async function generateChatRoomDraft(input) {
-    return generateStructuredDraft({
-        actorLabel: 'Chatroom draft',
-        correctionPromptPath: 'resources/chatroom-draft-correction.md',
-        initialUserMessage: input.prompt,
-        openRouterApiKey: input.openRouterApiKey,
-        schema: chatRoomDraftSchema,
-        systemPromptPath: 'resources/chatroom-draft.md',
     });
 }
 export async function generateAssignmentDraft(input) {

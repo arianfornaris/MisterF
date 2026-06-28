@@ -61,13 +61,14 @@ The current app is structurally ready for a multilingual direction in some
 areas:
 
 - Profiles already scope learner preferences, model tier, learning context,
-  conversations, practice modules, chat rooms, and progress.
+  conversations, practice modules, assignments, resources, and progress.
 - Tutor prompts are versioned markdown files rather than hard-coded strings.
 - Tutor output uses structured blocks, which gives clear places to define
   language behavior.
 - The translator is already a dedicated tutor service.
-- Practice modules, chat rooms, tutor reports, and progress are profile-scoped,
-  which makes language preference a natural profile-level setting.
+- Practice modules, assignments, resources, tutor reports, and progress are
+  profile-scoped, which makes language preference a natural profile-level
+  setting.
 
 The main limitation is that many contracts explicitly assume Spanish:
 
@@ -391,7 +392,8 @@ Recommended safeguards:
 - Add server-side locale dictionaries.
 - Pass a `t` helper into EJS rendering.
 - Convert high-traffic learner pages first:
-  chat, profiles, practice modules, progress, chat rooms, auth, credits.
+  chat, profiles, resources, practice modules, assignments, progress, auth,
+  credits.
 - Convert client-side strings through bootstrap dictionaries.
 - Add missing-key checks in tests.
 

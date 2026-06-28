@@ -23,11 +23,6 @@ function getConversationIdFromRoute(route) {
     return decodeURIComponent(tutorMatch[1]);
   }
 
-  const chatRoomMatch = route.match(/^\/chatroom-conversations\/([^/?#]+)/);
-  if (chatRoomMatch?.[1]) {
-    return decodeURIComponent(chatRoomMatch[1]);
-  }
-
   return '';
 }
 

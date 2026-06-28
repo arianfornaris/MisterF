@@ -18,63 +18,29 @@ const creditGateMocks = vi.hoisted(() => {
 });
 
 const repositoryMocks = vi.hoisted(() => ({
-  addChatRoomMessage: vi.fn(),
-  archiveChatRoomForUser: vi.fn(),
   closeConversationForUser: vi.fn(),
-  createChatRoom: vi.fn(),
-  createChatRoomConversation: vi.fn(),
-  createConversationFromChatRoomReport: vi.fn(),
   createConversationFromTutorReport: vi.fn(),
   createPracticeModule: vi.fn(),
   deleteConversationForUser: vi.fn(),
   deleteConversationTutorPlan: vi.fn(),
   ensureUserHasProfile: vi.fn(),
-  findChatRoomById: vi.fn(),
-  findChatRoomConversationForUser: vi.fn(),
-  findChatRoomConversationReport: vi.fn(),
-  findChatRoomForUser: vi.fn(),
-  findChatRoomMessage: vi.fn(),
-  findChatRoomShareLinkById: vi.fn(),
   findConversationForUser: vi.fn(),
   findMessageInConversation: vi.fn(),
   findPracticeModuleForUser: vi.fn(),
   findProfileById: vi.fn(),
   findProfileForUser: vi.fn(),
   findTutorConversationReport: vi.fn(),
-  getConversationChatRoomReportSnapshot: vi.fn(),
   getConversationPracticeModuleSnapshot: vi.fn(),
   getConversationTutorPlan: vi.fn(),
   getConversationTutorReportSnapshot: vi.fn(),
-  getOrCreateChatRoomShareLink: vi.fn(),
   importAssignmentToProfile: vi.fn(),
-  importChatRoomToProfile: vi.fn(),
-  listChatRoomCharacters: vi.fn(),
-  listChatRoomConversationsForRoom: vi.fn(),
-  listChatRoomMessages: vi.fn(),
-  listChatRoomsForProfile: vi.fn(),
   listConversationsForProfile: vi.fn(),
   listMessages: vi.fn(),
   renameConversationForUser: vi.fn(),
-  restoreChatRoomForUser: vi.fn(),
-  saveChatRoomConversationReport: vi.fn(),
   saveTutorConversationReport: vi.fn(),
-  setChatRoomConversationReportPracticeModule: vi.fn(),
   setTutorConversationReportPracticeModule: vi.fn(),
-  updateChatRoomForUser: vi.fn(),
-  updateChatRoomMessageEvaluation: vi.fn(),
   updateConversationModelTierForUser: vi.fn(),
   updateMessageMetadata: vi.fn(),
-}));
-
-const chatroomServiceMocks = vi.hoisted(() => ({
-  advanceChatRoomConversation: vi.fn(),
-  evaluateChatRoomUserMessage: vi.fn(),
-  generateChatRoomConversationReport: vi.fn(),
-  generatePracticeModuleFromChatRoomConversationReport: vi.fn(),
-}));
-
-const resourceDraftMocks = vi.hoisted(() => ({
-  generateChatRoomDraft: vi.fn(),
 }));
 
 const tutorReportMocks = vi.hoisted(() => ({
@@ -84,11 +50,8 @@ const tutorReportMocks = vi.hoisted(() => ({
 
 vi.mock('../../src/server/db/repository.js', () => repositoryMocks);
 vi.mock('../../src/server/services/creditGate.js', () => creditGateMocks);
-vi.mock('../../src/server/services/chatrooms.js', () => chatroomServiceMocks);
-vi.mock('../../src/server/services/resourceDrafts.js', () => resourceDraftMocks);
 vi.mock('../../src/server/services/tutorReports.js', () => tutorReportMocks);
 vi.mock('../../src/server/services/learnerProgress.js', () => ({
-  recordChatRoomConversationReportProgress: vi.fn(),
   recordTutorConversationReportProgress: vi.fn(),
 }));
 vi.mock('../../src/server/auth/profiles.js', () => ({
@@ -99,10 +62,6 @@ vi.mock('../../src/server/pages/shell.js', () => ({
   buildAppShellContext: vi.fn(() => ({})),
   getHomeAuthMessage: vi.fn(() => ''),
   resolveGuestInitialGreeting: vi.fn(() => ''),
-}));
-vi.mock('../../src/server/pages/resourceLayout.js', () => ({
-  chatroomsLayoutCookieName: 'chatrooms_layout',
-  resolveResourceLayout: vi.fn(() => 'cards'),
 }));
 
 describe('credit exhaustion web handlers', () => {
@@ -143,54 +102,6 @@ describe('credit exhaustion web handlers', () => {
     expect(tutorReportMocks.generateTutorConversationReport).not.toHaveBeenCalled();
   });
 
-  it('redirects chatroom report module generation to product credit UI', async () => {
-    repositoryMocks.findChatRoomConversationForUser.mockReturnValue({
-      id: 'chatroom-conversation-1',
-      profileId: 'profile-1',
-      roomId: 'room-1',
-      userId: 'user-1',
-    });
-    repositoryMocks.findChatRoomForUser.mockReturnValue({
-      id: 'room-1',
-      profileId: 'profile-1',
-      title: 'Interview room',
-      userId: 'user-1',
-    });
-    repositoryMocks.findChatRoomConversationReport.mockReturnValue({
-      id: 'report-1',
-      conversationId: 'chatroom-conversation-1',
-      practiceModuleId: null,
-      profileId: 'profile-1',
-      roomId: 'room-1',
-      slides: [],
-      summaryDescription: 'Practice summary',
-      summaryTitle: 'Practice report',
-      userId: 'user-1',
-    });
-    creditGateMocks.getCreditCheckedOpenRouterApiKeyForUser.mockRejectedValue(
-      new creditGateMocks.CreditExhaustedError(),
-    );
-    const response = createRedirectResponse();
-    const { handleCreatePracticeModuleFromChatRoomConversationReport } = await import(
-      '../../src/server/chatrooms/handlers.js'
-    );
-
-    await handleCreatePracticeModuleFromChatRoomConversationReport(
-      {
-        activeProfile: activeProfile(),
-        authUser: verifiedUser(),
-        params: { roomConversationId: 'chatroom-conversation-1' },
-      } as unknown as Request,
-      response as unknown as Response,
-    );
-
-    const location = getRedirectLocation(response);
-    expect(location).toMatch(/^\/chatroom-conversations\/chatroom-conversation-1\/report\?/);
-    expect(location).toContain('credit=exhausted');
-    expect(readRedirectParam(location, 'creditMessage')).toBe('No credits available.');
-    expect(location).not.toContain('CreditExhaustedError');
-    expect(repositoryMocks.createPracticeModule).not.toHaveBeenCalled();
-  });
 });
 
 function verifiedUser() {

@@ -9,7 +9,8 @@ combines:
 
 - a one-on-one tutor chat experience
 - reusable practice modules
-- multi-character chat rooms
+- teacher-authored assignments
+- a unified resource catalog with folders
 - post-conversation analysis and practice generation
 - profile-scoped personalization, including model selection
 
@@ -50,7 +51,6 @@ Key characteristics:
 - real-time delivery through Socket.IO
 - structured model responses validated on the server
 - optional practice module context
-- optional chat room report context
 - optional finalized tutor conversation report context
 - interactive exercises embedded in the message stream
 - finalizable conversations with structured summaries and follow-up practice
@@ -70,7 +70,6 @@ Practice modules can be:
 
 - created manually
 - AI-generated from a short prompt
-- generated from a chat room report
 - launched into tutor conversations
 
 ### Teacher-Assigned Practice
@@ -94,25 +93,6 @@ It should let teachers:
 This area reuses the existing `quiz` and `quiz_result` contracts while
 remaining a standalone resource flow rather than a fake chat conversation.
 
-### Chat Rooms
-
-Chat rooms model guided multi-character conversation scenarios.
-
-A room contains:
-
-- title
-- description
-- ordered characters with short and full descriptions
-
-Users can:
-
-- create rooms manually
-- generate room drafts with AI
-- join a room
-- create chat room conversations
-- evaluate a completed conversation
-- generate a practice module from the resulting report
-
 ### Tutor Conversation Reports
 
 One-on-one tutor conversations can be finalized and summarized.
@@ -128,8 +108,8 @@ Users can:
 
 ### Learner Progress
 
-Completed tutor conversations and evaluated chat room conversations contribute
-to a profile-scoped progress view.
+Completed tutor conversations and evaluated assignments contribute to a
+profile-scoped progress view.
 
 Users can inspect:
 

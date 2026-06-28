@@ -341,29 +341,40 @@ Goal: remove `Salas de chat` as a standalone product area.
 
 Tasks:
 
-- [ ] Decide whether any chatroom concepts migrate into `Diálogos`.
+- [x] Decide whether any chatroom concepts migrate into `Diálogos`.
 - [x] Remove sidebar entry.
-- [ ] Remove chatroom routes or add temporary redirects.
-- [ ] Remove chatroom views.
-- [ ] Remove chatroom client entry if unused.
-- [ ] Remove chatroom server services when no longer referenced.
-- [ ] Remove chatroom share-link routes.
-- [ ] Remove chatroom repository helpers.
+- [x] Remove chatroom routes or add temporary redirects.
+- [x] Remove chatroom views.
+- [x] Remove chatroom client entry if unused.
+- [x] Remove chatroom server services when no longer referenced.
+- [x] Remove chatroom share-link routes.
+- [ ] Remove legacy chatroom repository helpers after the schema reset or an
+  explicit destructive migration.
 - [ ] Remove chatroom tables only if migration strategy allows it.
-- [ ] Update docs to mark chatrooms deprecated or remove them from current
+- [x] Update docs to mark chatrooms deprecated or remove them from current
   architecture docs.
+
+Notes:
+
+- Useful chatroom learning ideas are deferred to `Diálogos`; they should be
+  redesigned as resource-shaped dialogue practice instead of migrated directly.
+- The current slice intentionally leaves legacy chatroom tables and repository
+  helpers in place. Removing them is schema/destructive persistence work and
+  should happen with the planned baseline reset or a forward-only migration.
 
 Exit criteria:
 
-- [ ] No user-facing `Salas de chat` surface remains.
-- [ ] No dead route, view, or client entry remains.
-- [ ] Tests no longer depend on chatrooms.
+- [x] No user-facing `Salas de chat` surface remains.
+- [x] No dead route, view, or client entry remains.
+- [x] Feature tests no longer depend on chatrooms.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] `rg "chatroom|chat_room|Salas de chat"` reviewed for intentional remnants.
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test`
+- [x] `rg "chatroom|chat_room|Salas de chat"` reviewed for intentional
+  remnants.
 
 ## Slice 8: Generic Sharing And Import Cleanup
 
@@ -429,7 +440,7 @@ Tasks:
 - [x] Document nested folders, move-to-folder modal behavior, and common versus
   resource-specific options in
   [Resource Simplification V2](../features/resource-simplification-v2.md).
-- [ ] Remove unused chatroom files/types.
+- [x] Remove unused chatroom runtime files.
 - [ ] Remove duplicated resource card/list helpers.
 - [ ] Update [README](../README.md).
 - [ ] Update [Data Model](../architecture/data-model.md).

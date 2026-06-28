@@ -30,7 +30,6 @@ describe('server route architecture', () => {
     expect(server).toContain("import { assignmentsRouter } from './assignments/routes.js';");
     expect(server).toContain("import { authRouter } from './auth/routes.js';");
     expect(server).toContain("import { chatRouter } from './chat/routes.js';");
-    expect(server).toContain("import { chatroomsRouter } from './chatrooms/routes.js';");
     expect(server).toContain("import { legalRouter } from './legal/routes.js';");
     expect(server).toContain("import { paymentsRouter, stripeWebhookRouter } from './payments/routes.js';");
     expect(server).toContain("import { practiceModulesRouter } from './practiceModules/routes.js';");
@@ -40,6 +39,8 @@ describe('server route architecture', () => {
     expect(server).toContain("import { settingsRouter } from './settings/routes.js';");
     expect(server).toContain("import { superadminRouter } from './superadmin/routes.js';");
     expect(server).toContain("import { clientTelemetryRouter } from './telemetry/clientErrors.js';");
+    expect(server).not.toContain("import { chatroomsRouter }");
+    expect(server).not.toContain('app.use(chatroomsRouter)');
     expect(server).not.toContain('/handlers.js');
   });
 

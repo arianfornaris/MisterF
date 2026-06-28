@@ -82,8 +82,12 @@ describe('main route smoke tests', () => {
       route: '/practice-modules',
     },
     {
-      location: '/login',
+      location: '/resources',
       route: '/chatrooms',
+    },
+    {
+      location: '/resources',
+      route: '/chatroom-conversations/test-conversation',
     },
     {
       location: '/login',

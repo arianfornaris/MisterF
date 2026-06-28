@@ -3,7 +3,6 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const expectedGenerateTextCallCounts: Record<string, number> = {
-  'src/server/services/chatrooms.ts': 4,
   'src/server/services/llmTutor/blockRepair.ts': 1,
   'src/server/services/llmTutor/index.ts': 4,
   'src/server/services/resourceDrafts.ts': 1,
@@ -13,10 +12,8 @@ const expectedGenerateTextCallCounts: Record<string, number> = {
 const creditCheckedEntrypoints = [
   'src/server/assignments/handlers.ts',
   'src/server/chat/handlers.ts',
-  'src/server/chatrooms/handlers.ts',
   'src/server/practiceModules/handlers.ts',
   'src/server/socket/chatSocket.ts',
-  'src/server/services/llmTutor/chatRoomTools.ts',
 ];
 
 function readProjectFile(relativePath: string): string {

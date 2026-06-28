@@ -6,13 +6,12 @@ practice class topics with structured AI-assisted feedback. V1 includes:
 
 - Tutor conversations with structured exercise blocks and visible tutor plans.
 - Learner profiles, model tiers, progress summaries, and tutor reports.
-- Reusable practice modules and practice-module collections.
-- Multi-character chat rooms, chat-room reports, and report-to-practice-module
-  flows.
+- Reusable practice guides, assignments, resource folders, and the unified
+  resource catalog.
 - Account auth, email verification, password reset, Google OAuth, and
   superadmin access.
 - Stripe Checkout credit purchases backed by managed OpenRouter user keys.
-- Share/import flows for practice modules, collections, and chat rooms.
+- Share/import flows for supported resources.
 - Client critical-error telemetry and structured server runtime logs.
 
 Teacher-facing work includes shareable assignments where a human teacher uses
@@ -25,7 +24,7 @@ continue with Mr. F under the standard credit policy.
 
 - Node.js, Express, TypeScript, and EJS
 - Bootstrap, Bootswatch Flatly, Bootstrap Icons, and small project CSS
-- Socket.IO for tutor/chat-room realtime flows
+- Socket.IO for tutor realtime flows
 - SQLite with project migrations
 - AI SDK with OpenRouter
 - Stripe Checkout for paid credits

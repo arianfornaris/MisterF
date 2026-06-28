@@ -1,8 +1,0 @@
-INTERNAL APP CONTINUATION.
-
-{{CORRECTION_REASON}}
-Re-emit the complete response as exactly one JSON object and nothing else.
-Do not use markdown fences.
-Do not add explanations or extra text before or after the JSON.
-The only valid shape is:
-{"messages":[{"speakerName":"Character name","content":"Next message"}]}

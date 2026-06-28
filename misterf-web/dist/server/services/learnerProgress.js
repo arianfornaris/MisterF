@@ -39,22 +39,6 @@ export function recordAssignmentAttemptProgress(attempt) {
         userId: attempt.userId,
     });
 }
-export function recordChatRoomConversationReportProgress(input) {
-    upsertLearnerProgressEvent({
-        details: buildChatRoomReportEventDetails(input),
-        eventDate: input.report.createdAt,
-        profileId: input.report.profileId,
-        sourceId: input.report.id,
-        sourceType: 'chat_room_conversation_report',
-        summary: compactText(input.report.summaryDescription, maxTimelineSummaryLength),
-        title: compactText(input.report.summaryTitle, 120),
-        userId: input.report.userId,
-    });
-    refreshLearnerProgressSummary({
-        profileId: input.report.profileId,
-        userId: input.report.userId,
-    });
-}
 export function recordTutorConversationReportProgress(report) {
     upsertLearnerProgressEvent({
         details: buildTutorReportEventDetails(report),
@@ -128,33 +112,6 @@ function buildTutorReportEventDetails(report) {
             .filter(Boolean)
             .map((item) => compactText(item, 80))
             .slice(0, 12),
-    };
-}
-function buildChatRoomReportEventDetails(input) {
-    const slideTitles = input.report.slides
-        .map((slide) => slide.title)
-        .filter(Boolean)
-        .map((item) => compactText(item, 120));
-    const improvementNotes = input.report.slides
-        .flatMap((slide) => [
-        slide.evaluationDescription,
-        ...slide.messageEvaluation.parts
-            .filter((part) => part.status !== 'correct')
-            .map((part) => part.explanation || part.text),
-    ])
-        .filter(Boolean)
-        .map((item) => compactText(item, 140));
-    return {
-        difficulties: uniqueLimited(improvementNotes, 4),
-        practiced: uniqueLimited([input.room.title, ...slideTitles], 5),
-        progress: uniqueLimited([
-            input.report.summaryTitle,
-            input.report.summaryDescription,
-        ], 3),
-        recommendations: uniqueLimited(improvementNotes, 5),
-        vocabulary: uniqueLimited(input.report.slides.flatMap((slide) => slide.messageEvaluation.parts
-            .filter((part) => part.status !== 'correct')
-            .map((part) => part.text)), 12).map((item) => compactText(item, 80)),
     };
 }
 function buildAssignmentAttemptEventDetails(input) {

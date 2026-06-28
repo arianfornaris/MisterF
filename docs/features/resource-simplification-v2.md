@@ -5,7 +5,7 @@ Date: 2026-06-25
 ## Product Intent
 
 V1 leaves Mister F with several resource-like areas that are useful but
-increasingly redundant: practice modules, assignments, chat rooms, and
+increasingly redundant: practice modules, assignments, legacy chat rooms, and
 share-link/import flows attached to each resource family. V2 should simplify
 this into one resource system that is easier to understand, organize, share,
 and extend.
@@ -58,8 +58,18 @@ too separate from the rest of the product:
 - separate reporting/follow-up path
 - no clear connection to the broader resource library
 
-V2 should either migrate useful chatroom ideas into `Diálogos` or remove the
-feature entirely if no production data needs preservation.
+V2 should migrate only the useful learning ideas into `Diálogos`; it should not
+carry the old standalone chatroom product surface forward.
+
+Current implementation status:
+
+- the sidebar entry has been removed
+- standalone chatroom routes now redirect to `/resources`
+- chatroom EJS views, client entrypoints, page CSS, prompt files, and runtime
+  services have been removed
+- tutor chat no longer receives chatroom report context or chatroom tools
+- legacy chatroom schema/repository helpers remain only as migration debt until
+  the baseline reset or an explicit destructive migration removes them
 
 ### Rename Practice Module To Practice Guide
 

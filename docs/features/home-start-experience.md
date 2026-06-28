@@ -35,8 +35,7 @@ Weaknesses:
 
 - the learner may not know what to practice
 - weak continuity from previous work
-- hidden value from progress reports, chat rooms, modules, and future
-  assignments
+- hidden value from progress reports, resources, modules, and assignments
 - built-in practice ideas have no obvious place to surface
 - repeated visits can feel like starting from zero
 
@@ -117,7 +116,6 @@ The reason should be concrete but gentle:
 - `vocabulary_review`: review words or phrases that need attention
 - `built_in_topic`: start from curated built-in content
 - `practice_module`: launch or continue a saved module
-- `chat_room_follow_up`: practice issues found in a chat room report
 - `assignment`: complete or continue teacher-assigned practice
 - `generated_topic`: dynamic topic generated from profile/history
 - `free_start`: open-ended suggestion such as "Tell Mr. F what you need today"
@@ -214,13 +212,6 @@ The suggestion engine can use existing product data.
 - recommended practice
 - vocabulary needing attention
 - recent progress events
-
-### Chat Room Signals
-
-- evaluated chat room reports
-- recurring communication issues
-- room topics and scenarios
-- report-generated practice module availability
 
 ### Resource Signals
 
@@ -538,7 +529,7 @@ Use for:
 
 - practice module
 - teacher assignment
-- chat room follow-up
+- future dialogue follow-up
 
 The app opens the relevant resource detail or attempt page.
 

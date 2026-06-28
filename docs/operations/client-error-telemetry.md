@@ -23,7 +23,7 @@ The payload is small and sanitized before it is logged:
 - source file
 - line and column
 - route path
-- conversation id inferred from `/c/:id` or `/chatroom-conversations/:id`
+- conversation id inferred from `/c/:id`
 - browser user agent
 - fingerprint
 - timestamp

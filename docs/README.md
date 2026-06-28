@@ -34,7 +34,7 @@ interactive behavior.
 
 Use `features/` for product areas, feature concepts, and future feature ideas.
 
-- [Chat Rooms](./features/chatrooms.md): multi-character chat room behavior and implementation notes
+- [Chat Rooms](./features/chatrooms.md): archived notes for the removed chat room feature
 - [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Tareas` workflow for human teachers and students, including free guest evaluation and account-based follow-up practice
 - [Resource Simplification V2](./features/resource-simplification-v2.md): planned simplification from separate resource areas into one `Recursos` catalog with assignments, practice guides, folders, and dialogues
 - [Home Start Experience](./features/home-start-experience.md): exploration of personalized start suggestions and a built-in practice topic library

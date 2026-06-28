@@ -3,7 +3,6 @@ import { env } from '../../config/env.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './errors.js';
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, shouldLogFullLlmTrace, } from './logging.js';
-import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
@@ -136,11 +135,6 @@ export async function runTutorAgentLoop(history, options) {
         profileId: options.profileId ?? null,
         userId: options.userId ?? null,
     });
-    const chatRoomTools = buildTutorChatRoomTools({
-        onToolCall: options.onToolCall,
-        profileId: options.profileId ?? null,
-        userId: options.userId ?? null,
-    });
     const progressTools = buildTutorProgressTools({
         onToolCall: options.onToolCall,
         profileId: options.profileId ?? null,
@@ -154,7 +148,6 @@ export async function runTutorAgentLoop(history, options) {
     });
     const mergedTools = {
         ...(practiceModuleTools || {}),
-        ...(chatRoomTools || {}),
         ...(progressTools || {}),
         ...(conversationTools || {}),
     };

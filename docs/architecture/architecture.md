@@ -32,12 +32,13 @@ The server code is organized by feature area. Each feature has its own handlers 
 Main route areas:
 
 - `auth`
+- `assignments`
 - `chat`
-- `chatrooms`
 - `payments`
 - `practiceModules`
 - `progress`
 - `profiles`
+- `resources`
 - `settings`
 - `superadmin`
 
@@ -117,11 +118,13 @@ Client code lives under:
 
 Important areas:
 
+- `assignments`: assignment authoring and attempt page behavior
 - `chat`: tutor chat runtime, renderers, exercise cards, socket handlers
-- `chatrooms`: page behaviors for chat room pages
 - `practiceModules`: page behaviors for module pages
+- `resources`: resource catalog, folders, resource actions, and move modal
 - `shared`: page-agnostic helpers
 - `styles`: CSS files grouped by surface
+- `telemetry`: browser critical-error reporter
 
 ### Tutor chat client
 
@@ -170,8 +173,7 @@ Prompt families are separated by responsibility:
 
 - `tutor/*`: main tutor system and related structured correction/evaluation prompts
 - `tutor/blocks/*`: source-of-truth tutor response block protocol files
-- `chatrooms/*`: chat room conversation and reporting prompts
-- `resources/*`: draft generation for practice modules and chat rooms
+- `resources/*`: draft and revision generation for assignments and practice modules
 
 Tutor prompts also include finalized conversation reporting prompts. Those
 generate tutor conversation summaries, repair invalid report JSON, convert tutor
@@ -273,22 +275,6 @@ module action.
 explicitly confirms creating a saved "módulo"/"module". A request for a plan,
 new plan, route, guide, exercise sequence, review, or next step is not a module
 creation request.
-
-### Chat room tools
-
-Defined in:
-
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/chatRoomTools.ts`
-
-Tools:
-
-- `list_chat_rooms`
-- `create_chat_room`
-- `delete_chat_room`
-- `list_chat_room_conversations`
-- `get_chat_room_conversation`
-- `evaluate_chat_room_conversation`
-- `get_chat_room_conversation_report`
 
 ### Learner progress tools
 

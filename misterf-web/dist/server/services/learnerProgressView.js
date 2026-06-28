@@ -8,9 +8,11 @@ export function buildLearnerProgressVocabularyItems(events) {
             }
             const key = term.toLowerCase();
             const existing = items.get(key);
-            const sourceLabel = event.sourceType === 'chat_room_conversation_report'
-                ? 'Sala de chat'
-                : 'Tutor';
+            const sourceLabel = event.sourceType === 'assignment_attempt'
+                ? 'Tarea'
+                : event.sourceType === 'tutor_conversation_report'
+                    ? 'Tutor'
+                    : 'Práctica';
             if (existing) {
                 existing.count += 1;
                 if (Date.parse(event.eventDate) > Date.parse(existing.lastSeenAt)) {

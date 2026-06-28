@@ -30,8 +30,6 @@ Important files:
 - `internal-tool-continuation.md`: continuation prompt after tool calls
 - `profile-context.md`: teacher-only context block with learner-authored profile background
 - `practice-module-context.md`: context block for tutor conversations started from a practice module
-- `chatroom-report-context.md`: context block for tutor conversations started from a chat room report
-- `chatroom-report-start.md`: one-shot internal first-turn nudge for conversations created from a chat room report
 - `tutor-report-context.md`: context block for tutor conversations started from a finalized tutor conversation report
 - `tutor-report-start.md`: one-shot internal first-turn nudge for conversations created from a finalized tutor report
 - `visible-plan-context.md`: teacher-only context with the current fused visible tutor plan
@@ -72,10 +70,10 @@ be attributed to the learner or to Mr. F.
 Report-based tutor conversations separate persistent context from first-turn
 behavior:
 
-- `chatroom-report-context.md` and `tutor-report-context.md` describe the stable
-  conversation objective and remain safe to include on every turn.
-- `chatroom-report-start.md` and `tutor-report-start.md` are one-shot internal
-  messages used only when an empty report-seeded conversation auto-starts.
+- `tutor-report-context.md` describes the stable conversation objective and
+  remains safe to include on every turn.
+- `tutor-report-start.md` is a one-shot internal message used only when an empty
+  report-seeded conversation auto-starts.
 - Start commands such as "begin with..." or "start practicing..." should live in
   the one-shot start prompts, not in persistent report context prompts.
 
@@ -100,22 +98,6 @@ Protocol labels are required inside JSON structure, especially `type`
 discriminators. They must not appear in learner-visible text fields such as
 `message.markdown`, prompts, titles, labels, options, or explanations.
 
-### Chat room prompts
-
-Folder:
-
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/system-prompts/chatrooms`
-
-Important files:
-
-- `master-group-chat.md`: main prompt for multi-character chat room conversations
-- `conversation-report.md`: evaluates a finished room conversation into a report
-- `conversation-report-correction.md`: structured repair prompt for report generation
-- `report-to-practice-module.md`: turns a report into a practice module draft
-- `report-to-practice-module-correction.md`: structured repair prompt for that conversion
-- `user-message-evaluation.md`: evaluates a user message inside a chat room conversation
-- `structured-correction.md`: generic repair helper for chat room structured outputs
-
 ### Resource generation prompts
 
 Folder:
@@ -128,8 +110,12 @@ Important files:
 - `practice-module-draft-correction.md`
 - `practice-module-revision.md`
 - `practice-module-revision-correction.md`
-- `chatroom-draft.md`
-- `chatroom-draft-correction.md`
+- `assignment-draft.md`
+- `assignment-draft-correction.md`
+- `assignment-revision.md`
+- `assignment-revision-correction.md`
+- `assignment-block.md`
+- `assignment-block-correction.md`
 
 These are used when the app generates or revises user-editable resources.
 

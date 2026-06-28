@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationChatRoomReportSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
@@ -77,7 +77,6 @@ export function registerChatSocket(io) {
             const messages = listMessages(conversation.id);
             const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
             const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
-            const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
             const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
             const tutorPlan = getConversationTutorPlan(conversation.id);
             if (messages.length === 0) {
@@ -97,7 +96,6 @@ export function registerChatSocket(io) {
                 conversationId: conversation.id,
                 messages: (practiceModuleSnapshot ||
                     assignmentAttemptSnapshot ||
-                    chatRoomReportSnapshot ||
                     tutorReportSnapshot) &&
                     messages.length === 0
                     ? []
@@ -107,12 +105,11 @@ export function registerChatSocket(io) {
                 pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
                 tutorPlan,
             });
-            if ((assignmentAttemptSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
+            if ((assignmentAttemptSnapshot || tutorReportSnapshot) &&
                 messages.length === 0 &&
                 !practiceModuleSnapshot) {
                 void streamAssistantMessage(io, conversation.id, userId, undefined, buildReportConversationStartMessages({
                     assignmentAttemptSnapshot,
-                    chatRoomReportSnapshot,
                     tutorReportSnapshot,
                 }), conversation.modelTier);
             }
@@ -133,8 +130,7 @@ export function registerChatSocket(io) {
                 : null;
             const shouldPersistInitialGreeting = !conversation ||
                 (listMessages(conversation.id).length === 0 &&
-                    !conversation.practiceModuleId &&
-                    !conversation.chatRoomConversationReportId);
+                    !conversation.practiceModuleId);
             if (!conversation) {
                 if (!currentProfile) {
                     return;
@@ -917,7 +913,6 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         const learnerProfile = findProfileForUser(conversation.profileId, userId);
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
         const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
-        const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
         const tutorPlan = getConversationTutorPlan(conversationId);
         const messages = listMessages(conversationId);
@@ -935,16 +930,6 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                 description: practiceModuleSnapshot.description,
                 title: practiceModuleSnapshot.title,
                 tutorInstructions: practiceModuleSnapshot.tutorInstructions,
-            }
-            : null;
-        const chatRoomReportContext = chatRoomReportSnapshot
-            ? {
-                chatRoomConversationId: chatRoomReportSnapshot.chatRoomConversationId,
-                reportSummaryDescription: chatRoomReportSnapshot.reportSummaryDescription,
-                reportSummaryTitle: chatRoomReportSnapshot.reportSummaryTitle,
-                roomDescription: chatRoomReportSnapshot.roomDescription,
-                roomTitle: chatRoomReportSnapshot.roomTitle,
-                slidesJson: chatRoomReportSnapshot.slidesJson,
             }
             : null;
         const assignmentAttemptContext = assignmentAttemptSnapshot
@@ -967,7 +952,6 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             : null;
         const result = await runTutorAgentLoop(history, {
             assignmentAttempt: assignmentAttemptContext,
-            chatRoomReport: chatRoomReportContext,
             learnerProfile: learnerProfile
                 ? {
                     description: learnerProfile.description,
@@ -1063,16 +1047,6 @@ function getToolStatusLabel(toolName) {
             return 'Ejecutando herramienta: eliminar módulo de práctica...';
         case 'build_practice_module_link':
             return 'Ejecutando herramienta: preparar enlace del módulo de práctica...';
-        case 'list_chat_rooms':
-            return 'Ejecutando herramienta: buscar salas de chat...';
-        case 'create_chat_room':
-            return 'Ejecutando herramienta: crear sala de chat...';
-        case 'delete_chat_room':
-            return 'Ejecutando herramienta: eliminar sala de chat...';
-        case 'list_chat_room_conversations':
-            return 'Ejecutando herramienta: buscar conversaciones de la sala de chat...';
-        case 'get_chat_room_conversation':
-            return 'Ejecutando herramienta: leer conversación de la sala de chat...';
         default:
             return `Ejecutando herramienta: ${toolName}...`;
     }
@@ -1112,12 +1086,6 @@ function buildReportConversationStartMessages(input) {
                 'Use the assignment context in the system prompt to start with the most useful remediation step.',
                 'Do not mention the internal signal.',
             ].join('\n'),
-        });
-    }
-    if (input.chatRoomReportSnapshot) {
-        messages.push({
-            role: 'user',
-            content: renderSystemPrompt('tutor/chatroom-report-start.md', {}),
         });
     }
     if (input.tutorReportSnapshot) {

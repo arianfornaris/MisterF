@@ -190,14 +190,9 @@ infrastructure while preserving room for a deeper teacher product later.
 
 ### Sidebar
 
-Place the new link below `Módulos de práctica`.
-
-Recommended order:
-
-1. `Módulos de práctica`
-2. `Tareas`
-3. `Salas de chat`
-4. progress/account links as they exist today
+Assignments now live under the unified `Recursos` catalog. Earlier V1 notes
+placed `Tareas` near `Módulos de práctica` and `Salas de chat`, but the resource
+navigation model supersedes that sidebar layout.
 
 The empty state can say:
 
@@ -737,7 +732,7 @@ Progress event details should include:
 - source attempt id
 
 The global progress summary should treat assignments as structured practice
-evidence, similar to finalized tutor reports and chat room reports.
+evidence, similar to finalized tutor reports.
 
 ## Prompting Notes
 

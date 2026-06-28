@@ -1,2 +1,0 @@
-import{t as e}from"./markdown-BEcjJFmG.js";function t(e=document){for(let t of e.querySelectorAll(`[data-render-markdown]`))n(t)}function n(t){t.innerHTML=e(t.textContent||``);for(let e of t.querySelectorAll(`a`))new URL(e.getAttribute(`href`)||``,window.location.href).origin!==window.location.origin&&(e.target=`_blank`,e.rel=`noopener noreferrer`)}export{t};
-//# sourceMappingURL=staticMarkdown-DLcxIW43.js.map

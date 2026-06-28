@@ -1,3 +1,0 @@
-function e(e){let t=document.createElement(`div`);return t.textContent=e,t.innerHTML}var t=!1;function n(t){if(r(),!window.marked||!window.DOMPurify)return e(t||``).replaceAll(`
-`,`<br>`);let n=window.marked.parse(t||``);return window.DOMPurify.sanitize(n,{USE_PROFILES:{html:!0}})}function r(){t||!window.marked?.setOptions||(window.marked.setOptions({breaks:!0,gfm:!0}),t=!0)}export{n as t};
-//# sourceMappingURL=markdown-BEcjJFmG.js.map

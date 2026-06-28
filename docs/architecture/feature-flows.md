@@ -146,38 +146,12 @@ independently. The Spanish UI label is `Tareas`.
 6. Mr. F continues with targeted practice instead of grading the same attempt
    again.
 
-## Chat Room Flow
+## Removed Chat Room Flow
 
-### Create room
-
-1. The user creates a room manually or from an AI draft.
-2. Characters are stored with explicit ordering.
-3. The room becomes available in the chat room list.
-
-### Run room conversation
-
-1. The user joins a room.
-2. A room conversation is created.
-3. The room-specific runtime drives a multi-character practice conversation.
-4. Messages are stored separately from the tutor chat message model.
-
-### Evaluate room conversation
-
-1. The user requests evaluation.
-2. The system generates a structured report with slides.
-3. The report is persisted and shown in a dedicated report page.
-
-### Continue with Mr. F
-
-1. From a room report, the user can start a tutor conversation.
-2. A conversation snapshot is created from the report.
-3. The tutor uses report context to continue practice in one-on-one mode.
-
-### Generate practice module from room report
-
-1. The user chooses to create a practice module from the report.
-2. The report is transformed through a prompt dedicated to this conversion.
-3. The generated module is persisted and shown to the user.
+The previous standalone chat room flow was removed in Resource Simplification
+V2 Slice 7. `/chatrooms` and `/chatroom-conversations/*` now redirect to
+`/resources`. Future conversational scenario practice should be designed as the
+new `Diálogos` resource type instead of restoring the old room flow.
 
 ## Quiz Flow
 

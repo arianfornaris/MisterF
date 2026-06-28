@@ -22,10 +22,11 @@ export function buildLearnerProgressVocabularyItems(
 
       const key = term.toLowerCase();
       const existing = items.get(key);
-      const sourceLabel =
-        event.sourceType === 'chat_room_conversation_report'
-          ? 'Sala de chat'
-          : 'Tutor';
+      const sourceLabel = event.sourceType === 'assignment_attempt'
+        ? 'Tarea'
+        : event.sourceType === 'tutor_conversation_report'
+        ? 'Tutor'
+        : 'Práctica';
 
       if (existing) {
         existing.count += 1;

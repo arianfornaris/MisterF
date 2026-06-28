@@ -12,12 +12,6 @@ const chatScriptPartialPath = path.join(
   'partials',
   'chat-client-script.ejs',
 );
-const chatroomsScriptPartialPath = path.join(
-  projectRoot,
-  'views',
-  'partials',
-  'chatrooms-client-script.ejs',
-);
 const practiceModulesScriptPartialPath = path.join(
   projectRoot,
   'views',
@@ -106,7 +100,6 @@ if (viteResult.status !== 0) {
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const assignmentsEntry = manifest['src/client/assignments/index.js'];
 const chatEntry = manifest['src/client/chat/index.js'];
-const chatroomsEntry = manifest['src/client/chatrooms/main.js'];
 const clientErrorTelemetryEntry = manifest['src/client/telemetry/clientErrorReporter.js'];
 const practiceModulesEntry = manifest['src/client/practiceModules/index.js'];
 const resourcesEntry = manifest['src/client/resources/index.js'];
@@ -117,10 +110,6 @@ if (!assignmentsEntry?.file) {
 }
 if (!chatEntry?.file) {
   console.error('Could not find chat entry in Vite manifest.');
-  process.exit(1);
-}
-if (!chatroomsEntry?.file) {
-  console.error('Could not find chatrooms entry in Vite manifest.');
   process.exit(1);
 }
 if (!clientErrorTelemetryEntry?.file) {
@@ -138,7 +127,6 @@ if (!resourcesEntry?.file) {
 
 const assignmentsScriptPath = `/public/build/${assignmentsEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
-const chatroomsScriptPath = `/public/build/${chatroomsEntry.file}`;
 const clientErrorTelemetryScriptPath = `/public/build/${clientErrorTelemetryEntry.file}`;
 const practiceModulesScriptPath = `/public/build/${practiceModulesEntry.file}`;
 const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
@@ -151,11 +139,6 @@ fs.writeFileSync(
 fs.writeFileSync(
   chatScriptPartialPath,
   `    <script type="module" src="${chatScriptPath}"></script>\n`,
-  'utf8',
-);
-fs.writeFileSync(
-  chatroomsScriptPartialPath,
-  `    <script type="module" src="${chatroomsScriptPath}"></script>\n`,
   'utf8',
 );
 fs.writeFileSync(
@@ -205,9 +188,6 @@ console.log(
 );
 console.log(
   `Generated ${path.relative(projectRoot, chatScriptPartialPath)} -> ${chatScriptPath}`,
-);
-console.log(
-  `Generated ${path.relative(projectRoot, chatroomsScriptPartialPath)} -> ${chatroomsScriptPath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, clientErrorTelemetryScriptPartialPath)} -> ${clientErrorTelemetryScriptPath}`,

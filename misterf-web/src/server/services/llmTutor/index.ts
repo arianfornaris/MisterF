@@ -18,7 +18,6 @@ import {
   logLlmToolCalls,
   shouldLogFullLlmTrace,
 } from './logging.js';
-import { buildTutorChatRoomTools } from './chatRoomTools.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
@@ -203,14 +202,6 @@ export async function runTutorAgentLoop(
       learningContext: string;
       name: string;
     } | null;
-    chatRoomReport?: {
-      chatRoomConversationId: string;
-      reportSummaryDescription: string;
-      reportSummaryTitle: string;
-      roomDescription: string;
-      roomTitle: string;
-      slidesJson: string;
-    } | null;
     tutorReport?: {
       reportJson: string;
       reportSummaryDescription: string;
@@ -258,11 +249,6 @@ export async function runTutorAgentLoop(
     profileId: options.profileId ?? null,
     userId: options.userId ?? null,
   });
-  const chatRoomTools = buildTutorChatRoomTools({
-    onToolCall: options.onToolCall,
-    profileId: options.profileId ?? null,
-    userId: options.userId ?? null,
-  });
   const progressTools = buildTutorProgressTools({
     onToolCall: options.onToolCall,
     profileId: options.profileId ?? null,
@@ -276,7 +262,6 @@ export async function runTutorAgentLoop(
   });
   const mergedTools = {
     ...(practiceModuleTools || {}),
-    ...(chatRoomTools || {}),
     ...(progressTools || {}),
     ...(conversationTools || {}),
   };

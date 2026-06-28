@@ -12,7 +12,6 @@ import { loadAuthSession } from './auth/middleware.js';
 import { authRouter } from './auth/routes.js';
 import { requireSessionSecret } from './auth/session.js';
 import { chatRouter } from './chat/routes.js';
-import { chatroomsRouter } from './chatrooms/routes.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
 import { legalRouter } from './legal/routes.js';
@@ -79,7 +78,12 @@ app.use(settingsRouter);
 app.use(paymentsRouter);
 app.use(legalRouter);
 app.use(progressRouter);
-app.use(chatroomsRouter);
+app.get(/^\/chatrooms(?:\/.*)?$/, (_request, response) => {
+  response.redirect('/resources');
+});
+app.get(/^\/chatroom-conversations(?:\/.*)?$/, (_request, response) => {
+  response.redirect('/resources');
+});
 app.use(chatRouter);
 app.get('/session', (request, response) => {
   response.json({

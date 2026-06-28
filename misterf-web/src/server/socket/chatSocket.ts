@@ -17,7 +17,6 @@ import {
   findConversationForUser,
   findProfileForUser,
   getConversationAssignmentAttemptSnapshot,
-  getConversationChatRoomReportSnapshot,
   getConversationPracticeModuleSnapshot,
   getConversationTutorPlan,
   getConversationTutorReportSnapshot,
@@ -27,7 +26,6 @@ import {
   updateConversationModelTierForUser,
   updateMessageMetadata,
   type StoredConversationAssignmentAttemptSnapshot,
-  type StoredConversationChatRoomReportSnapshot,
   type StoredConversationTutorReportSnapshot,
   type StoredMessage,
   type StoredProfile,
@@ -273,7 +271,6 @@ export function registerChatSocket(io: Server): void {
       const messages = listMessages(conversation.id);
       const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
       const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
-      const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversation.id);
       const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
       const tutorPlan = getConversationTutorPlan(conversation.id);
       if (messages.length === 0) {
@@ -295,7 +292,6 @@ export function registerChatSocket(io: Server): void {
         messages:
           (practiceModuleSnapshot ||
             assignmentAttemptSnapshot ||
-            chatRoomReportSnapshot ||
             tutorReportSnapshot) &&
           messages.length === 0
             ? []
@@ -307,7 +303,7 @@ export function registerChatSocket(io: Server): void {
       });
 
       if (
-        (assignmentAttemptSnapshot || chatRoomReportSnapshot || tutorReportSnapshot) &&
+        (assignmentAttemptSnapshot || tutorReportSnapshot) &&
         messages.length === 0 &&
         !practiceModuleSnapshot
       ) {
@@ -318,7 +314,6 @@ export function registerChatSocket(io: Server): void {
           undefined,
           buildReportConversationStartMessages({
             assignmentAttemptSnapshot,
-            chatRoomReportSnapshot,
             tutorReportSnapshot,
           }),
           conversation.modelTier,
@@ -346,8 +341,7 @@ export function registerChatSocket(io: Server): void {
       const shouldPersistInitialGreeting =
         !conversation ||
         (listMessages(conversation.id).length === 0 &&
-          !conversation.practiceModuleId &&
-          !conversation.chatRoomConversationReportId);
+          !conversation.practiceModuleId);
       if (!conversation) {
         if (!currentProfile) {
           return;
@@ -1383,7 +1377,6 @@ async function streamAssistantMessage(
     const learnerProfile = findProfileForUser(conversation.profileId, userId);
     const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
     const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
-    const chatRoomReportSnapshot = getConversationChatRoomReportSnapshot(conversationId);
     const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
     const tutorPlan = getConversationTutorPlan(conversationId);
 
@@ -1402,16 +1395,6 @@ async function streamAssistantMessage(
           description: practiceModuleSnapshot.description,
           title: practiceModuleSnapshot.title,
           tutorInstructions: practiceModuleSnapshot.tutorInstructions,
-        }
-      : null;
-    const chatRoomReportContext = chatRoomReportSnapshot
-      ? {
-          chatRoomConversationId: chatRoomReportSnapshot.chatRoomConversationId,
-          reportSummaryDescription: chatRoomReportSnapshot.reportSummaryDescription,
-          reportSummaryTitle: chatRoomReportSnapshot.reportSummaryTitle,
-          roomDescription: chatRoomReportSnapshot.roomDescription,
-          roomTitle: chatRoomReportSnapshot.roomTitle,
-          slidesJson: chatRoomReportSnapshot.slidesJson,
         }
       : null;
     const assignmentAttemptContext = assignmentAttemptSnapshot
@@ -1439,7 +1422,6 @@ async function streamAssistantMessage(
 
     const result = await runTutorAgentLoop(history, {
       assignmentAttempt: assignmentAttemptContext,
-      chatRoomReport: chatRoomReportContext,
       learnerProfile: learnerProfile
         ? {
             description: learnerProfile.description,
@@ -1554,16 +1536,6 @@ function getToolStatusLabel(toolName: string): string {
       return 'Ejecutando herramienta: eliminar módulo de práctica...';
     case 'build_practice_module_link':
       return 'Ejecutando herramienta: preparar enlace del módulo de práctica...';
-    case 'list_chat_rooms':
-      return 'Ejecutando herramienta: buscar salas de chat...';
-    case 'create_chat_room':
-      return 'Ejecutando herramienta: crear sala de chat...';
-    case 'delete_chat_room':
-      return 'Ejecutando herramienta: eliminar sala de chat...';
-    case 'list_chat_room_conversations':
-      return 'Ejecutando herramienta: buscar conversaciones de la sala de chat...';
-    case 'get_chat_room_conversation':
-      return 'Ejecutando herramienta: leer conversación de la sala de chat...';
     default:
       return `Ejecutando herramienta: ${toolName}...`;
   }
@@ -1603,7 +1575,6 @@ function buildPracticeModuleStartMessage(practiceModule: {
 
 function buildReportConversationStartMessages(input: {
   assignmentAttemptSnapshot: StoredConversationAssignmentAttemptSnapshot | null;
-  chatRoomReportSnapshot: StoredConversationChatRoomReportSnapshot | null;
   tutorReportSnapshot: StoredConversationTutorReportSnapshot | null;
 }): TutorMessage[] {
   const messages: TutorMessage[] = [];
@@ -1617,13 +1588,6 @@ function buildReportConversationStartMessages(input: {
         'Use the assignment context in the system prompt to start with the most useful remediation step.',
         'Do not mention the internal signal.',
       ].join('\n'),
-    });
-  }
-
-  if (input.chatRoomReportSnapshot) {
-    messages.push({
-      role: 'user',
-      content: renderSystemPrompt('tutor/chatroom-report-start.md', {}),
     });
   }
 

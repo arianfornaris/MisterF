@@ -74,7 +74,6 @@ Key characteristics:
 
 - takes tutor message history
 - optionally takes practice module context
-- optionally takes chat room report context
 - optionally takes tutor conversation report context
 - optionally takes learner profile context
 - can use tools
@@ -364,25 +363,6 @@ or next steps must stay in normal tutoring mode and use response blocks such as
 and `build_practice_module_link` follow the same rule: the learner must
 explicitly command that exact saved-module action. Current module context is
 pedagogical guidance only; it is not permission to administer the saved module.
-
-### Chat room tools
-
-Defined in:
-
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/chatRoomTools.ts`
-
-Current tools:
-
-- `list_chat_rooms`
-- `create_chat_room`
-- `delete_chat_room`
-- `list_chat_room_conversations`
-- `get_chat_room_conversation`
-- `evaluate_chat_room_conversation`
-- `get_chat_room_conversation_report`
-
-Use these for explicit administration, inspection, and report generation for
-standalone chat room resources and their saved conversations.
 
 ### Learner progress tools
 

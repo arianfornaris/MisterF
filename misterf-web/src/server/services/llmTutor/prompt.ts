@@ -9,14 +9,6 @@ export function buildAgentSystemInstruction(options: {
     learningContext: string;
     name: string;
   } | null;
-  chatRoomReport?: {
-    chatRoomConversationId: string;
-    reportSummaryDescription: string;
-    reportSummaryTitle: string;
-    roomDescription: string;
-    roomTitle: string;
-    slidesJson: string;
-  } | null;
   tutorReport?: {
     reportJson: string;
     reportSummaryDescription: string;
@@ -53,7 +45,6 @@ export function buildAgentSystemInstruction(options: {
   if (!options.practiceModule) {
     if (
       !options.assignmentAttempt &&
-      !options.chatRoomReport &&
       !options.tutorReport &&
       !options.tutorPlanText
     ) {
@@ -69,20 +60,6 @@ export function buildAgentSystemInstruction(options: {
 
     if (options.assignmentAttempt) {
       appendAssignmentAttemptContext(sections, options.assignmentAttempt);
-    }
-
-    if (options.chatRoomReport) {
-      sections.push(
-        '',
-        renderSystemPrompt('tutor/chatroom-report-context.md', {
-        CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
-        REPORT_SLIDES_JSON: options.chatRoomReport.slidesJson,
-        REPORT_SUMMARY_DESCRIPTION: options.chatRoomReport.reportSummaryDescription,
-        REPORT_SUMMARY_TITLE: options.chatRoomReport.reportSummaryTitle,
-        ROOM_DESCRIPTION: options.chatRoomReport.roomDescription,
-        ROOM_TITLE: options.chatRoomReport.roomTitle,
-        }),
-      );
     }
 
     if (options.tutorReport) {
@@ -115,20 +92,6 @@ export function buildAgentSystemInstruction(options: {
 
   if (options.assignmentAttempt) {
     appendAssignmentAttemptContext(sections, options.assignmentAttempt);
-  }
-
-  if (options.chatRoomReport) {
-    sections.push(
-      '',
-      renderSystemPrompt('tutor/chatroom-report-context.md', {
-        CHAT_ROOM_CONVERSATION_ID: options.chatRoomReport.chatRoomConversationId,
-        REPORT_SLIDES_JSON: options.chatRoomReport.slidesJson,
-        REPORT_SUMMARY_DESCRIPTION: options.chatRoomReport.reportSummaryDescription,
-        REPORT_SUMMARY_TITLE: options.chatRoomReport.reportSummaryTitle,
-        ROOM_DESCRIPTION: options.chatRoomReport.roomDescription,
-        ROOM_TITLE: options.chatRoomReport.roomTitle,
-      }),
-    );
   }
 
   if (options.tutorReport) {

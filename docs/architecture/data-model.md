@@ -239,8 +239,7 @@ preserve or redirect:
 
 - assignment detail/share URLs
 - practice module detail/share URLs
-- chat room URLs, either removed with a clear redirect or migrated into
-  dialogue-like resources if the product decision changes
+- legacy chat room URLs, which now redirect to `/resources`
 
 ## Tutor Conversations
 
@@ -255,7 +254,7 @@ Important fields:
 - `profileId`
 - `activeAgent`
 - `practiceModuleId`
-- `chatRoomConversationReportId`
+- `chatRoomConversationReportId` legacy nullable field retained until schema cleanup
 - `modelTier`
 - `title`
 - `titleUpdatedByUser`
@@ -264,7 +263,6 @@ Important fields:
 Conversations may optionally be associated with:
 
 - a practice module snapshot source
-- a chat room report snapshot source
 - a tutor conversation report snapshot source
 - an assignment-attempt snapshot source
 
@@ -298,9 +296,11 @@ Stores a frozen copy of practice module context at conversation start.
 
 This protects the conversation from future edits to the original module.
 
-### Conversation Chat Room Report Snapshot
+### Legacy Conversation Chat Room Report Snapshot
 
-Stores a frozen copy of a chat room report used as tutor context.
+Legacy table for frozen chat room report context. Chat rooms were removed as an
+active product surface in Resource Simplification V2 Slice 7, so this table
+should not be used by new runtime flows.
 
 The snapshot includes:
 
@@ -457,8 +457,7 @@ attempts use `isPreview` and never write learner progress.
 ## Learner Progress
 
 Learner progress is profile-scoped and summarizes practice across tutor
-conversation reports, chat room conversation reports, and evaluated assignment
-attempts.
+conversation reports and evaluated assignment attempts.
 
 ### Learner Progress Profile
 
@@ -502,7 +501,8 @@ Important fields:
 Current source types:
 
 - `tutor_conversation_report`
-- `chat_room_conversation_report`
+- `assignment_attempt`
+- `chat_room_conversation_report` legacy only until schema cleanup
 
 The event details JSON contains compact lists of practiced topics,
 difficulties, progress notes, recommendations, and vocabulary. Events are the
@@ -563,7 +563,12 @@ Each includes:
 - creation time
 - optional revocation time
 
-## Chat Rooms
+## Legacy Chat Rooms
+
+Chat rooms were removed as an active product surface in Resource Simplification
+V2 Slice 7. The following tables may remain until the planned schema reset or an
+explicit destructive migration removes them. Do not build new runtime features
+against this model.
 
 ### Chat Room
 
