@@ -12,11 +12,12 @@ import {
   findAssignmentShareLinkById,
   findProfileById,
   findProfileForUser,
+  findResourceAccessForProfile,
   findResourceFolderForResource,
+  getOrCreateResourceShareLink,
   listResourceFolderPathForResource,
   listResourceFoldersForProfile,
-  getOrCreateAssignmentShareLink,
-  importAssignmentToProfile,
+  grantResourceAccess,
   listAssignmentAttemptsForUser,
   markAssignmentAttemptEvaluating,
   markAssignmentAttemptFailed,
@@ -505,6 +506,74 @@ function resolveOwnAssignment(
   return { activeProfile, assignment, user: auth.user };
 }
 
+function resolveAccessibleAssignment(
+  request: Request,
+  response: Response,
+): {
+  activeProfile: NonNullable<Request['activeProfile']>;
+  assignment: StoredAssignment;
+  canManageAssignment: boolean;
+  user: NonNullable<Request['authUser']>;
+} | null {
+  const auth = ensureVerifiedAssignmentUser(request, response);
+  if (!auth) {
+    return null;
+  }
+
+  const assignmentId = readField(request.params.assignmentId, 120);
+  const resourceAccess = findResourceAccessForProfile({
+    includeArchived: true,
+    profileId: auth.activeProfile.id,
+    resourceId: assignmentId,
+    userId: auth.user.id,
+  });
+
+  if (resourceAccess?.type === 'assignment') {
+    if (resourceAccess.accessKind === 'shared' && resourceAccess.archivedAt) {
+      response.redirect('/resources');
+      return null;
+    }
+
+    const assignment = findAssignmentById(resourceAccess.id);
+    if (!assignment) {
+      response.redirect('/resources');
+      return null;
+    }
+
+    return {
+      activeProfile: auth.activeProfile,
+      assignment,
+      canManageAssignment: resourceAccess.accessKind === 'owner',
+      user: auth.user,
+    };
+  }
+
+  const ownedAssignment = findAssignmentForUser(assignmentId, auth.user.id);
+  if (!ownedAssignment) {
+    response.redirect('/resources');
+    return null;
+  }
+
+  let activeProfile = auth.activeProfile;
+  if (ownedAssignment.profileId !== activeProfile.id) {
+    const profile = findProfileForUser(ownedAssignment.profileId, auth.user.id);
+    if (!profile) {
+      response.redirect('/resources');
+      return null;
+    }
+
+    activeProfile = profile;
+    setActiveProfileCookie(response, profile.id);
+  }
+
+  return {
+    activeProfile,
+    assignment: ownedAssignment,
+    canManageAssignment: true,
+    user: auth.user,
+  };
+}
+
 function resolveAccessibleAttempt(
   request: Request,
   response: Response,
@@ -966,7 +1035,7 @@ export async function renderAssignmentShowPage(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const resolved = resolveOwnAssignment(request, response);
+  const resolved = resolveAccessibleAssignment(request, response);
   if (!resolved) {
     return;
   }
@@ -976,37 +1045,45 @@ export async function renderAssignmentShowPage(
     return;
   }
 
-  const shareLink = getOrCreateAssignmentShareLink(resolved.assignment.id);
-  const shareUrl = buildAbsoluteAppUrl(
-    `/assignments/shared/${encodeURIComponent(shareLink.id)}`,
-  );
-  const assignmentShareQrDataUrl = await QRCode.toDataURL(shareUrl, {
-    margin: 1,
-    width: 180,
-  });
+  const shareLink = resolved.canManageAssignment
+    ? getOrCreateResourceShareLink(resolved.assignment.id)
+    : null;
+  const shareUrl = shareLink
+    ? buildAbsoluteAppUrl(`/resources/shared/${encodeURIComponent(shareLink.id)}`)
+    : '';
+  const assignmentShareQrDataUrl = shareLink
+    ? await QRCode.toDataURL(shareUrl, {
+        margin: 1,
+        width: 180,
+      })
+    : '';
   const assignmentShareMode = readAssignmentShareMode(request.query.share);
-  const selectedAssignmentSharedFromProfileName = resolved.assignment.sourceProfileId
+  const selectedAssignmentSharedFromProfileName = !resolved.canManageAssignment
+    ? findProfileById(resolved.assignment.profileId)?.name || ''
+    : resolved.assignment.sourceProfileId
     ? findProfileById(resolved.assignment.sourceProfileId)?.name || ''
     : '';
   const shareTargetAssignmentProfiles = (request.availableProfiles ?? []).filter(
     (profile) => profile.id !== resolved.assignment.profileId,
   );
-  const resourceCurrentFolder = findResourceFolderForResource(
-    resolved.assignment.id,
-    resolved.user.id,
-  );
-  const resourceFolderPath = listResourceFolderPathForResource(
-    resolved.assignment.id,
-    resolved.user.id,
-  );
-  const resourceFolderOptions = listResourceFoldersForProfile({
-    includeArchived: false,
-    profileId: resolved.assignment.profileId,
-    userId: resolved.user.id,
-  });
+  const resourceCurrentFolder = resolved.canManageAssignment
+    ? findResourceFolderForResource(resolved.assignment.id, resolved.user.id)
+    : null;
+  const resourceFolderPath = resolved.canManageAssignment
+    ? listResourceFolderPathForResource(resolved.assignment.id, resolved.user.id)
+    : [];
+  const resourceFolderOptions = resolved.canManageAssignment
+    ? listResourceFoldersForProfile({
+        includeArchived: false,
+        profileId: resolved.assignment.profileId,
+        userId: resolved.user.id,
+      })
+    : [];
   const attempts = listAssignmentAttemptsForUser({
     assignmentId: resolved.assignment.id,
-    profileId: resolved.assignment.profileId,
+    profileId: resolved.canManageAssignment
+      ? resolved.assignment.profileId
+      : resolved.activeProfile.id,
     userId: resolved.user.id,
   });
 
@@ -1018,6 +1095,7 @@ export async function renderAssignmentShowPage(
     }),
     assignmentAttempts: buildAssignmentAttemptListItems(attempts),
     assignmentBlockOutlineItems: buildAssignmentBlockOutlineItems(draft),
+    canManageAssignment: resolved.canManageAssignment,
     assignmentShareMode,
     assignmentShareQrDataUrl,
     draft,
@@ -1045,10 +1123,11 @@ export function handleShareAssignmentToProfile(request: Request, response: Respo
     return;
   }
 
-  importAssignmentToProfile({
-    shareKind: 'profile',
-    sourceAssignment: resolved.assignment,
-    targetProfileId: targetProfile.id,
+  grantResourceAccess({
+    grantedByUserId: resolved.user.id,
+    grantedVia: 'profile',
+    profileId: targetProfile.id,
+    resourceId: resolved.assignment.id,
     userId: resolved.user.id,
   });
   response.redirect(`/assignments/${encodeURIComponent(resolved.assignment.id)}`);
@@ -1081,34 +1160,14 @@ export function handleRestoreAssignment(request: Request, response: Response): v
 
 export function renderSharedAssignmentPage(request: Request, response: Response): void {
   const shareId = readField(request.params.shareId, 120);
-  const shareLink = findAssignmentShareLinkById(shareId);
-  if (!shareLink || shareLink.revokedAt) {
+  const legacyShareLink = findAssignmentShareLinkById(shareId);
+  if (!legacyShareLink || legacyShareLink.revokedAt) {
     response.redirect('/resources');
     return;
   }
 
-  const assignment = findAssignmentById(shareLink.assignmentId);
-  if (!assignment || assignment.archivedAt) {
-    response.redirect('/resources');
-    return;
-  }
-
-  const draft = assignmentToDraftOrRedirect(assignment, response);
-  if (!draft) {
-    return;
-  }
-
-  renderAssignmentsView(response, 'assignments-shared', {
-    ...buildAssignmentsShellContext(request, {
-      activeProfile: request.activeProfile ?? null,
-      title: `${assignment.title} - ${appDocumentTitle}`,
-      user: request.authUser ?? null,
-    }),
-    assignmentQuizJson: serializeViewJson(assignmentDraftToStudentQuizBlock(draft)),
-    draft,
-    selectedAssignment: assignment,
-    shareLink,
-  });
+  const resourceShareLink = getOrCreateResourceShareLink(legacyShareLink.assignmentId);
+  response.redirect(`/resources/shared/${encodeURIComponent(resourceShareLink.id)}`);
 }
 
 export function handleStartAssignmentAttempt(request: Request, response: Response): void {
@@ -1125,36 +1184,35 @@ export function handleStartAssignmentAttempt(request: Request, response: Respons
     return;
   }
 
-  const draft = assignmentToDraftOrRedirect(assignment, response);
-  if (!draft) {
+  const resourceShareLink = getOrCreateResourceShareLink(assignment.id);
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect(
+      `/login?returnTo=${encodeURIComponent(
+        `/resources/shared/${resourceShareLink.id}`,
+      )}`,
+    );
     return;
   }
 
-  const user = request.authUser;
-  const activeProfile = request.activeProfile;
-  const attempt = createAssignmentAttempt({
-    assignmentId: assignment.id,
-    profileId: user && activeProfile ? activeProfile.id : null,
-    snapshot: draft,
-    userId: user?.emailVerified ? user.id : null,
-  });
-  logger.info('assignment_attempt_started', {
-    assignmentId: assignment.id,
-    attemptId: attempt.id,
-    isGuest: !attempt.userId,
-    isPreview: attempt.isPreview,
-    profileId: attempt.profileId,
-    userId: attempt.userId,
+  grantResourceAccess({
+    grantedByUserId: assignment.userId,
+    grantedVia: 'link',
+    profileId: activeProfile.id,
+    resourceId: assignment.id,
+    shareLinkId: resourceShareLink.id,
+    userId: user.id,
   });
 
-  response.redirect(appendGuestToken(`/assignment-attempts/${encodeURIComponent(attempt.id)}`, attempt));
+  response.redirect(`/assignments/${encodeURIComponent(assignment.id)}`);
 }
 
 export function handleStartAssignmentTestAttempt(
   request: Request,
   response: Response,
 ): void {
-  const resolved = resolveOwnAssignment(request, response);
+  const resolved = resolveAccessibleAssignment(request, response);
   if (!resolved) {
     return;
   }
@@ -1166,8 +1224,10 @@ export function handleStartAssignmentTestAttempt(
 
   const attempt = createAssignmentAttempt({
     assignmentId: resolved.assignment.id,
-    isPreview: true,
-    profileId: resolved.assignment.profileId,
+    isPreview: resolved.canManageAssignment,
+    profileId: resolved.canManageAssignment
+      ? resolved.assignment.profileId
+      : resolved.activeProfile.id,
     snapshot: draft,
     userId: resolved.user.id,
   });

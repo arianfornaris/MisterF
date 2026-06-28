@@ -6,10 +6,10 @@
       <p class="resource-eyebrow">Tarea compartida</p>
       <h1><%= selectedAssignment.title %></h1>
     </div>
-    <form method="post" action="/assignments/shared/<%= encodeURIComponent(shareLink.id) %>/start">
+    <form method="post" action="/resources/shared/<%= encodeURIComponent(shareLink.id) %>/accept">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button class="btn btn-primary" type="submit">
-        <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Empezar
+        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Agregar a mis recursos
       </button>
     </form>
   </div>

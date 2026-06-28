@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, findResourceFolderForResource, listResourceFolderPathForResource, listResourceFoldersForProfile, getOrCreatePracticeModuleShareLink, importPracticeModuleToProfile, listConversationsForPracticeModule, restorePracticeModuleForUser, updatePracticeModule, } from '../db/repository.js';
+import { archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, deletePracticeModuleForUser, findResourceAccessForProfile, findPracticeModuleById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeModule, restorePracticeModuleForUser, updatePracticeModule, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { generatePracticeModuleDraft, generatePracticeModuleRevision, } from '../services/resourceDrafts.js';
@@ -51,11 +51,12 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     let resourceCurrentFolder = null;
     let resourceFolderPath = [];
     let resourceFolderOptions = [];
+    let canManagePracticeModule = false;
     const requestedPracticeModuleId = typeof request.params.practiceModuleId === 'string'
         ? request.params.practiceModuleId.trim()
         : '';
     const requestedShareId = typeof request.params.shareId === 'string' ? request.params.shareId.trim() : '';
-    if (pageKind === 'detail' || pageKind === 'edit') {
+    if (pageKind === 'edit') {
         if (!user) {
             redirectUnauthedPracticeModules(response);
             return null;
@@ -65,35 +66,79 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
             response.redirect('/resources');
             return null;
         }
+        canManagePracticeModule = true;
         if (!activeProfile || selectedPracticeModule.profileId !== activeProfile.id) {
             activeProfile = findProfileForUser(selectedPracticeModule.profileId, user.id);
             if (activeProfile) {
                 setActiveProfileCookie(response, activeProfile.id);
             }
         }
-        practiceModuleConversations = listConversationsForPracticeModule(selectedPracticeModule.id, user.id, selectedPracticeModule.profileId);
-        resourceCurrentFolder = findResourceFolderForResource(selectedPracticeModule.id, user.id);
-        resourceFolderPath = listResourceFolderPathForResource(selectedPracticeModule.id, user.id);
-        resourceFolderOptions = listResourceFoldersForProfile({
-            includeArchived: false,
-            profileId: selectedPracticeModule.profileId,
+    }
+    if (pageKind === 'detail') {
+        if (!user?.emailVerified || !activeProfile) {
+            redirectUnauthedPracticeModules(response);
+            return null;
+        }
+        const resourceAccess = findResourceAccessForProfile({
+            includeArchived: true,
+            profileId: activeProfile.id,
+            resourceId: requestedPracticeModuleId,
             userId: user.id,
         });
-    }
-    if (pageKind === 'share') {
-        selectedPracticeModuleShareLink = findPracticeModuleShareLinkById(requestedShareId);
-        if (!selectedPracticeModuleShareLink || selectedPracticeModuleShareLink.revokedAt) {
+        if (resourceAccess?.type === 'practice_guide') {
+            if (resourceAccess.accessKind === 'shared' && resourceAccess.archivedAt) {
+                response.redirect('/resources');
+                return null;
+            }
+            selectedPracticeModule = findPracticeModuleById(resourceAccess.id);
+            canManagePracticeModule = resourceAccess.accessKind === 'owner';
+        }
+        if (!selectedPracticeModule) {
+            selectedPracticeModule = findPracticeModuleForUser(requestedPracticeModuleId, user.id);
+            canManagePracticeModule = Boolean(selectedPracticeModule);
+            if (selectedPracticeModule && selectedPracticeModule.profileId !== activeProfile.id) {
+                const profile = findProfileForUser(selectedPracticeModule.profileId, user.id);
+                if (profile) {
+                    activeProfile = profile;
+                    setActiveProfileCookie(response, profile.id);
+                }
+            }
+        }
+        if (!selectedPracticeModule) {
             response.redirect('/resources');
             return null;
         }
-        selectedSharedPracticeModule = findPracticeModuleById(selectedPracticeModuleShareLink.practiceModuleId);
+    }
+    if (selectedPracticeModule && user) {
+        const conversationProfileId = canManagePracticeModule
+            ? selectedPracticeModule.profileId
+            : activeProfile?.id ?? selectedPracticeModule.profileId;
+        practiceModuleConversations = listConversationsForPracticeModule(selectedPracticeModule.id, user.id, conversationProfileId);
+        if (canManagePracticeModule) {
+            resourceCurrentFolder = findResourceFolderForResource(selectedPracticeModule.id, user.id);
+            resourceFolderPath = listResourceFolderPathForResource(selectedPracticeModule.id, user.id);
+            resourceFolderOptions = listResourceFoldersForProfile({
+                includeArchived: false,
+                profileId: selectedPracticeModule.profileId,
+                userId: user.id,
+            });
+        }
+    }
+    if (pageKind === 'share') {
+        const legacyShareLink = findPracticeModuleShareLinkById(requestedShareId);
+        if (!legacyShareLink || legacyShareLink.revokedAt) {
+            response.redirect('/resources');
+            return null;
+        }
+        selectedPracticeModuleShareLink = legacyShareLink;
+        selectedSharedPracticeModule = findPracticeModuleById(legacyShareLink.practiceModuleId);
         if (!selectedSharedPracticeModule) {
             response.redirect('/resources');
             return null;
         }
     }
-    if (selectedPracticeModule) {
-        selectedPracticeModuleShareLink = getOrCreatePracticeModuleShareLink(selectedPracticeModule.id);
+    if (selectedPracticeModule && canManagePracticeModule) {
+        selectedPracticeModuleShareLink = getOrCreateResourceShareLink(selectedPracticeModule.id);
         if (selectedPracticeModule.sourceProfileId) {
             selectedPracticeModuleSharedFromProfileName =
                 findProfileById(selectedPracticeModule.sourceProfileId)?.name || '';
@@ -103,9 +148,13 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         selectedPracticeModuleSharedFromProfileName =
             findProfileById(selectedSharedPracticeModule.sourceProfileId)?.name || '';
     }
+    if (selectedPracticeModule && !canManagePracticeModule) {
+        selectedPracticeModuleSharedFromProfileName =
+            findProfileById(selectedPracticeModule.profileId)?.name || '';
+    }
     const shareTargetPracticeModuleProfiles = availableProfiles.filter((profile) => profile.id !== (selectedPracticeModule?.profileId ?? activeProfile?.id));
     const practiceModuleShareUrl = selectedPracticeModule && selectedPracticeModuleShareLink
-        ? buildAbsoluteAppUrl(`/practice-modules/shared/${encodeURIComponent(selectedPracticeModuleShareLink.id)}`)
+        ? buildAbsoluteAppUrl(`/resources/shared/${encodeURIComponent(selectedPracticeModuleShareLink.id)}`)
         : '';
     const practiceModuleShareQrDataUrl = practiceModuleShareUrl
         ? await QRCode.toDataURL(practiceModuleShareUrl, { margin: 1, width: 180 })
@@ -113,6 +162,7 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     return {
         activeProfile,
         authMessage: getHomeAuthMessage(request, user),
+        canManagePracticeModule,
         practiceModuleConversations,
         practiceModulePageMode: pageKind,
         practiceModuleShareQrDataUrl,
@@ -162,6 +212,7 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         practiceModuleRevisionModalAutoOpen: false,
         practiceModuleRevisionPrompt: '',
         practiceModuleRevisionSuccess: String(request.query.aiRevision || '') === 'success',
+        canManagePracticeModule: viewModel.canManagePracticeModule,
         practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
         practiceModuleShareUrl: viewModel.practiceModuleShareUrl,
         resourceCurrentFolder: viewModel.resourceCurrentFolder,
@@ -226,7 +277,14 @@ export function renderEditPracticeModulePage(request, response) {
     return renderPracticeModulesPage(request, response, 'edit');
 }
 export function renderSharedPracticeModulePage(request, response) {
-    return renderPracticeModulesPage(request, response, 'share');
+    const shareId = String(request.params.shareId || '').trim();
+    const legacyShareLink = findPracticeModuleShareLinkById(shareId);
+    if (!legacyShareLink || legacyShareLink.revokedAt) {
+        response.redirect('/resources');
+        return;
+    }
+    const resourceShareLink = getOrCreateResourceShareLink(legacyShareLink.practiceModuleId);
+    response.redirect(`/resources/shared/${encodeURIComponent(resourceShareLink.id)}`);
 }
 export function handleCreatePracticeModule(request, response) {
     const user = request.authUser;
@@ -318,7 +376,8 @@ export async function handleRevisePracticeModule(request, response) {
 }
 export function handleCreatePracticeModuleConversation(request, response) {
     const user = request.authUser;
-    if (!user?.emailVerified) {
+    const activeProfile = request.activeProfile;
+    if (!user?.emailVerified || !activeProfile) {
         response.redirect('/login');
         return;
     }
@@ -329,12 +388,19 @@ export function handleCreatePracticeModuleConversation(request, response) {
         response.redirect('/resources');
         return;
     }
-    const practiceModule = findPracticeModuleForUser(practiceModuleId, user.id);
+    const resourceAccess = findResourceAccessForProfile({
+        profileId: activeProfile.id,
+        resourceId: practiceModuleId,
+        userId: user.id,
+    });
+    const practiceModule = resourceAccess?.type === 'practice_guide'
+        ? findPracticeModuleById(resourceAccess.id)
+        : findPracticeModuleForUser(practiceModuleId, user.id);
     if (!practiceModule) {
         response.redirect('/resources');
         return;
     }
-    const conversation = createConversationFromPracticeModule(user.id, practiceModule);
+    const conversation = createConversationFromPracticeModule(user.id, practiceModule, resourceAccess?.accessKind === 'shared' ? activeProfile.id : practiceModule.profileId);
     response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
 }
 export function handleUpdatePracticeModule(request, response) {
@@ -438,10 +504,11 @@ export function handleSharePracticeModuleToProfile(request, response) {
         response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
         return;
     }
-    importPracticeModuleToProfile({
-        shareKind: 'profile',
-        sourcePracticeModule: practiceModule,
-        targetProfileId: targetProfile.id,
+    grantResourceAccess({
+        grantedByUserId: user.id,
+        grantedVia: 'profile',
+        profileId: targetProfile.id,
+        resourceId: practiceModule.id,
         userId: user.id,
     });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
@@ -462,18 +529,21 @@ export function handleAcceptSharedPracticeModuleLink(request, response) {
         response.redirect('/resources');
         return;
     }
+    const resourceShareLink = getOrCreateResourceShareLink(sourcePracticeModule.id);
     const user = request.authUser;
     const activeProfile = request.activeProfile;
     if (!user?.emailVerified || !activeProfile) {
-        response.redirect('/login');
+        response.redirect(`/login?returnTo=${encodeURIComponent(`/resources/shared/${resourceShareLink.id}`)}`);
         return;
     }
-    const imported = importPracticeModuleToProfile({
-        shareKind: 'link',
-        sourcePracticeModule,
-        targetProfileId: activeProfile.id,
+    grantResourceAccess({
+        grantedByUserId: sourcePracticeModule.userId,
+        grantedVia: 'link',
+        profileId: activeProfile.id,
+        resourceId: sourcePracticeModule.id,
+        shareLinkId: resourceShareLink.id,
         userId: user.id,
     });
-    response.redirect(`/practice-modules/${encodeURIComponent(imported.id)}`);
+    response.redirect(`/practice-modules/${encodeURIComponent(sourcePracticeModule.id)}`);
 }
 //# sourceMappingURL=handlers.js.map

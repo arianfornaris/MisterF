@@ -226,10 +226,26 @@ Recommended indexes:
 
 - `(resourceId, revokedAt, createdAt DESC)`
 
-Profile sharing and folder sharing should start as snapshot/copy flows. Copied
-resources should store `sourceResourceId`, source user/profile metadata, and
-`sharedVia` on the resource header. A live grant table should be added only if a
-future classroom workflow needs teacher-managed live updates.
+### Resource Access Grant
+
+Represents a live reference to a resource owned by another profile/user.
+
+Important fields:
+
+- `id`
+- `resourceId`
+- `userId`
+- `profileId`
+- `grantedByUserId`
+- `grantedVia` (`link` or `profile`)
+- optional `shareLinkId`
+- optional `revokedAt`
+- timestamps
+
+Accepted share links and profile shares should create grants, not resource
+copies. Recipients see the owner's current version and should not be able to
+edit, archive, move, or re-share the resource. A folder grant also gives
+read/use access to the folder's current contents.
 
 ### V2 URL Compatibility
 

@@ -95,6 +95,10 @@ describe('database migrations', () => {
         id: 10,
         name: 'allow_nested_resource_folders',
       },
+      {
+        id: 11,
+        name: 'add_live_resource_access_grants',
+      },
     ]);
 
     const tableNames = (db
@@ -121,6 +125,7 @@ describe('database migrations', () => {
       'messages',
       'practice_modules',
       'profiles',
+      'resource_access_grants',
       'resource_folder_items',
       'resource_folders',
       'resource_share_links',
@@ -197,6 +202,15 @@ describe('database migrations', () => {
       'position',
       'resource_id',
       'resource_type',
+    ]));
+    expect(getColumnNames(db, 'resource_access_grants')).toEqual(expect.arrayContaining([
+      'granted_by_user_id',
+      'granted_via',
+      'profile_id',
+      'resource_id',
+      'revoked_at',
+      'share_link_id',
+      'user_id',
     ]));
     expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resource_folder_items'")
       .get()).toEqual(expect.objectContaining({

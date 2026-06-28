@@ -1,0 +1,44 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view resources-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-page-kicker">Recurso compartido</p>
+      <h1 class="resource-page-title"><%= sharedResource.title %></h1>
+      <p class="resource-page-copy">
+        Para usar este recurso, agrégalo a tu perfil. Verás siempre la versión actual que mantiene su creador.
+      </p>
+    </div>
+  </div>
+
+  <section class="resource-page-detail-shell">
+    <div class="d-grid gap-4">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="badge rounded-pill <%= sharedResource.badgeClass %>">
+          <i class="bi <%= sharedResource.iconClass %> me-1" aria-hidden="true"></i>
+          <%= sharedResource.label %>
+        </span>
+        <span class="badge text-bg-light border">Compartido</span>
+      </div>
+
+      <% if (sharedResource.description) { %>
+        <div class="resource-markdown" data-render-markdown><%= sharedResource.description %></div>
+      <% } %>
+
+      <div class="d-flex flex-wrap justify-content-end gap-2">
+        <a class="btn btn-secondary" href="/resources">No ahora</a>
+        <% if (isAuthenticated && activeProfile) { %>
+          <form method="post" action="/resources/shared/<%= encodeURIComponent(shareLink.id) %>/accept">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn btn-primary" type="submit">Agregar a mis recursos</button>
+          </form>
+        <% } else { %>
+          <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(returnTo) %>">Crear cuenta</a>
+          <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(returnTo) %>">Iniciar sesión</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'resources-client-script' }) %>

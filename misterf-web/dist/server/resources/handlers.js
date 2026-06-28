@@ -1,5 +1,6 @@
-import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceForUser, findResourceFolderForResource, listResourceFolderItems, listResourceFolderPath, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
-import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+import QRCode from 'qrcode';
+import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
+import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -67,6 +68,16 @@ function buildResourceAction(resource) {
         actionPath: `/resources/folders/${encodeURIComponent(resource.id)}`,
     };
 }
+function toAccessibleOwnerResource(resource) {
+    return {
+        ...resource,
+        accessCreatedAt: null,
+        accessKind: 'owner',
+        grantId: null,
+        grantedVia: null,
+        shareLinkId: null,
+    };
+}
 function buildResourceListItem(resource) {
     const meta = {
         assignment: {
@@ -98,11 +109,12 @@ function buildResourceListItem(resource) {
         iconClass: meta.iconClass,
         label: meta.label,
         relativeUpdatedAt: formatRelativeTime(resource.updatedAt),
+        canManage: resource.accessKind === 'owner',
     };
 }
 function buildResourceFolderListItem(folder) {
     return {
-        ...buildResourceListItem(folder),
+        ...buildResourceListItem(toAccessibleOwnerResource(folder)),
         parentFolderId: folder.parentFolderId,
     };
 }
@@ -156,28 +168,57 @@ function filterAndSortResources(resources, filters) {
         return compareResourceDates(left, right) || compareResourceTitles(left, right);
     });
 }
-export function renderResourcesListPage(request, response) {
+function readResourceShareMode(value) {
+    const shareMode = readField(value, 20);
+    return shareMode === 'link' || shareMode === 'profile' ? shareMode : '';
+}
+export async function renderResourcesListPage(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);
     if (!auth) {
         return;
     }
     const folderId = readField(request.params.folderId, 100) || null;
-    const selectedFolder = folderId ? findResourceForUser(folderId, auth.user.id) : null;
+    const selectedFolder = folderId
+        ? findResourceAccessForProfile({
+            includeArchived: false,
+            profileId: auth.activeProfile.id,
+            resourceId: folderId,
+            userId: auth.user.id,
+        })
+        : null;
     if (folderId && selectedFolder?.type !== 'resource_folder') {
         response.redirect('/resources');
         return;
     }
+    const selectedFolderCanManage = selectedFolder?.accessKind === 'owner';
     const folderOptions = listResourceFoldersForProfile({
         includeArchived: false,
         profileId: auth.activeProfile.id,
         userId: auth.user.id,
     });
     const selectedFolderPath = selectedFolder
-        ? listResourceFolderPath(selectedFolder.id, auth.user.id)
+        ? listAccessibleResourceFolderPath({
+            includeArchived: false,
+            folderId: selectedFolder.id,
+            profileId: auth.activeProfile.id,
+            userId: auth.user.id,
+        })
         : [];
-    const selectedFolderParent = selectedFolder
+    const selectedFolderParent = selectedFolderCanManage
         ? findResourceFolderForResource(selectedFolder.id, auth.user.id)
         : null;
+    const selectedFolderShareLink = selectedFolderCanManage
+        ? getOrCreateResourceShareLink(selectedFolder.id)
+        : null;
+    const selectedFolderShareUrl = selectedFolderShareLink
+        ? buildAbsoluteAppUrl(`/resources/shared/${encodeURIComponent(selectedFolderShareLink.id)}`)
+        : '';
+    const selectedFolderShareQrDataUrl = selectedFolderShareUrl
+        ? await QRCode.toDataURL(selectedFolderShareUrl, { margin: 1, width: 180 })
+        : '';
+    const shareTargetResourceProfiles = selectedFolderCanManage && selectedFolder
+        ? (request.availableProfiles ?? []).filter((profile) => profile.id !== selectedFolder.profileId)
+        : [];
     const scopedResources = listResourcesForProfile({
         folderId,
         includeArchived: false,
@@ -215,9 +256,103 @@ export function renderResourcesListPage(request, response) {
                 filters.sort !== 'updated_desc',
         },
         resourceItems: resourceItems.map(buildResourceListItem),
-        selectedFolderParent: selectedFolderParent ? buildResourceListItem(selectedFolderParent) : null,
+        selectedFolderCanManage,
+        selectedFolderParent: selectedFolderParent
+            ? buildResourceListItem(toAccessibleOwnerResource(selectedFolderParent))
+            : null,
         selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
+        selectedFolderShareMode: readResourceShareMode(request.query.share),
+        selectedFolderShareQrDataUrl,
+        selectedFolderShareUrl,
+        shareTargetResourceProfiles,
     });
+}
+export function renderSharedResourcePage(request, response) {
+    const shareId = readField(request.params.shareId, 120);
+    const shareLink = findResourceShareLinkById(shareId);
+    if (!shareLink || shareLink.revokedAt) {
+        response.redirect('/resources');
+        return;
+    }
+    const resource = findResourceById(shareLink.resourceId);
+    if (!resource || resource.archivedAt) {
+        response.redirect('/resources');
+        return;
+    }
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (user?.emailVerified && activeProfile) {
+        const existingAccess = findResourceAccessForProfile({
+            profileId: activeProfile.id,
+            resourceId: resource.id,
+            userId: user.id,
+        });
+        if (existingAccess) {
+            response.redirect(buildResourceDetailPath(existingAccess));
+            return;
+        }
+    }
+    response.render('resources-shared', {
+        ...buildAppShellContext({
+            activeProfile: activeProfile ?? null,
+            authMessage: getHomeAuthMessage(request, user ?? null),
+            currentView: 'resources',
+            guestInitialGreeting: '',
+            request,
+            title: `${resource.title} - ${appDocumentTitle}`,
+            user: user ?? null,
+        }),
+        returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
+        shareLink,
+        sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource)),
+    });
+}
+export function handleAcceptSharedResourceLink(request, response) {
+    const shareId = readField(request.params.shareId, 120);
+    const shareLink = findResourceShareLinkById(shareId);
+    if (!shareLink || shareLink.revokedAt) {
+        response.redirect('/resources');
+        return;
+    }
+    const resource = findResourceById(shareLink.resourceId);
+    if (!resource || resource.archivedAt) {
+        response.redirect('/resources');
+        return;
+    }
+    const auth = ensureVerifiedResourceUser(request, response);
+    if (!auth) {
+        return;
+    }
+    grantResourceAccess({
+        grantedByUserId: resource.userId,
+        grantedVia: 'link',
+        profileId: auth.activeProfile.id,
+        resourceId: resource.id,
+        shareLinkId: shareLink.id,
+        userId: auth.user.id,
+    });
+    response.redirect(buildResourceDetailPath(resource));
+}
+export function handleShareResourceToProfile(request, response) {
+    const auth = ensureVerifiedResourceUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const returnTo = normalizeReturnTo(request.body.returnTo);
+    const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    const targetProfile = findProfileForUser(readField(request.body.targetProfileId, 120), auth.user.id);
+    if (!resource || resource.archivedAt || !targetProfile || targetProfile.id === resource.profileId) {
+        response.redirect(returnTo);
+        return;
+    }
+    grantResourceAccess({
+        grantedByUserId: auth.user.id,
+        grantedVia: 'profile',
+        profileId: targetProfile.id,
+        resourceId: resource.id,
+        userId: auth.user.id,
+    });
+    response.redirect(returnTo);
 }
 export function handleCreateResourceFolder(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);

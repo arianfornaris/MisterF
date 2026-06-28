@@ -50,6 +50,30 @@ function toStoredResource(row) {
         userId: row.user_id,
     };
 }
+function toStoredAccessibleResource(row) {
+    return {
+        ...toStoredResource(row),
+        accessCreatedAt: row.access_created_at,
+        accessKind: row.access_kind,
+        grantId: row.grant_id,
+        grantedVia: row.granted_via,
+        shareLinkId: row.share_link_id,
+    };
+}
+function toStoredResourceAccessGrant(row) {
+    return {
+        createdAt: row.created_at,
+        grantedByUserId: row.granted_by_user_id,
+        grantedVia: row.granted_via,
+        id: row.id,
+        profileId: row.profile_id,
+        resourceId: row.resource_id,
+        revokedAt: row.revoked_at,
+        shareLinkId: row.share_link_id,
+        updatedAt: row.updated_at,
+        userId: row.user_id,
+    };
+}
 function toStoredResourceFolderItem(row) {
     return {
         createdAt: row.item_created_at,
@@ -569,6 +593,175 @@ export function findResourceForUser(resourceId, userId) {
         .get(resourceId, userId);
     return row ? toStoredResource(row) : null;
 }
+export function findResourceById(resourceId) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          type,
+          title,
+          description,
+          topic,
+          level,
+          archived_at,
+          source_resource_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at
+        FROM resources
+        WHERE id = ?
+      `)
+        .get(resourceId);
+    return row ? toStoredResource(row) : null;
+}
+export function findResourceAccessForProfile(input) {
+    const includeArchived = input.includeArchived ? 1 : 0;
+    const row = getDb()
+        .prepare(`
+        WITH RECURSIVE ancestor_folders(folder_id) AS (
+          SELECT item.folder_id
+          FROM resource_folder_items AS item
+          WHERE item.resource_id = ?
+
+          UNION ALL
+
+          SELECT item.folder_id
+          FROM resource_folder_items AS item
+          JOIN ancestor_folders AS ancestor
+            ON ancestor.folder_id = item.resource_id
+        ),
+        candidates AS (
+          SELECT
+            resource.id,
+            resource.user_id,
+            resource.profile_id,
+            resource.type,
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+            resource.archived_at,
+            resource.source_resource_id,
+            resource.source_user_id,
+            resource.source_profile_id,
+            resource.shared_via,
+            resource.created_at,
+            resource.updated_at,
+            'owner' AS access_kind,
+            NULL AS grant_id,
+            NULL AS granted_via,
+            NULL AS share_link_id,
+            NULL AS access_created_at,
+            0 AS access_rank
+          FROM resources AS resource
+          WHERE resource.id = ?
+            AND resource.user_id = ?
+            AND resource.profile_id = ?
+
+          UNION ALL
+
+          SELECT
+            resource.id,
+            resource.user_id,
+            resource.profile_id,
+            resource.type,
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+            resource.archived_at,
+            resource.source_resource_id,
+            resource.source_user_id,
+            resource.source_profile_id,
+            resource.shared_via,
+            resource.created_at,
+            resource.updated_at,
+            'shared' AS access_kind,
+            grant_row.id AS grant_id,
+            grant_row.granted_via,
+            grant_row.share_link_id,
+            grant_row.created_at AS access_created_at,
+            1 AS access_rank
+          FROM resource_access_grants AS grant_row
+          JOIN resources AS resource
+            ON resource.id = grant_row.resource_id
+          LEFT JOIN resource_share_links AS share_link
+            ON share_link.id = grant_row.share_link_id
+          WHERE grant_row.resource_id = ?
+            AND grant_row.user_id = ?
+            AND grant_row.profile_id = ?
+            AND grant_row.revoked_at IS NULL
+            AND (grant_row.share_link_id IS NULL OR share_link.revoked_at IS NULL)
+
+          UNION ALL
+
+          SELECT
+            resource.id,
+            resource.user_id,
+            resource.profile_id,
+            resource.type,
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+            resource.archived_at,
+            resource.source_resource_id,
+            resource.source_user_id,
+            resource.source_profile_id,
+            resource.shared_via,
+            resource.created_at,
+            resource.updated_at,
+            'shared' AS access_kind,
+            grant_row.id AS grant_id,
+            grant_row.granted_via,
+            grant_row.share_link_id,
+            grant_row.created_at AS access_created_at,
+            2 AS access_rank
+          FROM resources AS resource
+          JOIN ancestor_folders AS ancestor
+          JOIN resource_access_grants AS grant_row
+            ON grant_row.resource_id = ancestor.folder_id
+          LEFT JOIN resource_share_links AS share_link
+            ON share_link.id = grant_row.share_link_id
+          WHERE resource.id = ?
+            AND grant_row.user_id = ?
+            AND grant_row.profile_id = ?
+            AND grant_row.revoked_at IS NULL
+            AND (grant_row.share_link_id IS NULL OR share_link.revoked_at IS NULL)
+        )
+        SELECT
+          id,
+          user_id,
+          profile_id,
+          type,
+          title,
+          description,
+          topic,
+          level,
+          archived_at,
+          source_resource_id,
+          source_user_id,
+          source_profile_id,
+          shared_via,
+          created_at,
+          updated_at,
+          access_kind,
+          grant_id,
+          granted_via,
+          share_link_id,
+          access_created_at
+        FROM candidates
+        WHERE (? = 1 OR archived_at IS NULL)
+        ORDER BY access_rank ASC
+        LIMIT 1
+      `)
+        .get(input.resourceId, input.resourceId, input.userId, input.profileId, input.resourceId, input.userId, input.profileId, input.resourceId, input.userId, input.profileId, includeArchived);
+    return row ? toStoredAccessibleResource(row) : null;
+}
 export function findResourceFolderForResource(resourceId, userId) {
     const row = getDb()
         .prepare(`
@@ -613,6 +806,25 @@ export function listResourceFolderPath(folderId, userId) {
         currentFolder = findResourceFolderForResource(currentFolder.id, userId);
     }
     return path;
+}
+export function listAccessibleResourceFolderPath(input) {
+    const selectedFolder = findResourceAccessForProfile({
+        includeArchived: input.includeArchived,
+        profileId: input.profileId,
+        resourceId: input.folderId,
+        userId: input.userId,
+    });
+    if (selectedFolder?.type !== 'resource_folder') {
+        return [];
+    }
+    return listResourceFolderPath(selectedFolder.id, selectedFolder.userId)
+        .map((folder) => findResourceAccessForProfile({
+        includeArchived: input.includeArchived,
+        profileId: input.profileId,
+        resourceId: folder.id,
+        userId: input.userId,
+    }))
+        .filter((folder) => (folder?.type === 'resource_folder'));
 }
 export function listResourceFolderPathForResource(resourceId, userId) {
     const parentFolder = findResourceFolderForResource(resourceId, userId);
@@ -685,6 +897,15 @@ export function listResourceFoldersForProfile(input) {
 export function listResourcesForProfile(input) {
     const includeArchived = input.includeArchived ? 1 : 0;
     if (input.folderId) {
+        const folderAccess = findResourceAccessForProfile({
+            includeArchived: input.includeArchived,
+            profileId: input.profileId,
+            resourceId: input.folderId,
+            userId: input.userId,
+        });
+        if (folderAccess?.type !== 'resource_folder') {
+            return [];
+        }
         const rows = getDb()
             .prepare(`
           SELECT
@@ -702,54 +923,122 @@ export function listResourcesForProfile(input) {
             resource.source_profile_id,
             resource.shared_via,
             resource.created_at,
-            resource.updated_at
+            resource.updated_at,
+            CASE
+              WHEN resource.user_id = ? AND resource.profile_id = ? THEN 'owner'
+              ELSE 'shared'
+            END AS access_kind,
+            CASE
+              WHEN resource.user_id = ? AND resource.profile_id = ? THEN NULL
+              ELSE ?
+            END AS grant_id,
+            CASE
+              WHEN resource.user_id = ? AND resource.profile_id = ? THEN NULL
+              ELSE ?
+            END AS granted_via,
+            CASE
+              WHEN resource.user_id = ? AND resource.profile_id = ? THEN NULL
+              ELSE ?
+            END AS share_link_id,
+            CASE
+              WHEN resource.user_id = ? AND resource.profile_id = ? THEN NULL
+              ELSE ?
+            END AS access_created_at
           FROM resource_folder_items AS item
           JOIN resources AS resource
             ON resource.id = item.resource_id
           JOIN resources AS folder
             ON folder.id = item.folder_id
           WHERE item.folder_id = ?
-            AND folder.user_id = ?
-            AND folder.profile_id = ?
-            AND resource.user_id = ?
-            AND resource.profile_id = ?
             AND (? IS NULL OR resource.type = ?)
             AND (? = 1 OR resource.archived_at IS NULL)
           ORDER BY item.position ASC, item.created_at ASC
         `)
-            .all(input.folderId, input.userId, input.profileId, input.userId, input.profileId, input.type ?? null, input.type ?? null, includeArchived);
-        return rows.map(toStoredResource);
+            .all(input.userId, input.profileId, input.userId, input.profileId, folderAccess.grantId, input.userId, input.profileId, folderAccess.grantedVia, input.userId, input.profileId, folderAccess.shareLinkId, input.userId, input.profileId, folderAccess.accessCreatedAt, input.folderId, input.type ?? null, input.type ?? null, includeArchived);
+        return rows.map(toStoredAccessibleResource);
     }
     const rows = getDb()
         .prepare(`
-        SELECT
-          id,
-          user_id,
-          profile_id,
-          type,
-          title,
-          description,
-          topic,
-          level,
-          archived_at,
-          source_resource_id,
-          source_user_id,
-          source_profile_id,
-          shared_via,
-          created_at,
-          updated_at
-        FROM resources
-        WHERE user_id = ?
-          AND profile_id = ?
-          AND (? IS NULL OR type = ?)
-          AND (? = 1 OR archived_at IS NULL)
+        SELECT *
+        FROM (
+          SELECT
+            resource.id,
+            resource.user_id,
+            resource.profile_id,
+            resource.type,
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+            resource.archived_at,
+            resource.source_resource_id,
+            resource.source_user_id,
+            resource.source_profile_id,
+            resource.shared_via,
+            resource.created_at,
+            resource.updated_at,
+            'owner' AS access_kind,
+            NULL AS grant_id,
+            NULL AS granted_via,
+            NULL AS share_link_id,
+            NULL AS access_created_at,
+            0 AS access_rank
+          FROM resources AS resource
+          WHERE resource.user_id = ?
+            AND resource.profile_id = ?
+            AND (? IS NULL OR resource.type = ?)
+            AND (? = 1 OR resource.archived_at IS NULL)
+
+          UNION ALL
+
+          SELECT
+            resource.id,
+            resource.user_id,
+            resource.profile_id,
+            resource.type,
+            resource.title,
+            resource.description,
+            resource.topic,
+            resource.level,
+            resource.archived_at,
+            resource.source_resource_id,
+            resource.source_user_id,
+            resource.source_profile_id,
+            resource.shared_via,
+            resource.created_at,
+            resource.updated_at,
+            'shared' AS access_kind,
+            grant_row.id AS grant_id,
+            grant_row.granted_via,
+            grant_row.share_link_id,
+            grant_row.created_at AS access_created_at,
+            1 AS access_rank
+          FROM resource_access_grants AS grant_row
+          JOIN resources AS resource
+            ON resource.id = grant_row.resource_id
+          LEFT JOIN resource_share_links AS share_link
+            ON share_link.id = grant_row.share_link_id
+          WHERE grant_row.user_id = ?
+            AND grant_row.profile_id = ?
+            AND grant_row.revoked_at IS NULL
+            AND (grant_row.share_link_id IS NULL OR share_link.revoked_at IS NULL)
+            AND (? IS NULL OR resource.type = ?)
+            AND (? = 1 OR resource.archived_at IS NULL)
+        )
         ORDER BY
           CASE WHEN archived_at IS NULL THEN 0 ELSE 1 END ASC,
+          access_rank ASC,
           updated_at DESC,
           created_at DESC
       `)
-        .all(input.userId, input.profileId, input.type ?? null, input.type ?? null, includeArchived);
-    return rows.map(toStoredResource);
+        .all(input.userId, input.profileId, input.type ?? null, input.type ?? null, includeArchived, input.userId, input.profileId, input.type ?? null, input.type ?? null, includeArchived);
+    const uniqueResources = new Map();
+    for (const row of rows.map(toStoredAccessibleResource)) {
+        if (!uniqueResources.has(row.id)) {
+            uniqueResources.set(row.id, row);
+        }
+    }
+    return Array.from(uniqueResources.values());
 }
 export function createResourceFolder(input) {
     const id = randomUUID();
@@ -1039,6 +1328,64 @@ export function getOrCreateResourceShareLink(resourceId) {
     }
     return created;
 }
+export function findResourceAccessGrant(input) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          id,
+          resource_id,
+          user_id,
+          profile_id,
+          granted_by_user_id,
+          granted_via,
+          share_link_id,
+          created_at,
+          updated_at,
+          revoked_at
+        FROM resource_access_grants
+        WHERE resource_id = ?
+          AND user_id = ?
+          AND profile_id = ?
+        LIMIT 1
+      `)
+        .get(input.resourceId, input.userId, input.profileId);
+    return row ? toStoredResourceAccessGrant(row) : null;
+}
+export function grantResourceAccess(input) {
+    const resource = findResourceById(input.resourceId);
+    if (!resource || resource.archivedAt) {
+        return null;
+    }
+    if (resource.userId === input.userId && resource.profileId === input.profileId) {
+        return null;
+    }
+    const id = randomUUID();
+    getDb()
+        .prepare(`
+        INSERT INTO resource_access_grants (
+          id,
+          resource_id,
+          user_id,
+          profile_id,
+          granted_by_user_id,
+          granted_via,
+          share_link_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(resource_id, user_id, profile_id) DO UPDATE SET
+          granted_by_user_id = excluded.granted_by_user_id,
+          granted_via = excluded.granted_via,
+          share_link_id = excluded.share_link_id,
+          revoked_at = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      `)
+        .run(id, input.resourceId, input.userId, input.profileId, input.grantedByUserId, input.grantedVia, input.shareLinkId ?? null);
+    return findResourceAccessGrant({
+        profileId: input.profileId,
+        resourceId: input.resourceId,
+        userId: input.userId,
+    });
+}
 export function createProfile(input) {
     const id = randomUUID();
     getDb()
@@ -1198,8 +1545,8 @@ export function createConversation(userId, profileId, title = defaultConversatio
     }
     return conversation;
 }
-export function createConversationFromPracticeModule(userId, practiceModule) {
-    const conversation = createConversation(userId, practiceModule.profileId, defaultConversationTitle, {
+export function createConversationFromPracticeModule(userId, practiceModule, profileId = practiceModule.profileId) {
+    const conversation = createConversation(userId, profileId, defaultConversationTitle, {
         practiceModuleId: practiceModule.id,
     });
     createConversationPracticeModuleSnapshot(conversation.id, practiceModule);

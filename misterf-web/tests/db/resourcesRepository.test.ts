@@ -53,9 +53,12 @@ describe('resource repository', () => {
       createPracticeModule,
       createProfile,
       createResourceFolder,
+      findResourceAccessForProfile,
       findResourceFolderForResource,
       findResourceForUser,
       getOrCreateResourceShareLink,
+      grantResourceAccess,
+      listAccessibleResourceFolderPath,
       listResourceFolderItems,
       listResourceFolderPath,
       listResourceFolderDescendantIds,
@@ -79,6 +82,17 @@ describe('resource repository', () => {
     const otherProfile = createProfile({
       name: 'Other profile',
       userId: user.id,
+    });
+    const student = createExternalUser({
+      email: 'student@example.com',
+      emailVerified: true,
+      fullName: 'Student',
+      provider: 'google',
+      providerSubject: 'student-1',
+    });
+    const studentProfile = createProfile({
+      name: 'Student profile',
+      userId: student.id,
     });
 
     const assignment = createAssignment({
@@ -283,8 +297,103 @@ describe('resource repository', () => {
       grandchildFolder.id,
     ]);
 
+    const liveSharedAssignment = createAssignment({
+      description: 'Visible through a shared folder.',
+      instructions: '',
+      profileId: profile.id,
+      quiz: { blocks: [], title: 'Shared Folder Assignment' },
+      title: 'Shared Folder Assignment',
+      userId: user.id,
+    });
+    expect(addResourceToFolder({
+      folderId: folder.id,
+      resourceId: liveSharedAssignment.id,
+      userId: user.id,
+    })).toBe(true);
+    const privateParentFolder = createResourceFolder({
+      description: 'Owner-only parent folder.',
+      profileId: profile.id,
+      title: 'Private Parent Folder',
+      userId: user.id,
+    });
+    const sharedNestedFolder = createResourceFolder({
+      description: 'Visible through a shared folder path.',
+      profileId: profile.id,
+      title: 'Shared Nested Folder',
+      userId: user.id,
+    });
+    expect(addResourceToFolder({
+      folderId: privateParentFolder.id,
+      resourceId: folder.id,
+      userId: user.id,
+    })).toBe(true);
+    expect(addResourceToFolder({
+      folderId: folder.id,
+      resourceId: sharedNestedFolder.id,
+      userId: user.id,
+    })).toBe(true);
+
     const shareLink = getOrCreateResourceShareLink(folder.id);
     expect(getOrCreateResourceShareLink(folder.id).id).toBe(shareLink.id);
     expect(shareLink.resourceId).toBe(folder.id);
+
+    const grant = grantResourceAccess({
+      grantedByUserId: user.id,
+      grantedVia: 'link',
+      profileId: studentProfile.id,
+      resourceId: folder.id,
+      shareLinkId: shareLink.id,
+      userId: student.id,
+    });
+    expect(grant).toEqual(expect.objectContaining({
+      grantedVia: 'link',
+      profileId: studentProfile.id,
+      resourceId: folder.id,
+      userId: student.id,
+    }));
+    expect(listResourcesForProfile({
+      profileId: studentProfile.id,
+      userId: student.id,
+    })).toEqual([
+      expect.objectContaining({
+        accessKind: 'shared',
+        id: folder.id,
+      }),
+    ]);
+    expect(listResourcesForProfile({
+      folderId: folder.id,
+      profileId: studentProfile.id,
+      userId: student.id,
+    }).map((resource) => ({
+      accessKind: resource.accessKind,
+      id: resource.id,
+    }))).toEqual([
+      { accessKind: 'shared', id: liveSharedAssignment.id },
+      { accessKind: 'shared', id: sharedNestedFolder.id },
+    ]);
+    expect(listAccessibleResourceFolderPath({
+      folderId: sharedNestedFolder.id,
+      profileId: studentProfile.id,
+      userId: student.id,
+    }).map((resource) => ({
+      accessKind: resource.accessKind,
+      id: resource.id,
+    }))).toEqual([
+      { accessKind: 'shared', id: folder.id },
+      { accessKind: 'shared', id: sharedNestedFolder.id },
+    ]);
+    expect(findResourceAccessForProfile({
+      profileId: studentProfile.id,
+      resourceId: liveSharedAssignment.id,
+      userId: student.id,
+    })).toEqual(expect.objectContaining({
+      accessKind: 'shared',
+      id: liveSharedAssignment.id,
+    }));
+    expect(addResourceToFolder({
+      folderId: folder.id,
+      resourceId: assignment.id,
+      userId: student.id,
+    })).toBe(false);
   });
 });

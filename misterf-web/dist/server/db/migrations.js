@@ -1509,5 +1509,45 @@ export const migrations = [
         ON resource_folder_items (folder_id, position ASC, created_at ASC);
     `,
     },
+    {
+        id: 11,
+        name: 'add_live_resource_access_grants',
+        up: `
+      CREATE TABLE resource_access_grants (
+        id TEXT PRIMARY KEY,
+        resource_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        granted_by_user_id TEXT NOT NULL,
+        granted_via TEXT NOT NULL CHECK (granted_via IN ('profile', 'link')),
+        share_link_id TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (resource_id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (granted_by_user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (share_link_id)
+          REFERENCES resource_share_links (id)
+          ON DELETE SET NULL,
+        UNIQUE (resource_id, user_id, profile_id)
+      );
+
+      CREATE INDEX idx_resource_access_grants_profile_active
+        ON resource_access_grants (user_id, profile_id, revoked_at, created_at DESC);
+
+      CREATE INDEX idx_resource_access_grants_resource_active
+        ON resource_access_grants (resource_id, revoked_at, created_at DESC);
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

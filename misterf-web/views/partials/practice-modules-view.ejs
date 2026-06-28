@@ -10,6 +10,7 @@
           const practiceModuleFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
           const showPracticeModuleMoveOption = practiceModulePageMode === 'detail'
             && selectedPracticeModule
+            && canManagePracticeModule
             && !selectedPracticeModule.archivedAt
             && (practiceModuleCurrentFolder || practiceModuleFolderOptions.length > 0);
         %>
@@ -82,6 +83,7 @@
                     </button>
                   </form>
 
+                  <% if (canManagePracticeModule) { %>
                   <div class="dropdown">
                     <button
                       class="btn btn-secondary dropdown-toggle"
@@ -129,8 +131,8 @@
                             data-bs-toggle="modal"
                             data-bs-target="#sharePracticeModuleLinkModal"
                           >
-                            <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
-                            Obtener enlace
+                            <i class="bi bi-share me-2" aria-hidden="true"></i>
+                            Compartir
                           </button>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -161,9 +163,10 @@
                       </li>
                     </ul>
                   </div>
+                  <% } %>
                 </div>
 
-                <% if (selectedPracticeModule.sharedVia) { %>
+                <% if (selectedPracticeModule.sharedVia || !canManagePracticeModule) { %>
                   <div class="d-flex">
                     <% if (selectedPracticeModuleSharedFromProfileName) { %>
                       <span class="badge text-bg-light border practice-module-shared-badge" role="status">
@@ -341,9 +344,9 @@
                   <div class="d-grid gap-3">
                     <p class="mb-0 text-body-secondary">
                       <% if (activeProfile) { %>
-                        Esta guía fue compartida contigo. Revísala y decide si quieres importarla al perfil <strong><%= activeProfile.name %></strong>.
+                        Esta guía fue compartida contigo. Revísala y decide si quieres agregarla al perfil <strong><%= activeProfile.name %></strong>.
                       <% } else { %>
-                        Esta guía fue compartida contigo. Puedes revisarla ahora mismo y, si te interesa, iniciar sesión o crear una cuenta para importarla.
+                        Esta guía fue compartida contigo. Puedes revisarla ahora mismo y, si te interesa, iniciar sesión o crear una cuenta para agregarla a tus recursos.
                       <% } %>
                     </p>
 
@@ -359,13 +362,13 @@
                     <div class="d-flex justify-content-end gap-2">
                       <a class="btn btn-secondary" href="<%= isAuthenticated ? '/resources' : '/' %>">No ahora</a>
                       <% if (isAuthenticated && activeProfile) { %>
-                        <form method="post" action="/practice-modules/shared/<%= encodeURIComponent(selectedPracticeModuleShareLink.id) %>/accept">
+                        <form method="post" action="/resources/shared/<%= encodeURIComponent(selectedPracticeModuleShareLink.id) %>/accept">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-primary" type="submit">Importar guía</button>
+                          <button class="btn btn-primary" type="submit">Agregar a mis recursos</button>
                         </form>
                       <% } else { %>
-                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Crear cuenta</a>
-                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/practice-modules/shared/${selectedPracticeModuleShareLink.id}`) %>">Iniciar sesión</a>
+                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeModuleShareLink.id}`) %>">Crear cuenta</a>
+                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeModuleShareLink.id}`) %>">Iniciar sesión</a>
                       <% } %>
                     </div>
                   </div>
@@ -551,7 +554,7 @@
 
         <% } %>
 
-        <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
+        <% if (practiceModulePageMode === 'detail' && selectedPracticeModule && canManagePracticeModule) { %>
           <div
             class="modal fade"
             id="sharePracticeModuleProfileModal"
@@ -609,6 +612,9 @@
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body d-grid gap-3">
+                  <p class="mb-0 text-body-secondary">
+                    Quienes usen este enlace verán siempre la versión actual de esta guía.
+                  </p>
                   <div>
                     <label class="form-label" for="practiceModuleShareLinkField">Enlace</label>
                     <input

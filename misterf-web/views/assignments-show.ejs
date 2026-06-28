@@ -4,7 +4,7 @@
   const assignmentCurrentFolder = resourceCurrentFolder || null;
   const assignmentFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
   const assignmentFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
-  const showAssignmentMoveOption = !selectedAssignment.archivedAt && (assignmentCurrentFolder || assignmentFolderOptions.length > 0);
+  const showAssignmentMoveOption = canManageAssignment && !selectedAssignment.archivedAt && (assignmentCurrentFolder || assignmentFolderOptions.length > 0);
 %>
 
 <section class="app-resource-view assignments-page">
@@ -31,6 +31,7 @@
         <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
       </button>
     </form>
+    <% if (canManageAssignment) { %>
     <div class="dropdown">
       <button
         class="btn btn-secondary dropdown-toggle"
@@ -78,8 +79,8 @@
               data-bs-toggle="modal"
               data-bs-target="#assignmentShareLinkModal"
             >
-              <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
-              Obtener enlace
+              <i class="bi bi-share me-2" aria-hidden="true"></i>
+              Compartir
             </button>
           </li>
           <li><hr class="dropdown-divider"></li>
@@ -107,6 +108,7 @@
         </li>
       </ul>
     </div>
+    <% } %>
   </div>
 
   <div class="resource-detail-summary">
@@ -118,7 +120,7 @@
     </div>
   </div>
 
-  <% if (selectedAssignment.sharedVia) { %>
+  <% if (selectedAssignment.sharedVia || !canManageAssignment) { %>
     <div class="d-flex">
       <% if (selectedAssignmentSharedFromProfileName) { %>
         <span class="badge text-bg-light border" role="status">
@@ -184,14 +186,15 @@
   <% } %>
 </section>
 
-<div
-  class="modal fade"
-  id="assignmentShareProfileModal"
-  tabindex="-1"
-  aria-labelledby="assignmentShareProfileModalLabel"
-  aria-hidden="true"
-  <%= assignmentShareMode === 'profile' ? 'data-auto-open-assignment-share-modal' : '' %>
->
+<% if (canManageAssignment) { %>
+  <div
+    class="modal fade"
+    id="assignmentShareProfileModal"
+    tabindex="-1"
+    aria-labelledby="assignmentShareProfileModalLabel"
+    aria-hidden="true"
+    <%= assignmentShareMode === 'profile' ? 'data-auto-open-assignment-share-modal' : '' %>
+  >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -228,14 +231,14 @@
   </div>
 </div>
 
-<div
-  class="modal fade"
-  id="assignmentShareLinkModal"
-  tabindex="-1"
-  aria-labelledby="assignmentShareLinkModalLabel"
-  aria-hidden="true"
-  <%= assignmentShareMode === 'link' ? 'data-auto-open-assignment-share-modal' : '' %>
->
+  <div
+    class="modal fade"
+    id="assignmentShareLinkModal"
+    tabindex="-1"
+    aria-labelledby="assignmentShareLinkModalLabel"
+    aria-hidden="true"
+    <%= assignmentShareMode === 'link' ? 'data-auto-open-assignment-share-modal' : '' %>
+  >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -243,6 +246,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body d-grid gap-3">
+        <p class="mb-0 text-body-secondary">
+          Quienes usen este enlace verán siempre la versión actual de esta tarea.
+        </p>
         <label class="form-label" for="assignmentShareLink">Enlace</label>
         <input class="form-control" id="assignmentShareLink" value="<%= shareUrl %>" readonly data-assignment-share-link-field>
         <div class="d-flex flex-wrap gap-2">
@@ -271,10 +277,13 @@
     </div>
   </div>
 </div>
+<% } %>
 
-<%- include('partials/resource-move-modal', {
-  resourceMoveCurrentFolder: assignmentCurrentFolder,
-  resourceMoveFolderOptions: assignmentFolderOptions,
-}) %>
+<% if (canManageAssignment) { %>
+  <%- include('partials/resource-move-modal', {
+    resourceMoveCurrentFolder: assignmentCurrentFolder,
+    resourceMoveFolderOptions: assignmentFolderOptions,
+  }) %>
+<% } %>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

@@ -34,8 +34,8 @@ Status legend:
   strategy.
 - [x] Folder membership is a separate table and a resource or folder belongs to
   zero or one parent folder in V2.
-- [x] Generic sharing starts with snapshot/copy semantics for profile and folder
-  imports unless a later classroom feature explicitly needs live resources.
+- [x] Generic sharing uses live `resource_access_grants`; recipients see the
+  owner's current resource instead of receiving copied imports.
 
 ## Implementation Rules
 
@@ -118,6 +118,8 @@ Tasks:
   compatibility implementation detail.
 - [x] Decide whether folder nesting is in V2.
 - [x] Decide whether folder sharing is live or snapshot/copy based.
+  - Folder sharing is live and exposes current folder contents through the
+    accepted grant.
 - [ ] Decide whether `Diálogos` are scripted, AI roleplay, or hybrid.
 - [ ] Decide whether chatroom data must be migrated or can be discarded.
 - [x] Update this tracker with decisions.
@@ -383,25 +385,31 @@ Goal: remove duplicated sharing models.
 Tasks:
 
 - [x] Add/finish generic resource share links.
-- [ ] Add profile sharing/import support where required.
-- [ ] Migrate old practice guide and assignment links.
-- [ ] Define folder sharing behavior.
-- [ ] Add QR/share modal support for generic resources.
+- [x] Add live `resource_access_grants` for accepted shares.
+- [x] Add profile sharing support as live grants instead of copied imports.
+- [x] Redirect old practice guide and assignment links into the generic share
+  flow.
+- [x] Define folder sharing behavior as live access to current folder contents.
+- [x] Add QR/share modal support for resource folders.
 - [ ] Remove old share-link tables/helpers/routes when safe.
-- [ ] Update share modal partials.
-- [ ] Add tests for public links, revoked links, and imported copies.
+- [x] Update share modal copy to explain live shared resources.
+- [x] Add repository tests for live grants and folder-inherited access.
+- [ ] Add route-level tests for generic share accept/login behavior.
+- [ ] Future: give `Tareas` a special public/free student flow where assignment
+  completion and AI evaluation can happen before account creation.
 
 Exit criteria:
 
-- [ ] One sharing implementation supports current resource types and can extend
+- [~] One sharing implementation supports current resource types and can extend
   to dialogues in the final slice.
-- [ ] Public links work for assignments, guides, and folders.
-- [ ] Old links are redirected or migrated.
+- [x] Public links work for assignments, guides, and folders.
+- [x] Old links are redirected into the generic share page.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test`
 - [ ] Public share smoke per resource type.
 
 ## Slice 9: Home, Progress, Payments, And Logging Updates

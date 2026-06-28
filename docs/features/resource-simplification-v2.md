@@ -445,6 +445,22 @@ Sharing should use one generic table:
 - `resource_share_links.created_at`
 - `resource_share_links.revoked_at`
 
+Accepted shares should use live access grants rather than copied imports:
+
+- `resource_access_grants.id`
+- `resource_access_grants.resource_id`
+- `resource_access_grants.user_id`
+- `resource_access_grants.profile_id`
+- `resource_access_grants.granted_by_user_id`
+- `resource_access_grants.granted_via`
+- `resource_access_grants.share_link_id`
+- `resource_access_grants.revoked_at`
+
+A recipient sees the owner's current resource through the grant. If the owner
+edits the resource, recipients see the updated version. Recipients should not be
+able to edit, archive, move, or re-share resources they only access through a
+grant.
+
 Benefits:
 
 - one list query
@@ -483,21 +499,24 @@ too high.
 V2 should converge sharing into one generic model:
 
 - `resource_share_links`
-- `resource_profile_shares` or equivalent profile import records
-- shared/imported metadata on `resources`
+- `resource_access_grants`
+- owner-only metadata on `resources`
 
 Sharing a folder should share the folder as an organized bundle. With nested
-folders, folder sharing needs an explicit recursive policy. Open decisions:
+folders, folder sharing should expose live contents through the folder grant.
 
-- Should folder sharing expose live contents or snapshot contents?
-- Should folder sharing include child folders recursively by default?
-- Should recipients import copies or access the owner's shared resource?
-- Should adding a new item to a shared folder update recipients automatically?
+Current V2 direction:
 
-Recommended V2 default: use snapshots/copies for recipient stability, unless a
-later classroom feature needs live teacher-managed resources. Profile sharing
-can be modeled as copied resources with `source_resource_id` and `shared_via`
-metadata instead of a live grant table in the first implementation.
+- recipients access the owner's resource by reference
+- folder shares expose current folder contents
+- adding or editing content in a shared folder updates what recipients see
+- recipients need an account before accepting a share link
+- assignment links temporarily follow the generic account-required share flow
+
+Future exception: `Tareas` should eventually support a special public student
+flow where a student can complete the assignment and receive free AI evaluation
+before creating an account. That is intentionally deferred so Slice 8 can first
+land the generic resource-sharing model.
 
 ## Migration Strategy
 
