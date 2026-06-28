@@ -1,0 +1,4 @@
+interface:
+  display_name: "Bootstrap Icons Conventions"
+  short_description: "Use Bootstrap Icons consistently"
+  default_prompt: "Use $bootstrap-icons-conventions to add accessible Bootstrap Icons to this Mister F UI."

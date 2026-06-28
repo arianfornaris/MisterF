@@ -1,4 +1,4 @@
-import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceForUser, listResourceFolderItems, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, } from '../db/repository.js';
+import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceForUser, listResourceFolderItems, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
@@ -223,6 +223,27 @@ export function handleCreateResourceFolder(request, response) {
         userId: auth.user.id,
     });
     response.redirect(`/resources/folders/${encodeURIComponent(folder.id)}`);
+}
+export function handleUpdateResourceFolder(request, response) {
+    const auth = ensureVerifiedResourceUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const folderId = readField(request.params.folderId, 100);
+    const title = readField(request.body.title, 160);
+    const description = readField(request.body.description, 800);
+    const returnTo = normalizeReturnTo(request.body.returnTo);
+    if (!folderId || !title) {
+        response.redirect(returnTo);
+        return;
+    }
+    updateResourceFolder({
+        description,
+        folderId,
+        title,
+        userId: auth.user.id,
+    });
+    response.redirect(returnTo);
 }
 export function handleArchiveResource(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);

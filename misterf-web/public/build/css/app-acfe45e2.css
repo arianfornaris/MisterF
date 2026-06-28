@@ -865,11 +865,28 @@ body {
   color: var(--bs-secondary-color);
 }
 
-.resource-filter-form {
+.resource-filter-toolbar,
+.resource-filter-panels {
   max-width: 980px;
 }
 
-.resource-filter-form .form-label {
+.resource-filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resource-filter-panel {
+  max-width: 680px;
+  margin-top: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  background: var(--bs-body-bg);
+}
+
+.resource-filter-panel .form-label {
   margin-bottom: 0.25rem;
   color: var(--bs-secondary-color);
   font-size: 0.9rem;
@@ -931,6 +948,15 @@ body {
   min-width: 2rem;
   border-radius: var(--bs-border-radius-sm);
   color: var(--bs-body-color);
+}
+
+.editor-toolbar button::after {
+  content: none !important;
+}
+
+.editor-toolbar button .bi {
+  line-height: 1;
+  pointer-events: none;
 }
 
 .editor-toolbar button.active,

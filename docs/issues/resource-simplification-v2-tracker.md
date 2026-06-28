@@ -249,6 +249,14 @@ Tasks:
 - [x] Add add-to-folder/remove-from-folder actions.
 - [x] Add folder breadcrumbs.
 - [x] Add folder-aware resource list filtering.
+- [ ] Support nested resource folders.
+- [x] Add move-to-folder flow for resources.
+- [ ] Add move-folder flow with cycle prevention.
+- [~] Add move destination modal with root-folder list, folder drill-down, and
+  modal breadcrumbs. The flat-folder modal is implemented; folder drill-down
+  remains blocked on nested folders.
+- [ ] Standardize resource option menus into common options plus
+  resource-specific options.
 - [x] Discard the old guide-specific grouping path from the pre-production
   baseline.
 - [x] Remove old guide-specific grouping create/edit/list UI.
@@ -258,6 +266,8 @@ Tasks:
 Exit criteria:
 
 - [x] Users can organize guides and assignments in folders.
+- [~] Users can move resources between flat folders; nested folders remain
+  pending.
 - [x] Only resource folder UI remains for organization.
 - [x] Existing pre-production grouping data is intentionally discarded by the
   baseline reset strategy.
@@ -267,6 +277,8 @@ Verification:
 - [x] `npm run typecheck`
 - [x] `npm test`
 - [x] Migration tests for fresh and migrated databases.
+- [ ] Re-run verification after nested folders and move-to-folder behavior are
+  implemented.
 
 ## Slice 5: Assignments As Resources
 
@@ -411,6 +423,11 @@ Goal: remove old names, dead code, and stale docs before introducing dialogues.
 Tasks:
 
 - [x] Remove unused practice-module grouping files/types.
+- [x] Document the resource breadcrumb and action-placement navigation standard
+  in [Resource Simplification V2](../features/resource-simplification-v2.md).
+- [x] Document nested folders, move-to-folder modal behavior, and common versus
+  resource-specific options in
+  [Resource Simplification V2](../features/resource-simplification-v2.md).
 - [ ] Remove unused chatroom files/types.
 - [ ] Remove duplicated resource card/list helpers.
 - [ ] Update [README](../README.md).

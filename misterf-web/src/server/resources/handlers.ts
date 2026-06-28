@@ -8,6 +8,7 @@ import {
   listResourcesForProfile,
   removeResourceFromFolder,
   restoreResourceForUser,
+  updateResourceFolder,
   type StoredResource,
 } from '../db/repository.js';
 import {
@@ -322,6 +323,32 @@ export function handleCreateResourceFolder(request: Request, response: Response)
   });
 
   response.redirect(`/resources/folders/${encodeURIComponent(folder.id)}`);
+}
+
+export function handleUpdateResourceFolder(request: Request, response: Response): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const folderId = readField(request.params.folderId, 100);
+  const title = readField(request.body.title, 160);
+  const description = readField(request.body.description, 800);
+  const returnTo = normalizeReturnTo(request.body.returnTo);
+
+  if (!folderId || !title) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  updateResourceFolder({
+    description,
+    folderId,
+    title,
+    userId: auth.user.id,
+  });
+
+  response.redirect(returnTo);
 }
 
 export function handleArchiveResource(request: Request, response: Response): void {

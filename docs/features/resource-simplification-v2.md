@@ -121,17 +121,21 @@ Each concrete resource type keeps its own runtime behavior.
 Folders exist to organize and share resources. They should support:
 
 - title and description
+- parent folder, for nested folders
+- child folders
 - contained resources
 - optional ordering
 - archive
 - sharing
 - owner view
 - shared recipient view
+- moving resources between folders
+- moving folders between parent folders, while preventing cycles
 
-Decision: V2 folders do not support nested folders. A folder can contain
-assignments, practice guides, and eventually dialogues, but it cannot contain
-another folder. This keeps the first resource model simple and prevents the UI
-from becoming a file manager.
+Target direction: V2 should allow nested folders. The first implementation can
+ship a flat folder model if needed, but the product model should not assume
+folders are permanently flat. Nested folders must prevent self-containment and
+cycles by design.
 
 ### Introduce Dialogues
 
@@ -179,6 +183,146 @@ Inside the resource page, provide filters/tabs:
 
 This avoids sidebar growth as the product adds more resource types.
 
+### Resource Navigation
+
+Resource navigation should feel explicit and consistent across folders,
+assignments, practice guides, and future dialogues.
+
+This standard applies through the resource show/detail view. Resource edit and
+authoring views may use a close button instead of breadcrumbs, because editing
+is a focused workflow entered from a specific resource.
+
+Runtime pages such as assignment attempts, assignment results, tutor
+conversations, and future dialogue sessions may use their own flow-specific
+navigation, but their entry points should still be reachable from the resource
+detail page.
+
+Catalog root behavior:
+
+- `/resources` is the root of the resource area.
+- It does not need a breadcrumb.
+- It shows the catalog title and the global `Nuevo` menu in the page header.
+- Search, filter, and sort controls belong below the header.
+
+Folder detail behavior:
+
+- `/resources/folders/:folderId` shows the folder title as the page title.
+- It shows a breadcrumb directly below the title:
+  - `Recursos / Folder name`
+  - `Recursos / Parent folder / Folder name` when nested folders exist
+- It shows folder actions directly below the breadcrumb.
+- The folder action row order is:
+  - `Nuevo`
+  - `Opciones`
+- The `Nuevo` menu creates resources in the current catalog context.
+- The `Opciones` menu owns folder-specific actions such as edit, archive,
+  restore, share, and future folder sharing controls.
+
+Nested folder behavior:
+
+- `Recursos / Parent folder / Child folder`
+- Folder breadcrumbs must link to every parent folder.
+- A folder can contain resources and child folders.
+- The UI must prevent moving a folder into itself or into one of its descendants.
+
+Resource detail behavior:
+
+- Assignment, practice guide, and future dialogue detail pages show the resource
+  type and resource title.
+- They show a breadcrumb before resource actions:
+  - `Recursos / Resource title` when the resource is not in a folder.
+  - `Recursos / Folder name / Resource title` when opened from or assigned to a
+    folder.
+- Breadcrumb segments should use real links:
+  - `Recursos` links to `/resources`.
+  - `Folder name` links to `/resources/folders/:folderId`.
+  - The current resource title is text, not a link.
+- Resource actions appear below the breadcrumb, not floating in the top-right
+  corner.
+- Resource-specific primary actions come before `Opciones`.
+  - Assignment: `Probar`
+  - Practice guide: `Probar`
+  - Dialogue: launch/start action, to be named when dialogues are defined
+- `Opciones` owns secondary actions such as share, edit, archive, restore, and
+  other resource-specific management actions.
+- Resource detail pages must include both common resource options and
+  resource-specific options in the same `Opciones` menu.
+- Common resource options apply to every resource type:
+  - move to folder
+  - archive or restore
+  - share where the resource supports sharing
+- Resource-specific options live below the common options, separated by a
+  divider when that improves scanning.
+  - Assignment-specific examples: edit task, share public student link, share
+    with profile, view attempts where applicable
+  - Practice-guide-specific examples: edit guide, launch guided practice, share
+    guide-specific links where still needed
+  - Dialogue-specific examples: edit dialogue, launch roleplay, configure
+    dialogue scenario
+- Detail pages do not show a close `X`; the breadcrumb provides resource-area
+  navigation.
+- If a resource detail page includes a global `Nuevo` menu later, it must appear
+  in the same action row below the breadcrumb. When `Nuevo` and `Opciones` are
+  both present in that row, `Nuevo` appears before `Opciones`.
+
+Edit and authoring view behavior:
+
+- Edit views may use a close `X`.
+- The close button must link to the resource detail page, not to the old
+  type-specific list and not to browser history.
+- Assignment edit closes to `/assignments/:assignmentId`.
+- Practice guide edit closes to `/practice-modules/:practiceModuleId`.
+- Breadcrumbs are optional in edit views. If they are added later, they should
+  complement the close button rather than replace the explicit close target.
+
+Breadcrumb context should be explicit. Do not rely on `document.referrer`,
+browser history, or implicit back behavior to infer where the user came from.
+
+Preferred context sources:
+
+1. The current folder path when the user is inside a folder.
+2. The resource's folder membership when the resource belongs to one folder.
+3. A server-validated folder context parameter when the same resource can be
+   opened from multiple folders in the future.
+4. The catalog root when no folder context exists.
+
+Move-to-folder modal:
+
+- Moving a resource or folder should open a modal rather than navigating away.
+- The modal starts at the root folder list.
+- The modal lists root folders first.
+- The user can enter a folder, then continue navigating through child folders.
+- The modal shows its own breadcrumb:
+  - `Recursos`
+  - `Recursos / Parent folder`
+  - `Recursos / Parent folder / Child folder`
+- Each breadcrumb segment is clickable so the user can jump back to any parent.
+- The modal clearly shows the currently selected destination.
+- The modal should allow moving to the resource root when removing a resource
+  from a folder.
+- The modal must disable invalid destinations:
+  - the resource's current folder, when moving there would be a no-op
+  - the folder itself, when moving a folder
+  - any descendant of the folder being moved
+- Confirming the modal updates folder membership and returns the user to the
+  relevant current view.
+
+Use standard Bootstrap structure:
+
+- page title block
+- small breadcrumb row under the title
+- compact flex action row under the breadcrumb
+- Bootstrap dropdowns for `Nuevo` and `Opciones`
+- Bootstrap Icons inside menu items and buttons
+
+Avoid:
+
+- floating page actions in the top-right corner on folder/detail pages
+- duplicate action rows
+- actions split between header and breadcrumb area
+- browser-history-dependent back buttons
+- old type-specific list destinations from resource detail/edit views
+
 ### Resource List
 
 The `Recursos` page should become the main management surface.
@@ -188,10 +332,11 @@ Expected controls:
 - create resource menu
 - search
 - type filters
-- folder breadcrumb when inside a folder
+- folder breadcrumb when inside a folder, including parent folders when nested
 - list/grid layout
 - archived toggle only when archived resources exist
 - archive/share actions
+- move-to-folder action in resource option menus
 
 Expected item metadata:
 
@@ -207,13 +352,13 @@ Expected item metadata:
 
 Each detail page should share a common shell:
 
-- close/back button
+- breadcrumb
 - title
 - type badge
 - primary action
 - options menu
-- share action
-- archive action
+- common resource options
+- resource-specific options
 
 Then each type owns its body:
 
@@ -262,9 +407,17 @@ Folder membership should be stored outside `resources`:
 - `resource_folder_items.resource_type`
 - `resource_folder_items.position`
 
-The folder membership table should disallow `resource_folder` as an item type so
-nested folders are prevented by the persistence model, not only by UI checks.
-For V2, a resource belongs to zero or one folder.
+Nested folders can be modeled by allowing `resource_folder` as an item type in
+`resource_folder_items` or by adding a dedicated `parent_folder_id` relationship
+to `resource_folders`. The implementation should choose one representation and
+keep it as the single source of truth.
+
+Folder movement must prevent invalid states at the persistence/service boundary:
+
+- a folder cannot contain itself
+- a folder cannot move into one of its descendants
+- a resource or folder should have one current parent folder at most
+- moving to the catalog root clears the parent folder relationship
 
 Sharing should use one generic table:
 
@@ -314,10 +467,11 @@ V2 should converge sharing into one generic model:
 - `resource_profile_shares` or equivalent profile import records
 - shared/imported metadata on `resources`
 
-Sharing a folder should share the folder as an organized bundle. Because folders
-do not nest in V2, folder sharing can stay one level deep. Open decisions:
+Sharing a folder should share the folder as an organized bundle. With nested
+folders, folder sharing needs an explicit recursive policy. Open decisions:
 
 - Should folder sharing expose live contents or snapshot contents?
+- Should folder sharing include child folders recursively by default?
 - Should recipients import copies or access the owner's shared resource?
 - Should adding a new item to a shared folder update recipients automatically?
 

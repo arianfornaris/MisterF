@@ -9,12 +9,6 @@ structured practice modules so the model does not have to improvise every
 session from scratch.
 
 ---
-
-Aligned with the previous idea, the practice-module draft assistant should
-probably create a plan and explicitly mention the types of exercises that will
-be generated.
-
----
 Resource refactor:
 - Remove `Salas de Chat` as a standalone resource.
 - Introduce `Diálogos` as a future resource.

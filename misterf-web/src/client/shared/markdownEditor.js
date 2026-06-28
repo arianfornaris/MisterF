@@ -16,26 +16,15 @@ const defaultToolbar = [
   'preview',
 ];
 
-const iconClassMap = {
-  bold: 'bi bi-type-bold',
-  'heading-2': 'bi bi-type-h2',
-  italic: 'bi bi-type-italic',
-  link: 'bi bi-link-45deg',
-  'ordered-list': 'bi bi-list-ol',
-  preview: 'bi bi-eye',
-  quote: 'bi bi-quote',
-  'unordered-list': 'bi bi-list-ul',
-};
-
-const toolbarLabels = {
-  bold: 'Negrita',
-  'heading-2': 'Encabezado',
-  italic: 'Cursiva',
-  link: 'Enlace',
-  'ordered-list': 'Lista numerada',
-  preview: 'Vista previa',
-  quote: 'Cita',
-  'unordered-list': 'Lista',
+const toolbarButtonPresentation = {
+  bold: { iconClass: 'bi bi-type-bold', label: 'Negrita' },
+  'heading-2': { iconClass: 'bi bi-type-h2', label: 'Encabezado' },
+  italic: { iconClass: 'bi bi-type-italic', label: 'Cursiva' },
+  link: { iconClass: 'bi bi-link-45deg', label: 'Enlace' },
+  'ordered-list': { iconClass: 'bi bi-list-ol', label: 'Lista numerada' },
+  preview: { iconClass: 'bi bi-eye', label: 'Vista previa' },
+  quote: { iconClass: 'bi bi-quote', label: 'Cita' },
+  'unordered-list': { iconClass: 'bi bi-list-ul', label: 'Lista' },
 };
 
 export function initializeMarkdownEditors(root = document) {
@@ -68,7 +57,6 @@ function createEditor(textareaEl) {
     autoRefresh: true,
     element: textareaEl,
     forceSync: true,
-    iconClassMap,
     lineNumbers: false,
     maxHeight: textareaEl.dataset.markdownEditorMaxHeight || undefined,
     minHeight: textareaEl.dataset.markdownEditorMinHeight || `${Math.max(textareaEl.rows || 6, 4) * 1.65}rem`,
@@ -106,7 +94,7 @@ function createEditor(textareaEl) {
 }
 
 function localizeToolbar(editor) {
-  for (const [name, label] of Object.entries(toolbarLabels)) {
+  for (const [name, { iconClass, label }] of Object.entries(toolbarButtonPresentation)) {
     const buttonEl = editor.toolbarElements?.[name];
     if (!(buttonEl instanceof HTMLElement)) {
       continue;
@@ -114,6 +102,7 @@ function localizeToolbar(editor) {
 
     buttonEl.title = label;
     buttonEl.setAttribute('aria-label', label);
+    buttonEl.innerHTML = `<i class="${iconClass}" aria-hidden="true"></i><span class="visually-hidden">${label}</span>`;
   }
 }
 
@@ -145,6 +134,7 @@ function showEditorError(textareaEl, editor) {
 
   const errorEl = getEditorErrorElement(textareaEl);
   if (errorEl) {
+    errorEl.classList.add('d-block');
     errorEl.hidden = false;
   }
 }
@@ -155,6 +145,7 @@ function clearEditorError(textareaEl, editor) {
   const errorEl = getEditorErrorElement(textareaEl);
   if (errorEl) {
     errorEl.hidden = true;
+    errorEl.classList.remove('d-block');
   }
 }
 

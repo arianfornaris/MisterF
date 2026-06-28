@@ -11,6 +11,66 @@
           <span class="mx-1">/</span>
           <span><%= selectedFolder.title %></span>
         </p>
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+          <div class="dropdown">
+            <button
+              class="btn btn-primary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="/assignments/new">
+                  <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="/practice-modules/new">
+                  <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de Práctica
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown">
+            <button
+              class="btn btn-secondary dropdown-toggle"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Opciones
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <button
+                  class="dropdown-item"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editResourceFolderModal"
+                  data-resource-folder-edit
+                  data-resource-folder-id="<%= selectedFolder.id %>"
+                  data-resource-folder-title="<%= selectedFolder.title %>"
+                  data-resource-folder-description="<%= selectedFolder.description %>"
+                >
+                  <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
+                </button>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="/resources/<%= encodeURIComponent(selectedFolder.id) %>/archive">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <input type="hidden" name="returnTo" value="/resources">
+                  <button class="dropdown-item" type="submit">
+                    <i class="bi bi-archive me-2" aria-hidden="true"></i>Archivar
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        </div>
         <% if (selectedFolder.description) { %>
           <div class="resource-page-copy resource-markdown mt-2" data-render-markdown><%= selectedFolder.description %></div>
         <% } %>
@@ -19,28 +79,28 @@
       <% } %>
     </div>
 
-    <div class="resource-page-header-actions">
-      <div class="dropdown">
-        <button
-          class="btn btn-primary dropdown-toggle"
-          type="button"
-          data-bs-toggle="dropdown"
-          aria-expanded="false"
-        >
-          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li>
-            <a class="dropdown-item" href="/assignments/new">
-              <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item" href="/practice-modules/new">
-              <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de Práctica
-            </a>
-          </li>
-          <% if (!selectedFolder) { %>
+    <% if (!selectedFolder) { %>
+      <div class="resource-page-header-actions">
+        <div class="dropdown">
+          <button
+            class="btn btn-primary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Nuevo
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <a class="dropdown-item" href="/assignments/new">
+                <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/practice-modules/new">
+                <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de Práctica
+              </a>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li>
               <button
@@ -52,19 +112,59 @@
                 <i class="bi bi-folder-plus me-2" aria-hidden="true"></i>Carpeta
               </button>
             </li>
-          <% } %>
-        </ul>
+          </ul>
+        </div>
       </div>
-    </div>
+    <% } %>
   </div>
 
-  <form
-    class="resource-filter-form mt-4"
-    method="get"
-    action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
-  >
-    <div class="row g-2 align-items-end">
-      <div class="col-12 col-lg">
+  <div class="resource-filter-toolbar mt-4" aria-label="Controles de recursos">
+    <div class="btn-group" role="group" aria-label="Buscar, filtrar y ordenar recursos">
+      <button
+        class="btn <%= resourceFilters.query ? 'btn-primary' : 'btn-outline-secondary' %>"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#resourceSearchPanel"
+        aria-expanded="false"
+        aria-controls="resourceSearchPanel"
+      >
+        <i class="bi bi-search me-1" aria-hidden="true"></i>Buscar
+      </button>
+      <button
+        class="btn <%= resourceFilters.type !== 'all' ? 'btn-primary' : 'btn-outline-secondary' %>"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#resourceTypePanel"
+        aria-expanded="false"
+        aria-controls="resourceTypePanel"
+      >
+        <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filtrar
+      </button>
+      <button
+        class="btn <%= resourceFilters.sort !== 'updated_desc' ? 'btn-primary' : 'btn-outline-secondary' %>"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#resourceSortPanel"
+        aria-expanded="false"
+        aria-controls="resourceSortPanel"
+      >
+        <i class="bi bi-sort-down me-1" aria-hidden="true"></i>Ordenar
+      </button>
+    </div>
+    <% if (resourceFilters.hasActiveFilters) { %>
+      <a class="btn btn-link" href="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>">Limpiar</a>
+    <% } %>
+  </div>
+
+  <div class="resource-filter-panels">
+    <div class="collapse" id="resourceSearchPanel" data-bs-parent=".resource-filter-panels">
+      <form
+        class="resource-filter-panel"
+        method="get"
+        action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
+      >
+        <input type="hidden" name="type" value="<%= resourceFilters.type %>">
+        <input type="hidden" name="sort" value="<%= resourceFilters.sort %>">
         <label class="form-label" for="resourceSearch">Buscar</label>
         <div class="input-group">
           <span class="input-group-text" aria-hidden="true">
@@ -77,33 +177,52 @@
             value="<%= resourceFilters.query %>"
             placeholder="Buscar por texto"
           >
+          <button class="btn btn-secondary" type="submit">Buscar</button>
         </div>
-      </div>
-      <div class="col-12 col-sm-6 col-lg-3">
-        <label class="form-label" for="resourceTypeFilter">Tipo</label>
-        <select class="form-select" id="resourceTypeFilter" name="type">
-          <option value="all" <%= resourceFilters.type === 'all' ? 'selected' : '' %>>Todos</option>
-          <option value="resource_folder" <%= resourceFilters.type === 'resource_folder' ? 'selected' : '' %>>Carpetas</option>
-          <option value="assignment" <%= resourceFilters.type === 'assignment' ? 'selected' : '' %>>Tareas</option>
-          <option value="practice_guide" <%= resourceFilters.type === 'practice_guide' ? 'selected' : '' %>>Guías de Práctica</option>
-        </select>
-      </div>
-      <div class="col-12 col-sm-6 col-lg-3">
-        <label class="form-label" for="resourceSort">Ordenar</label>
-        <select class="form-select" id="resourceSort" name="sort">
-          <option value="updated_desc" <%= resourceFilters.sort === 'updated_desc' ? 'selected' : '' %>>Fecha</option>
-          <option value="title_asc" <%= resourceFilters.sort === 'title_asc' ? 'selected' : '' %>>Alfabéticamente</option>
-          <option value="type" <%= resourceFilters.sort === 'type' ? 'selected' : '' %>>Tipo de recurso</option>
-        </select>
-      </div>
-      <div class="col-12 col-lg-auto d-flex gap-2">
-        <button class="btn btn-secondary" type="submit">Filtrar</button>
-        <% if (resourceFilters.hasActiveFilters) { %>
-          <a class="btn btn-outline-secondary" href="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>">Limpiar</a>
-        <% } %>
-      </div>
+      </form>
     </div>
-  </form>
+
+    <div class="collapse" id="resourceTypePanel" data-bs-parent=".resource-filter-panels">
+      <form
+        class="resource-filter-panel"
+        method="get"
+        action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
+      >
+        <input type="hidden" name="q" value="<%= resourceFilters.query %>">
+        <input type="hidden" name="sort" value="<%= resourceFilters.sort %>">
+        <label class="form-label" for="resourceTypeFilter">Tipo</label>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+          <select class="form-select" id="resourceTypeFilter" name="type">
+            <option value="all" <%= resourceFilters.type === 'all' ? 'selected' : '' %>>Todos</option>
+            <option value="resource_folder" <%= resourceFilters.type === 'resource_folder' ? 'selected' : '' %>>Carpetas</option>
+            <option value="assignment" <%= resourceFilters.type === 'assignment' ? 'selected' : '' %>>Tareas</option>
+            <option value="practice_guide" <%= resourceFilters.type === 'practice_guide' ? 'selected' : '' %>>Guías de Práctica</option>
+          </select>
+          <button class="btn btn-secondary" type="submit">Aplicar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="collapse" id="resourceSortPanel" data-bs-parent=".resource-filter-panels">
+      <form
+        class="resource-filter-panel"
+        method="get"
+        action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
+      >
+        <input type="hidden" name="q" value="<%= resourceFilters.query %>">
+        <input type="hidden" name="type" value="<%= resourceFilters.type %>">
+        <label class="form-label" for="resourceSort">Ordenar</label>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+          <select class="form-select" id="resourceSort" name="sort">
+            <option value="updated_desc" <%= resourceFilters.sort === 'updated_desc' ? 'selected' : '' %>>Fecha</option>
+            <option value="title_asc" <%= resourceFilters.sort === 'title_asc' ? 'selected' : '' %>>Alfabéticamente</option>
+            <option value="type" <%= resourceFilters.sort === 'type' ? 'selected' : '' %>>Tipo de recurso</option>
+          </select>
+          <button class="btn btn-secondary" type="submit">Ordenar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <% if (resourceItems.length === 0) { %>
     <div class="resource-empty-state mt-4">
@@ -150,34 +269,38 @@
                 <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
                 <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
               <% } %>
+              <% if (!resource.archivedAt && resource.type === 'resource_folder') { %>
+                <li>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editResourceFolderModal"
+                    data-resource-folder-edit
+                    data-resource-folder-id="<%= resource.id %>"
+                    data-resource-folder-title="<%= resource.title %>"
+                    data-resource-folder-description="<%= resource.description %>"
+                  >
+                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
+                  </button>
+                </li>
+              <% } %>
               <% if (!resource.archivedAt && resource.type !== 'resource_folder' && (selectedFolder || folderOptions.length > 0)) { %>
                 <li><hr class="dropdown-divider"></li>
-                <% if (folderOptions.length > 0) { %>
-                  <li><h3 class="dropdown-header">Mover a carpeta</h3></li>
-                  <% folderOptions.forEach((folder) => { %>
-                    <li>
-                      <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/folder">
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <input type="hidden" name="folderId" value="<%= folder.id %>">
-                        <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                        <button class="dropdown-item" type="submit">
-                          <i class="bi bi-folder me-2" aria-hidden="true"></i><%= folder.title %>
-                        </button>
-                      </form>
-                    </li>
-                  <% }) %>
-                <% } %>
-                <% if (selectedFolder) { %>
-                  <li>
-                    <form method="post" action="/resources/folders/<%= encodeURIComponent(selectedFolder.id) %>/items/<%= encodeURIComponent(resource.id) %>/remove">
-                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                      <button class="dropdown-item" type="submit">
-                        <i class="bi bi-box-arrow-up me-2" aria-hidden="true"></i>Quitar de esta carpeta
-                      </button>
-                    </form>
-                  </li>
-                <% } %>
+                <li>
+                  <button
+                    class="dropdown-item"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#moveResourceModal"
+                    data-resource-move-open
+                    data-resource-id="<%= resource.id %>"
+                    data-resource-title="<%= resource.title %>"
+                    data-current-folder-id="<%= selectedFolder ? selectedFolder.id : '' %>"
+                  >
+                    <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>Mover a carpeta
+                  </button>
+                </li>
               <% } %>
               <li><hr class="dropdown-divider"></li>
               <li>
@@ -197,6 +320,70 @@
     </div>
   <% } %>
 </section>
+
+<div class="modal fade" id="moveResourceModal" tabindex="-1" aria-labelledby="moveResourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" data-resource-move-form>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+      <input type="hidden" name="folderId" value="" data-resource-move-folder-id>
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="moveResourceModalLabel">Mover recurso</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-body-secondary mb-3">
+          Selecciona la carpeta destino para <strong data-resource-move-title>este recurso</strong>.
+        </p>
+
+        <nav aria-label="Ubicación de carpetas">
+          <ol class="breadcrumb mb-3">
+            <li class="breadcrumb-item active" aria-current="page">Recursos</li>
+          </ol>
+        </nav>
+
+        <div class="list-group" data-resource-move-destinations>
+          <% if (selectedFolder) { %>
+            <button
+              class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3"
+              type="button"
+              data-resource-move-destination
+              data-resource-move-root="true"
+              data-resource-move-label="Recursos"
+            >
+              <span><i class="bi bi-collection me-2" aria-hidden="true"></i>Recursos</span>
+              <span class="badge text-bg-light border">Raíz</span>
+            </button>
+          <% } %>
+          <% folderOptions.forEach((folder) => { %>
+            <button
+              class="list-group-item list-group-item-action d-flex align-items-center justify-content-between gap-3"
+              type="button"
+              data-resource-move-destination
+              data-folder-id="<%= folder.id %>"
+              data-resource-move-label="<%= folder.title %>"
+            >
+              <span><i class="bi bi-folder me-2" aria-hidden="true"></i><%= folder.title %></span>
+              <span class="badge text-bg-light border">Carpeta</span>
+            </button>
+          <% }) %>
+        </div>
+
+        <% if (!selectedFolder && folderOptions.length === 0) { %>
+          <p class="text-body-secondary mb-0">Crea una carpeta antes de mover este recurso.</p>
+        <% } %>
+
+        <p class="small text-body-secondary mt-3 mb-0" hidden data-resource-move-selection>
+          Destino seleccionado: <strong data-resource-move-selection-label></strong>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" disabled data-resource-move-submit>Mover</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="modal fade" id="createResourceFolderModal" tabindex="-1" aria-labelledby="createResourceFolderModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -220,6 +407,52 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-primary">Crear carpeta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="editResourceFolderModal" tabindex="-1" aria-labelledby="editResourceFolderModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form
+      class="modal-content"
+      method="post"
+      action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources/folders' %>"
+      data-resource-folder-edit-form
+    >
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="editResourceFolderModalLabel">Editar carpeta</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="editResourceFolderTitle">Nombre</label>
+          <input
+            class="form-control"
+            id="editResourceFolderTitle"
+            name="title"
+            maxlength="160"
+            required
+            data-resource-folder-edit-title
+          >
+        </div>
+        <div>
+          <label class="form-label" for="editResourceFolderDescription">Descripción</label>
+          <textarea
+            class="form-control"
+            id="editResourceFolderDescription"
+            name="description"
+            rows="3"
+            maxlength="800"
+            data-resource-folder-edit-description
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </div>
     </form>
   </div>
