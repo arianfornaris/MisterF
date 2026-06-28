@@ -99,6 +99,12 @@
   gap: 0.5rem;
 }
 
+.resource-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .resource-filter-panel {
   max-width: 680px;
   margin-top: 0.75rem;

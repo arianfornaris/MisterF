@@ -215,8 +215,11 @@ Folder detail behavior:
   - `Nuevo`
   - `Opciones`
 - The `Nuevo` menu creates resources in the current catalog context.
-- The `Opciones` menu owns folder-specific actions such as edit, archive,
-  restore, share, and future folder sharing controls.
+- The `Opciones` menu owns common folder resource actions first, such as moving
+  the folder and archiving or restoring it.
+- Folder-specific actions, such as editing folder metadata and future folder
+  sharing controls, appear below the common actions with a divider when that
+  improves scanning.
 
 Nested folder behavior:
 

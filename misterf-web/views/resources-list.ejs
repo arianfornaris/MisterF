@@ -10,7 +10,7 @@
 <section class="app-resource-view resources-page">
   <div class="resource-page-header">
     <div>
-      <p class="resource-page-kicker">Biblioteca</p>
+      <p class="resource-page-kicker"><%= selectedFolder ? 'Carpeta' : 'Biblioteca' %></p>
       <h1 class="resource-page-title"><%= selectedFolder ? selectedFolder.title : 'Recursos' %></h1>
       <% if (selectedFolder) { %>
         <p class="resource-page-copy">
@@ -24,7 +24,7 @@
             <% } %>
           <% }) %>
         </p>
-        <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+        <div class="resource-action-row mt-3">
           <div class="dropdown">
             <button
               class="btn btn-primary dropdown-toggle"
@@ -68,20 +68,6 @@
               Opciones
             </button>
             <ul class="dropdown-menu">
-              <li>
-                <button
-                  class="dropdown-item"
-                  type="button"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editResourceFolderModal"
-                  data-resource-folder-edit
-                  data-resource-folder-id="<%= selectedFolder.id %>"
-                  data-resource-folder-title="<%= selectedFolder.title %>"
-                  data-resource-folder-description="<%= selectedFolder.description %>"
-                >
-                  <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
-                </button>
-              </li>
               <% if (selectedFolderCanMove) { %>
                 <li>
                   <button
@@ -99,7 +85,6 @@
                   </button>
                 </li>
               <% } %>
-              <li><hr class="dropdown-divider"></li>
               <li>
                 <form method="post" action="/resources/<%= encodeURIComponent(selectedFolder.id) %>/archive">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -108,6 +93,21 @@
                     <i class="bi bi-archive me-2" aria-hidden="true"></i>Archivar
                   </button>
                 </form>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <button
+                  class="dropdown-item"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editResourceFolderModal"
+                  data-resource-folder-edit
+                  data-resource-folder-id="<%= selectedFolder.id %>"
+                  data-resource-folder-title="<%= selectedFolder.title %>"
+                  data-resource-folder-description="<%= selectedFolder.description %>"
+                >
+                  <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
+                </button>
               </li>
             </ul>
           </div>
@@ -310,55 +310,86 @@
               <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-              <% if (!resource.archivedAt && resource.type !== 'resource_folder') { %>
-                <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
-                <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
-              <% } %>
-              <% if (!resource.archivedAt && resource.type === 'resource_folder') { %>
+              <% if (resource.type === 'resource_folder') { %>
+                <% if (resourceCanMove) { %>
+                  <li>
+                    <button
+                      class="dropdown-item"
+                      type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#moveResourceModal"
+                      data-resource-move-open
+                      data-resource-id="<%= resource.id %>"
+                      data-resource-title="<%= resource.title %>"
+                      data-resource-type="<%= resource.type %>"
+                      data-current-folder-id="<%= selectedFolder ? selectedFolder.id : '' %>"
+                    >
+                      <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>Mover carpeta
+                    </button>
+                  </li>
+                <% } %>
                 <li>
-                  <button
-                    class="dropdown-item"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editResourceFolderModal"
-                    data-resource-folder-edit
-                    data-resource-folder-id="<%= resource.id %>"
-                    data-resource-folder-title="<%= resource.title %>"
-                    data-resource-folder-description="<%= resource.description %>"
-                  >
-                    <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
-                  </button>
+                  <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/<%= resource.archivedAt ? 'restore' : 'archive' %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                    <button class="dropdown-item" type="submit">
+                      <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                      <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
+                    </button>
+                  </form>
+                </li>
+                <% if (!resource.archivedAt) { %>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <button
+                      class="dropdown-item"
+                      type="button"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editResourceFolderModal"
+                      data-resource-folder-edit
+                      data-resource-folder-id="<%= resource.id %>"
+                      data-resource-folder-title="<%= resource.title %>"
+                      data-resource-folder-description="<%= resource.description %>"
+                    >
+                      <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
+                    </button>
+                  </li>
+                <% } %>
+              <% } else { %>
+                <% if (!resource.archivedAt) { %>
+                  <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
+                  <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Obtener enlace</a></li>
+                  <% if (resourceCanMove) { %>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                      <button
+                        class="dropdown-item"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#moveResourceModal"
+                        data-resource-move-open
+                        data-resource-id="<%= resource.id %>"
+                        data-resource-title="<%= resource.title %>"
+                        data-resource-type="<%= resource.type %>"
+                        data-current-folder-id="<%= selectedFolder ? selectedFolder.id : '' %>"
+                      >
+                        <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>Mover a carpeta
+                      </button>
+                    </li>
+                  <% } %>
+                  <li><hr class="dropdown-divider"></li>
+                <% } %>
+                <li>
+                  <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/<%= resource.archivedAt ? 'restore' : 'archive' %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="returnTo" value="<%= currentPath %>">
+                    <button class="dropdown-item" type="submit">
+                      <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                      <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
+                    </button>
+                  </form>
                 </li>
               <% } %>
-              <% if (resourceCanMove) { %>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                  <button
-                    class="dropdown-item"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#moveResourceModal"
-                    data-resource-move-open
-                    data-resource-id="<%= resource.id %>"
-                    data-resource-title="<%= resource.title %>"
-                    data-resource-type="<%= resource.type %>"
-                    data-current-folder-id="<%= selectedFolder ? selectedFolder.id : '' %>"
-                  >
-                    <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i><%= resource.type === 'resource_folder' ? 'Mover carpeta' : 'Mover a carpeta' %>
-                  </button>
-                </li>
-              <% } %>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/<%= resource.archivedAt ? 'restore' : 'archive' %>">
-                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                  <input type="hidden" name="returnTo" value="<%= currentPath %>">
-                  <button class="dropdown-item" type="submit">
-                    <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
-                    <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
-                  </button>
-                </form>
-              </li>
             </ul>
           </div>
         </div>

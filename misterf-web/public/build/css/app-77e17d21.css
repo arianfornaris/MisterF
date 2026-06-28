@@ -877,6 +877,12 @@ body {
   gap: 0.5rem;
 }
 
+.resource-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 .resource-filter-panel {
   max-width: 680px;
   margin-top: 0.75rem;
@@ -1611,8 +1617,7 @@ body {
   font-size: 0.875rem;
 }
 
-.assignment-submit-bar,
-.resource-action-row {
+.assignment-submit-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;

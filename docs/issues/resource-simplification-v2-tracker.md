@@ -255,10 +255,10 @@ Tasks:
 - [x] Add move destination modal with current-folder default selection, folder
   drill-down, fixed-height scrolling folder list, and modal breadcrumbs.
 - [~] Standardize resource option menus into common options plus
-  resource-specific options. Assignment and practice-guide detail views now
+  resource-specific options. Assignment, practice-guide, and folder views now
   share breadcrumb navigation, move-to-folder actions, share/archive actions,
-  and dedicated edit actions; folder and future dialogue detail menus still
-  need the same audit.
+  and dedicated edit actions; future dialogue detail menus still need the same
+  audit after dialogues exist.
 - [x] Discard the old guide-specific grouping path from the pre-production
   baseline.
 - [x] Remove old guide-specific grouping create/edit/list UI.
