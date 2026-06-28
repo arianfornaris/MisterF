@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, getOrCreatePracticeModuleShareLink, importPracticeModuleToProfile, listConversationsForPracticeModule, restorePracticeModuleForUser, updatePracticeModule, } from '../db/repository.js';
+import { archivePracticeModuleForUser, createConversationFromPracticeModule, createPracticeModule, deletePracticeModuleForUser, findPracticeModuleById, findPracticeModuleForUser, findPracticeModuleShareLinkById, findProfileById, findProfileForUser, findResourceFolderForResource, listResourceFolderPathForResource, listResourceFoldersForProfile, getOrCreatePracticeModuleShareLink, importPracticeModuleToProfile, listConversationsForPracticeModule, restorePracticeModuleForUser, updatePracticeModule, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { generatePracticeModuleDraft, generatePracticeModuleRevision, } from '../services/resourceDrafts.js';
@@ -48,6 +48,9 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
     let selectedPracticeModuleShareLink = null;
     let selectedPracticeModuleSharedFromProfileName = '';
     let practiceModuleConversations = [];
+    let resourceCurrentFolder = null;
+    let resourceFolderPath = [];
+    let resourceFolderOptions = [];
     const requestedPracticeModuleId = typeof request.params.practiceModuleId === 'string'
         ? request.params.practiceModuleId.trim()
         : '';
@@ -69,6 +72,13 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
             }
         }
         practiceModuleConversations = listConversationsForPracticeModule(selectedPracticeModule.id, user.id, selectedPracticeModule.profileId);
+        resourceCurrentFolder = findResourceFolderForResource(selectedPracticeModule.id, user.id);
+        resourceFolderPath = listResourceFolderPathForResource(selectedPracticeModule.id, user.id);
+        resourceFolderOptions = listResourceFoldersForProfile({
+            includeArchived: false,
+            profileId: selectedPracticeModule.profileId,
+            userId: user.id,
+        });
     }
     if (pageKind === 'share') {
         selectedPracticeModuleShareLink = findPracticeModuleShareLinkById(requestedShareId);
@@ -107,6 +117,9 @@ async function buildPracticeModulesPageModel(request, response, pageKind) {
         practiceModulePageMode: pageKind,
         practiceModuleShareQrDataUrl,
         practiceModuleShareUrl,
+        resourceCurrentFolder,
+        resourceFolderPath,
+        resourceFolderOptions,
         selectedPracticeModule,
         selectedPracticeModuleShareLink,
         selectedPracticeModuleSharedFromProfileName,
@@ -151,6 +164,9 @@ async function renderPracticeModulesPage(request, response, pageKind, overrides 
         practiceModuleRevisionSuccess: String(request.query.aiRevision || '') === 'success',
         practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
         practiceModuleShareUrl: viewModel.practiceModuleShareUrl,
+        resourceCurrentFolder: viewModel.resourceCurrentFolder,
+        resourceFolderPath: viewModel.resourceFolderPath,
+        resourceFolderOptions: viewModel.resourceFolderOptions,
         selectedPracticeModule: viewModel.selectedPracticeModule,
         selectedPracticeModuleShareLink: viewModel.selectedPracticeModuleShareLink,
         selectedPracticeModuleSharedFromProfileName: viewModel.selectedPracticeModuleSharedFromProfileName,

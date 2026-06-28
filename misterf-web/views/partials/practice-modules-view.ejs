@@ -5,12 +5,19 @@
           const practiceModuleCloseHref = practiceModulePageMode === 'edit' && selectedPracticeModule
             ? `/practice-modules/${encodeURIComponent(selectedPracticeModule.id)}`
             : '/resources';
+          const practiceModuleCurrentFolder = resourceCurrentFolder || null;
+          const practiceModuleFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
+          const practiceModuleFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
+          const showPracticeModuleMoveOption = practiceModulePageMode === 'detail'
+            && selectedPracticeModule
+            && !selectedPracticeModule.archivedAt
+            && (practiceModuleCurrentFolder || practiceModuleFolderOptions.length > 0);
         %>
         <section
           class="app-resource-view practice-modules-page"
           aria-label="Guías de práctica"
         >
-          <div class="resource-page-header resource-page-header-detail resource-page-header-has-close">
+          <div class="resource-page-header resource-page-header-detail <%= practiceModulePageMode === 'detail' ? '' : 'resource-page-header-has-close' %>">
             <div>
               <p class="resource-page-kicker">Guías de práctica</p>
               <h1 class="resource-page-title">
@@ -24,7 +31,17 @@
                   <%= selectedPracticeModule ? selectedPracticeModule.title : 'Guía de práctica' %>
                 <% } %>
               </h1>
-              <% if (practiceModulePageMode === 'share' && selectedSharedPracticeModule) { %>
+              <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
+                <p class="resource-page-copy">
+                  <a href="/resources">Recursos</a>
+                  <% practiceModuleFolderPath.forEach((folder) => { %>
+                    <span class="mx-1">/</span>
+                    <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
+                  <% }) %>
+                  <span class="mx-1">/</span>
+                  <span><%= selectedPracticeModule.title %></span>
+                </p>
+              <% } else if (practiceModulePageMode === 'share' && selectedSharedPracticeModule) { %>
                 <div class="resource-page-copy resource-markdown" data-render-markdown><%= selectedSharedPracticeModule.description %></div>
               <% } else { %>
                 <p class="resource-page-copy">
@@ -34,23 +51,23 @@
                     Ajusta esta guía con calma. Los chats existentes conservarán su propia copia del contenido original.
                   <% } else if (practiceModulePageMode === 'share') { %>
                     Te compartieron una guía de práctica.
-                  <% } else { %>
-                    Revisa esta guía y sus chats antes de editarla, compartirla o volver a utilizarla.
                   <% } %>
                 </p>
               <% } %>
             </div>
 
-            <div class="resource-page-header-actions">
-              <a
-                class="resource-page-close-button"
-                href="<%= practiceModuleCloseHref %>"
-                title="Cerrar"
-                aria-label="Cerrar"
-              >
-                <i class="bi bi-x-lg" aria-hidden="true"></i>
-              </a>
-            </div>
+            <% if (practiceModulePageMode !== 'detail') { %>
+              <div class="resource-page-header-actions">
+                <a
+                  class="resource-page-close-button"
+                  href="<%= practiceModuleCloseHref %>"
+                  title="Cerrar"
+                  aria-label="Cerrar"
+                >
+                  <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </a>
+              </div>
+            <% } %>
           </div>
 
           <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
@@ -76,6 +93,24 @@
                     </button>
                     <ul class="dropdown-menu">
                       <% if (!selectedPracticeModule.archivedAt) { %>
+                        <% if (showPracticeModuleMoveOption) { %>
+                          <li>
+                            <button
+                              class="dropdown-item"
+                              type="button"
+                              data-bs-toggle="modal"
+                              data-bs-target="#moveResourceModal"
+                              data-resource-move-open
+                              data-resource-id="<%= selectedPracticeModule.id %>"
+                              data-resource-title="<%= selectedPracticeModule.title %>"
+                              data-resource-type="practice_guide"
+                              data-current-folder-id="<%= practiceModuleCurrentFolder ? practiceModuleCurrentFolder.id : '' %>"
+                            >
+                              <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>
+                              Mover a carpeta
+                            </button>
+                          </li>
+                        <% } %>
                         <li>
                           <button
                             class="dropdown-item"
@@ -98,6 +133,7 @@
                             Obtener enlace
                           </button>
                         </li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
                           <a
                             class="dropdown-item"
@@ -512,6 +548,7 @@
               </div>
             </div>
           </div>
+
         <% } %>
 
         <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
@@ -611,4 +648,9 @@
               </div>
             </div>
           </div>
+
+          <%- include('resource-move-modal', {
+            resourceMoveCurrentFolder: practiceModuleCurrentFolder,
+            resourceMoveFolderOptions: practiceModuleFolderOptions,
+          }) %>
         <% } %>

@@ -1,5 +1,6 @@
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
+import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 import {
   buildInitialQuizItemState,
@@ -469,4 +470,5 @@ initializeAssignmentQuizUi();
 initializeAssignmentResultUi();
 initializeAssignmentSharingUi();
 initializeAssignmentPendingUi();
+initializeResourceMoveModal();
 initializeStaticMarkdown();

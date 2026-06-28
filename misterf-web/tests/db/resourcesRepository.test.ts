@@ -53,9 +53,13 @@ describe('resource repository', () => {
       createPracticeModule,
       createProfile,
       createResourceFolder,
+      findResourceFolderForResource,
       findResourceForUser,
       getOrCreateResourceShareLink,
       listResourceFolderItems,
+      listResourceFolderPath,
+      listResourceFolderDescendantIds,
+      listResourceFoldersForProfile,
       listResourcesForProfile,
       moveResourceFolderItem,
       removeResourceFromFolder,
@@ -98,6 +102,18 @@ describe('resource repository', () => {
       description: 'Shared classroom resources.',
       profileId: profile.id,
       title: 'Week 1 Resources',
+      userId: user.id,
+    });
+    const childFolder = createResourceFolder({
+      description: 'Nested resources.',
+      profileId: profile.id,
+      title: 'Nested Folder',
+      userId: user.id,
+    });
+    const grandchildFolder = createResourceFolder({
+      description: 'Deeply nested resources.',
+      profileId: profile.id,
+      title: 'Deep Folder',
       userId: user.id,
     });
     const otherAssignment = createAssignment({
@@ -153,13 +169,40 @@ describe('resource repository', () => {
     })).toBe(false);
     expect(addResourceToFolder({
       folderId: folder.id,
+      resourceId: childFolder.id,
+      userId: user.id,
+    })).toBe(true);
+    expect(addResourceToFolder({
+      folderId: childFolder.id,
+      resourceId: grandchildFolder.id,
+      userId: user.id,
+    })).toBe(true);
+    expect(addResourceToFolder({
+      folderId: grandchildFolder.id,
+      resourceId: folder.id,
+      userId: user.id,
+    })).toBe(false);
+    expect(addResourceToFolder({
+      folderId: folder.id,
       resourceId: otherAssignment.id,
       userId: user.id,
     })).toBe(false);
 
+    expect(findResourceFolderForResource(assignment.id, user.id)).toEqual(expect.objectContaining({
+      id: folder.id,
+      title: folder.title,
+      type: 'resource_folder',
+    }));
+    expect(findResourceFolderForResource(childFolder.id, user.id)).toEqual(expect.objectContaining({
+      id: folder.id,
+      title: folder.title,
+      type: 'resource_folder',
+    }));
+    expect(findResourceFolderForResource(otherAssignment.id, user.id)).toBeNull();
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       assignment.id,
       practiceGuide.id,
+      childFolder.id,
     ]);
     expect(listResourcesForProfile({
       folderId: folder.id,
@@ -168,7 +211,23 @@ describe('resource repository', () => {
     }).map((resource) => resource.id)).toEqual([
       assignment.id,
       practiceGuide.id,
+      childFolder.id,
     ]);
+    expect(listResourceFolderPath(grandchildFolder.id, user.id).map((resource) => resource.id)).toEqual([
+      folder.id,
+      childFolder.id,
+      grandchildFolder.id,
+    ]);
+    expect(listResourceFolderDescendantIds(folder.id, user.id)).toEqual(expect.arrayContaining([
+      childFolder.id,
+      grandchildFolder.id,
+    ]));
+    expect(listResourceFoldersForProfile({
+      profileId: profile.id,
+      userId: user.id,
+    }).find((candidate) => candidate.id === childFolder.id)).toEqual(expect.objectContaining({
+      parentFolderId: folder.id,
+    }));
 
     expect(moveResourceFolderItem({
       direction: 'up',
@@ -179,6 +238,7 @@ describe('resource repository', () => {
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       practiceGuide.id,
       assignment.id,
+      childFolder.id,
     ]);
 
     expect(archiveAssignmentForUser(assignment.id, user.id)?.archivedAt).not.toBeNull();
@@ -189,6 +249,7 @@ describe('resource repository', () => {
       userId: user.id,
     }).map((resource) => resource.id)).toEqual([
       practiceGuide.id,
+      childFolder.id,
     ]);
     expect(listResourcesForProfile({
       folderId: folder.id,
@@ -198,6 +259,7 @@ describe('resource repository', () => {
     }).map((resource) => resource.id)).toEqual([
       practiceGuide.id,
       assignment.id,
+      childFolder.id,
     ]);
 
     expect(removeResourceFromFolder({
@@ -205,8 +267,20 @@ describe('resource repository', () => {
       resourceId: practiceGuide.id,
       userId: user.id,
     })).toBe(true);
+    expect(findResourceFolderForResource(practiceGuide.id, user.id)).toBeNull();
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       assignment.id,
+      childFolder.id,
+    ]);
+    expect(removeResourceFromFolder({
+      folderId: folder.id,
+      resourceId: childFolder.id,
+      userId: user.id,
+    })).toBe(true);
+    expect(findResourceFolderForResource(childFolder.id, user.id)).toBeNull();
+    expect(listResourceFolderPath(grandchildFolder.id, user.id).map((resource) => resource.id)).toEqual([
+      childFolder.id,
+      grandchildFolder.id,
     ]);
 
     const shareLink = getOrCreateResourceShareLink(folder.id);

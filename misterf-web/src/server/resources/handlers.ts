@@ -4,12 +4,16 @@ import {
   archiveResourceForUser,
   createResourceFolder,
   findResourceForUser,
+  findResourceFolderForResource,
   listResourceFolderItems,
+  listResourceFolderPath,
+  listResourceFoldersForProfile,
   listResourcesForProfile,
   removeResourceFromFolder,
   restoreResourceForUser,
   updateResourceFolder,
   type StoredResource,
+  type StoredResourceFolderMoveOption,
 } from '../db/repository.js';
 import {
   appDocumentTitle,
@@ -26,11 +30,16 @@ type ResourceListItem = StoredResource & {
   actionLabel: string;
   actionMethod: 'get' | 'post';
   actionPath: string;
+  badgeClass: string;
   detailPath: string;
   headerClass: string;
   iconClass: string;
   label: string;
   relativeUpdatedAt: string;
+};
+
+type ResourceFolderListItem = ResourceListItem & {
+  parentFolderId: string | null;
 };
 
 function ensureVerifiedResourceUser(
@@ -128,16 +137,19 @@ function buildResourceAction(resource: StoredResource): {
 function buildResourceListItem(resource: StoredResource): ResourceListItem {
   const meta = {
     assignment: {
+      badgeClass: 'text-bg-primary',
       headerClass: 'bg-primary text-white',
       iconClass: 'bi-ui-checks-grid',
       label: 'Tarea',
     },
     practice_guide: {
+      badgeClass: 'text-bg-success',
       headerClass: 'bg-success text-white',
       iconClass: 'bi-journal-text',
       label: 'Guía de Práctica',
     },
     resource_folder: {
+      badgeClass: 'text-bg-info',
       headerClass: 'bg-info-subtle text-info-emphasis',
       iconClass: 'bi-folder',
       label: 'Carpeta',
@@ -148,6 +160,7 @@ function buildResourceListItem(resource: StoredResource): ResourceListItem {
   return {
     ...resource,
     ...action,
+    badgeClass: meta.badgeClass,
     detailPath: buildResourceDetailPath(resource),
     headerClass: meta.headerClass,
     iconClass: meta.iconClass,
@@ -156,19 +169,27 @@ function buildResourceListItem(resource: StoredResource): ResourceListItem {
   };
 }
 
-function removeFiledResourcesFromRoot(resources: StoredResource[], userId: string): StoredResource[] {
-  const folderIds = resources
-    .filter((resource) => resource.type === 'resource_folder' && !resource.archivedAt)
-    .map((resource) => resource.id);
+function buildResourceFolderListItem(
+  folder: StoredResourceFolderMoveOption,
+): ResourceFolderListItem {
+  return {
+    ...buildResourceListItem(folder),
+    parentFolderId: folder.parentFolderId,
+  };
+}
+
+function removeFiledResourcesFromRoot(
+  resources: StoredResource[],
+  folders: StoredResourceFolderMoveOption[],
+  userId: string,
+): StoredResource[] {
   const filedResourceIds = new Set(
-    folderIds.flatMap((folderId) =>
-      listResourceFolderItems(folderId, userId).map((item) => item.resourceId),
+    folders.flatMap((folder) =>
+      listResourceFolderItems(folder.id, userId).map((item) => item.resourceId),
     ),
   );
 
-  return resources.filter((resource) =>
-    resource.type === 'resource_folder' || !filedResourceIds.has(resource.id),
-  );
+  return resources.filter((resource) => !filedResourceIds.has(resource.id));
 }
 
 const resourceTypeSortRank: Record<StoredResource['type'], number> = {
@@ -253,6 +274,17 @@ export function renderResourcesListPage(request: Request, response: Response): v
     response.redirect('/resources');
     return;
   }
+  const folderOptions = listResourceFoldersForProfile({
+    includeArchived: false,
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  const selectedFolderPath = selectedFolder
+    ? listResourceFolderPath(selectedFolder.id, auth.user.id)
+    : [];
+  const selectedFolderParent = selectedFolder
+    ? findResourceFolderForResource(selectedFolder.id, auth.user.id)
+    : null;
 
   const scopedResources = listResourcesForProfile({
     folderId,
@@ -263,19 +295,13 @@ export function renderResourcesListPage(request: Request, response: Response): v
   });
   const allResources = selectedFolder
     ? scopedResources
-    : removeFiledResourcesFromRoot(scopedResources, auth.user.id);
+    : removeFiledResourcesFromRoot(scopedResources, folderOptions, auth.user.id);
   const filters = {
     query: readField(request.query.q, 160),
     sort: readResourceSort(request.query.sort),
     type: readResourceTypeFilter(request.query.type),
   };
   const resourceItems = filterAndSortResources(allResources, filters);
-  const folderOptions = listResourcesForProfile({
-    includeArchived: false,
-    profileId: auth.activeProfile.id,
-    type: 'resource_folder',
-    userId: auth.user.id,
-  }).filter((folder) => folder.id !== selectedFolder?.id);
 
   response.render('resources-list', {
     ...buildAppShellContext({
@@ -289,7 +315,8 @@ export function renderResourcesListPage(request: Request, response: Response): v
         : `Recursos - ${appDocumentTitle}`,
       user: auth.user,
     }),
-    folderOptions: folderOptions.map(buildResourceListItem),
+    folderBreadcrumbItems: selectedFolderPath.map(buildResourceListItem),
+    folderOptions: folderOptions.map(buildResourceFolderListItem),
     resourceFilters: {
       ...filters,
       hasActiveFilters:
@@ -298,6 +325,7 @@ export function renderResourcesListPage(request: Request, response: Response): v
         filters.sort !== 'updated_desc',
     },
     resourceItems: resourceItems.map(buildResourceListItem),
+    selectedFolderParent: selectedFolderParent ? buildResourceListItem(selectedFolderParent) : null,
     selectedFolder: selectedFolder ? buildResourceListItem(selectedFolder) : null,
   });
 }
@@ -310,6 +338,7 @@ export function handleCreateResourceFolder(request: Request, response: Response)
 
   const title = readField(request.body.title, 160);
   const description = readField(request.body.description, 800);
+  const parentFolderId = readField(request.body.parentFolderId, 100);
   if (!title) {
     response.redirect(normalizeReturnTo(request.body.returnTo));
     return;
@@ -321,6 +350,13 @@ export function handleCreateResourceFolder(request: Request, response: Response)
     title,
     userId: auth.user.id,
   });
+  if (parentFolderId) {
+    addResourceToFolder({
+      folderId: parentFolderId,
+      resourceId: folder.id,
+      userId: auth.user.id,
+    });
+  }
 
   response.redirect(`/resources/folders/${encodeURIComponent(folder.id)}`);
 }

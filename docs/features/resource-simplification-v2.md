@@ -289,17 +289,23 @@ Preferred context sources:
 Move-to-folder modal:
 
 - Moving a resource or folder should open a modal rather than navigating away.
-- The modal starts at the root folder list.
-- The modal lists root folders first.
-- The user can enter a folder, then continue navigating through child folders.
+- The modal starts at the resource's current folder. If the resource is not in a
+  folder, it starts at the resource root.
+- The modal lists child folders for the opened destination.
+- The opened folder is the selected destination. Users do not choose from a
+  separate per-row select action.
+- Clicking a folder row enters that folder, then the footer `Mover` button
+  confirms moving to the opened folder.
 - The modal shows its own breadcrumb:
   - `Recursos`
   - `Recursos / Parent folder`
   - `Recursos / Parent folder / Child folder`
 - Each breadcrumb segment is clickable so the user can jump back to any parent.
 - The modal clearly shows the currently selected destination.
+- The folder list area has a fixed height and scrolls internally when there are
+  many child folders, so the footer action does not jump as the user navigates.
 - The modal should allow moving to the resource root when removing a resource
-  from a folder.
+  from a folder by opening the `Recursos` breadcrumb destination.
 - The modal must disable invalid destinations:
   - the resource's current folder, when moving there would be a no-op
   - the folder itself, when moving a folder
@@ -407,10 +413,10 @@ Folder membership should be stored outside `resources`:
 - `resource_folder_items.resource_type`
 - `resource_folder_items.position`
 
-Nested folders can be modeled by allowing `resource_folder` as an item type in
-`resource_folder_items` or by adding a dedicated `parent_folder_id` relationship
-to `resource_folders`. The implementation should choose one representation and
-keep it as the single source of truth.
+Nested folders are modeled by allowing `resource_folder` as an item type in
+`resource_folder_items`. This keeps folder membership and ordinary resource
+membership in one table and preserves the rule that a resource or folder has at
+most one current parent folder.
 
 Folder movement must prevent invalid states at the persistence/service boundary:
 

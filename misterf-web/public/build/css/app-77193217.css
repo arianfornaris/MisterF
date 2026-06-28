@@ -893,6 +893,10 @@ body {
   font-weight: 600;
 }
 
+.resource-move-browser {
+  height: min(22rem, 45vh);
+}
+
 .resource-markdown {
   overflow-wrap: anywhere;
 }

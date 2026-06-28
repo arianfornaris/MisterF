@@ -28,12 +28,12 @@ Status legend:
 
 ## Decisions
 
-- [x] V2 folders do not support nesting.
+- [x] V2 folders support nesting through `resource_folder_items`.
 - [x] `Diálogos` are deferred until the final implementation slice.
 - [x] Slice 1 uses the generic `resources` table plus type-specific tables
   strategy.
-- [x] Folder membership is a separate table and a resource belongs to zero or
-  one folder in V2.
+- [x] Folder membership is a separate table and a resource or folder belongs to
+  zero or one parent folder in V2.
 - [x] Generic sharing starts with snapshot/copy semantics for profile and folder
   imports unless a later classroom feature explicitly needs live resources.
 
@@ -64,7 +64,7 @@ Completed:
 - [x] Capture V2 product direction.
 - [x] Create design document.
 - [x] Create implementation tracker.
-- [x] Decide no folder nesting for V2.
+- [x] Decide to support folder nesting for V2.
 - [x] Defer `Diálogos` until the final resource type slice.
 - [x] Draft generic resource schema plan.
 - [x] Add `add_resource_foundation` migration.
@@ -78,9 +78,9 @@ Completed:
 - [x] Keep search and type filters out of the first resource page iteration per
   product review.
 - [x] Add resource folder creation.
-- [x] Add folder detail pages without folder nesting.
+- [x] Add folder detail pages with nested-folder breadcrumbs.
 - [x] Add move-to-folder and remove-from-folder actions for assignable
-  resources.
+  resources and folders.
 - [x] Add generic archive/restore actions for resources.
 - [x] Redirect `/assignments` and `/practice-modules` list routes to
   `/resources`.
@@ -249,14 +249,16 @@ Tasks:
 - [x] Add add-to-folder/remove-from-folder actions.
 - [x] Add folder breadcrumbs.
 - [x] Add folder-aware resource list filtering.
-- [ ] Support nested resource folders.
+- [x] Support nested resource folders.
 - [x] Add move-to-folder flow for resources.
-- [ ] Add move-folder flow with cycle prevention.
-- [~] Add move destination modal with root-folder list, folder drill-down, and
-  modal breadcrumbs. The flat-folder modal is implemented; folder drill-down
-  remains blocked on nested folders.
-- [ ] Standardize resource option menus into common options plus
-  resource-specific options.
+- [x] Add move-folder flow with cycle prevention.
+- [x] Add move destination modal with current-folder default selection, folder
+  drill-down, fixed-height scrolling folder list, and modal breadcrumbs.
+- [~] Standardize resource option menus into common options plus
+  resource-specific options. Assignment and practice-guide detail views now
+  share breadcrumb navigation, move-to-folder actions, share/archive actions,
+  and dedicated edit actions; folder and future dialogue detail menus still
+  need the same audit.
 - [x] Discard the old guide-specific grouping path from the pre-production
   baseline.
 - [x] Remove old guide-specific grouping create/edit/list UI.
@@ -266,8 +268,7 @@ Tasks:
 Exit criteria:
 
 - [x] Users can organize guides and assignments in folders.
-- [~] Users can move resources between flat folders; nested folders remain
-  pending.
+- [x] Users can move resources and folders between nested folders.
 - [x] Only resource folder UI remains for organization.
 - [x] Existing pre-production grouping data is intentionally discarded by the
   baseline reset strategy.
@@ -277,7 +278,7 @@ Verification:
 - [x] `npm run typecheck`
 - [x] `npm test`
 - [x] Migration tests for fresh and migrated databases.
-- [ ] Re-run verification after nested folders and move-to-folder behavior are
+- [x] Re-run verification after nested folders and move-to-folder behavior are
   implemented.
 
 ## Slice 5: Assignments As Resources

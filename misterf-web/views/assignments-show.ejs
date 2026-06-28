@@ -1,29 +1,26 @@
 <%- include('partials/app-shell-open') %>
 
+<%
+  const assignmentCurrentFolder = resourceCurrentFolder || null;
+  const assignmentFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
+  const assignmentFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
+  const showAssignmentMoveOption = !selectedAssignment.archivedAt && (assignmentCurrentFolder || assignmentFolderOptions.length > 0);
+%>
+
 <section class="app-resource-view assignments-page">
-  <div class="resource-page-header resource-page-header-detail resource-page-header-has-close">
+  <div class="resource-page-header resource-page-header-detail">
     <div>
       <p class="resource-eyebrow">Tarea</p>
-      <h1><%= selectedAssignment.title %></h1>
-    </div>
-    <div class="resource-page-header-actions">
-      <a
-        class="resource-page-close-button"
-        href="/resources"
-        title="Cerrar"
-        aria-label="Cerrar"
-      >
-        <i class="bi bi-x-lg" aria-hidden="true"></i>
-      </a>
-    </div>
-  </div>
-
-  <div class="resource-detail-summary">
-    <div class="resource-markdown mb-2" data-render-markdown><%= selectedAssignment.description || draft.targetTopic || 'Sin descripción' %></div>
-    <div class="resource-meta-row">
-      <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
-      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
-      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
+      <h1 class="resource-page-title"><%= selectedAssignment.title %></h1>
+      <p class="resource-page-copy">
+        <a href="/resources">Recursos</a>
+        <% assignmentFolderPath.forEach((folder) => { %>
+          <span class="mx-1">/</span>
+          <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
+        <% }) %>
+        <span class="mx-1">/</span>
+        <span><%= selectedAssignment.title %></span>
+      </p>
     </div>
   </div>
 
@@ -44,35 +41,56 @@
         Opciones
       </button>
       <ul class="dropdown-menu">
-        <li>
-          <button
-            class="dropdown-item"
-            type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#assignmentShareProfileModal"
-          >
-            <i class="bi bi-person me-2" aria-hidden="true"></i>
-            Compartir con perfil
-          </button>
-        </li>
-        <li>
-          <button
-            class="dropdown-item"
-            type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#assignmentShareLinkModal"
-          >
-            <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
-            Obtener enlace
-          </button>
-        </li>
-        <li>
-          <a class="dropdown-item" href="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/edit">
-            <i class="bi bi-pencil me-2" aria-hidden="true"></i>
-            Editar tarea
-          </a>
-        </li>
-        <li><hr class="dropdown-divider"></li>
+        <% if (!selectedAssignment.archivedAt) { %>
+          <% if (showAssignmentMoveOption) { %>
+            <li>
+              <button
+                class="dropdown-item"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#moveResourceModal"
+                data-resource-move-open
+                data-resource-id="<%= selectedAssignment.id %>"
+                data-resource-title="<%= selectedAssignment.title %>"
+                data-resource-type="assignment"
+                data-current-folder-id="<%= assignmentCurrentFolder ? assignmentCurrentFolder.id : '' %>"
+              >
+                <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>
+                Mover a carpeta
+              </button>
+            </li>
+          <% } %>
+          <li>
+            <button
+              class="dropdown-item"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#assignmentShareProfileModal"
+            >
+              <i class="bi bi-person me-2" aria-hidden="true"></i>
+              Compartir con perfil
+            </button>
+          </li>
+          <li>
+            <button
+              class="dropdown-item"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#assignmentShareLinkModal"
+            >
+              <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
+              Obtener enlace
+            </button>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="/assignments/<%= encodeURIComponent(selectedAssignment.id) %>/edit">
+              <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+              Editar tarea
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+        <% } %>
         <li>
           <form
             method="post"
@@ -88,6 +106,15 @@
           </form>
         </li>
       </ul>
+    </div>
+  </div>
+
+  <div class="resource-detail-summary">
+    <div class="resource-markdown mb-2" data-render-markdown><%= selectedAssignment.description || draft.targetTopic || 'Sin descripción' %></div>
+    <div class="resource-meta-row">
+      <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
     </div>
   </div>
 
@@ -244,5 +271,10 @@
     </div>
   </div>
 </div>
+
+<%- include('partials/resource-move-modal', {
+  resourceMoveCurrentFolder: assignmentCurrentFolder,
+  resourceMoveFolderOptions: assignmentFolderOptions,
+}) %>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

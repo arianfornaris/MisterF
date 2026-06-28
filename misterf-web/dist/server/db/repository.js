@@ -61,6 +61,12 @@ function toStoredResourceFolderItem(row) {
         updatedAt: row.item_updated_at,
     };
 }
+function toStoredResourceFolderMoveOption(row) {
+    return {
+        ...toStoredResource(row),
+        parentFolderId: row.parent_folder_id,
+    };
+}
 function toStoredResourceShareLink(row) {
     return {
         createdAt: row.created_at,
@@ -563,6 +569,119 @@ export function findResourceForUser(resourceId, userId) {
         .get(resourceId, userId);
     return row ? toStoredResource(row) : null;
 }
+export function findResourceFolderForResource(resourceId, userId) {
+    const row = getDb()
+        .prepare(`
+        SELECT
+          folder.id,
+          folder.user_id,
+          folder.profile_id,
+          folder.type,
+          folder.title,
+          folder.description,
+          folder.topic,
+          folder.level,
+          folder.archived_at,
+          folder.source_resource_id,
+          folder.source_user_id,
+          folder.source_profile_id,
+          folder.shared_via,
+          folder.created_at,
+          folder.updated_at
+        FROM resource_folder_items AS item
+        JOIN resources AS folder
+          ON folder.id = item.folder_id
+        JOIN resources AS resource
+          ON resource.id = item.resource_id
+        WHERE item.resource_id = ?
+          AND resource.user_id = ?
+          AND folder.user_id = ?
+          AND folder.type = 'resource_folder'
+          AND folder.archived_at IS NULL
+        LIMIT 1
+      `)
+        .get(resourceId, userId, userId);
+    return row ? toStoredResource(row) : null;
+}
+export function listResourceFolderPath(folderId, userId) {
+    const path = [];
+    const seenFolderIds = new Set();
+    let currentFolder = findResourceForUser(folderId, userId);
+    while (currentFolder?.type === 'resource_folder' && !seenFolderIds.has(currentFolder.id)) {
+        path.unshift(currentFolder);
+        seenFolderIds.add(currentFolder.id);
+        currentFolder = findResourceFolderForResource(currentFolder.id, userId);
+    }
+    return path;
+}
+export function listResourceFolderPathForResource(resourceId, userId) {
+    const parentFolder = findResourceFolderForResource(resourceId, userId);
+    return parentFolder ? listResourceFolderPath(parentFolder.id, userId) : [];
+}
+export function listResourceFolderDescendantIds(folderId, userId) {
+    const rows = getDb()
+        .prepare(`
+        WITH RECURSIVE folder_descendants(id) AS (
+          SELECT item.resource_id
+          FROM resource_folder_items AS item
+          JOIN resources AS resource
+            ON resource.id = item.resource_id
+          WHERE item.folder_id = ?
+            AND resource.user_id = ?
+            AND resource.type = 'resource_folder'
+            AND resource.archived_at IS NULL
+
+          UNION ALL
+
+          SELECT item.resource_id
+          FROM resource_folder_items AS item
+          JOIN resources AS resource
+            ON resource.id = item.resource_id
+          JOIN folder_descendants AS descendant
+            ON descendant.id = item.folder_id
+          WHERE resource.user_id = ?
+            AND resource.type = 'resource_folder'
+            AND resource.archived_at IS NULL
+        )
+        SELECT id
+        FROM folder_descendants
+      `)
+        .all(folderId, userId, userId);
+    return rows.map((row) => row.id);
+}
+export function listResourceFoldersForProfile(input) {
+    const includeArchived = input.includeArchived ? 1 : 0;
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          folder.id,
+          folder.user_id,
+          folder.profile_id,
+          folder.type,
+          folder.title,
+          folder.description,
+          folder.topic,
+          folder.level,
+          folder.archived_at,
+          folder.source_resource_id,
+          folder.source_user_id,
+          folder.source_profile_id,
+          folder.shared_via,
+          folder.created_at,
+          folder.updated_at,
+          item.folder_id AS parent_folder_id
+        FROM resources AS folder
+        LEFT JOIN resource_folder_items AS item
+          ON item.resource_id = folder.id
+        WHERE folder.user_id = ?
+          AND folder.profile_id = ?
+          AND folder.type = 'resource_folder'
+          AND (? = 1 OR folder.archived_at IS NULL)
+        ORDER BY folder.title ASC, folder.created_at ASC
+      `)
+        .all(input.userId, input.profileId, includeArchived);
+    return rows.map(toStoredResourceFolderMoveOption);
+}
 export function listResourcesForProfile(input) {
     const includeArchived = input.includeArchived ? 1 : 0;
     if (input.folderId) {
@@ -731,7 +850,8 @@ export function addResourceToFolder(input) {
     const resource = findResourceForUser(input.resourceId, input.userId);
     if (folder?.type !== 'resource_folder'
         || !resource
-        || resource.type === 'resource_folder'
+        || folder.archivedAt
+        || resource.archivedAt
         || folder.profileId !== resource.profileId) {
         return false;
     }
@@ -739,6 +859,18 @@ export function addResourceToFolder(input) {
     const previous = db
         .prepare('SELECT folder_id FROM resource_folder_items WHERE resource_id = ?')
         .get(input.resourceId);
+    if (previous?.folder_id === input.folderId) {
+        return false;
+    }
+    if (resource.type === 'resource_folder') {
+        if (resource.id === folder.id) {
+            return false;
+        }
+        const descendantFolderIds = new Set(listResourceFolderDescendantIds(resource.id, input.userId));
+        if (descendantFolderIds.has(folder.id)) {
+            return false;
+        }
+    }
     const nextPositionRow = db
         .prepare(`
         SELECT COALESCE(MAX(position), 0) AS max_position

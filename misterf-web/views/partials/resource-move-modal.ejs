@@ -1,0 +1,54 @@
+<%
+  const moveFolderOptions = Array.isArray(resourceMoveFolderOptions) ? resourceMoveFolderOptions : [];
+%>
+
+<div class="modal fade" id="moveResourceModal" tabindex="-1" aria-labelledby="moveResourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" data-resource-move-form>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="returnTo" value="<%= currentPath %>">
+      <input type="hidden" name="folderId" value="" data-resource-move-folder-id>
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="moveResourceModalLabel">Mover recurso</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-body-secondary mb-3">
+          Selecciona la carpeta destino para <strong data-resource-move-title>este recurso</strong>.
+        </p>
+
+        <nav aria-label="Ubicación de carpetas">
+          <ol class="breadcrumb mb-3" data-resource-move-breadcrumb>
+            <li class="breadcrumb-item active" aria-current="page">Recursos</li>
+          </ol>
+        </nav>
+
+        <div hidden data-resource-move-folders>
+          <% moveFolderOptions.forEach((folder) => { %>
+            <span
+              data-resource-move-folder
+              data-folder-id="<%= folder.id %>"
+              data-folder-title="<%= folder.title %>"
+              data-parent-folder-id="<%= folder.parentFolderId || '' %>"
+            ></span>
+          <% }) %>
+        </div>
+
+        <div class="resource-move-browser border rounded overflow-auto">
+          <div class="list-group list-group-flush" data-resource-move-destinations></div>
+          <p class="text-body-secondary p-3 mb-0" hidden data-resource-move-empty>
+            No hay subcarpetas en esta ubicación.
+          </p>
+        </div>
+
+        <p class="small text-body-secondary mt-3 mb-0" hidden data-resource-move-selection>
+          Destino seleccionado: <strong data-resource-move-selection-label></strong>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" disabled data-resource-move-submit>Mover</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,6 +1,6 @@
 {
-  "_listGroupDropdownStacking-C2oiFQb2.js": {
-    "file": "chunks/listGroupDropdownStacking-C2oiFQb2.js",
+  "_listGroupDropdownStacking-BvkIfprB.js": {
+    "file": "chunks/listGroupDropdownStacking-BvkIfprB.js",
     "name": "listGroupDropdownStacking"
   },
   "_markdown-BEcjJFmG.js": {
@@ -14,64 +14,71 @@
       "_markdown-BEcjJFmG.js"
     ]
   },
-  "_staticMarkdown-gnKtkYtm.js": {
-    "file": "chunks/staticMarkdown-gnKtkYtm.js",
+  "_resourceMoveModal-CbYTEMNg.js": {
+    "file": "chunks/resourceMoveModal-CbYTEMNg.js",
+    "name": "resourceMoveModal"
+  },
+  "_staticMarkdown-DLcxIW43.js": {
+    "file": "chunks/staticMarkdown-DLcxIW43.js",
     "name": "staticMarkdown",
     "imports": [
       "_markdown-BEcjJFmG.js"
     ]
   },
   "src/client/assignments/index.js": {
-    "file": "entries/assignments-DwIxj0ox.js",
+    "file": "entries/assignments-tkqeyJD4.js",
     "name": "assignments",
     "src": "src/client/assignments/index.js",
     "isEntry": true,
     "imports": [
       "_quizItemRenderer-CLh8x_G9.js",
       "_markdown-BEcjJFmG.js",
-      "_staticMarkdown-gnKtkYtm.js"
+      "_resourceMoveModal-CbYTEMNg.js",
+      "_staticMarkdown-DLcxIW43.js"
     ]
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-DCDb-XAj.js",
+    "file": "entries/chat-DS-MpG3J.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
       "_quizItemRenderer-CLh8x_G9.js",
       "_markdown-BEcjJFmG.js",
-      "_staticMarkdown-gnKtkYtm.js"
+      "_staticMarkdown-DLcxIW43.js"
     ]
   },
   "src/client/chatrooms/main.js": {
-    "file": "entries/chatrooms-B6I2_BqY.js",
+    "file": "entries/chatrooms-BQzSEx_x.js",
     "name": "chatrooms",
     "src": "src/client/chatrooms/main.js",
     "isEntry": true,
     "imports": [
       "_markdown-BEcjJFmG.js",
-      "_listGroupDropdownStacking-C2oiFQb2.js"
+      "_listGroupDropdownStacking-BvkIfprB.js"
     ]
   },
   "src/client/practiceModules/index.js": {
-    "file": "entries/practice-modules-D7KVv9JX.js",
+    "file": "entries/practice-modules-CX-y4Kj9.js",
     "name": "practice-modules",
     "src": "src/client/practiceModules/index.js",
     "isEntry": true,
     "imports": [
       "_markdown-BEcjJFmG.js",
-      "_listGroupDropdownStacking-C2oiFQb2.js",
-      "_staticMarkdown-gnKtkYtm.js"
+      "_listGroupDropdownStacking-BvkIfprB.js",
+      "_resourceMoveModal-CbYTEMNg.js",
+      "_staticMarkdown-DLcxIW43.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-DJx_SkqU.js",
+    "file": "entries/resources-gOFX8RnN.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,
     "imports": [
-      "_listGroupDropdownStacking-C2oiFQb2.js",
-      "_staticMarkdown-gnKtkYtm.js"
+      "_listGroupDropdownStacking-BvkIfprB.js",
+      "_resourceMoveModal-CbYTEMNg.js",
+      "_staticMarkdown-DLcxIW43.js"
     ]
   },
   "src/client/telemetry/clientErrorReporter.js": {

@@ -184,19 +184,25 @@ Recommended fields:
 - `position`
 - timestamps
 
-V2 folders do not support nesting. A folder can contain assignments, practice
-guides, and eventually dialogues, but it cannot contain another folder.
+V2 folders support nesting. A folder can contain assignments, practice guides,
+resource folders, and eventually dialogues.
 
-The persistence model should prevent nesting rather than relying only on UI
-checks. One way to do this in SQLite is:
+The persistence model stores folder nesting in the same membership table used
+for ordinary resources:
 
 - store `resourceType` on the membership row
-- constrain it to non-folder resource types
+- allow `assignment`, `practice_guide`, and `resource_folder`
 - add a composite foreign key from `(resourceId, resourceType)` to
   `resources(id, type)`
 
-For V2, each resource belongs to zero or one folder. Enforce that with a unique
+Each resource or folder belongs to zero or one parent folder. Enforce that with a unique
 constraint on `resourceId`.
+
+Folder movement must prevent cycles at the repository/service boundary:
+
+- a folder cannot contain itself
+- a folder cannot move into one of its descendants
+- moving to the catalog root clears the parent folder relationship
 
 Recommended indexes:
 

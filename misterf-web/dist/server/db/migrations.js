@@ -1461,5 +1461,53 @@ export const migrations = [
 
     `,
     },
+    {
+        id: 10,
+        name: 'allow_nested_resource_folders',
+        up: `
+      PRAGMA defer_foreign_keys = ON;
+
+      CREATE TABLE resource_folder_items_next (
+        folder_id TEXT NOT NULL,
+        resource_id TEXT NOT NULL UNIQUE,
+        resource_type TEXT NOT NULL CHECK (resource_type IN ('assignment', 'practice_guide', 'resource_folder')),
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (folder_id, resource_id),
+        FOREIGN KEY (folder_id)
+          REFERENCES resource_folders (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (resource_id, resource_type)
+          REFERENCES resources (id, type)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO resource_folder_items_next (
+        folder_id,
+        resource_id,
+        resource_type,
+        position,
+        created_at,
+        updated_at
+      )
+      SELECT
+        folder_id,
+        resource_id,
+        resource_type,
+        position,
+        created_at,
+        updated_at
+      FROM resource_folder_items;
+
+      DROP TABLE resource_folder_items;
+
+      ALTER TABLE resource_folder_items_next
+        RENAME TO resource_folder_items;
+
+      CREATE INDEX idx_resource_folder_items_folder_position
+        ON resource_folder_items (folder_id, position ASC, created_at ASC);
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

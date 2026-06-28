@@ -10,6 +10,9 @@ import {
   findPracticeModuleShareLinkById,
   findProfileById,
   findProfileForUser,
+  findResourceFolderForResource,
+  listResourceFolderPathForResource,
+  listResourceFoldersForProfile,
   getOrCreatePracticeModuleShareLink,
   importPracticeModuleToProfile,
   listConversationsForPracticeModule,
@@ -117,6 +120,9 @@ async function buildPracticeModulesPageModel(
   > = null;
   let selectedPracticeModuleSharedFromProfileName = '';
   let practiceModuleConversations: ReturnType<typeof listConversationsForPracticeModule> = [];
+  let resourceCurrentFolder: ReturnType<typeof findResourceFolderForResource> = null;
+  let resourceFolderPath: ReturnType<typeof listResourceFolderPathForResource> = [];
+  let resourceFolderOptions: ReturnType<typeof listResourceFoldersForProfile> = [];
 
   const requestedPracticeModuleId =
     typeof request.params.practiceModuleId === 'string'
@@ -149,6 +155,19 @@ async function buildPracticeModulesPageModel(
       user.id,
       selectedPracticeModule.profileId,
     );
+    resourceCurrentFolder = findResourceFolderForResource(
+      selectedPracticeModule.id,
+      user.id,
+    );
+    resourceFolderPath = listResourceFolderPathForResource(
+      selectedPracticeModule.id,
+      user.id,
+    );
+    resourceFolderOptions = listResourceFoldersForProfile({
+      includeArchived: false,
+      profileId: selectedPracticeModule.profileId,
+      userId: user.id,
+    });
   }
 
   if (pageKind === 'share') {
@@ -203,6 +222,9 @@ async function buildPracticeModulesPageModel(
     practiceModulePageMode: pageKind,
     practiceModuleShareQrDataUrl,
     practiceModuleShareUrl,
+    resourceCurrentFolder,
+    resourceFolderPath,
+    resourceFolderOptions,
     selectedPracticeModule,
     selectedPracticeModuleShareLink,
     selectedPracticeModuleSharedFromProfileName,
@@ -258,6 +280,9 @@ async function renderPracticeModulesPage(
     practiceModuleRevisionSuccess: String(request.query.aiRevision || '') === 'success',
     practiceModuleShareQrDataUrl: viewModel.practiceModuleShareQrDataUrl,
     practiceModuleShareUrl: viewModel.practiceModuleShareUrl,
+    resourceCurrentFolder: viewModel.resourceCurrentFolder,
+    resourceFolderPath: viewModel.resourceFolderPath,
+    resourceFolderOptions: viewModel.resourceFolderOptions,
     selectedPracticeModule: viewModel.selectedPracticeModule,
     selectedPracticeModuleShareLink: viewModel.selectedPracticeModuleShareLink,
     selectedPracticeModuleSharedFromProfileName:

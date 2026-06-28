@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, getOrCreateAssignmentShareLink, importAssignmentToProfile, listAssignmentAttemptsForUser, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringMessages, } from '../db/repository.js';
+import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, findResourceFolderForResource, listResourceFolderPathForResource, listResourceFoldersForProfile, getOrCreateAssignmentShareLink, importAssignmentToProfile, listAssignmentAttemptsForUser, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendAssignmentBlock, assignmentDraftToStudentQuizBlock, buildAssignmentEvaluationSummary, buildAssignmentResultTitle, createAssignmentDraftFromManualInput, duplicateAssignmentBlock, evaluateAssignmentAttempt, moveAssignmentBlock, normalizeAssignmentResponses, removeAssignmentBlock, safeParseAssignmentDraft, } from '../services/assignments.js';
@@ -700,6 +700,13 @@ export async function renderAssignmentShowPage(request, response) {
         ? findProfileById(resolved.assignment.sourceProfileId)?.name || ''
         : '';
     const shareTargetAssignmentProfiles = (request.availableProfiles ?? []).filter((profile) => profile.id !== resolved.assignment.profileId);
+    const resourceCurrentFolder = findResourceFolderForResource(resolved.assignment.id, resolved.user.id);
+    const resourceFolderPath = listResourceFolderPathForResource(resolved.assignment.id, resolved.user.id);
+    const resourceFolderOptions = listResourceFoldersForProfile({
+        includeArchived: false,
+        profileId: resolved.assignment.profileId,
+        userId: resolved.user.id,
+    });
     const attempts = listAssignmentAttemptsForUser({
         assignmentId: resolved.assignment.id,
         profileId: resolved.assignment.profileId,
@@ -716,6 +723,9 @@ export async function renderAssignmentShowPage(request, response) {
         assignmentShareMode,
         assignmentShareQrDataUrl,
         draft,
+        resourceCurrentFolder,
+        resourceFolderPath,
+        resourceFolderOptions,
         selectedAssignment: resolved.assignment,
         selectedAssignmentSharedFromProfileName,
         shareLink,

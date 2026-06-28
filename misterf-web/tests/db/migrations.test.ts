@@ -91,6 +91,10 @@ describe('database migrations', () => {
         id: 9,
         name: 'add_resource_foundation',
       },
+      {
+        id: 10,
+        name: 'allow_nested_resource_folders',
+      },
     ]);
 
     const tableNames = (db
@@ -194,6 +198,77 @@ describe('database migrations', () => {
       'resource_id',
       'resource_type',
     ]));
+    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resource_folder_items'")
+      .get()).toEqual(expect.objectContaining({
+      sql: expect.stringContaining("'resource_folder'"),
+    }));
+  });
+
+  it('upgrades resource folder membership to allow nested folders', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-nested-folders-'));
+    process.env.DATABASE_PATH = path.join(tempDir, 'nested-folders.sqlite');
+    process.env.ENV_FILE = '/dev/null';
+    vi.resetModules();
+
+    const { getDb } = await import('../../src/server/db/database.js');
+    const { migrations } = await import('../../src/server/db/migrations.js');
+    const { migrate } = await import('../../src/server/db/migrator.js');
+    const db = getDb();
+
+    db.exec(`
+      CREATE TABLE schema_migrations (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    for (const migration of migrations.filter((migration) => migration.id <= 9)) {
+      db.exec(migration.up);
+      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
+        .run(migration.id, migration.name);
+    }
+
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, email_verified)
+      VALUES ('user_1', 'nested-folders@example.com', 'Nested Folder User', 1)
+    `).run();
+    db.prepare(`
+      INSERT INTO profiles (id, user_id, name)
+      VALUES ('profile_1', 'user_1', 'Nested Folder Profile')
+    `).run();
+    db.prepare(`
+      INSERT INTO resources (id, user_id, profile_id, type, title)
+      VALUES
+        ('folder_parent', 'user_1', 'profile_1', 'resource_folder', 'Parent Folder'),
+        ('folder_child', 'user_1', 'profile_1', 'resource_folder', 'Child Folder'),
+        ('assignment_1', 'user_1', 'profile_1', 'assignment', 'Assignment')
+    `).run();
+    db.prepare(`
+      INSERT INTO resource_folders (id)
+      VALUES ('folder_parent'), ('folder_child')
+    `).run();
+    db.prepare(`
+      INSERT INTO resource_folder_items (folder_id, resource_id, resource_type, position)
+      VALUES ('folder_parent', 'assignment_1', 'assignment', 1)
+    `).run();
+
+    migrate();
+
+    expect(db.prepare(`
+      SELECT folder_id, resource_id, resource_type
+      FROM resource_folder_items
+      WHERE resource_id = 'assignment_1'
+    `).get()).toEqual({
+      folder_id: 'folder_parent',
+      resource_id: 'assignment_1',
+      resource_type: 'assignment',
+    });
+    expect(() => db.prepare(`
+      INSERT INTO resource_folder_items (folder_id, resource_id, resource_type, position)
+      VALUES ('folder_parent', 'folder_child', 'resource_folder', 2)
+    `).run()).not.toThrow();
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
   it('backfills resources and share links from legacy resource tables', async () => {

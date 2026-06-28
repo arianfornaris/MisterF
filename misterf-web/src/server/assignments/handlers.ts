@@ -12,6 +12,9 @@ import {
   findAssignmentShareLinkById,
   findProfileById,
   findProfileForUser,
+  findResourceFolderForResource,
+  listResourceFolderPathForResource,
+  listResourceFoldersForProfile,
   getOrCreateAssignmentShareLink,
   importAssignmentToProfile,
   listAssignmentAttemptsForUser,
@@ -988,6 +991,19 @@ export async function renderAssignmentShowPage(
   const shareTargetAssignmentProfiles = (request.availableProfiles ?? []).filter(
     (profile) => profile.id !== resolved.assignment.profileId,
   );
+  const resourceCurrentFolder = findResourceFolderForResource(
+    resolved.assignment.id,
+    resolved.user.id,
+  );
+  const resourceFolderPath = listResourceFolderPathForResource(
+    resolved.assignment.id,
+    resolved.user.id,
+  );
+  const resourceFolderOptions = listResourceFoldersForProfile({
+    includeArchived: false,
+    profileId: resolved.assignment.profileId,
+    userId: resolved.user.id,
+  });
   const attempts = listAssignmentAttemptsForUser({
     assignmentId: resolved.assignment.id,
     profileId: resolved.assignment.profileId,
@@ -1005,6 +1021,9 @@ export async function renderAssignmentShowPage(
     assignmentShareMode,
     assignmentShareQrDataUrl,
     draft,
+    resourceCurrentFolder,
+    resourceFolderPath,
+    resourceFolderOptions,
     selectedAssignment: resolved.assignment,
     selectedAssignmentSharedFromProfileName,
     shareLink,
