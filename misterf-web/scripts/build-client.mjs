@@ -24,6 +24,12 @@ const resourcesScriptPartialPath = path.join(
   'partials',
   'resources-client-script.ejs',
 );
+const roleplaysScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'roleplays-client-script.ejs',
+);
 const assignmentsScriptPartialPath = path.join(
   projectRoot,
   'views',
@@ -103,6 +109,7 @@ const chatEntry = manifest['src/client/chat/index.js'];
 const clientErrorTelemetryEntry = manifest['src/client/telemetry/clientErrorReporter.js'];
 const practiceModulesEntry = manifest['src/client/practiceModules/index.js'];
 const resourcesEntry = manifest['src/client/resources/index.js'];
+const roleplaysEntry = manifest['src/client/roleplays/index.js'];
 
 if (!assignmentsEntry?.file) {
   console.error('Could not find assignments entry in Vite manifest.');
@@ -124,12 +131,17 @@ if (!resourcesEntry?.file) {
   console.error('Could not find resources entry in Vite manifest.');
   process.exit(1);
 }
+if (!roleplaysEntry?.file) {
+  console.error('Could not find roleplays entry in Vite manifest.');
+  process.exit(1);
+}
 
 const assignmentsScriptPath = `/public/build/${assignmentsEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
 const clientErrorTelemetryScriptPath = `/public/build/${clientErrorTelemetryEntry.file}`;
 const practiceModulesScriptPath = `/public/build/${practiceModulesEntry.file}`;
 const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
+const roleplaysScriptPath = `/public/build/${roleplaysEntry.file}`;
 
 fs.writeFileSync(
   assignmentsScriptPartialPath,
@@ -154,6 +166,11 @@ fs.writeFileSync(
 fs.writeFileSync(
   resourcesScriptPartialPath,
   `    <script type="module" src="${resourcesScriptPath}"></script>\n`,
+  'utf8',
+);
+fs.writeFileSync(
+  roleplaysScriptPartialPath,
+  `    <script type="module" src="${roleplaysScriptPath}"></script>\n`,
   'utf8',
 );
 
@@ -197,6 +214,9 @@ console.log(
 );
 console.log(
   `Generated ${path.relative(projectRoot, resourcesScriptPartialPath)} -> ${resourcesScriptPath}`,
+);
+console.log(
+  `Generated ${path.relative(projectRoot, roleplaysScriptPartialPath)} -> ${roleplaysScriptPath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, stylesheetPartialPath)} -> ${stylesheetPath}`,

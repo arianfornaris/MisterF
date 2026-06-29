@@ -1,0 +1,3 @@
+function e(e){let t=document.createElement(`div`);return t.textContent=e,t.innerHTML}var t=!1;function n(t){if(r(),!window.marked||!window.DOMPurify)return e(t||``).replaceAll(`
+`,`<br>`);let n=window.marked.parse(t||``);return window.DOMPurify.sanitize(n,{USE_PROFILES:{html:!0}})}function r(){t||!window.marked?.setOptions||(window.marked.setOptions({breaks:!0,gfm:!0}),t=!0)}function i(e=document){for(let t of e.querySelectorAll(`[data-render-markdown]`))a(t)}function a(e){e.innerHTML=n(e.textContent||``);for(let t of e.querySelectorAll(`a`))new URL(t.getAttribute(`href`)||``,window.location.href).origin!==window.location.origin&&(t.target=`_blank`,t.rel=`noopener noreferrer`)}export{n,i as t};
+//# sourceMappingURL=staticMarkdown-C74E1PTi.js.map

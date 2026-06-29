@@ -13,6 +13,7 @@ export function buildAgentSystemInstruction(options) {
     });
     if (!options.practiceModule) {
         if (!options.assignmentAttempt &&
+            !options.roleplayAttempt &&
             !options.tutorReport &&
             !options.tutorPlanText) {
             const sections = [base];
@@ -24,6 +25,9 @@ export function buildAgentSystemInstruction(options) {
         appendTutorPlanContext(sections, options.tutorPlanText);
         if (options.assignmentAttempt) {
             appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+        }
+        if (options.roleplayAttempt) {
+            appendRoleplayAttemptContext(sections, options.roleplayAttempt);
         }
         if (options.tutorReport) {
             sections.push('', renderSystemPrompt('tutor/tutor-report-context.md', {
@@ -49,6 +53,9 @@ export function buildAgentSystemInstruction(options) {
     if (options.assignmentAttempt) {
         appendAssignmentAttemptContext(sections, options.assignmentAttempt);
     }
+    if (options.roleplayAttempt) {
+        appendRoleplayAttemptContext(sections, options.roleplayAttempt);
+    }
     if (options.tutorReport) {
         sections.push('', renderSystemPrompt('tutor/tutor-report-context.md', {
             REPORT_JSON: options.tutorReport.reportJson,
@@ -67,6 +74,15 @@ function appendAssignmentAttemptContext(sections, assignmentAttempt) {
         ASSIGNMENT_TITLE: assignmentAttempt.assignmentTitle,
         RESPONSES_JSON: assignmentAttempt.responsesJson,
         RESULT_JSON: assignmentAttempt.resultJson,
+    }));
+}
+function appendRoleplayAttemptContext(sections, roleplayAttempt) {
+    sections.push('', renderSystemPrompt('tutor/roleplay-attempt-context.md', {
+        RESULT_JSON: roleplayAttempt.resultJson,
+        ROLEPLAY_DESCRIPTION: roleplayAttempt.roleplayDescription,
+        ROLEPLAY_SNAPSHOT_JSON: roleplayAttempt.roleplaySnapshotJson,
+        ROLEPLAY_TITLE: roleplayAttempt.roleplayTitle,
+        TURNS_JSON: roleplayAttempt.turnsJson,
     }));
 }
 function buildConversationTitleRule(input) {

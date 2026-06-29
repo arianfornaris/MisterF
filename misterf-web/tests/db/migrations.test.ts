@@ -99,6 +99,10 @@ describe('database migrations', () => {
         id: 11,
         name: 'add_live_resource_access_grants',
       },
+      {
+        id: 12,
+        name: 'add_roleplay_resources',
+      },
     ]);
 
     const tableNames = (db
@@ -130,6 +134,8 @@ describe('database migrations', () => {
       'resource_folders',
       'resource_share_links',
       'resources',
+      'roleplay_attempts',
+      'roleplays',
       'schema_migrations',
       'tutor_conversation_reports',
       'user_openrouter_keys',
@@ -216,6 +222,35 @@ describe('database migrations', () => {
       .get()).toEqual(expect.objectContaining({
       sql: expect.stringContaining("'resource_folder'"),
     }));
+    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resources'")
+      .get()).toEqual(expect.objectContaining({
+      sql: expect.stringContaining("'roleplay'"),
+    }));
+    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resource_folder_items'")
+      .get()).toEqual(expect.objectContaining({
+      sql: expect.stringContaining("'roleplay'"),
+    }));
+    expect(getColumnNames(db, 'roleplays')).toEqual(expect.arrayContaining([
+      'characters_json',
+      'pedagogical_focus',
+      'scenario',
+    ]));
+    expect(getColumnNames(db, 'roleplays')).not.toEqual(expect.arrayContaining([
+      'evaluation_focus_json',
+      'instructions',
+      'language_focus_json',
+      'learner_character_id',
+      'learner_context',
+      'learning_goals_json',
+      'opening_line',
+      'target_topic',
+    ]));
+    expect(getColumnNames(db, 'roleplay_attempts')).toEqual(expect.arrayContaining([
+      'result_json',
+      'roleplay_id',
+      'snapshot_json',
+      'turns_json',
+    ]));
   });
 
   it('upgrades resource folder membership to allow nested folders', async () => {
@@ -591,10 +626,9 @@ describe('database migrations', () => {
         authoring_session_id,
         user_id,
         profile_id,
-        is_preview,
         snapshot_json
       )
-      VALUES ('attempt_preview', 'session_orphan', 'user_1', 'profile_1', 1, ?)
+      VALUES ('attempt_preview', 'session_orphan', 'user_1', 'profile_1', ?)
     `).run(draftJson);
 
     migrate();
@@ -605,12 +639,12 @@ describe('database migrations', () => {
       title: 'Legacy Generated Task',
     });
     expect(getColumnNames(db, 'assignments')).toContain('authoring_messages_json');
-    expect(db.prepare('SELECT assignment_id, is_preview FROM assignment_attempts WHERE id = ?')
+    expect(db.prepare('SELECT assignment_id FROM assignment_attempts WHERE id = ?')
       .get('attempt_preview')).toEqual({
       assignment_id: 'session_orphan',
-      is_preview: 1,
     });
     expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('is_preview');
     expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_sessions'")
       .get()).toBeUndefined();
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);

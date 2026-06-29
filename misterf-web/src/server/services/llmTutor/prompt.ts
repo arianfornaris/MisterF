@@ -23,6 +23,13 @@ export function buildAgentSystemInstruction(options: {
     responsesJson: string;
     resultJson: string;
   } | null;
+  roleplayAttempt?: {
+    resultJson: string;
+    roleplayDescription: string;
+    roleplaySnapshotJson: string;
+    roleplayTitle: string;
+    turnsJson: string;
+  } | null;
   practiceModule?: {
     description: string;
     title: string;
@@ -45,6 +52,7 @@ export function buildAgentSystemInstruction(options: {
   if (!options.practiceModule) {
     if (
       !options.assignmentAttempt &&
+      !options.roleplayAttempt &&
       !options.tutorReport &&
       !options.tutorPlanText
     ) {
@@ -60,6 +68,10 @@ export function buildAgentSystemInstruction(options: {
 
     if (options.assignmentAttempt) {
       appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+    }
+
+    if (options.roleplayAttempt) {
+      appendRoleplayAttemptContext(sections, options.roleplayAttempt);
     }
 
     if (options.tutorReport) {
@@ -92,6 +104,10 @@ export function buildAgentSystemInstruction(options: {
 
   if (options.assignmentAttempt) {
     appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+  }
+
+  if (options.roleplayAttempt) {
+    appendRoleplayAttemptContext(sections, options.roleplayAttempt);
   }
 
   if (options.tutorReport) {
@@ -129,6 +145,28 @@ function appendAssignmentAttemptContext(
       ASSIGNMENT_TITLE: assignmentAttempt.assignmentTitle,
       RESPONSES_JSON: assignmentAttempt.responsesJson,
       RESULT_JSON: assignmentAttempt.resultJson,
+    }),
+  );
+}
+
+function appendRoleplayAttemptContext(
+  sections: string[],
+  roleplayAttempt: {
+    resultJson: string;
+    roleplayDescription: string;
+    roleplaySnapshotJson: string;
+    roleplayTitle: string;
+    turnsJson: string;
+  },
+): void {
+  sections.push(
+    '',
+    renderSystemPrompt('tutor/roleplay-attempt-context.md', {
+      RESULT_JSON: roleplayAttempt.resultJson,
+      ROLEPLAY_DESCRIPTION: roleplayAttempt.roleplayDescription,
+      ROLEPLAY_SNAPSHOT_JSON: roleplayAttempt.roleplaySnapshotJson,
+      ROLEPLAY_TITLE: roleplayAttempt.roleplayTitle,
+      TURNS_JSON: roleplayAttempt.turnsJson,
     }),
   );
 }

@@ -35,7 +35,8 @@ Weaknesses:
 
 - the learner may not know what to practice
 - weak continuity from previous work
-- hidden value from progress reports, resources, modules, and assignments
+- hidden value from progress reports, resources, practice guides, and
+  assignments
 - built-in practice ideas have no obvious place to surface
 - repeated visits can feel like starting from zero
 
@@ -105,7 +106,7 @@ Example Spanish learner-facing copy:
 The reason should be concrete but gentle:
 
 - `Apareció varias veces en tus correcciones recientes.`
-- `Continúa el módulo que empezaste ayer.`
+- `Continúa la guía que empezaste ayer.`
 - `Tema recomendado para tu perfil.`
 - `Tarea compartida por tu profesor.`
 
@@ -115,7 +116,7 @@ The reason should be concrete but gentle:
 - `progress_focus`: practice a recurring difficulty from progress
 - `vocabulary_review`: review words or phrases that need attention
 - `built_in_topic`: start from curated built-in content
-- `practice_module`: launch or continue a saved module
+- `practice_guide`: launch or continue a saved practice guide
 - `assignment`: complete or continue teacher-assigned practice
 - `generated_topic`: dynamic topic generated from profile/history
 - `free_start`: open-ended suggestion such as "Tell Mr. F what you need today"
@@ -123,7 +124,7 @@ The reason should be concrete but gentle:
 ## Built-In Topic Library
 
 Mister F should eventually have a built-in library of practice topics. This is
-not the same as user-created practice modules. It is product-owned seed content
+not the same as user-created practice guides. It is product-owned seed content
 that can be recommended, remixed, and used to start conversations or assignments.
 
 ### Library Goals
@@ -150,7 +151,7 @@ Possible fields:
 - learner goal
 - sample starter prompt
 - optional quiz payload
-- optional practice-module draft instructions
+- optional practice-guide draft instructions
 - prerequisites
 - related topics
 - version
@@ -173,7 +174,7 @@ Possible content sources:
 
 - hand-authored seed topics
 - AI-generated drafts reviewed by the product owner
-- topics extracted from successful practice modules
+- topics extracted from successful practice guides
 - topics distilled from anonymized recurring learner difficulties later, only
   with a privacy-aware process
 - teacher-authored templates promoted into the library later
@@ -215,8 +216,8 @@ The suggestion engine can use existing product data.
 
 ### Resource Signals
 
-- saved practice modules
-- recently used modules
+- saved practice guides
+- recently used guides
 - resource folders
 - shared/imported resources
 - generated resources not yet practiced
@@ -282,7 +283,7 @@ Good:
 - `From your recent corrections`
 - `Based on your profile`
 - `Popular starter topic`
-- `Continue this module`
+- `Continue this guide`
 - `Shared with you`
 
 Avoid:
@@ -358,7 +359,7 @@ tables include:
 - tags JSON
 - estimated minutes
 - starter prompt
-- quiz JSON or module instruction JSON
+- quiz JSON or practice-guide instruction JSON
 - active flag
 - version
 - timestamps
@@ -527,9 +528,9 @@ The server creates or opens a conversation and sends a starter message/context.
 
 Use for:
 
-- practice module
+- practice guide
 - teacher assignment
-- future dialogue follow-up
+- future roleplay follow-up
 
 The app opens the relevant resource detail or attempt page.
 
@@ -539,7 +540,7 @@ Use for:
 
 - unfinished conversation
 - unfinished assignment attempt
-- partially used module
+- partially used practice guide
 
 The app opens the existing state directly.
 
@@ -558,7 +559,7 @@ The app opens the existing state directly.
 7. Should "teacher assignments" always outrank self-study suggestions?
 8. Should a suggestion create a visible user message, hidden context, or both?
 9. Should built-in topics generate a tutor conversation, a quiz, or a practice
-   module?
+   guide?
 10. How much of the user's past should the suggestion model see: compact
     summaries only, or selected raw examples when debugging/personalizing?
 

@@ -15,7 +15,9 @@ Related documents:
 - [Data Model](../architecture/data-model.md)
 - [Feature Flows](../architecture/feature-flows.md)
 - [Teacher-Assigned Practice](../features/teacher-assigned-practice.md)
+- [Roleplays](../features/roleplays.md)
 - [Home Start Experience](../features/home-start-experience.md)
+- [Home Suggestions Tracker](./home-suggestions-tracker.md)
 - [Payments](../features/payments.md)
 - [Chat Rooms](../features/chatrooms.md)
 
@@ -29,7 +31,7 @@ Status legend:
 ## Decisions
 
 - [x] V2 folders support nesting through `resource_folder_items`.
-- [x] `Diálogos` are deferred until the final implementation slice.
+- [x] `Roleplay` was implemented in the final resource type slice.
 - [x] Slice 1 uses the generic `resources` table plus type-specific tables
   strategy.
 - [x] Folder membership is a separate table and a resource or folder belongs to
@@ -48,16 +50,17 @@ Status legend:
 - [x] Preserve Bootstrap/Bootswatch conventions and the theme-surface rules.
 - [~] Avoid keeping old and new resource systems active longer than necessary.
 - [~] Preserve or redirect public links where data already exists.
-- [ ] Keep credit policy explicit for every AI authoring or evaluation flow.
+- [x] Keep credit policy explicit for every AI authoring or evaluation flow.
 - [~] Add tests at the repository, route, and render layers for each migration
   slice.
 
 ## Current Milestone
 
-Current status: **Slice 2 resource shell is implemented, with parts of Slices
-4, 5, and 6 already in place. Dedicated assignment and practice-module runtime
-routes remain active while the resource catalog owns listing and folder
-organization.**
+Current status: **Slices 1-8, 10, and the first Roleplay implementation in
+Slice 11 are implemented. Dedicated assignment and legacy practice-module
+runtime routes remain active as compatibility routes, while the resource
+catalog owns listing, folder organization, live sharing, common resource
+actions, and Roleplay creation/launch/share.**
 
 Completed:
 
@@ -65,7 +68,7 @@ Completed:
 - [x] Create design document.
 - [x] Create implementation tracker.
 - [x] Decide to support folder nesting for V2.
-- [x] Defer `Diálogos` until the final resource type slice.
+- [x] Implement `Roleplay` in the final resource type slice.
 - [x] Draft generic resource schema plan.
 - [x] Add `add_resource_foundation` migration.
 - [x] Add generic resource repository primitives.
@@ -74,7 +77,8 @@ Completed:
 - [x] Add unified `Recursos` page shell.
 - [x] Replace the sidebar assignment/practice-module entries with `Recursos`.
 - [x] List assignments, practice guides, and resource folders together.
-- [x] Add grid/list layout support.
+- [x] Add grid/list layout support in the early shell, then remove layout
+  switching when the product settled on the list layout.
 - [x] Keep search and type filters out of the first resource page iteration per
   product review.
 - [x] Add resource folder creation.
@@ -90,11 +94,20 @@ Completed:
   entry is `Recursos`.
 - [x] Remove resource favorite state from schema, repository APIs, routes, UI,
   tests, and current docs.
+- [x] Add live generic sharing for assignments, practice guides, and folders.
+- [x] Add route-level coverage for generic share render/accept and legacy share
+  redirects.
+- [x] Extract the shared resource list item partial.
+- [x] Update current docs for resource navigation, live sharing, practice guide
+  naming, and chatroom removal.
+- [x] Add Roleplay as a resource type with schema, authoring, runtime,
+  evaluation, progress, sharing, and follow-up tutor practice.
 
 Next recommended step:
 
-- [ ] Finish Slice 3 user-facing rename from `Módulo de práctica` to
-  `Guía de Práctica`, then finish folder sharing and generic resource cleanup.
+- [ ] Manual QA Roleplay creation, AI revision, launch, evaluation, sharing, and
+  follow-up practice. Personalized home suggestions remain split into a
+  separate larger feature.
 
 ## Slice 0: Terminology And Scope Freeze
 
@@ -106,13 +119,13 @@ Tasks:
   - `Recursos`
   - `Tareas`
   - `Guías de Práctica`
-  - `Diálogos`
+  - `Roleplay`
   - `Carpetas`
 - [x] Confirm internal names:
   - `Resource`
   - `Assignment`
   - `PracticeGuide`
-  - `Dialogue`
+  - `Roleplay`
   - `ResourceFolder`
 - [x] Decide whether `PracticeModule` is renamed internally in V2 or kept as a
   compatibility implementation detail.
@@ -120,8 +133,13 @@ Tasks:
 - [x] Decide whether folder sharing is live or snapshot/copy based.
   - Folder sharing is live and exposes current folder contents through the
     accepted grant.
-- [ ] Decide whether `Diálogos` are scripted, AI roleplay, or hybrid.
-- [ ] Decide whether chatroom data must be migrated or can be discarded.
+- [x] Decide whether `Roleplay` is scripted, AI roleplay, or hybrid.
+  - First version: free-form two-character AI roleplay with post-completion
+    evaluation. No guided branching yet.
+- [x] Decide whether chatroom data must be migrated or can be discarded.
+  - Pre-production strategy: discard legacy chatroom data during the planned
+    baseline reset, or remove it through an explicit destructive cleanup before
+    production.
 - [x] Update this tracker with decisions.
 
 Exit criteria:
@@ -195,7 +213,7 @@ Tasks:
 - [x] Add resource folder detail pages.
 - [x] Add move-to-folder and remove-from-folder actions.
 - [x] Add generic archive/restore resource actions.
-- [ ] Add common resource card/list-item partials.
+- [x] Add common resource list-item partials.
 - [x] Keep old routes reachable during this slice.
 - [x] Add route and architecture smoke tests.
 
@@ -256,11 +274,11 @@ Tasks:
 - [x] Add move-folder flow with cycle prevention.
 - [x] Add move destination modal with current-folder default selection, folder
   drill-down, fixed-height scrolling folder list, and modal breadcrumbs.
-- [~] Standardize resource option menus into common options plus
+- [x] Standardize resource option menus into common options plus
   resource-specific options. Assignment, practice-guide, and folder views now
   share breadcrumb navigation, move-to-folder actions, share/archive actions,
-  and dedicated edit actions; future dialogue detail menus still need the same
-  audit after dialogues exist.
+  and dedicated edit actions; roleplay detail menus follow the same common
+  resource action pattern.
 - [x] Discard the old guide-specific grouping path from the pre-production
   baseline.
 - [x] Remove old guide-specific grouping create/edit/list UI.
@@ -293,11 +311,13 @@ Tasks:
 - [x] Move assignment list behavior into `Recursos` or redirect it there.
 - [x] Preserve assignment detail/edit/attempt flows.
 - [x] Preserve free shared-student evaluation policy.
-- [ ] Move assignment sharing to generic resource sharing where possible.
+- [x] Move assignment sharing to generic resource sharing where possible.
 - [x] Ensure assignment attempts still snapshot assignment content.
 - [x] Ensure progress events still record evaluated attempts.
+- [ ] Show assignment attempts/results on assignment detail pages where
+  applicable.
 - [x] Add route compatibility for existing assignment URLs if needed.
-- [~] Update assignment docs after implementation.
+- [x] Update assignment docs after implementation.
 
 Exit criteria:
 
@@ -309,7 +329,7 @@ Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [~] Assignment authoring/share/attempt/result smoke.
+- [x] Assignment authoring/share/attempt/result smoke.
 
 ## Slice 6: Practice Guides As Resources
 
@@ -321,7 +341,7 @@ Tasks:
 - [x] Preserve guide launch into tutor conversation.
 - [x] Preserve conversation practice-guide snapshots.
 - [x] Migrate or redirect old practice guide share links.
-- [~] Remove duplicated list/archive/share code where generic resource
+- [x] Remove duplicated list/archive/share code where generic resource
   behavior now owns it.
 - [ ] Update home suggestions to reference resource ids where useful.
 
@@ -335,7 +355,7 @@ Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [~] Guide launch/share/import smoke.
+- [x] Guide launch/share smoke.
 
 ## Slice 7: Remove Chat Rooms
 
@@ -343,7 +363,7 @@ Goal: remove `Salas de chat` as a standalone product area.
 
 Tasks:
 
-- [x] Decide whether any chatroom concepts migrate into `Diálogos`.
+- [x] Decide whether any chatroom concepts migrate into `Roleplay`.
 - [x] Remove sidebar entry.
 - [x] Remove chatroom routes or add temporary redirects.
 - [x] Remove chatroom views.
@@ -358,8 +378,8 @@ Tasks:
 
 Notes:
 
-- Useful chatroom learning ideas are deferred to `Diálogos`; they should be
-  redesigned as resource-shaped dialogue practice instead of migrated directly.
+- Useful chatroom learning ideas are deferred to `Roleplay`; they should be
+  redesigned as resource-shaped roleplay practice instead of migrated directly.
 - The current slice intentionally leaves legacy chatroom tables and repository
   helpers in place. Removing them is schema/destructive persistence work and
   should happen with the planned baseline reset or a forward-only migration.
@@ -394,14 +414,14 @@ Tasks:
 - [ ] Remove old share-link tables/helpers/routes when safe.
 - [x] Update share modal copy to explain live shared resources.
 - [x] Add repository tests for live grants and folder-inherited access.
-- [ ] Add route-level tests for generic share accept/login behavior.
+- [x] Add route-level tests for generic share accept/login behavior.
 - [ ] Future: give `Tareas` a special public/free student flow where assignment
   completion and AI evaluation can happen before account creation.
 
 Exit criteria:
 
-- [~] One sharing implementation supports current resource types and can extend
-  to dialogues in the final slice.
+- [x] One sharing implementation supports current resource types and can extend
+  to roleplays in the final slice.
 - [x] Public links work for assignments, guides, and folders.
 - [x] Old links are redirected into the generic share page.
 
@@ -410,35 +430,45 @@ Verification:
 - [x] `npm run typecheck`
 - [x] `npm run test:typecheck`
 - [x] `npm test`
-- [ ] Public share smoke per resource type.
+- [x] Public share route smoke per resource type.
 
 ## Slice 9: Home, Progress, Payments, And Logging Updates
 
-Goal: update downstream systems to understand the resource catalog.
+Goal: update downstream systems to understand the resource catalog. Personalized
+home suggestions are now a separate feature and are not implemented in this
+slice.
 
 Tasks:
 
-- [ ] Update home-start recommendation inputs.
-- [ ] Update progress event docs and code paths for resource ids.
-- [ ] Preserve assignment attempt progress behavior.
-- [ ] Update runtime logging event names from feature-specific resources to
+- [x] Split home-start recommendation work into a separate future feature.
+- [x] Update progress event docs and code paths for resource ids.
+- [x] Show tutor reports, assignment attempts, and roleplay attempts in the
+  progress bitácora with shared source labels.
+- [x] Add reusable agent skills for resource page conventions and learner
+  progress event conventions.
+- [x] Preserve assignment attempt progress behavior.
+- [x] Update runtime logging event names from feature-specific resources to
   generic resource ids where helpful.
-- [ ] Update analytics/log metadata to include `resourceId` and `resourceType`.
+- [x] Update analytics/log metadata to include `resourceId` and `resourceType`.
+- [x] Update payment/credit docs for resource-aware production logs.
 
 Exit criteria:
 
-- [ ] Downstream systems no longer assume only practice modules/assignments.
-- [ ] Logs can reconstruct user/model behavior by resource context.
+- [x] Downstream systems no longer assume only practice modules/assignments for
+  resource metadata.
+- [x] Logs can reconstruct user/model behavior by resource context for current
+  assignment and practice-guide resource flows.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm test`
-- [ ] Manual log review for resource actions.
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test`
+- [x] Manual log review for resource actions.
 
 ## Slice 10: Resource Foundation Cleanup
 
-Goal: remove old names, dead code, and stale docs before introducing dialogues.
+Goal: remove old names, dead code, and stale docs before introducing roleplays.
 
 Tasks:
 
@@ -449,63 +479,157 @@ Tasks:
   resource-specific options in
   [Resource Simplification V2](../features/resource-simplification-v2.md).
 - [x] Remove unused chatroom runtime files.
-- [ ] Remove duplicated resource card/list helpers.
-- [ ] Update [README](../README.md).
-- [ ] Update [Data Model](../architecture/data-model.md).
-- [ ] Update [Feature Flows](../architecture/feature-flows.md).
-- [ ] Update [Home Start Experience](../features/home-start-experience.md).
-- [ ] Update [Payments](../features/payments.md).
-- [ ] Archive or rewrite [Chat Rooms](../features/chatrooms.md).
-- [ ] Run broad grep for old user-facing labels:
+- [x] Remove duplicated resource card/list helpers.
+- [x] Update [README](../README.md).
+- [x] Update [Data Model](../architecture/data-model.md).
+- [x] Update [Feature Flows](../architecture/feature-flows.md).
+- [x] Update [Home Start Experience](../features/home-start-experience.md).
+- [x] Update [Payments](../features/payments.md).
+- [x] Archive or rewrite [Chat Rooms](../features/chatrooms.md).
+- [x] Run broad grep for old user-facing labels:
   - `Módulos de práctica`
   - `Practice Module`
   - `chatroom`
   - `Salas de chat`
-- [ ] Run full test suite.
+- [x] Run full test suite.
 
 Exit criteria:
 
-- [ ] The resource model is coherent in code, docs, UI, and tests.
-- [ ] No stale chatroom feature surface remains.
-- [ ] The resource foundation is ready for the final dialogue feature slice.
+- [x] The resource model is coherent in code, docs, UI, and tests.
+- [x] No stale chatroom feature surface remains.
+- [x] The resource foundation is ready for the final roleplay feature slice.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm run test:typecheck`
-- [ ] `npm test`
-- [ ] Manual QA for resource list/detail/create/share/archive/folder flows.
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test`
+- [x] Manual QA coverage through route/render smoke for resource
+  list/detail/create/share/archive/folder flows.
 
-## Slice 11: Introduce Dialogues Last
+## Slice 11: Introduce Roleplay Last
 
-Goal: add `Diálogos` as the final new resource-shaped conversation practice
+Goal: add `Roleplay` as the final new resource-shaped conversation practice
 feature after the resource foundation is already coherent.
 
 Tasks:
 
-- [ ] Finalize dialogue product definition.
-- [ ] Add dialogue schema/type table if it was not reserved in the resource
+- [x] Finalize roleplay product definition.
+- [x] Add roleplay schema/type table if it was not reserved in the resource
   baseline.
-- [ ] Add dialogue authoring UI.
-- [ ] Add dialogue detail page.
-- [ ] Add dialogue launch flow.
-- [ ] Add dialogue runtime prompt/service.
-- [ ] Decide whether dialogue runs produce evaluated results.
-- [ ] Decide progress event behavior.
-- [ ] Add dialogue sharing through generic resource sharing.
-- [ ] Update payment/credit docs for dialogue authoring/evaluation.
-- [ ] Add tests for dialogue validation, repository helpers, and render paths.
+- [x] Add roleplay authoring UI.
+  - [x] AI draft from natural-language prompt.
+  - [x] Rebaseline authoring to the simplified contract: title, description,
+    scenario, level, one pedagogical focus field, optional max learner turns,
+    and two fixed characters (`learner` and `ai`) with name/description only.
+  - [x] Remove the first-pass over-specific authoring fields: learner context,
+    target topic, learning goals, language focus, evaluation focus, model
+    instructions, opening line, learner character id, character icon, role,
+    persona, and speaking style.
+  - [x] AI revision from author instructions.
+- [x] Add roleplay detail page.
+  - [x] Show resource metadata.
+  - [x] Show applicable roleplay attempts/results.
+- [x] Add roleplay launch flow.
+  - [x] Generate the AI character's first line dynamically when an attempt
+    starts instead of storing an opening line on the resource.
+- [x] Add roleplay runtime prompt/service.
+- [x] Add dedicated learner writing UI using the pedagogical content style and
+  character icons.
+- [x] Decide whether roleplay runs produce evaluated results.
+  - Roleplay attempts produce evaluated results after completion.
+- [x] Decide progress event behavior.
+  - Authenticated evaluated roleplay attempts create learner progress events.
+- [x] Add roleplay sharing through generic resource sharing.
+- [x] Update payment/credit docs for roleplay authoring/evaluation.
+- [ ] Track future public/free shared roleplay attempts with optional max
+  learner-turn limits.
+- [x] Add tests for roleplay validation, repository helpers, and schema paths.
+- [x] Add render-path smoke tests for roleplay pages.
 
 Exit criteria:
 
-- [ ] A user can create, open, share, and launch a dialogue.
-- [ ] Dialogue behavior is clearly distinct from removed chatrooms.
-- [ ] Credit policy is explicit for AI generation/evaluation.
+- [x] A user can create, open, share, and launch a roleplay.
+- [x] Roleplay behavior is clearly distinct from removed chatrooms.
+- [x] Credit policy is explicit for AI generation/evaluation.
 - [ ] V2 is ready for final manual QA before production.
 
 Verification:
 
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test`
+- [x] Roleplay create/launch/share smoke.
+
+## Future Agent Skills Backlog
+
+Goal: turn recurring V2 resource implementation patterns into concise agent
+skills so future resource work stays consistent.
+
+Source analysis:
+
+- [Agent Skill Gap Analysis](./agent-skill-gap-analysis.md)
+
+Tasks:
+
+- [ ] Create `resource-sharing-conventions`.
+  - Cover live shared resource references, profile/link sharing, QR/link modal
+    behavior, access checks, and future public/free assignment and roleplay
+    exceptions.
+- [ ] Create `ai-authoring-chat-conventions`.
+  - Cover General/AI Chat tab layout, authoring history, history passed into
+    each inference, assistant reply plus structured JSON changes, pending modal
+    scroll behavior, and avoiding revision-history tables unless needed.
+- [ ] Create `resource-attempt-runtime`.
+  - Cover start/freeze/run/finish/evaluate/result/follow-up flows, progress
+    event writing, and avoiding separate persisted preview/test attempt modes.
+- [ ] Create `resource-follow-up-conversations`.
+  - Cover creating Mr. F conversations from resource results, frozen source
+    snapshots, visible source-resource links, credit policy, and preventing the
+    tutor from re-grading the same result.
+- [ ] Create `markdown-content-fields`.
+  - Cover which fields render markdown, which edit fields use the Markdown
+    editor, model instructions for markdown-capable fields, and safe rendering.
+- [ ] Create `roleplay-pedagogy-and-evaluation`.
+  - Cover learner English production focus, avoiding non-language moral/persona
+    judgment, sentence-evaluation-style review, creative scenarios, turn limits,
+    and future guest/free policy.
+
+## Final Cleanup: Remove Legacy Data Structures
+
+Goal: remove legacy data structures and compatibility code before production
+because the project will start with a clean database.
+
+Tasks:
+
+- [ ] Review every legacy table that exists only for pre-V2 compatibility.
+- [ ] Remove legacy chatroom tables, repository helpers, services, and tests.
+- [ ] Remove legacy practice-module share/import tables and copied-resource
+  compatibility paths once generic live sharing fully owns the behavior.
+- [ ] Remove assignment legacy share/import tables and copied-resource
+  compatibility paths once generic sharing and the future public Tarea flow are
+  settled.
+- [ ] Remove old internal naming where it no longer needs compatibility,
+  especially `PracticeModule` identifiers that can safely become
+  `PracticeGuide`.
+- [ ] Rebuild the clean baseline migration so fresh production installs start
+  from the simplified resource model.
+- [ ] Re-run schema, repository, route, and render tests against a fresh
+  database.
+- [ ] Re-run a broad grep for legacy names, routes, tables, prompts, and docs.
+
+Exit criteria:
+
+- [ ] Fresh databases contain only the current production-intended schema.
+- [ ] No runtime code depends on deleted legacy structures.
+- [ ] Old compatibility routes are either removed or intentionally redirected.
+- [ ] The migration history is clean for the first production deployment.
+
+Verification:
+
+- [ ] Fresh SQLite migration check.
 - [ ] `npm run typecheck`
 - [ ] `npm run test:typecheck`
 - [ ] `npm test`
-- [ ] Dialogue create/launch/share smoke.
+- [ ] Manual QA for resources, assignments, practice guides, sharing, progress,
+  payments, and roleplays if implemented by then.

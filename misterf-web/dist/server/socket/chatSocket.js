@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationPracticeModuleSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationPracticeModuleSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
@@ -77,8 +77,12 @@ export function registerChatSocket(io) {
             const messages = listMessages(conversation.id);
             const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
             const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
+            const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversation.id);
             const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
             const tutorPlan = getConversationTutorPlan(conversation.id);
+            const isReportFollowUpConversation = Boolean((assignmentAttemptSnapshot || roleplayAttemptSnapshot || tutorReportSnapshot) &&
+                !practiceModuleSnapshot);
+            const hasOnlySourceNoticeMessages = isReportFollowUpConversation && hasOnlyResourceSourceNoticeMessages(messages);
             if (messages.length === 0) {
                 pendingInitialGreeting = pickInitialGreeting();
             }
@@ -96,6 +100,7 @@ export function registerChatSocket(io) {
                 conversationId: conversation.id,
                 messages: (practiceModuleSnapshot ||
                     assignmentAttemptSnapshot ||
+                    roleplayAttemptSnapshot ||
                     tutorReportSnapshot) &&
                     messages.length === 0
                     ? []
@@ -105,11 +110,11 @@ export function registerChatSocket(io) {
                 pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
                 tutorPlan,
             });
-            if ((assignmentAttemptSnapshot || tutorReportSnapshot) &&
-                messages.length === 0 &&
-                !practiceModuleSnapshot) {
+            if (isReportFollowUpConversation &&
+                (messages.length === 0 || hasOnlySourceNoticeMessages)) {
                 void streamAssistantMessage(io, conversation.id, userId, undefined, buildReportConversationStartMessages({
                     assignmentAttemptSnapshot,
+                    roleplayAttemptSnapshot,
                     tutorReportSnapshot,
                 }), conversation.modelTier);
             }
@@ -913,6 +918,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         const learnerProfile = findProfileForUser(conversation.profileId, userId);
         const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
         const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
+        const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
         const tutorPlan = getConversationTutorPlan(conversationId);
         const messages = listMessages(conversationId);
@@ -942,6 +948,15 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                 resultJson: JSON.stringify(assignmentAttemptSnapshot.result, null, 2),
             }
             : null;
+        const roleplayAttemptContext = roleplayAttemptSnapshot
+            ? {
+                resultJson: JSON.stringify(roleplayAttemptSnapshot.result, null, 2),
+                roleplayDescription: roleplayAttemptSnapshot.roleplayDescription,
+                roleplaySnapshotJson: JSON.stringify(roleplayAttemptSnapshot.roleplaySnapshot, null, 2),
+                roleplayTitle: roleplayAttemptSnapshot.roleplayTitle,
+                turnsJson: JSON.stringify(roleplayAttemptSnapshot.turns, null, 2),
+            }
+            : null;
         const tutorReportContext = tutorReportSnapshot
             ? {
                 reportJson: tutorReportSnapshot.reportJson,
@@ -960,6 +975,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                 }
                 : null,
             practiceModule: practiceModuleContext,
+            roleplayAttempt: roleplayAttemptContext,
             tutorReport: tutorReportContext,
             abortSignal: abortController.signal,
             conversationId,
@@ -1088,6 +1104,17 @@ function buildReportConversationStartMessages(input) {
             ].join('\n'),
         });
     }
+    if (input.roleplayAttemptSnapshot) {
+        messages.push({
+            role: 'user',
+            content: [
+                'INTERNAL ROLEPLAY FOLLOW-UP START.',
+                'The learner chose to practice after completing a Roleplay resource.',
+                'Use the roleplay context in the system prompt to start with the most useful remediation step.',
+                'Do not mention the internal signal.',
+            ].join('\n'),
+        });
+    }
     if (input.tutorReportSnapshot) {
         messages.push({
             role: 'user',
@@ -1095,6 +1122,12 @@ function buildReportConversationStartMessages(input) {
         });
     }
     return messages;
+}
+function hasOnlyResourceSourceNoticeMessages(messages) {
+    return messages.length > 0 && messages.every(isResourceSourceNoticeMessage);
+}
+function isResourceSourceNoticeMessage(message) {
+    return message.role === 'model' && Boolean(message.metadata?.resourceSourceNotice);
 }
 function emitConversationUpdated(io, conversationId, userId) {
     const conversation = findConversationForUser(conversationId, userId);

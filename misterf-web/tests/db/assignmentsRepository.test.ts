@@ -70,11 +70,13 @@ describe('assignment repository', () => {
       createConversationFromAssignmentAttempt,
       createProfile,
       findAssignmentForUser,
+      findAssignmentAttemptById,
       importAssignmentToProfile,
       getConversationAssignmentAttemptSnapshot,
       getOrCreateAssignmentShareLink,
       listAssignmentAttemptsForUser,
       listAssignmentsForProfile,
+      listLearnerProgressEvents,
       saveAssignmentAttemptResult,
       submitAssignmentAttempt,
       updateAssignment,
@@ -198,16 +200,6 @@ describe('assignment repository', () => {
       userId: user.id,
     })).toHaveLength(1);
 
-    const previewAttempt = createAssignmentAttempt({
-      assignmentId: assignment.id,
-      isPreview: true,
-      profileId: profile.id,
-      snapshot: assignmentDraft,
-      userId: user.id,
-    });
-    expect(previewAttempt.assignmentId).toBe(assignment.id);
-    expect(previewAttempt.isPreview).toBe(true);
-
     const attempt = createAssignmentAttempt({
       assignmentId: assignment.id,
       profileId: profile.id,
@@ -248,6 +240,24 @@ describe('assignment repository', () => {
     if (!evaluated) {
       throw new Error('Expected evaluated attempt.');
     }
+
+    const { recordAssignmentAttemptProgress } = await import('../../src/server/services/learnerProgress.js');
+    recordAssignmentAttemptProgress(evaluated);
+    const progressEvents = listLearnerProgressEvents({
+      profileId: profile.id,
+      userId: user.id,
+    });
+    expect(progressEvents[0]).toEqual(expect.objectContaining({
+      sourceId: evaluated.id,
+      sourceType: 'assignment_attempt',
+    }));
+    expect(progressEvents[0]?.details).toMatchObject({
+      resourceId: assignment.id,
+      resourceType: 'assignment',
+    });
+    expect(findAssignmentAttemptById(evaluated.id)?.progressEventId).toBe(
+      progressEvents[0]?.id,
+    );
 
     const conversation = createConversationFromAssignmentAttempt({
       attempt: evaluated,

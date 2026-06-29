@@ -8,6 +8,19 @@ export type LearnerProgressVocabularyItem = {
   term: string;
 };
 
+export type LearnerProgressEventView = StoredLearnerProgressEvent & {
+  sourceLabel: string;
+};
+
+export function buildLearnerProgressEventViews(
+  events: StoredLearnerProgressEvent[],
+): LearnerProgressEventView[] {
+  return events.map((event) => ({
+    ...event,
+    sourceLabel: getProgressEventSourceLabel(event),
+  }));
+}
+
 export function buildLearnerProgressVocabularyItems(
   events: StoredLearnerProgressEvent[],
 ): LearnerProgressVocabularyItem[] {
@@ -22,11 +35,7 @@ export function buildLearnerProgressVocabularyItems(
 
       const key = term.toLowerCase();
       const existing = items.get(key);
-      const sourceLabel = event.sourceType === 'assignment_attempt'
-        ? 'Tarea'
-        : event.sourceType === 'tutor_conversation_report'
-        ? 'Tutor'
-        : 'Práctica';
+      const sourceLabel = getProgressEventSourceLabel(event);
 
       if (existing) {
         existing.count += 1;
@@ -55,6 +64,34 @@ export function buildLearnerProgressVocabularyItems(
 
     return Date.parse(b.lastSeenAt) - Date.parse(a.lastSeenAt);
   });
+}
+
+export function getProgressEventSourceLabel(event: StoredLearnerProgressEvent): string {
+  if (event.details.resourceType === 'assignment') {
+    return 'Tarea';
+  }
+
+  if (event.details.resourceType === 'practice_guide') {
+    return 'Guía de Práctica';
+  }
+
+  if (event.details.resourceType === 'roleplay') {
+    return 'Roleplay';
+  }
+
+  if (event.sourceType === 'assignment_attempt') {
+    return 'Tarea';
+  }
+
+  if (event.sourceType === 'roleplay_attempt') {
+    return 'Roleplay';
+  }
+
+  if (event.sourceType === 'tutor_conversation_report') {
+    return 'Bitácora';
+  }
+
+  return 'Práctica';
 }
 
 function pushUnique(items: string[], value: string, limit: number): void {

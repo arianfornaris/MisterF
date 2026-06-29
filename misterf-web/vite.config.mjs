@@ -16,6 +16,7 @@ export default defineConfig({
         ),
         'practice-modules': path.resolve('src/client/practiceModules/index.js'),
         resources: path.resolve('src/client/resources/index.js'),
+        roleplays: path.resolve('src/client/roleplays/index.js'),
       },
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',

@@ -1,5 +1,5 @@
 import { findLearnerProgressProfile, listLearnerProgressEvents, } from '../db/repository.js';
-import { buildLearnerProgressVocabularyItems } from '../services/learnerProgressView.js';
+import { buildLearnerProgressEventViews, buildLearnerProgressVocabularyItems, } from '../services/learnerProgressView.js';
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 function ensureVerifiedProgressUser(request, response) {
     const user = request.authUser;
@@ -24,6 +24,7 @@ export function renderProgressPage(request, response) {
         profileId: request.activeProfile.id,
         userId: user.id,
     });
+    const eventViews = buildLearnerProgressEventViews(events);
     const vocabularyItems = buildLearnerProgressVocabularyItems(events);
     response.render('progress', {
         ...buildAppShellContext({
@@ -35,7 +36,7 @@ export function renderProgressPage(request, response) {
             title: `Progreso · ${appDocumentTitle}`,
             user,
         }),
-        events,
+        events: eventViews,
         progressProfile,
         selectedProgressTab: normalizeProgressTab(request.query.tab),
         vocabularyItems,

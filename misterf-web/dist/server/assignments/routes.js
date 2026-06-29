@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentFollowUpConversation, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleGenerateAssignment, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignment, handleShareAssignmentToProfile, handleStartAssignmentAttempt, handleStartAssignmentTestAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentMetadata, renderAssignmentAttemptPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
+import { handleAddAssignmentBlock, handleArchiveAssignment, handleClaimAssignmentAttempt, handleCreateAssignmentFollowUpConversation, handleCreateAssignmentPracticeGuide, handleDeleteAssignmentBlock, handleDuplicateAssignmentBlock, handleGenerateAssignment, handleMoveAssignmentBlock, handleRestoreAssignment, handleReviseAssignment, handleShareAssignmentToProfile, handleStartAssignmentAttempt, handleStartAssignmentTestAttempt, handleSubmitAssignmentAttempt, handleUpdateAssignmentMetadata, renderAssignmentAttemptPage, renderAssignmentEditPage, renderAssignmentNewPage, renderAssignmentResultPage, renderAssignmentShowPage, renderSharedAssignmentPage, } from './handlers.js';
 export const assignmentsRouter = express.Router();
 assignmentsRouter.get('/assignments', (_request, response) => {
     response.redirect('/resources');
@@ -27,4 +27,5 @@ assignmentsRouter.get('/assignment-attempts/:attemptId/result', renderAssignment
 assignmentsRouter.post('/assignment-attempts/:attemptId/claim', handleClaimAssignmentAttempt);
 assignmentsRouter.post('/assignment-attempts/:attemptId/submit', handleSubmitAssignmentAttempt);
 assignmentsRouter.post('/assignment-attempts/:attemptId/practice', handleCreateAssignmentFollowUpConversation);
+assignmentsRouter.post('/assignment-attempts/:attemptId/practice-guide', handleCreateAssignmentPracticeGuide);
 //# sourceMappingURL=routes.js.map

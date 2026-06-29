@@ -11,12 +11,12 @@ session from scratch.
 ---
 Resource refactor:
 - Remove `Salas de Chat` as a standalone resource.
-- Introduce `Diálogos` as a future resource.
+- Introduce `Roleplay` as a future resource.
 - Rename `Módulo de Práctica` to `Guía de Práctica`.
 - Introduce `Recursos` as the unified area for platform resources:
     - `Tarea`
     - `Guía de Práctica`
-    - `Diálogo`, possibly with more than one character.
+    - `Roleplay`, possibly with more than one character.
     - `Carpeta de recursos`, used to organize and share resources.
 ---
 

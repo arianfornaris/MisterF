@@ -1,10 +1,10 @@
-import { listLearnerProgressEvents, setAssignmentAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
+import { listLearnerProgressEvents, setAssignmentAttemptProgressEvent, setRoleplayAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
 import { buildAssignmentEvaluationSummary, parseAssignmentDraft, } from './assignments.js';
 import { quizResultBlockSchema } from './llmTutor/schemas.js';
+import { buildRoleplayProgressSummary, parseRoleplayDraft, roleplayEvaluationResultSchema, } from './roleplays.js';
 const maxTimelineSummaryLength = 280;
 export function recordAssignmentAttemptProgress(attempt) {
-    if (attempt.isPreview ||
-        !attempt.userId ||
+    if (!attempt.userId ||
         !attempt.profileId ||
         !attempt.result) {
         return;
@@ -31,6 +31,40 @@ export function recordAssignmentAttemptProgress(attempt) {
         userId: attempt.userId,
     });
     setAssignmentAttemptProgressEvent({
+        attemptId: attempt.id,
+        progressEventId: event.id,
+    });
+    refreshLearnerProgressSummary({
+        profileId: attempt.profileId,
+        userId: attempt.userId,
+    });
+}
+export function recordRoleplayAttemptProgress(attempt) {
+    if (!attempt.userId ||
+        !attempt.profileId ||
+        !attempt.result) {
+        return;
+    }
+    const result = roleplayEvaluationResultSchema.safeParse(attempt.result);
+    if (!result.success) {
+        return;
+    }
+    const draft = parseRoleplayDraft(attempt.snapshot);
+    const event = upsertLearnerProgressEvent({
+        details: buildRoleplayAttemptEventDetails({
+            attempt,
+            draft,
+            result: result.data,
+        }),
+        eventDate: attempt.evaluatedAt ?? attempt.submittedAt ?? attempt.updatedAt,
+        profileId: attempt.profileId,
+        sourceId: attempt.id,
+        sourceType: 'roleplay_attempt',
+        summary: buildRoleplayProgressSummary(result.data),
+        title: compactText(`Roleplay: ${draft.title}`, 120),
+        userId: attempt.userId,
+    });
+    setRoleplayAttemptProgressEvent({
         attemptId: attempt.id,
         progressEventId: event.id,
     });
@@ -126,8 +160,33 @@ function buildAssignmentAttemptEventDetails(input) {
         ].filter(Boolean), 5),
         progress: uniqueLimited(correctItems.map((item) => compactText(`${item.prompt}: ${item.evaluation.feedback}`, 140)), 4),
         recommendations: uniqueLimited(missedItems.map((item) => compactText(item.evaluation.feedback, 140)), 5),
+        resourceId: input.attempt.assignmentId,
+        resourceType: 'assignment',
         vocabulary: uniqueLimited(extractAssignmentInlineReviewText(input.result), 12)
             .map((item) => compactText(item, 80)),
+    };
+}
+function buildRoleplayAttemptEventDetails(input) {
+    return {
+        difficulties: input.result.difficulties
+            .map((item) => compactText(item, 140))
+            .slice(0, 6),
+        practiced: uniqueLimited([
+            input.draft.title,
+            compactText(input.draft.pedagogicalFocus, 120),
+            input.draft.level,
+        ].filter(Boolean), 8),
+        progress: input.result.strengths
+            .map((item) => compactText(item, 140))
+            .slice(0, 5),
+        recommendations: input.result.recommendations
+            .map((item) => compactText(item, 140))
+            .slice(0, 6),
+        resourceId: input.attempt.roleplayId,
+        resourceType: 'roleplay',
+        vocabulary: input.result.vocabulary
+            .map((item) => compactText(item, 80))
+            .slice(0, 12),
     };
 }
 function extractAssignmentInlineReviewText(result) {

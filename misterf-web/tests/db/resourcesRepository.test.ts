@@ -15,6 +15,55 @@ const assignmentDraft = {
   title: 'Verb Pattern Check',
 };
 
+const roleplayDraft = {
+  characters: [
+    {
+      description: 'A learner practicing a restaurant interaction.',
+      id: 'learner' as const,
+      name: 'Learner',
+    },
+    {
+      description: 'A restaurant server.',
+      id: 'ai' as const,
+      name: 'Server',
+    },
+  ],
+  description: 'Restaurant roleplay description.',
+  level: 'A2',
+  maxLearnerTurns: 20,
+  pedagogicalFocus: 'Practice polite requests and restaurant vocabulary.',
+  scenario: 'A customer orders lunch in a small cafe.',
+  title: 'Cafe Order Roleplay',
+};
+
+const roleplayEvaluationResult = {
+  difficulties: ['Use complete polite request forms.'],
+  entries: [
+    {
+      feedback: 'Good meaning, but the request can be more natural.',
+      inlineReview: {
+        parts: [
+          {
+            status: 'improve' as const,
+            text: 'I want coffee',
+            explanation: 'Use a polite request such as "I would like coffee."',
+          },
+        ],
+        type: 'sentence_evaluation' as const,
+      },
+      scoreLabel: 'Needs polishing',
+      text: 'I want coffee',
+      turnNumber: 1,
+    },
+  ],
+  overallFeedback: 'You communicated the order, but can make requests more polite.',
+  recommendations: ['Practice would like for ordering.'],
+  strengths: ['Clear basic restaurant vocabulary.'],
+  summary: 'Practiced ordering food and making polite requests.',
+  summaryTitle: 'Restaurant request practice',
+  vocabulary: ['coffee', 'would like'],
+};
+
 beforeEach(async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-resources-'));
   process.env.DATABASE_PATH = path.join(tempDir, 'resources.sqlite');
@@ -52,6 +101,7 @@ describe('resource repository', () => {
       createAssignment,
       createPracticeModule,
       createProfile,
+      createRoleplay,
       createResourceFolder,
       findResourceAccessForProfile,
       findResourceFolderForResource,
@@ -112,6 +162,27 @@ describe('resource repository', () => {
       tutorInstructions: 'Practice short answers.',
       userId: user.id,
     });
+    const roleplay = createRoleplay({
+      characters: [
+        {
+          description: 'A learner practicing a restaurant interaction and ordering lunch politely.',
+          id: 'learner',
+          name: 'Learner',
+        },
+        {
+          description: 'A friendly restaurant server who helps the customer order naturally.',
+          id: 'ai',
+          name: 'Server',
+        },
+      ],
+      description: 'Restaurant roleplay description.',
+      level: 'A2',
+      pedagogicalFocus: 'Evaluate polite requests and restaurant vocabulary.',
+      profileId: profile.id,
+      scenario: 'A customer orders lunch in a small cafe. The learner wants to order lunch politely.',
+      title: 'Cafe Order Roleplay',
+      userId: user.id,
+    });
     const folder = createResourceFolder({
       description: 'Shared classroom resources.',
       profileId: profile.id,
@@ -151,6 +222,12 @@ describe('resource repository', () => {
       title: practiceGuide.title,
       type: 'practice_guide',
     }));
+    expect(findResourceForUser(roleplay.id, user.id)).toEqual(expect.objectContaining({
+      id: roleplay.id,
+      title: roleplay.title,
+      topic: '',
+      type: 'roleplay',
+    }));
     expect(findResourceForUser(folder.id, user.id)).toEqual(expect.objectContaining({
       id: folder.id,
       title: folder.title,
@@ -163,6 +240,7 @@ describe('resource repository', () => {
     }).map((resource) => resource.type)).toEqual(expect.arrayContaining([
       'assignment',
       'practice_guide',
+      'roleplay',
       'resource_folder',
     ]));
 
@@ -174,6 +252,11 @@ describe('resource repository', () => {
     expect(addResourceToFolder({
       folderId: folder.id,
       resourceId: practiceGuide.id,
+      userId: user.id,
+    })).toBe(true);
+    expect(addResourceToFolder({
+      folderId: folder.id,
+      resourceId: roleplay.id,
       userId: user.id,
     })).toBe(true);
     expect(addResourceToFolder({
@@ -216,6 +299,7 @@ describe('resource repository', () => {
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       assignment.id,
       practiceGuide.id,
+      roleplay.id,
       childFolder.id,
     ]);
     expect(listResourcesForProfile({
@@ -225,6 +309,7 @@ describe('resource repository', () => {
     }).map((resource) => resource.id)).toEqual([
       assignment.id,
       practiceGuide.id,
+      roleplay.id,
       childFolder.id,
     ]);
     expect(listResourceFolderPath(grandchildFolder.id, user.id).map((resource) => resource.id)).toEqual([
@@ -252,6 +337,7 @@ describe('resource repository', () => {
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       practiceGuide.id,
       assignment.id,
+      roleplay.id,
       childFolder.id,
     ]);
 
@@ -263,6 +349,7 @@ describe('resource repository', () => {
       userId: user.id,
     }).map((resource) => resource.id)).toEqual([
       practiceGuide.id,
+      roleplay.id,
       childFolder.id,
     ]);
     expect(listResourcesForProfile({
@@ -273,6 +360,7 @@ describe('resource repository', () => {
     }).map((resource) => resource.id)).toEqual([
       practiceGuide.id,
       assignment.id,
+      roleplay.id,
       childFolder.id,
     ]);
 
@@ -284,6 +372,7 @@ describe('resource repository', () => {
     expect(findResourceFolderForResource(practiceGuide.id, user.id)).toBeNull();
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       assignment.id,
+      roleplay.id,
       childFolder.id,
     ]);
     expect(removeResourceFromFolder({
@@ -368,6 +457,7 @@ describe('resource repository', () => {
       accessKind: resource.accessKind,
       id: resource.id,
     }))).toEqual([
+      { accessKind: 'shared', id: roleplay.id },
       { accessKind: 'shared', id: liveSharedAssignment.id },
       { accessKind: 'shared', id: sharedNestedFolder.id },
     ]);
@@ -395,5 +485,82 @@ describe('resource repository', () => {
       resourceId: assignment.id,
       userId: student.id,
     })).toBe(false);
+  });
+
+  it('records evaluated roleplay attempts as learner progress events', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createRoleplay,
+      createRoleplayAttempt,
+      findRoleplayAttemptById,
+      listLearnerProgressEvents,
+      saveRoleplayAttemptResult,
+    } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'roleplay-progress@example.com',
+      emailVerified: true,
+      fullName: 'Roleplay Learner',
+      provider: 'google',
+      providerSubject: 'roleplay-progress-user',
+    });
+    const profile = createProfile({
+      name: 'Roleplay progress profile',
+      userId: user.id,
+    });
+    const roleplay = createRoleplay({
+      ...roleplayDraft,
+      profileId: profile.id,
+      userId: user.id,
+    });
+    const attempt = createRoleplayAttempt({
+      profileId: profile.id,
+      roleplayId: roleplay.id,
+      snapshot: roleplayDraft,
+      turns: [
+        {
+          characterId: 'ai',
+          createdAt: '2026-06-29T12:00:00.000Z',
+          speaker: 'ai',
+          text: 'Hello, what would you like today?',
+        },
+        {
+          characterId: 'learner',
+          createdAt: '2026-06-29T12:01:00.000Z',
+          speaker: 'learner',
+          text: 'I want coffee',
+        },
+      ],
+      userId: user.id,
+    });
+    const evaluated = saveRoleplayAttemptResult({
+      attemptId: attempt.id,
+      result: roleplayEvaluationResult,
+    });
+
+    if (!evaluated) {
+      throw new Error('Expected evaluated roleplay attempt.');
+    }
+
+    const { recordRoleplayAttemptProgress } = await import('../../src/server/services/learnerProgress.js');
+    recordRoleplayAttemptProgress(evaluated);
+
+    const progressEvents = listLearnerProgressEvents({
+      profileId: profile.id,
+      userId: user.id,
+    });
+    expect(progressEvents[0]).toEqual(expect.objectContaining({
+      sourceId: evaluated.id,
+      sourceType: 'roleplay_attempt',
+      title: `Roleplay: ${roleplayDraft.title}`,
+    }));
+    expect(progressEvents[0]?.details).toMatchObject({
+      resourceId: roleplay.id,
+      resourceType: 'roleplay',
+    });
+    expect(findRoleplayAttemptById(evaluated.id)?.progressEventId).toBe(
+      progressEvents[0]?.id,
+    );
   });
 });

@@ -86,6 +86,8 @@ function summarizeProgressEvent(event) {
             practiced: event.details.practiced.slice(0, 3),
             vocabulary: event.details.vocabulary.slice(0, 5),
         },
+        resourceId: event.details.resourceId,
+        resourceType: event.details.resourceType,
         sourceType: event.sourceType,
         summary: event.summary,
         title: event.title,

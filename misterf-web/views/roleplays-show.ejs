@@ -1,0 +1,268 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const roleplayCurrentFolder = resourceCurrentFolder || null;
+  const roleplayFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
+  const roleplayFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
+  const showRoleplayMoveOption = canManageRoleplay && !selectedRoleplay.archivedAt && (roleplayCurrentFolder || roleplayFolderOptions.length > 0);
+%>
+
+<section class="app-resource-view roleplays-page">
+  <div class="resource-page-header resource-page-header-detail">
+    <div>
+      <p class="resource-eyebrow">Roleplay</p>
+      <h1 class="resource-page-title"><%= selectedRoleplay.title %></h1>
+      <p class="resource-page-copy">
+        <a href="/resources">Recursos</a>
+        <% roleplayFolderPath.forEach((folder) => { %>
+          <span class="mx-1">/</span>
+          <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
+        <% }) %>
+        <span class="mx-1">/</span>
+        <span><%= selectedRoleplay.title %></span>
+      </p>
+    </div>
+  </div>
+
+  <% if (roleplayStartError) { %>
+    <div class="alert alert-warning" role="alert"><%= roleplayStartError %></div>
+  <% } %>
+
+  <div class="resource-action-row">
+    <form method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/attempts">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Comenzar
+      </button>
+    </form>
+    <% if (canManageRoleplay) { %>
+      <div class="dropdown">
+        <button
+          class="btn btn-secondary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          Opciones
+        </button>
+        <ul class="dropdown-menu">
+          <% if (!selectedRoleplay.archivedAt) { %>
+            <% if (showRoleplayMoveOption) { %>
+              <li>
+                <button
+                  class="dropdown-item"
+                  type="button"
+                  data-bs-toggle="modal"
+                  data-bs-target="#moveResourceModal"
+                  data-resource-move-open
+                  data-resource-id="<%= selectedRoleplay.id %>"
+                  data-resource-title="<%= selectedRoleplay.title %>"
+                  data-resource-type="roleplay"
+                  data-current-folder-id="<%= roleplayCurrentFolder ? roleplayCurrentFolder.id : '' %>"
+                >
+                  <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>Mover a carpeta
+                </button>
+              </li>
+            <% } %>
+            <li>
+              <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#roleplayShareProfileModal">
+                <i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item" type="button" data-bs-toggle="modal" data-bs-target="#roleplayShareLinkModal">
+                <i class="bi bi-share me-2" aria-hidden="true"></i>Compartir
+              </button>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit">
+                <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar Roleplay
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+          <% } %>
+          <li>
+            <form method="post" action="/resources/<%= encodeURIComponent(selectedRoleplay.id) %>/<%= selectedRoleplay.archivedAt ? 'restore' : 'archive' %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="returnTo" value="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>">
+              <button class="dropdown-item" type="submit">
+                <i class="bi <%= selectedRoleplay.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                <%= selectedRoleplay.archivedAt ? 'Restaurar Roleplay' : 'Archivar Roleplay' %>
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="resource-detail-summary">
+    <div class="resource-markdown mb-2" data-render-markdown><%= selectedRoleplay.description || 'Sin descripción' %></div>
+    <div class="resource-meta-row">
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+      <% if (draft.maxLearnerTurns) { %><span><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= draft.maxLearnerTurns %> turnos</span><% } %>
+      <span><i class="bi bi-people" aria-hidden="true"></i> <%= learnerCharacter.name %> / <%= aiCharacter.name %></span>
+    </div>
+  </div>
+
+  <% if (selectedRoleplay.sharedVia || !canManageRoleplay) { %>
+    <div class="d-flex">
+      <% if (selectedRoleplaySharedFromProfileName) { %>
+        <span class="badge text-bg-light border" role="status">Compartido por <%= selectedRoleplaySharedFromProfileName %></span>
+      <% } else { %>
+        <span class="badge text-bg-light border" role="status">Compartido</span>
+      <% } %>
+    </div>
+  <% } %>
+
+  <section class="resource-section">
+    <h2 class="h5">Escenario</h2>
+    <div class="resource-markdown" data-render-markdown><%= draft.scenario %></div>
+  </section>
+
+  <% if (draft.pedagogicalFocus) { %>
+    <section class="resource-section">
+      <h2 class="h5">Enfoque pedagógico</h2>
+      <div class="resource-markdown" data-render-markdown><%= draft.pedagogicalFocus %></div>
+    </section>
+  <% } %>
+
+  <section class="resource-section">
+    <h2 class="h5">Personajes</h2>
+    <div class="row g-3">
+      <% draft.characters.forEach((character) => { %>
+        <div class="col-12 col-md-6">
+          <article class="card h-100 roleplay-character-card <%= character.id === 'learner' ? 'is-learner' : 'is-ai' %>">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="roleplay-character-icon" aria-hidden="true">
+                  <i class="bi <%= character.id === 'learner' ? 'bi-person' : 'bi-person-video3' %>"></i>
+                </span>
+                <div>
+                  <h3 class="h6 mb-0"><%= character.name %></h3>
+                  <p class="small text-body-secondary mb-0"><%= character.id === 'learner' ? 'Lo juega el estudiante' : 'Lo juega la IA' %></p>
+                </div>
+              </div>
+              <p class="mb-0"><%= character.description %></p>
+            </div>
+          </article>
+        </div>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="resource-section">
+    <h2 class="h5">Intentos de este Roleplay</h2>
+    <% if (roleplayAttempts.length > 0) { %>
+      <div class="list-group">
+        <% roleplayAttempts.forEach((attempt) => { %>
+          <a class="list-group-item list-group-item-action" href="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %><%= attempt.status === 'evaluated' ? '/result' : '' %>">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <span>
+                Intento
+                <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
+                <span class="text-body-secondary ms-1"><%= attempt.learnerTurnCount %> turnos</span>
+              </span>
+              <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="practice-module-empty mb-0">Todavía no hay intentos para este Roleplay.</p>
+    <% } %>
+  </section>
+</section>
+
+<% if (canManageRoleplay) { %>
+  <div
+    class="modal fade"
+    id="roleplayShareProfileModal"
+    tabindex="-1"
+    aria-labelledby="roleplayShareProfileModalLabel"
+    aria-hidden="true"
+    <%= roleplayShareMode === 'profile' ? 'data-auto-open-roleplay-share-modal' : '' %>
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="roleplayShareProfileModalLabel">Compartir con perfil</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <% if (shareTargetRoleplayProfiles.length > 0) { %>
+            <form method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/share/profile" class="d-grid gap-3">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <div>
+                <label class="form-label" for="shareTargetRoleplayProfileId">Perfil destino</label>
+                <select class="form-select" id="shareTargetRoleplayProfileId" name="targetProfileId" required>
+                  <% shareTargetRoleplayProfiles.forEach((profile) => { %>
+                    <option value="<%= profile.id %>"><%= profile.name %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Compartir ahora</button>
+              </div>
+            </form>
+          <% } else { %>
+            <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir este Roleplay.</p>
+          <% } %>
+        </div>
+        <% if (shareTargetRoleplayProfiles.length === 0) { %>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="modal fade"
+    id="roleplayShareLinkModal"
+    tabindex="-1"
+    aria-labelledby="roleplayShareLinkModalLabel"
+    aria-hidden="true"
+    <%= roleplayShareMode === 'link' ? 'data-auto-open-roleplay-share-modal' : '' %>
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="roleplayShareLinkModalLabel">Enlace para compartir</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body d-grid gap-3">
+          <p class="mb-0 text-body-secondary">Quienes usen este enlace verán siempre la versión actual de este Roleplay.</p>
+          <label class="form-label" for="roleplayShareLink">Enlace</label>
+          <input class="form-control" id="roleplayShareLink" value="<%= shareUrl %>" readonly data-roleplay-share-link-field>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-secondary" type="button" data-copy-roleplay-share-link>
+              <i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar
+            </button>
+            <button class="btn btn-outline-secondary" type="button" data-native-share-roleplay-link>
+              <i class="bi bi-share me-1" aria-hidden="true"></i>Compartir
+            </button>
+          </div>
+          <% if (roleplayShareQrDataUrl) { %>
+            <div class="d-flex justify-content-center">
+              <img src="<%= roleplayShareQrDataUrl %>" alt="QR del enlace para compartir el Roleplay" width="180" height="180">
+            </div>
+          <% } %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/resource-move-modal', {
+    resourceMoveCurrentFolder: roleplayCurrentFolder,
+    resourceMoveFolderOptions: roleplayFolderOptions,
+  }) %>
+<% } %>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'roleplays-client-script' }) %>

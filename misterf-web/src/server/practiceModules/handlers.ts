@@ -36,6 +36,7 @@ import {
   buildAppShellContext,
   getHomeAuthMessage,
 } from '../pages/shell.js';
+import { logger } from '../services/logger.js';
 
 type PracticeModulePageKind = 'new' | 'detail' | 'edit' | 'share';
 
@@ -381,6 +382,12 @@ export async function handleGeneratePracticeModuleDraft(
       tutorInstructions: draft.tutorInstructions,
       userId: user.id,
     });
+    logger.info('practice_guide_created_from_prompt', {
+      profileId: activeProfile.id,
+      resourceId: practiceModule.id,
+      resourceType: 'practice_guide',
+      userId: user.id,
+    });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
@@ -441,6 +448,12 @@ export function handleCreatePracticeModule(request: Request, response: Response)
     title,
     description,
     tutorInstructions,
+  });
+  logger.info('practice_guide_created', {
+    profileId: activeProfile.id,
+    resourceId: practiceModule.id,
+    resourceType: 'practice_guide',
+    userId: user.id,
   });
 
   response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
@@ -505,6 +518,12 @@ export async function handleRevisePracticeModule(
       });
       return;
     }
+    logger.info('practice_guide_revised', {
+      profileId: updatedPracticeModule.profileId,
+      resourceId: updatedPracticeModule.id,
+      resourceType: 'practice_guide',
+      userId: user.id,
+    });
 
     response.redirect(
       `/practice-modules/${encodeURIComponent(updatedPracticeModule.id)}/edit?aiRevision=success`,
@@ -560,6 +579,14 @@ export function handleCreatePracticeModuleConversation(
     practiceModule,
     resourceAccess?.accessKind === 'shared' ? activeProfile.id : practiceModule.profileId,
   );
+  logger.info('practice_guide_conversation_created', {
+    accessKind: resourceAccess?.accessKind ?? 'owner',
+    conversationId: conversation.id,
+    profileId: conversation.profileId,
+    resourceId: practiceModule.id,
+    resourceType: 'practice_guide',
+    userId: user.id,
+  });
 
   response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
 }
@@ -600,6 +627,12 @@ export function handleUpdatePracticeModule(request: Request, response: Response)
     response.redirect('/resources');
     return;
   }
+  logger.info('practice_guide_updated', {
+    profileId: practiceModule.profileId,
+    resourceId: practiceModule.id,
+    resourceType: 'practice_guide',
+    userId: user.id,
+  });
 
   response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
@@ -618,7 +651,15 @@ export function handleArchivePracticeModule(request: Request, response: Response
     return;
   }
 
-  archivePracticeModuleForUser(practiceModuleId, user.id);
+  const practiceModule = archivePracticeModuleForUser(practiceModuleId, user.id);
+  if (practiceModule) {
+    logger.info('resource_archived', {
+      profileId: practiceModule.profileId,
+      resourceId: practiceModule.id,
+      resourceType: 'practice_guide',
+      userId: user.id,
+    });
+  }
   response.redirect(returnTo);
 }
 
@@ -636,7 +677,15 @@ export function handleRestorePracticeModule(request: Request, response: Response
     return;
   }
 
-  restorePracticeModuleForUser(practiceModuleId, user.id);
+  const practiceModule = restorePracticeModuleForUser(practiceModuleId, user.id);
+  if (practiceModule) {
+    logger.info('resource_restored', {
+      profileId: practiceModule.profileId,
+      resourceId: practiceModule.id,
+      resourceType: 'practice_guide',
+      userId: user.id,
+    });
+  }
   response.redirect(returnTo);
 }
 
@@ -696,6 +745,13 @@ export function handleSharePracticeModuleToProfile(
     resourceId: practiceModule.id,
     userId: user.id,
   });
+  logger.info('resource_shared_with_profile', {
+    profileId: practiceModule.profileId,
+    resourceId: practiceModule.id,
+    resourceType: 'practice_guide',
+    targetProfileId: targetProfile.id,
+    userId: user.id,
+  });
   response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
 
@@ -738,6 +794,15 @@ export function handleAcceptSharedPracticeModuleLink(
     grantedVia: 'link',
     profileId: activeProfile.id,
     resourceId: sourcePracticeModule.id,
+    shareLinkId: resourceShareLink.id,
+    userId: user.id,
+  });
+  logger.info('resource_share_link_accepted', {
+    ownerProfileId: sourcePracticeModule.profileId,
+    ownerUserId: sourcePracticeModule.userId,
+    profileId: activeProfile.id,
+    resourceId: sourcePracticeModule.id,
+    resourceType: 'practice_guide',
     shareLinkId: resourceShareLink.id,
     userId: user.id,
   });

@@ -85,6 +85,8 @@ describe('server logger policy', () => {
         actorLabel: 'Test',
         conversationId: 'conversation-2',
         llm: { modelTier: 'regular' },
+        resourceId: 'guide-1',
+        resourceType: 'practice_guide',
         userId: 'user-2',
       },
       1,
@@ -97,6 +99,8 @@ describe('server logger policy', () => {
       event: 'llm_request',
       fullTrace: false,
       messageCount: 1,
+      resourceId: 'guide-1',
+      resourceType: 'practice_guide',
     });
 
     consoleLog.mockClear();

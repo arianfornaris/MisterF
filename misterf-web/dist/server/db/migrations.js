@@ -656,7 +656,6 @@ export const migrations = [
         guest_token TEXT UNIQUE,
         claim_token TEXT UNIQUE,
         status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'evaluating', 'evaluated', 'failed')),
-        is_preview INTEGER NOT NULL DEFAULT 0 CHECK (is_preview IN (0, 1)),
         snapshot_json TEXT NOT NULL,
         responses_json TEXT NOT NULL DEFAULT '[]',
         result_json TEXT,
@@ -848,7 +847,6 @@ export const migrations = [
         guest_token TEXT UNIQUE,
         claim_token TEXT UNIQUE,
         status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'evaluating', 'evaluated', 'failed')),
-        is_preview INTEGER NOT NULL DEFAULT 0 CHECK (is_preview IN (0, 1)),
         snapshot_json TEXT NOT NULL,
         responses_json TEXT NOT NULL DEFAULT '[]',
         result_json TEXT,
@@ -885,7 +883,6 @@ export const migrations = [
         guest_token,
         claim_token,
         status,
-        is_preview,
         snapshot_json,
         responses_json,
         result_json,
@@ -905,7 +902,6 @@ export const migrations = [
         guest_token,
         claim_token,
         status,
-        is_preview,
         snapshot_json,
         responses_json,
         result_json,
@@ -1084,7 +1080,6 @@ export const migrations = [
         guest_token TEXT UNIQUE,
         claim_token TEXT UNIQUE,
         status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'evaluating', 'evaluated', 'failed')),
-        is_preview INTEGER NOT NULL DEFAULT 0 CHECK (is_preview IN (0, 1)),
         snapshot_json TEXT NOT NULL,
         responses_json TEXT NOT NULL DEFAULT '[]',
         result_json TEXT,
@@ -1116,7 +1111,6 @@ export const migrations = [
         guest_token,
         claim_token,
         status,
-        is_preview,
         snapshot_json,
         responses_json,
         result_json,
@@ -1135,7 +1129,6 @@ export const migrations = [
         attempt.guest_token,
         attempt.claim_token,
         attempt.status,
-        attempt.is_preview,
         attempt.snapshot_json,
         attempt.responses_json,
         attempt.result_json,
@@ -1547,6 +1540,359 @@ export const migrations = [
 
       CREATE INDEX idx_resource_access_grants_resource_active
         ON resource_access_grants (resource_id, revoked_at, created_at DESC);
+    `,
+    },
+    {
+        id: 12,
+        name: 'add_roleplay_resources',
+        up: `
+      PRAGMA defer_foreign_keys = ON;
+
+      ALTER TABLE resource_access_grants
+        RENAME TO resource_access_grants_old;
+
+      DROP INDEX IF EXISTS idx_resource_access_grants_profile_active;
+      DROP INDEX IF EXISTS idx_resource_access_grants_resource_active;
+
+      ALTER TABLE resource_share_links
+        RENAME TO resource_share_links_old;
+
+      DROP INDEX IF EXISTS idx_resource_share_links_resource_active;
+
+      ALTER TABLE resource_folder_items
+        RENAME TO resource_folder_items_old;
+
+      DROP INDEX IF EXISTS idx_resource_folder_items_folder_position;
+
+      ALTER TABLE resource_folders
+        RENAME TO resource_folders_old;
+
+      ALTER TABLE resources
+        RENAME TO resources_old;
+
+      DROP INDEX IF EXISTS idx_resources_id_type;
+      DROP INDEX IF EXISTS idx_resources_user_profile_updated;
+      DROP INDEX IF EXISTS idx_resources_profile_type_updated;
+      DROP INDEX IF EXISTS idx_resources_profile_archived_updated;
+      DROP INDEX IF EXISTS idx_resources_profile_source;
+
+      CREATE TABLE resources (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('assignment', 'practice_guide', 'resource_folder', 'roleplay')),
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        topic TEXT NOT NULL DEFAULT '',
+        level TEXT NOT NULL DEFAULT '',
+        archived_at TEXT,
+        source_resource_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_resource_id)
+          REFERENCES resources (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE UNIQUE INDEX idx_resources_id_type
+        ON resources (id, type);
+
+      CREATE INDEX idx_resources_user_profile_updated
+        ON resources (user_id, profile_id, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_resources_profile_type_updated
+        ON resources (profile_id, type, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_resources_profile_archived_updated
+        ON resources (profile_id, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_resources_profile_source
+        ON resources (profile_id, source_resource_id, shared_via);
+
+      CREATE TABLE resource_folders (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE TABLE resource_folder_items (
+        folder_id TEXT NOT NULL,
+        resource_id TEXT NOT NULL UNIQUE,
+        resource_type TEXT NOT NULL CHECK (resource_type IN ('assignment', 'practice_guide', 'resource_folder', 'roleplay')),
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (folder_id, resource_id),
+        FOREIGN KEY (folder_id)
+          REFERENCES resource_folders (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (resource_id, resource_type)
+          REFERENCES resources (id, type)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_resource_folder_items_folder_position
+        ON resource_folder_items (folder_id, position ASC, created_at ASC);
+
+      CREATE TABLE resource_share_links (
+        id TEXT PRIMARY KEY,
+        resource_id TEXT NOT NULL UNIQUE,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (resource_id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_resource_share_links_resource_active
+        ON resource_share_links (resource_id, revoked_at, created_at DESC);
+
+      CREATE TABLE resource_access_grants (
+        id TEXT PRIMARY KEY,
+        resource_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        granted_by_user_id TEXT NOT NULL,
+        granted_via TEXT NOT NULL CHECK (granted_via IN ('profile', 'link')),
+        share_link_id TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        revoked_at TEXT,
+        FOREIGN KEY (resource_id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (granted_by_user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (share_link_id)
+          REFERENCES resource_share_links (id)
+          ON DELETE SET NULL,
+        UNIQUE (resource_id, user_id, profile_id)
+      );
+
+      CREATE INDEX idx_resource_access_grants_profile_active
+        ON resource_access_grants (user_id, profile_id, revoked_at, created_at DESC);
+
+      CREATE INDEX idx_resource_access_grants_resource_active
+        ON resource_access_grants (resource_id, revoked_at, created_at DESC);
+
+      INSERT INTO resources (
+        id,
+        user_id,
+        profile_id,
+        type,
+        title,
+        description,
+        topic,
+        level,
+        archived_at,
+        source_resource_id,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        user_id,
+        profile_id,
+        type,
+        title,
+        description,
+        topic,
+        level,
+        archived_at,
+        source_resource_id,
+        source_user_id,
+        source_profile_id,
+        shared_via,
+        created_at,
+        updated_at
+      FROM resources_old;
+
+      INSERT INTO resource_folders (id, created_at, updated_at)
+      SELECT id, created_at, updated_at
+      FROM resource_folders_old;
+
+      INSERT INTO resource_folder_items (
+        folder_id,
+        resource_id,
+        resource_type,
+        position,
+        created_at,
+        updated_at
+      )
+      SELECT
+        folder_id,
+        resource_id,
+        resource_type,
+        position,
+        created_at,
+        updated_at
+      FROM resource_folder_items_old;
+
+      INSERT INTO resource_share_links (id, resource_id, created_at, revoked_at)
+      SELECT id, resource_id, created_at, revoked_at
+      FROM resource_share_links_old;
+
+      INSERT INTO resource_access_grants (
+        id,
+        resource_id,
+        user_id,
+        profile_id,
+        granted_by_user_id,
+        granted_via,
+        share_link_id,
+        created_at,
+        updated_at,
+        revoked_at
+      )
+      SELECT
+        id,
+        resource_id,
+        user_id,
+        profile_id,
+        granted_by_user_id,
+        granted_via,
+        share_link_id,
+        created_at,
+        updated_at,
+        revoked_at
+      FROM resource_access_grants_old;
+
+      DROP TABLE resource_access_grants_old;
+      DROP TABLE resource_share_links_old;
+      DROP TABLE resource_folder_items_old;
+      DROP TABLE resource_folders_old;
+      DROP TABLE resources_old;
+
+      CREATE TABLE roleplays (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        scenario TEXT NOT NULL DEFAULT '',
+        level TEXT NOT NULL DEFAULT '',
+        pedagogical_focus TEXT NOT NULL DEFAULT '',
+        max_learner_turns INTEGER,
+        characters_json TEXT NOT NULL,
+        authoring_messages_json TEXT NOT NULL DEFAULT '[]',
+        source_roleplay_id TEXT,
+        source_user_id TEXT,
+        source_profile_id TEXT,
+        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (id)
+          REFERENCES resources (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (source_roleplay_id)
+          REFERENCES roleplays (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (source_profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_roleplays_user_profile_updated
+        ON roleplays (user_id, profile_id, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_roleplays_profile_archived_updated
+        ON roleplays (profile_id, archived_at, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_roleplays_profile_source
+        ON roleplays (profile_id, source_roleplay_id, shared_via);
+
+      CREATE TABLE roleplay_attempts (
+        id TEXT PRIMARY KEY,
+        roleplay_id TEXT NOT NULL,
+        user_id TEXT,
+        profile_id TEXT,
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'in_progress', 'evaluating', 'evaluated', 'failed')),
+        snapshot_json TEXT NOT NULL,
+        turns_json TEXT NOT NULL DEFAULT '[]',
+        result_json TEXT,
+        progress_event_id INTEGER,
+        started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        submitted_at TEXT,
+        evaluated_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (roleplay_id)
+          REFERENCES roleplays (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE SET NULL,
+        FOREIGN KEY (progress_event_id)
+          REFERENCES learner_progress_events (id)
+          ON DELETE SET NULL
+      );
+
+      CREATE INDEX idx_roleplay_attempts_roleplay_created
+        ON roleplay_attempts (roleplay_id, created_at DESC);
+
+      CREATE INDEX idx_roleplay_attempts_user_profile_created
+        ON roleplay_attempts (user_id, profile_id, created_at DESC);
+
+      CREATE TABLE conversation_roleplay_attempt_snapshots (
+        conversation_id TEXT PRIMARY KEY,
+        roleplay_attempt_id TEXT NOT NULL,
+        roleplay_title TEXT NOT NULL,
+        roleplay_description TEXT NOT NULL DEFAULT '',
+        roleplay_snapshot_json TEXT NOT NULL,
+        turns_json TEXT NOT NULL,
+        result_json TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (conversation_id)
+          REFERENCES conversations (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (roleplay_attempt_id)
+          REFERENCES roleplay_attempts (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_conversation_roleplay_attempt_snapshots_attempt
+        ON conversation_roleplay_attempt_snapshots (roleplay_attempt_id, created_at DESC);
     `,
     },
 ];

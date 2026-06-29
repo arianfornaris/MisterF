@@ -5,8 +5,8 @@ Date: 2026-06-25
 ## Product Intent
 
 V1 leaves Mister F with several resource-like areas that are useful but
-increasingly redundant: practice modules, assignments, legacy chat rooms, and
-share-link/import flows attached to each resource family. V2 should simplify
+increasingly redundant: practice guides, assignments, legacy chat rooms, and
+separate sharing flows attached to each resource family. V2 should simplify
 this into one resource system that is easier to understand, organize, share,
 and extend.
 
@@ -23,25 +23,23 @@ This is a large refactor and should be implemented in slices.
 
 ## Target Resource Types
 
-The eventual V2 resource catalog should contain:
+The V2 resource catalog contains:
 
 - `Tarea`
 - `Guía de Práctica`
-- `Diálogo`
+- `Roleplay`
 - `Carpeta de recursos`
 
 Internal names should stay English:
 
 - `Assignment`
 - `PracticeGuide`
-- `Dialogue`
+- `Roleplay`
 - `ResourceFolder`
 - `Resource`
 
-`Dialogue` is deliberately deferred until the final implementation slice. The
-resource schema can reserve the type to avoid churn later, but early V2 work
-should focus on assignments, practice guides, folders, and shared resource
-infrastructure.
+`Roleplay` landed in the final implementation slice as the fourth active
+resource type.
 
 ## Major Product Changes
 
@@ -49,7 +47,7 @@ infrastructure.
 
 Remove `Salas de chat` as a standalone resource area.
 
-The existing chatroom feature overlaps with the future `Diálogos` concept but is
+The existing chatroom feature overlaps with the `Roleplay` concept but is
 too separate from the rest of the product:
 
 - separate sidebar entry
@@ -58,7 +56,7 @@ too separate from the rest of the product:
 - separate reporting/follow-up path
 - no clear connection to the broader resource library
 
-V2 should migrate only the useful learning ideas into `Diálogos`; it should not
+V2 should migrate only the useful learning ideas into `Roleplay`; it should not
 carry the old standalone chatroom product surface forward.
 
 Current implementation status:
@@ -96,7 +94,7 @@ supported resource type:
 
 - assignments
 - practice guides
-- dialogues after the final dialogue slice lands
+- roleplays
 - future resource types
 
 Because V2 is landing before production data is preserved, the baseline keeps
@@ -119,7 +117,7 @@ A resource should provide the shared cross-cutting behavior:
 - folder membership
 - share state
 - public link share
-- profile share/import where supported
+- profile share through live access grants where supported
 - search/filter/list/grid rendering
 
 Each concrete resource type keeps its own runtime behavior.
@@ -147,32 +145,39 @@ ship a flat folder model if needed, but the product model should not assume
 folders are permanently flat. Nested folders must prevent self-containment and
 cycles by design.
 
-### Introduce Dialogues
+### Introduce Roleplays
 
-`Diálogos` should replace the useful learning idea behind chatrooms with a
-simpler resource-shaped concept.
+`Roleplay` resources should replace the useful learning idea behind chatrooms
+with a simpler resource-shaped concept.
 
 Initial product direction:
 
-- a dialogue is a reusable conversation-practice scenario
-- it can define a situation, roles, tone, vocabulary, and target objective
-- it can be launched as a guided practice conversation
-- it can be shared like other resources
-- it can produce progress and follow-up practice
+- a roleplay is a reusable free-form two-character scenario
+- it defines a situation, learner context, characters, learner role, opening
+  line, tone, vocabulary, goals, and optional learner-turn limit
+- the AI plays the fictional character
+- the learner writes English turns in a dedicated roleplay-writing UI
+- the roleplay ends when the learner presses finish or reaches the configured
+  learner-turn limit
+- completion produces an evaluated result with sentence-evaluation-like
+  annotations for each learner turn
+- evaluated authenticated attempts produce progress and follow-up practice
 
-A dialogue should not simply recreate V1 chatrooms. It should be closer to a
+Roleplay should not simply recreate V1 chatrooms. It should be closer to a
 practice resource than a social room:
 
 - no separate "room" area
 - no multi-conversation room dashboard as the primary mental model
 - no unrelated group-chat feature surface
-- no standalone chatroom reports unless the dialogue runtime explicitly needs
-  evaluated results
+- no guided branching in the first version
+- no normal chat transcript as the primary runtime UI
 
-Dialogue implementation is intentionally last in the refactor. Open decision:
-whether a dialogue is a scripted exchange, an AI roleplay, or a hybrid. The
-recommended V2 starting point is AI roleplay with explicit scenario metadata and
-one user-facing launch flow.
+Roleplay implementation is intentionally last in the refactor. The V2 starting
+point is AI roleplay with explicit scenario metadata, a dedicated writing
+surface, attempts with frozen snapshots, post-completion evaluation, and
+assignment-style follow-up actions.
+
+See [Roleplays](./roleplays.md) for the detailed product definition.
 
 ## Proposed Information Architecture
 
@@ -187,7 +192,7 @@ Inside the resource page, provide filters/tabs:
 - `Todos`
 - `Tareas`
 - `Guías`
-- `Diálogos` after the final dialogue slice lands
+- `Roleplay`
 - `Carpetas`
 - `Archivados`
 
@@ -196,14 +201,14 @@ This avoids sidebar growth as the product adds more resource types.
 ### Resource Navigation
 
 Resource navigation should feel explicit and consistent across folders,
-assignments, practice guides, and future dialogues.
+assignments, practice guides, and roleplays.
 
 This standard applies through the resource show/detail view. Resource edit and
 authoring views may use a close button instead of breadcrumbs, because editing
 is a focused workflow entered from a specific resource.
 
 Runtime pages such as assignment attempts, assignment results, tutor
-conversations, and future dialogue sessions may use their own flow-specific
+conversations, and roleplay sessions may use their own flow-specific
 navigation, but their entry points should still be reachable from the resource
 detail page.
 
@@ -240,7 +245,7 @@ Nested folder behavior:
 
 Resource detail behavior:
 
-- Assignment, practice guide, and future dialogue detail pages show the resource
+- Assignment, practice guide, and roleplay detail pages show the resource
   type and resource title.
 - They show a breadcrumb before resource actions:
   - `Recursos / Resource title` when the resource is not in a folder.
@@ -255,7 +260,7 @@ Resource detail behavior:
 - Resource-specific primary actions come before `Opciones`.
   - Assignment: `Probar`
   - Practice guide: `Probar`
-  - Dialogue: launch/start action, to be named when dialogues are defined
+  - Roleplay: launch/start action, to be named when roleplays are defined
 - `Opciones` owns secondary actions such as share, edit, archive, restore, and
   other resource-specific management actions.
 - Resource detail pages must include both common resource options and
@@ -270,8 +275,8 @@ Resource detail behavior:
     with profile, view attempts where applicable
   - Practice-guide-specific examples: edit guide, launch guided practice, share
     guide-specific links where still needed
-  - Dialogue-specific examples: edit dialogue, launch roleplay, configure
-    dialogue scenario
+  - Roleplay-specific examples: edit roleplay, launch roleplay, configure
+    roleplay scenario
 - Detail pages do not show a close `X`; the breadcrumb provides resource-area
   navigation.
 - If a resource detail page includes a global `Nuevo` menu later, it must appear
@@ -352,7 +357,7 @@ Expected controls:
 - search
 - type filters
 - folder breadcrumb when inside a folder, including parent folders when nested
-- list/grid layout
+- one list layout for resources and folders
 - archived toggle only when archived resources exist
 - archive/share actions
 - move-to-folder action in resource option menus
@@ -364,7 +369,7 @@ Expected item metadata:
 - short description
 - topic/level when available
 - updated date
-- shared/imported state
+- shared access state
 - folder location when useful
 
 ### Resource Detail
@@ -383,7 +388,7 @@ Then each type owns its body:
 
 - `Tarea`: assignment summary and `Probar`/attempt/share flows
 - `Guía de Práctica`: launch tutor practice with guide context
-- `Diálogo`: launch dialogue practice
+- `Roleplay`: launch roleplay practice
 - `Carpeta`: contained resource list and sharing controls
 
 ## Proposed Data Model Direction
@@ -400,7 +405,7 @@ Create a generic `resources` table:
 - `user_id`
 - `profile_id`
 - `type` with values `assignment`, `practice_guide`, `resource_folder`, and
-  eventually `dialogue`
+  `roleplay`
 - `title`
 - `description`
 - `topic`
@@ -417,7 +422,7 @@ Then keep type-specific tables whose primary key is also the resource id:
 - `assignments.id -> resources.id`
 - `practice_guides.id -> resources.id`
 - `resource_folders.id -> resources.id`
-- `dialogues.id -> resources.id` after the final dialogue slice
+- `roleplays.id -> resources.id`
 
 Folder membership should be stored outside `resources`:
 
@@ -529,7 +534,7 @@ the first production migration history is clean.
 If any V1 schema has already reached production, use forward-only migrations:
 
 - migrate chatroom data only if it exists and should be preserved
-- migrate practice modules into practice guides/resources
+- migrate legacy practice modules into practice guides/resources
 - migrate assignments into resources
 - create generic share links while preserving old public URLs through redirects
 
@@ -540,10 +545,16 @@ Do not leave both old and new resource systems active for longer than necessary.
 Resource simplification should update downstream features:
 
 - progress event sources should use resource ids where helpful
-- home suggestions should recommend resources by type
+- `/progress?tab=events` should list all evaluated sources that update learner
+  progress: tutor conversation reports shown as `Bitácora`, assignments shown
+  as `Tarea`, roleplays shown as `Roleplay`, and future evaluated resources once
+  they write progress events
+- home suggestions should recommend resources by type, but the personalized
+  home suggestion system is now treated as a separate larger feature outside
+  this V2 slice
 - assignment follow-up should continue to work
 - practice guide conversations should still store frozen guide snapshots
-- dialogue runs should define whether they produce progress events
+- roleplay runs produce progress events after authenticated evaluated attempts
 - old chatroom report snapshot concepts should be removed or replaced
 
 ## Payments And Credits
@@ -555,15 +566,15 @@ Existing policies should remain conceptually stable:
   student unless explicitly changed
 - launching normal tutor practice from a resource follows standard credit policy
 
-New dialogue generation or evaluation must get explicit credit policy before
-implementation.
+Roleplay authoring, AI revision, runtime character turns, evaluation, and
+follow-up tutoring use the standard credit policy.
 
 ## Open Questions
 
-1. Should `Diálogos` support multiple AI roles, or start with one roleplay
-   partner?
-2. Should `Diálogos` produce an evaluated result, or only tutor follow-up
-   signals?
+1. Should future `Roleplay` resources support more than one AI role, or keep the
+   two-character constraint for a long time?
+2. Which roleplay result metrics should be shown as scores versus qualitative
+   feedback?
 3. Should old `/practice-modules` URLs redirect to `Recursos`, or should they
    remain as compatibility routes for one release?
 4. Should internal code rename `PracticeModule` to `PracticeGuide` immediately,
@@ -588,4 +599,4 @@ Implement in this order:
 6. migrate assignments and practice guides into the resource catalog
 7. remove chatrooms
 8. consolidate generic sharing, progress, docs, and tests
-9. add dialogues as the final new resource type
+9. add roleplays as the final new resource type

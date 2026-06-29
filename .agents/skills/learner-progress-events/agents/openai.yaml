@@ -1,0 +1,4 @@
+interface:
+  display_name: "Learner Progress Events"
+  short_description: "Record and show progress from evaluated resources."
+  default_prompt: "Use $learner-progress-events when adding or reviewing learner progress events for evaluated Mister F resources."

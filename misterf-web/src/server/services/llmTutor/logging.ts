@@ -5,6 +5,7 @@ import type {
   FinishReason,
 } from 'ai';
 import { env } from '../../config/env.js';
+import type { ResourceType } from '../../db/repository.js';
 import { logger, serializeError } from '../logger.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage } from './types.js';
 import { resolveContextWindowTokens } from './modelMetadata.js';
@@ -19,6 +20,8 @@ type LlmLogContext = {
   llm?: LlmRequestOptions;
   operation?: string;
   profileId?: string | null;
+  resourceId?: string | null;
+  resourceType?: ResourceType | null;
   titleUpdatedByUser?: boolean;
   userId?: string | null;
 };
@@ -120,6 +123,8 @@ export function logLlmToolCalls(input: {
   llm?: LlmRequestOptions;
   operation?: string;
   profileId?: string | null;
+  resourceId?: string | null;
+  resourceType?: ResourceType | null;
   steps: Array<{
     text?: string;
     toolCalls?: Array<{
@@ -181,6 +186,8 @@ export function logLlmInvalidRawResponse(input: {
   operation?: string;
   profileId?: string | null;
   rawText: string;
+  resourceId?: string | null;
+  resourceType?: ResourceType | null;
   turn?: number;
   userId?: string | null;
 }): void {
@@ -253,6 +260,8 @@ function buildLlmLogBase(
     operation: context.operation ?? 'tutor',
     profileId: context.profileId ?? null,
     provider: env.llmProvider,
+    resourceId: context.resourceId ?? null,
+    resourceType: context.resourceType ?? null,
     turn: details.turn,
     userId: context.userId ?? context.llm?.userId ?? null,
   };

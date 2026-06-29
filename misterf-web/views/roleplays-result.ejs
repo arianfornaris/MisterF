@@ -1,0 +1,148 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view roleplays-page">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div>
+      <p class="resource-eyebrow">Resultado</p>
+      <h1 class="resource-page-title"><%= result.summaryTitle %></h1>
+      <p class="resource-page-copy"><%= result.summary %></p>
+      <div class="resource-action-row mt-3">
+        <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
+          </button>
+        </form>
+        <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice-guide" data-roleplay-pending-form>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-secondary" type="submit" data-roleplay-pending-submit data-loading-text="Creando guía...">
+            <i class="bi bi-journal-plus me-1" aria-hidden="true"></i>Crear guía de práctica
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/roleplays/<%= encodeURIComponent(attempt.roleplayId) %>"
+        aria-label="Cerrar"
+        title="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (resultActionError) { %>
+    <div class="alert alert-warning" role="alert">
+      <p class="mb-2"><%= resultActionError %></p>
+      <% if (resultActionErrorIsCredit) { %>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/roleplay-attempts/${attempt.id}/result`) %>">Comprar créditos</a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <div class="resource-detail-summary">
+    <p><%= result.overallFeedback %></p>
+    <div class="resource-meta-row">
+      <span><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= result.entries.length %> turnos evaluados</span>
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <% if (result.strengths.length > 0) { %>
+      <div class="col-12 col-lg-4">
+        <section class="card h-100">
+          <div class="card-body">
+            <h2 class="h6">Fortalezas</h2>
+            <ul class="mb-0">
+              <% result.strengths.forEach((item) => { %><li><%= item %></li><% }) %>
+            </ul>
+          </div>
+        </section>
+      </div>
+    <% } %>
+    <% if (result.difficulties.length > 0) { %>
+      <div class="col-12 col-lg-4">
+        <section class="card h-100">
+          <div class="card-body">
+            <h2 class="h6">Dificultades</h2>
+            <ul class="mb-0">
+              <% result.difficulties.forEach((item) => { %><li><%= item %></li><% }) %>
+            </ul>
+          </div>
+        </section>
+      </div>
+    <% } %>
+    <% if (result.recommendations.length > 0) { %>
+      <div class="col-12 col-lg-4">
+        <section class="card h-100">
+          <div class="card-body">
+            <h2 class="h6">Recomendaciones</h2>
+            <ul class="mb-0">
+              <% result.recommendations.forEach((item) => { %><li><%= item %></li><% }) %>
+            </ul>
+          </div>
+        </section>
+      </div>
+    <% } %>
+  </div>
+
+  <section class="resource-section">
+    <h2 class="h5">Revisión por turno</h2>
+    <div class="d-grid gap-3">
+      <% result.entries.forEach((entry) => { %>
+        <article class="sentence-evaluation card roleplay-evaluation-card">
+          <div class="sentence-evaluation-header card-header">
+            <h3 class="sentence-evaluation-label">Turno <%= entry.turnNumber %></h3>
+            <% if (entry.scoreLabel) { %><span class="badge text-bg-light border ms-auto"><%= entry.scoreLabel %></span><% } %>
+          </div>
+          <div class="sentence-evaluation-body card-body">
+            <p class="sentence-evaluation-parts-label">Texto analizado, por partes</p>
+            <p class="sentence-parts">
+              <% entry.inlineReview.parts.forEach((part, partIndex) => { %>
+                <% if (part.status === 'correct') { %>
+                  <span class="sentence-part is-correct"><%= part.text %></span>
+                <% } else { %>
+                  <button
+                    class="sentence-part is-<%= part.status %>"
+                    type="button"
+                    data-bs-toggle="popover"
+                    data-bs-trigger="manual"
+                    data-bs-placement="top"
+                    data-bs-container="body"
+                    data-bs-custom-class="sentence-popover sentence-popover-<%= part.status %>"
+                    data-bs-title="<%= part.status === 'error' ? 'Error' : 'Puede mejorar' %>"
+                    data-bs-content="<%= part.explanation || 'Esta parte necesita un ajuste.' %>"
+                    data-roleplay-evaluation-popover
+                    aria-label="<%= part.text %>: <%= part.explanation || 'Esta parte necesita un ajuste.' %>"
+                  >
+                  <%= part.text %>
+                  </button>
+                <% } %>
+                <% if (partIndex < entry.inlineReview.parts.length - 1) { %> <% } %>
+              <% }) %>
+            </p>
+            <p class="mt-3 mb-0"><%= entry.feedback %></p>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+</section>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-roleplay-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Creando la guía de práctica...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" data-roleplay-result-json><%- resultJson %></script>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'roleplays-client-script' }) %>

@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+import { logger } from '../services/logger.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
     const activeProfile = request.activeProfile;
@@ -26,7 +27,8 @@ function readResourceTypeFilter(value) {
     const resourceType = readField(value, 40);
     if (resourceType === 'assignment' ||
         resourceType === 'practice_guide' ||
-        resourceType === 'resource_folder') {
+        resourceType === 'resource_folder' ||
+        resourceType === 'roleplay') {
         return resourceType;
     }
     return 'all';
@@ -45,6 +47,9 @@ function buildResourceDetailPath(resource) {
     if (resource.type === 'practice_guide') {
         return `/practice-modules/${encodeURIComponent(resource.id)}`;
     }
+    if (resource.type === 'roleplay') {
+        return `/roleplays/${encodeURIComponent(resource.id)}`;
+    }
     return `/resources/folders/${encodeURIComponent(resource.id)}`;
 }
 function buildResourceAction(resource) {
@@ -60,6 +65,13 @@ function buildResourceAction(resource) {
             actionLabel: 'Comenzar',
             actionMethod: 'post',
             actionPath: `/practice-modules/${encodeURIComponent(resource.id)}/chats`,
+        };
+    }
+    if (resource.type === 'roleplay') {
+        return {
+            actionLabel: 'Comenzar',
+            actionMethod: 'post',
+            actionPath: `/roleplays/${encodeURIComponent(resource.id)}/attempts`,
         };
     }
     return {
@@ -98,6 +110,12 @@ function buildResourceListItem(resource) {
             iconClass: 'bi-folder',
             label: 'Carpeta',
         },
+        roleplay: {
+            badgeClass: 'text-bg-warning',
+            headerClass: 'bg-warning-subtle text-warning-emphasis',
+            iconClass: 'bi-person-video3',
+            label: 'Roleplay',
+        },
     }[resource.type];
     const action = buildResourceAction(resource);
     return {
@@ -126,6 +144,7 @@ const resourceTypeSortRank = {
     resource_folder: 0,
     assignment: 1,
     practice_guide: 2,
+    roleplay: 3,
 };
 function compareResourceTitles(left, right) {
     return left.title.localeCompare(right.title, 'es', { sensitivity: 'base' });
@@ -171,6 +190,16 @@ function filterAndSortResources(resources, filters) {
 function readResourceShareMode(value) {
     const shareMode = readField(value, 20);
     return shareMode === 'link' || shareMode === 'profile' ? shareMode : '';
+}
+function buildResourceLogDetails(input) {
+    return {
+        ownerProfileId: input.resource.profileId,
+        ownerUserId: input.resource.userId,
+        profileId: input.profileId ?? null,
+        resourceId: input.resource.id,
+        resourceType: input.resource.type,
+        userId: input.userId,
+    };
 }
 export async function renderResourcesListPage(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);
@@ -331,6 +360,14 @@ export function handleAcceptSharedResourceLink(request, response) {
         shareLinkId: shareLink.id,
         userId: auth.user.id,
     });
+    logger.info('resource_share_link_accepted', {
+        ...buildResourceLogDetails({
+            profileId: auth.activeProfile.id,
+            resource,
+            userId: auth.user.id,
+        }),
+        shareLinkId: shareLink.id,
+    });
     response.redirect(buildResourceDetailPath(resource));
 }
 export function handleShareResourceToProfile(request, response) {
@@ -352,6 +389,14 @@ export function handleShareResourceToProfile(request, response) {
         resourceId: resource.id,
         userId: auth.user.id,
     });
+    logger.info('resource_shared_with_profile', {
+        ...buildResourceLogDetails({
+            profileId: resource.profileId,
+            resource,
+            userId: auth.user.id,
+        }),
+        targetProfileId: targetProfile.id,
+    });
     response.redirect(returnTo);
 }
 export function handleCreateResourceFolder(request, response) {
@@ -371,6 +416,14 @@ export function handleCreateResourceFolder(request, response) {
         profileId: auth.activeProfile.id,
         title,
         userId: auth.user.id,
+    });
+    logger.info('resource_folder_created', {
+        ...buildResourceLogDetails({
+            profileId: auth.activeProfile.id,
+            resource: folder,
+            userId: auth.user.id,
+        }),
+        parentFolderId: parentFolderId || null,
     });
     if (parentFolderId) {
         addResourceToFolder({
@@ -400,6 +453,16 @@ export function handleUpdateResourceFolder(request, response) {
         title,
         userId: auth.user.id,
     });
+    const updatedFolder = findResourceForUser(folderId, auth.user.id);
+    if (updatedFolder) {
+        logger.info('resource_folder_updated', {
+            ...buildResourceLogDetails({
+                profileId: updatedFolder.profileId,
+                resource: updatedFolder,
+                userId: auth.user.id,
+            }),
+        });
+    }
     response.redirect(returnTo);
 }
 export function handleArchiveResource(request, response) {
@@ -407,7 +470,17 @@ export function handleArchiveResource(request, response) {
     if (!auth) {
         return;
     }
-    archiveResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    if (resource) {
+        archiveResourceForUser(resource.id, auth.user.id);
+        logger.info('resource_archived', {
+            ...buildResourceLogDetails({
+                profileId: resource.profileId,
+                resource,
+                userId: auth.user.id,
+            }),
+        });
+    }
     response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 export function handleRestoreResource(request, response) {
@@ -415,7 +488,17 @@ export function handleRestoreResource(request, response) {
     if (!auth) {
         return;
     }
-    restoreResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    if (resource) {
+        restoreResourceForUser(resource.id, auth.user.id);
+        logger.info('resource_restored', {
+            ...buildResourceLogDetails({
+                profileId: resource.profileId,
+                resource,
+                userId: auth.user.id,
+            }),
+        });
+    }
     response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 export function handleMoveResourceToFolder(request, response) {
@@ -423,11 +506,22 @@ export function handleMoveResourceToFolder(request, response) {
     if (!auth) {
         return;
     }
-    addResourceToFolder({
-        folderId: readField(request.body.folderId, 100),
-        resourceId: readField(request.params.resourceId, 100),
+    const folderId = readField(request.body.folderId, 100);
+    const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    if (resource && addResourceToFolder({
+        folderId,
+        resourceId: resource.id,
         userId: auth.user.id,
-    });
+    })) {
+        logger.info('resource_moved_to_folder', {
+            ...buildResourceLogDetails({
+                profileId: resource.profileId,
+                resource,
+                userId: auth.user.id,
+            }),
+            folderId,
+        });
+    }
     response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 export function handleRemoveResourceFromFolder(request, response) {
@@ -435,11 +529,22 @@ export function handleRemoveResourceFromFolder(request, response) {
     if (!auth) {
         return;
     }
-    removeResourceFromFolder({
-        folderId: readField(request.params.folderId, 100),
-        resourceId: readField(request.params.resourceId, 100),
+    const folderId = readField(request.params.folderId, 100);
+    const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    if (resource && removeResourceFromFolder({
+        folderId,
+        resourceId: resource.id,
         userId: auth.user.id,
-    });
+    })) {
+        logger.info('resource_removed_from_folder', {
+            ...buildResourceLogDetails({
+                profileId: resource.profileId,
+                resource,
+                userId: auth.user.id,
+            }),
+            folderId,
+        });
+    }
     response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 //# sourceMappingURL=handlers.js.map

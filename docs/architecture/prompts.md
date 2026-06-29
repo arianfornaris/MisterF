@@ -29,7 +29,7 @@ Important files:
 - `block-repair.md`: repair prompt for schema-valid tutor output that leaks exercise payloads into `message`
 - `internal-tool-continuation.md`: continuation prompt after tool calls
 - `profile-context.md`: teacher-only context block with learner-authored profile background
-- `practice-module-context.md`: context block for tutor conversations started from a practice module
+- `practice-module-context.md`: legacy filename for the context block used by tutor conversations started from a practice guide
 - `tutor-report-context.md`: context block for tutor conversations started from a finalized tutor conversation report
 - `tutor-report-start.md`: one-shot internal first-turn nudge for conversations created from a finalized tutor report
 - `visible-plan-context.md`: teacher-only context with the current fused visible tutor plan
@@ -38,8 +38,8 @@ Important files:
 - `quiz-result-evaluation-correction.md`: repair prompt for invalid quiz result evaluation output
 - `conversation-report.md`: turns a finalized tutor conversation transcript into a structured progress report
 - `conversation-report-correction.md`: repair prompt for invalid tutor conversation report output
-- `report-to-practice-module.md`: turns a tutor conversation report into a practice module draft
-- `report-to-practice-module-correction.md`: repair prompt for invalid report-to-module output
+- `report-to-practice-module.md`: legacy filename for turning a tutor conversation report into a practice guide draft
+- `report-to-practice-module-correction.md`: legacy filename for repairing invalid report-to-guide output
 
 Tutor block protocol files live in:
 
@@ -116,19 +116,32 @@ Important files:
 - `assignment-revision-correction.md`
 - `assignment-block.md`
 - `assignment-block-correction.md`
+- `roleplay-draft.md`
+- `roleplay-draft-correction.md`
+- `roleplay-revision.md`
+- `roleplay-revision-correction.md`
+- `roleplay-turn.md`
+- `roleplay-evaluation.md`
 
 These are used when the app generates or revises user-editable resources.
 
-Practice-module generation prompts are part of the tutor interaction contract.
-Many practice modules are created by AI, so their `tutorInstructions` must avoid
+Roleplay prompts are split by responsibility:
+
+- draft/revision prompts create and update the saved roleplay resource
+- turn prompts produce only the next fictional character utterance
+- evaluation prompts grade only learner-controlled turns and return structured
+  feedback for the result page and follow-up tutor context
+
+Practice-guide generation prompts are part of the tutor interaction contract.
+Many practice guides are created by AI, so their `tutorInstructions` must avoid
 phrasing that nudges Mr. F into batching several top-level exercise blocks in
-one tutor response. For normal guided practice, generated module instructions
+one tutor response. For normal guided practice, generated guide instructions
 should describe sequential exercise progression: one item, feedback, then the
 next item. If several items must be answered together, the generated
 instructions should explicitly frame that section as a quiz, test, checkpoint,
 or batch assessment.
 
-Practice-module `title` should remain plain text. Longer editable fields such
+Practice-guide `title` should remain plain text. Longer editable fields such
 as `description` and `tutorInstructions` should be generated as Markdown inside
 their JSON string values, without wrapping the whole JSON response in markdown
 fences.

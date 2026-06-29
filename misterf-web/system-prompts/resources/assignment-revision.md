@@ -48,7 +48,14 @@ Revision rules:
 - Use new unique ids only for new blocks.
 - Respect block numbers or ids mentioned by the teacher in requestedChange.
 - Keep the task coherent after the change.
-- Write visible learner text in Spanish unless the teacher clearly asks for another language.
+- Mister F is an English-learning product. The revised assignment must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.
+- Write prompts and visible learner instructions in Spanish unless the teacher clearly asks for another language.
+- Keep the target learner output in English for `quiz_open_text`, `quiz_translate_to_english`, `quiz_fill_in_the_blank_input`, `quiz_fill_in_the_blank_choice`, `quiz_multiple_choice`, `quiz_matching_pairs`, and `quiz_unscramble_sentence`.
+- Use Spanish only as source language for `quiz_translate_to_english`, as the expected explanation language for `quiz_understand_in_spanish`, or as learner-facing instructions.
+- For `quiz_understand_in_spanish`, the sentence must be in English and acceptableAnswers must be Spanish explanations of the English meaning.
+- For `quiz_translate_to_english`, the sentence may be Spanish, but acceptableAnswers must be natural English translations.
+- For fill-in-the-blank and unscramble items, the sentence being completed or reconstructed should normally be English.
+- Do not create exercises that grade Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.
 - Keep the task self-contained for evaluation.
 - Do not copy chat transcript content, assistant status summaries, or failure messages into learner-facing text.
 - Do not mention internal schemas, blocks, JSON, or AI to the learner-facing text.

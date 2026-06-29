@@ -61,12 +61,12 @@ The current app is structurally ready for a multilingual direction in some
 areas:
 
 - Profiles already scope learner preferences, model tier, learning context,
-  conversations, practice modules, assignments, resources, and progress.
+  conversations, practice guides, assignments, resources, and progress.
 - Tutor prompts are versioned markdown files rather than hard-coded strings.
 - Tutor output uses structured blocks, which gives clear places to define
   language behavior.
 - The translator is already a dedicated tutor service.
-- Practice modules, assignments, resources, tutor reports, and progress are
+- Practice guides, assignments, resources, tutor reports, and progress are
   profile-scoped, which makes language preference a natural profile-level
   setting.
 
@@ -298,7 +298,7 @@ Important tutor workflows:
 
 - A tutor creates or switches to a learner profile.
 - The tutor selects the learner's support language.
-- The tutor can generate practice modules in that support language.
+- The tutor can generate practice guides in that support language.
 - The tutor can review progress reports in either the learner's support
   language or the tutor's interface locale.
 - The tutor can use English-only mode when working with learners whose home
@@ -339,7 +339,7 @@ Recommended safeguards:
   appointments, transportation, job interviews, and basic grammar explanations.
 - Test that the model explains in Haitian Creole while keeping English practice
   sentences in English.
-- Test that reports and practice modules do not drift into French unless the
+- Test that reports and practice guides do not drift into French unless the
   learner explicitly asks for French.
 - Include examples of code-switching because many Haitian learners may mix those
   languages naturally.
@@ -392,7 +392,7 @@ Recommended safeguards:
 - Add server-side locale dictionaries.
 - Pass a `t` helper into EJS rendering.
 - Convert high-traffic learner pages first:
-  chat, profiles, resources, practice modules, assignments, progress, auth,
+  chat, profiles, resources, practice guides, assignments, progress, auth,
   credits.
 - Convert client-side strings through bootstrap dictionaries.
 - Add missing-key checks in tests.
@@ -438,7 +438,7 @@ Manual QA:
 - Create a Spanish profile and run a normal tutoring session.
 - Create a Haitian Creole profile and run a workplace English session.
 - Create an English support-language profile and run an English-only session.
-- Generate a practice module from each profile.
+- Generate a practice guide from each profile.
 - Finalize a conversation and verify the report language.
 - Open translator mode and test both directions.
 - Compare Spanish and Haitian Creole sessions for the same learner scenario and

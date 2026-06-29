@@ -1,0 +1,2 @@
+function e(e=document){let t=e.querySelector(`[data-authoring-chat-history]`);if(!(t instanceof HTMLElement))return;let n=()=>{t.scrollTop=t.scrollHeight};requestAnimationFrame(()=>{n(),requestAnimationFrame(n)})}export{e as t};
+//# sourceMappingURL=authoringChatScroll-BJT1jwA7.js.map

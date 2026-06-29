@@ -54,16 +54,16 @@
                       <button class="btn btn-primary" type="submit" data-tutor-report-pending-button>Practicar estos puntos</button>
                     </form>
                     <% if (selectedTutorConversationReport.practiceModuleId) { %>
-                      <a class="btn btn-outline-secondary" href="/practice-modules/<%= encodeURIComponent(selectedTutorConversationReport.practiceModuleId) %>">Ver módulo creado</a>
+                      <a class="btn btn-outline-secondary" href="/practice-modules/<%= encodeURIComponent(selectedTutorConversationReport.practiceModuleId) %>">Ver guía creada</a>
                     <% } else { %>
                       <form
                         method="post"
                         action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/create-practice-module"
                         data-tutor-report-pending-form
-                        data-tutor-report-pending-label="Creando módulo de práctica..."
+                        data-tutor-report-pending-label="Creando guía de práctica..."
                       >
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button class="btn btn-secondary" type="submit" data-tutor-report-pending-button>Crear módulo de práctica</button>
+                        <button class="btn btn-secondary" type="submit" data-tutor-report-pending-button>Crear guía de práctica</button>
                       </form>
                     <% } %>
                   </div>
@@ -134,11 +134,11 @@
               </article>
             <% } else { %>
               <section class="practice-module-start-panel d-none" data-practice-module-start-panel>
-                <p class="practiceModule-start-kicker">Módulo de práctica</p>
+                <p class="practiceModule-start-kicker">Guía de Práctica</p>
                 <h2 class="practiceModule-start-title" data-practiceModule-start-title></h2>
                 <p class="practiceModule-start-description" data-practiceModule-start-description></p>
                 <p class="practice-module-start-status text-body-secondary d-none" data-practice-module-start-status>
-                  Comenzando el módulo de práctica...
+                  Comenzando la guía de práctica...
                 </p>
                 <button class="btn btn-primary" type="button" data-practiceModule-start-button>
                   Comenzar

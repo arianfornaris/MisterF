@@ -15,6 +15,13 @@
             <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
           </button>
         </form>
+        <form method="post" action="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/practice-guide" data-assignment-generate-form>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <% if (guestToken) { %><input type="hidden" name="guestToken" value="<%= guestToken %>"><% } %>
+          <button class="btn btn-secondary" type="submit" data-assignment-generate-submit>
+            <i class="bi bi-journal-plus me-1" aria-hidden="true"></i>Crear guía de práctica
+          </button>
+        </form>
         <% if (!attempt.userId && guestToken) { %>
           <form method="post" action="/assignment-attempts/<%= encodeURIComponent(attempt.id) %>/claim">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -29,6 +36,15 @@
       <% } %>
     </div>
   </div>
+
+  <% if (resultActionError) { %>
+    <div class="alert alert-warning" role="alert">
+      <p class="mb-2"><%= resultActionError %></p>
+      <% if (resultActionErrorIsCredit) { %>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/assignment-attempts/${attempt.id}/result${guestToken ? `?guestToken=${guestToken}` : ''}`) %>">Comprar créditos</a>
+      <% } %>
+    </div>
+  <% } %>
 
   <div class="resource-detail-summary">
     <p><%= draft.title %></p>
@@ -48,5 +64,16 @@
 </section>
 
 <script type="application/json" data-assignment-result-json><%- resultBlockJson %></script>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-assignment-pending-modal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Creando la guía de práctica...</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'assignments-client-script' }) %>

@@ -109,10 +109,9 @@ This section documents the schema introduced by
 resource catalog uses `resources` as the shared header for reusable learning
 objects, while type-specific tables keep runtime data.
 
-V2 should consolidate reusable learning objects under a generic `resources`
-header table plus type-specific tables. `Diálogos` are intentionally deferred
-until the final feature slice, but the schema may reserve the type if V2 lands
-as part of a pre-production baseline reset.
+V2 consolidates reusable learning objects under a generic `resources` header
+table plus type-specific tables. `Roleplay` is part of the implemented V2
+resource set.
 
 ### Resource
 
@@ -123,8 +122,7 @@ Recommended fields:
 - `id`
 - `userId`
 - `profileId`
-- `type` (`assignment`, `practice_guide`, `resource_folder`, and eventually
-  `dialogue`)
+- `type` (`assignment`, `practice_guide`, `resource_folder`, `roleplay`)
 - `title`
 - `description`
 - optional `topic`
@@ -155,7 +153,7 @@ The recommended design is to use the same id as the generic resource:
 - `assignments.id` references `resources.id`
 - `practice_guides.id` references `resources.id`
 - `resource_folders.id` references `resources.id`
-- `dialogues.id` references `resources.id` after the final dialogue slice
+- `roleplays.id` references `resources.id`
 
 This keeps URLs and authorization simpler because a resource id is also the
 type-specific id.
@@ -168,9 +166,26 @@ quiz JSON, and authoring messages.
 `resource_folders` may not need extra fields at first; the row exists to make
 foreign keys and authorization explicit.
 
-`dialogues` should not be implemented until the final feature slice. If the
-baseline reserves the `dialogue` type early, the UI should still hide dialogue
-creation until that slice.
+`roleplays` stores the roleplay title, description, scenario, level, one
+pedagogical-focus text field, optional learner-turn limit, fixed two-character
+payload, and AI-authoring message history. The scenario includes the
+learner-facing context, and the first AI character line is generated dynamically
+when a roleplay attempt starts.
+
+`roleplay_attempts` stores runtime attempts with:
+
+- `roleplayId`
+- optional `userId` and `profileId`
+- status (`draft`, `in_progress`, `evaluating`, `evaluated`, `failed`)
+- frozen snapshot JSON
+- transcript turn JSON
+- evaluation result JSON
+- optional progress event id
+- timestamps
+
+`conversation_roleplay_attempt_snapshots` stores a frozen roleplay result
+context when a learner starts follow-up tutor practice from an evaluated
+roleplay attempt.
 
 ### Resource Folder Item
 
@@ -185,13 +200,13 @@ Recommended fields:
 - timestamps
 
 V2 folders support nesting. A folder can contain assignments, practice guides,
-resource folders, and eventually dialogues.
+resource folders, and roleplays.
 
 The persistence model stores folder nesting in the same membership table used
 for ordinary resources:
 
 - store `resourceType` on the membership row
-- allow `assignment`, `practice_guide`, and `resource_folder`
+- allow `assignment`, `practice_guide`, `resource_folder`, and `roleplay`
 - add a composite foreign key from `(resourceId, resourceType)` to
   `resources(id, type)`
 
@@ -254,7 +269,7 @@ developer convenience. If any V1 links reach production, the migration must
 preserve or redirect:
 
 - assignment detail/share URLs
-- practice module detail/share URLs
+- practice guide detail/share URLs
 - legacy chat room URLs, which now redirect to `/resources`
 
 ## Tutor Conversations
@@ -269,7 +284,7 @@ Important fields:
 - `userId`
 - `profileId`
 - `activeAgent`
-- `practiceModuleId`
+- `practiceModuleId` legacy internal field for practice guide snapshots
 - `chatRoomConversationReportId` legacy nullable field retained until schema cleanup
 - `modelTier`
 - `title`
@@ -278,9 +293,10 @@ Important fields:
 
 Conversations may optionally be associated with:
 
-- a practice module snapshot source
+- a practice guide snapshot source
 - a tutor conversation report snapshot source
 - an assignment-attempt snapshot source
+- a roleplay-attempt snapshot source
 
 When `closedAt` is set, the conversation is treated as finalized/read-only. The
 UI can still render the original transcript, but the chat composer is hidden and
@@ -306,11 +322,13 @@ Message metadata is used for features such as:
 - open-ended exercise submissions, including the source block and learner answer
 - quiz result source tracking
 
-### Conversation Practice Module Snapshot
+### Conversation Practice Guide Snapshot
 
-Stores a frozen copy of practice module context at conversation start.
+Stores a frozen copy of practice guide context at conversation start. The
+current table/field names still use `practice_module` as an internal
+compatibility detail.
 
-This protects the conversation from future edits to the original module.
+This protects the conversation from future edits to the original guide.
 
 ### Legacy Conversation Chat Room Report Snapshot
 
@@ -337,7 +355,7 @@ Important fields:
 - `summaryTitle`
 - `summaryDescription`
 - `report`
-- optional `practiceModuleId`
+- optional `practiceModuleId` legacy internal field
 
 The report JSON contains:
 
@@ -350,7 +368,7 @@ The report JSON contains:
 - next steps
 
 `practiceModuleId` is set only when the learner chooses to create a persistent
-practice module from that report.
+practice guide from that report.
 
 ### Conversation Tutor Report Snapshot
 
@@ -460,15 +478,14 @@ Important fields:
 - optional `profileId`
 - optional guest and claim tokens
 - `status` (`draft`, `submitted`, `evaluating`, `evaluated`, or `failed`)
-- `isPreview`
 - `snapshot`
 - `responses`
 - optional `result`
 - optional `progressEventId`
 - timestamps for start, submit, and evaluation
 
-Guest attempts use isolated tokens and can be claimed after login. Teacher test
-attempts use `isPreview` and never write learner progress.
+Guest attempts use isolated tokens and can be claimed after login. Authenticated
+evaluated attempts write learner progress for the active profile.
 
 ## Learner Progress
 
@@ -514,15 +531,32 @@ Important fields:
 - `details`
 - timestamps
 
+`details` may include optional resource metadata:
+
+- `resourceId`
+- `resourceType`
+
+Assignment-attempt progress events should set these fields to the assignment
+resource id and `assignment`. Practice-guide or roleplay progress can use the
+same fields when those flows intentionally produce progress events. Older
+events may not include this metadata.
+
 Current source types:
 
 - `tutor_conversation_report`
 - `assignment_attempt`
+- `roleplay_attempt`
 - `chat_room_conversation_report` legacy only until schema cleanup
 
 The event details JSON contains compact lists of practiced topics,
-difficulties, progress notes, recommendations, and vocabulary. Events are the
-source used to rebuild the global progress summary and the vocabulary tab.
+difficulties, progress notes, recommendations, vocabulary, and optional resource
+context. Events are the source used to rebuild the global progress summary and
+the vocabulary tab.
+
+The progress UI labels source events through a shared server-side view helper:
+assignment attempts appear as `Tarea`, roleplay attempts as `Roleplay`, tutor
+conversation reports as `Bitácora`, and legacy or unknown sources fall back to
+`Práctica`.
 
 ## Payments And Credits
 
@@ -550,11 +584,14 @@ The credits page shows only fulfilled purchases to learners. Pending and failed
 records remain in the ledger for idempotency, auditability, support, and future
 admin tooling.
 
-## Practice Modules
+## Practice Guides
 
-### Practice Module
+### Practice Guide
 
-A reusable tutor configuration.
+A reusable tutor configuration. The user-facing Spanish name is `Guía de
+Práctica`; the current repository, URL, and table implementation still use
+`PracticeModule`/`practice_modules` as compatibility names until a later schema
+rename is worth the migration cost.
 
 Important fields:
 
@@ -567,9 +604,9 @@ Important fields:
 - archive/share metadata
 - optional source metadata
 
-### Practice Module Share Links
+### Practice Guide Share Links
 
-Practice module share links support legacy direct guide share URLs and mirror to
+Practice guide share links support legacy direct guide share URLs and mirror to
 generic `resource_share_links`.
 
 Each includes:
@@ -645,7 +682,7 @@ Important fields:
 - `summaryTitle`
 - `summaryDescription`
 - `slides`
-- optional `practiceModuleId`
+- optional `practiceModuleId` legacy internal field
 
 Each report slide contains:
 
@@ -664,14 +701,14 @@ At a high level:
 - one `user` has many `profiles`
 - one `user` has one managed OpenRouter key for account-level credits
 - one `profile` has many `conversations`
-- one `profile` has many `practiceModules`
-- one `profile` has many `chatRooms`
+- one `profile` has many resources
+- one `resource` has one concrete type row when needed, such as an assignment
+  or practice guide
 - one `profile` has one learner progress profile
 - one `profile` has many learner progress events
-- one `chatRoom` has many `chatRoomCharacters`
-- one `chatRoom` has many `chatRoomConversations`
-- one `chatRoomConversation` may have one report
 - one tutor `conversation` may have one tutor conversation report
-- one tutor conversation report may create one practice module
+- one tutor conversation report may create one practice guide
+- legacy chat room entities may remain in the schema until cleanup, but no new
+  product flow should depend on them
 
 This model is strongly profile-scoped, which is an important design assumption across the application.

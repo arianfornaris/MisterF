@@ -1,0 +1,61 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view roleplays-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Roleplays</p>
+      <h1 class="resource-page-title">Nuevo Roleplay</h1>
+      <p class="resource-page-copy">Describe la situación, los personajes y lo que quieres que el estudiante practique.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="/resources">
+      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver
+    </a>
+  </div>
+
+  <% if (generationError) { %>
+    <div class="alert alert-danger mt-3" role="alert"><%= generationError %></div>
+  <% } %>
+
+  <div class="card resource-form-card mt-4">
+    <div class="card-body">
+      <form method="post" action="/roleplays/generate" data-roleplay-pending-form>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="mb-3">
+          <label class="form-label" for="roleplayPrompt">Describe el Roleplay</label>
+          <textarea
+            class="form-control"
+            id="roleplayPrompt"
+            name="prompt"
+            rows="10"
+            required
+            placeholder="Ejemplo: un roleplay B1 donde el estudiante es un cliente que necesita resolver un problema con una reserva de hotel..."
+          ><%= generationPrompt || '' %></textarea>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button
+            class="btn btn-primary"
+            type="submit"
+            data-roleplay-pending-submit
+            data-loading-text="Creando..."
+          >
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>Crear Roleplay
+          </button>
+          <a class="btn btn-outline-secondary" href="/resources">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-roleplay-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Creando el Roleplay...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'roleplays-client-script' }) %>

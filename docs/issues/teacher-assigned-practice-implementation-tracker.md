@@ -37,7 +37,8 @@ Status legend:
 - [x] Credit-gate all teacher AI authoring operations.
 - [x] Keep shared student evaluation free to the student and separate from
   teacher-paid authoring usage.
-- [x] Do not let teacher test attempts update learner progress.
+- [x] Replaced separate teacher test attempts with normal authenticated
+  attempts that update learner progress after evaluation.
 - [x] Preserve full validation before storing AI-generated assignment drafts,
   blocks, attempts, or results.
 - [x] Log ids and status metadata in production without storing full learner
@@ -148,7 +149,7 @@ Tasks:
 - [x] Add archive/restore actions.
 - [x] Add share-link route and owner share modal.
 - [ ] Add static manual assignment JSON support for development/debugging.
-- [x] Add `Probar` action that creates teacher-owned test attempts.
+- [x] Add `Probar` action that creates normal authenticated attempts.
 - [x] Add EJS views that follow resource-page conventions.
 
 Exit criteria:
@@ -303,17 +304,17 @@ Tasks:
 - [x] Finalize teacher test attempts as the shared-link student layout shape.
 - [x] Hide authoring controls, validation badges, rubrics, and teacher-only
   notes from teacher test attempts.
-- [x] Add optional teacher test attempt mode.
+- [x] Removed the separate persisted teacher test attempt mode.
 - [x] Let the teacher submit test answers for evaluation.
-- [x] Credit-gate teacher test evaluation.
-- [x] Ensure teacher test attempts do not update learner progress.
+- [x] Use the same product-funded evaluation policy as normal Tarea attempts.
+- [x] Ensure authenticated evaluated attempts update learner progress.
 - [x] Log test started/submitted/evaluated events.
 
 Exit criteria:
 
 - [x] Starting a test attempt does not consume LLM credits.
-- [x] Submitting test answers consumes teacher authoring credits.
-- [x] Test activity does not appear as real student progress.
+- [x] Submitting answers follows the product-funded Tarea evaluation policy.
+- [x] Evaluated authenticated attempts appear in learner progress.
 
 Verification:
 

@@ -52,38 +52,39 @@ From the summary page:
 
 - `Practicar estos puntos` creates a new tutor conversation seeded with a
   snapshot of the report.
-- `Crear módulo de práctica` asks the model to convert the report into a
-  persistent practice module.
-- If a module was already created from the report, the UI links to that existing
-  module instead of creating another one.
+- `Crear guía de práctica` asks the model to convert the report into a
+  persistent practice guide.
+- If a guide was already created from the report, the UI links to that existing
+  guide instead of creating another one.
 
 Closed conversations cannot accept new chat messages. If a stale client tries to
 send into a closed conversation, the socket handler rejects the message with a
 read-only conversation error.
 
-## Practice Module Flow
+## Practice Guide Flow
 
 ### Create manually
 
-1. The user opens the new practice module page.
+1. The user opens the new practice guide page.
 2. The server renders a dedicated page handler for that route.
 3. The user submits title, description, and tutor instructions.
-4. The module is persisted and becomes available in lists and detail pages.
+4. The guide is persisted and becomes available in the resource catalog and
+   detail page.
 
 ### Generate draft
 
-1. The user opens the generate modal from the practice modules area.
+1. The user opens the generate modal from the practice guide area.
 2. The user describes the desired learning resource.
 3. The server calls the resource-draft generation prompt.
 4. The structured draft is validated.
-5. A new module is created and the user is redirected to the detail page.
+5. A new guide is created and the user is redirected to the detail page.
 
-### Start tutoring from a module
+### Start tutoring from a guide
 
-1. The user starts a tutor conversation from a practice module.
+1. The user starts a tutor conversation from a practice guide.
 2. A conversation is created with the active profile.
-3. A snapshot of the practice module context is stored.
-4. The tutor receives the module instructions as part of the system context.
+3. A snapshot of the practice guide context is stored.
+4. The tutor receives the guide instructions as part of the system context.
 
 ## Teacher-Assigned Practice Flow
 
@@ -92,7 +93,7 @@ independently. The Spanish UI label is `Tareas`.
 
 ### Create assignment
 
-1. The teacher opens the assignments section below practice modules.
+1. The teacher opens `Recursos` and creates a new `Tarea`.
 2. The teacher starts an authoring session with a natural-language prompt.
 3. The server checks the teacher's credits for AI-assisted authoring.
 4. Mr. F generates a strict quiz-compatible assignment draft.
@@ -111,10 +112,10 @@ independently. The Spanish UI label is `Tareas`.
 11. AI-generated blocks and AI revisions replace the current structured draft
     only after validation against the supported quiz item contract.
 12. The teacher clicks `Probar` to execute the student-facing Tarea shape.
-13. The teacher can test the assignment from the student perspective and submit
-    the test attempt for AI evaluation.
-14. Teacher test evaluation is charged as authoring usage and does not
-    write learner progress.
+13. The teacher can test the assignment from the student perspective by
+    creating the same normal authenticated attempt a student would use.
+14. Evaluated authenticated attempts write learner progress for the active
+    profile.
 15. The assignment stores a fixed quiz-compatible payload with title,
     description, target topic, instructions, rubric, and ordered items.
 16. The teacher saves the assignment and can share a link with students.
@@ -122,17 +123,21 @@ independently. The Spanish UI label is `Tareas`.
 ### Complete assignment
 
 1. The student opens the shared assignment link.
-2. If unauthenticated, the app still lets the student complete the Tarea.
-3. If authenticated, the student starts or resumes an attempt under the active
+2. Current generic sharing asks the student to create an account or log in
+   before adding the shared Tarea to their resources.
+3. After authentication, the student starts or resumes an attempt under the active
    profile.
 4. The student answers the full sequence.
 5. The student submits the attempt.
 6. The server asks the model to evaluate the responses for free to the student.
 7. The evaluated result is stored and rendered as a structured review.
 8. If the attempt is associated with an account, it contributes a progress event
-   to the student's profile.
-9. If the student is a guest, the result page invites them to create an account
-   to save the result and continue practicing.
+   to the student's profile. That event records the assignment as
+   `resourceId` plus `resourceType: "assignment"` inside the event details
+   JSON, while preserving the assignment attempt as the source id.
+9. Future assignment-specific public sharing should allow guest completion and
+   free AI evaluation before account creation; that exception is not part of
+   the current generic resource sharing flow.
 
 ### Continue practice
 
@@ -150,8 +155,61 @@ independently. The Spanish UI label is `Tareas`.
 
 The previous standalone chat room flow was removed in Resource Simplification
 V2 Slice 7. `/chatrooms` and `/chatroom-conversations/*` now redirect to
-`/resources`. Future conversational scenario practice should be designed as the
-new `Diálogos` resource type instead of restoring the old room flow.
+`/resources`. Conversational scenario practice now belongs to the `Roleplay`
+resource type instead of restoring the old room flow.
+
+## Roleplay Flow
+
+### Create roleplay
+
+1. The user opens `Recursos` and chooses `Nuevo` -> `Roleplay`.
+2. The user describes the desired scenario in natural language.
+3. The server checks the creator's credits for AI-assisted authoring.
+4. The model returns a structured roleplay draft with a scenario, level,
+   pedagogical focus, optional learner-turn limit, and exactly two characters:
+   `learner` and `ai`.
+5. The roleplay is persisted as a `roleplay` resource and opens in the edit
+   view.
+6. The creator can edit metadata, scenario, pedagogical focus, character names
+   and descriptions, and optional learner-turn limit manually.
+7. The creator can use the AI edit chat to ask for revisions. The authoring
+   history and recent draft snapshots are sent with each revision request.
+
+### Run roleplay
+
+1. The learner opens the roleplay detail page from `Recursos` or through a live
+   shared resource reference.
+2. The app starts a roleplay attempt with a frozen snapshot of the roleplay.
+3. The server checks runtime credit and generates the AI-controlled character's
+   first line from the frozen snapshot.
+4. The learner writes the next English turn in the dedicated roleplay-writing
+   UI.
+5. The server checks runtime credit and asks the model for the fictional
+   character's next turn.
+6. The exchange repeats until the learner presses `Finalizar y resumir` or
+   reaches the configured turn limit.
+7. The server checks evaluation credit and asks the model to evaluate the
+   learner-controlled turns only.
+8. The result is saved and rendered with per-turn sentence-evaluation-like
+   annotations, strengths, difficulties, recommendations, and vocabulary.
+9. Authenticated evaluated attempts write learner progress events with
+   `resourceType: "roleplay"` in the event details.
+
+### Continue practice
+
+1. From the result page, the learner can start a follow-up Mr. F conversation
+   or create a practice guide from the evaluated result.
+2. Follow-up actions appear below the result title/summary area on both desktop
+   and mobile, and the result page close control returns to the roleplay detail
+   page.
+3. When starting a tutor conversation, the server creates it with a frozen
+   roleplay-attempt snapshot.
+4. The tutor receives the roleplay setup, transcript, and evaluation result as
+   teacher-only context.
+5. Follow-up tutoring uses the standard account credit policy.
+6. When creating a practice guide, the server generates a guide from the
+   roleplay result, redirects to the guide detail page, and applies normal guide
+   ownership and resource behavior.
 
 ## Quiz Flow
 

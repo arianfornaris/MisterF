@@ -49,6 +49,8 @@ Production logs should be enough to reconstruct important failures and business
 events without dumping learner conversations:
 
 - `http_request_error`: unhandled Express route errors with stack traces.
+- `csrf_validation_failed`: rejected unsafe form submissions or same-origin
+  checks with non-sensitive request metadata.
 - `frontend_error`: critical browser errors reported by the client telemetry
   endpoint after client/server deduplication and rate limiting.
 - `credit_checkout_session_created`: a user started a Stripe checkout.
@@ -65,6 +67,19 @@ events without dumping learner conversations:
   malformed structured response.
 - `llm_block_repair_attempt` and `llm_response_repaired`: post-processing found
   and repaired block leakage.
+- `resource_share_link_accepted`, `resource_shared_with_profile`,
+  `resource_folder_created`, `resource_folder_updated`, `resource_archived`,
+  `resource_restored`, `resource_moved_to_folder`, and
+  `resource_removed_from_folder`: resource catalog actions with resource
+  identifiers and type metadata.
+- `assignment_attempt_started`, `assignment_attempt_submitted`,
+  `assignment_attempt_evaluated`, `assignment_attempt_evaluation_failed`, and
+  `assignment_follow_up_conversation_created`: assignment runtime events with
+  assignment ids plus resource identifiers.
+- `practice_guide_created`, `practice_guide_created_from_prompt`,
+  `practice_guide_updated`, `practice_guide_revised`, and
+  `practice_guide_conversation_created`: practice-guide resource lifecycle
+  events.
 
 Normal LLM request, response, and tool-call events are `debug` level:
 
@@ -89,8 +104,20 @@ Production metadata LLM logs do not include:
 - generated correction payloads
 
 Identifiers that are useful for support remain visible, such as user IDs,
-conversation IDs, Stripe checkout session IDs, payment intent IDs, model IDs,
-token counts, and event names.
+conversation IDs, resource IDs, resource types, Stripe checkout session IDs,
+payment intent IDs, model IDs, token counts, and event names.
+
+When a log event relates to a platform resource, include:
+
+- `resourceId`
+- `resourceType`
+- `profileId` when the active profile is known
+- owner ids such as `ownerUserId` or `ownerProfileId` only when useful for
+  shared-resource diagnostics
+
+Do not put resource descriptions, tutor instructions, assignment responses, or
+other long learner-authored content in production-level logs. Full LLM tracing
+is the opt-in path for content-level investigations.
 
 ## Performance
 

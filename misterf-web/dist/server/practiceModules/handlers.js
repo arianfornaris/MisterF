@@ -4,6 +4,7 @@ import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { generatePracticeModuleDraft, generatePracticeModuleRevision, } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { logger } from '../services/logger.js';
 const emptyPracticeModuleFormValues = {
     description: '',
     title: '',
@@ -254,6 +255,12 @@ export async function handleGeneratePracticeModuleDraft(request, response) {
             tutorInstructions: draft.tutorInstructions,
             userId: user.id,
         });
+        logger.info('practice_guide_created_from_prompt', {
+            profileId: activeProfile.id,
+            resourceId: practiceModule.id,
+            resourceType: 'practice_guide',
+            userId: user.id,
+        });
         response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
     }
     catch (error) {
@@ -306,6 +313,12 @@ export function handleCreatePracticeModule(request, response) {
         title,
         description,
         tutorInstructions,
+    });
+    logger.info('practice_guide_created', {
+        profileId: activeProfile.id,
+        resourceId: practiceModule.id,
+        resourceType: 'practice_guide',
+        userId: user.id,
     });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
@@ -360,6 +373,12 @@ export async function handleRevisePracticeModule(request, response) {
             });
             return;
         }
+        logger.info('practice_guide_revised', {
+            profileId: updatedPracticeModule.profileId,
+            resourceId: updatedPracticeModule.id,
+            resourceType: 'practice_guide',
+            userId: user.id,
+        });
         response.redirect(`/practice-modules/${encodeURIComponent(updatedPracticeModule.id)}/edit?aiRevision=success`);
     }
     catch (error) {
@@ -401,6 +420,14 @@ export function handleCreatePracticeModuleConversation(request, response) {
         return;
     }
     const conversation = createConversationFromPracticeModule(user.id, practiceModule, resourceAccess?.accessKind === 'shared' ? activeProfile.id : practiceModule.profileId);
+    logger.info('practice_guide_conversation_created', {
+        accessKind: resourceAccess?.accessKind ?? 'owner',
+        conversationId: conversation.id,
+        profileId: conversation.profileId,
+        resourceId: practiceModule.id,
+        resourceType: 'practice_guide',
+        userId: user.id,
+    });
     response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
 }
 export function handleUpdatePracticeModule(request, response) {
@@ -434,6 +461,12 @@ export function handleUpdatePracticeModule(request, response) {
         response.redirect('/resources');
         return;
     }
+    logger.info('practice_guide_updated', {
+        profileId: practiceModule.profileId,
+        resourceId: practiceModule.id,
+        resourceType: 'practice_guide',
+        userId: user.id,
+    });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
 export function handleArchivePracticeModule(request, response) {
@@ -448,7 +481,15 @@ export function handleArchivePracticeModule(request, response) {
         response.redirect(returnTo);
         return;
     }
-    archivePracticeModuleForUser(practiceModuleId, user.id);
+    const practiceModule = archivePracticeModuleForUser(practiceModuleId, user.id);
+    if (practiceModule) {
+        logger.info('resource_archived', {
+            profileId: practiceModule.profileId,
+            resourceId: practiceModule.id,
+            resourceType: 'practice_guide',
+            userId: user.id,
+        });
+    }
     response.redirect(returnTo);
 }
 export function handleRestorePracticeModule(request, response) {
@@ -463,7 +504,15 @@ export function handleRestorePracticeModule(request, response) {
         response.redirect(returnTo);
         return;
     }
-    restorePracticeModuleForUser(practiceModuleId, user.id);
+    const practiceModule = restorePracticeModuleForUser(practiceModuleId, user.id);
+    if (practiceModule) {
+        logger.info('resource_restored', {
+            profileId: practiceModule.profileId,
+            resourceId: practiceModule.id,
+            resourceType: 'practice_guide',
+            userId: user.id,
+        });
+    }
     response.redirect(returnTo);
 }
 export function handleDeletePracticeModule(request, response) {
@@ -511,6 +560,13 @@ export function handleSharePracticeModuleToProfile(request, response) {
         resourceId: practiceModule.id,
         userId: user.id,
     });
+    logger.info('resource_shared_with_profile', {
+        profileId: practiceModule.profileId,
+        resourceId: practiceModule.id,
+        resourceType: 'practice_guide',
+        targetProfileId: targetProfile.id,
+        userId: user.id,
+    });
     response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
 }
 export function handleAcceptSharedPracticeModuleLink(request, response) {
@@ -541,6 +597,15 @@ export function handleAcceptSharedPracticeModuleLink(request, response) {
         grantedVia: 'link',
         profileId: activeProfile.id,
         resourceId: sourcePracticeModule.id,
+        shareLinkId: resourceShareLink.id,
+        userId: user.id,
+    });
+    logger.info('resource_share_link_accepted', {
+        ownerProfileId: sourcePracticeModule.profileId,
+        ownerUserId: sourcePracticeModule.userId,
+        profileId: activeProfile.id,
+        resourceId: sourcePracticeModule.id,
+        resourceType: 'practice_guide',
         shareLinkId: resourceShareLink.id,
         userId: user.id,
     });

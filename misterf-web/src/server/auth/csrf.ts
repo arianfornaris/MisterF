@@ -1,8 +1,22 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import type { NextFunction, Request, Response } from 'express';
+import { logger } from '../services/logger.js';
 import { requireSessionSecret } from './session.js';
 
 const tokenTtlMs = 2 * 60 * 60 * 1000;
+
+type CsrfFailureReason =
+  | 'expired_token'
+  | 'invalid_signature'
+  | 'malformed_token'
+  | 'missing_token';
+
+type CsrfValidationResult =
+  | { valid: true }
+  | {
+      reason: CsrfFailureReason;
+      valid: false;
+    };
 
 export function csrfProtection(
   request: Request,
@@ -19,8 +33,20 @@ export function csrfProtection(
   const token = typeof request.body?._csrf === 'string'
     ? request.body._csrf
     : '';
+  const sameOrigin = isSameOrigin(request);
+  const tokenValidation = validateCsrfToken(token);
 
-  if (!isSameOrigin(request) || !verifyCsrfToken(token)) {
+  if (!sameOrigin || !tokenValidation.valid) {
+    let reason: 'cross_origin' | CsrfFailureReason = 'cross_origin';
+    if (sameOrigin && !tokenValidation.valid) {
+      reason = tokenValidation.reason;
+    }
+
+    logCsrfValidationFailure(request, {
+      reason,
+      sameOrigin,
+      token,
+    });
     response.status(403).send('Invalid CSRF token.');
     return;
   }
@@ -35,18 +61,26 @@ function createCsrfToken(): string {
   return `${body}.${sign(body)}`;
 }
 
-function verifyCsrfToken(token: string): boolean {
+function validateCsrfToken(token: string): CsrfValidationResult {
+  if (!token) {
+    return { reason: 'missing_token', valid: false };
+  }
+
   const [exp, nonce, signature, extra] = token.split('.');
   if (!exp || !nonce || !signature || extra) {
-    return false;
+    return { reason: 'malformed_token', valid: false };
   }
 
   const expiresAt = Number.parseInt(exp, 10);
   if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) {
-    return false;
+    return { reason: 'expired_token', valid: false };
   }
 
-  return safeEquals(signature, sign(`${exp}.${nonce}`));
+  if (!safeEquals(signature, sign(`${exp}.${nonce}`))) {
+    return { reason: 'invalid_signature', valid: false };
+  }
+
+  return { valid: true };
 }
 
 function isSameOrigin(request: Request): boolean {
@@ -72,4 +106,26 @@ function safeEquals(left: string, right: string): boolean {
     leftBuffer.length === rightBuffer.length &&
     timingSafeEqual(leftBuffer, rightBuffer)
   );
+}
+
+function logCsrfValidationFailure(
+  request: Request,
+  details: {
+    reason: 'cross_origin' | CsrfFailureReason;
+    sameOrigin: boolean;
+    token: string;
+  },
+): void {
+  logger.warn('csrf_validation_failed', {
+    contentType: request.get('content-type') ?? null,
+    hasToken: Boolean(details.token),
+    host: request.get('host') ?? null,
+    method: request.method,
+    origin: request.get('origin') ?? null,
+    path: request.path,
+    reason: details.reason,
+    requestCredentialsPresent: Boolean(request.get('cookie')),
+    sameOrigin: details.sameOrigin,
+    statusCode: 403,
+  });
 }

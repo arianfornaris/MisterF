@@ -506,7 +506,7 @@ function renderPracticeModuleStartPanel(practiceModule, options = {}) {
     return;
   }
 
-  practiceModuleStartTitleEl.textContent = autoStarting ? '' : practiceModule.title || 'Módulo de práctica';
+  practiceModuleStartTitleEl.textContent = autoStarting ? '' : practiceModule.title || 'Guía de Práctica';
   practiceModuleStartDescriptionEl.textContent = autoStarting ? '' : practiceModule.description || '';
   practiceModuleStartStatusEl.classList.toggle('d-none', !autoStarting);
   practiceModuleStartButtonEl.classList.toggle('d-none', autoStarting);

@@ -4,6 +4,7 @@ import {
   handleArchiveAssignment,
   handleClaimAssignmentAttempt,
   handleCreateAssignmentFollowUpConversation,
+  handleCreateAssignmentPracticeGuide,
   handleDeleteAssignmentBlock,
   handleDuplicateAssignmentBlock,
   handleGenerateAssignment,
@@ -51,3 +52,4 @@ assignmentsRouter.get('/assignment-attempts/:attemptId/result', renderAssignment
 assignmentsRouter.post('/assignment-attempts/:attemptId/claim', handleClaimAssignmentAttempt);
 assignmentsRouter.post('/assignment-attempts/:attemptId/submit', handleSubmitAssignmentAttempt);
 assignmentsRouter.post('/assignment-attempts/:attemptId/practice', handleCreateAssignmentFollowUpConversation);
+assignmentsRouter.post('/assignment-attempts/:attemptId/practice-guide', handleCreateAssignmentPracticeGuide);

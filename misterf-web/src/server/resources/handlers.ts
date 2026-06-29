@@ -31,6 +31,7 @@ import {
   getHomeAuthMessage,
   normalizeSearchText,
 } from '../pages/shell.js';
+import { logger } from '../services/logger.js';
 
 type ResourceFilterType = StoredResource['type'] | 'all';
 type ResourceSortOption = 'title_asc' | 'type' | 'updated_desc';
@@ -87,7 +88,8 @@ function readResourceTypeFilter(value: unknown): ResourceFilterType {
   if (
     resourceType === 'assignment' ||
     resourceType === 'practice_guide' ||
-    resourceType === 'resource_folder'
+    resourceType === 'resource_folder' ||
+    resourceType === 'roleplay'
   ) {
     return resourceType;
   }
@@ -113,6 +115,10 @@ function buildResourceDetailPath(resource: StoredResource): string {
     return `/practice-modules/${encodeURIComponent(resource.id)}`;
   }
 
+  if (resource.type === 'roleplay') {
+    return `/roleplays/${encodeURIComponent(resource.id)}`;
+  }
+
   return `/resources/folders/${encodeURIComponent(resource.id)}`;
 }
 
@@ -134,6 +140,14 @@ function buildResourceAction(resource: StoredResource): {
       actionLabel: 'Comenzar',
       actionMethod: 'post',
       actionPath: `/practice-modules/${encodeURIComponent(resource.id)}/chats`,
+    };
+  }
+
+  if (resource.type === 'roleplay') {
+    return {
+      actionLabel: 'Comenzar',
+      actionMethod: 'post',
+      actionPath: `/roleplays/${encodeURIComponent(resource.id)}/attempts`,
     };
   }
 
@@ -174,6 +188,12 @@ function buildResourceListItem(resource: StoredAccessibleResource): ResourceList
       headerClass: 'bg-info-subtle text-info-emphasis',
       iconClass: 'bi-folder',
       label: 'Carpeta',
+    },
+    roleplay: {
+      badgeClass: 'text-bg-warning',
+      headerClass: 'bg-warning-subtle text-warning-emphasis',
+      iconClass: 'bi-person-video3',
+      label: 'Roleplay',
     },
   }[resource.type];
   const action = buildResourceAction(resource);
@@ -218,6 +238,7 @@ const resourceTypeSortRank: Record<StoredResource['type'], number> = {
   resource_folder: 0,
   assignment: 1,
   practice_guide: 2,
+  roleplay: 3,
 };
 
 function compareResourceTitles(left: StoredResource, right: StoredResource): number {
@@ -287,6 +308,21 @@ function filterAndSortResources(
 function readResourceShareMode(value: unknown): 'link' | 'profile' | '' {
   const shareMode = readField(value, 20);
   return shareMode === 'link' || shareMode === 'profile' ? shareMode : '';
+}
+
+function buildResourceLogDetails(input: {
+  profileId?: string | null;
+  resource: Pick<StoredResource, 'id' | 'profileId' | 'type' | 'userId'>;
+  userId: string;
+}): Record<string, unknown> {
+  return {
+    ownerProfileId: input.resource.profileId,
+    ownerUserId: input.resource.userId,
+    profileId: input.profileId ?? null,
+    resourceId: input.resource.id,
+    resourceType: input.resource.type,
+    userId: input.userId,
+  };
 }
 
 export async function renderResourcesListPage(
@@ -468,6 +504,14 @@ export function handleAcceptSharedResourceLink(
     shareLinkId: shareLink.id,
     userId: auth.user.id,
   });
+  logger.info('resource_share_link_accepted', {
+    ...buildResourceLogDetails({
+      profileId: auth.activeProfile.id,
+      resource,
+      userId: auth.user.id,
+    }),
+    shareLinkId: shareLink.id,
+  });
 
   response.redirect(buildResourceDetailPath(resource));
 }
@@ -494,6 +538,14 @@ export function handleShareResourceToProfile(request: Request, response: Respons
     resourceId: resource.id,
     userId: auth.user.id,
   });
+  logger.info('resource_shared_with_profile', {
+    ...buildResourceLogDetails({
+      profileId: resource.profileId,
+      resource,
+      userId: auth.user.id,
+    }),
+    targetProfileId: targetProfile.id,
+  });
 
   response.redirect(returnTo);
 }
@@ -517,6 +569,14 @@ export function handleCreateResourceFolder(request: Request, response: Response)
     profileId: auth.activeProfile.id,
     title,
     userId: auth.user.id,
+  });
+  logger.info('resource_folder_created', {
+    ...buildResourceLogDetails({
+      profileId: auth.activeProfile.id,
+      resource: folder,
+      userId: auth.user.id,
+    }),
+    parentFolderId: parentFolderId || null,
   });
   if (parentFolderId) {
     addResourceToFolder({
@@ -551,6 +611,16 @@ export function handleUpdateResourceFolder(request: Request, response: Response)
     title,
     userId: auth.user.id,
   });
+  const updatedFolder = findResourceForUser(folderId, auth.user.id);
+  if (updatedFolder) {
+    logger.info('resource_folder_updated', {
+      ...buildResourceLogDetails({
+        profileId: updatedFolder.profileId,
+        resource: updatedFolder,
+        userId: auth.user.id,
+      }),
+    });
+  }
 
   response.redirect(returnTo);
 }
@@ -561,7 +631,17 @@ export function handleArchiveResource(request: Request, response: Response): voi
     return;
   }
 
-  archiveResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (resource) {
+    archiveResourceForUser(resource.id, auth.user.id);
+    logger.info('resource_archived', {
+      ...buildResourceLogDetails({
+        profileId: resource.profileId,
+        resource,
+        userId: auth.user.id,
+      }),
+    });
+  }
   response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 
@@ -571,7 +651,17 @@ export function handleRestoreResource(request: Request, response: Response): voi
     return;
   }
 
-  restoreResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (resource) {
+    restoreResourceForUser(resource.id, auth.user.id);
+    logger.info('resource_restored', {
+      ...buildResourceLogDetails({
+        profileId: resource.profileId,
+        resource,
+        userId: auth.user.id,
+      }),
+    });
+  }
   response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 
@@ -581,11 +671,22 @@ export function handleMoveResourceToFolder(request: Request, response: Response)
     return;
   }
 
-  addResourceToFolder({
-    folderId: readField(request.body.folderId, 100),
-    resourceId: readField(request.params.resourceId, 100),
+  const folderId = readField(request.body.folderId, 100);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (resource && addResourceToFolder({
+    folderId,
+    resourceId: resource.id,
     userId: auth.user.id,
-  });
+  })) {
+    logger.info('resource_moved_to_folder', {
+      ...buildResourceLogDetails({
+        profileId: resource.profileId,
+        resource,
+        userId: auth.user.id,
+      }),
+      folderId,
+    });
+  }
   response.redirect(normalizeReturnTo(request.body.returnTo));
 }
 
@@ -595,10 +696,21 @@ export function handleRemoveResourceFromFolder(request: Request, response: Respo
     return;
   }
 
-  removeResourceFromFolder({
-    folderId: readField(request.params.folderId, 100),
-    resourceId: readField(request.params.resourceId, 100),
+  const folderId = readField(request.params.folderId, 100);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (resource && removeResourceFromFolder({
+    folderId,
+    resourceId: resource.id,
     userId: auth.user.id,
-  });
+  })) {
+    logger.info('resource_removed_from_folder', {
+      ...buildResourceLogDetails({
+        profileId: resource.profileId,
+        resource,
+        userId: auth.user.id,
+      }),
+      folderId,
+    });
+  }
   response.redirect(normalizeReturnTo(request.body.returnTo));
 }

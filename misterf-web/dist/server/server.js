@@ -17,6 +17,7 @@ import { redirectIncompleteProfileOnboarding } from './profiles/onboardingMiddle
 import { profileOnboardingRouter, profilesRouter } from './profiles/routes.js';
 import { progressRouter } from './progress/routes.js';
 import { resourcesRouter } from './resources/routes.js';
+import { roleplaysRouter } from './roleplays/routes.js';
 import { settingsRouter } from './settings/routes.js';
 import { logger } from './services/logger.js';
 import { registerChatSocket } from './socket/chatSocket.js';
@@ -48,6 +49,7 @@ app.use(superadminRouter);
 app.use(resourcesRouter);
 app.use(practiceModulesRouter);
 app.use(assignmentsRouter);
+app.use(roleplaysRouter);
 app.use(profilesRouter);
 app.use(settingsRouter);
 app.use(paymentsRouter);

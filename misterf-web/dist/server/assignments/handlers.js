@@ -1,9 +1,9 @@
 import QRCode from 'qrcode';
-import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listAssignmentAttemptsForUser, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringMessages, } from '../db/repository.js';
+import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, createPracticeModule, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listAssignmentAttemptsForUser, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendAssignmentBlock, assignmentDraftToStudentQuizBlock, buildAssignmentEvaluationSummary, buildAssignmentResultTitle, createAssignmentDraftFromManualInput, duplicateAssignmentBlock, evaluateAssignmentAttempt, moveAssignmentBlock, normalizeAssignmentResponses, removeAssignmentBlock, safeParseAssignmentDraft, } from '../services/assignments.js';
-import { generateAssignmentBlock, generateAssignmentDraft, generateAssignmentRevision, } from '../services/resourceDrafts.js';
+import { generateAssignmentBlock, generateAssignmentDraft, generateAssignmentRevision, generatePracticeModuleDraft, } from '../services/resourceDrafts.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordAssignmentAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
@@ -225,6 +225,61 @@ function appendGuestToken(pathname, attempt) {
     const separator = pathname.includes('?') ? '&' : '?';
     return `${pathname}${separator}guestToken=${encodeURIComponent(attempt.guestToken)}`;
 }
+function buildAssignmentResultPath(attempt, params = {}) {
+    const searchParams = new URLSearchParams(params);
+    if (attempt.guestToken) {
+        searchParams.set('guestToken', attempt.guestToken);
+    }
+    const query = searchParams.toString();
+    const path = `/assignment-attempts/${encodeURIComponent(attempt.id)}/result`;
+    return query ? `${path}?${query}` : path;
+}
+function readAssignmentResultActionError(value) {
+    const code = readField(value, 40);
+    if (code === 'credit') {
+        return {
+            resultActionError: getCreditExhaustedMessage(),
+            resultActionErrorIsCredit: true,
+        };
+    }
+    if (code === 'practice-guide') {
+        return {
+            resultActionError: 'No pude crear la guía de práctica ahora mismo. Inténtalo otra vez.',
+            resultActionErrorIsCredit: false,
+        };
+    }
+    return {
+        resultActionError: '',
+        resultActionErrorIsCredit: false,
+    };
+}
+function buildAssignmentPracticeGuidePrompt(input) {
+    const summary = buildAssignmentEvaluationSummary(input.result);
+    const payload = {
+        assignment: {
+            blocks: input.draft.blocks,
+            description: input.draft.description,
+            instructions: input.draft.instructions,
+            level: input.draft.level,
+            targetTopic: input.draft.targetTopic,
+            title: input.draft.title,
+        },
+        evaluation: input.result,
+        learnerResponses: input.attempt.responses,
+        summary,
+    };
+    return [
+        'Create a reusable Mister F practice guide from this completed assignment result.',
+        'Mister F is an English-learning product. The guide must help the learner practice English, not Spanish.',
+        'Use Spanish for the guide title, description, and tutor instructions, but make the target language and learner production English unless the source assignment explicitly tests comprehension in Spanish.',
+        'Focus on the learner\'s incorrect and partial answers, repeated English difficulties, missing vocabulary, grammar patterns, and useful follow-up practice.',
+        'Tell Mr. F to guide one exercise item at a time. If a checkpoint is useful, describe it explicitly as a quiz or checkpoint.',
+        'Do not include internal JSON, implementation details, or product flow notes in the generated guide.',
+        '',
+        'Completed assignment data:',
+        JSON.stringify(payload, null, 2),
+    ].join('\n');
+}
 function assignmentToDraftOrRedirect(assignment, response) {
     const draft = safeParseAssignmentDraft(assignment.quiz);
     if (!draft) {
@@ -421,6 +476,7 @@ function renderAssignmentResult(request, response, attempt) {
         return;
     }
     const summary = buildAssignmentEvaluationSummary(result.data);
+    const actionError = readAssignmentResultActionError(request.query.guideError);
     renderAssignmentsView(response, 'assignments-result', {
         ...buildAssignmentsShellContext(request, {
             activeProfile: request.activeProfile ?? null,
@@ -433,6 +489,7 @@ function renderAssignmentResult(request, response, attempt) {
         resultBlockJson: serializeViewJson(result.data),
         resultBlock: result.data,
         resultTitle: buildAssignmentResultTitle(result.data),
+        ...actionError,
         summary,
     });
 }
@@ -490,6 +547,8 @@ export async function handleGenerateAssignment(request, response) {
             assignmentId: assignment.id,
             blockCount: draft.blocks.length,
             profileId: auth.activeProfile.id,
+            resourceId: assignment.id,
+            resourceType: 'assignment',
             userId: auth.user.id,
         });
         response.redirect(buildAssignmentAuthoringPath(assignment.id, defaultAssignmentAuthoringTab));
@@ -591,6 +650,8 @@ export async function handleReviseAssignment(request, response) {
         logger.info('assignment_revised', {
             assignmentId: resolved.assignment.id,
             blockCount: revisedDraft.blocks.length,
+            resourceId: resolved.assignment.id,
+            resourceType: 'assignment',
             userId: resolved.user.id,
         });
         response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'chat'));
@@ -608,6 +669,8 @@ export async function handleReviseAssignment(request, response) {
         logger.error('assignment_revision_failed', {
             assignmentId: resolved.assignment.id,
             error,
+            resourceId: resolved.assignment.id,
+            resourceType: 'assignment',
             userId: resolved.user.id,
         });
         renderAssignmentAuthoring(request, response.status(422), {
@@ -656,6 +719,8 @@ export async function handleAddAssignmentBlock(request, response) {
             assignmentId: resolved.assignment.id,
             blockCount: updatedDraft.blocks.length,
             blockKind: block.item.kind,
+            resourceId: resolved.assignment.id,
+            resourceType: 'assignment',
             userId: resolved.user.id,
         });
         response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks'));
@@ -664,6 +729,8 @@ export async function handleAddAssignmentBlock(request, response) {
         logger.error('assignment_block_generation_failed', {
             assignmentId: resolved.assignment.id,
             error,
+            resourceId: resolved.assignment.id,
+            resourceType: 'assignment',
             userId: resolved.user.id,
         });
         renderAssignmentAuthoring(request, response.status(422), {
@@ -710,6 +777,8 @@ function updateDraftBlocks(request, response, updater, options = {}) {
         assignmentId: resolved.assignment.id,
         blockCount: updatedDraft.blocks.length,
         blockId,
+        resourceId: resolved.assignment.id,
+        resourceType: 'assignment',
         userId: resolved.user.id,
     });
     response.redirect(buildAssignmentAuthoringPath(resolved.assignment.id, 'blocks', options.focusMovedBlock ? buildAssignmentBlockAnchorId(blockId) : undefined));
@@ -889,10 +958,7 @@ export function handleStartAssignmentTestAttempt(request, response) {
     }
     const attempt = createAssignmentAttempt({
         assignmentId: resolved.assignment.id,
-        isPreview: resolved.canManageAssignment,
-        profileId: resolved.canManageAssignment
-            ? resolved.assignment.profileId
-            : resolved.activeProfile.id,
+        profileId: resolved.activeProfile.id,
         snapshot: draft,
         userId: resolved.user.id,
     });
@@ -900,8 +966,9 @@ export function handleStartAssignmentTestAttempt(request, response) {
         assignmentId: resolved.assignment.id,
         attemptId: attempt.id,
         isGuest: false,
-        isPreview: true,
         profileId: attempt.profileId,
+        resourceId: resolved.assignment.id,
+        resourceType: 'assignment',
         userId: attempt.userId,
     });
     response.redirect(`/assignment-attempts/${encodeURIComponent(attempt.id)}`);
@@ -939,8 +1006,9 @@ export async function handleSubmitAssignmentAttempt(request, response) {
         assignmentId: attempt.assignmentId,
         attemptId: attempt.id,
         isGuest: !attempt.userId,
-        isPreview: attempt.isPreview,
         responseCount: responses.length,
+        resourceId: attempt.assignmentId,
+        resourceType: 'assignment',
         userId: attempt.userId,
     });
     const evaluatingAttempt = submittedAttempt
@@ -954,16 +1022,8 @@ export async function handleSubmitAssignmentAttempt(request, response) {
         return;
     }
     try {
-        const previewEvaluatorLlm = evaluatingAttempt.isPreview && evaluatingAttempt.userId
-            ? {
-                modelTier: request.activeProfile?.modelTier ?? 'regular',
-                openRouterApiKey: await getCreditCheckedOpenRouterApiKeyForUser(evaluatingAttempt.userId),
-                userId: evaluatingAttempt.userId,
-            }
-            : undefined;
         const result = await evaluateAssignmentAttempt({
             attempt: evaluatingAttempt,
-            llm: previewEvaluatorLlm,
         });
         const evaluatedAttempt = saveAssignmentAttemptResult({
             attemptId: evaluatingAttempt.id,
@@ -976,7 +1036,8 @@ export async function handleSubmitAssignmentAttempt(request, response) {
             assignmentId: attempt.assignmentId,
             attemptId: attempt.id,
             isGuest: !attempt.userId,
-            isPreview: attempt.isPreview,
+            resourceId: attempt.assignmentId,
+            resourceType: 'assignment',
             summary: buildAssignmentEvaluationSummary(result),
             userId: attempt.userId,
         });
@@ -987,6 +1048,8 @@ export async function handleSubmitAssignmentAttempt(request, response) {
             assignmentId: attempt.assignmentId,
             attemptId: attempt.id,
             error,
+            resourceId: attempt.assignmentId,
+            resourceType: 'assignment',
             userId: attempt.userId,
         });
         const failedAttempt = markAssignmentAttemptFailed(attempt.id) ?? attempt;
@@ -1069,8 +1132,82 @@ export function handleCreateAssignmentFollowUpConversation(request, response) {
         attemptId: attempt.id,
         conversationId: conversation.id,
         profileId: attempt.profileId,
+        resourceId: attempt.assignmentId,
+        resourceType: 'assignment',
         userId: auth.user.id,
     });
     response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
+}
+export async function handleCreateAssignmentPracticeGuide(request, response) {
+    let attempt = resolveAccessibleAttempt(request, response);
+    if (!attempt) {
+        return;
+    }
+    const auth = ensureVerifiedAssignmentUser(request, response);
+    if (!auth) {
+        return;
+    }
+    if (!attempt.userId && attempt.claimToken) {
+        attempt = attachAssignmentAttemptToUser({
+            attemptId: attempt.id,
+            claimToken: attempt.claimToken,
+            profileId: auth.activeProfile.id,
+            userId: auth.user.id,
+        });
+        if (attempt) {
+            recordAssignmentAttemptProgress(attempt);
+        }
+    }
+    if (!attempt || attempt.userId !== auth.user.id || !attempt.profileId) {
+        response.redirect('/login');
+        return;
+    }
+    const draft = safeParseAssignmentDraft(attempt.snapshot);
+    const result = attempt.result ? quizResultBlockSchema.safeParse(attempt.result) : null;
+    if (!draft || !result?.success || attempt.status !== 'evaluated') {
+        response.redirect(`/assignment-attempts/${encodeURIComponent(attempt.id)}`);
+        return;
+    }
+    try {
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
+        const generatedModule = await generatePracticeModuleDraft({
+            openRouterApiKey,
+            prompt: buildAssignmentPracticeGuidePrompt({
+                attempt,
+                draft,
+                result: result.data,
+            }),
+        });
+        const practiceModule = createPracticeModule({
+            description: generatedModule.description,
+            profileId: attempt.profileId,
+            title: generatedModule.title,
+            tutorInstructions: generatedModule.tutorInstructions,
+            userId: auth.user.id,
+        });
+        logger.info('assignment_practice_guide_created', {
+            assignmentId: attempt.assignmentId,
+            attemptId: attempt.id,
+            practiceModuleId: practiceModule.id,
+            profileId: attempt.profileId,
+            resourceId: attempt.assignmentId,
+            resourceType: 'assignment',
+            userId: auth.user.id,
+        });
+        response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+    }
+    catch (error) {
+        logger.error('assignment_practice_guide_creation_failed', {
+            assignmentId: attempt.assignmentId,
+            attemptId: attempt.id,
+            error,
+            resourceId: attempt.assignmentId,
+            resourceType: 'assignment',
+            userId: auth.user.id,
+        });
+        response.redirect(buildAssignmentResultPath(attempt, {
+            guideError: isCreditExhaustedError(error) ? 'credit' : 'practice-guide',
+        }));
+    }
 }
 //# sourceMappingURL=handlers.js.map

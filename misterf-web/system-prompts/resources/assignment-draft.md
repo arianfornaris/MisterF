@@ -117,7 +117,14 @@ Use {{blank}} once per blank.
 }
 
 Quality rules:
-- Write title, description, targetTopic, instructions, prompts, accepted answers, and visible learner text in Spanish unless the user clearly asks for another language.
+- Mister F is an English-learning product. The assignment must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.
+- Write title, description, targetTopic, instructions, prompts, and visible learner instructions in Spanish unless the user clearly asks for another language.
+- Keep the target learner output in English for `quiz_open_text`, `quiz_translate_to_english`, `quiz_fill_in_the_blank_input`, `quiz_fill_in_the_blank_choice`, `quiz_multiple_choice`, `quiz_matching_pairs`, and `quiz_unscramble_sentence`.
+- Use Spanish only as source language for `quiz_translate_to_english`, as the expected explanation language for `quiz_understand_in_spanish`, or as learner-facing instructions.
+- For `quiz_understand_in_spanish`, the sentence must be in English and acceptableAnswers must be Spanish explanations of the English meaning.
+- For `quiz_translate_to_english`, the sentence may be Spanish, but acceptableAnswers must be natural English translations.
+- For fill-in-the-blank and unscramble items, the sentence being completed or reconstructed should normally be English.
+- Do not create exercises that grade Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.
 - Keep the task focused on one coherent learning goal or a tight cluster of related goals.
 - Mix item types when that helps learning, but do not force variety at the expense of clarity.
 - For open-ended items, make the prompt specific enough that the evaluator can judge the answer from the item and assignment context.

@@ -8,8 +8,9 @@ students to practice targeted class material with AI-assisted feedback. It
 combines:
 
 - a one-on-one tutor chat experience
-- reusable practice modules
+- reusable practice guides
 - teacher-authored assignments
+- roleplay resources for English production in fictional scenarios
 - a unified resource catalog with folders
 - post-conversation analysis and practice generation
 - profile-scoped personalization, including model selection
@@ -33,7 +34,7 @@ The system is designed around structured LLM output rather than free-form text r
 - dialogue turns and transcripts
 - visible tutor plan
 - quiz
-- practice module link
+- practice guide link
 
 This lets the client render dedicated interactive components instead of treating every assistant response as plain markdown.
 
@@ -50,14 +51,14 @@ Key characteristics:
 
 - real-time delivery through Socket.IO
 - structured model responses validated on the server
-- optional practice module context
+- optional practice guide context
 - optional finalized tutor conversation report context
 - interactive exercises embedded in the message stream
 - finalizable conversations with structured summaries and follow-up practice
 
-### Practice Modules
+### Practice Guides
 
-Practice modules are reusable tutoring configurations.
+Practice guides are reusable tutoring configurations.
 
 They contain:
 
@@ -66,7 +67,7 @@ They contain:
 - tutor instructions
 - profile ownership and sharing metadata
 
-Practice modules can be:
+Practice guides can be:
 
 - created manually
 - AI-generated from a short prompt
@@ -93,6 +94,22 @@ It should let teachers:
 This area reuses the existing `quiz` and `quiz_result` contracts while
 remaining a standalone resource flow rather than a fake chat conversation.
 
+### Roleplays
+
+Roleplays are reusable English-production resources.
+
+Users can:
+
+- create a two-character scenario from a natural-language prompt
+- revise the scenario with AI or edit it manually
+- share it through the generic resource-sharing model
+- launch a dedicated writing attempt where the learner plays one character
+- finish the attempt and receive AI evaluation by learner turn
+- start follow-up tutor practice from the evaluated result
+
+Roleplays are resource-shaped practice activities, not a replacement for the
+removed standalone chat-room area.
+
 ### Tutor Conversation Reports
 
 One-on-one tutor conversations can be finalized and summarized.
@@ -104,12 +121,12 @@ Users can:
 - inspect a structured summary of progress, difficulty areas, vocabulary, and
   recommendations
 - start a new tutor conversation from that summary
-- generate a practice module from that summary
+- generate a practice guide from that summary
 
 ### Learner Progress
 
-Completed tutor conversations and evaluated assignments contribute to a
-profile-scoped progress view.
+Completed tutor conversations, evaluated assignments, and evaluated roleplay
+attempts contribute to a profile-scoped progress view.
 
 Users can inspect:
 

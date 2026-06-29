@@ -39,7 +39,7 @@ The first V1 implementation is in place:
 - Blocks are numbered for human reference and keep stable internal ids.
 - Teachers can update metadata, reorder, delete, duplicate, and AI-generate
   blocks.
-- Teachers can share assignments and run test attempts with `Probar`.
+- Teachers can share assignments and run normal attempts with `Probar`.
 - Students can complete shared links as guests.
 - Shared-student evaluation is product-funded and free to the student.
 - Authenticated attempts update learner progress.
@@ -80,9 +80,9 @@ Rationale:
 
 ## Relationship To Existing Features
 
-### Practice Modules
+### Practice Guides
 
-Practice modules are reusable tutoring configurations. They tell Mr. F how to
+Practice guides are reusable tutoring configurations. They tell Mr. F how to
 conduct a practice conversation.
 
 Teacher-assigned practice is different:
@@ -94,8 +94,9 @@ Teacher-assigned practice is different:
 - it can update progress immediately
 - it can offer follow-up tutoring after evaluation
 
-The new navigation entry can live under `Módulos de práctica` because both are
-teacher-authored practice resources, but the workflows should stay separate.
+The unified `Recursos` navigation can show both practice guides and assignments
+because both are teacher-authored practice resources, but the workflows should
+stay separate.
 
 ### Quiz Blocks
 
@@ -151,7 +152,7 @@ management system.
 Included:
 
 - authenticated users can create assignments
-- assignments belong to a profile, like practice modules
+- assignments belong to a profile, like practice guides
 - assignments can be listed, viewed, edited, archived, and shared
 - assignment content uses the quiz item contract
 - assignment creation is an AI-assisted authoring workflow
@@ -160,9 +161,9 @@ Included:
 - teachers can use a `Bloques` tab to reorder, delete, duplicate, edit, and add
   assignment blocks
 - adding a block uses a block-type chooser followed by an AI prompt modal
-- teachers can run a teacher test attempt from the student perspective
-- assignment AI generation, single-block generation, revision, and teacher test
-  evaluation are credit-gated for the teacher
+- teachers can run the student-facing attempt flow from their own profile
+- assignment AI generation, single-block generation, and revision are
+  credit-gated for the teacher
 - shared assignments can be completed by students without an account
 - AI evaluates the student's completed shared attempt for free
 - authenticated evaluated attempts update learner progress immediately
@@ -191,8 +192,8 @@ infrastructure while preserving room for a deeper teacher product later.
 ### Sidebar
 
 Assignments now live under the unified `Recursos` catalog. Earlier V1 notes
-placed `Tareas` near `Módulos de práctica` and `Salas de chat`, but the resource
-navigation model supersedes that sidebar layout.
+placed `Tareas` near old practice-module and chat-room entries, but the
+resource navigation model supersedes that sidebar layout.
 
 The empty state can say:
 
@@ -200,7 +201,7 @@ The empty state can say:
 
 ### List Page
 
-Follow the practice module resource workflow and visual structure.
+Follow the practice guide resource workflow and visual structure.
 
 Primary controls:
 
@@ -389,25 +390,24 @@ execute the Tarea exactly as a student will receive it.
 Test requirements:
 
 - launch from the authoring page header
-- create a teacher-owned test attempt with `is_preview = true`
+- create a normal authenticated attempt for the active profile
 - render the same student-facing assignment layout used by shared links
 - hide authoring controls, validation badges, and teacher-only notes
 - preserve the current assignment order and block numbers
 - show student-facing title, description, instructions, item prompts, and
   expected interactions
 - support desktop and mobile responsive layouts
-- avoid writing attempts, progress, or analytics that imply a real student
-  started the assignment
+- authenticated evaluated attempts write progress for the active profile
 - avoid LLM usage unless the teacher explicitly submits answers for evaluation
 
 The teacher should also be able to test the full student flow:
 
-- the teacher can open a student-style test attempt
+- the teacher can open the same student-style attempt flow
 - the teacher can answer the assignment themselves
-- the teacher can submit the test attempt to see the evaluation behavior
-- teacher test attempts do not update learner progress
-- teacher test evaluation is part of the paid authoring workflow, not the
-  free guest-student evaluation policy
+- the teacher can submit the attempt to see the evaluation behavior
+- authenticated evaluated attempts update learner progress
+- assignment evaluation follows the same product-funded policy regardless of
+  whether the respondent owns the Tarea
 
 The workspace should avoid making the teacher choose between "form editing" and
 "AI editing". Manual edits, assistant revisions, and teacher testing all operate
@@ -542,11 +542,11 @@ Primary follow-up actions:
    desired block in an AI prompt modal.
 9. The teacher can ask Mr. F for broader revisions in the `AI chat` tab.
 10. The teacher can click `Probar` to execute the exact student-facing Tarea.
-11. The teacher can submit the test attempt for AI evaluation.
+11. The teacher can submit the attempt for AI evaluation.
 12. Each AI generation or revision validates the updated payload against the
    quiz item contract before replacing the current draft.
-13. Optional teacher test evaluation is treated as authoring usage and is
-   charged to the teacher's account.
+13. Assignment evaluation follows the same product-funded policy as student
+   Tarea evaluation.
 14. When ready, the teacher saves the assignment as an owned resource.
 15. The teacher shares the assignment link.
 
@@ -652,7 +652,7 @@ If follow-up tutoring is implemented as a snapshot source, store:
 - response JSON
 - result JSON
 
-This mirrors the existing practice module and report snapshot approach.
+This mirrors the existing practice guide and report snapshot approach.
 
 ## LLM And Credit Boundaries
 
@@ -661,9 +661,9 @@ LLM calls can happen when:
 - the teacher generates an assignment draft with AI
 - the teacher generates a single new block from the add-block modal
 - the teacher asks for an AI revision during authoring
-- the teacher submits a test attempt for AI evaluation during authoring
 - the teacher creates or saves a Tarea through the credit-gated creation flow
 - the student submits an assignment for free evaluation
+- an authenticated user submits a Tarea attempt for free evaluation
 - the student starts follow-up tutoring from a result
 
 Teacher creation is account-required and credit-gated. AI draft generation,
@@ -900,7 +900,7 @@ Scope:
 - Add EJS views that follow the existing resource page conventions.
 - Add static, manually-authored assignment JSON support for development and
   debugging.
-- Add a `Probar` action that creates a teacher-owned test attempt.
+- Add a `Probar` action that creates a normal authenticated attempt.
 
 Exit criteria:
 
@@ -997,16 +997,16 @@ Goal: let the teacher inspect and optionally test the full student experience.
 Scope:
 
 - Finalize teacher test attempts as the exact shared-link student layout.
-- Add optional teacher test attempt mode with `is_preview = true`.
+- Use normal authenticated attempts instead of a separate preview attempt mode.
 - Allow the teacher to submit test answers for evaluation.
-- Credit-gate teacher test evaluation.
-- Ensure teacher test attempts do not update learner progress.
+- Use the same product-funded evaluation policy as normal Tarea attempts.
+- Ensure evaluated attempts update learner progress consistently.
 
 Exit criteria:
 
-- Starting a test attempt does not consume LLM credits.
-- Submitting test answers for evaluation consumes teacher authoring credits.
-- No test activity appears as real student progress.
+- Starting an attempt does not consume LLM credits.
+- Submitting answers follows the product-funded Tarea evaluation policy.
+- Authenticated evaluated attempts appear in learner progress.
 
 ### Slice 8: Shared Student Runtime
 

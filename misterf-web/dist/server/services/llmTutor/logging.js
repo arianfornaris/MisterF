@@ -147,6 +147,8 @@ function buildLlmLogBase(context, details = {}) {
         operation: context.operation ?? 'tutor',
         profileId: context.profileId ?? null,
         provider: env.llmProvider,
+        resourceId: context.resourceId ?? null,
+        resourceType: context.resourceType ?? null,
         turn: details.turn,
         userId: context.userId ?? context.llm?.userId ?? null,
     };

@@ -76,6 +76,11 @@ Rules:
 - If the response is blank or missing, mark it as `incorrect`.
 - For objective items, rely on the accepted/correct answers provided in the quiz data.
 - For open answers, translations, and explanations, evaluate meaning, clarity, and adequacy, not just exact wording.
+- This quiz is for English learning. By default, evaluate the learner's English production, English comprehension, English grammar, vocabulary, word order, spelling, punctuation, and idiomatic phrasing.
+- Do not evaluate Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.
+- For `quiz_translate_to_english`, evaluate the English translation, even when the source sentence is Spanish.
+- For `quiz_understand_in_spanish`, evaluate whether the learner's Spanish answer correctly explains the meaning of the English sentence; only mention Spanish wording if it prevents understanding.
+- For Spanish prompts or instructions, do not treat the Spanish prompt language as the language being practiced.
 - For `parts`, use the learner's own response text and split it into meaningful fragments. Do not invent replacement text. Keep the fragments in reading order.
 - Every fragment or section that you mark as problematic must include a concrete explanation. Do not leave flagged sections without explanation.
 - For `blanks`, return exactly one entry per blank, in the same order as the exercise.

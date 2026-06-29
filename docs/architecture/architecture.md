@@ -173,11 +173,11 @@ Prompt families are separated by responsibility:
 
 - `tutor/*`: main tutor system and related structured correction/evaluation prompts
 - `tutor/blocks/*`: source-of-truth tutor response block protocol files
-- `resources/*`: draft and revision generation for assignments and practice modules
+- `resources/*`: draft and revision generation for assignments and practice guides
 
 Tutor prompts also include finalized conversation reporting prompts. Those
 generate tutor conversation summaries, repair invalid report JSON, convert tutor
-reports into practice modules, and provide report context to new tutor
+reports into practice guides, and provide report context to new tutor
 conversations.
 
 Prompt rendering is handled server-side, which keeps prompt text versioned in the repository and out of application code strings.
@@ -251,13 +251,13 @@ turn. The server rejects no-op and generic titles, suppresses automatic updates
 after manual or already-specific titles, and marks explicit learner-requested
 renames as user updates.
 
-### Practice module tools
+### Practice guide tools
 
 Defined in:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceModuleTools.ts`
 
-Tools:
+Tools currently keep legacy internal names:
 
 - `list_practice_modules`
 - `create_practice_module`
@@ -265,16 +265,16 @@ Tools:
 - `delete_practice_module`
 - `build_practice_module_link`
 
-Practice module tools are reserved for explicit learner-mandated saved-module
+Practice guide tools are reserved for explicit learner-mandated saved-guide
 administration. Visible tutor plans, generic practice requests, completed
-exercises, and conversations already attached to a module must remain in the
+exercises, and conversations already attached to a guide must remain in the
 tutor response protocol unless the learner explicitly asks for that exact saved
-module action.
+guide action.
 
 `create_practice_module` must only run when the learner explicitly asks for or
-explicitly confirms creating a saved "módulo"/"module". A request for a plan,
-new plan, route, guide, exercise sequence, review, or next step is not a module
-creation request.
+explicitly confirms creating a saved "guía"/"guide" (or uses the legacy
+"módulo"/"module" wording). A request for a plan, new plan, route, exercise
+sequence, review, or next step is not a saved guide creation request.
 
 ### Learner progress tools
 

@@ -11,14 +11,15 @@ practice class topics with structured AI-assisted feedback. V1 includes:
 - Account auth, email verification, password reset, Google OAuth, and
   superadmin access.
 - Stripe Checkout credit purchases backed by managed OpenRouter user keys.
-- Share/import flows for supported resources.
+- Live sharing flows for supported resources.
 - Client critical-error telemetry and structured server runtime logs.
 
-Teacher-facing work includes shareable assignments where a human teacher uses
-an AI-assisted authoring workflow to create and revise a quiz-like practice
-sequence, students complete it individually, AI evaluates the attempt for free
-to the student, and students can then create an account to save progress or
-continue with Mr. F under the standard credit policy.
+Teacher-facing work includes assignments where a human teacher uses an
+AI-assisted authoring workflow to create and revise a quiz-like practice
+sequence. Current generic resource sharing requires recipients to use an
+account. A later assignment-specific public flow should let students complete
+and receive free AI evaluation before account creation, then require an account
+for saved progress or follow-up practice.
 
 ## Stack
 

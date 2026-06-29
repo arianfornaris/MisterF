@@ -1,0 +1,135 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view roleplays-page roleplay-attempt-page">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div>
+      <p class="resource-eyebrow">Roleplay</p>
+      <h1 class="resource-page-title"><%= draft.title %></h1>
+      <% if (draft.description) { %>
+        <div class="resource-page-copy resource-markdown" data-render-markdown><%= draft.description %></div>
+      <% } %>
+    </div>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/roleplays/<%= encodeURIComponent(attempt.roleplayId) %>"
+        aria-label="Cerrar"
+        title="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <div
+    class="alert alert-danger mt-3 <%= attemptError ? '' : 'd-none' %>"
+    role="alert"
+    data-roleplay-turn-error
+  ><%= attemptError %></div>
+
+  <div class="roleplay-stage">
+    <div
+      class="roleplay-transcript"
+      data-roleplay-transcript
+      data-learner-name="<%= learnerCharacter.name %>"
+      data-ai-name="<%= aiCharacter.name %>"
+    >
+      <article class="roleplay-turn is-scenario">
+        <div class="roleplay-turn-avatar" aria-hidden="true">
+          <i class="bi bi-compass"></i>
+        </div>
+        <div class="roleplay-turn-body">
+          <div class="roleplay-turn-speaker">Situación</div>
+          <div class="roleplay-turn-text resource-markdown" data-render-markdown><%= draft.scenario %></div>
+          <div class="resource-meta-row mt-2">
+            <span><i class="bi bi-person" aria-hidden="true"></i> Tú: <%= learnerCharacter.name %></span>
+            <span><i class="bi bi-person-video3" aria-hidden="true"></i> IA: <%= aiCharacter.name %></span>
+            <% if (draft.maxLearnerTurns) { %>
+              <span data-roleplay-turn-counter data-max-turns="<%= draft.maxLearnerTurns %>"><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= learnerTurnCount %>/<%= draft.maxLearnerTurns %> turnos</span>
+            <% } %>
+          </div>
+        </div>
+      </article>
+      <% attempt.turns.forEach((turn) => { %>
+        <% const isLearner = turn.speaker === 'learner'; %>
+        <% const speaker = isLearner ? learnerCharacter : aiCharacter; %>
+        <article class="roleplay-turn <%= isLearner ? 'is-learner' : 'is-ai' %>">
+          <div class="roleplay-turn-avatar" aria-hidden="true">
+            <i class="bi <%= isLearner ? 'bi-person' : 'bi-person-video3' %>"></i>
+          </div>
+          <div class="roleplay-turn-body">
+            <div class="roleplay-turn-speaker"><%= speaker.name %></div>
+            <div class="<%= isLearner ? 'roleplay-turn-text' : 'inline-character-text' %> resource-markdown" data-render-markdown><%= turn.text %></div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+
+    <% if (attempt.status === 'in_progress') { %>
+      <% if (!hasReachedTurnLimit) { %>
+        <form class="roleplay-response-form" method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/turns" data-roleplay-turn-form>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <label class="visually-hidden" for="roleplayTurnText">Tu turno como <%= learnerCharacter.name %></label>
+          <div class="roleplay-response-input-wrap">
+            <textarea
+              class="roleplay-response-textarea"
+              id="roleplayTurnText"
+              name="text"
+              rows="2"
+              placeholder="Escribe tu turno como <%= learnerCharacter.name %>"
+              required
+              autofocus
+            ></textarea>
+          </div>
+          <div class="roleplay-response-actions">
+            <button
+              class="btn btn-outline-secondary"
+              type="submit"
+              form="finishRoleplayAttemptForm"
+            >
+              Finalizar y resumir
+            </button>
+            <button
+              class="btn btn-primary ms-auto"
+              type="submit"
+              data-roleplay-pending-submit
+              data-loading-text="Continuando..."
+            >
+              <i class="bi bi-send me-1" aria-hidden="true"></i>Enviar turno
+            </button>
+          </div>
+        </form>
+      <% } else { %>
+        <div class="alert alert-info mb-0" role="status">Llegaste al límite de turnos de este Roleplay.</div>
+        <div class="d-flex justify-content-end mt-3">
+          <button class="btn btn-primary" type="submit" form="finishRoleplayAttemptForm">Finalizar y resumir</button>
+        </div>
+      <% } %>
+      <form id="finishRoleplayAttemptForm" class="d-none" method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/finish" data-roleplay-pending-form>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      </form>
+    <% } else if (attempt.status === 'failed') { %>
+      <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/finish" data-roleplay-pending-form>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-primary" type="submit" data-roleplay-pending-submit data-loading-text="Evaluando...">
+          Reintentar evaluación
+        </button>
+      </form>
+    <% } else { %>
+      <div class="alert alert-info mb-0" role="status">Este intento está siendo evaluado.</div>
+    <% } %>
+  </div>
+</section>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-roleplay-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Procesando el Roleplay...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'roleplays-client-script' }) %>

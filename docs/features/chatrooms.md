@@ -4,7 +4,7 @@ Status: removed from the active product in Resource Simplification V2 Slice 7.
 
 The former `Salas de chat` feature let users create multi-character group chat
 scenarios, run plain-text conversations, evaluate those conversations, and
-generate follow-up practice modules from the resulting report.
+generate follow-up practice guides from the resulting report.
 
 This feature is no longer an active product area:
 
@@ -15,7 +15,7 @@ This feature is no longer an active product area:
 - the tutor runtime no longer receives chatroom report context or chatroom
   tools
 
-The useful learning idea behind chatrooms may return later as `Diálogos`, but
+The useful learning idea behind chatrooms may return later as `Roleplay`, but
 that should be a new resource-shaped feature rather than a direct restoration
 of the old room/conversation/report model.
 

@@ -36,7 +36,7 @@ export class PracticeModuleView {
       return;
     }
 
-    this.titleEl.textContent = autoStarting ? '' : practiceModule.title || 'Módulo de práctica';
+    this.titleEl.textContent = autoStarting ? '' : practiceModule.title || 'Guía de Práctica';
     this.descriptionEl.textContent = autoStarting ? '' : practiceModule.description || '';
     this.statusEl.classList.toggle('d-none', !autoStarting);
     this.buttonEl.classList.toggle('d-none', autoStarting);

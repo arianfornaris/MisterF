@@ -27,7 +27,7 @@ import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFaci
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
-import type { StoredConversation, StoredTutorPlan } from '../../db/repository.js';
+import type { ResourceType, StoredConversation, StoredTutorPlan } from '../../db/repository.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 import { logger } from '../logger.js';
 import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResponseBlock, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseValidator } from './types.js';
@@ -103,6 +103,20 @@ function parseJsonFromModelText(text: string): unknown {
     const message = error instanceof Error ? error.message : 'Invalid JSON';
     throw new Error(`JSON parsing failed: ${message}`);
   }
+}
+
+function buildTutorResourceLogContext(options: {
+  currentPracticeModuleId?: string | null;
+}): {
+  resourceId?: string;
+  resourceType?: ResourceType;
+} {
+  return options.currentPracticeModuleId
+    ? {
+        resourceId: options.currentPracticeModuleId,
+        resourceType: 'practice_guide',
+      }
+    : {};
 }
 
 function extractEmbeddedTutorResponseJson(text: string): string | null {
@@ -216,6 +230,13 @@ export async function runTutorAgentLoop(
       responsesJson: string;
       resultJson: string;
     } | null;
+    roleplayAttempt?: {
+      resultJson: string;
+      roleplayDescription: string;
+      roleplaySnapshotJson: string;
+      roleplayTitle: string;
+      turnsJson: string;
+    } | null;
     practiceModule?: {
       description: string;
       title: string;
@@ -242,6 +263,7 @@ export async function runTutorAgentLoop(
     ...options,
     tutorPlanText: formatTutorPlanForModel(options.tutorPlan ?? null),
   });
+  const resourceLogContext = buildTutorResourceLogContext(options);
   let lastError: unknown = null;
   const practiceModuleTools = buildTutorPracticeModuleTools({
     currentPracticeModuleId: options.currentPracticeModuleId ?? null,
@@ -270,7 +292,12 @@ export async function runTutorAgentLoop(
     : undefined;
 
   for (let turn = 0; turn < maxAgentTurns; turn += 1) {
-    logLlmRequest(messages, system, options, turn + 1);
+    logLlmRequest(
+      messages,
+      system,
+      { ...options, ...resourceLogContext },
+      turn + 1,
+    );
 
     try {
       const result = await generateText({
@@ -290,6 +317,7 @@ export async function runTutorAgentLoop(
         llm: options.llm,
         operation: 'tutor',
         profileId: options.profileId ?? null,
+        ...resourceLogContext,
         steps: result.steps,
         turn: turn + 1,
         userId: options.userId ?? null,
@@ -342,6 +370,7 @@ export async function runTutorAgentLoop(
                 llm: options.llm,
                 operation: 'tutor',
                 profileId: options.profileId ?? null,
+                ...resourceLogContext,
                 rawText: result.text,
                 turn: turn + 1,
                 userId: options.userId ?? null,
@@ -381,6 +410,7 @@ export async function runTutorAgentLoop(
                 llm: options.llm,
                 operation: 'tutor',
                 profileId: options.profileId ?? null,
+                ...resourceLogContext,
                 rawText: effectiveResult.text,
                 turn: turn + 1,
                 userId: options.userId ?? null,
@@ -403,6 +433,7 @@ export async function runTutorAgentLoop(
           llm: options.llm,
           operation: 'tutor',
           profileId: options.profileId ?? null,
+          ...resourceLogContext,
           userId: options.userId ?? null,
         },
       );

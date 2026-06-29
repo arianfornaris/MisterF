@@ -30,7 +30,7 @@ export type StoredConversation = {
   updatedAt: string;
 };
 
-export type ResourceType = 'assignment' | 'practice_guide' | 'resource_folder';
+export type ResourceType = 'assignment' | 'practice_guide' | 'resource_folder' | 'roleplay';
 export type ResourceShareKind = 'link' | 'profile';
 
 export type StoredResource = {
@@ -310,7 +310,6 @@ export type StoredAssignmentAttempt = {
   evaluatedAt: string | null;
   guestToken: string | null;
   id: string;
-  isPreview: boolean;
   profileId: string | null;
   progressEventId: number | null;
   responses: unknown[];
@@ -333,6 +332,75 @@ export type StoredConversationAssignmentAttemptSnapshot = {
   createdAt: string;
   responses: unknown[];
   result: Record<string, unknown>;
+};
+
+export type RoleplayAuthoringMessage = {
+  content: string;
+  createdAt: string;
+  draftSnapshot?: Record<string, unknown>;
+  role: 'assistant' | 'user';
+};
+
+export type RoleplayCharacter = {
+  description: string;
+  id: string;
+  name: string;
+};
+
+export type RoleplayTurn = {
+  characterId: string;
+  createdAt: string;
+  speaker: 'ai' | 'learner';
+  text: string;
+};
+
+export type StoredRoleplay = {
+  archivedAt: string | null;
+  authoringMessages: RoleplayAuthoringMessage[];
+  characters: RoleplayCharacter[];
+  createdAt: string;
+  description: string;
+  id: string;
+  level: string;
+  maxLearnerTurns: number | null;
+  pedagogicalFocus: string;
+  profileId: string;
+  scenario: string;
+  sharedVia: 'link' | 'profile' | null;
+  sourceProfileId: string | null;
+  sourceRoleplayId: string | null;
+  sourceUserId: string | null;
+  title: string;
+  updatedAt: string;
+  userId: string;
+};
+
+export type StoredRoleplayAttempt = {
+  createdAt: string;
+  evaluatedAt: string | null;
+  id: string;
+  profileId: string | null;
+  progressEventId: number | null;
+  result: Record<string, unknown> | null;
+  roleplayId: string;
+  snapshot: Record<string, unknown>;
+  startedAt: string;
+  status: 'draft' | 'evaluated' | 'evaluating' | 'failed' | 'in_progress';
+  submittedAt: string | null;
+  turns: RoleplayTurn[];
+  updatedAt: string;
+  userId: string | null;
+};
+
+export type StoredConversationRoleplayAttemptSnapshot = {
+  conversationId: string;
+  createdAt: string;
+  result: Record<string, unknown>;
+  roleplayAttemptId: string;
+  roleplayDescription: string;
+  roleplaySnapshot: Record<string, unknown>;
+  roleplayTitle: string;
+  turns: RoleplayTurn[];
 };
 
 export type StoredLearnerProgressSummary = {
@@ -358,12 +426,15 @@ export type StoredLearnerProgressEventDetails = {
   practiced: string[];
   progress: string[];
   recommendations: string[];
+  resourceId?: string;
+  resourceType?: ResourceType;
   vocabulary: string[];
 };
 
 export type LearnerProgressSourceType =
   | 'assignment_attempt'
   | 'chat_room_conversation_report'
+  | 'roleplay_attempt'
   | 'tutor_conversation_report';
 
 export type StoredLearnerProgressEvent = {
@@ -685,7 +756,6 @@ type AssignmentAttemptRow = {
   evaluated_at: string | null;
   guest_token: string | null;
   id: string;
-  is_preview: number;
   profile_id: string | null;
   progress_event_id: number | null;
   responses_json: string;
@@ -708,6 +778,55 @@ type ConversationAssignmentAttemptSnapshotRow = {
   created_at: string;
   responses_json: string;
   result_json: string;
+};
+
+type RoleplayRow = {
+  archived_at: string | null;
+  authoring_messages_json: string;
+  characters_json: string;
+  created_at: string;
+  description: string;
+  id: string;
+  level: string;
+  max_learner_turns: number | null;
+  pedagogical_focus: string;
+  profile_id: string;
+  scenario: string;
+  shared_via: 'link' | 'profile' | null;
+  source_profile_id: string | null;
+  source_roleplay_id: string | null;
+  source_user_id: string | null;
+  title: string;
+  updated_at: string;
+  user_id: string;
+};
+
+type RoleplayAttemptRow = {
+  created_at: string;
+  evaluated_at: string | null;
+  id: string;
+  profile_id: string | null;
+  progress_event_id: number | null;
+  result_json: string | null;
+  roleplay_id: string;
+  snapshot_json: string;
+  started_at: string;
+  status: 'draft' | 'evaluated' | 'evaluating' | 'failed' | 'in_progress';
+  submitted_at: string | null;
+  turns_json: string;
+  updated_at: string;
+  user_id: string | null;
+};
+
+type ConversationRoleplayAttemptSnapshotRow = {
+  conversation_id: string;
+  created_at: string;
+  result_json: string;
+  roleplay_attempt_id: string;
+  roleplay_description: string;
+  roleplay_snapshot_json: string;
+  roleplay_title: string;
+  turns_json: string;
 };
 
 type LearnerProgressProfileRow = {
@@ -978,6 +1097,91 @@ function parseAssignmentAuthoringMessages(
     .slice(-50);
 }
 
+function parseStringArray(value: string | null | undefined, maxItemLength = 180): string[] {
+  return parseJsonArray(value)
+    .flatMap((item): string[] => {
+      if (typeof item !== 'string') {
+        return [];
+      }
+
+      const normalized = item.replace(/\s+/g, ' ').trim().slice(0, maxItemLength);
+      return normalized ? [normalized] : [];
+    })
+    .slice(0, 24);
+}
+
+function parseRoleplayAuthoringMessages(
+  value: string | null | undefined,
+): RoleplayAuthoringMessage[] {
+  return parseJsonArray(value)
+    .flatMap((item): RoleplayAuthoringMessage[] => {
+      if (!isPlainRecord(item)) {
+        return [];
+      }
+
+      const role = item.role;
+      const content = typeof item.content === 'string' ? item.content.trim() : '';
+      if ((role !== 'assistant' && role !== 'user') || !content) {
+        return [];
+      }
+
+      return [{
+        content,
+        createdAt: typeof item.createdAt === 'string' ? item.createdAt.trim() : '',
+        draftSnapshot: isPlainRecord(item.draftSnapshot) ? item.draftSnapshot : undefined,
+        role,
+      }];
+    })
+    .slice(-50);
+}
+
+function parseRoleplayCharacters(value: string | null | undefined): RoleplayCharacter[] {
+  return parseJsonArray(value)
+    .flatMap((item): RoleplayCharacter[] => {
+      if (!isPlainRecord(item)) {
+        return [];
+      }
+
+      const id = readStringFromRecord(item, 'id').slice(0, 64);
+      const name = readStringFromRecord(item, 'name').slice(0, 120);
+      if (!id || !name) {
+        return [];
+      }
+
+      return [{
+        description: readStringFromRecord(item, 'description').slice(0, 1200),
+        id,
+        name,
+      }];
+    })
+    .slice(0, 2);
+}
+
+function parseRoleplayTurns(value: string | null | undefined): RoleplayTurn[] {
+  return parseJsonArray(value)
+    .flatMap((item): RoleplayTurn[] => {
+      if (!isPlainRecord(item)) {
+        return [];
+      }
+
+      const speaker = item.speaker === 'ai' || item.speaker === 'learner'
+        ? item.speaker
+        : null;
+      const text = readStringFromRecord(item, 'text').slice(0, 4000);
+      if (!speaker || !text) {
+        return [];
+      }
+
+      return [{
+        characterId: readStringFromRecord(item, 'characterId').slice(0, 64),
+        createdAt: readStringFromRecord(item, 'createdAt') || new Date().toISOString(),
+        speaker,
+        text,
+      }];
+    })
+    .slice(0, 80);
+}
+
 function toStoredAssignment(row: AssignmentRow): StoredAssignment {
   return {
     archivedAt: row.archived_at,
@@ -1019,7 +1223,6 @@ function toStoredAssignmentAttempt(row: AssignmentAttemptRow): StoredAssignmentA
     evaluatedAt: row.evaluated_at,
     guestToken: row.guest_token,
     id: row.id,
-    isPreview: Boolean(row.is_preview),
     profileId: row.profile_id,
     progressEventId: row.progress_event_id,
     responses: parseJsonArray(row.responses_json),
@@ -1046,6 +1249,63 @@ function toStoredConversationAssignmentAttemptSnapshot(
     createdAt: row.created_at,
     responses: parseJsonArray(row.responses_json),
     result: parseJsonRecord(row.result_json),
+  };
+}
+
+function toStoredRoleplay(row: RoleplayRow): StoredRoleplay {
+  return {
+    archivedAt: row.archived_at,
+    authoringMessages: parseRoleplayAuthoringMessages(row.authoring_messages_json),
+    characters: parseRoleplayCharacters(row.characters_json),
+    createdAt: row.created_at,
+    description: row.description,
+    id: row.id,
+    level: row.level,
+    maxLearnerTurns: row.max_learner_turns,
+    pedagogicalFocus: row.pedagogical_focus,
+    profileId: row.profile_id,
+    scenario: row.scenario,
+    sharedVia: row.shared_via,
+    sourceProfileId: row.source_profile_id,
+    sourceRoleplayId: row.source_roleplay_id,
+    sourceUserId: row.source_user_id,
+    title: row.title,
+    updatedAt: row.updated_at,
+    userId: row.user_id,
+  };
+}
+
+function toStoredRoleplayAttempt(row: RoleplayAttemptRow): StoredRoleplayAttempt {
+  return {
+    createdAt: row.created_at,
+    evaluatedAt: row.evaluated_at,
+    id: row.id,
+    profileId: row.profile_id,
+    progressEventId: row.progress_event_id,
+    result: row.result_json ? parseJsonRecord(row.result_json) : null,
+    roleplayId: row.roleplay_id,
+    snapshot: parseJsonRecord(row.snapshot_json),
+    startedAt: row.started_at,
+    status: row.status,
+    submittedAt: row.submitted_at,
+    turns: parseRoleplayTurns(row.turns_json),
+    updatedAt: row.updated_at,
+    userId: row.user_id,
+  };
+}
+
+function toStoredConversationRoleplayAttemptSnapshot(
+  row: ConversationRoleplayAttemptSnapshotRow,
+): StoredConversationRoleplayAttemptSnapshot {
+  return {
+    conversationId: row.conversation_id,
+    createdAt: row.created_at,
+    result: parseJsonRecord(row.result_json),
+    roleplayAttemptId: row.roleplay_attempt_id,
+    roleplayDescription: row.roleplay_description,
+    roleplaySnapshot: parseJsonRecord(row.roleplay_snapshot_json),
+    roleplayTitle: row.roleplay_title,
+    turns: parseRoleplayTurns(row.turns_json),
   };
 }
 
@@ -1090,16 +1350,32 @@ function parseLearnerProgressEventDetails(
 
   try {
     const parsed = JSON.parse(detailsJson) as Partial<StoredLearnerProgressEventDetails>;
+    const resourceType = typeof parsed.resourceType === 'string' && isKnownResourceType(parsed.resourceType)
+      ? parsed.resourceType
+      : undefined;
     return {
       difficulties: Array.isArray(parsed.difficulties) ? parsed.difficulties : [],
       practiced: Array.isArray(parsed.practiced) ? parsed.practiced : [],
       progress: Array.isArray(parsed.progress) ? parsed.progress : [],
       recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+      ...(typeof parsed.resourceId === 'string' && parsed.resourceId
+        ? { resourceId: parsed.resourceId }
+        : {}),
+      ...(resourceType ? { resourceType } : {}),
       vocabulary: Array.isArray(parsed.vocabulary) ? parsed.vocabulary : [],
     };
   } catch {
     return fallback;
   }
+}
+
+function isKnownResourceType(value: string): value is ResourceType {
+  return (
+    value === 'assignment' ||
+    value === 'practice_guide' ||
+    value === 'resource_folder' ||
+    value === 'roleplay'
+  );
 }
 
 function toStoredLearnerProgressProfile(
@@ -2142,6 +2418,15 @@ export function archiveResourceForUser(
           WHERE id = ? AND user_id = ?
         `,
       ).run(resourceId, userId);
+    } else if (resource.type === 'roleplay') {
+      db.prepare(
+        `
+          UPDATE roleplays
+          SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
     }
   });
 
@@ -2174,6 +2459,15 @@ export function restoreResourceForUser(
       db.prepare(
         `
           UPDATE practice_modules
+          SET archived_at = NULL,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ? AND user_id = ?
+        `,
+      ).run(resourceId, userId);
+    } else if (resource.type === 'roleplay') {
+      db.prepare(
+        `
+          UPDATE roleplays
           SET archived_at = NULL,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -4433,7 +4727,6 @@ export function getOrCreateAssignmentShareLink(
 
 export function createAssignmentAttempt(input: {
   assignmentId: string;
-  isPreview?: boolean;
   profileId?: string | null;
   snapshot: Record<string, unknown>;
   userId?: string | null;
@@ -4452,10 +4745,9 @@ export function createAssignmentAttempt(input: {
           profile_id,
           guest_token,
           claim_token,
-          is_preview,
           snapshot_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -4465,7 +4757,6 @@ export function createAssignmentAttempt(input: {
       input.profileId ?? null,
       guestToken,
       claimToken,
-      input.isPreview ? 1 : 0,
       JSON.stringify(input.snapshot),
     );
 
@@ -4488,7 +4779,6 @@ export function findAssignmentAttemptById(id: string): StoredAssignmentAttempt |
           evaluated_at,
           guest_token,
           id,
-          is_preview,
           profile_id,
           progress_event_id,
           responses_json,
@@ -4529,7 +4819,6 @@ export function findAssignmentAttemptByGuestToken(
           evaluated_at,
           guest_token,
           id,
-          is_preview,
           profile_id,
           progress_event_id,
           responses_json,
@@ -4562,7 +4851,6 @@ export function findAssignmentAttemptByClaimToken(
           evaluated_at,
           guest_token,
           id,
-          is_preview,
           profile_id,
           progress_event_id,
           responses_json,
@@ -4584,7 +4872,6 @@ export function findAssignmentAttemptByClaimToken(
 
 export function listAssignmentAttemptsForUser(input: {
   assignmentId?: string;
-  includePreview?: boolean;
   profileId: string;
   userId: string;
 }): StoredAssignmentAttempt[] {
@@ -4598,7 +4885,6 @@ export function listAssignmentAttemptsForUser(input: {
           evaluated_at,
           guest_token,
           id,
-          is_preview,
           profile_id,
           progress_event_id,
           responses_json,
@@ -4613,7 +4899,6 @@ export function listAssignmentAttemptsForUser(input: {
         WHERE user_id = ?
           AND profile_id = ?
           AND (? IS NULL OR assignment_id = ?)
-          AND (? = 1 OR is_preview = 0)
         ORDER BY created_at DESC
       `,
     )
@@ -4622,7 +4907,6 @@ export function listAssignmentAttemptsForUser(input: {
       input.profileId,
       input.assignmentId ?? null,
       input.assignmentId ?? null,
-      input.includePreview ? 1 : 0,
     ) as AssignmentAttemptRow[];
 
   return rows.map(toStoredAssignmentAttempt);
@@ -4759,6 +5043,14 @@ export function createConversationFromAssignmentAttempt(input: {
   );
 
   createConversationAssignmentAttemptSnapshot(conversation.id, input.attempt);
+  addResourceSourceNoticeMessage(conversation.id, {
+    attemptId: input.attempt.id,
+    resourceId: input.attempt.assignmentId,
+    resourcePath: `/assignments/${encodeURIComponent(input.attempt.assignmentId)}`,
+    resultPath: `/assignment-attempts/${encodeURIComponent(input.attempt.id)}/result`,
+    title,
+    type: 'assignment',
+  });
   return conversation;
 }
 
@@ -4826,12 +5118,596 @@ export function getConversationAssignmentAttemptSnapshot(
   return row ? toStoredConversationAssignmentAttemptSnapshot(row) : null;
 }
 
+const roleplaySelectColumns = `
+  archived_at,
+  authoring_messages_json,
+  characters_json,
+  created_at,
+  description,
+  id,
+  level,
+  max_learner_turns,
+  pedagogical_focus,
+  profile_id,
+  scenario,
+  shared_via,
+  source_profile_id,
+  source_roleplay_id,
+  source_user_id,
+  title,
+  updated_at,
+  user_id
+`;
+
+export function createRoleplay(input: {
+  authoringMessages?: RoleplayAuthoringMessage[];
+  characters: RoleplayCharacter[];
+  description?: string;
+  level?: string;
+  maxLearnerTurns?: number | null;
+  pedagogicalFocus?: string;
+  profileId: string;
+  scenario?: string;
+  sharedVia?: 'link' | 'profile' | null;
+  sourceProfileId?: string | null;
+  sourceRoleplayId?: string | null;
+  sourceUserId?: string | null;
+  title: string;
+  userId: string;
+}): StoredRoleplay {
+  const id = randomUUID();
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    insertResource(db, {
+      description: input.description ?? '',
+      id,
+      level: input.level ?? '',
+      profileId: input.profileId,
+      sharedVia: input.sharedVia ?? null,
+      sourceProfileId: input.sourceProfileId ?? null,
+      sourceResourceId: input.sourceRoleplayId ?? null,
+      sourceUserId: input.sourceUserId ?? null,
+      title: input.title,
+      topic: '',
+      type: 'roleplay',
+      userId: input.userId,
+    });
+    db.prepare(
+      `
+        INSERT INTO roleplays (
+          id,
+          user_id,
+          profile_id,
+          title,
+          description,
+          scenario,
+          level,
+          pedagogical_focus,
+          max_learner_turns,
+          characters_json,
+          authoring_messages_json,
+          source_roleplay_id,
+          source_user_id,
+          source_profile_id,
+          shared_via
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+    ).run(
+      id,
+      input.userId,
+      input.profileId,
+      input.title,
+      input.description ?? '',
+      input.scenario ?? '',
+      input.level ?? '',
+      input.pedagogicalFocus ?? '',
+      input.maxLearnerTurns ?? null,
+      JSON.stringify(input.characters),
+      JSON.stringify(input.authoringMessages ?? []),
+      input.sourceRoleplayId ?? null,
+      input.sourceUserId ?? null,
+      input.sourceProfileId ?? null,
+      input.sharedVia ?? null,
+    );
+  });
+
+  transaction();
+
+  const roleplay = findRoleplayForUser(id, input.userId);
+  if (!roleplay) {
+    throw new Error('Could not load newly created roleplay.');
+  }
+
+  return roleplay;
+}
+
+export function findRoleplayForUser(
+  id: string,
+  userId: string,
+): StoredRoleplay | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT ${roleplaySelectColumns}
+        FROM roleplays
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .get(id, userId) as RoleplayRow | undefined;
+
+  return row ? toStoredRoleplay(row) : null;
+}
+
+export function findRoleplayById(id: string): StoredRoleplay | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT ${roleplaySelectColumns}
+        FROM roleplays
+        WHERE id = ?
+      `,
+    )
+    .get(id) as RoleplayRow | undefined;
+
+  return row ? toStoredRoleplay(row) : null;
+}
+
+export function updateRoleplay(input: {
+  authoringMessages?: RoleplayAuthoringMessage[];
+  characters: RoleplayCharacter[];
+  description: string;
+  level: string;
+  maxLearnerTurns: number | null;
+  pedagogicalFocus: string;
+  roleplayId: string;
+  scenario: string;
+  title: string;
+  userId: string;
+}): StoredRoleplay | null {
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    updateResourceMetadata(db, {
+      description: input.description,
+      id: input.roleplayId,
+      level: input.level,
+      title: input.title,
+      topic: '',
+      userId: input.userId,
+    });
+    db.prepare(
+      `
+        UPDATE roleplays
+        SET title = ?,
+            description = ?,
+            scenario = ?,
+            level = ?,
+            pedagogical_focus = ?,
+            max_learner_turns = ?,
+            characters_json = ?,
+            authoring_messages_json = COALESCE(?, authoring_messages_json),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(
+      input.title,
+      input.description,
+      input.scenario,
+      input.level,
+      input.pedagogicalFocus,
+      input.maxLearnerTurns,
+      JSON.stringify(input.characters),
+      input.authoringMessages === undefined
+        ? null
+        : JSON.stringify(input.authoringMessages),
+      input.roleplayId,
+      input.userId,
+    );
+  });
+
+  transaction();
+  return findRoleplayForUser(input.roleplayId, input.userId);
+}
+
+export function updateRoleplayAuthoringMessages(input: {
+  messages: RoleplayAuthoringMessage[];
+  roleplayId: string;
+  userId: string;
+}): StoredRoleplay | null {
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    db.prepare(
+      `
+        UPDATE resources
+        SET updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(input.roleplayId, input.userId);
+    db.prepare(
+      `
+        UPDATE roleplays
+        SET authoring_messages_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(
+      JSON.stringify(input.messages),
+      input.roleplayId,
+      input.userId,
+    );
+  });
+
+  transaction();
+  return findRoleplayForUser(input.roleplayId, input.userId);
+}
+
+export function archiveRoleplayForUser(
+  roleplayId: string,
+  userId: string,
+): StoredRoleplay | null {
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    archiveResource(db, roleplayId, userId);
+    db.prepare(
+      `
+        UPDATE roleplays
+        SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(roleplayId, userId);
+  });
+
+  transaction();
+  return findRoleplayForUser(roleplayId, userId);
+}
+
+export function restoreRoleplayForUser(
+  roleplayId: string,
+  userId: string,
+): StoredRoleplay | null {
+  const db = getDb();
+  const transaction = db.transaction(() => {
+    restoreResource(db, roleplayId, userId);
+    db.prepare(
+      `
+        UPDATE roleplays
+        SET archived_at = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    ).run(roleplayId, userId);
+  });
+
+  transaction();
+  return findRoleplayForUser(roleplayId, userId);
+}
+
+export function createRoleplayAttempt(input: {
+  profileId?: string | null;
+  roleplayId: string;
+  snapshot: Record<string, unknown>;
+  turns: RoleplayTurn[];
+  userId?: string | null;
+}): StoredRoleplayAttempt {
+  const id = randomUUID();
+  getDb()
+    .prepare(
+      `
+        INSERT INTO roleplay_attempts (
+          id,
+          roleplay_id,
+          user_id,
+          profile_id,
+          status,
+          snapshot_json,
+          turns_json
+        )
+        VALUES (?, ?, ?, ?, 'in_progress', ?, ?)
+      `,
+    ).run(
+      id,
+      input.roleplayId,
+      input.userId ?? null,
+      input.profileId ?? null,
+      JSON.stringify(input.snapshot),
+      JSON.stringify(input.turns),
+    );
+
+  const attempt = findRoleplayAttemptById(id);
+  if (!attempt) {
+    throw new Error('Could not load newly created roleplay attempt.');
+  }
+
+  return attempt;
+}
+
+export function findRoleplayAttemptById(id: string): StoredRoleplayAttempt | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          created_at,
+          evaluated_at,
+          id,
+          profile_id,
+          progress_event_id,
+          result_json,
+          roleplay_id,
+          snapshot_json,
+          started_at,
+          status,
+          submitted_at,
+          turns_json,
+          updated_at,
+          user_id
+        FROM roleplay_attempts
+        WHERE id = ?
+      `,
+    )
+    .get(id) as RoleplayAttemptRow | undefined;
+
+  return row ? toStoredRoleplayAttempt(row) : null;
+}
+
+export function listRoleplayAttemptsForUser(input: {
+  profileId: string;
+  roleplayId?: string;
+  userId: string;
+}): StoredRoleplayAttempt[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          created_at,
+          evaluated_at,
+          id,
+          profile_id,
+          progress_event_id,
+          result_json,
+          roleplay_id,
+          snapshot_json,
+          started_at,
+          status,
+          submitted_at,
+          turns_json,
+          updated_at,
+          user_id
+        FROM roleplay_attempts
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND (? IS NULL OR roleplay_id = ?)
+        ORDER BY created_at DESC
+      `,
+    )
+    .all(
+      input.userId,
+      input.profileId,
+      input.roleplayId ?? null,
+      input.roleplayId ?? null,
+    ) as RoleplayAttemptRow[];
+
+  return rows.map(toStoredRoleplayAttempt);
+}
+
+export function appendRoleplayAttemptTurns(input: {
+  attemptId: string;
+  turns: RoleplayTurn[];
+}): StoredRoleplayAttempt | null {
+  const attempt = findRoleplayAttemptById(input.attemptId);
+  if (!attempt || attempt.status !== 'in_progress') {
+    return attempt;
+  }
+
+  getDb()
+    .prepare(
+      `
+        UPDATE roleplay_attempts
+        SET turns_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(
+      JSON.stringify([...attempt.turns, ...input.turns]),
+      input.attemptId,
+    );
+
+  return findRoleplayAttemptById(input.attemptId);
+}
+
+export function submitRoleplayAttempt(attemptId: string): StoredRoleplayAttempt | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE roleplay_attempts
+        SET status = 'evaluating',
+            submitted_at = COALESCE(submitted_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND status IN ('in_progress', 'failed')
+      `,
+    ).run(attemptId);
+
+  return findRoleplayAttemptById(attemptId);
+}
+
+export function saveRoleplayAttemptResult(input: {
+  attemptId: string;
+  result: Record<string, unknown>;
+}): StoredRoleplayAttempt | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE roleplay_attempts
+        SET result_json = ?,
+            status = 'evaluated',
+            evaluated_at = COALESCE(evaluated_at, CURRENT_TIMESTAMP),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(JSON.stringify(input.result), input.attemptId);
+
+  return findRoleplayAttemptById(input.attemptId);
+}
+
+export function markRoleplayAttemptFailed(
+  attemptId: string,
+): StoredRoleplayAttempt | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE roleplay_attempts
+        SET status = 'failed',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(attemptId);
+
+  return findRoleplayAttemptById(attemptId);
+}
+
+export function setRoleplayAttemptProgressEvent(input: {
+  attemptId: string;
+  progressEventId: number;
+}): StoredRoleplayAttempt | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE roleplay_attempts
+        SET progress_event_id = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    ).run(input.progressEventId, input.attemptId);
+
+  return findRoleplayAttemptById(input.attemptId);
+}
+
+export function createConversationFromRoleplayAttempt(input: {
+  attempt: StoredRoleplayAttempt;
+  profileId: string;
+  userId: string;
+}): StoredConversation {
+  const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
+  const conversation = createConversation(
+    input.userId,
+    input.profileId,
+    `Practicar: ${title}`,
+  );
+
+  createConversationRoleplayAttemptSnapshot(conversation.id, input.attempt);
+  addResourceSourceNoticeMessage(conversation.id, {
+    attemptId: input.attempt.id,
+    resourceId: input.attempt.roleplayId,
+    resourcePath: `/roleplays/${encodeURIComponent(input.attempt.roleplayId)}`,
+    resultPath: `/roleplay-attempts/${encodeURIComponent(input.attempt.id)}/result`,
+    title,
+    type: 'roleplay',
+  });
+  return conversation;
+}
+
+export function createConversationRoleplayAttemptSnapshot(
+  conversationId: string,
+  attempt: StoredRoleplayAttempt,
+): StoredConversationRoleplayAttemptSnapshot {
+  getDb()
+    .prepare(
+      `
+        INSERT OR REPLACE INTO conversation_roleplay_attempt_snapshots (
+          conversation_id,
+          roleplay_attempt_id,
+          roleplay_title,
+          roleplay_description,
+          roleplay_snapshot_json,
+          turns_json,
+          result_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+    ).run(
+      conversationId,
+      attempt.id,
+      readStringFromRecord(attempt.snapshot, 'title'),
+      readStringFromRecord(attempt.snapshot, 'description'),
+      JSON.stringify(attempt.snapshot),
+      JSON.stringify(attempt.turns),
+      JSON.stringify(attempt.result ?? {}),
+    );
+
+  const snapshot = getConversationRoleplayAttemptSnapshot(conversationId);
+  if (!snapshot) {
+    throw new Error('Could not load conversation roleplay-attempt snapshot.');
+  }
+
+  return snapshot;
+}
+
+export function getConversationRoleplayAttemptSnapshot(
+  conversationId: string,
+): StoredConversationRoleplayAttemptSnapshot | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT
+          conversation_id,
+          created_at,
+          result_json,
+          roleplay_attempt_id,
+          roleplay_description,
+          roleplay_snapshot_json,
+          roleplay_title,
+          turns_json
+        FROM conversation_roleplay_attempt_snapshots
+        WHERE conversation_id = ?
+      `,
+    )
+    .get(conversationId) as ConversationRoleplayAttemptSnapshotRow | undefined;
+
+  return row ? toStoredConversationRoleplayAttemptSnapshot(row) : null;
+}
+
 function readStringFromRecord(
   record: Record<string, unknown>,
   key: string,
 ): string {
   const value = record[key];
   return typeof value === 'string' ? value : '';
+}
+
+function addResourceSourceNoticeMessage(
+  conversationId: string,
+  input: {
+    attemptId: string;
+    resourceId: string;
+    resourcePath: string;
+    resultPath: string;
+    title: string;
+    type: 'assignment' | 'roleplay';
+  },
+): void {
+  const resourceLabel = input.type === 'assignment' ? 'la tarea' : 'el Roleplay';
+  const fallbackTitle = input.type === 'assignment' ? 'esta tarea' : 'este Roleplay';
+  const title = escapeMarkdownLinkText(input.title || fallbackTitle);
+  addMessage(
+    conversationId,
+    'model',
+    [
+      `Esta conversación se deriva de ${resourceLabel} [${title}](${input.resourcePath}) y de su [resultado](${input.resultPath}).`,
+      'Vamos a practicar a partir de las dificultades encontradas.',
+    ].join('\n\n'),
+    {
+      resourceSourceNotice: {
+        attemptId: input.attemptId,
+        resourceId: input.resourceId,
+        type: input.type,
+      },
+    },
+  );
+}
+
+function escapeMarkdownLinkText(value: string): string {
+  return value.replace(/([\\\[\]])/g, '\\$1');
 }
 
 export function createPracticeModule(input: {

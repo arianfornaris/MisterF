@@ -1,4 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { logger } from '../services/logger.js';
 import { requireSessionSecret } from './session.js';
 const tokenTtlMs = 2 * 60 * 60 * 1000;
 export function csrfProtection(request, response, next) {
@@ -10,7 +11,18 @@ export function csrfProtection(request, response, next) {
     const token = typeof request.body?._csrf === 'string'
         ? request.body._csrf
         : '';
-    if (!isSameOrigin(request) || !verifyCsrfToken(token)) {
+    const sameOrigin = isSameOrigin(request);
+    const tokenValidation = validateCsrfToken(token);
+    if (!sameOrigin || !tokenValidation.valid) {
+        let reason = 'cross_origin';
+        if (sameOrigin && !tokenValidation.valid) {
+            reason = tokenValidation.reason;
+        }
+        logCsrfValidationFailure(request, {
+            reason,
+            sameOrigin,
+            token,
+        });
         response.status(403).send('Invalid CSRF token.');
         return;
     }
@@ -22,16 +34,22 @@ function createCsrfToken() {
     const body = `${exp}.${nonce}`;
     return `${body}.${sign(body)}`;
 }
-function verifyCsrfToken(token) {
+function validateCsrfToken(token) {
+    if (!token) {
+        return { reason: 'missing_token', valid: false };
+    }
     const [exp, nonce, signature, extra] = token.split('.');
     if (!exp || !nonce || !signature || extra) {
-        return false;
+        return { reason: 'malformed_token', valid: false };
     }
     const expiresAt = Number.parseInt(exp, 10);
     if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) {
-        return false;
+        return { reason: 'expired_token', valid: false };
     }
-    return safeEquals(signature, sign(`${exp}.${nonce}`));
+    if (!safeEquals(signature, sign(`${exp}.${nonce}`))) {
+        return { reason: 'invalid_signature', valid: false };
+    }
+    return { valid: true };
 }
 function isSameOrigin(request) {
     const origin = request.get('origin');
@@ -51,5 +69,19 @@ function safeEquals(left, right) {
     const rightBuffer = Buffer.from(right);
     return (leftBuffer.length === rightBuffer.length &&
         timingSafeEqual(leftBuffer, rightBuffer));
+}
+function logCsrfValidationFailure(request, details) {
+    logger.warn('csrf_validation_failed', {
+        contentType: request.get('content-type') ?? null,
+        hasToken: Boolean(details.token),
+        host: request.get('host') ?? null,
+        method: request.method,
+        origin: request.get('origin') ?? null,
+        path: request.path,
+        reason: details.reason,
+        requestCredentialsPresent: Boolean(request.get('cookie')),
+        sameOrigin: details.sameOrigin,
+        statusCode: 403,
+    });
 }
 //# sourceMappingURL=csrf.js.map

@@ -1,0 +1,2 @@
+function e(e=document){for(let t of e.querySelectorAll(`.list-group-item .dropdown`))t.addEventListener(`show.bs.dropdown`,()=>{t.closest(`.list-group-item`)?.classList.add(`dropdown-open`)}),t.addEventListener(`hide.bs.dropdown`,()=>{t.closest(`.list-group-item`)?.classList.remove(`dropdown-open`)})}export{e as t};
+//# sourceMappingURL=listGroupDropdownStacking-CXwcD4Uk.js.map

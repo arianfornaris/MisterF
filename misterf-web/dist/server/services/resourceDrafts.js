@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { assignmentBlockSchema, assignmentDraftSchema, } from './assignments.js';
+import { normalizeRoleplayRevisionConversationHistory, roleplayDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
@@ -294,6 +295,32 @@ export async function generateAssignmentBlock(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: assignmentBlockSchema,
         systemPromptPath: 'resources/assignment-block.md',
+    });
+}
+export async function generateRoleplayDraft(input) {
+    return generateStructuredDraft({
+        actorLabel: 'Roleplay draft',
+        correctionPromptPath: 'resources/roleplay-draft-correction.md',
+        initialUserMessage: input.prompt,
+        maxOutputTokens: 4800,
+        openRouterApiKey: input.openRouterApiKey,
+        schema: roleplayDraftSchema,
+        systemPromptPath: 'resources/roleplay-draft.md',
+    });
+}
+export async function generateRoleplayRevision(input) {
+    return generateStructuredDraft({
+        actorLabel: 'Roleplay revision',
+        correctionPromptPath: 'resources/roleplay-revision-correction.md',
+        initialUserMessage: JSON.stringify({
+            conversationHistory: normalizeRoleplayRevisionConversationHistory(input.conversationHistory ?? []),
+            currentDraft: input.currentDraft,
+            requestedChange: input.prompt,
+        }, null, 2),
+        maxOutputTokens: 5600,
+        openRouterApiKey: input.openRouterApiKey,
+        schema: roleplayRevisionSchema,
+        systemPromptPath: 'resources/roleplay-revision.md',
     });
 }
 //# sourceMappingURL=resourceDrafts.js.map

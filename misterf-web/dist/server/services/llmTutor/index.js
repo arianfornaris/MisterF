@@ -60,6 +60,14 @@ function parseJsonFromModelText(text) {
         throw new Error(`JSON parsing failed: ${message}`);
     }
 }
+function buildTutorResourceLogContext(options) {
+    return options.currentPracticeModuleId
+        ? {
+            resourceId: options.currentPracticeModuleId,
+            resourceType: 'practice_guide',
+        }
+        : {};
+}
 function extractEmbeddedTutorResponseJson(text) {
     const blocksIndex = text.indexOf('"blocks"');
     if (blocksIndex === -1) {
@@ -128,6 +136,7 @@ export async function runTutorAgentLoop(history, options) {
         ...options,
         tutorPlanText: formatTutorPlanForModel(options.tutorPlan ?? null),
     });
+    const resourceLogContext = buildTutorResourceLogContext(options);
     let lastError = null;
     const practiceModuleTools = buildTutorPracticeModuleTools({
         currentPracticeModuleId: options.currentPracticeModuleId ?? null,
@@ -155,7 +164,7 @@ export async function runTutorAgentLoop(history, options) {
         ? mergedTools
         : undefined;
     for (let turn = 0; turn < maxAgentTurns; turn += 1) {
-        logLlmRequest(messages, system, options, turn + 1);
+        logLlmRequest(messages, system, { ...options, ...resourceLogContext }, turn + 1);
         try {
             const result = await generateText({
                 abortSignal: options.abortSignal,
@@ -174,6 +183,7 @@ export async function runTutorAgentLoop(history, options) {
                 llm: options.llm,
                 operation: 'tutor',
                 profileId: options.profileId ?? null,
+                ...resourceLogContext,
                 steps: result.steps,
                 turn: turn + 1,
                 userId: options.userId ?? null,
@@ -221,6 +231,7 @@ export async function runTutorAgentLoop(history, options) {
                                 llm: options.llm,
                                 operation: 'tutor',
                                 profileId: options.profileId ?? null,
+                                ...resourceLogContext,
                                 rawText: result.text,
                                 turn: turn + 1,
                                 userId: options.userId ?? null,
@@ -259,6 +270,7 @@ export async function runTutorAgentLoop(history, options) {
                                 llm: options.llm,
                                 operation: 'tutor',
                                 profileId: options.profileId ?? null,
+                                ...resourceLogContext,
                                 rawText: effectiveResult.text,
                                 turn: turn + 1,
                                 userId: options.userId ?? null,
@@ -274,6 +286,7 @@ export async function runTutorAgentLoop(history, options) {
                 llm: options.llm,
                 operation: 'tutor',
                 profileId: options.profileId ?? null,
+                ...resourceLogContext,
                 userId: options.userId ?? null,
             });
             options.onTokenUsage?.(await buildLlmRequestTokenUsage({

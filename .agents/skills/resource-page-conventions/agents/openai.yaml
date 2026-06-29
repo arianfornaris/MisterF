@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resource Page Conventions"
+  short_description: "Show Mister F resources consistently."
+  default_prompt: "Use $resource-page-conventions when creating or reviewing Mister F resource list, detail, attempt, result, or edit pages."
