@@ -127,7 +127,7 @@ describe('database migrations', () => {
       'learner_progress_events',
       'learner_progress_profiles',
       'messages',
-      'practice_modules',
+      'practice_guides',
       'profiles',
       'resource_access_grants',
       'resource_folder_items',
@@ -144,8 +144,8 @@ describe('database migrations', () => {
     ]));
     expect(tableNames).not.toContain('assignment_authoring_revisions');
     expect(tableNames).not.toContain('assignment_authoring_sessions');
-    expect(tableNames).not.toContain('practice_module_collections');
-    expect(tableNames).not.toContain('practice_module_collection_share_links');
+    expect(tableNames).not.toContain('practice_guide_collections');
+    expect(tableNames).not.toContain('practice_guide_collection_share_links');
 
     expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
       'learning_context',
@@ -178,7 +178,7 @@ describe('database migrations', () => {
       'rubric',
       'status',
     ]));
-    expect(getColumnNames(db, 'practice_modules')).not.toEqual(expect.arrayContaining([
+    expect(getColumnNames(db, 'practice_guides')).not.toEqual(expect.arrayContaining([
       'collection_id',
       'position_in_collection',
     ]));
@@ -383,7 +383,7 @@ describe('database migrations', () => {
       )
     `).run(assignmentDraft);
     db.prepare(`
-      INSERT INTO practice_modules (
+      INSERT INTO practice_guides (
         id,
         user_id,
         profile_id,
@@ -392,11 +392,11 @@ describe('database migrations', () => {
         tutor_instructions
       )
       VALUES (
-        'module_1',
+        'guide_1',
         'user_1',
         'profile_1',
-        'Legacy Module',
-        'Module description.',
+        'Legacy Guide',
+        'Guide description.',
         'Practice modal verbs.'
       )
     `).run();
@@ -405,8 +405,8 @@ describe('database migrations', () => {
       VALUES ('assignment_link_1', 'assignment_1')
     `).run();
     db.prepare(`
-      INSERT INTO practice_module_share_links (id, practice_module_id)
-      VALUES ('module_link_1', 'module_1')
+      INSERT INTO practice_guide_share_links (id, practice_guide_id)
+      VALUES ('guide_link_1', 'guide_1')
     `).run();
 
     migrate();
@@ -418,13 +418,13 @@ describe('database migrations', () => {
       type: 'assignment',
     });
     expect(db.prepare('SELECT type FROM resources WHERE id = ?')
-      .get('module_1')).toEqual({ type: 'practice_guide' });
+      .get('guide_1')).toEqual({ type: 'practice_guide' });
     expect(db.prepare('SELECT COUNT(*) AS count FROM resource_folder_items')
       .get()).toEqual({ count: 0 });
     expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
       .get('assignment_link_1')).toEqual({ resource_id: 'assignment_1' });
     expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
-      .get('module_link_1')).toEqual({ resource_id: 'module_1' });
+      .get('guide_link_1')).toEqual({ resource_id: 'guide_1' });
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 

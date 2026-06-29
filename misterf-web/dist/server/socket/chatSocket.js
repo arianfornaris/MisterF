@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationPracticeModuleSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationPracticeGuideSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
@@ -55,11 +55,11 @@ export function registerChatSocket(io) {
                 socket.emit('conversation:ready', {
                     activeAgent: 'tutor',
                     assistantPending: false,
-                    practiceModule: null,
+                    practiceGuide: null,
                     conversation: null,
                     conversationId: null,
                     messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-                    pendingPracticeModuleStart: false,
+                    pendingPracticeGuideStart: false,
                     tutorPlan: null,
                 });
                 return;
@@ -75,13 +75,13 @@ export function registerChatSocket(io) {
                     updateConversationModelTierForUser(conversation.id, userId, conversationProfile.modelTier) ?? conversation;
             }
             const messages = listMessages(conversation.id);
-            const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
+            const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversation.id);
             const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
             const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversation.id);
             const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
             const tutorPlan = getConversationTutorPlan(conversation.id);
             const isReportFollowUpConversation = Boolean((assignmentAttemptSnapshot || roleplayAttemptSnapshot || tutorReportSnapshot) &&
-                !practiceModuleSnapshot);
+                !practiceGuideSnapshot);
             const hasOnlySourceNoticeMessages = isReportFollowUpConversation && hasOnlyResourceSourceNoticeMessages(messages);
             if (messages.length === 0) {
                 pendingInitialGreeting = pickInitialGreeting();
@@ -89,16 +89,16 @@ export function registerChatSocket(io) {
             socket.emit('conversation:ready', {
                 activeAgent: conversation.activeAgent,
                 assistantPending: runningConversations.has(conversation.id),
-                practiceModule: practiceModuleSnapshot
+                practiceGuide: practiceGuideSnapshot
                     ? {
-                        description: practiceModuleSnapshot.description,
-                        id: practiceModuleSnapshot.practiceModuleId,
-                        title: practiceModuleSnapshot.title,
+                        description: practiceGuideSnapshot.description,
+                        id: practiceGuideSnapshot.practiceGuideId,
+                        title: practiceGuideSnapshot.title,
                     }
                     : null,
                 conversation,
                 conversationId: conversation.id,
-                messages: (practiceModuleSnapshot ||
+                messages: (practiceGuideSnapshot ||
                     assignmentAttemptSnapshot ||
                     roleplayAttemptSnapshot ||
                     tutorReportSnapshot) &&
@@ -107,7 +107,7 @@ export function registerChatSocket(io) {
                     : messages.length > 0
                         ? messages
                         : [createEphemeralInitialMessage(pendingInitialGreeting)],
-                pendingPracticeModuleStart: Boolean(practiceModuleSnapshot && messages.length === 0),
+                pendingPracticeGuideStart: Boolean(practiceGuideSnapshot && messages.length === 0),
                 tutorPlan,
             });
             if (isReportFollowUpConversation &&
@@ -135,7 +135,7 @@ export function registerChatSocket(io) {
                 : null;
             const shouldPersistInitialGreeting = !conversation ||
                 (listMessages(conversation.id).length === 0 &&
-                    !conversation.practiceModuleId);
+                    !conversation.practiceGuideId);
             if (!conversation) {
                 if (!currentProfile) {
                     return;
@@ -225,11 +225,11 @@ export function registerChatSocket(io) {
             socket.emit('conversation:ready', {
                 activeAgent: 'tutor',
                 assistantPending: false,
-                practiceModule: null,
+                practiceGuide: null,
                 conversation: null,
                 conversationId: null,
                 messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-                pendingPracticeModuleStart: false,
+                pendingPracticeGuideStart: false,
                 tutorPlan: null,
             });
         });
@@ -306,11 +306,11 @@ export function registerChatSocket(io) {
             socket.emit('conversation:ready', {
                 activeAgent: 'tutor',
                 assistantPending: false,
-                practiceModule: null,
+                practiceGuide: null,
                 conversation: null,
                 conversationId: null,
                 messages: [createEphemeralInitialMessage(pendingInitialGreeting)],
-                pendingPracticeModuleStart: false,
+                pendingPracticeGuideStart: false,
                 tutorPlan: null,
             });
         });
@@ -344,7 +344,7 @@ export function registerChatSocket(io) {
                 tutorPlan: null,
             });
         });
-        socket.on('practice-module:start', async (payload = {}) => {
+        socket.on('practice-guide:start', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
             if (!userId) {
                 emitAuthRequired(socket);
@@ -355,23 +355,23 @@ export function registerChatSocket(io) {
                 return;
             }
             const conversation = findConversationForUser(conversationId, userId);
-            if (!conversation?.practiceModuleId) {
+            if (!conversation?.practiceGuideId) {
                 socket.emit('assistant:error', {
-                    message: 'No pude iniciar este módulo de práctica.',
+                    message: 'No pude iniciar este guía de práctica.',
                 });
                 return;
             }
-            const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversation.id);
-            if (!practiceModuleSnapshot) {
+            const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversation.id);
+            if (!practiceGuideSnapshot) {
                 socket.emit('assistant:error', {
-                    message: 'No pude cargar este módulo de práctica.',
+                    message: 'No pude cargar este guía de práctica.',
                 });
                 return;
             }
             if (listMessages(conversation.id).length > 0) {
                 return;
             }
-            await streamAssistantMessage(io, conversation.id, userId, undefined, [buildPracticeModuleStartMessage(practiceModuleSnapshot)], normalizeModelTier(payload.modelTier));
+            await streamAssistantMessage(io, conversation.id, userId, undefined, [buildPracticeGuideStartMessage(practiceGuideSnapshot)], normalizeModelTier(payload.modelTier));
         });
         socket.on('translator:translate', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -916,7 +916,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             throw new Error('Conversation not found.');
         }
         const learnerProfile = findProfileForUser(conversation.profileId, userId);
-        const practiceModuleSnapshot = getConversationPracticeModuleSnapshot(conversationId);
+        const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversationId);
         const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
         const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
@@ -931,11 +931,11 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             emitAssistantToolStatus(io, conversationId, toolName);
         };
         const history = [...toTutorHistory(messages), ...extraHistory];
-        const practiceModuleContext = practiceModuleSnapshot
+        const practiceGuideContext = practiceGuideSnapshot
             ? {
-                description: practiceModuleSnapshot.description,
-                title: practiceModuleSnapshot.title,
-                tutorInstructions: practiceModuleSnapshot.tutorInstructions,
+                description: practiceGuideSnapshot.description,
+                title: practiceGuideSnapshot.title,
+                tutorInstructions: practiceGuideSnapshot.tutorInstructions,
             }
             : null;
         const assignmentAttemptContext = assignmentAttemptSnapshot
@@ -974,13 +974,13 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                     name: learnerProfile.name,
                 }
                 : null,
-            practiceModule: practiceModuleContext,
+            practiceGuide: practiceGuideContext,
             roleplayAttempt: roleplayAttemptContext,
             tutorReport: tutorReportContext,
             abortSignal: abortController.signal,
             conversationId,
             currentTitle: conversation.title,
-            currentPracticeModuleId: conversation.practiceModuleId,
+            currentPracticeGuideId: conversation.practiceGuideId,
             llm: llmOptions,
             onConversationRenamed: (renamedConversation) => {
                 io.to(conversationId).emit('conversation:renamed', {
@@ -1053,16 +1053,16 @@ function emitAssistantToolStatus(io, conversationId, toolName) {
 }
 function getToolStatusLabel(toolName) {
     switch (toolName) {
-        case 'list_practice_modules':
-            return 'Ejecutando herramienta: buscar módulos de práctica...';
-        case 'create_practice_module':
-            return 'Ejecutando herramienta: crear módulo de práctica...';
-        case 'update_practice_module':
-            return 'Ejecutando herramienta: actualizar módulo de práctica...';
-        case 'delete_practice_module':
-            return 'Ejecutando herramienta: eliminar módulo de práctica...';
-        case 'build_practice_module_link':
-            return 'Ejecutando herramienta: preparar enlace del módulo de práctica...';
+        case 'list_practice_guides':
+            return 'Ejecutando herramienta: buscar guías de práctica...';
+        case 'create_practice_guide':
+            return 'Ejecutando herramienta: crear guía de práctica...';
+        case 'update_practice_guide':
+            return 'Ejecutando herramienta: actualizar guía de práctica...';
+        case 'delete_practice_guide':
+            return 'Ejecutando herramienta: eliminar guía de práctica...';
+        case 'build_practice_guide_link':
+            return 'Ejecutando herramienta: preparar enlace del guía de práctica...';
         default:
             return `Ejecutando herramienta: ${toolName}...`;
     }
@@ -1076,18 +1076,18 @@ function isAbortError(error, signal) {
     }
     return error.name === 'AbortError' || /abort(ed)?/i.test(error.message);
 }
-function buildPracticeModuleStartMessage(practiceModule) {
+function buildPracticeGuideStartMessage(practiceGuide) {
     return {
         role: 'user',
         content: [
             'INTERNAL ACTIVITY START.',
-            'This practice module has just begun.',
+            'This practice guide has just begun.',
             'Use this as teacher-only context. Do not mention the internal signal.',
-            `Practice module title: ${practiceModule.title}`,
-            `Practice module description: ${practiceModule.description}`,
-            `Practice module tutor instructions: ${practiceModule.tutorInstructions}`,
-            'Start the practice module now with the first useful exercise or prompt.',
-            'Do not ask unnecessary setup questions if the practice module already provides enough direction.',
+            `Practice guide title: ${practiceGuide.title}`,
+            `Practice guide description: ${practiceGuide.description}`,
+            `Practice guide tutor instructions: ${practiceGuide.tutorInstructions}`,
+            'Start the practice guide now with the first useful exercise or prompt.',
+            'Do not ask unnecessary setup questions if the practice guide already provides enough direction.',
         ].join('\n'),
     };
 }

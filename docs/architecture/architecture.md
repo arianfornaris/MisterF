@@ -35,7 +35,7 @@ Main route areas:
 - `assignments`
 - `chat`
 - `payments`
-- `practiceModules`
+- `practiceGuides`
 - `progress`
 - `profiles`
 - `resources`
@@ -69,7 +69,7 @@ Important subareas:
 
 - `llmTutor`: tutor model runtime, schemas, providers, validation, tools, prompts
 - `tutorWorkflow`: server-side side effects triggered by structured blocks
-- `tutorReports`: finalized tutor conversation summaries and report-to-module generation
+- `tutorReports`: finalized tutor conversation summaries and report-to-practice-guide generation
 - `learnerProgress`: compact global progress and vocabulary aggregation from completed practice
 - `administration`
 - `secretary`
@@ -120,7 +120,7 @@ Important areas:
 
 - `assignments`: assignment authoring and attempt page behavior
 - `chat`: tutor chat runtime, renderers, exercise cards, socket handlers
-- `practiceModules`: page behaviors for module pages
+- `practiceGuides`: page behaviors for practice guide pages
 - `resources`: resource catalog, folders, resource actions, and move modal
 - `shared`: page-agnostic helpers
 - `styles`: CSS files grouped by surface
@@ -255,15 +255,15 @@ renames as user updates.
 
 Defined in:
 
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceModuleTools.ts`
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceGuideTools.ts`
 
-Tools currently keep legacy internal names:
+Current tools:
 
-- `list_practice_modules`
-- `create_practice_module`
-- `update_practice_module`
-- `delete_practice_module`
-- `build_practice_module_link`
+- `list_practice_guides`
+- `create_practice_guide`
+- `update_practice_guide`
+- `delete_practice_guide`
+- `build_practice_guide_link`
 
 Practice guide tools are reserved for explicit learner-mandated saved-guide
 administration. Visible tutor plans, generic practice requests, completed
@@ -271,9 +271,9 @@ exercises, and conversations already attached to a guide must remain in the
 tutor response protocol unless the learner explicitly asks for that exact saved
 guide action.
 
-`create_practice_module` must only run when the learner explicitly asks for or
-explicitly confirms creating a saved "guía"/"guide" (or uses the legacy
-"módulo"/"module" wording). A request for a plan, new plan, route, exercise
+`create_practice_guide` must only run when the learner explicitly asks for or
+explicitly confirms creating a saved "guía"/"guide". A request for a plan,
+new plan, route, exercise
 sequence, review, or next step is not a saved guide creation request.
 
 ### Learner progress tools

@@ -109,14 +109,14 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_profiles_user_created
         ON profiles (user_id, created_at ASC, updated_at ASC);
 
-      CREATE TABLE practice_modules (
+      CREATE TABLE practice_guides (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         tutor_instructions TEXT NOT NULL,
-        source_practice_module_id TEXT,
+        source_practice_guide_id TEXT,
         source_user_id TEXT,
         source_profile_id TEXT,
         shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
@@ -129,8 +129,8 @@ export const migrations: Migration[] = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (source_practice_module_id)
-          REFERENCES practice_modules (id)
+        FOREIGN KEY (source_practice_guide_id)
+          REFERENCES practice_guides (id)
           ON DELETE SET NULL,
         FOREIGN KEY (source_user_id)
           REFERENCES users (id)
@@ -140,17 +140,17 @@ export const migrations: Migration[] = [
           ON DELETE SET NULL
       );
 
-      CREATE INDEX idx_practice_modules_user_profile_updated
-        ON practice_modules (user_id, profile_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_guides_user_profile_updated
+        ON practice_guides (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_practice_modules_profile_shared
-        ON practice_modules (profile_id, shared_via, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_guides_profile_shared
+        ON practice_guides (profile_id, shared_via, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_practice_modules_profile_source
-        ON practice_modules (profile_id, source_practice_module_id, shared_via);
+      CREATE INDEX idx_practice_guides_profile_source
+        ON practice_guides (profile_id, source_practice_guide_id, shared_via);
 
-      CREATE INDEX idx_practice_modules_profile_archived_updated
-        ON practice_modules (profile_id, archived_at, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_practice_guides_profile_archived_updated
+        ON practice_guides (profile_id, archived_at, updated_at DESC, created_at DESC);
 
       CREATE TABLE chat_rooms (
         id TEXT PRIMARY KEY,
@@ -264,8 +264,8 @@ export const migrations: Migration[] = [
         summary_title TEXT NOT NULL,
         summary_description TEXT NOT NULL,
         slides_json TEXT NOT NULL,
-        practice_module_id TEXT
-          REFERENCES practice_modules (id)
+        practice_guide_id TEXT
+          REFERENCES practice_guides (id)
           ON DELETE SET NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -307,7 +307,7 @@ export const migrations: Migration[] = [
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         active_agent TEXT NOT NULL DEFAULT 'tutor' CHECK (active_agent IN ('tutor')),
-        practice_module_id TEXT,
+        practice_guide_id TEXT,
         chat_room_conversation_report_id TEXT
           REFERENCES chat_room_conversation_reports (id)
           ON DELETE SET NULL,
@@ -324,16 +324,16 @@ export const migrations: Migration[] = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
+        FOREIGN KEY (practice_guide_id)
+          REFERENCES practice_guides (id)
           ON DELETE SET NULL
       );
 
       CREATE INDEX idx_conversations_user_profile_updated
         ON conversations (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_conversations_practice_module_updated
-        ON conversations (practice_module_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_conversations_practice_guide_updated
+        ON conversations (practice_guide_id, updated_at DESC, created_at DESC);
 
       CREATE INDEX idx_conversations_active_agent
         ON conversations (active_agent, updated_at DESC, created_at DESC);
@@ -344,9 +344,9 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_conversations_closed_updated
         ON conversations (closed_at, updated_at DESC, created_at DESC);
 
-      CREATE TABLE conversation_practice_module_snapshots (
+      CREATE TABLE conversation_practice_guide_snapshots (
         conversation_id TEXT PRIMARY KEY,
-        practice_module_id TEXT,
+        practice_guide_id TEXT,
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         tutor_instructions TEXT NOT NULL,
@@ -354,13 +354,13 @@ export const migrations: Migration[] = [
         FOREIGN KEY (conversation_id)
           REFERENCES conversations (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
+        FOREIGN KEY (practice_guide_id)
+          REFERENCES practice_guides (id)
           ON DELETE SET NULL
       );
 
-      CREATE INDEX idx_conversation_practice_module_snapshots_practice_module
-        ON conversation_practice_module_snapshots (practice_module_id, created_at DESC);
+      CREATE INDEX idx_conversation_practice_guide_snapshots_practice_guide
+        ON conversation_practice_guide_snapshots (practice_guide_id, created_at DESC);
 
       CREATE TABLE conversation_chat_room_report_snapshots (
         conversation_id TEXT PRIMARY KEY,
@@ -394,8 +394,8 @@ export const migrations: Migration[] = [
         summary_title TEXT NOT NULL,
         summary_description TEXT NOT NULL,
         report_json TEXT NOT NULL,
-        practice_module_id TEXT
-          REFERENCES practice_modules (id)
+        practice_guide_id TEXT
+          REFERENCES practice_guides (id)
           ON DELETE SET NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -445,18 +445,18 @@ export const migrations: Migration[] = [
           ON DELETE CASCADE
       );
 
-      CREATE TABLE practice_module_share_links (
+      CREATE TABLE practice_guide_share_links (
         id TEXT PRIMARY KEY,
-        practice_module_id TEXT NOT NULL UNIQUE,
+        practice_guide_id TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         revoked_at TEXT,
-        FOREIGN KEY (practice_module_id)
-          REFERENCES practice_modules (id)
+        FOREIGN KEY (practice_guide_id)
+          REFERENCES practice_guides (id)
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_practice_module_share_links_active
-        ON practice_module_share_links (practice_module_id, revoked_at, created_at DESC);
+      CREATE INDEX idx_practice_guide_share_links_active
+        ON practice_guide_share_links (practice_guide_id, revoked_at, created_at DESC);
 
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1403,7 +1403,7 @@ export const migrations: Migration[] = [
         shared_via,
         created_at,
         updated_at
-      FROM practice_modules;
+      FROM practice_guides;
 
       UPDATE resources
       SET source_resource_id = (
@@ -1422,17 +1422,17 @@ export const migrations: Migration[] = [
 
       UPDATE resources
       SET source_resource_id = (
-        SELECT source_practice_module_id
-        FROM practice_modules
-        WHERE practice_modules.id = resources.id
+        SELECT source_practice_guide_id
+        FROM practice_guides
+        WHERE practice_guides.id = resources.id
       )
       WHERE type = 'practice_guide'
         AND EXISTS (
           SELECT 1
-          FROM practice_modules
+          FROM practice_guides
           JOIN resources AS source_resource
-            ON source_resource.id = practice_modules.source_practice_module_id
-          WHERE practice_modules.id = resources.id
+            ON source_resource.id = practice_guides.source_practice_guide_id
+          WHERE practice_guides.id = resources.id
         );
 
       INSERT INTO resource_folders (id, created_at, updated_at)
@@ -1450,12 +1450,12 @@ export const migrations: Migration[] = [
       );
 
       INSERT OR IGNORE INTO resource_share_links (id, resource_id, created_at, revoked_at)
-      SELECT id, practice_module_id, created_at, revoked_at
-      FROM practice_module_share_links
+      SELECT id, practice_guide_id, created_at, revoked_at
+      FROM practice_guide_share_links
       WHERE EXISTS (
         SELECT 1
         FROM resources
-        WHERE resources.id = practice_module_share_links.practice_module_id
+        WHERE resources.id = practice_guide_share_links.practice_guide_id
       );
 
     `,

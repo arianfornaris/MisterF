@@ -81,7 +81,7 @@ When a block owns the response UI, the app should:
 | Block | Requires learner response? | Current response path | Standardization status |
 | --- | --- | --- | --- |
 | `message` | Sometimes used that way, but should not be | Normal chat | Problematic when it contains an exercise task |
-| `practice_module_link` | No | Link/button action | No change needed |
+| `practice_guide_link` | No | Link/button action | No change needed |
 | `dialogue_character_message` | Yes, in role-play | Normal chat | Intentional exception candidate |
 | `dialogue_transcript` | No | None | No change needed |
 | `matching_pairs` | Yes | Block UI | Already standardized |
@@ -159,7 +159,7 @@ Current semantics:
 - `rubric` is optional hidden evaluator guidance in Spanish.
 - The block always renders a multiline textarea plus a submit action.
 - The block should stay granular: one learner-produced sentence, correction,
-  explanation, or example at a time. If a practice module or plan needs several
+  explanation, or example at a time. If a practice guide or plan needs several
   open-ended answers, Mr. F should ask for them across sequential turns instead
   of one large textarea submission, unless the flow is explicitly a quiz,
   checkpoint, or batch assessment.

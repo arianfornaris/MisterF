@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import {
   appendRoleplayAttemptTurns,
   createConversationFromRoleplayAttempt,
-  createPracticeModule,
+  createPracticeGuide,
   createRoleplay,
   createRoleplayAttempt,
   findProfileById,
@@ -55,7 +55,7 @@ import {
   type RoleplayDraft,
 } from '../services/roleplays.js';
 import {
-  generatePracticeModuleDraft,
+  generatePracticeGuideDraft,
   generateRoleplayDraft,
   generateRoleplayRevision,
 } from '../services/resourceDrafts.js';
@@ -1194,7 +1194,7 @@ export async function handleCreateRoleplayPracticeGuide(
 
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-    const generatedModule = await generatePracticeModuleDraft({
+    const generatedModule = await generatePracticeGuideDraft({
       openRouterApiKey,
       prompt: buildRoleplayPracticeGuidePrompt({
         attempt,
@@ -1202,7 +1202,7 @@ export async function handleCreateRoleplayPracticeGuide(
         result: result.data,
       }),
     });
-    const practiceModule = createPracticeModule({
+    const practiceGuide = createPracticeGuide({
       description: generatedModule.description,
       profileId: attempt.profileId,
       title: generatedModule.title,
@@ -1212,7 +1212,7 @@ export async function handleCreateRoleplayPracticeGuide(
 
     logger.info('roleplay_practice_guide_created', {
       attemptId: attempt.id,
-      practiceModuleId: practiceModule.id,
+      practiceGuideId: practiceGuide.id,
       profileId: attempt.profileId,
       resourceId: attempt.roleplayId,
       resourceType: 'roleplay',
@@ -1220,7 +1220,7 @@ export async function handleCreateRoleplayPracticeGuide(
       userId: auth.user.id,
     });
 
-    response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+    response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
   } catch (error) {
     logger.error('roleplay_practice_guide_creation_failed', {
       attemptId: attempt.id,

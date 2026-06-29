@@ -40,7 +40,7 @@ Examples:
 
 - A buy-credits CTA inside a tutor message should use `btn btn-primary`.
 - A secondary action should use `btn btn-outline-secondary` or `btn-link`.
-- A generated practice-module link inside a tutor message should use a
+- A generated practice-guide link inside a tutor message should use a
   Bootstrap button/link variant, not a custom color.
 - Markdown links inside messages should inherit Bootstrap link styling.
 

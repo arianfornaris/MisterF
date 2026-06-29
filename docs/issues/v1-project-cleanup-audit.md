@@ -98,15 +98,15 @@ Updated ignore rules to cover:
 
 **Severity:** High
 
-**Status:** Resolved on 2026-06-15. Practice module and profile mutations now live in their domain handlers, and `auth/forms.ts` is scoped to authentication form flows.
+**Status:** Resolved on 2026-06-15. Practice guide and profile mutations now live in their domain handlers, and `auth/forms.ts` is scoped to authentication form flows.
 
-The app already has domain-specific handlers for chat, chatrooms, practice modules, profiles, payments, and progress. Previously, `server.ts` still imported practice module, profile, sharing, archive, restore, and resource actions from `auth/forms.ts`.
+The app already has domain-specific handlers for chat, chatrooms, practice guides, profiles, payments, and progress. Previously, `server.ts` still imported practice guide, profile, sharing, archive, restore, and resource actions from `auth/forms.ts`.
 
 Original evidence:
 
 - `misterf-web/src/server/server.ts:6` through `misterf-web/src/server/server.ts:43` import many non-auth handlers from `./auth/forms.js`.
-- `misterf-web/src/server/practiceModules/handlers.ts:512` already renders the practice module list page.
-- `misterf-web/src/server/practiceModules/handlers.ts:520` already handles generated practice module drafts.
+- `misterf-web/src/server/practiceGuides/handlers.ts:512` already renders the practice guide list page.
+- `misterf-web/src/server/practiceGuides/handlers.ts:520` already handles generated practice guide drafts.
 - `misterf-web/src/server/auth/forms.ts` has 2907 lines and still contains legacy non-auth page modeling from around `misterf-web/src/server/auth/forms.ts:820`.
 
 Impact:
@@ -119,10 +119,10 @@ Recommendation:
 
 Completed extraction:
 
-- Practice module create/update/archive/restore/delete/share handlers moved to `src/server/practiceModules/handlers.ts`.
+- Practice guide create/update/archive/restore/delete/share handlers moved to `src/server/practiceGuides/handlers.ts`.
 - Profile create/update/switch handlers moved to `src/server/profiles/handlers.ts`.
 - `auth/forms.ts` now keeps login, signup, forgot/reset password, change password, email verification, logout, and session helpers.
-- `tests/server/routeArchitecture.test.ts` verifies that chatroom and practice module logic does not return to `auth/forms.ts`.
+- `tests/server/routeArchitecture.test.ts` verifies that chatroom and practice guide logic does not return to `auth/forms.ts`.
 
 ### 4. The Central Router Had Too Much Responsibility
 
@@ -144,7 +144,7 @@ Completed route split:
 - `auth/routes.ts`
 - `chat/routes.ts`
 - `profiles/routes.ts`
-- `practiceModules/routes.ts`
+- `practiceGuides/routes.ts`
 - `chatrooms/routes.ts`
 - `payments/routes.ts`
 - `legal/routes.ts`
@@ -159,12 +159,12 @@ Completed route split:
 **Severity:** Medium
 
 **Status:** Resolved on 2026-06-18. Shared resource pages now use
-`app-resource-view` and `resource-page-*` classes. The practice module library
-uses the domain-specific `practice-modules-page` class only where module-specific
+`app-resource-view` and `resource-page-*` classes. The practice guide library
+uses the domain-specific `practice-guides-page` class only where guide-specific
 styling is needed.
 
-Several pages previously used `practice-modules-view` even when they were not
-practice module pages.
+Several pages previously used `practice-guides-view` even when they were not
+practice guide pages.
 
 Evidence:
 
@@ -177,7 +177,7 @@ Evidence:
 
 Impact:
 
-A practice module style change can accidentally alter credits, progress, profiles, settings, and chatrooms. The HTML also becomes harder to reason about semantically.
+A practice guide style change can accidentally alter credits, progress, profiles, settings, and chatrooms. The HTML also becomes harder to reason about semantically.
 
 Resolution:
 
@@ -185,7 +185,7 @@ Implemented neutral shared classes and a static guard:
 
 - Resource containers use `app-resource-view`.
 - Shared page pieces use `resource-page-*`.
-- The practice module library uses `practice-modules-page` for its own layout-state styles.
+- The practice guide library uses `practice-guides-page` for its own layout-state styles.
 - `tests/server/uiClassArchitecture.test.ts` prevents the old misleading class names from returning.
 
 ### 6. Custom CSS Has Grown Into a Parallel System
@@ -203,7 +203,7 @@ before the Phase 3 cleanup:
 - `src/client/styles/chat-content.css`: 1687 lines.
 - `src/client/styles/app-shell.css`: 1120 lines, reduced to 629 lines.
 - `src/client/styles/resource-pages.css`: 158 lines after extraction.
-- `src/client/styles/practice-modules.css`: 312 lines after extraction.
+- `src/client/styles/practice-guides.css`: 312 lines after extraction.
 - `src/client/styles/chatrooms.css`: 228 lines after moving chatroom-specific resource helpers.
 - `src/client/styles/composer.css`: 164 lines.
 
@@ -222,7 +222,7 @@ The UI was not redesigned. Instead, CSS ownership was clarified:
 
 - `app-shell.css` now focuses on shell, navigation, conversation panel, translator, and user-menu behavior.
 - `resource-pages.css` owns shared resource containers, headers, form shells, card menus, and profile-list helpers.
-- `practice-modules.css` owns the module library, module cards, module forms, markdown, and module-specific helpers.
+- `practice-guides.css` owns the practice guide library, guide cards, guide forms, markdown, and guide-specific helpers.
 - `chat-content.css` remains the tutor block and exercise-card stylesheet.
 - `composer.css` remains the composer stylesheet.
 - Letter spacing in client CSS was normalized to `0`.
@@ -233,12 +233,12 @@ The UI was not redesigned. Instead, CSS ownership was clarified:
 
 **Status:** Resolved on 2026-06-15. `public/build` remains committed by policy, but stale generated Vite output is cleaned before each client build.
 
-`public/build/entries` contains many stale hashed versions of `chat`, `chatrooms`, and `practice-modules` bundles. The current build points to only a few generated entry files through `views/partials/*-client-script.ejs`.
+`public/build/entries` contains many stale hashed versions of `chat`, `chatrooms`, and `practice-guides` bundles. The current build points to only a few generated entry files through `views/partials/*-client-script.ejs`.
 
 Evidence:
 
 - `git ls-files public/build views/partials` lists 152 files.
-- There are many historical `public/build/entries/chat-*.js`, `chatrooms-*.js`, and `practice-modules-*.js` files.
+- There are many historical `public/build/entries/chat-*.js`, `chatrooms-*.js`, and `practice-guides-*.js` files.
 - `npm run build:client` regenerates the current partials and stylesheet via `misterf-web/scripts/build-client.mjs`.
 
 Impact:
@@ -263,7 +263,7 @@ The existing tests pass and now cover fresh migrations, anonymous main route ren
 
 - Local and Google auth happy/error paths.
 - CSRF behavior on critical forms.
-- Practice module CRUD and sharing.
+- Practice guide CRUD and sharing.
 - Chatroom CRUD, conversation, and report flows.
 - Stripe checkout/webhook idempotency.
 - Credit gating for every LLM entry point.
@@ -290,9 +290,9 @@ Before v1, add a compact high-value regression suite:
 
 Important user-facing LLM paths fetch an API key through `getCreditCheckedOpenRouterApiKeyForUser`:
 
-- Practice module draft: `misterf-web/src/server/practiceModules/handlers.ts:537`.
+- Practice guide draft: `misterf-web/src/server/practiceGuides/handlers.ts:537`.
 - Chatroom draft: `misterf-web/src/server/chatrooms/handlers.ts:740`.
-- Chatroom report module generation: `misterf-web/src/server/chatrooms/handlers.ts:1365`.
+- Chatroom report practice-guide generation: `misterf-web/src/server/chatrooms/handlers.ts:1365`.
 - Tutor socket: `misterf-web/src/server/socket/chatSocket.ts:1320`.
 - Chatroom tool report generation: `misterf-web/src/server/services/llmTutor/chatRoomTools.ts:264`.
 
@@ -332,7 +332,7 @@ Introduce an environment-aware logger:
 
 **Severity:** Low-Medium
 
-The README still describes the app as a simple English sentence-writing tutor. The product now includes profiles, chatrooms, reports, progress, credits, sharing, and practice modules. `TODO.txt` also lists some progress ideas as future work even though progress tables and the `/progress` page exist.
+The README still describes the app as a simple English sentence-writing tutor. The product now includes profiles, chatrooms, reports, progress, credits, sharing, and practice guides. `TODO.txt` also lists some progress ideas as future work even though progress tables and the `/progress` page exist.
 
 Evidence:
 
@@ -362,7 +362,7 @@ Resolution:
 
 ## Strengths
 
-- The newer domain split is moving in the right direction: `chat/handlers.ts`, `chatrooms/handlers.ts`, `practiceModules/handlers.ts`, `profiles/handlers.ts`, and `payments/handlers.ts`.
+- The newer domain split is moving in the right direction: `chat/handlers.ts`, `chatrooms/handlers.ts`, `practiceGuides/handlers.ts`, `profiles/handlers.ts`, and `payments/handlers.ts`.
 - Tutor prompts and block protocols are documented and tested.
 - Zod schemas protect many structured LLM responses.
 - Reviewed LLM entry points generally pass through the credit gate.
@@ -391,8 +391,8 @@ Resolution:
 
 ### Phase 3: UI Cleanup
 
-1. Completed: replace `practice-modules-view` with neutral shared resource classes.
-2. Completed: split resource page and practice module CSS out of `app-shell.css`.
+1. Completed: replace `practice-guides-view` with neutral shared resource classes.
+2. Completed: split resource page and practice guide CSS out of `app-shell.css`.
 3. Completed: add a static UI class architecture guard.
 4. Keep Bootswatch Flatly as the visual baseline for future UI work.
 

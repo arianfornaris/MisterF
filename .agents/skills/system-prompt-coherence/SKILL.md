@@ -44,7 +44,7 @@ messages. Review the loop as the model sees it.
 - The prompt no longer contains both an old rule and a new rule for the same
   behavior.
 - Terms are unambiguous. For example, distinguish visible tutor plans from
-  persistent practice modules, learner messages from teacher-only context, and
+  persistent practice guides, learner messages from teacher-only context, and
   exercises from optional navigation choices.
 - The model is told what to do instead of the forbidden behavior.
 - Tool descriptions match the system prompt and include the same boundaries.

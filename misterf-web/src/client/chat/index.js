@@ -10,7 +10,7 @@ import { normalizeModelTier } from './utils/modelTier.js';
 import { consumeGuestDraft, getGuestDraft, preserveGuestDraft } from './utils/storage.js';
 import { ComposerView } from './ui/ComposerView.js';
 import { ConversationListView } from './ui/ConversationListView.js';
-import { PracticeModuleView } from './ui/PracticeModuleView.js';
+import { PracticeGuideView } from './ui/PracticeGuideView.js';
 import { TutorPlanView } from './ui/TutorPlanView.js';
 import { createTutorMessageRenderer } from './ui/TutorMessageRenderer.js';
 import {
@@ -20,13 +20,13 @@ const messagesEl = document.querySelector('#messages');
 const chatPaneEl = document.querySelector('#chatPane');
 const formEl = document.querySelector('#chatForm');
 const inputEl = document.querySelector('#messageInput');
-const practiceModuleStartPanelEl = document.querySelector('[data-practice-module-start-panel]');
-const practiceModuleStartTitleEl = document.querySelector('[data-practiceModule-start-title]');
-const practiceModuleStartDescriptionEl = document.querySelector(
-  '[data-practiceModule-start-description]',
+const practiceGuideStartPanelEl = document.querySelector('[data-practice-guide-start-panel]');
+const practiceGuideStartTitleEl = document.querySelector('[data-practiceGuide-start-title]');
+const practiceGuideStartDescriptionEl = document.querySelector(
+  '[data-practiceGuide-start-description]',
 );
-const practiceModuleStartStatusEl = document.querySelector('[data-practice-module-start-status]');
-const practiceModuleStartButtonEl = document.querySelector('[data-practiceModule-start-button]');
+const practiceGuideStartStatusEl = document.querySelector('[data-practice-guide-start-status]');
+const practiceGuideStartButtonEl = document.querySelector('[data-practiceGuide-start-button]');
 const tutorPlanPanelEl = document.querySelector('[data-tutor-plan-panel]');
 const sendButtonEl = document.querySelector('[data-send-button]');
 const toolStatusEl = document.querySelector('[data-tool-status]');
@@ -85,7 +85,7 @@ let conversationId = chatState.conversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
 let pendingDeleteTarget = null;
-let pendingPracticeModuleStart = false;
+let pendingPracticeGuideStart = false;
 let isAssistantStopping = false;
 let isGuestPromptPending = false;
 let guestPromptTimerId = 0;
@@ -99,12 +99,12 @@ let pendingBootGuestDraft = '';
 let hasHandledInitialConversationReady = false;
 let toolStatusRow = null;
 const matchingExerciseStates = chatState.matchingExerciseStates;
-const practiceModuleView = new PracticeModuleView({
-  buttonEl: practiceModuleStartButtonEl,
-  descriptionEl: practiceModuleStartDescriptionEl,
-  panelEl: practiceModuleStartPanelEl,
-  statusEl: practiceModuleStartStatusEl,
-  titleEl: practiceModuleStartTitleEl,
+const practiceGuideView = new PracticeGuideView({
+  buttonEl: practiceGuideStartButtonEl,
+  descriptionEl: practiceGuideStartDescriptionEl,
+  panelEl: practiceGuideStartPanelEl,
+  statusEl: practiceGuideStartStatusEl,
+  titleEl: practiceGuideStartTitleEl,
 });
 const tutorPlanView = new TutorPlanView({
   onCloseRequest: requestCloseTutorPlan,
@@ -169,7 +169,7 @@ runtime = createChatRuntime({
   llmContextMeterEl,
   markTutorMessageArrived: (...args) => tutorMessageRenderer.markTutorMessageArrived(...args),
   messagesEl,
-  practiceModuleView,
+  practiceGuideView,
   preserveGuestDraft,
   renderer: tutorMessageRenderer,
   resizeComposerInput,
@@ -196,8 +196,8 @@ runtime = createChatRuntime({
   setPendingBootGuestDraft: (value) => {
     pendingBootGuestDraft = value;
   },
-  setPendingPracticeModuleStart: (value) => {
-    pendingPracticeModuleStart = value;
+  setPendingPracticeGuideStart: (value) => {
+    pendingPracticeGuideStart = value;
   },
   setStreamingBubble: (value) => {
     streamingBubble = value;
@@ -243,10 +243,10 @@ if (socket) {
     conversationListView,
     focusComposer,
     getConversationId: () => conversationId,
-    getPendingPracticeModuleStart: () => pendingPracticeModuleStart,
+    getPendingPracticeGuideStart: () => pendingPracticeGuideStart,
     getStreamingBubble: () => streamingBubble,
     messagesEl,
-    practiceModuleView,
+    practiceGuideView,
     renderer: tutorMessageRenderer,
     runtime,
     scrollToBottom,
@@ -267,8 +267,8 @@ if (socket) {
     setIsAssistantStopping: (value) => {
       isAssistantStopping = value;
     },
-    setPendingPracticeModuleStart: (value) => {
-      pendingPracticeModuleStart = value;
+    setPendingPracticeGuideStart: (value) => {
+      pendingPracticeGuideStart = value;
     },
     setSelectedModelTier,
     getDefaultModelTier: () => defaultModelTier,
@@ -340,8 +340,8 @@ closeTutorPlanModalEl?.addEventListener('hidden.bs.modal', () => {
   pendingTutorPlanClose = false;
 });
 
-practiceModuleStartButtonEl?.addEventListener('click', () => {
-  runtime.startPracticeModuleConversation();
+practiceGuideStartButtonEl?.addEventListener('click', () => {
+  runtime.startPracticeGuideConversation();
 });
 
 translatorController.bindUi();
@@ -483,13 +483,13 @@ function setCanFinalizeConversation(enabled) {
 }
 
 
-function renderPracticeModuleStartPanel(practiceModule, options = {}) {
+function renderPracticeGuideStartPanel(practiceGuide, options = {}) {
   if (
-    !practiceModuleStartPanelEl ||
-    !practiceModuleStartTitleEl ||
-    !practiceModuleStartDescriptionEl ||
-    !practiceModuleStartButtonEl ||
-    !practiceModuleStartStatusEl
+    !practiceGuideStartPanelEl ||
+    !practiceGuideStartTitleEl ||
+    !practiceGuideStartDescriptionEl ||
+    !practiceGuideStartButtonEl ||
+    !practiceGuideStartStatusEl
   ) {
     return;
   }
@@ -497,20 +497,20 @@ function renderPracticeModuleStartPanel(practiceModule, options = {}) {
   const visible = Boolean(options.visible);
   const autoStarting = Boolean(options.autoStarting);
 
-  if (!visible || !practiceModule) {
-    practiceModuleStartPanelEl.classList.add('d-none');
-    practiceModuleStartTitleEl.textContent = '';
-    practiceModuleStartDescriptionEl.textContent = '';
-    practiceModuleStartStatusEl.classList.add('d-none');
-    practiceModuleStartButtonEl.classList.remove('d-none');
+  if (!visible || !practiceGuide) {
+    practiceGuideStartPanelEl.classList.add('d-none');
+    practiceGuideStartTitleEl.textContent = '';
+    practiceGuideStartDescriptionEl.textContent = '';
+    practiceGuideStartStatusEl.classList.add('d-none');
+    practiceGuideStartButtonEl.classList.remove('d-none');
     return;
   }
 
-  practiceModuleStartTitleEl.textContent = autoStarting ? '' : practiceModule.title || 'Guía de Práctica';
-  practiceModuleStartDescriptionEl.textContent = autoStarting ? '' : practiceModule.description || '';
-  practiceModuleStartStatusEl.classList.toggle('d-none', !autoStarting);
-  practiceModuleStartButtonEl.classList.toggle('d-none', autoStarting);
-  practiceModuleStartPanelEl.classList.remove('d-none');
+  practiceGuideStartTitleEl.textContent = autoStarting ? '' : practiceGuide.title || 'Guía de Práctica';
+  practiceGuideStartDescriptionEl.textContent = autoStarting ? '' : practiceGuide.description || '';
+  practiceGuideStartStatusEl.classList.toggle('d-none', !autoStarting);
+  practiceGuideStartButtonEl.classList.toggle('d-none', autoStarting);
+  practiceGuideStartPanelEl.classList.remove('d-none');
 }
 
 function showCreditExhaustedModal(message) {
@@ -528,7 +528,7 @@ function showCreditExhaustedModal(message) {
   toolStatusRow = null;
   isAssistantBusy = false;
   isAssistantStopping = false;
-  setComposerEnabled(!pendingPracticeModuleStart);
+  setComposerEnabled(!pendingPracticeGuideStart);
   appendCreditTutorMessage(buyPath);
 
   if (creditMessageEl) {

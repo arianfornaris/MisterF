@@ -39,10 +39,10 @@ async function copyTextToClipboard(content) {
   return fallbackCopyText(content);
 }
 
-function initializePracticeModuleSharingUi() {
-  const shareFieldEl = document.querySelector('[data-practiceModule-share-link-field]');
-  const copyButtonEl = document.querySelector('[data-copy-practiceModule-share-link]');
-  const nativeShareButtonEl = document.querySelector('[data-native-share-practiceModule-link]');
+function initializePracticeGuideSharingUi() {
+  const shareFieldEl = document.querySelector('[data-practiceGuide-share-link-field]');
+  const copyButtonEl = document.querySelector('[data-copy-practiceGuide-share-link]');
+  const nativeShareButtonEl = document.querySelector('[data-native-share-practiceGuide-link]');
   const autoOpenModalEl = document.querySelector('[data-auto-open-share-modal]');
 
   if (copyButtonEl && shareFieldEl instanceof HTMLInputElement) {
@@ -123,7 +123,7 @@ function initializeResourceGenerationPendingUi() {
   }
 }
 
-initializePracticeModuleSharingUi();
+initializePracticeGuideSharingUi();
 initializeAutoOpenModal();
 initializeResourceGenerationPendingUi();
 initializeResourceMoveModal();

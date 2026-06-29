@@ -158,7 +158,7 @@ Replace hard-coded Spanish rules with parameterized rules:
 - "Use English for examples, target sentences, role-play dialogue, and phrases
   the learner is practicing."
 
-Prompt files that generate reports, modules, quiz feedback, and chat-room
+Prompt files that generate reports, practice guides, quiz feedback, and chat-room
 resources should receive the same language context. They should not carry
 independent Spanish-only instructions.
 
@@ -362,7 +362,7 @@ Recommended safeguards:
 ### Phase 2: Tutor Runtime Parameterization
 
 - Replace hard-coded Spanish tutor prompt rules with language-context rules.
-- Update tutor reports, report-to-module prompts, quiz evaluation prompts, and
+- Update tutor reports, report-to-practice-guide prompts, quiz evaluation prompts, and
   translator prompts to use support language.
 - Update tool descriptions that currently require Spanish learner-facing text.
 - Separate invariant tutor-contract rules from support-language prompt pack
@@ -429,7 +429,7 @@ Recommended automated coverage:
 - The same pedagogical regression scenarios pass for Spanish, Haitian Creole,
   and English support-language profiles: error correction, scaffolded retry,
   visible tutor plan progression, quiz feedback, report generation, and saved
-  practice-module creation.
+  practice-guide creation.
 - Prompt rendering tests prove invariant tutor-contract sections are present in
   every support-language prompt.
 

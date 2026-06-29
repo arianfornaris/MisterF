@@ -29,7 +29,7 @@ Important files:
 - `block-repair.md`: repair prompt for schema-valid tutor output that leaks exercise payloads into `message`
 - `internal-tool-continuation.md`: continuation prompt after tool calls
 - `profile-context.md`: teacher-only context block with learner-authored profile background
-- `practice-module-context.md`: legacy filename for the context block used by tutor conversations started from a practice guide
+- `practice-guide-context.md`: legacy filename for the context block used by tutor conversations started from a practice guide
 - `tutor-report-context.md`: context block for tutor conversations started from a finalized tutor conversation report
 - `tutor-report-start.md`: one-shot internal first-turn nudge for conversations created from a finalized tutor report
 - `visible-plan-context.md`: teacher-only context with the current fused visible tutor plan
@@ -38,8 +38,8 @@ Important files:
 - `quiz-result-evaluation-correction.md`: repair prompt for invalid quiz result evaluation output
 - `conversation-report.md`: turns a finalized tutor conversation transcript into a structured progress report
 - `conversation-report-correction.md`: repair prompt for invalid tutor conversation report output
-- `report-to-practice-module.md`: legacy filename for turning a tutor conversation report into a practice guide draft
-- `report-to-practice-module-correction.md`: legacy filename for repairing invalid report-to-guide output
+- `report-to-practice-guide.md`: legacy filename for turning a tutor conversation report into a practice guide draft
+- `report-to-practice-guide-correction.md`: legacy filename for repairing invalid report-to-guide output
 
 Tutor block protocol files live in:
 
@@ -80,7 +80,7 @@ behavior:
 Normal tutor conversations do not use a generic one-shot `start-session` prompt.
 The UI may show an ephemeral greeting before the learner writes, but the first
 model turn should be grounded in the learner's actual message or in a
-feature-specific one-shot context such as a report or practice-module start.
+feature-specific one-shot context such as a report or practice-guide start.
 
 Learner profile context is persistent teacher-only background, not a one-shot
 command. `profile-context.md` may include profile name, short description, and
@@ -106,10 +106,10 @@ Folder:
 
 Important files:
 
-- `practice-module-draft.md`
-- `practice-module-draft-correction.md`
-- `practice-module-revision.md`
-- `practice-module-revision-correction.md`
+- `practice-guide-draft.md`
+- `practice-guide-draft-correction.md`
+- `practice-guide-revision.md`
+- `practice-guide-revision-correction.md`
 - `assignment-draft.md`
 - `assignment-draft-correction.md`
 - `assignment-revision.md`

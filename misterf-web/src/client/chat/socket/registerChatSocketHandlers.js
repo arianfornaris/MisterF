@@ -64,12 +64,12 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.resetUserInputHistoryNavigation();
     deps.runtime.updateLlmContextMeter(null);
     deps.runtime.setToolStatus('');
-    deps.setPendingPracticeModuleStart(Boolean(payload.pendingPracticeModuleStart));
-    const shouldAutoStartPracticeModule =
-      deps.getPendingPracticeModuleStart() && Boolean(payload.practiceModule);
-    deps.practiceModuleView.render(payload.practiceModule, {
-      autoStarting: shouldAutoStartPracticeModule,
-      visible: deps.getPendingPracticeModuleStart(),
+    deps.setPendingPracticeGuideStart(Boolean(payload.pendingPracticeGuideStart));
+    const shouldAutoStartPracticeGuide =
+      deps.getPendingPracticeGuideStart() && Boolean(payload.practiceGuide);
+    deps.practiceGuideView.render(payload.practiceGuide, {
+      autoStarting: shouldAutoStartPracticeGuide,
+      visible: deps.getPendingPracticeGuideStart(),
     });
 
     for (const message of payload.messages ?? []) {
@@ -86,15 +86,15 @@ export function registerChatSocketHandlers(deps) {
     } else {
       deps.setIsAssistantBusy(false);
       deps.setIsAssistantStopping(false);
-      deps.setComposerEnabled(!deps.getPendingPracticeModuleStart());
+      deps.setComposerEnabled(!deps.getPendingPracticeGuideStart());
     }
     deps.focusComposer();
     deps.scrollToBottom();
     deps.runtime.flushPendingBootGuestDraft();
 
-    if (shouldAutoStartPracticeModule) {
+    if (shouldAutoStartPracticeGuide) {
       window.setTimeout(() => {
-        deps.runtime.startPracticeModuleConversation({ preservePanel: true });
+        deps.runtime.startPracticeGuideConversation({ preservePanel: true });
       }, 0);
     }
   });
@@ -188,8 +188,8 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.clearPendingDisconnectNotice();
     deps.setIsAssistantBusy(true);
     deps.setIsAssistantStopping(false);
-    deps.setPendingPracticeModuleStart(false);
-    deps.practiceModuleView.render(null, { visible: false });
+    deps.setPendingPracticeGuideStart(false);
+    deps.practiceGuideView.render(null, { visible: false });
     deps.runtime.setToolStatus('');
     deps.setComposerEnabled(false);
     deps.setStreamingBubble(
@@ -221,7 +221,7 @@ export function registerChatSocketHandlers(deps) {
       deps.runtime.setToolStatus('');
       deps.setIsAssistantBusy(false);
       deps.setIsAssistantStopping(false);
-      deps.practiceModuleView.render(null, { visible: false });
+      deps.practiceGuideView.render(null, { visible: false });
       deps.setComposerEnabled(true);
       deps.focusComposer();
       deps.scrollToBottom();
@@ -249,7 +249,7 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.setToolStatus('');
     deps.setIsAssistantBusy(false);
     deps.setIsAssistantStopping(false);
-    deps.practiceModuleView.render(null, { visible: false });
+    deps.practiceGuideView.render(null, { visible: false });
     deps.setComposerEnabled(true);
     deps.focusComposer();
     deps.scrollToBottom();
@@ -264,8 +264,8 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.setToolStatus('');
     deps.setIsAssistantBusy(false);
     deps.setIsAssistantStopping(false);
-    deps.practiceModuleView.render(null, { visible: false });
-    deps.setComposerEnabled(!deps.getPendingPracticeModuleStart());
+    deps.practiceGuideView.render(null, { visible: false });
+    deps.setComposerEnabled(!deps.getPendingPracticeGuideStart());
     deps.focusComposer();
     deps.scrollToBottom();
   });
@@ -283,7 +283,7 @@ export function registerChatSocketHandlers(deps) {
     );
     deps.setIsAssistantBusy(false);
     deps.setIsAssistantStopping(false);
-    deps.setComposerEnabled(!deps.getPendingPracticeModuleStart());
+    deps.setComposerEnabled(!deps.getPendingPracticeGuideStart());
     deps.scrollToBottom();
   });
 

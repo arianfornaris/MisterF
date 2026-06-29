@@ -8,7 +8,7 @@
       <p class="resource-page-copy">
         <%= profilePageMode === 'edit' && selectedProfile
           ? 'Ajusta los datos y preferencias de práctica de este perfil.'
-          : 'Crea un perfil separado para organizar conversaciones, módulos y preferencias sin mezclarlas con las demás.' %>
+          : 'Crea un perfil separado para organizar conversaciones, guías y preferencias sin mezclarlas con las demás.' %>
       </p>
     </div>
 
@@ -28,7 +28,7 @@
 
   <section class="resource-page-form-shell">
     <form
-      class="practice-module-form"
+      class="practice-guide-form"
       method="post"
       action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
       autocomplete="off"
@@ -123,7 +123,7 @@
         </div>
       </fieldset>
 
-      <div class="practice-module-form-actions">
+      <div class="practice-guide-form-actions">
         <button type="submit" class="btn btn-primary">
           <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
         </button>

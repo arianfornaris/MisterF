@@ -267,5 +267,5 @@ Important model instructions:
 - Learner can skip the active step.
 - Learner can ask Mr. F to revise the plan.
 - Plan state can inform progress summaries.
-- Plan steps can be used as future practice-module seeds.
+- Plan steps can be used as future practice-guide seeds.
 - The tutor can use learner progress data when creating the initial plan.

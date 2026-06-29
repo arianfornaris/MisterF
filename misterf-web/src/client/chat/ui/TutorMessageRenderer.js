@@ -38,8 +38,8 @@ export function createTutorMessageRenderer(deps) {
         return;
       }
 
-      if (block.type === 'practice_module_link') {
-        const actionLink = createPracticeModuleLinkAction(block);
+      if (block.type === 'practice_guide_link') {
+        const actionLink = createPracticeGuideLinkAction(block);
         if (actionLink) {
           let actionRow = stack.querySelector('.tutor-message-actions');
           if (!actionRow) {
@@ -730,18 +730,18 @@ export function createTutorMessageRenderer(deps) {
     return fallbackCopyText(content);
   }
 
-  function createPracticeModuleLinkAction(block) {
+  function createPracticeGuideLinkAction(block) {
     if (!block || typeof block !== 'object' || typeof block.label !== 'string') {
       return null;
     }
 
-    if (typeof block.practiceModuleId !== 'string' || !block.practiceModuleId.trim()) {
+    if (typeof block.practiceGuideId !== 'string' || !block.practiceGuideId.trim()) {
       return null;
     }
 
     const link = document.createElement('a');
     link.className = 'btn btn-outline-primary btn-sm rounded-pill tutor-message-action-link';
-    link.href = `/practice-modules/${encodeURIComponent(block.practiceModuleId.trim())}`;
+    link.href = `/practice-guides/${encodeURIComponent(block.practiceGuideId.trim())}`;
     link.textContent = block.label;
     return link;
   }

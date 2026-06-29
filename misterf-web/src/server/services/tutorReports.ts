@@ -62,7 +62,7 @@ const tutorConversationReportSchema = z
   })
   .strict();
 
-const generatedPracticeModuleFromTutorReportSchema = z
+const generatedPracticeGuideFromTutorReportSchema = z
   .object({
     description: z.string().trim().min(1).max(1500),
     title: z.string().trim().min(1).max(220),
@@ -292,7 +292,7 @@ export async function generateTutorConversationReport(input: {
   throw new Error('Could not generate a valid tutor conversation report.');
 }
 
-export async function generatePracticeModuleFromTutorConversationReport(input: {
+export async function generatePracticeGuideFromTutorConversationReport(input: {
   openRouterApiKey?: string | null;
   report: StoredTutorConversationReport;
 }): Promise<{
@@ -300,7 +300,7 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
   title: string;
   tutorInstructions: string;
 }> {
-  const system = renderSystemPrompt('tutor/report-to-practice-module.md');
+  const system = renderSystemPrompt('tutor/report-to-practice-guide.md');
   const messages: ModelMessage[] = [
     {
       content: JSON.stringify({
@@ -323,12 +323,12 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
         messages,
         system,
         {
-          actorLabel: 'Tutor report module',
+          actorLabel: 'Tutor report practice guide',
           llm: {
             modelTier: 'regular',
             openRouterApiKey: input.openRouterApiKey,
           },
-          operation: 'tutor_report_module',
+          operation: 'tutor_report_practice_guide',
         },
         turnNumber,
       );
@@ -352,8 +352,8 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
         result.providerMetadata,
         turnNumber,
         {
-          actorLabel: 'Tutor report module',
-          operation: 'tutor_report_module',
+          actorLabel: 'Tutor report practice guide',
+          operation: 'tutor_report_practice_guide',
         },
       );
 
@@ -362,16 +362,16 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
         parsedSource = parseJsonFromModelText(result.text);
       } catch (error) {
         logLlmInvalidRawResponse({
-          actorLabel: 'Tutor report module',
+          actorLabel: 'Tutor report practice guide',
           error,
-          operation: 'tutor_report_module',
+          operation: 'tutor_report_practice_guide',
           rawText: result.text,
           turn: turnNumber,
         });
         if (turn < maxTutorReportGenerationTurns - 1) {
           appendStructuredCorrectionRequest(messages, {
             invalidOutput: result.text,
-            promptPath: 'tutor/report-to-practice-module-correction.md',
+            promptPath: 'tutor/report-to-practice-guide-correction.md',
             reason: 'Your previous response was not valid JSON because it was truncated or malformed.',
             turn: turnNumber,
           });
@@ -379,13 +379,13 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
         continue;
       }
 
-      const parsed = generatedPracticeModuleFromTutorReportSchema.safeParse(parsedSource);
+      const parsed = generatedPracticeGuideFromTutorReportSchema.safeParse(parsedSource);
       if (!parsed.success) {
         if (turn < maxTutorReportGenerationTurns - 1) {
           appendStructuredCorrectionRequest(messages, {
             invalidOutput: result.text,
-            promptPath: 'tutor/report-to-practice-module-correction.md',
-            reason: 'Your previous JSON did not match the required schema for the practice module payload.',
+            promptPath: 'tutor/report-to-practice-guide-correction.md',
+            reason: 'Your previous JSON did not match the required schema for the practice guide payload.',
             turn: turnNumber,
           });
         }
@@ -394,7 +394,7 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
 
       return parsed.data;
     } catch (error) {
-      logTutorReportEvent('report-module:error', {
+      logTutorReportEvent('report-practice-guide:error', {
         error: error instanceof Error ? error.message : String(error),
         reportId: input.report.id,
         turn: turnNumber,
@@ -402,5 +402,5 @@ export async function generatePracticeModuleFromTutorConversationReport(input: {
     }
   }
 
-  throw new Error('Could not generate a valid practice module from the tutor report.');
+  throw new Error('Could not generate a valid practice guide from the tutor report.');
 }

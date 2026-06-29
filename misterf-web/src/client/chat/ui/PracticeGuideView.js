@@ -1,4 +1,4 @@
-export class PracticeModuleView {
+export class PracticeGuideView {
   constructor({
     panelEl,
     titleEl,
@@ -13,7 +13,7 @@ export class PracticeModuleView {
     this.statusEl = statusEl;
   }
 
-  render(practiceModule, options = {}) {
+  render(practiceGuide, options = {}) {
     if (
       !this.panelEl ||
       !this.titleEl ||
@@ -27,7 +27,7 @@ export class PracticeModuleView {
     const visible = Boolean(options.visible);
     const autoStarting = Boolean(options.autoStarting);
 
-    if (!visible || !practiceModule) {
+    if (!visible || !practiceGuide) {
       this.panelEl.classList.add('d-none');
       this.titleEl.textContent = '';
       this.descriptionEl.textContent = '';
@@ -36,8 +36,8 @@ export class PracticeModuleView {
       return;
     }
 
-    this.titleEl.textContent = autoStarting ? '' : practiceModule.title || 'Guía de Práctica';
-    this.descriptionEl.textContent = autoStarting ? '' : practiceModule.description || '';
+    this.titleEl.textContent = autoStarting ? '' : practiceGuide.title || 'Guía de Práctica';
+    this.descriptionEl.textContent = autoStarting ? '' : practiceGuide.description || '';
     this.statusEl.classList.toggle('d-none', !autoStarting);
     this.buttonEl.classList.toggle('d-none', autoStarting);
     this.panelEl.classList.remove('d-none');

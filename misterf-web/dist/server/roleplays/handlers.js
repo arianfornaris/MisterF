@@ -1,9 +1,9 @@
 import QRCode from 'qrcode';
-import { appendRoleplayAttemptTurns, createConversationFromRoleplayAttempt, createPracticeModule, createRoleplay, createRoleplayAttempt, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findRoleplayAttemptById, findRoleplayById, findRoleplayForUser, getOrCreateResourceShareLink, grantResourceAccess, listResourceFolderPathForResource, listResourceFoldersForProfile, listRoleplayAttemptsForUser, markRoleplayAttemptFailed, saveRoleplayAttemptResult, submitRoleplayAttempt, updateRoleplay, updateRoleplayAuthoringMessages, } from '../db/repository.js';
+import { appendRoleplayAttemptTurns, createConversationFromRoleplayAttempt, createPracticeGuide, createRoleplay, createRoleplayAttempt, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findRoleplayAttemptById, findRoleplayById, findRoleplayForUser, getOrCreateResourceShareLink, grantResourceAccess, listResourceFolderPathForResource, listResourceFoldersForProfile, listRoleplayAttemptsForUser, markRoleplayAttemptFailed, saveRoleplayAttemptResult, submitRoleplayAttempt, updateRoleplay, updateRoleplayAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendRoleplayAuthoringMessages, buildRoleplayAuthoringMessage, countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, hasReachedRoleplayTurnLimit, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
-import { generatePracticeModuleDraft, generateRoleplayDraft, generateRoleplayRevision, } from '../services/resourceDrafts.js';
+import { generatePracticeGuideDraft, generateRoleplayDraft, generateRoleplayRevision, } from '../services/resourceDrafts.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordRoleplayAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
@@ -909,7 +909,7 @@ export async function handleCreateRoleplayPracticeGuide(request, response) {
     }
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-        const generatedModule = await generatePracticeModuleDraft({
+        const generatedModule = await generatePracticeGuideDraft({
             openRouterApiKey,
             prompt: buildRoleplayPracticeGuidePrompt({
                 attempt,
@@ -917,7 +917,7 @@ export async function handleCreateRoleplayPracticeGuide(request, response) {
                 result: result.data,
             }),
         });
-        const practiceModule = createPracticeModule({
+        const practiceGuide = createPracticeGuide({
             description: generatedModule.description,
             profileId: attempt.profileId,
             title: generatedModule.title,
@@ -926,14 +926,14 @@ export async function handleCreateRoleplayPracticeGuide(request, response) {
         });
         logger.info('roleplay_practice_guide_created', {
             attemptId: attempt.id,
-            practiceModuleId: practiceModule.id,
+            practiceGuideId: practiceGuide.id,
             profileId: attempt.profileId,
             resourceId: attempt.roleplayId,
             resourceType: 'roleplay',
             roleplayId: attempt.roleplayId,
             userId: auth.user.id,
         });
-        response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+        response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
     }
     catch (error) {
         logger.error('roleplay_practice_guide_creation_failed', {

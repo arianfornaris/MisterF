@@ -321,17 +321,17 @@ export function createChatRuntime(deps) {
     window.location.assign('/');
   }
 
-  function startPracticeModuleConversation(options = {}) {
+  function startPracticeGuideConversation(options = {}) {
     if (!deps.getSocket() || deps.getIsAssistantBusy() || !deps.getConversationId()) {
       return;
     }
 
-    deps.setPendingPracticeModuleStart(false);
+    deps.setPendingPracticeGuideStart(false);
     if (!options.preservePanel) {
-      deps.practiceModuleView.render(null, { visible: false });
+      deps.practiceGuideView.render(null, { visible: false });
     }
     deps.setComposerEnabled(false);
-    deps.getSocket().emit('practice-module:start', {
+    deps.getSocket().emit('practice-guide:start', {
       conversationId: deps.getConversationId(),
       modelTier: deps.getSelectedModelTier(),
     });
@@ -438,7 +438,7 @@ export function createChatRuntime(deps) {
     showGuestAuthPromptWithDelay,
     showGuestGreeting,
     startNewConversation,
-    startPracticeModuleConversation,
+    startPracticeGuideConversation,
     stopAssistantResponse,
     updateLlmContextMeter,
   };

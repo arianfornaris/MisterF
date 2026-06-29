@@ -1,8 +1,8 @@
-import { closeConversationForUser, createConversationFromTutorReport, createPracticeModule, findConversationForUser, findPracticeModuleForUser, findProfileForUser, findTutorConversationReport, listMessages, renameConversationForUser, saveTutorConversationReport, setTutorConversationReportPracticeModule, } from '../db/repository.js';
+import { closeConversationForUser, createConversationFromTutorReport, createPracticeGuide, findConversationForUser, findPracticeGuideForUser, findProfileForUser, findTutorConversationReport, listMessages, renameConversationForUser, saveTutorConversationReport, setTutorConversationReportPracticeGuide, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGuestInitialGreeting, } from '../pages/shell.js';
-import { generatePracticeModuleFromTutorConversationReport, generateTutorConversationReport, } from '../services/tutorReports.js';
+import { generatePracticeGuideFromTutorConversationReport, generateTutorConversationReport, } from '../services/tutorReports.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 export function renderChatPage(request, response) {
@@ -139,7 +139,7 @@ export function handlePracticeTutorConversationReport(request, response) {
     });
     response.redirect(`/c/${encodeURIComponent(nextConversation.id)}`);
 }
-export async function handleCreatePracticeModuleFromTutorConversationReport(request, response) {
+export async function handleCreatePracticeGuideFromTutorConversationReport(request, response) {
     const user = request.authUser;
     if (!user?.emailVerified) {
         response.redirect('/login');
@@ -156,17 +156,17 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(requ
         response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
         return;
     }
-    if (report.practiceModuleId) {
-        const existingPracticeModule = findPracticeModuleForUser(report.practiceModuleId, user.id);
-        if (existingPracticeModule) {
-            response.redirect(`/practice-modules/${encodeURIComponent(existingPracticeModule.id)}`);
+    if (report.practiceGuideId) {
+        const existingPracticeGuide = findPracticeGuideForUser(report.practiceGuideId, user.id);
+        if (existingPracticeGuide) {
+            response.redirect(`/practice-guides/${encodeURIComponent(existingPracticeGuide.id)}`);
             return;
         }
     }
     let generatedModule;
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
-        generatedModule = await generatePracticeModuleFromTutorConversationReport({
+        generatedModule = await generatePracticeGuideFromTutorConversationReport({
             openRouterApiKey,
             report,
         });
@@ -175,7 +175,7 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(requ
         if (isCreditExhaustedError(error)) {
             logger.warn('credit_exhausted_http_redirect', {
                 conversationId: conversation.id,
-                surface: 'tutor_report_module',
+                surface: 'tutor_report_practice_guide',
                 userId: user.id,
             });
             response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
@@ -183,19 +183,19 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(requ
         }
         throw error;
     }
-    const practiceModule = createPracticeModule({
+    const practiceGuide = createPracticeGuide({
         description: generatedModule.description,
         profileId: conversation.profileId,
         title: generatedModule.title,
         tutorInstructions: generatedModule.tutorInstructions,
         userId: user.id,
     });
-    setTutorConversationReportPracticeModule({
+    setTutorConversationReportPracticeGuide({
         conversationId: conversation.id,
-        practiceModuleId: practiceModule.id,
+        practiceGuideId: practiceGuide.id,
         userId: user.id,
     });
-    response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+    response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
 }
 function buildConversationCreditExhaustedPath(conversationId, tab) {
     const params = new URLSearchParams({

@@ -45,7 +45,7 @@ function buildResourceDetailPath(resource) {
         return `/assignments/${encodeURIComponent(resource.id)}`;
     }
     if (resource.type === 'practice_guide') {
-        return `/practice-modules/${encodeURIComponent(resource.id)}`;
+        return `/practice-guides/${encodeURIComponent(resource.id)}`;
     }
     if (resource.type === 'roleplay') {
         return `/roleplays/${encodeURIComponent(resource.id)}`;
@@ -64,7 +64,7 @@ function buildResourceAction(resource) {
         return {
             actionLabel: 'Comenzar',
             actionMethod: 'post',
-            actionPath: `/practice-modules/${encodeURIComponent(resource.id)}/chats`,
+            actionPath: `/practice-guides/${encodeURIComponent(resource.id)}/chats`,
         };
     }
     if (resource.type === 'roleplay') {

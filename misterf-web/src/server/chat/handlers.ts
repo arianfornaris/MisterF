@@ -2,15 +2,15 @@ import type { Request, Response } from 'express';
 import {
   closeConversationForUser,
   createConversationFromTutorReport,
-  createPracticeModule,
+  createPracticeGuide,
   findConversationForUser,
-  findPracticeModuleForUser,
+  findPracticeGuideForUser,
   findProfileForUser,
   findTutorConversationReport,
   listMessages,
   renameConversationForUser,
   saveTutorConversationReport,
-  setTutorConversationReportPracticeModule,
+  setTutorConversationReportPracticeGuide,
   type StoredConversation,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
@@ -26,7 +26,7 @@ import {
   resolveGuestInitialGreeting,
 } from '../pages/shell.js';
 import {
-  generatePracticeModuleFromTutorConversationReport,
+  generatePracticeGuideFromTutorConversationReport,
   generateTutorConversationReport,
 } from '../services/tutorReports.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
@@ -191,7 +191,7 @@ export function handlePracticeTutorConversationReport(
   response.redirect(`/c/${encodeURIComponent(nextConversation.id)}`);
 }
 
-export async function handleCreatePracticeModuleFromTutorConversationReport(
+export async function handleCreatePracticeGuideFromTutorConversationReport(
   request: Request,
   response: Response,
 ): Promise<void> {
@@ -214,18 +214,18 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(
     return;
   }
 
-  if (report.practiceModuleId) {
-    const existingPracticeModule = findPracticeModuleForUser(report.practiceModuleId, user.id);
-    if (existingPracticeModule) {
-      response.redirect(`/practice-modules/${encodeURIComponent(existingPracticeModule.id)}`);
+  if (report.practiceGuideId) {
+    const existingPracticeGuide = findPracticeGuideForUser(report.practiceGuideId, user.id);
+    if (existingPracticeGuide) {
+      response.redirect(`/practice-guides/${encodeURIComponent(existingPracticeGuide.id)}`);
       return;
     }
   }
 
-  let generatedModule: Awaited<ReturnType<typeof generatePracticeModuleFromTutorConversationReport>>;
+  let generatedModule: Awaited<ReturnType<typeof generatePracticeGuideFromTutorConversationReport>>;
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
-    generatedModule = await generatePracticeModuleFromTutorConversationReport({
+    generatedModule = await generatePracticeGuideFromTutorConversationReport({
       openRouterApiKey,
       report,
     });
@@ -233,7 +233,7 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(
     if (isCreditExhaustedError(error)) {
       logger.warn('credit_exhausted_http_redirect', {
         conversationId: conversation.id,
-        surface: 'tutor_report_module',
+        surface: 'tutor_report_practice_guide',
         userId: user.id,
       });
       response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
@@ -243,7 +243,7 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(
     throw error;
   }
 
-  const practiceModule = createPracticeModule({
+  const practiceGuide = createPracticeGuide({
     description: generatedModule.description,
     profileId: conversation.profileId,
     title: generatedModule.title,
@@ -251,13 +251,13 @@ export async function handleCreatePracticeModuleFromTutorConversationReport(
     userId: user.id,
   });
 
-  setTutorConversationReportPracticeModule({
+  setTutorConversationReportPracticeGuide({
     conversationId: conversation.id,
-    practiceModuleId: practiceModule.id,
+    practiceGuideId: practiceGuide.id,
     userId: user.id,
   });
 
-  response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+  response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
 }
 
 function buildConversationCreditExhaustedPath(

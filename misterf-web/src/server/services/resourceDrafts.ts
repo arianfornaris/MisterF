@@ -21,7 +21,7 @@ import { renderSystemPrompt } from './systemPrompts.js';
 
 const maxDraftGenerationTurns = 4;
 
-const practiceModuleDraftSchema = z.object({
+const practiceGuideDraftSchema = z.object({
   description: z.string().trim().min(1).max(1500),
   title: z.string().trim().min(1).max(220),
   tutorInstructions: z.string().trim().min(1).max(12000),
@@ -32,7 +32,7 @@ const assignmentRevisionSchema = z.object({
   draft: assignmentDraftSchema,
 }).strict();
 
-type PracticeModuleDraft = z.infer<typeof practiceModuleDraftSchema>;
+type PracticeGuideDraft = z.infer<typeof practiceGuideDraftSchema>;
 export type AssignmentRevisionResult = z.infer<typeof assignmentRevisionSchema>;
 
 export type AssignmentRevisionConversationMessage = {
@@ -289,31 +289,31 @@ async function generateStructuredDraft<T>(input: {
   throw new Error('No pude generar un borrador usable.');
 }
 
-export async function generatePracticeModuleDraft(input: {
+export async function generatePracticeGuideDraft(input: {
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<PracticeModuleDraft> {
+}): Promise<PracticeGuideDraft> {
   return generateStructuredDraft({
-    actorLabel: 'Practice module draft',
-    correctionPromptPath: 'resources/practice-module-draft-correction.md',
+    actorLabel: 'Practice guide draft',
+    correctionPromptPath: 'resources/practice-guide-draft-correction.md',
     initialUserMessage: input.prompt,
     openRouterApiKey: input.openRouterApiKey,
-    schema: practiceModuleDraftSchema,
-    systemPromptPath: 'resources/practice-module-draft.md',
+    schema: practiceGuideDraftSchema,
+    systemPromptPath: 'resources/practice-guide-draft.md',
   });
 }
 
-export async function generatePracticeModuleRevision(input: {
-  currentModule: PracticeModuleDraft;
+export async function generatePracticeGuideRevision(input: {
+  currentPracticeGuide: PracticeGuideDraft;
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<PracticeModuleDraft> {
+}): Promise<PracticeGuideDraft> {
   return generateStructuredDraft({
-    actorLabel: 'Practice module revision',
-    correctionPromptPath: 'resources/practice-module-revision-correction.md',
+    actorLabel: 'Practice guide revision',
+    correctionPromptPath: 'resources/practice-guide-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
-        currentModule: input.currentModule,
+        currentPracticeGuide: input.currentPracticeGuide,
         requestedChange: input.prompt,
       },
       null,
@@ -321,8 +321,8 @@ export async function generatePracticeModuleRevision(input: {
     ),
     maxOutputTokens: 4000,
     openRouterApiKey: input.openRouterApiKey,
-    schema: practiceModuleDraftSchema,
-    systemPromptPath: 'resources/practice-module-revision.md',
+    schema: practiceGuideDraftSchema,
+    systemPromptPath: 'resources/practice-guide-revision.md',
   });
 }
 

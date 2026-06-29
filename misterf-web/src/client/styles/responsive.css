@@ -37,7 +37,7 @@
   }
 
   .resource-page-header,
-  .practice-module-form-actions {
+  .practice-guide-form-actions {
     flex-direction: column;
     align-items: stretch;
   }
@@ -59,7 +59,7 @@
     align-items: flex-start;
   }
 
-  .practice-module-filter-input-wrap {
+  .practice-guide-filter-input-wrap {
     max-width: none;
     flex-wrap: wrap;
   }

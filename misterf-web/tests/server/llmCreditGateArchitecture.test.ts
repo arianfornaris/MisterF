@@ -13,7 +13,7 @@ const expectedGenerateTextCallCounts: Record<string, number> = {
 const creditCheckedEntrypoints = [
   'src/server/assignments/handlers.ts',
   'src/server/chat/handlers.ts',
-  'src/server/practiceModules/handlers.ts',
+  'src/server/practiceGuides/handlers.ts',
   'src/server/roleplays/handlers.ts',
   'src/server/socket/chatSocket.ts',
 ];

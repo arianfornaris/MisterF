@@ -271,7 +271,7 @@ Solution:
 
 - Remove `start-session.md` and stop injecting it in the tutor loop.
 - Keep one-shot first-turn prompts only for feature-specific starts, such as
-  report-seeded or practice-module conversations.
+  report-seeded or practice-guide conversations.
 - Let ordinary tutor turns be grounded in persisted history, the learner's
   actual message, or explicit feature-specific `extraHistory`.
 
@@ -280,7 +280,7 @@ Acceptance criteria:
 - No generic `start-session.md` prompt remains in `system-prompts/tutor`.
 - `runTutorAgentLoop` does not add an artificial "Start the session" user
   message.
-- Report and practice-module starts still use their dedicated one-shot context
+- Report and practice-guide starts still use their dedicated one-shot context
   messages.
 
 ### `TLR-010`: Remove Manual Block List Drift In Correction Prompt

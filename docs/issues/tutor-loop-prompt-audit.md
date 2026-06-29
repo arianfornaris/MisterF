@@ -21,7 +21,7 @@ Use this document as an issue map and cleanup plan.
 - `misterf-web/system-prompts/tutor/blocks/*.md`
 - `misterf-web/system-prompts/tutor/structured-correction.md`
 - `misterf-web/system-prompts/tutor/block-repair.md`
-- tutor context prompts such as `practice-module-context.md`, `chatroom-report-context.md`, `tutor-report-context.md`, and `visible-plan-context.md`
+- tutor context prompts such as `practice-guide-context.md`, `chatroom-report-context.md`, `tutor-report-context.md`, and `visible-plan-context.md`
 - tutor loop assembly in `src/server/services/llmTutor/prompt.ts`
 - tutor loop execution in `src/server/services/llmTutor/index.ts`
 - response schemas in `src/server/services/llmTutor/schemas.ts`
@@ -269,7 +269,7 @@ Current direction:
 
 - Do not use a generic `start-session` prompt for now.
 - Keep first-turn commands only in feature-specific one-shot prompts such as
-  report or practice-module starts.
+  report or practice-guide starts.
 
 ## Correction And Repair Prompt Issues
 
@@ -322,7 +322,7 @@ Recommended fix:
 
 Current state:
 
-- Practice-module, chat-room, and progress tools have detailed descriptions.
+- Practice-guide, chat-room, and progress tools have detailed descriptions.
 - `system.md` also repeats many tool-use rules.
 
 Why this is mostly good:

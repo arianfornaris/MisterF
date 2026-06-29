@@ -1,6 +1,6 @@
 type TutorResponseBlock =
   | MessageBlock
-  | PracticeModuleLinkBlock
+  | PracticeGuideLinkBlock
   | DialogueCharacterMessageBlock
   | DialogueTranscriptBlock
   | MatchingPairsBlock

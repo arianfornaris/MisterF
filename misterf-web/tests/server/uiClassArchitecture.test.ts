@@ -3,21 +3,21 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const forbiddenSharedClassNames = [
-  'practice-modules-view',
-  'practice-modules-header',
-  'practice-modules-header-actions',
-  'practice-modules-header-detail',
-  'practice-modules-header-has-close',
-  'practice-modules-kicker',
-  'practice-modules-title',
-  'practice-modules-copy',
-  'practice-module-close-button',
-  'practice-module-detail-shell',
-  'practice-module-form-card',
-  'practice-module-form-shell',
-  'practice-module-section-copy',
-  'practiceModule-section-copy',
-  'practiceModule-section-kicker',
+  'practice-guides-view',
+  'practice-guides-header',
+  'practice-guides-header-actions',
+  'practice-guides-header-detail',
+  'practice-guides-header-has-close',
+  'practice-guides-kicker',
+  'practice-guides-title',
+  'practice-guides-copy',
+  'practice-guide-close-button',
+  'practice-guide-detail-shell',
+  'practice-guide-form-card',
+  'practice-guide-form-shell',
+  'practice-guide-section-copy',
+  'practiceGuide-section-copy',
+  'practiceGuide-section-kicker',
 ];
 
 function readProjectFile(relativePath: string): string {
@@ -70,14 +70,14 @@ describe('UI class architecture', () => {
     }
   });
 
-  it('keeps resource and practice-module styles outside the app shell stylesheet', () => {
+  it('keeps resource and practice-guide styles outside the app shell stylesheet', () => {
     const appCss = readProjectFile('src/client/styles/app.css');
     const appShellCss = readProjectFile('src/client/styles/app-shell.css');
 
     expect(appCss).toContain("@import './resource-pages.css';");
-    expect(appCss).toContain("@import './practice-modules.css';");
+    expect(appCss).toContain("@import './practice-guides.css';");
     expect(appShellCss).not.toContain('.app-resource-view');
-    expect(appShellCss).not.toContain('.practice-modules-page');
-    expect(appShellCss).not.toContain('.practice-module-card');
+    expect(appShellCss).not.toContain('.practice-guides-page');
+    expect(appShellCss).not.toContain('.practice-guide-card');
   });
 });

@@ -5,7 +5,7 @@ step can be split into dynamic sub-steps.
 
 Tutor conversations may work better when they start with a preselected goal and
 exercise structure. Consider an onboarding/start page that generates around 10
-structured practice modules so the model does not have to improvise every
+structured practice guides so the model does not have to improvise every
 session from scratch.
 
 ---

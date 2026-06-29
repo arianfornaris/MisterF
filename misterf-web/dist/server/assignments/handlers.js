@@ -1,9 +1,9 @@
 import QRCode from 'qrcode';
-import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, createPracticeModule, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listAssignmentAttemptsForUser, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringMessages, } from '../db/repository.js';
+import { archiveAssignmentForUser, attachAssignmentAttemptToUser, createAssignment, createAssignmentAttempt, createConversationFromAssignmentAttempt, createPracticeGuide, findAssignmentAttemptById, findAssignmentById, findAssignmentForUser, findAssignmentShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listAssignmentAttemptsForUser, markAssignmentAttemptEvaluating, markAssignmentAttemptFailed, restoreAssignmentForUser, saveAssignmentAttemptResult, submitAssignmentAttempt, updateAssignment, updateAssignmentAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendAssignmentBlock, assignmentDraftToStudentQuizBlock, buildAssignmentEvaluationSummary, buildAssignmentResultTitle, createAssignmentDraftFromManualInput, duplicateAssignmentBlock, evaluateAssignmentAttempt, moveAssignmentBlock, normalizeAssignmentResponses, removeAssignmentBlock, safeParseAssignmentDraft, } from '../services/assignments.js';
-import { generateAssignmentBlock, generateAssignmentDraft, generateAssignmentRevision, generatePracticeModuleDraft, } from '../services/resourceDrafts.js';
+import { generateAssignmentBlock, generateAssignmentDraft, generateAssignmentRevision, generatePracticeGuideDraft, } from '../services/resourceDrafts.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordAssignmentAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
@@ -1170,7 +1170,7 @@ export async function handleCreateAssignmentPracticeGuide(request, response) {
     }
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-        const generatedModule = await generatePracticeModuleDraft({
+        const generatedModule = await generatePracticeGuideDraft({
             openRouterApiKey,
             prompt: buildAssignmentPracticeGuidePrompt({
                 attempt,
@@ -1178,7 +1178,7 @@ export async function handleCreateAssignmentPracticeGuide(request, response) {
                 result: result.data,
             }),
         });
-        const practiceModule = createPracticeModule({
+        const practiceGuide = createPracticeGuide({
             description: generatedModule.description,
             profileId: attempt.profileId,
             title: generatedModule.title,
@@ -1188,13 +1188,13 @@ export async function handleCreateAssignmentPracticeGuide(request, response) {
         logger.info('assignment_practice_guide_created', {
             assignmentId: attempt.assignmentId,
             attemptId: attempt.id,
-            practiceModuleId: practiceModule.id,
+            practiceGuideId: practiceGuide.id,
             profileId: attempt.profileId,
             resourceId: attempt.assignmentId,
             resourceType: 'assignment',
             userId: auth.user.id,
         });
-        response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+        response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
     }
     catch (error) {
         logger.error('assignment_practice_guide_creation_failed', {

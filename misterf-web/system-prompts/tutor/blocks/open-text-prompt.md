@@ -20,7 +20,7 @@
  * propias palabras" when the learner is expected to submit an evaluable answer.
  *
  * Keep this block granular. Ask for one learner-produced sentence, correction,
- * explanation, or example at a time. If a plan or practice module calls for
+ * explanation, or example at a time. If a plan or practice guide calls for
  * several open-ended answers, emit the first `open_text_prompt`, evaluate it
  * after submission, and then continue with the next one. Use `quiz` instead
  * when several open-ended answers must be submitted and evaluated together as a

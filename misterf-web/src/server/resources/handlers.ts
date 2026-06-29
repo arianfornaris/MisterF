@@ -112,7 +112,7 @@ function buildResourceDetailPath(resource: StoredResource): string {
   }
 
   if (resource.type === 'practice_guide') {
-    return `/practice-modules/${encodeURIComponent(resource.id)}`;
+    return `/practice-guides/${encodeURIComponent(resource.id)}`;
   }
 
   if (resource.type === 'roleplay') {
@@ -139,7 +139,7 @@ function buildResourceAction(resource: StoredResource): {
     return {
       actionLabel: 'Comenzar',
       actionMethod: 'post',
-      actionPath: `/practice-modules/${encodeURIComponent(resource.id)}/chats`,
+      actionPath: `/practice-guides/${encodeURIComponent(resource.id)}/chats`,
     };
   }
 

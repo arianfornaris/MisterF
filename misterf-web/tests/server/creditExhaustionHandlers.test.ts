@@ -20,17 +20,17 @@ const creditGateMocks = vi.hoisted(() => {
 const repositoryMocks = vi.hoisted(() => ({
   closeConversationForUser: vi.fn(),
   createConversationFromTutorReport: vi.fn(),
-  createPracticeModule: vi.fn(),
+  createPracticeGuide: vi.fn(),
   deleteConversationForUser: vi.fn(),
   deleteConversationTutorPlan: vi.fn(),
   ensureUserHasProfile: vi.fn(),
   findConversationForUser: vi.fn(),
   findMessageInConversation: vi.fn(),
-  findPracticeModuleForUser: vi.fn(),
+  findPracticeGuideForUser: vi.fn(),
   findProfileById: vi.fn(),
   findProfileForUser: vi.fn(),
   findTutorConversationReport: vi.fn(),
-  getConversationPracticeModuleSnapshot: vi.fn(),
+  getConversationPracticeGuideSnapshot: vi.fn(),
   getConversationTutorPlan: vi.fn(),
   getConversationTutorReportSnapshot: vi.fn(),
   importAssignmentToProfile: vi.fn(),
@@ -38,13 +38,13 @@ const repositoryMocks = vi.hoisted(() => ({
   listMessages: vi.fn(),
   renameConversationForUser: vi.fn(),
   saveTutorConversationReport: vi.fn(),
-  setTutorConversationReportPracticeModule: vi.fn(),
+  setTutorConversationReportPracticeGuide: vi.fn(),
   updateConversationModelTierForUser: vi.fn(),
   updateMessageMetadata: vi.fn(),
 }));
 
 const tutorReportMocks = vi.hoisted(() => ({
-  generatePracticeModuleFromTutorConversationReport: vi.fn(),
+  generatePracticeGuideFromTutorConversationReport: vi.fn(),
   generateTutorConversationReport: vi.fn(),
 }));
 

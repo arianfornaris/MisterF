@@ -30,7 +30,7 @@ export function buildAgentSystemInstruction(options: {
     roleplayTitle: string;
     turnsJson: string;
   } | null;
-  practiceModule?: {
+  practiceGuide?: {
     description: string;
     title: string;
     tutorInstructions: string;
@@ -49,7 +49,7 @@ export function buildAgentSystemInstruction(options: {
     }),
   });
 
-  if (!options.practiceModule) {
+  if (!options.practiceGuide) {
     if (
       !options.assignmentAttempt &&
       !options.roleplayAttempt &&
@@ -92,10 +92,10 @@ export function buildAgentSystemInstruction(options: {
   const sections = [
     base,
     '',
-    renderSystemPrompt('tutor/practice-module-context.md', {
-      PRACTICE_MODULE_DESCRIPTION: options.practiceModule.description,
-      PRACTICE_MODULE_TITLE: options.practiceModule.title,
-      PRACTICE_MODULE_TUTOR_INSTRUCTIONS: options.practiceModule.tutorInstructions,
+    renderSystemPrompt('tutor/practice-guide-context.md', {
+      PRACTICE_GUIDE_DESCRIPTION: options.practiceGuide.description,
+      PRACTICE_GUIDE_TITLE: options.practiceGuide.title,
+      PRACTICE_GUIDE_TUTOR_INSTRUCTIONS: options.practiceGuide.tutorInstructions,
     }),
   ];
 

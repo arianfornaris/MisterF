@@ -20,7 +20,7 @@ Follow these rules:
 
 Recommended structure:
 
-1. Create a dedicated page view such as `views/chatrooms.ejs`, `views/practice-modules.ejs`, or `views/profiles.ejs`.
+1. Create a dedicated page view such as `views/chatrooms.ejs`, `views/practice-guides.ejs`, or `views/profiles.ejs`.
 2. Use partials for shared shells, headers, cards, dialogs, or repeated widgets.
 3. Avoid adding new `pageMode` branches to a template when the result is really a separate page.
 4. When refactoring, split oversized templates by page responsibility first, then extract reusable partials second.
@@ -30,7 +30,7 @@ Good examples:
 - Separate pages:
   - `views/chat.ejs`
   - `views/chatrooms.ejs`
-  - `views/practice-modules.ejs`
+  - `views/practice-guides.ejs`
 - Shared utilities:
   - `views/partials/app-shell-open.ejs`
   - `views/partials/app-shell-close.ejs`

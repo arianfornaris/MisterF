@@ -12,11 +12,11 @@ const chatScriptPartialPath = path.join(
   'partials',
   'chat-client-script.ejs',
 );
-const practiceModulesScriptPartialPath = path.join(
+const practiceGuidesScriptPartialPath = path.join(
   projectRoot,
   'views',
   'partials',
-  'practice-modules-client-script.ejs',
+  'practice-guides-client-script.ejs',
 );
 const resourcesScriptPartialPath = path.join(
   projectRoot,
@@ -107,7 +107,7 @@ const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const assignmentsEntry = manifest['src/client/assignments/index.js'];
 const chatEntry = manifest['src/client/chat/index.js'];
 const clientErrorTelemetryEntry = manifest['src/client/telemetry/clientErrorReporter.js'];
-const practiceModulesEntry = manifest['src/client/practiceModules/index.js'];
+const practiceGuidesEntry = manifest['src/client/practiceGuides/index.js'];
 const resourcesEntry = manifest['src/client/resources/index.js'];
 const roleplaysEntry = manifest['src/client/roleplays/index.js'];
 
@@ -123,8 +123,8 @@ if (!clientErrorTelemetryEntry?.file) {
   console.error('Could not find client error telemetry entry in Vite manifest.');
   process.exit(1);
 }
-if (!practiceModulesEntry?.file) {
-  console.error('Could not find practice modules entry in Vite manifest.');
+if (!practiceGuidesEntry?.file) {
+  console.error('Could not find practice guides entry in Vite manifest.');
   process.exit(1);
 }
 if (!resourcesEntry?.file) {
@@ -139,7 +139,7 @@ if (!roleplaysEntry?.file) {
 const assignmentsScriptPath = `/public/build/${assignmentsEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
 const clientErrorTelemetryScriptPath = `/public/build/${clientErrorTelemetryEntry.file}`;
-const practiceModulesScriptPath = `/public/build/${practiceModulesEntry.file}`;
+const practiceGuidesScriptPath = `/public/build/${practiceGuidesEntry.file}`;
 const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
 const roleplaysScriptPath = `/public/build/${roleplaysEntry.file}`;
 
@@ -159,8 +159,8 @@ fs.writeFileSync(
   'utf8',
 );
 fs.writeFileSync(
-  practiceModulesScriptPartialPath,
-  `    <script type="module" src="${practiceModulesScriptPath}"></script>\n`,
+  practiceGuidesScriptPartialPath,
+  `    <script type="module" src="${practiceGuidesScriptPath}"></script>\n`,
   'utf8',
 );
 fs.writeFileSync(
@@ -210,7 +210,7 @@ console.log(
   `Generated ${path.relative(projectRoot, clientErrorTelemetryScriptPartialPath)} -> ${clientErrorTelemetryScriptPath}`,
 );
 console.log(
-  `Generated ${path.relative(projectRoot, practiceModulesScriptPartialPath)} -> ${practiceModulesScriptPath}`,
+  `Generated ${path.relative(projectRoot, practiceGuidesScriptPartialPath)} -> ${practiceGuidesScriptPath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, resourcesScriptPartialPath)} -> ${resourcesScriptPath}`,

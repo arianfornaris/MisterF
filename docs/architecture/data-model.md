@@ -284,7 +284,7 @@ Important fields:
 - `userId`
 - `profileId`
 - `activeAgent`
-- `practiceModuleId` legacy internal field for practice guide snapshots
+- `practiceGuideId` legacy internal field for practice guide snapshots
 - `chatRoomConversationReportId` legacy nullable field retained until schema cleanup
 - `modelTier`
 - `title`
@@ -325,8 +325,7 @@ Message metadata is used for features such as:
 ### Conversation Practice Guide Snapshot
 
 Stores a frozen copy of practice guide context at conversation start. The
-current table/field names still use `practice_module` as an internal
-compatibility detail.
+table and field names use the canonical `practice_guide` resource name.
 
 This protects the conversation from future edits to the original guide.
 
@@ -355,7 +354,7 @@ Important fields:
 - `summaryTitle`
 - `summaryDescription`
 - `report`
-- optional `practiceModuleId` legacy internal field
+- optional `practiceGuideId` legacy internal field
 
 The report JSON contains:
 
@@ -367,7 +366,7 @@ The report JSON contains:
 - recommendations
 - next steps
 
-`practiceModuleId` is set only when the learner chooses to create a persistent
+`practiceGuideId` is set only when the learner chooses to create a persistent
 practice guide from that report.
 
 ### Conversation Tutor Report Snapshot
@@ -589,9 +588,8 @@ admin tooling.
 ### Practice Guide
 
 A reusable tutor configuration. The user-facing Spanish name is `Guía de
-Práctica`; the current repository, URL, and table implementation still use
-`PracticeModule`/`practice_modules` as compatibility names until a later schema
-rename is worth the migration cost.
+Práctica`; the repository, URL, and table implementation use
+`PracticeGuide`/`practice_guides` as the canonical technical names.
 
 Important fields:
 
@@ -682,7 +680,7 @@ Important fields:
 - `summaryTitle`
 - `summaryDescription`
 - `slides`
-- optional `practiceModuleId` legacy internal field
+- optional `practiceGuideId` legacy internal field
 
 Each report slide contains:
 

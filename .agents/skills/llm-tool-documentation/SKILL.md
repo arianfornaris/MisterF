@@ -1,6 +1,6 @@
 ---
 name: llm-tool-documentation
-description: Use when creating, editing, or reviewing any LLM-accessible tool in Mister F, including AI SDK `tool(...)` definitions, MCP-style tools, tutor tools, chat-room tools, progress tools, practice-module tools, or any schema exposed to a model. Requires documenting both the tool and every input parameter, and keeping project tool docs synchronized.
+description: Use when creating, editing, or reviewing any LLM-accessible tool in Mister F, including AI SDK `tool(...)` definitions, MCP-style tools, tutor tools, chat-room tools, progress tools, practice-guide tools, or any schema exposed to a model. Requires documenting both the tool and every input parameter, and keeping project tool docs synchronized.
 ---
 
 # LLM Tool Documentation

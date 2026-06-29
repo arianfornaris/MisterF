@@ -73,7 +73,7 @@ The main function is:
 Key characteristics:
 
 - takes tutor message history
-- optionally takes practice module context
+- optionally takes practice guide context
 - optionally takes tutor conversation report context
 - optionally takes learner profile context
 - can use tools
@@ -101,7 +101,7 @@ The tutor can emit structured blocks such as:
 
 - `message`
 - `sentence_evaluation`
-- `practice_module_link`
+- `practice_guide_link`
 - `dialogue_character_message`
 - `dialogue_transcript`
 - `translate_to_english_prompt`
@@ -333,36 +333,36 @@ after a manual rename or already-specific title. This runtime tool does not emit
 learner-visible chat tool status; successful renames update the conversation
 state through the conversation rename event.
 
-### Practice module tools
+### Practice guide tools
 
 Defined in:
 
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceModuleTools.ts`
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceGuideTools.ts`
 
 Current tools:
 
-- `list_practice_modules`
-- `create_practice_module`
-- `update_practice_module`
-- `delete_practice_module`
-- `build_practice_module_link`
+- `list_practice_guides`
+- `create_practice_guide`
+- `update_practice_guide`
+- `delete_practice_guide`
+- `build_practice_guide_link`
 
 Use these only by explicit learner mandate for administration of saved practice
-module resources. Do not use them merely because the current conversation was
-started from a module, a visible tutor plan changed, an exercise completed, or a
-module-related action could be pedagogically useful.
+guide resources. Do not use them merely because the current conversation was
+started from a guide, a visible tutor plan changed, an exercise completed, or a
+guide-related action could be pedagogically useful.
 
-`create_practice_module` is model-facing administration for saved modules. The
+`create_practice_guide` is model-facing administration for saved guides. The
 tutor must use it only when the learner explicitly asks for or explicitly
-confirms creating a saved "módulo"/"module". Requests for a plan, new plan,
-practice plan, route, guide, lesson outline, sequence of activities, exercises,
+confirms creating a saved "guía"/"guide". Requests for a plan, new plan,
+practice plan, route, lesson outline, sequence of activities, exercises,
 or next steps must stay in normal tutoring mode and use response blocks such as
 `tutor_plan` when a visible in-chat plan is appropriate.
 
-`update_practice_module`, `delete_practice_module`, `list_practice_modules`,
-and `build_practice_module_link` follow the same rule: the learner must
-explicitly command that exact saved-module action. Current module context is
-pedagogical guidance only; it is not permission to administer the saved module.
+`update_practice_guide`, `delete_practice_guide`, `list_practice_guides`,
+and `build_practice_guide_link` follow the same rule: the learner must
+explicitly command that exact saved-guide action. Current guide context is
+pedagogical guidance only; it is not permission to administer the saved guide.
 
 ### Learner progress tools
 
@@ -416,7 +416,7 @@ be represented as a regular practice block instead of `quiz`.
 
 `open_text_prompt` is for one short model-evaluated response unit at a time:
 one learner-produced sentence, correction, explanation, or example. If a
-practice module, visible plan, report, or teacher instruction calls for several
+practice guide, visible plan, report, or teacher instruction calls for several
 open-ended examples, Mr. F should preserve the sequence but run it across
 sequential turns. He should ask for the first item, evaluate it after
 submission, and then continue with the next item.
@@ -506,9 +506,9 @@ The report includes:
 From the summary, the learner can:
 
 - start a new tutor conversation with `Practicar estos puntos`
-- create a persistent practice module with `Crear módulo de práctica`
+- create a persistent practice guide with `Crear guía de práctica`
 
-`Practicar estos puntos` does not create a module. It creates a new tutor
+`Practicar estos puntos` does not create a practice guide. It creates a new tutor
 conversation seeded with a snapshot of the report, so Mr. F can continue with
 targeted practice based on the finalized conversation.
 

@@ -31,7 +31,7 @@ side effects, and follow-up actions.
 
 The first V1 implementation is in place:
 
-- `Tareas` appears in the authenticated sidebar below `Módulos de práctica`.
+- `Tareas` appears in the authenticated sidebar below `Guías de Práctica`.
 - Teachers create an AI-generated assignment from a natural-language prompt.
 - The authoring workspace includes `General`, `Bloques`, and `AI chat` tabs.
 - The `AI chat` tab persists teacher/assistant history and sends that history
@@ -192,7 +192,7 @@ infrastructure while preserving room for a deeper teacher product later.
 ### Sidebar
 
 Assignments now live under the unified `Recursos` catalog. Earlier V1 notes
-placed `Tareas` near old practice-module and chat-room entries, but the
+placed `Tareas` near old practice-guide and chat-room entries, but the
 resource navigation model supersedes that sidebar layout.
 
 The empty state can say:
@@ -848,7 +848,7 @@ answers unless full LLM tracing is explicitly enabled.
 8. Should guest result claiming create progress automatically, or ask the
    student first?
 9. Should assignment follow-up create a normal tutor conversation, a practice
-   module, or offer both?
+   guide, or offer both?
 10. Should AI-generated blocks be inserted immediately as draft blocks, or
     require an explicit `Accept block` action after review?
 11. Should assignment authoring show an estimated session cost before each
@@ -896,7 +896,7 @@ Scope:
 
 - Add `assignments` router and mount it from the server composition root.
 - Add list/detail/new/edit/archive/share routes.
-- Add the sidebar/navigation entry below `Módulos de práctica`.
+- Add the sidebar/navigation entry below `Guías de Práctica`.
 - Add EJS views that follow the existing resource page conventions.
 - Add static, manually-authored assignment JSON support for development and
   debugging.

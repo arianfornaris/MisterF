@@ -141,7 +141,7 @@ Tasks:
 - [x] Add `src/server/assignments/handlers.ts`.
 - [x] Mount `assignmentsRouter` from `src/server/server.ts`.
 - [x] Update route architecture tests for the new router.
-- [x] Add sidebar/navigation entry below `Módulos de práctica`.
+- [x] Add sidebar/navigation entry below `Guías de Práctica`.
 - [x] Add list page.
 - [x] Add new page.
 - [x] Add detail page.

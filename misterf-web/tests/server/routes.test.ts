@@ -79,7 +79,7 @@ describe('main route smoke tests', () => {
     },
     {
       location: '/resources',
-      route: '/practice-modules',
+      route: '/practice-guides',
     },
     {
       location: '/resources',
@@ -122,7 +122,7 @@ describe('main route smoke tests', () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       createAssignment,
-      createPracticeModule,
+      createPracticeGuide,
       createProfile,
       createResourceFolder,
       createRoleplay,
@@ -160,7 +160,7 @@ describe('main route smoke tests', () => {
       title: 'Route Shared Assignment',
       userId: owner.id,
     });
-    const practiceGuide = createPracticeModule({
+    const practiceGuide = createPracticeGuide({
       description: 'Route shared practice guide.',
       profileId: ownerProfile.id,
       title: 'Route Shared Guide',
@@ -201,7 +201,7 @@ describe('main route smoke tests', () => {
         title: 'Route Shared Assignment',
       },
       {
-        detailPath: `/practice-modules/${practiceGuide.id}`,
+        detailPath: `/practice-guides/${practiceGuide.id}`,
         id: practiceGuide.id,
         title: 'Route Shared Guide',
       },
@@ -379,10 +379,10 @@ describe('main route smoke tests', () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       createAssignment,
-      createPracticeModule,
+      createPracticeGuide,
       createProfile,
       getOrCreateAssignmentShareLink,
-      getOrCreatePracticeModuleShareLink,
+      getOrCreatePracticeGuideShareLink,
       getOrCreateResourceShareLink,
     } = await import('../../src/server/db/repository.js');
 
@@ -405,7 +405,7 @@ describe('main route smoke tests', () => {
       title: 'Legacy Assignment Share',
       userId: owner.id,
     });
-    const practiceGuide = createPracticeModule({
+    const practiceGuide = createPracticeGuide({
       description: 'Legacy guide share.',
       profileId: profile.id,
       title: 'Legacy Guide Share',
@@ -413,7 +413,7 @@ describe('main route smoke tests', () => {
       userId: owner.id,
     });
     const assignmentShareLink = getOrCreateAssignmentShareLink(assignment.id);
-    const practiceGuideShareLink = getOrCreatePracticeModuleShareLink(practiceGuide.id);
+    const practiceGuideShareLink = getOrCreatePracticeGuideShareLink(practiceGuide.id);
 
     const assignmentResponse = await fetch(
       `${baseUrl}/assignments/shared/${assignmentShareLink.id}`,
@@ -426,7 +426,7 @@ describe('main route smoke tests', () => {
     );
 
     const practiceGuideResponse = await fetch(
-      `${baseUrl}/practice-modules/shared/${practiceGuideShareLink.id}`,
+      `${baseUrl}/practice-guides/shared/${practiceGuideShareLink.id}`,
       { redirect: 'manual' },
     );
     const practiceGuideResourceShareLink = getOrCreateResourceShareLink(practiceGuide.id);
@@ -434,6 +434,191 @@ describe('main route smoke tests', () => {
     expect(practiceGuideResponse.headers.get('location')).toBe(
       `/resources/shared/${practiceGuideResourceShareLink.id}`,
     );
+  });
+
+  it('renders the practice guide label and assignment attempts on resource pages', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createAssignment,
+      createAssignmentAttempt,
+      createPracticeGuide,
+      createProfile,
+      saveAssignmentAttemptResult,
+      submitAssignmentAttempt,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-labels-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Labels Owner',
+      provider: 'google',
+      providerSubject: 'route-labels-owner',
+    });
+    const ownerProfile = createProfile({
+      name: 'Route labels profile',
+      userId: owner.id,
+    });
+    const assignmentDraft = {
+      blocks: [
+        {
+          id: 'open_text',
+          item: {
+            kind: 'quiz_open_text',
+            prompt: 'Write one sentence with present perfect.',
+          },
+        },
+      ],
+      description: 'Present perfect practice.',
+      instructions: 'Evaluate present perfect meaning and form.',
+      level: 'B1',
+      targetTopic: 'Present perfect',
+      title: 'Route Labels Assignment',
+    };
+    const assignment = createAssignment({
+      description: assignmentDraft.description,
+      instructions: assignmentDraft.instructions,
+      level: assignmentDraft.level,
+      profileId: ownerProfile.id,
+      quiz: assignmentDraft,
+      targetTopic: assignmentDraft.targetTopic,
+      title: assignmentDraft.title,
+      userId: owner.id,
+    });
+    createPracticeGuide({
+      description: 'Route labels guide.',
+      profileId: ownerProfile.id,
+      title: 'Route Labels Guide',
+      tutorInstructions: 'Practice route labels.',
+      userId: owner.id,
+    });
+
+    const attempt = createAssignmentAttempt({
+      assignmentId: assignment.id,
+      profileId: ownerProfile.id,
+      snapshot: assignmentDraft,
+      userId: owner.id,
+    });
+    submitAssignmentAttempt({
+      attemptId: attempt.id,
+      responses: [{ text: 'She has lived here for years.' }],
+    });
+    saveAssignmentAttemptResult({
+      attemptId: attempt.id,
+      result: {
+        items: [
+          {
+            evaluation: { feedback: 'Bien.', status: 'correct' },
+            kind: 'quiz_open_text',
+            prompt: 'Write one sentence with present perfect.',
+            userResponse: { text: 'She has lived here for years.' },
+          },
+        ],
+        title: assignmentDraft.title,
+        type: 'quiz_result',
+      },
+    });
+
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+
+    const resourcesResponse = await fetch(`${baseUrl}/resources`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const resourcesHtml = await resourcesResponse.text();
+    expect(resourcesResponse.status).toBe(200);
+    expect(resourcesHtml).toContain('Guía de Práctica');
+    expect(resourcesHtml).toContain('Route Labels Guide');
+
+    const assignmentResponse = await fetch(`${baseUrl}/assignments/${assignment.id}`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const assignmentHtml = await assignmentResponse.text();
+    expect(assignmentResponse.status).toBe(200);
+    expect(assignmentHtml).toContain('Route Labels Assignment');
+    expect(assignmentHtml).toContain('Entregas');
+    expect(assignmentHtml).toContain(`/assignment-attempts/${attempt.id}/result`);
+  });
+
+  it('creates, edits, archives, and restores resource folders through routes', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile, findResourceForUser } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-folder-actions-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Folder Actions Owner',
+      provider: 'google',
+      providerSubject: 'route-folder-actions-owner',
+    });
+    const ownerProfile = createProfile({
+      name: 'Route folder actions profile',
+      userId: owner.id,
+    });
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+
+    const resourcesResponse = await fetch(`${baseUrl}/resources`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const csrfToken = extractCsrfToken(await resourcesResponse.text());
+
+    const createResponse = await postForm(
+      '/resources/folders',
+      {
+        _csrf: csrfToken,
+        description: 'Folder created in a route test.',
+        returnTo: '/resources',
+        title: 'QA Folder',
+      },
+      ownerCookie,
+    );
+    expect(createResponse.status).toBe(302);
+    const folderLocation = createResponse.headers.get('location') ?? '';
+    expect(folderLocation).toMatch(/^\/resources\/folders\//);
+    const folderId = decodeURIComponent(folderLocation.replace('/resources/folders/', ''));
+
+    const createdFolderResponse = await fetch(`${baseUrl}${folderLocation}`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    expect(createdFolderResponse.status).toBe(200);
+    expect(await createdFolderResponse.text()).toContain('QA Folder');
+
+    const editResponse = await postForm(
+      `/resources/folders/${folderId}`,
+      {
+        _csrf: csrfToken,
+        description: 'Renamed in a route test.',
+        returnTo: folderLocation,
+        title: 'QA Folder Renamed',
+      },
+      ownerCookie,
+    );
+    expect(editResponse.status).toBe(302);
+    expect(findResourceForUser(folderId, owner.id)?.title).toBe('QA Folder Renamed');
+
+    const archiveResponse = await postForm(
+      `/resources/${folderId}/archive`,
+      {
+        _csrf: csrfToken,
+        returnTo: '/resources',
+      },
+      ownerCookie,
+    );
+    expect(archiveResponse.status).toBe(302);
+    expect(findResourceForUser(folderId, owner.id)?.archivedAt).toBeTruthy();
+
+    const restoreResponse = await postForm(
+      `/resources/${folderId}/restore`,
+      {
+        _csrf: csrfToken,
+        returnTo: '/resources',
+      },
+      ownerCookie,
+    );
+    expect(restoreResponse.status).toBe(302);
+    expect(findResourceForUser(folderId, owner.id)?.archivedAt).toBeFalsy();
   });
 });
 

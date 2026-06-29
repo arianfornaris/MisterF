@@ -14,7 +14,7 @@ export default defineConfig({
         'client-error-telemetry': path.resolve(
           'src/client/telemetry/clientErrorReporter.js',
         ),
-        'practice-modules': path.resolve('src/client/practiceModules/index.js'),
+        'practice-guides': path.resolve('src/client/practiceGuides/index.js'),
         resources: path.resolve('src/client/resources/index.js'),
         roleplays: path.resolve('src/client/roleplays/index.js'),
       },

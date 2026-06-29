@@ -8,8 +8,8 @@ Planned.
 
 Some views reuse CSS classes that were originally named for a specific feature
 but now behave as generic layout helpers. For example, profile and chat room
-forms currently reuse classes such as `practice-module-form-card`, even though
-those pages are not practice-module pages.
+forms currently reuse classes such as `practice-guide-form-card`, even though
+those pages are not practice-guide pages.
 
 This works visually, but the naming hides intent and makes future UI work more
 fragile. It also increases the risk that a style change made for one feature
@@ -41,7 +41,7 @@ Review these areas:
 ## Specific Things To Look For
 
 - Feature-named classes reused as generic helpers, such as
-  `practice-module-form-card` outside practice-module pages.
+  `practice-guide-form-card` outside practice-guide pages.
 - Custom button or link styles where Bootstrap classes would be enough.
 - Multiple visual treatments for equivalent UI patterns.
 - Page headers that use different spacing, hierarchy, or typography without a

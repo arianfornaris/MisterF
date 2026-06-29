@@ -5,7 +5,7 @@ import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './er
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, shouldLogFullLlmTrace, } from './logging.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorConversationTools } from './conversationTools.js';
-import { buildTutorPracticeModuleTools, extractInferredPracticeModuleLinkBlocks } from './practiceModuleTools.js';
+import { buildTutorPracticeGuideTools, extractInferredPracticeGuideLinkBlocks } from './practiceGuideTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
@@ -16,13 +16,13 @@ import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js'
 import { logger } from '../logger.js';
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
-function mergeTutorPracticeModuleLinkBlocks(blocks, inferredLinks) {
-    const seenPracticeModuleIds = new Set(blocks
-        .filter((block) => block.type === 'practice_module_link')
-        .map((block) => block.practiceModuleId));
+function mergeTutorPracticeGuideLinkBlocks(blocks, inferredLinks) {
+    const seenPracticeGuideIds = new Set(blocks
+        .filter((block) => block.type === 'practice_guide_link')
+        .map((block) => block.practiceGuideId));
     return [
         ...blocks,
-        ...inferredLinks.filter((link) => !seenPracticeModuleIds.has(link.practiceModuleId)),
+        ...inferredLinks.filter((link) => !seenPracticeGuideIds.has(link.practiceGuideId)),
     ];
 }
 async function continueTutorResponseAfterToolUse(input) {
@@ -61,9 +61,9 @@ function parseJsonFromModelText(text) {
     }
 }
 function buildTutorResourceLogContext(options) {
-    return options.currentPracticeModuleId
+    return options.currentPracticeGuideId
         ? {
-            resourceId: options.currentPracticeModuleId,
+            resourceId: options.currentPracticeGuideId,
             resourceType: 'practice_guide',
         }
         : {};
@@ -121,14 +121,14 @@ function looksLikeJsonAttempt(text) {
         trimmed.startsWith('```'));
 }
 function buildFallbackBlocksFromPlainText(input) {
-    const inferredLinks = extractInferredPracticeModuleLinkBlocks(input.toolResults);
+    const inferredLinks = extractInferredPracticeGuideLinkBlocks(input.toolResults);
     const trimmedText = input.text.trim();
     if (!trimmedText) {
         return inferredLinks.length > 0
             ? inferredLinks
             : [{ type: 'message', markdown: 'Listo.' }];
     }
-    return mergeTutorPracticeModuleLinkBlocks([{ type: 'message', markdown: trimmedText }], inferredLinks);
+    return mergeTutorPracticeGuideLinkBlocks([{ type: 'message', markdown: trimmedText }], inferredLinks);
 }
 export async function runTutorAgentLoop(history, options) {
     const messages = history.map(toModelMessage);
@@ -138,8 +138,8 @@ export async function runTutorAgentLoop(history, options) {
     });
     const resourceLogContext = buildTutorResourceLogContext(options);
     let lastError = null;
-    const practiceModuleTools = buildTutorPracticeModuleTools({
-        currentPracticeModuleId: options.currentPracticeModuleId ?? null,
+    const practiceGuideTools = buildTutorPracticeGuideTools({
+        currentPracticeGuideId: options.currentPracticeGuideId ?? null,
         onToolCall: options.onToolCall,
         profileId: options.profileId ?? null,
         userId: options.userId ?? null,
@@ -156,7 +156,7 @@ export async function runTutorAgentLoop(history, options) {
         userId: options.userId ?? null,
     });
     const mergedTools = {
-        ...(practiceModuleTools || {}),
+        ...(practiceGuideTools || {}),
         ...(progressTools || {}),
         ...(conversationTools || {}),
     };
@@ -202,26 +202,26 @@ export async function runTutorAgentLoop(history, options) {
             else {
                 try {
                     parsedObject = parseJsonFromModelText(result.text);
-                    finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                    finalBlocks = mergeTutorPracticeGuideLinkBlocks(validateTutorResponseBlocks(parsedObject, {
                         conversationId: options.conversationId ?? null,
                         generatedText: result.text,
                         llm: options.llm,
                         operation: 'tutor',
                         userId: options.userId ?? null,
-                    }), extractInferredPracticeModuleLinkBlocks(toolResults));
+                    }), extractInferredPracticeGuideLinkBlocks(toolResults));
                 }
                 catch (error) {
                     const embeddedJson = extractEmbeddedTutorResponseJson(result.text);
                     if (embeddedJson) {
                         try {
                             parsedObject = parseJsonFromModelText(embeddedJson);
-                            finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                            finalBlocks = mergeTutorPracticeGuideLinkBlocks(validateTutorResponseBlocks(parsedObject, {
                                 conversationId: options.conversationId ?? null,
                                 generatedText: embeddedJson,
                                 llm: options.llm,
                                 operation: 'tutor',
                                 userId: options.userId ?? null,
-                            }), extractInferredPracticeModuleLinkBlocks(toolResults));
+                            }), extractInferredPracticeGuideLinkBlocks(toolResults));
                         }
                         catch (embeddedError) {
                             logLlmInvalidRawResponse({
@@ -254,13 +254,13 @@ export async function runTutorAgentLoop(history, options) {
                         });
                         try {
                             parsedObject = parseJsonFromModelText(effectiveResult.text);
-                            finalBlocks = mergeTutorPracticeModuleLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                            finalBlocks = mergeTutorPracticeGuideLinkBlocks(validateTutorResponseBlocks(parsedObject, {
                                 conversationId: options.conversationId ?? null,
                                 generatedText: effectiveResult.text,
                                 llm: options.llm,
                                 operation: 'tutor',
                                 userId: options.userId ?? null,
-                            }), extractInferredPracticeModuleLinkBlocks(toolResults));
+                            }), extractInferredPracticeGuideLinkBlocks(toolResults));
                         }
                         catch (continuationError) {
                             logLlmInvalidRawResponse({

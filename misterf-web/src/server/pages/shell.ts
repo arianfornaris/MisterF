@@ -122,7 +122,7 @@ export function buildAppShellContext(input: {
     | 'assignments'
     | 'chat'
     | 'credits'
-    | 'practiceModules'
+    | 'practiceGuides'
     | 'progress'
     | 'profiles'
     | 'resources'

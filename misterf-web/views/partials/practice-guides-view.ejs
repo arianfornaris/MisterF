@@ -1,67 +1,67 @@
         <%
-          const practiceModuleDraftValues = typeof practiceModuleFormValues === 'object' && practiceModuleFormValues
-            ? practiceModuleFormValues
+          const practiceGuideDraftValues = typeof practiceGuideFormValues === 'object' && practiceGuideFormValues
+            ? practiceGuideFormValues
             : {};
-          const practiceModuleCloseHref = practiceModulePageMode === 'edit' && selectedPracticeModule
-            ? `/practice-modules/${encodeURIComponent(selectedPracticeModule.id)}`
+          const practiceGuideCloseHref = practiceGuidePageMode === 'edit' && selectedPracticeGuide
+            ? `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}`
             : '/resources';
-          const practiceModuleCurrentFolder = resourceCurrentFolder || null;
-          const practiceModuleFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
-          const practiceModuleFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
-          const showPracticeModuleMoveOption = practiceModulePageMode === 'detail'
-            && selectedPracticeModule
-            && canManagePracticeModule
-            && !selectedPracticeModule.archivedAt
-            && (practiceModuleCurrentFolder || practiceModuleFolderOptions.length > 0);
+          const practiceGuideCurrentFolder = resourceCurrentFolder || null;
+          const practiceGuideFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
+          const practiceGuideFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
+          const showPracticeGuideMoveOption = practiceGuidePageMode === 'detail'
+            && selectedPracticeGuide
+            && canManagePracticeGuide
+            && !selectedPracticeGuide.archivedAt
+            && (practiceGuideCurrentFolder || practiceGuideFolderOptions.length > 0);
         %>
         <section
-          class="app-resource-view practice-modules-page"
+          class="app-resource-view practice-guides-page"
           aria-label="Guías de práctica"
         >
-          <div class="resource-page-header resource-page-header-detail <%= practiceModulePageMode === 'detail' ? '' : 'resource-page-header-has-close' %>">
+          <div class="resource-page-header resource-page-header-detail <%= practiceGuidePageMode === 'detail' ? '' : 'resource-page-header-has-close' %>">
             <div>
               <p class="resource-page-kicker">Guías de práctica</p>
               <h1 class="resource-page-title">
-                <% if (practiceModulePageMode === 'new') { %>
+                <% if (practiceGuidePageMode === 'new') { %>
                   Nueva guía de práctica
-                <% } else if (practiceModulePageMode === 'edit') { %>
+                <% } else if (practiceGuidePageMode === 'edit') { %>
                   Editar guía de práctica
-                <% } else if (practiceModulePageMode === 'share') { %>
-                  <%= selectedSharedPracticeModule ? selectedSharedPracticeModule.title : 'Guía de práctica compartida' %>
+                <% } else if (practiceGuidePageMode === 'share') { %>
+                  <%= selectedSharedPracticeGuide ? selectedSharedPracticeGuide.title : 'Guía de práctica compartida' %>
                 <% } else { %>
-                  <%= selectedPracticeModule ? selectedPracticeModule.title : 'Guía de práctica' %>
+                  <%= selectedPracticeGuide ? selectedPracticeGuide.title : 'Guía de práctica' %>
                 <% } %>
               </h1>
-              <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
+              <% if (practiceGuidePageMode === 'detail' && selectedPracticeGuide) { %>
                 <p class="resource-page-copy">
                   <a href="/resources">Recursos</a>
-                  <% practiceModuleFolderPath.forEach((folder) => { %>
+                  <% practiceGuideFolderPath.forEach((folder) => { %>
                     <span class="mx-1">/</span>
                     <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
                   <% }) %>
                   <span class="mx-1">/</span>
-                  <span><%= selectedPracticeModule.title %></span>
+                  <span><%= selectedPracticeGuide.title %></span>
                 </p>
-              <% } else if (practiceModulePageMode === 'share' && selectedSharedPracticeModule) { %>
-                <div class="resource-page-copy resource-markdown" data-render-markdown><%= selectedSharedPracticeModule.description %></div>
+              <% } else if (practiceGuidePageMode === 'share' && selectedSharedPracticeGuide) { %>
+                <div class="resource-page-copy resource-markdown" data-render-markdown><%= selectedSharedPracticeGuide.description %></div>
               <% } else { %>
                 <p class="resource-page-copy">
-                  <% if (practiceModulePageMode === 'new') { %>
+                  <% if (practiceGuidePageMode === 'new') { %>
                     Diseña una guía con un objetivo claro, una descripción útil y reglas precisas para el tutor.
-                  <% } else if (practiceModulePageMode === 'edit') { %>
+                  <% } else if (practiceGuidePageMode === 'edit') { %>
                     Ajusta esta guía con calma. Los chats existentes conservarán su propia copia del contenido original.
-                  <% } else if (practiceModulePageMode === 'share') { %>
+                  <% } else if (practiceGuidePageMode === 'share') { %>
                     Te compartieron una guía de práctica.
                   <% } %>
                 </p>
               <% } %>
             </div>
 
-            <% if (practiceModulePageMode !== 'detail') { %>
+            <% if (practiceGuidePageMode !== 'detail') { %>
               <div class="resource-page-header-actions">
                 <a
                   class="resource-page-close-button"
-                  href="<%= practiceModuleCloseHref %>"
+                  href="<%= practiceGuideCloseHref %>"
                   title="Cerrar"
                   aria-label="Cerrar"
                 >
@@ -71,11 +71,11 @@
             <% } %>
           </div>
 
-          <% if (practiceModulePageMode === 'detail' && selectedPracticeModule) { %>
+          <% if (practiceGuidePageMode === 'detail' && selectedPracticeGuide) { %>
             <section class="resource-page-detail-shell">
               <div class="d-grid gap-3">
                 <div class="d-flex flex-wrap align-items-center gap-2">
-                  <form method="post" action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/chats">
+                  <form method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/chats">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button class="btn btn-primary" type="submit">
                       <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
@@ -83,7 +83,7 @@
                     </button>
                   </form>
 
-                  <% if (canManagePracticeModule) { %>
+                  <% if (canManagePracticeGuide) { %>
                   <div class="dropdown">
                     <button
                       class="btn btn-secondary dropdown-toggle"
@@ -94,8 +94,8 @@
                       Opciones
                     </button>
                     <ul class="dropdown-menu">
-                      <% if (!selectedPracticeModule.archivedAt) { %>
-                        <% if (showPracticeModuleMoveOption) { %>
+                      <% if (!selectedPracticeGuide.archivedAt) { %>
+                        <% if (showPracticeGuideMoveOption) { %>
                           <li>
                             <button
                               class="dropdown-item"
@@ -103,10 +103,10 @@
                               data-bs-toggle="modal"
                               data-bs-target="#moveResourceModal"
                               data-resource-move-open
-                              data-resource-id="<%= selectedPracticeModule.id %>"
-                              data-resource-title="<%= selectedPracticeModule.title %>"
+                              data-resource-id="<%= selectedPracticeGuide.id %>"
+                              data-resource-title="<%= selectedPracticeGuide.title %>"
                               data-resource-type="practice_guide"
-                              data-current-folder-id="<%= practiceModuleCurrentFolder ? practiceModuleCurrentFolder.id : '' %>"
+                              data-current-folder-id="<%= practiceGuideCurrentFolder ? practiceGuideCurrentFolder.id : '' %>"
                             >
                               <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>
                               Mover a carpeta
@@ -118,7 +118,7 @@
                             class="dropdown-item"
                             type="button"
                             data-bs-toggle="modal"
-                            data-bs-target="#sharePracticeModuleProfileModal"
+                            data-bs-target="#sharePracticeGuideProfileModal"
                           >
                             <i class="bi bi-person me-2" aria-hidden="true"></i>
                             Compartir con perfil
@@ -129,7 +129,7 @@
                             class="dropdown-item"
                             type="button"
                             data-bs-toggle="modal"
-                            data-bs-target="#sharePracticeModuleLinkModal"
+                            data-bs-target="#sharePracticeGuideLinkModal"
                           >
                             <i class="bi bi-share me-2" aria-hidden="true"></i>
                             Compartir
@@ -139,7 +139,7 @@
                         <li>
                           <a
                             class="dropdown-item"
-                            href="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/edit"
+                            href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit"
                           >
                             <i class="bi bi-pencil me-2" aria-hidden="true"></i>
                             Editar guía
@@ -150,14 +150,14 @@
                       <li>
                         <form
                           method="post"
-                          action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/<%= selectedPracticeModule.archivedAt ? 'restore' : 'archive' %>"
-                          onsubmit="return window.confirm('<%= selectedPracticeModule.archivedAt ? '¿Seguro que quieres restaurar esta guía?' : '¿Seguro que quieres archivar esta guía? Podrás recuperarla después desde Archivados.' %>');"
+                          action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/<%= selectedPracticeGuide.archivedAt ? 'restore' : 'archive' %>"
+                          onsubmit="return window.confirm('<%= selectedPracticeGuide.archivedAt ? '¿Seguro que quieres restaurar esta guía?' : '¿Seguro que quieres archivar esta guía? Podrás recuperarla después desde Archivados.' %>');"
                         >
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <input type="hidden" name="returnTo" value="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>">
+                          <input type="hidden" name="returnTo" value="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>">
                           <button class="dropdown-item" type="submit">
-                            <i class="bi <%= selectedPracticeModule.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
-                            <%= selectedPracticeModule.archivedAt ? 'Restaurar guía' : 'Archivar guía' %>
+                            <i class="bi <%= selectedPracticeGuide.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+                            <%= selectedPracticeGuide.archivedAt ? 'Restaurar guía' : 'Archivar guía' %>
                           </button>
                         </form>
                       </li>
@@ -166,15 +166,15 @@
                   <% } %>
                 </div>
 
-                <% if (selectedPracticeModule.sharedVia || !canManagePracticeModule) { %>
+                <% if (selectedPracticeGuide.sharedVia || !canManagePracticeGuide) { %>
                   <div class="d-flex">
-                    <% if (selectedPracticeModuleSharedFromProfileName) { %>
-                      <span class="badge text-bg-light border practice-module-shared-badge" role="status">
-                        Compartida por <%= selectedPracticeModuleSharedFromProfileName %>
+                    <% if (selectedPracticeGuideSharedFromProfileName) { %>
+                      <span class="badge text-bg-light border practice-guide-shared-badge" role="status">
+                        Compartida por <%= selectedPracticeGuideSharedFromProfileName %>
                       </span>
                     <% } else { %>
-                      <span class="badge text-bg-light border practice-module-shared-badge" role="status">
-                        Compartida <%= selectedPracticeModule.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+                      <span class="badge text-bg-light border practice-guide-shared-badge" role="status">
+                        Compartida <%= selectedPracticeGuide.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
                       </span>
                     <% } %>
                   </div>
@@ -183,49 +183,49 @@
                 <p class="resource-page-section-copy">Descripción</p>
                 <div class="card">
                   <div class="card-body">
-                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeModule.description %></div>
+                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.description %></div>
                   </div>
                 </div>
 
                 <p class="resource-page-section-copy">Instrucciones al tutor</p>
                 <div class="card">
                   <div class="card-body">
-                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeModule.tutorInstructions %></div>
+                    <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.tutorInstructions %></div>
                   </div>
                 </div>
 
                 <p class="resource-page-section-copy">Chats de esta guía</p>
-                <% if (practiceModuleConversations.length > 0) { %>
-                  <div class="practice-module-chat-list list-group">
-                    <% practiceModuleConversations.forEach((conversation) => { %>
+                <% if (practiceGuideConversations.length > 0) { %>
+                  <div class="practice-guide-chat-list list-group">
+                    <% practiceGuideConversations.forEach((conversation) => { %>
                       <a
-                        class="practice-module-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
+                        class="practice-guide-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
                         href="/c/<%= encodeURIComponent(conversation.id) %>"
                       >
-                        <span class="practice-module-chat-title"><%= conversation.title %></span>
-                        <time class="practice-module-chat-date" datetime="<%= conversation.updatedAt %>">
+                        <span class="practice-guide-chat-title"><%= conversation.title %></span>
+                        <time class="practice-guide-chat-date" datetime="<%= conversation.updatedAt %>">
                           <%= conversation.updatedAt %>
                         </time>
                       </a>
                     <% }) %>
                   </div>
                 <% } else { %>
-                  <p class="practice-module-empty mb-0">Todavía no hay chats para esta guía.</p>
+                  <p class="practice-guide-empty mb-0">Todavía no hay chats para esta guía.</p>
                 <% } %>
               </div>
             </section>
-          <% } else if (practiceModulePageMode === 'new' || practiceModulePageMode === 'edit') { %>
+          <% } else if (practiceGuidePageMode === 'new' || practiceGuidePageMode === 'edit') { %>
             <section class="resource-page-form-shell">
               <div class="resource-page-form-card card">
                 <div class="card-body">
-                  <% if (practiceModulePageMode === 'new' || (practiceModulePageMode === 'edit' && selectedPracticeModule)) { %>
+                  <% if (practiceGuidePageMode === 'new' || (practiceGuidePageMode === 'edit' && selectedPracticeGuide)) { %>
                     <div class="d-flex justify-content-end mb-4">
-                      <% if (practiceModulePageMode === 'new') { %>
+                      <% if (practiceGuidePageMode === 'new') { %>
                         <button
                           class="btn btn-secondary"
                           type="button"
                           data-bs-toggle="modal"
-                          data-bs-target="#generatePracticeModuleModal"
+                          data-bs-target="#generatePracticeGuideModal"
                         >
                           <i class="bi bi-stars me-1" aria-hidden="true"></i>
                           Crear con IA
@@ -235,7 +235,7 @@
                           class="btn btn-secondary"
                           type="button"
                           data-bs-toggle="modal"
-                          data-bs-target="#revisePracticeModuleModal"
+                          data-bs-target="#revisePracticeGuideModal"
                         >
                           <i class="bi bi-stars me-1" aria-hidden="true"></i>
                           Editar con IA
@@ -244,45 +244,45 @@
                     </div>
                   <% } %>
 
-                  <% if (practiceModuleRevisionSuccess) { %>
+                  <% if (practiceGuideRevisionSuccess) { %>
                     <div class="alert alert-success mb-4" role="status">
                       Actualicé la guía con IA. Revisa los cambios antes de probarla.
                     </div>
                   <% } %>
 
-                  <% if (practiceModuleGenerationError) { %>
+                  <% if (practiceGuideGenerationError) { %>
                     <div class="alert alert-warning mb-4" role="alert">
                       <strong>No pude generar la guía automáticamente.</strong>
-                      <div><%= practiceModuleGenerationError %></div>
+                      <div><%= practiceGuideGenerationError %></div>
                     </div>
                   <% } %>
 
                   <form
-                    class="practice-module-form"
+                    class="practice-guide-form"
                     method="post"
-                    action="<%= practiceModulePageMode === 'edit' && selectedPracticeModule ? `/practice-modules/${encodeURIComponent(selectedPracticeModule.id)}` : '/practice-modules' %>"
+                    action="<%= practiceGuidePageMode === 'edit' && selectedPracticeGuide ? `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}` : '/practice-guides' %>"
                     autocomplete="off"
                   >
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-                    <label class="form-label" for="practiceModuleTitle">
+                    <label class="form-label" for="practiceGuideTitle">
                       Título
                     </label>
                     <input
                       class="form-control"
-                      id="practiceModuleTitle"
+                      id="practiceGuideTitle"
                       name="title"
                       maxlength="120"
-                      value="<%= typeof practiceModuleDraftValues.title === 'string' ? practiceModuleDraftValues.title : (practiceModulePageMode === 'edit' && selectedPracticeModule ? selectedPracticeModule.title : '') %>"
+                      value="<%= typeof practiceGuideDraftValues.title === 'string' ? practiceGuideDraftValues.title : (practiceGuidePageMode === 'edit' && selectedPracticeGuide ? selectedPracticeGuide.title : '') %>"
                       required
                     >
 
-                    <label class="form-label" for="practiceModuleDescription">
+                    <label class="form-label" for="practiceGuideDescription">
                       Descripción
                     </label>
                     <textarea
                       class="form-control"
-                      id="practiceModuleDescription"
+                      id="practiceGuideDescription"
                       name="description"
                       rows="4"
                       maxlength="500"
@@ -290,22 +290,22 @@
                       placeholder="Describe la práctica con Markdown sencillo."
                       data-markdown-editor
                       data-markdown-editor-required="true"
-                      data-markdown-editor-error="practiceModuleDescriptionError"
+                      data-markdown-editor-error="practiceGuideDescriptionError"
                       data-markdown-editor-min-height="8rem"
-                    ><%= typeof practiceModuleDraftValues.description === 'string' ? practiceModuleDraftValues.description : (practiceModulePageMode === 'edit' && selectedPracticeModule ? selectedPracticeModule.description : '') %></textarea>
-                    <div class="invalid-feedback" id="practiceModuleDescriptionError" hidden>
+                    ><%= typeof practiceGuideDraftValues.description === 'string' ? practiceGuideDraftValues.description : (practiceGuidePageMode === 'edit' && selectedPracticeGuide ? selectedPracticeGuide.description : '') %></textarea>
+                    <div class="invalid-feedback" id="practiceGuideDescriptionError" hidden>
                       Escribe una descripción para la guía.
                     </div>
 
-                    <div class="practice-module-help-row">
-                      <label class="form-label" for="practiceModuleTutorInstructions">
+                    <div class="practice-guide-help-row">
+                      <label class="form-label" for="practiceGuideTutorInstructions">
                         Instrucciones al tutor
                       </label>
                       <button
-                        class="btn btn-link practice-module-help-button"
+                        class="btn btn-link practice-guide-help-button"
                         type="button"
                         data-bs-toggle="modal"
-                        data-bs-target="#practiceModuleHelpModal"
+                        data-bs-target="#practiceGuideHelpModal"
                       >
                         <i class="bi bi-question-circle me-1" aria-hidden="true"></i>
                         Ayuda
@@ -313,7 +313,7 @@
                     </div>
                     <textarea
                       class="form-control"
-                      id="practiceModuleTutorInstructions"
+                      id="practiceGuideTutorInstructions"
                       name="tutorInstructions"
                       rows="10"
                       maxlength="4000"
@@ -321,23 +321,23 @@
                       placeholder="Escribe las instrucciones del tutor con Markdown sencillo."
                       data-markdown-editor
                       data-markdown-editor-required="true"
-                      data-markdown-editor-error="practiceModuleTutorInstructionsError"
+                      data-markdown-editor-error="practiceGuideTutorInstructionsError"
                       data-markdown-editor-min-height="18rem"
-                    ><%= typeof practiceModuleDraftValues.tutorInstructions === 'string' ? practiceModuleDraftValues.tutorInstructions : (practiceModulePageMode === 'edit' && selectedPracticeModule ? selectedPracticeModule.tutorInstructions : '') %></textarea>
-                    <div class="invalid-feedback" id="practiceModuleTutorInstructionsError" hidden>
+                    ><%= typeof practiceGuideDraftValues.tutorInstructions === 'string' ? practiceGuideDraftValues.tutorInstructions : (practiceGuidePageMode === 'edit' && selectedPracticeGuide ? selectedPracticeGuide.tutorInstructions : '') %></textarea>
+                    <div class="invalid-feedback" id="practiceGuideTutorInstructionsError" hidden>
                       Escribe las instrucciones del tutor.
                     </div>
 
-                    <div class="practice-module-form-actions">
+                    <div class="practice-guide-form-actions">
                       <button type="submit" class="btn btn-primary">
-                        <%= practiceModulePageMode === 'edit' ? 'Guardar cambios' : 'Crear guía' %>
+                        <%= practiceGuidePageMode === 'edit' ? 'Guardar cambios' : 'Crear guía' %>
                       </button>
                     </div>
                   </form>
                 </div>
               </div>
             </section>
-          <% } else if (practiceModulePageMode === 'share' && selectedSharedPracticeModule && selectedPracticeModuleShareLink) { %>
+          <% } else if (practiceGuidePageMode === 'share' && selectedSharedPracticeGuide && selectedPracticeGuideShareLink) { %>
             <section class="resource-page-form-shell">
               <div class="resource-page-form-card card">
                 <div class="card-body">
@@ -353,22 +353,22 @@
                     <div class="card">
                       <div class="card-body">
                         <p class="resource-page-section-copy mt-0">Descripción</p>
-                        <div class="resource-markdown mb-3" data-render-markdown><%= selectedSharedPracticeModule.description %></div>
+                        <div class="resource-markdown mb-3" data-render-markdown><%= selectedSharedPracticeGuide.description %></div>
                         <p class="resource-page-section-copy">Instrucciones al tutor</p>
-                        <div class="resource-markdown" data-render-markdown><%= selectedSharedPracticeModule.tutorInstructions %></div>
+                        <div class="resource-markdown" data-render-markdown><%= selectedSharedPracticeGuide.tutorInstructions %></div>
                       </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
                       <a class="btn btn-secondary" href="<%= isAuthenticated ? '/resources' : '/' %>">No ahora</a>
                       <% if (isAuthenticated && activeProfile) { %>
-                        <form method="post" action="/resources/shared/<%= encodeURIComponent(selectedPracticeModuleShareLink.id) %>/accept">
+                        <form method="post" action="/resources/shared/<%= encodeURIComponent(selectedPracticeGuideShareLink.id) %>/accept">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <button class="btn btn-primary" type="submit">Agregar a mis recursos</button>
                         </form>
                       <% } else { %>
-                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeModuleShareLink.id}`) %>">Crear cuenta</a>
-                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeModuleShareLink.id}`) %>">Iniciar sesión</a>
+                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeGuideShareLink.id}`) %>">Crear cuenta</a>
+                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeGuideShareLink.id}`) %>">Iniciar sesión</a>
                       <% } %>
                     </div>
                   </div>
@@ -380,15 +380,15 @@
 
         <div
           class="modal fade"
-          id="practiceModuleHelpModal"
+          id="practiceGuideHelpModal"
           tabindex="-1"
-          aria-labelledby="practiceModuleHelpModalLabel"
+          aria-labelledby="practiceGuideHelpModalLabel"
           aria-hidden="true"
         >
           <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
               <div class="modal-header">
-                <h2 class="modal-title fs-5" id="practiceModuleHelpModalLabel">Instrucciones al tutor</h2>
+                <h2 class="modal-title fs-5" id="practiceGuideHelpModalLabel">Instrucciones al tutor</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
               </div>
               <div class="modal-body">
@@ -406,45 +406,45 @@
           </div>
         </div>
 
-        <% if (practiceModulePageMode === 'new') { %>
+        <% if (practiceGuidePageMode === 'new') { %>
           <div
             class="modal fade"
-            id="generatePracticeModuleModal"
+            id="generatePracticeGuideModal"
             tabindex="-1"
-            aria-labelledby="generatePracticeModuleModalLabel"
+            aria-labelledby="generatePracticeGuideModalLabel"
             aria-hidden="true"
-            <% if (practiceModuleGenerationModalAutoOpen) { %>data-auto-open-modal="true"<% } %>
+            <% if (practiceGuideGenerationModalAutoOpen) { %>data-auto-open-modal="true"<% } %>
           >
             <div class="modal-dialog modal-lg modal-dialog-centered">
               <div class="modal-content">
-                <form method="post" action="/practice-modules/generate-draft" data-resource-generate-form>
+                <form method="post" action="/practice-guides/generate-draft" data-resource-generate-form>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="resourceLabel" value="guía de práctica">
                   <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="generatePracticeModuleModalLabel">Crear guía con IA</h2>
+                    <h2 class="modal-title fs-5" id="generatePracticeGuideModalLabel">Crear guía con IA</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                   </div>
                   <div class="modal-body d-grid gap-3">
                     <p class="mb-0 text-body-secondary">
                       Describe qué quieres practicar, para qué nivel y qué tipo de interacción debería guiar Mr. F.
                     </p>
-                    <% if (practiceModuleGenerationError) { %>
+                    <% if (practiceGuideGenerationError) { %>
                       <div class="alert alert-warning mb-0" role="alert">
                         <strong>No pude generar la guía automáticamente.</strong>
-                        <div><%= practiceModuleGenerationError %></div>
-                        <% if (practiceModuleGenerationCreditExhausted) { %>
-                          <a class="btn btn-primary btn-sm mt-3" href="/credits?returnTo=<%= encodeURIComponent('/practice-modules/new') %>">Comprar créditos</a>
+                        <div><%= practiceGuideGenerationError %></div>
+                        <% if (practiceGuideGenerationCreditExhausted) { %>
+                          <a class="btn btn-primary btn-sm mt-3" href="/credits?returnTo=<%= encodeURIComponent('/practice-guides/new') %>">Comprar créditos</a>
                         <% } %>
                       </div>
                     <% } %>
-                    <label class="form-label mb-0" for="practiceModuleGenerationPrompt">Describe la guía que quieres crear</label>
+                    <label class="form-label mb-0" for="practiceGuideGenerationPrompt">Describe la guía que quieres crear</label>
                     <textarea
                       class="form-control"
-                      id="practiceModuleGenerationPrompt"
+                      id="practiceGuideGenerationPrompt"
                       name="prompt"
                       rows="6"
                       required
-                    ><%= practiceModuleGenerationPrompt || '' %></textarea>
+                    ><%= practiceGuideGenerationPrompt || '' %></textarea>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -463,44 +463,44 @@
           </div>
         <% } %>
 
-        <% if (practiceModulePageMode === 'edit' && selectedPracticeModule) { %>
+        <% if (practiceGuidePageMode === 'edit' && selectedPracticeGuide) { %>
           <div
             class="modal fade"
-            id="revisePracticeModuleModal"
+            id="revisePracticeGuideModal"
             tabindex="-1"
-            aria-labelledby="revisePracticeModuleModalLabel"
+            aria-labelledby="revisePracticeGuideModalLabel"
             aria-hidden="true"
-            <% if (practiceModuleRevisionModalAutoOpen) { %>data-auto-open-modal="true"<% } %>
+            <% if (practiceGuideRevisionModalAutoOpen) { %>data-auto-open-modal="true"<% } %>
           >
             <div class="modal-dialog modal-lg modal-dialog-centered">
               <div class="modal-content">
-                <form method="post" action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/revise" data-resource-generate-form>
+                <form method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/revise" data-resource-generate-form>
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="revisePracticeModuleModalLabel">Editar guía con IA</h2>
+                    <h2 class="modal-title fs-5" id="revisePracticeGuideModalLabel">Editar guía con IA</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                   </div>
                   <div class="modal-body d-grid gap-3">
                     <p class="mb-0 text-body-secondary">
                       Describe los cambios que quieres aplicar al título, la descripción o las instrucciones del tutor. La IA conservará lo que no pidas cambiar.
                     </p>
-                    <% if (practiceModuleRevisionError) { %>
+                    <% if (practiceGuideRevisionError) { %>
                       <div class="alert alert-warning mb-0" role="alert">
                         <strong>No pude editar la guía automáticamente.</strong>
-                        <div><%= practiceModuleRevisionError %></div>
-                        <% if (practiceModuleRevisionCreditExhausted) { %>
-                          <a class="btn btn-primary btn-sm mt-3" href="/credits?returnTo=<%= encodeURIComponent(`/practice-modules/${selectedPracticeModule.id}/edit`) %>">Comprar créditos</a>
+                        <div><%= practiceGuideRevisionError %></div>
+                        <% if (practiceGuideRevisionCreditExhausted) { %>
+                          <a class="btn btn-primary btn-sm mt-3" href="/credits?returnTo=<%= encodeURIComponent(`/practice-guides/${selectedPracticeGuide.id}/edit`) %>">Comprar créditos</a>
                         <% } %>
                       </div>
                     <% } %>
-                    <label class="form-label mb-0" for="practiceModuleRevisionPrompt">Cambios que deseas aplicar</label>
+                    <label class="form-label mb-0" for="practiceGuideRevisionPrompt">Cambios que deseas aplicar</label>
                     <textarea
                       class="form-control"
-                      id="practiceModuleRevisionPrompt"
+                      id="practiceGuideRevisionPrompt"
                       name="prompt"
                       rows="6"
                       required
-                    ><%= practiceModuleRevisionPrompt || '' %></textarea>
+                    ><%= practiceGuideRevisionPrompt || '' %></textarea>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -519,12 +519,12 @@
           </div>
         <% } %>
 
-        <% if (practiceModulePageMode === 'new' || (practiceModulePageMode === 'edit' && selectedPracticeModule)) { %>
+        <% if (practiceGuidePageMode === 'new' || (practiceGuidePageMode === 'edit' && selectedPracticeGuide)) { %>
           <div
             class="modal fade"
-            id="practiceModuleGenerationPendingModal"
+            id="practiceGuideGenerationPendingModal"
             tabindex="-1"
-            aria-labelledby="practiceModuleGenerationPendingModalLabel"
+            aria-labelledby="practiceGuideGenerationPendingModalLabel"
             aria-hidden="true"
             data-resource-pending-modal
             data-resource-pending-label="guía de práctica"
@@ -540,8 +540,8 @@
                     aria-hidden="true"
                   ></div>
                   <div>
-                    <h2 class="fs-6 mb-1" id="practiceModuleGenerationPendingModalLabel">
-                      <%= practiceModulePageMode === 'edit' ? 'Actualizando guía...' : 'Creando guía...' %>
+                    <h2 class="fs-6 mb-1" id="practiceGuideGenerationPendingModalLabel">
+                      <%= practiceGuidePageMode === 'edit' ? 'Actualizando guía...' : 'Creando guía...' %>
                     </h2>
                     <p class="mb-0 text-body-secondary small">
                       Esto puede tardar unos segundos.
@@ -554,28 +554,28 @@
 
         <% } %>
 
-        <% if (practiceModulePageMode === 'detail' && selectedPracticeModule && canManagePracticeModule) { %>
+        <% if (practiceGuidePageMode === 'detail' && selectedPracticeGuide && canManagePracticeGuide) { %>
           <div
             class="modal fade"
-            id="sharePracticeModuleProfileModal"
+            id="sharePracticeGuideProfileModal"
             tabindex="-1"
-            aria-labelledby="sharePracticeModuleProfileModalLabel"
+            aria-labelledby="sharePracticeGuideProfileModalLabel"
             aria-hidden="true"
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="sharePracticeModuleProfileModalLabel">Compartir con perfil</h2>
+                  <h2 class="modal-title fs-5" id="sharePracticeGuideProfileModalLabel">Compartir con perfil</h2>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                  <% if (shareTargetPracticeModuleProfiles.length > 0) { %>
-                    <form method="post" action="/practice-modules/<%= encodeURIComponent(selectedPracticeModule.id) %>/share/profile" class="d-grid gap-3">
+                  <% if (shareTargetPracticeGuideProfiles.length > 0) { %>
+                    <form method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/share/profile" class="d-grid gap-3">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <div>
                         <label class="form-label" for="shareTargetProfileId">Perfil destino</label>
                         <select class="form-select" id="shareTargetProfileId" name="targetProfileId" required>
-                          <% shareTargetPracticeModuleProfiles.forEach((profile) => { %>
+                          <% shareTargetPracticeGuideProfiles.forEach((profile) => { %>
                             <option value="<%= profile.id %>"><%= profile.name %></option>
                           <% }) %>
                         </select>
@@ -589,7 +589,7 @@
                     <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta guía.</p>
                   <% } %>
                 </div>
-                <% if (shareTargetPracticeModuleProfiles.length === 0) { %>
+                <% if (shareTargetPracticeGuideProfiles.length === 0) { %>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
                   </div>
@@ -600,15 +600,15 @@
 
           <div
             class="modal fade"
-            id="sharePracticeModuleLinkModal"
+            id="sharePracticeGuideLinkModal"
             tabindex="-1"
-            aria-labelledby="sharePracticeModuleLinkModalLabel"
+            aria-labelledby="sharePracticeGuideLinkModalLabel"
             aria-hidden="true"
           >
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="sharePracticeModuleLinkModalLabel">Enlace para compartir</h2>
+                  <h2 class="modal-title fs-5" id="sharePracticeGuideLinkModalLabel">Enlace para compartir</h2>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body d-grid gap-3">
@@ -616,31 +616,31 @@
                     Quienes usen este enlace verán siempre la versión actual de esta guía.
                   </p>
                   <div>
-                    <label class="form-label" for="practiceModuleShareLinkField">Enlace</label>
+                    <label class="form-label" for="practiceGuideShareLinkField">Enlace</label>
                     <input
                       class="form-control"
-                      id="practiceModuleShareLinkField"
+                      id="practiceGuideShareLinkField"
                       type="text"
                       readonly
-                      value="<%= practiceModuleShareUrl %>"
-                      data-practiceModule-share-link-field
+                      value="<%= practiceGuideShareUrl %>"
+                      data-practiceGuide-share-link-field
                     >
                   </div>
                   <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-outline-secondary" type="button" data-copy-practiceModule-share-link>
+                    <button class="btn btn-outline-secondary" type="button" data-copy-practiceGuide-share-link>
                       <i class="bi bi-copy me-1" aria-hidden="true"></i>
                       Copiar
                     </button>
-                    <button class="btn btn-outline-secondary" type="button" data-native-share-practiceModule-link>
+                    <button class="btn btn-outline-secondary" type="button" data-native-share-practiceGuide-link>
                       <i class="bi bi-share me-1" aria-hidden="true"></i>
                       Compartir
                     </button>
                   </div>
-                  <% if (practiceModuleShareQrDataUrl) { %>
+                  <% if (practiceGuideShareQrDataUrl) { %>
                     <div class="d-flex justify-content-center">
                       <img
-                        class="practiceModule-share-qr"
-                        src="<%= practiceModuleShareQrDataUrl %>"
+                        class="practiceGuide-share-qr"
+                        src="<%= practiceGuideShareQrDataUrl %>"
                         alt="QR del enlace para compartir la guía"
                         width="180"
                         height="180"
@@ -656,7 +656,7 @@
           </div>
 
           <%- include('resource-move-modal', {
-            resourceMoveCurrentFolder: practiceModuleCurrentFolder,
-            resourceMoveFolderOptions: practiceModuleFolderOptions,
+            resourceMoveCurrentFolder: practiceGuideCurrentFolder,
+            resourceMoveFolderOptions: practiceGuideFolderOptions,
           }) %>
         <% } %>

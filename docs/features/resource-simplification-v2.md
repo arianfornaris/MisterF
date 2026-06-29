@@ -69,14 +69,14 @@ Current implementation status:
 - legacy chatroom schema/repository helpers remain only as migration debt until
   the baseline reset or an explicit destructive migration removes them
 
-### Rename Practice Module To Practice Guide
+### Rename Practice Guide To Practice Guide
 
 Rename the product concept:
 
-- Spanish UI: `Módulo de práctica` -> `Guía de Práctica`
-- Internal/domain language: `PracticeModule` -> eventually `PracticeGuide`
+- Spanish UI: `Guía de Práctica` -> `Guía de Práctica`
+- Internal/domain language: `PracticeGuide` -> eventually `PracticeGuide`
 
-The new name is clearer because the resource is not only a module. It guides a
+The new name is clearer because the resource is not only a narrow lesson unit. It guides a
 tutor conversation by describing goals, context, and practice behavior.
 
 Implementation can happen in stages:
@@ -289,7 +289,7 @@ Edit and authoring view behavior:
 - The close button must link to the resource detail page, not to the old
   type-specific list and not to browser history.
 - Assignment edit closes to `/assignments/:assignmentId`.
-- Practice guide edit closes to `/practice-modules/:practiceModuleId`.
+- Practice guide edit closes to `/practice-guides/:practiceGuideId`.
 - Breadcrumbs are optional in edit views. If they are added later, they should
   complement the close button rather than replace the explicit close target.
 
@@ -534,7 +534,7 @@ the first production migration history is clean.
 If any V1 schema has already reached production, use forward-only migrations:
 
 - migrate chatroom data only if it exists and should be preserved
-- migrate legacy practice modules into practice guides/resources
+- migrate legacy practice guides into practice guides/resources
 - migrate assignments into resources
 - create generic share links while preserving old public URLs through redirects
 
@@ -575,9 +575,9 @@ follow-up tutoring use the standard credit policy.
    two-character constraint for a long time?
 2. Which roleplay result metrics should be shown as scores versus qualitative
    feedback?
-3. Should old `/practice-modules` URLs redirect to `Recursos`, or should they
+3. Should old `/practice-guides` URLs redirect to `Recursos`, or should they
    remain as compatibility routes for one release?
-4. Should internal code rename `PracticeModule` to `PracticeGuide` immediately,
+4. Should internal code rename `PracticeGuide` to `PracticeGuide` immediately,
    or should UI copy change first?
 5. Should `Tareas` and `Guías` remain createable from the resource menu only, or
    also from contextual empty states?
@@ -594,7 +594,7 @@ Implement in this order:
 1. finalize terminology and route strategy
 2. design the generic resource data model
 3. introduce the resource shell without removing old behavior
-4. rename practice modules to practice guides at the UI layer
+4. rename practice guides to practice guides at the UI layer
 5. make resource folders the only organization model
 6. migrate assignments and practice guides into the resource catalog
 7. remove chatrooms

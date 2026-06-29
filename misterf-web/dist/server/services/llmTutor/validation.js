@@ -91,7 +91,7 @@ function sanitizeTutorResponseBlock(block) {
 export function blocksToMarkdown(blocks) {
     const messageMarkdown = blocks
         .filter((block) => block.type === 'message' ||
-        block.type === 'practice_module_link' ||
+        block.type === 'practice_guide_link' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
@@ -112,7 +112,7 @@ export function blocksToMarkdown(blocks) {
         if (block.type === 'dialogue_character_message') {
             return `**${block.name}:** ${block.markdown.trim()}`;
         }
-        if (block.type === 'practice_module_link') {
+        if (block.type === 'practice_guide_link') {
             return block.label.trim();
         }
         if (block.type === 'dialogue_transcript') {

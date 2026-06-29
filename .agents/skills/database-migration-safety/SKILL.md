@@ -1,6 +1,6 @@
 ---
 name: database-migration-safety
-description: Use before any Mister F change that touches persisted data, database tables, migrations, repository functions, auth/session storage, payments, learner progress, practice modules, chatrooms, tutor reports, or any code path that reads or writes SQLite. Requires reviewing the migration history before editing and preserving production-safe migration behavior.
+description: Use before any Mister F change that touches persisted data, database tables, migrations, repository functions, auth/session storage, payments, learner progress, practice guides, chatrooms, tutor reports, or any code path that reads or writes SQLite. Requires reviewing the migration history before editing and preserving production-safe migration behavior.
 ---
 
 # Database Migration Safety

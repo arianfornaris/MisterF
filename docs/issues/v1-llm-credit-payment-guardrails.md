@@ -14,9 +14,9 @@ services.
 
 | File | Calls | Service surface | Credit gate |
 | --- | ---: | --- | --- |
-| `src/server/services/resourceDrafts.ts` | 1 | Practice module and chat room draft generation | `practiceModules/handlers.ts` and `chatrooms/handlers.ts` call `getCreditCheckedOpenRouterApiKeyForUser` before passing `openRouterApiKey`. |
-| `src/server/services/chatrooms.ts` | 4 | Chat room turn generation, user-message evaluation, conversation report generation, report-to-practice-module generation | `chatrooms/handlers.ts` gates HTTP flows before calling the service. |
-| `src/server/services/tutorReports.ts` | 2 | Tutor conversation report generation and tutor-report-to-practice-module generation | `chat/handlers.ts` gates report and module creation flows before calling the service. |
+| `src/server/services/resourceDrafts.ts` | 1 | Practice guide and chat room draft generation | `practiceGuides/handlers.ts` and `chatrooms/handlers.ts` call `getCreditCheckedOpenRouterApiKeyForUser` before passing `openRouterApiKey`. |
+| `src/server/services/chatrooms.ts` | 4 | Chat room turn generation, user-message evaluation, conversation report generation, report-to-practice-guide generation | `chatrooms/handlers.ts` gates HTTP flows before calling the service. |
+| `src/server/services/tutorReports.ts` | 2 | Tutor conversation report generation and tutor-report-to-practice-guide generation | `chat/handlers.ts` gates report and practice-guide creation flows before calling the service. |
 | `src/server/services/llmTutor/index.ts` | 4 | Tutor agent loop, internal tool continuation, translator, quiz result evaluation | `socket/chatSocket.ts` builds `LlmRequestOptions` with `getCreditCheckedOpenRouterApiKeyForUser`. |
 | `src/server/services/llmTutor/blockRepair.ts` | 1 | Tutor block repair after a gated tutor agent call | Inherits the same `llm` options from `runTutorAgentLoop`; it is not a standalone user entrypoint. |
 
@@ -33,7 +33,7 @@ Covered behavior:
 
 - Tutor report generation redirects back to the conversation with
   `credit=exhausted` and `creditMessage`.
-- Chat room report-to-practice-module generation redirects back to the report
+- Chat room report-to-practice-guide generation redirects back to the report
   view with `credit=exhausted` and `creditMessage`.
 - Socket flows emit `llm:credit_exhausted` with the shared user-facing credit
   message.

@@ -19,7 +19,7 @@ export type StoredConversation = {
   activeAgent: 'tutor';
   chatRoomConversationReportId: string | null;
   closedAt: string | null;
-  practiceModuleId: string | null;
+  practiceGuideId: string | null;
   id: string;
   modelTier: 'advanced' | 'max' | 'regular';
   profileId: string;
@@ -128,7 +128,7 @@ export type StoredChatRoomConversation = {
   profileId: string;
   reportCreatedAt: string | null;
   reportId: string | null;
-  reportPracticeModuleId: string | null;
+  reportPracticeGuideId: string | null;
   title: string;
   createdAt: string;
   updatedAt: string;
@@ -158,7 +158,7 @@ export type StoredChatRoomConversationReport = {
   summaryTitle: string;
   summaryDescription: string;
   slides: StoredChatRoomConversationReportSlide[];
-  practiceModuleId: string | null;
+  practiceGuideId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -185,12 +185,12 @@ export type StoredChatRoomMessage = {
   createdAt: string;
 };
 
-export type StoredPracticeModule = {
+export type StoredPracticeGuide = {
   archivedAt: string | null;
   id: string;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
-  sourcePracticeModuleId: string | null;
+  sourcePracticeGuideId: string | null;
   sourceProfileId: string | null;
   sourceUserId: string | null;
   userId: string;
@@ -201,15 +201,15 @@ export type StoredPracticeModule = {
   updatedAt: string;
 };
 
-export type StoredPracticeModuleShareLink = {
-  practiceModuleId: string;
+export type StoredPracticeGuideShareLink = {
+  practiceGuideId: string;
   createdAt: string;
   id: string;
   revokedAt: string | null;
 };
 
-export type StoredConversationPracticeModuleSnapshot = {
-  practiceModuleId: string | null;
+export type StoredConversationPracticeGuideSnapshot = {
+  practiceGuideId: string | null;
   conversationId: string;
   createdAt: string;
   description: string;
@@ -254,7 +254,7 @@ export type StoredTutorConversationReport = {
   summaryTitle: string;
   summaryDescription: string;
   report: StoredTutorConversationReportData;
-  practiceModuleId: string | null;
+  practiceGuideId: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -533,7 +533,7 @@ type ChatRoomConversationRow = {
   profile_id: string;
   report_created_at: string | null;
   report_id: string | null;
-  report_practice_module_id: string | null;
+  report_practice_guide_id: string | null;
   title: string;
   created_at: string;
   updated_at: string;
@@ -548,7 +548,7 @@ type ChatRoomConversationReportRow = {
   summary_title: string;
   summary_description: string;
   slides_json: string;
-  practice_module_id: string | null;
+  practice_guide_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -585,7 +585,7 @@ type ConversationRow = {
   active_agent: string;
   chat_room_conversation_report_id: string | null;
   closed_at: string | null;
-  practice_module_id: string | null;
+  practice_guide_id: string | null;
   id: string;
   model_tier: 'advanced' | 'max' | 'regular';
   profile_id: string;
@@ -663,17 +663,17 @@ type TutorConversationReportRow = {
   summary_title: string;
   summary_description: string;
   report_json: string;
-  practice_module_id: string | null;
+  practice_guide_id: string | null;
   created_at: string;
   updated_at: string;
 };
 
-type PracticeModuleRow = {
+type PracticeGuideRow = {
   archived_at: string | null;
   id: string;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
-  source_practice_module_id: string | null;
+  source_practice_guide_id: string | null;
   source_profile_id: string | null;
   source_user_id: string | null;
   user_id: string;
@@ -684,15 +684,15 @@ type PracticeModuleRow = {
   updated_at: string;
 };
 
-type PracticeModuleShareLinkRow = {
-  practice_module_id: string;
+type PracticeGuideShareLinkRow = {
+  practice_guide_id: string;
   created_at: string;
   id: string;
   revoked_at: string | null;
 };
 
-type ConversationPracticeModuleSnapshotRow = {
-  practice_module_id: string | null;
+type ConversationPracticeGuideSnapshotRow = {
+  practice_guide_id: string | null;
   conversation_id: string;
   created_at: string;
   description: string;
@@ -874,7 +874,7 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     activeAgent: 'tutor',
     chatRoomConversationReportId: row.chat_room_conversation_report_id,
     closedAt: row.closed_at,
-    practiceModuleId: row.practice_module_id,
+    practiceGuideId: row.practice_guide_id,
     id: row.id,
     modelTier: row.model_tier,
     profileId: row.profile_id,
@@ -1004,7 +1004,7 @@ function toStoredTutorConversationReport(
     summaryTitle: row.summary_title,
     summaryDescription: row.summary_description,
     report: parseTutorConversationReportData(row.report_json),
-    practiceModuleId: row.practice_module_id,
+    practiceGuideId: row.practice_guide_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -1462,7 +1462,7 @@ function toStoredChatRoomConversation(
     profileId: row.profile_id,
     reportCreatedAt: row.report_created_at,
     reportId: row.report_id,
-    reportPracticeModuleId: row.report_practice_module_id,
+    reportPracticeGuideId: row.report_practice_guide_id,
     title: row.title,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -1494,7 +1494,7 @@ function toStoredChatRoomConversationReport(
     summaryTitle: row.summary_title,
     summaryDescription: row.summary_description,
     slides: parseChatRoomConversationReportSlides(row.slides_json),
-    practiceModuleId: row.practice_module_id,
+    practiceGuideId: row.practice_guide_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -1516,13 +1516,13 @@ function toStoredChatRoomMessage(
   };
 }
 
-function toStoredPracticeModule(row: PracticeModuleRow): StoredPracticeModule {
+function toStoredPracticeGuide(row: PracticeGuideRow): StoredPracticeGuide {
   return {
     archivedAt: row.archived_at,
     id: row.id,
     profileId: row.profile_id,
     sharedVia: row.shared_via,
-    sourcePracticeModuleId: row.source_practice_module_id,
+    sourcePracticeGuideId: row.source_practice_guide_id,
     sourceProfileId: row.source_profile_id,
     sourceUserId: row.source_user_id,
     userId: row.user_id,
@@ -1534,22 +1534,22 @@ function toStoredPracticeModule(row: PracticeModuleRow): StoredPracticeModule {
   };
 }
 
-function toStoredPracticeModuleShareLink(
-  row: PracticeModuleShareLinkRow,
-): StoredPracticeModuleShareLink {
+function toStoredPracticeGuideShareLink(
+  row: PracticeGuideShareLinkRow,
+): StoredPracticeGuideShareLink {
   return {
-    practiceModuleId: row.practice_module_id,
+    practiceGuideId: row.practice_guide_id,
     createdAt: row.created_at,
     id: row.id,
     revokedAt: row.revoked_at,
   };
 }
 
-function toStoredConversationPracticeModuleSnapshot(
-  row: ConversationPracticeModuleSnapshotRow,
-): StoredConversationPracticeModuleSnapshot {
+function toStoredConversationPracticeGuideSnapshot(
+  row: ConversationPracticeGuideSnapshotRow,
+): StoredConversationPracticeGuideSnapshot {
   return {
-    practiceModuleId: row.practice_module_id,
+    practiceGuideId: row.practice_guide_id,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     description: row.description,
@@ -2412,7 +2412,7 @@ export function archiveResourceForUser(
     } else if (resource.type === 'practice_guide') {
       db.prepare(
         `
-          UPDATE practice_modules
+          UPDATE practice_guides
           SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -2458,7 +2458,7 @@ export function restoreResourceForUser(
     } else if (resource.type === 'practice_guide') {
       db.prepare(
         `
-          UPDATE practice_modules
+          UPDATE practice_guides
           SET archived_at = NULL,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -3060,7 +3060,7 @@ export function createConversation(
   options: {
     chatRoomConversationReportId?: string | null;
     modelTier?: 'advanced' | 'max' | 'regular';
-    practiceModuleId?: string | null;
+    practiceGuideId?: string | null;
   } = {},
 ): StoredConversation {
   const id = randomUUID();
@@ -3073,7 +3073,7 @@ export function createConversation(
           user_id,
           profile_id,
           title,
-          practice_module_id,
+          practice_guide_id,
           chat_room_conversation_report_id,
           active_agent,
           model_tier
@@ -3086,7 +3086,7 @@ export function createConversation(
       userId,
       profileId,
       title,
-      options.practiceModuleId ?? null,
+      options.practiceGuideId ?? null,
       options.chatRoomConversationReportId ?? null,
       'tutor',
       modelTier,
@@ -3100,21 +3100,21 @@ export function createConversation(
   return conversation;
 }
 
-export function createConversationFromPracticeModule(
+export function createConversationFromPracticeGuide(
   userId: string,
-  practiceModule: StoredPracticeModule,
-  profileId = practiceModule.profileId,
+  practiceGuide: StoredPracticeGuide,
+  profileId = practiceGuide.profileId,
 ): StoredConversation {
   const conversation = createConversation(
     userId,
     profileId,
     defaultConversationTitle,
     {
-      practiceModuleId: practiceModule.id,
+      practiceGuideId: practiceGuide.id,
     },
   );
 
-  createConversationPracticeModuleSnapshot(conversation.id, practiceModule);
+  createConversationPracticeGuideSnapshot(conversation.id, practiceGuide);
   return conversation;
 }
 
@@ -3164,7 +3164,7 @@ export function findConversationForUser(
   const row = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_module_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
              , model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE id = ? AND user_id = ?
@@ -3221,7 +3221,7 @@ export function listConversationsForProfile(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_module_id, profile_id, active_agent
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
              , model_tier, chat_room_conversation_report_id
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
@@ -3769,7 +3769,7 @@ export function findChatRoomConversationForUser(
           c.updated_at,
           r.id AS report_id,
           r.created_at AS report_created_at,
-          r.practice_module_id AS report_practice_module_id
+          r.practice_guide_id AS report_practice_guide_id
         FROM chat_room_conversations c
         LEFT JOIN chat_room_conversation_reports r
           ON r.conversation_id = c.id
@@ -3798,7 +3798,7 @@ export function listChatRoomConversationsForRoom(
           c.updated_at,
           r.id AS report_id,
           r.created_at AS report_created_at,
-          r.practice_module_id AS report_practice_module_id
+          r.practice_guide_id AS report_practice_guide_id
         FROM chat_room_conversations c
         LEFT JOIN chat_room_conversation_reports r
           ON r.conversation_id = c.id
@@ -3828,7 +3828,7 @@ export function findLatestChatRoomConversationForRoom(
           c.updated_at,
           r.id AS report_id,
           r.created_at AS report_created_at,
-          r.practice_module_id AS report_practice_module_id
+          r.practice_guide_id AS report_practice_guide_id
         FROM chat_room_conversations c
         LEFT JOIN chat_room_conversation_reports r
           ON r.conversation_id = c.id
@@ -3866,7 +3866,7 @@ export function findChatRoomConversationReport(
           summary_title,
           summary_description,
           slides_json,
-          practice_module_id,
+          practice_guide_id,
           created_at,
           updated_at
         FROM chat_room_conversation_reports
@@ -3956,21 +3956,21 @@ export function saveChatRoomConversationReport(input: {
   return created;
 }
 
-export function setChatRoomConversationReportPracticeModule(input: {
+export function setChatRoomConversationReportPracticeGuide(input: {
   conversationId: string;
-  practiceModuleId: string | null;
+  practiceGuideId: string | null;
   userId: string;
 }): StoredChatRoomConversationReport | null {
   getDb()
     .prepare(
       `
         UPDATE chat_room_conversation_reports
-        SET practice_module_id = ?,
+        SET practice_guide_id = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE conversation_id = ? AND user_id = ?
       `,
     )
-    .run(input.practiceModuleId, input.conversationId, input.userId);
+    .run(input.practiceGuideId, input.conversationId, input.userId);
 
   touchChatRoomConversation(input.conversationId);
 
@@ -3992,7 +3992,7 @@ export function findTutorConversationReport(
           summary_title,
           summary_description,
           report_json,
-          practice_module_id,
+          practice_guide_id,
           created_at,
           updated_at
         FROM tutor_conversation_reports
@@ -4077,21 +4077,21 @@ export function saveTutorConversationReport(input: {
   return created;
 }
 
-export function setTutorConversationReportPracticeModule(input: {
+export function setTutorConversationReportPracticeGuide(input: {
   conversationId: string;
-  practiceModuleId: string | null;
+  practiceGuideId: string | null;
   userId: string;
 }): StoredTutorConversationReport | null {
   getDb()
     .prepare(
       `
         UPDATE tutor_conversation_reports
-        SET practice_module_id = ?,
+        SET practice_guide_id = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE conversation_id = ? AND user_id = ?
       `,
     )
-    .run(input.practiceModuleId, input.conversationId, input.userId);
+    .run(input.practiceGuideId, input.conversationId, input.userId);
 
   touchConversation(input.conversationId);
 
@@ -5710,17 +5710,17 @@ function escapeMarkdownLinkText(value: string): string {
   return value.replace(/([\\\[\]])/g, '\\$1');
 }
 
-export function createPracticeModule(input: {
+export function createPracticeGuide(input: {
   profileId: string;
   sharedVia?: 'profile' | 'link' | null;
-  sourcePracticeModuleId?: string | null;
+  sourcePracticeGuideId?: string | null;
   sourceProfileId?: string | null;
   sourceUserId?: string | null;
   userId: string;
   title: string;
   description: string;
   tutorInstructions: string;
-}): StoredPracticeModule {
+}): StoredPracticeGuide {
   const id = randomUUID();
   const db = getDb();
   const transaction = db.transaction(() => {
@@ -5730,7 +5730,7 @@ export function createPracticeModule(input: {
       profileId: input.profileId,
       sharedVia: input.sharedVia ?? null,
       sourceProfileId: input.sourceProfileId ?? null,
-      sourceResourceId: input.sourcePracticeModuleId ?? null,
+      sourceResourceId: input.sourcePracticeGuideId ?? null,
       sourceUserId: input.sourceUserId ?? null,
       title: input.title,
       type: 'practice_guide',
@@ -5738,14 +5738,14 @@ export function createPracticeModule(input: {
     });
     db.prepare(
       `
-        INSERT INTO practice_modules (
+        INSERT INTO practice_guides (
           id,
           user_id,
           profile_id,
           title,
           description,
           tutor_instructions,
-          source_practice_module_id,
+          source_practice_guide_id,
           source_user_id,
           source_profile_id,
           shared_via
@@ -5760,7 +5760,7 @@ export function createPracticeModule(input: {
         input.title,
         input.description,
         input.tutorInstructions,
-        input.sourcePracticeModuleId ?? null,
+        input.sourcePracticeGuideId ?? null,
         input.sourceUserId ?? null,
         input.sourceProfileId ?? null,
         input.sharedVia ?? null,
@@ -5769,18 +5769,18 @@ export function createPracticeModule(input: {
 
   transaction();
 
-  const practiceModule = findPracticeModuleForUser(id, input.userId);
-  if (!practiceModule) {
-    throw new Error('Could not load newly created practice module.');
+  const practiceGuide = findPracticeGuideForUser(id, input.userId);
+  if (!practiceGuide) {
+    throw new Error('Could not load newly created practice guide.');
   }
 
-  return practiceModule;
+  return practiceGuide;
 }
 
-export function findPracticeModuleForUser(
+export function findPracticeGuideForUser(
   id: string,
   userId: string,
-): StoredPracticeModule | null {
+): StoredPracticeGuide | null {
   const row = getDb()
     .prepare(
       `
@@ -5794,20 +5794,20 @@ export function findPracticeModuleForUser(
           created_at,
           updated_at,
           profile_id,
-          source_practice_module_id,
+          source_practice_guide_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM practice_modules
+        FROM practice_guides
         WHERE id = ? AND user_id = ?
       `,
     )
-    .get(id, userId) as PracticeModuleRow | undefined;
+    .get(id, userId) as PracticeGuideRow | undefined;
 
-  return row ? toStoredPracticeModule(row) : null;
+  return row ? toStoredPracticeGuide(row) : null;
 }
 
-export function findPracticeModuleById(id: string): StoredPracticeModule | null {
+export function findPracticeGuideById(id: string): StoredPracticeGuide | null {
   const row = getDb()
     .prepare(
       `
@@ -5821,23 +5821,23 @@ export function findPracticeModuleById(id: string): StoredPracticeModule | null 
           created_at,
           updated_at,
           profile_id,
-          source_practice_module_id,
+          source_practice_guide_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM practice_modules
+        FROM practice_guides
         WHERE id = ?
       `,
     )
-    .get(id) as PracticeModuleRow | undefined;
+    .get(id) as PracticeGuideRow | undefined;
 
-  return row ? toStoredPracticeModule(row) : null;
+  return row ? toStoredPracticeGuide(row) : null;
 }
 
-export function listPracticeModulesForProfile(
+export function listPracticeGuidesForProfile(
   userId: string,
   profileId: string,
-): StoredPracticeModule[] {
+): StoredPracticeGuide[] {
   const rows = getDb()
     .prepare(
       `
@@ -5851,26 +5851,26 @@ export function listPracticeModulesForProfile(
           created_at,
           updated_at,
           profile_id,
-          source_practice_module_id,
+          source_practice_guide_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM practice_modules
+        FROM practice_guides
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, profileId) as PracticeModuleRow[];
+    .all(userId, profileId) as PracticeGuideRow[];
 
-  return rows.map(toStoredPracticeModule);
+  return rows.map(toStoredPracticeGuide);
 }
 
-export function deletePracticeModuleForUser(id: string, userId: string): boolean {
+export function deletePracticeGuideForUser(id: string, userId: string): boolean {
   const db = getDb();
   const transaction = db.transaction(() => {
     db.prepare('DELETE FROM resource_folder_items WHERE resource_id = ?').run(id);
     db.prepare('DELETE FROM resources WHERE id = ? AND user_id = ?').run(id, userId);
-    return db.prepare('DELETE FROM practice_modules WHERE id = ? AND user_id = ?').run(id, userId);
+    return db.prepare('DELETE FROM practice_guides WHERE id = ? AND user_id = ?').run(id, userId);
   });
 
   const result = transaction();
@@ -5878,22 +5878,22 @@ export function deletePracticeModuleForUser(id: string, userId: string): boolean
   return result.changes > 0;
 }
 
-export function archivePracticeModuleForUser(
-  practiceModuleId: string,
+export function archivePracticeGuideForUser(
+  practiceGuideId: string,
   userId: string,
-): StoredPracticeModule | null {
+): StoredPracticeGuide | null {
   const db = getDb();
   const transaction = db.transaction(() => {
-    archiveResource(db, practiceModuleId, userId);
+    archiveResource(db, practiceGuideId, userId);
     return db.prepare(
       `
-        UPDATE practice_modules
+        UPDATE practice_guides
         SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-      .run(practiceModuleId, userId);
+      .run(practiceGuideId, userId);
   });
 
   const result = transaction();
@@ -5902,25 +5902,25 @@ export function archivePracticeModuleForUser(
     return null;
   }
 
-  return findPracticeModuleForUser(practiceModuleId, userId);
+  return findPracticeGuideForUser(practiceGuideId, userId);
 }
 
-export function restorePracticeModuleForUser(
-  practiceModuleId: string,
+export function restorePracticeGuideForUser(
+  practiceGuideId: string,
   userId: string,
-): StoredPracticeModule | null {
+): StoredPracticeGuide | null {
   const db = getDb();
   const transaction = db.transaction(() => {
-    restoreResource(db, practiceModuleId, userId);
+    restoreResource(db, practiceGuideId, userId);
     return db.prepare(
       `
-        UPDATE practice_modules
+        UPDATE practice_guides
         SET archived_at = NULL,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-      .run(practiceModuleId, userId);
+      .run(practiceGuideId, userId);
   });
 
   const result = transaction();
@@ -5929,46 +5929,46 @@ export function restorePracticeModuleForUser(
     return null;
   }
 
-  return findPracticeModuleForUser(practiceModuleId, userId);
+  return findPracticeGuideForUser(practiceGuideId, userId);
 }
 
-export function listConversationsForPracticeModule(
-  practiceModuleId: string,
+export function listConversationsForPracticeGuide(
+  practiceGuideId: string,
   userId: string,
   profileId: string,
 ): StoredConversation[] {
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_module_id, profile_id, active_agent, model_tier, chat_room_conversation_report_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier, chat_room_conversation_report_id
         FROM conversations
-        WHERE user_id = ? AND profile_id = ? AND practice_module_id = ?
+        WHERE user_id = ? AND profile_id = ? AND practice_guide_id = ?
         ORDER BY updated_at DESC, created_at DESC
       `,
     )
-    .all(userId, profileId, practiceModuleId) as ConversationRow[];
+    .all(userId, profileId, practiceGuideId) as ConversationRow[];
 
   return rows.map(toStoredConversation);
 }
 
-export function updatePracticeModule(input: {
-  practiceModuleId: string;
+export function updatePracticeGuide(input: {
+  practiceGuideId: string;
   description: string;
   title: string;
   tutorInstructions: string;
   userId: string;
-}): StoredPracticeModule | null {
+}): StoredPracticeGuide | null {
   const db = getDb();
   const transaction = db.transaction(() => {
     updateResourceMetadata(db, {
       description: input.description,
-      id: input.practiceModuleId,
+      id: input.practiceGuideId,
       title: input.title,
       userId: input.userId,
     });
     db.prepare(
       `
-        UPDATE practice_modules
+        UPDATE practice_guides
         SET title = ?,
             description = ?,
             tutor_instructions = ?,
@@ -5980,21 +5980,21 @@ export function updatePracticeModule(input: {
         input.title,
         input.description,
         input.tutorInstructions,
-        input.practiceModuleId,
+        input.practiceGuideId,
         input.userId,
       );
   });
 
   transaction();
 
-  return findPracticeModuleForUser(input.practiceModuleId, input.userId);
+  return findPracticeGuideForUser(input.practiceGuideId, input.userId);
 }
 
-export function findImportedPracticeModuleForProfile(input: {
+export function findImportedPracticeGuideForProfile(input: {
   profileId: string;
-  sourcePracticeModuleId: string;
+  sourcePracticeGuideId: string;
   userId: string;
-}): StoredPracticeModule | null {
+}): StoredPracticeGuide | null {
   const row = getDb()
     .prepare(
       `
@@ -6008,93 +6008,93 @@ export function findImportedPracticeModuleForProfile(input: {
           created_at,
           updated_at,
           profile_id,
-          source_practice_module_id,
+          source_practice_guide_id,
           source_user_id,
           source_profile_id,
           shared_via
-        FROM practice_modules
+        FROM practice_guides
         WHERE user_id = ?
           AND profile_id = ?
-          AND source_practice_module_id = ?
+          AND source_practice_guide_id = ?
         ORDER BY updated_at DESC, created_at DESC
         LIMIT 1
       `,
     )
-    .get(input.userId, input.profileId, input.sourcePracticeModuleId) as
-    | PracticeModuleRow
+    .get(input.userId, input.profileId, input.sourcePracticeGuideId) as
+    | PracticeGuideRow
     | undefined;
 
-  return row ? toStoredPracticeModule(row) : null;
+  return row ? toStoredPracticeGuide(row) : null;
 }
 
-export function importPracticeModuleToProfile(input: {
+export function importPracticeGuideToProfile(input: {
   shareKind: 'profile' | 'link';
-  sourcePracticeModule: StoredPracticeModule;
+  sourcePracticeGuide: StoredPracticeGuide;
   targetProfileId: string;
   userId: string;
-}): StoredPracticeModule {
-  const existing = findImportedPracticeModuleForProfile({
+}): StoredPracticeGuide {
+  const existing = findImportedPracticeGuideForProfile({
     profileId: input.targetProfileId,
-    sourcePracticeModuleId: input.sourcePracticeModule.id,
+    sourcePracticeGuideId: input.sourcePracticeGuide.id,
     userId: input.userId,
   });
   if (existing) {
     return existing;
   }
 
-  return createPracticeModule({
-    description: input.sourcePracticeModule.description,
+  return createPracticeGuide({
+    description: input.sourcePracticeGuide.description,
     profileId: input.targetProfileId,
     sharedVia: input.shareKind,
-    sourcePracticeModuleId: input.sourcePracticeModule.id,
-    sourceProfileId: input.sourcePracticeModule.profileId,
-    sourceUserId: input.sourcePracticeModule.userId,
-    title: input.sourcePracticeModule.title,
-    tutorInstructions: input.sourcePracticeModule.tutorInstructions,
+    sourcePracticeGuideId: input.sourcePracticeGuide.id,
+    sourceProfileId: input.sourcePracticeGuide.profileId,
+    sourceUserId: input.sourcePracticeGuide.userId,
+    title: input.sourcePracticeGuide.title,
+    tutorInstructions: input.sourcePracticeGuide.tutorInstructions,
     userId: input.userId,
   });
 }
 
-export function findPracticeModuleShareLinkById(
+export function findPracticeGuideShareLinkById(
   id: string,
-): StoredPracticeModuleShareLink | null {
+): StoredPracticeGuideShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, practice_module_id, created_at, revoked_at
-        FROM practice_module_share_links
+        SELECT id, practice_guide_id, created_at, revoked_at
+        FROM practice_guide_share_links
         WHERE id = ?
       `,
     )
-    .get(id) as PracticeModuleShareLinkRow | undefined;
+    .get(id) as PracticeGuideShareLinkRow | undefined;
 
-  return row ? toStoredPracticeModuleShareLink(row) : null;
+  return row ? toStoredPracticeGuideShareLink(row) : null;
 }
 
-export function findPracticeModuleShareLinkForPracticeModule(
-  practiceModuleId: string,
-): StoredPracticeModuleShareLink | null {
+export function findPracticeGuideShareLinkForPracticeGuide(
+  practiceGuideId: string,
+): StoredPracticeGuideShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, practice_module_id, created_at, revoked_at
-        FROM practice_module_share_links
-        WHERE practice_module_id = ?
+        SELECT id, practice_guide_id, created_at, revoked_at
+        FROM practice_guide_share_links
+        WHERE practice_guide_id = ?
           AND revoked_at IS NULL
         LIMIT 1
       `,
     )
-    .get(practiceModuleId) as PracticeModuleShareLinkRow | undefined;
+    .get(practiceGuideId) as PracticeGuideShareLinkRow | undefined;
 
-  return row ? toStoredPracticeModuleShareLink(row) : null;
+  return row ? toStoredPracticeGuideShareLink(row) : null;
 }
 
-export function getOrCreatePracticeModuleShareLink(
-  practiceModuleId: string,
-): StoredPracticeModuleShareLink {
-  const existing = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
+export function getOrCreatePracticeGuideShareLink(
+  practiceGuideId: string,
+): StoredPracticeGuideShareLink {
+  const existing = findPracticeGuideShareLinkForPracticeGuide(practiceGuideId);
   if (existing) {
-    upsertResourceShareLink(getDb(), existing.id, practiceModuleId);
+    upsertResourceShareLink(getDb(), existing.id, practiceGuideId);
     return existing;
   }
 
@@ -6103,36 +6103,36 @@ export function getOrCreatePracticeModuleShareLink(
   const transaction = db.transaction(() => {
     db.prepare(
       `
-        INSERT INTO practice_module_share_links (id, practice_module_id)
+        INSERT INTO practice_guide_share_links (id, practice_guide_id)
         VALUES (?, ?)
-        ON CONFLICT(practice_module_id) DO UPDATE SET
+        ON CONFLICT(practice_guide_id) DO UPDATE SET
           revoked_at = NULL
       `,
     )
-      .run(id, practiceModuleId);
-    upsertResourceShareLink(db, id, practiceModuleId);
+      .run(id, practiceGuideId);
+    upsertResourceShareLink(db, id, practiceGuideId);
   });
 
   transaction();
 
-  const created = findPracticeModuleShareLinkForPracticeModule(practiceModuleId);
+  const created = findPracticeGuideShareLinkForPracticeGuide(practiceGuideId);
   if (!created) {
-    throw new Error('Could not load newly created practice-module share link.');
+    throw new Error('Could not load newly created practice-guide share link.');
   }
 
   return created;
 }
 
-export function createConversationPracticeModuleSnapshot(
+export function createConversationPracticeGuideSnapshot(
   conversationId: string,
-  practiceModule: StoredPracticeModule,
-): StoredConversationPracticeModuleSnapshot {
+  practiceGuide: StoredPracticeGuide,
+): StoredConversationPracticeGuideSnapshot {
   getDb()
     .prepare(
       `
-        INSERT OR REPLACE INTO conversation_practice_module_snapshots (
+        INSERT OR REPLACE INTO conversation_practice_guide_snapshots (
           conversation_id,
-          practice_module_id,
+          practice_guide_id,
           title,
           description,
           tutor_instructions
@@ -6142,15 +6142,15 @@ export function createConversationPracticeModuleSnapshot(
     )
     .run(
       conversationId,
-      practiceModule.id,
-      practiceModule.title,
-      practiceModule.description,
-      practiceModule.tutorInstructions,
+      practiceGuide.id,
+      practiceGuide.title,
+      practiceGuide.description,
+      practiceGuide.tutorInstructions,
     );
 
-  const snapshot = getConversationPracticeModuleSnapshot(conversationId);
+  const snapshot = getConversationPracticeGuideSnapshot(conversationId);
   if (!snapshot) {
-    throw new Error('Could not load conversation practice-module snapshot.');
+    throw new Error('Could not load conversation practice-guide snapshot.');
   }
 
   return snapshot;
@@ -6233,20 +6233,20 @@ export function createConversationTutorReportSnapshot(
   return snapshot;
 }
 
-export function getConversationPracticeModuleSnapshot(
+export function getConversationPracticeGuideSnapshot(
   conversationId: string,
-): StoredConversationPracticeModuleSnapshot | null {
+): StoredConversationPracticeGuideSnapshot | null {
   const row = getDb()
     .prepare(
       `
-        SELECT conversation_id, practice_module_id, title, description, tutor_instructions, created_at
-        FROM conversation_practice_module_snapshots
+        SELECT conversation_id, practice_guide_id, title, description, tutor_instructions, created_at
+        FROM conversation_practice_guide_snapshots
         WHERE conversation_id = ?
       `,
     )
-    .get(conversationId) as ConversationPracticeModuleSnapshotRow | undefined;
+    .get(conversationId) as ConversationPracticeGuideSnapshotRow | undefined;
 
-  return row ? toStoredConversationPracticeModuleSnapshot(row) : null;
+  return row ? toStoredConversationPracticeGuideSnapshot(row) : null;
 }
 
 export function getConversationChatRoomReportSnapshot(

@@ -6,7 +6,7 @@ import {
   createAssignment,
   createAssignmentAttempt,
   createConversationFromAssignmentAttempt,
-  createPracticeModule,
+  createPracticeGuide,
   findAssignmentAttemptById,
   findAssignmentById,
   findAssignmentForUser,
@@ -58,7 +58,7 @@ import {
   generateAssignmentBlock,
   generateAssignmentDraft,
   generateAssignmentRevision,
-  generatePracticeModuleDraft,
+  generatePracticeGuideDraft,
 } from '../services/resourceDrafts.js';
 import {
   getCreditCheckedOpenRouterApiKeyForUser,
@@ -1566,7 +1566,7 @@ export async function handleCreateAssignmentPracticeGuide(
 
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-    const generatedModule = await generatePracticeModuleDraft({
+    const generatedModule = await generatePracticeGuideDraft({
       openRouterApiKey,
       prompt: buildAssignmentPracticeGuidePrompt({
         attempt,
@@ -1574,7 +1574,7 @@ export async function handleCreateAssignmentPracticeGuide(
         result: result.data,
       }),
     });
-    const practiceModule = createPracticeModule({
+    const practiceGuide = createPracticeGuide({
       description: generatedModule.description,
       profileId: attempt.profileId,
       title: generatedModule.title,
@@ -1585,14 +1585,14 @@ export async function handleCreateAssignmentPracticeGuide(
     logger.info('assignment_practice_guide_created', {
       assignmentId: attempt.assignmentId,
       attemptId: attempt.id,
-      practiceModuleId: practiceModule.id,
+      practiceGuideId: practiceGuide.id,
       profileId: attempt.profileId,
       resourceId: attempt.assignmentId,
       resourceType: 'assignment',
       userId: auth.user.id,
     });
 
-    response.redirect(`/practice-modules/${encodeURIComponent(practiceModule.id)}`);
+    response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
   } catch (error) {
     logger.error('assignment_practice_guide_creation_failed', {
       assignmentId: attempt.assignmentId,

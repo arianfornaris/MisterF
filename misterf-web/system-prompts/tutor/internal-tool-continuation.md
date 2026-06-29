@@ -1,5 +1,5 @@
 INTERNAL APP CONTINUATION.
-The previous step already used tools and may have completed practice-module or chat-room operations successfully.
+The previous step already used tools and may have completed practice-guide or chat-room operations successfully.
 Continue the current conversation turn.
 Do not greet the learner.
 Do not introduce yourself.

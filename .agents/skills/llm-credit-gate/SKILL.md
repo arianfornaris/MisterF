@@ -1,6 +1,6 @@
 ---
 name: llm-credit-gate
-description: Use when adding, editing, or reviewing any Mister F server flow that invokes an LLM, OpenRouter, `generateText`, tutor report generation, quiz evaluation, translator inference, resource generation, practice-module generation, or chat socket assistant streaming. Ensure credit is checked and insufficient-credit errors show product UI, not raw stack traces.
+description: Use when adding, editing, or reviewing any Mister F server flow that invokes an LLM, OpenRouter, `generateText`, tutor report generation, quiz evaluation, translator inference, resource generation, practice-guide generation, or chat socket assistant streaming. Ensure credit is checked and insufficient-credit errors show product UI, not raw stack traces.
 ---
 
 # LLM Credit Gate

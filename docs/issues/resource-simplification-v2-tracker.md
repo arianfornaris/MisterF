@@ -57,7 +57,7 @@ Status legend:
 ## Current Milestone
 
 Current status: **Slices 1-8, 10, and the first Roleplay implementation in
-Slice 11 are implemented. Dedicated assignment and legacy practice-module
+Slice 11 are implemented. Dedicated assignment and legacy practice-guide
 runtime routes remain active as compatibility routes, while the resource
 catalog owns listing, folder organization, live sharing, common resource
 actions, and Roleplay creation/launch/share.**
@@ -72,10 +72,10 @@ Completed:
 - [x] Draft generic resource schema plan.
 - [x] Add `add_resource_foundation` migration.
 - [x] Add generic resource repository primitives.
-- [x] Mirror assignment and practice module metadata into `resources`.
+- [x] Mirror assignment and practice guide metadata into `resources`.
 - [x] Add migration and repository tests for resource foundation behavior.
 - [x] Add unified `Recursos` page shell.
-- [x] Replace the sidebar assignment/practice-module entries with `Recursos`.
+- [x] Replace the sidebar assignment/practice-guide entries with `Recursos`.
 - [x] List assignments, practice guides, and resource folders together.
 - [x] Add grid/list layout support in the early shell, then remove layout
   switching when the product settled on the list layout.
@@ -86,11 +86,11 @@ Completed:
 - [x] Add move-to-folder and remove-from-folder actions for assignable
   resources and folders.
 - [x] Add generic archive/restore actions for resources.
-- [x] Redirect `/assignments` and `/practice-modules` list routes to
+- [x] Redirect `/assignments` and `/practice-guides` list routes to
   `/resources`.
-- [x] Keep old assignment and practice-module detail routes reachable from
+- [x] Keep old assignment and practice-guide detail routes reachable from
   resource cards.
-- [x] Keep practice-module detail pages visible while the active navigation
+- [x] Keep practice-guide detail pages visible while the active navigation
   entry is `Recursos`.
 - [x] Remove resource favorite state from schema, repository APIs, routes, UI,
   tests, and current docs.
@@ -127,7 +127,7 @@ Tasks:
   - `PracticeGuide`
   - `Roleplay`
   - `ResourceFolder`
-- [x] Decide whether `PracticeModule` is renamed internally in V2 or kept as a
+- [x] Decide whether `PracticeGuide` is renamed internally in V2 or kept as a
   compatibility implementation detail.
 - [x] Decide whether folder nesting is in V2.
 - [x] Decide whether folder sharing is live or snapshot/copy based.
@@ -160,8 +160,8 @@ Tasks:
 
 - [x] Review current migration history.
 - [x] Inventory existing tables:
-  - [x] `practice_modules`
-  - [x] `practice_module_share_links`
+  - [x] `practice_guides`
+  - [x] `practice_guide_share_links`
   - [x] `assignments`
   - [x] `assignment_share_links`
   - [x] `chat_rooms`
@@ -220,7 +220,7 @@ Tasks:
 Exit criteria:
 
 - [x] Users can open `Recursos`.
-- [x] Existing assignments/practice modules appear in the resource list.
+- [x] Existing assignments/practice guides appear in the resource list.
 - [x] Old feature pages still work.
 
 Verification:
@@ -229,33 +229,35 @@ Verification:
 - [x] `npm run test:typecheck`
 - [x] `npm test`
 - [x] Route/architecture smoke for resource list redirects and resource-mounted
-  practice-module pages.
+  practice-guide pages.
 
-## Slice 3: Practice Module To Practice Guide
+## Slice 3: Practice Guide To Practice Guide
 
 Goal: rename the product concept while preserving behavior.
 
 Tasks:
 
-- [~] Replace Spanish UI copy `Módulo de práctica` with `Guía de Práctica`.
+- [x] Replace Spanish UI copy `Guía de Práctica` with `Guía de Práctica`.
 - [x] Replace sidebar/list labels in the unified resource catalog.
-- [~] Update page titles, buttons, empty states, modals, and share text.
-- [~] Update docs that mention the user-facing concept.
+- [x] Update page titles, buttons, empty states, modals, and share text.
+- [x] Update docs that mention the user-facing concept.
 - [x] Keep old URL compatibility or add redirects.
-- [x] Decide whether code identifiers remain `practiceModule` until schema
+- [x] Decide whether code identifiers remain `practiceGuide` until schema
   consolidation.
-- [ ] Add tests for visible labels where practical.
+- [x] Add tests for visible labels where practical.
 
 Exit criteria:
 
-- [ ] Users see `Guía de Práctica` consistently.
+- [x] Users see `Guía de Práctica` consistently.
 - [x] Existing practice behavior is unchanged.
 
 Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [~] Manual UI pass on guide list/detail/share/start.
+- [x] Render-path coverage in `tests/server/routes.test.ts` asserts the
+  `Guía de Práctica` label on resource pages, replacing the manual list/detail
+  label pass.
 
 ## Slice 4: Use Resource Folders As The Organization Model
 
@@ -265,7 +267,7 @@ Tasks:
 
 - [x] Add resource folder data model.
 - [x] Add folder list/detail UI.
-- [~] Add create/edit/archive/share folder actions.
+- [x] Add create/edit/archive/share folder actions.
 - [x] Add add-to-folder/remove-from-folder actions.
 - [x] Add folder breadcrumbs.
 - [x] Add folder-aware resource list filtering.
@@ -314,7 +316,7 @@ Tasks:
 - [x] Move assignment sharing to generic resource sharing where possible.
 - [x] Ensure assignment attempts still snapshot assignment content.
 - [x] Ensure progress events still record evaluated attempts.
-- [ ] Show assignment attempts/results on assignment detail pages where
+- [x] Show assignment attempts/results on assignment detail pages where
   applicable.
 - [x] Add route compatibility for existing assignment URLs if needed.
 - [x] Update assignment docs after implementation.
@@ -343,7 +345,8 @@ Tasks:
 - [x] Migrate or redirect old practice guide share links.
 - [x] Remove duplicated list/archive/share code where generic resource
   behavior now owns it.
-- [ ] Update home suggestions to reference resource ids where useful.
+- [x] Moved "update home suggestions to reference resource ids" to Slice 13 so
+  all home/start page work is tracked together.
 
 Exit criteria:
 
@@ -454,7 +457,7 @@ Tasks:
 
 Exit criteria:
 
-- [x] Downstream systems no longer assume only practice modules/assignments for
+- [x] Downstream systems no longer assume only practice guides/assignments for
   resource metadata.
 - [x] Logs can reconstruct user/model behavior by resource context for current
   assignment and practice-guide resource flows.
@@ -472,7 +475,7 @@ Goal: remove old names, dead code, and stale docs before introducing roleplays.
 
 Tasks:
 
-- [x] Remove unused practice-module grouping files/types.
+- [x] Remove unused practice-guide grouping files/types.
 - [x] Document the resource breadcrumb and action-placement navigation standard
   in [Resource Simplification V2](../features/resource-simplification-v2.md).
 - [x] Document nested folders, move-to-folder modal behavior, and common versus
@@ -487,8 +490,8 @@ Tasks:
 - [x] Update [Payments](../features/payments.md).
 - [x] Archive or rewrite [Chat Rooms](../features/chatrooms.md).
 - [x] Run broad grep for old user-facing labels:
-  - `Módulos de práctica`
-  - `Practice Module`
+  - `Guías de Práctica`
+  - `Practice Guide`
   - `chatroom`
   - `Salas de chat`
 - [x] Run full test suite.
@@ -561,6 +564,77 @@ Verification:
 - [x] `npm test`
 - [x] Roleplay create/launch/share smoke.
 
+## Slice 12: Replace Tutor Tools With UI Resource Creation
+
+Goal: remove model-invoked tools from Mr. F tutor conversations and instead let
+the user explicitly create a resource in the context of that conversation
+through the UI.
+
+Product direction:
+
+- Quitar las tools de las conversaciones con Mister F. Lo mejor es darle la
+  opción al usuario vía UI de crear un recurso en el contexto de esa
+  conversación.
+
+Tasks:
+
+- [ ] Inventory current tutor tools, their definitions, and their invocation
+  points in the `llmTutor` runtime and `tutorWorkflow` side effects.
+- [ ] Decide which tool-driven outcomes must survive as explicit UI actions
+  versus be dropped.
+- [ ] Remove tool definitions from the tutor LLM runtime and providers.
+- [ ] Remove or simplify the tool-handling paths in `tutorWorkflow`.
+- [ ] Add a conversation-scoped UI affordance to create a resource (assignment,
+  practice guide, roleplay, or folder) from the current conversation.
+- [ ] Pass a conversation context snapshot into the resource authoring flow.
+- [ ] Keep the LLM credit gate explicit for any AI authoring triggered from the
+  conversation.
+- [ ] Update tutor prompts and docs to reflect tool removal.
+- [ ] Update tutor runtime, workflow, and prompt tests.
+
+Exit criteria:
+
+- [ ] Tutor conversations no longer expose model-invoked tools.
+- [ ] Users can create a resource scoped to a conversation from the UI.
+- [ ] No dead tool definition, schema, or workflow path remains.
+
+Verification:
+
+- [ ] `npm run typecheck`
+- [ ] `npm run test:typecheck`
+- [ ] `npm test`
+- [ ] Manual smoke: start a tutor conversation and create a resource from it.
+
+## Slice 13: Home Page Work
+
+Goal: anchor home/start page work that was split out of the earlier resource
+simplification slices. Detailed personalized-suggestion design keeps its own
+tracker; this slice only ensures the relocated resource-aware home tasks are not
+lost and that home page work is tracked in one place.
+
+Related documents:
+
+- [Home Start Experience](../features/home-start-experience.md)
+- [Home Suggestions Tracker](./home-suggestions-tracker.md)
+
+Tasks:
+
+- [ ] Update home suggestions to reference resource ids where useful (moved from
+  Slice 6).
+- [ ] Coordinate the remaining home/start surface work through the
+  [Home Suggestions Tracker](./home-suggestions-tracker.md).
+
+Exit criteria:
+
+- [ ] Home suggestions can link directly to resources by id.
+- [ ] Home page work is tracked in one place.
+
+Notes:
+
+- Suggestion surfaces, ranking inputs, built-in topic library, credit policy,
+  and ranking tests live in the Home Suggestions Tracker. This slice is the
+  high-level pointer from the resource simplification work to that effort.
+
 ## Future Agent Skills Backlog
 
 Goal: turn recurring V2 resource implementation patterns into concise agent
@@ -604,19 +678,22 @@ Tasks:
 
 - [ ] Review every legacy table that exists only for pre-V2 compatibility.
 - [ ] Remove legacy chatroom tables, repository helpers, services, and tests.
-- [ ] Remove legacy practice-module share/import tables and copied-resource
+- [ ] Remove legacy practice-guide share/import tables and copied-resource
   compatibility paths once generic live sharing fully owns the behavior.
 - [ ] Remove assignment legacy share/import tables and copied-resource
   compatibility paths once generic sharing and the future public Tarea flow are
   settled.
 - [ ] Remove old internal naming where it no longer needs compatibility,
-  especially `PracticeModule` identifiers that can safely become
+  especially `PracticeGuide` identifiers that can safely become
   `PracticeGuide`.
 - [ ] Rebuild the clean baseline migration so fresh production installs start
   from the simplified resource model.
 - [ ] Re-run schema, repository, route, and render tests against a fresh
   database.
 - [ ] Re-run a broad grep for legacy names, routes, tables, prompts, and docs.
+- [ ] Audit page heading scale and vertical space across resource pages.
+  - Review `h1`, `h2`, and section-heading sizes/margins because current page
+    headers occupy too much vertical space in several views.
 
 Exit criteria:
 

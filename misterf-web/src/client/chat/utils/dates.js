@@ -1,5 +1,5 @@
 export function formatConversationDates(root = document) {
-  for (const date of root.querySelectorAll('.conversation-date, .practice-module-chat-date')) {
+  for (const date of root.querySelectorAll('.conversation-date, .practice-guide-chat-date')) {
     const rawValue = date.getAttribute('datetime') || date.textContent || '';
     date.textContent = formatConversationDate(rawValue.trim());
     date.title = rawValue.trim();

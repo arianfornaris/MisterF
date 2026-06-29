@@ -4,7 +4,7 @@ export class ChatState {
     this.streamingBubble = null;
     this.isAssistantBusy = false;
     this.pendingDeleteTarget = null;
-    this.pendingPracticeModuleStart = false;
+    this.pendingPracticeGuideStart = false;
     this.isAssistantStopping = false;
     this.isGuestPromptPending = false;
     this.guestPromptTimerId = 0;

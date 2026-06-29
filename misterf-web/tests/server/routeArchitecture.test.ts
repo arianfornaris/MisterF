@@ -19,9 +19,9 @@ describe('server route architecture', () => {
   it('keeps auth form handlers scoped to authentication concerns', () => {
     const authForms = readProjectFile('src/server/auth/forms.ts');
 
-    expect(authForms).not.toMatch(/\b(ChatRoom|PracticeModule)\b/);
+    expect(authForms).not.toMatch(/\b(ChatRoom|PracticeGuide)\b/);
     expect(authForms).not.toContain('chatrooms');
-    expect(authForms).not.toContain('practice-modules');
+    expect(authForms).not.toContain('practice-guides');
   });
 
   it('mounts domain routers from the server composition root', () => {
@@ -32,7 +32,7 @@ describe('server route architecture', () => {
     expect(server).toContain("import { chatRouter } from './chat/routes.js';");
     expect(server).toContain("import { legalRouter } from './legal/routes.js';");
     expect(server).toContain("import { paymentsRouter, stripeWebhookRouter } from './payments/routes.js';");
-    expect(server).toContain("import { practiceModulesRouter } from './practiceModules/routes.js';");
+    expect(server).toContain("import { practiceGuidesRouter } from './practiceGuides/routes.js';");
     expect(server).toContain("import { profileOnboardingRouter, profilesRouter } from './profiles/routes.js';");
     expect(server).toContain("import { progressRouter } from './progress/routes.js';");
     expect(server).toContain("import { resourcesRouter } from './resources/routes.js';");
@@ -55,15 +55,15 @@ describe('server route architecture', () => {
     expectBefore(server, 'app.use(loadAuthSession);', 'app.use(authRouter);');
     expectBefore(server, 'app.use(profileOnboardingRouter);', 'app.use(redirectIncompleteProfileOnboarding);');
     expectBefore(server, 'app.use(redirectIncompleteProfileOnboarding);', 'app.use(resourcesRouter);');
-    expectBefore(server, 'app.use(resourcesRouter);', 'app.use(practiceModulesRouter);');
-    expectBefore(server, 'app.use(practiceModulesRouter);', 'app.use(assignmentsRouter);');
+    expectBefore(server, 'app.use(resourcesRouter);', 'app.use(practiceGuidesRouter);');
+    expectBefore(server, 'app.use(practiceGuidesRouter);', 'app.use(assignmentsRouter);');
     expectBefore(server, 'app.use(assignmentsRouter);', 'app.use(roleplaysRouter);');
   });
 
-  it('keeps practice module pages visible under the resources navigation entry', () => {
-    const view = readProjectFile('views/partials/practice-modules-view.ejs');
+  it('keeps practice guide pages visible under the resources navigation entry', () => {
+    const view = readProjectFile('views/partials/practice-guides-view.ejs');
 
-    expect(view).not.toContain("currentView === 'practiceModules'");
-    expect(view).not.toContain("practice-modules-page <%= currentView");
+    expect(view).not.toContain("currentView === 'practiceGuides'");
+    expect(view).not.toContain("practice-guides-page <%= currentView");
   });
 });

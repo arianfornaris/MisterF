@@ -99,7 +99,7 @@ describe('resource repository', () => {
       addResourceToFolder,
       archiveAssignmentForUser,
       createAssignment,
-      createPracticeModule,
+      createPracticeGuide,
       createProfile,
       createRoleplay,
       createResourceFolder,
@@ -155,7 +155,7 @@ describe('resource repository', () => {
       title: assignmentDraft.title,
       userId: user.id,
     });
-    const practiceGuide = createPracticeModule({
+    const practiceGuide = createPracticeGuide({
       description: 'Practice guide description.',
       profileId: profile.id,
       title: 'Conversation Practice Guide',

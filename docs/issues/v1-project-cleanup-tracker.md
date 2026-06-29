@@ -36,7 +36,7 @@ Notes:
 
 ### 0.2 Add Main Route Smoke Coverage
 
-- [x] Add minimal render smoke tests for `/`, `/login`, `/signup`, `/practice-modules`, `/chatrooms`, `/progress`, `/credits`, `/settings`.
+- [x] Add minimal render smoke tests for `/`, `/login`, `/signup`, `/practice-guides`, `/chatrooms`, `/progress`, `/credits`, `/settings`.
 - [x] Seed or mock the minimum auth/profile state needed for authenticated routes.
 - [x] Cover unauthenticated redirects for protected pages.
 
@@ -156,9 +156,9 @@ Notes:
 
 ## Phase 2: Route And Handler Architecture
 
-### 2.1 Move Practice Module Actions Out Of Auth
+### 2.1 Move Practice Guide Actions Out Of Auth
 
-- [x] Move practice-module resource actions from `auth/forms.ts` to `practiceModules/handlers.ts`.
+- [x] Move practice-guide resource actions from `auth/forms.ts` to `practiceGuides/handlers.ts`.
 - [x] Keep route behavior and redirects unchanged.
 - [x] Remove unused imports from `auth/forms.ts`.
 
@@ -166,12 +166,12 @@ Verification:
 
 - `npm run typecheck`
 - `npm test`
-- Manual smoke: create, edit, archive, restore, share, and delete a practice module.
+- Manual smoke: create, edit, archive, restore, share, and delete a practice guide.
 
 Notes:
 
-- Practice module mutations now live in `src/server/practiceModules/handlers.ts`.
-- Legacy `Lesson` handler names were replaced at the route layer with `PracticeModule` names.
+- Practice guide mutations now live in `src/server/practiceGuides/handlers.ts`.
+- Legacy `Lesson` handler names were replaced at the route layer with `PracticeGuide` names.
 - Route redirects were copied from the existing handlers.
 
 ### 2.2 Move Profile Actions Out Of Auth
@@ -195,21 +195,21 @@ Notes:
 
 - [x] Keep login, signup, forgot/reset password, change password, email verification, logout, and session helpers.
 - [x] Delete legacy page-model code that no route uses.
-- [x] Confirm `auth/forms.ts` no longer imports chatroom or practice module repositories.
+- [x] Confirm `auth/forms.ts` no longer imports chatroom or practice guide repositories.
 
 Verification:
 
-- `rg "PracticeModule|ChatRoom|practice-modules|chatrooms" src/server/auth/forms.ts` returns no unrelated resource logic.
+- `rg "PracticeGuide|ChatRoom|practice-guides|chatrooms" src/server/auth/forms.ts` returns no unrelated resource logic.
 - `npm run typecheck`
 
 Notes:
 
 - `auth/forms.ts` was reduced from about 2900 lines to the auth-only form handlers and helpers.
-- `tests/server/routeArchitecture.test.ts` now guards against reintroducing chatroom or practice module logic into `auth/forms.ts`.
+- `tests/server/routeArchitecture.test.ts` now guards against reintroducing chatroom or practice guide logic into `auth/forms.ts`.
 
 ### 2.4 Split Domain Routers
 
-- [x] Create route modules for auth, profiles, practice modules, chatrooms, payments, legal, progress, and superadmin.
+- [x] Create route modules for auth, profiles, practice guides, chatrooms, payments, legal, progress, and superadmin.
 - [x] Mount routers from `server.ts`.
 - [x] Keep middleware ordering unchanged, especially Stripe raw body, URL encoding, CSRF, session loading, and onboarding redirects.
 
@@ -221,7 +221,7 @@ Verification:
 
 Notes:
 
-- New route modules were added for auth, chat, chatrooms, legal, payments, practice modules, profiles, progress, and settings.
+- New route modules were added for auth, chat, chatrooms, legal, payments, practice guides, profiles, progress, and settings.
 - `superadmin/routes.ts` now exports `superadminRouter`.
 - `server.ts` now mounts routers after global middleware and keeps Stripe webhook raw body handling before URL encoding.
 - `tests/server/routeArchitecture.test.ts` verifies the critical middleware ordering.
@@ -232,18 +232,18 @@ Notes:
 ### 3.1 Replace Misleading Shared Class Names
 
 - [x] Introduce a neutral shared layout class for resource pages.
-- [x] Replace non-practice-module uses of `practice-modules-view`.
+- [x] Replace non-practice-guide uses of `practice-guides-view`.
 - [x] Keep domain-specific classes only where the page has domain-specific styling.
 
 Verification:
 
-- `rg "practice-modules-view" views src/client/styles` returns no results.
-- Visual smoke on credits, progress, profiles, settings, chatrooms, and practice modules.
+- `rg "practice-guides-view" views src/client/styles` returns no results.
+- Visual smoke on credits, progress, profiles, settings, chatrooms, and practice guides.
 
 Notes:
 
 - Shared resource pages now use `app-resource-view` and `resource-page-*` classes.
-- The practice module library has an explicit `practice-modules-page` class and `data-resource-layout` state for list/card styling.
+- The practice guide library has an explicit `practice-guides-page` class and `data-resource-layout` state for list/card styling.
 - `tests/server/uiClassArchitecture.test.ts` guards against reintroducing the misleading shared class names.
 
 ### 3.2 Organize CSS By Responsibility
@@ -262,7 +262,7 @@ Notes:
 
 - `app-shell.css` now focuses on the app shell, conversation panel, chat layout, translator, and user menu.
 - `resource-pages.css` contains shared resource page containers, headers, forms, card menus, and profile-list helpers.
-- `practice-modules.css` contains the practice module library, module cards, module forms, module markdown, and module-specific helpers.
+- `practice-guides.css` contains the practice guide library, guide cards, guide forms, guide markdown, and guide-specific helpers.
 - Tutor block and exercise card styles remain in `chat-content.css`; composer styles remain in `composer.css`.
 
 ### 3.3 Align Custom Styling With Flatly
@@ -278,7 +278,7 @@ Verification:
 
 Notes:
 
-- Touched shared resource and practice-module styles now use Bootstrap variables such as `--bs-secondary-color`, `--bs-border-radius`, and `--bs-box-shadow-sm`.
+- Touched shared resource and practice-guide styles now use Bootstrap variables such as `--bs-secondary-color`, `--bs-border-radius`, and `--bs-box-shadow-sm`.
 - Letter spacing in client CSS was normalized to `0`.
 - App-specific tutor, exercise, chatroom, and composer styling was preserved where Bootstrap does not provide an equivalent interaction pattern.
 
@@ -318,7 +318,7 @@ Notes:
 
 - Socket credit exhaustion emission moved to `src/server/socket/creditExhaustion.ts`
   so it can be tested without booting Socket.IO.
-- Chat room report practice-module generation now catches `CreditExhaustedError`
+- Chat room report practice-guide generation now catches `CreditExhaustedError`
   and redirects back to the report view with credit modal query state.
 
 ### 4.3 Add Stripe Webhook Idempotency Tests
