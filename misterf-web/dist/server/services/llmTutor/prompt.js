@@ -12,7 +12,7 @@ export function buildAgentSystemInstruction(options) {
         }),
     });
     if (!options.practiceGuide) {
-        if (!options.assignmentAttempt &&
+        if (!options.quizAttempt &&
             !options.roleplayAttempt &&
             !options.tutorReport &&
             !options.tutorPlanText) {
@@ -23,8 +23,8 @@ export function buildAgentSystemInstruction(options) {
         const sections = [base];
         appendLearnerProfileContext(sections, options.learnerProfile);
         appendTutorPlanContext(sections, options.tutorPlanText);
-        if (options.assignmentAttempt) {
-            appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+        if (options.quizAttempt) {
+            appendQuizAttemptContext(sections, options.quizAttempt);
         }
         if (options.roleplayAttempt) {
             appendRoleplayAttemptContext(sections, options.roleplayAttempt);
@@ -50,8 +50,8 @@ export function buildAgentSystemInstruction(options) {
     ];
     appendLearnerProfileContext(sections, options.learnerProfile);
     appendTutorPlanContext(sections, options.tutorPlanText);
-    if (options.assignmentAttempt) {
-        appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+    if (options.quizAttempt) {
+        appendQuizAttemptContext(sections, options.quizAttempt);
     }
     if (options.roleplayAttempt) {
         appendRoleplayAttemptContext(sections, options.roleplayAttempt);
@@ -66,14 +66,14 @@ export function buildAgentSystemInstruction(options) {
     }
     return sections.join('\n');
 }
-function appendAssignmentAttemptContext(sections, assignmentAttempt) {
-    sections.push('', renderSystemPrompt('tutor/assignment-attempt-context.md', {
-        ASSIGNMENT_DESCRIPTION: assignmentAttempt.assignmentDescription,
-        ASSIGNMENT_SNAPSHOT_JSON: assignmentAttempt.assignmentSnapshotJson,
-        ASSIGNMENT_TARGET_TOPIC: assignmentAttempt.assignmentTargetTopic,
-        ASSIGNMENT_TITLE: assignmentAttempt.assignmentTitle,
-        RESPONSES_JSON: assignmentAttempt.responsesJson,
-        RESULT_JSON: assignmentAttempt.resultJson,
+function appendQuizAttemptContext(sections, quizAttempt) {
+    sections.push('', renderSystemPrompt('tutor/quiz-attempt-context.md', {
+        QUIZ_DESCRIPTION: quizAttempt.quizDescription,
+        QUIZ_SNAPSHOT_JSON: quizAttempt.quizSnapshotJson,
+        QUIZ_TARGET_TOPIC: quizAttempt.quizTargetTopic,
+        QUIZ_TITLE: quizAttempt.quizTitle,
+        RESPONSES_JSON: quizAttempt.responsesJson,
+        RESULT_JSON: quizAttempt.resultJson,
     }));
 }
 function appendRoleplayAttemptContext(sections, roleplayAttempt) {

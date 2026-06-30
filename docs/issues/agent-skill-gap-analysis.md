@@ -48,7 +48,7 @@ Newly added skills cover two gaps:
   attempts, results, breadcrumbs, close buttons, action rows, and resource
   history.
 - `learner-progress-events`: progress event recording and labels for tutor
-  reports, assignments, roleplays, and future evaluated resources.
+  reports, quizzes, roleplays, and future evaluated resources.
 
 ## Recommended Future Skills
 
@@ -62,11 +62,11 @@ Scope:
 - profile sharing and link sharing
 - QR/link modal behavior
 - access checks for shared resources
-- future public/free assignment and roleplay exceptions
+- future public/free quiz and roleplay exceptions
 
 Why it should be a skill:
 
-Sharing appears across assignments, practice guides, folders, and roleplays.
+Sharing appears across quizzes, practice guides, folders, and roleplays.
 The rules are easy to accidentally re-implement differently per resource type.
 
 ### AI Authoring Chat Conventions
@@ -84,7 +84,7 @@ Scope:
 
 Why it should be a skill:
 
-Assignments and roleplays already share the pattern. Future resource types will
+Quizzes and roleplays already share the pattern. Future resource types will
 probably need the same assisted editing workflow.
 
 ### Resource Attempt Runtime
@@ -104,7 +104,7 @@ Scope:
 
 Why it should be a skill:
 
-Assignments and roleplays now share an attempt/result lifecycle. A new resource
+Quizzes and roleplays now share an attempt/result lifecycle. A new resource
 with evaluated learner output should not have to rediscover this architecture.
 
 ### Resource Follow-Up Conversations
@@ -121,7 +121,7 @@ Scope:
 
 Why it should be a skill:
 
-Assignments, roleplays, and future resources need consistent handoff into Mr. F.
+Quizzes, roleplays, and future resources need consistent handoff into Mr. F.
 
 ### Markdown Content Fields
 
@@ -136,7 +136,7 @@ Scope:
 
 Why it should be a skill:
 
-Markdown appears in practice guides, assignments, roleplays, exercise prompts,
+Markdown appears in practice guides, quizzes, roleplays, exercise prompts,
 and general resource info. The same decision keeps coming back.
 
 ### Roleplay Pedagogy And Evaluation

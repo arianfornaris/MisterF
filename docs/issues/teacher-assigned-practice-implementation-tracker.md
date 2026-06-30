@@ -2,7 +2,7 @@
 
 Date: 2026-06-20
 
-This tracker turns the `Tareas` feature plan into implementation slices. Keep
+This tracker turns the `Quizzes` feature plan into implementation slices. Keep
 each slice independently shippable where possible, update status as work lands,
 and avoid mixing teacher authoring, public student attempts, free guest
 evaluation, and follow-up tutoring in one oversized change.
@@ -39,7 +39,7 @@ Status legend:
   teacher-paid authoring usage.
 - [x] Replaced separate teacher test attempts with normal authenticated
   attempts that update learner progress after evaluation.
-- [x] Preserve full validation before storing AI-generated assignment drafts,
+- [x] Preserve full validation before storing AI-generated quiz drafts,
   blocks, attempts, or results.
 - [x] Log ids and status metadata in production without storing full learner
   answers unless full LLM tracing is explicitly enabled.
@@ -50,19 +50,19 @@ Current status: **V1 implementation landed locally**.
 
 Implemented in this pass:
 
-- [x] Assignment migration, repository types, and CRUD/share/attempt helpers.
+- [x] Quiz migration, repository types, and CRUD/share/attempt helpers.
 - [x] AI-assisted initial draft generation, whole-draft revision, and single
   block generation.
-- [x] `Tareas` navigation, list, create, authoring, detail, share, public
+- [x] `Quizzes` navigation, list, create, authoring, detail, share, public
   shared-link, attempt, and result pages.
 - [x] `General`, `Bloques`, and `AI chat` authoring tabs.
-- [x] Persist `AI chat` history on the assignment and send it as context for
+- [x] Persist `AI chat` history on the quiz and send it as context for
   later revisions.
 - [x] Numbered blocks with stable ids and reorder/delete/duplicate/add actions.
 - [x] Teacher test attempts with the student-facing UI.
 - [x] Shared guest attempts and free product-funded evaluation.
 - [x] Authenticated progress events and guest result claiming after login.
-- [x] Follow-up tutor conversations seeded with assignment-attempt snapshots.
+- [x] Follow-up tutor conversations seeded with quiz-attempt snapshots.
 - [x] Client build entry and committed build artifacts for deploy-light servers.
 
 Remaining hardening:
@@ -72,16 +72,16 @@ Remaining hardening:
 - [ ] Add teacher-facing result dashboards and student roster workflows in the
   deferred classroom layer.
 - [ ] Add prompt-contract fixtures that validate representative generated
-  assignment JSON without calling a live model.
+  quiz JSON without calling a live model.
 
 ## Slice 0: Planning Baseline
 
 Goal: make sure the feature agreement is captured before implementation begins.
 
-- [x] Choose the Spanish UI name `Tareas`.
+- [x] Choose the Spanish UI name `Quizzes`.
 - [x] Document the human-teacher use case.
 - [x] Document the acquisition flow: teachers need accounts and credits;
-  students can complete shared Tareas before account creation.
+  students can complete shared Quizzes before account creation.
 - [x] Document free shared-student evaluation and standard-credit follow-up.
 - [x] Document the AI-assisted authoring workflow.
 - [x] Document the `Bloques` / `AI chat` tab model.
@@ -102,18 +102,18 @@ behavior.
 Tasks:
 
 - [x] Re-read `src/server/db/migrations.ts` and current repository patterns.
-- [x] Decide whether `assignment_attempts` belongs in the first migration or
+- [x] Decide whether `quiz_attempts` belongs in the first migration or
   waits for the student runtime slice.
 - [x] Add a new forward-only migration after `create_current_schema`.
-- [x] Add `assignments`.
-- [x] Add `assignment_share_links`.
-- [x] Remove separate assignment authoring sessions; generated assignments are
-  persisted directly as assignments.
-- [x] Add `assignment_attempts` if included in this slice.
-- [x] Add optional conversation assignment-attempt snapshot table only if
+- [x] Add `quizzes`.
+- [x] Add `quiz_share_links`.
+- [x] Remove separate quiz authoring sessions; generated quizzes are
+  persisted directly as quizzes.
+- [x] Add `quiz_attempts` if included in this slice.
+- [x] Add optional conversation quiz-attempt snapshot table only if
   follow-up tutoring is in the same release train.
-- [x] Extend learner progress source types to allow `assignment_attempt`, but do
-  not write assignment progress events yet.
+- [x] Extend learner progress source types to allow `quiz_attempt`, but do
+  not write quiz progress events yet.
 - [x] Add repository row types, stored types, mappers, and CRUD helpers.
 - [x] Add tests for fresh SQLite migration.
 - [x] Add focused repository tests for create/read/update/share/attempts.
@@ -123,7 +123,7 @@ Exit criteria:
 
 - [x] Fresh SQLite migration passes.
 - [x] Repository tests cover the new tables.
-- [x] No route exposes incomplete assignment authoring behavior.
+- [x] No route exposes incomplete quiz authoring behavior.
 
 Verification:
 
@@ -131,15 +131,15 @@ Verification:
 - [x] `npm run test:typecheck`
 - [x] `npm test`
 
-## Slice 2: Basic Assignment Resource Shell
+## Slice 2: Basic Quiz Resource Shell
 
-Goal: make Tareas visible to authenticated teachers as a normal resource area.
+Goal: make Quizzes visible to authenticated teachers as a normal resource area.
 
 Tasks:
 
-- [x] Add `src/server/assignments/routes.ts`.
-- [x] Add `src/server/assignments/handlers.ts`.
-- [x] Mount `assignmentsRouter` from `src/server/server.ts`.
+- [x] Add `src/server/quizzes/routes.ts`.
+- [x] Add `src/server/quizzes/handlers.ts`.
+- [x] Mount `quizzesRouter` from `src/server/server.ts`.
 - [x] Update route architecture tests for the new router.
 - [x] Add sidebar/navigation entry below `Guías de Práctica`.
 - [x] Add list page.
@@ -148,14 +148,14 @@ Tasks:
 - [x] Add edit page.
 - [x] Add archive/restore actions.
 - [x] Add share-link route and owner share modal.
-- [ ] Add static manual assignment JSON support for development/debugging.
+- [ ] Add static manual quiz JSON support for development/debugging.
 - [x] Add `Probar` action that creates normal authenticated attempts.
 - [x] Add EJS views that follow resource-page conventions.
 
 Exit criteria:
 
-- [ ] A teacher can create a simple assignment without AI.
-- [x] A teacher can list, open, edit, archive, restore, and share an assignment.
+- [ ] A teacher can create a simple quiz without AI.
+- [x] A teacher can list, open, edit, archive, restore, and share an quiz.
 - [x] Test attempts render the student-facing shape without recording progress
   or consuming credits before submission.
 
@@ -165,16 +165,16 @@ Verification:
 - [x] `npm test`
 - [x] EJS render smoke of list/new/detail/edit/share/test.
 
-## Slice 3: Assignment Contract And Quiz Renderer Reuse
+## Slice 3: Quiz Contract And Quiz Renderer Reuse
 
-Goal: make the assignment content contract stable before AI authoring depends on
+Goal: make the quiz content contract stable before AI authoring depends on
 it.
 
 Tasks:
 
-- [x] Define `AssignmentDraft`.
-- [x] Define `AssignmentBlock`.
-- [x] Define assignment response normalization.
+- [x] Define `QuizDraft`.
+- [x] Define `QuizBlock`.
+- [x] Define quiz response normalization.
 - [x] Reuse the existing `quiz` item contract where possible.
 - [x] Add stable internal block ids.
 - [x] Add visible block-number mapping.
@@ -182,11 +182,11 @@ Tasks:
 - [x] Extract/adapt quiz renderer helpers so they work outside chat without
   `messageId:blockIndex`.
 - [x] Render every supported exercise type in test attempts.
-- [x] Add tests for valid and invalid assignment payloads.
+- [x] Add tests for valid and invalid quiz payloads.
 
 Exit criteria:
 
-- [x] Invalid assignment payloads are rejected before persistence.
+- [x] Invalid quiz payloads are rejected before persistence.
 - [x] Reordering preserves stable ids and updates visible block numbers.
 - [x] Test attempts support the full supported exercise catalog.
 
@@ -203,14 +203,14 @@ prompt.
 
 Tasks:
 
-- [x] Add assignment generation prompt under `system-prompts/resources`.
-- [x] Add assignment generation correction prompt.
-- [x] Extend `resourceDrafts` or create an assignment-specific generation
+- [x] Add quiz generation prompt under `system-prompts/resources`.
+- [x] Add quiz generation correction prompt.
+- [x] Extend `resourceDrafts` or create an quiz-specific generation
   service.
-- [x] Validate generated drafts with assignment schemas.
+- [x] Validate generated drafts with quiz schemas.
 - [x] Credit-gate initial generation with the teacher account.
-- [x] Store authoring data directly on the assignment.
-- [x] Store initial prompt in the assignment `AI chat` history and persist the
+- [x] Store authoring data directly on the quiz.
+- [x] Store initial prompt in the quiz `AI chat` history and persist the
   current validated draft.
 - [x] Log generation success, validation failure, malformed output repair, and
   credit exhaustion.
@@ -218,7 +218,7 @@ Tasks:
 
 Exit criteria:
 
-- [x] A teacher can describe a Tarea and receive a validated draft.
+- [x] A teacher can describe a Quiz and receive a validated draft.
 - [x] Credit exhaustion shows product UI instead of a raw error.
 - [x] The generated draft opens in the authoring workspace.
 
@@ -226,11 +226,11 @@ Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [ ] Prompt contract fixtures for generated assignment JSON.
+- [ ] Prompt contract fixtures for generated quiz JSON.
 
 ## Slice 5: Bloques Tab Editing
 
-Goal: let the teacher shape the assignment structure without AI chat.
+Goal: let the teacher shape the quiz structure without AI chat.
 
 Tasks:
 
@@ -251,7 +251,7 @@ Tasks:
 
 Exit criteria:
 
-- [x] The teacher can edit the assignment structure from `Bloques`.
+- [x] The teacher can edit the quiz structure from `Bloques`.
 - [x] Block numbers stay correct after every operation.
 - [x] Single-block generation inserts exactly one validated block.
 
@@ -263,7 +263,7 @@ Verification:
 
 ## Slice 6: AI Chat Revisions
 
-Goal: let the teacher modify the whole assignment or specific numbered blocks
+Goal: let the teacher modify the whole quiz or specific numbered blocks
 through conversation.
 
 Tasks:
@@ -271,13 +271,13 @@ Tasks:
 - [x] Add `AI chat` tab with Bootstrap `nav-pills`.
 - [x] Send the current draft with stable block ids to the model.
 - [x] Send stable block ids alongside visible block numbers through the draft.
-- [x] Persist teacher/assistant chat history with the assignment.
+- [x] Persist teacher/assistant chat history with the quiz.
 - [x] Send prior authoring chat turns with each revision request.
 - [x] Add revision prompt.
 - [x] Add revision correction prompt.
 - [x] Return and display the model's teacher-facing revision response.
 - [x] Validate revised drafts before replacing the current draft.
-- [x] Keep the current validated draft as the authoritative assignment state
+- [x] Keep the current validated draft as the authoritative quiz state
   for V1.
 - [x] Remove separate authoring revision history from the persisted model.
 - [x] Show concise changed-block summaries using visible block numbers.
@@ -293,7 +293,7 @@ Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [ ] Prompt contract fixtures for assignment revisions.
+- [ ] Prompt contract fixtures for quiz revisions.
 
 ## Slice 7: Teacher Test Evaluation
 
@@ -306,14 +306,14 @@ Tasks:
   notes from teacher test attempts.
 - [x] Removed the separate persisted teacher test attempt mode.
 - [x] Let the teacher submit test answers for evaluation.
-- [x] Use the same product-funded evaluation policy as normal Tarea attempts.
+- [x] Use the same product-funded evaluation policy as normal Quiz attempts.
 - [x] Ensure authenticated evaluated attempts update learner progress.
 - [x] Log test started/submitted/evaluated events.
 
 Exit criteria:
 
 - [x] Starting a test attempt does not consume LLM credits.
-- [x] Submitting answers follows the product-funded Tarea evaluation policy.
+- [x] Submitting answers follows the product-funded Quiz evaluation policy.
 - [x] Evaluated authenticated attempts appear in learner progress.
 
 Verification:
@@ -324,16 +324,16 @@ Verification:
 
 ## Slice 8: Shared Student Runtime
 
-Goal: let students complete shared Tareas, including without accounts.
+Goal: let students complete shared Quizzes, including without accounts.
 
 Tasks:
 
-- [x] Add shared assignment landing page.
+- [x] Add shared quiz landing page.
 - [x] Add start/resume attempt routes.
 - [x] Add submit route.
 - [x] Support guest attempt identity or claim tokens.
-- [x] Store assignment snapshots on attempts.
-- [x] Reuse assignment quiz renderer for student attempts.
+- [x] Store quiz snapshots on attempts.
+- [x] Reuse quiz quiz renderer for student attempts.
 - [x] Make submitted answers immutable after successful evaluation.
 - [x] Keep authenticated attempts tied to active profile.
 - [x] Keep guest attempts isolated from user-owned data.
@@ -341,7 +341,7 @@ Tasks:
 
 Exit criteria:
 
-- [x] Any student with a valid link can complete a Tarea without logging in.
+- [x] Any student with a valid link can complete a Quiz without logging in.
 - [x] Authenticated attempts are tied to the active profile.
 - [x] Guest attempts can render after submission without exposing unrelated user
   data.
@@ -359,7 +359,7 @@ Goal: evaluate submitted shared attempts under the free student policy.
 Tasks:
 
 - [x] Reuse or adapt `evaluateQuizResultItemsWithLlm`.
-- [x] Include assignment metadata in evaluation context.
+- [x] Include quiz metadata in evaluation context.
 - [x] Run shared student evaluation under the product-funded policy.
 - [x] Do not silently charge the teacher after sharing.
 - [x] Do not require student account or credits for first shared evaluation.
@@ -378,20 +378,20 @@ Verification:
 
 - [x] `npm run typecheck`
 - [x] `npm test`
-- [ ] Prompt contract fixtures for assignment evaluation.
+- [ ] Prompt contract fixtures for quiz evaluation.
 
 ## Slice 10: Progress And Follow-Up
 
-Goal: turn evaluated assignments into learner progress and targeted practice.
+Goal: turn evaluated quizzes into learner progress and targeted practice.
 
 Tasks:
 
-- [x] Record `assignment_attempt` learner progress events for authenticated
+- [x] Record `quiz_attempt` learner progress events for authenticated
   attempts.
 - [x] Add guest result claiming after account creation or login.
-- [x] Add conversation assignment-attempt snapshots.
+- [x] Add conversation quiz-attempt snapshots.
 - [x] Add result action: practice detected difficulties with Mr. F.
-- [x] Add result action: practice assignment topic with Mr. F through the same targeted follow-up conversation.
+- [x] Add result action: practice quiz topic with Mr. F through the same targeted follow-up conversation.
 - [x] Apply normal student credit policy to follow-up tutoring.
 - [x] Ensure insufficient credits render product UI through the tutor runtime.
 - [x] Log follow-up conversation creation.
@@ -400,7 +400,7 @@ Exit criteria:
 
 - [x] Authenticated evaluated attempts update progress.
 - [x] Guest results can be saved only after account creation or login.
-- [x] Follow-up tutoring receives assignment, responses, evaluation, and focus
+- [x] Follow-up tutoring receives quiz, responses, evaluation, and focus
   areas as teacher-only context.
 
 Verification:
@@ -417,12 +417,12 @@ Tasks:
 
 - [x] Add route smoke tests.
 - [x] Add route architecture tests.
-- [ ] Add prompt contract fixtures for assignment generation.
+- [ ] Add prompt contract fixtures for quiz generation.
 - [ ] Add prompt contract fixtures for block generation.
 - [ ] Add prompt contract fixtures for revisions.
 - [ ] Add prompt contract fixtures for evaluation.
 - [x] Use global client error telemetry coverage for the authoring workspace.
-- [x] Verify production logs include required assignment events.
+- [x] Verify production logs include required quiz events.
 - [x] Verify full learner answers are not logged in production by default.
 - [ ] Document operational limits for free guest evaluations.
 - [x] Build client assets.

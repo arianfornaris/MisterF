@@ -106,7 +106,7 @@ Observed:
 Observed:
 
 ```text
-¡Excelente! Lo has resuelto perfectamente a la primera. Esos dos *idioms* son muy distintos en su uso: uno describe la dificultad de una tarea (*a piece of cake*) y el otro la frecuencia de un evento (*once in a blue moon*). Tener esa distinción clara es un gran paso. Como me pediste que probáramos todo tipo de ejercicios, ahora vamos a pasar a una traducción para ver cómo los integras en tu propio discurso. Traduce la siguiente frase al inglés:
+¡Excelente! Lo has resuelto perfectamente a la primera. Esos dos *idioms* son muy distintos en su uso: uno describe la dificultad de una quiz (*a piece of cake*) y el otro la frecuencia de un evento (*once in a blue moon*). Tener esa distinción clara es un gran paso. Como me pediste que probáramos todo tipo de ejercicios, ahora vamos a pasar a una traducción para ver cómo los integras en tu propio discurso. Traduce la siguiente frase al inglés:
 ```
 
 ### Half-Split: Correct Block Exists, But Task Also Leaks Into Message

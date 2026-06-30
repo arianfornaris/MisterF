@@ -1,0 +1,48 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view quizzes-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Quiz</p>
+      <h1><%= draft.title %></h1>
+    </div>
+  </div>
+
+  <% if (attemptError) { %>
+    <div class="alert alert-danger" role="alert"><%= attemptError %></div>
+  <% } %>
+
+  <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/submit" data-quiz-submit-form data-quiz-quiz-form>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <% if (guestToken) { %>
+      <input type="hidden" name="guestToken" value="<%= guestToken %>">
+    <% } %>
+    <div data-quiz-quiz-host data-quiz-quiz-mode="attempt"></div>
+    <div data-quiz-quiz-inputs hidden></div>
+    <div class="quiz-block-list" data-quiz-quiz-fallback>
+      <% draft.blocks.forEach((block, index) => { %>
+        <%- include('partials/quiz-item-card', { quizItemMode: 'attempt', block, csrfToken, draft, index, responseIndex: index, selectedQuiz: null }) %>
+      <% }) %>
+    </div>
+    <div class="quiz-submit-bar">
+      <button class="btn btn-primary" type="submit" data-quiz-submit-button>
+        <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Enviar
+      </button>
+    </div>
+  </form>
+</section>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-quiz-pending-modal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Evaluando el quiz...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" data-quiz-quiz-json><%- quizQuizJson %></script>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'quizzes-client-script' }) %>

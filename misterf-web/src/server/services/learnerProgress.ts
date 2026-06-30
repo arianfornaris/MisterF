@@ -1,8 +1,8 @@
 import {
   listLearnerProgressEvents,
-  setAssignmentAttemptProgressEvent,
+  setQuizAttemptProgressEvent,
   setRoleplayAttemptProgressEvent,
-  type StoredAssignmentAttempt,
+  type StoredQuizAttempt,
   type StoredLearnerProgressEventDetails,
   type StoredLearnerProgressSummary,
   type StoredRoleplayAttempt,
@@ -11,9 +11,9 @@ import {
   upsertLearnerProgressProfile,
 } from '../db/repository.js';
 import {
-  buildAssignmentEvaluationSummary,
-  parseAssignmentDraft,
-} from './assignments.js';
+  buildQuizEvaluationSummary,
+  parseQuizDraft,
+} from './quizzes.js';
 import { quizResultBlockSchema } from './llmTutor/schemas.js';
 import {
   buildRoleplayProgressSummary,
@@ -23,7 +23,7 @@ import {
 
 const maxTimelineSummaryLength = 280;
 
-export function recordAssignmentAttemptProgress(attempt: StoredAssignmentAttempt): void {
+export function recordQuizAttemptProgress(attempt: StoredQuizAttempt): void {
   if (
     !attempt.userId ||
     !attempt.profileId ||
@@ -37,11 +37,11 @@ export function recordAssignmentAttemptProgress(attempt: StoredAssignmentAttempt
     return;
   }
 
-  const draft = parseAssignmentDraft(attempt.snapshot);
-  const summary = buildAssignmentEvaluationSummary(result.data);
-  const title = compactText(`Tarea: ${draft.title}`, 120);
+  const draft = parseQuizDraft(attempt.snapshot);
+  const summary = buildQuizEvaluationSummary(result.data);
+  const title = compactText(`Quiz: ${draft.title}`, 120);
   const event = upsertLearnerProgressEvent({
-    details: buildAssignmentAttemptEventDetails({
+    details: buildQuizAttemptEventDetails({
       attempt,
       draft,
       result: result.data,
@@ -49,7 +49,7 @@ export function recordAssignmentAttemptProgress(attempt: StoredAssignmentAttempt
     eventDate: attempt.evaluatedAt ?? attempt.submittedAt ?? attempt.updatedAt,
     profileId: attempt.profileId,
     sourceId: attempt.id,
-    sourceType: 'assignment_attempt',
+    sourceType: 'quiz_attempt',
     summary: compactText(
       `Completaste ${summary.totalCount} ejercicios: ${summary.correctCount} correctos, ${summary.partialCount} parciales y ${summary.incorrectCount} por mejorar.`,
       maxTimelineSummaryLength,
@@ -58,7 +58,7 @@ export function recordAssignmentAttemptProgress(attempt: StoredAssignmentAttempt
     userId: attempt.userId,
   });
 
-  setAssignmentAttemptProgressEvent({
+  setQuizAttemptProgressEvent({
     attemptId: attempt.id,
     progressEventId: event.id,
   });
@@ -212,9 +212,9 @@ function buildTutorReportEventDetails(
   };
 }
 
-function buildAssignmentAttemptEventDetails(input: {
-  attempt: StoredAssignmentAttempt;
-  draft: ReturnType<typeof parseAssignmentDraft>;
+function buildQuizAttemptEventDetails(input: {
+  attempt: StoredQuizAttempt;
+  draft: ReturnType<typeof parseQuizDraft>;
   result: ReturnType<typeof quizResultBlockSchema.parse>;
 }): StoredLearnerProgressEventDetails {
   const missedItems = input.result.items.filter(
@@ -249,9 +249,9 @@ function buildAssignmentAttemptEventDetails(input: {
       missedItems.map((item) => compactText(item.evaluation.feedback, 140)),
       5,
     ),
-    resourceId: input.attempt.assignmentId,
-    resourceType: 'assignment',
-    vocabulary: uniqueLimited(extractAssignmentInlineReviewText(input.result), 12)
+    resourceId: input.attempt.quizId,
+    resourceType: 'quiz',
+    vocabulary: uniqueLimited(extractQuizInlineReviewText(input.result), 12)
       .map((item) => compactText(item, 80)),
   };
 }
@@ -287,7 +287,7 @@ function buildRoleplayAttemptEventDetails(input: {
   };
 }
 
-function extractAssignmentInlineReviewText(
+function extractQuizInlineReviewText(
   result: ReturnType<typeof quizResultBlockSchema.parse>,
 ): string[] {
   return result.items.flatMap((item) => {

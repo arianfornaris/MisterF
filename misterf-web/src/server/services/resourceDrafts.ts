@@ -1,11 +1,11 @@
 import { generateText, type ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
-  assignmentBlockSchema,
-  assignmentDraftSchema,
-  type AssignmentBlock,
-  type AssignmentDraft,
-} from './assignments.js';
+  quizBlockSchema,
+  quizDraftSchema,
+  type QuizBlock,
+  type QuizDraft,
+} from './quizzes.js';
 import {
   normalizeRoleplayRevisionConversationHistory,
   roleplayDraftSchema,
@@ -27,15 +27,15 @@ const practiceGuideDraftSchema = z.object({
   tutorInstructions: z.string().trim().min(1).max(12000),
 }).strict();
 
-const assignmentRevisionSchema = z.object({
+const quizRevisionSchema = z.object({
   assistantMessage: z.string().trim().min(1).max(2000),
-  draft: assignmentDraftSchema,
+  draft: quizDraftSchema,
 }).strict();
 
 type PracticeGuideDraft = z.infer<typeof practiceGuideDraftSchema>;
-export type AssignmentRevisionResult = z.infer<typeof assignmentRevisionSchema>;
+export type QuizRevisionResult = z.infer<typeof quizRevisionSchema>;
 
-export type AssignmentRevisionConversationMessage = {
+export type QuizRevisionConversationMessage = {
   content: string;
   createdAt?: string;
   draftSnapshot?: Record<string, unknown>;
@@ -326,33 +326,33 @@ export async function generatePracticeGuideRevision(input: {
   });
 }
 
-export async function generateAssignmentDraft(input: {
+export async function generateQuizDraft(input: {
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<AssignmentDraft> {
+}): Promise<QuizDraft> {
   return generateStructuredDraft({
-    actorLabel: 'Assignment draft',
-    correctionPromptPath: 'resources/assignment-draft-correction.md',
+    actorLabel: 'Quiz draft',
+    correctionPromptPath: 'resources/quiz-draft-correction.md',
     initialUserMessage: input.prompt,
     maxOutputTokens: 6000,
     openRouterApiKey: input.openRouterApiKey,
-    schema: assignmentDraftSchema,
-    systemPromptPath: 'resources/assignment-draft.md',
+    schema: quizDraftSchema,
+    systemPromptPath: 'resources/quiz-draft.md',
   });
 }
 
-export async function generateAssignmentRevision(input: {
-  conversationHistory?: AssignmentRevisionConversationMessage[];
-  currentDraft: AssignmentDraft;
+export async function generateQuizRevision(input: {
+  conversationHistory?: QuizRevisionConversationMessage[];
+  currentDraft: QuizDraft;
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<AssignmentRevisionResult> {
+}): Promise<QuizRevisionResult> {
   return generateStructuredDraft({
-    actorLabel: 'Assignment revision',
-    correctionPromptPath: 'resources/assignment-revision-correction.md',
+    actorLabel: 'Quiz revision',
+    correctionPromptPath: 'resources/quiz-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
-        conversationHistory: normalizeAssignmentRevisionConversationHistory(
+        conversationHistory: normalizeQuizRevisionConversationHistory(
           input.conversationHistory ?? [],
         ),
         currentDraft: input.currentDraft,
@@ -363,22 +363,22 @@ export async function generateAssignmentRevision(input: {
     ),
     maxOutputTokens: 7600,
     openRouterApiKey: input.openRouterApiKey,
-    schema: assignmentRevisionSchema,
-    systemPromptPath: 'resources/assignment-revision.md',
+    schema: quizRevisionSchema,
+    systemPromptPath: 'resources/quiz-revision.md',
   });
 }
 
-function normalizeAssignmentRevisionConversationHistory(
-  messages: AssignmentRevisionConversationMessage[],
-): AssignmentRevisionConversationMessage[] {
+function normalizeQuizRevisionConversationHistory(
+  messages: QuizRevisionConversationMessage[],
+): QuizRevisionConversationMessage[] {
   const recentMessages = messages
-    .flatMap((message): AssignmentRevisionConversationMessage[] => {
+    .flatMap((message): QuizRevisionConversationMessage[] => {
       const content = message.content.trim();
       if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
         return [];
       }
 
-      const draftSnapshot = assignmentDraftSchema.safeParse(message.draftSnapshot);
+      const draftSnapshot = quizDraftSchema.safeParse(message.draftSnapshot);
       return [{
         content: content.slice(0, 4000),
         createdAt: message.createdAt?.trim() || undefined,
@@ -392,7 +392,7 @@ function normalizeAssignmentRevisionConversationHistory(
   return recentMessages
     .slice()
     .reverse()
-    .map((message): AssignmentRevisionConversationMessage => {
+    .map((message): QuizRevisionConversationMessage => {
       if (!message.draftSnapshot || includedSnapshots >= 6) {
         return {
           content: message.content,
@@ -407,15 +407,15 @@ function normalizeAssignmentRevisionConversationHistory(
     .reverse();
 }
 
-export async function generateAssignmentBlock(input: {
+export async function generateQuizBlock(input: {
   blockKind: string;
-  currentDraft: AssignmentDraft;
+  currentDraft: QuizDraft;
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<AssignmentBlock> {
+}): Promise<QuizBlock> {
   return generateStructuredDraft({
-    actorLabel: 'Assignment block',
-    correctionPromptPath: 'resources/assignment-block-correction.md',
+    actorLabel: 'Quiz block',
+    correctionPromptPath: 'resources/quiz-block-correction.md',
     initialUserMessage: JSON.stringify(
       {
         blockKind: input.blockKind,
@@ -427,8 +427,8 @@ export async function generateAssignmentBlock(input: {
     ),
     maxOutputTokens: 2400,
     openRouterApiKey: input.openRouterApiKey,
-    schema: assignmentBlockSchema,
-    systemPromptPath: 'resources/assignment-block.md',
+    schema: quizBlockSchema,
+    systemPromptPath: 'resources/quiz-block.md',
   });
 }
 

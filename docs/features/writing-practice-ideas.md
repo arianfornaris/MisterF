@@ -48,7 +48,7 @@ preposiciones y vocabulario cotidiano.
 
 ### Situaciones reales
 
-Tareas de escritura con utilidad practica:
+Quizzes de escritura con utilidad practica:
 
 - Escribir un email corto.
 - Pedir informacion.
@@ -121,7 +121,7 @@ corta.
 Ejemplo:
 
 - Palabras: "umbrella", "late", "coffee".
-- Tarea: "Write a short story using these three words."
+- Quiz: "Write a short story using these three words."
 
 Es una forma ligera de provocar creatividad y escritura narrativa.
 
@@ -184,7 +184,7 @@ cometidos.
 ### Frontera con otros bloques
 
 `open_text_prompt` no deberia reemplazar los bloques existentes. Debe usarse
-solo cuando la tarea exige produccion escrita abierta.
+solo cuando la quiz exige produccion escrita abierta.
 
 Usar `translate_to_english_prompt` cuando:
 
@@ -213,7 +213,7 @@ Usar `open_text_prompt` cuando:
 - Queremos que el texto alimente progreso global y practica futura.
 
 La escritura ya no debe entrar como una respuesta normal del usuario cuando el
-tutor esta proponiendo una tarea estructurada de produccion abierta. En ese caso
+tutor esta proponiendo una quiz estructurada de produccion abierta. En ese caso
 debe enviarse desde `open_text_prompt`. `sentence_evaluation` sigue siendo util
 para corregir texto visible del usuario despues de que el modelo evalua la
 respuesta.

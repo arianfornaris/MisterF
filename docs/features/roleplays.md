@@ -18,7 +18,7 @@ The core product idea is:
 - when the learner finishes, Mr. F evaluates the learner's English turn by turn
 - the learner can then practice detected problems with Mr. F
 
-This should reuse the know-how and workflow from `Tareas`: snapshot the resource
+This should reuse the know-how and workflow from `Quizzes`: snapshot the resource
 when an attempt starts, evaluate the submitted attempt with AI, persist the
 result, update progress when attached to an account, and offer follow-up
 tutoring.
@@ -79,7 +79,7 @@ for characters. Later, character images can replace or supplement the icon.
 
 ## Authoring Workflow
 
-The authoring workflow follows the Assignment pattern where useful:
+The authoring workflow follows the Quiz pattern where useful:
 
 1. The creator starts from a natural-language prompt.
 2. The AI creates a roleplay draft.
@@ -127,7 +127,7 @@ The writing surface should feel like a dedicated pedagogical composition tool:
 
 ## Evaluation Result
 
-The evaluation should mirror the Assignment result workflow, but the visual
+The evaluation should mirror the Quiz result workflow, but the visual
 presentation should feel like an annotated roleplay transcript.
 
 The result should include:
@@ -149,7 +149,7 @@ fictional character turns are context, not learner output.
 ## Follow-Up Practice
 
 After evaluation, the learner should be offered the same kind of follow-up
-actions used by assignments:
+actions used by quizzes:
 
 - practice detected problems with Mr. F
 - practice the roleplay topic with Mr. F
@@ -169,7 +169,7 @@ unless a later explicit billing policy says otherwise.
 
 ## Attempts
 
-Roleplays need an attempt model similar to assignments.
+Roleplays need an attempt model similar to quizzes.
 
 Attempt data includes:
 
@@ -185,7 +185,7 @@ Attempt data includes:
 - timestamps
 
 The roleplay detail page should show attempts where applicable. This exposes a
-current Assignment UI gap too: assignment detail pages should show relevant
+current Quiz UI gap too: quiz detail pages should show relevant
 attempts/results for the active profile.
 
 The active attempt page and result page should include a deterministic close
@@ -226,13 +226,13 @@ Initial policy:
 Future policy:
 
 - Shared roleplay attempts may become free as an acquisition path, similar to
-  the planned public/free Tarea flow.
+  the planned public/free Quiz flow.
 - `maxLearnerTurns` can help cap free usage.
 - Free public roleplay attempts must be rate-limited and abuse-resistant.
 
 ## Implementation Notes
 
-Use Assignment infrastructure as the closest reference:
+Use Quiz infrastructure as the closest reference:
 
 - resource-backed authoring
 - attempts with frozen snapshots

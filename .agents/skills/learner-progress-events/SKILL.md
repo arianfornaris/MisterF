@@ -1,6 +1,6 @@
 ---
 name: learner-progress-events
-description: Use when adding, editing, or reviewing Mister F learner progress behavior for evaluated resources, tutor conversation reports, assignment attempts, roleplay attempts, bitácora/progress UI, progress event source labels, or `record*Progress` flows.
+description: Use when adding, editing, or reviewing Mister F learner progress behavior for evaluated resources, tutor conversation reports, quiz attempts, roleplay attempts, bitácora/progress UI, progress event source labels, or `record*Progress` flows.
 ---
 
 # Learner Progress Events
@@ -28,12 +28,12 @@ schema code.
 - `/progress?tab=events` should label sources through a shared server helper,
   not view-specific conditionals.
 - The bitácora/progress UI should include evaluated tutor conversations,
-  assignments, roleplays, and future evaluated resources once they produce
+  quizzes, roleplays, and future evaluated resources once they produce
   events.
 
 ## Current Labels
 
-- `assignment_attempt` or `resourceType: "assignment"` -> `Tarea`
+- `quiz_attempt` or `resourceType: "quiz"` -> `Quiz`
 - `roleplay_attempt` or `resourceType: "roleplay"` -> `Roleplay`
 - `practice_guide` resource metadata -> `Guía de Práctica`
 - `tutor_conversation_report` -> `Bitácora`

@@ -53,19 +53,32 @@
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <button class="btn btn-primary" type="submit" data-tutor-report-pending-button>Practicar estos puntos</button>
                     </form>
-                    <% if (selectedTutorConversationReport.practiceGuideId) { %>
-                      <a class="btn btn-outline-secondary" href="/practice-guides/<%= encodeURIComponent(selectedTutorConversationReport.practiceGuideId) %>">Ver guía creada</a>
-                    <% } else { %>
-                      <form
-                        method="post"
-                        action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/create-practice-guide"
-                        data-tutor-report-pending-form
-                        data-tutor-report-pending-label="Creando guía de práctica..."
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-secondary dropdown-toggle"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
                       >
-                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button class="btn btn-secondary" type="submit" data-tutor-report-pending-button>Crear guía de práctica</button>
-                      </form>
-                    <% } %>
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Crear recurso
+                      </button>
+                      <ul class="dropdown-menu">
+                        <% ['quiz', 'practice_guide', 'roleplay'].forEach((resourceType) => { %>
+                          <li>
+                            <button
+                              class="dropdown-item"
+                              type="button"
+                              data-create-resource-from-conversation
+                              data-resource-type="<%= resourceType %>"
+                              data-resource-action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/resource"
+                            >
+                              <i class="bi <%= resourceType === 'quiz' ? 'bi-ui-checks-grid' : resourceType === 'practice_guide' ? 'bi-journal-plus' : 'bi-person-video3' %> me-2" aria-hidden="true"></i>
+                              <%= resourceType === 'quiz' ? 'Quiz' : resourceType === 'practice_guide' ? 'Guía de práctica' : 'Roleplay' %>
+                            </button>
+                          </li>
+                        <% }) %>
+                      </ul>
+                    </div>
                   </div>
 
                   <div class="conversation-summary-document">
@@ -180,6 +193,35 @@
                   >
                     Finalizar y resumir
                   </button>
+                  <div class="dropdown d-inline-block">
+                    <button
+                      class="btn btn-secondary btn-sm dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                      data-create-resource-from-conversation-toggle
+                      <%= initialConversationId ? '' : 'disabled' %>
+                    >
+                      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Crear recurso
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li>
+                        <button class="dropdown-item" type="button" data-create-resource-from-conversation data-resource-type="quiz">
+                          <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Quiz
+                        </button>
+                      </li>
+                      <li>
+                        <button class="dropdown-item" type="button" data-create-resource-from-conversation data-resource-type="practice_guide">
+                          <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de práctica
+                        </button>
+                      </li>
+                      <li>
+                        <button class="dropdown-item" type="button" data-create-resource-from-conversation data-resource-type="roleplay">
+                          <i class="bi bi-person-video3 me-2" aria-hidden="true"></i>Roleplay
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 <% } %>
                 <button
                   class="btn btn-primary send-button"

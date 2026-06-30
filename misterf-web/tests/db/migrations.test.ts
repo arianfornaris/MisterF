@@ -65,27 +65,27 @@ describe('database migrations', () => {
       },
       {
         id: 3,
-        name: 'simplify_assignment_lifecycle',
+        name: 'simplify_quiz_lifecycle',
       },
       {
         id: 4,
-        name: 'remove_assignment_authoring_revisions',
+        name: 'remove_quiz_authoring_revisions',
       },
       {
         id: 5,
-        name: 'remove_assignment_authoring_sessions',
+        name: 'remove_quiz_authoring_sessions',
       },
       {
         id: 6,
-        name: 'drop_assignment_estimated_minutes',
+        name: 'drop_quiz_estimated_minutes',
       },
       {
         id: 7,
-        name: 'drop_assignment_rubric',
+        name: 'drop_quiz_rubric',
       },
       {
         id: 8,
-        name: 'add_assignment_authoring_messages',
+        name: 'add_quiz_authoring_messages',
       },
       {
         id: 9,
@@ -112,14 +112,14 @@ describe('database migrations', () => {
 
     expect(tableNames).toEqual(expect.arrayContaining([
       'auth_action_tokens',
-      'assignment_attempts',
-      'assignment_share_links',
-      'assignments',
+      'quiz_attempts',
+      'quiz_share_links',
+      'quizzes',
       'chat_room_conversation_reports',
       'chat_room_messages',
       'chat_rooms',
       'conversation_chat_room_report_snapshots',
-      'conversation_assignment_attempt_snapshots',
+      'conversation_quiz_attempt_snapshots',
       'conversation_tutor_plans',
       'conversation_tutor_report_snapshots',
       'conversations',
@@ -142,8 +142,8 @@ describe('database migrations', () => {
       'user_sessions',
       'users',
     ]));
-    expect(tableNames).not.toContain('assignment_authoring_revisions');
-    expect(tableNames).not.toContain('assignment_authoring_sessions');
+    expect(tableNames).not.toContain('quiz_authoring_revisions');
+    expect(tableNames).not.toContain('quiz_authoring_sessions');
     expect(tableNames).not.toContain('practice_guide_collections');
     expect(tableNames).not.toContain('practice_guide_collection_share_links');
 
@@ -162,16 +162,16 @@ describe('database migrations', () => {
       'evaluation_problem',
       'evaluation_status',
     ]));
-    expect(getColumnNames(db, 'assignments')).toEqual(expect.arrayContaining([
+    expect(getColumnNames(db, 'quizzes')).toEqual(expect.arrayContaining([
       'authoring_messages_json',
       'quiz_json',
       'shared_via',
-      'source_assignment_id',
+      'source_quiz_id',
       'source_profile_id',
       'source_user_id',
       'target_topic',
     ]));
-    expect(getColumnNames(db, 'assignments')).not.toEqual(expect.arrayContaining([
+    expect(getColumnNames(db, 'quizzes')).not.toEqual(expect.arrayContaining([
       'estimated_minutes',
       'is_favorite',
       'published_at',
@@ -182,13 +182,13 @@ describe('database migrations', () => {
       'collection_id',
       'position_in_collection',
     ]));
-    expect(getColumnNames(db, 'assignment_attempts')).toEqual(expect.arrayContaining([
+    expect(getColumnNames(db, 'quiz_attempts')).toEqual(expect.arrayContaining([
       'claim_token',
       'guest_token',
       'result_json',
       'snapshot_json',
     ]));
-    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
     expect(getColumnNames(db, 'resources')).toEqual(expect.arrayContaining([
       'archived_at',
       'description',
@@ -291,7 +291,7 @@ describe('database migrations', () => {
       VALUES
         ('folder_parent', 'user_1', 'profile_1', 'resource_folder', 'Parent Folder'),
         ('folder_child', 'user_1', 'profile_1', 'resource_folder', 'Child Folder'),
-        ('assignment_1', 'user_1', 'profile_1', 'assignment', 'Assignment')
+        ('quiz_1', 'user_1', 'profile_1', 'quiz', 'Quiz')
     `).run();
     db.prepare(`
       INSERT INTO resource_folders (id)
@@ -299,7 +299,7 @@ describe('database migrations', () => {
     `).run();
     db.prepare(`
       INSERT INTO resource_folder_items (folder_id, resource_id, resource_type, position)
-      VALUES ('folder_parent', 'assignment_1', 'assignment', 1)
+      VALUES ('folder_parent', 'quiz_1', 'quiz', 1)
     `).run();
 
     migrate();
@@ -307,11 +307,11 @@ describe('database migrations', () => {
     expect(db.prepare(`
       SELECT folder_id, resource_id, resource_type
       FROM resource_folder_items
-      WHERE resource_id = 'assignment_1'
+      WHERE resource_id = 'quiz_1'
     `).get()).toEqual({
       folder_id: 'folder_parent',
-      resource_id: 'assignment_1',
-      resource_type: 'assignment',
+      resource_id: 'quiz_1',
+      resource_type: 'quiz',
     });
     expect(() => db.prepare(`
       INSERT INTO resource_folder_items (folder_id, resource_id, resource_type, position)
@@ -345,9 +345,9 @@ describe('database migrations', () => {
         .run(migration.id, migration.name);
     }
 
-    const assignmentDraft = JSON.stringify({
+    const quizDraft = JSON.stringify({
       blocks: [],
-      title: 'Resource assignment',
+      title: 'Resource quiz',
     });
 
     db.prepare(`
@@ -359,7 +359,7 @@ describe('database migrations', () => {
       VALUES ('profile_1', 'user_1', 'Resources Profile')
     `).run();
     db.prepare(`
-      INSERT INTO assignments (
+      INSERT INTO quizzes (
         id,
         user_id,
         profile_id,
@@ -371,17 +371,17 @@ describe('database migrations', () => {
         authoring_messages_json
       )
       VALUES (
-        'assignment_1',
+        'quiz_1',
         'user_1',
         'profile_1',
-        'Resource Assignment',
-        'Assignment description.',
+        'Resource Quiz',
+        'Quiz description.',
         'Past perfect',
         'B2',
         ?,
         '[]'
       )
-    `).run(assignmentDraft);
+    `).run(quizDraft);
     db.prepare(`
       INSERT INTO practice_guides (
         id,
@@ -401,8 +401,8 @@ describe('database migrations', () => {
       )
     `).run();
     db.prepare(`
-      INSERT INTO assignment_share_links (id, assignment_id)
-      VALUES ('assignment_link_1', 'assignment_1')
+      INSERT INTO quiz_share_links (id, quiz_id)
+      VALUES ('quiz_link_1', 'quiz_1')
     `).run();
     db.prepare(`
       INSERT INTO practice_guide_share_links (id, practice_guide_id)
@@ -412,23 +412,23 @@ describe('database migrations', () => {
     migrate();
 
     expect(db.prepare('SELECT type, topic, level FROM resources WHERE id = ?')
-      .get('assignment_1')).toEqual({
+      .get('quiz_1')).toEqual({
       level: 'B2',
       topic: 'Past perfect',
-      type: 'assignment',
+      type: 'quiz',
     });
     expect(db.prepare('SELECT type FROM resources WHERE id = ?')
       .get('guide_1')).toEqual({ type: 'practice_guide' });
     expect(db.prepare('SELECT COUNT(*) AS count FROM resource_folder_items')
       .get()).toEqual({ count: 0 });
     expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
-      .get('assignment_link_1')).toEqual({ resource_id: 'assignment_1' });
+      .get('quiz_link_1')).toEqual({ resource_id: 'quiz_1' });
     expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
       .get('guide_link_1')).toEqual({ resource_id: 'guide_1' });
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
-  it('migrates existing assignment lifecycle data without losing attempts', async () => {
+  it('migrates existing quiz lifecycle data without losing attempts', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-upgrade-'));
     process.env.DATABASE_PATH = path.join(tempDir, 'upgrade.sqlite');
     process.env.ENV_FILE = '/dev/null';
@@ -463,7 +463,7 @@ describe('database migrations', () => {
           },
         },
       ],
-      title: 'Legacy assignment',
+      title: 'Legacy quiz',
     });
 
     db.prepare(`
@@ -475,7 +475,7 @@ describe('database migrations', () => {
       VALUES ('profile_1', 'user_1', 'Legacy Profile')
     `).run();
     db.prepare(`
-      INSERT INTO assignments (
+      INSERT INTO quizzes (
         id,
         user_id,
         profile_id,
@@ -484,21 +484,21 @@ describe('database migrations', () => {
         status,
         published_at
       )
-      VALUES ('assignment_1', 'user_1', 'profile_1', 'Legacy assignment', ?, 'published', CURRENT_TIMESTAMP)
+      VALUES ('quiz_1', 'user_1', 'profile_1', 'Legacy quiz', ?, 'published', CURRENT_TIMESTAMP)
     `).run(draftJson);
     db.prepare(`
-      INSERT INTO assignment_authoring_sessions (
+      INSERT INTO quiz_authoring_sessions (
         id,
-        assignment_id,
+        quiz_id,
         user_id,
         profile_id,
         status,
         current_draft_json
       )
-      VALUES ('session_1', 'assignment_1', 'user_1', 'profile_1', 'published', ?)
+      VALUES ('session_1', 'quiz_1', 'user_1', 'profile_1', 'published', ?)
     `).run(draftJson);
     db.prepare(`
-      INSERT INTO assignment_authoring_revisions (
+      INSERT INTO quiz_authoring_revisions (
         id,
         authoring_session_id,
         source,
@@ -507,55 +507,55 @@ describe('database migrations', () => {
       VALUES ('revision_1', 'session_1', 'assistant', ?)
     `).run(draftJson);
     db.prepare(`
-      INSERT INTO assignment_attempts (
+      INSERT INTO quiz_attempts (
         id,
-        assignment_id,
+        quiz_id,
         user_id,
         profile_id,
         snapshot_json
       )
-      VALUES ('attempt_1', 'assignment_1', 'user_1', 'profile_1', ?)
+      VALUES ('attempt_1', 'quiz_1', 'user_1', 'profile_1', ?)
     `).run(draftJson);
     db.prepare(`
       INSERT INTO conversations (id, user_id, profile_id, title)
       VALUES ('conversation_1', 'user_1', 'profile_1', 'Legacy conversation')
     `).run();
     db.prepare(`
-      INSERT INTO conversation_assignment_attempt_snapshots (
+      INSERT INTO conversation_quiz_attempt_snapshots (
         conversation_id,
-        assignment_attempt_id,
-        assignment_title,
-        assignment_snapshot_json,
+        quiz_attempt_id,
+        quiz_title,
+        quiz_snapshot_json,
         responses_json,
         result_json
       )
-      VALUES ('conversation_1', 'attempt_1', 'Legacy assignment', ?, '[]', '{}')
+      VALUES ('conversation_1', 'attempt_1', 'Legacy quiz', ?, '[]', '{}')
     `).run(draftJson);
 
     migrate();
 
-    expect(getColumnNames(db, 'assignments')).not.toEqual(expect.arrayContaining([
+    expect(getColumnNames(db, 'quizzes')).not.toEqual(expect.arrayContaining([
       'estimated_minutes',
       'published_at',
       'rubric',
       'status',
     ]));
-    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
-    expect(getColumnNames(db, 'assignments')).not.toContain('estimated_minutes');
-    expect(getColumnNames(db, 'assignments')).not.toContain('rubric');
-    expect(getColumnNames(db, 'assignments')).toContain('authoring_messages_json');
-    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_sessions'")
+    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'quizzes')).not.toContain('estimated_minutes');
+    expect(getColumnNames(db, 'quizzes')).not.toContain('rubric');
+    expect(getColumnNames(db, 'quizzes')).toContain('authoring_messages_json');
+    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'quiz_authoring_sessions'")
       .get()).toBeUndefined();
-    expect(db.prepare('SELECT assignment_id FROM assignment_attempts WHERE id = ?')
-      .get('attempt_1')).toEqual({ assignment_id: 'assignment_1' });
-    expect(db.prepare('SELECT assignment_attempt_id FROM conversation_assignment_attempt_snapshots WHERE conversation_id = ?')
-      .get('conversation_1')).toEqual({ assignment_attempt_id: 'attempt_1' });
-    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_revisions'")
+    expect(db.prepare('SELECT quiz_id FROM quiz_attempts WHERE id = ?')
+      .get('attempt_1')).toEqual({ quiz_id: 'quiz_1' });
+    expect(db.prepare('SELECT quiz_attempt_id FROM conversation_quiz_attempt_snapshots WHERE conversation_id = ?')
+      .get('conversation_1')).toEqual({ quiz_attempt_id: 'attempt_1' });
+    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'quiz_authoring_revisions'")
       .get()).toBeUndefined();
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
-    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'conversation_assignment_attempt_snapshots'")
+    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'conversation_quiz_attempt_snapshots'")
       .get()).toEqual(expect.objectContaining({
-      sql: expect.stringContaining('REFERENCES assignment_attempts'),
+      sql: expect.stringContaining('REFERENCES quiz_attempts'),
     }));
   });
 
@@ -610,7 +610,7 @@ describe('database migrations', () => {
       VALUES ('profile_1', 'user_1', 'Legacy Profile')
     `).run();
     db.prepare(`
-      INSERT INTO assignment_authoring_sessions (
+      INSERT INTO quiz_authoring_sessions (
         id,
         user_id,
         profile_id,
@@ -621,7 +621,7 @@ describe('database migrations', () => {
       VALUES ('session_orphan', 'user_1', 'profile_1', 'drafting', 'Create a legacy task.', ?)
     `).run(draftJson);
     db.prepare(`
-      INSERT INTO assignment_attempts (
+      INSERT INTO quiz_attempts (
         id,
         authoring_session_id,
         user_id,
@@ -633,19 +633,19 @@ describe('database migrations', () => {
 
     migrate();
 
-    expect(db.prepare('SELECT title, target_topic FROM assignments WHERE id = ?')
+    expect(db.prepare('SELECT title, target_topic FROM quizzes WHERE id = ?')
       .get('session_orphan')).toEqual({
       target_topic: 'Simple past',
       title: 'Legacy Generated Task',
     });
-    expect(getColumnNames(db, 'assignments')).toContain('authoring_messages_json');
-    expect(db.prepare('SELECT assignment_id FROM assignment_attempts WHERE id = ?')
+    expect(getColumnNames(db, 'quizzes')).toContain('authoring_messages_json');
+    expect(db.prepare('SELECT quiz_id FROM quiz_attempts WHERE id = ?')
       .get('attempt_preview')).toEqual({
-      assignment_id: 'session_orphan',
+      quiz_id: 'session_orphan',
     });
-    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('authoring_session_id');
-    expect(getColumnNames(db, 'assignment_attempts')).not.toContain('is_preview');
-    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'assignment_authoring_sessions'")
+    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('is_preview');
+    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'quiz_authoring_sessions'")
       .get()).toBeUndefined();
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });

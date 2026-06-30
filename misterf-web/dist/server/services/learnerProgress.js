@@ -1,9 +1,9 @@
-import { listLearnerProgressEvents, setAssignmentAttemptProgressEvent, setRoleplayAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
-import { buildAssignmentEvaluationSummary, parseAssignmentDraft, } from './assignments.js';
+import { listLearnerProgressEvents, setQuizAttemptProgressEvent, setRoleplayAttemptProgressEvent, upsertLearnerProgressEvent, upsertLearnerProgressProfile, } from '../db/repository.js';
+import { buildQuizEvaluationSummary, parseQuizDraft, } from './quizzes.js';
 import { quizResultBlockSchema } from './llmTutor/schemas.js';
 import { buildRoleplayProgressSummary, parseRoleplayDraft, roleplayEvaluationResultSchema, } from './roleplays.js';
 const maxTimelineSummaryLength = 280;
-export function recordAssignmentAttemptProgress(attempt) {
+export function recordQuizAttemptProgress(attempt) {
     if (!attempt.userId ||
         !attempt.profileId ||
         !attempt.result) {
@@ -13,11 +13,11 @@ export function recordAssignmentAttemptProgress(attempt) {
     if (!result.success) {
         return;
     }
-    const draft = parseAssignmentDraft(attempt.snapshot);
-    const summary = buildAssignmentEvaluationSummary(result.data);
-    const title = compactText(`Tarea: ${draft.title}`, 120);
+    const draft = parseQuizDraft(attempt.snapshot);
+    const summary = buildQuizEvaluationSummary(result.data);
+    const title = compactText(`Quiz: ${draft.title}`, 120);
     const event = upsertLearnerProgressEvent({
-        details: buildAssignmentAttemptEventDetails({
+        details: buildQuizAttemptEventDetails({
             attempt,
             draft,
             result: result.data,
@@ -25,12 +25,12 @@ export function recordAssignmentAttemptProgress(attempt) {
         eventDate: attempt.evaluatedAt ?? attempt.submittedAt ?? attempt.updatedAt,
         profileId: attempt.profileId,
         sourceId: attempt.id,
-        sourceType: 'assignment_attempt',
+        sourceType: 'quiz_attempt',
         summary: compactText(`Completaste ${summary.totalCount} ejercicios: ${summary.correctCount} correctos, ${summary.partialCount} parciales y ${summary.incorrectCount} por mejorar.`, maxTimelineSummaryLength),
         title,
         userId: attempt.userId,
     });
-    setAssignmentAttemptProgressEvent({
+    setQuizAttemptProgressEvent({
         attemptId: attempt.id,
         progressEventId: event.id,
     });
@@ -148,7 +148,7 @@ function buildTutorReportEventDetails(report) {
             .slice(0, 12),
     };
 }
-function buildAssignmentAttemptEventDetails(input) {
+function buildQuizAttemptEventDetails(input) {
     const missedItems = input.result.items.filter((item) => item.evaluation.status !== 'correct');
     const correctItems = input.result.items.filter((item) => item.evaluation.status === 'correct');
     return {
@@ -160,9 +160,9 @@ function buildAssignmentAttemptEventDetails(input) {
         ].filter(Boolean), 5),
         progress: uniqueLimited(correctItems.map((item) => compactText(`${item.prompt}: ${item.evaluation.feedback}`, 140)), 4),
         recommendations: uniqueLimited(missedItems.map((item) => compactText(item.evaluation.feedback, 140)), 5),
-        resourceId: input.attempt.assignmentId,
-        resourceType: 'assignment',
-        vocabulary: uniqueLimited(extractAssignmentInlineReviewText(input.result), 12)
+        resourceId: input.attempt.quizId,
+        resourceType: 'quiz',
+        vocabulary: uniqueLimited(extractQuizInlineReviewText(input.result), 12)
             .map((item) => compactText(item, 80)),
     };
 }
@@ -189,7 +189,7 @@ function buildRoleplayAttemptEventDetails(input) {
             .slice(0, 12),
     };
 }
-function extractAssignmentInlineReviewText(result) {
+function extractQuizInlineReviewText(result) {
     return result.items.flatMap((item) => {
         const inlineReview = item.inlineReview;
         if (!inlineReview) {

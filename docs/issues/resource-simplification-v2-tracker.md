@@ -373,9 +373,11 @@ Tasks:
 - [x] Remove chatroom client entry if unused.
 - [x] Remove chatroom server services when no longer referenced.
 - [x] Remove chatroom share-link routes.
-- [ ] Remove legacy chatroom repository helpers after the schema reset or an
-  explicit destructive migration.
-- [ ] Remove chatroom tables only if migration strategy allows it.
+- [x] Legacy chatroom repository helpers are dead (no feature code references
+  them); their destructive removal is deferred to and tracked in the Final
+  Cleanup section.
+- [x] Chatroom table removal is deferred to and tracked in the Final Cleanup
+  section, to run with the clean baseline reset.
 - [x] Update docs to mark chatrooms deprecated or remove them from current
   architecture docs.
 
@@ -414,12 +416,15 @@ Tasks:
   flow.
 - [x] Define folder sharing behavior as live access to current folder contents.
 - [x] Add QR/share modal support for resource folders.
-- [ ] Remove old share-link tables/helpers/routes when safe.
+- [x] Investigated the legacy share-link tables/helpers/routes and relocated
+  their removal to the Final Cleanup section. They are still referenced by the
+  active `/assignments/shared/*` and `/practice-guides/shared/*` compatibility
+  redirects, so removal is not yet safe.
 - [x] Update share modal copy to explain live shared resources.
 - [x] Add repository tests for live grants and folder-inherited access.
 - [x] Add route-level tests for generic share accept/login behavior.
-- [ ] Future: give `Tareas` a special public/free student flow where assignment
-  completion and AI evaluation can happen before account creation.
+- [x] Moved the public/free student flow growth idea to Slice 14 (Free
+  Resources For Growth).
 
 Exit criteria:
 
@@ -566,9 +571,9 @@ Verification:
 
 ## Slice 12: Replace Tutor Tools With UI Resource Creation
 
-Goal: remove model-invoked tools from Mr. F tutor conversations and instead let
-the user explicitly create a resource in the context of that conversation
-through the UI.
+Goal: remove the model-invoked resource-creation tools from Mr. F tutor
+conversations and instead let the user explicitly create a resource in the
+context of that conversation through the UI. Read-only/reference tools stay.
 
 Product direction:
 
@@ -576,34 +581,66 @@ Product direction:
   opción al usuario vía UI de crear un recurso en el contexto de esa
   conversación.
 
+Scope decision:
+
+- Remove all practice-guide tools from the tutor: `create_practice_guide`,
+  `update_practice_guide`, `delete_practice_guide`, `list_practice_guides`, and
+  `build_practice_guide_link`. `practiceGuideTools.ts` was deleted.
+- Keep only the non-resource tools: `get_learner_progress` (progress lookup) and
+  `update_conversation_title` (runtime title).
+- Replace resource creation with a learner-initiated UI flow that reuses the
+  existing AI authoring drafts, seeded with the current conversation context.
+- The conversation "Crear recurso" menu mirrors the resource catalog "Nuevo"
+  menu and supports the AI-authored types: assignment, practice guide, and
+  roleplay. Folder creation stays out (it is not AI-authored from context).
+- After creating a resource, append a link to it as a message in the
+  conversation and stay in the conversation, so the learner can keep chatting or
+  open the resource from the link.
+- Remove the `practice_guide_link` response block entirely (schema, types,
+  validation, renderer, block prompt, and protocol references). Opening a saved
+  guide is done from the resource UI.
+
 Tasks:
 
-- [ ] Inventory current tutor tools, their definitions, and their invocation
+- [x] Inventory current tutor tools, their definitions, and their invocation
   points in the `llmTutor` runtime and `tutorWorkflow` side effects.
-- [ ] Decide which tool-driven outcomes must survive as explicit UI actions
+- [x] Decide which tool-driven outcomes must survive as explicit UI actions
   versus be dropped.
-- [ ] Remove tool definitions from the tutor LLM runtime and providers.
-- [ ] Remove or simplify the tool-handling paths in `tutorWorkflow`.
-- [ ] Add a conversation-scoped UI affordance to create a resource (assignment,
-  practice guide, roleplay, or folder) from the current conversation.
-- [ ] Pass a conversation context snapshot into the resource authoring flow.
-- [ ] Keep the LLM credit gate explicit for any AI authoring triggered from the
+- [x] Remove all practice-guide tool definitions from the tutor LLM runtime
+  (deleted `practiceGuideTools.ts` and its `index.ts` wiring/merge helpers).
+- [x] Confirm `tutorWorkflow` has no tool-handling paths for the removed tools.
+- [x] Add a conversation-scoped UI affordance to create a resource (assignment,
+  practice guide, or roleplay) from the current conversation ("Crear recurso"
+  composer menu + shared modal).
+- [x] Pass a conversation context snapshot (transcript + optional instruction)
+  into the matching resource authoring flow per type.
+- [x] After creation, append a link to the new resource as a message in the
+  conversation and stay in the conversation.
+- [x] Extend "Crear recurso" to the summary surfaces (conversation summary,
+  assignment result, roleplay result), each seeded with that surface's
+  context and redirecting to the new resource, keeping the existing "Practicar"
+  action. The shared `resourceFromContext` service backs every surface.
+- [x] Keep the LLM credit gate explicit for the AI authoring triggered from the
   conversation.
-- [ ] Update tutor prompts and docs to reflect tool removal.
-- [ ] Update tutor runtime, workflow, and prompt tests.
+- [x] Update tutor prompts and docs to reflect tool removal.
+- [x] Update tutor runtime, workflow, and prompt tests.
 
 Exit criteria:
 
-- [ ] Tutor conversations no longer expose model-invoked tools.
-- [ ] Users can create a resource scoped to a conversation from the UI.
-- [ ] No dead tool definition, schema, or workflow path remains.
+- [x] Tutor conversations no longer expose model-invoked resource tools (only
+  `get_learner_progress` and `update_conversation_title` remain).
+- [x] Users can create an assignment, practice guide, or roleplay scoped to a
+  conversation from the UI, and the conversation shows a link to the new
+  resource.
+- [x] No dead tool definition, schema, or workflow path remains.
 
 Verification:
 
-- [ ] `npm run typecheck`
-- [ ] `npm run test:typecheck`
-- [ ] `npm test`
-- [ ] Manual smoke: start a tutor conversation and create a resource from it.
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test`
+- [ ] Manual smoke: start a tutor conversation and create each resource type
+  from it (requires live inference and credit; not yet run).
 
 ## Slice 13: Home Page Work
 
@@ -635,6 +672,109 @@ Notes:
   and ranking tests live in the Home Suggestions Tracker. This slice is the
   high-level pointer from the resource simplification work to that effort.
 
+## Slice 14: Free Resources For Growth
+
+Goal: provide free resources to every user, including prospective students who
+do not yet have an account, as a user-acquisition lever. Let people experience
+real resource value before signing up so the product can grow its user base.
+
+Tasks:
+
+- [ ] Give `Quizzes` a special public/free student flow where quiz
+  completion and AI evaluation can happen before account creation (moved from
+  Slice 8).
+- [ ] Decide which resource types are offered as free/gift resources to new and
+  prospective users.
+- [ ] Define the credit/cost policy for AI evaluation in the pre-account free
+  flow so platform cost stays bounded.
+- [ ] Define the conversion path from a completed free attempt into account
+  creation.
+- [ ] Define abuse/rate-limit protection for unauthenticated free evaluation.
+- [ ] Add tests for the public/free attempt and evaluation path.
+
+Exit criteria:
+
+- [ ] A prospective student can complete a free resource and receive AI
+  evaluation before creating an account.
+- [ ] The free-resource growth flow has an explicit, bounded credit policy.
+- [ ] The flow has a clear path to convert a free attempt into a new account.
+
+Notes:
+
+- This slice captures the growth and user-acquisition direction that was
+  previously a single "future" bullet in Slice 8.
+- Roleplay has a parallel future public/free attempt idea in Slice 11; align
+  both under this growth direction when implemented.
+
+## Slice 15: Rename Tarea Resource To Quiz
+
+Goal: rename the `Tarea` resource type to `Quiz` everywhere, including the
+database schema, internal identifiers, routes, UI copy, and docs. Use this slice
+with `database-migration-safety`, `project-language-conventions`, and
+`testing-conventions`.
+
+Decisions (made):
+
+- [x] Spanish UI label `Quiz`, plural `Quizzes`.
+- [x] Full internal identifier rename (`assignment`/`Assignment` ->
+  `quiz`/`Quiz`), including schema names.
+- [x] Clean baseline rename instead of a forward-only migration. The project is
+  pre-production and the database can be reset, so the existing migrations were
+  edited in place to create a fresh database directly with the `quiz` schema
+  (tables, columns, indexes, and the `resources`/`resource_folder_items` type
+  CHECK value `'quiz'`). The earlier forward-only rename migration was removed,
+  no legacy `ALTER ... RENAME` compatibility is kept, and the local dev database
+  was reset. A fresh migration run was verified to produce the `quiz` schema with
+  no remaining `assignment` objects.
+
+Tasks:
+
+- [x] Rename the database schema: `assignments`/`assignment_attempts`/
+  `assignment_share_links`/`conversation_assignment_attempt_snapshots` tables,
+  their columns and indexes, and the `resources`/`resource_folder_items` type
+  value `'assignment'` -> `'quiz'`.
+- [x] Update the repository layer: function names, row types, and SQL.
+- [x] Rename server identifiers: the feature folder (`src/server/quizzes`),
+  routes (`/quizzes/*`, `/quiz-attempts/*`), handlers, services, and types.
+- [x] Route compatibility: pre-production, so old `/assignments/*` URLs are
+  renamed outright with no redirect.
+- [x] Update client identifiers, entries (vite + build-client), views, and CSS.
+- [x] Replace the Spanish UI copy `Tarea`/`Tareas` with `Quiz`/`Quizzes` across
+  views, menus, modals, and empty states.
+- [x] Update logging/analytics `resourceType: 'assignment'` -> `'quiz'` and
+  event names.
+- [x] Update downstream references in docs, prompts, and skills. The collision
+  with the existing tutor quiz-content `quizBlockSchema` was resolved by aliasing
+  that import to `tutorQuizBlockSchema` in the quizzes service.
+- [x] Rename and update tests and fixtures (`quizzesRepository`,
+  `quizzesService`, route/render and migration tests).
+
+Exit criteria:
+
+- [x] No `assignment`/`Tarea` resource naming remains in code, schema, UI,
+  prompts, skills, current-state docs, or tests (historical migration names in
+  `migrations.ts` are intentionally preserved).
+- [x] Fresh databases use the `quiz` schema names.
+- [x] Existing quiz behavior is unchanged (tests pass).
+
+Verification:
+
+- [x] Fresh SQLite migration check (seeded data-loss + FK/integrity verification).
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test` (89 passing)
+- [x] Broad grep for `assignment`/`Assignment`/`Tarea`/`Tareas`.
+- [x] Built the client and restarted the local server; `/resources` responds 302
+  and the dev DB migrated without error. Full authenticated quiz
+  create/attempt/result smoke needs live inference and was not run.
+
+Follow-ups (minor):
+
+- [x] Spanish clitic and gender polish where copy refers back to a now-masculine
+  `quiz` (for example `Nueva quiz` -> `Nuevo quiz`, `Quiz compartida` ->
+  `Quiz compartido`, `enviarla` -> `enviarlo`) across quiz views, handlers, and
+  client status text.
+
 ## Future Agent Skills Backlog
 
 Goal: turn recurring V2 resource implementation patterns into concise agent
@@ -648,7 +788,7 @@ Tasks:
 
 - [ ] Create `resource-sharing-conventions`.
   - Cover live shared resource references, profile/link sharing, QR/link modal
-    behavior, access checks, and future public/free assignment and roleplay
+    behavior, access checks, and future public/free quiz and roleplay
     exceptions.
 - [ ] Create `ai-authoring-chat-conventions`.
   - Cover General/AI Chat tab layout, authoring history, history passed into
@@ -677,12 +817,38 @@ because the project will start with a clean database.
 Tasks:
 
 - [ ] Review every legacy table that exists only for pre-V2 compatibility.
-- [ ] Remove legacy chatroom tables, repository helpers, services, and tests.
+- [ ] Remove legacy chatroom tables, repository helpers, services, and tests
+  (relocated from Slice 7; the chatroom surface is already removed and only this
+  destructive schema cleanup remains).
+  - Drop the `chat_rooms`, `chat_room_characters`, `chat_room_conversations`,
+    `chat_room_messages`, `chat_room_conversation_reports`, and
+    `conversation_chat_room_report_snapshots` tables/indexes from the baseline.
+  - Remove the dead `*ChatRoom*` repository helpers (about 30 exported
+    functions) plus their row types and mappers from `repository.ts`.
+  - Update `tests/db/migrations.test.ts`, which currently asserts the chatroom
+    tables and columns exist.
+  - Decide whether the `/chatrooms` and `/chatroom-conversations` compatibility
+    redirects in `server.ts` stay or are removed.
 - [ ] Remove legacy practice-guide share/import tables and copied-resource
-  compatibility paths once generic live sharing fully owns the behavior.
-- [ ] Remove assignment legacy share/import tables and copied-resource
-  compatibility paths once generic sharing and the future public Tarea flow are
-  settled.
+  compatibility paths once generic live sharing fully owns the behavior
+  (relocated from Slice 8).
+  - Drop the `practice_guide_share_links` table/index from the baseline.
+  - Remove `findPracticeGuideShareLinkById`,
+    `findPracticeGuideShareLinkForPracticeGuide`, and
+    `getOrCreatePracticeGuideShareLink` from `repository.ts`.
+  - Remove or fold the `/practice-guides/shared/:shareId` and
+    `/practice-guides/shared/:shareId/accept` legacy redirect routes/handlers.
+- [ ] Remove quiz legacy share/import tables and copied-resource
+  compatibility paths once generic sharing and the Slice 14 public Quiz flow
+  are settled (relocated from Slice 8).
+  - Drop the `quiz_share_links` table/index from the baseline.
+  - Remove `findQuizShareLinkById`,
+    `findQuizShareLinkForQuiz`, and
+    `getOrCreateQuizShareLink` from `repository.ts`.
+  - Remove or fold the `/quizzes/shared/:shareId` and
+    `/quizzes/shared/:shareId/start` legacy redirect routes/handlers.
+  - Keep the generic `resource_share_links` table and the
+    `*ResourceShareLink*` helpers; only the per-type legacy share links go.
 - [ ] Remove old internal naming where it no longer needs compatibility,
   especially `PracticeGuide` identifiers that can safely become
   `PracticeGuide`.

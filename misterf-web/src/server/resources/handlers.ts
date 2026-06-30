@@ -86,7 +86,7 @@ function normalizeReturnTo(value: unknown): string {
 function readResourceTypeFilter(value: unknown): ResourceFilterType {
   const resourceType = readField(value, 40);
   if (
-    resourceType === 'assignment' ||
+    resourceType === 'quiz' ||
     resourceType === 'practice_guide' ||
     resourceType === 'resource_folder' ||
     resourceType === 'roleplay'
@@ -107,8 +107,8 @@ function readResourceSort(value: unknown): ResourceSortOption {
 }
 
 function buildResourceDetailPath(resource: StoredResource): string {
-  if (resource.type === 'assignment') {
-    return `/assignments/${encodeURIComponent(resource.id)}`;
+  if (resource.type === 'quiz') {
+    return `/quizzes/${encodeURIComponent(resource.id)}`;
   }
 
   if (resource.type === 'practice_guide') {
@@ -127,11 +127,11 @@ function buildResourceAction(resource: StoredResource): {
   actionMethod: 'get' | 'post';
   actionPath: string;
 } {
-  if (resource.type === 'assignment') {
+  if (resource.type === 'quiz') {
     return {
       actionLabel: 'Probar',
       actionMethod: 'post',
-      actionPath: `/assignments/${encodeURIComponent(resource.id)}/test-attempts`,
+      actionPath: `/quizzes/${encodeURIComponent(resource.id)}/test-attempts`,
     };
   }
 
@@ -171,11 +171,11 @@ function toAccessibleOwnerResource(resource: StoredResource): StoredAccessibleRe
 
 function buildResourceListItem(resource: StoredAccessibleResource): ResourceListItem {
   const meta = {
-    assignment: {
+    quiz: {
       badgeClass: 'text-bg-primary',
       headerClass: 'bg-primary text-white',
       iconClass: 'bi-ui-checks-grid',
-      label: 'Tarea',
+      label: 'Quiz',
     },
     practice_guide: {
       badgeClass: 'text-bg-success',
@@ -236,7 +236,7 @@ function removeFiledResourcesFromRoot(
 
 const resourceTypeSortRank: Record<StoredResource['type'], number> = {
   resource_folder: 0,
-  assignment: 1,
+  quiz: 1,
   practice_guide: 2,
   roleplay: 3,
 };

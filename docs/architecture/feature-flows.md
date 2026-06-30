@@ -89,42 +89,42 @@ read-only conversation error.
 ## Teacher-Assigned Practice Flow
 
 This flow supports human teachers who want students to practice a class topic
-independently. The Spanish UI label is `Tareas`.
+independently. The Spanish UI label is `Quizzes`.
 
-### Create assignment
+### Create quiz
 
-1. The teacher opens `Recursos` and creates a new `Tarea`.
+1. The teacher opens `Recursos` and creates a new `Quiz`.
 2. The teacher starts an authoring session with a natural-language prompt.
 3. The server checks the teacher's credits for AI-assisted authoring.
-4. Mr. F generates a strict quiz-compatible assignment draft.
-5. The authoring workspace opens on a `Design` tab that shows the assignment as
+4. Mr. F generates a strict quiz-compatible quiz draft.
+5. The authoring workspace opens on a `Design` tab that shows the quiz as
    editable blocks.
 6. Each block shows a visible number, such as `Block 1`, so the teacher can
    reference it in the `AI chat` tab.
-7. The teacher can update assignment metadata and reorder, delete, duplicate,
+7. The teacher can update quiz metadata and reorder, delete, duplicate,
    or add blocks in the `Design` tab.
 8. Reordering updates visible block numbers while preserving stable internal
    block ids for AI revision context.
 9. Adding a block shows the supported block types, then opens a modal where the
    teacher describes the block for AI generation.
-10. The `AI chat` tab lets the teacher ask Mr. F for broader assignment changes
+10. The `AI chat` tab lets the teacher ask Mr. F for broader quiz changes
     using block-number references.
 11. AI-generated blocks and AI revisions replace the current structured draft
     only after validation against the supported quiz item contract.
-12. The teacher clicks `Probar` to execute the student-facing Tarea shape.
-13. The teacher can test the assignment from the student perspective by
+12. The teacher clicks `Probar` to execute the student-facing Quiz shape.
+13. The teacher can test the quiz from the student perspective by
     creating the same normal authenticated attempt a student would use.
 14. Evaluated authenticated attempts write learner progress for the active
     profile.
-15. The assignment stores a fixed quiz-compatible payload with title,
+15. The quiz stores a fixed quiz-compatible payload with title,
     description, target topic, instructions, rubric, and ordered items.
-16. The teacher saves the assignment and can share a link with students.
+16. The teacher saves the quiz and can share a link with students.
 
-### Complete assignment
+### Complete quiz
 
-1. The student opens the shared assignment link.
+1. The student opens the shared quiz link.
 2. Current generic sharing asks the student to create an account or log in
-   before adding the shared Tarea to their resources.
+   before adding the shared Quiz to their resources.
 3. After authentication, the student starts or resumes an attempt under the active
    profile.
 4. The student answers the full sequence.
@@ -132,21 +132,21 @@ independently. The Spanish UI label is `Tareas`.
 6. The server asks the model to evaluate the responses for free to the student.
 7. The evaluated result is stored and rendered as a structured review.
 8. If the attempt is associated with an account, it contributes a progress event
-   to the student's profile. That event records the assignment as
-   `resourceId` plus `resourceType: "assignment"` inside the event details
-   JSON, while preserving the assignment attempt as the source id.
-9. Future assignment-specific public sharing should allow guest completion and
+   to the student's profile. That event records the quiz as
+   `resourceId` plus `resourceType: "quiz"` inside the event details
+   JSON, while preserving the quiz attempt as the source id.
+9. Future quiz-specific public sharing should allow guest completion and
    free AI evaluation before account creation; that exception is not part of
    the current generic resource sharing flow.
 
 ### Continue practice
 
 1. From the result page, the student can choose to practice the detected
-   difficulties or the original assignment topic with Mr. F.
+   difficulties or the original quiz topic with Mr. F.
 2. If the student is a guest, the app asks them to create an account or log in.
 3. The standard account credit policy applies to follow-up tutoring.
-4. The server creates a tutor conversation with an assignment-attempt snapshot.
-5. The tutor receives the assignment, responses, result, and focus areas as
+4. The server creates a tutor conversation with an quiz-attempt snapshot.
+5. The tutor receives the quiz, responses, result, and focus areas as
    teacher-only context.
 6. Mr. F continues with targeted practice instead of grading the same attempt
    again.

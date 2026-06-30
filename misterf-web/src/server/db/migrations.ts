@@ -548,7 +548,7 @@ export const migrations: Migration[] = [
     id: 2,
     name: 'add_teacher_assigned_practice',
     up: `
-      CREATE TABLE assignments (
+      CREATE TABLE quizzes (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
@@ -562,7 +562,7 @@ export const migrations: Migration[] = [
         quiz_json TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
         archived_at TEXT,
-        source_assignment_id TEXT,
+        source_quiz_id TEXT,
         source_user_id TEXT,
         source_profile_id TEXT,
         shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
@@ -575,8 +575,8 @@ export const migrations: Migration[] = [
         FOREIGN KEY (profile_id)
           REFERENCES profiles (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (source_assignment_id)
-          REFERENCES assignments (id)
+        FOREIGN KEY (source_quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE SET NULL,
         FOREIGN KEY (source_user_id)
           REFERENCES users (id)
@@ -586,18 +586,18 @@ export const migrations: Migration[] = [
           ON DELETE SET NULL
       );
 
-      CREATE INDEX idx_assignments_user_profile_updated
-        ON assignments (user_id, profile_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_quizzes_user_profile_updated
+        ON quizzes (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_assignments_profile_archived_updated
-        ON assignments (profile_id, archived_at, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_quizzes_profile_archived_updated
+        ON quizzes (profile_id, archived_at, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_assignments_profile_source
-        ON assignments (profile_id, source_assignment_id, shared_via);
+      CREATE INDEX idx_quizzes_profile_source
+        ON quizzes (profile_id, source_quiz_id, shared_via);
 
-      CREATE TABLE assignment_authoring_sessions (
+      CREATE TABLE quiz_authoring_sessions (
         id TEXT PRIMARY KEY,
-        assignment_id TEXT,
+        quiz_id TEXT,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'drafting' CHECK (status IN ('drafting', 'published', 'discarded')),
@@ -607,8 +607,8 @@ export const migrations: Migration[] = [
         last_validated_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (assignment_id)
-          REFERENCES assignments (id)
+        FOREIGN KEY (quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE SET NULL,
         FOREIGN KEY (user_id)
           REFERENCES users (id)
@@ -618,13 +618,13 @@ export const migrations: Migration[] = [
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_assignment_authoring_sessions_user_profile_updated
-        ON assignment_authoring_sessions (user_id, profile_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_quiz_authoring_sessions_user_profile_updated
+        ON quiz_authoring_sessions (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_assignment_authoring_sessions_assignment
-        ON assignment_authoring_sessions (assignment_id, updated_at DESC);
+      CREATE INDEX idx_quiz_authoring_sessions_quiz
+        ON quiz_authoring_sessions (quiz_id, updated_at DESC);
 
-      CREATE TABLE assignment_authoring_revisions (
+      CREATE TABLE quiz_authoring_revisions (
         id TEXT PRIMARY KEY,
         authoring_session_id TEXT NOT NULL,
         source TEXT NOT NULL CHECK (source IN ('assistant', 'manual', 'block_add', 'block_revision', 'preview_test')),
@@ -634,29 +634,29 @@ export const migrations: Migration[] = [
         validation_status TEXT NOT NULL DEFAULT 'valid' CHECK (validation_status IN ('valid', 'invalid')),
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (authoring_session_id)
-          REFERENCES assignment_authoring_sessions (id)
+          REFERENCES quiz_authoring_sessions (id)
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_assignment_authoring_revisions_session_created
-        ON assignment_authoring_revisions (authoring_session_id, created_at ASC);
+      CREATE INDEX idx_quiz_authoring_revisions_session_created
+        ON quiz_authoring_revisions (authoring_session_id, created_at ASC);
 
-      CREATE TABLE assignment_share_links (
+      CREATE TABLE quiz_share_links (
         id TEXT PRIMARY KEY,
-        assignment_id TEXT NOT NULL UNIQUE,
+        quiz_id TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         revoked_at TEXT,
-        FOREIGN KEY (assignment_id)
-          REFERENCES assignments (id)
+        FOREIGN KEY (quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_assignment_share_links_assignment_active
-        ON assignment_share_links (assignment_id, revoked_at, created_at DESC);
+      CREATE INDEX idx_quiz_share_links_quiz_active
+        ON quiz_share_links (quiz_id, revoked_at, created_at DESC);
 
-      CREATE TABLE assignment_attempts (
+      CREATE TABLE quiz_attempts (
         id TEXT PRIMARY KEY,
-        assignment_id TEXT NOT NULL,
+        quiz_id TEXT NOT NULL,
         user_id TEXT,
         profile_id TEXT,
         guest_token TEXT UNIQUE,
@@ -671,8 +671,8 @@ export const migrations: Migration[] = [
         evaluated_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (assignment_id)
-          REFERENCES assignments (id)
+        FOREIGN KEY (quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE CASCADE,
         FOREIGN KEY (user_id)
           REFERENCES users (id)
@@ -685,58 +685,58 @@ export const migrations: Migration[] = [
           ON DELETE SET NULL
       );
 
-      CREATE INDEX idx_assignment_attempts_assignment_created
-        ON assignment_attempts (assignment_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_quiz_created
+        ON quiz_attempts (quiz_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_user_profile_created
-        ON assignment_attempts (user_id, profile_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_user_profile_created
+        ON quiz_attempts (user_id, profile_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_guest_token
-        ON assignment_attempts (guest_token);
+      CREATE INDEX idx_quiz_attempts_guest_token
+        ON quiz_attempts (guest_token);
 
-      CREATE INDEX idx_assignment_attempts_claim_token
-        ON assignment_attempts (claim_token);
+      CREATE INDEX idx_quiz_attempts_claim_token
+        ON quiz_attempts (claim_token);
 
-      CREATE TABLE conversation_assignment_attempt_snapshots (
+      CREATE TABLE conversation_quiz_attempt_snapshots (
         conversation_id TEXT PRIMARY KEY,
-        assignment_attempt_id TEXT NOT NULL,
-        assignment_title TEXT NOT NULL,
-        assignment_description TEXT NOT NULL DEFAULT '',
-        assignment_target_topic TEXT NOT NULL DEFAULT '',
-        assignment_snapshot_json TEXT NOT NULL,
+        quiz_attempt_id TEXT NOT NULL,
+        quiz_title TEXT NOT NULL,
+        quiz_description TEXT NOT NULL DEFAULT '',
+        quiz_target_topic TEXT NOT NULL DEFAULT '',
+        quiz_snapshot_json TEXT NOT NULL,
         responses_json TEXT NOT NULL,
         result_json TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversation_id)
           REFERENCES conversations (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (assignment_attempt_id)
-          REFERENCES assignment_attempts (id)
+        FOREIGN KEY (quiz_attempt_id)
+          REFERENCES quiz_attempts (id)
           ON DELETE CASCADE
       );
 
-      CREATE INDEX idx_conversation_assignment_attempt_snapshots_attempt
-        ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
+      CREATE INDEX idx_conversation_quiz_attempt_snapshots_attempt
+        ON conversation_quiz_attempt_snapshots (quiz_attempt_id, created_at DESC);
     `,
   },
   {
     id: 3,
-    name: 'simplify_assignment_lifecycle',
+    name: 'simplify_quiz_lifecycle',
     up: `
       PRAGMA defer_foreign_keys = ON;
 
-      ALTER TABLE assignments DROP COLUMN status;
-      ALTER TABLE assignments DROP COLUMN published_at;
+      ALTER TABLE quizzes DROP COLUMN status;
+      ALTER TABLE quizzes DROP COLUMN published_at;
 
-      ALTER TABLE assignment_authoring_sessions
-        RENAME TO assignment_authoring_sessions_old;
+      ALTER TABLE quiz_authoring_sessions
+        RENAME TO quiz_authoring_sessions_old;
 
-      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_user_profile_updated;
-      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_assignment;
+      DROP INDEX IF EXISTS idx_quiz_authoring_sessions_user_profile_updated;
+      DROP INDEX IF EXISTS idx_quiz_authoring_sessions_quiz;
 
-      CREATE TABLE assignment_authoring_sessions (
+      CREATE TABLE quiz_authoring_sessions (
         id TEXT PRIMARY KEY,
-        assignment_id TEXT,
+        quiz_id TEXT,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'drafting' CHECK (status IN ('drafting', 'saved', 'discarded')),
@@ -746,8 +746,8 @@ export const migrations: Migration[] = [
         last_validated_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (assignment_id)
-          REFERENCES assignments (id)
+        FOREIGN KEY (quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE SET NULL,
         FOREIGN KEY (user_id)
           REFERENCES users (id)
@@ -757,9 +757,9 @@ export const migrations: Migration[] = [
           ON DELETE CASCADE
       );
 
-      INSERT INTO assignment_authoring_sessions (
+      INSERT INTO quiz_authoring_sessions (
         id,
-        assignment_id,
+        quiz_id,
         user_id,
         profile_id,
         status,
@@ -772,7 +772,7 @@ export const migrations: Migration[] = [
       )
       SELECT
         id,
-        assignment_id,
+        quiz_id,
         user_id,
         profile_id,
         CASE status
@@ -785,20 +785,20 @@ export const migrations: Migration[] = [
         last_validated_at,
         created_at,
         updated_at
-      FROM assignment_authoring_sessions_old;
+      FROM quiz_authoring_sessions_old;
 
-      CREATE INDEX idx_assignment_authoring_sessions_user_profile_updated
-        ON assignment_authoring_sessions (user_id, profile_id, updated_at DESC, created_at DESC);
+      CREATE INDEX idx_quiz_authoring_sessions_user_profile_updated
+        ON quiz_authoring_sessions (user_id, profile_id, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_assignment_authoring_sessions_assignment
-        ON assignment_authoring_sessions (assignment_id, updated_at DESC);
+      CREATE INDEX idx_quiz_authoring_sessions_quiz
+        ON quiz_authoring_sessions (quiz_id, updated_at DESC);
 
-      ALTER TABLE assignment_authoring_revisions
-        RENAME TO assignment_authoring_revisions_old;
+      ALTER TABLE quiz_authoring_revisions
+        RENAME TO quiz_authoring_revisions_old;
 
-      DROP INDEX IF EXISTS idx_assignment_authoring_revisions_session_created;
+      DROP INDEX IF EXISTS idx_quiz_authoring_revisions_session_created;
 
-      CREATE TABLE assignment_authoring_revisions (
+      CREATE TABLE quiz_authoring_revisions (
         id TEXT PRIMARY KEY,
         authoring_session_id TEXT NOT NULL,
         source TEXT NOT NULL CHECK (source IN ('assistant', 'manual', 'block_add', 'block_revision', 'preview_test')),
@@ -808,11 +808,11 @@ export const migrations: Migration[] = [
         validation_status TEXT NOT NULL DEFAULT 'valid' CHECK (validation_status IN ('valid', 'invalid')),
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (authoring_session_id)
-          REFERENCES assignment_authoring_sessions (id)
+          REFERENCES quiz_authoring_sessions (id)
           ON DELETE CASCADE
       );
 
-      INSERT INTO assignment_authoring_revisions (
+      INSERT INTO quiz_authoring_revisions (
         id,
         authoring_session_id,
         source,
@@ -831,22 +831,22 @@ export const migrations: Migration[] = [
         draft_json,
         validation_status,
         created_at
-      FROM assignment_authoring_revisions_old;
+      FROM quiz_authoring_revisions_old;
 
-      CREATE INDEX idx_assignment_authoring_revisions_session_created
-        ON assignment_authoring_revisions (authoring_session_id, created_at ASC);
+      CREATE INDEX idx_quiz_authoring_revisions_session_created
+        ON quiz_authoring_revisions (authoring_session_id, created_at ASC);
 
-      ALTER TABLE assignment_attempts
-        RENAME TO assignment_attempts_old;
+      ALTER TABLE quiz_attempts
+        RENAME TO quiz_attempts_old;
 
-      DROP INDEX IF EXISTS idx_assignment_attempts_assignment_created;
-      DROP INDEX IF EXISTS idx_assignment_attempts_user_profile_created;
-      DROP INDEX IF EXISTS idx_assignment_attempts_guest_token;
-      DROP INDEX IF EXISTS idx_assignment_attempts_claim_token;
+      DROP INDEX IF EXISTS idx_quiz_attempts_quiz_created;
+      DROP INDEX IF EXISTS idx_quiz_attempts_user_profile_created;
+      DROP INDEX IF EXISTS idx_quiz_attempts_guest_token;
+      DROP INDEX IF EXISTS idx_quiz_attempts_claim_token;
 
-      CREATE TABLE assignment_attempts (
+      CREATE TABLE quiz_attempts (
         id TEXT PRIMARY KEY,
-        assignment_id TEXT,
+        quiz_id TEXT,
         authoring_session_id TEXT,
         user_id TEXT,
         profile_id TEXT,
@@ -862,12 +862,12 @@ export const migrations: Migration[] = [
         evaluated_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        CHECK (assignment_id IS NOT NULL OR authoring_session_id IS NOT NULL),
-        FOREIGN KEY (assignment_id)
-          REFERENCES assignments (id)
+        CHECK (quiz_id IS NOT NULL OR authoring_session_id IS NOT NULL),
+        FOREIGN KEY (quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE CASCADE,
         FOREIGN KEY (authoring_session_id)
-          REFERENCES assignment_authoring_sessions (id)
+          REFERENCES quiz_authoring_sessions (id)
           ON DELETE CASCADE,
         FOREIGN KEY (user_id)
           REFERENCES users (id)
@@ -880,9 +880,9 @@ export const migrations: Migration[] = [
           ON DELETE SET NULL
       );
 
-      INSERT INTO assignment_attempts (
+      INSERT INTO quiz_attempts (
         id,
-        assignment_id,
+        quiz_id,
         authoring_session_id,
         user_id,
         profile_id,
@@ -901,7 +901,7 @@ export const migrations: Migration[] = [
       )
       SELECT
         id,
-        assignment_id,
+        quiz_id,
         NULL,
         user_id,
         profile_id,
@@ -917,93 +917,93 @@ export const migrations: Migration[] = [
         evaluated_at,
         created_at,
         updated_at
-      FROM assignment_attempts_old;
+      FROM quiz_attempts_old;
 
-      CREATE INDEX idx_assignment_attempts_assignment_created
-        ON assignment_attempts (assignment_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_quiz_created
+        ON quiz_attempts (quiz_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_authoring_session_created
-        ON assignment_attempts (authoring_session_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_authoring_session_created
+        ON quiz_attempts (authoring_session_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_user_profile_created
-        ON assignment_attempts (user_id, profile_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_user_profile_created
+        ON quiz_attempts (user_id, profile_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_guest_token
-        ON assignment_attempts (guest_token);
+      CREATE INDEX idx_quiz_attempts_guest_token
+        ON quiz_attempts (guest_token);
 
-      CREATE INDEX idx_assignment_attempts_claim_token
-        ON assignment_attempts (claim_token);
+      CREATE INDEX idx_quiz_attempts_claim_token
+        ON quiz_attempts (claim_token);
 
-      ALTER TABLE conversation_assignment_attempt_snapshots
-        RENAME TO conversation_assignment_attempt_snapshots_old;
+      ALTER TABLE conversation_quiz_attempt_snapshots
+        RENAME TO conversation_quiz_attempt_snapshots_old;
 
-      DROP INDEX IF EXISTS idx_conversation_assignment_attempt_snapshots_attempt;
+      DROP INDEX IF EXISTS idx_conversation_quiz_attempt_snapshots_attempt;
 
-      CREATE TABLE conversation_assignment_attempt_snapshots (
+      CREATE TABLE conversation_quiz_attempt_snapshots (
         conversation_id TEXT PRIMARY KEY,
-        assignment_attempt_id TEXT NOT NULL,
-        assignment_title TEXT NOT NULL,
-        assignment_description TEXT NOT NULL DEFAULT '',
-        assignment_target_topic TEXT NOT NULL DEFAULT '',
-        assignment_snapshot_json TEXT NOT NULL,
+        quiz_attempt_id TEXT NOT NULL,
+        quiz_title TEXT NOT NULL,
+        quiz_description TEXT NOT NULL DEFAULT '',
+        quiz_target_topic TEXT NOT NULL DEFAULT '',
+        quiz_snapshot_json TEXT NOT NULL,
         responses_json TEXT NOT NULL,
         result_json TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversation_id)
           REFERENCES conversations (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (assignment_attempt_id)
-          REFERENCES assignment_attempts (id)
+        FOREIGN KEY (quiz_attempt_id)
+          REFERENCES quiz_attempts (id)
           ON DELETE CASCADE
       );
 
-      INSERT INTO conversation_assignment_attempt_snapshots (
+      INSERT INTO conversation_quiz_attempt_snapshots (
         conversation_id,
-        assignment_attempt_id,
-        assignment_title,
-        assignment_description,
-        assignment_target_topic,
-        assignment_snapshot_json,
+        quiz_attempt_id,
+        quiz_title,
+        quiz_description,
+        quiz_target_topic,
+        quiz_snapshot_json,
         responses_json,
         result_json,
         created_at
       )
       SELECT
         conversation_id,
-        assignment_attempt_id,
-        assignment_title,
-        assignment_description,
-        assignment_target_topic,
-        assignment_snapshot_json,
+        quiz_attempt_id,
+        quiz_title,
+        quiz_description,
+        quiz_target_topic,
+        quiz_snapshot_json,
         responses_json,
         result_json,
         created_at
-      FROM conversation_assignment_attempt_snapshots_old;
+      FROM conversation_quiz_attempt_snapshots_old;
 
-      CREATE INDEX idx_conversation_assignment_attempt_snapshots_attempt
-        ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
+      CREATE INDEX idx_conversation_quiz_attempt_snapshots_attempt
+        ON conversation_quiz_attempt_snapshots (quiz_attempt_id, created_at DESC);
 
-      DROP TABLE conversation_assignment_attempt_snapshots_old;
-      DROP TABLE assignment_attempts_old;
-      DROP TABLE assignment_authoring_revisions_old;
-      DROP TABLE assignment_authoring_sessions_old;
+      DROP TABLE conversation_quiz_attempt_snapshots_old;
+      DROP TABLE quiz_attempts_old;
+      DROP TABLE quiz_authoring_revisions_old;
+      DROP TABLE quiz_authoring_sessions_old;
     `,
   },
   {
     id: 4,
-    name: 'remove_assignment_authoring_revisions',
+    name: 'remove_quiz_authoring_revisions',
     up: `
-      DROP INDEX IF EXISTS idx_assignment_authoring_revisions_session_created;
-      DROP TABLE IF EXISTS assignment_authoring_revisions;
+      DROP INDEX IF EXISTS idx_quiz_authoring_revisions_session_created;
+      DROP TABLE IF EXISTS quiz_authoring_revisions;
     `,
   },
   {
     id: 5,
-    name: 'remove_assignment_authoring_sessions',
+    name: 'remove_quiz_authoring_sessions',
     up: `
       PRAGMA defer_foreign_keys = ON;
 
-      INSERT INTO assignments (
+      INSERT INTO quizzes (
         id,
         user_id,
         profile_id,
@@ -1024,8 +1024,8 @@ export const migrations: Migration[] = [
         session.profile_id,
         CASE
           WHEN json_valid(session.current_draft_json)
-            THEN COALESCE(NULLIF(json_extract(session.current_draft_json, '$.title'), ''), NULLIF(session.initial_prompt, ''), 'Imported assignment')
-          ELSE COALESCE(NULLIF(session.initial_prompt, ''), 'Imported assignment')
+            THEN COALESCE(NULLIF(json_extract(session.current_draft_json, '$.title'), ''), NULLIF(session.initial_prompt, ''), 'Imported quiz')
+          ELSE COALESCE(NULLIF(session.initial_prompt, ''), 'Imported quiz')
         END,
         CASE
           WHEN json_valid(session.current_draft_json)
@@ -1060,27 +1060,27 @@ export const migrations: Migration[] = [
         session.current_draft_json,
         session.created_at,
         session.updated_at
-      FROM assignment_authoring_sessions AS session
-      WHERE session.assignment_id IS NULL
+      FROM quiz_authoring_sessions AS session
+      WHERE session.quiz_id IS NULL
         AND session.status <> 'discarded'
         AND NOT EXISTS (
           SELECT 1
-          FROM assignments
-          WHERE assignments.id = session.id
+          FROM quizzes
+          WHERE quizzes.id = session.id
         );
 
-      ALTER TABLE assignment_attempts
-        RENAME TO assignment_attempts_old;
+      ALTER TABLE quiz_attempts
+        RENAME TO quiz_attempts_old;
 
-      DROP INDEX IF EXISTS idx_assignment_attempts_assignment_created;
-      DROP INDEX IF EXISTS idx_assignment_attempts_authoring_session_created;
-      DROP INDEX IF EXISTS idx_assignment_attempts_user_profile_created;
-      DROP INDEX IF EXISTS idx_assignment_attempts_guest_token;
-      DROP INDEX IF EXISTS idx_assignment_attempts_claim_token;
+      DROP INDEX IF EXISTS idx_quiz_attempts_quiz_created;
+      DROP INDEX IF EXISTS idx_quiz_attempts_authoring_session_created;
+      DROP INDEX IF EXISTS idx_quiz_attempts_user_profile_created;
+      DROP INDEX IF EXISTS idx_quiz_attempts_guest_token;
+      DROP INDEX IF EXISTS idx_quiz_attempts_claim_token;
 
-      CREATE TABLE assignment_attempts (
+      CREATE TABLE quiz_attempts (
         id TEXT PRIMARY KEY,
-        assignment_id TEXT NOT NULL,
+        quiz_id TEXT NOT NULL,
         user_id TEXT,
         profile_id TEXT,
         guest_token TEXT UNIQUE,
@@ -1095,8 +1095,8 @@ export const migrations: Migration[] = [
         evaluated_at TEXT,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (assignment_id)
-          REFERENCES assignments (id)
+        FOREIGN KEY (quiz_id)
+          REFERENCES quizzes (id)
           ON DELETE CASCADE,
         FOREIGN KEY (user_id)
           REFERENCES users (id)
@@ -1109,9 +1109,9 @@ export const migrations: Migration[] = [
           ON DELETE SET NULL
       );
 
-      INSERT INTO assignment_attempts (
+      INSERT INTO quiz_attempts (
         id,
-        assignment_id,
+        quiz_id,
         user_id,
         profile_id,
         guest_token,
@@ -1129,7 +1129,7 @@ export const migrations: Migration[] = [
       )
       SELECT
         attempt.id,
-        COALESCE(attempt.assignment_id, session.assignment_id, attempt.authoring_session_id),
+        COALESCE(attempt.quiz_id, session.quiz_id, attempt.authoring_session_id),
         attempt.user_id,
         attempt.profile_id,
         attempt.guest_token,
@@ -1144,109 +1144,109 @@ export const migrations: Migration[] = [
         attempt.evaluated_at,
         attempt.created_at,
         attempt.updated_at
-      FROM assignment_attempts_old AS attempt
-      LEFT JOIN assignment_authoring_sessions AS session
+      FROM quiz_attempts_old AS attempt
+      LEFT JOIN quiz_authoring_sessions AS session
         ON session.id = attempt.authoring_session_id
       WHERE EXISTS (
         SELECT 1
-        FROM assignments
-        WHERE assignments.id = COALESCE(attempt.assignment_id, session.assignment_id, attempt.authoring_session_id)
+        FROM quizzes
+        WHERE quizzes.id = COALESCE(attempt.quiz_id, session.quiz_id, attempt.authoring_session_id)
       );
 
-      CREATE INDEX idx_assignment_attempts_assignment_created
-        ON assignment_attempts (assignment_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_quiz_created
+        ON quiz_attempts (quiz_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_user_profile_created
-        ON assignment_attempts (user_id, profile_id, created_at DESC);
+      CREATE INDEX idx_quiz_attempts_user_profile_created
+        ON quiz_attempts (user_id, profile_id, created_at DESC);
 
-      CREATE INDEX idx_assignment_attempts_guest_token
-        ON assignment_attempts (guest_token);
+      CREATE INDEX idx_quiz_attempts_guest_token
+        ON quiz_attempts (guest_token);
 
-      CREATE INDEX idx_assignment_attempts_claim_token
-        ON assignment_attempts (claim_token);
+      CREATE INDEX idx_quiz_attempts_claim_token
+        ON quiz_attempts (claim_token);
 
-      ALTER TABLE conversation_assignment_attempt_snapshots
-        RENAME TO conversation_assignment_attempt_snapshots_old;
+      ALTER TABLE conversation_quiz_attempt_snapshots
+        RENAME TO conversation_quiz_attempt_snapshots_old;
 
-      DROP INDEX IF EXISTS idx_conversation_assignment_attempt_snapshots_attempt;
+      DROP INDEX IF EXISTS idx_conversation_quiz_attempt_snapshots_attempt;
 
-      CREATE TABLE conversation_assignment_attempt_snapshots (
+      CREATE TABLE conversation_quiz_attempt_snapshots (
         conversation_id TEXT PRIMARY KEY,
-        assignment_attempt_id TEXT NOT NULL,
-        assignment_title TEXT NOT NULL,
-        assignment_description TEXT NOT NULL DEFAULT '',
-        assignment_target_topic TEXT NOT NULL DEFAULT '',
-        assignment_snapshot_json TEXT NOT NULL,
+        quiz_attempt_id TEXT NOT NULL,
+        quiz_title TEXT NOT NULL,
+        quiz_description TEXT NOT NULL DEFAULT '',
+        quiz_target_topic TEXT NOT NULL DEFAULT '',
+        quiz_snapshot_json TEXT NOT NULL,
         responses_json TEXT NOT NULL,
         result_json TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (conversation_id)
           REFERENCES conversations (id)
           ON DELETE CASCADE,
-        FOREIGN KEY (assignment_attempt_id)
-          REFERENCES assignment_attempts (id)
+        FOREIGN KEY (quiz_attempt_id)
+          REFERENCES quiz_attempts (id)
           ON DELETE CASCADE
       );
 
-      INSERT INTO conversation_assignment_attempt_snapshots (
+      INSERT INTO conversation_quiz_attempt_snapshots (
         conversation_id,
-        assignment_attempt_id,
-        assignment_title,
-        assignment_description,
-        assignment_target_topic,
-        assignment_snapshot_json,
+        quiz_attempt_id,
+        quiz_title,
+        quiz_description,
+        quiz_target_topic,
+        quiz_snapshot_json,
         responses_json,
         result_json,
         created_at
       )
       SELECT
         snapshot.conversation_id,
-        snapshot.assignment_attempt_id,
-        snapshot.assignment_title,
-        snapshot.assignment_description,
-        snapshot.assignment_target_topic,
-        snapshot.assignment_snapshot_json,
+        snapshot.quiz_attempt_id,
+        snapshot.quiz_title,
+        snapshot.quiz_description,
+        snapshot.quiz_target_topic,
+        snapshot.quiz_snapshot_json,
         snapshot.responses_json,
         snapshot.result_json,
         snapshot.created_at
-      FROM conversation_assignment_attempt_snapshots_old AS snapshot
+      FROM conversation_quiz_attempt_snapshots_old AS snapshot
       WHERE EXISTS (
         SELECT 1
-        FROM assignment_attempts
-        WHERE assignment_attempts.id = snapshot.assignment_attempt_id
+        FROM quiz_attempts
+        WHERE quiz_attempts.id = snapshot.quiz_attempt_id
       );
 
-      CREATE INDEX idx_conversation_assignment_attempt_snapshots_attempt
-        ON conversation_assignment_attempt_snapshots (assignment_attempt_id, created_at DESC);
+      CREATE INDEX idx_conversation_quiz_attempt_snapshots_attempt
+        ON conversation_quiz_attempt_snapshots (quiz_attempt_id, created_at DESC);
 
-      DROP TABLE conversation_assignment_attempt_snapshots_old;
-      DROP TABLE assignment_attempts_old;
-      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_user_profile_updated;
-      DROP INDEX IF EXISTS idx_assignment_authoring_sessions_assignment;
-      DROP TABLE IF EXISTS assignment_authoring_sessions;
+      DROP TABLE conversation_quiz_attempt_snapshots_old;
+      DROP TABLE quiz_attempts_old;
+      DROP INDEX IF EXISTS idx_quiz_authoring_sessions_user_profile_updated;
+      DROP INDEX IF EXISTS idx_quiz_authoring_sessions_quiz;
+      DROP TABLE IF EXISTS quiz_authoring_sessions;
     `,
   },
   {
     id: 6,
-    name: 'drop_assignment_estimated_minutes',
+    name: 'drop_quiz_estimated_minutes',
     up: `
-      ALTER TABLE assignments
+      ALTER TABLE quizzes
         DROP COLUMN estimated_minutes;
     `,
   },
   {
     id: 7,
-    name: 'drop_assignment_rubric',
+    name: 'drop_quiz_rubric',
     up: `
-      ALTER TABLE assignments
+      ALTER TABLE quizzes
         DROP COLUMN rubric;
     `,
   },
   {
     id: 8,
-    name: 'add_assignment_authoring_messages',
+    name: 'add_quiz_authoring_messages',
     up: `
-      ALTER TABLE assignments
+      ALTER TABLE quizzes
         ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
     `,
   },
@@ -1258,7 +1258,7 @@ export const migrations: Migration[] = [
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
-        type TEXT NOT NULL CHECK (type IN ('assignment', 'practice_guide', 'resource_folder')),
+        type TEXT NOT NULL CHECK (type IN ('quiz', 'practice_guide', 'resource_folder')),
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         topic TEXT NOT NULL DEFAULT '',
@@ -1314,7 +1314,7 @@ export const migrations: Migration[] = [
       CREATE TABLE resource_folder_items (
         folder_id TEXT NOT NULL,
         resource_id TEXT NOT NULL UNIQUE,
-        resource_type TEXT NOT NULL CHECK (resource_type IN ('assignment', 'practice_guide')),
+        resource_type TEXT NOT NULL CHECK (resource_type IN ('quiz', 'practice_guide')),
         position INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1363,7 +1363,7 @@ export const migrations: Migration[] = [
         id,
         user_id,
         profile_id,
-        'assignment',
+        'quiz',
         title,
         description,
         target_topic,
@@ -1374,7 +1374,7 @@ export const migrations: Migration[] = [
         shared_via,
         created_at,
         updated_at
-      FROM assignments;
+      FROM quizzes;
 
       INSERT INTO resources (
         id,
@@ -1407,17 +1407,17 @@ export const migrations: Migration[] = [
 
       UPDATE resources
       SET source_resource_id = (
-        SELECT source_assignment_id
-        FROM assignments
-        WHERE assignments.id = resources.id
+        SELECT source_quiz_id
+        FROM quizzes
+        WHERE quizzes.id = resources.id
       )
-      WHERE type = 'assignment'
+      WHERE type = 'quiz'
         AND EXISTS (
           SELECT 1
-          FROM assignments
+          FROM quizzes
           JOIN resources AS source_resource
-            ON source_resource.id = assignments.source_assignment_id
-          WHERE assignments.id = resources.id
+            ON source_resource.id = quizzes.source_quiz_id
+          WHERE quizzes.id = resources.id
         );
 
       UPDATE resources
@@ -1441,12 +1441,12 @@ export const migrations: Migration[] = [
       WHERE type = 'resource_folder';
 
       INSERT INTO resource_share_links (id, resource_id, created_at, revoked_at)
-      SELECT id, assignment_id, created_at, revoked_at
-      FROM assignment_share_links
+      SELECT id, quiz_id, created_at, revoked_at
+      FROM quiz_share_links
       WHERE EXISTS (
         SELECT 1
         FROM resources
-        WHERE resources.id = assignment_share_links.assignment_id
+        WHERE resources.id = quiz_share_links.quiz_id
       );
 
       INSERT OR IGNORE INTO resource_share_links (id, resource_id, created_at, revoked_at)
@@ -1469,7 +1469,7 @@ export const migrations: Migration[] = [
       CREATE TABLE resource_folder_items_next (
         folder_id TEXT NOT NULL,
         resource_id TEXT NOT NULL UNIQUE,
-        resource_type TEXT NOT NULL CHECK (resource_type IN ('assignment', 'practice_guide', 'resource_folder')),
+        resource_type TEXT NOT NULL CHECK (resource_type IN ('quiz', 'practice_guide', 'resource_folder')),
         position INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1586,7 +1586,7 @@ export const migrations: Migration[] = [
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
-        type TEXT NOT NULL CHECK (type IN ('assignment', 'practice_guide', 'resource_folder', 'roleplay')),
+        type TEXT NOT NULL CHECK (type IN ('quiz', 'practice_guide', 'resource_folder', 'roleplay')),
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         topic TEXT NOT NULL DEFAULT '',
@@ -1642,7 +1642,7 @@ export const migrations: Migration[] = [
       CREATE TABLE resource_folder_items (
         folder_id TEXT NOT NULL,
         resource_id TEXT NOT NULL UNIQUE,
-        resource_type TEXT NOT NULL CHECK (resource_type IN ('assignment', 'practice_guide', 'resource_folder', 'roleplay')),
+        resource_type TEXT NOT NULL CHECK (resource_type IN ('quiz', 'practice_guide', 'resource_folder', 'roleplay')),
         position INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,

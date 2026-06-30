@@ -9,16 +9,16 @@ combines:
 
 - a one-on-one tutor chat experience
 - reusable practice guides
-- teacher-authored assignments
+- teacher-authored quizzes
 - roleplay resources for English production in fictional scenarios
 - a unified resource catalog with folders
 - post-conversation analysis and practice generation
 - profile-scoped personalization, including model selection
 
 The current application supports shareable practice resources and follow-up
-tutoring. The teacher-assigned practice area, `Tareas`, deepens the
+tutoring. The teacher-assigned practice area, `Quizzes`, deepens the
 human-teacher use case by letting teachers create shareable quiz-like
-assignments that students can complete individually, including as guests before
+quizzes that students can complete individually, including as guests before
 creating an account.
 
 The system is designed around structured LLM output rather than free-form text rendering alone. The tutor can emit UI blocks such as:
@@ -75,14 +75,14 @@ Practice guides can be:
 
 ### Teacher-Assigned Practice
 
-Teacher-assigned practice, labeled `Tareas` in the Spanish UI, is a resource
+Teacher-assigned practice, labeled `Quizzes` in the Spanish UI, is a resource
 area for human teachers.
 
 It should let teachers:
 
 - create a fixed sequence of quiz-compatible questions through an iterative
   AI-assisted authoring workflow
-- start from a natural-language prompt, then revise the assignment with Mr. F
+- start from a natural-language prompt, then revise the quiz with Mr. F
 - share the sequence with students
 - let students complete and submit individual attempts, even before they have an
   account
@@ -125,7 +125,7 @@ Users can:
 
 ### Learner Progress
 
-Completed tutor conversations, evaluated assignments, and evaluated roleplay
+Completed tutor conversations, evaluated quizzes, and evaluated roleplay
 attempts contribute to a profile-scoped progress view.
 
 Users can inspect:

@@ -1,0 +1,217 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view quizzes-page <%= activeTab === 'blocks' ? 'quiz-authoring-blocks-page' : '' %>">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div>
+      <p class="resource-eyebrow">Quiz en edición</p>
+      <h1><%= draft.title %></h1>
+      <form class="d-inline-block mt-3" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+        </button>
+      </form>
+    </div>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>"
+        title="Cerrar"
+        aria-label="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (authoringError) { %>
+    <div class="alert alert-danger" role="alert"><%= authoringError %></div>
+  <% } %>
+
+  <ul class="nav nav-pills quiz-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link <%= activeTab === 'general' ? 'active' : '' %>"
+        href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=general"
+        role="tab"
+        aria-selected="<%= activeTab === 'general' ? 'true' : 'false' %>"
+      >
+        <i class="bi bi-card-text me-1" aria-hidden="true"></i>General
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link <%= activeTab === 'blocks' ? 'active' : '' %>"
+        href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=blocks"
+        role="tab"
+        aria-selected="<%= activeTab === 'blocks' ? 'true' : 'false' %>"
+      >
+        <i class="bi bi-ui-checks-grid me-1" aria-hidden="true"></i>Bloques
+      </a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link <%= activeTab === 'chat' ? 'active' : '' %>"
+        href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=chat"
+        role="tab"
+        aria-selected="<%= activeTab === 'chat' ? 'true' : 'false' %>"
+      >
+        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Chat IA
+      </a>
+    </li>
+  </ul>
+
+  <% if (activeTab === 'general') { %>
+    <form class="card resource-form-card" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/save">
+      <div class="card-body">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label" for="quizTitle">Título</label>
+            <input class="form-control" id="quizTitle" name="title" value="<%= draft.title %>" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="quizDescription">Descripción</label>
+            <textarea class="form-control" id="quizDescription" name="description" rows="3"><%= draft.description %></textarea>
+          </div>
+          <div class="col-12 col-md-8">
+            <label class="form-label" for="quizTopic">Tema</label>
+            <input class="form-control" id="quizTopic" name="targetTopic" value="<%= draft.targetTopic %>">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="quizLevel">Nivel</label>
+            <input class="form-control" id="quizLevel" name="level" value="<%= draft.level %>">
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="quizInstructions">Instrucciones</label>
+            <textarea class="form-control" id="quizInstructions" name="instructions" rows="4"><%= draft.instructions %></textarea>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-save me-1" aria-hidden="true"></i>Guardar detalles
+          </button>
+        </div>
+      </div>
+    </form>
+  <% } %>
+
+  <% if (activeTab === 'blocks') { %>
+    <div class="quiz-blocks-panel">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h2 class="h5 mb-0">Bloques</h2>
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#quizAddBlockModal">
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Agregar bloque
+        </button>
+      </div>
+      <div class="quiz-block-list" aria-label="Bloques del quiz">
+        <% draft.blocks.forEach((block, index) => { %>
+          <%- include('partials/quiz-item-card', { quizItemMode: 'design', block, csrfToken, draft, index, selectedQuiz }) %>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+
+  <% if (activeTab === 'chat') { %>
+    <div class="quiz-chat-panel">
+      <div class="quiz-chat-context">
+        <div class="quiz-chat-context-icon" aria-hidden="true">
+          <i class="bi bi-stars"></i>
+        </div>
+        <div>
+          <h2 class="quiz-chat-context-title">Modificar el quiz con IA</h2>
+          <p class="quiz-chat-context-copy mb-0">
+            Usa este chat para pedir cambios concretos a el quiz. Mister F actualizará los detalles o bloques y te responderá qué modificó.
+          </p>
+        </div>
+      </div>
+      <div class="quiz-chat-history messages" aria-label="Historial del chat de autoría" data-authoring-chat-history>
+        <% if (quizAuthoringMessages.length === 0) { %>
+          <article class="message-row is-model quiz-chat-message-row">
+            <div class="message-bubble quiz-chat-message-bubble">
+              <p class="quiz-chat-message-content mb-0">Cuéntame qué quieres ajustar en este quiz.</p>
+            </div>
+          </article>
+        <% } else { %>
+          <% quizAuthoringMessages.forEach((message) => { %>
+            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> quiz-chat-message-row">
+              <div class="message-bubble quiz-chat-message-bubble">
+                <p class="quiz-chat-message-content mb-0"><%= message.content %></p>
+              </div>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+      <form class="composer quiz-chat-composer" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/revise" data-quiz-generate-form>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label class="visually-hidden" for="quizRevisionMessage">Mensaje</label>
+        <div class="composer-input-wrap">
+          <textarea
+            class="composer-input"
+            id="quizRevisionMessage"
+            name="message"
+            rows="2"
+            maxlength="4000"
+            placeholder="Describe los cambios que deseas aplicar"
+            required
+          ></textarea>
+        </div>
+        <div class="composer-footer">
+          <button class="btn btn-primary quiz-chat-submit-button" type="submit" data-quiz-generate-submit>
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  <% } %>
+
+</section>
+
+<div class="modal fade" id="quizAddBlockModal" tabindex="-1" aria-labelledby="quizAddBlockModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/blocks" data-quiz-generate-form>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="quizAddBlockModalLabel">Agregar bloque</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label" for="quizBlockKind">Tipo</label>
+          <select class="form-select" id="quizBlockKind" name="blockKind" required>
+            <% quizBlockKinds.forEach((kind) => { %>
+              <option value="<%= kind.value %>"><%= kind.label %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="quiz-block-kind-list mb-3">
+          <% quizBlockKinds.forEach((kind) => { %>
+            <div class="quiz-block-kind">
+              <strong><%= kind.label %></strong>
+              <span><%= kind.description %></span>
+            </div>
+          <% }) %>
+        </div>
+        <label class="form-label" for="quizBlockPrompt">Prompt</label>
+        <textarea class="form-control" id="quizBlockPrompt" name="prompt" rows="5" required></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-primary" type="submit" data-quiz-generate-submit>Crear bloque</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-quiz-pending-modal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Actualizando el quiz...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'quizzes-client-script' }) %>

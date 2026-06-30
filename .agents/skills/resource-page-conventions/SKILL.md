@@ -12,7 +12,7 @@ Use this skill with `bootstrap-ui-conventions`, `bootstrap-icons-conventions`,
 ## Core Rules
 
 - The unified resource catalog is `/resources`. Dedicated detail routes such as
-  `/assignments/:id`, `/roleplays/:id`, and `/practice-guides/:id` may remain
+  `/quizzes/:id`, `/roleplays/:id`, and `/practice-guides/:id` may remain
   resource-specific.
 - Detail pages show the resource title, then a breadcrumb, then an action row.
   Actions do not float in the top-right corner of detail pages.

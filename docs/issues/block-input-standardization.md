@@ -81,7 +81,6 @@ When a block owns the response UI, the app should:
 | Block | Requires learner response? | Current response path | Standardization status |
 | --- | --- | --- | --- |
 | `message` | Sometimes used that way, but should not be | Normal chat | Problematic when it contains an exercise task |
-| `practice_guide_link` | No | Link/button action | No change needed |
 | `dialogue_character_message` | Yes, in role-play | Normal chat | Intentional exception candidate |
 | `dialogue_transcript` | No | None | No change needed |
 | `matching_pairs` | Yes | Block UI | Already standardized |

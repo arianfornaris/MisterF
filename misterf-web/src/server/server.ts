@@ -6,7 +6,7 @@ import express, {
 import http from 'node:http';
 import path from 'node:path';
 import { Server } from 'socket.io';
-import { assignmentsRouter } from './assignments/routes.js';
+import { quizzesRouter } from './quizzes/routes.js';
 import { csrfProtection } from './auth/csrf.js';
 import { loadAuthSession } from './auth/middleware.js';
 import { authRouter } from './auth/routes.js';
@@ -73,7 +73,7 @@ app.use(redirectIncompleteProfileOnboarding);
 app.use(superadminRouter);
 app.use(resourcesRouter);
 app.use(practiceGuidesRouter);
-app.use(assignmentsRouter);
+app.use(quizzesRouter);
 app.use(roleplaysRouter);
 app.use(profilesRouter);
 app.use(settingsRouter);

@@ -20,7 +20,6 @@ import {
 } from './logging.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorConversationTools } from './conversationTools.js';
-import { buildTutorPracticeGuideTools, extractInferredPracticeGuideLinkBlocks } from './practiceGuideTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
@@ -34,25 +33,6 @@ import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, Translat
 
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
-
-function mergeTutorPracticeGuideLinkBlocks(
-  blocks: TutorAgentResponseBlock[],
-  inferredLinks: Array<Extract<TutorAgentResponseBlock, { type: 'practice_guide_link' }>>,
-): TutorAgentResponseBlock[] {
-  const seenPracticeGuideIds = new Set(
-    blocks
-      .filter(
-        (block): block is Extract<TutorAgentResponseBlock, { type: 'practice_guide_link' }> =>
-          block.type === 'practice_guide_link',
-      )
-      .map((block) => block.practiceGuideId),
-  );
-
-  return [
-    ...blocks,
-    ...inferredLinks.filter((link) => !seenPracticeGuideIds.has(link.practiceGuideId)),
-  ];
-}
 
 async function continueTutorResponseAfterToolUse(input: {
   abortSignal?: AbortSignal;
@@ -187,25 +167,14 @@ function looksLikeJsonAttempt(text: string): boolean {
 
 function buildFallbackBlocksFromPlainText(input: {
   text: string;
-  toolResults: Array<{
-    output: unknown;
-    preliminary?: boolean;
-    toolName: string;
-  }>;
 }): TutorAgentResponseBlock[] {
-  const inferredLinks = extractInferredPracticeGuideLinkBlocks(input.toolResults);
   const trimmedText = input.text.trim();
 
   if (!trimmedText) {
-    return inferredLinks.length > 0
-      ? inferredLinks
-      : [{ type: 'message', markdown: 'Listo.' }];
+    return [{ type: 'message', markdown: 'Listo.' }];
   }
 
-  return mergeTutorPracticeGuideLinkBlocks(
-    [{ type: 'message', markdown: trimmedText }],
-    inferredLinks,
-  );
+  return [{ type: 'message', markdown: trimmedText }];
 }
 
 export async function runTutorAgentLoop(
@@ -222,11 +191,11 @@ export async function runTutorAgentLoop(
       reportSummaryTitle: string;
       sourceConversationId: string;
     } | null;
-    assignmentAttempt?: {
-      assignmentDescription: string;
-      assignmentSnapshotJson: string;
-      assignmentTargetTopic: string;
-      assignmentTitle: string;
+    quizAttempt?: {
+      quizDescription: string;
+      quizSnapshotJson: string;
+      quizTargetTopic: string;
+      quizTitle: string;
       responsesJson: string;
       resultJson: string;
     } | null;
@@ -265,12 +234,6 @@ export async function runTutorAgentLoop(
   });
   const resourceLogContext = buildTutorResourceLogContext(options);
   let lastError: unknown = null;
-  const practiceGuideTools = buildTutorPracticeGuideTools({
-    currentPracticeGuideId: options.currentPracticeGuideId ?? null,
-    onToolCall: options.onToolCall,
-    profileId: options.profileId ?? null,
-    userId: options.userId ?? null,
-  });
   const progressTools = buildTutorProgressTools({
     onToolCall: options.onToolCall,
     profileId: options.profileId ?? null,
@@ -283,7 +246,6 @@ export async function runTutorAgentLoop(
     userId: options.userId ?? null,
   });
   const mergedTools = {
-    ...(practiceGuideTools || {}),
     ...(progressTools || {}),
     ...(conversationTools || {}),
   };
@@ -331,37 +293,30 @@ export async function runTutorAgentLoop(
       if (!initialText) {
         finalBlocks = buildFallbackBlocksFromPlainText({
           text: result.text,
-          toolResults,
         });
       } else {
         try {
           parsedObject = parseJsonFromModelText(result.text);
-          finalBlocks = mergeTutorPracticeGuideLinkBlocks(
-            validateTutorResponseBlocks(parsedObject, {
-              conversationId: options.conversationId ?? null,
-              generatedText: result.text,
-              llm: options.llm,
-              operation: 'tutor',
-              userId: options.userId ?? null,
-            }),
-            extractInferredPracticeGuideLinkBlocks(toolResults),
-          );
+          finalBlocks = validateTutorResponseBlocks(parsedObject, {
+            conversationId: options.conversationId ?? null,
+            generatedText: result.text,
+            llm: options.llm,
+            operation: 'tutor',
+            userId: options.userId ?? null,
+          });
         } catch (error) {
           const embeddedJson = extractEmbeddedTutorResponseJson(result.text);
 
           if (embeddedJson) {
             try {
               parsedObject = parseJsonFromModelText(embeddedJson);
-              finalBlocks = mergeTutorPracticeGuideLinkBlocks(
-                validateTutorResponseBlocks(parsedObject, {
-                  conversationId: options.conversationId ?? null,
-                  generatedText: embeddedJson,
-                  llm: options.llm,
-                  operation: 'tutor',
-                  userId: options.userId ?? null,
-                }),
-                extractInferredPracticeGuideLinkBlocks(toolResults),
-              );
+              finalBlocks = validateTutorResponseBlocks(parsedObject, {
+                conversationId: options.conversationId ?? null,
+                generatedText: embeddedJson,
+                llm: options.llm,
+                operation: 'tutor',
+                userId: options.userId ?? null,
+              });
             } catch (embeddedError) {
               logLlmInvalidRawResponse({
                 actorLabel: 'Mr. F',
@@ -380,7 +335,6 @@ export async function runTutorAgentLoop(
           } else if (!looksLikeJsonAttempt(result.text)) {
             finalBlocks = buildFallbackBlocksFromPlainText({
               text: result.text,
-              toolResults,
             });
           } else {
             effectiveResult = await continueTutorResponseAfterToolUse({
@@ -392,16 +346,13 @@ export async function runTutorAgentLoop(
 
             try {
               parsedObject = parseJsonFromModelText(effectiveResult.text);
-              finalBlocks = mergeTutorPracticeGuideLinkBlocks(
-                validateTutorResponseBlocks(parsedObject, {
-                  conversationId: options.conversationId ?? null,
-                  generatedText: effectiveResult.text,
-                  llm: options.llm,
-                  operation: 'tutor',
-                  userId: options.userId ?? null,
-                }),
-                extractInferredPracticeGuideLinkBlocks(toolResults),
-              );
+              finalBlocks = validateTutorResponseBlocks(parsedObject, {
+                conversationId: options.conversationId ?? null,
+                generatedText: effectiveResult.text,
+                llm: options.llm,
+                operation: 'tutor',
+                userId: options.userId ?? null,
+              });
             } catch (continuationError) {
               logLlmInvalidRawResponse({
                 actorLabel: 'Mr. F',

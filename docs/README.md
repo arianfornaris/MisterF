@@ -35,9 +35,9 @@ interactive behavior.
 Use `features/` for product areas, feature concepts, and future feature ideas.
 
 - [Chat Rooms](./features/chatrooms.md): archived notes for the removed chat room feature
-- [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Tareas` workflow for human teachers and students, including free guest evaluation and account-based follow-up practice
+- [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Quizzes` workflow for human teachers and students, including free guest evaluation and account-based follow-up practice
 - [Roleplays](./features/roleplays.md): reusable free-form roleplay resources with evaluated learner English production
-- [Resource Simplification V2](./features/resource-simplification-v2.md): planned simplification from separate resource areas into one `Recursos` catalog with assignments, practice guides, folders, and roleplays
+- [Resource Simplification V2](./features/resource-simplification-v2.md): planned simplification from separate resource areas into one `Recursos` catalog with quizzes, practice guides, folders, and roleplays
 - [Home Start Experience](./features/home-start-experience.md): exploration of personalized start suggestions and a built-in practice topic library
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
 - [Writing Practice Ideas](./features/writing-practice-ideas.md): writing-first practice patterns that use `open_text_prompt` for structured open responses
@@ -64,7 +64,7 @@ known technical/product issues.
 
 - [Tutor Loop Prompt Audit](./issues/tutor-loop-prompt-audit.md): prompt/runtime contradictions and cleanup plan for the tutor loop
 - [Tutor Loop Remediation Tracker](./issues/tutor-loop-remediation-tracker.md): living implementation plan and status log for tutor-loop prompt/runtime fixes
-- [Teacher-Assigned Practice Implementation Tracker](./issues/teacher-assigned-practice-implementation-tracker.md): living implementation tracker for the AI-assisted `Tareas` feature
+- [Teacher-Assigned Practice Implementation Tracker](./issues/teacher-assigned-practice-implementation-tracker.md): living implementation tracker for the AI-assisted `Quizzes` feature
 - [Resource Simplification V2 Tracker](./issues/resource-simplification-v2-tracker.md): living tracker for the V2 resource catalog, practice guide rename, folder model, chatroom removal, and roleplay resource
 - [Home Suggestions Tracker](./issues/home-suggestions-tracker.md): separate tracker for personalized home and new-chat practice suggestions
 - [Agent Skill Gap Analysis](./issues/agent-skill-gap-analysis.md): which repeated Mister F implementation patterns should become agent skills

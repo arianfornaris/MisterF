@@ -33,7 +33,7 @@ const repositoryMocks = vi.hoisted(() => ({
   getConversationPracticeGuideSnapshot: vi.fn(),
   getConversationTutorPlan: vi.fn(),
   getConversationTutorReportSnapshot: vi.fn(),
-  importAssignmentToProfile: vi.fn(),
+  importQuizToProfile: vi.fn(),
   listConversationsForProfile: vi.fn(),
   listMessages: vi.fn(),
   renameConversationForUser: vi.fn(),
@@ -44,7 +44,6 @@ const repositoryMocks = vi.hoisted(() => ({
 }));
 
 const tutorReportMocks = vi.hoisted(() => ({
-  generatePracticeGuideFromTutorConversationReport: vi.fn(),
   generateTutorConversationReport: vi.fn(),
 }));
 

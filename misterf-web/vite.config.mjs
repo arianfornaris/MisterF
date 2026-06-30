@@ -9,7 +9,7 @@ export default defineConfig({
     outDir: path.resolve('public/build'),
     rollupOptions: {
       input: {
-        assignments: path.resolve('src/client/assignments/index.js'),
+        quizzes: path.resolve('src/client/quizzes/index.js'),
         chat: path.resolve('src/client/chat/index.js'),
         'client-error-telemetry': path.resolve(
           'src/client/telemetry/clientErrorReporter.js',

@@ -27,7 +27,7 @@ describe('server route architecture', () => {
   it('mounts domain routers from the server composition root', () => {
     const server = readProjectFile('src/server/server.ts');
 
-    expect(server).toContain("import { assignmentsRouter } from './assignments/routes.js';");
+    expect(server).toContain("import { quizzesRouter } from './quizzes/routes.js';");
     expect(server).toContain("import { authRouter } from './auth/routes.js';");
     expect(server).toContain("import { chatRouter } from './chat/routes.js';");
     expect(server).toContain("import { legalRouter } from './legal/routes.js';");
@@ -56,8 +56,8 @@ describe('server route architecture', () => {
     expectBefore(server, 'app.use(profileOnboardingRouter);', 'app.use(redirectIncompleteProfileOnboarding);');
     expectBefore(server, 'app.use(redirectIncompleteProfileOnboarding);', 'app.use(resourcesRouter);');
     expectBefore(server, 'app.use(resourcesRouter);', 'app.use(practiceGuidesRouter);');
-    expectBefore(server, 'app.use(practiceGuidesRouter);', 'app.use(assignmentsRouter);');
-    expectBefore(server, 'app.use(assignmentsRouter);', 'app.use(roleplaysRouter);');
+    expectBefore(server, 'app.use(practiceGuidesRouter);', 'app.use(quizzesRouter);');
+    expectBefore(server, 'app.use(quizzesRouter);', 'app.use(roleplaysRouter);');
   });
 
   it('keeps practice guide pages visible under the resources navigation entry', () => {

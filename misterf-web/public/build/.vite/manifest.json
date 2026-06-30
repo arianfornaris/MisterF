@@ -1,7 +1,7 @@
 {
-  "_authoringChatScroll-BJT1jwA7.js": {
-    "file": "chunks/authoringChatScroll-BJT1jwA7.js",
-    "name": "authoringChatScroll"
+  "_createResourceFromContext-DKcDpHBc.js": {
+    "file": "chunks/createResourceFromContext-DKcDpHBc.js",
+    "name": "createResourceFromContext"
   },
   "_listGroupDropdownStacking-CXwcD4Uk.js": {
     "file": "chunks/listGroupDropdownStacking-CXwcD4Uk.js",
@@ -29,20 +29,8 @@
     "file": "chunks/staticMarkdown-C74E1PTi.js",
     "name": "staticMarkdown"
   },
-  "src/client/assignments/index.js": {
-    "file": "entries/assignments-yj_s1XB4.js",
-    "name": "assignments",
-    "src": "src/client/assignments/index.js",
-    "isEntry": true,
-    "imports": [
-      "_quizItemRenderer-BTnIyLiT.js",
-      "_staticMarkdown-C74E1PTi.js",
-      "_authoringChatScroll-BJT1jwA7.js",
-      "_resourceMoveModal-C4QLs1bf.js"
-    ]
-  },
   "src/client/chat/index.js": {
-    "file": "entries/chat-DiQm71p2.js",
+    "file": "entries/chat-CMh_RY4B.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
@@ -63,6 +51,18 @@
       "_resourceMoveModal-C4QLs1bf.js"
     ]
   },
+  "src/client/quizzes/index.js": {
+    "file": "entries/quizzes-BrKIT4BT.js",
+    "name": "quizzes",
+    "src": "src/client/quizzes/index.js",
+    "isEntry": true,
+    "imports": [
+      "_quizItemRenderer-BTnIyLiT.js",
+      "_staticMarkdown-C74E1PTi.js",
+      "_createResourceFromContext-DKcDpHBc.js",
+      "_resourceMoveModal-C4QLs1bf.js"
+    ]
+  },
   "src/client/resources/index.js": {
     "file": "entries/resources-CPxiKONB.js",
     "name": "resources",
@@ -75,14 +75,14 @@
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-BV9vsRwK.js",
+    "file": "entries/roleplays-Dy_e-c7W.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
       "_markdownEditor-AJBkIsIl.js",
       "_staticMarkdown-C74E1PTi.js",
-      "_authoringChatScroll-BJT1jwA7.js",
+      "_createResourceFromContext-DKcDpHBc.js",
       "_resourceMoveModal-C4QLs1bf.js"
     ]
   },

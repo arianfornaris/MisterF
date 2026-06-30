@@ -41,13 +41,6 @@ const tutorConversationReportSchema = z
         .strict(),
 })
     .strict();
-const generatedPracticeGuideFromTutorReportSchema = z
-    .object({
-    description: z.string().trim().min(1).max(1500),
-    title: z.string().trim().min(1).max(220),
-    tutorInstructions: z.string().trim().min(1).max(12000),
-})
-    .strict();
 function logTutorReportEvent(event, details) {
     const logEvent = `tutor_report_${event.replace(/[^a-z0-9]+/gi, '_')}`;
     const payload = sanitizeTutorReportLogDetails({
@@ -217,93 +210,5 @@ export async function generateTutorConversationReport(input) {
         }
     }
     throw new Error('Could not generate a valid tutor conversation report.');
-}
-export async function generatePracticeGuideFromTutorConversationReport(input) {
-    const system = renderSystemPrompt('tutor/report-to-practice-guide.md');
-    const messages = [
-        {
-            content: JSON.stringify({
-                report: {
-                    ...input.report.report,
-                    summary: {
-                        description: input.report.summaryDescription,
-                        title: input.report.summaryTitle,
-                    },
-                },
-            }),
-            role: 'user',
-        },
-    ];
-    for (let turn = 0; turn < maxTutorReportGenerationTurns; turn += 1) {
-        const turnNumber = turn + 1;
-        try {
-            logLlmRequest(messages, system, {
-                actorLabel: 'Tutor report practice guide',
-                llm: {
-                    modelTier: 'regular',
-                    openRouterApiKey: input.openRouterApiKey,
-                },
-                operation: 'tutor_report_practice_guide',
-            }, turnNumber);
-            const result = await generateText({
-                maxOutputTokens: 1400,
-                messages,
-                model: getLanguageModel({
-                    modelTier: 'regular',
-                    openRouterApiKey: input.openRouterApiKey,
-                }),
-                providerOptions: getProviderOptions(),
-                system,
-                temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
-            });
-            logLlmResponse(result.text, result.finishReason, result.usage, result.providerMetadata, turnNumber, {
-                actorLabel: 'Tutor report practice guide',
-                operation: 'tutor_report_practice_guide',
-            });
-            let parsedSource;
-            try {
-                parsedSource = parseJsonFromModelText(result.text);
-            }
-            catch (error) {
-                logLlmInvalidRawResponse({
-                    actorLabel: 'Tutor report practice guide',
-                    error,
-                    operation: 'tutor_report_practice_guide',
-                    rawText: result.text,
-                    turn: turnNumber,
-                });
-                if (turn < maxTutorReportGenerationTurns - 1) {
-                    appendStructuredCorrectionRequest(messages, {
-                        invalidOutput: result.text,
-                        promptPath: 'tutor/report-to-practice-guide-correction.md',
-                        reason: 'Your previous response was not valid JSON because it was truncated or malformed.',
-                        turn: turnNumber,
-                    });
-                }
-                continue;
-            }
-            const parsed = generatedPracticeGuideFromTutorReportSchema.safeParse(parsedSource);
-            if (!parsed.success) {
-                if (turn < maxTutorReportGenerationTurns - 1) {
-                    appendStructuredCorrectionRequest(messages, {
-                        invalidOutput: result.text,
-                        promptPath: 'tutor/report-to-practice-guide-correction.md',
-                        reason: 'Your previous JSON did not match the required schema for the practice guide payload.',
-                        turn: turnNumber,
-                    });
-                }
-                continue;
-            }
-            return parsed.data;
-        }
-        catch (error) {
-            logTutorReportEvent('report-practice-guide:error', {
-                error: error instanceof Error ? error.message : String(error),
-                reportId: input.report.id,
-                turn: turnNumber,
-            });
-        }
-    }
-    throw new Error('Could not generate a valid practice guide from the tutor report.');
 }
 //# sourceMappingURL=tutorReports.js.map

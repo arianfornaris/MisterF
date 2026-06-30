@@ -20,7 +20,7 @@ suggestions should combine:
 - learner profile context
 - previous conversations
 - learner progress
-- assignments and practice guides
+- quizzes and practice guides
 - future roleplays
 - built-in practice topic library content
 
@@ -33,7 +33,7 @@ suggestions should combine:
 - [ ] Define suggestion types:
   - conversation starter
   - practice guide
-  - assignment follow-up
+  - quiz follow-up
   - roleplay
   - built-in topic
 - [ ] Define ranking inputs.

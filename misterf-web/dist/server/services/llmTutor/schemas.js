@@ -138,13 +138,6 @@ export const messageBlockSchema = z
     markdown: z.string().trim().min(1).max(5000),
 })
     .strict();
-export const practiceGuideLinkBlockSchema = z
-    .object({
-    type: z.literal('practice_guide_link'),
-    practiceGuideId: z.string().trim().min(1),
-    label: z.string().trim().min(1).max(160),
-})
-    .strict();
 export const dialogueCharacterMessageBlockSchema = z
     .object({
     type: z.literal('dialogue_character_message'),
@@ -870,7 +863,6 @@ export const sentenceEvaluationBlockSchema = z
     .strict();
 const tutorAgentResponseBlockSchema = z.union([
     messageBlockSchema,
-    practiceGuideLinkBlockSchema,
     dialogueCharacterMessageBlockSchema,
     dialogueTranscriptBlockSchema,
     matchingPairsBlockSchema,

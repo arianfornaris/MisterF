@@ -26,12 +26,6 @@ export type TutorMessageBlock = {
   markdown: string;
 };
 
-export type TutorPracticeGuideLinkBlock = {
-  type: 'practice_guide_link';
-  practiceGuideId: string;
-  label: string;
-};
-
 export type TutorDialogueCharacterMessageBlock = {
   type: 'dialogue_character_message';
   name: string;
@@ -413,7 +407,6 @@ export type TutorSentenceEvaluationBlock = {
 
 export type TutorResponseBlock =
   | TutorMessageBlock
-  | TutorPracticeGuideLinkBlock
   | TutorDialogueCharacterMessageBlock
   | TutorDialogueTranscriptBlock
   | TutorMatchingPairsBlock

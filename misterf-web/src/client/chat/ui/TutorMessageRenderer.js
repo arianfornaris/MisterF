@@ -38,22 +38,6 @@ export function createTutorMessageRenderer(deps) {
         return;
       }
 
-      if (block.type === 'practice_guide_link') {
-        const actionLink = createPracticeGuideLinkAction(block);
-        if (actionLink) {
-          let actionRow = stack.querySelector('.tutor-message-actions');
-          if (!actionRow) {
-            actionRow = document.createElement('div');
-            actionRow.className = 'tutor-message-actions';
-            stack.append(actionRow);
-          }
-
-          actionRow.append(actionLink);
-          hasVisualContent = true;
-        }
-        return;
-      }
-
       if (block.type === 'dialogue_character_message') {
         const turn = document.createElement('div');
         turn.className = 'inline-character-turn';
@@ -728,22 +712,6 @@ export function createTutorMessageRenderer(deps) {
     }
 
     return fallbackCopyText(content);
-  }
-
-  function createPracticeGuideLinkAction(block) {
-    if (!block || typeof block !== 'object' || typeof block.label !== 'string') {
-      return null;
-    }
-
-    if (typeof block.practiceGuideId !== 'string' || !block.practiceGuideId.trim()) {
-      return null;
-    }
-
-    const link = document.createElement('a');
-    link.className = 'btn btn-outline-primary btn-sm rounded-pill tutor-message-action-link';
-    link.href = `/practice-guides/${encodeURIComponent(block.practiceGuideId.trim())}`;
-    link.textContent = block.label;
-    return link;
   }
 
   function getExerciseResultForBlock(metadata, key, blockIndex) {

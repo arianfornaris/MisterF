@@ -36,7 +36,7 @@ Weaknesses:
 - the learner may not know what to practice
 - weak continuity from previous work
 - hidden value from progress reports, resources, practice guides, and
-  assignments
+  quizzes
 - built-in practice ideas have no obvious place to surface
 - repeated visits can feel like starting from zero
 
@@ -78,7 +78,7 @@ Possible first-screen structure:
   - "Practice a weak point"
   - "Try a built-in topic"
   - "Review vocabulary"
-  - "Start a teacher assignment" when relevant
+  - "Start a teacher quiz" when relevant
 
 This keeps the emotional center as conversation while giving the learner
 momentum.
@@ -108,7 +108,7 @@ The reason should be concrete but gentle:
 - `Apareció varias veces en tus correcciones recientes.`
 - `Continúa la guía que empezaste ayer.`
 - `Tema recomendado para tu perfil.`
-- `Tarea compartida por tu profesor.`
+- `Quiz compartida por tu profesor.`
 
 ### Suggestion Types
 
@@ -117,7 +117,7 @@ The reason should be concrete but gentle:
 - `vocabulary_review`: review words or phrases that need attention
 - `built_in_topic`: start from curated built-in content
 - `practice_guide`: launch or continue a saved practice guide
-- `assignment`: complete or continue teacher-assigned practice
+- `quiz`: complete or continue teacher-assigned practice
 - `generated_topic`: dynamic topic generated from profile/history
 - `free_start`: open-ended suggestion such as "Tell Mr. F what you need today"
 
@@ -125,7 +125,7 @@ The reason should be concrete but gentle:
 
 Mister F should eventually have a built-in library of practice topics. This is
 not the same as user-created practice guides. It is product-owned seed content
-that can be recommended, remixed, and used to start conversations or assignments.
+that can be recommended, remixed, and used to start conversations or quizzes.
 
 ### Library Goals
 
@@ -222,11 +222,11 @@ The suggestion engine can use existing product data.
 - shared/imported resources
 - generated resources not yet practiced
 
-### Teacher/Assignment Signals
+### Teacher/Quiz Signals
 
-Future assignment signals:
+Future quiz signals:
 
-- assignments shared with the learner
+- quizzes shared with the learner
 - unfinished attempts
 - evaluated attempts with weak areas
 - teacher-authored target topics
@@ -407,7 +407,7 @@ Sensitive examples:
 
 - "You made this mistake 8 times" may feel punitive.
 - "Based on your job interview anxiety" may expose profile details too directly.
-- "Your teacher assigned..." is fine only if the assignment source is actually
+- "Your teacher assigned..." is fine only if the quiz source is actually
   visible and intended.
 
 Prefer softer phrasing:
@@ -456,7 +456,7 @@ Show a compact panel with cards grouped by type, then the composer below.
 Pros:
 
 - enough room for reasons and metadata
-- can mix history, built-in topics, and teacher assignments
+- can mix history, built-in topics, and teacher quizzes
 - still keeps chat available
 
 Cons:
@@ -473,7 +473,7 @@ Pros:
 
 - most flexible long-term
 - works well for teachers and students
-- can expose library and assignments clearly
+- can expose library and quizzes clearly
 
 Cons:
 
@@ -529,7 +529,7 @@ The server creates or opens a conversation and sends a starter message/context.
 Use for:
 
 - practice guide
-- teacher assignment
+- teacher quiz
 - future roleplay follow-up
 
 The app opens the relevant resource detail or attempt page.
@@ -539,7 +539,7 @@ The app opens the relevant resource detail or attempt page.
 Use for:
 
 - unfinished conversation
-- unfinished assignment attempt
+- unfinished quiz attempt
 - partially used practice guide
 
 The app opens the existing state directly.
@@ -556,7 +556,7 @@ The app opens the existing state directly.
    updated asynchronously in the background?
 5. Who pays for LLM suggestion generation if it uses model calls?
 6. Should the user be able to turn off personalization?
-7. Should "teacher assignments" always outrank self-study suggestions?
+7. Should "teacher quizzes" always outrank self-study suggestions?
 8. Should a suggestion create a visible user message, hidden context, or both?
 9. Should built-in topics generate a tutor conversation, a quiz, or a practice
    guide?
@@ -592,10 +592,10 @@ The app opens the existing state directly.
 - Cache suggestions per profile with expiration.
 - Keep deterministic fallback suggestions.
 
-### Phase 5: Teacher/Assignment Integration
+### Phase 5: Teacher/Quiz Integration
 
-- Surface active teacher assignments.
-- Recommend assignment follow-up after evaluation.
+- Surface active teacher quizzes.
+- Recommend quiz follow-up after evaluation.
 - Use teacher-authored topics as high-priority suggestions when appropriate.
 
 ### Phase 6: Feedback Loop

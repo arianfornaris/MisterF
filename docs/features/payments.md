@@ -38,8 +38,8 @@ The current standard policy is:
 - tutor chat and follow-up tutor conversations consume the authenticated user's
   credits
 - AI-assisted practice guide authoring consumes creator credits
-- AI-assisted assignment authoring consumes creator credits
-- assignment evaluation for shared students remains product-funded/free to the
+- AI-assisted quiz authoring consumes creator credits
+- quiz evaluation for shared students remains product-funded/free to the
   student when that special public flow is available
 - Roleplay AI draft generation, AI revision, fictional character turns,
   evaluation, and follow-up tutor practice consume the authenticated user's
@@ -315,29 +315,29 @@ an implementation detail.
 
 ## Feature-Specific Credit Policies
 
-### Tareas
+### Quizzes
 
-`Tareas` are a teacher-assigned practice feature and an acquisition
+`Quizzes` are a teacher-assigned practice feature and an acquisition
 path.
 
 Credit policy:
 
-- creating a Tarea requires an authenticated teacher account
-- the Tarea authoring flow is credit-gated for the teacher
+- creating a Quiz requires an authenticated teacher account
+- the Quiz authoring flow is credit-gated for the teacher
 - AI draft generation, single-block generation from the add-block modal,
   and AI-assisted revisions are teacher-paid authoring usage
 - manual edits inside the authoring workspace do not consume LLM credits unless
   they trigger AI validation or evaluation
-- starting a Tarea attempt with `Probar` does not consume LLM credits
-- submitting a Tarea attempt uses the same product-funded evaluation policy as
-  student Tarea attempts
+- starting a Quiz attempt with `Probar` does not consume LLM credits
+- submitting a Quiz attempt uses the same product-funded evaluation policy as
+  student Quiz attempts
 - current generic resource sharing requires the student to create an account or
-  log in before using a shared Tarea
-- a future assignment-specific public flow should allow a shared Tarea to be
+  log in before using a shared Quiz
+- a future quiz-specific public flow should allow a shared Quiz to be
   completed by a student without an account
-- the AI evaluation after that future public shared-Tarea submission should be
+- the AI evaluation after that future public shared-Quiz submission should be
   free to the student
-- free shared-Tarea evaluation should be product-funded acquisition usage, not
+- free shared-Quiz evaluation should be product-funded acquisition usage, not
   usage charged to an anonymous student and not a hidden post-share charge to
   the teacher
 - after seeing the result in that future public flow, follow-up practice with
@@ -349,7 +349,7 @@ Operational requirements:
 - the UI should distinguish teacher-paid authoring usage from free student
   evaluation
 - free guest evaluations must be rate-limited and abuse-resistant
-- production logs should record `resourceId`, `resourceType`, assignment ids,
+- production logs should record `resourceId`, `resourceType`, quiz ids,
   attempt ids, and status metadata without storing full learner answers unless
   full LLM tracing is explicitly enabled
 - if a guest creates an account after evaluation, the app may attach the result
@@ -440,11 +440,11 @@ The agreed rules for the first implementation are:
 - displayed credits are rounded from remaining USD balance
 - payment fulfillment is driven by Stripe webhook
 - Mister F keeps an internal ledger for purchases and fulfillment
-- creating a Tarea is an authenticated, credit-gated teacher authoring workflow
-- AI-assisted Tarea draft generation, single-block generation, and revision are
+- creating a Quiz is an authenticated, credit-gated teacher authoring workflow
+- AI-assisted Quiz draft generation, single-block generation, and revision are
   teacher-paid usage
-- generic shared Tarea usage currently requires an account
-- future public shared Tarea completion can be free for students without
+- generic shared Quiz usage currently requires an account
+- future public shared Quiz completion can be free for students without
   accounts through a product-funded evaluation policy
-- post-result follow-up tutoring from a Tarea uses the student's standard
+- post-result follow-up tutoring from a Quiz uses the student's standard
   account and credit policy

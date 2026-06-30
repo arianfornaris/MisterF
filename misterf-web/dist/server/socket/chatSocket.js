@@ -1,7 +1,7 @@
 import { findUserById, findUserBySessionTokenHash, } from '../auth/repository.js';
 import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/session.js';
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
-import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationAssignmentAttemptSnapshot, getConversationPracticeGuideSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
+import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationQuizAttemptSnapshot, getConversationPracticeGuideSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
@@ -76,11 +76,11 @@ export function registerChatSocket(io) {
             }
             const messages = listMessages(conversation.id);
             const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversation.id);
-            const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
+            const quizAttemptSnapshot = getConversationQuizAttemptSnapshot(conversation.id);
             const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversation.id);
             const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
             const tutorPlan = getConversationTutorPlan(conversation.id);
-            const isReportFollowUpConversation = Boolean((assignmentAttemptSnapshot || roleplayAttemptSnapshot || tutorReportSnapshot) &&
+            const isReportFollowUpConversation = Boolean((quizAttemptSnapshot || roleplayAttemptSnapshot || tutorReportSnapshot) &&
                 !practiceGuideSnapshot);
             const hasOnlySourceNoticeMessages = isReportFollowUpConversation && hasOnlyResourceSourceNoticeMessages(messages);
             if (messages.length === 0) {
@@ -99,7 +99,7 @@ export function registerChatSocket(io) {
                 conversation,
                 conversationId: conversation.id,
                 messages: (practiceGuideSnapshot ||
-                    assignmentAttemptSnapshot ||
+                    quizAttemptSnapshot ||
                     roleplayAttemptSnapshot ||
                     tutorReportSnapshot) &&
                     messages.length === 0
@@ -113,7 +113,7 @@ export function registerChatSocket(io) {
             if (isReportFollowUpConversation &&
                 (messages.length === 0 || hasOnlySourceNoticeMessages)) {
                 void streamAssistantMessage(io, conversation.id, userId, undefined, buildReportConversationStartMessages({
-                    assignmentAttemptSnapshot,
+                    quizAttemptSnapshot,
                     roleplayAttemptSnapshot,
                     tutorReportSnapshot,
                 }), conversation.modelTier);
@@ -917,7 +917,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         }
         const learnerProfile = findProfileForUser(conversation.profileId, userId);
         const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversationId);
-        const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
+        const quizAttemptSnapshot = getConversationQuizAttemptSnapshot(conversationId);
         const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversationId);
         const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
         const tutorPlan = getConversationTutorPlan(conversationId);
@@ -938,14 +938,14 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
                 tutorInstructions: practiceGuideSnapshot.tutorInstructions,
             }
             : null;
-        const assignmentAttemptContext = assignmentAttemptSnapshot
+        const quizAttemptContext = quizAttemptSnapshot
             ? {
-                assignmentDescription: assignmentAttemptSnapshot.assignmentDescription,
-                assignmentSnapshotJson: JSON.stringify(assignmentAttemptSnapshot.assignmentSnapshot, null, 2),
-                assignmentTargetTopic: assignmentAttemptSnapshot.assignmentTargetTopic,
-                assignmentTitle: assignmentAttemptSnapshot.assignmentTitle,
-                responsesJson: JSON.stringify(assignmentAttemptSnapshot.responses, null, 2),
-                resultJson: JSON.stringify(assignmentAttemptSnapshot.result, null, 2),
+                quizDescription: quizAttemptSnapshot.quizDescription,
+                quizSnapshotJson: JSON.stringify(quizAttemptSnapshot.quizSnapshot, null, 2),
+                quizTargetTopic: quizAttemptSnapshot.quizTargetTopic,
+                quizTitle: quizAttemptSnapshot.quizTitle,
+                responsesJson: JSON.stringify(quizAttemptSnapshot.responses, null, 2),
+                resultJson: JSON.stringify(quizAttemptSnapshot.result, null, 2),
             }
             : null;
         const roleplayAttemptContext = roleplayAttemptSnapshot
@@ -966,7 +966,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             }
             : null;
         const result = await runTutorAgentLoop(history, {
-            assignmentAttempt: assignmentAttemptContext,
+            quizAttempt: quizAttemptContext,
             learnerProfile: learnerProfile
                 ? {
                     description: learnerProfile.description,
@@ -1053,16 +1053,8 @@ function emitAssistantToolStatus(io, conversationId, toolName) {
 }
 function getToolStatusLabel(toolName) {
     switch (toolName) {
-        case 'list_practice_guides':
-            return 'Ejecutando herramienta: buscar guías de práctica...';
-        case 'create_practice_guide':
-            return 'Ejecutando herramienta: crear guía de práctica...';
-        case 'update_practice_guide':
-            return 'Ejecutando herramienta: actualizar guía de práctica...';
-        case 'delete_practice_guide':
-            return 'Ejecutando herramienta: eliminar guía de práctica...';
-        case 'build_practice_guide_link':
-            return 'Ejecutando herramienta: preparar enlace del guía de práctica...';
+        case 'get_learner_progress':
+            return 'Ejecutando herramienta: revisar tu progreso...';
         default:
             return `Ejecutando herramienta: ${toolName}...`;
     }
@@ -1093,13 +1085,13 @@ function buildPracticeGuideStartMessage(practiceGuide) {
 }
 function buildReportConversationStartMessages(input) {
     const messages = [];
-    if (input.assignmentAttemptSnapshot) {
+    if (input.quizAttemptSnapshot) {
         messages.push({
             role: 'user',
             content: [
-                'INTERNAL ASSIGNMENT FOLLOW-UP START.',
+                'INTERNAL QUIZ FOLLOW-UP START.',
                 'The learner chose to practice after a completed teacher-assigned task.',
-                'Use the assignment context in the system prompt to start with the most useful remediation step.',
+                'Use the quiz context in the system prompt to start with the most useful remediation step.',
                 'Do not mention the internal signal.',
             ].join('\n'),
         });

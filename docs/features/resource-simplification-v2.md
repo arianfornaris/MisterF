@@ -5,7 +5,7 @@ Date: 2026-06-25
 ## Product Intent
 
 V1 leaves Mister F with several resource-like areas that are useful but
-increasingly redundant: practice guides, assignments, legacy chat rooms, and
+increasingly redundant: practice guides, quizzes, legacy chat rooms, and
 separate sharing flows attached to each resource family. V2 should simplify
 this into one resource system that is easier to understand, organize, share,
 and extend.
@@ -25,14 +25,14 @@ This is a large refactor and should be implemented in slices.
 
 The V2 resource catalog contains:
 
-- `Tarea`
+- `Quiz`
 - `Guía de Práctica`
 - `Roleplay`
 - `Carpeta de recursos`
 
 Internal names should stay English:
 
-- `Assignment`
+- `Quiz`
 - `PracticeGuide`
 - `Roleplay`
 - `ResourceFolder`
@@ -92,7 +92,7 @@ Practice guides should not have a separate resource-specific grouping model.
 Their product role is handled by `Carpeta de recursos`, which can group any
 supported resource type:
 
-- assignments
+- quizzes
 - practice guides
 - roleplays
 - future resource types
@@ -175,7 +175,7 @@ practice resource than a social room:
 Roleplay implementation is intentionally last in the refactor. The V2 starting
 point is AI roleplay with explicit scenario metadata, a dedicated writing
 surface, attempts with frozen snapshots, post-completion evaluation, and
-assignment-style follow-up actions.
+quiz-style follow-up actions.
 
 See [Roleplays](./roleplays.md) for the detailed product definition.
 
@@ -190,7 +190,7 @@ Replace separate resource entries with one primary entry:
 Inside the resource page, provide filters/tabs:
 
 - `Todos`
-- `Tareas`
+- `Quizzes`
 - `Guías`
 - `Roleplay`
 - `Carpetas`
@@ -201,13 +201,13 @@ This avoids sidebar growth as the product adds more resource types.
 ### Resource Navigation
 
 Resource navigation should feel explicit and consistent across folders,
-assignments, practice guides, and roleplays.
+quizzes, practice guides, and roleplays.
 
 This standard applies through the resource show/detail view. Resource edit and
 authoring views may use a close button instead of breadcrumbs, because editing
 is a focused workflow entered from a specific resource.
 
-Runtime pages such as assignment attempts, assignment results, tutor
+Runtime pages such as quiz attempts, quiz results, tutor
 conversations, and roleplay sessions may use their own flow-specific
 navigation, but their entry points should still be reachable from the resource
 detail page.
@@ -245,7 +245,7 @@ Nested folder behavior:
 
 Resource detail behavior:
 
-- Assignment, practice guide, and roleplay detail pages show the resource
+- Quiz, practice guide, and roleplay detail pages show the resource
   type and resource title.
 - They show a breadcrumb before resource actions:
   - `Recursos / Resource title` when the resource is not in a folder.
@@ -258,7 +258,7 @@ Resource detail behavior:
 - Resource actions appear below the breadcrumb, not floating in the top-right
   corner.
 - Resource-specific primary actions come before `Opciones`.
-  - Assignment: `Probar`
+  - Quiz: `Probar`
   - Practice guide: `Probar`
   - Roleplay: launch/start action, to be named when roleplays are defined
 - `Opciones` owns secondary actions such as share, edit, archive, restore, and
@@ -271,7 +271,7 @@ Resource detail behavior:
   - share where the resource supports sharing
 - Resource-specific options live below the common options, separated by a
   divider when that improves scanning.
-  - Assignment-specific examples: edit task, share public student link, share
+  - Quiz-specific examples: edit task, share public student link, share
     with profile, view attempts where applicable
   - Practice-guide-specific examples: edit guide, launch guided practice, share
     guide-specific links where still needed
@@ -288,7 +288,7 @@ Edit and authoring view behavior:
 - Edit views may use a close `X`.
 - The close button must link to the resource detail page, not to the old
   type-specific list and not to browser history.
-- Assignment edit closes to `/assignments/:assignmentId`.
+- Quiz edit closes to `/quizzes/:quizId`.
 - Practice guide edit closes to `/practice-guides/:practiceGuideId`.
 - Breadcrumbs are optional in edit views. If they are added later, they should
   complement the close button rather than replace the explicit close target.
@@ -386,7 +386,7 @@ Each detail page should share a common shell:
 
 Then each type owns its body:
 
-- `Tarea`: assignment summary and `Probar`/attempt/share flows
+- `Quiz`: quiz summary and `Probar`/attempt/share flows
 - `Guía de Práctica`: launch tutor practice with guide context
 - `Roleplay`: launch roleplay practice
 - `Carpeta`: contained resource list and sharing controls
@@ -404,7 +404,7 @@ Create a generic `resources` table:
 - `id`
 - `user_id`
 - `profile_id`
-- `type` with values `assignment`, `practice_guide`, `resource_folder`, and
+- `type` with values `quiz`, `practice_guide`, `resource_folder`, and
   `roleplay`
 - `title`
 - `description`
@@ -419,7 +419,7 @@ Create a generic `resources` table:
 
 Then keep type-specific tables whose primary key is also the resource id:
 
-- `assignments.id -> resources.id`
+- `quizzes.id -> resources.id`
 - `practice_guides.id -> resources.id`
 - `resource_folders.id -> resources.id`
 - `roleplays.id -> resources.id`
@@ -516,10 +516,10 @@ Current V2 direction:
 - folder shares expose current folder contents
 - adding or editing content in a shared folder updates what recipients see
 - recipients need an account before accepting a share link
-- assignment links temporarily follow the generic account-required share flow
+- quiz links temporarily follow the generic account-required share flow
 
-Future exception: `Tareas` should eventually support a special public student
-flow where a student can complete the assignment and receive free AI evaluation
+Future exception: `Quizzes` should eventually support a special public student
+flow where a student can complete the quiz and receive free AI evaluation
 before creating an account. That is intentionally deferred so Slice 8 can first
 land the generic resource-sharing model.
 
@@ -535,7 +535,7 @@ If any V1 schema has already reached production, use forward-only migrations:
 
 - migrate chatroom data only if it exists and should be preserved
 - migrate legacy practice guides into practice guides/resources
-- migrate assignments into resources
+- migrate quizzes into resources
 - create generic share links while preserving old public URLs through redirects
 
 Do not leave both old and new resource systems active for longer than necessary.
@@ -546,13 +546,13 @@ Resource simplification should update downstream features:
 
 - progress event sources should use resource ids where helpful
 - `/progress?tab=events` should list all evaluated sources that update learner
-  progress: tutor conversation reports shown as `Bitácora`, assignments shown
-  as `Tarea`, roleplays shown as `Roleplay`, and future evaluated resources once
+  progress: tutor conversation reports shown as `Bitácora`, quizzes shown
+  as `Quiz`, roleplays shown as `Roleplay`, and future evaluated resources once
   they write progress events
 - home suggestions should recommend resources by type, but the personalized
   home suggestion system is now treated as a separate larger feature outside
   this V2 slice
-- assignment follow-up should continue to work
+- quiz follow-up should continue to work
 - practice guide conversations should still store frozen guide snapshots
 - roleplay runs produce progress events after authenticated evaluated attempts
 - old chatroom report snapshot concepts should be removed or replaced
@@ -562,7 +562,7 @@ Resource simplification should update downstream features:
 Existing policies should remain conceptually stable:
 
 - AI authoring consumes creator credits
-- assignment shared-student evaluation remains product-funded/free to the
+- quiz shared-student evaluation remains product-funded/free to the
   student unless explicitly changed
 - launching normal tutor practice from a resource follows standard credit policy
 
@@ -579,7 +579,7 @@ follow-up tutoring use the standard credit policy.
    remain as compatibility routes for one release?
 4. Should internal code rename `PracticeGuide` to `PracticeGuide` immediately,
    or should UI copy change first?
-5. Should `Tareas` and `Guías` remain createable from the resource menu only, or
+5. Should `Quizzes` and `Guías` remain createable from the resource menu only, or
    also from contextual empty states?
 6. Should resource folders be profile-scoped only, or can account-level folders
    group resources across profiles later?
@@ -596,7 +596,7 @@ Implement in this order:
 3. introduce the resource shell without removing old behavior
 4. rename practice guides to practice guides at the UI layer
 5. make resource folders the only organization model
-6. migrate assignments and practice guides into the resource catalog
+6. migrate quizzes and practice guides into the resource catalog
 7. remove chatrooms
 8. consolidate generic sharing, progress, docs, and tests
 9. add roleplays as the final new resource type

@@ -72,10 +72,10 @@ events without dumping learner conversations:
   `resource_restored`, `resource_moved_to_folder`, and
   `resource_removed_from_folder`: resource catalog actions with resource
   identifiers and type metadata.
-- `assignment_attempt_started`, `assignment_attempt_submitted`,
-  `assignment_attempt_evaluated`, `assignment_attempt_evaluation_failed`, and
-  `assignment_follow_up_conversation_created`: assignment runtime events with
-  assignment ids plus resource identifiers.
+- `quiz_attempt_started`, `quiz_attempt_submitted`,
+  `quiz_attempt_evaluated`, `quiz_attempt_evaluation_failed`, and
+  `quiz_follow_up_conversation_created`: quiz runtime events with
+  quiz ids plus resource identifiers.
 - `practice_guide_created`, `practice_guide_created_from_prompt`,
   `practice_guide_updated`, `practice_guide_revised`, and
   `practice_guide_conversation_created`: practice-guide resource lifecycle
@@ -115,7 +115,7 @@ When a log event relates to a platform resource, include:
 - owner ids such as `ownerUserId` or `ownerProfileId` only when useful for
   shared-resource diagnostics
 
-Do not put resource descriptions, tutor instructions, assignment responses, or
+Do not put resource descriptions, tutor instructions, quiz responses, or
 other long learner-authored content in production-level logs. Full LLM tracing
 is the opt-in path for content-level investigations.
 

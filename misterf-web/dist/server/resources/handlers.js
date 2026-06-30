@@ -25,7 +25,7 @@ function normalizeReturnTo(value) {
 }
 function readResourceTypeFilter(value) {
     const resourceType = readField(value, 40);
-    if (resourceType === 'assignment' ||
+    if (resourceType === 'quiz' ||
         resourceType === 'practice_guide' ||
         resourceType === 'resource_folder' ||
         resourceType === 'roleplay') {
@@ -41,8 +41,8 @@ function readResourceSort(value) {
     return 'updated_desc';
 }
 function buildResourceDetailPath(resource) {
-    if (resource.type === 'assignment') {
-        return `/assignments/${encodeURIComponent(resource.id)}`;
+    if (resource.type === 'quiz') {
+        return `/quizzes/${encodeURIComponent(resource.id)}`;
     }
     if (resource.type === 'practice_guide') {
         return `/practice-guides/${encodeURIComponent(resource.id)}`;
@@ -53,11 +53,11 @@ function buildResourceDetailPath(resource) {
     return `/resources/folders/${encodeURIComponent(resource.id)}`;
 }
 function buildResourceAction(resource) {
-    if (resource.type === 'assignment') {
+    if (resource.type === 'quiz') {
         return {
             actionLabel: 'Probar',
             actionMethod: 'post',
-            actionPath: `/assignments/${encodeURIComponent(resource.id)}/test-attempts`,
+            actionPath: `/quizzes/${encodeURIComponent(resource.id)}/test-attempts`,
         };
     }
     if (resource.type === 'practice_guide') {
@@ -92,11 +92,11 @@ function toAccessibleOwnerResource(resource) {
 }
 function buildResourceListItem(resource) {
     const meta = {
-        assignment: {
+        quiz: {
             badgeClass: 'text-bg-primary',
             headerClass: 'bg-primary text-white',
             iconClass: 'bi-ui-checks-grid',
-            label: 'Tarea',
+            label: 'Quiz',
         },
         practice_guide: {
             badgeClass: 'text-bg-success',
@@ -142,7 +142,7 @@ function removeFiledResourcesFromRoot(resources, folders, userId) {
 }
 const resourceTypeSortRank = {
     resource_folder: 0,
-    assignment: 1,
+    quiz: 1,
     practice_guide: 2,
     roleplay: 3,
 };

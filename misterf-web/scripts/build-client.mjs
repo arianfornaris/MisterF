@@ -30,11 +30,11 @@ const roleplaysScriptPartialPath = path.join(
   'partials',
   'roleplays-client-script.ejs',
 );
-const assignmentsScriptPartialPath = path.join(
+const quizzesScriptPartialPath = path.join(
   projectRoot,
   'views',
   'partials',
-  'assignments-client-script.ejs',
+  'quizzes-client-script.ejs',
 );
 const clientErrorTelemetryScriptPartialPath = path.join(
   projectRoot,
@@ -104,15 +104,15 @@ if (viteResult.status !== 0) {
 }
 
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-const assignmentsEntry = manifest['src/client/assignments/index.js'];
+const quizzesEntry = manifest['src/client/quizzes/index.js'];
 const chatEntry = manifest['src/client/chat/index.js'];
 const clientErrorTelemetryEntry = manifest['src/client/telemetry/clientErrorReporter.js'];
 const practiceGuidesEntry = manifest['src/client/practiceGuides/index.js'];
 const resourcesEntry = manifest['src/client/resources/index.js'];
 const roleplaysEntry = manifest['src/client/roleplays/index.js'];
 
-if (!assignmentsEntry?.file) {
-  console.error('Could not find assignments entry in Vite manifest.');
+if (!quizzesEntry?.file) {
+  console.error('Could not find quizzes entry in Vite manifest.');
   process.exit(1);
 }
 if (!chatEntry?.file) {
@@ -136,7 +136,7 @@ if (!roleplaysEntry?.file) {
   process.exit(1);
 }
 
-const assignmentsScriptPath = `/public/build/${assignmentsEntry.file}`;
+const quizzesScriptPath = `/public/build/${quizzesEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
 const clientErrorTelemetryScriptPath = `/public/build/${clientErrorTelemetryEntry.file}`;
 const practiceGuidesScriptPath = `/public/build/${practiceGuidesEntry.file}`;
@@ -144,8 +144,8 @@ const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
 const roleplaysScriptPath = `/public/build/${roleplaysEntry.file}`;
 
 fs.writeFileSync(
-  assignmentsScriptPartialPath,
-  `    <script type="module" src="${assignmentsScriptPath}"></script>\n`,
+  quizzesScriptPartialPath,
+  `    <script type="module" src="${quizzesScriptPath}"></script>\n`,
   'utf8',
 );
 fs.writeFileSync(
@@ -201,7 +201,7 @@ fs.writeFileSync(
 );
 
 console.log(
-  `Generated ${path.relative(projectRoot, assignmentsScriptPartialPath)} -> ${assignmentsScriptPath}`,
+  `Generated ${path.relative(projectRoot, quizzesScriptPartialPath)} -> ${quizzesScriptPath}`,
 );
 console.log(
   `Generated ${path.relative(projectRoot, chatScriptPartialPath)} -> ${chatScriptPath}`,

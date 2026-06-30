@@ -1,0 +1,79 @@
+<div class="dropdown d-inline-block">
+  <button
+    class="btn btn-secondary dropdown-toggle"
+    type="button"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Crear recurso
+  </button>
+  <ul class="dropdown-menu">
+    <li>
+      <button class="dropdown-item" type="button" data-create-resource-from-context data-resource-type="quiz">
+        <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Quiz
+      </button>
+    </li>
+    <li>
+      <button class="dropdown-item" type="button" data-create-resource-from-context data-resource-type="practice_guide">
+        <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de práctica
+      </button>
+    </li>
+    <li>
+      <button class="dropdown-item" type="button" data-create-resource-from-context data-resource-type="roleplay">
+        <i class="bi bi-person-video3 me-2" aria-hidden="true"></i>Roleplay
+      </button>
+    </li>
+  </ul>
+</div>
+
+<div
+  class="modal fade"
+  id="createResourceFromContextModal"
+  tabindex="-1"
+  aria-labelledby="createResourceFromContextModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" action="<%= action %>" data-create-resource-from-context-form>
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="createResourceFromContextModalLabel">
+            Crear <span data-create-resource-from-context-label>recurso</span>
+          </h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Tus instrucciones son lo principal: describe qué quieres que cubra el recurso.
+            Puedes referirte a este resultado, que se incluye como contexto de apoyo.
+          </p>
+          <label class="form-label" for="createResourceFromContextPrompt">
+            Instrucciones para el recurso
+          </label>
+          <textarea
+            class="form-control"
+            id="createResourceFromContextPrompt"
+            name="prompt"
+            rows="3"
+            maxlength="2000"
+            placeholder="Por ejemplo: una guía centrada en los errores de pasado simple que aparecieron, con más ejercicios de escritura."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <% if (typeof guestToken !== 'undefined' && guestToken) { %><input type="hidden" name="guestToken" value="<%= guestToken %>"><% } %>
+          <input type="hidden" name="type" value="" data-create-resource-from-context-type>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            data-create-resource-from-context-submit
+            data-loading-text="Creando recurso..."
+          >
+            Crear recurso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

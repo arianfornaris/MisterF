@@ -5,7 +5,6 @@ import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './er
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, shouldLogFullLlmTrace, } from './logging.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
 import { buildTutorConversationTools } from './conversationTools.js';
-import { buildTutorPracticeGuideTools, extractInferredPracticeGuideLinkBlocks } from './practiceGuideTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
@@ -16,15 +15,6 @@ import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js'
 import { logger } from '../logger.js';
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
-function mergeTutorPracticeGuideLinkBlocks(blocks, inferredLinks) {
-    const seenPracticeGuideIds = new Set(blocks
-        .filter((block) => block.type === 'practice_guide_link')
-        .map((block) => block.practiceGuideId));
-    return [
-        ...blocks,
-        ...inferredLinks.filter((link) => !seenPracticeGuideIds.has(link.practiceGuideId)),
-    ];
-}
 async function continueTutorResponseAfterToolUse(input) {
     const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
     const messages = [
@@ -121,14 +111,11 @@ function looksLikeJsonAttempt(text) {
         trimmed.startsWith('```'));
 }
 function buildFallbackBlocksFromPlainText(input) {
-    const inferredLinks = extractInferredPracticeGuideLinkBlocks(input.toolResults);
     const trimmedText = input.text.trim();
     if (!trimmedText) {
-        return inferredLinks.length > 0
-            ? inferredLinks
-            : [{ type: 'message', markdown: 'Listo.' }];
+        return [{ type: 'message', markdown: 'Listo.' }];
     }
-    return mergeTutorPracticeGuideLinkBlocks([{ type: 'message', markdown: trimmedText }], inferredLinks);
+    return [{ type: 'message', markdown: trimmedText }];
 }
 export async function runTutorAgentLoop(history, options) {
     const messages = history.map(toModelMessage);
@@ -138,12 +125,6 @@ export async function runTutorAgentLoop(history, options) {
     });
     const resourceLogContext = buildTutorResourceLogContext(options);
     let lastError = null;
-    const practiceGuideTools = buildTutorPracticeGuideTools({
-        currentPracticeGuideId: options.currentPracticeGuideId ?? null,
-        onToolCall: options.onToolCall,
-        profileId: options.profileId ?? null,
-        userId: options.userId ?? null,
-    });
     const progressTools = buildTutorProgressTools({
         onToolCall: options.onToolCall,
         profileId: options.profileId ?? null,
@@ -156,7 +137,6 @@ export async function runTutorAgentLoop(history, options) {
         userId: options.userId ?? null,
     });
     const mergedTools = {
-        ...(practiceGuideTools || {}),
         ...(progressTools || {}),
         ...(conversationTools || {}),
     };
@@ -196,32 +176,31 @@ export async function runTutorAgentLoop(history, options) {
             if (!initialText) {
                 finalBlocks = buildFallbackBlocksFromPlainText({
                     text: result.text,
-                    toolResults,
                 });
             }
             else {
                 try {
                     parsedObject = parseJsonFromModelText(result.text);
-                    finalBlocks = mergeTutorPracticeGuideLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                    finalBlocks = validateTutorResponseBlocks(parsedObject, {
                         conversationId: options.conversationId ?? null,
                         generatedText: result.text,
                         llm: options.llm,
                         operation: 'tutor',
                         userId: options.userId ?? null,
-                    }), extractInferredPracticeGuideLinkBlocks(toolResults));
+                    });
                 }
                 catch (error) {
                     const embeddedJson = extractEmbeddedTutorResponseJson(result.text);
                     if (embeddedJson) {
                         try {
                             parsedObject = parseJsonFromModelText(embeddedJson);
-                            finalBlocks = mergeTutorPracticeGuideLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                            finalBlocks = validateTutorResponseBlocks(parsedObject, {
                                 conversationId: options.conversationId ?? null,
                                 generatedText: embeddedJson,
                                 llm: options.llm,
                                 operation: 'tutor',
                                 userId: options.userId ?? null,
-                            }), extractInferredPracticeGuideLinkBlocks(toolResults));
+                            });
                         }
                         catch (embeddedError) {
                             logLlmInvalidRawResponse({
@@ -242,7 +221,6 @@ export async function runTutorAgentLoop(history, options) {
                     else if (!looksLikeJsonAttempt(result.text)) {
                         finalBlocks = buildFallbackBlocksFromPlainText({
                             text: result.text,
-                            toolResults,
                         });
                     }
                     else {
@@ -254,13 +232,13 @@ export async function runTutorAgentLoop(history, options) {
                         });
                         try {
                             parsedObject = parseJsonFromModelText(effectiveResult.text);
-                            finalBlocks = mergeTutorPracticeGuideLinkBlocks(validateTutorResponseBlocks(parsedObject, {
+                            finalBlocks = validateTutorResponseBlocks(parsedObject, {
                                 conversationId: options.conversationId ?? null,
                                 generatedText: effectiveResult.text,
                                 llm: options.llm,
                                 operation: 'tutor',
                                 userId: options.userId ?? null,
-                            }), extractInferredPracticeGuideLinkBlocks(toolResults));
+                            });
                         }
                         catch (continuationError) {
                             logLlmInvalidRawResponse({

@@ -32,7 +32,7 @@ The server code is organized by feature area. Each feature has its own handlers 
 Main route areas:
 
 - `auth`
-- `assignments`
+- `quizzes`
 - `chat`
 - `payments`
 - `practiceGuides`
@@ -118,7 +118,7 @@ Client code lives under:
 
 Important areas:
 
-- `assignments`: assignment authoring and attempt page behavior
+- `quizzes`: quiz authoring and attempt page behavior
 - `chat`: tutor chat runtime, renderers, exercise cards, socket handlers
 - `practiceGuides`: page behaviors for practice guide pages
 - `resources`: resource catalog, folders, resource actions, and move modal
@@ -173,7 +173,7 @@ Prompt families are separated by responsibility:
 
 - `tutor/*`: main tutor system and related structured correction/evaluation prompts
 - `tutor/blocks/*`: source-of-truth tutor response block protocol files
-- `resources/*`: draft and revision generation for assignments and practice guides
+- `resources/*`: draft and revision generation for quizzes and practice guides
 
 Tutor prompts also include finalized conversation reporting prompts. Those
 generate tutor conversation summaries, repair invalid report JSON, convert tutor
@@ -251,30 +251,40 @@ turn. The server rejects no-op and generic titles, suppresses automatic updates
 after manual or already-specific titles, and marks explicit learner-requested
 renames as user updates.
 
-### Practice guide tools
+### Practice guides (no tutor tools)
 
-Defined in:
+The tutor has no practice-guide tools. The former model-facing
+`list_practice_guides`, `build_practice_guide_link`, `create_practice_guide`,
+`update_practice_guide`, and `delete_practice_guide` tools were all removed.
 
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceGuideTools.ts`
+Practice guides are managed entirely through the app UI. Creating, editing, and
+deleting saved guides happens in the resource UI.
 
-Current tools:
+A learner can also create a resource (quiz, practice guide, or roleplay)
+from a context, where the AI authoring draft is seeded with that context plus an
+optional instruction (the instruction is primary, the context is supporting
+material). The shared service `src/server/services/resourceFromContext.ts`
+(`buildResourceFromContextPrompt` + `createResourceFromContextDraft`) owns the
+prompt building, draft generation, credit gate, and resource creation for every
+surface:
 
-- `list_practice_guides`
-- `create_practice_guide`
-- `update_practice_guide`
-- `delete_practice_guide`
-- `build_practice_guide_link`
+- Live conversation composer: `POST /c/:conversationId/resource` (context =
+  conversation transcript). Appends a link to the new resource as a message in
+  the conversation and stays in the conversation.
+- Conversation summary: `POST /c/:conversationId/report/resource` (context =
+  tutor report). Redirects to the new resource.
+- Quiz result: `POST /quiz-attempts/:attemptId/resource` (context =
+  the evaluated attempt). Redirects to the new resource.
+- Roleplay result: `POST /roleplay-attempts/:attemptId/resource` (context = the
+  evaluated attempt). Redirects to the new resource.
 
-Practice guide tools are reserved for explicit learner-mandated saved-guide
-administration. Visible tutor plans, generic practice requests, completed
-exercises, and conversations already attached to a guide must remain in the
-tutor response protocol unless the learner explicitly asks for that exact saved
-guide action.
+The summary and result surfaces keep their existing "Practicar" follow-up
+action alongside the new "Crear recurso" menu.
 
-`create_practice_guide` must only run when the learner explicitly asks for or
-explicitly confirms creating a saved "guía"/"guide". A request for a plan,
-new plan, route, exercise
-sequence, review, or next step is not a saved guide creation request.
+The tutor can no longer emit any practice-guide link block. The
+`practice_guide_link` response block was removed from the protocol (schema,
+types, validation, renderer, and prompts). To open a saved guide, the learner
+uses the resource UI.
 
 ### Learner progress tools
 

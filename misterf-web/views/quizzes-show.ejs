@@ -1,0 +1,289 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const quizCurrentFolder = resourceCurrentFolder || null;
+  const quizFolderOptions = Array.isArray(resourceFolderOptions) ? resourceFolderOptions : [];
+  const quizFolderPath = Array.isArray(resourceFolderPath) ? resourceFolderPath : [];
+  const showQuizMoveOption = canManageQuiz && !selectedQuiz.archivedAt && (quizCurrentFolder || quizFolderOptions.length > 0);
+%>
+
+<section class="app-resource-view quizzes-page">
+  <div class="resource-page-header resource-page-header-detail">
+    <div>
+      <p class="resource-eyebrow">Quiz</p>
+      <h1 class="resource-page-title"><%= selectedQuiz.title %></h1>
+      <p class="resource-page-copy">
+        <a href="/resources">Recursos</a>
+        <% quizFolderPath.forEach((folder) => { %>
+          <span class="mx-1">/</span>
+          <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
+        <% }) %>
+        <span class="mx-1">/</span>
+        <span><%= selectedQuiz.title %></span>
+      </p>
+    </div>
+  </div>
+
+  <div class="resource-action-row">
+    <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+      </button>
+    </form>
+    <% if (canManageQuiz) { %>
+    <div class="dropdown">
+      <button
+        class="btn btn-secondary dropdown-toggle"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        Opciones
+      </button>
+      <ul class="dropdown-menu">
+        <% if (!selectedQuiz.archivedAt) { %>
+          <% if (showQuizMoveOption) { %>
+            <li>
+              <button
+                class="dropdown-item"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#moveResourceModal"
+                data-resource-move-open
+                data-resource-id="<%= selectedQuiz.id %>"
+                data-resource-title="<%= selectedQuiz.title %>"
+                data-resource-type="quiz"
+                data-current-folder-id="<%= quizCurrentFolder ? quizCurrentFolder.id : '' %>"
+              >
+                <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>
+                Mover a carpeta
+              </button>
+            </li>
+          <% } %>
+          <li>
+            <button
+              class="dropdown-item"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#quizShareProfileModal"
+            >
+              <i class="bi bi-person me-2" aria-hidden="true"></i>
+              Compartir con perfil
+            </button>
+          </li>
+          <li>
+            <button
+              class="dropdown-item"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#quizShareLinkModal"
+            >
+              <i class="bi bi-share me-2" aria-hidden="true"></i>
+              Compartir
+            </button>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a class="dropdown-item" href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit">
+              <i class="bi bi-pencil me-2" aria-hidden="true"></i>
+              Editar quiz
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+        <% } %>
+        <li>
+          <form
+            method="post"
+            action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/<%= selectedQuiz.archivedAt ? 'restore' : 'archive' %>"
+            onsubmit="return window.confirm('<%= selectedQuiz.archivedAt ? '¿Seguro que quieres restaurar este quiz?' : '¿Seguro que quieres archivar este quiz? Podrás recuperarlo después desde Archivados.' %>');"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>">
+            <button class="dropdown-item" type="submit">
+              <i class="bi <%= selectedQuiz.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
+              <%= selectedQuiz.archivedAt ? 'Restaurar quiz' : 'Archivar quiz' %>
+            </button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    <% } %>
+  </div>
+
+  <div class="resource-detail-summary">
+    <div class="resource-markdown mb-2" data-render-markdown><%= selectedQuiz.description || draft.targetTopic || 'Sin descripción' %></div>
+    <div class="resource-meta-row">
+      <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
+    </div>
+  </div>
+
+  <% if (selectedQuiz.sharedVia || !canManageQuiz) { %>
+    <div class="d-flex">
+      <% if (selectedQuizSharedFromProfileName) { %>
+        <span class="badge text-bg-light border" role="status">
+          Compartido por <%= selectedQuizSharedFromProfileName %>
+        </span>
+      <% } else { %>
+        <span class="badge text-bg-light border" role="status">
+          Compartido <%= selectedQuiz.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+        </span>
+      <% } %>
+    </div>
+  <% } %>
+
+  <section class="resource-section">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+      <h2 class="h5 mb-0">Bloques</h2>
+      <span class="badge text-bg-light border"><%= draft.blocks.length %></span>
+    </div>
+    <div class="list-group shadow-sm">
+      <% quizBlockOutlineItems.forEach((block) => { %>
+        <article class="list-group-item">
+          <div class="d-flex align-items-start gap-3">
+            <span class="badge rounded-pill text-bg-light border flex-shrink-0">#<%= block.blockNumber %></span>
+            <div class="flex-grow-1">
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                <h3 class="h6 mb-0 text-break"><%= block.prompt %></h3>
+                <span class="badge text-bg-secondary"><%= block.kindLabel %></span>
+              </div>
+              <% if (block.sentence) { %>
+                <p class="mb-2 text-body-secondary text-break"><%= block.sentence %></p>
+              <% } %>
+              <% if (block.metaItems.length > 0) { %>
+                <div class="d-flex flex-wrap gap-2">
+                  <% block.metaItems.forEach((item) => { %>
+                    <span class="badge text-bg-light border"><%= item %></span>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+
+  <% if (quizAttempts.length > 0) { %>
+    <div class="resource-section">
+      <h2 class="h5">Entregas</h2>
+      <div class="list-group">
+        <% quizAttempts.forEach((attempt) => { %>
+          <a class="list-group-item list-group-item-action" href="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/result">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+              <span>
+                Entrega
+                <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
+              </span>
+              <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </div>
+  <% } %>
+</section>
+
+<% if (canManageQuiz) { %>
+  <div
+    class="modal fade"
+    id="quizShareProfileModal"
+    tabindex="-1"
+    aria-labelledby="quizShareProfileModalLabel"
+    aria-hidden="true"
+    <%= quizShareMode === 'profile' ? 'data-auto-open-quiz-share-modal' : '' %>
+  >
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="quizShareProfileModalLabel">Compartir con perfil</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <% if (shareTargetQuizProfiles.length > 0) { %>
+          <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/share/profile" class="d-grid gap-3">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div>
+              <label class="form-label" for="shareTargetQuizProfileId">Perfil destino</label>
+              <select class="form-select" id="shareTargetQuizProfileId" name="targetProfileId" required>
+                <% shareTargetQuizProfiles.forEach((profile) => { %>
+                  <option value="<%= profile.id %>"><%= profile.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Compartir ahora</button>
+            </div>
+          </form>
+        <% } else { %>
+          <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir este quiz.</p>
+        <% } %>
+      </div>
+      <% if (shareTargetQuizProfiles.length === 0) { %>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+  <div
+    class="modal fade"
+    id="quizShareLinkModal"
+    tabindex="-1"
+    aria-labelledby="quizShareLinkModalLabel"
+    aria-hidden="true"
+    <%= quizShareMode === 'link' ? 'data-auto-open-quiz-share-modal' : '' %>
+  >
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="quizShareLinkModalLabel">Enlace para compartir</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body d-grid gap-3">
+        <p class="mb-0 text-body-secondary">
+          Quienes usen este enlace verán siempre la versión actual de este quiz.
+        </p>
+        <label class="form-label" for="quizShareLink">Enlace</label>
+        <input class="form-control" id="quizShareLink" value="<%= shareUrl %>" readonly data-quiz-share-link-field>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-outline-secondary" type="button" data-copy-quiz-share-link>
+            <i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar
+          </button>
+          <button class="btn btn-outline-secondary" type="button" data-native-share-quiz-link>
+            <i class="bi bi-share me-1" aria-hidden="true"></i>Compartir
+          </button>
+        </div>
+        <% if (quizShareQrDataUrl) { %>
+          <div class="d-flex justify-content-center">
+            <img
+              class="quiz-share-qr"
+              src="<%= quizShareQrDataUrl %>"
+              alt="QR del enlace para compartir el quiz"
+              width="180"
+              height="180"
+            >
+          </div>
+        <% } %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<% if (canManageQuiz) { %>
+  <%- include('partials/resource-move-modal', {
+    resourceMoveCurrentFolder: quizCurrentFolder,
+    resourceMoveFolderOptions: quizFolderOptions,
+  }) %>
+<% } %>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'quizzes-client-script' }) %>

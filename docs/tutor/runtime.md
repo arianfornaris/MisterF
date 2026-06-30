@@ -101,7 +101,6 @@ The tutor can emit structured blocks such as:
 
 - `message`
 - `sentence_evaluation`
-- `practice_guide_link`
 - `dialogue_character_message`
 - `dialogue_transcript`
 - `translate_to_english_prompt`
@@ -333,36 +332,35 @@ after a manual rename or already-specific title. This runtime tool does not emit
 learner-visible chat tool status; successful renames update the conversation
 state through the conversation rename event.
 
-### Practice guide tools
+### Practice guides (no tutor tools)
 
-Defined in:
+The tutor has no practice-guide tools. The former `list_practice_guides`,
+`build_practice_guide_link`, `create_practice_guide`, `update_practice_guide`,
+and `delete_practice_guide` tools were all removed, and
+`practiceGuideTools.ts` was deleted.
 
-- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/practiceGuideTools.ts`
+Practice guides, and resources in general, are managed through the app UI.
+Creating a resource from a context is a learner-initiated action: a "Crear
+recurso" menu (Quiz, Guía de práctica, Roleplay) opens a modal where the
+learner writes the primary instruction, and the relevant context is included as
+supporting material. The shared service
+`src/server/services/resourceFromContext.ts` owns prompt building, draft
+generation, the credit gate, and resource creation for every surface:
 
-Current tools:
+- Live conversation composer (`POST /c/:conversationId/resource`, context =
+  transcript): appends a link to the new resource as a message in the
+  conversation and stays in the conversation.
+- Conversation summary (`POST /c/:conversationId/report/resource`, context =
+  tutor report): redirects to the new resource.
+- Quiz result (`POST /quiz-attempts/:attemptId/resource`) and
+  roleplay result (`POST /roleplay-attempts/:attemptId/resource`), context = the
+  evaluated attempt: redirect to the new resource.
 
-- `list_practice_guides`
-- `create_practice_guide`
-- `update_practice_guide`
-- `delete_practice_guide`
-- `build_practice_guide_link`
-
-Use these only by explicit learner mandate for administration of saved practice
-guide resources. Do not use them merely because the current conversation was
-started from a guide, a visible tutor plan changed, an exercise completed, or a
-guide-related action could be pedagogically useful.
-
-`create_practice_guide` is model-facing administration for saved guides. The
-tutor must use it only when the learner explicitly asks for or explicitly
-confirms creating a saved "guía"/"guide". Requests for a plan, new plan,
-practice plan, route, lesson outline, sequence of activities, exercises,
-or next steps must stay in normal tutoring mode and use response blocks such as
-`tutor_plan` when a visible in-chat plan is appropriate.
-
-`update_practice_guide`, `delete_practice_guide`, `list_practice_guides`,
-and `build_practice_guide_link` follow the same rule: the learner must
-explicitly command that exact saved-guide action. Current guide context is
-pedagogical guidance only; it is not permission to administer the saved guide.
+The tutor can no longer emit any practice-guide link block. The
+`practice_guide_link` block was removed from the protocol. Requests for a plan,
+new plan, practice plan, route, lesson outline, sequence of activities,
+exercises, or next steps stay in normal tutoring mode and use response blocks
+such as `tutor_plan`.
 
 ### Learner progress tools
 

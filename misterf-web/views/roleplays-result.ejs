@@ -13,12 +13,9 @@
             <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
           </button>
         </form>
-        <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice-guide" data-roleplay-pending-form>
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="btn btn-secondary" type="submit" data-roleplay-pending-submit data-loading-text="Creando guía...">
-            <i class="bi bi-journal-plus me-1" aria-hidden="true"></i>Crear guía de práctica
-          </button>
-        </form>
+        <%- include('partials/create-resource-from-context', {
+          action: `/roleplay-attempts/${encodeURIComponent(attempt.id)}/resource`,
+        }) %>
       </div>
     </div>
     <div class="resource-page-header-actions">
@@ -131,17 +128,6 @@
     </div>
   </section>
 </section>
-
-<div class="modal fade" tabindex="-1" aria-hidden="true" data-roleplay-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-body d-flex align-items-center gap-3">
-        <div class="spinner-border text-primary" aria-hidden="true"></div>
-        <p class="mb-0">Creando la guía de práctica...</p>
-      </div>
-    </div>
-  </div>
-</div>
 
 <script type="application/json" data-roleplay-result-json><%- resultJson %></script>
 

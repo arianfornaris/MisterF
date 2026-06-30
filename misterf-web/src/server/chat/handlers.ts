@@ -1,17 +1,16 @@
 import type { Request, Response } from 'express';
 import {
+  addMessage,
   closeConversationForUser,
   createConversationFromTutorReport,
-  createPracticeGuide,
   findConversationForUser,
-  findPracticeGuideForUser,
   findProfileForUser,
   findTutorConversationReport,
   listMessages,
   renameConversationForUser,
   saveTutorConversationReport,
-  setTutorConversationReportPracticeGuide,
   type StoredConversation,
+  type StoredMessage,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import {
@@ -25,10 +24,15 @@ import {
   getHomeAuthMessage,
   resolveGuestInitialGreeting,
 } from '../pages/shell.js';
+import { generateTutorConversationReport } from '../services/tutorReports.js';
 import {
-  generatePracticeGuideFromTutorConversationReport,
-  generateTutorConversationReport,
-} from '../services/tutorReports.js';
+  articledContextResourceTypeLabel,
+  buildResourceFromContextPrompt,
+  contextResourceTypeLabel,
+  createResourceFromContextDraft,
+  normalizeContextResourceType,
+  type ContextResourceType,
+} from '../services/resourceFromContext.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 
@@ -191,7 +195,7 @@ export function handlePracticeTutorConversationReport(
   response.redirect(`/c/${encodeURIComponent(nextConversation.id)}`);
 }
 
-export async function handleCreatePracticeGuideFromTutorConversationReport(
+export async function handleCreateResourceFromTutorConversationReport(
   request: Request,
   response: Response,
 ): Promise<void> {
@@ -208,32 +212,43 @@ export async function handleCreatePracticeGuideFromTutorConversationReport(
     return;
   }
 
-  const report = findTutorConversationReport(conversation.id, user.id);
-  if (!report) {
-    response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
+  const summaryPath = `${`/c/${encodeURIComponent(conversation.id)}`}?tab=summary`;
+  const type = normalizeContextResourceType(request.body.type);
+  if (!type) {
+    response.redirect(summaryPath);
     return;
   }
 
-  if (report.practiceGuideId) {
-    const existingPracticeGuide = findPracticeGuideForUser(report.practiceGuideId, user.id);
-    if (existingPracticeGuide) {
-      response.redirect(`/practice-guides/${encodeURIComponent(existingPracticeGuide.id)}`);
-      return;
-    }
+  const report = findTutorConversationReport(conversation.id, user.id);
+  if (!report) {
+    response.redirect(summaryPath);
+    return;
   }
 
-  let generatedModule: Awaited<ReturnType<typeof generatePracticeGuideFromTutorConversationReport>>;
+  const instruction =
+    typeof request.body.prompt === 'string' ? request.body.prompt.trim().slice(0, 2000) : '';
+  const prompt = buildResourceFromContextPrompt({
+    context: buildTutorReportContext(report),
+    contextLabel: 'Resumen de la conversación',
+    instruction,
+    type,
+  });
+
+  let created: { detailPath: string; title: string };
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
-    generatedModule = await generatePracticeGuideFromTutorConversationReport({
+    created = await createResourceFromContextDraft({
       openRouterApiKey,
-      report,
+      profileId: conversation.profileId,
+      prompt,
+      type,
+      userId: user.id,
     });
   } catch (error) {
     if (isCreditExhaustedError(error)) {
       logger.warn('credit_exhausted_http_redirect', {
         conversationId: conversation.id,
-        surface: 'tutor_report_practice_guide',
+        surface: 'tutor_report_resource',
         userId: user.id,
       });
       response.redirect(buildConversationCreditExhaustedPath(conversation.id, 'summary'));
@@ -243,21 +258,136 @@ export async function handleCreatePracticeGuideFromTutorConversationReport(
     throw error;
   }
 
-  const practiceGuide = createPracticeGuide({
-    description: generatedModule.description,
-    profileId: conversation.profileId,
-    title: generatedModule.title,
-    tutorInstructions: generatedModule.tutorInstructions,
-    userId: user.id,
-  });
-
-  setTutorConversationReportPracticeGuide({
+  logger.info('resource_created_from_tutor_report', {
     conversationId: conversation.id,
-    practiceGuideId: practiceGuide.id,
+    profileId: conversation.profileId,
+    resourceType: type,
     userId: user.id,
   });
 
-  response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
+  response.redirect(created.detailPath);
+}
+
+export async function handleCreateResourceFromConversation(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const user = request.authUser;
+  if (!user?.emailVerified) {
+    response.redirect('/login');
+    return;
+  }
+
+  const conversationId = String(request.params.conversationId || '').trim();
+  const conversation = findConversationForUser(conversationId, user.id);
+  if (!conversation) {
+    response.redirect('/');
+    return;
+  }
+
+  const conversationPath = `/c/${encodeURIComponent(conversation.id)}`;
+  const type = normalizeContextResourceType(request.body.type);
+  if (!type) {
+    response.redirect(conversationPath);
+    return;
+  }
+
+  const messages = listMessages(conversation.id);
+  if (messages.length === 0) {
+    response.redirect(conversationPath);
+    return;
+  }
+
+  const instruction =
+    typeof request.body.prompt === 'string' ? request.body.prompt.trim().slice(0, 2000) : '';
+  const prompt = buildResourceFromContextPrompt({
+    context: formatConversationTranscript(messages),
+    contextLabel: 'Transcripción de la conversación',
+    instruction,
+    type,
+  });
+
+  let created: { detailPath: string; title: string };
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
+    created = await createResourceFromContextDraft({
+      openRouterApiKey,
+      profileId: conversation.profileId,
+      prompt,
+      type,
+      userId: user.id,
+    });
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      logger.warn('credit_exhausted_http_redirect', {
+        conversationId: conversation.id,
+        surface: 'conversation_resource',
+        userId: user.id,
+      });
+      response.redirect(buildConversationCreditExhaustedPath(conversation.id));
+      return;
+    }
+
+    throw error;
+  }
+
+  appendConversationResourceLinkMessage({
+    conversationId: conversation.id,
+    detailPath: created.detailPath,
+    title: created.title,
+    type,
+  });
+  logger.info('resource_created_from_conversation', {
+    conversationId: conversation.id,
+    profileId: conversation.profileId,
+    resourceType: type,
+    userId: user.id,
+  });
+
+  response.redirect(conversationPath);
+}
+
+function appendConversationResourceLinkMessage(input: {
+  conversationId: string;
+  detailPath: string;
+  title: string;
+  type: ContextResourceType;
+}): void {
+  const label = contextResourceTypeLabel(input.type);
+  const safeTitle = input.title.replace(/[\[\]]/g, '').trim() || label;
+  const markdown = `Creé ${articledContextResourceTypeLabel(input.type)} **${safeTitle}** a partir de esta conversación.\n\n[Abrir ${label}](${input.detailPath})`;
+  addMessage(input.conversationId, 'model', markdown, {
+    blocks: [{ markdown, type: 'message' }],
+    source: 'resource_created',
+  });
+}
+
+function formatConversationTranscript(messages: StoredMessage[]): string {
+  const recent = messages.slice(-40);
+  const transcript = recent
+    .map((message) => {
+      const speaker = message.role === 'user' ? 'Estudiante' : 'Mister F';
+      return `${speaker}: ${message.content}`;
+    })
+    .join('\n\n');
+
+  return transcript.length > 8000 ? transcript.slice(-8000) : transcript;
+}
+
+function buildTutorReportContext(report: {
+  report: unknown;
+  summaryDescription: string;
+  summaryTitle: string;
+}): string {
+  return JSON.stringify(
+    {
+      report: report.report,
+      summaryDescription: report.summaryDescription,
+      summaryTitle: report.summaryTitle,
+    },
+    null,
+    2,
+  );
 }
 
 function buildConversationCreditExhaustedPath(

@@ -48,6 +48,24 @@ const finalizeConversationFormEl = document.querySelector('[data-finalize-conver
 const finalizeCurrentConversationButtonEl = document.querySelector(
   '[data-finalize-current-conversation]',
 );
+const createResourceFromConversationModalEl = document.querySelector(
+  '#createResourceFromConversationModal',
+);
+const createResourceFromConversationFormEl = document.querySelector(
+  '[data-create-resource-from-conversation-form]',
+);
+const createResourceFromConversationToggleEl = document.querySelector(
+  '[data-create-resource-from-conversation-toggle]',
+);
+const createResourceFromConversationButtonEls = document.querySelectorAll(
+  '[data-create-resource-from-conversation]',
+);
+const createResourceFromConversationTypeEl = document.querySelector(
+  '[data-create-resource-from-conversation-type]',
+);
+const createResourceFromConversationLabelEl = document.querySelector(
+  '[data-create-resource-from-conversation-label]',
+);
 const closeTutorPlanModalEl = document.querySelector('#closeTutorPlanModal');
 const confirmCloseTutorPlanButtonEl = document.querySelector('[data-confirm-close-tutor-plan]');
 const tutorReportPendingModalEl = document.querySelector('[data-tutor-report-pending-modal]');
@@ -326,6 +344,18 @@ finalizeCurrentConversationButtonEl?.addEventListener('click', () => {
   openFinalizeConversationModal(conversationId);
 });
 
+createResourceFromConversationButtonEls.forEach((buttonEl) => {
+  buttonEl.addEventListener('click', () => {
+    if (!conversationId || isAssistantBusy) {
+      return;
+    }
+
+    const action =
+      buttonEl.dataset.resourceAction || `/c/${encodeURIComponent(conversationId)}/resource`;
+    openCreateResourceFromConversationModal(action, buttonEl.dataset.resourceType || '');
+  });
+});
+
 confirmCloseTutorPlanButtonEl?.addEventListener('click', () => {
   if (!pendingTutorPlanClose) {
     return;
@@ -383,6 +413,32 @@ function openFinalizeConversationModal(nextConversationId) {
   finalizeConversationFormEl.submit();
 }
 
+function openCreateResourceFromConversationModal(action, resourceType) {
+  if (!action || !resourceType || !createResourceFromConversationFormEl) {
+    return;
+  }
+
+  createResourceFromConversationFormEl.setAttribute('action', action);
+  if (createResourceFromConversationTypeEl) {
+    createResourceFromConversationTypeEl.value = resourceType;
+  }
+  if (createResourceFromConversationLabelEl) {
+    const labels = {
+      quiz: 'quiz',
+      practice_guide: 'guía de práctica',
+      roleplay: 'roleplay',
+    };
+    createResourceFromConversationLabelEl.textContent = labels[resourceType] || 'recurso';
+  }
+
+  if (createResourceFromConversationModalEl && window.bootstrap?.Modal) {
+    window.bootstrap.Modal.getOrCreateInstance(createResourceFromConversationModalEl).show();
+    return;
+  }
+
+  createResourceFromConversationFormEl.submit();
+}
+
 function requestCloseTutorPlan(plan) {
   if (!conversationId || isAssistantBusy) {
     return;
@@ -435,6 +491,21 @@ function initializeTutorReportPendingForms() {
     }
   });
 
+  createResourceFromConversationFormEl?.addEventListener('submit', () => {
+    const submitButtonEl = createResourceFromConversationFormEl.querySelector(
+      '[data-create-resource-from-conversation-submit]',
+    );
+    if (submitButtonEl instanceof HTMLButtonElement) {
+      submitButtonEl.disabled = true;
+      submitButtonEl.textContent = submitButtonEl.dataset.loadingText || 'Creando recurso...';
+    }
+
+    showTutorReportPendingModal('Creando recurso...');
+    if (createResourceFromConversationModalEl) {
+      window.bootstrap.Modal.getOrCreateInstance(createResourceFromConversationModalEl).hide();
+    }
+  });
+
   for (const formEl of document.querySelectorAll('form[data-tutor-report-pending-form]')) {
     if (!(formEl instanceof HTMLFormElement)) {
       continue;
@@ -475,11 +546,13 @@ function initializeCreditExhaustedQueryModal() {
 }
 
 function setCanFinalizeConversation(enabled) {
-  if (!finalizeCurrentConversationButtonEl) {
-    return;
+  const disabled = !enabled || isAssistantBusy;
+  if (finalizeCurrentConversationButtonEl) {
+    finalizeCurrentConversationButtonEl.disabled = disabled;
   }
-
-  finalizeCurrentConversationButtonEl.disabled = !enabled || isAssistantBusy;
+  if (createResourceFromConversationToggleEl) {
+    createResourceFromConversationToggleEl.disabled = disabled;
+  }
 }
 
 

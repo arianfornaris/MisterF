@@ -16,7 +16,7 @@ import {
   deleteConversationTutorPlan,
   findConversationForUser,
   findProfileForUser,
-  getConversationAssignmentAttemptSnapshot,
+  getConversationQuizAttemptSnapshot,
   getConversationPracticeGuideSnapshot,
   getConversationRoleplayAttemptSnapshot,
   getConversationTutorPlan,
@@ -26,7 +26,7 @@ import {
   renameConversationForUser,
   updateConversationModelTierForUser,
   updateMessageMetadata,
-  type StoredConversationAssignmentAttemptSnapshot,
+  type StoredConversationQuizAttemptSnapshot,
   type StoredConversationRoleplayAttemptSnapshot,
   type StoredConversationTutorReportSnapshot,
   type StoredMessage,
@@ -272,12 +272,12 @@ export function registerChatSocket(io: Server): void {
 
       const messages = listMessages(conversation.id);
       const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversation.id);
-      const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversation.id);
+      const quizAttemptSnapshot = getConversationQuizAttemptSnapshot(conversation.id);
       const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversation.id);
       const tutorReportSnapshot = getConversationTutorReportSnapshot(conversation.id);
       const tutorPlan = getConversationTutorPlan(conversation.id);
       const isReportFollowUpConversation = Boolean(
-        (assignmentAttemptSnapshot || roleplayAttemptSnapshot || tutorReportSnapshot) &&
+        (quizAttemptSnapshot || roleplayAttemptSnapshot || tutorReportSnapshot) &&
           !practiceGuideSnapshot,
       );
       const hasOnlySourceNoticeMessages =
@@ -300,7 +300,7 @@ export function registerChatSocket(io: Server): void {
         conversationId: conversation.id,
         messages:
           (practiceGuideSnapshot ||
-            assignmentAttemptSnapshot ||
+            quizAttemptSnapshot ||
             roleplayAttemptSnapshot ||
             tutorReportSnapshot) &&
           messages.length === 0
@@ -322,7 +322,7 @@ export function registerChatSocket(io: Server): void {
           userId,
           undefined,
           buildReportConversationStartMessages({
-            assignmentAttemptSnapshot,
+            quizAttemptSnapshot,
             roleplayAttemptSnapshot,
             tutorReportSnapshot,
           }),
@@ -1386,7 +1386,7 @@ async function streamAssistantMessage(
     }
     const learnerProfile = findProfileForUser(conversation.profileId, userId);
     const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversationId);
-    const assignmentAttemptSnapshot = getConversationAssignmentAttemptSnapshot(conversationId);
+    const quizAttemptSnapshot = getConversationQuizAttemptSnapshot(conversationId);
     const roleplayAttemptSnapshot = getConversationRoleplayAttemptSnapshot(conversationId);
     const tutorReportSnapshot = getConversationTutorReportSnapshot(conversationId);
     const tutorPlan = getConversationTutorPlan(conversationId);
@@ -1408,18 +1408,18 @@ async function streamAssistantMessage(
           tutorInstructions: practiceGuideSnapshot.tutorInstructions,
         }
       : null;
-    const assignmentAttemptContext = assignmentAttemptSnapshot
+    const quizAttemptContext = quizAttemptSnapshot
       ? {
-          assignmentDescription: assignmentAttemptSnapshot.assignmentDescription,
-          assignmentSnapshotJson: JSON.stringify(
-            assignmentAttemptSnapshot.assignmentSnapshot,
+          quizDescription: quizAttemptSnapshot.quizDescription,
+          quizSnapshotJson: JSON.stringify(
+            quizAttemptSnapshot.quizSnapshot,
             null,
             2,
           ),
-          assignmentTargetTopic: assignmentAttemptSnapshot.assignmentTargetTopic,
-          assignmentTitle: assignmentAttemptSnapshot.assignmentTitle,
-          responsesJson: JSON.stringify(assignmentAttemptSnapshot.responses, null, 2),
-          resultJson: JSON.stringify(assignmentAttemptSnapshot.result, null, 2),
+          quizTargetTopic: quizAttemptSnapshot.quizTargetTopic,
+          quizTitle: quizAttemptSnapshot.quizTitle,
+          responsesJson: JSON.stringify(quizAttemptSnapshot.responses, null, 2),
+          resultJson: JSON.stringify(quizAttemptSnapshot.result, null, 2),
         }
       : null;
     const roleplayAttemptContext = roleplayAttemptSnapshot
@@ -1445,7 +1445,7 @@ async function streamAssistantMessage(
       : null;
 
     const result = await runTutorAgentLoop(history, {
-      assignmentAttempt: assignmentAttemptContext,
+      quizAttempt: quizAttemptContext,
       learnerProfile: learnerProfile
         ? {
             description: learnerProfile.description,
@@ -1551,16 +1551,8 @@ function emitAssistantToolStatus(
 
 function getToolStatusLabel(toolName: string): string {
   switch (toolName) {
-    case 'list_practice_guides':
-      return 'Ejecutando herramienta: buscar guías de práctica...';
-    case 'create_practice_guide':
-      return 'Ejecutando herramienta: crear guía de práctica...';
-    case 'update_practice_guide':
-      return 'Ejecutando herramienta: actualizar guía de práctica...';
-    case 'delete_practice_guide':
-      return 'Ejecutando herramienta: eliminar guía de práctica...';
-    case 'build_practice_guide_link':
-      return 'Ejecutando herramienta: preparar enlace del guía de práctica...';
+    case 'get_learner_progress':
+      return 'Ejecutando herramienta: revisar tu progreso...';
     default:
       return `Ejecutando herramienta: ${toolName}...`;
   }
@@ -1599,19 +1591,19 @@ function buildPracticeGuideStartMessage(practiceGuide: {
 }
 
 function buildReportConversationStartMessages(input: {
-  assignmentAttemptSnapshot: StoredConversationAssignmentAttemptSnapshot | null;
+  quizAttemptSnapshot: StoredConversationQuizAttemptSnapshot | null;
   roleplayAttemptSnapshot: StoredConversationRoleplayAttemptSnapshot | null;
   tutorReportSnapshot: StoredConversationTutorReportSnapshot | null;
 }): TutorMessage[] {
   const messages: TutorMessage[] = [];
 
-  if (input.assignmentAttemptSnapshot) {
+  if (input.quizAttemptSnapshot) {
     messages.push({
       role: 'user',
       content: [
-        'INTERNAL ASSIGNMENT FOLLOW-UP START.',
+        'INTERNAL QUIZ FOLLOW-UP START.',
         'The learner chose to practice after a completed teacher-assigned task.',
-        'Use the assignment context in the system prompt to start with the most useful remediation step.',
+        'Use the quiz context in the system prompt to start with the most useful remediation step.',
         'Do not mention the internal signal.',
       ].join('\n'),
     });

@@ -1,0 +1,36 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view quizzes-page">
+  <div class="resource-page-header">
+    <div>
+      <p class="resource-eyebrow">Quiz compartido</p>
+      <h1><%= selectedQuiz.title %></h1>
+    </div>
+    <form method="post" action="/resources/shared/<%= encodeURIComponent(shareLink.id) %>/accept">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Agregar a mis recursos
+      </button>
+    </form>
+  </div>
+
+  <div class="resource-detail-summary">
+    <div class="resource-markdown mb-2" data-render-markdown><%= selectedQuiz.description || draft.targetTopic || 'Sin descripción' %></div>
+    <div class="resource-meta-row">
+      <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
+      <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
+      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
+    </div>
+  </div>
+
+  <div data-quiz-quiz-host data-quiz-quiz-mode="preview"></div>
+  <div class="quiz-block-list" data-quiz-quiz-fallback>
+    <% draft.blocks.forEach((block, index) => { %>
+      <%- include('partials/quiz-item-card', { quizItemMode: 'preview', block, csrfToken, draft, index, selectedQuiz: null }) %>
+    <% }) %>
+  </div>
+</section>
+
+<script type="application/json" data-quiz-quiz-json><%- quizQuizJson %></script>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'quizzes-client-script' }) %>

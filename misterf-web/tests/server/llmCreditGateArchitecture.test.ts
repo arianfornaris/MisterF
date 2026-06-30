@@ -7,11 +7,11 @@ const expectedGenerateTextCallCounts: Record<string, number> = {
   'src/server/services/llmTutor/index.ts': 4,
   'src/server/services/resourceDrafts.ts': 1,
   'src/server/services/roleplays.ts': 1,
-  'src/server/services/tutorReports.ts': 2,
+  'src/server/services/tutorReports.ts': 1,
 };
 
 const creditCheckedEntrypoints = [
-  'src/server/assignments/handlers.ts',
+  'src/server/quizzes/handlers.ts',
   'src/server/chat/handlers.ts',
   'src/server/practiceGuides/handlers.ts',
   'src/server/roleplays/handlers.ts',

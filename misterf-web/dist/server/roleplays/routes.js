@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleCreateRoleplayFollowUpConversation, handleCreateRoleplayPracticeGuide, handleFinishRoleplayAttempt, handleGenerateRoleplay, handleReviseRoleplay, handleShareRoleplayToProfile, handleStartRoleplayAttempt, handleSubmitRoleplayTurn, handleUpdateRoleplay, renderRoleplayAttemptPage, renderRoleplayEditPage, renderRoleplayNewPage, renderRoleplayResultPage, renderRoleplayShowPage, } from './handlers.js';
+import { handleCreateRoleplayFollowUpConversation, handleCreateRoleplayResource, handleFinishRoleplayAttempt, handleGenerateRoleplay, handleReviseRoleplay, handleShareRoleplayToProfile, handleStartRoleplayAttempt, handleSubmitRoleplayTurn, handleUpdateRoleplay, renderRoleplayAttemptPage, renderRoleplayEditPage, renderRoleplayNewPage, renderRoleplayResultPage, renderRoleplayShowPage, } from './handlers.js';
 export const roleplaysRouter = express.Router();
 roleplaysRouter.get('/roleplays/new', renderRoleplayNewPage);
 roleplaysRouter.post('/roleplays/generate', handleGenerateRoleplay);
@@ -15,5 +15,5 @@ roleplaysRouter.post('/roleplay-attempts/:attemptId/turns', handleSubmitRoleplay
 roleplaysRouter.post('/roleplay-attempts/:attemptId/finish', handleFinishRoleplayAttempt);
 roleplaysRouter.get('/roleplay-attempts/:attemptId/result', renderRoleplayResultPage);
 roleplaysRouter.post('/roleplay-attempts/:attemptId/practice', handleCreateRoleplayFollowUpConversation);
-roleplaysRouter.post('/roleplay-attempts/:attemptId/practice-guide', handleCreateRoleplayPracticeGuide);
+roleplaysRouter.post('/roleplay-attempts/:attemptId/resource', handleCreateRoleplayResource);
 //# sourceMappingURL=routes.js.map

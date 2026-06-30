@@ -4,7 +4,6 @@ import type {
   TutorFillInTheBlankChoiceBlock,
   TutorFillInTheBlankInputBlock,
   LlmRequestOptions,
-  TutorPracticeGuideLinkBlock,
   TutorMatchingPairsBlock,
   TutorMultipleChoiceBlock,
   TutorAgentResponseBlock,
@@ -141,7 +140,6 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block,
       ): block is
         | TutorMessageBlock
-        | TutorPracticeGuideLinkBlock
         | TutorDialogueCharacterMessageBlock
         | TutorDialogueTranscriptBlock
         | TutorMatchingPairsBlock
@@ -156,7 +154,6 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorUnscrambleSentenceBlock
         | TutorSentenceEvaluationBlock =>
         block.type === 'message' ||
-        block.type === 'practice_guide_link' ||
         block.type === 'dialogue_character_message' ||
         block.type === 'dialogue_transcript' ||
         block.type === 'matching_pairs' ||
@@ -178,10 +175,6 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
 
       if (block.type === 'dialogue_character_message') {
         return `**${block.name}:** ${block.markdown.trim()}`;
-      }
-
-      if (block.type === 'practice_guide_link') {
-        return block.label.trim();
       }
 
       if (block.type === 'dialogue_transcript') {

@@ -30,7 +30,7 @@ export type StoredConversation = {
   updatedAt: string;
 };
 
-export type ResourceType = 'assignment' | 'practice_guide' | 'resource_folder' | 'roleplay';
+export type ResourceType = 'quiz' | 'practice_guide' | 'resource_folder' | 'roleplay';
 export type ResourceShareKind = 'link' | 'profile';
 
 export type StoredResource = {
@@ -269,9 +269,9 @@ export type StoredConversationTutorReportSnapshot = {
   tutorConversationReportId: string;
 };
 
-export type StoredAssignment = {
+export type StoredQuiz = {
   archivedAt: string | null;
-  authoringMessages: AssignmentAuthoringMessage[];
+  authoringMessages: QuizAuthoringMessage[];
   createdAt: string;
   description: string;
   id: string;
@@ -280,7 +280,7 @@ export type StoredAssignment = {
   profileId: string;
   quiz: Record<string, unknown>;
   sharedVia: 'link' | 'profile' | null;
-  sourceAssignmentId: string | null;
+  sourceQuizId: string | null;
   sourceProfileId: string | null;
   sourceUserId: string | null;
   targetTopic: string;
@@ -289,22 +289,22 @@ export type StoredAssignment = {
   userId: string;
 };
 
-export type AssignmentAuthoringMessage = {
+export type QuizAuthoringMessage = {
   content: string;
   createdAt: string;
   draftSnapshot?: Record<string, unknown>;
   role: 'assistant' | 'user';
 };
 
-export type StoredAssignmentShareLink = {
-  assignmentId: string;
+export type StoredQuizShareLink = {
+  quizId: string;
   createdAt: string;
   id: string;
   revokedAt: string | null;
 };
 
-export type StoredAssignmentAttempt = {
-  assignmentId: string;
+export type StoredQuizAttempt = {
+  quizId: string;
   claimToken: string | null;
   createdAt: string;
   evaluatedAt: string | null;
@@ -322,12 +322,12 @@ export type StoredAssignmentAttempt = {
   userId: string | null;
 };
 
-export type StoredConversationAssignmentAttemptSnapshot = {
-  assignmentAttemptId: string;
-  assignmentDescription: string;
-  assignmentSnapshot: Record<string, unknown>;
-  assignmentTargetTopic: string;
-  assignmentTitle: string;
+export type StoredConversationQuizAttemptSnapshot = {
+  quizAttemptId: string;
+  quizDescription: string;
+  quizSnapshot: Record<string, unknown>;
+  quizTargetTopic: string;
+  quizTitle: string;
   conversationId: string;
   createdAt: string;
   responses: unknown[];
@@ -432,7 +432,7 @@ export type StoredLearnerProgressEventDetails = {
 };
 
 export type LearnerProgressSourceType =
-  | 'assignment_attempt'
+  | 'quiz_attempt'
   | 'chat_room_conversation_report'
   | 'roleplay_attempt'
   | 'tutor_conversation_report';
@@ -722,7 +722,7 @@ type ConversationTutorReportSnapshotRow = {
   tutor_conversation_report_id: string;
 };
 
-type AssignmentRow = {
+type QuizRow = {
   archived_at: string | null;
   authoring_messages_json: string;
   created_at: string;
@@ -733,7 +733,7 @@ type AssignmentRow = {
   profile_id: string;
   quiz_json: string;
   shared_via: 'link' | 'profile' | null;
-  source_assignment_id: string | null;
+  source_quiz_id: string | null;
   source_profile_id: string | null;
   source_user_id: string | null;
   target_topic: string;
@@ -742,15 +742,15 @@ type AssignmentRow = {
   user_id: string;
 };
 
-type AssignmentShareLinkRow = {
-  assignment_id: string;
+type QuizShareLinkRow = {
+  quiz_id: string;
   created_at: string;
   id: string;
   revoked_at: string | null;
 };
 
-type AssignmentAttemptRow = {
-  assignment_id: string;
+type QuizAttemptRow = {
+  quiz_id: string;
   claim_token: string | null;
   created_at: string;
   evaluated_at: string | null;
@@ -768,12 +768,12 @@ type AssignmentAttemptRow = {
   user_id: string | null;
 };
 
-type ConversationAssignmentAttemptSnapshotRow = {
-  assignment_attempt_id: string;
-  assignment_description: string;
-  assignment_snapshot_json: string;
-  assignment_target_topic: string;
-  assignment_title: string;
+type ConversationQuizAttemptSnapshotRow = {
+  quiz_attempt_id: string;
+  quiz_description: string;
+  quiz_snapshot_json: string;
+  quiz_target_topic: string;
+  quiz_title: string;
   conversation_id: string;
   created_at: string;
   responses_json: string;
@@ -1072,11 +1072,11 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
-function parseAssignmentAuthoringMessages(
+function parseQuizAuthoringMessages(
   value: string | null | undefined,
-): AssignmentAuthoringMessage[] {
+): QuizAuthoringMessage[] {
   return parseJsonArray(value)
-    .flatMap((item): AssignmentAuthoringMessage[] => {
+    .flatMap((item): QuizAuthoringMessage[] => {
       if (!isPlainRecord(item)) {
         return [];
       }
@@ -1182,10 +1182,10 @@ function parseRoleplayTurns(value: string | null | undefined): RoleplayTurn[] {
     .slice(0, 80);
 }
 
-function toStoredAssignment(row: AssignmentRow): StoredAssignment {
+function toStoredQuiz(row: QuizRow): StoredQuiz {
   return {
     archivedAt: row.archived_at,
-    authoringMessages: parseAssignmentAuthoringMessages(row.authoring_messages_json),
+    authoringMessages: parseQuizAuthoringMessages(row.authoring_messages_json),
     createdAt: row.created_at,
     description: row.description,
     id: row.id,
@@ -1194,7 +1194,7 @@ function toStoredAssignment(row: AssignmentRow): StoredAssignment {
     profileId: row.profile_id,
     quiz: parseJsonRecord(row.quiz_json),
     sharedVia: row.shared_via,
-    sourceAssignmentId: row.source_assignment_id,
+    sourceQuizId: row.source_quiz_id,
     sourceProfileId: row.source_profile_id,
     sourceUserId: row.source_user_id,
     targetTopic: row.target_topic,
@@ -1204,20 +1204,20 @@ function toStoredAssignment(row: AssignmentRow): StoredAssignment {
   };
 }
 
-function toStoredAssignmentShareLink(
-  row: AssignmentShareLinkRow,
-): StoredAssignmentShareLink {
+function toStoredQuizShareLink(
+  row: QuizShareLinkRow,
+): StoredQuizShareLink {
   return {
-    assignmentId: row.assignment_id,
+    quizId: row.quiz_id,
     createdAt: row.created_at,
     id: row.id,
     revokedAt: row.revoked_at,
   };
 }
 
-function toStoredAssignmentAttempt(row: AssignmentAttemptRow): StoredAssignmentAttempt {
+function toStoredQuizAttempt(row: QuizAttemptRow): StoredQuizAttempt {
   return {
-    assignmentId: row.assignment_id,
+    quizId: row.quiz_id,
     claimToken: row.claim_token,
     createdAt: row.created_at,
     evaluatedAt: row.evaluated_at,
@@ -1236,15 +1236,15 @@ function toStoredAssignmentAttempt(row: AssignmentAttemptRow): StoredAssignmentA
   };
 }
 
-function toStoredConversationAssignmentAttemptSnapshot(
-  row: ConversationAssignmentAttemptSnapshotRow,
-): StoredConversationAssignmentAttemptSnapshot {
+function toStoredConversationQuizAttemptSnapshot(
+  row: ConversationQuizAttemptSnapshotRow,
+): StoredConversationQuizAttemptSnapshot {
   return {
-    assignmentAttemptId: row.assignment_attempt_id,
-    assignmentDescription: row.assignment_description,
-    assignmentSnapshot: parseJsonRecord(row.assignment_snapshot_json),
-    assignmentTargetTopic: row.assignment_target_topic,
-    assignmentTitle: row.assignment_title,
+    quizAttemptId: row.quiz_attempt_id,
+    quizDescription: row.quiz_description,
+    quizSnapshot: parseJsonRecord(row.quiz_snapshot_json),
+    quizTargetTopic: row.quiz_target_topic,
+    quizTitle: row.quiz_title,
     conversationId: row.conversation_id,
     createdAt: row.created_at,
     responses: parseJsonArray(row.responses_json),
@@ -1371,7 +1371,7 @@ function parseLearnerProgressEventDetails(
 
 function isKnownResourceType(value: string): value is ResourceType {
   return (
-    value === 'assignment' ||
+    value === 'quiz' ||
     value === 'practice_guide' ||
     value === 'resource_folder' ||
     value === 'roleplay'
@@ -2400,10 +2400,10 @@ export function archiveResourceForUser(
   const db = getDb();
   const transaction = db.transaction(() => {
     archiveResource(db, resourceId, userId);
-    if (resource.type === 'assignment') {
+    if (resource.type === 'quiz') {
       db.prepare(
         `
-          UPDATE assignments
+          UPDATE quizzes
           SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -2446,10 +2446,10 @@ export function restoreResourceForUser(
   const db = getDb();
   const transaction = db.transaction(() => {
     restoreResource(db, resourceId, userId);
-    if (resource.type === 'assignment') {
+    if (resource.type === 'quiz') {
       db.prepare(
         `
-          UPDATE assignments
+          UPDATE quizzes
           SET archived_at = NULL,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -4263,21 +4263,21 @@ export function upsertLearnerProgressEvent(input: {
   return toStoredLearnerProgressEvent(row);
 }
 
-export function createAssignment(input: {
-  authoringMessages?: AssignmentAuthoringMessage[];
+export function createQuiz(input: {
+  authoringMessages?: QuizAuthoringMessage[];
   description?: string;
   instructions?: string;
   level?: string;
   profileId: string;
   quiz: Record<string, unknown>;
   sharedVia?: 'link' | 'profile' | null;
-  sourceAssignmentId?: string | null;
+  sourceQuizId?: string | null;
   sourceProfileId?: string | null;
   sourceUserId?: string | null;
   targetTopic?: string;
   title: string;
   userId: string;
-}): StoredAssignment {
+}): StoredQuiz {
   const id = randomUUID();
   const db = getDb();
   const transaction = db.transaction(() => {
@@ -4288,16 +4288,16 @@ export function createAssignment(input: {
       profileId: input.profileId,
       sharedVia: input.sharedVia ?? null,
       sourceProfileId: input.sourceProfileId ?? null,
-      sourceResourceId: input.sourceAssignmentId ?? null,
+      sourceResourceId: input.sourceQuizId ?? null,
       sourceUserId: input.sourceUserId ?? null,
       title: input.title,
       topic: input.targetTopic ?? '',
-      type: 'assignment',
+      type: 'quiz',
       userId: input.userId,
     });
     db.prepare(
       `
-        INSERT INTO assignments (
+        INSERT INTO quizzes (
           id,
           user_id,
           profile_id,
@@ -4308,7 +4308,7 @@ export function createAssignment(input: {
           instructions,
           quiz_json,
           authoring_messages_json,
-          source_assignment_id,
+          source_quiz_id,
           source_user_id,
           source_profile_id,
           shared_via
@@ -4327,7 +4327,7 @@ export function createAssignment(input: {
         input.instructions ?? '',
         JSON.stringify(input.quiz),
         JSON.stringify(input.authoringMessages ?? []),
-        input.sourceAssignmentId ?? null,
+        input.sourceQuizId ?? null,
         input.sourceUserId ?? null,
         input.sourceProfileId ?? null,
         input.sharedVia ?? null,
@@ -4336,18 +4336,18 @@ export function createAssignment(input: {
 
   transaction();
 
-  const assignment = findAssignmentForUser(id, input.userId);
-  if (!assignment) {
-    throw new Error('Could not load newly created assignment.');
+  const quiz = findQuizForUser(id, input.userId);
+  if (!quiz) {
+    throw new Error('Could not load newly created quiz.');
   }
 
-  return assignment;
+  return quiz;
 }
 
-export function findAssignmentForUser(
+export function findQuizForUser(
   id: string,
   userId: string,
-): StoredAssignment | null {
+): StoredQuiz | null {
   const row = getDb()
     .prepare(
       `
@@ -4362,23 +4362,23 @@ export function findAssignmentForUser(
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE id = ? AND user_id = ?
       `,
     )
-    .get(id, userId) as AssignmentRow | undefined;
+    .get(id, userId) as QuizRow | undefined;
 
-  return row ? toStoredAssignment(row) : null;
+  return row ? toStoredQuiz(row) : null;
 }
 
-export function findAssignmentById(id: string): StoredAssignment | null {
+export function findQuizById(id: string): StoredQuiz | null {
   const row = getDb()
     .prepare(
       `
@@ -4393,27 +4393,27 @@ export function findAssignmentById(id: string): StoredAssignment | null {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE id = ?
       `,
     )
-    .get(id) as AssignmentRow | undefined;
+    .get(id) as QuizRow | undefined;
 
-  return row ? toStoredAssignment(row) : null;
+  return row ? toStoredQuiz(row) : null;
 }
 
-export function listAssignmentsForProfile(input: {
+export function listQuizzesForProfile(input: {
   includeArchived?: boolean;
   profileId: string;
   userId: string;
-}): StoredAssignment[] {
+}): StoredQuiz[] {
   const rows = getDb()
     .prepare(
       `
@@ -4428,14 +4428,14 @@ export function listAssignmentsForProfile(input: {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE user_id = ?
           AND profile_id = ?
           AND (? = 1 OR archived_at IS NULL)
@@ -4445,14 +4445,14 @@ export function listAssignmentsForProfile(input: {
           created_at DESC
       `,
     )
-    .all(input.userId, input.profileId, input.includeArchived ? 1 : 0) as AssignmentRow[];
+    .all(input.userId, input.profileId, input.includeArchived ? 1 : 0) as QuizRow[];
 
-  return rows.map(toStoredAssignment);
+  return rows.map(toStoredQuiz);
 }
 
-export function updateAssignment(input: {
-  assignmentId: string;
-  authoringMessages?: AssignmentAuthoringMessage[];
+export function updateQuiz(input: {
+  quizId: string;
+  authoringMessages?: QuizAuthoringMessage[];
   description: string;
   instructions: string;
   level: string;
@@ -4460,12 +4460,12 @@ export function updateAssignment(input: {
   targetTopic: string;
   title: string;
   userId: string;
-}): StoredAssignment | null {
+}): StoredQuiz | null {
   const db = getDb();
   const transaction = db.transaction(() => {
     updateResourceMetadata(db, {
       description: input.description,
-      id: input.assignmentId,
+      id: input.quizId,
       level: input.level,
       title: input.title,
       topic: input.targetTopic,
@@ -4473,7 +4473,7 @@ export function updateAssignment(input: {
     });
     db.prepare(
       `
-        UPDATE assignments
+        UPDATE quizzes
         SET title = ?,
             description = ?,
             target_topic = ?,
@@ -4495,21 +4495,21 @@ export function updateAssignment(input: {
         input.authoringMessages === undefined
           ? null
           : JSON.stringify(input.authoringMessages),
-        input.assignmentId,
+        input.quizId,
         input.userId,
       );
   });
 
   transaction();
 
-  return findAssignmentForUser(input.assignmentId, input.userId);
+  return findQuizForUser(input.quizId, input.userId);
 }
 
-export function updateAssignmentAuthoringMessages(input: {
-  assignmentId: string;
-  messages: AssignmentAuthoringMessage[];
+export function updateQuizAuthoringMessages(input: {
+  quizId: string;
+  messages: QuizAuthoringMessage[];
   userId: string;
-}): StoredAssignment | null {
+}): StoredQuiz | null {
   const db = getDb();
   const transaction = db.transaction(() => {
     db.prepare(
@@ -4518,10 +4518,10 @@ export function updateAssignmentAuthoringMessages(input: {
         SET updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
-    ).run(input.assignmentId, input.userId);
+    ).run(input.quizId, input.userId);
     db.prepare(
       `
-        UPDATE assignments
+        UPDATE quizzes
         SET authoring_messages_json = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
@@ -4529,21 +4529,21 @@ export function updateAssignmentAuthoringMessages(input: {
     )
       .run(
         JSON.stringify(input.messages),
-        input.assignmentId,
+        input.quizId,
         input.userId,
       );
   });
 
   transaction();
 
-  return findAssignmentForUser(input.assignmentId, input.userId);
+  return findQuizForUser(input.quizId, input.userId);
 }
 
-export function findImportedAssignmentForProfile(input: {
+export function findImportedQuizForProfile(input: {
   profileId: string;
-  sourceAssignmentId: string;
+  sourceQuizId: string;
   userId: string;
-}): StoredAssignment | null {
+}): StoredQuiz | null {
   const row = getDb()
     .prepare(
       `
@@ -4558,145 +4558,145 @@ export function findImportedAssignmentForProfile(input: {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE user_id = ?
           AND profile_id = ?
-          AND source_assignment_id = ?
+          AND source_quiz_id = ?
         ORDER BY updated_at DESC, created_at DESC
         LIMIT 1
       `,
     )
-    .get(input.userId, input.profileId, input.sourceAssignmentId) as
-    | AssignmentRow
+    .get(input.userId, input.profileId, input.sourceQuizId) as
+    | QuizRow
     | undefined;
 
-  return row ? toStoredAssignment(row) : null;
+  return row ? toStoredQuiz(row) : null;
 }
 
-export function importAssignmentToProfile(input: {
+export function importQuizToProfile(input: {
   shareKind: 'profile' | 'link';
-  sourceAssignment: StoredAssignment;
+  sourceQuiz: StoredQuiz;
   targetProfileId: string;
   userId: string;
-}): StoredAssignment {
-  const existing = findImportedAssignmentForProfile({
+}): StoredQuiz {
+  const existing = findImportedQuizForProfile({
     profileId: input.targetProfileId,
-    sourceAssignmentId: input.sourceAssignment.id,
+    sourceQuizId: input.sourceQuiz.id,
     userId: input.userId,
   });
   if (existing) {
     return existing;
   }
 
-  return createAssignment({
-    description: input.sourceAssignment.description,
-    instructions: input.sourceAssignment.instructions,
-    level: input.sourceAssignment.level,
+  return createQuiz({
+    description: input.sourceQuiz.description,
+    instructions: input.sourceQuiz.instructions,
+    level: input.sourceQuiz.level,
     profileId: input.targetProfileId,
-    quiz: input.sourceAssignment.quiz,
+    quiz: input.sourceQuiz.quiz,
     sharedVia: input.shareKind,
-    sourceAssignmentId: input.sourceAssignment.id,
-    sourceProfileId: input.sourceAssignment.profileId,
-    sourceUserId: input.sourceAssignment.userId,
-    targetTopic: input.sourceAssignment.targetTopic,
-    title: input.sourceAssignment.title,
+    sourceQuizId: input.sourceQuiz.id,
+    sourceProfileId: input.sourceQuiz.profileId,
+    sourceUserId: input.sourceQuiz.userId,
+    targetTopic: input.sourceQuiz.targetTopic,
+    title: input.sourceQuiz.title,
     userId: input.userId,
   });
 }
 
-export function archiveAssignmentForUser(
-  assignmentId: string,
+export function archiveQuizForUser(
+  quizId: string,
   userId: string,
-): StoredAssignment | null {
+): StoredQuiz | null {
   const db = getDb();
   const transaction = db.transaction(() => {
-    archiveResource(db, assignmentId, userId);
+    archiveResource(db, quizId, userId);
     db.prepare(
       `
-        UPDATE assignments
+        UPDATE quizzes
         SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-      .run(assignmentId, userId);
+      .run(quizId, userId);
   });
 
   transaction();
 
-  return findAssignmentForUser(assignmentId, userId);
+  return findQuizForUser(quizId, userId);
 }
 
-export function restoreAssignmentForUser(
-  assignmentId: string,
+export function restoreQuizForUser(
+  quizId: string,
   userId: string,
-): StoredAssignment | null {
+): StoredQuiz | null {
   const db = getDb();
   const transaction = db.transaction(() => {
-    restoreResource(db, assignmentId, userId);
+    restoreResource(db, quizId, userId);
     db.prepare(
       `
-        UPDATE assignments
+        UPDATE quizzes
         SET archived_at = NULL,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `,
     )
-      .run(assignmentId, userId);
+      .run(quizId, userId);
   });
 
   transaction();
 
-  return findAssignmentForUser(assignmentId, userId);
+  return findQuizForUser(quizId, userId);
 }
 
-export function findAssignmentShareLinkById(
+export function findQuizShareLinkById(
   id: string,
-): StoredAssignmentShareLink | null {
+): StoredQuizShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, assignment_id, created_at, revoked_at
-        FROM assignment_share_links
+        SELECT id, quiz_id, created_at, revoked_at
+        FROM quiz_share_links
         WHERE id = ?
       `,
     )
-    .get(id) as AssignmentShareLinkRow | undefined;
+    .get(id) as QuizShareLinkRow | undefined;
 
-  return row ? toStoredAssignmentShareLink(row) : null;
+  return row ? toStoredQuizShareLink(row) : null;
 }
 
-export function findAssignmentShareLinkForAssignment(
-  assignmentId: string,
-): StoredAssignmentShareLink | null {
+export function findQuizShareLinkForQuiz(
+  quizId: string,
+): StoredQuizShareLink | null {
   const row = getDb()
     .prepare(
       `
-        SELECT id, assignment_id, created_at, revoked_at
-        FROM assignment_share_links
-        WHERE assignment_id = ?
+        SELECT id, quiz_id, created_at, revoked_at
+        FROM quiz_share_links
+        WHERE quiz_id = ?
           AND revoked_at IS NULL
         LIMIT 1
       `,
     )
-    .get(assignmentId) as AssignmentShareLinkRow | undefined;
+    .get(quizId) as QuizShareLinkRow | undefined;
 
-  return row ? toStoredAssignmentShareLink(row) : null;
+  return row ? toStoredQuizShareLink(row) : null;
 }
 
-export function getOrCreateAssignmentShareLink(
-  assignmentId: string,
-): StoredAssignmentShareLink {
-  const existing = findAssignmentShareLinkForAssignment(assignmentId);
+export function getOrCreateQuizShareLink(
+  quizId: string,
+): StoredQuizShareLink {
+  const existing = findQuizShareLinkForQuiz(quizId);
   if (existing) {
-    upsertResourceShareLink(getDb(), existing.id, assignmentId);
+    upsertResourceShareLink(getDb(), existing.id, quizId);
     return existing;
   }
 
@@ -4705,32 +4705,32 @@ export function getOrCreateAssignmentShareLink(
   const transaction = db.transaction(() => {
     db.prepare(
       `
-        INSERT INTO assignment_share_links (id, assignment_id)
+        INSERT INTO quiz_share_links (id, quiz_id)
         VALUES (?, ?)
-        ON CONFLICT(assignment_id) DO UPDATE SET
+        ON CONFLICT(quiz_id) DO UPDATE SET
           revoked_at = NULL
       `,
     )
-      .run(id, assignmentId);
-    upsertResourceShareLink(db, id, assignmentId);
+      .run(id, quizId);
+    upsertResourceShareLink(db, id, quizId);
   });
 
   transaction();
 
-  const created = findAssignmentShareLinkForAssignment(assignmentId);
+  const created = findQuizShareLinkForQuiz(quizId);
   if (!created) {
-    throw new Error('Could not load newly created assignment share link.');
+    throw new Error('Could not load newly created quiz share link.');
   }
 
   return created;
 }
 
-export function createAssignmentAttempt(input: {
-  assignmentId: string;
+export function createQuizAttempt(input: {
+  quizId: string;
   profileId?: string | null;
   snapshot: Record<string, unknown>;
   userId?: string | null;
-}): StoredAssignmentAttempt {
+}): StoredQuizAttempt {
   const id = randomUUID();
   const isGuest = !input.userId;
   const guestToken = isGuest ? randomBytes(24).toString('base64url') : null;
@@ -4738,9 +4738,9 @@ export function createAssignmentAttempt(input: {
   getDb()
     .prepare(
       `
-        INSERT INTO assignment_attempts (
+        INSERT INTO quiz_attempts (
           id,
-          assignment_id,
+          quiz_id,
           user_id,
           profile_id,
           guest_token,
@@ -4752,7 +4752,7 @@ export function createAssignmentAttempt(input: {
     )
     .run(
       id,
-      input.assignmentId,
+      input.quizId,
       input.userId ?? null,
       input.profileId ?? null,
       guestToken,
@@ -4760,20 +4760,20 @@ export function createAssignmentAttempt(input: {
       JSON.stringify(input.snapshot),
     );
 
-  const attempt = findAssignmentAttemptById(id);
+  const attempt = findQuizAttemptById(id);
   if (!attempt) {
-    throw new Error('Could not load newly created assignment attempt.');
+    throw new Error('Could not load newly created quiz attempt.');
   }
 
   return attempt;
 }
 
-export function findAssignmentAttemptById(id: string): StoredAssignmentAttempt | null {
+export function findQuizAttemptById(id: string): StoredQuizAttempt | null {
   const row = getDb()
     .prepare(
       `
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -4789,31 +4789,31 @@ export function findAssignmentAttemptById(id: string): StoredAssignmentAttempt |
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE id = ?
       `,
     )
-    .get(id) as AssignmentAttemptRow | undefined;
+    .get(id) as QuizAttemptRow | undefined;
 
-  return row ? toStoredAssignmentAttempt(row) : null;
+  return row ? toStoredQuizAttempt(row) : null;
 }
 
-export function findAssignmentAttemptForUser(
+export function findQuizAttemptForUser(
   id: string,
   userId: string,
-): StoredAssignmentAttempt | null {
-  const attempt = findAssignmentAttemptById(id);
+): StoredQuizAttempt | null {
+  const attempt = findQuizAttemptById(id);
   return attempt?.userId === userId ? attempt : null;
 }
 
-export function findAssignmentAttemptByGuestToken(
+export function findQuizAttemptByGuestToken(
   guestToken: string,
-): StoredAssignmentAttempt | null {
+): StoredQuizAttempt | null {
   const row = getDb()
     .prepare(
       `
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -4829,23 +4829,23 @@ export function findAssignmentAttemptByGuestToken(
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE guest_token = ?
       `,
     )
-    .get(guestToken) as AssignmentAttemptRow | undefined;
+    .get(guestToken) as QuizAttemptRow | undefined;
 
-  return row ? toStoredAssignmentAttempt(row) : null;
+  return row ? toStoredQuizAttempt(row) : null;
 }
 
-export function findAssignmentAttemptByClaimToken(
+export function findQuizAttemptByClaimToken(
   claimToken: string,
-): StoredAssignmentAttempt | null {
+): StoredQuizAttempt | null {
   const row = getDb()
     .prepare(
       `
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -4861,25 +4861,25 @@ export function findAssignmentAttemptByClaimToken(
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE claim_token = ?
       `,
     )
-    .get(claimToken) as AssignmentAttemptRow | undefined;
+    .get(claimToken) as QuizAttemptRow | undefined;
 
-  return row ? toStoredAssignmentAttempt(row) : null;
+  return row ? toStoredQuizAttempt(row) : null;
 }
 
-export function listAssignmentAttemptsForUser(input: {
-  assignmentId?: string;
+export function listQuizAttemptsForUser(input: {
+  quizId?: string;
   profileId: string;
   userId: string;
-}): StoredAssignmentAttempt[] {
+}): StoredQuizAttempt[] {
   const rows = getDb()
     .prepare(
       `
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -4895,31 +4895,31 @@ export function listAssignmentAttemptsForUser(input: {
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE user_id = ?
           AND profile_id = ?
-          AND (? IS NULL OR assignment_id = ?)
+          AND (? IS NULL OR quiz_id = ?)
         ORDER BY created_at DESC
       `,
     )
     .all(
       input.userId,
       input.profileId,
-      input.assignmentId ?? null,
-      input.assignmentId ?? null,
-    ) as AssignmentAttemptRow[];
+      input.quizId ?? null,
+      input.quizId ?? null,
+    ) as QuizAttemptRow[];
 
-  return rows.map(toStoredAssignmentAttempt);
+  return rows.map(toStoredQuizAttempt);
 }
 
-export function submitAssignmentAttempt(input: {
+export function submitQuizAttempt(input: {
   attemptId: string;
   responses: unknown[];
-}): StoredAssignmentAttempt | null {
+}): StoredQuizAttempt | null {
   getDb()
     .prepare(
       `
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET responses_json = ?,
             status = 'submitted',
             submitted_at = COALESCE(submitted_at, CURRENT_TIMESTAMP),
@@ -4930,16 +4930,16 @@ export function submitAssignmentAttempt(input: {
     )
     .run(JSON.stringify(input.responses), input.attemptId);
 
-  return findAssignmentAttemptById(input.attemptId);
+  return findQuizAttemptById(input.attemptId);
 }
 
-export function markAssignmentAttemptEvaluating(
+export function markQuizAttemptEvaluating(
   attemptId: string,
-): StoredAssignmentAttempt | null {
+): StoredQuizAttempt | null {
   getDb()
     .prepare(
       `
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET status = 'evaluating',
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
@@ -4947,17 +4947,17 @@ export function markAssignmentAttemptEvaluating(
     )
     .run(attemptId);
 
-  return findAssignmentAttemptById(attemptId);
+  return findQuizAttemptById(attemptId);
 }
 
-export function saveAssignmentAttemptResult(input: {
+export function saveQuizAttemptResult(input: {
   attemptId: string;
   result: Record<string, unknown>;
-}): StoredAssignmentAttempt | null {
+}): StoredQuizAttempt | null {
   getDb()
     .prepare(
       `
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET result_json = ?,
             status = 'evaluated',
             evaluated_at = COALESCE(evaluated_at, CURRENT_TIMESTAMP),
@@ -4967,16 +4967,16 @@ export function saveAssignmentAttemptResult(input: {
     )
     .run(JSON.stringify(input.result), input.attemptId);
 
-  return findAssignmentAttemptById(input.attemptId);
+  return findQuizAttemptById(input.attemptId);
 }
 
-export function markAssignmentAttemptFailed(
+export function markQuizAttemptFailed(
   attemptId: string,
-): StoredAssignmentAttempt | null {
+): StoredQuizAttempt | null {
   getDb()
     .prepare(
       `
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET status = 'failed',
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
@@ -4984,19 +4984,19 @@ export function markAssignmentAttemptFailed(
     )
     .run(attemptId);
 
-  return findAssignmentAttemptById(attemptId);
+  return findQuizAttemptById(attemptId);
 }
 
-export function attachAssignmentAttemptToUser(input: {
+export function attachQuizAttemptToUser(input: {
   attemptId: string;
   claimToken: string;
   profileId: string;
   userId: string;
-}): StoredAssignmentAttempt | null {
+}): StoredQuizAttempt | null {
   getDb()
     .prepare(
       `
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET user_id = ?,
             profile_id = ?,
             claim_token = NULL,
@@ -5009,17 +5009,17 @@ export function attachAssignmentAttemptToUser(input: {
     )
     .run(input.userId, input.profileId, input.attemptId, input.claimToken);
 
-  return findAssignmentAttemptById(input.attemptId);
+  return findQuizAttemptById(input.attemptId);
 }
 
-export function setAssignmentAttemptProgressEvent(input: {
+export function setQuizAttemptProgressEvent(input: {
   attemptId: string;
   progressEventId: number;
-}): StoredAssignmentAttempt | null {
+}): StoredQuizAttempt | null {
   getDb()
     .prepare(
       `
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET progress_event_id = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
@@ -5027,11 +5027,11 @@ export function setAssignmentAttemptProgressEvent(input: {
     )
     .run(input.progressEventId, input.attemptId);
 
-  return findAssignmentAttemptById(input.attemptId);
+  return findQuizAttemptById(input.attemptId);
 }
 
-export function createConversationFromAssignmentAttempt(input: {
-  attempt: StoredAssignmentAttempt;
+export function createConversationFromQuizAttempt(input: {
+  attempt: StoredQuizAttempt;
   profileId: string;
   userId: string;
 }): StoredConversation {
@@ -5042,32 +5042,32 @@ export function createConversationFromAssignmentAttempt(input: {
     `Practicar: ${title}`,
   );
 
-  createConversationAssignmentAttemptSnapshot(conversation.id, input.attempt);
+  createConversationQuizAttemptSnapshot(conversation.id, input.attempt);
   addResourceSourceNoticeMessage(conversation.id, {
     attemptId: input.attempt.id,
-    resourceId: input.attempt.assignmentId,
-    resourcePath: `/assignments/${encodeURIComponent(input.attempt.assignmentId)}`,
-    resultPath: `/assignment-attempts/${encodeURIComponent(input.attempt.id)}/result`,
+    resourceId: input.attempt.quizId,
+    resourcePath: `/quizzes/${encodeURIComponent(input.attempt.quizId)}`,
+    resultPath: `/quiz-attempts/${encodeURIComponent(input.attempt.id)}/result`,
     title,
-    type: 'assignment',
+    type: 'quiz',
   });
   return conversation;
 }
 
-export function createConversationAssignmentAttemptSnapshot(
+export function createConversationQuizAttemptSnapshot(
   conversationId: string,
-  attempt: StoredAssignmentAttempt,
-): StoredConversationAssignmentAttemptSnapshot {
+  attempt: StoredQuizAttempt,
+): StoredConversationQuizAttemptSnapshot {
   getDb()
     .prepare(
       `
-        INSERT OR REPLACE INTO conversation_assignment_attempt_snapshots (
+        INSERT OR REPLACE INTO conversation_quiz_attempt_snapshots (
           conversation_id,
-          assignment_attempt_id,
-          assignment_title,
-          assignment_description,
-          assignment_target_topic,
-          assignment_snapshot_json,
+          quiz_attempt_id,
+          quiz_title,
+          quiz_description,
+          quiz_target_topic,
+          quiz_snapshot_json,
           responses_json,
           result_json
         )
@@ -5085,37 +5085,37 @@ export function createConversationAssignmentAttemptSnapshot(
       JSON.stringify(attempt.result ?? {}),
     );
 
-  const snapshot = getConversationAssignmentAttemptSnapshot(conversationId);
+  const snapshot = getConversationQuizAttemptSnapshot(conversationId);
   if (!snapshot) {
-    throw new Error('Could not load conversation assignment-attempt snapshot.');
+    throw new Error('Could not load conversation quiz-attempt snapshot.');
   }
 
   return snapshot;
 }
 
-export function getConversationAssignmentAttemptSnapshot(
+export function getConversationQuizAttemptSnapshot(
   conversationId: string,
-): StoredConversationAssignmentAttemptSnapshot | null {
+): StoredConversationQuizAttemptSnapshot | null {
   const row = getDb()
     .prepare(
       `
         SELECT
-          assignment_attempt_id,
-          assignment_description,
-          assignment_snapshot_json,
-          assignment_target_topic,
-          assignment_title,
+          quiz_attempt_id,
+          quiz_description,
+          quiz_snapshot_json,
+          quiz_target_topic,
+          quiz_title,
           conversation_id,
           created_at,
           responses_json,
           result_json
-        FROM conversation_assignment_attempt_snapshots
+        FROM conversation_quiz_attempt_snapshots
         WHERE conversation_id = ?
       `,
     )
-    .get(conversationId) as ConversationAssignmentAttemptSnapshotRow | undefined;
+    .get(conversationId) as ConversationQuizAttemptSnapshotRow | undefined;
 
-  return row ? toStoredConversationAssignmentAttemptSnapshot(row) : null;
+  return row ? toStoredConversationQuizAttemptSnapshot(row) : null;
 }
 
 const roleplaySelectColumns = `
@@ -5683,11 +5683,11 @@ function addResourceSourceNoticeMessage(
     resourcePath: string;
     resultPath: string;
     title: string;
-    type: 'assignment' | 'roleplay';
+    type: 'quiz' | 'roleplay';
   },
 ): void {
-  const resourceLabel = input.type === 'assignment' ? 'la tarea' : 'el Roleplay';
-  const fallbackTitle = input.type === 'assignment' ? 'esta tarea' : 'este Roleplay';
+  const resourceLabel = input.type === 'quiz' ? 'el quiz' : 'el Roleplay';
+  const fallbackTitle = input.type === 'quiz' ? 'este quiz' : 'este Roleplay';
   const title = escapeMarkdownLinkText(input.title || fallbackTitle);
   addMessage(
     conversationId,

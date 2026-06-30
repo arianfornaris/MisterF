@@ -1,6 +1,6 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
-import { assignmentBlockSchema, assignmentDraftSchema, } from './assignments.js';
+import { quizBlockSchema, quizDraftSchema, } from './quizzes.js';
 import { normalizeRoleplayRevisionConversationHistory, roleplayDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
@@ -12,9 +12,9 @@ const practiceGuideDraftSchema = z.object({
     title: z.string().trim().min(1).max(220),
     tutorInstructions: z.string().trim().min(1).max(12000),
 }).strict();
-const assignmentRevisionSchema = z.object({
+const quizRevisionSchema = z.object({
     assistantMessage: z.string().trim().min(1).max(2000),
-    draft: assignmentDraftSchema,
+    draft: quizDraftSchema,
 }).strict();
 function parseJsonFromModelText(text) {
     return JSON.parse(text.trim());
@@ -223,40 +223,40 @@ export async function generatePracticeGuideRevision(input) {
         systemPromptPath: 'resources/practice-guide-revision.md',
     });
 }
-export async function generateAssignmentDraft(input) {
+export async function generateQuizDraft(input) {
     return generateStructuredDraft({
-        actorLabel: 'Assignment draft',
-        correctionPromptPath: 'resources/assignment-draft-correction.md',
+        actorLabel: 'Quiz draft',
+        correctionPromptPath: 'resources/quiz-draft-correction.md',
         initialUserMessage: input.prompt,
         maxOutputTokens: 6000,
         openRouterApiKey: input.openRouterApiKey,
-        schema: assignmentDraftSchema,
-        systemPromptPath: 'resources/assignment-draft.md',
+        schema: quizDraftSchema,
+        systemPromptPath: 'resources/quiz-draft.md',
     });
 }
-export async function generateAssignmentRevision(input) {
+export async function generateQuizRevision(input) {
     return generateStructuredDraft({
-        actorLabel: 'Assignment revision',
-        correctionPromptPath: 'resources/assignment-revision-correction.md',
+        actorLabel: 'Quiz revision',
+        correctionPromptPath: 'resources/quiz-revision-correction.md',
         initialUserMessage: JSON.stringify({
-            conversationHistory: normalizeAssignmentRevisionConversationHistory(input.conversationHistory ?? []),
+            conversationHistory: normalizeQuizRevisionConversationHistory(input.conversationHistory ?? []),
             currentDraft: input.currentDraft,
             requestedChange: input.prompt,
         }, null, 2),
         maxOutputTokens: 7600,
         openRouterApiKey: input.openRouterApiKey,
-        schema: assignmentRevisionSchema,
-        systemPromptPath: 'resources/assignment-revision.md',
+        schema: quizRevisionSchema,
+        systemPromptPath: 'resources/quiz-revision.md',
     });
 }
-function normalizeAssignmentRevisionConversationHistory(messages) {
+function normalizeQuizRevisionConversationHistory(messages) {
     const recentMessages = messages
         .flatMap((message) => {
         const content = message.content.trim();
         if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
             return [];
         }
-        const draftSnapshot = assignmentDraftSchema.safeParse(message.draftSnapshot);
+        const draftSnapshot = quizDraftSchema.safeParse(message.draftSnapshot);
         return [{
                 content: content.slice(0, 4000),
                 createdAt: message.createdAt?.trim() || undefined,
@@ -282,10 +282,10 @@ function normalizeAssignmentRevisionConversationHistory(messages) {
     })
         .reverse();
 }
-export async function generateAssignmentBlock(input) {
+export async function generateQuizBlock(input) {
     return generateStructuredDraft({
-        actorLabel: 'Assignment block',
-        correctionPromptPath: 'resources/assignment-block-correction.md',
+        actorLabel: 'Quiz block',
+        correctionPromptPath: 'resources/quiz-block-correction.md',
         initialUserMessage: JSON.stringify({
             blockKind: input.blockKind,
             currentDraft: input.currentDraft,
@@ -293,8 +293,8 @@ export async function generateAssignmentBlock(input) {
         }, null, 2),
         maxOutputTokens: 2400,
         openRouterApiKey: input.openRouterApiKey,
-        schema: assignmentBlockSchema,
-        systemPromptPath: 'resources/assignment-block.md',
+        schema: quizBlockSchema,
+        systemPromptPath: 'resources/quiz-block.md',
     });
 }
 export async function generateRoleplayDraft(input) {

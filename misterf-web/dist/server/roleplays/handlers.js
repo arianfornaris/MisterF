@@ -1,9 +1,10 @@
 import QRCode from 'qrcode';
-import { appendRoleplayAttemptTurns, createConversationFromRoleplayAttempt, createPracticeGuide, createRoleplay, createRoleplayAttempt, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findRoleplayAttemptById, findRoleplayById, findRoleplayForUser, getOrCreateResourceShareLink, grantResourceAccess, listResourceFolderPathForResource, listResourceFoldersForProfile, listRoleplayAttemptsForUser, markRoleplayAttemptFailed, saveRoleplayAttemptResult, submitRoleplayAttempt, updateRoleplay, updateRoleplayAuthoringMessages, } from '../db/repository.js';
+import { appendRoleplayAttemptTurns, createConversationFromRoleplayAttempt, createRoleplay, createRoleplayAttempt, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findRoleplayAttemptById, findRoleplayById, findRoleplayForUser, getOrCreateResourceShareLink, grantResourceAccess, listResourceFolderPathForResource, listResourceFoldersForProfile, listRoleplayAttemptsForUser, markRoleplayAttemptFailed, saveRoleplayAttemptResult, submitRoleplayAttempt, updateRoleplay, updateRoleplayAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendRoleplayAuthoringMessages, buildRoleplayAuthoringMessage, countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, hasReachedRoleplayTurnLimit, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
-import { generatePracticeGuideDraft, generateRoleplayDraft, generateRoleplayRevision, } from '../services/resourceDrafts.js';
+import { generateRoleplayDraft, generateRoleplayRevision, } from '../services/resourceDrafts.js';
+import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordRoleplayAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
@@ -100,7 +101,7 @@ function readRoleplayResultActionError(value) {
         resultActionErrorIsCredit: false,
     };
 }
-function buildRoleplayPracticeGuidePrompt(input) {
+function buildRoleplayResultContext(input) {
     const payload = {
         evaluation: input.result,
         roleplay: {
@@ -113,18 +114,7 @@ function buildRoleplayPracticeGuidePrompt(input) {
         },
         turns: input.attempt.turns,
     };
-    return [
-        'Create a reusable Mister F practice guide from this completed Roleplay evaluation.',
-        'Mister F is an English-learning product. The guide must help the learner practice English, not Spanish.',
-        'Use Spanish for the guide title, description, and tutor instructions, but make the target language and learner production English.',
-        'Focus on the learner\'s English errors, unclear phrasing, vocabulary gaps, register choices, and recurring language patterns from the roleplay.',
-        'Do not turn the guide into a morality, etiquette, politeness, or personality lesson. Mention tone only when it is directly useful as an English register or phrasing point.',
-        'Tell Mr. F to guide one exercise item at a time. If a checkpoint is useful, describe it explicitly as a quiz or checkpoint.',
-        'Do not include internal JSON, implementation details, or product flow notes in the generated guide.',
-        '',
-        'Completed Roleplay data:',
-        JSON.stringify(payload, null, 2),
-    ].join('\n');
+    return JSON.stringify(payload, null, 2);
 }
 function serializeViewJson(value) {
     return (JSON.stringify(value) ?? 'null').replace(/[<>&\u2028\u2029]/g, (character) => {
@@ -895,7 +885,7 @@ export function handleCreateRoleplayFollowUpConversation(request, response) {
     });
     response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
 }
-export async function handleCreateRoleplayPracticeGuide(request, response) {
+export async function handleCreateRoleplayResource(request, response) {
     const attempt = resolveAccessibleAttempt(request, response);
     const auth = ensureVerifiedRoleplayUser(request, response);
     if (!attempt || !auth) {
@@ -907,41 +897,44 @@ export async function handleCreateRoleplayPracticeGuide(request, response) {
         response.redirect(`/roleplay-attempts/${encodeURIComponent(attempt.id)}`);
         return;
     }
+    const type = normalizeContextResourceType(request.body.type);
+    if (!type) {
+        response.redirect(`/roleplay-attempts/${encodeURIComponent(attempt.id)}/result`);
+        return;
+    }
+    const instruction = readMultilineField(request.body.prompt, 2000);
+    const prompt = buildResourceFromContextPrompt({
+        context: buildRoleplayResultContext({ attempt, draft, result: result.data }),
+        contextLabel: 'Resultado del roleplay completado',
+        instruction,
+        type,
+    });
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-        const generatedModule = await generatePracticeGuideDraft({
+        const created = await createResourceFromContextDraft({
             openRouterApiKey,
-            prompt: buildRoleplayPracticeGuidePrompt({
-                attempt,
-                draft,
-                result: result.data,
-            }),
-        });
-        const practiceGuide = createPracticeGuide({
-            description: generatedModule.description,
             profileId: attempt.profileId,
-            title: generatedModule.title,
-            tutorInstructions: generatedModule.tutorInstructions,
+            prompt,
+            type,
             userId: auth.user.id,
         });
-        logger.info('roleplay_practice_guide_created', {
+        logger.info('roleplay_resource_created', {
             attemptId: attempt.id,
-            practiceGuideId: practiceGuide.id,
             profileId: attempt.profileId,
-            resourceId: attempt.roleplayId,
-            resourceType: 'roleplay',
+            resourceType: type,
             roleplayId: attempt.roleplayId,
+            sourceResourceId: attempt.roleplayId,
             userId: auth.user.id,
         });
-        response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
+        response.redirect(created.detailPath);
     }
     catch (error) {
-        logger.error('roleplay_practice_guide_creation_failed', {
+        logger.error('roleplay_resource_creation_failed', {
             attemptId: attempt.id,
             error,
-            resourceId: attempt.roleplayId,
-            resourceType: 'roleplay',
+            resourceType: type,
             roleplayId: attempt.roleplayId,
+            sourceResourceId: attempt.roleplayId,
             userId: auth.user.id,
         });
         response.redirect(buildRoleplayResultPath(attempt.id, {

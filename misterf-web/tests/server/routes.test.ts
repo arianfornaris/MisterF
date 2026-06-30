@@ -75,7 +75,7 @@ describe('main route smoke tests', () => {
   it.each([
     {
       location: '/resources',
-      route: '/assignments',
+      route: '/quizzes',
     },
     {
       location: '/resources',
@@ -121,7 +121,7 @@ describe('main route smoke tests', () => {
   it('renders and accepts generic live resource share links', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
-      createAssignment,
+      createQuiz,
       createPracticeGuide,
       createProfile,
       createResourceFolder,
@@ -152,12 +152,12 @@ describe('main route smoke tests', () => {
       name: 'Route share receiver profile',
       userId: receiver.id,
     });
-    const assignment = createAssignment({
-      description: 'Route shared assignment.',
+    const quiz = createQuiz({
+      description: 'Route shared quiz.',
       instructions: '',
       profileId: ownerProfile.id,
-      quiz: { blocks: [], title: 'Route Shared Assignment' },
-      title: 'Route Shared Assignment',
+      quiz: { blocks: [], title: 'Route Shared Quiz' },
+      title: 'Route Shared Quiz',
       userId: owner.id,
     });
     const practiceGuide = createPracticeGuide({
@@ -196,9 +196,9 @@ describe('main route smoke tests', () => {
     });
     const sharedResources = [
       {
-        detailPath: `/assignments/${assignment.id}`,
-        id: assignment.id,
-        title: 'Route Shared Assignment',
+        detailPath: `/quizzes/${quiz.id}`,
+        id: quiz.id,
+        title: 'Route Shared Quiz',
       },
       {
         detailPath: `/practice-guides/${practiceGuide.id}`,
@@ -375,13 +375,13 @@ describe('main route smoke tests', () => {
     expect(detailHtml).toContain('Compartir');
   });
 
-  it('redirects legacy assignment and practice guide links into generic share links', async () => {
+  it('redirects legacy quiz and practice guide links into generic share links', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
-      createAssignment,
+      createQuiz,
       createPracticeGuide,
       createProfile,
-      getOrCreateAssignmentShareLink,
+      getOrCreateQuizShareLink,
       getOrCreatePracticeGuideShareLink,
       getOrCreateResourceShareLink,
     } = await import('../../src/server/db/repository.js');
@@ -397,12 +397,12 @@ describe('main route smoke tests', () => {
       name: 'Legacy share profile',
       userId: owner.id,
     });
-    const assignment = createAssignment({
-      description: 'Legacy assignment share.',
+    const quiz = createQuiz({
+      description: 'Legacy quiz share.',
       instructions: '',
       profileId: profile.id,
-      quiz: { blocks: [], title: 'Legacy Assignment Share' },
-      title: 'Legacy Assignment Share',
+      quiz: { blocks: [], title: 'Legacy Quiz Share' },
+      title: 'Legacy Quiz Share',
       userId: owner.id,
     });
     const practiceGuide = createPracticeGuide({
@@ -412,17 +412,17 @@ describe('main route smoke tests', () => {
       tutorInstructions: 'Practice.',
       userId: owner.id,
     });
-    const assignmentShareLink = getOrCreateAssignmentShareLink(assignment.id);
+    const quizShareLink = getOrCreateQuizShareLink(quiz.id);
     const practiceGuideShareLink = getOrCreatePracticeGuideShareLink(practiceGuide.id);
 
-    const assignmentResponse = await fetch(
-      `${baseUrl}/assignments/shared/${assignmentShareLink.id}`,
+    const quizResponse = await fetch(
+      `${baseUrl}/quizzes/shared/${quizShareLink.id}`,
       { redirect: 'manual' },
     );
-    const assignmentResourceShareLink = getOrCreateResourceShareLink(assignment.id);
-    expect(assignmentResponse.status).toBe(302);
-    expect(assignmentResponse.headers.get('location')).toBe(
-      `/resources/shared/${assignmentResourceShareLink.id}`,
+    const quizResourceShareLink = getOrCreateResourceShareLink(quiz.id);
+    expect(quizResponse.status).toBe(302);
+    expect(quizResponse.headers.get('location')).toBe(
+      `/resources/shared/${quizResourceShareLink.id}`,
     );
 
     const practiceGuideResponse = await fetch(
@@ -436,15 +436,15 @@ describe('main route smoke tests', () => {
     );
   });
 
-  it('renders the practice guide label and assignment attempts on resource pages', async () => {
+  it('renders the practice guide label and quiz attempts on resource pages', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
-      createAssignment,
-      createAssignmentAttempt,
+      createQuiz,
+      createQuizAttempt,
       createPracticeGuide,
       createProfile,
-      saveAssignmentAttemptResult,
-      submitAssignmentAttempt,
+      saveQuizAttemptResult,
+      submitQuizAttempt,
     } = await import('../../src/server/db/repository.js');
 
     const owner = createExternalUser({
@@ -458,7 +458,7 @@ describe('main route smoke tests', () => {
       name: 'Route labels profile',
       userId: owner.id,
     });
-    const assignmentDraft = {
+    const quizDraft = {
       blocks: [
         {
           id: 'open_text',
@@ -472,16 +472,16 @@ describe('main route smoke tests', () => {
       instructions: 'Evaluate present perfect meaning and form.',
       level: 'B1',
       targetTopic: 'Present perfect',
-      title: 'Route Labels Assignment',
+      title: 'Route Labels Quiz',
     };
-    const assignment = createAssignment({
-      description: assignmentDraft.description,
-      instructions: assignmentDraft.instructions,
-      level: assignmentDraft.level,
+    const quiz = createQuiz({
+      description: quizDraft.description,
+      instructions: quizDraft.instructions,
+      level: quizDraft.level,
       profileId: ownerProfile.id,
-      quiz: assignmentDraft,
-      targetTopic: assignmentDraft.targetTopic,
-      title: assignmentDraft.title,
+      quiz: quizDraft,
+      targetTopic: quizDraft.targetTopic,
+      title: quizDraft.title,
       userId: owner.id,
     });
     createPracticeGuide({
@@ -492,17 +492,17 @@ describe('main route smoke tests', () => {
       userId: owner.id,
     });
 
-    const attempt = createAssignmentAttempt({
-      assignmentId: assignment.id,
+    const attempt = createQuizAttempt({
+      quizId: quiz.id,
       profileId: ownerProfile.id,
-      snapshot: assignmentDraft,
+      snapshot: quizDraft,
       userId: owner.id,
     });
-    submitAssignmentAttempt({
+    submitQuizAttempt({
       attemptId: attempt.id,
       responses: [{ text: 'She has lived here for years.' }],
     });
-    saveAssignmentAttemptResult({
+    saveQuizAttemptResult({
       attemptId: attempt.id,
       result: {
         items: [
@@ -513,7 +513,7 @@ describe('main route smoke tests', () => {
             userResponse: { text: 'She has lived here for years.' },
           },
         ],
-        title: assignmentDraft.title,
+        title: quizDraft.title,
         type: 'quiz_result',
       },
     });
@@ -529,15 +529,15 @@ describe('main route smoke tests', () => {
     expect(resourcesHtml).toContain('Guía de Práctica');
     expect(resourcesHtml).toContain('Route Labels Guide');
 
-    const assignmentResponse = await fetch(`${baseUrl}/assignments/${assignment.id}`, {
+    const quizResponse = await fetch(`${baseUrl}/quizzes/${quiz.id}`, {
       headers: { cookie: ownerCookie },
       redirect: 'manual',
     });
-    const assignmentHtml = await assignmentResponse.text();
-    expect(assignmentResponse.status).toBe(200);
-    expect(assignmentHtml).toContain('Route Labels Assignment');
-    expect(assignmentHtml).toContain('Entregas');
-    expect(assignmentHtml).toContain(`/assignment-attempts/${attempt.id}/result`);
+    const quizHtml = await quizResponse.text();
+    expect(quizResponse.status).toBe(200);
+    expect(quizHtml).toContain('Route Labels Quiz');
+    expect(quizHtml).toContain('Entregas');
+    expect(quizHtml).toContain(`/quiz-attempts/${attempt.id}/result`);
   });
 
   it('creates, edits, archives, and restores resource folders through routes', async () => {
@@ -619,6 +619,71 @@ describe('main route smoke tests', () => {
     );
     expect(restoreResponse.status).toBe(302);
     expect(findResourceForUser(folderId, owner.id)?.archivedAt).toBeFalsy();
+  });
+
+  it('guards the create-resource-from-conversation route before calling the model', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createConversation, createProfile } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-conversation-resource-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Conversation Resource Owner',
+      provider: 'google',
+      providerSubject: 'route-conversation-resource-owner',
+    });
+    const ownerProfile = createProfile({
+      name: 'Route conversation resource profile',
+      userId: owner.id,
+    });
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+    const csrfToken = extractCsrfToken(
+      await (
+        await fetch(`${baseUrl}/resources`, { headers: { cookie: ownerCookie }, redirect: 'manual' })
+      ).text(),
+    );
+
+    const missingResponse = await postForm(
+      '/c/does-not-exist/resource',
+      { _csrf: csrfToken, type: 'practice_guide' },
+      ownerCookie,
+    );
+    expect(missingResponse.status).toBe(302);
+    expect(missingResponse.headers.get('location')).toBe('/');
+
+    const conversation = createConversation(owner.id, ownerProfile.id);
+
+    const invalidTypeResponse = await postForm(
+      `/c/${conversation.id}/resource`,
+      { _csrf: csrfToken, type: 'not_a_type' },
+      ownerCookie,
+    );
+    expect(invalidTypeResponse.status).toBe(302);
+    expect(invalidTypeResponse.headers.get('location')).toBe(`/c/${conversation.id}`);
+
+    const emptyConversationResponse = await postForm(
+      `/c/${conversation.id}/resource`,
+      { _csrf: csrfToken, type: 'practice_guide' },
+      ownerCookie,
+    );
+    expect(emptyConversationResponse.status).toBe(302);
+    expect(emptyConversationResponse.headers.get('location')).toBe(`/c/${conversation.id}`);
+
+    const reportInvalidTypeResponse = await postForm(
+      `/c/${conversation.id}/report/resource`,
+      { _csrf: csrfToken, type: 'not_a_type' },
+      ownerCookie,
+    );
+    expect(reportInvalidTypeResponse.status).toBe(302);
+    expect(reportInvalidTypeResponse.headers.get('location')).toBe(`/c/${conversation.id}?tab=summary`);
+
+    const reportNoReportResponse = await postForm(
+      `/c/${conversation.id}/report/resource`,
+      { _csrf: csrfToken, type: 'practice_guide' },
+      ownerCookie,
+    );
+    expect(reportNoReportResponse.status).toBe(302);
+    expect(reportNoReportResponse.headers.get('location')).toBe(`/c/${conversation.id}?tab=summary`);
   });
 });
 

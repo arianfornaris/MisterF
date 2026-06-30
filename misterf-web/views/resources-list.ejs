@@ -38,8 +38,8 @@
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="/assignments/new">
-                  <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea
+                <a class="dropdown-item" href="/quizzes/new">
+                  <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Quiz
                 </a>
               </li>
               <li>
@@ -164,8 +164,8 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li>
-              <a class="dropdown-item" href="/assignments/new">
-                <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Tarea
+              <a class="dropdown-item" href="/quizzes/new">
+                <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Quiz
               </a>
             </li>
             <li>
@@ -272,7 +272,7 @@
           <select class="form-select" id="resourceTypeFilter" name="type">
             <option value="all" <%= resourceFilters.type === 'all' ? 'selected' : '' %>>Todos</option>
             <option value="resource_folder" <%= resourceFilters.type === 'resource_folder' ? 'selected' : '' %>>Carpetas</option>
-            <option value="assignment" <%= resourceFilters.type === 'assignment' ? 'selected' : '' %>>Tareas</option>
+            <option value="quiz" <%= resourceFilters.type === 'quiz' ? 'selected' : '' %>>Quizzes</option>
             <option value="practice_guide" <%= resourceFilters.type === 'practice_guide' ? 'selected' : '' %>>Guías de Práctica</option>
             <option value="roleplay" <%= resourceFilters.type === 'roleplay' ? 'selected' : '' %>>Roleplays</option>
           </select>

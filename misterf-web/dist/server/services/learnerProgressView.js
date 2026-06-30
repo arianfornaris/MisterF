@@ -41,8 +41,8 @@ export function buildLearnerProgressVocabularyItems(events) {
     });
 }
 export function getProgressEventSourceLabel(event) {
-    if (event.details.resourceType === 'assignment') {
-        return 'Tarea';
+    if (event.details.resourceType === 'quiz') {
+        return 'Quiz';
     }
     if (event.details.resourceType === 'practice_guide') {
         return 'Guía de Práctica';
@@ -50,8 +50,8 @@ export function getProgressEventSourceLabel(event) {
     if (event.details.resourceType === 'roleplay') {
         return 'Roleplay';
     }
-    if (event.sourceType === 'assignment_attempt') {
-        return 'Tarea';
+    if (event.sourceType === 'quiz_attempt') {
+        return 'Quiz';
     }
     if (event.sourceType === 'roleplay_attempt') {
         return 'Roleplay';

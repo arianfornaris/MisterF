@@ -2,7 +2,6 @@ import { loadSystemPrompt } from '../systemPrompts.js';
 
 export const tutorBlockProtocolNames = [
   'message',
-  'practice-guide-link',
   'dialogue-character-message',
   'dialogue-transcript',
   'matching-pairs',

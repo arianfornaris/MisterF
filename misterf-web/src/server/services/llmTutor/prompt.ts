@@ -15,11 +15,11 @@ export function buildAgentSystemInstruction(options: {
     reportSummaryTitle: string;
     sourceConversationId: string;
   } | null;
-  assignmentAttempt?: {
-    assignmentDescription: string;
-    assignmentSnapshotJson: string;
-    assignmentTargetTopic: string;
-    assignmentTitle: string;
+  quizAttempt?: {
+    quizDescription: string;
+    quizSnapshotJson: string;
+    quizTargetTopic: string;
+    quizTitle: string;
     responsesJson: string;
     resultJson: string;
   } | null;
@@ -51,7 +51,7 @@ export function buildAgentSystemInstruction(options: {
 
   if (!options.practiceGuide) {
     if (
-      !options.assignmentAttempt &&
+      !options.quizAttempt &&
       !options.roleplayAttempt &&
       !options.tutorReport &&
       !options.tutorPlanText
@@ -66,8 +66,8 @@ export function buildAgentSystemInstruction(options: {
     appendLearnerProfileContext(sections, options.learnerProfile);
     appendTutorPlanContext(sections, options.tutorPlanText);
 
-    if (options.assignmentAttempt) {
-      appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+    if (options.quizAttempt) {
+      appendQuizAttemptContext(sections, options.quizAttempt);
     }
 
     if (options.roleplayAttempt) {
@@ -102,8 +102,8 @@ export function buildAgentSystemInstruction(options: {
   appendLearnerProfileContext(sections, options.learnerProfile);
   appendTutorPlanContext(sections, options.tutorPlanText);
 
-  if (options.assignmentAttempt) {
-    appendAssignmentAttemptContext(sections, options.assignmentAttempt);
+  if (options.quizAttempt) {
+    appendQuizAttemptContext(sections, options.quizAttempt);
   }
 
   if (options.roleplayAttempt) {
@@ -125,26 +125,26 @@ export function buildAgentSystemInstruction(options: {
   return sections.join('\n');
 }
 
-function appendAssignmentAttemptContext(
+function appendQuizAttemptContext(
   sections: string[],
-  assignmentAttempt: {
-    assignmentDescription: string;
-    assignmentSnapshotJson: string;
-    assignmentTargetTopic: string;
-    assignmentTitle: string;
+  quizAttempt: {
+    quizDescription: string;
+    quizSnapshotJson: string;
+    quizTargetTopic: string;
+    quizTitle: string;
     responsesJson: string;
     resultJson: string;
   },
 ): void {
   sections.push(
     '',
-    renderSystemPrompt('tutor/assignment-attempt-context.md', {
-      ASSIGNMENT_DESCRIPTION: assignmentAttempt.assignmentDescription,
-      ASSIGNMENT_SNAPSHOT_JSON: assignmentAttempt.assignmentSnapshotJson,
-      ASSIGNMENT_TARGET_TOPIC: assignmentAttempt.assignmentTargetTopic,
-      ASSIGNMENT_TITLE: assignmentAttempt.assignmentTitle,
-      RESPONSES_JSON: assignmentAttempt.responsesJson,
-      RESULT_JSON: assignmentAttempt.resultJson,
+    renderSystemPrompt('tutor/quiz-attempt-context.md', {
+      QUIZ_DESCRIPTION: quizAttempt.quizDescription,
+      QUIZ_SNAPSHOT_JSON: quizAttempt.quizSnapshotJson,
+      QUIZ_TARGET_TOPIC: quizAttempt.quizTargetTopic,
+      QUIZ_TITLE: quizAttempt.quizTitle,
+      RESPONSES_JSON: quizAttempt.responsesJson,
+      RESULT_JSON: quizAttempt.resultJson,
     }),
   );
 }

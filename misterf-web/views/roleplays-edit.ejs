@@ -23,7 +23,7 @@
     <div class="alert alert-danger mt-3" role="alert"><%= authoringError %></div>
   <% } %>
 
-  <ul class="nav nav-pills assignment-tabs" role="tablist">
+  <ul class="nav nav-pills quiz-tabs" role="tablist">
     <li class="nav-item" role="presentation">
       <a
         class="nav-link <%= activeTab === 'general' ? 'active' : '' %>"
@@ -154,36 +154,36 @@
   <% } %>
 
   <% if (activeTab === 'chat') { %>
-    <div class="assignment-chat-panel">
-      <div class="assignment-chat-context">
-        <div class="assignment-chat-context-icon" aria-hidden="true">
+    <div class="quiz-chat-panel">
+      <div class="quiz-chat-context">
+        <div class="quiz-chat-context-icon" aria-hidden="true">
           <i class="bi bi-stars"></i>
         </div>
         <div>
-          <h2 class="assignment-chat-context-title">Modificar el Roleplay con IA</h2>
-          <p class="assignment-chat-context-copy mb-0">
+          <h2 class="quiz-chat-context-title">Modificar el Roleplay con IA</h2>
+          <p class="quiz-chat-context-copy mb-0">
             Usa este chat para pedir cambios concretos al Roleplay. Mister F actualizará la información general, la situación, el enfoque pedagógico o los personajes y te responderá qué modificó.
           </p>
         </div>
       </div>
-      <div class="assignment-chat-history messages" aria-label="Historial del chat de autoría" data-authoring-chat-history>
+      <div class="quiz-chat-history messages" aria-label="Historial del chat de autoría" data-authoring-chat-history>
         <% if (roleplayAuthoringMessages.length === 0) { %>
-          <article class="message-row is-model assignment-chat-message-row">
-            <div class="message-bubble assignment-chat-message-bubble">
-              <p class="assignment-chat-message-content mb-0">Cuéntame qué quieres ajustar en este Roleplay.</p>
+          <article class="message-row is-model quiz-chat-message-row">
+            <div class="message-bubble quiz-chat-message-bubble">
+              <p class="quiz-chat-message-content mb-0">Cuéntame qué quieres ajustar en este Roleplay.</p>
             </div>
           </article>
         <% } else { %>
           <% roleplayAuthoringMessages.forEach((message) => { %>
-            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> assignment-chat-message-row">
-              <div class="message-bubble assignment-chat-message-bubble">
-                <p class="assignment-chat-message-content mb-0"><%= message.content %></p>
+            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> quiz-chat-message-row">
+              <div class="message-bubble quiz-chat-message-bubble">
+                <p class="quiz-chat-message-content mb-0"><%= message.content %></p>
               </div>
             </article>
           <% }) %>
         <% } %>
       </div>
-      <form class="composer assignment-chat-composer" method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/revise" data-roleplay-pending-form>
+      <form class="composer quiz-chat-composer" method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/revise" data-roleplay-pending-form>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label class="visually-hidden" for="roleplayRevisionMessage">Mensaje</label>
         <div class="composer-input-wrap">
@@ -199,7 +199,7 @@
         </div>
         <div class="composer-footer">
           <button
-            class="btn btn-primary assignment-chat-submit-button"
+            class="btn btn-primary quiz-chat-submit-button"
             type="submit"
             data-roleplay-pending-submit
             data-loading-text="Aplicando..."

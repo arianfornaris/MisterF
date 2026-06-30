@@ -269,6 +269,57 @@
 
           <div
             class="modal fade"
+            id="createResourceFromConversationModal"
+            tabindex="-1"
+            aria-labelledby="createResourceFromConversationModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <form method="post" data-create-resource-from-conversation-form>
+                  <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="createResourceFromConversationModalLabel">
+                      Crear <span data-create-resource-from-conversation-label>recurso</span>
+                    </h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>
+                      Tus instrucciones son lo principal: describe qué quieres que cubra el recurso.
+                      Puedes referirte a esta conversación, que se incluye como contexto de apoyo.
+                    </p>
+                    <label class="form-label" for="createResourceFromConversationPrompt">
+                      Instrucciones para el recurso
+                    </label>
+                    <textarea
+                      class="form-control"
+                      id="createResourceFromConversationPrompt"
+                      name="prompt"
+                      rows="3"
+                      maxlength="2000"
+                      placeholder="Por ejemplo: una guía centrada en el pasado simple que usamos hace un momento, con más ejercicios de escritura."
+                    ></textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="type" value="" data-create-resource-from-conversation-type>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      data-create-resource-from-conversation-submit
+                      data-loading-text="Creando recurso..."
+                    >
+                      Crear recurso
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal fade"
             id="finalizeConversationModal"
             tabindex="-1"
             aria-labelledby="finalizeConversationModalLabel"

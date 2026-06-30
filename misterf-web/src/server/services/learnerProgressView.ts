@@ -67,8 +67,8 @@ export function buildLearnerProgressVocabularyItems(
 }
 
 export function getProgressEventSourceLabel(event: StoredLearnerProgressEvent): string {
-  if (event.details.resourceType === 'assignment') {
-    return 'Tarea';
+  if (event.details.resourceType === 'quiz') {
+    return 'Quiz';
   }
 
   if (event.details.resourceType === 'practice_guide') {
@@ -79,8 +79,8 @@ export function getProgressEventSourceLabel(event: StoredLearnerProgressEvent): 
     return 'Roleplay';
   }
 
-  if (event.sourceType === 'assignment_attempt') {
-    return 'Tarea';
+  if (event.sourceType === 'quiz_attempt') {
+    return 'Quiz';
   }
 
   if (event.sourceType === 'roleplay_attempt') {

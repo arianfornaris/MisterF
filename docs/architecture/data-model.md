@@ -122,7 +122,7 @@ Recommended fields:
 - `id`
 - `userId`
 - `profileId`
-- `type` (`assignment`, `practice_guide`, `resource_folder`, `roleplay`)
+- `type` (`quiz`, `practice_guide`, `resource_folder`, `roleplay`)
 - `title`
 - `description`
 - optional `topic`
@@ -150,7 +150,7 @@ Recommended indexes:
 Each concrete resource type should keep its runtime data in a separate table.
 The recommended design is to use the same id as the generic resource:
 
-- `assignments.id` references `resources.id`
+- `quizzes.id` references `resources.id`
 - `practice_guides.id` references `resources.id`
 - `resource_folders.id` references `resources.id`
 - `roleplays.id` references `resources.id`
@@ -158,7 +158,7 @@ The recommended design is to use the same id as the generic resource:
 This keeps URLs and authorization simpler because a resource id is also the
 type-specific id.
 
-`assignments` should keep assignment-specific fields such as instructions,
+`quizzes` should keep quiz-specific fields such as instructions,
 quiz JSON, and authoring messages.
 
 `practice_guides` should keep tutor-specific fields such as tutor instructions.
@@ -199,14 +199,14 @@ Recommended fields:
 - `position`
 - timestamps
 
-V2 folders support nesting. A folder can contain assignments, practice guides,
+V2 folders support nesting. A folder can contain quizzes, practice guides,
 resource folders, and roleplays.
 
 The persistence model stores folder nesting in the same membership table used
 for ordinary resources:
 
 - store `resourceType` on the membership row
-- allow `assignment`, `practice_guide`, `resource_folder`, and `roleplay`
+- allow `quiz`, `practice_guide`, `resource_folder`, and `roleplay`
 - add a composite foreign key from `(resourceId, resourceType)` to
   `resources(id, type)`
 
@@ -268,7 +268,7 @@ If V2 lands before production, old V1 links can be removed or redirected as a
 developer convenience. If any V1 links reach production, the migration must
 preserve or redirect:
 
-- assignment detail/share URLs
+- quiz detail/share URLs
 - practice guide detail/share URLs
 - legacy chat room URLs, which now redirect to `/resources`
 
@@ -295,7 +295,7 @@ Conversations may optionally be associated with:
 
 - a practice guide snapshot source
 - a tutor conversation report snapshot source
-- an assignment-attempt snapshot source
+- an quiz-attempt snapshot source
 - a roleplay-attempt snapshot source
 
 When `closedAt` is set, the conversation is treated as finalized/read-only. The
@@ -400,30 +400,30 @@ The server re-injects this stored plan into each tutor turn as teacher-only
 authoritative context so the model does not need to reconstruct plan state from
 older transcript blocks.
 
-### Conversation Assignment Attempt Snapshot
+### Conversation Quiz Attempt Snapshot
 
-Stores a frozen copy of an evaluated assignment attempt when a learner starts
-follow-up tutoring from a `Tarea` result.
+Stores a frozen copy of an evaluated quiz attempt when a learner starts
+follow-up tutoring from a `Quiz` result.
 
 Important fields:
 
 - `conversationId`
-- `assignmentAttemptId`
-- assignment title, description, and target topic
-- assignment snapshot JSON
+- `quizAttemptId`
+- quiz title, description, and target topic
+- quiz snapshot JSON
 - submitted responses JSON
 - evaluated result JSON
 
 The tutor receives this snapshot as teacher-only context so the follow-up chat
-can target the detected difficulties without depending on mutable assignment
+can target the detected difficulties without depending on mutable quiz
 records.
 
 ## Teacher-Assigned Practice
 
-Teacher-assigned practice is labeled `Tareas` in Spanish UI and uses
-`Assignment` as the internal domain name.
+Teacher-assigned practice is labeled `Quizzes` in Spanish UI and uses
+`Quiz` as the internal domain name.
 
-### Assignment
+### Quiz
 
 Represents a teacher-authored, profile-scoped fixed practice sequence.
 
@@ -442,37 +442,37 @@ Important fields:
 - archive metadata
 - optional source/share metadata
 
-`quiz` stores the validated assignment draft. The draft uses ordered blocks with
+`quiz` stores the validated quiz draft. The draft uses ordered blocks with
 stable internal block ids and existing tutor `quiz` item payloads. This keeps
-assignment evaluation aligned with the live tutor quiz contract.
+quiz evaluation aligned with the live tutor quiz contract.
 
 `authoringMessages` stores the lightweight teacher/assistant chat history used
-by the assignment authoring `AI chat` tab. The history is sent as context when
-the teacher asks Mr. F to revise the assignment, but the current `quiz` draft
-remains the source of truth for the assignment content.
+by the quiz authoring `AI chat` tab. The history is sent as context when
+the teacher asks Mr. F to revise the quiz, but the current `quiz` draft
+remains the source of truth for the quiz content.
 Assistant messages may also include a draft snapshot so future revision requests
-can resolve teacher references to earlier assignment states without restoring a
+can resolve teacher references to earlier quiz states without restoring a
 separate authoring revision table.
 
-### Assignment Share Link
+### Quiz Share Link
 
-Stores the public-but-unlisted link token for a shared assignment.
+Stores the public-but-unlisted link token for a shared quiz.
 
 Important fields:
 
 - `id`
-- `assignmentId`
+- `quizId`
 - optional `revokedAt`
 
-### Assignment Attempt
+### Quiz Attempt
 
-Represents a student submission or teacher test submission against a frozen assignment
+Represents a student submission or teacher test submission against a frozen quiz
 snapshot.
 
 Important fields:
 
 - `id`
-- `assignmentId`
+- `quizId`
 - optional `userId`
 - optional `profileId`
 - optional guest and claim tokens
@@ -489,7 +489,7 @@ evaluated attempts write learner progress for the active profile.
 ## Learner Progress
 
 Learner progress is profile-scoped and summarizes practice across tutor
-conversation reports and evaluated assignment attempts.
+conversation reports and evaluated quiz attempts.
 
 ### Learner Progress Profile
 
@@ -535,15 +535,15 @@ Important fields:
 - `resourceId`
 - `resourceType`
 
-Assignment-attempt progress events should set these fields to the assignment
-resource id and `assignment`. Practice-guide or roleplay progress can use the
+Quiz-attempt progress events should set these fields to the quiz
+resource id and `quiz`. Practice-guide or roleplay progress can use the
 same fields when those flows intentionally produce progress events. Older
 events may not include this metadata.
 
 Current source types:
 
 - `tutor_conversation_report`
-- `assignment_attempt`
+- `quiz_attempt`
 - `roleplay_attempt`
 - `chat_room_conversation_report` legacy only until schema cleanup
 
@@ -553,7 +553,7 @@ context. Events are the source used to rebuild the global progress summary and
 the vocabulary tab.
 
 The progress UI labels source events through a shared server-side view helper:
-assignment attempts appear as `Tarea`, roleplay attempts as `Roleplay`, tutor
+quiz attempts appear as `Quiz`, roleplay attempts as `Roleplay`, tutor
 conversation reports as `Bitácora`, and legacy or unknown sources fall back to
 `Práctica`.
 
@@ -700,7 +700,7 @@ At a high level:
 - one `user` has one managed OpenRouter key for account-level credits
 - one `profile` has many `conversations`
 - one `profile` has many resources
-- one `resource` has one concrete type row when needed, such as an assignment
+- one `resource` has one concrete type row when needed, such as an quiz
   or practice guide
 - one `profile` has one learner progress profile
 - one `profile` has many learner progress events

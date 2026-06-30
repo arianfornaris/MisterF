@@ -1,7 +1,7 @@
 import express from 'express';
 import {
   handleCreateRoleplayFollowUpConversation,
-  handleCreateRoleplayPracticeGuide,
+  handleCreateRoleplayResource,
   handleFinishRoleplayAttempt,
   handleGenerateRoleplay,
   handleReviseRoleplay,
@@ -32,4 +32,4 @@ roleplaysRouter.post('/roleplay-attempts/:attemptId/turns', handleSubmitRoleplay
 roleplaysRouter.post('/roleplay-attempts/:attemptId/finish', handleFinishRoleplayAttempt);
 roleplaysRouter.get('/roleplay-attempts/:attemptId/result', renderRoleplayResultPage);
 roleplaysRouter.post('/roleplay-attempts/:attemptId/practice', handleCreateRoleplayFollowUpConversation);
-roleplaysRouter.post('/roleplay-attempts/:attemptId/practice-guide', handleCreateRoleplayPracticeGuide);
+roleplaysRouter.post('/roleplay-attempts/:attemptId/resource', handleCreateRoleplayResource);

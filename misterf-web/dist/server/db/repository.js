@@ -191,7 +191,7 @@ function parseJsonArray(value) {
 function isPlainRecord(value) {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
-function parseAssignmentAuthoringMessages(value) {
+function parseQuizAuthoringMessages(value) {
     return parseJsonArray(value)
         .flatMap((item) => {
         if (!isPlainRecord(item)) {
@@ -283,10 +283,10 @@ function parseRoleplayTurns(value) {
     })
         .slice(0, 80);
 }
-function toStoredAssignment(row) {
+function toStoredQuiz(row) {
     return {
         archivedAt: row.archived_at,
-        authoringMessages: parseAssignmentAuthoringMessages(row.authoring_messages_json),
+        authoringMessages: parseQuizAuthoringMessages(row.authoring_messages_json),
         createdAt: row.created_at,
         description: row.description,
         id: row.id,
@@ -295,7 +295,7 @@ function toStoredAssignment(row) {
         profileId: row.profile_id,
         quiz: parseJsonRecord(row.quiz_json),
         sharedVia: row.shared_via,
-        sourceAssignmentId: row.source_assignment_id,
+        sourceQuizId: row.source_quiz_id,
         sourceProfileId: row.source_profile_id,
         sourceUserId: row.source_user_id,
         targetTopic: row.target_topic,
@@ -304,17 +304,17 @@ function toStoredAssignment(row) {
         userId: row.user_id,
     };
 }
-function toStoredAssignmentShareLink(row) {
+function toStoredQuizShareLink(row) {
     return {
-        assignmentId: row.assignment_id,
+        quizId: row.quiz_id,
         createdAt: row.created_at,
         id: row.id,
         revokedAt: row.revoked_at,
     };
 }
-function toStoredAssignmentAttempt(row) {
+function toStoredQuizAttempt(row) {
     return {
-        assignmentId: row.assignment_id,
+        quizId: row.quiz_id,
         claimToken: row.claim_token,
         createdAt: row.created_at,
         evaluatedAt: row.evaluated_at,
@@ -332,13 +332,13 @@ function toStoredAssignmentAttempt(row) {
         userId: row.user_id,
     };
 }
-function toStoredConversationAssignmentAttemptSnapshot(row) {
+function toStoredConversationQuizAttemptSnapshot(row) {
     return {
-        assignmentAttemptId: row.assignment_attempt_id,
-        assignmentDescription: row.assignment_description,
-        assignmentSnapshot: parseJsonRecord(row.assignment_snapshot_json),
-        assignmentTargetTopic: row.assignment_target_topic,
-        assignmentTitle: row.assignment_title,
+        quizAttemptId: row.quiz_attempt_id,
+        quizDescription: row.quiz_description,
+        quizSnapshot: parseJsonRecord(row.quiz_snapshot_json),
+        quizTargetTopic: row.quiz_target_topic,
+        quizTitle: row.quiz_title,
         conversationId: row.conversation_id,
         createdAt: row.created_at,
         responses: parseJsonArray(row.responses_json),
@@ -453,7 +453,7 @@ function parseLearnerProgressEventDetails(detailsJson) {
     }
 }
 function isKnownResourceType(value) {
-    return (value === 'assignment' ||
+    return (value === 'quiz' ||
         value === 'practice_guide' ||
         value === 'resource_folder' ||
         value === 'roleplay');
@@ -1222,9 +1222,9 @@ export function archiveResourceForUser(resourceId, userId) {
     const db = getDb();
     const transaction = db.transaction(() => {
         archiveResource(db, resourceId, userId);
-        if (resource.type === 'assignment') {
+        if (resource.type === 'quiz') {
             db.prepare(`
-          UPDATE assignments
+          UPDATE quizzes
           SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -1258,9 +1258,9 @@ export function restoreResourceForUser(resourceId, userId) {
     const db = getDb();
     const transaction = db.transaction(() => {
         restoreResource(db, resourceId, userId);
-        if (resource.type === 'assignment') {
+        if (resource.type === 'quiz') {
             db.prepare(`
-          UPDATE assignments
+          UPDATE quizzes
           SET archived_at = NULL,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = ? AND user_id = ?
@@ -2439,7 +2439,7 @@ export function upsertLearnerProgressEvent(input) {
     }
     return toStoredLearnerProgressEvent(row);
 }
-export function createAssignment(input) {
+export function createQuiz(input) {
     const id = randomUUID();
     const db = getDb();
     const transaction = db.transaction(() => {
@@ -2450,15 +2450,15 @@ export function createAssignment(input) {
             profileId: input.profileId,
             sharedVia: input.sharedVia ?? null,
             sourceProfileId: input.sourceProfileId ?? null,
-            sourceResourceId: input.sourceAssignmentId ?? null,
+            sourceResourceId: input.sourceQuizId ?? null,
             sourceUserId: input.sourceUserId ?? null,
             title: input.title,
             topic: input.targetTopic ?? '',
-            type: 'assignment',
+            type: 'quiz',
             userId: input.userId,
         });
         db.prepare(`
-        INSERT INTO assignments (
+        INSERT INTO quizzes (
           id,
           user_id,
           profile_id,
@@ -2469,23 +2469,23 @@ export function createAssignment(input) {
           instructions,
           quiz_json,
           authoring_messages_json,
-          source_assignment_id,
+          source_quiz_id,
           source_user_id,
           source_profile_id,
           shared_via
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-            .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.instructions ?? '', JSON.stringify(input.quiz), JSON.stringify(input.authoringMessages ?? []), input.sourceAssignmentId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
+            .run(id, input.userId, input.profileId, input.title, input.description ?? '', input.targetTopic ?? '', input.level ?? '', input.instructions ?? '', JSON.stringify(input.quiz), JSON.stringify(input.authoringMessages ?? []), input.sourceQuizId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
     });
     transaction();
-    const assignment = findAssignmentForUser(id, input.userId);
-    if (!assignment) {
-        throw new Error('Could not load newly created assignment.');
+    const quiz = findQuizForUser(id, input.userId);
+    if (!quiz) {
+        throw new Error('Could not load newly created quiz.');
     }
-    return assignment;
+    return quiz;
 }
-export function findAssignmentForUser(id, userId) {
+export function findQuizForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT
@@ -2499,20 +2499,20 @@ export function findAssignmentForUser(id, userId) {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE id = ? AND user_id = ?
       `)
         .get(id, userId);
-    return row ? toStoredAssignment(row) : null;
+    return row ? toStoredQuiz(row) : null;
 }
-export function findAssignmentById(id) {
+export function findQuizById(id) {
     const row = getDb()
         .prepare(`
         SELECT
@@ -2526,20 +2526,20 @@ export function findAssignmentById(id) {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE id = ?
       `)
         .get(id);
-    return row ? toStoredAssignment(row) : null;
+    return row ? toStoredQuiz(row) : null;
 }
-export function listAssignmentsForProfile(input) {
+export function listQuizzesForProfile(input) {
     const rows = getDb()
         .prepare(`
         SELECT
@@ -2553,14 +2553,14 @@ export function listAssignmentsForProfile(input) {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE user_id = ?
           AND profile_id = ?
           AND (? = 1 OR archived_at IS NULL)
@@ -2570,21 +2570,21 @@ export function listAssignmentsForProfile(input) {
           created_at DESC
       `)
         .all(input.userId, input.profileId, input.includeArchived ? 1 : 0);
-    return rows.map(toStoredAssignment);
+    return rows.map(toStoredQuiz);
 }
-export function updateAssignment(input) {
+export function updateQuiz(input) {
     const db = getDb();
     const transaction = db.transaction(() => {
         updateResourceMetadata(db, {
             description: input.description,
-            id: input.assignmentId,
+            id: input.quizId,
             level: input.level,
             title: input.title,
             topic: input.targetTopic,
             userId: input.userId,
         });
         db.prepare(`
-        UPDATE assignments
+        UPDATE quizzes
         SET title = ?,
             description = ?,
             target_topic = ?,
@@ -2597,31 +2597,31 @@ export function updateAssignment(input) {
       `)
             .run(input.title, input.description, input.targetTopic, input.level, input.instructions, JSON.stringify(input.quiz), input.authoringMessages === undefined
             ? null
-            : JSON.stringify(input.authoringMessages), input.assignmentId, input.userId);
+            : JSON.stringify(input.authoringMessages), input.quizId, input.userId);
     });
     transaction();
-    return findAssignmentForUser(input.assignmentId, input.userId);
+    return findQuizForUser(input.quizId, input.userId);
 }
-export function updateAssignmentAuthoringMessages(input) {
+export function updateQuizAuthoringMessages(input) {
     const db = getDb();
     const transaction = db.transaction(() => {
         db.prepare(`
         UPDATE resources
         SET updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
-      `).run(input.assignmentId, input.userId);
+      `).run(input.quizId, input.userId);
         db.prepare(`
-        UPDATE assignments
+        UPDATE quizzes
         SET authoring_messages_json = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-            .run(JSON.stringify(input.messages), input.assignmentId, input.userId);
+            .run(JSON.stringify(input.messages), input.quizId, input.userId);
     });
     transaction();
-    return findAssignmentForUser(input.assignmentId, input.userId);
+    return findQuizForUser(input.quizId, input.userId);
 }
-export function findImportedAssignmentForProfile(input) {
+export function findImportedQuizForProfile(input) {
     const row = getDb()
         .prepare(`
         SELECT
@@ -2635,134 +2635,134 @@ export function findImportedAssignmentForProfile(input) {
           profile_id,
           quiz_json,
           shared_via,
-          source_assignment_id,
+          source_quiz_id,
           source_profile_id,
           source_user_id,
           target_topic,
           title,
           updated_at,
           user_id
-        FROM assignments
+        FROM quizzes
         WHERE user_id = ?
           AND profile_id = ?
-          AND source_assignment_id = ?
+          AND source_quiz_id = ?
         ORDER BY updated_at DESC, created_at DESC
         LIMIT 1
       `)
-        .get(input.userId, input.profileId, input.sourceAssignmentId);
-    return row ? toStoredAssignment(row) : null;
+        .get(input.userId, input.profileId, input.sourceQuizId);
+    return row ? toStoredQuiz(row) : null;
 }
-export function importAssignmentToProfile(input) {
-    const existing = findImportedAssignmentForProfile({
+export function importQuizToProfile(input) {
+    const existing = findImportedQuizForProfile({
         profileId: input.targetProfileId,
-        sourceAssignmentId: input.sourceAssignment.id,
+        sourceQuizId: input.sourceQuiz.id,
         userId: input.userId,
     });
     if (existing) {
         return existing;
     }
-    return createAssignment({
-        description: input.sourceAssignment.description,
-        instructions: input.sourceAssignment.instructions,
-        level: input.sourceAssignment.level,
+    return createQuiz({
+        description: input.sourceQuiz.description,
+        instructions: input.sourceQuiz.instructions,
+        level: input.sourceQuiz.level,
         profileId: input.targetProfileId,
-        quiz: input.sourceAssignment.quiz,
+        quiz: input.sourceQuiz.quiz,
         sharedVia: input.shareKind,
-        sourceAssignmentId: input.sourceAssignment.id,
-        sourceProfileId: input.sourceAssignment.profileId,
-        sourceUserId: input.sourceAssignment.userId,
-        targetTopic: input.sourceAssignment.targetTopic,
-        title: input.sourceAssignment.title,
+        sourceQuizId: input.sourceQuiz.id,
+        sourceProfileId: input.sourceQuiz.profileId,
+        sourceUserId: input.sourceQuiz.userId,
+        targetTopic: input.sourceQuiz.targetTopic,
+        title: input.sourceQuiz.title,
         userId: input.userId,
     });
 }
-export function archiveAssignmentForUser(assignmentId, userId) {
+export function archiveQuizForUser(quizId, userId) {
     const db = getDb();
     const transaction = db.transaction(() => {
-        archiveResource(db, assignmentId, userId);
+        archiveResource(db, quizId, userId);
         db.prepare(`
-        UPDATE assignments
+        UPDATE quizzes
         SET archived_at = COALESCE(archived_at, CURRENT_TIMESTAMP),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-            .run(assignmentId, userId);
+            .run(quizId, userId);
     });
     transaction();
-    return findAssignmentForUser(assignmentId, userId);
+    return findQuizForUser(quizId, userId);
 }
-export function restoreAssignmentForUser(assignmentId, userId) {
+export function restoreQuizForUser(quizId, userId) {
     const db = getDb();
     const transaction = db.transaction(() => {
-        restoreResource(db, assignmentId, userId);
+        restoreResource(db, quizId, userId);
         db.prepare(`
-        UPDATE assignments
+        UPDATE quizzes
         SET archived_at = NULL,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-            .run(assignmentId, userId);
+            .run(quizId, userId);
     });
     transaction();
-    return findAssignmentForUser(assignmentId, userId);
+    return findQuizForUser(quizId, userId);
 }
-export function findAssignmentShareLinkById(id) {
+export function findQuizShareLinkById(id) {
     const row = getDb()
         .prepare(`
-        SELECT id, assignment_id, created_at, revoked_at
-        FROM assignment_share_links
+        SELECT id, quiz_id, created_at, revoked_at
+        FROM quiz_share_links
         WHERE id = ?
       `)
         .get(id);
-    return row ? toStoredAssignmentShareLink(row) : null;
+    return row ? toStoredQuizShareLink(row) : null;
 }
-export function findAssignmentShareLinkForAssignment(assignmentId) {
+export function findQuizShareLinkForQuiz(quizId) {
     const row = getDb()
         .prepare(`
-        SELECT id, assignment_id, created_at, revoked_at
-        FROM assignment_share_links
-        WHERE assignment_id = ?
+        SELECT id, quiz_id, created_at, revoked_at
+        FROM quiz_share_links
+        WHERE quiz_id = ?
           AND revoked_at IS NULL
         LIMIT 1
       `)
-        .get(assignmentId);
-    return row ? toStoredAssignmentShareLink(row) : null;
+        .get(quizId);
+    return row ? toStoredQuizShareLink(row) : null;
 }
-export function getOrCreateAssignmentShareLink(assignmentId) {
-    const existing = findAssignmentShareLinkForAssignment(assignmentId);
+export function getOrCreateQuizShareLink(quizId) {
+    const existing = findQuizShareLinkForQuiz(quizId);
     if (existing) {
-        upsertResourceShareLink(getDb(), existing.id, assignmentId);
+        upsertResourceShareLink(getDb(), existing.id, quizId);
         return existing;
     }
     const id = randomBytes(18).toString('base64url');
     const db = getDb();
     const transaction = db.transaction(() => {
         db.prepare(`
-        INSERT INTO assignment_share_links (id, assignment_id)
+        INSERT INTO quiz_share_links (id, quiz_id)
         VALUES (?, ?)
-        ON CONFLICT(assignment_id) DO UPDATE SET
+        ON CONFLICT(quiz_id) DO UPDATE SET
           revoked_at = NULL
       `)
-            .run(id, assignmentId);
-        upsertResourceShareLink(db, id, assignmentId);
+            .run(id, quizId);
+        upsertResourceShareLink(db, id, quizId);
     });
     transaction();
-    const created = findAssignmentShareLinkForAssignment(assignmentId);
+    const created = findQuizShareLinkForQuiz(quizId);
     if (!created) {
-        throw new Error('Could not load newly created assignment share link.');
+        throw new Error('Could not load newly created quiz share link.');
     }
     return created;
 }
-export function createAssignmentAttempt(input) {
+export function createQuizAttempt(input) {
     const id = randomUUID();
     const isGuest = !input.userId;
     const guestToken = isGuest ? randomBytes(24).toString('base64url') : null;
     const claimToken = isGuest ? randomBytes(24).toString('base64url') : null;
     getDb()
         .prepare(`
-        INSERT INTO assignment_attempts (
+        INSERT INTO quiz_attempts (
           id,
-          assignment_id,
+          quiz_id,
           user_id,
           profile_id,
           guest_token,
@@ -2771,18 +2771,18 @@ export function createAssignmentAttempt(input) {
         )
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.assignmentId, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, JSON.stringify(input.snapshot));
-    const attempt = findAssignmentAttemptById(id);
+        .run(id, input.quizId, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, JSON.stringify(input.snapshot));
+    const attempt = findQuizAttemptById(id);
     if (!attempt) {
-        throw new Error('Could not load newly created assignment attempt.');
+        throw new Error('Could not load newly created quiz attempt.');
     }
     return attempt;
 }
-export function findAssignmentAttemptById(id) {
+export function findQuizAttemptById(id) {
     const row = getDb()
         .prepare(`
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -2798,21 +2798,21 @@ export function findAssignmentAttemptById(id) {
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE id = ?
       `)
         .get(id);
-    return row ? toStoredAssignmentAttempt(row) : null;
+    return row ? toStoredQuizAttempt(row) : null;
 }
-export function findAssignmentAttemptForUser(id, userId) {
-    const attempt = findAssignmentAttemptById(id);
+export function findQuizAttemptForUser(id, userId) {
+    const attempt = findQuizAttemptById(id);
     return attempt?.userId === userId ? attempt : null;
 }
-export function findAssignmentAttemptByGuestToken(guestToken) {
+export function findQuizAttemptByGuestToken(guestToken) {
     const row = getDb()
         .prepare(`
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -2828,17 +2828,17 @@ export function findAssignmentAttemptByGuestToken(guestToken) {
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE guest_token = ?
       `)
         .get(guestToken);
-    return row ? toStoredAssignmentAttempt(row) : null;
+    return row ? toStoredQuizAttempt(row) : null;
 }
-export function findAssignmentAttemptByClaimToken(claimToken) {
+export function findQuizAttemptByClaimToken(claimToken) {
     const row = getDb()
         .prepare(`
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -2854,17 +2854,17 @@ export function findAssignmentAttemptByClaimToken(claimToken) {
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE claim_token = ?
       `)
         .get(claimToken);
-    return row ? toStoredAssignmentAttempt(row) : null;
+    return row ? toStoredQuizAttempt(row) : null;
 }
-export function listAssignmentAttemptsForUser(input) {
+export function listQuizAttemptsForUser(input) {
     const rows = getDb()
         .prepare(`
         SELECT
-          assignment_id,
+          quiz_id,
           claim_token,
           created_at,
           evaluated_at,
@@ -2880,19 +2880,19 @@ export function listAssignmentAttemptsForUser(input) {
           submitted_at,
           updated_at,
           user_id
-        FROM assignment_attempts
+        FROM quiz_attempts
         WHERE user_id = ?
           AND profile_id = ?
-          AND (? IS NULL OR assignment_id = ?)
+          AND (? IS NULL OR quiz_id = ?)
         ORDER BY created_at DESC
       `)
-        .all(input.userId, input.profileId, input.assignmentId ?? null, input.assignmentId ?? null);
-    return rows.map(toStoredAssignmentAttempt);
+        .all(input.userId, input.profileId, input.quizId ?? null, input.quizId ?? null);
+    return rows.map(toStoredQuizAttempt);
 }
-export function submitAssignmentAttempt(input) {
+export function submitQuizAttempt(input) {
     getDb()
         .prepare(`
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET responses_json = ?,
             status = 'submitted',
             submitted_at = COALESCE(submitted_at, CURRENT_TIMESTAMP),
@@ -2901,23 +2901,23 @@ export function submitAssignmentAttempt(input) {
           AND status IN ('draft', 'failed')
       `)
         .run(JSON.stringify(input.responses), input.attemptId);
-    return findAssignmentAttemptById(input.attemptId);
+    return findQuizAttemptById(input.attemptId);
 }
-export function markAssignmentAttemptEvaluating(attemptId) {
+export function markQuizAttemptEvaluating(attemptId) {
     getDb()
         .prepare(`
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET status = 'evaluating',
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `)
         .run(attemptId);
-    return findAssignmentAttemptById(attemptId);
+    return findQuizAttemptById(attemptId);
 }
-export function saveAssignmentAttemptResult(input) {
+export function saveQuizAttemptResult(input) {
     getDb()
         .prepare(`
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET result_json = ?,
             status = 'evaluated',
             evaluated_at = COALESCE(evaluated_at, CURRENT_TIMESTAMP),
@@ -2925,23 +2925,23 @@ export function saveAssignmentAttemptResult(input) {
         WHERE id = ?
       `)
         .run(JSON.stringify(input.result), input.attemptId);
-    return findAssignmentAttemptById(input.attemptId);
+    return findQuizAttemptById(input.attemptId);
 }
-export function markAssignmentAttemptFailed(attemptId) {
+export function markQuizAttemptFailed(attemptId) {
     getDb()
         .prepare(`
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET status = 'failed',
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `)
         .run(attemptId);
-    return findAssignmentAttemptById(attemptId);
+    return findQuizAttemptById(attemptId);
 }
-export function attachAssignmentAttemptToUser(input) {
+export function attachQuizAttemptToUser(input) {
     getDb()
         .prepare(`
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET user_id = ?,
             profile_id = ?,
             claim_token = NULL,
@@ -2952,73 +2952,73 @@ export function attachAssignmentAttemptToUser(input) {
           AND user_id IS NULL
       `)
         .run(input.userId, input.profileId, input.attemptId, input.claimToken);
-    return findAssignmentAttemptById(input.attemptId);
+    return findQuizAttemptById(input.attemptId);
 }
-export function setAssignmentAttemptProgressEvent(input) {
+export function setQuizAttemptProgressEvent(input) {
     getDb()
         .prepare(`
-        UPDATE assignment_attempts
+        UPDATE quiz_attempts
         SET progress_event_id = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `)
         .run(input.progressEventId, input.attemptId);
-    return findAssignmentAttemptById(input.attemptId);
+    return findQuizAttemptById(input.attemptId);
 }
-export function createConversationFromAssignmentAttempt(input) {
+export function createConversationFromQuizAttempt(input) {
     const title = readStringFromRecord(input.attempt.snapshot, 'title') || defaultConversationTitle;
     const conversation = createConversation(input.userId, input.profileId, `Practicar: ${title}`);
-    createConversationAssignmentAttemptSnapshot(conversation.id, input.attempt);
+    createConversationQuizAttemptSnapshot(conversation.id, input.attempt);
     addResourceSourceNoticeMessage(conversation.id, {
         attemptId: input.attempt.id,
-        resourceId: input.attempt.assignmentId,
-        resourcePath: `/assignments/${encodeURIComponent(input.attempt.assignmentId)}`,
-        resultPath: `/assignment-attempts/${encodeURIComponent(input.attempt.id)}/result`,
+        resourceId: input.attempt.quizId,
+        resourcePath: `/quizzes/${encodeURIComponent(input.attempt.quizId)}`,
+        resultPath: `/quiz-attempts/${encodeURIComponent(input.attempt.id)}/result`,
         title,
-        type: 'assignment',
+        type: 'quiz',
     });
     return conversation;
 }
-export function createConversationAssignmentAttemptSnapshot(conversationId, attempt) {
+export function createConversationQuizAttemptSnapshot(conversationId, attempt) {
     getDb()
         .prepare(`
-        INSERT OR REPLACE INTO conversation_assignment_attempt_snapshots (
+        INSERT OR REPLACE INTO conversation_quiz_attempt_snapshots (
           conversation_id,
-          assignment_attempt_id,
-          assignment_title,
-          assignment_description,
-          assignment_target_topic,
-          assignment_snapshot_json,
+          quiz_attempt_id,
+          quiz_title,
+          quiz_description,
+          quiz_target_topic,
+          quiz_snapshot_json,
           responses_json,
           result_json
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
         .run(conversationId, attempt.id, readStringFromRecord(attempt.snapshot, 'title'), readStringFromRecord(attempt.snapshot, 'description'), readStringFromRecord(attempt.snapshot, 'targetTopic'), JSON.stringify(attempt.snapshot), JSON.stringify(attempt.responses), JSON.stringify(attempt.result ?? {}));
-    const snapshot = getConversationAssignmentAttemptSnapshot(conversationId);
+    const snapshot = getConversationQuizAttemptSnapshot(conversationId);
     if (!snapshot) {
-        throw new Error('Could not load conversation assignment-attempt snapshot.');
+        throw new Error('Could not load conversation quiz-attempt snapshot.');
     }
     return snapshot;
 }
-export function getConversationAssignmentAttemptSnapshot(conversationId) {
+export function getConversationQuizAttemptSnapshot(conversationId) {
     const row = getDb()
         .prepare(`
         SELECT
-          assignment_attempt_id,
-          assignment_description,
-          assignment_snapshot_json,
-          assignment_target_topic,
-          assignment_title,
+          quiz_attempt_id,
+          quiz_description,
+          quiz_snapshot_json,
+          quiz_target_topic,
+          quiz_title,
           conversation_id,
           created_at,
           responses_json,
           result_json
-        FROM conversation_assignment_attempt_snapshots
+        FROM conversation_quiz_attempt_snapshots
         WHERE conversation_id = ?
       `)
         .get(conversationId);
-    return row ? toStoredConversationAssignmentAttemptSnapshot(row) : null;
+    return row ? toStoredConversationQuizAttemptSnapshot(row) : null;
 }
 const roleplaySelectColumns = `
   archived_at,
@@ -3369,8 +3369,8 @@ function readStringFromRecord(record, key) {
     return typeof value === 'string' ? value : '';
 }
 function addResourceSourceNoticeMessage(conversationId, input) {
-    const resourceLabel = input.type === 'assignment' ? 'la tarea' : 'el Roleplay';
-    const fallbackTitle = input.type === 'assignment' ? 'esta tarea' : 'este Roleplay';
+    const resourceLabel = input.type === 'quiz' ? 'el quiz' : 'el Roleplay';
+    const fallbackTitle = input.type === 'quiz' ? 'este quiz' : 'este Roleplay';
     const title = escapeMarkdownLinkText(input.title || fallbackTitle);
     addMessage(conversationId, 'model', [
         `Esta conversación se deriva de ${resourceLabel} [${title}](${input.resourcePath}) y de su [resultado](${input.resultPath}).`,

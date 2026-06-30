@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const originalDatabasePath = process.env.DATABASE_PATH;
 const originalEnvFile = process.env.ENV_FILE;
 
-const assignmentDraft = {
+const quizDraft = {
   blocks: [],
   description: 'Practice gerunds and infinitives.',
   instructions: 'Evaluate verb pattern accuracy.',
@@ -97,8 +97,8 @@ describe('resource repository', () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       addResourceToFolder,
-      archiveAssignmentForUser,
-      createAssignment,
+      archiveQuizForUser,
+      createQuiz,
       createPracticeGuide,
       createProfile,
       createRoleplay,
@@ -145,14 +145,14 @@ describe('resource repository', () => {
       userId: student.id,
     });
 
-    const assignment = createAssignment({
-      description: assignmentDraft.description,
-      instructions: assignmentDraft.instructions,
-      level: assignmentDraft.level,
+    const quiz = createQuiz({
+      description: quizDraft.description,
+      instructions: quizDraft.instructions,
+      level: quizDraft.level,
       profileId: profile.id,
-      quiz: assignmentDraft,
-      targetTopic: assignmentDraft.targetTopic,
-      title: assignmentDraft.title,
+      quiz: quizDraft,
+      targetTopic: quizDraft.targetTopic,
+      title: quizDraft.title,
       userId: user.id,
     });
     const practiceGuide = createPracticeGuide({
@@ -201,21 +201,21 @@ describe('resource repository', () => {
       title: 'Deep Folder',
       userId: user.id,
     });
-    const otherAssignment = createAssignment({
-      description: 'Other profile assignment.',
+    const otherQuiz = createQuiz({
+      description: 'Other profile quiz.',
       instructions: '',
       profileId: otherProfile.id,
-      quiz: { blocks: [], title: 'Other Assignment' },
-      title: 'Other Assignment',
+      quiz: { blocks: [], title: 'Other Quiz' },
+      title: 'Other Quiz',
       userId: user.id,
     });
 
-    expect(findResourceForUser(assignment.id, user.id)).toEqual(expect.objectContaining({
-      id: assignment.id,
-      level: assignmentDraft.level,
-      title: assignmentDraft.title,
-      topic: assignmentDraft.targetTopic,
-      type: 'assignment',
+    expect(findResourceForUser(quiz.id, user.id)).toEqual(expect.objectContaining({
+      id: quiz.id,
+      level: quizDraft.level,
+      title: quizDraft.title,
+      topic: quizDraft.targetTopic,
+      type: 'quiz',
     }));
     expect(findResourceForUser(practiceGuide.id, user.id)).toEqual(expect.objectContaining({
       id: practiceGuide.id,
@@ -238,7 +238,7 @@ describe('resource repository', () => {
       profileId: profile.id,
       userId: user.id,
     }).map((resource) => resource.type)).toEqual(expect.arrayContaining([
-      'assignment',
+      'quiz',
       'practice_guide',
       'roleplay',
       'resource_folder',
@@ -246,7 +246,7 @@ describe('resource repository', () => {
 
     expect(addResourceToFolder({
       folderId: folder.id,
-      resourceId: assignment.id,
+      resourceId: quiz.id,
       userId: user.id,
     })).toBe(true);
     expect(addResourceToFolder({
@@ -281,11 +281,11 @@ describe('resource repository', () => {
     })).toBe(false);
     expect(addResourceToFolder({
       folderId: folder.id,
-      resourceId: otherAssignment.id,
+      resourceId: otherQuiz.id,
       userId: user.id,
     })).toBe(false);
 
-    expect(findResourceFolderForResource(assignment.id, user.id)).toEqual(expect.objectContaining({
+    expect(findResourceFolderForResource(quiz.id, user.id)).toEqual(expect.objectContaining({
       id: folder.id,
       title: folder.title,
       type: 'resource_folder',
@@ -295,9 +295,9 @@ describe('resource repository', () => {
       title: folder.title,
       type: 'resource_folder',
     }));
-    expect(findResourceFolderForResource(otherAssignment.id, user.id)).toBeNull();
+    expect(findResourceFolderForResource(otherQuiz.id, user.id)).toBeNull();
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
-      assignment.id,
+      quiz.id,
       practiceGuide.id,
       roleplay.id,
       childFolder.id,
@@ -307,7 +307,7 @@ describe('resource repository', () => {
       profileId: profile.id,
       userId: user.id,
     }).map((resource) => resource.id)).toEqual([
-      assignment.id,
+      quiz.id,
       practiceGuide.id,
       roleplay.id,
       childFolder.id,
@@ -336,13 +336,13 @@ describe('resource repository', () => {
     })).toBe(true);
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
       practiceGuide.id,
-      assignment.id,
+      quiz.id,
       roleplay.id,
       childFolder.id,
     ]);
 
-    expect(archiveAssignmentForUser(assignment.id, user.id)?.archivedAt).not.toBeNull();
-    expect(findResourceForUser(assignment.id, user.id)?.archivedAt).not.toBeNull();
+    expect(archiveQuizForUser(quiz.id, user.id)?.archivedAt).not.toBeNull();
+    expect(findResourceForUser(quiz.id, user.id)?.archivedAt).not.toBeNull();
     expect(listResourcesForProfile({
       folderId: folder.id,
       profileId: profile.id,
@@ -359,7 +359,7 @@ describe('resource repository', () => {
       userId: user.id,
     }).map((resource) => resource.id)).toEqual([
       practiceGuide.id,
-      assignment.id,
+      quiz.id,
       roleplay.id,
       childFolder.id,
     ]);
@@ -371,7 +371,7 @@ describe('resource repository', () => {
     })).toBe(true);
     expect(findResourceFolderForResource(practiceGuide.id, user.id)).toBeNull();
     expect(listResourceFolderItems(folder.id, user.id).map((item) => item.resourceId)).toEqual([
-      assignment.id,
+      quiz.id,
       roleplay.id,
       childFolder.id,
     ]);
@@ -386,17 +386,17 @@ describe('resource repository', () => {
       grandchildFolder.id,
     ]);
 
-    const liveSharedAssignment = createAssignment({
+    const liveSharedQuiz = createQuiz({
       description: 'Visible through a shared folder.',
       instructions: '',
       profileId: profile.id,
-      quiz: { blocks: [], title: 'Shared Folder Assignment' },
-      title: 'Shared Folder Assignment',
+      quiz: { blocks: [], title: 'Shared Folder Quiz' },
+      title: 'Shared Folder Quiz',
       userId: user.id,
     });
     expect(addResourceToFolder({
       folderId: folder.id,
-      resourceId: liveSharedAssignment.id,
+      resourceId: liveSharedQuiz.id,
       userId: user.id,
     })).toBe(true);
     const privateParentFolder = createResourceFolder({
@@ -458,7 +458,7 @@ describe('resource repository', () => {
       id: resource.id,
     }))).toEqual([
       { accessKind: 'shared', id: roleplay.id },
-      { accessKind: 'shared', id: liveSharedAssignment.id },
+      { accessKind: 'shared', id: liveSharedQuiz.id },
       { accessKind: 'shared', id: sharedNestedFolder.id },
     ]);
     expect(listAccessibleResourceFolderPath({
@@ -474,15 +474,15 @@ describe('resource repository', () => {
     ]);
     expect(findResourceAccessForProfile({
       profileId: studentProfile.id,
-      resourceId: liveSharedAssignment.id,
+      resourceId: liveSharedQuiz.id,
       userId: student.id,
     })).toEqual(expect.objectContaining({
       accessKind: 'shared',
-      id: liveSharedAssignment.id,
+      id: liveSharedQuiz.id,
     }));
     expect(addResourceToFolder({
       folderId: folder.id,
-      resourceId: assignment.id,
+      resourceId: quiz.id,
       userId: student.id,
     })).toBe(false);
   });
