@@ -7,6 +7,7 @@ import {
   handleDeletePracticeGuide,
   handleGeneratePracticeGuideDraft,
   handleRevisePracticeGuide,
+  handleStartSharedPracticeGuide,
   handleRestorePracticeGuide,
   handleSharePracticeGuideToProfile,
   handleUpdatePracticeGuide,
@@ -25,6 +26,7 @@ practiceGuidesRouter.get('/practice-guides/new', renderNewPracticeGuidePage);
 practiceGuidesRouter.post('/practice-guides/generate-draft', handleGeneratePracticeGuideDraft);
 practiceGuidesRouter.post('/practice-guides', handleCreatePracticeGuide);
 practiceGuidesRouter.get('/practice-guides/shared/:shareId', renderSharedPracticeGuidePage);
+practiceGuidesRouter.get('/practice-guides/shared/:shareId/start', handleStartSharedPracticeGuide);
 practiceGuidesRouter.post('/practice-guides/shared/:shareId/accept', handleAcceptSharedPracticeGuideLink);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId/edit', renderEditPracticeGuidePage);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId', renderPracticeGuideDetailPage);

@@ -6,6 +6,7 @@ import {
   createPracticeGuide,
   deletePracticeGuideForUser,
   findResourceAccessForProfile,
+  findResourceShareLinkById,
   findPracticeGuideById,
   findPracticeGuideForUser,
   findPracticeGuideShareLinkById,
@@ -581,6 +582,63 @@ export function handleCreatePracticeGuideConversation(
   );
   logger.info('practice_guide_conversation_created', {
     accessKind: resourceAccess?.accessKind ?? 'owner',
+    conversationId: conversation.id,
+    profileId: conversation.profileId,
+    resourceId: practiceGuide.id,
+    resourceType: 'practice_guide',
+    userId: user.id,
+  });
+
+  response.redirect(`/c/${encodeURIComponent(conversation.id)}`);
+}
+
+/**
+ * Starts a shared practice guide. An anonymous visitor is sent to sign up / log
+ * in and returned here to launch. Once authenticated, grant access and open the
+ * tutor conversation.
+ */
+export function handleStartSharedPracticeGuide(
+  request: Request,
+  response: Response,
+): void {
+  const shareId = String(request.params.shareId || '').trim();
+  const sharePath = `/resources/shared/${encodeURIComponent(shareId)}`;
+  const shareLink = findResourceShareLinkById(shareId);
+  if (!shareLink || shareLink.revokedAt) {
+    response.redirect('/resources');
+    return;
+  }
+
+  const practiceGuide = findPracticeGuideById(shareLink.resourceId);
+  if (!practiceGuide || practiceGuide.archivedAt) {
+    response.redirect(sharePath);
+    return;
+  }
+
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    const startPath = `/practice-guides/shared/${encodeURIComponent(shareId)}/start`;
+    response.redirect(`/signup?returnTo=${encodeURIComponent(startPath)}`);
+    return;
+  }
+
+  grantResourceAccess({
+    grantedByUserId: practiceGuide.userId,
+    grantedVia: 'link',
+    profileId: activeProfile.id,
+    resourceId: practiceGuide.id,
+    shareLinkId: shareLink.id,
+    userId: user.id,
+  });
+
+  const conversation = createConversationFromPracticeGuide(
+    user.id,
+    practiceGuide,
+    activeProfile.id,
+  );
+  logger.info('practice_guide_conversation_created', {
+    accessKind: 'shared',
     conversationId: conversation.id,
     profileId: conversation.profileId,
     resourceId: practiceGuide.id,

@@ -9,6 +9,7 @@ import {
   findProfileForUser,
   findResourceAccessForProfile,
   findResourceFolderForResource,
+  findResourceShareLinkById,
   findRoleplayAttemptById,
   findRoleplayById,
   findRoleplayForUser,
@@ -849,6 +850,87 @@ export async function handleStartRoleplayAttempt(
     });
     const startError = isCreditExhaustedError(error) ? 'credit' : 'opening';
     response.redirect(`/roleplays/${encodeURIComponent(resolved.roleplay.id)}?startError=${startError}`);
+  }
+}
+
+/**
+ * Starts a shared roleplay. An anonymous visitor is sent to sign up / log in and
+ * returned here to launch. Once authenticated, grant access and start the attempt
+ * (the opening turn is funded by the user's own credit-gated key).
+ */
+export async function handleStartSharedRoleplayAttempt(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const shareId = String(request.params.shareId || '').trim();
+  const sharePath = `/resources/shared/${encodeURIComponent(shareId)}`;
+  const shareLink = findResourceShareLinkById(shareId);
+  if (!shareLink || shareLink.revokedAt) {
+    response.redirect('/resources');
+    return;
+  }
+
+  const roleplay = findRoleplayById(shareLink.resourceId);
+  if (!roleplay || roleplay.archivedAt) {
+    response.redirect(sharePath);
+    return;
+  }
+
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+  if (!user?.emailVerified || !activeProfile) {
+    const startPath = `/roleplays/shared/${encodeURIComponent(shareId)}/start`;
+    response.redirect(`/signup?returnTo=${encodeURIComponent(startPath)}`);
+    return;
+  }
+
+  grantResourceAccess({
+    grantedByUserId: roleplay.userId,
+    grantedVia: 'link',
+    profileId: activeProfile.id,
+    resourceId: roleplay.id,
+    shareLinkId: shareLink.id,
+    userId: user.id,
+  });
+
+  const draft = storedRoleplayToDraft(roleplay);
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
+    const openingTurn = await generateOpeningRoleplayTurn({
+      draft,
+      llm: {
+        modelTier: activeProfile.modelTier ?? 'regular',
+        openRouterApiKey,
+        userId: user.id,
+      },
+    });
+    const attempt = createRoleplayAttempt({
+      profileId: activeProfile.id,
+      roleplayId: roleplay.id,
+      snapshot: draft,
+      turns: [openingTurn],
+      userId: user.id,
+    });
+    logger.info('roleplay_attempt_started', {
+      attemptId: attempt.id,
+      profileId: attempt.profileId,
+      resourceId: roleplay.id,
+      resourceType: 'roleplay',
+      roleplayId: roleplay.id,
+      userId: user.id,
+    });
+    response.redirect(`/roleplay-attempts/${encodeURIComponent(attempt.id)}`);
+  } catch (error) {
+    logger.error('roleplay_attempt_start_failed', {
+      error,
+      profileId: activeProfile.id,
+      resourceId: roleplay.id,
+      resourceType: 'roleplay',
+      roleplayId: roleplay.id,
+      userId: user.id,
+    });
+    const startError = isCreditExhaustedError(error) ? 'credit' : 'opening';
+    response.redirect(`/roleplays/${encodeURIComponent(roleplay.id)}?startError=${startError}`);
   }
 }
 

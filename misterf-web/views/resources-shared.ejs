@@ -39,6 +39,13 @@
             <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Hacer el quiz
           </button>
         </form>
+      <% } else if (startAction) { %>
+        <div class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
+          <a class="btn btn-link" href="/resources">No ahora</a>
+          <a class="btn btn-primary" href="<%= startAction %>">
+            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Comenzar
+          </a>
+        </div>
       <% } else { %>
         <div class="d-flex flex-wrap justify-content-end gap-2">
           <a class="btn btn-secondary" href="/resources">No ahora</a>

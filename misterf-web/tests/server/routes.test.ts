@@ -204,6 +204,7 @@ describe('main route smoke tests', () => {
       {
         detailPath: `/practice-guides/${practiceGuide.id}`,
         id: practiceGuide.id,
+        isStart: true,
         title: 'Route Shared Guide',
       },
       {
@@ -214,6 +215,7 @@ describe('main route smoke tests', () => {
       {
         detailPath: `/roleplays/${roleplay.id}`,
         id: roleplay.id,
+        isStart: true,
         title: 'Route Shared Roleplay',
       },
     ];
@@ -231,6 +233,9 @@ describe('main route smoke tests', () => {
       if (resource.isQuiz) {
         // Any shared quiz can be filled anonymously; no login wall on the page.
         expect(anonymousHtml).toContain('Hacer el quiz');
+      } else if (resource.isStart) {
+        // Roleplay/guide show a "Comenzar" call to action, no login wall.
+        expect(anonymousHtml).toContain('Comenzar');
       } else {
         expect(anonymousHtml).toContain(`/login?returnTo=%2Fresources%2Fshared%2F${shareLink.id}`);
       }
@@ -241,7 +246,15 @@ describe('main route smoke tests', () => {
       });
       const authenticatedHtml = await authenticatedResponse.text();
       expect(authenticatedResponse.status).toBe(200);
-      expect(authenticatedHtml).toContain(resource.isQuiz ? 'Hacer el quiz' : 'Agregar a mis recursos');
+      expect(authenticatedHtml).toContain(
+        resource.isQuiz ? 'Hacer el quiz' : resource.isStart ? 'Comenzar' : 'Agregar a mis recursos',
+      );
+
+      // Only folders use the generic accept flow; quiz/roleplay/guide have their
+      // own take/start flows tested separately.
+      if (resource.isQuiz || resource.isStart) {
+        continue;
+      }
 
       const acceptResponse = await postForm(
         `/resources/shared/${shareLink.id}/accept`,
@@ -757,6 +770,55 @@ describe('main route smoke tests', () => {
     const submitLocation = submitResponse.headers.get('location') ?? '';
     expect(submitLocation).toMatch(/^\/signup\?returnTo=/);
     expect(decodeURIComponent(submitLocation)).toContain(`/quiz-attempts/${attemptId}/result`);
+  });
+
+  it('sends anonymous visitors from a shared roleplay/guide start to sign up', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createPracticeGuide, createProfile, createRoleplay, getOrCreateResourceShareLink } =
+      await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-shared-start-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Shared Start Owner',
+      provider: 'google',
+      providerSubject: 'route-shared-start-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Route shared start profile', userId: owner.id });
+    const roleplay = createRoleplay({
+      characters: [
+        { description: 'A learner ordering lunch politely.', id: 'learner', name: 'Learner' },
+        { description: 'A helpful cafe server.', id: 'ai', name: 'Server' },
+      ],
+      description: 'Shared start roleplay.',
+      level: 'A2',
+      pedagogicalFocus: 'Evaluate polite requests.',
+      profileId: ownerProfile.id,
+      scenario: 'A customer orders lunch at a cafe.',
+      title: 'Shared Start Roleplay',
+      userId: owner.id,
+    });
+    const practiceGuide = createPracticeGuide({
+      description: 'Shared start guide.',
+      profileId: ownerProfile.id,
+      title: 'Shared Start Guide',
+      tutorInstructions: 'Practice shared start.',
+      userId: owner.id,
+    });
+
+    const roleplayStart = `/roleplays/shared/${getOrCreateResourceShareLink(roleplay.id).id}/start`;
+    const roleplayResponse = await fetch(`${baseUrl}${roleplayStart}`, { redirect: 'manual' });
+    expect(roleplayResponse.status).toBe(302);
+    expect(roleplayResponse.headers.get('location')).toBe(
+      `/signup?returnTo=${encodeURIComponent(roleplayStart)}`,
+    );
+
+    const guideStart = `/practice-guides/shared/${getOrCreateResourceShareLink(practiceGuide.id).id}/start`;
+    const guideResponse = await fetch(`${baseUrl}${guideStart}`, { redirect: 'manual' });
+    expect(guideResponse.status).toBe(302);
+    expect(guideResponse.headers.get('location')).toBe(
+      `/signup?returnTo=${encodeURIComponent(guideStart)}`,
+    );
   });
 });
 

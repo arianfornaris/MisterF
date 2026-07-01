@@ -324,6 +324,11 @@ export function renderSharedResourcePage(request, response) {
     const quizTakeAction = resource.type === 'quiz'
         ? `/quizzes/shared/${encodeURIComponent(shareLink.id)}/take`
         : '';
+    const startAction = resource.type === 'roleplay'
+        ? `/roleplays/shared/${encodeURIComponent(shareLink.id)}/start`
+        : resource.type === 'practice_guide'
+            ? `/practice-guides/shared/${encodeURIComponent(shareLink.id)}/start`
+            : '';
     response.render('resources-shared', {
         ...buildAppShellContext({
             activeProfile: activeProfile ?? null,
@@ -335,6 +340,7 @@ export function renderSharedResourcePage(request, response) {
             user: user ?? null,
         }),
         quizTakeAction,
+        startAction,
         returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
         shareLink,
         sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource)),

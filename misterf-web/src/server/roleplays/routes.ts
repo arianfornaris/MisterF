@@ -7,6 +7,7 @@ import {
   handleReviseRoleplay,
   handleShareRoleplayToProfile,
   handleStartRoleplayAttempt,
+  handleStartSharedRoleplayAttempt,
   handleSubmitRoleplayTurn,
   handleUpdateRoleplay,
   renderRoleplayAttemptPage,
@@ -26,6 +27,7 @@ roleplaysRouter.post('/roleplays/:roleplayId/edit/revise', handleReviseRoleplay)
 roleplaysRouter.post('/roleplays/:roleplayId/revise', handleReviseRoleplay);
 roleplaysRouter.get('/roleplays/:roleplayId', renderRoleplayShowPage);
 roleplaysRouter.post('/roleplays/:roleplayId/share/profile', handleShareRoleplayToProfile);
+roleplaysRouter.get('/roleplays/shared/:shareId/start', handleStartSharedRoleplayAttempt);
 roleplaysRouter.post('/roleplays/:roleplayId/attempts', handleStartRoleplayAttempt);
 roleplaysRouter.get('/roleplay-attempts/:attemptId', renderRoleplayAttemptPage);
 roleplaysRouter.post('/roleplay-attempts/:attemptId/turns', handleSubmitRoleplayTurn);

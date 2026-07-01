@@ -675,8 +675,15 @@ Tasks:
   - Guest submit saves answers and redirects to `/signup?returnTo=<result>`.
   - `renderQuizResultPage` claims + evaluates a submitted guest attempt on the
     now-authenticated user's key (`evaluateSubmittedQuizAttemptForUser`).
-- [x] Decide which resource types get the anonymous flow: quizzes first.
-  Roleplay/practice guide remain future.
+- [x] Decide which resource types get the anonymous flow: quizzes have the
+  fill-then-account flow; roleplay and practice guide have a start-then-account
+  flow (no free taste, since their value is the LLM interaction from turn one).
+- [x] Give roleplay and practice guide an anonymous "Comenzar" flow: the shared
+  page shows the general info plus "Comenzar"; an anonymous click goes to sign
+  up / log in and returns to launch. `GET /roleplays/shared/:shareId/start` and
+  `GET /practice-guides/shared/:shareId/start` gate on an account, then grant
+  access and launch (roleplay attempt / tutor conversation) on the user's own
+  credit-gated key.
 - [x] Define the credit/cost policy: quiz evaluation is always the submitter's
   own credit-gated key. New-account starter credits fund the first attempt; no
   dedicated platform free key.
@@ -691,12 +698,17 @@ Exit criteria:
 - [x] An anonymous student can open and fill any shared quiz.
 - [x] Pressing "Evaluar" requires an account, then evaluates and shows the
   result funded by the student's own credits.
+- [x] An anonymous visitor can see a shared roleplay/practice guide and press
+  "Comenzar", which requires an account and then launches on their own credits.
 
 Notes:
 
 - This slice captures the growth and user-acquisition direction that was
   previously a single "future" bullet in Slice 8.
-- Roleplay has a parallel future public/free attempt idea in Slice 11.
+- General principle: let anonymous visitors experience as much as possible
+  before the account wall, place the wall at the value-consuming action, and
+  resume after auth (guest-entity + claim-on-auth for quizzes; direct launch for
+  roleplay/guide).
 - Cleanup left for the Final Cleanup baseline rebuild: the now-unused
   `quizzes.allow_public_attempts` column (migration `add_quiz_public_attempts`)
   and the now-unused `OPENROUTER_FREE_API_KEY` env var set locally and on the
