@@ -87,15 +87,6 @@ This is already aligned with the current system direction:
 - OpenRouter key ownership is account-level
 - usage is shared across all profiles belonging to that account
 
-### Platform free-resource key
-
-Free public resources (currently anonymous public-quiz attempts) are funded by a
-dedicated platform key `OPENROUTER_FREE_API_KEY`, resolved by
-`getFreeResourceOpenRouterApiKey` and falling back to `OPENROUTER_API_KEY`. This
-key is not a per-user key and does not pass the per-user credit gate; its spend
-is bounded by the limit configured on the key in OpenRouter. When no free key is
-configured, the free public flow is disabled.
-
 ### Free starter balance
 
 When a user account is created, Mister F should provision an OpenRouter key with:
@@ -338,34 +329,27 @@ Credit policy:
 - manual edits inside the authoring workspace do not consume LLM credits unless
   they trigger AI validation or evaluation
 - starting a Quiz attempt with `Probar` does not consume LLM credits
-- submitting a Quiz attempt uses the same product-funded evaluation policy as
-  student Quiz attempts
-- generic resource sharing still requires the student to create an account or
-  log in for non-quiz resources
-- a quiz can be marked public and free per quiz by its owner
-  (`quizzes.allow_public_attempts`). A shared public quiz can be completed by an
-  anonymous student without an account, from the shared resource page's
-  "Hacer el quiz gratis" action
-- the AI evaluation after a public shared-quiz submission is free to the student
-- free shared-quiz evaluation is product-funded acquisition usage on a dedicated
-  platform key `OPENROUTER_FREE_API_KEY` (falling back to `OPENROUTER_API_KEY`).
-  Spend is isolated on that key and bounded by its OpenRouter limit; it is not
-  charged to the anonymous student and not a hidden post-share charge to the
-  teacher. If no free key is configured, the public flow is disabled
-- after seeing the result, follow-up practice with Mr. F requires the student to
-  create an account or log in; on return the guest attempt is auto-claimed
-- follow-up tutor conversations use the standard account credit policy
+- quiz evaluation is always paid from the submitter's own credit-gated per-user
+  key. There is no platform free-resource key for quiz evaluation
+- any shared quiz can be opened and filled by an anonymous student from the
+  shared resource page's "Hacer el quiz" action (no per-quiz opt-in flag)
+- when an anonymous student presses "Evaluar", the answers are saved and they
+  are sent to sign up / log in. On return the guest attempt is claimed and
+  evaluated on their own key
+- because new accounts get a free starter balance, a new student's first quiz
+  evaluation is effectively free (funded by their own starter credits, not a
+  platform key)
+- after seeing the result, follow-up practice with Mr. F uses the standard
+  account credit policy
 
 Operational requirements:
 
-- the UI should distinguish teacher-paid authoring usage from free student
-  evaluation
-- free guest evaluations must be rate-limited and abuse-resistant
+- the UI should distinguish teacher-paid authoring usage from student evaluation
 - production logs should record `resourceId`, `resourceType`, quiz ids,
   attempt ids, and status metadata without storing full learner answers unless
   full LLM tracing is explicitly enabled
-- if a guest creates an account after evaluation, the app may attach the result
-  to the new profile and then record progress
+- a guest attempt (filled but not yet evaluated) is claimed onto the new profile
+  when the student signs up / logs in, then evaluated and recorded as progress
 - teacher-funded or organization-funded student follow-up can be explored later,
   but it should be explicit billing functionality rather than an exception to
   normal user credit behavior

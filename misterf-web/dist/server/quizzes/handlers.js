@@ -1,11 +1,11 @@
 import QRCode from 'qrcode';
-import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findQuizShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, setQuizPublicAttempts, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
+import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findQuizShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendQuizBlock, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResultTitle, createQuizDraftFromManualInput, duplicateQuizBlock, evaluateQuizAttempt, moveQuizBlock, normalizeQuizResponses, removeQuizBlock, safeParseQuizDraft, } from '../services/quizzes.js';
 import { generateQuizBlock, generateQuizDraft, generateQuizRevision, } from '../services/resourceDrafts.js';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
-import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, getFreeResourceOpenRouterApiKey, isCreditExhaustedError, } from '../services/creditGate.js';
+import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordQuizAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
@@ -454,6 +454,7 @@ function renderQuizAttempt(request, response, input) {
         }),
         attempt: input.attempt,
         attemptError: input.error || '',
+        attemptErrorIsCredit: Boolean(input.errorIsCredit),
         quizQuizJson: serializeViewJson(quizDraftToStudentQuizBlock(draft)),
         draft,
         guestToken: input.attempt.guestToken || '',
@@ -890,27 +891,6 @@ export function handleArchiveQuiz(request, response) {
     archiveQuizForUser(resolved.quiz.id, resolved.user.id);
     response.redirect(returnTo);
 }
-export function handleSetQuizPublicAttempts(request, response) {
-    const resolved = resolveOwnQuiz(request, response);
-    if (!resolved) {
-        return;
-    }
-    const allowPublicAttempts = readField(request.body.allowPublicAttempts, 10) === 'on';
-    setQuizPublicAttempts({
-        allowPublicAttempts,
-        quizId: resolved.quiz.id,
-        userId: resolved.user.id,
-    });
-    logger.info('quiz_public_attempts_updated', {
-        allowPublicAttempts,
-        profileId: resolved.quiz.profileId,
-        resourceId: resolved.quiz.id,
-        resourceType: 'quiz',
-        userId: resolved.user.id,
-    });
-    const returnTo = readReturnTo(request.body.returnTo, `/quizzes/${encodeURIComponent(resolved.quiz.id)}`);
-    response.redirect(returnTo);
-}
 export function handleRestoreQuiz(request, response) {
     const resolved = resolveOwnQuiz(request, response);
     if (!resolved) {
@@ -964,7 +944,7 @@ export function handleStartQuizAttempt(request, response) {
  * visitors get a free guest attempt (evaluated with the platform free-resource
  * key). Authenticated visitors get a normal owned attempt with resource access.
  */
-export function handleStartPublicQuizAttempt(request, response) {
+export function handleStartSharedQuizAttempt(request, response) {
     const shareId = readField(request.params.shareId, 120);
     const sharePath = `/resources/shared/${encodeURIComponent(shareId)}`;
     const shareLink = findResourceShareLinkById(shareId);
@@ -973,10 +953,7 @@ export function handleStartPublicQuizAttempt(request, response) {
         return;
     }
     const quiz = findQuizById(shareLink.resourceId);
-    if (!quiz ||
-        quiz.archivedAt ||
-        !quiz.allowPublicAttempts ||
-        !getFreeResourceOpenRouterApiKey()) {
+    if (!quiz || quiz.archivedAt) {
         response.redirect(sharePath);
         return;
     }
@@ -1089,77 +1066,114 @@ export async function handleSubmitQuizAttempt(request, response) {
         resourceType: 'quiz',
         userId: attempt.userId,
     });
-    const evaluatingAttempt = submittedAttempt
-        ? markQuizAttemptEvaluating(submittedAttempt.id)
-        : null;
-    if (!evaluatingAttempt) {
+    if (!submittedAttempt) {
         renderQuizAttempt(request, response.status(422), {
             attempt,
             error: 'No pude enviar el quiz. Inténtalo otra vez.',
         });
         return;
     }
+    // Anonymous student: the answers are saved, but evaluation needs an account.
+    // Send them to sign up / log in; on return the result page claims the attempt
+    // and evaluates it with the new account's own credit-gated key.
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (!user?.emailVerified || !activeProfile) {
+        const resultPath = appendGuestToken(`/quiz-attempts/${encodeURIComponent(submittedAttempt.id)}/result`, submittedAttempt);
+        response.redirect(`/signup?returnTo=${encodeURIComponent(resultPath)}`);
+        return;
+    }
     try {
-        const isGuestAttempt = !evaluatingAttempt.userId;
-        const result = await evaluateQuizAttempt({
-            attempt: evaluatingAttempt,
-            llm: isGuestAttempt
-                ? { openRouterApiKey: getFreeResourceOpenRouterApiKey() }
-                : undefined,
+        const evaluated = await evaluateSubmittedQuizAttemptForUser({
+            attempt: submittedAttempt,
+            profileId: activeProfile.id,
+            userId: user.id,
         });
-        const evaluatedAttempt = saveQuizAttemptResult({
-            attemptId: evaluatingAttempt.id,
-            result,
-        });
-        if (evaluatedAttempt) {
-            recordQuizAttemptProgress(evaluatedAttempt);
-        }
-        logger.info('quiz_attempt_evaluated', {
-            quizId: attempt.quizId,
-            attemptId: attempt.id,
-            isGuest: !attempt.userId,
-            resourceId: attempt.quizId,
-            resourceType: 'quiz',
-            summary: buildQuizEvaluationSummary(result),
-            userId: attempt.userId,
-        });
-        response.redirect(appendGuestToken(`/quiz-attempts/${encodeURIComponent(evaluatingAttempt.id)}/result`, evaluatingAttempt));
+        response.redirect(`/quiz-attempts/${encodeURIComponent(evaluated.id)}/result`);
     }
     catch (error) {
-        logger.error('quiz_attempt_evaluation_failed', {
-            quizId: attempt.quizId,
-            attemptId: attempt.id,
-            error,
-            resourceId: attempt.quizId,
-            resourceType: 'quiz',
-            userId: attempt.userId,
-        });
-        const failedAttempt = markQuizAttemptFailed(attempt.id) ?? attempt;
-        renderQuizAttempt(request, response.status(422), {
-            attempt: failedAttempt,
-            error: 'No pude evaluar el quiz ahora mismo. Puedes volver a enviarlo en unos minutos.',
-        });
+        renderQuizEvaluationError(request, response, submittedAttempt, error);
     }
 }
-export function renderQuizResultPage(request, response) {
+async function evaluateSubmittedQuizAttemptForUser(input) {
+    let attempt = input.attempt;
+    // Claim a guest attempt so the evaluation and progress belong to the user.
+    if (!attempt.userId && attempt.claimToken) {
+        const claimed = attachQuizAttemptToUser({
+            attemptId: attempt.id,
+            claimToken: attempt.claimToken,
+            profileId: input.profileId,
+            userId: input.userId,
+        });
+        if (claimed) {
+            attempt = claimed;
+        }
+    }
+    const evaluatingAttempt = markQuizAttemptEvaluating(attempt.id);
+    if (!evaluatingAttempt) {
+        throw new Error('Could not mark quiz attempt as evaluating.');
+    }
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
+    const result = await evaluateQuizAttempt({
+        attempt: evaluatingAttempt,
+        llm: { openRouterApiKey },
+    });
+    const evaluated = saveQuizAttemptResult({ attemptId: evaluatingAttempt.id, result });
+    if (!evaluated) {
+        throw new Error('Could not save quiz attempt result.');
+    }
+    recordQuizAttemptProgress(evaluated);
+    logger.info('quiz_attempt_evaluated', {
+        quizId: evaluated.quizId,
+        attemptId: evaluated.id,
+        resourceId: evaluated.quizId,
+        resourceType: 'quiz',
+        summary: buildQuizEvaluationSummary(result),
+        userId: evaluated.userId,
+    });
+    return evaluated;
+}
+function renderQuizEvaluationError(request, response, attempt, error) {
+    const isCredit = isCreditExhaustedError(error);
+    logger.error('quiz_attempt_evaluation_failed', {
+        quizId: attempt.quizId,
+        attemptId: attempt.id,
+        error,
+        isCredit,
+        resourceId: attempt.quizId,
+        resourceType: 'quiz',
+        userId: attempt.userId,
+    });
+    const failedAttempt = markQuizAttemptFailed(attempt.id) ?? attempt;
+    renderQuizAttempt(request, response.status(422), {
+        attempt: failedAttempt,
+        error: isCredit
+            ? getCreditExhaustedMessage()
+            : 'No pude evaluar el quiz ahora mismo. Puedes volver a enviarlo en unos minutos.',
+        errorIsCredit: isCredit,
+    });
+}
+export async function renderQuizResultPage(request, response) {
     let attempt = resolveAccessibleAttempt(request, response);
     if (!attempt) {
         return;
     }
-    // When a guest signs in or signs up and returns to their result, claim the
-    // attempt so they can practice it and keep it in their progress.
+    // A student who filled a quiz as a guest and just signed in / signed up lands
+    // here with the attempt only submitted. Claim it and evaluate it now with
+    // their own credit-gated key, then show the result.
     const user = request.authUser;
     const activeProfile = request.activeProfile;
-    if (user?.emailVerified && activeProfile && !attempt.userId && attempt.claimToken) {
-        const claimedAttempt = attachQuizAttemptToUser({
-            attemptId: attempt.id,
-            claimToken: attempt.claimToken,
-            profileId: activeProfile.id,
-            userId: user.id,
-        });
-        if (claimedAttempt) {
-            recordQuizAttemptProgress(claimedAttempt);
-            attempt = claimedAttempt;
+    if (user?.emailVerified && activeProfile && attempt.status === 'submitted') {
+        try {
+            attempt = await evaluateSubmittedQuizAttemptForUser({
+                attempt,
+                profileId: activeProfile.id,
+                userId: user.id,
+            });
+        }
+        catch (error) {
+            renderQuizEvaluationError(request, response, attempt, error);
+            return;
         }
     }
     renderQuizResult(request, response, attempt);

@@ -5,7 +5,6 @@ import {
   archiveResourceForUser,
   createResourceFolder,
   findResourceAccessForProfile,
-  findQuizById,
   findResourceById,
   findResourceForUser,
   findResourceFolderForResource,
@@ -32,7 +31,6 @@ import {
   getHomeAuthMessage,
   normalizeSearchText,
 } from '../pages/shell.js';
-import { getFreeResourceOpenRouterApiKey } from '../services/creditGate.js';
 import { logger } from '../services/logger.js';
 
 type ResourceFilterType = StoredResource['type'] | 'all';
@@ -460,9 +458,9 @@ export function renderSharedResourcePage(request: Request, response: Response): 
     }
   }
 
-  const publicQuizAttemptAction =
-    resource.type === 'quiz' && getFreeResourceOpenRouterApiKey() && findQuizById(resource.id)?.allowPublicAttempts
-      ? `/quizzes/public/${encodeURIComponent(shareLink.id)}/attempt`
+  const quizTakeAction =
+    resource.type === 'quiz'
+      ? `/quizzes/shared/${encodeURIComponent(shareLink.id)}/take`
       : '';
 
   response.render('resources-shared', {
@@ -475,7 +473,7 @@ export function renderSharedResourcePage(request: Request, response: Response): 
       title: `${resource.title} - ${appDocumentTitle}`,
       user: user ?? null,
     }),
-    publicQuizAttemptAction,
+    quizTakeAction,
     returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
     shareLink,
     sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource)),

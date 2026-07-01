@@ -5,9 +5,9 @@
     <div>
       <p class="resource-page-kicker">Recurso compartido</p>
       <h1 class="resource-page-title"><%= sharedResource.title %></h1>
-      <% if (publicQuizAttemptAction) { %>
+      <% if (quizTakeAction) { %>
         <p class="resource-page-copy">
-          Puedes hacer este quiz gratis y ver tu resultado, sin necesidad de crear una cuenta.
+          Puedes hacer este quiz ahora. Al evaluarlo te pediremos crear una cuenta o iniciar sesión para ver tu resultado.
         </p>
       <% } else { %>
         <p class="resource-page-copy">
@@ -31,12 +31,12 @@
         <div class="resource-markdown" data-render-markdown><%= sharedResource.description %></div>
       <% } %>
 
-      <% if (publicQuizAttemptAction) { %>
-        <form method="post" action="<%= publicQuizAttemptAction %>" class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
+      <% if (quizTakeAction) { %>
+        <form method="post" action="<%= quizTakeAction %>" class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <a class="btn btn-link" href="/resources">No ahora</a>
           <button class="btn btn-primary" type="submit">
-            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Hacer el quiz gratis
+            <i class="bi bi-play-fill me-1" aria-hidden="true"></i>Hacer el quiz
           </button>
         </form>
       <% } else { %>

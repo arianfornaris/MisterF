@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAddQuizBlock, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleDeleteQuizBlock, handleDuplicateQuizBlock, handleGenerateQuiz, handleMoveQuizBlock, handleRestoreQuiz, handleReviseQuiz, handleSetQuizPublicAttempts, handleShareQuizToProfile, handleStartPublicQuizAttempt, handleStartQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizNewPage, renderQuizResultPage, renderQuizShowPage, renderSharedQuizPage, } from './handlers.js';
+import { handleAddQuizBlock, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleDeleteQuizBlock, handleDuplicateQuizBlock, handleGenerateQuiz, handleMoveQuizBlock, handleRestoreQuiz, handleReviseQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizNewPage, renderQuizResultPage, renderQuizShowPage, renderSharedQuizPage, } from './handlers.js';
 export const quizzesRouter = express.Router();
 quizzesRouter.get('/quizzes', (_request, response) => {
     response.redirect('/resources');
@@ -9,7 +9,7 @@ quizzesRouter.post('/quizzes/generate', handleGenerateQuiz);
 quizzesRouter.post('/quizzes/generate-draft', handleGenerateQuiz);
 quizzesRouter.get('/quizzes/shared/:shareId', renderSharedQuizPage);
 quizzesRouter.post('/quizzes/shared/:shareId/start', handleStartQuizAttempt);
-quizzesRouter.post('/quizzes/public/:shareId/attempt', handleStartPublicQuizAttempt);
+quizzesRouter.post('/quizzes/shared/:shareId/take', handleStartSharedQuizAttempt);
 quizzesRouter.get('/quizzes/:quizId/edit', renderQuizEditPage);
 quizzesRouter.post('/quizzes/:quizId/edit/save', handleUpdateQuizMetadata);
 quizzesRouter.post('/quizzes/:quizId/edit/revise', handleReviseQuiz);
@@ -22,7 +22,6 @@ quizzesRouter.get('/quizzes/:quizId', renderQuizShowPage);
 quizzesRouter.post('/quizzes/:quizId/share/profile', handleShareQuizToProfile);
 quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);
 quizzesRouter.post('/quizzes/:quizId/restore', handleRestoreQuiz);
-quizzesRouter.post('/quizzes/:quizId/public-attempts', handleSetQuizPublicAttempts);
 quizzesRouter.post('/quizzes/:quizId/test-attempts', handleStartQuizTestAttempt);
 quizzesRouter.get('/quiz-attempts/:attemptId', renderQuizAttemptPage);
 quizzesRouter.get('/quiz-attempts/:attemptId/result', renderQuizResultPage);

@@ -9,7 +9,12 @@
   </div>
 
   <% if (attemptError) { %>
-    <div class="alert alert-danger" role="alert"><%= attemptError %></div>
+    <div class="alert <%= attemptErrorIsCredit ? 'alert-warning' : 'alert-danger' %>" role="alert">
+      <p class="mb-<%= attemptErrorIsCredit ? '2' : '0' %>"><%= attemptError %></p>
+      <% if (attemptErrorIsCredit) { %>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/quiz-attempts/${attempt.id}`) %>">Comprar créditos</a>
+      <% } %>
+    </div>
   <% } %>
 
   <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/submit" data-quiz-submit-form data-quiz-quiz-form>

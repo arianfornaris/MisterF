@@ -659,51 +659,48 @@ real resource value before signing up so the product can grow its user base.
 
 Decisions:
 
-- [x] Free public taking is opt-in per quiz: the owner marks a quiz as public
-  and free (`quizzes.allow_public_attempts`).
-- [x] Free evaluation uses a dedicated platform OpenRouter key
-  `OPENROUTER_FREE_API_KEY`, falling back to `OPENROUTER_API_KEY`
-  (`getFreeResourceOpenRouterApiKey`). If neither is set, the free flow is off.
+- [x] No free/public opt-in flag and no platform free key. Any shared quiz can
+  be filled anonymously; evaluation always requires an account and runs on the
+  student's own credit-gated key. New accounts' free starter credits make a new
+  student's first quiz effectively free.
 
 Tasks:
 
-- [x] Give `Quizzes` a public/free student flow where quiz completion and AI
-  evaluation can happen before account creation (moved from Slice 8).
-  - Owner toggle `POST /quizzes/:quizId/public-attempts` +
-    `allow_public_attempts` column (forward migration `add_quiz_public_attempts`).
-  - Anonymous start `POST /quizzes/public/:shareId/attempt` creates a guest
-    attempt; submit evaluates with the free key; the guest sees the result.
-- [x] Decide which resource types are offered as free/gift resources: quizzes
-  first. Roleplay/practice guide remain future.
-- [x] Define the credit/cost policy: guest quiz evaluation uses the dedicated
-  free-resource key, so spend is isolated and bounded by that key's OpenRouter
-  limit (not the per-user credit gate).
-- [x] Define the conversion path: from the result page, "Practicar" sends guests
-  to signup/login; on return the guest attempt is auto-claimed
-  (`renderQuizResultPage`) so they can practice it and keep it in progress.
-- [~] Abuse/rate-limit protection for unauthenticated free evaluation: currently
-  bounded by the dedicated key's OpenRouter limit and the per-quiz opt-in. A
-  per-IP/attempt rate limit is a future hardening step.
-- [x] Add tests for the public/free attempt start path (owner toggle, anonymous
-  start, guard for non-public quizzes). The LLM evaluation itself is not tested
-  (no live inference in tests).
+- [x] Give `Quizzes` an anonymous student flow: anyone can open and fill a shared
+  quiz; pressing "Evaluar" saves the answers and sends them to sign up / log in;
+  on return the attempt is claimed and evaluated on their own key.
+  - Shared page "Hacer el quiz" action for any quiz (no opt-in).
+  - `POST /quizzes/shared/:shareId/take` creates a guest attempt (or owned when
+    authed).
+  - Guest submit saves answers and redirects to `/signup?returnTo=<result>`.
+  - `renderQuizResultPage` claims + evaluates a submitted guest attempt on the
+    now-authenticated user's key (`evaluateSubmittedQuizAttemptForUser`).
+- [x] Decide which resource types get the anonymous flow: quizzes first.
+  Roleplay/practice guide remain future.
+- [x] Define the credit/cost policy: quiz evaluation is always the submitter's
+  own credit-gated key. New-account starter credits fund the first attempt; no
+  dedicated platform free key.
+- [x] Handle insufficient credit as product UI (buy-credits link on the attempt
+  page) instead of a raw evaluation error.
+- [x] Add tests for the anonymous flow (shared "Hacer el quiz" render, guest
+  start, guest submit → signup redirect). The LLM evaluation is not tested (no
+  live inference in tests).
 
 Exit criteria:
 
-- [x] A prospective student can complete a free public quiz and receive AI
-  evaluation before creating an account.
-- [x] The free-resource flow has an explicit, bounded credit policy (dedicated
-  key).
-- [x] The flow converts a free attempt into a new account and claims it.
+- [x] An anonymous student can open and fill any shared quiz.
+- [x] Pressing "Evaluar" requires an account, then evaluates and shows the
+  result funded by the student's own credits.
 
 Notes:
 
 - This slice captures the growth and user-acquisition direction that was
   previously a single "future" bullet in Slice 8.
-- Roleplay has a parallel future public/free attempt idea in Slice 11; align
-  both under this growth direction when implemented.
-- Remaining hardening: per-IP/attempt rate limiting for anonymous starts and
-  submissions.
+- Roleplay has a parallel future public/free attempt idea in Slice 11.
+- Cleanup left for the Final Cleanup baseline rebuild: the now-unused
+  `quizzes.allow_public_attempts` column (migration `add_quiz_public_attempts`)
+  and the now-unused `OPENROUTER_FREE_API_KEY` env var set locally and on the
+  server.
 
 ## Slice 15: Rename Tarea Resource To Quiz
 

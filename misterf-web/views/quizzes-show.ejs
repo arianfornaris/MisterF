@@ -83,22 +83,6 @@
               Compartir
             </button>
           </li>
-          <li>
-            <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/public-attempts">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <input type="hidden" name="returnTo" value="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>">
-              <% if (selectedQuiz.allowPublicAttempts) { %>
-                <button class="dropdown-item" type="submit">
-                  <i class="bi bi-lock me-2" aria-hidden="true"></i>Quitar acceso público gratis
-                </button>
-              <% } else { %>
-                <input type="hidden" name="allowPublicAttempts" value="on">
-                <button class="dropdown-item" type="submit">
-                  <i class="bi bi-globe me-2" aria-hidden="true"></i>Hacer público y gratis
-                </button>
-              <% } %>
-            </form>
-          </li>
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit">
@@ -133,9 +117,6 @@
       <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
       <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
       <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
-      <% if (canManageQuiz && selectedQuiz.allowPublicAttempts) { %>
-        <span class="text-success"><i class="bi bi-globe" aria-hidden="true"></i> Público · gratis</span>
-      <% } %>
     </div>
   </div>
 

@@ -2606,17 +2606,6 @@ export function updateQuiz(input) {
     transaction();
     return findQuizForUser(input.quizId, input.userId);
 }
-export function setQuizPublicAttempts(input) {
-    getDb()
-        .prepare(`
-        UPDATE quizzes
-        SET allow_public_attempts = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `)
-        .run(input.allowPublicAttempts ? 1 : 0, input.quizId, input.userId);
-    return findQuizForUser(input.quizId, input.userId);
-}
 export function updateQuizAuthoringMessages(input) {
     const db = getDb();
     const transaction = db.transaction(() => {

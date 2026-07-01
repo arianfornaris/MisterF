@@ -11,9 +11,8 @@ import {
   handleMoveQuizBlock,
   handleRestoreQuiz,
   handleReviseQuiz,
-  handleSetQuizPublicAttempts,
   handleShareQuizToProfile,
-  handleStartPublicQuizAttempt,
+  handleStartSharedQuizAttempt,
   handleStartQuizAttempt,
   handleStartQuizTestAttempt,
   handleSubmitQuizAttempt,
@@ -36,7 +35,7 @@ quizzesRouter.post('/quizzes/generate', handleGenerateQuiz);
 quizzesRouter.post('/quizzes/generate-draft', handleGenerateQuiz);
 quizzesRouter.get('/quizzes/shared/:shareId', renderSharedQuizPage);
 quizzesRouter.post('/quizzes/shared/:shareId/start', handleStartQuizAttempt);
-quizzesRouter.post('/quizzes/public/:shareId/attempt', handleStartPublicQuizAttempt);
+quizzesRouter.post('/quizzes/shared/:shareId/take', handleStartSharedQuizAttempt);
 quizzesRouter.get('/quizzes/:quizId/edit', renderQuizEditPage);
 quizzesRouter.post('/quizzes/:quizId/edit/save', handleUpdateQuizMetadata);
 quizzesRouter.post('/quizzes/:quizId/edit/revise', handleReviseQuiz);
@@ -49,7 +48,6 @@ quizzesRouter.get('/quizzes/:quizId', renderQuizShowPage);
 quizzesRouter.post('/quizzes/:quizId/share/profile', handleShareQuizToProfile);
 quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);
 quizzesRouter.post('/quizzes/:quizId/restore', handleRestoreQuiz);
-quizzesRouter.post('/quizzes/:quizId/public-attempts', handleSetQuizPublicAttempts);
 quizzesRouter.post('/quizzes/:quizId/test-attempts', handleStartQuizTestAttempt);
 quizzesRouter.get('/quiz-attempts/:attemptId', renderQuizAttemptPage);
 quizzesRouter.get('/quiz-attempts/:attemptId/result', renderQuizResultPage);

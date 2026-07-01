@@ -10,7 +10,6 @@ const originalDatabasePath = process.env.DATABASE_PATH;
 const originalEnvFile = process.env.ENV_FILE;
 const originalNodeEnv = process.env.NODE_ENV;
 const originalSessionSecret = process.env.APP_SESSION_SECRET;
-const originalOpenRouterFreeApiKey = process.env.OPENROUTER_FREE_API_KEY;
 
 let server: Server;
 let baseUrl: string;
@@ -22,7 +21,6 @@ beforeAll(async () => {
   process.env.DATABASE_PATH = path.join(tempDir, 'routes.sqlite');
   process.env.ENV_FILE = '/dev/null';
   process.env.NODE_ENV = 'test';
-  process.env.OPENROUTER_FREE_API_KEY = 'test-free-resource-key';
   vi.resetModules();
 
   const serverModule = await import('../../src/server/server.js');
@@ -57,7 +55,6 @@ afterAll(async () => {
   restoreEnvValue('ENV_FILE', originalEnvFile);
   restoreEnvValue('NODE_ENV', originalNodeEnv);
   restoreEnvValue('APP_SESSION_SECRET', originalSessionSecret);
-  restoreEnvValue('OPENROUTER_FREE_API_KEY', originalOpenRouterFreeApiKey);
 });
 
 describe('main route smoke tests', () => {
@@ -201,6 +198,7 @@ describe('main route smoke tests', () => {
       {
         detailPath: `/quizzes/${quiz.id}`,
         id: quiz.id,
+        isQuiz: true,
         title: 'Route Shared Quiz',
       },
       {
@@ -230,7 +228,12 @@ describe('main route smoke tests', () => {
       const anonymousHtml = await anonymousResponse.text();
       expect(anonymousResponse.status).toBe(200);
       expect(anonymousHtml).toContain(resource.title);
-      expect(anonymousHtml).toContain(`/login?returnTo=%2Fresources%2Fshared%2F${shareLink.id}`);
+      if (resource.isQuiz) {
+        // Any shared quiz can be filled anonymously; no login wall on the page.
+        expect(anonymousHtml).toContain('Hacer el quiz');
+      } else {
+        expect(anonymousHtml).toContain(`/login?returnTo=%2Fresources%2Fshared%2F${shareLink.id}`);
+      }
 
       const authenticatedResponse = await fetch(`${baseUrl}/resources/shared/${shareLink.id}`, {
         headers: { cookie: receiverCookie },
@@ -238,7 +241,7 @@ describe('main route smoke tests', () => {
       });
       const authenticatedHtml = await authenticatedResponse.text();
       expect(authenticatedResponse.status).toBe(200);
-      expect(authenticatedHtml).toContain('Agregar a mis recursos');
+      expect(authenticatedHtml).toContain(resource.isQuiz ? 'Hacer el quiz' : 'Agregar a mis recursos');
 
       const acceptResponse = await postForm(
         `/resources/shared/${shareLink.id}/accept`,
@@ -689,81 +692,71 @@ describe('main route smoke tests', () => {
     expect(reportNoReportResponse.headers.get('location')).toBe(`/c/${conversation.id}?tab=summary`);
   });
 
-  it('lets a public quiz be taken anonymously and requires no account to start', async () => {
+  it('lets anyone take a shared quiz anonymously, then gates evaluation behind signup', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       createProfile,
       createQuiz,
       findQuizAttemptById,
-      findQuizForUser,
       getOrCreateResourceShareLink,
     } = await import('../../src/server/db/repository.js');
 
     const owner = createExternalUser({
-      email: 'route-public-quiz-owner@example.com',
+      email: 'route-shared-quiz-owner@example.com',
       emailVerified: true,
-      fullName: 'Route Public Quiz Owner',
+      fullName: 'Route Shared Quiz Owner',
       provider: 'google',
-      providerSubject: 'route-public-quiz-owner',
+      providerSubject: 'route-shared-quiz-owner',
     });
-    const ownerProfile = createProfile({ name: 'Route public quiz profile', userId: owner.id });
+    const ownerProfile = createProfile({ name: 'Route shared quiz profile', userId: owner.id });
     const quiz = createQuiz({
       profileId: ownerProfile.id,
       quiz: {
         blocks: [
           { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
         ],
-        title: 'Route Public Quiz',
+        title: 'Route Shared Quiz',
       },
-      title: 'Route Public Quiz',
+      title: 'Route Shared Quiz',
       userId: owner.id,
     });
-    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
-    const csrfToken = extractCsrfToken(
-      await (
-        await fetch(`${baseUrl}/resources`, { headers: { cookie: ownerCookie }, redirect: 'manual' })
-      ).text(),
-    );
 
     const shareLink = getOrCreateResourceShareLink(quiz.id);
     const sharePath = `/resources/shared/${shareLink.id}`;
 
-    const beforeHtml = await (
-      await fetch(`${baseUrl}${sharePath}`, { redirect: 'manual' })
-    ).text();
-    expect(beforeHtml).not.toContain('Hacer el quiz gratis');
-
-    const blockedStart = await postForm(`/quizzes/public/${shareLink.id}/attempt`, { _csrf: csrfToken }, '');
-    expect(blockedStart.status).toBe(302);
-    expect(blockedStart.headers.get('location')).toBe(sharePath);
-
-    const toggle = await postForm(
-      `/quizzes/${quiz.id}/public-attempts`,
-      { _csrf: csrfToken, allowPublicAttempts: 'on', returnTo: `/quizzes/${quiz.id}` },
-      ownerCookie,
-    );
-    expect(toggle.status).toBe(302);
-    expect(findQuizForUser(quiz.id, owner.id)?.allowPublicAttempts).toBe(true);
-
+    // Any shared quiz shows the anonymous "take it" action, no opt-in needed.
     const sharedResponse = await fetch(`${baseUrl}${sharePath}`, { redirect: 'manual' });
     const sharedHtml = await sharedResponse.text();
     expect(sharedResponse.status).toBe(200);
-    expect(sharedHtml).toContain('Hacer el quiz gratis');
-    expect(sharedHtml).toContain(`/quizzes/public/${shareLink.id}/attempt`);
+    expect(sharedHtml).toContain('Hacer el quiz');
+    expect(sharedHtml).toContain(`/quizzes/shared/${shareLink.id}/take`);
 
+    // Anonymous visitor starts a guest attempt.
     const startResponse = await postForm(
-      `/quizzes/public/${shareLink.id}/attempt`,
+      `/quizzes/shared/${shareLink.id}/take`,
       { _csrf: extractCsrfToken(sharedHtml) },
       '',
     );
     expect(startResponse.status).toBe(302);
-    const location = startResponse.headers.get('location') ?? '';
-    expect(location).toMatch(/^\/quiz-attempts\/[^/]+\?guestToken=/);
-
-    const attemptId = decodeURIComponent(location.replace('/quiz-attempts/', '').split('?')[0]);
+    const startLocation = startResponse.headers.get('location') ?? '';
+    expect(startLocation).toMatch(/^\/quiz-attempts\/[^/]+\?guestToken=/);
+    const attemptId = decodeURIComponent(startLocation.replace('/quiz-attempts/', '').split('?')[0]);
+    const guestToken = new URLSearchParams(startLocation.split('?')[1]).get('guestToken') ?? '';
     const attempt = findQuizAttemptById(attemptId);
     expect(attempt?.userId).toBeNull();
     expect(attempt?.guestToken).toBeTruthy();
+
+    // Submitting as a guest saves answers and redirects to signup instead of
+    // evaluating (no LLM call happens here).
+    const submitResponse = await postForm(
+      `/quiz-attempts/${attemptId}/submit`,
+      { _csrf: extractCsrfToken(sharedHtml), guestToken },
+      '',
+    );
+    expect(submitResponse.status).toBe(302);
+    const submitLocation = submitResponse.headers.get('location') ?? '';
+    expect(submitLocation).toMatch(/^\/signup\?returnTo=/);
+    expect(decodeURIComponent(submitLocation)).toContain(`/quiz-attempts/${attemptId}/result`);
   });
 });
 

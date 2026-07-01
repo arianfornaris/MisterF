@@ -26,14 +26,11 @@
           </form>
         <% } %>
       <% } else { %>
-        <% const practiceReturnTo = `/quiz-attempts/${encodeURIComponent(attempt.id)}/result${guestToken ? `?guestToken=${encodeURIComponent(guestToken)}` : ''}`; %>
-        <a class="btn btn-primary" href="/signup?returnTo=<%= encodeURIComponent(practiceReturnTo) %>">
-          <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
+        <% const resultReturnTo = `/quiz-attempts/${encodeURIComponent(attempt.id)}/result${guestToken ? `?guestToken=${encodeURIComponent(guestToken)}` : ''}`; %>
+        <a class="btn btn-primary" href="/signup?returnTo=<%= encodeURIComponent(resultReturnTo) %>">
+          <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Crear cuenta para ver el resultado
         </a>
-        <a class="btn btn-outline-secondary" href="/login?returnTo=<%= encodeURIComponent(practiceReturnTo) %>">Ya tengo cuenta</a>
-        <p class="w-100 small text-body-secondary mb-0">
-          Crea una cuenta gratis o inicia sesión para practicar estos puntos con Mister F.
-        </p>
+        <a class="btn btn-outline-secondary" href="/login?returnTo=<%= encodeURIComponent(resultReturnTo) %>">Ya tengo cuenta</a>
       <% } %>
     </div>
   </div>
