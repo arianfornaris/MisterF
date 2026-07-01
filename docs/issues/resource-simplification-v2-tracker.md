@@ -817,6 +817,18 @@ Tasks:
     judgment, sentence-evaluation-style review, creative scenarios, turn limits,
     and future guest/free policy.
 
+## Pre-Production Fixes
+
+Standalone bugs and config issues to fix before production, not tied to a
+specific slice.
+
+- [ ] Google sign-in consent screen shows the wrong app name: "Sign in to
+  continue to Test Phaser Editor Chatbot" instead of the Mr. F product name.
+  This is a Google Cloud OAuth consent-screen / OAuth client configuration issue
+  (a leftover app name from another project), not app code. Fix the OAuth app
+  name (and branding: logo, support email, authorized domains) in the Google
+  Cloud console so it reads the correct Mr. F name.
+
 ## Final Cleanup: Remove Legacy Data Structures
 
 Goal: remove legacy data structures and compatibility code before production

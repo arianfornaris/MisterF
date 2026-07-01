@@ -220,35 +220,22 @@ function buildQuizAttemptEventDetails(input: {
   const missedItems = input.result.items.filter(
     (item) => item.evaluation.status !== 'correct',
   );
-  const correctItems = input.result.items.filter(
-    (item) => item.evaluation.status === 'correct',
-  );
 
+  // Keep progress entries concise. A quiz has no LLM-generated strength/summary
+  // phrases like a roleplay, only per-item evaluations, so we surface the short
+  // feedback for missed items as focus areas and never dump the raw item prompts
+  // (which are long, bilingual question texts) into the timeline or the summary.
   return {
     difficulties: uniqueLimited(
-      missedItems.map((item) =>
-        compactText(`${item.prompt}: ${item.evaluation.feedback}`, 140),
-      ),
+      missedItems.map((item) => compactText(item.evaluation.feedback, 140)),
       4,
     ),
     practiced: uniqueLimited(
-      [
-        input.draft.title,
-        input.draft.targetTopic,
-        input.draft.level,
-      ].filter(Boolean),
+      [input.draft.targetTopic, input.draft.level].filter(Boolean),
       5,
     ),
-    progress: uniqueLimited(
-      correctItems.map((item) =>
-        compactText(`${item.prompt}: ${item.evaluation.feedback}`, 140),
-      ),
-      4,
-    ),
-    recommendations: uniqueLimited(
-      missedItems.map((item) => compactText(item.evaluation.feedback, 140)),
-      5,
-    ),
+    progress: [],
+    recommendations: [],
     resourceId: input.attempt.quizId,
     resourceType: 'quiz',
     vocabulary: uniqueLimited(extractQuizInlineReviewText(input.result), 12)
