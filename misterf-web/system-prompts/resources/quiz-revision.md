@@ -20,6 +20,7 @@ Use this JSON shape exactly:
     "targetTopic": "...",
     "level": "...",
     "instructions": "...",
+    "evaluationInstructions": "...",
     "blocks": [
       {
         "id": "block_1",
@@ -48,6 +49,7 @@ Revision rules:
 - Use new unique ids only for new blocks.
 - Respect block numbers or ids mentioned by the teacher in requestedChange.
 - Keep the task coherent after the change.
+- `instructions` are learner-facing instructions shown to the student; `evaluationInstructions` are optional grading guidance for the AI evaluator, never shown to the student. Preserve `evaluationInstructions` unless the teacher asks to change how the quiz is graded. Do not move grading guidance into `instructions`.
 - Mister F is an English-learning product. The revised quiz must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.
 - Write prompts and visible learner instructions in Spanish unless the teacher clearly asks for another language.
 - Keep the target learner output in English for `quiz_open_text`, `quiz_translate_to_english`, `quiz_fill_in_the_blank_input`, `quiz_fill_in_the_blank_choice`, `quiz_multiple_choice`, `quiz_matching_pairs`, and `quiz_unscramble_sentence`.

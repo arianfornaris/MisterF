@@ -83,8 +83,14 @@
             <input class="form-control" id="quizLevel" name="level" value="<%= draft.level %>">
           </div>
           <div class="col-12">
-            <label class="form-label" for="quizInstructions">Instrucciones</label>
+            <label class="form-label" for="quizInstructions">Instrucciones para el estudiante</label>
             <textarea class="form-control" id="quizInstructions" name="instructions" rows="4"><%= draft.instructions %></textarea>
+            <div class="form-text">Se le muestran al estudiante como encabezado del quiz.</div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="quizEvaluationInstructions">Instrucciones para el modelo (opcional)</label>
+            <textarea class="form-control" id="quizEvaluationInstructions" name="evaluationInstructions" rows="3"><%= draft.evaluationInstructions %></textarea>
+            <div class="form-text">Guía de calificación para la IA (rigor, qué aceptar, foco, tono del feedback). No se le muestran al estudiante y solo influyen en los ejercicios abiertos.</div>
           </div>
         </div>
         <div class="d-flex flex-wrap gap-2 mt-3">

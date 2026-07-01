@@ -837,6 +837,7 @@ export function handleUpdateQuizMetadata(request: Request, response: Response): 
 
   const updatedDraft = createQuizDraftFromManualInput({
     description: readMultilineField(request.body.description, 1500),
+    evaluationInstructions: readMultilineField(request.body.evaluationInstructions, 3000),
     instructions: readMultilineField(request.body.instructions, 3000),
     level: readField(request.body.level, 120),
     previousDraft: draft,

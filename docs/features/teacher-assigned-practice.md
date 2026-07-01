@@ -611,6 +611,16 @@ id or client key in addition to its current display order. Display numbers can
 change when the teacher reorders blocks; stable ids are what let AI revisions,
 logs, and later attempts keep referring to the same underlying item.
 
+The quiz draft in `quiz_json` carries two separate instruction fields:
+
+- `instructions`: learner-facing instructions shown to the student as the quiz
+  header. They are also passed to the evaluator as context.
+- `evaluationInstructions`: optional grading guidance for the AI evaluator (how
+  strict to be, what to accept or reject, what to focus on, feedback tone). It
+  is never shown to the student and only meaningfully affects open-ended items;
+  deterministic items are graded against their defined correct answers. The
+  evaluator receives it as `authorEvaluationInstructions`.
+
 ### `quiz_share_links`
 
 - `id`

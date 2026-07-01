@@ -55,6 +55,7 @@ export const quizDraftSchema = z.preprocess(
   z.object({
     blocks: z.array(quizBlockSchema).min(1).max(maxQuizBlocks),
     description: z.string().trim().max(1500).default(''),
+    evaluationInstructions: z.string().trim().max(3000).default(''),
     instructions: z.string().trim().max(3000).default(''),
     level: z.string().trim().max(120).default(''),
     targetTopic: z.string().trim().max(220).default(''),
@@ -157,6 +158,7 @@ export function storedQuizToDraft(quiz: StoredQuiz): QuizDraft {
   return {
     blocks: [],
     description: quiz.description,
+    evaluationInstructions: '',
     instructions: quiz.instructions,
     level: quiz.level,
     targetTopic: quiz.targetTopic,
@@ -248,6 +250,7 @@ function buildStudentQuizItem(item: TutorQuizItem): QuizStudentQuizItem {
 
 export function createQuizDraftFromManualInput(input: {
   description: string;
+  evaluationInstructions: string;
   instructions: string;
   level: string;
   previousDraft: QuizDraft;
@@ -257,6 +260,7 @@ export function createQuizDraftFromManualInput(input: {
   return quizDraftSchema.parse({
     ...input.previousDraft,
     description: input.description,
+    evaluationInstructions: input.evaluationInstructions,
     instructions: input.instructions,
     level: input.level,
     targetTopic: input.targetTopic,
@@ -419,6 +423,7 @@ export async function evaluateQuizAttempt(input: {
   const quiz = quizDraftToQuizBlock(draft);
   const responses = normalizeStoredResponses(input.attempt.responses);
   const evaluations = await evaluateQuizResultItemsWithLlm({
+    evaluationInstructions: draft.evaluationInstructions,
     llm: input.llm,
     quiz,
     responses,

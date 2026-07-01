@@ -546,6 +546,7 @@ export async function translateTextWithLlm(input: {
 }
 
 export async function evaluateQuizResultItemsWithLlm(input: {
+  evaluationInstructions?: string;
   llm?: LlmRequestOptions;
   quiz: TutorQuizBlock;
   responses: Array<Record<string, unknown>>;
@@ -555,12 +556,16 @@ export async function evaluateQuizResultItemsWithLlm(input: {
   status: 'correct' | 'incorrect' | 'partial';
 }>> {
   const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
+  const authorEvaluationInstructions = input.evaluationInstructions?.trim() || '';
   const messages: ModelMessage[] = [
     {
       content: JSON.stringify(
         {
           quiz: input.quiz,
           responses: input.responses,
+          ...(authorEvaluationInstructions
+            ? { authorEvaluationInstructions }
+            : {}),
         },
         null,
         2,

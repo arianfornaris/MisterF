@@ -389,11 +389,15 @@ export async function translateTextWithLlm(input) {
 }
 export async function evaluateQuizResultItemsWithLlm(input) {
     const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
+    const authorEvaluationInstructions = input.evaluationInstructions?.trim() || '';
     const messages = [
         {
             content: JSON.stringify({
                 quiz: input.quiz,
                 responses: input.responses,
+                ...(authorEvaluationInstructions
+                    ? { authorEvaluationInstructions }
+                    : {}),
             }, null, 2),
             role: 'user',
         },

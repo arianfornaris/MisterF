@@ -14,6 +14,7 @@ Use this JSON shape exactly:
   "targetTopic": "...",
   "level": "...",
   "instructions": "...",
+  "evaluationInstructions": "...",
   "blocks": [
     {
       "id": "block_1",
@@ -27,7 +28,8 @@ Field guidance:
 - description: concise learner-facing description of the task.
 - targetTopic: the main grammar, vocabulary, reading, writing, listening-style text, or communicative skill.
 - level: CEFR-like level or clear learner level when the request implies one.
-- instructions: teacher-facing guidance about what the task checks and how it should be evaluated.
+- instructions: learner-facing instructions shown to the student as the quiz header (what to do). Write them for the student.
+- evaluationInstructions: optional grading guidance for the AI evaluator (how strict to be, what to accept or reject, what to focus on, feedback tone). It is never shown to the student and only meaningfully affects open-ended items. Leave it as an empty string unless the request implies a specific grading rubric.
 - blocks: 3 to 10 quiz items unless the user clearly asks for a different size.
 
 Every block id must:
