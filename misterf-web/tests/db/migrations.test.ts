@@ -103,6 +103,10 @@ describe('database migrations', () => {
         id: 12,
         name: 'add_roleplay_resources',
       },
+      {
+        id: 13,
+        name: 'add_quiz_public_attempts',
+      },
     ]);
 
     const tableNames = (db
@@ -163,6 +167,7 @@ describe('database migrations', () => {
       'evaluation_status',
     ]));
     expect(getColumnNames(db, 'quizzes')).toEqual(expect.arrayContaining([
+      'allow_public_attempts',
       'authoring_messages_json',
       'quiz_json',
       'shared_via',

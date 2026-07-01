@@ -1,11 +1,11 @@
 import QRCode from 'qrcode';
-import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findQuizShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
+import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findQuizShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, setQuizPublicAttempts, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendQuizBlock, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResultTitle, createQuizDraftFromManualInput, duplicateQuizBlock, evaluateQuizAttempt, moveQuizBlock, normalizeQuizResponses, removeQuizBlock, safeParseQuizDraft, } from '../services/quizzes.js';
 import { generateQuizBlock, generateQuizDraft, generateQuizRevision, } from '../services/resourceDrafts.js';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
-import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
+import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, getFreeResourceOpenRouterApiKey, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordQuizAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
@@ -890,6 +890,27 @@ export function handleArchiveQuiz(request, response) {
     archiveQuizForUser(resolved.quiz.id, resolved.user.id);
     response.redirect(returnTo);
 }
+export function handleSetQuizPublicAttempts(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const allowPublicAttempts = readField(request.body.allowPublicAttempts, 10) === 'on';
+    setQuizPublicAttempts({
+        allowPublicAttempts,
+        quizId: resolved.quiz.id,
+        userId: resolved.user.id,
+    });
+    logger.info('quiz_public_attempts_updated', {
+        allowPublicAttempts,
+        profileId: resolved.quiz.profileId,
+        resourceId: resolved.quiz.id,
+        resourceType: 'quiz',
+        userId: resolved.user.id,
+    });
+    const returnTo = readReturnTo(request.body.returnTo, `/quizzes/${encodeURIComponent(resolved.quiz.id)}`);
+    response.redirect(returnTo);
+}
 export function handleRestoreQuiz(request, response) {
     const resolved = resolveOwnQuiz(request, response);
     if (!resolved) {
@@ -937,6 +958,72 @@ export function handleStartQuizAttempt(request, response) {
         userId: user.id,
     });
     response.redirect(`/quizzes/${encodeURIComponent(quiz.id)}`);
+}
+/**
+ * Starts an attempt for a shared quiz that allows public attempts. Anonymous
+ * visitors get a free guest attempt (evaluated with the platform free-resource
+ * key). Authenticated visitors get a normal owned attempt with resource access.
+ */
+export function handleStartPublicQuizAttempt(request, response) {
+    const shareId = readField(request.params.shareId, 120);
+    const sharePath = `/resources/shared/${encodeURIComponent(shareId)}`;
+    const shareLink = findResourceShareLinkById(shareId);
+    if (!shareLink || shareLink.revokedAt) {
+        response.redirect('/resources');
+        return;
+    }
+    const quiz = findQuizById(shareLink.resourceId);
+    if (!quiz ||
+        quiz.archivedAt ||
+        !quiz.allowPublicAttempts ||
+        !getFreeResourceOpenRouterApiKey()) {
+        response.redirect(sharePath);
+        return;
+    }
+    const draft = safeParseQuizDraft(quiz.quiz);
+    if (!draft) {
+        response.redirect(sharePath);
+        return;
+    }
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (user?.emailVerified && activeProfile) {
+        grantResourceAccess({
+            grantedByUserId: quiz.userId,
+            grantedVia: 'link',
+            profileId: activeProfile.id,
+            resourceId: quiz.id,
+            shareLinkId: shareLink.id,
+            userId: user.id,
+        });
+        const attempt = createQuizAttempt({
+            quizId: quiz.id,
+            profileId: activeProfile.id,
+            snapshot: draft,
+            userId: user.id,
+        });
+        logger.info('quiz_attempt_started', {
+            quizId: quiz.id,
+            attemptId: attempt.id,
+            isGuest: false,
+            profileId: attempt.profileId,
+            resourceId: quiz.id,
+            resourceType: 'quiz',
+            userId: attempt.userId,
+        });
+        response.redirect(`/quiz-attempts/${encodeURIComponent(attempt.id)}`);
+        return;
+    }
+    const attempt = createQuizAttempt({ quizId: quiz.id, snapshot: draft });
+    logger.info('quiz_public_attempt_started', {
+        quizId: quiz.id,
+        attemptId: attempt.id,
+        isGuest: true,
+        resourceId: quiz.id,
+        resourceType: 'quiz',
+        userId: null,
+    });
+    response.redirect(appendGuestToken(`/quiz-attempts/${encodeURIComponent(attempt.id)}`, attempt));
 }
 export function handleStartQuizTestAttempt(request, response) {
     const resolved = resolveAccessibleQuiz(request, response);
@@ -1013,8 +1100,12 @@ export async function handleSubmitQuizAttempt(request, response) {
         return;
     }
     try {
+        const isGuestAttempt = !evaluatingAttempt.userId;
         const result = await evaluateQuizAttempt({
             attempt: evaluatingAttempt,
+            llm: isGuestAttempt
+                ? { openRouterApiKey: getFreeResourceOpenRouterApiKey() }
+                : undefined,
         });
         const evaluatedAttempt = saveQuizAttemptResult({
             attemptId: evaluatingAttempt.id,
@@ -1051,9 +1142,25 @@ export async function handleSubmitQuizAttempt(request, response) {
     }
 }
 export function renderQuizResultPage(request, response) {
-    const attempt = resolveAccessibleAttempt(request, response);
+    let attempt = resolveAccessibleAttempt(request, response);
     if (!attempt) {
         return;
+    }
+    // When a guest signs in or signs up and returns to their result, claim the
+    // attempt so they can practice it and keep it in their progress.
+    const user = request.authUser;
+    const activeProfile = request.activeProfile;
+    if (user?.emailVerified && activeProfile && !attempt.userId && attempt.claimToken) {
+        const claimedAttempt = attachQuizAttemptToUser({
+            attemptId: attempt.id,
+            claimToken: attempt.claimToken,
+            profileId: activeProfile.id,
+            userId: user.id,
+        });
+        if (claimedAttempt) {
+            recordQuizAttemptProgress(claimedAttempt);
+            attempt = claimedAttempt;
+        }
     }
     renderQuizResult(request, response, attempt);
 }

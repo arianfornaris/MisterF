@@ -87,6 +87,15 @@ This is already aligned with the current system direction:
 - OpenRouter key ownership is account-level
 - usage is shared across all profiles belonging to that account
 
+### Platform free-resource key
+
+Free public resources (currently anonymous public-quiz attempts) are funded by a
+dedicated platform key `OPENROUTER_FREE_API_KEY`, resolved by
+`getFreeResourceOpenRouterApiKey` and falling back to `OPENROUTER_API_KEY`. This
+key is not a per-user key and does not pass the per-user credit gate; its spend
+is bounded by the limit configured on the key in OpenRouter. When no free key is
+configured, the free public flow is disabled.
+
 ### Free starter balance
 
 When a user account is created, Mister F should provision an OpenRouter key with:
@@ -331,17 +340,20 @@ Credit policy:
 - starting a Quiz attempt with `Probar` does not consume LLM credits
 - submitting a Quiz attempt uses the same product-funded evaluation policy as
   student Quiz attempts
-- current generic resource sharing requires the student to create an account or
-  log in before using a shared Quiz
-- a future quiz-specific public flow should allow a shared Quiz to be
-  completed by a student without an account
-- the AI evaluation after that future public shared-Quiz submission should be
-  free to the student
-- free shared-Quiz evaluation should be product-funded acquisition usage, not
-  usage charged to an anonymous student and not a hidden post-share charge to
-  the teacher
-- after seeing the result in that future public flow, follow-up practice with
-  Mr. F should require the student to create an account or log in
+- generic resource sharing still requires the student to create an account or
+  log in for non-quiz resources
+- a quiz can be marked public and free per quiz by its owner
+  (`quizzes.allow_public_attempts`). A shared public quiz can be completed by an
+  anonymous student without an account, from the shared resource page's
+  "Hacer el quiz gratis" action
+- the AI evaluation after a public shared-quiz submission is free to the student
+- free shared-quiz evaluation is product-funded acquisition usage on a dedicated
+  platform key `OPENROUTER_FREE_API_KEY` (falling back to `OPENROUTER_API_KEY`).
+  Spend is isolated on that key and bounded by its OpenRouter limit; it is not
+  charged to the anonymous student and not a hidden post-share charge to the
+  teacher. If no free key is configured, the public flow is disabled
+- after seeing the result, follow-up practice with Mr. F requires the student to
+  create an account or log in; on return the guest attempt is auto-claimed
 - follow-up tutor conversations use the standard account credit policy
 
 Operational requirements:

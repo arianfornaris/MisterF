@@ -270,6 +270,7 @@ export type StoredConversationTutorReportSnapshot = {
 };
 
 export type StoredQuiz = {
+  allowPublicAttempts: boolean;
   archivedAt: string | null;
   authoringMessages: QuizAuthoringMessage[];
   createdAt: string;
@@ -723,6 +724,7 @@ type ConversationTutorReportSnapshotRow = {
 };
 
 type QuizRow = {
+  allow_public_attempts: number;
   archived_at: string | null;
   authoring_messages_json: string;
   created_at: string;
@@ -1184,6 +1186,7 @@ function parseRoleplayTurns(value: string | null | undefined): RoleplayTurn[] {
 
 function toStoredQuiz(row: QuizRow): StoredQuiz {
   return {
+    allowPublicAttempts: row.allow_public_attempts === 1,
     archivedAt: row.archived_at,
     authoringMessages: parseQuizAuthoringMessages(row.authoring_messages_json),
     createdAt: row.created_at,
@@ -4352,6 +4355,7 @@ export function findQuizForUser(
     .prepare(
       `
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -4383,6 +4387,7 @@ export function findQuizById(id: string): StoredQuiz | null {
     .prepare(
       `
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -4418,6 +4423,7 @@ export function listQuizzesForProfile(input: {
     .prepare(
       `
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -4505,6 +4511,25 @@ export function updateQuiz(input: {
   return findQuizForUser(input.quizId, input.userId);
 }
 
+export function setQuizPublicAttempts(input: {
+  allowPublicAttempts: boolean;
+  quizId: string;
+  userId: string;
+}): StoredQuiz | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE quizzes
+        SET allow_public_attempts = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(input.allowPublicAttempts ? 1 : 0, input.quizId, input.userId);
+
+  return findQuizForUser(input.quizId, input.userId);
+}
+
 export function updateQuizAuthoringMessages(input: {
   quizId: string;
   messages: QuizAuthoringMessage[];
@@ -4548,6 +4573,7 @@ export function findImportedQuizForProfile(input: {
     .prepare(
       `
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,

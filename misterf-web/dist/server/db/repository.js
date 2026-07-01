@@ -285,6 +285,7 @@ function parseRoleplayTurns(value) {
 }
 function toStoredQuiz(row) {
     return {
+        allowPublicAttempts: row.allow_public_attempts === 1,
         archivedAt: row.archived_at,
         authoringMessages: parseQuizAuthoringMessages(row.authoring_messages_json),
         createdAt: row.created_at,
@@ -2489,6 +2490,7 @@ export function findQuizForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2516,6 +2518,7 @@ export function findQuizById(id) {
     const row = getDb()
         .prepare(`
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2543,6 +2546,7 @@ export function listQuizzesForProfile(input) {
     const rows = getDb()
         .prepare(`
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2602,6 +2606,17 @@ export function updateQuiz(input) {
     transaction();
     return findQuizForUser(input.quizId, input.userId);
 }
+export function setQuizPublicAttempts(input) {
+    getDb()
+        .prepare(`
+        UPDATE quizzes
+        SET allow_public_attempts = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(input.allowPublicAttempts ? 1 : 0, input.quizId, input.userId);
+    return findQuizForUser(input.quizId, input.userId);
+}
 export function updateQuizAuthoringMessages(input) {
     const db = getDb();
     const transaction = db.transaction(() => {
@@ -2625,6 +2640,7 @@ export function findImportedQuizForProfile(input) {
     const row = getDb()
         .prepare(`
         SELECT
+          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,

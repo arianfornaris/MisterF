@@ -345,8 +345,9 @@ Tasks:
 - [x] Migrate or redirect old practice guide share links.
 - [x] Remove duplicated list/archive/share code where generic resource
   behavior now owns it.
-- [x] Moved "update home suggestions to reference resource ids" to Slice 13 so
-  all home/start page work is tracked together.
+- [x] Moved "update home suggestions to reference resource ids" to the
+  [Home Page Work (V3)](./home-page-work-v3.md) document so all home/start page
+  work is tracked together.
 
 Exit criteria:
 
@@ -644,33 +645,11 @@ Verification:
 
 ## Slice 13: Home Page Work
 
-Goal: anchor home/start page work that was split out of the earlier resource
-simplification slices. Detailed personalized-suggestion design keeps its own
-tracker; this slice only ensures the relocated resource-aware home tasks are not
-lost and that home page work is tracked in one place.
-
-Related documents:
-
-- [Home Start Experience](../features/home-start-experience.md)
-- [Home Suggestions Tracker](./home-suggestions-tracker.md)
-
-Tasks:
-
-- [ ] Update home suggestions to reference resource ids where useful (moved from
-  Slice 6).
-- [ ] Coordinate the remaining home/start surface work through the
-  [Home Suggestions Tracker](./home-suggestions-tracker.md).
-
-Exit criteria:
-
-- [ ] Home suggestions can link directly to resources by id.
-- [ ] Home page work is tracked in one place.
-
-Notes:
-
-- Suggestion surfaces, ranking inputs, built-in topic library, credit policy,
-  and ranking tests live in the Home Suggestions Tracker. This slice is the
-  high-level pointer from the resource simplification work to that effort.
+Moved to V3. Home/start page work is tracked in a separate document:
+[Home Page Work (V3)](./home-page-work-v3.md). Detailed personalized-suggestion
+design continues in the [Home Suggestions Tracker](./home-suggestions-tracker.md).
+This slice number is kept as a pointer so Slices 14 and 15 do not need
+renumbering.
 
 ## Slice 14: Free Resources For Growth
 
@@ -678,26 +657,44 @@ Goal: provide free resources to every user, including prospective students who
 do not yet have an account, as a user-acquisition lever. Let people experience
 real resource value before signing up so the product can grow its user base.
 
+Decisions:
+
+- [x] Free public taking is opt-in per quiz: the owner marks a quiz as public
+  and free (`quizzes.allow_public_attempts`).
+- [x] Free evaluation uses a dedicated platform OpenRouter key
+  `OPENROUTER_FREE_API_KEY`, falling back to `OPENROUTER_API_KEY`
+  (`getFreeResourceOpenRouterApiKey`). If neither is set, the free flow is off.
+
 Tasks:
 
-- [ ] Give `Quizzes` a special public/free student flow where quiz
-  completion and AI evaluation can happen before account creation (moved from
-  Slice 8).
-- [ ] Decide which resource types are offered as free/gift resources to new and
-  prospective users.
-- [ ] Define the credit/cost policy for AI evaluation in the pre-account free
-  flow so platform cost stays bounded.
-- [ ] Define the conversion path from a completed free attempt into account
-  creation.
-- [ ] Define abuse/rate-limit protection for unauthenticated free evaluation.
-- [ ] Add tests for the public/free attempt and evaluation path.
+- [x] Give `Quizzes` a public/free student flow where quiz completion and AI
+  evaluation can happen before account creation (moved from Slice 8).
+  - Owner toggle `POST /quizzes/:quizId/public-attempts` +
+    `allow_public_attempts` column (forward migration `add_quiz_public_attempts`).
+  - Anonymous start `POST /quizzes/public/:shareId/attempt` creates a guest
+    attempt; submit evaluates with the free key; the guest sees the result.
+- [x] Decide which resource types are offered as free/gift resources: quizzes
+  first. Roleplay/practice guide remain future.
+- [x] Define the credit/cost policy: guest quiz evaluation uses the dedicated
+  free-resource key, so spend is isolated and bounded by that key's OpenRouter
+  limit (not the per-user credit gate).
+- [x] Define the conversion path: from the result page, "Practicar" sends guests
+  to signup/login; on return the guest attempt is auto-claimed
+  (`renderQuizResultPage`) so they can practice it and keep it in progress.
+- [~] Abuse/rate-limit protection for unauthenticated free evaluation: currently
+  bounded by the dedicated key's OpenRouter limit and the per-quiz opt-in. A
+  per-IP/attempt rate limit is a future hardening step.
+- [x] Add tests for the public/free attempt start path (owner toggle, anonymous
+  start, guard for non-public quizzes). The LLM evaluation itself is not tested
+  (no live inference in tests).
 
 Exit criteria:
 
-- [ ] A prospective student can complete a free resource and receive AI
+- [x] A prospective student can complete a free public quiz and receive AI
   evaluation before creating an account.
-- [ ] The free-resource growth flow has an explicit, bounded credit policy.
-- [ ] The flow has a clear path to convert a free attempt into a new account.
+- [x] The free-resource flow has an explicit, bounded credit policy (dedicated
+  key).
+- [x] The flow converts a free attempt into a new account and claims it.
 
 Notes:
 
@@ -705,6 +702,8 @@ Notes:
   previously a single "future" bullet in Slice 8.
 - Roleplay has a parallel future public/free attempt idea in Slice 11; align
   both under this growth direction when implemented.
+- Remaining hardening: per-IP/attempt rate limiting for anonymous starts and
+  submissions.
 
 ## Slice 15: Rename Tarea Resource To Quiz
 

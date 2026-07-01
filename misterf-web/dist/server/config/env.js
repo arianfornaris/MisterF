@@ -72,6 +72,7 @@ export const env = {
         'openai/gpt-5',
     llmContextWindow: readInteger('LLM_CONTEXT_WINDOW', 128000),
     openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
+    openrouterFreeResourceApiKey: process.env.OPENROUTER_FREE_API_KEY || process.env.OPENROUTER_API_KEY || '',
     openrouterBaseUrl: process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1',
     llmTraceMode: process.env.LLM_TRACE_MODE ??
         (nodeEnv === 'production' ? 'metadata' : 'full'),

@@ -10,6 +10,7 @@ const originalDatabasePath = process.env.DATABASE_PATH;
 const originalEnvFile = process.env.ENV_FILE;
 const originalNodeEnv = process.env.NODE_ENV;
 const originalSessionSecret = process.env.APP_SESSION_SECRET;
+const originalOpenRouterFreeApiKey = process.env.OPENROUTER_FREE_API_KEY;
 
 let server: Server;
 let baseUrl: string;
@@ -21,6 +22,7 @@ beforeAll(async () => {
   process.env.DATABASE_PATH = path.join(tempDir, 'routes.sqlite');
   process.env.ENV_FILE = '/dev/null';
   process.env.NODE_ENV = 'test';
+  process.env.OPENROUTER_FREE_API_KEY = 'test-free-resource-key';
   vi.resetModules();
 
   const serverModule = await import('../../src/server/server.js');
@@ -55,6 +57,7 @@ afterAll(async () => {
   restoreEnvValue('ENV_FILE', originalEnvFile);
   restoreEnvValue('NODE_ENV', originalNodeEnv);
   restoreEnvValue('APP_SESSION_SECRET', originalSessionSecret);
+  restoreEnvValue('OPENROUTER_FREE_API_KEY', originalOpenRouterFreeApiKey);
 });
 
 describe('main route smoke tests', () => {
@@ -684,6 +687,83 @@ describe('main route smoke tests', () => {
     );
     expect(reportNoReportResponse.status).toBe(302);
     expect(reportNoReportResponse.headers.get('location')).toBe(`/c/${conversation.id}?tab=summary`);
+  });
+
+  it('lets a public quiz be taken anonymously and requires no account to start', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      findQuizAttemptById,
+      findQuizForUser,
+      getOrCreateResourceShareLink,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-public-quiz-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Public Quiz Owner',
+      provider: 'google',
+      providerSubject: 'route-public-quiz-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Route public quiz profile', userId: owner.id });
+    const quiz = createQuiz({
+      profileId: ownerProfile.id,
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Route Public Quiz',
+      },
+      title: 'Route Public Quiz',
+      userId: owner.id,
+    });
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+    const csrfToken = extractCsrfToken(
+      await (
+        await fetch(`${baseUrl}/resources`, { headers: { cookie: ownerCookie }, redirect: 'manual' })
+      ).text(),
+    );
+
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+    const sharePath = `/resources/shared/${shareLink.id}`;
+
+    const beforeHtml = await (
+      await fetch(`${baseUrl}${sharePath}`, { redirect: 'manual' })
+    ).text();
+    expect(beforeHtml).not.toContain('Hacer el quiz gratis');
+
+    const blockedStart = await postForm(`/quizzes/public/${shareLink.id}/attempt`, { _csrf: csrfToken }, '');
+    expect(blockedStart.status).toBe(302);
+    expect(blockedStart.headers.get('location')).toBe(sharePath);
+
+    const toggle = await postForm(
+      `/quizzes/${quiz.id}/public-attempts`,
+      { _csrf: csrfToken, allowPublicAttempts: 'on', returnTo: `/quizzes/${quiz.id}` },
+      ownerCookie,
+    );
+    expect(toggle.status).toBe(302);
+    expect(findQuizForUser(quiz.id, owner.id)?.allowPublicAttempts).toBe(true);
+
+    const sharedResponse = await fetch(`${baseUrl}${sharePath}`, { redirect: 'manual' });
+    const sharedHtml = await sharedResponse.text();
+    expect(sharedResponse.status).toBe(200);
+    expect(sharedHtml).toContain('Hacer el quiz gratis');
+    expect(sharedHtml).toContain(`/quizzes/public/${shareLink.id}/attempt`);
+
+    const startResponse = await postForm(
+      `/quizzes/public/${shareLink.id}/attempt`,
+      { _csrf: extractCsrfToken(sharedHtml) },
+      '',
+    );
+    expect(startResponse.status).toBe(302);
+    const location = startResponse.headers.get('location') ?? '';
+    expect(location).toMatch(/^\/quiz-attempts\/[^/]+\?guestToken=/);
+
+    const attemptId = decodeURIComponent(location.replace('/quiz-attempts/', '').split('?')[0]);
+    const attempt = findQuizAttemptById(attemptId);
+    expect(attempt?.userId).toBeNull();
+    expect(attempt?.guestToken).toBeTruthy();
   });
 });
 

@@ -1,9 +1,20 @@
+import { env } from '../config/env.js';
 import {
   getOpenRouterApiKeyForUser,
   getOpenRouterRemoteKeyInfoForUser,
 } from './openRouterUserKeys.js';
 
 const minimumLlmCreditUsd = 0.01;
+
+/**
+ * Platform-funded OpenRouter key for free public resources (e.g. anonymous quiz
+ * attempts). Falls back to the general OPENROUTER_API_KEY when a dedicated free
+ * key is not configured. Returns null when no key is available, in which case
+ * the free flow must be disabled.
+ */
+export function getFreeResourceOpenRouterApiKey(): string | null {
+  return env.openrouterFreeResourceApiKey || null;
+}
 
 export class CreditExhaustedError extends Error {
   constructor(message = getCreditExhaustedMessage()) {

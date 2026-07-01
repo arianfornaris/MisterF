@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
-import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
+import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findQuizById, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
+import { getFreeResourceOpenRouterApiKey } from '../services/creditGate.js';
 import { logger } from '../services/logger.js';
 function ensureVerifiedResourceUser(request, response) {
     const user = request.authUser;
@@ -321,6 +322,9 @@ export function renderSharedResourcePage(request, response) {
             return;
         }
     }
+    const publicQuizAttemptAction = resource.type === 'quiz' && getFreeResourceOpenRouterApiKey() && findQuizById(resource.id)?.allowPublicAttempts
+        ? `/quizzes/public/${encodeURIComponent(shareLink.id)}/attempt`
+        : '';
     response.render('resources-shared', {
         ...buildAppShellContext({
             activeProfile: activeProfile ?? null,
@@ -331,6 +335,7 @@ export function renderSharedResourcePage(request, response) {
             title: `${resource.title} - ${appDocumentTitle}`,
             user: user ?? null,
         }),
+        publicQuizAttemptAction,
         returnTo: `/resources/shared/${encodeURIComponent(shareLink.id)}`,
         shareLink,
         sharedResource: buildResourceListItem(toAccessibleOwnerResource(resource)),

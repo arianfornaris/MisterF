@@ -1895,5 +1895,13 @@ export const migrations = [
         ON conversation_roleplay_attempt_snapshots (roleplay_attempt_id, created_at DESC);
     `,
     },
+    {
+        id: 13,
+        name: 'add_quiz_public_attempts',
+        up: `
+      ALTER TABLE quizzes
+        ADD COLUMN allow_public_attempts INTEGER NOT NULL DEFAULT 0;
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

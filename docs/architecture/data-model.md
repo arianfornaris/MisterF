@@ -159,7 +159,8 @@ This keeps URLs and authorization simpler because a resource id is also the
 type-specific id.
 
 `quizzes` should keep quiz-specific fields such as instructions,
-quiz JSON, and authoring messages.
+quiz JSON, authoring messages, and `allow_public_attempts` (opt-in flag for the
+free public/anonymous quiz flow).
 
 `practice_guides` should keep tutor-specific fields such as tutor instructions.
 
