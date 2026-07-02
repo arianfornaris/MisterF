@@ -12,8 +12,9 @@ lives in `docs/`.
   database, build, and PM2 operations
 - [Documentation Index](./docs/README.md): architecture, tutor runtime,
   operations, feature notes, and issue trackers
-- [Roadmap V1](./docs/roadmap-v1.md): current release-readiness roadmap with
-  completed initiatives and remaining V1 work
+- [Roadmaps](./docs/roadmap/): release roadmaps;
+  [Roadmap V1](./docs/roadmap/roadmap-v1.md) records the first production
+  release (deployed 2026-07-02)
 
 ## Local Start
 

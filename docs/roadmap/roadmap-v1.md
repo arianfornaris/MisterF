@@ -2,24 +2,22 @@
 
 Date: 2026-07-02 (last updated: 2026-07-02)
 
+Status: **Complete. V1 was deployed to production (misterf.us) on 2026-07-02**
+with the clean database baseline, the current `main` code, and the corrected
+Google OAuth branding. All exit criteria at the end of this document are met.
+This roadmap is now a record of the V1 release; post-V1 work starts from
+Part 3 (deferred items) and new roadmap documents in this folder.
+
 This is the single planning document for the first production version of
-Mister F. It records both the work already completed on the road to V1 and the
-work that remains, so the whole release can be understood from one place.
+Mister F. It records both the work completed on the road to V1 and the work
+that remained, so the whole release can be understood from one place.
 
 The per-initiative implementation trackers that previously lived under
-[issues/](./issues/) were retired on 2026-07-02 once their content was
+[issues/](../issues/) were retired on 2026-07-02 once their content was
 consolidated here; their full task-level history remains available in git.
-The documents still under `issues/` hold living design or behavior detail
-(future features, current-state analyses, and the idea inbox) and are
-referenced from here where relevant.
-
-How to use this document:
-
-- Remaining V1 work is tracked directly in Part 2. Check items here as they
-  land.
-- New loose ends get captured here first, then moved into
-  [issues/incomming.md](./issues/incomming.md) or a dedicated design document
-  when they grow details.
+Issue documents whose work shipped with V1 now live in
+[issues/completed/](../issues/completed/); the documents still directly under
+`issues/` hold living design detail and the idea inbox.
 
 Status legend:
 
@@ -55,7 +53,7 @@ Retired tracker: `docs/issues/v1-project-cleanup-tracker.md`
 - [x] Phase 4 — LLM, credit, and payment guardrails: credit gate coverage,
   credit exhaustion UI coverage, Stripe webhook idempotency tests, and the
   runtime logging policy. Inventory:
-  [V1 LLM, Credit, And Payment Guardrails](./issues/v1-llm-credit-payment-guardrails.md).
+  [V1 LLM, Credit, And Payment Guardrails](../issues/completed/v1-llm-credit-payment-guardrails.md).
 - [x] Phase 5 — Documentation and release readiness: README updated for V1 and
   the final V1 checklist executed (2026-06-19: fresh install, migration,
   typecheck, tests, build, and smoke all passed).
@@ -85,19 +83,19 @@ All thirteen remediations (`TLR-001` through `TLR-013`) are implemented:
 Related supporting documents (analysis complete, behavior implemented; kept as
 current-state documentation):
 
-- [Block Input Standardization](./issues/block-input-standardization.md):
+- [Block Input Standardization](../issues/completed/block-input-standardization.md):
   which tutor blocks own their input UI versus use the chat composer.
-- [Message Block Task Leakage](./issues/message-block-task-leakage.md):
+- [Message Block Task Leakage](../issues/completed/message-block-task-leakage.md):
   observed and repaired patterns where `message` blocks leaked exercise
   payloads.
-- [Structured Block Post-Processing](./issues/structured-block-postprocessing.md):
+- [Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md):
   the high-confidence block repair loop (future deeper semantic review ideas
   remain recorded there).
 
 ## 1.3 Teacher-Assigned Practice (Quizzes Feature)
 
 Retired tracker: `docs/issues/teacher-assigned-practice-implementation-tracker.md`
-(design: [Teacher-Assigned Practice](./features/teacher-assigned-practice.md))
+(design: [Teacher-Assigned Practice](../features/teacher-assigned-practice.md))
 
 V1 implementation landed (Slices 0-11):
 
@@ -124,7 +122,7 @@ Notes:
 ## 1.4 Resource Simplification V2
 
 Retired tracker: `docs/issues/resource-simplification-v2-tracker.md`
-(design: [Resource Simplification V2](./features/resource-simplification-v2.md))
+(design: [Resource Simplification V2](../features/resource-simplification-v2.md))
 
 The core V1 product surface. All implementation slices are done:
 
@@ -145,7 +143,7 @@ The core V1 product surface. All implementation slices are done:
   launch and frozen conversation snapshots.
 - [x] Slice 7 — Chat rooms removed as a product area (destructive table
   cleanup deferred to Final Cleanup, Part 2 section 2.2). Archived feature
-  notes: [Chat Rooms](./features/chatrooms.md).
+  notes: [Chat Rooms](../features/chatrooms.md).
 - [x] Slice 8 — Generic live sharing: `resource_share_links` plus
   `resource_access_grants`, folder-inherited access, QR/share modals, and
   legacy link redirects.
@@ -157,7 +155,7 @@ The core V1 product surface. All implementation slices are done:
 - [x] Slice 11 — Roleplay as the final resource type: simplified authoring
   contract with AI draft/revision, dynamic first line, dedicated learner
   writing UI, post-completion evaluation, progress events, sharing, and
-  follow-up practice. Design: [Roleplays](./features/roleplays.md).
+  follow-up practice. Design: [Roleplays](../features/roleplays.md).
 - [x] Slice 12 — Tutor resource tools replaced with UI resource creation: only
   `get_learner_progress` and `update_conversation_title` remain as tools; the
   "Crear recurso" menu creates assignment/guide/roleplay resources seeded from
@@ -274,8 +272,24 @@ Verification:
   the student's own credit-gated key), but guests can still create attempt
   rows anonymously via `POST /quizzes/shared/:shareId/take`.
 - [x] Triage `TODO.txt` at the repository root: move still-relevant ideas into
-  [issues/incomming.md](./issues/incomming.md) or this roadmap, then delete
+  [issues/incomming.md](../issues/incomming.md) or this roadmap, then delete
   the file.
+
+## 2.4 Production Deployment
+
+Done 2026-07-02. The production server had been crash-looping since 2026-07-01
+(`no such table: quizzes`): it had pulled post-rename code without the planned
+database reset. The release deploy:
+
+- [x] Backed up the old production database
+  (`data/backup/misterf-pre-clean-baseline-20260702.sqlite` on the server) and
+  removed it so migrations created the clean baseline schema.
+- [x] Removed the unused `OPENROUTER_FREE_API_KEY` from the server's
+  `.env.production`.
+- [x] Pulled current `main` and restarted via pm2; verified stable uptime,
+  `/login` 200, `/resources` 302, and clean logs.
+- [x] Confirmed production uses the same Google OAuth client as development
+  (the "Mister F" client), so the consent-screen branding fix applies live.
 
 ---
 
@@ -291,19 +305,19 @@ Recorded so nothing is lost; none of these block the first version.
   recommendation system that refreshes when profile progress updates, and
   including the user's own recent guides). Home suggestions should reference
   resource ids where useful. Detailed design:
-  [Home Suggestions Tracker](./issues/home-suggestions-tracker.md) and
-  [Home Start Experience](./features/home-start-experience.md).
+  [Home Suggestions Tracker](../issues/home-suggestions-tracker.md) and
+  [Home Start Experience](../features/home-start-experience.md).
 - Public/free shared roleplay attempts with optional max learner-turn limits.
 - Classroom layer: teacher/student roles, class groups or rosters, due dates,
   teacher dashboards, student result review by teachers, and organization or
   teacher-funded student credits.
 - CEFR level standardization (A1-C2) for resources, following the standards
   used in Florida language teaching
-  ([issues/incomming.md](./issues/incomming.md)).
-- Marketplace exploration ([issues/incomming.md](./issues/incomming.md)).
+  ([issues/incomming.md](../issues/incomming.md)).
+- Marketplace exploration ([issues/incomming.md](../issues/incomming.md)).
 - Tutor plan sub-steps, and structured onboarding that pre-generates practice
   guides so sessions do not start from scratch
-  ([issues/incomming.md](./issues/incomming.md)).
+  ([issues/incomming.md](../issues/incomming.md)).
 
 ## Engineering And Quality
 
@@ -314,8 +328,8 @@ Recorded so nothing is lost; none of these block the first version.
   delete confirmation for non-trivial blocks.
 - Static manual quiz JSON support for development/debugging.
 - Deeper semantic review layer for structured tutor blocks
-  ([Structured Block Post-Processing](./issues/structured-block-postprocessing.md)).
-- [UI Style Consistency Audit](./issues/ui-style-consistency-audit.md):
+  ([Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md)).
+- [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
   semantic CSS class naming pass across the app.
 
 ## Agent Skills Backlog

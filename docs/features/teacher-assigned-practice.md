@@ -41,7 +41,8 @@ The first V1 implementation is in place:
   blocks.
 - Teachers can share quizzes and run normal attempts with `Probar`.
 - Students can complete shared links as guests.
-- Shared-student evaluation is product-funded and free to the student.
+- Evaluation requires an account and runs on the student's own credit-gated
+  key; guest answers are claimed and evaluated after signup.
 - Authenticated attempts update learner progress.
 - Guest results can be claimed after login.
 - Follow-up tutoring receives the quiz snapshot, responses, and result as
@@ -49,10 +50,14 @@ The first V1 implementation is in place:
 
 Known hardening still tracked separately:
 
-- rate limiting or abuse protection for free guest evaluations
 - deeper manual content editing for individual blocks
 - teacher dashboards, rosters, and classroom result review
 - prompt-contract fixtures for representative generated quiz payloads
+
+Policy update: evaluation is never product-funded. Anonymous visitors can fill
+a shared quiz, but evaluation requires an account and runs on the student's
+own credit-gated key; anonymous guest attempt creation is rate limited per
+IP.
 
 Terminology note: existing prompt/runtime docs use "teacher-only context" to
 mean hidden model context that is not shown to the learner. In this feature
@@ -406,8 +411,8 @@ The teacher should also be able to test the full student flow:
 - the teacher can answer the quiz themselves
 - the teacher can submit the attempt to see the evaluation behavior
 - authenticated evaluated attempts update learner progress
-- quiz evaluation follows the same product-funded policy regardless of
-  whether the respondent owns the Quiz
+- quiz evaluation always runs on the respondent's own credit-gated key,
+  whether or not the respondent owns the Quiz
 
 The workspace should avoid making the teacher choose between "form editing" and
 "AI editing". Manual edits, assistant revisions, and teacher testing all operate
@@ -545,8 +550,8 @@ Primary follow-up actions:
 11. The teacher can submit the attempt for AI evaluation.
 12. Each AI generation or revision validates the updated payload against the
    quiz item contract before replacing the current draft.
-13. Quiz evaluation follows the same product-funded policy as student
-   Quiz evaluation.
+13. Quiz evaluation runs on the respondent's own credit-gated key, same as
+   student Quiz evaluation.
 14. When ready, the teacher saves the quiz as an owned resource.
 15. The teacher shares the quiz link.
 
@@ -672,8 +677,8 @@ LLM calls can happen when:
 - the teacher generates a single new block from the add-block modal
 - the teacher asks for an AI revision during authoring
 - the teacher creates or saves a Quiz through the credit-gated creation flow
-- the student submits an quiz for free evaluation
-- an authenticated user submits a Quiz attempt for free evaluation
+- a student submits a quiz attempt for evaluation on their own
+  credit-gated key (guests sign up first and the attempt is claimed)
 - the student starts follow-up tutoring from a result
 
 Teacher creation is account-required and credit-gated. AI draft generation,
@@ -682,11 +687,12 @@ evaluation belong to the teacher's paid authoring workflow. This is part of the
 product acquisition model: teachers spend credits to create useful work they can
 share.
 
-Shared Quiz completion is different. A student can complete a shared Quiz
-without an account, and the AI evaluation at the end is free to the student.
-This evaluation should be treated as product-funded acquisition usage, not as
-usage charged to an anonymous student or silently charged to the teacher after
-sharing.
+Shared Quiz completion is different. A student can fill a shared Quiz without
+an account, but evaluation requires an account and runs on the student's own
+credit-gated key (the guest attempt is claimed after signup). New-account
+starter credits make a first quiz effectively free, so acquisition still
+works without a product-funded key and nothing is silently charged to the
+teacher after sharing.
 
 After the result, any follow-up practice with Mr. F returns to the standard
 policy:
@@ -845,8 +851,10 @@ answers unless full LLM tracing is explicitly enabled.
    share the practice resource?
 2. Should guest results be persisted for a limited time, or only stored after
    account creation?
-3. How should the app prevent abuse of free guest evaluations without hurting
-   the acquisition flow?
+3. How should the app prevent abuse of anonymous guest attempts without
+   hurting the acquisition flow? (Resolved for V1: evaluation requires an
+   account and the student's own credits, and guest attempt creation is rate
+   limited per IP.)
 4. Should students be able to retry unlimited times, once, or according to a
    teacher-set policy?
 5. Should a student opening a shared quiz import a copy, or attempt the
@@ -871,7 +879,7 @@ application in a usable, testable state and should avoid changing old applied
 migrations after production-era data exists.
 
 Implementation is complete; execution status was consolidated into
-[Roadmap V1](../roadmap-v1.md).
+[Roadmap V1](../roadmap/roadmap-v1.md).
 
 ### Slice 1: Schema And Repository Foundation
 
@@ -1009,13 +1017,13 @@ Scope:
 - Finalize teacher test attempts as the exact shared-link student layout.
 - Use normal authenticated attempts instead of a separate preview attempt mode.
 - Allow the teacher to submit test answers for evaluation.
-- Use the same product-funded evaluation policy as normal Quiz attempts.
+- Use the same own-key evaluation policy as normal Quiz attempts.
 - Ensure evaluated attempts update learner progress consistently.
 
 Exit criteria:
 
 - Starting an attempt does not consume LLM credits.
-- Submitting answers follows the product-funded Quiz evaluation policy.
+- Submitting answers follows the standard own-key Quiz evaluation policy.
 - Authenticated evaluated attempts appear in learner progress.
 
 ### Slice 8: Shared Student Runtime
@@ -1048,10 +1056,9 @@ Scope:
 - Reuse or adapt `evaluateQuizResultItemsWithLlm`.
 - Add quiz evaluation prompt context with quiz metadata and block
   numbers.
-- Run shared student evaluation under the product-funded policy, not the
-  teacher's hidden post-share credits.
-- Add rate limiting or abuse protection before enabling public guest evaluation
-  in production.
+- Run shared student evaluation on the student's own credit-gated key, never
+  on the teacher's hidden post-share credits.
+- Rate limit anonymous guest attempt creation per IP (done for V1).
 - Store `result_json` and render the result screen.
 - Log malformed evaluation output and repair attempts.
 
@@ -1094,7 +1101,9 @@ Scope:
 - Add production logging events listed above.
 - Build and commit client assets if the deploy process still expects committed
   `public/build` artifacts.
-- Document operational limits for free guest evaluations.
+- Document operational limits for anonymous guest attempts. (Superseded for
+  V1: evaluation moved to the student's own credit-gated key and guest attempt
+  creation is rate limited per IP.)
 
 Exit criteria:
 

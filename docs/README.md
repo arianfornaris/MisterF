@@ -10,9 +10,13 @@ The goal of this documentation is to make the project easier to understand for:
 
 ## Release Planning
 
-- [Roadmap V1](./roadmap-v1.md): the single planning document for the first
-  production version; records all completed initiatives, the remaining work,
-  and the post-V1 deferrals, referencing the owning tracker for each item
+Use `roadmap/` for release roadmaps. Each production version gets one roadmap
+document that records its completed initiatives, remaining work, and
+deferrals.
+
+- [Roadmap V1](./roadmap/roadmap-v1.md): the first production version.
+  **Complete — deployed to production (misterf.us) on 2026-07-02** with the
+  clean database baseline. Post-V1 candidates are recorded in its Part 3.
 
 ## Structure
 
@@ -41,9 +45,9 @@ interactive behavior.
 Use `features/` for product areas, feature concepts, and future feature ideas.
 
 - [Chat Rooms](./features/chatrooms.md): archived notes for the removed chat room feature
-- [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Quizzes` workflow for human teachers and students, including free guest evaluation and account-based follow-up practice
+- [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Quizzes` workflow for human teachers and students, including anonymous guest attempts evaluated on the student's own account
 - [Roleplays](./features/roleplays.md): reusable free-form roleplay resources with evaluated learner English production
-- [Resource Simplification V2](./features/resource-simplification-v2.md): planned simplification from separate resource areas into one `Recursos` catalog with quizzes, practice guides, folders, and roleplays
+- [Resource Simplification V2](./features/resource-simplification-v2.md): the implemented simplification from separate resource areas into one `Recursos` catalog with quizzes, practice guides, folders, and roleplays
 - [Home Start Experience](./features/home-start-experience.md): exploration of personalized start suggestions and a built-in practice topic library
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
 - [Writing Practice Ideas](./features/writing-practice-ideas.md): writing-first practice patterns that use `open_text_prompt` for structured open responses
@@ -66,16 +70,22 @@ runtime support procedures.
 ### Issues
 
 Use `issues/` for problem analysis, future-feature design detail, and the idea
-inbox. Implementation trackers for completed initiatives were consolidated into
-[Roadmap V1](./roadmap-v1.md); their task-level history lives in git.
+inbox. Documents whose work has shipped move to `issues/completed/`.
+Implementation trackers for completed initiatives were consolidated into
+[Roadmap V1](./roadmap/roadmap-v1.md); their task-level history lives in git.
+
+Open:
 
 - [Incoming Ideas](./issues/incomming.md): idea inbox for unshaped product notes
 - [Home Suggestions Tracker](./issues/home-suggestions-tracker.md): design tracker for personalized home and new-chat practice suggestions (post-V1)
-- [V1 LLM, Credit, And Payment Guardrails](./issues/v1-llm-credit-payment-guardrails.md): inventory of server-side LLM calls and their credit/fulfillment guardrails
-- [Block Input Standardization](./issues/block-input-standardization.md): which tutor blocks own their input UI versus use the chat composer
-- [Structured Block Post-Processing](./issues/structured-block-postprocessing.md): current repair loop and future deeper semantic review ideas for tutor block output
-- [Message Block Task Leakage](./issues/message-block-task-leakage.md): observed and repaired patterns where `message` blocks leak exercise payloads that should be typed blocks
 - [UI Style Consistency Audit](./issues/ui-style-consistency-audit.md): future audit for shared CSS, semantic class names, and app-wide UI consistency
+
+Completed:
+
+- [V1 LLM, Credit, And Payment Guardrails](./issues/completed/v1-llm-credit-payment-guardrails.md): inventory of server-side LLM calls and their credit/fulfillment guardrails
+- [Block Input Standardization](./issues/completed/block-input-standardization.md): which tutor blocks own their input UI versus use the chat composer
+- [Structured Block Post-Processing](./issues/completed/structured-block-postprocessing.md): the implemented repair loop and future deeper semantic review ideas for tutor block output
+- [Message Block Task Leakage](./issues/completed/message-block-task-leakage.md): observed and repaired patterns where `message` blocks leak exercise payloads that should be typed blocks
 
 ## Scope
 

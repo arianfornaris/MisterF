@@ -39,8 +39,9 @@ The current standard policy is:
   credits
 - AI-assisted practice guide authoring consumes creator credits
 - AI-assisted quiz authoring consumes creator credits
-- quiz evaluation for shared students remains product-funded/free to the
-  student when that special public flow is available
+- quiz evaluation always runs on the submitting student's own credit-gated
+  key (anonymous guests sign up first and their attempt is claimed and
+  evaluated on the new account; starter credits fund the first attempt)
 - Roleplay AI draft generation, AI revision, fictional character turns,
   evaluation, and follow-up tutor practice consume the authenticated user's
   credits
@@ -439,8 +440,8 @@ The agreed rules for the first implementation are:
 - creating a Quiz is an authenticated, credit-gated teacher authoring workflow
 - AI-assisted Quiz draft generation, single-block generation, and revision are
   teacher-paid usage
-- generic shared Quiz usage currently requires an account
-- future public shared Quiz completion can be free for students without
-  accounts through a product-funded evaluation policy
+- anyone can open and fill a shared Quiz anonymously; evaluation requires an
+  account and runs on the student's own credit-gated key, with new-account
+  starter credits funding the first attempt
 - post-result follow-up tutoring from a Quiz uses the student's standard
   account and credit policy

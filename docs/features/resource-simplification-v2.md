@@ -61,13 +61,12 @@ carry the old standalone chatroom product surface forward.
 
 Current implementation status:
 
-- the sidebar entry has been removed
-- standalone chatroom routes now redirect to `/resources`
-- chatroom EJS views, client entrypoints, page CSS, prompt files, and runtime
-  services have been removed
+- the sidebar entry, routes, EJS views, client entrypoints, page CSS, prompt
+  files, and runtime services have been removed
 - tutor chat no longer receives chatroom report context or chatroom tools
-- legacy chatroom schema/repository helpers remain only as migration debt until
-  the baseline reset or an explicit destructive migration removes them
+- the legacy chatroom tables, repository helpers, and compatibility redirects
+  were removed with the V1 clean database baseline (2026-07-02); no chatroom
+  surface or schema remains
 
 ### Rename Practice Guide To Practice Guide
 
@@ -562,8 +561,8 @@ Resource simplification should update downstream features:
 Existing policies should remain conceptually stable:
 
 - AI authoring consumes creator credits
-- quiz shared-student evaluation remains product-funded/free to the
-  student unless explicitly changed
+- quiz evaluation always runs on the submitting student's own credit-gated
+  key; new-account starter credits make a first quiz effectively free
 - launching normal tutor practice from a resource follows standard credit policy
 
 Roleplay authoring, AI revision, runtime character turns, evaluation, and
@@ -587,7 +586,7 @@ follow-up tutoring use the standard credit policy.
 ## Recommended Implementation Shape
 
 Implementation is complete; the milestone-level history and the remaining
-release work live in [Roadmap V1](../roadmap-v1.md).
+release work live in [Roadmap V1](../roadmap/roadmap-v1.md).
 
 Implement in this order:
 

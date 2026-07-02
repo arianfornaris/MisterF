@@ -6,20 +6,20 @@ practice class topics with structured AI-assisted feedback. V1 includes:
 
 - Tutor conversations with structured exercise blocks and visible tutor plans.
 - Learner profiles, model tiers, progress summaries, and tutor reports.
-- Reusable practice guides, assignments, resource folders, and the unified
-  resource catalog.
+- The unified resource catalog with quizzes, practice guides, roleplays, and
+  nested resource folders.
 - Account auth, email verification, password reset, Google OAuth, and
   superadmin access.
 - Stripe Checkout credit purchases backed by managed OpenRouter user keys.
-- Live sharing flows for supported resources.
+- Live sharing flows for all resource types.
 - Client critical-error telemetry and structured server runtime logs.
 
-Teacher-facing work includes assignments where a human teacher uses an
-AI-assisted authoring workflow to create and revise a quiz-like practice
-sequence. Current generic resource sharing requires recipients to use an
-account. A later assignment-specific public flow should let students complete
-and receive free AI evaluation before account creation, then require an account
-for saved progress or follow-up practice.
+Teacher-facing work centers on quizzes: a human teacher uses an AI-assisted
+authoring workflow to create and revise a quiz-like practice sequence. Shared
+quizzes can be opened and filled anonymously; evaluation requires an account
+and runs on the student's own credit-gated key (new-account starter credits
+make a first quiz effectively free). Shared roleplays and practice guides show
+their info anonymously and gate the launch behind an account.
 
 ## Stack
 
@@ -165,9 +165,10 @@ npm run build:server
 ENV_FILE=/dev/null DATABASE_PATH=./data/misterf.sqlite node dist/server/db/migrateCli.js
 ```
 
-The V1 baseline uses a single `create_current_schema` migration for fresh
-installs. After that baseline ships, schema changes must be added as new
-forward-only migrations with new ids.
+Fresh installs create the current schema from the V1 baseline migration set,
+which was edited in place while the project was pre-production. The production
+baseline shipped on 2026-07-02, so from now on schema changes must be added as
+new forward-only migrations with new ids.
 
 Migration guardrails:
 
@@ -205,7 +206,7 @@ instead of silently granting credits.
 See:
 
 - [Payments Feature Notes](../docs/features/payments.md)
-- [Credit And Payment Guardrails](../docs/issues/v1-llm-credit-payment-guardrails.md)
+- [Credit And Payment Guardrails](../docs/issues/completed/v1-llm-credit-payment-guardrails.md)
 
 ## Runtime Logging
 
@@ -320,4 +321,4 @@ Start with:
 - [Prompts](../docs/architecture/prompts.md)
 - [Testing](../docs/architecture/testing.md)
 - [Tutor Runtime](../docs/tutor/runtime.md)
-- [Roadmap V1](../docs/roadmap-v1.md)
+- [Roadmap V1](../docs/roadmap/roadmap-v1.md)

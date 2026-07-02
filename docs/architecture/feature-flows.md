@@ -154,9 +154,10 @@ independently. The Spanish UI label is `Quizzes`.
 ## Removed Chat Room Flow
 
 The previous standalone chat room flow was removed in Resource Simplification
-V2 Slice 7. `/chatrooms` and `/chatroom-conversations/*` now redirect to
-`/resources`. Conversational scenario practice now belongs to the `Roleplay`
-resource type instead of restoring the old room flow.
+V2 Slice 7, and the remaining tables, repository helpers, and compatibility
+redirects were removed with the V1 clean database baseline. Conversational
+scenario practice now belongs to the `Roleplay` resource type instead of
+restoring the old room flow.
 
 ## Roleplay Flow
 
