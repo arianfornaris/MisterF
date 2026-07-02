@@ -403,6 +403,10 @@ export type TutorSentenceEvaluationBlock = {
     status: 'correct' | 'improve' | 'error';
     text: string;
   }>;
+  correction?: {
+    prompt?: string;
+    submitLabel?: string;
+  };
 };
 
 export type TutorResponseBlock =

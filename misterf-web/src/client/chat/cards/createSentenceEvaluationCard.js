@@ -1,12 +1,18 @@
+import { disableTextAssist } from '../shared/textAssist.js';
+
+const DEFAULT_CORRECTION_PROMPT = 'Reescribe la oración ya corregida.';
+const DEFAULT_SUBMIT_LABEL = 'Corregir';
+const MAX_RESPONSE_LENGTH = 2400;
+const MAX_SUBMIT_LABEL_LENGTH = 60;
+
 export function createSentenceEvaluationCard({
-  createMessageActionButton,
+  context,
   createSentencePartsElement,
   element,
   evaluation,
-  findFirstIncorrectEvaluationPart,
   getEvaluationSourceText,
   isValidSentenceEvaluation,
-  putMessageBackInComposer,
+  sendMessageContent,
 }) {
   if (element) {
     element.querySelector('.sentence-evaluation')?.remove();
@@ -37,28 +43,155 @@ export function createSentenceEvaluationCard({
   body.append(partsLabel);
   body.append(createSentencePartsElement(evaluation.parts));
 
-  const actions = document.createElement('div');
-  actions.className = 'sentence-evaluation-actions';
-
-  const editButton = createMessageActionButton({
-    label: 'Editar texto',
-    iconClass: 'bi-pencil',
-  });
-  editButton.classList.add('sentence-evaluation-action');
-  editButton.addEventListener('click', () => {
-    const userContent = getEvaluationSourceText(evaluation);
-    if (!userContent) {
-      return;
-    }
-
-    putMessageBackInComposer(userContent, {
-      preferredSelectionText: findFirstIncorrectEvaluationPart(evaluation),
-    });
-  });
-
-  actions.append(editButton);
-  body.append(actions);
+  if (evaluation.correction && typeof evaluation.correction === 'object') {
+    body.append(
+      buildCorrectionSection(evaluation, context, sendMessageContent, getEvaluationSourceText),
+    );
+  }
 
   wrapper.append(header, body);
   return wrapper;
+}
+
+function buildCorrectionSection(evaluation, context, sendMessageContent, getEvaluationSourceText) {
+  const sourceText = getEvaluationSourceText(evaluation);
+  const blockIndex = Number(context?.blockIndex) || 0;
+  const messageId = Number(context?.messageId) || 0;
+
+  const section = document.createElement('div');
+  section.className = 'sentence-evaluation-correction';
+  section.dataset.exerciseKey = `${messageId}:${blockIndex}`;
+
+  const promptLabel = document.createElement('p');
+  promptLabel.className = 'sentence-evaluation-correction-label';
+  promptLabel.textContent =
+    normalizeInlineText(evaluation.correction.prompt) || DEFAULT_CORRECTION_PROMPT;
+
+  const textarea = document.createElement('textarea');
+  textarea.className = 'form-control sentence-evaluation-correction-textarea';
+  textarea.rows = 3;
+  textarea.maxLength = MAX_RESPONSE_LENGTH;
+  textarea.value = sourceText;
+  disableTextAssist(textarea);
+
+  const submitButton = document.createElement('button');
+  submitButton.className = 'btn btn-primary sentence-evaluation-correction-submit';
+  submitButton.type = 'button';
+  submitButton.textContent = getSubmitLabel(evaluation.correction.submitLabel);
+
+  const controls = document.createElement('div');
+  controls.className = 'sentence-evaluation-correction-controls';
+  controls.append(submitButton);
+
+  const status = document.createElement('p');
+  status.className = 'sentence-evaluation-correction-status';
+
+  const state = {
+    response: sourceText,
+    sourceText,
+    statusText: '',
+    statusTone: '',
+    submitted: false,
+  };
+
+  textarea.addEventListener('input', () => {
+    state.response = textarea.value;
+    state.statusText = '';
+    state.statusTone = '';
+    autoResizeTextarea(textarea);
+    renderCorrectionState(section, state);
+  });
+
+  submitButton.addEventListener('click', () => {
+    submitCorrection(section, state, sendMessageContent);
+  });
+
+  section.append(promptLabel, textarea, controls, status);
+  autoResizeTextarea(textarea);
+  renderCorrectionState(section, state);
+  return section;
+}
+
+function submitCorrection(section, state, sendMessageContent) {
+  const response = state.response.trim().slice(0, MAX_RESPONSE_LENGTH);
+  if (!normalizeInlineText(response) || state.submitted) {
+    state.statusText = 'Escribe la oración corregida antes de enviarla.';
+    state.statusTone = 'error';
+    renderCorrectionState(section, state);
+    return;
+  }
+
+  const sent = sendMessageContent?.(response, {
+    exerciseSubmission: {
+      block: {
+        sourceText: state.sourceText,
+        type: 'sentence_evaluation_correction',
+      },
+      response,
+      type: 'sentence_evaluation_correction',
+    },
+    rememberInput: false,
+  });
+
+  if (!sent) {
+    state.statusText = 'No pude enviar la corrección. Intenta de nuevo.';
+    state.statusTone = 'error';
+    renderCorrectionState(section, state);
+    return;
+  }
+
+  state.response = response;
+  state.statusText = '';
+  state.statusTone = '';
+  state.submitted = true;
+  renderCorrectionState(section, state);
+}
+
+function renderCorrectionState(section, state) {
+  const textarea = section.querySelector('.sentence-evaluation-correction-textarea');
+  if (textarea instanceof HTMLTextAreaElement) {
+    if (textarea.value !== state.response) {
+      textarea.value = state.response;
+      autoResizeTextarea(textarea);
+    }
+    textarea.disabled = state.submitted;
+  }
+
+  const submitButton = section.querySelector('.sentence-evaluation-correction-submit');
+  if (submitButton instanceof HTMLButtonElement) {
+    submitButton.disabled = state.submitted || !normalizeInlineText(state.response);
+  }
+
+  const status = section.querySelector('.sentence-evaluation-correction-status');
+  if (!(status instanceof HTMLParagraphElement)) {
+    return;
+  }
+
+  status.classList.remove('is-error', 'is-success');
+  if (state.submitted) {
+    status.textContent = 'Enviado. Mr. F está revisando tu corrección.';
+    status.classList.add('is-success');
+    return;
+  }
+
+  status.textContent = state.statusText || 'Corrige las partes marcadas y envíala.';
+  if (state.statusTone === 'error') {
+    status.classList.add('is-error');
+  }
+}
+
+function getSubmitLabel(value) {
+  const normalized = normalizeInlineText(value);
+  return normalized && normalized.length <= MAX_SUBMIT_LABEL_LENGTH
+    ? normalized
+    : DEFAULT_SUBMIT_LABEL;
+}
+
+function normalizeInlineText(value) {
+  return typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
+}
+
+function autoResizeTextarea(textarea) {
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
 }

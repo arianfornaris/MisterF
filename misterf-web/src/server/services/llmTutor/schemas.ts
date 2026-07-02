@@ -939,6 +939,13 @@ export const sentenceEvaluationBlockSchema = z
       )
       .min(1)
       .max(64),
+    correction: z
+      .object({
+        prompt: z.string().trim().min(1).max(240).optional(),
+        submitLabel: z.string().trim().min(1).max(60).optional(),
+      })
+      .strict()
+      .optional(),
   })
   .superRefine((block, ctx) => {
     const normalizedSourceText = normalizeSentenceEvaluationCoverageText(block.sourceText);
@@ -952,6 +959,15 @@ export const sentenceEvaluationBlockSchema = z
         message:
           'sentence_evaluation.parts must reconstruct sourceText after lowercasing and ignoring whitespace and punctuation. Include correct, improvable, and erroneous text parts so the whole evaluated text is covered.',
         path: ['parts'],
+      });
+    }
+
+    if (block.correction && !block.parts.some((part) => part.status !== 'correct')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'sentence_evaluation.correction may only be present when at least one part is marked improve or error.',
+        path: ['correction'],
       });
     }
   })

@@ -247,7 +247,10 @@ export function createTutorMessageRenderer(deps) {
       }
 
       if (block.type === 'sentence_evaluation') {
-        const card = createStandaloneSentenceEvaluationCard(block);
+        const card = createStandaloneSentenceEvaluationCard(block, {
+          blockIndex,
+          messageId: options.messageId,
+        });
         if (card) {
           stack.append(card);
           hasVisualContent = true;
@@ -339,16 +342,15 @@ export function createTutorMessageRenderer(deps) {
     return bubble;
   }
 
-  function createStandaloneSentenceEvaluationCard(evaluation, element = null) {
+  function createStandaloneSentenceEvaluationCard(evaluation, context = {}, element = null) {
     return createSentenceEvaluationCard({
-      createMessageActionButton,
+      context,
       createSentencePartsElement,
       element,
       evaluation,
-      findFirstIncorrectEvaluationPart,
       getEvaluationSourceText,
       isValidSentenceEvaluation,
-      putMessageBackInComposer,
+      sendMessageContent: deps.sendMessageContent,
     });
   }
 
@@ -652,10 +654,6 @@ export function createTutorMessageRenderer(deps) {
     return button;
   }
 
-  function putMessageBackInComposer(content, options = {}) {
-    deps.putMessageBackInComposer(content, options);
-  }
-
   function getEvaluationSourceText(evaluation) {
     if (typeof evaluation?.sourceText === 'string' && evaluation.sourceText.trim()) {
       return evaluation.sourceText.trim();
@@ -673,24 +671,6 @@ export function createTutorMessageRenderer(deps) {
       .replace(/([¿¡([{])\s+/g, '$1')
       .replace(/\s+/g, ' ')
       .trim();
-  }
-
-  function findFirstIncorrectEvaluationPart(evaluation) {
-    if (!isValidSentenceEvaluation(evaluation)) {
-      return '';
-    }
-
-    const errorPart = evaluation.parts.find(
-      (part) => normalizePartStatus(part.status) === 'error' && typeof part.text === 'string',
-    );
-    if (errorPart?.text?.trim()) {
-      return errorPart.text.trim();
-    }
-
-    const improvePart = evaluation.parts.find(
-      (part) => normalizePartStatus(part.status) === 'improve' && typeof part.text === 'string',
-    );
-    return improvePart?.text?.trim() || '';
   }
 
   async function copyTextToClipboard(content) {

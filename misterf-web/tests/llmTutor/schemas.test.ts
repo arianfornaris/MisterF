@@ -228,4 +228,48 @@ describe('sentence_evaluation schema', () => {
     expect(blocks).toHaveLength(1);
     expect(blocks[0]?.type).toBe('sentence_evaluation');
   });
+
+  it('accepts a sentence_evaluation with an optional correction invite', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        {
+          type: 'sentence_evaluation',
+          sourceText: 'I has a cat.',
+          parts: [
+            { status: 'correct', text: 'I ' },
+            {
+              explanation: 'Con "I" usamos "have", no "has".',
+              status: 'error',
+              text: 'has',
+            },
+            { status: 'correct', text: ' a cat.' },
+          ],
+          correction: {
+            prompt: 'Reescribe la oración ya corregida.',
+          },
+        },
+      ],
+    });
+
+    expect(blocks).toHaveLength(1);
+    const [block] = blocks;
+    expect(block?.type === 'sentence_evaluation' && block.correction?.prompt).toBe(
+      'Reescribe la oración ya corregida.',
+    );
+  });
+
+  it('rejects a correction invite when every part is correct', () => {
+    expect(() =>
+      validateTutorResponseBlocks({
+        blocks: [
+          {
+            type: 'sentence_evaluation',
+            sourceText: 'I have a cat.',
+            parts: [{ status: 'correct', text: 'I have a cat.' }],
+            correction: {},
+          },
+        ],
+      }),
+    ).toThrow();
+  });
 });

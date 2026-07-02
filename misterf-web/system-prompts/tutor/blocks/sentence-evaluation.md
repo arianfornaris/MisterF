@@ -49,6 +49,22 @@ interface EvaluationPart {
  * `error`. If the evaluated learner text is fully correct, do not emit this
  * block.
  *
+ * This block both shows the errors and, optionally, lets the learner rewrite the
+ * corrected text in place. To invite a rewrite, include the optional
+ * `correction` object. The app then renders one single textarea inside this
+ * card, prefilled with the learner's original text, so the learner edits only
+ * the flagged parts instead of retyping from scratch. When the learner submits,
+ * the app sends their rewritten text as the next model-facing learner message
+ * with structured exerciseSubmission context, without a separate learner chat
+ * bubble; you then re-evaluate it and continue.
+ *
+ * When you include `correction`, do NOT also emit an `open_text_prompt` or a
+ * `message` such as "escribe la versión corregida" for the same fix: the
+ * evaluation card already owns the rewrite. Put any short retry instruction in
+ * `correction.prompt` instead of a separate message. A `sentence_evaluation`
+ * with `correction` counts as the one learner exercise block for the turn, so do
+ * not combine it with another top-level exercise block.
+ *
  * Until the learner writes the requested answer correctly, stay on the same
  * task and keep guiding with hints, corrections, smaller clues, or partial
  * help. Do not give the full literal answer too early except in an extreme case
@@ -61,4 +77,11 @@ interface SentenceEvaluationBlock {
   sourceText: string;
   /** Ordered partition of `sourceText`; include correct, improvable, and erroneous fragments, preserving original language in each `text`. */
   parts: EvaluationPart[];
+  /** Optional. Include it to invite the learner to rewrite the corrected text inside this card. Only allowed when at least one part is `improve` or `error`. */
+  correction?: {
+    /** Optional short Spanish instruction shown above the rewrite textarea. If omitted, the app uses a stable default. */
+    prompt?: string;
+    /** Optional short Spanish button label. If omitted or invalid, the app uses "Corregir". */
+    submitLabel?: string;
+  };
 }

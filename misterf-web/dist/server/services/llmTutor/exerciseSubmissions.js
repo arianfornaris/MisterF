@@ -16,10 +16,16 @@ export function normalizeExerciseSubmissionForUserMessage(value, content) {
             : null;
     }
     const translationSubmission = normalizeTranslationPromptExerciseSubmission(value);
-    if (!translationSubmission || translationSubmission.response !== normalizeText(content)) {
+    if (translationSubmission) {
+        return translationSubmission.response === normalizeText(content)
+            ? translationSubmission
+            : null;
+    }
+    const correctionSubmission = normalizeSentenceEvaluationCorrectionExerciseSubmission(value);
+    if (!correctionSubmission || correctionSubmission.response !== normalizeText(content)) {
         return null;
     }
-    return translationSubmission;
+    return correctionSubmission;
 }
 export function formatExerciseSubmissionForTutorHistory(value, content) {
     const submission = normalizeExerciseSubmissionForUserMessage(value, content);
@@ -189,6 +195,41 @@ function normalizeTranslationPromptBlock(value) {
     return {
         type: record.type,
         sentence,
+    };
+}
+function normalizeSentenceEvaluationCorrectionExerciseSubmission(value) {
+    if (!value || typeof value !== 'object') {
+        return null;
+    }
+    const record = value;
+    if (record.type !== 'sentence_evaluation_correction') {
+        return null;
+    }
+    const block = record.block;
+    if (!block || typeof block !== 'object') {
+        return null;
+    }
+    const blockRecord = block;
+    if (blockRecord.type !== 'sentence_evaluation_correction') {
+        return null;
+    }
+    const sourceText = typeof blockRecord.sourceText === 'string'
+        ? normalizeText(blockRecord.sourceText)
+        : '';
+    if (!sourceText || sourceText.length > 8000) {
+        return null;
+    }
+    const response = typeof record.response === 'string' ? normalizeText(record.response) : '';
+    if (!response || response.length > 2400) {
+        return null;
+    }
+    return {
+        block: {
+            sourceText,
+            type: 'sentence_evaluation_correction',
+        },
+        response,
+        type: 'sentence_evaluation_correction',
     };
 }
 function fillSentenceBlanks(sentence, values, placeholderToken) {

@@ -34,10 +34,20 @@ export type TranslationPromptExerciseSubmission = {
   response: string;
 };
 
+export type SentenceEvaluationCorrectionExerciseSubmission = {
+  type: 'sentence_evaluation_correction';
+  block: {
+    type: 'sentence_evaluation_correction';
+    sourceText: string;
+  };
+  response: string;
+};
+
 export type TutorExerciseSubmission =
   | FillInTheBlankInputExerciseSubmission
   | OpenTextPromptExerciseSubmission
-  | TranslationPromptExerciseSubmission;
+  | TranslationPromptExerciseSubmission
+  | SentenceEvaluationCorrectionExerciseSubmission;
 
 export function normalizeExerciseSubmissionForUserMessage(
   value: unknown,
@@ -67,11 +77,18 @@ export function normalizeExerciseSubmissionForUserMessage(
   }
 
   const translationSubmission = normalizeTranslationPromptExerciseSubmission(value);
-  if (!translationSubmission || translationSubmission.response !== normalizeText(content)) {
+  if (translationSubmission) {
+    return translationSubmission.response === normalizeText(content)
+      ? translationSubmission
+      : null;
+  }
+
+  const correctionSubmission = normalizeSentenceEvaluationCorrectionExerciseSubmission(value);
+  if (!correctionSubmission || correctionSubmission.response !== normalizeText(content)) {
     return null;
   }
 
-  return translationSubmission;
+  return correctionSubmission;
 }
 
 export function formatExerciseSubmissionForTutorHistory(
@@ -339,6 +356,56 @@ function normalizeTranslationPromptBlock(
   return {
     type: record.type,
     sentence,
+  };
+}
+
+function normalizeSentenceEvaluationCorrectionExerciseSubmission(
+  value: unknown,
+): SentenceEvaluationCorrectionExerciseSubmission | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as {
+    block?: unknown;
+    response?: unknown;
+    type?: unknown;
+  };
+  if (record.type !== 'sentence_evaluation_correction') {
+    return null;
+  }
+
+  const block = record.block;
+  if (!block || typeof block !== 'object') {
+    return null;
+  }
+
+  const blockRecord = block as { sourceText?: unknown; type?: unknown };
+  if (blockRecord.type !== 'sentence_evaluation_correction') {
+    return null;
+  }
+
+  const sourceText =
+    typeof blockRecord.sourceText === 'string'
+      ? normalizeText(blockRecord.sourceText)
+      : '';
+  if (!sourceText || sourceText.length > 8000) {
+    return null;
+  }
+
+  const response =
+    typeof record.response === 'string' ? normalizeText(record.response) : '';
+  if (!response || response.length > 2400) {
+    return null;
+  }
+
+  return {
+    block: {
+      sourceText,
+      type: 'sentence_evaluation_correction',
+    },
+    response,
+    type: 'sentence_evaluation_correction',
   };
 }
 

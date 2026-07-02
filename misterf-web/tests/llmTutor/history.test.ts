@@ -222,6 +222,36 @@ describe('model-facing tutor history', () => {
     });
   });
 
+  it('serializes sentence evaluation correction submissions with source text context', () => {
+    const message = buildMessage({
+      content: 'She is reading a very interesting book in the library.',
+      metadata: {
+        exerciseSubmission: {
+          block: {
+            sourceText: 'She is readng a very interesting book in the librery.',
+            type: 'sentence_evaluation_correction',
+          },
+          response: 'She is reading a very interesting book in the library.',
+          type: 'sentence_evaluation_correction',
+        },
+      },
+      role: 'user',
+    });
+
+    expect(JSON.parse(getTutorHistoryContent(message))).toEqual({
+      exerciseSubmission: {
+        block: {
+          sourceText: 'She is readng a very interesting book in the librery.',
+          type: 'sentence_evaluation_correction',
+        },
+        response: 'She is reading a very interesting book in the library.',
+        type: 'sentence_evaluation_correction',
+      },
+      kind: 'learner_exercise_submission',
+      visibleContent: 'She is reading a very interesting book in the library.',
+    });
+  });
+
   it('rejects translation prompt submissions whose block type does not match', () => {
     const message = buildMessage({
       content: 'I have lived here for five years.',
