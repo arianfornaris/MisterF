@@ -26,8 +26,6 @@
                   Nueva guía de práctica
                 <% } else if (practiceGuidePageMode === 'edit') { %>
                   Editar guía de práctica
-                <% } else if (practiceGuidePageMode === 'share') { %>
-                  <%= selectedSharedPracticeGuide ? selectedSharedPracticeGuide.title : 'Guía de práctica compartida' %>
                 <% } else { %>
                   <%= selectedPracticeGuide ? selectedPracticeGuide.title : 'Guía de práctica' %>
                 <% } %>
@@ -42,16 +40,12 @@
                   <span class="mx-1">/</span>
                   <span><%= selectedPracticeGuide.title %></span>
                 </p>
-              <% } else if (practiceGuidePageMode === 'share' && selectedSharedPracticeGuide) { %>
-                <div class="resource-page-copy resource-markdown" data-render-markdown><%= selectedSharedPracticeGuide.description %></div>
               <% } else { %>
                 <p class="resource-page-copy">
                   <% if (practiceGuidePageMode === 'new') { %>
                     Diseña una guía con un objetivo claro, una descripción útil y reglas precisas para el tutor.
                   <% } else if (practiceGuidePageMode === 'edit') { %>
                     Ajusta esta guía con calma. Los chats existentes conservarán su propia copia del contenido original.
-                  <% } else if (practiceGuidePageMode === 'share') { %>
-                    Te compartieron una guía de práctica.
                   <% } %>
                 </p>
               <% } %>
@@ -334,44 +328,6 @@
                       </button>
                     </div>
                   </form>
-                </div>
-              </div>
-            </section>
-          <% } else if (practiceGuidePageMode === 'share' && selectedSharedPracticeGuide && selectedPracticeGuideShareLink) { %>
-            <section class="resource-page-form-shell">
-              <div class="resource-page-form-card card">
-                <div class="card-body">
-                  <div class="d-grid gap-3">
-                    <p class="mb-0 text-body-secondary">
-                      <% if (activeProfile) { %>
-                        Esta guía fue compartida contigo. Revísala y decide si quieres agregarla al perfil <strong><%= activeProfile.name %></strong>.
-                      <% } else { %>
-                        Esta guía fue compartida contigo. Puedes revisarla ahora mismo y, si te interesa, iniciar sesión o crear una cuenta para agregarla a tus recursos.
-                      <% } %>
-                    </p>
-
-                    <div class="card">
-                      <div class="card-body">
-                        <p class="resource-page-section-copy mt-0">Descripción</p>
-                        <div class="resource-markdown mb-3" data-render-markdown><%= selectedSharedPracticeGuide.description %></div>
-                        <p class="resource-page-section-copy">Instrucciones al tutor</p>
-                        <div class="resource-markdown" data-render-markdown><%= selectedSharedPracticeGuide.tutorInstructions %></div>
-                      </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end gap-2">
-                      <a class="btn btn-secondary" href="<%= isAuthenticated ? '/resources' : '/' %>">No ahora</a>
-                      <% if (isAuthenticated && activeProfile) { %>
-                        <form method="post" action="/resources/shared/<%= encodeURIComponent(selectedPracticeGuideShareLink.id) %>/accept">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <button class="btn btn-primary" type="submit">Agregar a mis recursos</button>
-                        </form>
-                      <% } else { %>
-                        <a class="btn btn-secondary" href="/signup?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeGuideShareLink.id}`) %>">Crear cuenta</a>
-                        <a class="btn btn-primary" href="/login?returnTo=<%= encodeURIComponent(`/resources/shared/${selectedPracticeGuideShareLink.id}`) %>">Iniciar sesión</a>
-                      <% } %>
-                    </div>
-                  </div>
                 </div>
               </div>
             </section>

@@ -79,6 +79,13 @@ export function createTranslationPromptCard(block, context, deps) {
     renderTranslationPromptState(card, state);
   });
 
+  textarea.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      submitTranslationPromptAnswer(card, state, deps);
+    }
+  });
+
   submitButton.addEventListener('click', () => {
     submitTranslationPromptAnswer(card, state, deps);
   });

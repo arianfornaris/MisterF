@@ -18,7 +18,6 @@ function toStoredProfile(row) {
 function toStoredConversation(row) {
     return {
         activeAgent: 'tutor',
-        chatRoomConversationReportId: row.chat_room_conversation_report_id,
         closedAt: row.closed_at,
         practiceGuideId: row.practice_guide_id,
         id: row.id,
@@ -136,19 +135,6 @@ function toStoredTutorConversationReport(row) {
         practiceGuideId: row.practice_guide_id,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-    };
-}
-function toStoredConversationChatRoomReportSnapshot(row) {
-    return {
-        chatRoomConversationId: row.chat_room_conversation_id,
-        chatRoomConversationReportId: row.chat_room_conversation_report_id,
-        conversationId: row.conversation_id,
-        createdAt: row.created_at,
-        reportSummaryDescription: row.report_summary_description,
-        reportSummaryTitle: row.report_summary_title,
-        roomDescription: row.room_description,
-        roomTitle: row.room_title,
-        slidesJson: row.slides_json,
     };
 }
 function toStoredConversationTutorReportSnapshot(row) {
@@ -285,7 +271,6 @@ function parseRoleplayTurns(value) {
 }
 function toStoredQuiz(row) {
     return {
-        allowPublicAttempts: row.allow_public_attempts === 1,
         archivedAt: row.archived_at,
         authoringMessages: parseQuizAuthoringMessages(row.authoring_messages_json),
         createdAt: row.created_at,
@@ -303,14 +288,6 @@ function toStoredQuiz(row) {
         title: row.title,
         updatedAt: row.updated_at,
         userId: row.user_id,
-    };
-}
-function toStoredQuizShareLink(row) {
-    return {
-        quizId: row.quiz_id,
-        createdAt: row.created_at,
-        id: row.id,
-        revokedAt: row.revoked_at,
     };
 }
 function toStoredQuizAttempt(row) {
@@ -484,95 +461,6 @@ function toStoredLearnerProgressEvent(row) {
         updatedAt: row.updated_at,
     };
 }
-function toStoredChatRoom(row) {
-    return {
-        archivedAt: row.archived_at,
-        id: row.id,
-        userId: row.user_id,
-        profileId: row.profile_id,
-        sharedVia: row.shared_via,
-        sourceRoomId: row.source_room_id,
-        sourceProfileId: row.source_profile_id,
-        sourceUserId: row.source_user_id,
-        title: row.title,
-        description: row.description,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-    };
-}
-function toStoredChatRoomShareLink(row) {
-    return {
-        roomId: row.room_id,
-        createdAt: row.created_at,
-        id: row.id,
-        revokedAt: row.revoked_at,
-    };
-}
-function toStoredChatRoomCharacter(row) {
-    return {
-        id: row.id,
-        roomId: row.room_id,
-        name: row.name,
-        shortDescription: row.short_description,
-        fullDescription: row.full_description,
-        position: row.position,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-    };
-}
-function toStoredChatRoomConversation(row) {
-    return {
-        id: row.id,
-        roomId: row.room_id,
-        userId: row.user_id,
-        profileId: row.profile_id,
-        reportCreatedAt: row.report_created_at,
-        reportId: row.report_id,
-        reportPracticeGuideId: row.report_practice_guide_id,
-        title: row.title,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-    };
-}
-function parseChatRoomConversationReportSlides(slidesJson) {
-    try {
-        const parsed = JSON.parse(slidesJson);
-        return Array.isArray(parsed)
-            ? parsed
-            : [];
-    }
-    catch {
-        return [];
-    }
-}
-function toStoredChatRoomConversationReport(row) {
-    return {
-        id: row.id,
-        conversationId: row.conversation_id,
-        roomId: row.room_id,
-        userId: row.user_id,
-        profileId: row.profile_id,
-        summaryTitle: row.summary_title,
-        summaryDescription: row.summary_description,
-        slides: parseChatRoomConversationReportSlides(row.slides_json),
-        practiceGuideId: row.practice_guide_id,
-        createdAt: row.created_at,
-        updatedAt: row.updated_at,
-    };
-}
-function toStoredChatRoomMessage(row) {
-    return {
-        id: row.id,
-        conversationId: row.conversation_id,
-        senderType: row.sender_type,
-        senderName: row.sender_name,
-        content: row.content,
-        evaluationStatus: row.evaluation_status,
-        evaluationProblem: row.evaluation_problem,
-        evaluationCreatedAt: row.evaluation_created_at,
-        createdAt: row.created_at,
-    };
-}
 function toStoredPracticeGuide(row) {
     return {
         archivedAt: row.archived_at,
@@ -588,14 +476,6 @@ function toStoredPracticeGuide(row) {
         tutorInstructions: row.tutor_instructions,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-    };
-}
-function toStoredPracticeGuideShareLink(row) {
-    return {
-        practiceGuideId: row.practice_guide_id,
-        createdAt: row.created_at,
-        id: row.id,
-        revokedAt: row.revoked_at,
     };
 }
 function toStoredConversationPracticeGuideSnapshot(row) {
@@ -1685,13 +1565,12 @@ export function createConversation(userId, profileId, title = defaultConversatio
           profile_id,
           title,
           practice_guide_id,
-          chat_room_conversation_report_id,
           active_agent,
           model_tier
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, userId, profileId, title, options.practiceGuideId ?? null, options.chatRoomConversationReportId ?? null, 'tutor', modelTier);
+        .run(id, userId, profileId, title, options.practiceGuideId ?? null, 'tutor', modelTier);
     const conversation = findConversationForUser(id, userId);
     if (!conversation) {
         throw new Error('Could not load newly created conversation.');
@@ -1705,16 +1584,6 @@ export function createConversationFromPracticeGuide(userId, practiceGuide, profi
     createConversationPracticeGuideSnapshot(conversation.id, practiceGuide);
     return conversation;
 }
-export function createConversationFromChatRoomReport(input) {
-    const conversation = createConversation(input.userId, input.profileId, defaultConversationTitle, {
-        chatRoomConversationReportId: input.report.id,
-    });
-    createConversationChatRoomReportSnapshot(conversation.id, {
-        report: input.report,
-        room: input.room,
-    });
-    return conversation;
-}
 export function createConversationFromTutorReport(input) {
     const conversation = createConversation(input.userId, input.profileId, defaultConversationTitle);
     createConversationTutorReportSnapshot(conversation.id, input.report);
@@ -1724,7 +1593,7 @@ export function findConversationForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
-             , model_tier, chat_room_conversation_report_id
+             , model_tier
         FROM conversations
         WHERE id = ? AND user_id = ?
       `)
@@ -1760,7 +1629,7 @@ export function listConversationsForProfile(userId, profileId) {
     const rows = getDb()
         .prepare(`
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
-             , model_tier, chat_room_conversation_report_id
+             , model_tier
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -1806,455 +1675,6 @@ export function deleteConversationForUser(id, userId) {
         .prepare('DELETE FROM conversations WHERE id = ? AND user_id = ?')
         .run(id, userId);
     return result.changes > 0;
-}
-export function createChatRoom(input) {
-    const db = getDb();
-    const roomId = randomUUID();
-    const insertRoom = db.prepare(`
-      INSERT INTO chat_rooms (
-        id,
-        user_id,
-        profile_id,
-        title,
-        description,
-        source_room_id,
-        source_user_id,
-        source_profile_id,
-        shared_via
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    const insertCharacter = db.prepare(`
-      INSERT INTO chat_room_characters (
-        id,
-        room_id,
-        name,
-        short_description,
-        full_description,
-        position
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    db.transaction(() => {
-        insertRoom.run(roomId, input.userId, input.profileId, input.title, input.description, input.sourceRoomId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
-        input.characters.forEach((character, index) => {
-            insertCharacter.run(randomUUID(), roomId, character.name, character.shortDescription ?? '', character.fullDescription, index);
-        });
-    })();
-    const room = findChatRoomForUser(roomId, input.userId);
-    if (!room) {
-        throw new Error('Could not load newly created chat room.');
-    }
-    return room;
-}
-export function findChatRoomForUser(id, userId) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          archived_at,
-          id,
-          user_id,
-          profile_id,
-          title,
-          description,
-          source_room_id,
-          source_user_id,
-          source_profile_id,
-          shared_via,
-          created_at,
-          updated_at
-        FROM chat_rooms
-        WHERE id = ? AND user_id = ?
-      `)
-        .get(id, userId);
-    return row ? toStoredChatRoom(row) : null;
-}
-export function findChatRoomById(id) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          archived_at,
-          id,
-          user_id,
-          profile_id,
-          title,
-          description,
-          source_room_id,
-          source_user_id,
-          source_profile_id,
-          shared_via,
-          created_at,
-          updated_at
-        FROM chat_rooms
-        WHERE id = ?
-      `)
-        .get(id);
-    return row ? toStoredChatRoom(row) : null;
-}
-export function listChatRoomsForProfile(userId, profileId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT
-          archived_at,
-          id,
-          user_id,
-          profile_id,
-          title,
-          description,
-          source_room_id,
-          source_user_id,
-          source_profile_id,
-          shared_via,
-          created_at,
-          updated_at
-        FROM chat_rooms
-        WHERE user_id = ? AND profile_id = ?
-        ORDER BY
-          CASE WHEN archived_at IS NULL THEN 0 ELSE 1 END ASC,
-          updated_at DESC,
-          created_at DESC
-      `)
-        .all(userId, profileId);
-    return rows.map(toStoredChatRoom);
-}
-export function deleteChatRoomForUser(roomId, userId) {
-    const result = getDb()
-        .prepare('DELETE FROM chat_rooms WHERE id = ? AND user_id = ?')
-        .run(roomId, userId);
-    return result.changes > 0;
-}
-export function updateChatRoomForUser(input) {
-    const db = getDb();
-    const room = findChatRoomForUser(input.roomId, input.userId);
-    if (!room) {
-        return null;
-    }
-    const updateRoom = db.prepare(`
-      UPDATE chat_rooms
-      SET title = ?,
-          description = ?,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND user_id = ?
-    `);
-    const deleteCharacters = db.prepare('DELETE FROM chat_room_characters WHERE room_id = ?');
-    const insertCharacter = db.prepare(`
-      INSERT INTO chat_room_characters (
-        id,
-        room_id,
-        name,
-        short_description,
-        full_description,
-        position
-      )
-      VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    db.transaction(() => {
-        updateRoom.run(input.title, input.description, input.roomId, input.userId);
-        deleteCharacters.run(input.roomId);
-        input.characters.forEach((character, index) => {
-            insertCharacter.run(randomUUID(), input.roomId, character.name, character.shortDescription ?? '', character.fullDescription, index);
-        });
-    })();
-    return findChatRoomForUser(input.roomId, input.userId);
-}
-export function archiveChatRoomForUser(roomId, userId) {
-    const room = findChatRoomForUser(roomId, userId);
-    if (!room) {
-        return null;
-    }
-    getDb()
-        .prepare(`
-        UPDATE chat_rooms
-        SET archived_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `)
-        .run(roomId, userId);
-    return findChatRoomForUser(roomId, userId);
-}
-export function restoreChatRoomForUser(roomId, userId) {
-    const room = findChatRoomForUser(roomId, userId);
-    if (!room) {
-        return null;
-    }
-    getDb()
-        .prepare(`
-        UPDATE chat_rooms
-        SET archived_at = NULL,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `)
-        .run(roomId, userId);
-    return findChatRoomForUser(roomId, userId);
-}
-export function findImportedChatRoomForProfile(input) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          archived_at,
-          id,
-          user_id,
-          profile_id,
-          title,
-          description,
-          source_room_id,
-          source_user_id,
-          source_profile_id,
-          shared_via,
-          created_at,
-          updated_at
-        FROM chat_rooms
-        WHERE user_id = ?
-          AND profile_id = ?
-          AND source_room_id = ?
-        ORDER BY updated_at DESC, created_at DESC
-        LIMIT 1
-      `)
-        .get(input.userId, input.profileId, input.sourceRoomId);
-    return row ? toStoredChatRoom(row) : null;
-}
-export function importChatRoomToProfile(input) {
-    const existing = findImportedChatRoomForProfile({
-        profileId: input.targetProfileId,
-        sourceRoomId: input.sourceRoom.id,
-        userId: input.userId,
-    });
-    if (existing) {
-        return existing;
-    }
-    const characters = listChatRoomCharacters(input.sourceRoom.id).map((character) => ({
-        fullDescription: character.fullDescription,
-        name: character.name,
-        shortDescription: character.shortDescription,
-    }));
-    return createChatRoom({
-        characters,
-        description: input.sourceRoom.description,
-        profileId: input.targetProfileId,
-        sharedVia: input.shareKind,
-        sourceProfileId: input.sourceRoom.profileId,
-        sourceRoomId: input.sourceRoom.id,
-        sourceUserId: input.sourceRoom.userId,
-        title: input.sourceRoom.title,
-        userId: input.userId,
-    });
-}
-export function listChatRoomCharacters(roomId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT id, room_id, name, short_description, full_description, position, created_at, updated_at
-        FROM chat_room_characters
-        WHERE room_id = ?
-        ORDER BY position ASC, created_at ASC
-      `)
-        .all(roomId);
-    return rows.map(toStoredChatRoomCharacter);
-}
-export function findChatRoomShareLinkById(id) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, room_id, created_at, revoked_at
-        FROM chat_room_share_links
-        WHERE id = ?
-      `)
-        .get(id);
-    return row ? toStoredChatRoomShareLink(row) : null;
-}
-export function findChatRoomShareLinkForRoom(roomId) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, room_id, created_at, revoked_at
-        FROM chat_room_share_links
-        WHERE room_id = ?
-          AND revoked_at IS NULL
-        LIMIT 1
-      `)
-        .get(roomId);
-    return row ? toStoredChatRoomShareLink(row) : null;
-}
-export function getOrCreateChatRoomShareLink(roomId) {
-    const existing = findChatRoomShareLinkForRoom(roomId);
-    if (existing) {
-        return existing;
-    }
-    const id = randomBytes(18).toString('base64url');
-    getDb()
-        .prepare(`
-        INSERT INTO chat_room_share_links (id, room_id)
-        VALUES (?, ?)
-        ON CONFLICT(room_id) DO UPDATE SET
-          revoked_at = NULL
-      `)
-        .run(id, roomId);
-    const created = findChatRoomShareLinkForRoom(roomId);
-    if (!created) {
-        throw new Error('Could not load newly created chat room share link.');
-    }
-    return created;
-}
-export function createChatRoomConversation(userId, room, title = room.title) {
-    const id = randomUUID();
-    getDb()
-        .prepare(`
-        INSERT INTO chat_room_conversations (id, room_id, user_id, profile_id, title)
-        VALUES (?, ?, ?, ?, ?)
-      `)
-        .run(id, room.id, userId, room.profileId, title);
-    const conversation = findChatRoomConversationForUser(id, userId);
-    if (!conversation) {
-        throw new Error('Could not load newly created chat room conversation.');
-    }
-    return conversation;
-}
-export function findChatRoomConversationForUser(id, userId) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          c.id,
-          c.room_id,
-          c.user_id,
-          c.profile_id,
-          c.title,
-          c.created_at,
-          c.updated_at,
-          r.id AS report_id,
-          r.created_at AS report_created_at,
-          r.practice_guide_id AS report_practice_guide_id
-        FROM chat_room_conversations c
-        LEFT JOIN chat_room_conversation_reports r
-          ON r.conversation_id = c.id
-        WHERE c.id = ? AND c.user_id = ?
-      `)
-        .get(id, userId);
-    return row ? toStoredChatRoomConversation(row) : null;
-}
-export function listChatRoomConversationsForRoom(roomId, userId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT
-          c.id,
-          c.room_id,
-          c.user_id,
-          c.profile_id,
-          c.title,
-          c.created_at,
-          c.updated_at,
-          r.id AS report_id,
-          r.created_at AS report_created_at,
-          r.practice_guide_id AS report_practice_guide_id
-        FROM chat_room_conversations c
-        LEFT JOIN chat_room_conversation_reports r
-          ON r.conversation_id = c.id
-        WHERE c.room_id = ? AND c.user_id = ?
-        ORDER BY c.updated_at DESC, c.created_at DESC
-      `)
-        .all(roomId, userId);
-    return rows.map(toStoredChatRoomConversation);
-}
-export function findLatestChatRoomConversationForRoom(roomId, userId) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          c.id,
-          c.room_id,
-          c.user_id,
-          c.profile_id,
-          c.title,
-          c.created_at,
-          c.updated_at,
-          r.id AS report_id,
-          r.created_at AS report_created_at,
-          r.practice_guide_id AS report_practice_guide_id
-        FROM chat_room_conversations c
-        LEFT JOIN chat_room_conversation_reports r
-          ON r.conversation_id = c.id
-        WHERE c.room_id = ? AND c.user_id = ?
-        ORDER BY c.updated_at DESC, c.created_at DESC
-        LIMIT 1
-      `)
-        .get(roomId, userId);
-    return row ? toStoredChatRoomConversation(row) : null;
-}
-export function touchChatRoomConversation(conversationId) {
-    getDb()
-        .prepare('UPDATE chat_room_conversations SET updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-        .run(conversationId);
-}
-export function findChatRoomConversationReport(conversationId, userId) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          id,
-          conversation_id,
-          room_id,
-          user_id,
-          profile_id,
-          summary_title,
-          summary_description,
-          slides_json,
-          practice_guide_id,
-          created_at,
-          updated_at
-        FROM chat_room_conversation_reports
-        WHERE conversation_id = ? AND user_id = ?
-      `)
-        .get(conversationId, userId);
-    return row ? toStoredChatRoomConversationReport(row) : null;
-}
-export function saveChatRoomConversationReport(input) {
-    const existing = findChatRoomConversationReport(input.conversationId, input.userId);
-    if (existing) {
-        getDb()
-            .prepare(`
-          UPDATE chat_room_conversation_reports
-          SET summary_title = ?,
-              summary_description = ?,
-              slides_json = ?,
-              updated_at = CURRENT_TIMESTAMP
-          WHERE id = ?
-        `)
-            .run(input.summaryTitle, input.summaryDescription, JSON.stringify(input.slides), existing.id);
-        const updated = findChatRoomConversationReport(input.conversationId, input.userId);
-        if (!updated) {
-            throw new Error('Could not load updated chat room conversation report.');
-        }
-        touchChatRoomConversation(input.conversationId);
-        return updated;
-    }
-    const id = randomUUID();
-    getDb()
-        .prepare(`
-        INSERT INTO chat_room_conversation_reports (
-          id,
-          conversation_id,
-          room_id,
-          user_id,
-          profile_id,
-          summary_title,
-          summary_description,
-          slides_json
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `)
-        .run(id, input.conversationId, input.roomId, input.userId, input.profileId, input.summaryTitle, input.summaryDescription, JSON.stringify(input.slides));
-    const created = findChatRoomConversationReport(input.conversationId, input.userId);
-    if (!created) {
-        throw new Error('Could not load newly created chat room conversation report.');
-    }
-    touchChatRoomConversation(input.conversationId);
-    return created;
-}
-export function setChatRoomConversationReportPracticeGuide(input) {
-    getDb()
-        .prepare(`
-        UPDATE chat_room_conversation_reports
-        SET practice_guide_id = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE conversation_id = ? AND user_id = ?
-      `)
-        .run(input.practiceGuideId, input.conversationId, input.userId);
-    touchChatRoomConversation(input.conversationId);
-    return findChatRoomConversationReport(input.conversationId, input.userId);
 }
 export function findTutorConversationReport(conversationId, userId) {
     const row = getDb()
@@ -2490,7 +1910,6 @@ export function findQuizForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT
-          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2518,7 +1937,6 @@ export function findQuizById(id) {
     const row = getDb()
         .prepare(`
         SELECT
-          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2546,7 +1964,6 @@ export function listQuizzesForProfile(input) {
     const rows = getDb()
         .prepare(`
         SELECT
-          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2629,7 +2046,6 @@ export function findImportedQuizForProfile(input) {
     const row = getDb()
         .prepare(`
         SELECT
-          allow_public_attempts,
           archived_at,
           authoring_messages_json,
           created_at,
@@ -2710,53 +2126,6 @@ export function restoreQuizForUser(quizId, userId) {
     });
     transaction();
     return findQuizForUser(quizId, userId);
-}
-export function findQuizShareLinkById(id) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, quiz_id, created_at, revoked_at
-        FROM quiz_share_links
-        WHERE id = ?
-      `)
-        .get(id);
-    return row ? toStoredQuizShareLink(row) : null;
-}
-export function findQuizShareLinkForQuiz(quizId) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, quiz_id, created_at, revoked_at
-        FROM quiz_share_links
-        WHERE quiz_id = ?
-          AND revoked_at IS NULL
-        LIMIT 1
-      `)
-        .get(quizId);
-    return row ? toStoredQuizShareLink(row) : null;
-}
-export function getOrCreateQuizShareLink(quizId) {
-    const existing = findQuizShareLinkForQuiz(quizId);
-    if (existing) {
-        upsertResourceShareLink(getDb(), existing.id, quizId);
-        return existing;
-    }
-    const id = randomBytes(18).toString('base64url');
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        db.prepare(`
-        INSERT INTO quiz_share_links (id, quiz_id)
-        VALUES (?, ?)
-        ON CONFLICT(quiz_id) DO UPDATE SET
-          revoked_at = NULL
-      `)
-            .run(id, quizId);
-        upsertResourceShareLink(db, id, quizId);
-    });
-    transaction();
-    const created = findQuizShareLinkForQuiz(quizId);
-    if (!created) {
-        throw new Error('Could not load newly created quiz share link.');
-    }
-    return created;
 }
 export function createQuizAttempt(input) {
     const id = randomUUID();
@@ -3550,7 +2919,7 @@ export function restorePracticeGuideForUser(practiceGuideId, userId) {
 export function listConversationsForPracticeGuide(practiceGuideId, userId, profileId) {
     const rows = getDb()
         .prepare(`
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier, chat_room_conversation_report_id
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier
         FROM conversations
         WHERE user_id = ? AND profile_id = ? AND practice_guide_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -3628,53 +2997,6 @@ export function importPracticeGuideToProfile(input) {
         userId: input.userId,
     });
 }
-export function findPracticeGuideShareLinkById(id) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, practice_guide_id, created_at, revoked_at
-        FROM practice_guide_share_links
-        WHERE id = ?
-      `)
-        .get(id);
-    return row ? toStoredPracticeGuideShareLink(row) : null;
-}
-export function findPracticeGuideShareLinkForPracticeGuide(practiceGuideId) {
-    const row = getDb()
-        .prepare(`
-        SELECT id, practice_guide_id, created_at, revoked_at
-        FROM practice_guide_share_links
-        WHERE practice_guide_id = ?
-          AND revoked_at IS NULL
-        LIMIT 1
-      `)
-        .get(practiceGuideId);
-    return row ? toStoredPracticeGuideShareLink(row) : null;
-}
-export function getOrCreatePracticeGuideShareLink(practiceGuideId) {
-    const existing = findPracticeGuideShareLinkForPracticeGuide(practiceGuideId);
-    if (existing) {
-        upsertResourceShareLink(getDb(), existing.id, practiceGuideId);
-        return existing;
-    }
-    const id = randomBytes(18).toString('base64url');
-    const db = getDb();
-    const transaction = db.transaction(() => {
-        db.prepare(`
-        INSERT INTO practice_guide_share_links (id, practice_guide_id)
-        VALUES (?, ?)
-        ON CONFLICT(practice_guide_id) DO UPDATE SET
-          revoked_at = NULL
-      `)
-            .run(id, practiceGuideId);
-        upsertResourceShareLink(db, id, practiceGuideId);
-    });
-    transaction();
-    const created = findPracticeGuideShareLinkForPracticeGuide(practiceGuideId);
-    if (!created) {
-        throw new Error('Could not load newly created practice-guide share link.');
-    }
-    return created;
-}
 export function createConversationPracticeGuideSnapshot(conversationId, practiceGuide) {
     getDb()
         .prepare(`
@@ -3691,28 +3013,6 @@ export function createConversationPracticeGuideSnapshot(conversationId, practice
     const snapshot = getConversationPracticeGuideSnapshot(conversationId);
     if (!snapshot) {
         throw new Error('Could not load conversation practice-guide snapshot.');
-    }
-    return snapshot;
-}
-export function createConversationChatRoomReportSnapshot(conversationId, input) {
-    getDb()
-        .prepare(`
-        INSERT OR REPLACE INTO conversation_chat_room_report_snapshots (
-          conversation_id,
-          chat_room_conversation_report_id,
-          chat_room_conversation_id,
-          room_title,
-          room_description,
-          report_summary_title,
-          report_summary_description,
-          slides_json
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `)
-        .run(conversationId, input.report.id, input.report.conversationId, input.room.title, input.room.description, input.report.summaryTitle, input.report.summaryDescription, JSON.stringify(input.report.slides));
-    const snapshot = getConversationChatRoomReportSnapshot(conversationId);
-    if (!snapshot) {
-        throw new Error('Could not load conversation chat-room-report snapshot.');
     }
     return snapshot;
 }
@@ -3745,25 +3045,6 @@ export function getConversationPracticeGuideSnapshot(conversationId) {
       `)
         .get(conversationId);
     return row ? toStoredConversationPracticeGuideSnapshot(row) : null;
-}
-export function getConversationChatRoomReportSnapshot(conversationId) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          conversation_id,
-          chat_room_conversation_report_id,
-          chat_room_conversation_id,
-          room_title,
-          room_description,
-          report_summary_title,
-          report_summary_description,
-          slides_json,
-          created_at
-        FROM conversation_chat_room_report_snapshots
-        WHERE conversation_id = ?
-      `)
-        .get(conversationId);
-    return row ? toStoredConversationChatRoomReportSnapshot(row) : null;
 }
 export function getConversationTutorReportSnapshot(conversationId) {
     const row = getDb()
@@ -3893,97 +3174,6 @@ export function deleteConversationTutorPlan(conversationId) {
       `)
         .run(conversationId);
     touchConversation(conversationId);
-}
-export function listChatRoomMessages(conversationId) {
-    const rows = getDb()
-        .prepare(`
-        SELECT
-          id,
-          conversation_id,
-          sender_type,
-          sender_name,
-          content,
-          evaluation_status,
-          evaluation_problem,
-          evaluation_created_at,
-          created_at
-        FROM chat_room_messages
-        WHERE conversation_id = ?
-        ORDER BY created_at ASC, id ASC
-      `)
-        .all(conversationId);
-    return rows.map(toStoredChatRoomMessage);
-}
-export function findChatRoomMessage(conversationId, messageId) {
-    const row = getDb()
-        .prepare(`
-        SELECT
-          id,
-          conversation_id,
-          sender_type,
-          sender_name,
-          content,
-          evaluation_status,
-          evaluation_problem,
-          evaluation_created_at,
-          created_at
-        FROM chat_room_messages
-        WHERE conversation_id = ? AND id = ?
-      `)
-        .get(conversationId, messageId);
-    return row ? toStoredChatRoomMessage(row) : null;
-}
-export function addChatRoomMessage(conversationId, senderType, senderName, content) {
-    const db = getDb();
-    const result = db
-        .prepare(`
-        INSERT INTO chat_room_messages (conversation_id, sender_type, sender_name, content)
-        VALUES (?, ?, ?, ?)
-      `)
-        .run(conversationId, senderType, senderName, content);
-    touchChatRoomConversation(conversationId);
-    const row = db
-        .prepare(`
-        SELECT
-          id,
-          conversation_id,
-          sender_type,
-          sender_name,
-          content,
-          evaluation_status,
-          evaluation_problem,
-          evaluation_created_at,
-          created_at
-        FROM chat_room_messages
-        WHERE id = ?
-      `)
-        .get(result.lastInsertRowid);
-    return toStoredChatRoomMessage(row);
-}
-export function updateChatRoomMessageEvaluation(input) {
-    const db = getDb();
-    db.prepare(`
-      UPDATE chat_room_messages
-      SET evaluation_status = ?,
-          evaluation_problem = ?,
-          evaluation_created_at = CURRENT_TIMESTAMP
-      WHERE id = ? AND conversation_id = ?
-    `).run(input.status, input.status === 'warning' ? (input.problem?.trim() || null) : null, input.messageId, input.conversationId);
-    const row = db.prepare(`
-      SELECT
-        id,
-        conversation_id,
-        sender_type,
-        sender_name,
-        content,
-        evaluation_status,
-        evaluation_problem,
-        evaluation_created_at,
-        created_at
-      FROM chat_room_messages
-      WHERE id = ? AND conversation_id = ?
-    `).get(input.messageId, input.conversationId);
-    return row ? toStoredChatRoomMessage(row) : null;
 }
 function parseMetadata(metadata) {
     try {

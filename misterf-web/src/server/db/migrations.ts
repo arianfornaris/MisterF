@@ -152,165 +152,12 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_practice_guides_profile_archived_updated
         ON practice_guides (profile_id, archived_at, updated_at DESC, created_at DESC);
 
-      CREATE TABLE chat_rooms (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        profile_id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT '',
-        source_room_id TEXT,
-        source_user_id TEXT,
-        source_profile_id TEXT,
-        shared_via TEXT CHECK (shared_via IS NULL OR shared_via IN ('profile', 'link')),
-        archived_at TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (profile_id)
-          REFERENCES profiles (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (source_room_id)
-          REFERENCES chat_rooms (id)
-          ON DELETE SET NULL,
-        FOREIGN KEY (source_user_id)
-          REFERENCES users (id)
-          ON DELETE SET NULL,
-        FOREIGN KEY (source_profile_id)
-          REFERENCES profiles (id)
-          ON DELETE SET NULL
-      );
-
-      CREATE INDEX idx_chat_rooms_user_profile_updated
-        ON chat_rooms (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_chat_rooms_profile_shared
-        ON chat_rooms (profile_id, shared_via, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_chat_rooms_profile_source
-        ON chat_rooms (profile_id, source_room_id, shared_via);
-
-      CREATE INDEX idx_chat_rooms_profile_archived_updated
-        ON chat_rooms (profile_id, archived_at, updated_at DESC, created_at DESC);
-
-      CREATE TABLE chat_room_characters (
-        id TEXT PRIMARY KEY,
-        room_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        short_description TEXT NOT NULL DEFAULT '',
-        full_description TEXT NOT NULL,
-        position INTEGER NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (room_id)
-          REFERENCES chat_rooms (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_chat_room_characters_room_position
-        ON chat_room_characters (room_id, position ASC, created_at ASC);
-
-      CREATE TABLE chat_room_conversations (
-        id TEXT PRIMARY KEY,
-        room_id TEXT NOT NULL,
-        user_id TEXT NOT NULL,
-        profile_id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (room_id)
-          REFERENCES chat_rooms (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (profile_id)
-          REFERENCES profiles (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_chat_room_conversations_room_updated
-        ON chat_room_conversations (room_id, updated_at DESC, created_at DESC);
-
-      CREATE INDEX idx_chat_room_conversations_user_profile_updated
-        ON chat_room_conversations (user_id, profile_id, updated_at DESC, created_at DESC);
-
-      CREATE TABLE chat_room_messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        conversation_id TEXT NOT NULL,
-        sender_type TEXT NOT NULL CHECK (sender_type IN ('system', 'user', 'character')),
-        sender_name TEXT NOT NULL,
-        content TEXT NOT NULL,
-        evaluation_status TEXT
-          CHECK (evaluation_status IS NULL OR evaluation_status IN ('ok', 'warning')),
-        evaluation_problem TEXT,
-        evaluation_created_at TEXT,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES chat_room_conversations (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_chat_room_messages_conversation_created
-        ON chat_room_messages (conversation_id, created_at ASC, id ASC);
-
-      CREATE TABLE chat_room_conversation_reports (
-        id TEXT PRIMARY KEY,
-        conversation_id TEXT NOT NULL UNIQUE,
-        room_id TEXT NOT NULL,
-        user_id TEXT NOT NULL,
-        profile_id TEXT NOT NULL,
-        summary_title TEXT NOT NULL,
-        summary_description TEXT NOT NULL,
-        slides_json TEXT NOT NULL,
-        practice_guide_id TEXT
-          REFERENCES practice_guides (id)
-          ON DELETE SET NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES chat_room_conversations (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (room_id)
-          REFERENCES chat_rooms (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (user_id)
-          REFERENCES users (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (profile_id)
-          REFERENCES profiles (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_chat_room_conversation_reports_room_created
-        ON chat_room_conversation_reports (room_id, created_at DESC);
-
-      CREATE INDEX idx_chat_room_conversation_reports_user_profile_created
-        ON chat_room_conversation_reports (user_id, profile_id, created_at DESC);
-
-      CREATE TABLE chat_room_share_links (
-        id TEXT PRIMARY KEY,
-        room_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (room_id)
-          REFERENCES chat_rooms (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_chat_room_share_links_room_active
-        ON chat_room_share_links (room_id, revoked_at, created_at DESC);
-
       CREATE TABLE conversations (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         profile_id TEXT NOT NULL,
         active_agent TEXT NOT NULL DEFAULT 'tutor' CHECK (active_agent IN ('tutor')),
         practice_guide_id TEXT,
-        chat_room_conversation_report_id TEXT
-          REFERENCES chat_room_conversation_reports (id)
-          ON DELETE SET NULL,
         model_tier TEXT NOT NULL DEFAULT 'regular'
           CHECK (model_tier IN ('regular', 'advanced', 'max')),
         title TEXT NOT NULL DEFAULT 'Nueva conversación',
@@ -338,9 +185,6 @@ export const migrations: Migration[] = [
       CREATE INDEX idx_conversations_active_agent
         ON conversations (active_agent, updated_at DESC, created_at DESC);
 
-      CREATE INDEX idx_conversations_chat_room_report_updated
-        ON conversations (chat_room_conversation_report_id, updated_at DESC, created_at DESC);
-
       CREATE INDEX idx_conversations_closed_updated
         ON conversations (closed_at, updated_at DESC, created_at DESC);
 
@@ -361,30 +205,6 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_conversation_practice_guide_snapshots_practice_guide
         ON conversation_practice_guide_snapshots (practice_guide_id, created_at DESC);
-
-      CREATE TABLE conversation_chat_room_report_snapshots (
-        conversation_id TEXT PRIMARY KEY,
-        chat_room_conversation_report_id TEXT NOT NULL,
-        chat_room_conversation_id TEXT NOT NULL,
-        room_title TEXT NOT NULL,
-        room_description TEXT NOT NULL DEFAULT '',
-        report_summary_title TEXT NOT NULL,
-        report_summary_description TEXT NOT NULL,
-        slides_json TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (conversation_id)
-          REFERENCES conversations (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (chat_room_conversation_report_id)
-          REFERENCES chat_room_conversation_reports (id)
-          ON DELETE CASCADE,
-        FOREIGN KEY (chat_room_conversation_id)
-          REFERENCES chat_room_conversations (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_conversation_chat_room_report_snapshots_report
-        ON conversation_chat_room_report_snapshots (chat_room_conversation_report_id, created_at DESC);
 
       CREATE TABLE tutor_conversation_reports (
         id TEXT PRIMARY KEY,
@@ -444,19 +264,6 @@ export const migrations: Migration[] = [
           REFERENCES conversations (id)
           ON DELETE CASCADE
       );
-
-      CREATE TABLE practice_guide_share_links (
-        id TEXT PRIMARY KEY,
-        practice_guide_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (practice_guide_id)
-          REFERENCES practice_guides (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_practice_guide_share_links_active
-        ON practice_guide_share_links (practice_guide_id, revoked_at, created_at DESC);
 
       CREATE TABLE messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -640,19 +447,6 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_quiz_authoring_revisions_session_created
         ON quiz_authoring_revisions (authoring_session_id, created_at ASC);
-
-      CREATE TABLE quiz_share_links (
-        id TEXT PRIMARY KEY,
-        quiz_id TEXT NOT NULL UNIQUE,
-        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        revoked_at TEXT,
-        FOREIGN KEY (quiz_id)
-          REFERENCES quizzes (id)
-          ON DELETE CASCADE
-      );
-
-      CREATE INDEX idx_quiz_share_links_quiz_active
-        ON quiz_share_links (quiz_id, revoked_at, created_at DESC);
 
       CREATE TABLE quiz_attempts (
         id TEXT PRIMARY KEY,
@@ -1440,24 +1234,6 @@ export const migrations: Migration[] = [
       FROM resources
       WHERE type = 'resource_folder';
 
-      INSERT INTO resource_share_links (id, resource_id, created_at, revoked_at)
-      SELECT id, quiz_id, created_at, revoked_at
-      FROM quiz_share_links
-      WHERE EXISTS (
-        SELECT 1
-        FROM resources
-        WHERE resources.id = quiz_share_links.quiz_id
-      );
-
-      INSERT OR IGNORE INTO resource_share_links (id, resource_id, created_at, revoked_at)
-      SELECT id, practice_guide_id, created_at, revoked_at
-      FROM practice_guide_share_links
-      WHERE EXISTS (
-        SELECT 1
-        FROM resources
-        WHERE resources.id = practice_guide_share_links.practice_guide_id
-      );
-
     `,
   },
   {
@@ -1899,14 +1675,6 @@ export const migrations: Migration[] = [
 
       CREATE INDEX idx_conversation_roleplay_attempt_snapshots_attempt
         ON conversation_roleplay_attempt_snapshots (roleplay_attempt_id, created_at DESC);
-    `,
-  },
-  {
-    id: 13,
-    name: 'add_quiz_public_attempts',
-    up: `
-      ALTER TABLE quizzes
-        ADD COLUMN allow_public_attempts INTEGER NOT NULL DEFAULT 0;
     `,
   },
 ];

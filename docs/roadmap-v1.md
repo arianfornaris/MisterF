@@ -192,11 +192,13 @@ Run against live inference; completed 2026-07-02:
 
 ## 2.1 Pre-Production Fixes (External Configuration)
 
-- [ ] Fix the Google OAuth consent screen: app name currently reads
-  "Sign in to continue to Test Phaser Editor Chatbot" — a leftover OAuth
-  client from another project, not app code. Update the app name, logo,
-  support email, and authorized domains in the Google Cloud console so it
-  shows the Mr. F product branding.
+- [x] Fix the Google OAuth consent screen: the app's OAuth client lives in the
+  "Mister F and Minimo Games" Google Cloud project, whose branding still had a
+  leftover app name from another project. Updated the Branding settings
+  (2026-07-02) so the consent screen shows "Mister F". Note: branding is
+  per-project, so the Minimo Games client in the same project now also shows
+  "Mister F"; moving it to its own project is a post-V1 nicety. No logo
+  uploaded yet (a logo triggers Google's brand verification review).
 
 ## 2.2 Final Cleanup And Clean Database Baseline
 
@@ -206,7 +208,7 @@ changes remain, so the baseline is rebuilt exactly once. Use the
 `database-migration-safety` skill and review
 `misterf-web/src/server/db/migrations.ts` before every persisted-data change.
 
-- [ ] Remove legacy chatroom persistence (the chatroom surface is already
+- [x] Remove legacy chatroom persistence (the chatroom surface is already
   removed; only this destructive schema cleanup remains):
   - Drop the `chat_rooms`, `chat_room_characters`, `chat_room_conversations`,
     `chat_room_messages`, `chat_room_conversation_reports`, and
@@ -218,7 +220,7 @@ changes remain, so the baseline is rebuilt exactly once. Use the
     tables and columns exist.
   - Decide whether the `/chatrooms` and `/chatroom-conversations`
     compatibility redirects in `server.ts` stay or are removed.
-- [ ] Remove legacy practice-guide share links (generic live sharing owns the
+- [x] Remove legacy practice-guide share links (generic live sharing owns the
   behavior):
   - Drop the `practice_guide_share_links` table/index from the baseline.
   - Remove `findPracticeGuideShareLinkById`,
@@ -227,7 +229,7 @@ changes remain, so the baseline is rebuilt exactly once. Use the
   - Remove or fold the `/practice-guides/shared/:shareId` and
     `/practice-guides/shared/:shareId/accept` legacy redirect
     routes/handlers.
-- [ ] Remove legacy quiz share links:
+- [x] Remove legacy quiz share links:
   - Drop the `quiz_share_links` table/index from the baseline.
   - Remove `findQuizShareLinkById`, `findQuizShareLinkForQuiz`, and
     `getOrCreateQuizShareLink` from `repository.ts`.
@@ -235,42 +237,43 @@ changes remain, so the baseline is rebuilt exactly once. Use the
     `/quizzes/shared/:shareId/start` legacy redirect routes/handlers.
   - Keep the generic `resource_share_links` table and the
     `*ResourceShareLink*` helpers; only the per-type legacy share links go.
-- [ ] Remove the unused `quizzes.allow_public_attempts` column (migration
+- [x] Remove the unused `quizzes.allow_public_attempts` column (migration
   `add_quiz_public_attempts`) and the unused `OPENROUTER_FREE_API_KEY` env var
   (set locally and on the server), left over from the Slice 14 policy
   decision.
-- [ ] Remove old internal naming that no longer needs a compatibility alias.
-- [ ] Rebuild the clean baseline migration so fresh production installs start
+- [x] Remove old internal naming that no longer needs a compatibility alias
+  (verified by broad grep; no legacy naming remains in code, views, or tests).
+- [x] Rebuild the clean baseline migration so fresh production installs start
   from the simplified resource model.
-- [ ] Re-run schema, repository, route, and render tests against a fresh
+- [x] Re-run schema, repository, route, and render tests against a fresh
   database.
-- [ ] Re-run a broad grep for legacy names, routes, tables, prompts, and docs.
-- [ ] Audit page heading scale and vertical space across resource pages
+- [x] Re-run a broad grep for legacy names, routes, tables, prompts, and docs.
+- [x] Audit page heading scale and vertical space across resource pages
   (`h1`/`h2`/section-heading sizes and margins currently take too much
   vertical space in several views).
 
 Exit criteria:
 
-- [ ] Fresh databases contain only the current production-intended schema.
-- [ ] No runtime code depends on deleted legacy structures.
-- [ ] Old compatibility routes are either removed or intentionally redirected.
-- [ ] The migration history is clean for the first production deployment.
+- [x] Fresh databases contain only the current production-intended schema.
+- [x] No runtime code depends on deleted legacy structures.
+- [x] Old compatibility routes are either removed or intentionally redirected.
+- [x] The migration history is clean for the first production deployment.
 
 Verification:
 
-- [ ] Fresh SQLite migration check.
-- [ ] `npm run typecheck`
-- [ ] `npm run test:typecheck`
-- [ ] `npm test`
+- [x] Fresh SQLite migration check.
+- [x] `npm run typecheck`
+- [x] `npm run test:typecheck`
+- [x] `npm test` (98 passing)
 
 ## 2.3 Production-Readiness Decisions
 
-- [ ] Decide whether anonymous quiz attempt creation needs rate limiting or
+- [x] Decide whether anonymous quiz attempt creation needs rate limiting or
   abuse protection for V1. The original free-guest-evaluation concern is
   partially superseded by the Slice 14 decision (evaluation always runs on
   the student's own credit-gated key), but guests can still create attempt
   rows anonymously via `POST /quizzes/shared/:shareId/take`.
-- [ ] Triage `TODO.txt` at the repository root: move still-relevant ideas into
+- [x] Triage `TODO.txt` at the repository root: move still-relevant ideas into
   [issues/incomming.md](./issues/incomming.md) or this roadmap, then delete
   the file.
 
@@ -342,10 +345,10 @@ future resource work stays consistent:
 # V1 Exit Criteria
 
 - [x] All Manual QA items (Part 1, section 1.5) pass against live inference.
-- [ ] The Google OAuth consent screen shows the Mr. F product branding.
-- [ ] Fresh databases contain only the production-intended schema and the
+- [x] The Google OAuth consent screen shows the Mr. F product branding.
+- [x] Fresh databases contain only the production-intended schema and the
   migration history is clean for the first deployment.
-- [ ] Every production-readiness decision (Part 2, section 2.3) is resolved
+- [x] Every production-readiness decision (Part 2, section 2.3) is resolved
   (implemented or explicitly deferred in Part 3).
-- [ ] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass on
+- [x] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass on
   the final cleanup baseline.

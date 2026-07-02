@@ -102,6 +102,13 @@ function buildCorrectionSection(evaluation, context, sendMessageContent, getEval
     renderCorrectionState(section, state);
   });
 
+  textarea.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      submitCorrection(section, state, sendMessageContent);
+    }
+  });
+
   submitButton.addEventListener('click', () => {
     submitCorrection(section, state, sendMessageContent);
   });

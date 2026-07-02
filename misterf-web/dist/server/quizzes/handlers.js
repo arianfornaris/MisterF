@@ -1,11 +1,12 @@
 import QRCode from 'qrcode';
-import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findQuizShareLinkById, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
+import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendQuizBlock, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResultTitle, createQuizDraftFromManualInput, duplicateQuizBlock, evaluateQuizAttempt, moveQuizBlock, normalizeQuizResponses, removeQuizBlock, safeParseQuizDraft, } from '../services/quizzes.js';
 import { generateQuizBlock, generateQuizDraft, generateQuizRevision, } from '../services/resourceDrafts.js';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
+import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
 import { recordQuizAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
@@ -901,49 +902,17 @@ export function handleRestoreQuiz(request, response) {
     restoreQuizForUser(resolved.quiz.id, resolved.user.id);
     response.redirect(returnTo);
 }
-export function renderSharedQuizPage(request, response) {
-    const shareId = readField(request.params.shareId, 120);
-    const legacyShareLink = findQuizShareLinkById(shareId);
-    if (!legacyShareLink || legacyShareLink.revokedAt) {
-        response.redirect('/resources');
-        return;
-    }
-    const resourceShareLink = getOrCreateResourceShareLink(legacyShareLink.quizId);
-    response.redirect(`/resources/shared/${encodeURIComponent(resourceShareLink.id)}`);
-}
-export function handleStartQuizAttempt(request, response) {
-    const shareId = readField(request.params.shareId, 120);
-    const shareLink = findQuizShareLinkById(shareId);
-    if (!shareLink || shareLink.revokedAt) {
-        response.redirect('/resources');
-        return;
-    }
-    const quiz = findQuizById(shareLink.quizId);
-    if (!quiz || quiz.archivedAt) {
-        response.redirect('/resources');
-        return;
-    }
-    const resourceShareLink = getOrCreateResourceShareLink(quiz.id);
-    const user = request.authUser;
-    const activeProfile = request.activeProfile;
-    if (!user?.emailVerified || !activeProfile) {
-        response.redirect(`/login?returnTo=${encodeURIComponent(`/resources/shared/${resourceShareLink.id}`)}`);
-        return;
-    }
-    grantResourceAccess({
-        grantedByUserId: quiz.userId,
-        grantedVia: 'link',
-        profileId: activeProfile.id,
-        resourceId: quiz.id,
-        shareLinkId: resourceShareLink.id,
-        userId: user.id,
-    });
-    response.redirect(`/quizzes/${encodeURIComponent(quiz.id)}`);
-}
+// Generous enough for a whole classroom behind one school NAT IP, while still
+// bounding scripted guest-attempt flooding. Evaluation is already gated behind
+// an account, so the only anonymous cost is attempt rows.
+const guestQuizAttemptLimiter = createFixedWindowRateLimiter({
+    maxActions: 60,
+    windowMs: 60 * 60 * 1000,
+});
 /**
- * Starts an attempt for a shared quiz that allows public attempts. Anonymous
- * visitors get a free guest attempt (evaluated with the platform free-resource
- * key). Authenticated visitors get a normal owned attempt with resource access.
+ * Starts an attempt for a shared quiz. Anonymous visitors get a rate-limited
+ * guest attempt whose evaluation is gated behind signup. Authenticated
+ * visitors get a normal owned attempt with resource access.
  */
 export function handleStartSharedQuizAttempt(request, response) {
     const shareId = readField(request.params.shareId, 120);
@@ -990,6 +959,20 @@ export function handleStartSharedQuizAttempt(request, response) {
             userId: attempt.userId,
         });
         response.redirect(`/quiz-attempts/${encodeURIComponent(attempt.id)}`);
+        return;
+    }
+    const rateLimitKey = `ip:${request.ip || request.socket.remoteAddress || 'unknown'}`;
+    const rateLimit = guestQuizAttemptLimiter.allow(rateLimitKey);
+    if (!rateLimit.allowed) {
+        if (rateLimit.shouldLogLimit) {
+            logger.warn('quiz_public_attempt_rate_limited', {
+                key: rateLimitKey.slice(0, 80),
+                quizId: quiz.id,
+                resourceId: quiz.id,
+                resourceType: 'quiz',
+            });
+        }
+        response.redirect(sharePath);
         return;
     }
     const attempt = createQuizAttempt({ quizId: quiz.id, snapshot: draft });

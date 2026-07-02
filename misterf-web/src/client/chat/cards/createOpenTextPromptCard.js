@@ -60,6 +60,13 @@ export function createOpenTextPromptCard(block, context, deps) {
     renderOpenTextPromptState(section, state);
   });
 
+  textarea.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      submitOpenTextPromptAnswer(section, state, deps);
+    }
+  });
+
   submitButton.addEventListener('click', () => {
     submitOpenTextPromptAnswer(section, state, deps);
   });

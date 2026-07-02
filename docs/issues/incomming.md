@@ -24,3 +24,43 @@ Pensar en el Dashboard del profesor.
 ---
 
 Pernsar en un marketplace.
+
+---
+
+Evaluar un nuevo tipo de ejercicio: el tutor genera una imagen tipo cómic y el
+usuario tiene que escribir una historia al respecto.
+
+---
+
+Quizás adicionar un botón + en la caja de texto del usuario donde se escoja un
+tipo de ejercicio determinado para hacer.
+
+---
+
+Progreso global del usuario: cuando se cierra una conversación (o cualquier
+práctica), que tribute a un progreso global que sirva de fuente para ejercicios
+futuros y esté accesible a las tools de la app. Dos formas posibles: una
+valoración general, o una secuencia de eventos con lo practicado y el avance.
+Nota: los progress events y la tool `get_learner_progress` ya cubren parte de
+esto; queda abierta la parte de "valoración general" agregada.
+
+---
+
+Incorporar voz-a-texto y texto-a-voz.
+
+---
+
+Permitir usar imágenes en los ejercicios. Opción gratuita: Pixabay API
+(https://pixabay.com/api/docs/).
+
+---
+
+Poder marcar lecciones/conversaciones favoritas y archivarlas. Nota: los
+favoritos de recursos se eliminaron por decisión de producto en V2 y los
+recursos ya se archivan; esta idea aplicaría solo a conversaciones.
+
+---
+
+A largo plazo: algo parecido a Grammarly/DeepL — una herramienta que "escuche"
+constantemente lo que escribimos o traduzca, corrija sobre la marcha, y loguee
+al sitio las dificultades para luego generar lecciones al respecto.

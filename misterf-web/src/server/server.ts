@@ -80,12 +80,6 @@ app.use(settingsRouter);
 app.use(paymentsRouter);
 app.use(legalRouter);
 app.use(progressRouter);
-app.get(/^\/chatrooms(?:\/.*)?$/, (_request, response) => {
-  response.redirect('/resources');
-});
-app.get(/^\/chatroom-conversations(?:\/.*)?$/, (_request, response) => {
-  response.redirect('/resources');
-});
 app.use(chatRouter);
 app.get('/session', (request, response) => {
   response.json({

@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findPracticeGuideShareLinkById, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, } from '../db/repository.js';
+import { archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { generatePracticeGuideDraft, generatePracticeGuideRevision, } from '../services/resourceDrafts.js';
@@ -40,12 +40,11 @@ async function buildPracticeGuidesPageModel(request, response, pageKind) {
     const user = request.authUser;
     const availableProfiles = request.availableProfiles ?? [];
     let activeProfile = request.activeProfile;
-    if (!user?.emailVerified && pageKind !== 'share') {
+    if (!user?.emailVerified) {
         redirectUnauthedPracticeGuides(response);
         return null;
     }
     let selectedPracticeGuide = null;
-    let selectedSharedPracticeGuide = null;
     let selectedPracticeGuideShareLink = null;
     let selectedPracticeGuideSharedFromProfileName = '';
     let practiceGuideConversations = [];
@@ -56,7 +55,6 @@ async function buildPracticeGuidesPageModel(request, response, pageKind) {
     const requestedPracticeGuideId = typeof request.params.practiceGuideId === 'string'
         ? request.params.practiceGuideId.trim()
         : '';
-    const requestedShareId = typeof request.params.shareId === 'string' ? request.params.shareId.trim() : '';
     if (pageKind === 'edit') {
         if (!user) {
             redirectUnauthedPracticeGuides(response);
@@ -125,29 +123,12 @@ async function buildPracticeGuidesPageModel(request, response, pageKind) {
             });
         }
     }
-    if (pageKind === 'share') {
-        const legacyShareLink = findPracticeGuideShareLinkById(requestedShareId);
-        if (!legacyShareLink || legacyShareLink.revokedAt) {
-            response.redirect('/resources');
-            return null;
-        }
-        selectedPracticeGuideShareLink = legacyShareLink;
-        selectedSharedPracticeGuide = findPracticeGuideById(legacyShareLink.practiceGuideId);
-        if (!selectedSharedPracticeGuide) {
-            response.redirect('/resources');
-            return null;
-        }
-    }
     if (selectedPracticeGuide && canManagePracticeGuide) {
         selectedPracticeGuideShareLink = getOrCreateResourceShareLink(selectedPracticeGuide.id);
         if (selectedPracticeGuide.sourceProfileId) {
             selectedPracticeGuideSharedFromProfileName =
                 findProfileById(selectedPracticeGuide.sourceProfileId)?.name || '';
         }
-    }
-    if (selectedSharedPracticeGuide?.sourceProfileId) {
-        selectedPracticeGuideSharedFromProfileName =
-            findProfileById(selectedSharedPracticeGuide.sourceProfileId)?.name || '';
     }
     if (selectedPracticeGuide && !canManagePracticeGuide) {
         selectedPracticeGuideSharedFromProfileName =
@@ -174,15 +155,12 @@ async function buildPracticeGuidesPageModel(request, response, pageKind) {
         selectedPracticeGuide,
         selectedPracticeGuideShareLink,
         selectedPracticeGuideSharedFromProfileName,
-        selectedSharedPracticeGuide,
         shareTargetPracticeGuideProfiles,
         title: pageKind === 'new'
             ? `Nueva guía de práctica · ${appDocumentTitle}`
             : pageKind === 'edit'
                 ? `Editar guía de práctica · ${appDocumentTitle}`
-                : pageKind === 'detail'
-                    ? `${selectedPracticeGuide?.title || 'Guía de práctica'} · ${appDocumentTitle}`
-                    : `${selectedSharedPracticeGuide?.title || 'Guía compartida'} · ${appDocumentTitle}`,
+                : `${selectedPracticeGuide?.title || 'Guía de práctica'} · ${appDocumentTitle}`,
         user,
     };
 }
@@ -222,7 +200,6 @@ async function renderPracticeGuidesPage(request, response, pageKind, overrides =
         selectedPracticeGuide: viewModel.selectedPracticeGuide,
         selectedPracticeGuideShareLink: viewModel.selectedPracticeGuideShareLink,
         selectedPracticeGuideSharedFromProfileName: viewModel.selectedPracticeGuideSharedFromProfileName,
-        selectedSharedPracticeGuide: viewModel.selectedSharedPracticeGuide,
         shareTargetPracticeGuideProfiles: viewModel.shareTargetPracticeGuideProfiles,
         ...overrides,
     });
@@ -282,16 +259,6 @@ export function renderPracticeGuideDetailPage(request, response) {
 }
 export function renderEditPracticeGuidePage(request, response) {
     return renderPracticeGuidesPage(request, response, 'edit');
-}
-export function renderSharedPracticeGuidePage(request, response) {
-    const shareId = String(request.params.shareId || '').trim();
-    const legacyShareLink = findPracticeGuideShareLinkById(shareId);
-    if (!legacyShareLink || legacyShareLink.revokedAt) {
-        response.redirect('/resources');
-        return;
-    }
-    const resourceShareLink = getOrCreateResourceShareLink(legacyShareLink.practiceGuideId);
-    response.redirect(`/resources/shared/${encodeURIComponent(resourceShareLink.id)}`);
 }
 export function handleCreatePracticeGuide(request, response) {
     const user = request.authUser;
@@ -612,47 +579,5 @@ export function handleSharePracticeGuideToProfile(request, response) {
         userId: user.id,
     });
     response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
-}
-export function handleAcceptSharedPracticeGuideLink(request, response) {
-    const shareId = String(request.params.shareId || '').trim();
-    if (!shareId) {
-        response.redirect('/resources');
-        return;
-    }
-    const shareLink = findPracticeGuideShareLinkById(shareId);
-    if (!shareLink || shareLink.revokedAt) {
-        response.redirect('/resources');
-        return;
-    }
-    const sourcePracticeGuide = findPracticeGuideById(shareLink.practiceGuideId);
-    if (!sourcePracticeGuide) {
-        response.redirect('/resources');
-        return;
-    }
-    const resourceShareLink = getOrCreateResourceShareLink(sourcePracticeGuide.id);
-    const user = request.authUser;
-    const activeProfile = request.activeProfile;
-    if (!user?.emailVerified || !activeProfile) {
-        response.redirect(`/login?returnTo=${encodeURIComponent(`/resources/shared/${resourceShareLink.id}`)}`);
-        return;
-    }
-    grantResourceAccess({
-        grantedByUserId: sourcePracticeGuide.userId,
-        grantedVia: 'link',
-        profileId: activeProfile.id,
-        resourceId: sourcePracticeGuide.id,
-        shareLinkId: resourceShareLink.id,
-        userId: user.id,
-    });
-    logger.info('resource_share_link_accepted', {
-        ownerProfileId: sourcePracticeGuide.profileId,
-        ownerUserId: sourcePracticeGuide.userId,
-        profileId: activeProfile.id,
-        resourceId: sourcePracticeGuide.id,
-        resourceType: 'practice_guide',
-        shareLinkId: resourceShareLink.id,
-        userId: user.id,
-    });
-    response.redirect(`/practice-guides/${encodeURIComponent(sourcePracticeGuide.id)}`);
 }
 //# sourceMappingURL=handlers.js.map

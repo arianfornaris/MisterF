@@ -9,7 +9,6 @@ import {
   findQuizAttemptById,
   findQuizById,
   findQuizForUser,
-  findQuizShareLinkById,
   findProfileById,
   findProfileForUser,
   findResourceAccessForProfile,
@@ -69,6 +68,7 @@ import {
   getCreditExhaustedMessage,
   isCreditExhaustedError,
 } from '../services/creditGate.js';
+import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
 import { recordQuizAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
@@ -1244,60 +1244,18 @@ export function handleRestoreQuiz(request: Request, response: Response): void {
   response.redirect(returnTo);
 }
 
-export function renderSharedQuizPage(request: Request, response: Response): void {
-  const shareId = readField(request.params.shareId, 120);
-  const legacyShareLink = findQuizShareLinkById(shareId);
-  if (!legacyShareLink || legacyShareLink.revokedAt) {
-    response.redirect('/resources');
-    return;
-  }
-
-  const resourceShareLink = getOrCreateResourceShareLink(legacyShareLink.quizId);
-  response.redirect(`/resources/shared/${encodeURIComponent(resourceShareLink.id)}`);
-}
-
-export function handleStartQuizAttempt(request: Request, response: Response): void {
-  const shareId = readField(request.params.shareId, 120);
-  const shareLink = findQuizShareLinkById(shareId);
-  if (!shareLink || shareLink.revokedAt) {
-    response.redirect('/resources');
-    return;
-  }
-
-  const quiz = findQuizById(shareLink.quizId);
-  if (!quiz || quiz.archivedAt) {
-    response.redirect('/resources');
-    return;
-  }
-
-  const resourceShareLink = getOrCreateResourceShareLink(quiz.id);
-  const user = request.authUser;
-  const activeProfile = request.activeProfile;
-  if (!user?.emailVerified || !activeProfile) {
-    response.redirect(
-      `/login?returnTo=${encodeURIComponent(
-        `/resources/shared/${resourceShareLink.id}`,
-      )}`,
-    );
-    return;
-  }
-
-  grantResourceAccess({
-    grantedByUserId: quiz.userId,
-    grantedVia: 'link',
-    profileId: activeProfile.id,
-    resourceId: quiz.id,
-    shareLinkId: resourceShareLink.id,
-    userId: user.id,
-  });
-
-  response.redirect(`/quizzes/${encodeURIComponent(quiz.id)}`);
-}
+// Generous enough for a whole classroom behind one school NAT IP, while still
+// bounding scripted guest-attempt flooding. Evaluation is already gated behind
+// an account, so the only anonymous cost is attempt rows.
+const guestQuizAttemptLimiter = createFixedWindowRateLimiter({
+  maxActions: 60,
+  windowMs: 60 * 60 * 1000,
+});
 
 /**
- * Starts an attempt for a shared quiz that allows public attempts. Anonymous
- * visitors get a free guest attempt (evaluated with the platform free-resource
- * key). Authenticated visitors get a normal owned attempt with resource access.
+ * Starts an attempt for a shared quiz. Anonymous visitors get a rate-limited
+ * guest attempt whose evaluation is gated behind signup. Authenticated
+ * visitors get a normal owned attempt with resource access.
  */
 export function handleStartSharedQuizAttempt(request: Request, response: Response): void {
   const shareId = readField(request.params.shareId, 120);
@@ -1347,6 +1305,21 @@ export function handleStartSharedQuizAttempt(request: Request, response: Respons
       userId: attempt.userId,
     });
     response.redirect(`/quiz-attempts/${encodeURIComponent(attempt.id)}`);
+    return;
+  }
+
+  const rateLimitKey = `ip:${request.ip || request.socket.remoteAddress || 'unknown'}`;
+  const rateLimit = guestQuizAttemptLimiter.allow(rateLimitKey);
+  if (!rateLimit.allowed) {
+    if (rateLimit.shouldLogLimit) {
+      logger.warn('quiz_public_attempt_rate_limited', {
+        key: rateLimitKey.slice(0, 80),
+        quizId: quiz.id,
+        resourceId: quiz.id,
+        resourceType: 'quiz',
+      });
+    }
+    response.redirect(sharePath);
     return;
   }
 

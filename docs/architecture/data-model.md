@@ -159,9 +159,7 @@ This keeps URLs and authorization simpler because a resource id is also the
 type-specific id.
 
 `quizzes` should keep quiz-specific fields such as instructions,
-quiz JSON, and authoring messages. (`allow_public_attempts` exists from an
-earlier free-public-quiz design and is now unused; remove it in the Final
-Cleanup baseline rebuild.)
+quiz JSON, and authoring messages.
 
 `practice_guides` should keep tutor-specific fields such as tutor instructions.
 
@@ -547,7 +545,6 @@ Current source types:
 - `tutor_conversation_report`
 - `quiz_attempt`
 - `roleplay_attempt`
-- `chat_room_conversation_report` legacy only until schema cleanup
 
 The event details JSON contains compact lists of practiced topics,
 difficulties, progress notes, recommendations, vocabulary, and optional resource

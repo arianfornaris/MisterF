@@ -103,10 +103,6 @@ describe('database migrations', () => {
         id: 12,
         name: 'add_roleplay_resources',
       },
-      {
-        id: 13,
-        name: 'add_quiz_public_attempts',
-      },
     ]);
 
     const tableNames = (db
@@ -117,12 +113,7 @@ describe('database migrations', () => {
     expect(tableNames).toEqual(expect.arrayContaining([
       'auth_action_tokens',
       'quiz_attempts',
-      'quiz_share_links',
       'quizzes',
-      'chat_room_conversation_reports',
-      'chat_room_messages',
-      'chat_rooms',
-      'conversation_chat_room_report_snapshots',
       'conversation_quiz_attempt_snapshots',
       'conversation_tutor_plans',
       'conversation_tutor_report_snapshots',
@@ -150,6 +141,15 @@ describe('database migrations', () => {
     expect(tableNames).not.toContain('quiz_authoring_sessions');
     expect(tableNames).not.toContain('practice_guide_collections');
     expect(tableNames).not.toContain('practice_guide_collection_share_links');
+    expect(tableNames).not.toContain('chat_rooms');
+    expect(tableNames).not.toContain('chat_room_characters');
+    expect(tableNames).not.toContain('chat_room_conversations');
+    expect(tableNames).not.toContain('chat_room_messages');
+    expect(tableNames).not.toContain('chat_room_conversation_reports');
+    expect(tableNames).not.toContain('chat_room_share_links');
+    expect(tableNames).not.toContain('conversation_chat_room_report_snapshots');
+    expect(tableNames).not.toContain('quiz_share_links');
+    expect(tableNames).not.toContain('practice_guide_share_links');
 
     expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
       'learning_context',
@@ -157,17 +157,13 @@ describe('database migrations', () => {
       'profile_onboarding_completed_at',
     ]));
     expect(getColumnNames(db, 'conversations')).toEqual(expect.arrayContaining([
-      'chat_room_conversation_report_id',
       'closed_at',
       'model_tier',
     ]));
-    expect(getColumnNames(db, 'chat_room_messages')).toEqual(expect.arrayContaining([
-      'evaluation_created_at',
-      'evaluation_problem',
-      'evaluation_status',
-    ]));
+    expect(getColumnNames(db, 'conversations')).not.toContain(
+      'chat_room_conversation_report_id',
+    );
     expect(getColumnNames(db, 'quizzes')).toEqual(expect.arrayContaining([
-      'allow_public_attempts',
       'authoring_messages_json',
       'quiz_json',
       'shared_via',
@@ -325,7 +321,7 @@ describe('database migrations', () => {
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
-  it('backfills resources and share links from legacy resource tables', async () => {
+  it('backfills resources from legacy resource tables', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-resources-'));
     process.env.DATABASE_PATH = path.join(tempDir, 'resources.sqlite');
     process.env.ENV_FILE = '/dev/null';
@@ -405,15 +401,6 @@ describe('database migrations', () => {
         'Practice modal verbs.'
       )
     `).run();
-    db.prepare(`
-      INSERT INTO quiz_share_links (id, quiz_id)
-      VALUES ('quiz_link_1', 'quiz_1')
-    `).run();
-    db.prepare(`
-      INSERT INTO practice_guide_share_links (id, practice_guide_id)
-      VALUES ('guide_link_1', 'guide_1')
-    `).run();
-
     migrate();
 
     expect(db.prepare('SELECT type, topic, level FROM resources WHERE id = ?')
@@ -426,10 +413,6 @@ describe('database migrations', () => {
       .get('guide_1')).toEqual({ type: 'practice_guide' });
     expect(db.prepare('SELECT COUNT(*) AS count FROM resource_folder_items')
       .get()).toEqual({ count: 0 });
-    expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
-      .get('quiz_link_1')).toEqual({ resource_id: 'quiz_1' });
-    expect(db.prepare('SELECT resource_id FROM resource_share_links WHERE id = ?')
-      .get('guide_link_1')).toEqual({ resource_id: 'guide_1' });
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 

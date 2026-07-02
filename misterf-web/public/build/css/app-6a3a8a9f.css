@@ -804,7 +804,7 @@ body {
 .resource-page-header-detail {
   width: 100%;
   max-width: none;
-  margin: 0 0 24px;
+  margin: 0 0 16px;
   padding: 0;
 }
 
@@ -848,7 +848,7 @@ body {
 .resource-page-kicker,
 .resource-eyebrow,
 .resource-page-section-kicker {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   color: var(--bs-secondary-color);
   font-size: 0.78rem;
   font-weight: 700;
@@ -856,8 +856,11 @@ body {
   text-transform: uppercase;
 }
 
+/* Page titles are h1 for semantics but render at a compact scale so headers
+   do not dominate the vertical space of resource pages. */
 .resource-page-title {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
+  font-size: 1.5rem;
 }
 
 .resource-page-copy {
@@ -2489,6 +2492,11 @@ body {
   min-height: 7rem;
   max-height: 15rem;
   resize: vertical;
+  transition: min-height 0.15s ease-out;
+}
+
+.open-text-prompt-textarea:focus {
+  min-height: 10rem;
 }
 
 .open-text-prompt-controls {
@@ -3333,6 +3341,11 @@ button.quiz-result-pair-row:focus {
   min-height: 5.5rem;
   max-height: 15rem;
   resize: vertical;
+  transition: min-height 0.15s ease-out;
+}
+
+.translation-prompt-textarea:focus {
+  min-height: 8.5rem;
 }
 
 .translation-prompt-controls {
@@ -3578,6 +3591,11 @@ button.quiz-result-pair-row:focus {
   min-height: 4.5rem;
   max-height: 14rem;
   resize: vertical;
+  transition: min-height 0.15s ease-out;
+}
+
+.sentence-evaluation-correction-textarea:focus {
+  min-height: 7.5rem;
 }
 
 .sentence-evaluation-correction-controls {

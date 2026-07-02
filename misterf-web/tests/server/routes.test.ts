@@ -82,14 +82,6 @@ describe('main route smoke tests', () => {
       route: '/practice-guides',
     },
     {
-      location: '/resources',
-      route: '/chatrooms',
-    },
-    {
-      location: '/resources',
-      route: '/chatroom-conversations/test-conversation',
-    },
-    {
       location: '/login',
       route: '/progress',
     },
@@ -392,67 +384,6 @@ describe('main route smoke tests', () => {
     expect(detailHtml).toContain('Directions Roleplay');
     expect(detailHtml).toContain('Comenzar');
     expect(detailHtml).toContain('Compartir');
-  });
-
-  it('redirects legacy quiz and practice guide links into generic share links', async () => {
-    const { createExternalUser } = await import('../../src/server/auth/repository.js');
-    const {
-      createQuiz,
-      createPracticeGuide,
-      createProfile,
-      getOrCreateQuizShareLink,
-      getOrCreatePracticeGuideShareLink,
-      getOrCreateResourceShareLink,
-    } = await import('../../src/server/db/repository.js');
-
-    const owner = createExternalUser({
-      email: 'route-legacy-share-owner@example.com',
-      emailVerified: true,
-      fullName: 'Route Legacy Share Owner',
-      provider: 'google',
-      providerSubject: 'route-legacy-share-owner',
-    });
-    const profile = createProfile({
-      name: 'Legacy share profile',
-      userId: owner.id,
-    });
-    const quiz = createQuiz({
-      description: 'Legacy quiz share.',
-      instructions: '',
-      profileId: profile.id,
-      quiz: { blocks: [], title: 'Legacy Quiz Share' },
-      title: 'Legacy Quiz Share',
-      userId: owner.id,
-    });
-    const practiceGuide = createPracticeGuide({
-      description: 'Legacy guide share.',
-      profileId: profile.id,
-      title: 'Legacy Guide Share',
-      tutorInstructions: 'Practice.',
-      userId: owner.id,
-    });
-    const quizShareLink = getOrCreateQuizShareLink(quiz.id);
-    const practiceGuideShareLink = getOrCreatePracticeGuideShareLink(practiceGuide.id);
-
-    const quizResponse = await fetch(
-      `${baseUrl}/quizzes/shared/${quizShareLink.id}`,
-      { redirect: 'manual' },
-    );
-    const quizResourceShareLink = getOrCreateResourceShareLink(quiz.id);
-    expect(quizResponse.status).toBe(302);
-    expect(quizResponse.headers.get('location')).toBe(
-      `/resources/shared/${quizResourceShareLink.id}`,
-    );
-
-    const practiceGuideResponse = await fetch(
-      `${baseUrl}/practice-guides/shared/${practiceGuideShareLink.id}`,
-      { redirect: 'manual' },
-    );
-    const practiceGuideResourceShareLink = getOrCreateResourceShareLink(practiceGuide.id);
-    expect(practiceGuideResponse.status).toBe(302);
-    expect(practiceGuideResponse.headers.get('location')).toBe(
-      `/resources/shared/${practiceGuideResourceShareLink.id}`,
-    );
   });
 
   it('renders the practice guide label and quiz attempts on resource pages', async () => {

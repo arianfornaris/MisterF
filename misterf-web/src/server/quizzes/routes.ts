@@ -13,7 +13,6 @@ import {
   handleReviseQuiz,
   handleShareQuizToProfile,
   handleStartSharedQuizAttempt,
-  handleStartQuizAttempt,
   handleStartQuizTestAttempt,
   handleSubmitQuizAttempt,
   handleUpdateQuizMetadata,
@@ -22,7 +21,6 @@ import {
   renderQuizNewPage,
   renderQuizResultPage,
   renderQuizShowPage,
-  renderSharedQuizPage,
 } from './handlers.js';
 
 export const quizzesRouter = express.Router();
@@ -33,8 +31,6 @@ quizzesRouter.get('/quizzes', (_request, response) => {
 quizzesRouter.get('/quizzes/new', renderQuizNewPage);
 quizzesRouter.post('/quizzes/generate', handleGenerateQuiz);
 quizzesRouter.post('/quizzes/generate-draft', handleGenerateQuiz);
-quizzesRouter.get('/quizzes/shared/:shareId', renderSharedQuizPage);
-quizzesRouter.post('/quizzes/shared/:shareId/start', handleStartQuizAttempt);
 quizzesRouter.post('/quizzes/shared/:shareId/take', handleStartSharedQuizAttempt);
 quizzesRouter.get('/quizzes/:quizId/edit', renderQuizEditPage);
 quizzesRouter.post('/quizzes/:quizId/edit/save', handleUpdateQuizMetadata);

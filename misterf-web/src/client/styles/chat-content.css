@@ -501,6 +501,11 @@
   min-height: 7rem;
   max-height: 15rem;
   resize: vertical;
+  transition: min-height 0.15s ease-out;
+}
+
+.open-text-prompt-textarea:focus {
+  min-height: 10rem;
 }
 
 .open-text-prompt-controls {
@@ -1345,6 +1350,11 @@ button.quiz-result-pair-row:focus {
   min-height: 5.5rem;
   max-height: 15rem;
   resize: vertical;
+  transition: min-height 0.15s ease-out;
+}
+
+.translation-prompt-textarea:focus {
+  min-height: 8.5rem;
 }
 
 .translation-prompt-controls {
@@ -1590,6 +1600,11 @@ button.quiz-result-pair-row:focus {
   min-height: 4.5rem;
   max-height: 14rem;
   resize: vertical;
+  transition: min-height 0.15s ease-out;
+}
+
+.sentence-evaluation-correction-textarea:focus {
+  min-height: 7.5rem;
 }
 
 .sentence-evaluation-correction-controls {

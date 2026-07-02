@@ -62,7 +62,7 @@ afterEach(async () => {
 });
 
 describe('quiz repository', () => {
-  it('stores quizzes, share links, attempts, and follow-up snapshots', async () => {
+  it('stores quizzes, attempts, and follow-up snapshots', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       createQuiz,
@@ -73,7 +73,6 @@ describe('quiz repository', () => {
       findQuizAttemptById,
       importQuizToProfile,
       getConversationQuizAttemptSnapshot,
-      getOrCreateQuizShareLink,
       listQuizAttemptsForUser,
       listQuizzesForProfile,
       listLearnerProgressEvents,
@@ -172,9 +171,6 @@ describe('quiz repository', () => {
       },
       role: 'assistant',
     });
-
-    const shareLink = getOrCreateQuizShareLink(quiz.id);
-    expect(getOrCreateQuizShareLink(quiz.id).id).toBe(shareLink.id);
 
     const importedQuiz = importQuizToProfile({
       shareKind: 'profile',
