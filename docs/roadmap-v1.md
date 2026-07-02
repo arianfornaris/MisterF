@@ -320,25 +320,24 @@ Recorded so nothing is lost; none of these block the first version.
 
 ## Agent Skills Backlog
 
-Recurring implementation patterns worth turning into concise agent skills so
-future resource work stays consistent:
+Done (2026-07-02). All six skills were created under `.agents/skills/`:
 
-- `resource-sharing-conventions`: live shared resource references,
-  profile/link sharing, QR/link modal behavior, access checks, and future
-  public/free quiz and roleplay exceptions.
-- `ai-authoring-chat-conventions`: General/AI Chat tab layout, authoring
-  history passed into each inference, assistant reply plus structured JSON
-  changes, and pending modal scroll behavior.
-- `resource-attempt-runtime`: start/freeze/run/finish/evaluate/result/
-  follow-up flows and progress event writing.
-- `resource-follow-up-conversations`: Mr. F conversations created from
-  resource results, frozen source snapshots, visible source links, credit
-  policy, and preventing the tutor from re-grading the same result.
-- `markdown-content-fields`: which fields render markdown, which edit fields
-  use the Markdown editor, and safe rendering.
-- `roleplay-pedagogy-and-evaluation`: learner English production focus,
-  avoiding non-language moral/persona judgment, creative scenarios, turn
-  limits, and future guest/free policy.
+- [x] `resource-sharing-conventions`: live share links and grants, QR/share
+  modals, access checks, and the anonymous quiz/roleplay/guide flows.
+- [x] `ai-authoring-chat-conventions`: authoring tabs, persisted authoring
+  history passed into each inference, structured JSON revisions with
+  correction retries, and pending modal behavior.
+- [x] `resource-attempt-runtime`: start/freeze/run/finish/evaluate/result
+  lifecycle, snapshots, statuses, guest/claim tokens, and progress events.
+- [x] `resource-follow-up-conversations`: `Practicar` conversations from
+  results, frozen source snapshots, visible source links, credit policy, and
+  no re-grading in context prompts.
+- [x] `markdown-content-fields`: which fields are markdown, the
+  `data-render-markdown` render path, the shared EasyMDE editor, and safe
+  rendering.
+- [x] `roleplay-pedagogy-and-evaluation`: English-production-only evaluation,
+  no moral/persona judgment, sentence-evaluation-style review, turn limits,
+  and the account-gated access policy.
 
 ---
 
