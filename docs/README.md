@@ -8,6 +8,12 @@ The goal of this documentation is to make the project easier to understand for:
 - AI agents working on later tasks
 - maintainers who need a fast architectural map before changing behavior
 
+## Release Planning
+
+- [Roadmap V1](./roadmap-v1.md): the single planning document for the first
+  production version; records all completed initiatives, the remaining work,
+  and the post-V1 deferrals, referencing the owning tracker for each item
+
 ## Structure
 
 ### Architecture
@@ -59,15 +65,14 @@ runtime support procedures.
 
 ### Issues
 
-Use `issues/` for problem analysis, remediation plans, and living trackers for
-known technical/product issues.
+Use `issues/` for problem analysis, future-feature design detail, and the idea
+inbox. Implementation trackers for completed initiatives were consolidated into
+[Roadmap V1](./roadmap-v1.md); their task-level history lives in git.
 
-- [Tutor Loop Prompt Audit](./issues/tutor-loop-prompt-audit.md): prompt/runtime contradictions and cleanup plan for the tutor loop
-- [Tutor Loop Remediation Tracker](./issues/tutor-loop-remediation-tracker.md): living implementation plan and status log for tutor-loop prompt/runtime fixes
-- [Teacher-Assigned Practice Implementation Tracker](./issues/teacher-assigned-practice-implementation-tracker.md): living implementation tracker for the AI-assisted `Quizzes` feature
-- [Resource Simplification V2 Tracker](./issues/resource-simplification-v2-tracker.md): living tracker for the V2 resource catalog, practice guide rename, folder model, chatroom removal, and roleplay resource
-- [Home Suggestions Tracker](./issues/home-suggestions-tracker.md): separate tracker for personalized home and new-chat practice suggestions
-- [Agent Skill Gap Analysis](./issues/agent-skill-gap-analysis.md): which repeated Mister F implementation patterns should become agent skills
+- [Incoming Ideas](./issues/incomming.md): idea inbox for unshaped product notes
+- [Home Suggestions Tracker](./issues/home-suggestions-tracker.md): design tracker for personalized home and new-chat practice suggestions (post-V1)
+- [V1 LLM, Credit, And Payment Guardrails](./issues/v1-llm-credit-payment-guardrails.md): inventory of server-side LLM calls and their credit/fulfillment guardrails
+- [Block Input Standardization](./issues/block-input-standardization.md): which tutor blocks own their input UI versus use the chat composer
 - [Structured Block Post-Processing](./issues/structured-block-postprocessing.md): current repair loop and future deeper semantic review ideas for tutor block output
 - [Message Block Task Leakage](./issues/message-block-task-leakage.md): observed and repaired patterns where `message` blocks leak exercise payloads that should be typed blocks
 - [UI Style Consistency Audit](./issues/ui-style-consistency-audit.md): future audit for shared CSS, semantic class names, and app-wide UI consistency

@@ -870,8 +870,8 @@ Implement Quizzes as a sequence of vertical slices. Each slice should leave the
 application in a usable, testable state and should avoid changing old applied
 migrations after production-era data exists.
 
-Execution status lives in
-[Teacher-Assigned Practice Implementation Tracker](../issues/teacher-assigned-practice-implementation-tracker.md).
+Implementation is complete; execution status was consolidated into
+[Roadmap V1](../roadmap-v1.md).
 
 ### Slice 1: Schema And Repository Foundation
 

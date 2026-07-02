@@ -12,8 +12,8 @@ lives in `docs/`.
   database, build, and PM2 operations
 - [Documentation Index](./docs/README.md): architecture, tutor runtime,
   operations, feature notes, and issue trackers
-- [V1 Cleanup Tracker](./docs/issues/v1-project-cleanup-tracker.md): current
-  release-readiness tracker
+- [Roadmap V1](./docs/roadmap-v1.md): current release-readiness roadmap with
+  completed initiatives and remaining V1 work
 
 ## Local Start
 

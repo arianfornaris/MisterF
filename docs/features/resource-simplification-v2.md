@@ -586,8 +586,8 @@ follow-up tutoring use the standard credit policy.
 
 ## Recommended Implementation Shape
 
-Use the tracker in
-[Resource Simplification V2 Tracker](../issues/resource-simplification-v2-tracker.md).
+Implementation is complete; the milestone-level history and the remaining
+release work live in [Roadmap V1](../roadmap-v1.md).
 
 Implement in this order:
 

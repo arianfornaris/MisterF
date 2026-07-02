@@ -320,5 +320,4 @@ Start with:
 - [Prompts](../docs/architecture/prompts.md)
 - [Testing](../docs/architecture/testing.md)
 - [Tutor Runtime](../docs/tutor/runtime.md)
-- [V1 Project Cleanup Audit](../docs/issues/v1-project-cleanup-audit.md)
-- [V1 Project Cleanup Tracker](../docs/issues/v1-project-cleanup-tracker.md)
+- [Roadmap V1](../docs/roadmap-v1.md)

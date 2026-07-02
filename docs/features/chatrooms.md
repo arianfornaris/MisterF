@@ -28,4 +28,4 @@ features against those legacy helpers.
 See:
 
 - [Resource Simplification V2](./resource-simplification-v2.md)
-- [Resource Simplification V2 Tracker](../issues/resource-simplification-v2-tracker.md)
+- [Roadmap V1](../roadmap-v1.md)
