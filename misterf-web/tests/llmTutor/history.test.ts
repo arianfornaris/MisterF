@@ -162,6 +162,85 @@ describe('model-facing tutor history', () => {
     });
   });
 
+  it('serializes translation prompt submissions with source block context', () => {
+    const message = buildMessage({
+      content: 'I have lived here for five years.',
+      metadata: {
+        exerciseSubmission: {
+          block: {
+            sentence: 'He vivido aquí durante cinco años.',
+            type: 'translate_to_english_prompt',
+          },
+          response: 'I have lived here for five years.',
+          type: 'translate_to_english_prompt',
+        },
+      },
+      role: 'user',
+    });
+
+    expect(JSON.parse(getTutorHistoryContent(message))).toEqual({
+      exerciseSubmission: {
+        block: {
+          sentence: 'He vivido aquí durante cinco años.',
+          type: 'translate_to_english_prompt',
+        },
+        response: 'I have lived here for five years.',
+        type: 'translate_to_english_prompt',
+      },
+      kind: 'learner_exercise_submission',
+      visibleContent: 'I have lived here for five years.',
+    });
+  });
+
+  it('serializes comprehension prompt submissions with source block context', () => {
+    const message = buildMessage({
+      content: 'Significa que la reunión se pospuso para otro día.',
+      metadata: {
+        exerciseSubmission: {
+          block: {
+            sentence: 'The meeting was pushed back to another day.',
+            type: 'understand_in_spanish_prompt',
+          },
+          response: 'Significa que la reunión se pospuso para otro día.',
+          type: 'understand_in_spanish_prompt',
+        },
+      },
+      role: 'user',
+    });
+
+    expect(JSON.parse(getTutorHistoryContent(message))).toEqual({
+      exerciseSubmission: {
+        block: {
+          sentence: 'The meeting was pushed back to another day.',
+          type: 'understand_in_spanish_prompt',
+        },
+        response: 'Significa que la reunión se pospuso para otro día.',
+        type: 'understand_in_spanish_prompt',
+      },
+      kind: 'learner_exercise_submission',
+      visibleContent: 'Significa que la reunión se pospuso para otro día.',
+    });
+  });
+
+  it('rejects translation prompt submissions whose block type does not match', () => {
+    const message = buildMessage({
+      content: 'I have lived here for five years.',
+      metadata: {
+        exerciseSubmission: {
+          block: {
+            sentence: 'He vivido aquí durante cinco años.',
+            type: 'understand_in_spanish_prompt',
+          },
+          response: 'I have lived here for five years.',
+          type: 'translate_to_english_prompt',
+        },
+      },
+      role: 'user',
+    });
+
+    expect(getTutorHistoryContent(message)).toBe('I have lived here for five years.');
+  });
+
   it('falls back to plain learner content when exercise submission metadata is incomplete', () => {
     const messages = toTutorHistory([
       buildMessage({

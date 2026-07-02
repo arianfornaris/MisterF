@@ -88,8 +88,8 @@ When a block owns the response UI, the app should:
 | `fill_in_the_blank_choice` | Yes | Inline dropdowns, completion event | Already standardized |
 | `multiple_choice` | Yes | Block UI | Already standardized |
 | `unscramble_sentence` | Yes | Block UI | Already standardized |
-| `translate_to_english_prompt` | Yes | Normal chat | Needs standardization decision |
-| `understand_in_spanish_prompt` | Yes | Normal chat | Needs standardization decision |
+| `translate_to_english_prompt` | Yes | Inline textarea, hidden structured submission | Already standardized |
+| `understand_in_spanish_prompt` | Yes | Inline textarea, hidden structured submission | Already standardized |
 | `open_text_prompt` | Yes | Multiline textarea, hidden structured submission | Implemented and standardized |
 | `tutor_plan` | No | Plan panel | No change needed |
 | `tutor_plan_update` | No | Server/client plan update | No change needed |
@@ -193,20 +193,33 @@ This lets Mr. F respond with ordinary tutor blocks, often:
 
 ## Translation and Comprehension Prompts
 
-`translate_to_english_prompt` and `understand_in_spanish_prompt` currently show a
-specialized prompt card but rely on the normal chat composer for the answer.
-They are therefore inconsistent with the proposed standard.
+`translate_to_english_prompt` and `understand_in_spanish_prompt` now own their
+input UI, following the first path below.
 
-There are two reasonable paths:
+There were two reasonable paths:
 
 1. Keep the specialized block types and add textarea submission UI to each.
 2. Replace them conceptually with `open_text_prompt` plus a `purpose` or
    specialized hidden rubric.
 
 The first path preserves semantic specificity. The second path reduces the
-number of block types. For now, the safer migration is to keep them as separate
-blocks and add owned input UI later, because their prompts have useful
-specialized semantics and rendering.
+number of block types. We took the first path: the blocks stay separate (they
+keep their specialized label, sentence rendering, and colored accent), and each
+now renders a multiline textarea plus a submit action under the sentence.
+
+The submission reuses the same hidden structured exercise-submission flow as
+`fill_in_the_blank_input` and `open_text_prompt`:
+
+- the learner types their English translation / Spanish explanation in the block
+- the app sends a hidden `exerciseSubmission` (`{ type, block: { type, sentence },
+  response }`) as the next model-facing learner message
+- no separate learner chat bubble is rendered for the submission
+- Mr. F receives the source block plus the learner answer and evaluates naturally
+
+Client card: `src/client/chat/cards/createTranslationPromptCard.js` (both block
+types). Server normalization:
+`normalizeTranslationPromptExerciseSubmission` in
+`src/server/services/llmTutor/exerciseSubmissions.ts`.
 
 ## Dialogue Practice Exception
 
@@ -278,11 +291,15 @@ Implemented:
 - block repair detection for open-ended tasks leaked into `message`
 - tests for valid `open_text_prompt`, message leakage detection, and structured
   submission history
+- owned input UI for `translate_to_english_prompt` and
+  `understand_in_spanish_prompt` (inline textarea + hidden structured
+  submission), with model-facing completion context and history tests
 
 Still pending:
 
-- revisit `translate_to_english_prompt` and `understand_in_spanish_prompt` so
-  they also own their input UI.
+- none for the blocks currently in the inventory; revisit
+  `dialogue_character_message` and `sentence_evaluation` only if their
+  intentional-exception status stops being adequate.
 
 ## Resolved Decisions
 
@@ -295,6 +312,7 @@ Still pending:
 - The model may generate an optional `submitLabel` in Spanish for the button.
   The client should validate length and use "Enviar respuesta" as the stable
   fallback when needed.
-- Translation and comprehension prompts remain separate block types. They should
-  later receive their own textarea submission UI instead of being folded into
-  `open_text_prompt`.
+- Translation and comprehension prompts remain separate block types and now own
+  their textarea submission UI instead of being folded into `open_text_prompt`.
+  Their submit labels are fixed product strings ("Enviar traducción" / "Enviar
+  explicación") because the block schema carries only `sentence`.

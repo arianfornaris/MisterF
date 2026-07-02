@@ -5,6 +5,7 @@ import { createOpenTextPromptCard } from '../cards/createOpenTextPromptCard.js';
 import { createQuizCard } from '../cards/createQuizCard.js';
 import { createQuizResultCard } from '../cards/createQuizResultCard.js';
 import { createSentenceEvaluationCard } from '../cards/createSentenceEvaluationCard.js';
+import { createTranslationPromptCard } from '../cards/createTranslationPromptCard.js';
 import { createUnscrambleSentenceCard } from '../cards/unscrambleSentenceCard.js';
 import { initializeStaticMarkdown as initializeSharedStaticMarkdown } from '../../shared/staticMarkdown.js';
 import { renderMarkdown } from '../utils/formatting.js';
@@ -258,25 +259,20 @@ export function createTutorMessageRenderer(deps) {
         block.type === 'translate_to_english_prompt' ||
         block.type === 'understand_in_spanish_prompt'
       ) {
-        const card = document.createElement('section');
-        card.className = `translation-prompt-card is-${block.type}`;
-
-        const label = document.createElement('p');
-        label.className = 'translation-prompt-label';
-        label.textContent =
-          block.type === 'translate_to_english_prompt'
-            ? 'Traduce al ingles'
-            : 'Explica en espanol';
-
-        const sentence = document.createElement('blockquote');
-        sentence.className = 'translation-prompt-sentence';
-        sentence.textContent = String(block.sentence || '')
-          .replace(/\s+/g, ' ')
-          .trim();
-
-        card.append(label, sentence);
-        stack.append(card);
-        hasVisualContent = true;
+        const card = createTranslationPromptCard(
+          block,
+          {
+            blockIndex,
+            messageId: options.messageId,
+          },
+          {
+            sendMessageContent: deps.sendMessageContent,
+          },
+        );
+        if (card) {
+          stack.append(card);
+          hasVisualContent = true;
+        }
       }
     });
 

@@ -21,9 +21,23 @@ export type OpenTextPromptExerciseSubmission = {
   response: string;
 };
 
+export type TranslationPromptExerciseSubmissionType =
+  | 'translate_to_english_prompt'
+  | 'understand_in_spanish_prompt';
+
+export type TranslationPromptExerciseSubmission = {
+  type: TranslationPromptExerciseSubmissionType;
+  block: {
+    type: TranslationPromptExerciseSubmissionType;
+    sentence: string;
+  };
+  response: string;
+};
+
 export type TutorExerciseSubmission =
   | FillInTheBlankInputExerciseSubmission
-  | OpenTextPromptExerciseSubmission;
+  | OpenTextPromptExerciseSubmission
+  | TranslationPromptExerciseSubmission;
 
 export function normalizeExerciseSubmissionForUserMessage(
   value: unknown,
@@ -46,11 +60,18 @@ export function normalizeExerciseSubmissionForUserMessage(
   }
 
   const openTextSubmission = normalizeOpenTextPromptExerciseSubmission(value);
-  if (!openTextSubmission || openTextSubmission.response !== normalizeText(content)) {
+  if (openTextSubmission) {
+    return openTextSubmission.response === normalizeText(content)
+      ? openTextSubmission
+      : null;
+  }
+
+  const translationSubmission = normalizeTranslationPromptExerciseSubmission(value);
+  if (!translationSubmission || translationSubmission.response !== normalizeText(content)) {
     return null;
   }
 
-  return openTextSubmission;
+  return translationSubmission;
 }
 
 export function formatExerciseSubmissionForTutorHistory(
@@ -248,6 +269,76 @@ function normalizeOpenTextPromptBlock(
     ...(placeholder ? { placeholder } : {}),
     ...(submitLabel ? { submitLabel } : {}),
     ...(rubric ? { rubric } : {}),
+  };
+}
+
+function isTranslationPromptSubmissionType(
+  value: unknown,
+): value is TranslationPromptExerciseSubmissionType {
+  return (
+    value === 'translate_to_english_prompt' ||
+    value === 'understand_in_spanish_prompt'
+  );
+}
+
+function normalizeTranslationPromptExerciseSubmission(
+  value: unknown,
+): TranslationPromptExerciseSubmission | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as {
+    block?: unknown;
+    response?: unknown;
+    type?: unknown;
+  };
+  if (!isTranslationPromptSubmissionType(record.type)) {
+    return null;
+  }
+
+  const block = normalizeTranslationPromptBlock(record.block);
+  if (!block || block.type !== record.type) {
+    return null;
+  }
+
+  const response =
+    typeof record.response === 'string' ? normalizeText(record.response) : '';
+  if (!response || response.length > 2400) {
+    return null;
+  }
+
+  return {
+    block,
+    response,
+    type: block.type,
+  };
+}
+
+function normalizeTranslationPromptBlock(
+  value: unknown,
+): TranslationPromptExerciseSubmission['block'] | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as {
+    sentence?: unknown;
+    type?: unknown;
+  };
+  if (!isTranslationPromptSubmissionType(record.type)) {
+    return null;
+  }
+
+  const sentence =
+    typeof record.sentence === 'string' ? normalizeText(record.sentence) : '';
+  if (!sentence || sentence.length > 1600) {
+    return null;
+  }
+
+  return {
+    type: record.type,
+    sentence,
   };
 }
 

@@ -8,6 +8,14 @@
  *
  * Do not send a new comprehension prompt until the learner has correctly
  * completed the current one.
+ *
+ * The learner answers inside the block UI. The app renders a textarea under the
+ * sentence and, when the learner submits, sends their Spanish explanation as the
+ * next model-facing learner message with structured exerciseSubmission context
+ * containing this block and the response. The app does not render a separate
+ * learner chat bubble for that submission; the visible answer stays in the
+ * exercise UI while you respond naturally in Spanish. Evaluate the submitted
+ * explanation and continue as the tutor.
  */
 interface UnderstandInSpanishPromptBlock {
   /** Literal discriminator. */
