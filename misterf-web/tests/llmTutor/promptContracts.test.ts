@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderTutorBlockProtocol } from '../../src/server/services/llmTutor/blockProtocol.js';
 import { buildAgentSystemInstruction } from '../../src/server/services/llmTutor/prompt.js';
+import { loadSystemPrompt } from '../../src/server/services/systemPrompts.js';
 
 describe('tutor prompt contracts', () => {
   it('does not include removed block types in the tutor protocol', () => {
@@ -83,5 +84,41 @@ describe('tutor prompt contracts', () => {
     expect(specificTitleSystem).toContain('already specific');
     expect(specificTitleSystem).toContain('unless the learner explicitly asks to rename');
     expect(specificTitleSystem).toContain('reason "explicit_user_request"');
+  });
+
+  it('documents order_sentences as a normal interactive exercise', () => {
+    const system = buildAgentSystemInstruction({
+      currentTitle: 'Nueva conversación',
+    });
+
+    expect(system).toContain('interface OrderSentencesBlock');
+    expect(system).toContain('`order_sentences`, and `dialogue_character_message`');
+    expect(system).toContain('`message` plus `order_sentences`');
+  });
+
+  it('keeps quiz order-sentences support synchronized across prompt repair paths', () => {
+    const protocol = renderTutorBlockProtocol();
+    const draftCorrection = loadSystemPrompt('resources/quiz-draft-correction.md');
+    const revisionCorrection = loadSystemPrompt('resources/quiz-revision-correction.md');
+
+    expect(protocol).toContain('interface QuizOrderSentencesItem');
+    expect(protocol).toContain('kind: "quiz_order_sentences"');
+    expect(draftCorrection).toContain('quiz_order_sentences');
+    expect(revisionCorrection).toContain('quiz_order_sentences');
+  });
+
+  it('tells practice-guide chats to adapt older manual ordering instructions', () => {
+    const system = buildAgentSystemInstruction({
+      currentTitle: 'Nueva conversación',
+      practiceGuide: {
+        description: 'Ordenar un diálogo desordenado.',
+        title: 'Ordenando el diálogo',
+        tutorInstructions: 'Presenta frases con letras A, B, C y pide el orden correcto.',
+      },
+    });
+
+    expect(system).toContain('older manual UI mechanics');
+    expect(system).toContain('use the interactive ordering block');
+    expect(system).toContain('do not manually pre-shuffle items');
   });
 });

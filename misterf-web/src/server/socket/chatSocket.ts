@@ -62,7 +62,7 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
-import { logger } from '../services/logger.js';
+import { logger, serializeError } from '../services/logger.js';
 import {
   emitCreditExhaustedIfNeeded,
   emitRoomCreditExhaustedIfNeeded,
@@ -1608,7 +1608,7 @@ async function streamAssistantMessage(
     }
     logger.error('assistant_response_failed', {
       conversationId,
-      error,
+      error: serializeError(error),
       lastUserMessageId,
       userId,
     });

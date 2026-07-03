@@ -151,6 +151,28 @@ interface QuizUnscrambleSentenceItem {
   rubric?: string;
 }
 
+/**
+ * Quiz sentence/step ordering item.
+ *
+ * Use when the learner should arrange whole sentences, dialogue turns, process
+ * steps, instructions, or events into a coherent sequence. For reordering the
+ * words inside one sentence use `quiz_unscramble_sentence` instead.
+ *
+ * Provide `sentences` in the intended correct order. The app shuffles them for
+ * display and uses the original array order as the hidden correct order. Do not
+ * pre-shuffle `sentences`, number them, or add letter labels.
+ */
+interface QuizOrderSentencesItem {
+  /** Literal quiz item discriminator. */
+  kind: "quiz_order_sentences";
+  /** Learner-facing item instruction; must be Spanish. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
+  prompt: string;
+  /** English sentences, dialogue turns, or steps in correct order; the app shuffles them for display. Plain text, not Markdown, no leading numbers or letter labels. */
+  sentences: string[];
+  /** Hidden evaluator guidance; must be Spanish and must not be revealed. */
+  rubric?: string;
+}
+
 type QuizItem =
   | QuizOpenTextItem
   | QuizTranslateToEnglishItem
@@ -159,7 +181,8 @@ type QuizItem =
   | QuizFillInTheBlankChoiceItem
   | QuizMultipleChoiceItem
   | QuizMatchingPairsItem
-  | QuizUnscrambleSentenceItem;
+  | QuizUnscrambleSentenceItem
+  | QuizOrderSentencesItem;
 
 /**
  * Self-contained multi-question assessment or review.
@@ -174,8 +197,8 @@ type QuizItem =
  * beginning of a conversation. For regular practice, use the specific top-level
  * exercise blocks such as `multiple_choice`, `fill_in_the_blank_input`,
  * `fill_in_the_blank_choice`, `open_text_prompt`, `matching_pairs`,
- * `unscramble_sentence`, translation prompts, dialogue blocks, or normal
- * `message` guidance.
+ * `unscramble_sentence`, `order_sentences`, translation prompts, dialogue
+ * blocks, or normal `message` guidance.
  *
  * A quiz contains several items and is submitted as a whole; the app will not
  * auto-correct items one by one.
@@ -186,7 +209,8 @@ type QuizItem =
  *
  * Every item kind must begin with `quiz_`. Never use non-prefixed item kinds
  * such as `open_text`, `multiple_choice`, `matching_pairs`,
- * `fill_in_the_blank_choice`, or `unscramble_sentence` inside a quiz.
+ * `fill_in_the_blank_choice`, `unscramble_sentence`, or `order_sentences`
+ * inside a quiz.
  *
  * Do not use dialogue practice inside a quiz. Include all visible data the
  * learner needs inside each item. Use `rubric` for hidden evaluator guidance

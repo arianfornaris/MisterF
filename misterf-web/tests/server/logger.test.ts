@@ -6,6 +6,7 @@ import {
   shouldWriteLogLevel,
 } from '../../src/server/services/logger.js';
 import {
+  logLlmToolCalls,
   logLlmRequest,
   normalizeLlmTraceMode,
   shouldLogFullLlmTrace,
@@ -124,6 +125,62 @@ describe('server logger policy', () => {
       event: 'llm_request',
       fullTrace: true,
       messageCount: 1,
+    });
+  });
+
+  it('logs dynamic and invalid LLM tool-call metadata', () => {
+    env.logLevel = 'debug';
+    env.llmTraceMode = 'full';
+    const consoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    logLlmToolCalls({
+      actorLabel: 'Mr. F',
+      conversationId: 'conversation-3',
+      llm: { modelTier: 'regular' },
+      steps: [
+        {
+          toolCalls: [
+            {
+              dynamic: true,
+              error: new Error('No such tool: order_sentences'),
+              input: {
+                prompt: 'Ordena.',
+                sentences: ['First.', 'Second.'],
+              },
+              invalid: true,
+              providerExecuted: false,
+              toolCallId: 'call-1',
+              toolName: 'order_sentences',
+            },
+          ],
+          toolResults: [],
+        },
+      ],
+      turn: 1,
+      userId: 'user-3',
+    });
+
+    const line = String(consoleLog.mock.calls[0]?.[0] ?? '');
+    expect(JSON.parse(line)).toMatchObject({
+      event: 'llm_tool_calls',
+      fullTrace: true,
+      steps: [
+        {
+          toolCalls: [
+            {
+              dynamic: true,
+              error: {
+                message: 'No such tool: order_sentences',
+                name: 'Error',
+              },
+              invalid: true,
+              providerExecuted: false,
+              toolCallId: 'call-1',
+              toolName: 'order_sentences',
+            },
+          ],
+        },
+      ],
     });
   });
 });
