@@ -2252,8 +2252,37 @@ body {
   box-shadow: 0 8px 18px rgb(34 34 34 / 4%);
 }
 
-.inline-character-name {
+.inline-character-header {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
   margin-bottom: 0.32rem;
+}
+
+.dialogue-avatar {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 auto;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgb(34 34 34 / 12%);
+  border-radius: 50%;
+  background: var(--bs-body-bg);
+  color: var(--mf-dialogue);
+  overflow: hidden;
+}
+
+.dialogue-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.inline-character-name {
+  margin-bottom: 0;
   color: var(--mf-dialogue);
   font-size: 0.78rem;
   font-weight: 700;
@@ -2305,7 +2334,14 @@ body {
 }
 
 .dialogue-transcript-turn {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.55rem;
   padding-top: 0.1rem;
+}
+
+.dialogue-transcript-body {
+  min-width: 0;
 }
 
 .dialogue-transcript-speaker {

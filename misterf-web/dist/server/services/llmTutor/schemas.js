@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isRoleplayCharacterAvatarId } from '../../roleplays/avatarRegistry.js';
 function hasExplanation(value) {
     return typeof value === 'string' && value.trim().length > 0;
 }
@@ -141,6 +142,11 @@ export const messageBlockSchema = z
 export const dialogueCharacterMessageBlockSchema = z
     .object({
     type: z.literal('dialogue_character_message'),
+    avatarId: z.string()
+        .trim()
+        .max(64)
+        .refine(isRoleplayCharacterAvatarId, 'Avatar id must match a registered roleplay character avatar.')
+        .optional(),
     name: z.string().trim().min(1).max(120),
     markdown: z.string().trim().min(1).max(3000),
 })
@@ -155,6 +161,11 @@ export const dialogueTranscriptBlockSchema = z
     turns: z
         .array(z
         .object({
+        avatarId: z.string()
+            .trim()
+            .max(64)
+            .refine(isRoleplayCharacterAvatarId, 'Avatar id must match a registered roleplay character avatar.')
+            .optional(),
         speaker: z.string().trim().min(1).max(120),
         markdown: z.string().trim().min(1).max(3000),
     })

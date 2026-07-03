@@ -1,4 +1,5 @@
 import { loadSystemPrompt } from '../systemPrompts.js';
+import { buildRoleplayCharacterAvatarPromptOptions } from '../../roleplays/avatarRegistry.js';
 export const tutorBlockProtocolNames = [
     'message',
     'dialogue-character-message',
@@ -19,8 +20,11 @@ export const tutorBlockProtocolNames = [
 ];
 const tutorBlockProtocolNameSet = new Set(tutorBlockProtocolNames);
 export function renderTutorBlockProtocol(names = tutorBlockProtocolNames) {
+    const avatarOptions = buildRoleplayCharacterAvatarPromptOptions();
     return names
-        .map((name) => loadSystemPrompt(`tutor/blocks/${name}.md`).trim())
+        .map((name) => (loadSystemPrompt(`tutor/blocks/${name}.md`)
+        .replaceAll('{{DIALOGUE_AVATAR_OPTIONS}}', avatarOptions)
+        .trim()))
         .join('\n\n');
 }
 export function toTutorBlockProtocolNames(names) {
