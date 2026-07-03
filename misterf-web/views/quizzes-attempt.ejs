@@ -1,10 +1,20 @@
 <%- include('partials/app-shell-open') %>
 
 <section class="app-resource-view quizzes-page">
-  <div class="resource-page-header">
+  <div class="resource-page-header resource-page-header-has-close">
     <div>
       <p class="resource-eyebrow">Quiz</p>
       <h1><%= draft.title %></h1>
+    </div>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/quizzes/<%= encodeURIComponent(attempt.quizId) %>"
+        aria-label="Cerrar"
+        title="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
     </div>
   </div>
 

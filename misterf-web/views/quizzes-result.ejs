@@ -1,37 +1,47 @@
 <%- include('partials/app-shell-open') %>
 
 <section class="app-resource-view quizzes-page">
-  <div class="resource-page-header">
+  <div class="resource-page-header resource-page-header-has-close">
     <div>
       <p class="resource-eyebrow">Resultado</p>
       <h1><%= resultTitle %></h1>
-    </div>
-    <div class="d-flex flex-wrap gap-2">
-      <% if (isAuthenticated) { %>
-        <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <% if (guestToken) { %><input type="hidden" name="guestToken" value="<%= guestToken %>"><% } %>
-          <button class="btn btn-primary" type="submit">
-            <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
-          </button>
-        </form>
-        <%- include('partials/create-resource-from-context', {
-          action: `/quiz-attempts/${encodeURIComponent(attempt.id)}/resource`,
-        }) %>
-        <% if (!attempt.userId && guestToken) { %>
-          <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/claim">
+      <div class="resource-action-row mt-3">
+        <% if (isAuthenticated) { %>
+          <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <input type="hidden" name="guestToken" value="<%= guestToken %>">
-            <button class="btn btn-outline-secondary" type="submit">Guardar en mi progreso</button>
+            <% if (guestToken) { %><input type="hidden" name="guestToken" value="<%= guestToken %>"><% } %>
+            <button class="btn btn-primary" type="submit">
+              <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
+            </button>
           </form>
+          <%- include('partials/create-resource-from-context', {
+            action: `/quiz-attempts/${encodeURIComponent(attempt.id)}/resource`,
+          }) %>
+          <% if (!attempt.userId && guestToken) { %>
+            <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/claim">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <input type="hidden" name="guestToken" value="<%= guestToken %>">
+              <button class="btn btn-outline-secondary" type="submit">Guardar en mi progreso</button>
+            </form>
+          <% } %>
+        <% } else { %>
+          <% const resultReturnTo = `/quiz-attempts/${encodeURIComponent(attempt.id)}/result${guestToken ? `?guestToken=${encodeURIComponent(guestToken)}` : ''}`; %>
+          <a class="btn btn-primary" href="/signup?returnTo=<%= encodeURIComponent(resultReturnTo) %>">
+            <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Crear cuenta para ver el resultado
+          </a>
+          <a class="btn btn-outline-secondary" href="/login?returnTo=<%= encodeURIComponent(resultReturnTo) %>">Ya tengo cuenta</a>
         <% } %>
-      <% } else { %>
-        <% const resultReturnTo = `/quiz-attempts/${encodeURIComponent(attempt.id)}/result${guestToken ? `?guestToken=${encodeURIComponent(guestToken)}` : ''}`; %>
-        <a class="btn btn-primary" href="/signup?returnTo=<%= encodeURIComponent(resultReturnTo) %>">
-          <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Crear cuenta para ver el resultado
-        </a>
-        <a class="btn btn-outline-secondary" href="/login?returnTo=<%= encodeURIComponent(resultReturnTo) %>">Ya tengo cuenta</a>
-      <% } %>
+      </div>
+    </div>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/quizzes/<%= encodeURIComponent(attempt.quizId) %>"
+        aria-label="Cerrar"
+        title="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
     </div>
   </div>
 
