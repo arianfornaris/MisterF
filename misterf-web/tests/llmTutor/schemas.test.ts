@@ -175,6 +175,53 @@ describe('normal tutor response schema', () => {
   });
 });
 
+describe('order_sentences schema', () => {
+  it('accepts an order_sentences block with sentences in the correct order', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'order_sentences',
+          prompt: 'Pon estos pasos en el orden correcto.',
+          sentences: [
+            'Write the address on your box.',
+            'Tell the worker what mail service you want.',
+            'Pay for sending your mail.',
+          ],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an order_sentences block with fewer than two sentences', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'order_sentences',
+          sentences: ['Only one step.'],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects extra answer metadata on order_sentences blocks', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'order_sentences',
+          sentences: ['First.', 'Second.'],
+          correctOrder: [0, 1],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
 describe('sentence_evaluation schema', () => {
   it('rejects parts that do not reconstruct sourceText', () => {
     expect(() =>

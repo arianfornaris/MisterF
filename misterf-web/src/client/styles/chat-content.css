@@ -1222,6 +1222,130 @@ button.quiz-result-pair-row:focus {
   font-style: italic;
 }
 
+.order-sentences-card {
+  margin: 0;
+  padding: 15px 16px 16px;
+  border: 1px solid rgb(var(--mf-practice-rgb) / 16%);
+  border-left: 4px solid var(--mf-teal);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(248 250 252 / 98%)),
+    #fff;
+  box-shadow: 0 10px 28px rgb(var(--mf-practice-rgb) / 8%);
+}
+
+.order-sentences-card.is-error {
+  border-color: rgb(var(--mf-danger-deep-rgb) / 35%);
+  box-shadow: 0 12px 24px rgb(var(--mf-danger-deep-rgb) / 8%);
+}
+
+.order-sentences-label {
+  margin: 0 0 0.45rem;
+  color: var(--mf-teal);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.order-sentences-prompt {
+  margin-bottom: 0.85rem;
+  color: var(--ink);
+}
+
+.order-sentences-assembled,
+.order-sentences-bank {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 52px;
+  padding: 0.8rem;
+  border: 1px dashed rgb(var(--mf-practice-rgb) / 20%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 92%);
+}
+
+.order-sentences-assembled {
+  margin-bottom: 0.7rem;
+}
+
+.order-sentences-bank {
+  margin-bottom: 0.95rem;
+}
+
+.order-sentences-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.72rem 0.88rem;
+  border: 1px solid rgb(var(--mf-practice-rgb) / 13%);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--mf-practice-ink);
+  font-family: var(--app-serif-font);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 6px 14px rgb(var(--mf-practice-rgb) / 4%);
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.order-sentences-item:hover,
+.order-sentences-item:focus {
+  outline: 0;
+  transform: translateY(-1px);
+  border-color: rgb(var(--mf-practice-rgb) / 28%);
+  box-shadow: 0 10px 20px rgb(var(--mf-practice-rgb) / 8%);
+}
+
+.order-sentences-item.is-selected {
+  border-color: var(--mf-practice);
+  background: rgb(var(--mf-practice-rgb) / 7%);
+  box-shadow: 0 10px 20px rgb(var(--mf-practice-rgb) / 10%);
+}
+
+.order-sentences-position {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: rgb(var(--mf-practice-rgb) / 12%);
+  color: var(--mf-practice);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.order-sentences-placeholder {
+  color: var(--bs-secondary-color);
+  font-style: italic;
+}
+
+.quiz-result-order-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
+.quiz-result-order-item {
+  line-height: 1.5;
+}
+
 .exercise-controls {
   display: flex;
   justify-content: flex-end;

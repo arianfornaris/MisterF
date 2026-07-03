@@ -105,6 +105,84 @@ describe('quiz service', () => {
     ]);
   });
 
+  it('supports quiz_order_sentences end to end in the service layer', () => {
+    const sentences = [
+      'Write the address on your box.',
+      'Tell the worker what mail service you want.',
+      'Pay for sending your mail.',
+    ];
+    const draft = parseQuizDraft({
+      ...validDraft,
+      blocks: [
+        {
+          id: 'order',
+          item: {
+            kind: 'quiz_order_sentences',
+            prompt: 'Pon estos pasos en el orden correcto.',
+            sentences,
+          },
+        },
+        validDraft.blocks[0],
+      ],
+    });
+
+    // Student projection keeps the sentences for the interactive renderer.
+    const studentBlock = quizDraftToStudentQuizBlock(draft);
+    expect(studentBlock.items[0]).toMatchObject({
+      kind: 'quiz_order_sentences',
+      sentences,
+    });
+
+    // Form responses map per-position selects and drop unknown sentences.
+    const responses = normalizeQuizResponses({
+      body: {
+        response_0_order_0: sentences[1],
+        response_0_order_1: sentences[0],
+        response_0_order_2: 'Not one of the sentences.',
+        response_1_text: 'Done.',
+      },
+      draft,
+    });
+    expect(responses[0]).toEqual({
+      orderedSentences: [sentences[1], sentences[0]],
+    });
+
+    // Result block keeps the learner order and per-position inline review.
+    const result = buildQuizResultBlock({
+      draft,
+      evaluations: [
+        {
+          feedback: 'Revisa el primer paso.',
+          inlineReview: {
+            sentences: [
+              { explanation: 'Este va después.', status: 'error' },
+              { status: 'correct' },
+            ],
+          },
+          status: 'partial',
+        },
+        { feedback: 'Bien.', status: 'correct' },
+      ],
+      responses: [
+        { orderedSentences: [sentences[1], sentences[0], sentences[2]] },
+        { text: 'Done.' },
+      ],
+    });
+    expect(quizResultBlockSchema.parse(result).items[0]).toMatchObject({
+      inlineReview: {
+        sentences: [
+          { explanation: 'Este va después.', status: 'error' },
+          { status: 'correct' },
+        ],
+      },
+      kind: 'quiz_order_sentences',
+      sentences,
+      userResponse: {
+        orderedSentences: [sentences[1], sentences[0], sentences[2]],
+      },
+    });
+  });
+
   it('accepts drafts with more than 24 blocks', () => {
     const draft = parseQuizDraft({
       ...validDraft,

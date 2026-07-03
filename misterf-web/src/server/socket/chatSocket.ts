@@ -54,6 +54,7 @@ import {
   type TutorMatchingPairsBlock,
   type TutorMultipleChoiceBlock,
   type TutorUnscrambleSentenceBlock,
+  type TutorOrderSentencesBlock,
 } from '../services/llmTutor.js';
 import {
   getCreditCheckedOpenRouterApiKeyForUser,
@@ -156,6 +157,16 @@ type UnscrambleSentenceCompletedPayload = {
   messageId?: number;
   modelTier?: string;
   selectedTokens?: string[];
+  totalAttempts?: number;
+};
+
+type OrderSentencesCompletedPayload = {
+  blockIndex?: number;
+  conversationId?: string | null;
+  incorrectOrders?: string[][];
+  messageId?: number;
+  modelTier?: string;
+  orderedSentences?: string[];
   totalAttempts?: number;
 };
 
@@ -1067,6 +1078,94 @@ export function registerChatSocket(io: Server): void {
     );
 
     socket.on(
+      'exercise:order_sentences_completed',
+      async (payload: OrderSentencesCompletedPayload = {}) => {
+        const userId = getAuthenticatedUserId(socket);
+        if (!userId) {
+          emitAuthRequired(socket);
+          return;
+        }
+
+        const conversationId = payload.conversationId?.trim();
+        const messageId = normalizePositiveInteger(payload.messageId);
+        const blockIndex = normalizeNonNegativeInteger(payload.blockIndex);
+        const totalAttempts = normalizePositiveInteger(payload.totalAttempts) ?? 0;
+        const orderedSentences = normalizeStringArray(payload.orderedSentences, 400);
+        if (!conversationId || !messageId || blockIndex === null || orderedSentences.length === 0) {
+          return;
+        }
+
+        const conversation = findConversationForUser(conversationId, userId);
+        if (!conversation) {
+          socket.emit('conversation:error', {
+            message: 'No pude encontrar esa conversacion.',
+          });
+          return;
+        }
+
+        if (runningConversations.has(conversationId)) {
+          socket.emit('assistant:error', {
+            message: 'Espera un momento: Mister F todavia esta respondiendo.',
+          });
+          return;
+        }
+
+        const message = findMessageInConversation(messageId, conversationId);
+        if (!message || message.role !== 'model') {
+          return;
+        }
+
+        const blocks = Array.isArray(message.metadata?.blocks)
+          ? message.metadata.blocks
+          : [];
+        const block = blocks[blockIndex];
+        if (!isOrderSentencesBlock(block)) {
+          return;
+        }
+
+        const incorrectOrders = normalizeIncorrectOrders(
+          payload.incorrectOrders,
+          orderedSentences,
+        );
+        const nextResults = {
+          ...((message.metadata?.orderSentencesResults as Record<string, unknown>) ?? {}),
+          [String(blockIndex)]: {
+            completedAt: new Date().toISOString(),
+            incorrectOrders,
+            orderedSentences,
+            totalAttempts,
+          },
+        };
+
+        const updatedMessage = updateMessageMetadata(messageId, conversationId, {
+          orderSentencesResults: nextResults,
+        });
+        if (updatedMessage) {
+          io.to(conversationId).emit('message:updated', updatedMessage);
+        }
+
+        await streamAssistantMessage(
+          io,
+          conversationId,
+          userId,
+          undefined,
+          [
+            {
+              content: buildOrderSentencesCompletionContext({
+                block,
+                incorrectOrders,
+                orderedSentences,
+                totalAttempts,
+              }),
+              role: 'user',
+            },
+          ],
+          normalizeModelTier(payload.modelTier),
+        );
+      },
+    );
+
+    socket.on(
       'exercise:quiz_completed',
       async (payload: QuizCompletedPayload = {}) => {
         const userId = getAuthenticatedUserId(socket);
@@ -1704,6 +1803,17 @@ function isUnscrambleSentenceBlock(
   );
 }
 
+function isOrderSentencesBlock(
+  value: unknown,
+): value is TutorOrderSentencesBlock {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      (value as Record<string, unknown>).type === 'order_sentences' &&
+      Array.isArray((value as Record<string, unknown>).sentences),
+  );
+}
+
 function isQuizBlock(value: unknown): value is TutorQuizBlock {
   return Boolean(
     value &&
@@ -1769,6 +1879,16 @@ function normalizeQuizResponses(
         kind: item.kind,
         selectedTokens: selectedTokens.filter((token) => item.tokens.includes(token)),
         sentence: normalizeExerciseSentence(selectedTokens.join(' ')) ?? '',
+      };
+    }
+
+    if (item.kind === 'quiz_order_sentences') {
+      return {
+        kind: item.kind,
+        orderedSentences: normalizeStringArray(
+          (response as { orderedSentences?: unknown })?.orderedSentences,
+          400,
+        ).filter((sentence) => item.sentences.includes(sentence)),
       };
     }
 
@@ -1992,6 +2112,26 @@ function buildQuizResultBlock(input: {
         };
       }
 
+      if (item.kind === 'quiz_order_sentences') {
+        return {
+          evaluation,
+          inlineReview: normalizeOrderSentencesInlineReview(
+            evaluation.inlineReview,
+            item.sentences.length,
+          ),
+          kind: 'quiz_order_sentences',
+          prompt: item.prompt,
+          sentences: item.sentences,
+          userResponse: {
+            orderedSentences: Array.isArray(response.orderedSentences)
+              ? response.orderedSentences
+                  .filter((value): value is string => typeof value === 'string')
+                  .slice(0, item.sentences.length)
+              : [],
+          },
+        };
+      }
+
       return {
         evaluation,
         inlineReview: normalizeTextInlineReview(evaluation.inlineReview),
@@ -2072,6 +2212,35 @@ function normalizeBlankInlineReview(
     : [];
 
   return blanks.length > 0 ? { blanks } : undefined;
+}
+
+function normalizeOrderSentencesInlineReview(
+  value: Record<string, unknown> | undefined,
+  expectedLength: number,
+): { sentences: Array<{ explanation?: string; status: 'correct' | 'improve' | 'error' }> } | undefined {
+  const sentences = Array.isArray(value?.sentences)
+    ? value.sentences
+        .slice(0, expectedLength)
+        .filter(
+          (sentence): sentence is { explanation?: string; status: 'correct' | 'improve' | 'error' } =>
+            Boolean(
+              sentence &&
+                typeof sentence === 'object' &&
+                (sentence.status === 'correct' ||
+                  sentence.status === 'improve' ||
+                  sentence.status === 'error'),
+            ),
+        )
+        .map((sentence) => ({
+          status: sentence.status,
+          explanation:
+            typeof sentence.explanation === 'string'
+              ? sentence.explanation.replace(/\s+/g, ' ').trim().slice(0, 800)
+              : undefined,
+        }))
+    : [];
+
+  return sentences.length > 0 ? { sentences } : undefined;
 }
 
 function normalizeMultipleChoiceInlineReview(
@@ -2267,6 +2436,31 @@ function normalizeIncorrectSentences(
   return normalized;
 }
 
+function normalizeIncorrectOrders(
+  values: unknown,
+  orderedSentences: string[],
+): string[][] {
+  const completedKey = orderedSentences.join('\u0000');
+  const seen = new Set<string>();
+  const normalized: string[][] = [];
+
+  for (const value of Array.isArray(values) ? values : []) {
+    const order = normalizeStringArray(value, 400);
+    const key = order.join('\u0000');
+    if (order.length === 0 || key === completedKey || seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    normalized.push(order);
+    if (normalized.length >= 8) {
+      break;
+    }
+  }
+
+  return normalized;
+}
+
 function normalizeExerciseValues(values: unknown): string[] {
   const normalized: string[] = [];
 
@@ -2411,6 +2605,30 @@ function buildUnscrambleSentenceCompletionContext(input: {
     .join('\n');
 }
 
+function buildOrderSentencesCompletionContext(input: {
+  block: TutorOrderSentencesBlock;
+  incorrectOrders: string[][];
+  orderedSentences: string[];
+  totalAttempts: number;
+}): string {
+  return [
+    'INTERNAL ORDER SENTENCES EXERCISE COMPLETED.',
+    'The learner completed an order_sentences exercise in the UI.',
+    'Use this as teacher-only context. Do not mention the existence of the internal report.',
+    input.block.prompt ? `Exercise prompt: ${input.block.prompt}` : '',
+    'Correct order:',
+    ...input.block.sentences.map((sentence, index) => `${index + 1}. ${sentence}`),
+    `Total attempts: ${Math.max(0, input.totalAttempts)}`,
+    'Incorrect orders before success:',
+    ...(input.incorrectOrders.length > 0
+      ? input.incorrectOrders.map((order) => `- ${order.join(' | ')}`)
+      : ['- none']),
+    'You may briefly reinforce what was difficult, then continue naturally.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
 function buildQuizCompletionContext(input: {
   block: TutorQuizBlock;
   responses: Array<Record<string, unknown>>;
@@ -2512,6 +2730,19 @@ function buildQuizCompletionContext(input: {
       }
       lines.push(
         `Learner pairs: ${Array.isArray(response.pairs) && response.pairs.length > 0 ? response.pairs.map((pair) => `${pair.left} -> ${pair.right}`).join(' ; ') : '(empty)'}`,
+      );
+    }
+
+    if (item.kind === 'quiz_order_sentences') {
+      lines.push('Correct order:');
+      item.sentences.forEach((sentence, sentenceIndex) => {
+        lines.push(`${sentenceIndex + 1}. ${sentence}`);
+      });
+      if (item.rubric) {
+        lines.push(`Item rubric: ${item.rubric}`);
+      }
+      lines.push(
+        `Learner order: ${Array.isArray(response.orderedSentences) && response.orderedSentences.length > 0 ? response.orderedSentences.join(' | ') : '(empty)'}`,
       );
     }
 

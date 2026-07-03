@@ -184,6 +184,18 @@ Run against live inference; completed 2026-07-02:
   `Evaluar`, verify claim + evaluation on the new account; `Comenzar` on a
   shared roleplay and practice guide (Slice 14).
 
+## 1.6 Post-Release Additions Shipped On Main
+
+Features promoted from the idea inbox and shipped on `main` after the V1
+deployment; recorded here because the running production version is still V1.
+
+- [x] `order_sentences` exercise (2026-07-03): a sentence/step ordering
+  exercise available as a top-level tutor chat block (protocol, repair
+  heuristics, interactive card, completion report) and as the
+  `quiz_order_sentences` quiz item (authoring prompts, student runtime,
+  deterministic exact-order evaluation with per-position inline review, and
+  result rendering). Moved from [issues/incomming.md](../issues/incomming.md).
+
 ---
 
 # Part 2: Remaining Work For V1

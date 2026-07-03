@@ -41,6 +41,10 @@
       icon: 'bi-shuffle',
       label: 'Ordenar oración',
     },
+    quiz_order_sentences: {
+      icon: 'bi-list-ol',
+      label: 'Ordenar oraciones',
+    },
   };
   const itemKindMeta = quizItemKindMeta[item.kind] || {
     icon: 'bi-question-circle',
@@ -277,6 +281,40 @@
           <p class="small mb-2"><strong>Accepted:</strong> <%= item.acceptableAnswers.join(' | ') %></p>
         <% } %>
         <% if (item.rubric) { %><p class="small mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+      <% } %>
+    <% } %>
+
+    <% if (item.kind === 'quiz_order_sentences') { %>
+      <% if (isDesignMode) { %>
+        <ol class="quiz-design-order-list mb-0">
+          <% item.sentences.forEach((sentence) => { %>
+            <li><%= sentence %></li>
+          <% }) %>
+        </ol>
+        <% if (item.rubric) { %><p class="small mt-3 mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
+      <% } else { %>
+        <div class="row g-3">
+          <% item.sentences.forEach((_sentence, positionIndex) => { %>
+            <div class="col-12">
+              <label class="form-label" for="<%= fieldPrefix %>_order_<%= positionIndex %>">Posición <%= positionIndex + 1 %></label>
+              <% if (isAttemptMode) { %>
+                <select class="form-select" id="<%= fieldPrefix %>_order_<%= positionIndex %>" name="<%= fieldPrefix %>_order_<%= positionIndex %>" required>
+                  <option value="">Selecciona</option>
+                  <% item.sentences.forEach((sentence) => { %>
+                    <option value="<%= sentence %>"><%= sentence %></option>
+                  <% }) %>
+                </select>
+              <% } else if (isPreviewMode) { %>
+                <select class="form-select" disabled>
+                  <option>Selecciona</option>
+                  <% item.sentences.forEach((sentence) => { %>
+                    <option><%= sentence %></option>
+                  <% }) %>
+                </select>
+              <% } %>
+            </div>
+          <% }) %>
+        </div>
       <% } %>
     <% } %>
 

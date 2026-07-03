@@ -168,6 +168,11 @@ export type QuizStudentQuizItem =
       kind: 'quiz_unscramble_sentence';
       prompt: string;
       tokens: string[];
+    }
+  | {
+      kind: 'quiz_order_sentences';
+      prompt: string;
+      sentences: string[];
     };
 
 export type QuizStudentQuizSection = {
@@ -337,6 +342,14 @@ function buildStudentQuizItem(item: TutorQuizItem): QuizStudentQuizItem {
       leftItems: item.leftItems,
       prompt: item.prompt,
       rightItems: item.rightItems,
+    };
+  }
+
+  if (item.kind === 'quiz_order_sentences') {
+    return {
+      kind: item.kind,
+      prompt: item.prompt,
+      sentences: item.sentences,
     };
   }
 
@@ -527,6 +540,16 @@ export function normalizeQuizResponses(input: {
             right: readFormString(input.body[`${fieldPrefix}_pair_${pairIndex}`], 600),
           }))
           .filter((pair) => pair.right),
+      };
+    }
+
+    if (item.kind === 'quiz_order_sentences') {
+      return {
+        orderedSentences: item.sentences
+          .map((_sentence, positionIndex) =>
+            readFormString(input.body[`${fieldPrefix}_order_${positionIndex}`], 400),
+          )
+          .filter((sentence) => item.sentences.includes(sentence)),
       };
     }
 
@@ -722,6 +745,23 @@ function buildQuizResultItem(input: {
     };
   }
 
+  if (item.kind === 'quiz_order_sentences') {
+    return {
+      evaluation: resultEvaluation,
+      inlineReview: normalizeOrderSentencesInlineReview(
+        evaluation.inlineReview,
+        item.sentences.length,
+      ),
+      kind: item.kind,
+      prompt: item.prompt,
+      sentences: item.sentences,
+      userResponse: {
+        orderedSentences: readStoredStringArray(response.orderedSentences, 400)
+          .slice(0, item.sentences.length),
+      },
+    };
+  }
+
   return {
     evaluation: resultEvaluation,
     inlineReview: normalizeTextInlineReview(evaluation.inlineReview),
@@ -902,6 +942,35 @@ function normalizeBlankInlineReview(
     : [];
 
   return blanks.length > 0 ? { blanks } : undefined;
+}
+
+function normalizeOrderSentencesInlineReview(
+  value: Record<string, unknown> | undefined,
+  expectedLength: number,
+): { sentences: Array<{ explanation?: string; status: 'correct' | 'improve' | 'error' }> } | undefined {
+  const sentences = Array.isArray(value?.sentences)
+    ? value.sentences
+        .slice(0, expectedLength)
+        .filter(
+          (sentence): sentence is { explanation?: string; status: 'correct' | 'improve' | 'error' } =>
+            Boolean(
+              sentence &&
+                typeof sentence === 'object' &&
+                (sentence.status === 'correct' ||
+                  sentence.status === 'improve' ||
+                  sentence.status === 'error'),
+            ),
+        )
+        .map((sentence) => ({
+          explanation:
+            typeof sentence.explanation === 'string'
+              ? sentence.explanation.replace(/\s+/g, ' ').trim().slice(0, 800)
+              : undefined,
+          status: sentence.status,
+        }))
+    : [];
+
+  return sentences.length > 0 ? { sentences } : undefined;
 }
 
 function normalizeMultipleChoiceInlineReview(

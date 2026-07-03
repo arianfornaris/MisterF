@@ -44,6 +44,7 @@ export function applyTutorBlocksRuntime(input: {
       case 'fill_in_the_blank_choice':
       case 'multiple_choice':
       case 'unscramble_sentence':
+      case 'order_sentences':
         break;
     }
   }

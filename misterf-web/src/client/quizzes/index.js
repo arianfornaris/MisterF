@@ -485,6 +485,16 @@ function syncQuizHiddenInputs(inputHostEl, state) {
       return;
     }
 
+    if (item.kind === 'quiz_order_sentences') {
+      const orderedSentences = Array.isArray(payload.orderedSentences)
+        ? payload.orderedSentences
+        : [];
+      orderedSentences.forEach((sentence, positionIndex) => {
+        appendHiddenInput(inputHostEl, `${fieldPrefix}_order_${positionIndex}`, sentence);
+      });
+      return;
+    }
+
     appendHiddenInput(inputHostEl, `${fieldPrefix}_sentence`, payload.sentence || '');
   });
 }

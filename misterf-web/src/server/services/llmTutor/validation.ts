@@ -17,6 +17,7 @@ import type {
   TutorResponseBlock,
   TutorTranslateToEnglishPromptBlock,
   TutorUnscrambleSentenceBlock,
+  TutorOrderSentencesBlock,
 } from './types.js';
 import { TutorResponseValidationError } from './errors.js';
 import { logger } from '../logger.js';
@@ -152,6 +153,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         | TutorFillInTheBlankChoiceBlock
         | TutorMultipleChoiceBlock
         | TutorUnscrambleSentenceBlock
+        | TutorOrderSentencesBlock
         | TutorSentenceEvaluationBlock =>
         block.type === 'message' ||
         block.type === 'dialogue_character_message' ||
@@ -166,6 +168,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
         block.type === 'fill_in_the_blank_choice' ||
         block.type === 'multiple_choice' ||
         block.type === 'unscramble_sentence' ||
+        block.type === 'order_sentences' ||
         block.type === 'sentence_evaluation',
     )
     .map((block) => {
@@ -212,6 +215,10 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
 
       if (block.type === 'unscramble_sentence') {
         return block.prompt?.trim() || block.tokens.join(' ').trim();
+      }
+
+      if (block.type === 'order_sentences') {
+        return block.prompt?.trim() || 'Ordena las oraciones.';
       }
 
       if (block.type === 'translate_to_english_prompt') {

@@ -7,6 +7,7 @@ import { createQuizResultCard } from '../cards/createQuizResultCard.js';
 import { createSentenceEvaluationCard } from '../cards/createSentenceEvaluationCard.js';
 import { createTranslationPromptCard } from '../cards/createTranslationPromptCard.js';
 import { createUnscrambleSentenceCard } from '../cards/unscrambleSentenceCard.js';
+import { createOrderSentencesCard } from '../cards/orderSentencesCard.js';
 import { initializeStaticMarkdown as initializeSharedStaticMarkdown } from '../../shared/staticMarkdown.js';
 import { renderMarkdown } from '../utils/formatting.js';
 
@@ -200,6 +201,31 @@ export function createTutorMessageRenderer(deps) {
             result: getExerciseResultForBlock(
               metadata,
               'unscrambleSentenceResults',
+              blockIndex,
+            ),
+          },
+          {
+            getConversationId: deps.getConversationId,
+            getSelectedModelTier: deps.getSelectedModelTier,
+            getSocket: deps.getSocket,
+          },
+        );
+        if (card) {
+          stack.append(card);
+          hasVisualContent = true;
+        }
+        return;
+      }
+
+      if (block.type === 'order_sentences') {
+        const card = createOrderSentencesCard(
+          block,
+          {
+            blockIndex,
+            messageId: options.messageId,
+            result: getExerciseResultForBlock(
+              metadata,
+              'orderSentencesResults',
               blockIndex,
             ),
           },

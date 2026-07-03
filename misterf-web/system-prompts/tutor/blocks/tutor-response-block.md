@@ -11,6 +11,7 @@ type TutorResponseBlock =
   | FillInTheBlankChoiceBlock
   | MultipleChoiceBlock
   | UnscrambleSentenceBlock
+  | OrderSentencesBlock
   | TutorPlanBlock
   | TutorPlanUpdateBlock
   | SentenceEvaluationBlock;
