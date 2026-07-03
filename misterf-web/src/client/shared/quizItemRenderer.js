@@ -109,6 +109,41 @@ export function buildInitialQuizItemState(item, itemIndex, exerciseKey, persiste
     };
   }
 
+  if (item.kind === 'quiz_order_sentences') {
+    const sentences = Array.isArray(item.sentences) ? item.sentences : [];
+    const orderedSentences = Array.isArray(persistedResponse?.orderedSentences)
+      ? persistedResponse.orderedSentences.map((value) => String(value || ''))
+      : [];
+
+    if (orderedSentences.length > 0) {
+      const remainingSentences = [...sentences];
+      for (const sentence of orderedSentences) {
+        const index = remainingSentences.indexOf(sentence);
+        if (index >= 0) {
+          remainingSentences.splice(index, 1);
+        }
+      }
+
+      return {
+        availableSentences: seededShuffle(
+          remainingSentences,
+          `${exerciseKey}:quiz-order-sentences:${itemIndex}:remaining`,
+        ),
+        kind: item.kind,
+        orderedSentences,
+      };
+    }
+
+    return {
+      availableSentences: seededShuffle(
+        sentences,
+        `${exerciseKey}:quiz-order-sentences:${itemIndex}`,
+      ),
+      kind: item.kind,
+      orderedSentences: [],
+    };
+  }
+
   return { kind: item.kind };
 }
 
@@ -458,6 +493,35 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     });
 
     container.append(assembled, bank);
+    return;
+  }
+
+  if (item.kind === 'quiz_order_sentences') {
+    const assembled = document.createElement('div');
+    assembled.className = 'order-sentences-assembled';
+    const bank = document.createElement('div');
+    bank.className = 'order-sentences-bank';
+
+    if (itemState.orderedSentences.length === 0) {
+      const empty = document.createElement('span');
+      empty.className = 'order-sentences-placeholder';
+      empty.textContent = 'Arma la secuencia aquí';
+      assembled.append(empty);
+    } else {
+      itemState.orderedSentences.forEach((sentence, index) => {
+        assembled.append(
+          createQuizOrderSentenceButton(sentence, index, true, state, itemState, options),
+        );
+      });
+    }
+
+    itemState.availableSentences.forEach((sentence, index) => {
+      bank.append(
+        createQuizOrderSentenceButton(sentence, index, false, state, itemState, options),
+      );
+    });
+
+    container.append(assembled, bank);
   }
 }
 
@@ -489,6 +553,13 @@ export function isQuizItemAnswered(item, itemState) {
     return (
       Array.isArray(itemState.selectedTokens) &&
       itemState.selectedTokens.length === item.tokens.length
+    );
+  }
+
+  if (item.kind === 'quiz_order_sentences') {
+    return (
+      Array.isArray(itemState.orderedSentences) &&
+      itemState.orderedSentences.length === item.sentences.length
     );
   }
 
@@ -539,6 +610,14 @@ export function buildQuizResponsePayload(item, itemState) {
     };
   }
 
+  if (item.kind === 'quiz_order_sentences') {
+    return {
+      orderedSentences: Array.isArray(itemState.orderedSentences)
+        ? itemState.orderedSentences
+        : [],
+    };
+  }
+
   return {};
 }
 
@@ -559,6 +638,46 @@ function createQuizUnscrambleTokenButton(token, index, isSelected, state, itemSt
     } else {
       itemState.availableTokens.splice(index, 1);
       itemState.selectedTokens.push(token);
+    }
+
+    if (typeof options.rerender === 'function') {
+      options.rerender();
+    } else if (typeof options.onChange === 'function') {
+      options.onChange();
+    }
+  });
+  return button;
+}
+
+function createQuizOrderSentenceButton(sentence, index, isSelected, state, itemState, options) {
+  const button = document.createElement('button');
+  button.className = `order-sentences-item${isSelected ? ' is-selected' : ''}`;
+  button.type = 'button';
+  button.disabled = isQuizInteractionDisabled(state, options);
+
+  if (isSelected) {
+    const position = document.createElement('span');
+    position.className = 'order-sentences-position';
+    position.textContent = String(index + 1);
+    button.append(position);
+  }
+
+  const text = document.createElement('span');
+  text.className = 'order-sentences-text';
+  text.textContent = sentence;
+  button.append(text);
+
+  button.addEventListener('click', () => {
+    if (isQuizInteractionDisabled(state, options)) {
+      return;
+    }
+
+    if (isSelected) {
+      itemState.orderedSentences.splice(index, 1);
+      itemState.availableSentences.push(sentence);
+    } else {
+      itemState.availableSentences.splice(index, 1);
+      itemState.orderedSentences.push(sentence);
     }
 
     if (typeof options.rerender === 'function') {

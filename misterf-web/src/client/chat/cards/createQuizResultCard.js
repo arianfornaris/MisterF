@@ -185,6 +185,8 @@ function renderQuizResultItemContent(item) {
       return createQuizResultMatchingPairs(item);
     case 'quiz_unscramble_sentence':
       return createQuizResultUnscramble(item);
+    case 'quiz_order_sentences':
+      return createQuizResultOrderSentences(item);
     case 'quiz_translate_to_english':
     case 'quiz_understand_in_spanish':
       return createQuizResultTranslationLike(item);
@@ -345,6 +347,41 @@ function createQuizResultUnscramble(item) {
       finalSentence || 'No respondió.',
     ),
   );
+  return wrap;
+}
+
+function createQuizResultOrderSentences(item) {
+  const wrap = document.createElement('div');
+  wrap.className = 'quiz-result-answer-stack';
+  wrap.append(createResponseLabel('Tu orden'));
+
+  const orderedSentences = Array.isArray(item.userResponse?.orderedSentences)
+    ? item.userResponse.orderedSentences
+    : [];
+  if (!orderedSentences.length) {
+    wrap.append(createMutedAnswer('No respondió.'));
+    return wrap;
+  }
+
+  const reviews = Array.isArray(item.inlineReview?.sentences)
+    ? item.inlineReview.sentences
+    : [];
+  const list = document.createElement('ol');
+  list.className = 'quiz-result-order-list';
+
+  orderedSentences.forEach((sentence, index) => {
+    const entry = document.createElement('li');
+    entry.className = 'quiz-result-order-item';
+    const review = reviews[index];
+    const status =
+      review?.status === 'error' || review?.status === 'improve' || review?.status === 'correct'
+        ? review.status
+        : 'correct';
+    entry.append(createInlineStatusNode(sentence, status, review?.explanation));
+    list.append(entry);
+  });
+
+  wrap.append(list);
   return wrap;
 }
 

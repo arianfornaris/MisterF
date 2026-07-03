@@ -13,6 +13,7 @@ type MessageTaskLeakageKind =
   | 'translation_prompt'
   | 'open_text_prompt'
   | 'unscramble_prompt'
+  | 'order_sentences_prompt'
   | 'matching_prompt'
   | 'multiple_choice_prompt'
   | 'inline_correction_markup'
@@ -156,6 +157,14 @@ function detectMessageIssues(
       expectedBlockTypes: ['unscramble_sentence', 'quiz'],
       kind: 'unscramble_prompt',
       reason: 'A message asks the learner to reorder words or a sentence.',
+    });
+  }
+
+  if (/\b(?:ordena|reordena|pon)\b[\s\S]{0,180}\b(?:pasos|oraciones|frases|instrucciones|eventos)\b/i.test(markdown)) {
+    issues.push({
+      expectedBlockTypes: ['order_sentences', 'quiz'],
+      kind: 'order_sentences_prompt',
+      reason: 'A message asks the learner to put sentences or steps in order.',
     });
   }
 

@@ -35,6 +35,9 @@
         <% if (Array.isArray(resultItem.userResponse.selectedTokens)) { %>
           <p class="small mb-1"><strong>Oración:</strong> <%= resultItem.userResponse.sentence || resultItem.userResponse.selectedTokens.join(' ') || 'Sin respuesta' %></p>
         <% } %>
+        <% if (Array.isArray(resultItem.userResponse.orderedSentences)) { %>
+          <p class="small mb-1"><strong>Orden:</strong> <%= resultItem.userResponse.orderedSentences.map((sentence, orderIndex) => `${orderIndex + 1}. ${sentence}`).join(' ') || 'Sin respuesta' %></p>
+        <% } %>
       </div>
     <% } %>
 

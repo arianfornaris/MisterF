@@ -245,6 +245,13 @@
   text-align: center;
 }
 
+.quiz-design-order-list {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding-left: 1.4rem;
+}
+
 .quiz-design-token-bank {
   border: 1px dashed var(--bs-border-color);
   border-radius: 0.5rem;

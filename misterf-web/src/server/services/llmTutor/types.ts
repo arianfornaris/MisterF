@@ -102,6 +102,12 @@ export type TutorUnscrambleSentenceBlock = {
   tokens: string[];
 };
 
+export type TutorOrderSentencesBlock = {
+  type: 'order_sentences';
+  prompt?: string;
+  sentences: string[];
+};
+
 export type TutorPlanStepStatus = 'active' | 'done' | 'pending';
 
 export type TutorPlanBlock = {
@@ -208,6 +214,13 @@ export type TutorQuizItemUnscrambleSentence = {
   rubric?: string;
 };
 
+export type TutorQuizItemOrderSentences = {
+  kind: 'quiz_order_sentences';
+  prompt: string;
+  sentences: string[];
+  rubric?: string;
+};
+
 export type TutorQuizItem =
   | TutorQuizItemOpenText
   | TutorQuizItemTranslateToEnglish
@@ -216,7 +229,8 @@ export type TutorQuizItem =
   | TutorQuizItemFillInTheBlankChoice
   | TutorQuizItemMultipleChoice
   | TutorQuizItemMatchingPairs
-  | TutorQuizItemUnscrambleSentence;
+  | TutorQuizItemUnscrambleSentence
+  | TutorQuizItemOrderSentences;
 
 export type TutorQuizBlock = {
   type: 'quiz';
@@ -380,6 +394,25 @@ export type TutorQuizResultItemUnscrambleSentence = {
   };
 };
 
+export type TutorQuizResultItemOrderSentences = {
+  kind: 'quiz_order_sentences';
+  prompt: string;
+  sentences: string[];
+  evaluation: {
+    feedback: string;
+    status: 'correct' | 'incorrect' | 'partial';
+  };
+  inlineReview?: {
+    sentences: Array<{
+      explanation?: string;
+      status: 'correct' | 'improve' | 'error';
+    }>;
+  };
+  userResponse: {
+    orderedSentences: string[];
+  };
+};
+
 export type TutorQuizResultItem =
   | TutorQuizResultItemOpenText
   | TutorQuizResultItemTranslateToEnglish
@@ -388,7 +421,8 @@ export type TutorQuizResultItem =
   | TutorQuizResultItemFillInTheBlankChoice
   | TutorQuizResultItemMultipleChoice
   | TutorQuizResultItemMatchingPairs
-  | TutorQuizResultItemUnscrambleSentence;
+  | TutorQuizResultItemUnscrambleSentence
+  | TutorQuizResultItemOrderSentences;
 
 export type TutorQuizResultBlock = {
   type: 'quiz_result';
@@ -425,6 +459,7 @@ export type TutorResponseBlock =
   | TutorFillInTheBlankChoiceBlock
   | TutorMultipleChoiceBlock
   | TutorUnscrambleSentenceBlock
+  | TutorOrderSentencesBlock
   | TutorPlanBlock
   | TutorPlanUpdateBlock
   | TutorSentenceEvaluationBlock;

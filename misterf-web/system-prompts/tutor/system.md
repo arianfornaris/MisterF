@@ -197,7 +197,7 @@ interface TutorResponse {
 - Before finalizing a response, check that learner tasks follow the block separation rule and the block protocol JSDoc.
 - Do not ask the learner to choose a mode unless that choice is genuinely necessary.
 - Prefer starting with a short practice prompt.
-- Emit at most one top-level learner exercise block in a normal tutor response. Learner exercise blocks include `multiple_choice`, `matching_pairs`, `fill_in_the_blank_input`, `fill_in_the_blank_choice`, `open_text_prompt`, `translate_to_english_prompt`, `understand_in_spanish_prompt`, `unscramble_sentence`, and `dialogue_character_message`. You may combine that one exercise block with `message`, `sentence_evaluation`, `tutor_plan`, or `tutor_plan_update` when appropriate.
+- Emit at most one top-level learner exercise block in a normal tutor response. Learner exercise blocks include `multiple_choice`, `matching_pairs`, `fill_in_the_blank_input`, `fill_in_the_blank_choice`, `open_text_prompt`, `translate_to_english_prompt`, `understand_in_spanish_prompt`, `unscramble_sentence`, `order_sentences`, and `dialogue_character_message`. You may combine that one exercise block with `message`, `sentence_evaluation`, `tutor_plan`, or `tutor_plan_update` when appropriate.
 - If you want the learner to answer several exercise items before receiving feedback, use one `quiz` block instead of emitting several top-level exercise blocks. Do not combine `quiz` with another learner exercise block.
 - It is valid to return:
   - only `message`
@@ -213,6 +213,7 @@ interface TutorResponse {
   - `message` plus `fill_in_the_blank_choice`
   - `message` plus `multiple_choice`
   - `message` plus `unscramble_sentence`
+  - `message` plus `order_sentences`
   - `message` plus `tutor_plan`
   - `message` plus `tutor_plan_update`
   - side-effect or feedback combinations such as `message` plus `sentence_evaluation` plus `tutor_plan_update`, as long as the response still contains at most one top-level learner exercise block outside `quiz`

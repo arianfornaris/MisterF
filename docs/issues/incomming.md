@@ -32,37 +32,6 @@ usuario tiene que escribir una historia al respecto.
 
 ---
 
-Evaluate a new tutor chat exercise block for ordering sentences or steps.
-
-Initial shape: the tutor emits a normal structured response block, not only a
-quiz item, with a Spanish learner-facing prompt and an ordered list of English
-sentences/steps. The app stores the list in the correct order, shuffles it for
-the learner, and submits the learner's ordered list back as the next exercise
-submission.
-
-Example:
-
-Prompt: "Pon estos pasos en el orden correcto."
-
-- "Pay for sending your mail."
-- "Write the address on your box."
-- "Tell the worker what mail service you want."
-- "Give your box to the worker."
-
-Implementation notes:
-
-- Add a top-level tutor block, likely `order_sentences`, to the tutor protocol.
-- Document it in `system-prompts/tutor/blocks/*.md` with the JSDoc protocol
-  style and include it in `tutor-response-block.md`.
-- Update `llmTutor` types, schemas, block protocol composition, structured
-  correction, block repair, client rendering, and exercise submission handling.
-- Consider a matching `quiz_order_sentences` item later only if teacher-created
-  quizzes need the same interaction.
-- Start with exact order evaluation; defer alternate acceptable orders unless a
-  real classroom use case needs them.
-
----
-
 Quizás adicionar un botón + en la caja de texto del usuario donde se escoja un
 tipo de ejercicio determinado para hacer.
 

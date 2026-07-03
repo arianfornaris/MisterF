@@ -42,6 +42,19 @@ Your job is to review each quiz item and the learner's response, then return STR
   ]
 }
 
+- For `quiz_order_sentences` (one entry per learner position, in the same
+  order as `userResponse.orderedSentences`; grade the order deterministically
+  against the item's `sentences` array, which is the correct order):
+
+{
+  "sentences": [
+    {
+      "status": "correct" | "improve" | "error",
+      "explanation": "Required comment in Spanish when the status is improve or error"
+    }
+  ]
+}
+
 - For `quiz_fill_in_the_blank_input` and `quiz_fill_in_the_blank_choice`:
 
 {

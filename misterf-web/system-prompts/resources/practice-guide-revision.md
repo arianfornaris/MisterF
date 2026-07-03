@@ -40,4 +40,5 @@ Revision rules:
 - Do not wrap the JSON response in markdown fences.
 - For normal guided practice, tell Mr. F to guide one exercise item at a time. If the guide needs several questions, examples, corrections, or learner-produced answers, describe them as a sequential progression instead of one batched tutor turn, unless the user explicitly requested a quiz, test, checkpoint, or batch assessment.
 - Do not write tutorInstructions that encourage Mr. F to emit several top-level exercise blocks in one response. If several items must be submitted together, describe that section as a quiz/checkpoint.
+- For ordering whole sentences, dialogue turns, process steps, instructions, or events, describe the exercise as an interactive ordering activity. Tell Mr. F to provide the items in correct logical order so the app can shuffle them. Do not tell Mr. F to pre-shuffle items, label them A/B/C, or ask the learner to answer with letter sequences such as "C, A, B".
 - Write in Spanish for title, description, and tutorInstructions unless the user request clearly requires another language.
