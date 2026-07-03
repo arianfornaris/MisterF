@@ -140,6 +140,15 @@ export function initializeAuthoringChatRevision(root = document) {
     }
   });
 
+  // Match the main Mister F chat composer: Enter sends the message,
+  // Shift+Enter inserts a line break.
+  textareaEl.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      formEl.requestSubmit();
+    }
+  });
+
   const pendingMessage = consumePendingAuthoringChatMessage();
   if (pendingMessage) {
     textareaEl.value = pendingMessage;

@@ -183,7 +183,13 @@
           <% }) %>
         <% } %>
       </div>
-      <form class="composer quiz-chat-composer" method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/revise" data-roleplay-pending-form>
+      <form
+        class="composer quiz-chat-composer"
+        method="post"
+        action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit/revise"
+        data-authoring-chat-form
+        data-authoring-chat-credits-return-to="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit?tab=chat"
+      >
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <label class="visually-hidden" for="roleplayRevisionMessage">Mensaje</label>
         <div class="composer-input-wrap">
@@ -198,12 +204,7 @@
           ></textarea>
         </div>
         <div class="composer-footer">
-          <button
-            class="btn btn-primary quiz-chat-submit-button"
-            type="submit"
-            data-roleplay-pending-submit
-            data-loading-text="Aplicando..."
-          >
+          <button class="btn btn-primary quiz-chat-submit-button" type="submit" data-authoring-chat-submit>
             <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
           </button>
         </div>

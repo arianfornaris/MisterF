@@ -410,6 +410,10 @@ export async function handleReviseRoleplay(request, response) {
     const draft = storedRoleplayToDraft(resolved.roleplay);
     const userMessage = readMultilineField(request.body.message, 4000);
     if (userMessage.length < 3) {
+        if (wantsJsonResponse(request)) {
+            response.status(422).json({ error: 'Escribe los cambios que deseas aplicar.' });
+            return;
+        }
         renderRoleplayEdit(request, response.status(422), {
             ...resolved,
             activeTab: 'chat',
@@ -433,6 +437,10 @@ export async function handleReviseRoleplay(request, response) {
         const nextAuthoringMessages = appendRoleplayAuthoringMessages(resolved.roleplay.authoringMessages, buildRoleplayAuthoringMessage('user', userMessage), buildRoleplayAuthoringMessage('assistant', revision.assistantMessage, revision.draft));
         const updatedRoleplay = updateRoleplayWithDraft(resolved.roleplay, resolved.user.id, revision.draft, nextAuthoringMessages);
         if (!updatedRoleplay) {
+            if (wantsJsonResponse(request)) {
+                response.status(422).json({ error: 'No pude aplicar ese cambio ahora mismo.' });
+                return;
+            }
             renderRoleplayEdit(request, response.status(422), {
                 ...resolved,
                 activeTab: 'chat',
@@ -446,10 +454,15 @@ export async function handleReviseRoleplay(request, response) {
             roleplayId: resolved.roleplay.id,
             userId: resolved.user.id,
         });
+        if (wantsJsonResponse(request)) {
+            response.json({ assistantMessage: revision.assistantMessage });
+            return;
+        }
         response.redirect(buildRoleplayAuthoringPath(resolved.roleplay.id, 'chat'));
     }
     catch (error) {
-        const failureMessage = isCreditExhaustedError(error)
+        const isCreditError = isCreditExhaustedError(error);
+        const failureMessage = isCreditError
             ? getCreditExhaustedMessage()
             : 'No pude aplicar ese cambio ahora mismo.';
         updateRoleplayAuthoringMessages({
@@ -464,6 +477,13 @@ export async function handleReviseRoleplay(request, response) {
             roleplayId: resolved.roleplay.id,
             userId: resolved.user.id,
         });
+        if (wantsJsonResponse(request)) {
+            response.status(422).json({
+                creditExhausted: isCreditError,
+                error: failureMessage,
+            });
+            return;
+        }
         renderRoleplayEdit(request, response.status(422), {
             ...resolved,
             activeTab: 'chat',

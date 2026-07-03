@@ -1,3 +1,4 @@
+import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
 import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
@@ -445,6 +446,7 @@ initializeRoleplayTranscriptScroll();
 initializeRoleplayTurnComposer();
 initializeRoleplayEvaluationPopovers();
 initializeAuthoringChatScroll();
+initializeAuthoringChatRevision();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
 initializeMarkdownEditors();
