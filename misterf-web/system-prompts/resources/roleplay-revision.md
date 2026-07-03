@@ -26,11 +26,13 @@ Use this JSON shape exactly:
     "characters": [
       {
         "id": "learner",
+        "avatarId": "amara",
         "name": "...",
         "description": "..."
       },
       {
         "id": "ai",
+        "avatarId": "lucas",
         "name": "...",
         "description": "..."
       }
@@ -57,6 +59,10 @@ Revision rules:
 - Keep exactly two characters.
 - Use id "learner" for the student role and id "ai" for the AI-controlled
   character.
+- Each character must include avatarId. Choose the id from the available avatar
+  list below. Keep an existing avatarId when it still fits the revised
+  character; change it when the teacher asks for a different character, age,
+  gender/presentation, or visual feel.
 - Keep the roleplay coherent after the change.
 - Keep scenario as the full learner setup and situation. Do not create a
   separate learner-context field.
@@ -72,3 +78,6 @@ Revision rules:
 - Do not copy chat transcript content, assistant status summaries, or failure
   messages into learner-facing text.
 - Put the complete revised roleplay draft under draft, not at the top level.
+
+Available avatar ids:
+{{ROLEPLAY_AVATAR_OPTIONS}}

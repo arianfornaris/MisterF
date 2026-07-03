@@ -20,11 +20,13 @@ Use this JSON shape exactly:
   "characters": [
     {
       "id": "learner",
+      "avatarId": "amara",
       "name": "...",
       "description": "..."
     },
     {
       "id": "ai",
+      "avatarId": "lucas",
       "name": "...",
       "description": "..."
     }
@@ -45,8 +47,15 @@ Field guidance:
   Use null only when the user clearly asks for no limit.
 - characters: exactly two characters. Use id "learner" for the student role and
   id "ai" for the AI-controlled character.
+- character.avatarId: choose one avatar id from the available avatar list below.
+  Match the character's likely age, gender/presentation, and general presence
+  when the teacher request implies those details. If the request does not imply
+  them, choose two distinct avatars that make the roleplay visually varied.
 - character.description: enough information to play the role naturally. Do not
   split it into role, persona, speaking style, or short description.
+
+Available avatar ids:
+{{ROLEPLAY_AVATAR_OPTIONS}}
 
 Quality rules:
 - Write title, description, scenario, level, pedagogicalFocus, character names,

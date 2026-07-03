@@ -40,6 +40,15 @@ cp <main-checkout>/misterf-web/.env.development .
   serves the main checkout. Verify with `npm run typecheck` and `npm test`
   instead — the tests create their own temporary SQLite databases and do not
   need the copied env or DB.
+- Exception: when the owner explicitly asks to test a worktree as the active
+  local app, stop the main pm2 app first, then run the worktree server directly
+  on the same port and with the same copied environment. Copy the main SQLite
+  database into the worktree's ignored `data/` directory before starting so the
+  test uses equivalent data without writing to the main checkout database.
+  Verify `pm2 status` shows the main app stopped, `lsof` shows the worktree
+  `node` process listening on the expected port, and `curl` returns a healthy
+  response. Stop the worktree server before handing control back or before
+  restarting the main pm2 app.
 - New DB migrations: take the next free id on top of current `main`. If the
   integration lands another migration first, renumber yours during the merge
   (migrations are forward-only; see `database-migration-safety`).

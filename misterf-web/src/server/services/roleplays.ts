@@ -19,11 +19,17 @@ import {
 import type { LlmRequestOptions } from './llmTutor/types.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { isRoleplayCharacterAvatarId } from '../roleplays/avatarRegistry.js';
 
 const maxRoleplayAuthoringMessages = 40;
 const maxRoleplayGenerationTurns = 3;
 
 const roleplayCharacterSchema = z.object({
+  avatarId: z.string()
+    .trim()
+    .max(64)
+    .refine(isRoleplayCharacterAvatarId, 'Avatar id must match a registered roleplay character avatar.')
+    .optional(),
   description: z.string().trim().min(1).max(1200),
   id: z.enum(['learner', 'ai']),
   name: z.string().trim().min(1).max(120),

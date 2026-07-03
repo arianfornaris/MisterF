@@ -232,6 +232,7 @@ export type RoleplayAuthoringMessage = {
 };
 
 export type RoleplayCharacter = {
+  avatarId?: string;
   description: string;
   id: string;
   name: string;
@@ -945,8 +946,10 @@ function parseRoleplayCharacters(value: string | null | undefined): RoleplayChar
       if (!id || !name) {
         return [];
       }
+      const avatarId = readStringFromRecord(item, 'avatarId').slice(0, 64);
 
       return [{
+        ...(avatarId ? { avatarId } : {}),
         description: readStringFromRecord(item, 'description').slice(0, 1200),
         id,
         name,

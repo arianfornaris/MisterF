@@ -119,9 +119,36 @@
         <div class="row g-3">
           <div class="col-12">
             <div class="border rounded p-3">
-              <h3 class="h6 mb-3">
-                <i class="bi bi-person me-2" aria-hidden="true"></i>Papel del estudiante
-              </h3>
+              <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <div
+                  class="roleplay-character-avatar-preview"
+                  data-roleplay-avatar-preview="learner"
+                  aria-hidden="true"
+                >
+                  <% if (learnerAvatar) { %>
+                    <img src="<%= learnerAvatar.imagePath %>" alt="">
+                  <% } else { %>
+                    <i class="bi bi-person"></i>
+                  <% } %>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="h6 mb-1">Papel del estudiante</h3>
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    type="button"
+                    data-roleplay-avatar-open
+                    data-roleplay-avatar-target="learner"
+                  >
+                    <i class="bi bi-person-bounding-box me-1" aria-hidden="true"></i>Elegir avatar
+                  </button>
+                </div>
+              </div>
+              <input
+                type="hidden"
+                name="learnerCharacterAvatarId"
+                value="<%= learnerCharacter.avatarId || '' %>"
+                data-roleplay-avatar-input="learner"
+              >
               <div class="mb-3">
                 <label class="form-label" for="learnerCharacterName">Nombre visible</label>
                 <input class="form-control" id="learnerCharacterName" name="learnerCharacterName" maxlength="120" value="<%= learnerCharacter.name %>" required>
@@ -132,9 +159,36 @@
           </div>
           <div class="col-12">
             <div class="border rounded p-3">
-              <h3 class="h6 mb-3">
-                <i class="bi bi-person-video3 me-2" aria-hidden="true"></i>Personaje de la IA
-              </h3>
+              <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <div
+                  class="roleplay-character-avatar-preview"
+                  data-roleplay-avatar-preview="ai"
+                  aria-hidden="true"
+                >
+                  <% if (aiAvatar) { %>
+                    <img src="<%= aiAvatar.imagePath %>" alt="">
+                  <% } else { %>
+                    <i class="bi bi-person-video3"></i>
+                  <% } %>
+                </div>
+                <div class="min-w-0">
+                  <h3 class="h6 mb-1">Personaje de la IA</h3>
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    type="button"
+                    data-roleplay-avatar-open
+                    data-roleplay-avatar-target="ai"
+                  >
+                    <i class="bi bi-person-bounding-box me-1" aria-hidden="true"></i>Elegir avatar
+                  </button>
+                </div>
+              </div>
+              <input
+                type="hidden"
+                name="aiCharacterAvatarId"
+                value="<%= aiCharacter.avatarId || '' %>"
+                data-roleplay-avatar-input="ai"
+              >
               <div class="mb-3">
                 <label class="form-label" for="aiCharacterName">Nombre visible</label>
                 <input class="form-control" id="aiCharacterName" name="aiCharacterName" maxlength="120" value="<%= aiCharacter.name %>" required>
@@ -212,6 +266,63 @@
     </div>
   <% } %>
 </section>
+
+<div
+  class="modal fade"
+  id="roleplayAvatarSelectorModal"
+  tabindex="-1"
+  aria-labelledby="roleplayAvatarSelectorTitle"
+  aria-hidden="true"
+  data-roleplay-avatar-selector-modal
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="roleplayAvatarSelectorTitle">Elegir avatar</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="roleplay-avatar-grid" role="list" aria-label="Avatares disponibles">
+          <button
+            class="roleplay-avatar-option"
+            type="button"
+            data-roleplay-avatar-option
+            data-avatar-id=""
+            data-avatar-name="Sin avatar"
+            data-avatar-src=""
+            role="listitem"
+          >
+            <span class="roleplay-avatar-option-image" aria-hidden="true">
+              <i class="bi bi-person"></i>
+            </span>
+            <span class="roleplay-avatar-option-name">Sin avatar</span>
+            <span class="roleplay-avatar-option-meta">Usar icono</span>
+          </button>
+          <% roleplayAvatarOptions.forEach((avatar) => { %>
+            <button
+              class="roleplay-avatar-option"
+              type="button"
+              data-roleplay-avatar-option
+              data-avatar-id="<%= avatar.id %>"
+              data-avatar-name="<%= avatar.name %>"
+              data-avatar-src="<%= avatar.imagePath %>"
+              role="listitem"
+            >
+              <span class="roleplay-avatar-option-image" aria-hidden="true">
+                <img src="<%= avatar.imagePath %>" alt="">
+              </span>
+              <span class="roleplay-avatar-option-name"><%= avatar.name %></span>
+              <span class="roleplay-avatar-option-meta"><%= avatar.age %> · <%= avatar.gender %></span>
+            </button>
+          <% }) %>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="modal fade" tabindex="-1" aria-hidden="true" data-roleplay-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-dialog-centered">

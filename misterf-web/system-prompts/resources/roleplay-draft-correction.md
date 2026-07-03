@@ -17,11 +17,13 @@ The only valid top-level shape is:
   "characters": [
     {
       "id": "learner",
+      "avatarId": "amara",
       "name": "...",
       "description": "..."
     },
     {
       "id": "ai",
+      "avatarId": "lucas",
       "name": "...",
       "description": "..."
     }
@@ -31,6 +33,8 @@ The only valid top-level shape is:
 Rules to preserve:
 - characters must contain exactly two characters.
 - character ids must be exactly "learner" and "ai".
+- each character must include avatarId from this list:
+{{ROLEPLAY_AVATAR_OPTIONS}}
 - maxLearnerTurns must be an integer from 1 to 20, or null.
 - Use maxLearnerTurns: 20 unless the user clearly asked for another explicit
   limit.

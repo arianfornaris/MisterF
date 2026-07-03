@@ -132,12 +132,17 @@
     <h2 class="h5">Personajes</h2>
     <div class="row g-3">
       <% draft.characters.forEach((character) => { %>
+        <% const characterAvatar = character.avatarId ? roleplayAvatarById[character.avatarId] : null; %>
         <div class="col-12 col-md-6">
           <article class="card h-100 roleplay-character-card <%= character.id === 'learner' ? 'is-learner' : 'is-ai' %>">
             <div class="card-body">
               <div class="d-flex align-items-center gap-2 mb-2">
                 <span class="roleplay-character-icon" aria-hidden="true">
-                  <i class="bi <%= character.id === 'learner' ? 'bi-person' : 'bi-person-video3' %>"></i>
+                  <% if (characterAvatar) { %>
+                    <img src="<%= characterAvatar.imagePath %>" alt="">
+                  <% } else { %>
+                    <i class="bi <%= character.id === 'learner' ? 'bi-person' : 'bi-person-video3' %>"></i>
+                  <% } %>
                 </span>
                 <div>
                   <h3 class="h6 mb-0"><%= character.name %></h3>

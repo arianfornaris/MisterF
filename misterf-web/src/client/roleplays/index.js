@@ -121,6 +121,105 @@ function initializeRoleplayPendingUi() {
   }
 }
 
+function findAvatarInput(target) {
+  for (const inputEl of document.querySelectorAll('[data-roleplay-avatar-input]')) {
+    if (inputEl instanceof HTMLInputElement && inputEl.dataset.roleplayAvatarInput === target) {
+      return inputEl;
+    }
+  }
+
+  return null;
+}
+
+function findAvatarPreview(target) {
+  for (const previewEl of document.querySelectorAll('[data-roleplay-avatar-preview]')) {
+    if (previewEl instanceof HTMLElement && previewEl.dataset.roleplayAvatarPreview === target) {
+      return previewEl;
+    }
+  }
+
+  return null;
+}
+
+function renderAvatarPreview(previewEl, input) {
+  previewEl.replaceChildren();
+
+  if (input.avatarSrc) {
+    const imageEl = document.createElement('img');
+    imageEl.src = input.avatarSrc;
+    imageEl.alt = '';
+    previewEl.append(imageEl);
+    return;
+  }
+
+  const iconEl = document.createElement('i');
+  iconEl.className = `bi ${input.fallbackIcon}`;
+  previewEl.append(iconEl);
+}
+
+function initializeRoleplayAvatarSelector() {
+  const modalEl = document.querySelector('[data-roleplay-avatar-selector-modal]');
+  if (!(modalEl instanceof HTMLElement) || !window.bootstrap?.Modal) {
+    return;
+  }
+
+  let activeTarget = '';
+  const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+
+  const updateSelectedAvatarOption = () => {
+    const activeInputEl = findAvatarInput(activeTarget);
+    const selectedAvatarId = activeInputEl?.value || '';
+    for (const optionEl of modalEl.querySelectorAll('[data-roleplay-avatar-option]')) {
+      if (!(optionEl instanceof HTMLElement)) {
+        continue;
+      }
+
+      const isSelected = (optionEl.dataset.avatarId || '') === selectedAvatarId;
+      optionEl.classList.toggle('is-selected', isSelected);
+      optionEl.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+    }
+  };
+
+  for (const openButtonEl of document.querySelectorAll('[data-roleplay-avatar-open]')) {
+    if (!(openButtonEl instanceof HTMLButtonElement)) {
+      continue;
+    }
+
+    openButtonEl.addEventListener('click', () => {
+      activeTarget = openButtonEl.dataset.roleplayAvatarTarget || '';
+      if (!activeTarget) {
+        return;
+      }
+
+      updateSelectedAvatarOption();
+      modal.show();
+    });
+  }
+
+  for (const optionEl of modalEl.querySelectorAll('[data-roleplay-avatar-option]')) {
+    if (!(optionEl instanceof HTMLButtonElement)) {
+      continue;
+    }
+
+    optionEl.addEventListener('click', () => {
+      const activeInputEl = findAvatarInput(activeTarget);
+      const activePreviewEl = findAvatarPreview(activeTarget);
+      if (!activeInputEl || !activePreviewEl) {
+        return;
+      }
+
+      const avatarId = optionEl.dataset.avatarId || '';
+      activeInputEl.value = avatarId;
+      renderAvatarPreview(activePreviewEl, {
+        avatarSrc: optionEl.dataset.avatarSrc || '',
+        fallbackIcon: activeTarget === 'ai' ? 'bi-person-video3' : 'bi-person',
+      });
+      updateSelectedAvatarOption();
+      modal.hide();
+    });
+  }
+}
+
 function initializeRoleplayTurnComposer() {
   const formEl = document.querySelector('[data-roleplay-turn-form]');
   const transcriptEl = document.querySelector('[data-roleplay-transcript]');
@@ -272,7 +371,12 @@ function appendRoleplayTurn(transcriptEl, input) {
   const avatarEl = document.createElement('div');
   avatarEl.className = 'roleplay-turn-avatar';
   avatarEl.setAttribute('aria-hidden', 'true');
-  avatarEl.innerHTML = `<i class="bi ${input.speaker === 'learner' ? 'bi-person' : 'bi-person-video3'}"></i>`;
+  renderAvatarPreview(avatarEl, {
+    avatarSrc: input.speaker === 'learner'
+      ? transcriptEl.dataset.learnerAvatarSrc || ''
+      : transcriptEl.dataset.aiAvatarSrc || '',
+    fallbackIcon: input.speaker === 'learner' ? 'bi-person' : 'bi-person-video3',
+  });
 
   const bodyEl = document.createElement('div');
   bodyEl.className = 'roleplay-turn-body';
@@ -441,6 +545,7 @@ function initializeRoleplayEvaluationPopovers(root = document) {
 
 initializeRoleplaySharingUi();
 initializeRoleplayPendingUi();
+initializeRoleplayAvatarSelector();
 initializeStaticMarkdown();
 initializeRoleplayTranscriptScroll();
 initializeRoleplayTurnComposer();

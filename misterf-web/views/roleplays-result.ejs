@@ -1,5 +1,12 @@
 <%- include('partials/app-shell-open') %>
 
+<%
+  const roleplayResultAvatarById = roleplayAvatarById || {};
+  const roleplayResultLearnerCharacter = draft.characters.find((character) => character.id === 'learner') || draft.characters[0];
+  const roleplayResultAiCharacter = draft.characters.find((character) => character.id === 'ai') || draft.characters[1] || draft.characters[0];
+  const roleplayResultLearnerTurns = attempt.turns.filter((turn) => turn.speaker === 'learner');
+%>
+
 <section class="app-resource-view roleplays-page">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
@@ -90,9 +97,32 @@
     <h2 class="h5">Revisión por turno</h2>
     <div class="d-grid gap-3">
       <% result.entries.forEach((entry) => { %>
+        <%
+          const evaluatedTurn = roleplayResultLearnerTurns[entry.turnNumber - 1] || null;
+          const evaluatedCharacter = evaluatedTurn && (evaluatedTurn.speaker === 'ai' || evaluatedTurn.characterId === 'ai')
+            ? roleplayResultAiCharacter
+            : roleplayResultLearnerCharacter;
+          const evaluatedAvatar = evaluatedCharacter?.avatarId
+            ? roleplayResultAvatarById[evaluatedCharacter.avatarId]
+            : null;
+        %>
         <article class="sentence-evaluation card roleplay-evaluation-card">
           <div class="sentence-evaluation-header card-header">
-            <h3 class="sentence-evaluation-label">Turno <%= entry.turnNumber %></h3>
+            <div class="roleplay-evaluation-heading">
+              <span class="roleplay-evaluation-avatar" aria-hidden="true">
+                <% if (evaluatedAvatar) { %>
+                  <img src="<%= evaluatedAvatar.imagePath %>" alt="">
+                <% } else { %>
+                  <i class="bi <%= evaluatedCharacter?.id === 'ai' ? 'bi-person-video3' : 'bi-person' %>"></i>
+                <% } %>
+              </span>
+              <div>
+                <h3 class="sentence-evaluation-label">Turno <%= entry.turnNumber %></h3>
+                <% if (evaluatedCharacter?.name) { %>
+                  <p class="roleplay-evaluation-speaker mb-0"><%= evaluatedCharacter.name %></p>
+                <% } %>
+              </div>
+            </div>
             <% if (entry.scoreLabel) { %><span class="badge text-bg-light border ms-auto"><%= entry.scoreLabel %></span><% } %>
           </div>
           <div class="sentence-evaluation-body card-body">

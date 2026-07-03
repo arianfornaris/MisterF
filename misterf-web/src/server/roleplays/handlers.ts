@@ -59,6 +59,12 @@ import {
   generateRoleplayRevision,
 } from '../services/resourceDrafts.js';
 import {
+  findRoleplayCharacterAvatar,
+  listRoleplayCharacterAvatars,
+  normalizeRoleplayCharacterAvatarId,
+  type RoleplayCharacterAvatar,
+} from './avatarRegistry.js';
+import {
   buildResourceFromContextPrompt,
   createResourceFromContextDraft,
   normalizeContextResourceType,
@@ -158,6 +164,16 @@ function readRoleplayAuthoringTab(value: unknown): RoleplayAuthoringTab {
   return tab === 'chat' || tab === 'general'
     ? tab
     : defaultRoleplayAuthoringTab;
+}
+
+function resolveCharacterAvatar(character: RoleplayCharacter): RoleplayCharacterAvatar | null {
+  return findRoleplayCharacterAvatar(character.avatarId);
+}
+
+function buildRoleplayAvatarById(): Record<string, RoleplayCharacterAvatar> {
+  return Object.fromEntries(
+    listRoleplayCharacterAvatars().map((avatar) => [avatar.id, avatar]),
+  );
 }
 
 function buildRoleplayAuthoringPath(
@@ -391,7 +407,14 @@ function readRoleplayCharacterFromBody(
   fallback: RoleplayCharacter,
 ): RoleplayCharacter {
   const fieldPrefix = id === 'learner' ? 'learnerCharacter' : 'aiCharacter';
+  const avatarFieldName = `${fieldPrefix}AvatarId`;
+  const hasSubmittedAvatar = Object.prototype.hasOwnProperty.call(body, avatarFieldName);
+  const submittedAvatarId = normalizeRoleplayCharacterAvatarId(body[avatarFieldName]);
+  const fallbackAvatarId = normalizeRoleplayCharacterAvatarId(fallback.avatarId);
+  const avatarId = hasSubmittedAvatar ? submittedAvatarId : fallbackAvatarId;
+
   return {
+    ...(avatarId ? { avatarId } : {}),
     description: readMultilineField(body[`${fieldPrefix}Description`], 1200)
       || fallback.description,
     id,
@@ -454,6 +477,8 @@ function renderRoleplayEdit(
     response.redirect('/resources');
     return;
   }
+  const learnerCharacter = getLearnerCharacter(draft);
+  const aiCharacter = getAiCharacter(draft);
 
   response.render('roleplays-edit', {
     ...buildRoleplaysShellContext(request, {
@@ -463,10 +488,13 @@ function renderRoleplayEdit(
     }),
     activeTab: input.activeTab ?? defaultRoleplayAuthoringTab,
     authoringError: input.error || '',
-    aiCharacter: getAiCharacter(draft),
+    aiAvatar: resolveCharacterAvatar(aiCharacter),
+    aiCharacter,
     draft,
-    learnerCharacter: getLearnerCharacter(draft),
+    learnerAvatar: resolveCharacterAvatar(learnerCharacter),
+    learnerCharacter,
     roleplayAuthoringMessages: input.roleplay.authoringMessages,
+    roleplayAvatarOptions: listRoleplayCharacterAvatars(),
     selectedRoleplay: input.roleplay,
   });
 }
@@ -765,6 +793,8 @@ export async function renderRoleplayShowPage(
     roleplayId: resolved.roleplay.id,
     userId: resolved.user.id,
   });
+  const learnerCharacter = getLearnerCharacter(draft);
+  const aiCharacter = getAiCharacter(draft);
 
   response.render('roleplays-show', {
     ...buildRoleplaysShellContext(request, {
@@ -772,14 +802,15 @@ export async function renderRoleplayShowPage(
       title: `${resolved.roleplay.title} - ${appDocumentTitle}`,
       user: resolved.user,
     }),
-    aiCharacter: getAiCharacter(draft),
+    aiCharacter,
     canManageRoleplay: resolved.canManageRoleplay,
     draft,
-    learnerCharacter: getLearnerCharacter(draft),
+    learnerCharacter,
     resourceCurrentFolder,
     resourceFolderOptions,
     resourceFolderPath,
     roleplayAttempts: buildAttemptListItems(attempts),
+    roleplayAvatarById: buildRoleplayAvatarById(),
     roleplayStartError: readRoleplayStartError(request.query.startError),
     roleplayShareMode,
     roleplayShareQrDataUrl,
@@ -973,6 +1004,8 @@ function renderRoleplayAttempt(
     response.redirect('/resources');
     return;
   }
+  const learnerCharacter = getLearnerCharacter(draft);
+  const aiCharacter = getAiCharacter(draft);
 
   response.render('roleplays-attempt', {
     ...buildRoleplaysShellContext(request, {
@@ -980,7 +1013,8 @@ function renderRoleplayAttempt(
       title: `${draft.title} - ${appDocumentTitle}`,
       user: request.authUser ?? null,
     }),
-    aiCharacter: getAiCharacter(draft),
+    aiAvatar: resolveCharacterAvatar(aiCharacter),
+    aiCharacter,
     attempt: input.attempt,
     attemptError: input.error || '',
     draft,
@@ -988,7 +1022,8 @@ function renderRoleplayAttempt(
       draft,
       turns: input.attempt.turns,
     }),
-    learnerCharacter: getLearnerCharacter(draft),
+    learnerAvatar: resolveCharacterAvatar(learnerCharacter),
+    learnerCharacter,
     learnerTurnCount: countLearnerTurns(input.attempt.turns),
   });
 }
@@ -1236,6 +1271,7 @@ export function renderRoleplayResultPage(request: Request, response: Response): 
     }),
     attempt,
     draft,
+    roleplayAvatarById: buildRoleplayAvatarById(),
     result: result.data,
     ...actionError,
     resultJson: serializeViewJson(result.data),

@@ -16,6 +16,7 @@ import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './ll
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
 
 const maxDraftGenerationTurns = 4;
 
@@ -61,6 +62,7 @@ function appendCorrectionRequest(messages: ModelMessage[], input: {
   correctionPromptPath: string;
   invalidOutput?: string | null;
   reason: string;
+  systemPromptVariables?: Record<string, string>;
   turn: number;
 }): void {
   const invalidOutput = input.invalidOutput?.trim();
@@ -74,6 +76,7 @@ function appendCorrectionRequest(messages: ModelMessage[], input: {
   messages.push({
     content: renderSystemPrompt(input.correctionPromptPath, {
       CORRECTION_REASON: input.reason,
+      ...(input.systemPromptVariables ?? {}),
     }),
     role: 'user',
   });
@@ -195,8 +198,12 @@ async function generateStructuredDraft<T>(input: {
   openRouterApiKey?: string | null;
   schema: z.ZodType<T>;
   systemPromptPath: string;
+  systemPromptVariables?: Record<string, string>;
 }): Promise<T> {
-  const system = renderSystemPrompt(input.systemPromptPath);
+  const system = renderSystemPrompt(
+    input.systemPromptPath,
+    input.systemPromptVariables,
+  );
   const messages: ModelMessage[] = [
     {
       content: input.initialUserMessage,
@@ -260,6 +267,7 @@ async function generateStructuredDraft<T>(input: {
           correctionPromptPath: input.correctionPromptPath,
           invalidOutput: result.text,
           reason: 'Your previous response was not valid JSON.',
+          systemPromptVariables: input.systemPromptVariables,
           turn: turn + 1,
         });
         continue;
@@ -285,6 +293,7 @@ async function generateStructuredDraft<T>(input: {
           correctionPromptPath: input.correctionPromptPath,
           invalidOutput: result.text,
           reason: 'Your previous JSON did not match the required schema.',
+          systemPromptVariables: input.systemPromptVariables,
           turn: turn + 1,
         });
         continue;
@@ -444,6 +453,7 @@ export async function generateRoleplayDraft(input: {
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayDraft> {
+  const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
   return generateStructuredDraft({
     actorLabel: 'Roleplay draft',
     correctionPromptPath: 'resources/roleplay-draft-correction.md',
@@ -452,6 +462,9 @@ export async function generateRoleplayDraft(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: roleplayDraftSchema,
     systemPromptPath: 'resources/roleplay-draft.md',
+    systemPromptVariables: {
+      ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
+    },
   });
 }
 
@@ -461,6 +474,7 @@ export async function generateRoleplayRevision(input: {
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayRevisionResult> {
+  const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
   return generateStructuredDraft({
     actorLabel: 'Roleplay revision',
     correctionPromptPath: 'resources/roleplay-revision-correction.md',
@@ -479,5 +493,8 @@ export async function generateRoleplayRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: roleplayRevisionSchema,
     systemPromptPath: 'resources/roleplay-revision.md',
+    systemPromptVariables: {
+      ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
+    },
   });
 }
