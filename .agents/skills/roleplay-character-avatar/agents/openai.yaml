@@ -1,0 +1,4 @@
+interface:
+  display_name: "Roleplay Character Avatar"
+  short_description: "Generate roleplay character avatar assets"
+  default_prompt: "Use $roleplay-character-avatar to generate a new roleplay character avatar asset with metadata."

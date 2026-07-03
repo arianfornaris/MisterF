@@ -10,6 +10,9 @@ Implementation status: the first authenticated version is implemented as a V2
 resource type. Future guest/free attempts, character images, and richer guided
 roleplay branching remain deferred.
 
+Character image asset planning lives in
+`docs/features/roleplay-character-assets.md`.
+
 The core product idea is:
 
 - the learner plays one character in an English roleplay

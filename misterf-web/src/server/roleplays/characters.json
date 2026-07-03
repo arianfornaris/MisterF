@@ -1,0 +1,164 @@
+{
+  "characters": [
+    {
+      "id": "amara",
+      "name": "Amara",
+      "shortDescription": "A confident young adult with a warm, friendly presence.",
+      "age": 22,
+      "gender": "woman",
+      "imageFile": "amara.png"
+    },
+    {
+      "id": "aya",
+      "name": "Aya",
+      "shortDescription": "A curious young adult with a bright, attentive presence.",
+      "age": 18,
+      "gender": "woman",
+      "imageFile": "aya.png"
+    },
+    {
+      "id": "beatriz",
+      "name": "Beatriz",
+      "shortDescription": "An older adult with a bright, warm, and welcoming presence.",
+      "age": 74,
+      "gender": "woman",
+      "imageFile": "beatriz.png"
+    },
+    {
+      "id": "benji",
+      "name": "Benji",
+      "shortDescription": "A cheerful young adult with an open and energetic manner.",
+      "age": 20,
+      "gender": "man",
+      "imageFile": "benji.png"
+    },
+    {
+      "id": "cleo",
+      "name": "Cleo",
+      "shortDescription": "A playful young adult with a confident and creative presence.",
+      "age": 24,
+      "gender": "nonbinary",
+      "imageFile": "cleo.png"
+    },
+    {
+      "id": "elias",
+      "name": "Elias",
+      "shortDescription": "An older adult with a gentle, thoughtful, and kind manner.",
+      "age": 81,
+      "gender": "man",
+      "imageFile": "elias.png"
+    },
+    {
+      "id": "haru",
+      "name": "Haru",
+      "shortDescription": "An older adult with a calm, observant, and quietly friendly manner.",
+      "age": 72,
+      "gender": "man",
+      "imageFile": "haru.png"
+    },
+    {
+      "id": "ingrid",
+      "name": "Ingrid",
+      "shortDescription": "An older adult with a playful, alert, and expressive presence.",
+      "age": 78,
+      "gender": "woman",
+      "imageFile": "ingrid.png"
+    },
+    {
+      "id": "kim",
+      "name": "Kim",
+      "shortDescription": "A thoughtful adolescent with a quiet and friendly presence.",
+      "age": 13,
+      "gender": "nonbinary",
+      "imageFile": "kim.png"
+    },
+    {
+      "id": "lucas",
+      "name": "Lucas",
+      "shortDescription": "A thoughtful adult with a relaxed and slightly shy manner.",
+      "age": 34,
+      "gender": "man",
+      "imageFile": "lucas.png"
+    },
+    {
+      "id": "marisol",
+      "name": "Marisol",
+      "shortDescription": "A curious adolescent with a bright and friendly manner.",
+      "age": 15,
+      "gender": "girl",
+      "imageFile": "marisol.png"
+    },
+    {
+      "id": "mateo",
+      "name": "Mateo",
+      "shortDescription": "A friendly young adult with an easygoing, upbeat personality.",
+      "age": 29,
+      "gender": "man",
+      "imageFile": "mateo.png"
+    },
+    {
+      "id": "mina",
+      "name": "Mina",
+      "shortDescription": "A calm young adult with a thoughtful and steady presence.",
+      "age": 25,
+      "gender": "woman",
+      "imageFile": "mina.png"
+    },
+    {
+      "id": "noah",
+      "name": "Noah",
+      "shortDescription": "A shy adolescent with a gentle and friendly manner.",
+      "age": 12,
+      "gender": "boy",
+      "imageFile": "noah.png"
+    },
+    {
+      "id": "nora",
+      "name": "Nora",
+      "shortDescription": "An older adult with a calm, thoughtful, and welcoming presence.",
+      "age": 62,
+      "gender": "nonbinary",
+      "imageFile": "nora.png"
+    },
+    {
+      "id": "omar",
+      "name": "Omar",
+      "shortDescription": "An easygoing adolescent with a relaxed and friendly presence.",
+      "age": 16,
+      "gender": "boy",
+      "imageFile": "omar.png"
+    },
+    {
+      "id": "samira",
+      "name": "Samira",
+      "shortDescription": "An older adult with a steady, kind, and reassuring presence.",
+      "age": 69,
+      "gender": "woman",
+      "imageFile": "samira.png"
+    },
+    {
+      "id": "sofia",
+      "name": "Sofia",
+      "shortDescription": "A warm middle-aged adult with a direct and encouraging manner.",
+      "age": 47,
+      "gender": "woman",
+      "imageFile": "sofia.png"
+    },
+    {
+      "id": "tavi",
+      "name": "Tavi",
+      "shortDescription": "A relaxed young adult with a playful and friendly manner.",
+      "age": 19,
+      "gender": "man",
+      "imageFile": "tavi.png"
+    },
+    {
+      "id": "zara",
+      "name": "Zara",
+      "shortDescription": "A cheerful child with a bright and enthusiastic presence.",
+      "age": 10,
+      "gender": "girl",
+      "imageFile": "zara.png"
+    }
+  ]
+}
