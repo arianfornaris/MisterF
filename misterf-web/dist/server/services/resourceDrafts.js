@@ -1,6 +1,6 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
-import { quizBlockSchema, quizDraftSchema, } from './quizzes.js';
+import { quizDraftSchema, } from './quizzes.js';
 import { normalizeRoleplayRevisionConversationHistory, roleplayDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
@@ -11,6 +11,10 @@ const practiceGuideDraftSchema = z.object({
     description: z.string().trim().min(1).max(1500),
     title: z.string().trim().min(1).max(220),
     tutorInstructions: z.string().trim().min(1).max(12000),
+}).strict();
+const practiceGuideRevisionSchema = z.object({
+    assistantMessage: z.string().trim().min(1).max(2000),
+    guide: practiceGuideDraftSchema,
 }).strict();
 const quizRevisionSchema = z.object({
     assistantMessage: z.string().trim().min(1).max(2000),
@@ -214,14 +218,30 @@ export async function generatePracticeGuideRevision(input) {
         actorLabel: 'Practice guide revision',
         correctionPromptPath: 'resources/practice-guide-revision-correction.md',
         initialUserMessage: JSON.stringify({
+            conversationHistory: normalizePracticeGuideRevisionConversationHistory(input.conversationHistory ?? []),
             currentPracticeGuide: input.currentPracticeGuide,
             requestedChange: input.prompt,
         }, null, 2),
-        maxOutputTokens: 4000,
+        maxOutputTokens: 4400,
         openRouterApiKey: input.openRouterApiKey,
-        schema: practiceGuideDraftSchema,
+        schema: practiceGuideRevisionSchema,
         systemPromptPath: 'resources/practice-guide-revision.md',
     });
+}
+function normalizePracticeGuideRevisionConversationHistory(messages) {
+    return messages
+        .flatMap((message) => {
+        const content = message.content.trim();
+        if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
+            return [];
+        }
+        return [{
+                content: content.slice(0, 4000),
+                createdAt: message.createdAt?.trim() || undefined,
+                role: message.role,
+            }];
+    })
+        .slice(-24);
 }
 export async function generateQuizDraft(input) {
     return generateStructuredDraft({
@@ -281,21 +301,6 @@ function normalizeQuizRevisionConversationHistory(messages) {
         return message;
     })
         .reverse();
-}
-export async function generateQuizBlock(input) {
-    return generateStructuredDraft({
-        actorLabel: 'Quiz block',
-        correctionPromptPath: 'resources/quiz-block-correction.md',
-        initialUserMessage: JSON.stringify({
-            blockKind: input.blockKind,
-            currentDraft: input.currentDraft,
-            requestedBlock: input.prompt,
-        }, null, 2),
-        maxOutputTokens: 2400,
-        openRouterApiKey: input.openRouterApiKey,
-        schema: quizBlockSchema,
-        systemPromptPath: 'resources/quiz-block.md',
-    });
 }
 export async function generateRoleplayDraft(input) {
     return generateStructuredDraft({

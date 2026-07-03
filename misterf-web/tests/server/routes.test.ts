@@ -490,6 +490,92 @@ describe('main route smoke tests', () => {
     expect(quizHtml).toContain(`/quiz-attempts/${attempt.id}/result`);
   });
 
+  it('renders quiz sections in the authoring blocks tab', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createQuiz, createProfile } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'quiz-sections-owner@example.com',
+      emailVerified: true,
+      fullName: 'Quiz Sections Owner',
+      provider: 'google',
+      providerSubject: 'quiz-sections-owner',
+    });
+    const ownerProfile = createProfile({
+      name: 'Quiz sections profile',
+      userId: owner.id,
+    });
+    const quizDraft = {
+      blocks: [
+        {
+          id: 'block_1',
+          item: {
+            kind: 'quiz_open_text',
+            prompt: 'Write one sentence with an adverb of frequency.',
+          },
+          sectionId: 'section_a',
+        },
+        {
+          id: 'block_2',
+          item: {
+            kind: 'quiz_open_text',
+            prompt: 'How often do you exercise?',
+          },
+          sectionId: 'section_b',
+        },
+      ],
+      description: 'Adverb practice.',
+      instructions: 'Complete both sections.',
+      level: 'A2',
+      sections: [
+        {
+          id: 'section_a',
+          instructions: 'Completa las oraciones con la frase correcta.',
+          title: 'Parte A',
+        },
+        {
+          id: 'section_b',
+          instructions: 'Responde con oraciones completas.',
+          title: 'Parte B',
+        },
+      ],
+      targetTopic: 'Adverbs of frequency',
+      title: 'Sections Quiz',
+    };
+    const quiz = createQuiz({
+      description: quizDraft.description,
+      instructions: quizDraft.instructions,
+      level: quizDraft.level,
+      profileId: ownerProfile.id,
+      quiz: quizDraft,
+      targetTopic: quizDraft.targetTopic,
+      title: quizDraft.title,
+      userId: owner.id,
+    });
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+
+    const editResponse = await fetch(`${baseUrl}/quizzes/${quiz.id}/edit?tab=blocks`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const editHtml = await editResponse.text();
+    expect(editResponse.status).toBe(200);
+    expect(editHtml).toContain('Parte A');
+    expect(editHtml).toContain('Completa las oraciones con la frase correcta.');
+    expect(editHtml).toContain('Parte B');
+
+    const showResponse = await fetch(`${baseUrl}/quizzes/${quiz.id}`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const showHtml = await showResponse.text();
+    expect(showResponse.status).toBe(200);
+    expect(showHtml).toContain('Parte A');
+    expect(showHtml).toContain('Completa las oraciones con la frase correcta.');
+    expect(showHtml).toContain('Parte B');
+    expect(showHtml).toContain('Responde con oraciones completas.');
+  });
+
   it('creates, edits, archives, and restores resource folders through routes', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile, findResourceForUser } = await import('../../src/server/db/repository.js');

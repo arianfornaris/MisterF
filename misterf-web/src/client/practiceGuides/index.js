@@ -1,3 +1,5 @@
+import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
+import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
 import { initializeMarkdownEditors } from '../shared/markdownEditor.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
@@ -126,6 +128,8 @@ function initializeResourceGenerationPendingUi() {
 initializePracticeGuideSharingUi();
 initializeAutoOpenModal();
 initializeResourceGenerationPendingUi();
+initializeAuthoringChatScroll();
+initializeAuthoringChatRevision();
 initializeResourceMoveModal();
 initializeListGroupDropdownStacking();
 initializeMarkdownEditors();

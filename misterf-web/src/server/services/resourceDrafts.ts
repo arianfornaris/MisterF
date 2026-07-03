@@ -1,9 +1,7 @@
 import { generateText, type ModelMessage } from 'ai';
 import { z } from 'zod';
 import {
-  quizBlockSchema,
   quizDraftSchema,
-  type QuizBlock,
   type QuizDraft,
 } from './quizzes.js';
 import {
@@ -27,13 +25,25 @@ const practiceGuideDraftSchema = z.object({
   tutorInstructions: z.string().trim().min(1).max(12000),
 }).strict();
 
+const practiceGuideRevisionSchema = z.object({
+  assistantMessage: z.string().trim().min(1).max(2000),
+  guide: practiceGuideDraftSchema,
+}).strict();
+
 const quizRevisionSchema = z.object({
   assistantMessage: z.string().trim().min(1).max(2000),
   draft: quizDraftSchema,
 }).strict();
 
 type PracticeGuideDraft = z.infer<typeof practiceGuideDraftSchema>;
+export type PracticeGuideRevisionResult = z.infer<typeof practiceGuideRevisionSchema>;
 export type QuizRevisionResult = z.infer<typeof quizRevisionSchema>;
+
+export type PracticeGuideRevisionConversationMessage = {
+  content: string;
+  createdAt?: string;
+  role: 'assistant' | 'user';
+};
 
 export type QuizRevisionConversationMessage = {
   content: string;
@@ -304,26 +314,49 @@ export async function generatePracticeGuideDraft(input: {
 }
 
 export async function generatePracticeGuideRevision(input: {
+  conversationHistory?: PracticeGuideRevisionConversationMessage[];
   currentPracticeGuide: PracticeGuideDraft;
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<PracticeGuideDraft> {
+}): Promise<PracticeGuideRevisionResult> {
   return generateStructuredDraft({
     actorLabel: 'Practice guide revision',
     correctionPromptPath: 'resources/practice-guide-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
+        conversationHistory: normalizePracticeGuideRevisionConversationHistory(
+          input.conversationHistory ?? [],
+        ),
         currentPracticeGuide: input.currentPracticeGuide,
         requestedChange: input.prompt,
       },
       null,
       2,
     ),
-    maxOutputTokens: 4000,
+    maxOutputTokens: 4400,
     openRouterApiKey: input.openRouterApiKey,
-    schema: practiceGuideDraftSchema,
+    schema: practiceGuideRevisionSchema,
     systemPromptPath: 'resources/practice-guide-revision.md',
   });
+}
+
+function normalizePracticeGuideRevisionConversationHistory(
+  messages: PracticeGuideRevisionConversationMessage[],
+): PracticeGuideRevisionConversationMessage[] {
+  return messages
+    .flatMap((message): PracticeGuideRevisionConversationMessage[] => {
+      const content = message.content.trim();
+      if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
+        return [];
+      }
+
+      return [{
+        content: content.slice(0, 4000),
+        createdAt: message.createdAt?.trim() || undefined,
+        role: message.role,
+      }];
+    })
+    .slice(-24);
 }
 
 export async function generateQuizDraft(input: {
@@ -405,31 +438,6 @@ function normalizeQuizRevisionConversationHistory(
       return message;
     })
     .reverse();
-}
-
-export async function generateQuizBlock(input: {
-  blockKind: string;
-  currentDraft: QuizDraft;
-  openRouterApiKey?: string | null;
-  prompt: string;
-}): Promise<QuizBlock> {
-  return generateStructuredDraft({
-    actorLabel: 'Quiz block',
-    correctionPromptPath: 'resources/quiz-block-correction.md',
-    initialUserMessage: JSON.stringify(
-      {
-        blockKind: input.blockKind,
-        currentDraft: input.currentDraft,
-        requestedBlock: input.prompt,
-      },
-      null,
-      2,
-    ),
-    maxOutputTokens: 2400,
-    openRouterApiKey: input.openRouterApiKey,
-    schema: quizBlockSchema,
-    systemPromptPath: 'resources/quiz-block.md',
-  });
 }
 
 export async function generateRoleplayDraft(input: {

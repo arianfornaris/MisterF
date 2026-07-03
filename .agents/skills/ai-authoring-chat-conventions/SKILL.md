@@ -18,8 +18,8 @@ author's credit-gated key), `bootstrap-tabs-conventions`, and
   draft flow (`generate-draft` style endpoints backed by
   `services/resourceDrafts.ts`), then revised in place.
 - Authoring chat history is persisted on the resource itself in
-  `authoring_messages_json` (quizzes and roleplays). Do not add separate
-  revision-history tables unless a feature genuinely needs them.
+  `authoring_messages_json` (quizzes, roleplays, and practice guides). Do not
+  add separate revision-history tables unless a feature genuinely needs them.
 - Pass the stored authoring history into each revision inference so the model
   sees prior instructions and its own replies.
 - Each revision returns an assistant reply for the chat plus structured JSON
@@ -28,9 +28,16 @@ author's credit-gated key), `bootstrap-tabs-conventions`, and
   failing.
 - Authoring history messages store `role`, `content`, `createdAt`, and an
   optional `draftSnapshot` of the applied result.
-- While a generation/revision is pending, show the pending state inside the
-  modal and keep the modal scrolled so the user sees progress; do not close
-  the modal until success or a visible error.
+- The `AI chat` tab must feel like a normal Mister F conversation, not a
+  blocking modal: intercept the composer submit
+  (`src/client/shared/authoringChatRevision.js`), append the teacher bubble,
+  show a `typing-caret` assistant bubble while waiting, then replace it with
+  the assistant reply or an error bubble. The revise endpoint answers JSON
+  when the request accepts `application/json` and keeps the redirect flow as
+  no-JS fallback.
+- Blocking pending modals remain only for full-page generation flows (the
+  "new resource from prompt" pages and non-chat AI actions like quiz block
+  generation); keep the modal open until success or a visible error there.
 - Credit exhaustion is product UI, not a raw error: reuse the existing
   `*CreditExhausted` view flags and buy-credits messaging.
 - System prompts for authoring live in `system-prompts/resources/`; follow

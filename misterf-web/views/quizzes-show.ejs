@@ -141,6 +141,15 @@
     </div>
     <div class="list-group shadow-sm">
       <% quizBlockOutlineItems.forEach((block) => { %>
+        <% if (block.section && block.section.isFirstBlock) { %>
+          <div class="list-group-item quiz-outline-section-header">
+            <p class="quiz-section-eyebrow mb-1">Sección <%= block.section.number %></p>
+            <% if (block.section.title) { %>
+              <h3 class="h6 mb-1 text-break"><%= block.section.title %></h3>
+            <% } %>
+            <p class="mb-0 text-body-secondary text-break"><%= block.section.instructions %></p>
+          </div>
+        <% } %>
         <article class="list-group-item">
           <div class="d-flex align-items-start gap-3">
             <span class="badge rounded-pill text-bg-light border flex-shrink-0">#<%= block.blockNumber %></span>

@@ -177,6 +177,25 @@ function parseJsonArray(value) {
 function isPlainRecord(value) {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
+function parsePracticeGuideAuthoringMessages(value) {
+    return parseJsonArray(value)
+        .flatMap((item) => {
+        if (!isPlainRecord(item)) {
+            return [];
+        }
+        const role = item.role;
+        const content = typeof item.content === 'string' ? item.content.trim() : '';
+        if ((role !== 'assistant' && role !== 'user') || !content) {
+            return [];
+        }
+        return [{
+                content,
+                createdAt: typeof item.createdAt === 'string' ? item.createdAt.trim() : '',
+                role,
+            }];
+    })
+        .slice(-50);
+}
 function parseQuizAuthoringMessages(value) {
     return parseJsonArray(value)
         .flatMap((item) => {
@@ -464,6 +483,7 @@ function toStoredLearnerProgressEvent(row) {
 function toStoredPracticeGuide(row) {
     return {
         archivedAt: row.archived_at,
+        authoringMessages: parsePracticeGuideAuthoringMessages(row.authoring_messages_json),
         id: row.id,
         profileId: row.profile_id,
         sharedVia: row.shared_via,
@@ -2816,7 +2836,8 @@ export function findPracticeGuideForUser(id, userId) {
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE id = ? AND user_id = ?
       `)
@@ -2839,7 +2860,8 @@ export function findPracticeGuideById(id) {
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE id = ?
       `)
@@ -2862,7 +2884,8 @@ export function listPracticeGuidesForProfile(userId, profileId) {
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -2949,6 +2972,17 @@ export function updatePracticeGuide(input) {
     transaction();
     return findPracticeGuideForUser(input.practiceGuideId, input.userId);
 }
+export function updatePracticeGuideAuthoringMessages(input) {
+    getDb()
+        .prepare(`
+        UPDATE practice_guides
+        SET authoring_messages_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(JSON.stringify(input.messages), input.practiceGuideId, input.userId);
+    return findPracticeGuideForUser(input.practiceGuideId, input.userId);
+}
 export function findImportedPracticeGuideForProfile(input) {
     const row = getDb()
         .prepare(`
@@ -2965,7 +2999,8 @@ export function findImportedPracticeGuideForProfile(input) {
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE user_id = ?
           AND profile_id = ?

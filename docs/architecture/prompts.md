@@ -114,8 +114,6 @@ Important files:
 - `quiz-draft-correction.md`
 - `quiz-revision.md`
 - `quiz-revision-correction.md`
-- `quiz-block.md`
-- `quiz-block-correction.md`
 - `roleplay-draft.md`
 - `roleplay-draft-correction.md`
 - `roleplay-revision.md`

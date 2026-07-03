@@ -6,11 +6,9 @@ import {
   handleCreateQuizFollowUpConversation,
   handleCreateQuizResource,
   handleDeleteQuizBlock,
-  handleDeleteQuizSection,
   handleDuplicateQuizBlock,
   handleGenerateQuiz,
   handleMoveQuizBlock,
-  handleSaveQuizSection,
   handleRestoreQuiz,
   handleReviseQuiz,
   handleShareQuizToProfile,
@@ -42,9 +40,6 @@ quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/delete', handleDeleteQ
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/duplicate', handleDuplicateQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-up', handleMoveQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-down', handleMoveQuizBlock);
-quizzesRouter.post('/quizzes/:quizId/edit/sections', handleSaveQuizSection);
-quizzesRouter.post('/quizzes/:quizId/edit/sections/:sectionId/update', handleSaveQuizSection);
-quizzesRouter.post('/quizzes/:quizId/edit/sections/:sectionId/delete', handleDeleteQuizSection);
 quizzesRouter.get('/quizzes/:quizId', renderQuizShowPage);
 quizzesRouter.post('/quizzes/:quizId/share/profile', handleShareQuizToProfile);
 quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);

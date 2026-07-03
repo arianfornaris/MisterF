@@ -103,6 +103,10 @@ describe('database migrations', () => {
         id: 12,
         name: 'add_roleplay_resources',
       },
+      {
+        id: 13,
+        name: 'add_practice_guide_authoring_messages',
+      },
     ]);
 
     const tableNames = (db

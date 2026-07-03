@@ -394,102 +394,6 @@ export function canonicalizeQuizDraftBlockOrder(draft: QuizDraft): QuizDraft {
   });
 }
 
-export function upsertQuizSection(
-  draft: QuizDraft,
-  input: {
-    blockIds: string[];
-    instructions: string;
-    sectionId?: string;
-    title: string;
-  },
-): QuizDraft {
-  const existingSection = input.sectionId
-    ? draft.sections.find((section) => section.id === input.sectionId)
-    : undefined;
-  const sectionId = existingSection
-    ? existingSection.id
-    : ensureUniqueSectionId(input.title || 'seccion', draft.sections);
-  const nextSection = {
-    id: sectionId,
-    instructions: input.instructions,
-    ...(input.title ? { title: input.title } : {}),
-  };
-  const sections = existingSection
-    ? draft.sections.map((section) => (section.id === sectionId ? nextSection : section))
-    : [...draft.sections, nextSection];
-  const memberBlockIds = new Set(input.blockIds);
-  const blocks = draft.blocks.map((block) => {
-    if (memberBlockIds.has(block.id)) {
-      return { ...block, sectionId };
-    }
-
-    if (block.sectionId === sectionId) {
-      const { sectionId: _removed, ...rest } = block;
-      return rest;
-    }
-
-    return block;
-  });
-
-  return canonicalizeQuizDraftBlockOrder(
-    quizDraftSchema.parse({
-      ...draft,
-      blocks,
-      sections,
-    }),
-  );
-}
-
-export function removeQuizSection(
-  draft: QuizDraft,
-  sectionId: string,
-): QuizDraft {
-  if (!draft.sections.some((section) => section.id === sectionId)) {
-    return draft;
-  }
-
-  return quizDraftSchema.parse({
-    ...draft,
-    blocks: draft.blocks.map((block) => {
-      if (block.sectionId !== sectionId) {
-        return block;
-      }
-
-      const { sectionId: _removed, ...rest } = block;
-      return rest;
-    }),
-    sections: draft.sections.filter((section) => section.id !== sectionId),
-  });
-}
-
-export function appendQuizBlock(
-  draft: QuizDraft,
-  block: QuizBlock,
-): QuizDraft {
-  const lastBlock = draft.blocks[draft.blocks.length - 1];
-  const validSectionIds = new Set(draft.sections.map((section) => section.id));
-  // Keep the new block at the visual end of the list: reuse its sectionId
-  // only when valid, otherwise inherit the section of the last block.
-  const sectionId =
-    block.sectionId && validSectionIds.has(block.sectionId)
-      ? block.sectionId
-      : lastBlock?.sectionId;
-
-  return canonicalizeQuizDraftBlockOrder(
-    quizDraftSchema.parse({
-      ...draft,
-      blocks: [
-        ...draft.blocks,
-        {
-          id: ensureUniqueBlockId(block.id, draft.blocks),
-          item: block.item,
-          ...(sectionId ? { sectionId } : {}),
-        },
-      ],
-    }),
-  );
-}
-
 export function removeQuizBlock(
   draft: QuizDraft,
   blockId: string,
@@ -841,10 +745,6 @@ function normalizeStoredResponses(values: unknown[]): Array<Record<string, unkno
 
 function ensureUniqueBlockId(id: string, blocks: QuizBlock[]): string {
   return ensureUniqueEntityId(id, 'block', new Set(blocks.map((block) => block.id)));
-}
-
-function ensureUniqueSectionId(id: string, sections: QuizSection[]): string {
-  return ensureUniqueEntityId(id, 'seccion', new Set(sections.map((section) => section.id)));
 }
 
 function ensureUniqueEntityId(

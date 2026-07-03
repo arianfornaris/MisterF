@@ -1,7 +1,6 @@
 import express from 'express';
 import {
   handleArchivePracticeGuide,
-  handleCreatePracticeGuide,
   handleCreatePracticeGuideConversation,
   handleDeletePracticeGuide,
   handleGeneratePracticeGuideDraft,
@@ -22,12 +21,11 @@ practiceGuidesRouter.get('/practice-guides', (_request, response) => {
 });
 practiceGuidesRouter.get('/practice-guides/new', renderNewPracticeGuidePage);
 practiceGuidesRouter.post('/practice-guides/generate-draft', handleGeneratePracticeGuideDraft);
-practiceGuidesRouter.post('/practice-guides', handleCreatePracticeGuide);
 practiceGuidesRouter.get('/practice-guides/shared/:shareId/start', handleStartSharedPracticeGuide);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId/edit', renderEditPracticeGuidePage);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId', renderPracticeGuideDetailPage);
-practiceGuidesRouter.post('/practice-guides/:practiceGuideId/revise', handleRevisePracticeGuide);
-practiceGuidesRouter.post('/practice-guides/:practiceGuideId', handleUpdatePracticeGuide);
+practiceGuidesRouter.post('/practice-guides/:practiceGuideId/edit/save', handleUpdatePracticeGuide);
+practiceGuidesRouter.post('/practice-guides/:practiceGuideId/edit/revise', handleRevisePracticeGuide);
 practiceGuidesRouter.post('/practice-guides/:practiceGuideId/archive', handleArchivePracticeGuide);
 practiceGuidesRouter.post('/practice-guides/:practiceGuideId/restore', handleRestorePracticeGuide);
 practiceGuidesRouter.post('/practice-guides/:practiceGuideId/delete', handleDeletePracticeGuide);

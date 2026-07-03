@@ -96,6 +96,7 @@ export type StoredResourceShareLink = {
 
 export type StoredPracticeGuide = {
   archivedAt: string | null;
+  authoringMessages: PracticeGuideAuthoringMessage[];
   id: string;
   profileId: string;
   sharedVia: 'profile' | 'link' | null;
@@ -108,6 +109,12 @@ export type StoredPracticeGuide = {
   tutorInstructions: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type PracticeGuideAuthoringMessage = {
+  content: string;
+  createdAt: string;
+  role: 'assistant' | 'user';
 };
 
 export type StoredConversationPracticeGuideSnapshot = {
@@ -479,6 +486,7 @@ type TutorConversationReportRow = {
 
 type PracticeGuideRow = {
   archived_at: string | null;
+  authoring_messages_json: string;
   id: string;
   profile_id: string;
   shared_via: 'profile' | 'link' | null;
@@ -838,6 +846,30 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 
+function parsePracticeGuideAuthoringMessages(
+  value: string | null | undefined,
+): PracticeGuideAuthoringMessage[] {
+  return parseJsonArray(value)
+    .flatMap((item): PracticeGuideAuthoringMessage[] => {
+      if (!isPlainRecord(item)) {
+        return [];
+      }
+
+      const role = item.role;
+      const content = typeof item.content === 'string' ? item.content.trim() : '';
+      if ((role !== 'assistant' && role !== 'user') || !content) {
+        return [];
+      }
+
+      return [{
+        content,
+        createdAt: typeof item.createdAt === 'string' ? item.createdAt.trim() : '',
+        role,
+      }];
+    })
+    .slice(-50);
+}
+
 function parseQuizAuthoringMessages(
   value: string | null | undefined,
 ): QuizAuthoringMessage[] {
@@ -1167,6 +1199,7 @@ function toStoredLearnerProgressEvent(
 function toStoredPracticeGuide(row: PracticeGuideRow): StoredPracticeGuide {
   return {
     archivedAt: row.archived_at,
+    authoringMessages: parsePracticeGuideAuthoringMessages(row.authoring_messages_json),
     id: row.id,
     profileId: row.profile_id,
     sharedVia: row.shared_via,
@@ -4661,7 +4694,8 @@ export function findPracticeGuideForUser(
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE id = ? AND user_id = ?
       `,
@@ -4688,7 +4722,8 @@ export function findPracticeGuideById(id: string): StoredPracticeGuide | null {
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE id = ?
       `,
@@ -4718,7 +4753,8 @@ export function listPracticeGuidesForProfile(
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -4854,6 +4890,29 @@ export function updatePracticeGuide(input: {
   return findPracticeGuideForUser(input.practiceGuideId, input.userId);
 }
 
+export function updatePracticeGuideAuthoringMessages(input: {
+  messages: PracticeGuideAuthoringMessage[];
+  practiceGuideId: string;
+  userId: string;
+}): StoredPracticeGuide | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE practice_guides
+        SET authoring_messages_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(
+      JSON.stringify(input.messages),
+      input.practiceGuideId,
+      input.userId,
+    );
+
+  return findPracticeGuideForUser(input.practiceGuideId, input.userId);
+}
+
 export function findImportedPracticeGuideForProfile(input: {
   profileId: string;
   sourcePracticeGuideId: string;
@@ -4875,7 +4934,8 @@ export function findImportedPracticeGuideForProfile(input: {
           source_practice_guide_id,
           source_user_id,
           source_profile_id,
-          shared_via
+          shared_via,
+          authoring_messages_json
         FROM practice_guides
         WHERE user_id = ?
           AND profile_id = ?

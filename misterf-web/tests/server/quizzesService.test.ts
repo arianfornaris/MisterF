@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  appendQuizBlock,
   buildQuizBlockSectionList,
   buildQuizEvaluationSections,
   quizDraftToQuizBlock,
@@ -10,9 +9,7 @@ import {
   moveQuizBlock,
   normalizeQuizResponses,
   parseQuizDraft,
-  removeQuizSection,
   safeParseQuizDraft,
-  upsertQuizSection,
 } from '../../src/server/services/quizzes.js';
 import { quizResultBlockSchema } from '../../src/server/services/llmTutor/schemas.js';
 
@@ -68,23 +65,10 @@ describe('quiz service', () => {
     })).toBeNull();
   });
 
-  it('preserves stable ids while moving and appending blocks', () => {
+  it('preserves stable ids while moving blocks', () => {
     const draft = parseQuizDraft(validDraft);
     const moved = moveQuizBlock(draft, 'choice', 'up');
     expect(moved.blocks.map((block) => block.id)).toEqual(['choice', 'open_text']);
-
-    const appended = appendQuizBlock(moved, {
-      id: 'choice',
-      item: {
-        kind: 'quiz_open_text',
-        prompt: 'Write another sentence.',
-      },
-    });
-    expect(appended.blocks.map((block) => block.id)).toEqual([
-      'choice',
-      'open_text',
-      'choice_2',
-    ]);
   });
 
   it('normalizes submitted form responses for supported quiz item kinds', () => {
@@ -205,19 +189,17 @@ describe('quiz service', () => {
     ]);
   });
 
-  it('manages section membership through upsert, move, and remove', () => {
-    const draft = parseQuizDraft(validDraft);
-    const withSection = upsertQuizSection(draft, {
-      blockIds: ['choice'],
-      instructions: 'Elige la forma correcta.',
-      title: 'Parte A',
+  it('moves blocks across section boundaries by switching membership', () => {
+    const withSection = parseQuizDraft({
+      ...validDraft,
+      blocks: [
+        validDraft.blocks[0],
+        { ...validDraft.blocks[1], sectionId: 'section_a' },
+      ],
+      sections: [
+        { id: 'section_a', instructions: 'Elige la forma correcta.', title: 'Parte A' },
+      ],
     });
-    expect(withSection.sections).toHaveLength(1);
-    const sectionId = withSection.sections[0]!.id;
-    expect(withSection.blocks.map((block) => [block.id, block.sectionId ?? null])).toEqual([
-      ['open_text', null],
-      ['choice', sectionId],
-    ]);
 
     // Moving up across the section boundary leaves the section instead of swapping.
     const movedOut = moveQuizBlock(withSection, 'choice', 'up');
@@ -227,27 +209,8 @@ describe('quiz service', () => {
     ]);
 
     // Moving down across the boundary joins the neighbor's section.
-    const movedIn = moveQuizBlock(
-      upsertQuizSection(draft, {
-        blockIds: ['choice'],
-        instructions: 'Elige la forma correcta.',
-        title: 'Parte A',
-      }),
-      'open_text',
-      'down',
-    );
-    expect(movedIn.blocks[0]?.sectionId).toBeDefined();
-
-    // Appended blocks inherit the section of the last block.
-    const appended = appendQuizBlock(withSection, {
-      id: 'extra',
-      item: { kind: 'quiz_open_text', prompt: 'Extra.' },
-    });
-    expect(appended.blocks[2]?.sectionId).toBe(sectionId);
-
-    const removed = removeQuizSection(withSection, sectionId);
-    expect(removed.sections).toEqual([]);
-    expect(removed.blocks.every((block) => block.sectionId === undefined)).toBe(true);
+    const movedIn = moveQuizBlock(withSection, 'open_text', 'down');
+    expect(movedIn.blocks[0]?.sectionId).toBe('section_a');
   });
 
   it('attaches section context to the student quiz block', () => {

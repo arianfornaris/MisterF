@@ -6,9 +6,14 @@ Do not use markdown fences.
 Do not add explanations or extra text.
 
 The only valid shape is:
-{"title":"...","description":"...","tutorInstructions":"..."}
+{
+  "assistantMessage": "A short message to the teacher explaining what changed.",
+  "guide": {"title":"...","description":"...","tutorInstructions":"..."}
+}
 
 Rules to preserve:
+- assistantMessage must be a concise teacher-facing message in Spanish unless the teacher clearly uses another language.
+- Put the complete revised guide under guide, not at the top level.
 - title must be short, clear, and plain text.
 - description and tutorInstructions must be learner/teacher-facing Spanish unless the request clearly requires another language.
 - description and tutorInstructions must be Markdown content inside the JSON string values.

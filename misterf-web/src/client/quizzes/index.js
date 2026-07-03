@@ -1,5 +1,9 @@
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
+import {
+  initializeAuthoringChatRevision,
+  stageAuthoringChatMessage,
+} from '../shared/authoringChatRevision.js';
 import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
@@ -125,6 +129,44 @@ function initializeQuizPendingUi() {
       }
     });
   }
+}
+
+/**
+ * "Agregar bloque" is a shortcut into the AI chat: compose the message from
+ * the selected block kind plus the teacher's prompt, stage it, and jump to
+ * the chat tab where it is sent through the normal conversational flow. If
+ * anything is missing the form falls back to its regular POST.
+ */
+function initializeQuizAddBlockShortcut() {
+  const formEl = document.querySelector('[data-quiz-add-block-form]');
+  if (!(formEl instanceof HTMLFormElement)) {
+    return;
+  }
+
+  formEl.addEventListener('submit', (event) => {
+    const chatUrl = formEl.dataset.quizAddBlockChatUrl;
+    const promptEl = formEl.querySelector('textarea[name="prompt"]');
+    const kindEl = formEl.querySelector('input[name="blockKind"]:checked');
+    if (!chatUrl || !(promptEl instanceof HTMLTextAreaElement)) {
+      return;
+    }
+
+    const prompt = promptEl.value.trim();
+    if (!prompt) {
+      return;
+    }
+
+    const kindLabel = kindEl instanceof HTMLInputElement ? kindEl.dataset.kindLabel || '' : '';
+    const message = kindLabel
+      ? `Agrega un bloque de tipo "${kindLabel}": ${prompt}`
+      : `Agrega un bloque: ${prompt}`;
+    if (!stageAuthoringChatMessage(message)) {
+      return;
+    }
+
+    event.preventDefault();
+    window.location.assign(chatUrl);
+  });
 }
 
 function initializeQuizQuizUi() {
@@ -499,7 +541,9 @@ initializeQuizQuizUi();
 initializeQuizResultUi();
 initializeQuizSharingUi();
 initializeQuizPendingUi();
+initializeQuizAddBlockShortcut();
 initializeAuthoringChatScroll();
+initializeAuthoringChatRevision();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
 initializeStaticMarkdown();

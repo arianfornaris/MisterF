@@ -606,8 +606,14 @@ Important fields:
 - `title`
 - `description`
 - `tutorInstructions`
+- `authoringMessages`
 - archive/share metadata
 - optional source metadata
+
+`authoringMessages` stores the lightweight teacher/assistant chat history used
+by the practice guide authoring `AI chat` tab, mirroring the quiz authoring
+chat. The history is sent as context when the teacher asks Mr. F to revise the
+guide, but the stored guide fields remain the source of truth.
 
 ### Practice Guide Share Links
 

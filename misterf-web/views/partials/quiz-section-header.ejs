@@ -1,12 +1,9 @@
 <%
   // Params: section, quizSectionMode ('design' | 'student'), sectionNumber,
-  // and in design mode: csrfToken, selectedQuiz, sectionBlockCount.
+  // and in design mode: sectionBlockCount. Sections are managed through the
+  // AI chat tab, so this header is display-only.
   const isSectionDesignMode = quizSectionMode === 'design';
   const sectionHeading = section.title || `Sección ${sectionNumber}`;
-  const quizSectionEditBasePath =
-    isSectionDesignMode && typeof selectedQuiz !== 'undefined' && selectedQuiz
-      ? `/quizzes/${encodeURIComponent(selectedQuiz.id)}/edit/sections/${encodeURIComponent(section.id)}`
-      : '';
 %>
 <div class="quiz-section-header" id="quiz-section-<%= section.id %>">
   <div class="quiz-section-header-main">
@@ -17,39 +14,4 @@
       <p class="small text-body-secondary mt-2 mb-0">Sin bloques asignados todavía.</p>
     <% } %>
   </div>
-  <% if (isSectionDesignMode) { %>
-    <div class="dropdown quiz-section-menu">
-      <button
-        class="btn btn-sm btn-link link-body-emphasis text-decoration-none p-0 resource-card-menu-button"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
-        aria-label="Acciones de la sección <%= sectionNumber %>"
-        title="Acciones de la sección"
-      >
-        <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li>
-          <button
-            class="dropdown-item"
-            type="button"
-            data-bs-toggle="modal"
-            data-bs-target="#quizEditSectionModal-<%= section.id %>"
-          >
-            <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar
-          </button>
-        </li>
-        <li><hr class="dropdown-divider"></li>
-        <li>
-          <form method="post" action="<%= quizSectionEditBasePath %>/delete">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <button class="dropdown-item text-danger" type="submit">
-              <i class="bi bi-trash me-2" aria-hidden="true"></i>Eliminar sección
-            </button>
-          </form>
-        </li>
-      </ul>
-    </div>
-  <% } %>
 </div>

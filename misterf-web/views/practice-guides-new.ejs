@@ -1,0 +1,74 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-resource-view practice-guides-page">
+  <div class="resource-page-header resource-page-header-has-close">
+    <div>
+      <p class="resource-eyebrow">Guías de práctica</p>
+      <h1>Nueva guía de práctica</h1>
+    </div>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/resources"
+        title="Cerrar"
+        aria-label="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (generationError) { %>
+    <div class="alert <%= generationCreditExhausted ? 'alert-warning' : 'alert-danger' %>" role="alert">
+      <p class="mb-<%= generationCreditExhausted ? '2' : '0' %>"><%= generationError %></p>
+      <% if (generationCreditExhausted) { %>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent('/practice-guides/new') %>">Comprar créditos</a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <div class="card resource-form-card">
+    <div class="card-body">
+      <form method="post" action="/practice-guides/generate-draft" data-resource-generate-form>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="mb-3">
+          <label class="form-label" for="practiceGuidePrompt">Describe la guía</label>
+          <textarea
+            class="form-control"
+            id="practiceGuidePrompt"
+            name="prompt"
+            rows="10"
+            required
+            placeholder="Ejemplo: una guía para practicar conversación sobre viajes con estudiantes A2, corrigiendo el pasado simple..."
+          ><%= generationPrompt || '' %></textarea>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" type="submit" data-resource-generate-submit data-loading-text="Creando...">
+            <i class="bi bi-stars me-1" aria-hidden="true"></i>Crear guía
+          </button>
+          <a class="btn btn-outline-secondary" href="/resources">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div
+  class="modal fade"
+  tabindex="-1"
+  aria-hidden="true"
+  data-resource-pending-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0">Creando la guía...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'practice-guides-client-script' }) %>

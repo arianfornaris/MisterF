@@ -1,14 +1,21 @@
 <%- include('partials/app-shell-open') %>
 
 <section class="app-resource-view quizzes-page">
-  <div class="resource-page-header">
+  <div class="resource-page-header resource-page-header-has-close">
     <div>
       <p class="resource-eyebrow">Quizzes</p>
       <h1>Nuevo quiz</h1>
     </div>
-    <a class="btn btn-outline-secondary" href="/resources">
-      <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Volver
-    </a>
+    <div class="resource-page-header-actions">
+      <a
+        class="resource-page-close-button"
+        href="/resources"
+        title="Cerrar"
+        aria-label="Cerrar"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
   </div>
 
   <% if (generationError) { %>

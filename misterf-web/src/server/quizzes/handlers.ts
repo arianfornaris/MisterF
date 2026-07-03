@@ -39,7 +39,6 @@ import {
   getHomeAuthMessage,
 } from '../pages/shell.js';
 import {
-  appendQuizBlock,
   buildQuizBlockSectionList,
   quizDraftToStudentQuizBlock,
   buildQuizEvaluationSummary,
@@ -51,14 +50,11 @@ import {
   moveQuizBlock,
   normalizeQuizResponses,
   removeQuizBlock,
-  removeQuizSection,
   safeParseQuizDraft,
   storedQuizToDraft,
-  upsertQuizSection,
   type QuizDraft,
 } from '../services/quizzes.js';
 import {
-  generateQuizBlock,
   generateQuizDraft,
   generateQuizRevision,
 } from '../services/resourceDrafts.js';
@@ -85,6 +81,12 @@ type QuizBlockOutlineItem = {
   kindLabel: string;
   metaItems: string[];
   prompt: string;
+  section: {
+    instructions: string;
+    isFirstBlock: boolean;
+    number: number;
+    title: string;
+  } | null;
   sentence: string;
 };
 
@@ -213,10 +215,13 @@ function saveQuizAuthoringTurn(input: {
 }
 
 function buildQuizBlockOutlineItems(draft: QuizDraft): QuizBlockOutlineItem[] {
+  const sectionList = buildQuizBlockSectionList(draft);
   return draft.blocks.map((block, index) => {
     const item = block.item;
     const kind = quizBlockKinds.find((candidate) => candidate.value === item.kind);
     const metaItems: string[] = [];
+    const section = sectionList[index];
+    const previousSection = index > 0 ? sectionList[index - 1] : null;
     let sentence = '';
 
     if (
@@ -252,9 +257,21 @@ function buildQuizBlockOutlineItems(draft: QuizDraft): QuizBlockOutlineItem[] {
       kindLabel: kind?.label ?? formatFallbackBlockKindLabel(item.kind),
       metaItems,
       prompt: item.prompt,
+      section: section
+        ? {
+            instructions: section.instructions,
+            isFirstBlock: !previousSection || previousSection.id !== section.id,
+            number: draft.sections.findIndex((candidate) => candidate.id === section.id) + 1,
+            title: section.title || '',
+          }
+        : null,
       sentence,
     };
   });
+}
+
+function wantsJsonResponse(request: Request): boolean {
+  return Boolean(request.get('accept')?.includes('application/json'));
 }
 
 function ensureVerifiedQuizUser(
@@ -882,6 +899,11 @@ export async function handleReviseQuiz(
   const draft = safeParseQuizDraft(resolved.quiz.quiz);
   const userMessage = readMultilineField(request.body.message, 4000);
   if (!draft || userMessage.length < 3) {
+    if (wantsJsonResponse(request)) {
+      response.status(422).json({ error: 'Escribe el cambio que quieres hacer.' });
+      return;
+    }
+
     renderQuizAuthoring(request, response, {
       ...resolved,
       activeTab: 'chat',
@@ -922,6 +944,11 @@ export async function handleReviseQuiz(
         userId: resolved.user.id,
         userMessage,
       });
+      if (wantsJsonResponse(request)) {
+        response.status(422).json({ error: 'No pude aplicar ese cambio ahora mismo.' });
+        return;
+      }
+
       renderQuizAuthoring(request, response.status(422), {
         ...resolved,
         activeTab: 'chat',
@@ -938,9 +965,15 @@ export async function handleReviseQuiz(
       userId: resolved.user.id,
     });
 
+    if (wantsJsonResponse(request)) {
+      response.json({ assistantMessage: revision.assistantMessage });
+      return;
+    }
+
     response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'chat'));
   } catch (error) {
-    const failureMessage = isCreditExhaustedError(error)
+    const isCreditError = isCreditExhaustedError(error);
+    const failureMessage = isCreditError
       ? getCreditExhaustedMessage()
       : 'No pude aplicar ese cambio ahora mismo.';
     const quizWithFailureMessage = saveQuizAuthoringTurn({
@@ -956,6 +989,15 @@ export async function handleReviseQuiz(
       resourceType: 'quiz',
       userId: resolved.user.id,
     });
+
+    if (wantsJsonResponse(request)) {
+      response.status(422).json({
+        creditExhausted: isCreditError,
+        error: failureMessage,
+      });
+      return;
+    }
+
     renderQuizAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'chat',
@@ -965,6 +1007,13 @@ export async function handleReviseQuiz(
   }
 }
 
+/**
+ * "Agregar bloque" is a shortcut into the authoring AI chat: it composes a
+ * chat message from the selected block kind plus the teacher's prompt and
+ * runs the normal revision flow. This is the no-JS fallback path; with
+ * JavaScript the client stages the same message and sends it from the chat
+ * tab directly.
+ */
 export async function handleAddQuizBlock(
   request: Request,
   response: Response,
@@ -974,10 +1023,9 @@ export async function handleAddQuizBlock(
     return;
   }
 
-  const draft = safeParseQuizDraft(resolved.quiz.quiz);
   const blockKind = readField(request.body.blockKind, 120);
   const prompt = readMultilineField(request.body.prompt, 3000);
-  if (!draft || prompt.length < 3) {
+  if (prompt.length < 3) {
     renderQuizAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'blocks',
@@ -986,154 +1034,14 @@ export async function handleAddQuizBlock(
     return;
   }
 
-  try {
-    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
-    const block = await generateQuizBlock({
-      blockKind,
-      currentDraft: draft,
-      openRouterApiKey,
-      prompt,
-    });
-    const updatedDraft = appendQuizBlock(draft, block);
-    const updatedQuiz = updateQuizWithDraft(
-      resolved.quiz,
-      resolved.user.id,
-      updatedDraft,
-    );
-    if (!updatedQuiz) {
-      renderQuizAuthoring(request, response.status(422), {
-        ...resolved,
-        activeTab: 'blocks',
-        error: 'No pude guardar ese bloque ahora mismo.',
-      });
-      return;
-    }
-    logger.info('quiz_block_added', {
-      quizId: resolved.quiz.id,
-      blockCount: updatedDraft.blocks.length,
-      blockKind: block.item.kind,
-      resourceId: resolved.quiz.id,
-      resourceType: 'quiz',
-      userId: resolved.user.id,
-    });
-
-    response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
-  } catch (error) {
-    logger.error('quiz_block_generation_failed', {
-      quizId: resolved.quiz.id,
-      error,
-      resourceId: resolved.quiz.id,
-      resourceType: 'quiz',
-      userId: resolved.user.id,
-    });
-    renderQuizAuthoring(request, response.status(422), {
-      ...resolved,
-      activeTab: 'blocks',
-      error: isCreditExhaustedError(error)
-        ? getCreditExhaustedMessage()
-        : 'No pude crear ese bloque ahora mismo.',
-    });
-  }
+  request.body.message = buildAddQuizBlockChatMessage(blockKind, prompt);
+  await handleReviseQuiz(request, response);
 }
 
-export function handleSaveQuizSection(request: Request, response: Response): void {
-  const resolved = resolveOwnQuiz(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  const draft = safeParseQuizDraft(resolved.quiz.quiz);
-  const sectionId = readField(request.params.sectionId, 120) || undefined;
-  const title = readField(request.body.title, 200);
-  const instructions = readMultilineField(request.body.instructions, 2000);
-  const blockIds = readFieldList(request.body.blockIds, 120);
-  if (!draft || !instructions) {
-    renderQuizAuthoring(request, response.status(422), {
-      ...resolved,
-      activeTab: 'blocks',
-      error: 'Escribe las instrucciones de la sección para el estudiante.',
-    });
-    return;
-  }
-
-  const updatedDraft = upsertQuizSection(draft, {
-    blockIds,
-    instructions,
-    sectionId,
-    title,
-  });
-  const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
-  if (!updatedQuiz) {
-    renderQuizAuthoring(request, response.status(422), {
-      ...resolved,
-      activeTab: 'blocks',
-      error: 'No pude guardar la sección ahora mismo.',
-    });
-    return;
-  }
-
-  logger.info('quiz_section_saved', {
-    quizId: resolved.quiz.id,
-    blockCount: blockIds.length,
-    resourceId: resolved.quiz.id,
-    resourceType: 'quiz',
-    sectionCount: updatedDraft.sections.length,
-    userId: resolved.user.id,
-  });
-  response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
-}
-
-export function handleDeleteQuizSection(request: Request, response: Response): void {
-  const resolved = resolveOwnQuiz(request, response);
-  if (!resolved) {
-    return;
-  }
-
-  const draft = safeParseQuizDraft(resolved.quiz.quiz);
-  const sectionId = readField(request.params.sectionId, 120);
-  if (!draft || !sectionId) {
-    response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
-    return;
-  }
-
-  const updatedDraft = removeQuizSection(draft, sectionId);
-  const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
-  if (!updatedQuiz) {
-    renderQuizAuthoring(request, response.status(422), {
-      ...resolved,
-      activeTab: 'blocks',
-      error: 'No pude eliminar la sección ahora mismo.',
-    });
-    return;
-  }
-
-  logger.info('quiz_section_deleted', {
-    quizId: resolved.quiz.id,
-    resourceId: resolved.quiz.id,
-    resourceType: 'quiz',
-    sectionCount: updatedDraft.sections.length,
-    sectionId,
-    userId: resolved.user.id,
-  });
-  response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
-}
-
-function readFieldList(value: unknown, maxLength: number): string[] {
-  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const item of values) {
-    const normalized = readField(item, maxLength);
-    if (!normalized || seen.has(normalized)) {
-      continue;
-    }
-
-    seen.add(normalized);
-    result.push(normalized);
-  }
-
-  return result;
+function buildAddQuizBlockChatMessage(blockKind: string, prompt: string): string {
+  const kind = quizBlockKinds.find((candidate) => candidate.value === blockKind);
+  const kindLabel = kind?.label ?? 'el tipo que mejor encaje';
+  return `Agrega un bloque de tipo "${kindLabel}": ${prompt}`;
 }
 
 export function handleDeleteQuizBlock(request: Request, response: Response): void {

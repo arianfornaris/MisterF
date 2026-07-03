@@ -19,6 +19,9 @@ import {
   listConversationsForPracticeGuide,
   restorePracticeGuideForUser,
   updatePracticeGuide,
+  updatePracticeGuideAuthoringMessages,
+  type PracticeGuideAuthoringMessage,
+  type StoredPracticeGuide,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import {
@@ -40,44 +43,74 @@ import { logger } from '../services/logger.js';
 
 type PracticeGuidePageKind = 'new' | 'detail' | 'edit';
 
-type PracticeGuideFormValues = {
-  description: string;
-  title: string;
-  tutorInstructions: string;
-};
+type PracticeGuideAuthoringTab = 'chat' | 'general';
 
-type PracticeGuideDraftFormValues = {
-  practiceGuideGenerationCreditExhausted?: boolean;
-  practiceGuideFormValues?: PracticeGuideFormValues;
-  practiceGuideGenerationError?: string;
-  practiceGuideGenerationModalAutoOpen?: boolean;
-  practiceGuideGenerationPrompt?: string;
-  practiceGuideRevisionCreditExhausted?: boolean;
-  practiceGuideRevisionError?: string;
-  practiceGuideRevisionModalAutoOpen?: boolean;
-  practiceGuideRevisionPrompt?: string;
-  practiceGuideRevisionSuccess?: boolean;
-};
+const defaultPracticeGuideAuthoringTab: PracticeGuideAuthoringTab = 'general';
+const maxPracticeGuideAuthoringMessages = 40;
+const maxPracticeGuideAuthoringMessageLength = 6000;
 
-const emptyPracticeGuideFormValues: PracticeGuideFormValues = {
-  description: '',
-  title: '',
-  tutorInstructions: '',
-};
+function readPracticeGuideAuthoringTab(value: unknown): PracticeGuideAuthoringTab {
+  const tab = String(value || '').trim();
+  return tab === 'chat' ? 'chat' : defaultPracticeGuideAuthoringTab;
+}
 
-function getDefaultPracticeGuideFormValues(
-  pageKind: PracticeGuidePageKind,
-  selectedPracticeGuide: ReturnType<typeof findPracticeGuideForUser>,
-): PracticeGuideFormValues {
-  if (pageKind !== 'edit' || !selectedPracticeGuide) {
-    return emptyPracticeGuideFormValues;
-  }
+function buildPracticeGuideAuthoringPath(
+  practiceGuideId: string,
+  tab: PracticeGuideAuthoringTab,
+): string {
+  return `/practice-guides/${encodeURIComponent(practiceGuideId)}/edit?tab=${tab}`;
+}
 
+function normalizePracticeGuideAuthoringMessageContent(content: string): string {
+  return content.trim().slice(0, maxPracticeGuideAuthoringMessageLength);
+}
+
+function createPracticeGuideAuthoringMessage(
+  role: PracticeGuideAuthoringMessage['role'],
+  content: string,
+): PracticeGuideAuthoringMessage {
   return {
-    description: selectedPracticeGuide.description,
-    title: selectedPracticeGuide.title,
-    tutorInstructions: selectedPracticeGuide.tutorInstructions,
+    content: normalizePracticeGuideAuthoringMessageContent(content),
+    createdAt: new Date().toISOString(),
+    role,
   };
+}
+
+function appendPracticeGuideAuthoringMessages(
+  existingMessages: PracticeGuideAuthoringMessage[],
+  ...messages: PracticeGuideAuthoringMessage[]
+): PracticeGuideAuthoringMessage[] {
+  return [...existingMessages, ...messages]
+    .flatMap((message): PracticeGuideAuthoringMessage[] => {
+      const content = normalizePracticeGuideAuthoringMessageContent(message.content);
+      if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
+        return [];
+      }
+
+      return [{
+        content,
+        createdAt: message.createdAt || new Date().toISOString(),
+        role: message.role,
+      }];
+    })
+    .slice(-maxPracticeGuideAuthoringMessages);
+}
+
+function savePracticeGuideAuthoringTurn(input: {
+  assistantMessage: string;
+  practiceGuide: StoredPracticeGuide;
+  userId: string;
+  userMessage: string;
+}): StoredPracticeGuide | null {
+  return updatePracticeGuideAuthoringMessages({
+    messages: appendPracticeGuideAuthoringMessages(
+      input.practiceGuide.authoringMessages,
+      createPracticeGuideAuthoringMessage('user', input.userMessage),
+      createPracticeGuideAuthoringMessage('assistant', input.assistantMessage),
+    ),
+    practiceGuideId: input.practiceGuide.id,
+    userId: input.userId,
+  });
 }
 
 function redirectUnauthedPracticeGuides(response: Response): void {
@@ -273,7 +306,6 @@ async function renderPracticeGuidesPage(
   request: Request,
   response: Response,
   pageKind: PracticeGuidePageKind,
-  overrides: PracticeGuideDraftFormValues = {},
 ): Promise<void> {
   const viewModel = await buildPracticeGuidesPageModel(request, response, pageKind);
   if (!viewModel) {
@@ -291,20 +323,7 @@ async function renderPracticeGuidesPage(
       user: viewModel.user,
     }),
     practiceGuideConversations: viewModel.practiceGuideConversations,
-    practiceGuideFormValues: getDefaultPracticeGuideFormValues(
-      pageKind,
-      viewModel.selectedPracticeGuide,
-    ),
-    practiceGuideGenerationCreditExhausted: false,
-    practiceGuideGenerationError: '',
-    practiceGuideGenerationModalAutoOpen: false,
-    practiceGuideGenerationPrompt: '',
     practiceGuidePageMode: viewModel.practiceGuidePageMode,
-    practiceGuideRevisionCreditExhausted: false,
-    practiceGuideRevisionError: '',
-    practiceGuideRevisionModalAutoOpen: false,
-    practiceGuideRevisionPrompt: '',
-    practiceGuideRevisionSuccess: String(request.query.aiRevision || '') === 'success',
     canManagePracticeGuide: viewModel.canManagePracticeGuide,
     practiceGuideShareQrDataUrl: viewModel.practiceGuideShareQrDataUrl,
     practiceGuideShareUrl: viewModel.practiceGuideShareUrl,
@@ -316,63 +335,196 @@ async function renderPracticeGuidesPage(
     selectedPracticeGuideSharedFromProfileName:
       viewModel.selectedPracticeGuideSharedFromProfileName,
     shareTargetPracticeGuideProfiles: viewModel.shareTargetPracticeGuideProfiles,
-    ...overrides,
   });
 }
 
-export function renderNewPracticeGuidePage(request: Request, response: Response) {
-  return renderPracticeGuidesPage(request, response, 'new');
+function ensureVerifiedPracticeGuideUser(
+  request: Request,
+  response: Response,
+): { activeProfile: NonNullable<Request['activeProfile']>; user: NonNullable<Request['authUser']> } | null {
+  const user = request.authUser;
+  const activeProfile = request.activeProfile;
+
+  if (!user?.emailVerified || !activeProfile) {
+    response.redirect('/login');
+    return null;
+  }
+
+  return { activeProfile, user };
+}
+
+function resolveOwnPracticeGuide(
+  request: Request,
+  response: Response,
+): {
+  activeProfile: NonNullable<Request['activeProfile']>;
+  practiceGuide: StoredPracticeGuide;
+  user: NonNullable<Request['authUser']>;
+} | null {
+  const auth = ensureVerifiedPracticeGuideUser(request, response);
+  if (!auth) {
+    return null;
+  }
+
+  const practiceGuideId = String(request.params.practiceGuideId || '').trim();
+  const practiceGuide = findPracticeGuideForUser(practiceGuideId, auth.user.id);
+  if (!practiceGuide) {
+    response.redirect('/resources');
+    return null;
+  }
+
+  let activeProfile = auth.activeProfile;
+  if (practiceGuide.profileId !== activeProfile.id) {
+    const profile = findProfileForUser(practiceGuide.profileId, auth.user.id);
+    if (!profile) {
+      response.redirect('/resources');
+      return null;
+    }
+
+    activeProfile = profile;
+    setActiveProfileCookie(response, profile.id);
+  }
+
+  return { activeProfile, practiceGuide, user: auth.user };
+}
+
+function renderPracticeGuideAuthoring(
+  request: Request,
+  response: Response,
+  input: {
+    activeProfile: NonNullable<Request['activeProfile']>;
+    activeTab?: PracticeGuideAuthoringTab;
+    error?: string;
+    practiceGuide: StoredPracticeGuide;
+    user: NonNullable<Request['authUser']>;
+  },
+): void {
+  response.render('practice-guides-authoring', {
+    ...buildAppShellContext({
+      activeProfile: input.activeProfile,
+      authMessage: getHomeAuthMessage(request, input.user),
+      currentView: 'resources',
+      guestInitialGreeting: '',
+      request,
+      title: `${input.practiceGuide.title} - ${appDocumentTitle}`,
+      user: input.user,
+    }),
+    activeTab: input.activeTab ?? defaultPracticeGuideAuthoringTab,
+    authoringError: input.error || '',
+    practiceGuideAuthoringMessages: input.practiceGuide.authoringMessages,
+    selectedPracticeGuide: input.practiceGuide,
+  });
+}
+
+export function renderNewPracticeGuidePage(request: Request, response: Response): void {
+  const auth = ensureVerifiedPracticeGuideUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  renderPracticeGuideNewView(request, response, {
+    activeProfile: auth.activeProfile,
+    generationError: '',
+    generationPrompt: '',
+    user: auth.user,
+  });
+}
+
+function renderPracticeGuideNewView(
+  request: Request,
+  response: Response,
+  input: {
+    activeProfile: NonNullable<Request['activeProfile']>;
+    generationCreditExhausted?: boolean;
+    generationError: string;
+    generationPrompt: string;
+    user: NonNullable<Request['authUser']>;
+  },
+): void {
+  response.render('practice-guides-new', {
+    ...buildAppShellContext({
+      activeProfile: input.activeProfile,
+      authMessage: getHomeAuthMessage(request, input.user),
+      currentView: 'resources',
+      guestInitialGreeting: '',
+      request,
+      title: `Nueva guía de práctica - ${appDocumentTitle}`,
+      user: input.user,
+    }),
+    generationCreditExhausted: Boolean(input.generationCreditExhausted),
+    generationError: input.generationError,
+    generationPrompt: input.generationPrompt,
+  });
 }
 
 export async function handleGeneratePracticeGuideDraft(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const user = request.authUser;
-  const activeProfile = request.activeProfile;
-  if (!user?.emailVerified || !activeProfile) {
-    response.redirect('/login');
+  const auth = ensureVerifiedPracticeGuideUser(request, response);
+  if (!auth) {
     return;
   }
 
-  const prompt = typeof request.body.prompt === 'string' ? request.body.prompt.trim() : '';
-  if (!prompt) {
-    response.redirect('/practice-guides/new');
+  const prompt = readMultilineField(request.body.prompt, 6000);
+  if (prompt.length < 10) {
+    renderPracticeGuideNewView(request, response.status(422), {
+      activeProfile: auth.activeProfile,
+      generationError: 'Describe un poco mejor la guía.',
+      generationPrompt: prompt,
+      user: auth.user,
+    });
     return;
   }
 
   try {
-    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = await generatePracticeGuideDraft({
       openRouterApiKey,
       prompt,
     });
     const practiceGuide = createPracticeGuide({
       description: draft.description,
-      profileId: activeProfile.id,
+      profileId: auth.activeProfile.id,
       title: draft.title,
       tutorInstructions: draft.tutorInstructions,
-      userId: user.id,
+      userId: auth.user.id,
+    });
+    updatePracticeGuideAuthoringMessages({
+      messages: appendPracticeGuideAuthoringMessages(
+        [],
+        createPracticeGuideAuthoringMessage('user', prompt),
+        createPracticeGuideAuthoringMessage(
+          'assistant',
+          `Listo. Creé una primera versión de "${draft.title}".`,
+        ),
+      ),
+      practiceGuideId: practiceGuide.id,
+      userId: auth.user.id,
     });
     logger.info('practice_guide_created_from_prompt', {
-      profileId: activeProfile.id,
+      profileId: auth.activeProfile.id,
       resourceId: practiceGuide.id,
       resourceType: 'practice_guide',
-      userId: user.id,
+      userId: auth.user.id,
     });
-    response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
+    response.redirect(
+      buildPracticeGuideAuthoringPath(practiceGuide.id, defaultPracticeGuideAuthoringTab),
+    );
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
-    await renderPracticeGuidesPage(request, response, 'new', {
-      practiceGuideGenerationCreditExhausted: isCreditError,
-      practiceGuideGenerationError:
-        isCreditError
-          ? getCreditExhaustedMessage()
-          : error instanceof Error && error.message
-          ? error.message
-          : 'No pude generar la guía automáticamente.',
-      practiceGuideGenerationModalAutoOpen: true,
-      practiceGuideGenerationPrompt: prompt,
+    logger.error('practice_guide_generation_failed', {
+      error,
+      userId: auth.user.id,
+    });
+    renderPracticeGuideNewView(request, response.status(422), {
+      activeProfile: auth.activeProfile,
+      generationCreditExhausted: isCreditError,
+      generationError: isCreditError
+        ? getCreditExhaustedMessage()
+        : 'No pude generar la guía ahora mismo. Inténtalo otra vez.',
+      generationPrompt: prompt,
+      user: auth.user,
     });
   }
 }
@@ -381,122 +533,123 @@ export function renderPracticeGuideDetailPage(request: Request, response: Respon
   return renderPracticeGuidesPage(request, response, 'detail');
 }
 
-export function renderEditPracticeGuidePage(request: Request, response: Response) {
-  return renderPracticeGuidesPage(request, response, 'edit');
+export function renderEditPracticeGuidePage(request: Request, response: Response): void {
+  const resolved = resolveOwnPracticeGuide(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  renderPracticeGuideAuthoring(request, response, {
+    ...resolved,
+    activeTab: readPracticeGuideAuthoringTab(request.query.tab),
+  });
 }
 
-export function handleCreatePracticeGuide(request: Request, response: Response): void {
-  const user = request.authUser;
-  const activeProfile = request.activeProfile;
-  if (!user?.emailVerified || !activeProfile) {
-    response.redirect('/login');
-    return;
-  }
-
-  const title = String(request.body.title || '').trim();
-  const description = String(request.body.description || '').trim();
-  const tutorInstructions = String(request.body.tutorInstructions || '').trim();
-
-  if (!title || !description || !tutorInstructions) {
-    response.redirect('/practice-guides/new');
-    return;
-  }
-
-  const practiceGuide = createPracticeGuide({
-    profileId: activeProfile.id,
-    userId: user.id,
-    title,
-    description,
-    tutorInstructions,
-  });
-  logger.info('practice_guide_created', {
-    profileId: activeProfile.id,
-    resourceId: practiceGuide.id,
-    resourceType: 'practice_guide',
-    userId: user.id,
-  });
-
-  response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
+function wantsJsonResponse(request: Request): boolean {
+  return Boolean(request.get('accept')?.includes('application/json'));
 }
 
 export async function handleRevisePracticeGuide(
   request: Request,
   response: Response,
 ): Promise<void> {
-  const user = request.authUser;
-  if (!user?.emailVerified) {
-    response.redirect('/login');
+  const resolved = resolveOwnPracticeGuide(request, response);
+  if (!resolved) {
     return;
   }
 
-  const practiceGuideId = String(request.params.practiceGuideId || '').trim();
-  const requestedChange = readMultilineField(request.body.prompt, 4000);
-  if (!practiceGuideId) {
-    response.redirect('/resources');
-    return;
-  }
+  const userMessage = readMultilineField(request.body.message, 4000);
+  if (userMessage.length < 3) {
+    if (wantsJsonResponse(request)) {
+      response.status(422).json({ error: 'Escribe el cambio que quieres hacer.' });
+      return;
+    }
 
-  const practiceGuide = findPracticeGuideForUser(practiceGuideId, user.id);
-  if (!practiceGuide) {
-    response.redirect('/resources');
-    return;
-  }
-
-  if (requestedChange.length < 3) {
-    await renderPracticeGuidesPage(request, response.status(422), 'edit', {
-      practiceGuideRevisionError: 'Describe los cambios que quieres aplicar.',
-      practiceGuideRevisionModalAutoOpen: true,
-      practiceGuideRevisionPrompt: requestedChange,
+    renderPracticeGuideAuthoring(request, response.status(422), {
+      ...resolved,
+      activeTab: 'chat',
+      error: 'Escribe el cambio que quieres hacer.',
     });
     return;
   }
 
   try {
-    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generatePracticeGuideRevision({
+      conversationHistory: resolved.practiceGuide.authoringMessages.map((message) => ({
+        content: message.content,
+        createdAt: message.createdAt,
+        role: message.role,
+      })),
       currentPracticeGuide: {
-        description: practiceGuide.description,
-        title: practiceGuide.title,
-        tutorInstructions: practiceGuide.tutorInstructions,
+        description: resolved.practiceGuide.description,
+        title: resolved.practiceGuide.title,
+        tutorInstructions: resolved.practiceGuide.tutorInstructions,
       },
       openRouterApiKey,
-      prompt: requestedChange,
+      prompt: userMessage,
     });
     const updatedPracticeGuide = updatePracticeGuide({
-      description: revision.description,
-      practiceGuideId: practiceGuide.id,
-      title: revision.title,
-      tutorInstructions: revision.tutorInstructions,
-      userId: user.id,
+      description: revision.guide.description,
+      practiceGuideId: resolved.practiceGuide.id,
+      title: revision.guide.title,
+      tutorInstructions: revision.guide.tutorInstructions,
+      userId: resolved.user.id,
     });
-
     if (!updatedPracticeGuide) {
-      await renderPracticeGuidesPage(request, response.status(422), 'edit', {
-        practiceGuideRevisionError: 'No pude guardar los cambios de la guía.',
-        practiceGuideRevisionModalAutoOpen: true,
-        practiceGuideRevisionPrompt: requestedChange,
-      });
-      return;
+      throw new Error('Could not save the revised practice guide.');
     }
+
+    savePracticeGuideAuthoringTurn({
+      assistantMessage: revision.assistantMessage,
+      practiceGuide: updatedPracticeGuide,
+      userId: resolved.user.id,
+      userMessage,
+    });
     logger.info('practice_guide_revised', {
       profileId: updatedPracticeGuide.profileId,
       resourceId: updatedPracticeGuide.id,
       resourceType: 'practice_guide',
-      userId: user.id,
+      userId: resolved.user.id,
     });
 
-    response.redirect(
-      `/practice-guides/${encodeURIComponent(updatedPracticeGuide.id)}/edit?aiRevision=success`,
-    );
+    if (wantsJsonResponse(request)) {
+      response.json({ assistantMessage: revision.assistantMessage });
+      return;
+    }
+
+    response.redirect(buildPracticeGuideAuthoringPath(resolved.practiceGuide.id, 'chat'));
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
-    await renderPracticeGuidesPage(request, response.status(422), 'edit', {
-      practiceGuideRevisionCreditExhausted: isCreditError,
-      practiceGuideRevisionError: isCreditError
-        ? getCreditExhaustedMessage()
-        : 'No pude editar la guía con IA ahora mismo.',
-      practiceGuideRevisionModalAutoOpen: true,
-      practiceGuideRevisionPrompt: requestedChange,
+    const failureMessage = isCreditError
+      ? getCreditExhaustedMessage()
+      : 'No pude aplicar ese cambio ahora mismo.';
+    const practiceGuideWithFailureMessage = savePracticeGuideAuthoringTurn({
+      assistantMessage: failureMessage,
+      practiceGuide: resolved.practiceGuide,
+      userId: resolved.user.id,
+      userMessage,
+    });
+    logger.error('practice_guide_revision_failed', {
+      error,
+      resourceId: resolved.practiceGuide.id,
+      resourceType: 'practice_guide',
+      userId: resolved.user.id,
+    });
+
+    if (wantsJsonResponse(request)) {
+      response.status(422).json({
+        creditExhausted: isCreditError,
+        error: failureMessage,
+      });
+      return;
+    }
+
+    renderPracticeGuideAuthoring(request, response.status(422), {
+      ...resolved,
+      activeTab: 'chat',
+      error: failureMessage,
+      practiceGuide: practiceGuideWithFailureMessage ?? resolved.practiceGuide,
     });
   }
 }
@@ -609,18 +762,8 @@ export function handleStartSharedPracticeGuide(
 }
 
 export function handleUpdatePracticeGuide(request: Request, response: Response): void {
-  const user = request.authUser;
-  if (!user?.emailVerified) {
-    response.redirect('/login');
-    return;
-  }
-
-  const practiceGuideId =
-    typeof request.params.practiceGuideId === 'string'
-      ? request.params.practiceGuideId.trim()
-      : '';
-  if (!practiceGuideId) {
-    response.redirect('/resources');
+  const resolved = resolveOwnPracticeGuide(request, response);
+  if (!resolved) {
     return;
   }
 
@@ -628,16 +771,20 @@ export function handleUpdatePracticeGuide(request: Request, response: Response):
   const description = String(request.body.description || '').trim();
   const tutorInstructions = String(request.body.tutorInstructions || '').trim();
   if (!title || !description || !tutorInstructions) {
-    response.redirect(`/practice-guides/${encodeURIComponent(practiceGuideId)}/edit`);
+    renderPracticeGuideAuthoring(request, response.status(422), {
+      ...resolved,
+      activeTab: 'general',
+      error: 'Completa el título, la descripción y las instrucciones al tutor.',
+    });
     return;
   }
 
   const practiceGuide = updatePracticeGuide({
-    practiceGuideId,
+    practiceGuideId: resolved.practiceGuide.id,
     description,
     title,
     tutorInstructions,
-    userId: user.id,
+    userId: resolved.user.id,
   });
 
   if (!practiceGuide) {
@@ -648,10 +795,10 @@ export function handleUpdatePracticeGuide(request: Request, response: Response):
     profileId: practiceGuide.profileId,
     resourceId: practiceGuide.id,
     resourceType: 'practice_guide',
-    userId: user.id,
+    userId: resolved.user.id,
   });
 
-  response.redirect(`/practice-guides/${encodeURIComponent(practiceGuide.id)}`);
+  response.redirect(buildPracticeGuideAuthoringPath(practiceGuide.id, 'general'));
 }
 
 export function handleArchivePracticeGuide(request: Request, response: Response): void {

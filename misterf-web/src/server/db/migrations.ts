@@ -1677,4 +1677,12 @@ export const migrations: Migration[] = [
         ON conversation_roleplay_attempt_snapshots (roleplay_attempt_id, created_at DESC);
     `,
   },
+  {
+    id: 13,
+    name: 'add_practice_guide_authoring_messages',
+    up: `
+      ALTER TABLE practice_guides
+        ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
+    `,
+  },
 ];
