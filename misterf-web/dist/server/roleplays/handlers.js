@@ -4,6 +4,7 @@ import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { appendRoleplayAuthoringMessages, buildRoleplayAuthoringMessage, countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, hasReachedRoleplayTurnLimit, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
 import { generateRoleplayDraft, generateRoleplayRevision, } from '../services/resourceDrafts.js';
+import { findRoleplayCharacterAvatar, listRoleplayCharacterAvatars, normalizeRoleplayCharacterAvatarId, } from './avatarRegistry.js';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { recordRoleplayAttemptProgress } from '../services/learnerProgress.js';
@@ -72,6 +73,12 @@ function readRoleplayAuthoringTab(value) {
     return tab === 'chat' || tab === 'general'
         ? tab
         : defaultRoleplayAuthoringTab;
+}
+function resolveCharacterAvatar(character) {
+    return findRoleplayCharacterAvatar(character.avatarId);
+}
+function buildRoleplayAvatarById() {
+    return Object.fromEntries(listRoleplayCharacterAvatars().map((avatar) => [avatar.id, avatar]));
 }
 function buildRoleplayAuthoringPath(roleplayId, tab) {
     return `/roleplays/${encodeURIComponent(roleplayId)}/edit?tab=${tab}`;
@@ -237,7 +244,13 @@ function resolveAccessibleAttempt(request, response) {
 }
 function readRoleplayCharacterFromBody(body, id, fallback) {
     const fieldPrefix = id === 'learner' ? 'learnerCharacter' : 'aiCharacter';
+    const avatarFieldName = `${fieldPrefix}AvatarId`;
+    const hasSubmittedAvatar = Object.prototype.hasOwnProperty.call(body, avatarFieldName);
+    const submittedAvatarId = normalizeRoleplayCharacterAvatarId(body[avatarFieldName]);
+    const fallbackAvatarId = normalizeRoleplayCharacterAvatarId(fallback.avatarId);
+    const avatarId = hasSubmittedAvatar ? submittedAvatarId : fallbackAvatarId;
     return {
+        ...(avatarId ? { avatarId } : {}),
         description: readMultilineField(body[`${fieldPrefix}Description`], 1200)
             || fallback.description,
         id,
@@ -278,6 +291,8 @@ function renderRoleplayEdit(request, response, input) {
         response.redirect('/resources');
         return;
     }
+    const learnerCharacter = getLearnerCharacter(draft);
+    const aiCharacter = getAiCharacter(draft);
     response.render('roleplays-edit', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: input.activeProfile,
@@ -286,10 +301,13 @@ function renderRoleplayEdit(request, response, input) {
         }),
         activeTab: input.activeTab ?? defaultRoleplayAuthoringTab,
         authoringError: input.error || '',
-        aiCharacter: getAiCharacter(draft),
+        aiAvatar: resolveCharacterAvatar(aiCharacter),
+        aiCharacter,
         draft,
-        learnerCharacter: getLearnerCharacter(draft),
+        learnerAvatar: resolveCharacterAvatar(learnerCharacter),
+        learnerCharacter,
         roleplayAuthoringMessages: input.roleplay.authoringMessages,
+        roleplayAvatarOptions: listRoleplayCharacterAvatars(),
         selectedRoleplay: input.roleplay,
     });
 }
@@ -532,20 +550,23 @@ export async function renderRoleplayShowPage(request, response) {
         roleplayId: resolved.roleplay.id,
         userId: resolved.user.id,
     });
+    const learnerCharacter = getLearnerCharacter(draft);
+    const aiCharacter = getAiCharacter(draft);
     response.render('roleplays-show', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: resolved.activeProfile,
             title: `${resolved.roleplay.title} - ${appDocumentTitle}`,
             user: resolved.user,
         }),
-        aiCharacter: getAiCharacter(draft),
+        aiCharacter,
         canManageRoleplay: resolved.canManageRoleplay,
         draft,
-        learnerCharacter: getLearnerCharacter(draft),
+        learnerCharacter,
         resourceCurrentFolder,
         resourceFolderOptions,
         resourceFolderPath,
         roleplayAttempts: buildAttemptListItems(attempts),
+        roleplayAvatarById: buildRoleplayAvatarById(),
         roleplayStartError: readRoleplayStartError(request.query.startError),
         roleplayShareMode,
         roleplayShareQrDataUrl,
@@ -712,13 +733,16 @@ function renderRoleplayAttempt(request, response, input) {
         response.redirect('/resources');
         return;
     }
+    const learnerCharacter = getLearnerCharacter(draft);
+    const aiCharacter = getAiCharacter(draft);
     response.render('roleplays-attempt', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: request.activeProfile ?? null,
             title: `${draft.title} - ${appDocumentTitle}`,
             user: request.authUser ?? null,
         }),
-        aiCharacter: getAiCharacter(draft),
+        aiAvatar: resolveCharacterAvatar(aiCharacter),
+        aiCharacter,
         attempt: input.attempt,
         attemptError: input.error || '',
         draft,
@@ -726,7 +750,8 @@ function renderRoleplayAttempt(request, response, input) {
             draft,
             turns: input.attempt.turns,
         }),
-        learnerCharacter: getLearnerCharacter(draft),
+        learnerAvatar: resolveCharacterAvatar(learnerCharacter),
+        learnerCharacter,
         learnerTurnCount: countLearnerTurns(input.attempt.turns),
     });
 }
@@ -948,6 +973,7 @@ export function renderRoleplayResultPage(request, response) {
         }),
         attempt,
         draft,
+        roleplayAvatarById: buildRoleplayAvatarById(),
         result: result.data,
         ...actionError,
         resultJson: serializeViewJson(result.data),

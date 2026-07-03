@@ -258,7 +258,9 @@ function parseRoleplayCharacters(value) {
         if (!id || !name) {
             return [];
         }
+        const avatarId = readStringFromRecord(item, 'avatarId').slice(0, 64);
         return [{
+                ...(avatarId ? { avatarId } : {}),
                 description: readStringFromRecord(item, 'description').slice(0, 1200),
                 id,
                 name,

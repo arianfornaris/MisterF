@@ -6,6 +6,7 @@ import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './ll
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
 const maxDraftGenerationTurns = 4;
 const practiceGuideDraftSchema = z.object({
     description: z.string().trim().min(1).max(1500),
@@ -34,6 +35,7 @@ function appendCorrectionRequest(messages, input) {
     messages.push({
         content: renderSystemPrompt(input.correctionPromptPath, {
             CORRECTION_REASON: input.reason,
+            ...(input.systemPromptVariables ?? {}),
         }),
         role: 'user',
     });
@@ -122,7 +124,7 @@ function isPlainRecord(value) {
     return Boolean(value && typeof value === 'object' && !Array.isArray(value));
 }
 async function generateStructuredDraft(input) {
-    const system = renderSystemPrompt(input.systemPromptPath);
+    const system = renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables);
     const messages = [
         {
             content: input.initialUserMessage,
@@ -171,6 +173,7 @@ async function generateStructuredDraft(input) {
                     correctionPromptPath: input.correctionPromptPath,
                     invalidOutput: result.text,
                     reason: 'Your previous response was not valid JSON.',
+                    systemPromptVariables: input.systemPromptVariables,
                     turn: turn + 1,
                 });
                 continue;
@@ -193,6 +196,7 @@ async function generateStructuredDraft(input) {
                     correctionPromptPath: input.correctionPromptPath,
                     invalidOutput: result.text,
                     reason: 'Your previous JSON did not match the required schema.',
+                    systemPromptVariables: input.systemPromptVariables,
                     turn: turn + 1,
                 });
                 continue;
@@ -303,6 +307,7 @@ function normalizeQuizRevisionConversationHistory(messages) {
         .reverse();
 }
 export async function generateRoleplayDraft(input) {
+    const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
     return generateStructuredDraft({
         actorLabel: 'Roleplay draft',
         correctionPromptPath: 'resources/roleplay-draft-correction.md',
@@ -311,9 +316,13 @@ export async function generateRoleplayDraft(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: roleplayDraftSchema,
         systemPromptPath: 'resources/roleplay-draft.md',
+        systemPromptVariables: {
+            ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
+        },
     });
 }
 export async function generateRoleplayRevision(input) {
+    const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();
     return generateStructuredDraft({
         actorLabel: 'Roleplay revision',
         correctionPromptPath: 'resources/roleplay-revision-correction.md',
@@ -326,6 +335,9 @@ export async function generateRoleplayRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: roleplayRevisionSchema,
         systemPromptPath: 'resources/roleplay-revision.md',
+        systemPromptVariables: {
+            ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
+        },
     });
 }
 //# sourceMappingURL=resourceDrafts.js.map
