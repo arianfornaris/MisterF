@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAddQuizBlock, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleDeleteQuizBlock, handleDuplicateQuizBlock, handleGenerateQuiz, handleMoveQuizBlock, handleRestoreQuiz, handleReviseQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizNewPage, renderQuizResultPage, renderQuizShowPage, } from './handlers.js';
+import { handleAddQuizBlock, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleDeleteQuizBlock, handleDeleteQuizSection, handleDuplicateQuizBlock, handleGenerateQuiz, handleMoveQuizBlock, handleSaveQuizSection, handleRestoreQuiz, handleReviseQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizNewPage, renderQuizResultPage, renderQuizShowPage, } from './handlers.js';
 export const quizzesRouter = express.Router();
 quizzesRouter.get('/quizzes', (_request, response) => {
     response.redirect('/resources');
@@ -16,6 +16,9 @@ quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/delete', handleDeleteQ
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/duplicate', handleDuplicateQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-up', handleMoveQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-down', handleMoveQuizBlock);
+quizzesRouter.post('/quizzes/:quizId/edit/sections', handleSaveQuizSection);
+quizzesRouter.post('/quizzes/:quizId/edit/sections/:sectionId/update', handleSaveQuizSection);
+quizzesRouter.post('/quizzes/:quizId/edit/sections/:sectionId/delete', handleDeleteQuizSection);
 quizzesRouter.get('/quizzes/:quizId', renderQuizShowPage);
 quizzesRouter.post('/quizzes/:quizId/share/profile', handleShareQuizToProfile);
 quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);

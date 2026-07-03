@@ -390,11 +390,13 @@ export async function translateTextWithLlm(input) {
 export async function evaluateQuizResultItemsWithLlm(input) {
     const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
     const authorEvaluationInstructions = input.evaluationInstructions?.trim() || '';
+    const sections = input.sections?.filter((section) => section.itemIndexes.length > 0) ?? [];
     const messages = [
         {
             content: JSON.stringify({
                 quiz: input.quiz,
                 responses: input.responses,
+                ...(sections.length > 0 ? { sections } : {}),
                 ...(authorEvaluationInstructions
                     ? { authorEvaluationInstructions }
                     : {}),
@@ -405,7 +407,7 @@ export async function evaluateQuizResultItemsWithLlm(input) {
     let lastError = null;
     for (let attempt = 0; attempt < maxQuizEvaluationCorrectionAttempts; attempt += 1) {
         const result = await generateText({
-            maxOutputTokens: 1600,
+            maxOutputTokens: Math.min(24000, Math.max(1600, input.quiz.items.length * 280)),
             messages,
             model: getLanguageModel(input.llm),
             providerOptions: getProviderOptions(),

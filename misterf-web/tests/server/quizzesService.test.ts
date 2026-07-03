@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
   appendQuizBlock,
+  buildQuizBlockSectionList,
+  buildQuizEvaluationSections,
   quizDraftToQuizBlock,
+  quizDraftToStudentQuizBlock,
   buildQuizResultBlock,
+  canonicalizeQuizDraftBlockOrder,
   moveQuizBlock,
   normalizeQuizResponses,
   parseQuizDraft,
+  removeQuizSection,
   safeParseQuizDraft,
+  upsertQuizSection,
 } from '../../src/server/services/quizzes.js';
 import { quizResultBlockSchema } from '../../src/server/services/llmTutor/schemas.js';
 
@@ -113,6 +119,156 @@ describe('quiz service', () => {
         values: ['eat'],
       },
     ]);
+  });
+
+  it('accepts drafts with more than 24 blocks', () => {
+    const draft = parseQuizDraft({
+      ...validDraft,
+      blocks: Array.from({ length: 30 }, (_value, index) => ({
+        id: `open_text_${index + 1}`,
+        item: {
+          kind: 'quiz_open_text',
+          prompt: `Write sentence ${index + 1}.`,
+        },
+      })),
+    });
+
+    expect(draft.blocks).toHaveLength(30);
+    expect(quizDraftToQuizBlock(draft).items).toHaveLength(30);
+  });
+
+  it('validates section metadata against blocks', () => {
+    const sectionedDraft = {
+      ...validDraft,
+      blocks: [
+        { ...validDraft.blocks[0], sectionId: 'section_a' },
+        validDraft.blocks[1],
+      ],
+      sections: [
+        { id: 'section_a', instructions: 'Completa las oraciones.', title: 'Parte A' },
+      ],
+    };
+
+    const parsed = parseQuizDraft(sectionedDraft);
+    expect(parsed.sections).toHaveLength(1);
+    expect(buildQuizBlockSectionList(parsed).map((section) => section?.id ?? null)).toEqual([
+      'section_a',
+      null,
+    ]);
+    expect(buildQuizEvaluationSections(parsed)).toEqual([
+      {
+        instructions: 'Completa las oraciones.',
+        itemIndexes: [0],
+        title: 'Parte A',
+      },
+    ]);
+
+    // Dangling sectionId is rejected so the AI correction loop can fix it.
+    expect(safeParseQuizDraft({
+      ...sectionedDraft,
+      sections: [],
+    })).toBeNull();
+
+    // Duplicate section ids are rejected.
+    expect(safeParseQuizDraft({
+      ...sectionedDraft,
+      sections: [
+        { id: 'section_a', instructions: 'Una.' },
+        { id: 'section_a', instructions: 'Otra.' },
+      ],
+    })).toBeNull();
+
+    // Drafts saved before sections existed still parse.
+    expect(parseQuizDraft(validDraft).sections).toEqual([]);
+  });
+
+  it('groups blocks by section order when canonicalizing', () => {
+    const draft = parseQuizDraft({
+      ...validDraft,
+      blocks: [
+        { id: 'b_one', item: { kind: 'quiz_open_text', prompt: 'One.' }, sectionId: 'section_b' },
+        { id: 'b_two', item: { kind: 'quiz_open_text', prompt: 'Two.' } },
+        { id: 'b_three', item: { kind: 'quiz_open_text', prompt: 'Three.' }, sectionId: 'section_a' },
+        { id: 'b_four', item: { kind: 'quiz_open_text', prompt: 'Four.' }, sectionId: 'section_b' },
+      ],
+      sections: [
+        { id: 'section_a', instructions: 'Parte A.' },
+        { id: 'section_b', instructions: 'Parte B.' },
+      ],
+    });
+
+    expect(canonicalizeQuizDraftBlockOrder(draft).blocks.map((block) => block.id)).toEqual([
+      'b_two',
+      'b_three',
+      'b_one',
+      'b_four',
+    ]);
+  });
+
+  it('manages section membership through upsert, move, and remove', () => {
+    const draft = parseQuizDraft(validDraft);
+    const withSection = upsertQuizSection(draft, {
+      blockIds: ['choice'],
+      instructions: 'Elige la forma correcta.',
+      title: 'Parte A',
+    });
+    expect(withSection.sections).toHaveLength(1);
+    const sectionId = withSection.sections[0]!.id;
+    expect(withSection.blocks.map((block) => [block.id, block.sectionId ?? null])).toEqual([
+      ['open_text', null],
+      ['choice', sectionId],
+    ]);
+
+    // Moving up across the section boundary leaves the section instead of swapping.
+    const movedOut = moveQuizBlock(withSection, 'choice', 'up');
+    expect(movedOut.blocks.map((block) => [block.id, block.sectionId ?? null])).toEqual([
+      ['open_text', null],
+      ['choice', null],
+    ]);
+
+    // Moving down across the boundary joins the neighbor's section.
+    const movedIn = moveQuizBlock(
+      upsertQuizSection(draft, {
+        blockIds: ['choice'],
+        instructions: 'Elige la forma correcta.',
+        title: 'Parte A',
+      }),
+      'open_text',
+      'down',
+    );
+    expect(movedIn.blocks[0]?.sectionId).toBeDefined();
+
+    // Appended blocks inherit the section of the last block.
+    const appended = appendQuizBlock(withSection, {
+      id: 'extra',
+      item: { kind: 'quiz_open_text', prompt: 'Extra.' },
+    });
+    expect(appended.blocks[2]?.sectionId).toBe(sectionId);
+
+    const removed = removeQuizSection(withSection, sectionId);
+    expect(removed.sections).toEqual([]);
+    expect(removed.blocks.every((block) => block.sectionId === undefined)).toBe(true);
+  });
+
+  it('attaches section context to the student quiz block', () => {
+    const draft = parseQuizDraft({
+      ...validDraft,
+      blocks: [
+        validDraft.blocks[0],
+        { ...validDraft.blocks[1], sectionId: 'section_a' },
+      ],
+      sections: [
+        { id: 'section_a', instructions: 'Elige la forma correcta.', title: 'Parte A' },
+      ],
+    });
+
+    const studentBlock = quizDraftToStudentQuizBlock(draft);
+    expect(studentBlock.items[0]?.section).toBeUndefined();
+    expect(studentBlock.items[1]?.section).toEqual({
+      id: 'section_a',
+      instructions: 'Elige la forma correcta.',
+      title: 'Parte A',
+    });
   });
 
   it('keeps inline review outside the strict quiz result evaluation object', () => {

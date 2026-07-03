@@ -13,6 +13,7 @@ Use this shape:
 
 {
   "id": "block_1",
+  "sectionId": "section_a",
   "item": { "kind": "...", "...": "..." }
 }
 
@@ -30,6 +31,7 @@ Rules:
 - Choose the item kind that best matches blockKind and requestedBlock.
 - Use a new id that is not present in currentDraft.blocks.
 - The id must match ^[a-z][a-z0-9_-]*$.
+- sectionId is optional. Set it to the id of one entry in currentDraft.sections only when requestedBlock clearly belongs to that section; otherwise omit it and the app will place the block at the end of the quiz.
 - Make the new block coherent with currentDraft.title, currentDraft.targetTopic, and currentDraft.level.
 - Mister F is an English-learning product. The new block must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.
 - Write prompts and visible learner instructions in Spanish unless the teacher clearly asks for another language.

@@ -40,17 +40,21 @@ import {
 } from '../pages/shell.js';
 import {
   appendQuizBlock,
+  buildQuizBlockSectionList,
   quizDraftToStudentQuizBlock,
   buildQuizEvaluationSummary,
   buildQuizResultTitle,
+  canonicalizeQuizDraftBlockOrder,
   createQuizDraftFromManualInput,
   duplicateQuizBlock,
   evaluateQuizAttempt,
   moveQuizBlock,
   normalizeQuizResponses,
   removeQuizBlock,
+  removeQuizSection,
   safeParseQuizDraft,
   storedQuizToDraft,
+  upsertQuizSection,
   type QuizDraft,
 } from '../services/quizzes.js';
 import {
@@ -532,6 +536,7 @@ function renderQuizAuthoring(
       user: input.user,
     }),
     activeTab: input.activeTab ?? defaultQuizAuthoringTab,
+    blockSections: buildQuizBlockSectionList(draft),
     quizBlockKinds,
     quizAuthoringMessages: input.quiz.authoringMessages,
     authoringError: input.error || '',
@@ -693,6 +698,7 @@ function renderQuizAttempt(
     attempt: input.attempt,
     attemptError: input.error || '',
     attemptErrorIsCredit: Boolean(input.errorIsCredit),
+    blockSections: buildQuizBlockSectionList(draft),
     quizQuizJson: serializeViewJson(quizDraftToStudentQuizBlock(draft)),
     draft,
     guestToken: input.attempt.guestToken || '',
@@ -772,10 +778,12 @@ export async function handleGenerateQuiz(
 
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
-    const draft = await generateQuizDraft({
-      openRouterApiKey,
-      prompt,
-    });
+    const draft = canonicalizeQuizDraftBlockOrder(
+      await generateQuizDraft({
+        openRouterApiKey,
+        prompt,
+      }),
+    );
     const quiz = createQuiz({
       authoringMessages: appendQuizAuthoringMessages(
         [],
@@ -895,7 +903,7 @@ export async function handleReviseQuiz(
       openRouterApiKey,
       prompt: userMessage,
     });
-    const revisedDraft = revision.draft;
+    const revisedDraft = canonicalizeQuizDraftBlockOrder(revision.draft);
     const nextAuthoringMessages = appendQuizAuthoringMessages(
       resolved.quiz.authoringMessages,
       createQuizAuthoringMessage('user', userMessage),
@@ -1026,6 +1034,106 @@ export async function handleAddQuizBlock(
         : 'No pude crear ese bloque ahora mismo.',
     });
   }
+}
+
+export function handleSaveQuizSection(request: Request, response: Response): void {
+  const resolved = resolveOwnQuiz(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const draft = safeParseQuizDraft(resolved.quiz.quiz);
+  const sectionId = readField(request.params.sectionId, 120) || undefined;
+  const title = readField(request.body.title, 200);
+  const instructions = readMultilineField(request.body.instructions, 2000);
+  const blockIds = readFieldList(request.body.blockIds, 120);
+  if (!draft || !instructions) {
+    renderQuizAuthoring(request, response.status(422), {
+      ...resolved,
+      activeTab: 'blocks',
+      error: 'Escribe las instrucciones de la sección para el estudiante.',
+    });
+    return;
+  }
+
+  const updatedDraft = upsertQuizSection(draft, {
+    blockIds,
+    instructions,
+    sectionId,
+    title,
+  });
+  const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
+  if (!updatedQuiz) {
+    renderQuizAuthoring(request, response.status(422), {
+      ...resolved,
+      activeTab: 'blocks',
+      error: 'No pude guardar la sección ahora mismo.',
+    });
+    return;
+  }
+
+  logger.info('quiz_section_saved', {
+    quizId: resolved.quiz.id,
+    blockCount: blockIds.length,
+    resourceId: resolved.quiz.id,
+    resourceType: 'quiz',
+    sectionCount: updatedDraft.sections.length,
+    userId: resolved.user.id,
+  });
+  response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
+}
+
+export function handleDeleteQuizSection(request: Request, response: Response): void {
+  const resolved = resolveOwnQuiz(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const draft = safeParseQuizDraft(resolved.quiz.quiz);
+  const sectionId = readField(request.params.sectionId, 120);
+  if (!draft || !sectionId) {
+    response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
+    return;
+  }
+
+  const updatedDraft = removeQuizSection(draft, sectionId);
+  const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
+  if (!updatedQuiz) {
+    renderQuizAuthoring(request, response.status(422), {
+      ...resolved,
+      activeTab: 'blocks',
+      error: 'No pude eliminar la sección ahora mismo.',
+    });
+    return;
+  }
+
+  logger.info('quiz_section_deleted', {
+    quizId: resolved.quiz.id,
+    resourceId: resolved.quiz.id,
+    resourceType: 'quiz',
+    sectionCount: updatedDraft.sections.length,
+    sectionId,
+    userId: resolved.user.id,
+  });
+  response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'blocks'));
+}
+
+function readFieldList(value: unknown, maxLength: number): string[] {
+  const values = Array.isArray(value) ? value : typeof value === 'string' ? [value] : [];
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const item of values) {
+    const normalized = readField(item, maxLength);
+    if (!normalized || seen.has(normalized)) {
+      continue;
+    }
+
+    seen.add(normalized);
+    result.push(normalized);
+  }
+
+  return result;
 }
 
 export function handleDeleteQuizBlock(request: Request, response: Response): void {

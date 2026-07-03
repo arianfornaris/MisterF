@@ -26,6 +26,17 @@
     <div data-quiz-quiz-inputs hidden></div>
     <div class="quiz-block-list" data-quiz-quiz-fallback>
       <% draft.blocks.forEach((block, index) => { %>
+        <%
+          const blockSection = blockSections[index];
+          const previousBlockSection = index > 0 ? blockSections[index - 1] : null;
+        %>
+        <% if (blockSection && (!previousBlockSection || previousBlockSection.id !== blockSection.id)) { %>
+          <%- include('partials/quiz-section-header', {
+            quizSectionMode: 'student',
+            section: blockSection,
+            sectionNumber: draft.sections.findIndex((candidate) => candidate.id === blockSection.id) + 1,
+          }) %>
+        <% } %>
         <%- include('partials/quiz-item-card', { quizItemMode: 'attempt', block, csrfToken, draft, index, responseIndex: index, selectedQuiz: null }) %>
       <% }) %>
     </div>

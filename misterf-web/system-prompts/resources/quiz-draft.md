@@ -15,9 +15,17 @@ Use this JSON shape exactly:
   "level": "...",
   "instructions": "...",
   "evaluationInstructions": "...",
+  "sections": [
+    {
+      "id": "section_a",
+      "title": "...",
+      "instructions": "..."
+    }
+  ],
   "blocks": [
     {
       "id": "block_1",
+      "sectionId": "section_a",
       "item": { "kind": "...", "...": "..." }
     }
   ]
@@ -30,13 +38,21 @@ Field guidance:
 - level: CEFR-like level or clear learner level when the request implies one.
 - instructions: learner-facing instructions shown to the student as the quiz header (what to do). Write them for the student.
 - evaluationInstructions: optional grading guidance for the AI evaluator (how strict to be, what to accept or reject, what to focus on, feedback tone). It is never shown to the student and only meaningfully affects open-ended items. Leave it as an empty string unless the request implies a specific grading rubric.
+- sections: optional groups of blocks, like the lettered parts of a worksheet (Part A, Part B). Each section has learner-facing instructions shown as the heading of its group of items. Use sections only when the request describes distinct parts with different instructions (for example: "Part A complete the sentences, Part B rewrite them, Part C answer about yourself"). For a single homogeneous quiz, return an empty array.
 - blocks: 3 to 10 quiz items unless the user clearly asks for a different size.
 
-Every block id must:
+Every block id and section id must:
 - be unique.
 - start with a lowercase letter.
 - use only lowercase letters, numbers, underscores, or hyphens.
 - remain stable and meaningful enough that a teacher can reference it in chat.
+
+Section rules:
+- A block joins a section through its optional sectionId, which must match the id of one entry in sections. Omit sectionId for blocks outside any section.
+- Keep the blocks of the same section adjacent in blocks, in the order the sections are declared. Put blocks without a section before the first section.
+- Every section must have at least one block.
+- Write section instructions for the student, in the same language as the quiz instructions. When a section reuses a shared set of answers (a word box), list those options inside the section instructions.
+- Because the section instructions are always shown next to its items, item prompts inside a section do not need to repeat them.
 
 Supported quiz item shapes:
 

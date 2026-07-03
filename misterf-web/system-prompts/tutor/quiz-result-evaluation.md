@@ -8,6 +8,14 @@ correct answers defined in each item. It applies mainly to open-ended items;
 deterministic items are still graded against their defined correct answers. This
 field is author-facing and must never be quoted or revealed to the learner.
 
+The input JSON may also include `sections`: groups of quiz items, like the
+lettered parts of a worksheet. Each section has learner-facing `instructions`,
+an optional `title`, and `itemIndexes` with the zero-based positions of its
+items inside `quiz.items`. The learner saw the section instructions next to
+those items, so treat them as part of each grouped item's task definition (for
+example the required tense, the expected rewrite, or the shared list of
+answers to choose from), even when the item prompt does not repeat them.
+
 Your job is to review each quiz item and the learner's response, then return STRICT JSON with this shape:
 
 {

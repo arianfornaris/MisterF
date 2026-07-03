@@ -216,6 +216,10 @@ function createQuizQuizCard(block, options) {
   const itemCounter = document.createElement('p');
   itemCounter.className = 'quiz-item-counter';
 
+  const itemSection = document.createElement('div');
+  itemSection.className = 'quiz-section-context';
+  itemSection.hidden = true;
+
   const itemPrompt = document.createElement('div');
   itemPrompt.className = 'quiz-item-prompt';
 
@@ -257,7 +261,7 @@ function createQuizQuizCard(block, options) {
   status.className = 'quiz-status';
   footer.append(status);
 
-  section.append(header, itemCounter, itemPrompt, itemBody, nav, footer);
+  section.append(header, itemSection, itemCounter, itemPrompt, itemBody, nav, footer);
 
   if (options.formEl) {
     options.formEl.addEventListener('submit', (event) => {
@@ -279,6 +283,7 @@ function createQuizQuizCard(block, options) {
 
 function renderQuizQuizCard(section, state, options) {
   const itemCounter = section.querySelector('.quiz-item-counter');
+  const itemSection = section.querySelector('.quiz-section-context');
   const itemPrompt = section.querySelector('.quiz-item-prompt');
   const itemBody = section.querySelector('.quiz-item-body');
   const previousButton = section.querySelector('.quiz-nav-button:first-child');
@@ -286,6 +291,7 @@ function renderQuizQuizCard(section, state, options) {
 
   if (
     !(itemCounter instanceof HTMLParagraphElement) ||
+    !(itemSection instanceof HTMLDivElement) ||
     !(itemPrompt instanceof HTMLDivElement) ||
     !(itemBody instanceof HTMLDivElement) ||
     !(previousButton instanceof HTMLButtonElement) ||
@@ -297,6 +303,7 @@ function renderQuizQuizCard(section, state, options) {
   const item = state.block.items[state.currentIndex];
   const itemState = state.itemStates[state.currentIndex];
   itemCounter.textContent = `Pregunta ${state.currentIndex + 1} de ${state.itemStates.length}`;
+  renderQuizSectionContext(itemSection, item.section);
   itemPrompt.innerHTML = renderMarkdown(item.prompt || '');
 
   itemBody.replaceChildren();
@@ -309,6 +316,26 @@ function renderQuizQuizCard(section, state, options) {
   previousButton.disabled = state.currentIndex === 0;
   nextButton.disabled = state.currentIndex >= state.itemStates.length - 1;
   syncQuizQuizStatus(section, state, options);
+}
+
+function renderQuizSectionContext(container, section) {
+  container.replaceChildren();
+  const instructions = typeof section?.instructions === 'string' ? section.instructions : '';
+  if (!instructions) {
+    container.hidden = true;
+    return;
+  }
+
+  const title = document.createElement('p');
+  title.className = 'quiz-section-context-title';
+  title.textContent = typeof section.title === 'string' && section.title ? section.title : 'Sección';
+
+  const body = document.createElement('div');
+  body.className = 'quiz-section-context-instructions';
+  body.innerHTML = renderMarkdown(instructions);
+
+  container.append(title, body);
+  container.hidden = false;
 }
 
 function syncQuizQuizStatus(section, state, options) {

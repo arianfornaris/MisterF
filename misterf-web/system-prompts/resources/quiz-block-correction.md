@@ -9,11 +9,13 @@ The only valid shape is:
 
 {
   "id": "block_1",
+  "sectionId": "section_a",
   "item": { "kind": "...", "...": "..." }
 }
 
 Rules to preserve:
 - The id must match ^[a-z][a-z0-9_-]*$.
+- sectionId is optional; when present it must be the id of one entry in currentDraft.sections. Omit it otherwise.
 - Use exactly one of these supported quiz item kinds: quiz_open_text, quiz_translate_to_english, quiz_understand_in_spanish, quiz_fill_in_the_blank_input, quiz_fill_in_the_blank_choice, quiz_multiple_choice, quiz_matching_pairs, quiz_unscramble_sentence.
 - Do not use quiz_true_false, quiz_ordering, short-answer, essay, or any other unsupported kind; rewrite unsupported items as one of the supported kinds.
 - Preserve that this is an English-learning block: prompts may be in Spanish, but target learner output and accepted/correct answers must be English except for `quiz_understand_in_spanish`.

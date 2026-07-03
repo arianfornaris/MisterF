@@ -550,6 +550,11 @@ export async function evaluateQuizResultItemsWithLlm(input: {
   llm?: LlmRequestOptions;
   quiz: TutorQuizBlock;
   responses: Array<Record<string, unknown>>;
+  sections?: Array<{
+    instructions: string;
+    itemIndexes: number[];
+    title?: string;
+  }>;
 }): Promise<Array<{
   feedback: string;
   inlineReview?: Record<string, unknown>;
@@ -557,12 +562,14 @@ export async function evaluateQuizResultItemsWithLlm(input: {
 }>> {
   const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
   const authorEvaluationInstructions = input.evaluationInstructions?.trim() || '';
+  const sections = input.sections?.filter((section) => section.itemIndexes.length > 0) ?? [];
   const messages: ModelMessage[] = [
     {
       content: JSON.stringify(
         {
           quiz: input.quiz,
           responses: input.responses,
+          ...(sections.length > 0 ? { sections } : {}),
           ...(authorEvaluationInstructions
             ? { authorEvaluationInstructions }
             : {}),
@@ -577,7 +584,7 @@ export async function evaluateQuizResultItemsWithLlm(input: {
 
   for (let attempt = 0; attempt < maxQuizEvaluationCorrectionAttempts; attempt += 1) {
     const result = await generateText({
-      maxOutputTokens: 1600,
+      maxOutputTokens: Math.min(24000, Math.max(1600, input.quiz.items.length * 280)),
       messages,
       model: getLanguageModel(input.llm),
       providerOptions: getProviderOptions(),

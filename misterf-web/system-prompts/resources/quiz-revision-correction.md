@@ -15,9 +15,18 @@ The only valid top-level shape is:
     "targetTopic": "...",
     "level": "...",
     "instructions": "...",
+    "evaluationInstructions": "...",
+    "sections": [
+      {
+        "id": "section_a",
+        "title": "...",
+        "instructions": "..."
+      }
+    ],
     "blocks": [
       {
         "id": "block_1",
+        "sectionId": "section_a",
         "item": { "kind": "...", "...": "..." }
       }
     ]
@@ -27,6 +36,10 @@ The only valid top-level shape is:
 Rules to preserve:
 - assistantMessage must be a concise teacher-facing message, not learner-facing quiz text.
 - Every block id in draft.blocks must be unique and match ^[a-z][a-z0-9_-]*$.
+- sections is optional grouping metadata; use an empty array when the quiz has no distinct parts.
+- Every section id must be unique and match ^[a-z][a-z0-9_-]*$.
+- Every block sectionId must match the id of one entry in draft.sections; omit sectionId for ungrouped blocks.
+- Keep blocks of the same section adjacent, in the order the sections are declared, with ungrouped blocks first.
 - Use only these supported quiz item kinds: quiz_open_text, quiz_translate_to_english, quiz_understand_in_spanish, quiz_fill_in_the_blank_input, quiz_fill_in_the_blank_choice, quiz_multiple_choice, quiz_matching_pairs, quiz_unscramble_sentence.
 - Do not use quiz_true_false, quiz_ordering, short-answer, essay, or any other unsupported kind; rewrite unsupported items as one of the supported kinds.
 - Preserve that this is an English-learning quiz: prompts may be in Spanish, but target learner output and accepted/correct answers must be English except for `quiz_understand_in_spanish`.

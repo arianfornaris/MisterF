@@ -21,9 +21,17 @@ Use this JSON shape exactly:
     "level": "...",
     "instructions": "...",
     "evaluationInstructions": "...",
+    "sections": [
+      {
+        "id": "section_a",
+        "title": "...",
+        "instructions": "..."
+      }
+    ],
     "blocks": [
       {
         "id": "block_1",
+        "sectionId": "section_a",
         "item": { "kind": "...", "...": "..." }
       }
     ]
@@ -48,6 +56,10 @@ Revision rules:
 - Preserve block ids for blocks that remain conceptually the same.
 - Use new unique ids only for new blocks.
 - Respect block numbers or ids mentioned by the teacher in requestedChange.
+- sections group blocks into worksheet-style parts (Part A, Part B) with their own learner-facing instructions. Preserve existing sections and each block's sectionId unless the teacher asks to change the grouping.
+- When the teacher asks for sections or distinct parts, declare them in draft.sections and link blocks through sectionId. Every block sectionId must match a declared section id; omit sectionId for ungrouped blocks. Every section must keep at least one block.
+- Keep blocks of the same section adjacent, in the order the sections are declared, with ungrouped blocks first.
+- Because the section instructions are always shown next to its items, item prompts inside a section do not need to repeat them.
 - Keep the task coherent after the change.
 - `instructions` are learner-facing instructions shown to the student; `evaluationInstructions` are optional grading guidance for the AI evaluator, never shown to the student. Preserve `evaluationInstructions` unless the teacher asks to change how the quiz is graded. Do not move grading guidance into `instructions`.
 - Mister F is an English-learning product. The revised quiz must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.

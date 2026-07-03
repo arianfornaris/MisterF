@@ -446,6 +446,14 @@ Important fields:
 stable internal block ids and existing tutor `quiz` item payloads. This keeps
 quiz evaluation aligned with the live tutor quiz contract.
 
+The draft may also declare `sections`: ordered worksheet-style groups
+(`id`, optional `title`, learner-facing `instructions`). Blocks join a
+section through an optional `sectionId`; ungrouped blocks render first and
+blocks of the same section are kept adjacent. Sections are grouping
+metadata only: responses, evaluation, and results still align to the flat
+`blocks` order, and the evaluator receives section instructions as extra
+context per grouped item.
+
 `authoringMessages` stores the lightweight teacher/assistant chat history used
 by the quiz authoring `AI chat` tab. The history is sent as context when
 the teacher asks Mr. F to revise the quiz, but the current `quiz` draft

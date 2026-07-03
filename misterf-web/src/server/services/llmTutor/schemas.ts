@@ -376,7 +376,7 @@ export const quizBlockSchema = z
     title: z.string().trim().min(1).max(200).optional(),
     prompt: z.string().trim().min(1).max(2000),
     rubric: z.string().trim().min(1).max(3000).optional(),
-    items: z.array(quizItemSchema).min(2).max(24),
+    items: z.array(quizItemSchema).min(2),
   })
   .strict();
 
@@ -639,7 +639,7 @@ export const quizResultBlockSchema = z
     type: z.literal('quiz_result'),
     title: z.string().trim().min(1).max(200).optional(),
     prompt: z.string().trim().min(1).max(2000).optional(),
-    items: z.array(quizResultItemSchema).min(1).max(24),
+    items: z.array(quizResultItemSchema).min(1),
   })
   .strict();
 
@@ -698,8 +698,7 @@ export const quizResultEvaluationsSchema = z
             .strict(),
         ]),
       )
-      .min(1)
-      .max(24),
+      .min(1),
   })
   .strict();
 

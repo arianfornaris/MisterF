@@ -16,8 +16,6 @@ import type {
   StoredQuizAttempt,
 } from '../db/repository.js';
 
-const maxQuizBlocks = 24;
-
 function stripQuizUnsupportedFields(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(stripQuizUnsupportedFields);
@@ -36,16 +34,29 @@ function stripQuizUnsupportedFields(value: unknown): unknown {
   return draft;
 }
 
+const quizEntityIdSchema = z
+  .string()
+  .trim()
+  .min(3)
+  .max(64)
+  .regex(/^[a-z][a-z0-9_-]*$/);
+
 export const quizBlockSchema = z.preprocess(
   stripQuizUnsupportedFields,
   z.object({
-    id: z
-      .string()
-      .trim()
-      .min(3)
-      .max(64)
-      .regex(/^[a-z][a-z0-9_-]*$/),
+    id: quizEntityIdSchema,
     item: quizItemSchema,
+    sectionId: quizEntityIdSchema.optional(),
+  })
+  .strict(),
+);
+
+export const quizSectionSchema = z.preprocess(
+  stripQuizUnsupportedFields,
+  z.object({
+    id: quizEntityIdSchema,
+    instructions: z.string().trim().min(1).max(2000),
+    title: z.string().trim().min(1).max(200).optional(),
   })
   .strict(),
 );
@@ -53,11 +64,12 @@ export const quizBlockSchema = z.preprocess(
 export const quizDraftSchema = z.preprocess(
   stripQuizUnsupportedFields,
   z.object({
-    blocks: z.array(quizBlockSchema).min(1).max(maxQuizBlocks),
+    blocks: z.array(quizBlockSchema).min(1),
     description: z.string().trim().max(1500).default(''),
     evaluationInstructions: z.string().trim().max(3000).default(''),
     instructions: z.string().trim().max(3000).default(''),
     level: z.string().trim().max(120).default(''),
+    sections: z.array(quizSectionSchema).default([]),
     targetTopic: z.string().trim().max(220).default(''),
     title: z.string().trim().min(1).max(220),
   })
@@ -77,10 +89,35 @@ export const quizDraftSchema = z.preprocess(
 
       seenIds.add(normalizedId);
     });
+
+    const seenSectionIds = new Set<string>();
+    draft.sections.forEach((section, index) => {
+      const normalizedId = section.id.toLowerCase();
+      if (seenSectionIds.has(normalizedId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Section ids must be unique within an quiz draft.',
+          path: ['sections', index, 'id'],
+        });
+      }
+
+      seenSectionIds.add(normalizedId);
+    });
+
+    draft.blocks.forEach((block, index) => {
+      if (block.sectionId && !seenSectionIds.has(block.sectionId.toLowerCase())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Every block sectionId must reference an existing section id.',
+          path: ['blocks', index, 'sectionId'],
+        });
+      }
+    });
   }),
 );
 
 export type QuizBlock = z.infer<typeof quizBlockSchema>;
+export type QuizSection = z.infer<typeof quizSectionSchema>;
 export type QuizDraft = z.infer<typeof quizDraftSchema>;
 
 export type QuizEvaluationSummary = {
@@ -133,8 +170,14 @@ export type QuizStudentQuizItem =
       tokens: string[];
     };
 
+export type QuizStudentQuizSection = {
+  id: string;
+  instructions: string;
+  title?: string;
+};
+
 export type QuizStudentQuizBlock = {
-  items: QuizStudentQuizItem[];
+  items: Array<QuizStudentQuizItem & { section?: QuizStudentQuizSection }>;
   prompt: string;
   title: string;
   type: 'quiz';
@@ -161,6 +204,7 @@ export function storedQuizToDraft(quiz: StoredQuiz): QuizDraft {
     evaluationInstructions: '',
     instructions: quiz.instructions,
     level: quiz.level,
+    sections: [],
     targetTopic: quiz.targetTopic,
     title: quiz.title,
   };
@@ -178,12 +222,67 @@ export function quizDraftToQuizBlock(draft: QuizDraft): TutorQuizBlock {
 }
 
 export function quizDraftToStudentQuizBlock(draft: QuizDraft): QuizStudentQuizBlock {
+  const sectionList = buildQuizBlockSectionList(draft);
   return {
-    items: draft.blocks.map((block) => buildStudentQuizItem(block.item)),
+    items: draft.blocks.map((block, index) => {
+      const section = sectionList[index];
+      return {
+        ...buildStudentQuizItem(block.item),
+        ...(section
+          ? {
+              section: {
+                id: section.id,
+                instructions: section.instructions,
+                ...(section.title ? { title: section.title } : {}),
+              },
+            }
+          : {}),
+      };
+    }),
     prompt: draft.instructions || draft.description || draft.title,
     title: draft.title,
     type: 'quiz',
   };
+}
+
+/**
+ * Returns, for each block (aligned by index), the section it belongs to or
+ * null when the block is not grouped under any section.
+ */
+export function buildQuizBlockSectionList(draft: QuizDraft): Array<QuizSection | null> {
+  const sectionsById = new Map(draft.sections.map((section) => [section.id, section]));
+  return draft.blocks.map((block) =>
+    block.sectionId ? sectionsById.get(block.sectionId) ?? null : null,
+  );
+}
+
+/**
+ * Groups block indexes by section for the LLM evaluator, so section-level
+ * instructions still apply to items whose prompt does not repeat them.
+ */
+export function buildQuizEvaluationSections(draft: QuizDraft): Array<{
+  instructions: string;
+  itemIndexes: number[];
+  title?: string;
+}> {
+  const itemIndexesBySection = new Map<string, number[]>();
+  draft.blocks.forEach((block, index) => {
+    if (!block.sectionId) {
+      return;
+    }
+
+    const indexes = itemIndexesBySection.get(block.sectionId) ?? [];
+    indexes.push(index);
+    itemIndexesBySection.set(block.sectionId, indexes);
+  });
+
+  return draft.sections
+    .filter((section) => (itemIndexesBySection.get(section.id) ?? []).length > 0)
+    .map((section) => ({
+      instructions: section.instructions,
+      itemIndexes: itemIndexesBySection.get(section.id) ?? [],
+      ...(section.title ? { title: section.title } : {}),
+    }));
 }
 
 function buildStudentQuizItem(item: TutorQuizItem): QuizStudentQuizItem {
@@ -268,20 +367,127 @@ export function createQuizDraftFromManualInput(input: {
   });
 }
 
+/**
+ * Reorders blocks so every section's blocks are contiguous: unsectioned
+ * blocks first, then each section in sections-array order. The sort is
+ * stable, so relative order inside each group is preserved. Apply it after
+ * AI generation/revision and section edits; never on stored attempt
+ * snapshots, where responses are aligned to the saved block order.
+ */
+export function canonicalizeQuizDraftBlockOrder(draft: QuizDraft): QuizDraft {
+  if (draft.sections.length === 0) {
+    return draft;
+  }
+
+  const sectionRank = new Map(draft.sections.map((section, index) => [section.id, index + 1]));
+  const blocks = draft.blocks
+    .slice()
+    .sort(
+      (a, b) =>
+        (a.sectionId ? sectionRank.get(a.sectionId) ?? 0 : 0) -
+        (b.sectionId ? sectionRank.get(b.sectionId) ?? 0 : 0),
+    );
+
+  return quizDraftSchema.parse({
+    ...draft,
+    blocks,
+  });
+}
+
+export function upsertQuizSection(
+  draft: QuizDraft,
+  input: {
+    blockIds: string[];
+    instructions: string;
+    sectionId?: string;
+    title: string;
+  },
+): QuizDraft {
+  const existingSection = input.sectionId
+    ? draft.sections.find((section) => section.id === input.sectionId)
+    : undefined;
+  const sectionId = existingSection
+    ? existingSection.id
+    : ensureUniqueSectionId(input.title || 'seccion', draft.sections);
+  const nextSection = {
+    id: sectionId,
+    instructions: input.instructions,
+    ...(input.title ? { title: input.title } : {}),
+  };
+  const sections = existingSection
+    ? draft.sections.map((section) => (section.id === sectionId ? nextSection : section))
+    : [...draft.sections, nextSection];
+  const memberBlockIds = new Set(input.blockIds);
+  const blocks = draft.blocks.map((block) => {
+    if (memberBlockIds.has(block.id)) {
+      return { ...block, sectionId };
+    }
+
+    if (block.sectionId === sectionId) {
+      const { sectionId: _removed, ...rest } = block;
+      return rest;
+    }
+
+    return block;
+  });
+
+  return canonicalizeQuizDraftBlockOrder(
+    quizDraftSchema.parse({
+      ...draft,
+      blocks,
+      sections,
+    }),
+  );
+}
+
+export function removeQuizSection(
+  draft: QuizDraft,
+  sectionId: string,
+): QuizDraft {
+  if (!draft.sections.some((section) => section.id === sectionId)) {
+    return draft;
+  }
+
+  return quizDraftSchema.parse({
+    ...draft,
+    blocks: draft.blocks.map((block) => {
+      if (block.sectionId !== sectionId) {
+        return block;
+      }
+
+      const { sectionId: _removed, ...rest } = block;
+      return rest;
+    }),
+    sections: draft.sections.filter((section) => section.id !== sectionId),
+  });
+}
+
 export function appendQuizBlock(
   draft: QuizDraft,
   block: QuizBlock,
 ): QuizDraft {
-  return quizDraftSchema.parse({
-    ...draft,
-    blocks: [
-      ...draft.blocks,
-      {
-        ...block,
-        id: ensureUniqueBlockId(block.id, draft.blocks),
-      },
-    ],
-  });
+  const lastBlock = draft.blocks[draft.blocks.length - 1];
+  const validSectionIds = new Set(draft.sections.map((section) => section.id));
+  // Keep the new block at the visual end of the list: reuse its sectionId
+  // only when valid, otherwise inherit the section of the last block.
+  const sectionId =
+    block.sectionId && validSectionIds.has(block.sectionId)
+      ? block.sectionId
+      : lastBlock?.sectionId;
+
+  return canonicalizeQuizDraftBlockOrder(
+    quizDraftSchema.parse({
+      ...draft,
+      blocks: [
+        ...draft.blocks,
+        {
+          id: ensureUniqueBlockId(block.id, draft.blocks),
+          item: block.item,
+          ...(sectionId ? { sectionId } : {}),
+        },
+      ],
+    }),
+  );
 }
 
 export function removeQuizBlock(
@@ -336,6 +542,23 @@ export function moveQuizBlock(
   const [block] = blocks.splice(currentIndex, 1);
   if (!block) {
     return draft;
+  }
+
+  // Moving against a neighbor from another section crosses a section
+  // boundary: the block adopts the neighbor's section and keeps its
+  // position, so it shows up under the adjacent header instead of jumping
+  // over the whole group.
+  const neighbor = draft.blocks[nextIndex];
+  if (neighbor && neighbor.sectionId !== block.sectionId) {
+    const { sectionId: _removed, ...rest } = block;
+    blocks.splice(currentIndex, 0, {
+      ...rest,
+      ...(neighbor.sectionId ? { sectionId: neighbor.sectionId } : {}),
+    });
+    return quizDraftSchema.parse({
+      ...draft,
+      blocks,
+    });
   }
 
   blocks.splice(nextIndex, 0, block);
@@ -427,6 +650,7 @@ export async function evaluateQuizAttempt(input: {
     llm: input.llm,
     quiz,
     responses,
+    sections: buildQuizEvaluationSections(draft),
   });
 
   return quizResultBlockSchema.parse(
@@ -616,18 +840,30 @@ function normalizeStoredResponses(values: unknown[]): Array<Record<string, unkno
 }
 
 function ensureUniqueBlockId(id: string, blocks: QuizBlock[]): string {
-  const usedIds = new Set(blocks.map((block) => block.id));
+  return ensureUniqueEntityId(id, 'block', new Set(blocks.map((block) => block.id)));
+}
+
+function ensureUniqueSectionId(id: string, sections: QuizSection[]): string {
+  return ensureUniqueEntityId(id, 'seccion', new Set(sections.map((section) => section.id)));
+}
+
+function ensureUniqueEntityId(
+  id: string,
+  fallbackBaseId: string,
+  usedIds: Set<string>,
+): string {
   const baseId = id
     .toLowerCase()
     .replace(/[^a-z0-9_-]+/g, '_')
     .replace(/_+/g, '_')
     .replace(/^_+|_+$/g, '')
-    .replace(/^[^a-z]+/, '') || 'block';
-  let nextId = baseId.slice(0, 56);
+    .replace(/^[^a-z]+/, '') || fallbackBaseId;
+  const paddedBaseId = baseId.length < 3 ? `${baseId}_x`.slice(0, 3) : baseId;
+  let nextId = paddedBaseId.slice(0, 56);
   let suffix = 2;
 
   while (usedIds.has(nextId)) {
-    nextId = `${baseId.slice(0, 50)}_${suffix}`;
+    nextId = `${paddedBaseId.slice(0, 50)}_${suffix}`;
     suffix += 1;
   }
 
