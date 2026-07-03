@@ -112,11 +112,15 @@ function renderQuizResultCard(section, state) {
 
   markers.replaceChildren();
   state.items.forEach((item, index) => {
+    const status = normalizeEvaluationStatus(item?.evaluation?.status);
     const button = document.createElement('button');
-    button.className = `quiz-result-marker${index === state.currentIndex ? ' is-active' : ''}`;
+    button.className = `quiz-result-marker is-${status}${index === state.currentIndex ? ' is-active' : ''}`;
     button.type = 'button';
     button.textContent = String(index + 1);
-    button.setAttribute('aria-label', `Ir a la pregunta ${index + 1}`);
+    button.setAttribute(
+      'aria-label',
+      `Ir a la pregunta ${index + 1} (${getEvaluationStatusLabel(status).toLowerCase()})`,
+    );
     button.addEventListener('click', () => {
       state.currentIndex = index;
       renderQuizResultCard(section, state);

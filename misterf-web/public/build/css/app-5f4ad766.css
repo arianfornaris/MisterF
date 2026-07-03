@@ -2734,6 +2734,42 @@ body {
   color: var(--mf-teal-strong);
 }
 
+.quiz-result-marker.is-correct {
+  border-color: rgb(var(--mf-success-rgb) / 32%);
+  background: rgb(var(--mf-success-rgb) / 10%);
+  color: var(--mf-success);
+}
+
+.quiz-result-marker.is-partial {
+  border-color: rgb(var(--mf-warning-rgb) / 36%);
+  background: rgb(var(--mf-warning-rgb) / 11%);
+  color: var(--mf-warning);
+}
+
+.quiz-result-marker.is-incorrect {
+  border-color: rgb(var(--mf-danger-rgb) / 32%);
+  background: rgb(var(--mf-danger-rgb) / 10%);
+  color: var(--mf-danger);
+}
+
+.quiz-result-marker.is-correct.is-active {
+  border-color: var(--mf-success);
+  background: var(--mf-success);
+  color: #fff;
+}
+
+.quiz-result-marker.is-partial.is-active {
+  border-color: var(--mf-warning);
+  background: var(--mf-warning);
+  color: #fff;
+}
+
+.quiz-result-marker.is-incorrect.is-active {
+  border-color: var(--mf-danger);
+  background: var(--mf-danger);
+  color: #fff;
+}
+
 .quiz-result-slide {
   display: grid;
   gap: 0.9rem;
