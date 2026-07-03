@@ -19,6 +19,19 @@ describe('tutor prompt contracts', () => {
     expect(protocol).not.toContain('QuizResultBlock');
   });
 
+  it('injects registered avatar ids into dialogue block protocol docs', () => {
+    const protocol = renderTutorBlockProtocol([
+      'dialogue-character-message',
+      'dialogue-transcript',
+      'tutor-response-block',
+    ]);
+
+    expect(protocol).toContain('avatarId?: string;');
+    expect(protocol).toContain('- amara: Amara');
+    expect(protocol).toContain('- lucas: Lucas');
+    expect(protocol).not.toContain('{{DIALOGUE_AVATAR_OPTIONS}}');
+  });
+
   it('documents fill-in-the-blank input as a free-form learner reply', () => {
     const protocol = renderTutorBlockProtocol();
 

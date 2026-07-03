@@ -135,6 +135,51 @@ describe('normal tutor response schema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('accepts registered avatars on dialogue blocks', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'dialogue_character_message',
+          avatarId: 'amara',
+          name: 'Emma',
+          markdown: 'Good morning. How can I help you today?',
+        },
+        {
+          type: 'dialogue_transcript',
+          turns: [
+            {
+              avatarId: 'amara',
+              speaker: 'Emma',
+              markdown: 'Good morning. How can I help you today?',
+            },
+            {
+              avatarId: 'lucas',
+              speaker: 'Leo',
+              markdown: 'I need to send this package.',
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects unregistered avatars on dialogue blocks', () => {
+    const result = tutorAgentResponseSchema.safeParse({
+      blocks: [
+        {
+          type: 'dialogue_character_message',
+          avatarId: 'made-up-avatar',
+          name: 'Emma',
+          markdown: 'Good morning. How can I help you today?',
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it('still accepts quiz_result in persisted/renderable history', () => {
     const result = persistedTutorResponseSchema.safeParse({
       blocks: [

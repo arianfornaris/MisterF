@@ -10,6 +10,35 @@ import { createUnscrambleSentenceCard } from '../cards/unscrambleSentenceCard.js
 import { initializeStaticMarkdown as initializeSharedStaticMarkdown } from '../../shared/staticMarkdown.js';
 import { renderMarkdown } from '../utils/formatting.js';
 
+function getDialogueAvatarSrc(avatarId) {
+  const normalized = typeof avatarId === 'string' ? avatarId.trim() : '';
+  if (!/^[a-z][a-z0-9-]{0,63}$/.test(normalized)) {
+    return '';
+  }
+
+  return `/public/roleplay-characters/${normalized}.png`;
+}
+
+function createDialogueAvatar(avatarId, fallbackIconClass = 'bi-person') {
+  const avatar = document.createElement('span');
+  avatar.className = 'dialogue-avatar';
+  avatar.setAttribute('aria-hidden', 'true');
+
+  const avatarSrc = getDialogueAvatarSrc(avatarId);
+  if (avatarSrc) {
+    const image = document.createElement('img');
+    image.src = avatarSrc;
+    image.alt = '';
+    avatar.append(image);
+    return avatar;
+  }
+
+  const icon = document.createElement('i');
+  icon.className = `bi ${fallbackIconClass}`;
+  avatar.append(icon);
+  return avatar;
+}
+
 export function createTutorMessageRenderer(deps) {
   function setModelBubbleContent(element, content, metadata, options = {}) {
     if (!element) {
@@ -43,6 +72,9 @@ export function createTutorMessageRenderer(deps) {
         const turn = document.createElement('div');
         turn.className = 'inline-character-turn';
 
+        const header = document.createElement('div');
+        header.className = 'inline-character-header';
+
         const speaker = document.createElement('div');
         speaker.className = 'inline-character-name';
         speaker.textContent = String(block.name || 'Character');
@@ -51,7 +83,8 @@ export function createTutorMessageRenderer(deps) {
         text.className = 'inline-character-text';
         text.innerHTML = renderMarkdown(block.markdown || '');
 
-        turn.append(speaker, text);
+        header.append(createDialogueAvatar(block.avatarId), speaker);
+        turn.append(header, text);
         stack.append(turn);
         hasVisualContent = true;
         return;
@@ -73,6 +106,9 @@ export function createTutorMessageRenderer(deps) {
           const turn = document.createElement('div');
           turn.className = 'dialogue-transcript-turn';
 
+          const body = document.createElement('div');
+          body.className = 'dialogue-transcript-body';
+
           const speaker = document.createElement('div');
           speaker.className = 'dialogue-transcript-speaker';
           speaker.textContent = String(item.speaker || 'Speaker')
@@ -83,7 +119,8 @@ export function createTutorMessageRenderer(deps) {
           text.className = 'dialogue-transcript-text';
           text.innerHTML = renderMarkdown(item.markdown || '');
 
-          turn.append(speaker, text);
+          body.append(speaker, text);
+          turn.append(createDialogueAvatar(item.avatarId, 'bi-chat-quote'), body);
           turns.append(turn);
         }
 
