@@ -28,6 +28,7 @@ export type TutorMessageBlock = {
 
 export type TutorDialogueCharacterMessageBlock = {
   type: 'dialogue_character_message';
+  avatarId?: string;
   name: string;
   markdown: string;
 };
@@ -35,6 +36,7 @@ export type TutorDialogueCharacterMessageBlock = {
 export type TutorDialogueTranscriptBlock = {
   type: 'dialogue_transcript';
   turns: Array<{
+    avatarId?: string;
     markdown: string;
     speaker: string;
   }>;

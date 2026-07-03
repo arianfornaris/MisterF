@@ -19,6 +19,20 @@
 interface DialogueCharacterMessageBlock {
   /** Literal discriminator. */
   type: "dialogue_character_message";
+  /**
+   * Optional registered avatar id for the fictional in-scene character.
+   *
+   * Use this when a mini conversation or role-play scene would benefit from a
+   * visible character portrait. Choose exactly one id from the available avatar
+   * list below, match the character's likely age, gender/presentation, and
+   * general presence, and keep the same avatarId for the same character across
+   * later dialogue turns. Omit this only when the character is intentionally
+   * abstract or when continuing a previous turn whose avatar is unknown.
+   *
+   * Available avatar ids:
+   * {{DIALOGUE_AVATAR_OPTIONS}}
+   */
+  avatarId?: string;
   /** Fictional in-scene character name; must be an invented proper name and never Mr. F, the tutor, the teacher, assistant, or AI. */
   name: string;
   /** Only the fictional character's spoken line; normally English because this is dialogue practice. */
