@@ -13,6 +13,7 @@ export const tutorBlockProtocolNames = [
     'fill-in-the-blank-choice',
     'multiple-choice',
     'unscramble-sentence',
+    'order-sentences',
     'tutor-plan',
     'tutor-plan-update',
     'sentence-evaluation',

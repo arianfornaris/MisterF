@@ -103,6 +103,7 @@ export function blocksToMarkdown(blocks) {
         block.type === 'fill_in_the_blank_choice' ||
         block.type === 'multiple_choice' ||
         block.type === 'unscramble_sentence' ||
+        block.type === 'order_sentences' ||
         block.type === 'sentence_evaluation')
         .map((block) => {
         if (block.type === 'sentence_evaluation') {
@@ -137,6 +138,9 @@ export function blocksToMarkdown(blocks) {
         }
         if (block.type === 'unscramble_sentence') {
             return block.prompt?.trim() || block.tokens.join(' ').trim();
+        }
+        if (block.type === 'order_sentences') {
+            return block.prompt?.trim() || 'Ordena las oraciones.';
         }
         if (block.type === 'translate_to_english_prompt') {
             return `Traduce al ingles: "${block.sentence.trim()}"`;

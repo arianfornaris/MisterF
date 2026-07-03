@@ -107,6 +107,13 @@ function detectMessageIssues(markdown) {
             reason: 'A message asks the learner to reorder words or a sentence.',
         });
     }
+    if (/\b(?:ordena|reordena|pon)\b[\s\S]{0,180}\b(?:pasos|oraciones|frases|instrucciones|eventos)\b/i.test(markdown)) {
+        issues.push({
+            expectedBlockTypes: ['order_sentences', 'quiz'],
+            kind: 'order_sentences_prompt',
+            reason: 'A message asks the learner to put sentences or steps in order.',
+        });
+    }
     if (/\b(?:une|relaciona|empareja)\b[\s\S]{0,180}\b(?:con|cada|correct[ao]s?|significado|traducci[oó]n|pareja)\b/i.test(markdown)) {
         issues.push({
             expectedBlockTypes: ['matching_pairs', 'quiz'],

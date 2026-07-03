@@ -117,6 +117,53 @@ function buildFallbackBlocksFromPlainText(input) {
     }
     return [{ type: 'message', markdown: trimmedText }];
 }
+const tutorBlockToolNameSet = new Set([
+    'message',
+    'dialogue_character_message',
+    'dialogue_transcript',
+    'matching_pairs',
+    'quiz',
+    'translate_to_english_prompt',
+    'understand_in_spanish_prompt',
+    'open_text_prompt',
+    'fill_in_the_blank_input',
+    'fill_in_the_blank_choice',
+    'multiple_choice',
+    'unscramble_sentence',
+    'order_sentences',
+    'tutor_plan',
+    'tutor_plan_update',
+    'sentence_evaluation',
+]);
+export function extractTutorResponseFromBlockToolCalls(steps) {
+    let firstMessageOnlyResponse = null;
+    for (const step of steps) {
+        const blocks = (step.toolCalls ?? [])
+            .map((toolCall) => blockFromToolCall(toolCall))
+            .filter((block) => block !== null);
+        if (blocks.length === 0) {
+            continue;
+        }
+        if (blocks.some((block) => block.type !== 'message')) {
+            return { blocks };
+        }
+        firstMessageOnlyResponse ??= { blocks };
+    }
+    return firstMessageOnlyResponse;
+}
+function blockFromToolCall(toolCall) {
+    if (typeof toolCall.toolName !== 'string' ||
+        !tutorBlockToolNameSet.has(toolCall.toolName) ||
+        !toolCall.input ||
+        typeof toolCall.input !== 'object' ||
+        Array.isArray(toolCall.input)) {
+        return null;
+    }
+    return {
+        ...toolCall.input,
+        type: toolCall.toolName,
+    };
+}
 export async function runTutorAgentLoop(history, options) {
     const messages = history.map(toModelMessage);
     const system = buildAgentSystemInstruction({
@@ -173,7 +220,18 @@ export async function runTutorAgentLoop(history, options) {
             let finalBlocks = null;
             let parsedObject = null;
             const initialText = result.text.trim();
-            if (!initialText) {
+            const blockToolCallResponse = extractTutorResponseFromBlockToolCalls(result.steps);
+            if (blockToolCallResponse) {
+                parsedObject = blockToolCallResponse;
+                finalBlocks = validateTutorResponseBlocks(parsedObject, {
+                    conversationId: options.conversationId ?? null,
+                    generatedText: JSON.stringify(blockToolCallResponse),
+                    llm: options.llm,
+                    operation: 'tutor',
+                    userId: options.userId ?? null,
+                });
+            }
+            else if (!initialText) {
                 finalBlocks = buildFallbackBlocksFromPlainText({
                     text: result.text,
                 });

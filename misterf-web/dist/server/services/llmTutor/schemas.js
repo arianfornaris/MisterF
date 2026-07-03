@@ -329,6 +329,14 @@ const quizUnscrambleSentenceItemSchema = z
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
 })
     .strict();
+const quizOrderSentencesItemSchema = z
+    .object({
+    kind: z.literal('quiz_order_sentences'),
+    prompt: z.string().trim().min(1).max(1600),
+    rubric: z.string().trim().min(1).max(1600).optional(),
+    sentences: z.array(z.string().trim().min(1).max(400)).min(2).max(12),
+})
+    .strict();
 export const quizItemSchema = z.union([
     quizOpenTextItemSchema,
     quizTranslateToEnglishItemSchema,
@@ -338,6 +346,7 @@ export const quizItemSchema = z.union([
     quizMultipleChoiceItemSchema,
     quizMatchingPairsItemSchema,
     quizUnscrambleSentenceItemSchema,
+    quizOrderSentencesItemSchema,
 ]);
 export const quizBlockSchema = z
     .object({
@@ -579,6 +588,30 @@ const quizResultUnscrambleSentenceItemSchema = z
         .strict(),
 })
     .strict();
+const quizResultOrderSentencesItemSchema = z
+    .object({
+    evaluation: z
+        .object({
+        feedback: z.string().trim().min(1).max(1200),
+        status: z.enum(['correct', 'partial', 'incorrect']),
+    })
+        .strict(),
+    inlineReview: z
+        .object({
+        sentences: z.array(inlineBlankReviewSchema).min(1).max(12),
+    })
+        .strict()
+        .optional(),
+    kind: z.literal('quiz_order_sentences'),
+    prompt: z.string().trim().min(1).max(1600),
+    sentences: z.array(z.string().trim().min(1).max(400)).min(2).max(12),
+    userResponse: z
+        .object({
+        orderedSentences: z.array(z.string().trim().min(1).max(400)).max(12),
+    })
+        .strict(),
+})
+    .strict();
 const quizResultItemSchema = z.union([
     quizResultOpenTextItemSchema,
     quizResultTranslateToEnglishItemSchema,
@@ -588,6 +621,7 @@ const quizResultItemSchema = z.union([
     quizResultMultipleChoiceItemSchema,
     quizResultMatchingPairsItemSchema,
     quizResultUnscrambleSentenceItemSchema,
+    quizResultOrderSentencesItemSchema,
 ]);
 export const quizResultBlockSchema = z
     .object({
@@ -644,6 +678,18 @@ export const quizResultEvaluationsSchema = z
             inlineReview: z
                 .object({
                 pairs: z.array(inlineMatchingPairReviewSchema).max(24),
+            })
+                .strict()
+                .optional(),
+        })
+            .strict(),
+        z
+            .object({
+            feedback: z.string().trim().min(1).max(1200),
+            status: z.enum(['correct', 'partial', 'incorrect']),
+            inlineReview: z
+                .object({
+                sentences: z.array(inlineBlankReviewSchema).max(12),
             })
                 .strict()
                 .optional(),
@@ -740,6 +786,13 @@ export const unscrambleSentenceBlockSchema = z
     type: z.literal('unscramble_sentence'),
     prompt: z.string().trim().min(1).max(1000).optional(),
     tokens: z.array(z.string().trim().min(1).max(120)).min(2).max(32),
+})
+    .strict();
+export const orderSentencesBlockSchema = z
+    .object({
+    type: z.literal('order_sentences'),
+    prompt: z.string().trim().min(1).max(1000).optional(),
+    sentences: z.array(z.string().trim().min(1).max(400)).min(2).max(12),
 })
     .strict();
 const tutorPlanStepIdSchema = z.string().trim().min(1).max(48).regex(/^[a-z][a-z0-9_-]*$/, 'step id must start with a lowercase letter and contain only lowercase letters, numbers, underscores, or hyphens.');
@@ -898,6 +951,7 @@ const tutorAgentResponseBlockSchema = z.union([
     fillInTheBlankChoiceBlockSchema,
     multipleChoiceBlockSchema,
     unscrambleSentenceBlockSchema,
+    orderSentencesBlockSchema,
     tutorPlanBlockSchema,
     tutorPlanUpdateBlockSchema,
     sentenceEvaluationBlockSchema,

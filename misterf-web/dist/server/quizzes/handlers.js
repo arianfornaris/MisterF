@@ -51,6 +51,11 @@ const quizBlockKinds = [
         label: 'Ordenar oración',
         value: 'quiz_unscramble_sentence',
     },
+    {
+        description: 'Ordenar pasos u oraciones en secuencia.',
+        label: 'Ordenar oraciones',
+        value: 'quiz_order_sentences',
+    },
 ];
 const defaultQuizAuthoringTab = 'general';
 const maxQuizAuthoringMessages = 40;
@@ -131,6 +136,9 @@ function buildQuizBlockOutlineItems(draft) {
         }
         if (item.kind === 'quiz_unscramble_sentence') {
             metaItems.push(formatCountLabel(item.tokens.length, 'palabra', 'palabras'));
+        }
+        if (item.kind === 'quiz_order_sentences') {
+            metaItems.push(formatCountLabel(item.sentences.length, 'oración', 'oraciones'));
         }
         return {
             blockNumber: index + 1,

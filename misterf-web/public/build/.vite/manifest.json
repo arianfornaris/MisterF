@@ -18,8 +18,8 @@
       "_staticMarkdown-C74E1PTi.js"
     ]
   },
-  "_quizItemRenderer-rbgXvwiz.js": {
-    "file": "chunks/quizItemRenderer-rbgXvwiz.js",
+  "_quizItemRenderer-q52TbmJ4.js": {
+    "file": "chunks/quizItemRenderer-q52TbmJ4.js",
     "name": "quizItemRenderer",
     "imports": [
       "_staticMarkdown-C74E1PTi.js"
@@ -34,12 +34,12 @@
     "name": "staticMarkdown"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-eReF8LPF.js",
+    "file": "entries/chat-DA_gB5w8.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-rbgXvwiz.js",
+      "_quizItemRenderer-q52TbmJ4.js",
       "_staticMarkdown-C74E1PTi.js"
     ]
   },
@@ -57,12 +57,12 @@
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-C1h5eNBO.js",
+    "file": "entries/quizzes-DlZWCMEO.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-rbgXvwiz.js",
+      "_quizItemRenderer-q52TbmJ4.js",
       "_staticMarkdown-C74E1PTi.js",
       "_authoringChatScroll-K63TRcBs.js",
       "_createResourceFromContext-D6EFC61d.js",
