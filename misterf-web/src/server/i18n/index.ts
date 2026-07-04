@@ -64,7 +64,7 @@ export function createTranslator(locale: Locale): Translator {
  * these namespaces from `window.__APP_I18N__`; server-only namespaces are not
  * shipped to the client.
  */
-const clientNamespaces = ['chat', 'nav', 'translator', 'clientChat'] as const;
+const clientNamespaces = ['chat', 'nav', 'translator', 'clientChat', 'card'] as const;
 
 export function getClientCatalog(locale: Locale): Record<string, unknown> {
   const source = catalogs[locale];

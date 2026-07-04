@@ -1,6 +1,7 @@
+import { t } from '../../shared/i18n.js';
 import { disableTextAssist } from '../shared/textAssist.js';
 
-const DEFAULT_CORRECTION_PROMPT = 'Reescribe la oración ya corregida.';
+const DEFAULT_CORRECTION_PROMPT = t('card.correctionPromptDefault');
 const DEFAULT_SUBMIT_LABEL = 'Corregir';
 const MAX_RESPONSE_LENGTH = 2400;
 const MAX_SUBMIT_LABEL_LENGTH = 60;
@@ -30,7 +31,7 @@ export function createSentenceEvaluationCard({
 
   const label = document.createElement('h3');
   label.className = 'sentence-evaluation-label';
-  label.textContent = 'Evaluación';
+  label.textContent = t('card.evaluationLabel');
   header.append(label);
 
   const body = document.createElement('div');
@@ -122,7 +123,7 @@ function buildCorrectionSection(evaluation, context, sendMessageContent, getEval
 function submitCorrection(section, state, sendMessageContent) {
   const response = state.response.trim().slice(0, MAX_RESPONSE_LENGTH);
   if (!normalizeInlineText(response) || state.submitted) {
-    state.statusText = 'Escribe la oración corregida antes de enviarla.';
+    state.statusText = t('card.rewriteEmptyError');
     state.statusTone = 'error';
     renderCorrectionState(section, state);
     return;
@@ -141,7 +142,7 @@ function submitCorrection(section, state, sendMessageContent) {
   });
 
   if (!sent) {
-    state.statusText = 'No pude enviar la corrección. Intenta de nuevo.';
+    state.statusText = t('card.correctionSendError');
     state.statusTone = 'error';
     renderCorrectionState(section, state);
     return;
@@ -176,12 +177,12 @@ function renderCorrectionState(section, state) {
 
   status.classList.remove('is-error', 'is-success');
   if (state.submitted) {
-    status.textContent = 'Enviado. Mr. F está revisando tu corrección.';
+    status.textContent = t('card.correctionSubmitted');
     status.classList.add('is-success');
     return;
   }
 
-  status.textContent = state.statusText || 'Corrige las partes marcadas y envíala.';
+  status.textContent = state.statusText || t('card.correctionDefaultStatus');
   if (state.statusTone === 'error') {
     status.classList.add('is-error');
   }

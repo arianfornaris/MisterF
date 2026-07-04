@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../shared/markdown.js';
 import { disableTextAssist } from '../shared/textAssist.js';
 
@@ -131,12 +132,12 @@ function renderOpenTextPromptState(section, state) {
 
   status.classList.remove('is-error', 'is-success');
   if (state.submitted) {
-    status.textContent = 'Enviado. Mr. F está respondiendo.';
+    status.textContent = t('card.submittedResponding');
     status.classList.add('is-success');
     return;
   }
 
-  status.textContent = state.statusText || 'Escribe tu respuesta y envíala cuando estés listo.';
+  status.textContent = state.statusText || t('card.openTextDefaultStatus');
   if (state.statusTone === 'error') {
     status.classList.add('is-error');
   }

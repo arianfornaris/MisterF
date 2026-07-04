@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { disableTextAssist } from '../shared/textAssist.js';
 
 const MAX_RESPONSE_LENGTH = 2400;
@@ -5,19 +6,19 @@ const MAX_RESPONSE_LENGTH = 2400;
 const VARIANTS = {
   translate_to_english_prompt: {
     className: 'is-translate_to_english_prompt',
-    label: 'Traduce al inglés',
-    placeholder: 'Escribe tu traducción en inglés…',
-    submitLabel: 'Enviar traducción',
-    emptyStatus: 'Escribe tu traducción y envíala cuando estés listo.',
-    emptyError: 'Escribe tu traducción antes de enviarla.',
+    label: t('card.translateLabel'),
+    placeholder: t('card.translatePlaceholder'),
+    submitLabel: t('card.translateSubmit'),
+    emptyStatus: t('card.translateEmptyStatus'),
+    emptyError: t('card.translateEmptyError'),
   },
   understand_in_spanish_prompt: {
     className: 'is-understand_in_spanish_prompt',
-    label: 'Explica en español',
-    placeholder: 'Explica el significado en español…',
-    submitLabel: 'Enviar explicación',
-    emptyStatus: 'Escribe tu explicación y envíala cuando estés listo.',
-    emptyError: 'Escribe tu explicación antes de enviarla.',
+    label: t('card.explainLabel'),
+    placeholder: t('card.explainPlaceholder'),
+    submitLabel: t('card.explainSubmit'),
+    emptyStatus: t('card.explainEmptyStatus'),
+    emptyError: t('card.explainEmptyError'),
   },
 };
 
@@ -150,7 +151,7 @@ function renderTranslationPromptState(card, state) {
 
   status.classList.remove('is-error', 'is-success');
   if (state.submitted) {
-    status.textContent = 'Enviado. Mr. F está respondiendo.';
+    status.textContent = t('card.translationSubmitted');
     status.classList.add('is-success');
     return;
   }

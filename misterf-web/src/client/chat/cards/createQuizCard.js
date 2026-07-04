@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../utils/formatting.js';
 import {
   buildInitialQuizItemState,
@@ -69,7 +70,7 @@ export function createQuizCard(block, context, deps) {
     }
 
     const shouldAbort = window.confirm(
-      'Si cierras este quiz, perderás esta evaluación pendiente. ¿Quieres abortarlo?',
+      t('card.quizAbortConfirm'),
     );
     if (!shouldAbort) {
       return;
@@ -97,7 +98,7 @@ export function createQuizCard(block, context, deps) {
   const previousButton = document.createElement('button');
   previousButton.className = 'btn btn-primary btn-sm quiz-nav-button';
   previousButton.type = 'button';
-  previousButton.textContent = 'Atrás';
+  previousButton.textContent = t('card.quizBack');
   previousButton.addEventListener('click', () => {
     if (state.currentIndex > 0) {
       state.currentIndex -= 1;
@@ -203,7 +204,7 @@ function syncQuizCardStatus(section, state) {
     setQuizStatusContent(status, 'Quiz evaluado.');
     status.classList.add('is-success');
   } else if (state.submitted) {
-    setQuizStatusContent(status, 'Quiz enviado. Mister F lo está evaluando.', {
+    setQuizStatusContent(status, t('card.quizSubmitted'), {
       pending: true,
     });
     status.classList.add('is-success');

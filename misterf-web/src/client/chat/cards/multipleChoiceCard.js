@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../shared/markdown.js';
 import {
   arraysEqual,
@@ -161,8 +162,8 @@ function renderMultipleChoiceState(section, state) {
   status.textContent =
     state.statusText ||
     (state.selectionMode === 'single'
-      ? 'Marca solo una opción y confirma cuando estés seguro.'
-      : 'Selecciona una o varias opciones y confirma cuando estés seguro.');
+      ? t('card.chooseOne')
+      : t('card.chooseMany'));
   if (state.statusTone === 'error') {
     status.classList.add('is-error');
   }
@@ -193,7 +194,7 @@ function handleMultipleChoiceSubmit(section, state, deps) {
   ) {
     state.incorrectSelections.push(selected);
   }
-  state.statusText = 'Todavía no. Revísalo y vuelve a intentarlo.';
+  state.statusText = t('card.notYetReview');
   state.statusTone = 'error';
   flashExerciseError(section);
   renderMultipleChoiceState(section, state);

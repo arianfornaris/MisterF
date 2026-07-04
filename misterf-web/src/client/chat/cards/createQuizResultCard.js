@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../utils/formatting.js';
 import { splitSentenceByBlanks } from '../shared/exerciseUtils.js';
 
@@ -204,7 +205,7 @@ function createQuizResultOpenText(item) {
   wrap.append(
     createQuizResultPartsReview(
       item.inlineReview?.parts,
-      item.userResponse?.text || 'No respondió.',
+      item.userResponse?.text || t('card.noAnswer'),
     ),
   );
   return wrap;
@@ -225,7 +226,7 @@ function createQuizResultTranslationLike(item) {
   wrap.append(
     createQuizResultPartsReview(
       item.inlineReview?.parts,
-      item.userResponse?.text || 'No respondió.',
+      item.userResponse?.text || t('card.noAnswer'),
     ),
   );
   return wrap;
@@ -238,7 +239,7 @@ function createQuizResultFillSentence(item, placeholderToken) {
       userResponse: {
         text: Array.isArray(item.userResponse?.values)
           ? item.userResponse.values.join(', ')
-          : 'No respondió.',
+          : t('card.noAnswer'),
       },
     });
   }
@@ -281,7 +282,7 @@ function createQuizResultFillSentence(item, placeholderToken) {
 function createQuizResultMultipleChoice(item) {
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
-  wrap.append(createResponseLabel('Tu selección'));
+  wrap.append(createResponseLabel(t('card.yourSelection')));
 
   const options = document.createElement('div');
   options.className = 'quiz-result-option-list';
@@ -319,7 +320,7 @@ function createQuizResultMatchingPairs(item) {
       }));
 
   if (!reviewedPairs.length) {
-    pairs.append(createMutedAnswer('No respondió.'));
+    pairs.append(createMutedAnswer(t('card.noAnswer')));
   } else {
     for (const pair of reviewedPairs) {
       const row = createMatchingPairReviewNode(pair);
@@ -334,7 +335,7 @@ function createQuizResultMatchingPairs(item) {
 function createQuizResultUnscramble(item) {
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
-  wrap.append(createResponseLabel('Tu oración'));
+  wrap.append(createResponseLabel(t('card.yourSentence')));
 
   const sentence = document.createElement('div');
   sentence.className = 'quiz-result-unscramble-sentence';
@@ -344,7 +345,7 @@ function createQuizResultUnscramble(item) {
   wrap.append(
     createQuizResultPartsReview(
       item.inlineReview?.parts,
-      finalSentence || 'No respondió.',
+      finalSentence || t('card.noAnswer'),
     ),
   );
   return wrap;
@@ -359,7 +360,7 @@ function createQuizResultOrderSentences(item) {
     ? item.userResponse.orderedSentences
     : [];
   if (!orderedSentences.length) {
-    wrap.append(createMutedAnswer('No respondió.'));
+    wrap.append(createMutedAnswer(t('card.noAnswer')));
     return wrap;
   }
 
@@ -395,7 +396,7 @@ function createResponseLabel(text) {
 function createAnswerTextBlock(text) {
   const answer = document.createElement('div');
   answer.className = 'quiz-result-answer-text';
-  answer.textContent = String(text || '').trim() || 'No respondió.';
+  answer.textContent = String(text || '').trim() || t('card.noAnswer');
   return answer;
 }
 
@@ -458,8 +459,8 @@ function createMultipleChoiceReviewNode(optionReview) {
       row,
       optionReview.status === 'missed' ? 'Puede mejorar' : 'Error',
       optionReview.explanation || (optionReview.status === 'missed'
-        ? 'Faltó tener en cuenta esta opción.'
-        : 'Esta opción necesita revisión.'),
+        ? t('card.optionMissed')
+        : t('card.optionNeedsReview')),
       optionReview.status === 'missed' ? 'improve' : 'error',
     );
   }
@@ -485,7 +486,7 @@ function createMatchingPairReviewNode(pairReview) {
     attachPopoverMetadata(
       row,
       'Error',
-      pairReview.explanation || 'Esta pareja necesita revisión.',
+      pairReview.explanation || t('card.pairNeedsReview'),
       'error',
     );
   }
@@ -651,7 +652,7 @@ function createFeedbackCard(evaluation) {
 
   const title = document.createElement('p');
   title.className = 'quiz-result-feedback-title';
-  title.textContent = 'Valoración de Mr. F';
+  title.textContent = t('card.mrFAssessment');
 
   const body = document.createElement('p');
   body.className = 'quiz-result-feedback-body';

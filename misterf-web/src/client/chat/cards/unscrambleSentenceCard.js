@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../shared/markdown.js';
 import {
   arraysEqual,
@@ -29,7 +30,7 @@ export function createUnscrambleSentenceCard(block, context, deps) {
 
   const label = document.createElement('p');
   label.className = 'unscramble-sentence-label';
-  label.textContent = 'Ordena la oración';
+  label.textContent = t('card.unscrambleLabel');
 
   const prompt = document.createElement('div');
   prompt.className = 'unscramble-sentence-prompt';
@@ -144,7 +145,7 @@ function renderUnscrambleSentenceState(section, state) {
   if (state.selectedTokens.length === 0) {
     const empty = document.createElement('span');
     empty.className = 'unscramble-placeholder';
-    empty.textContent = 'Arma la oración aquí';
+    empty.textContent = t('card.unscrambleDropzone');
     assembled.append(empty);
   } else {
     state.selectedTokens.forEach((token, index) => {
@@ -174,7 +175,7 @@ function renderUnscrambleSentenceState(section, state) {
     return;
   }
 
-  status.textContent = state.statusText || 'Organiza las piezas y confirma cuando estés seguro.';
+  status.textContent = state.statusText || t('card.unscrambleDefaultStatus');
   if (state.statusTone === 'error') {
     status.classList.add('is-error');
   }
@@ -226,7 +227,7 @@ function handleUnscrambleSentenceSubmit(section, state, deps) {
   if (!state.incorrectSentences.includes(completedSentence)) {
     state.incorrectSentences.push(completedSentence);
   }
-  state.statusText = 'Todavía no. Reordénala y vuelve a intentarlo.';
+  state.statusText = t('card.unscrambleNotYet');
   state.statusTone = 'error';
   flashExerciseError(section);
   renderUnscrambleSentenceState(section, state);

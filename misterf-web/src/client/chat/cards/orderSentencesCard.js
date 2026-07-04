@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../shared/markdown.js';
 import {
   arraysEqual,
@@ -141,7 +142,7 @@ function renderOrderSentencesState(section, state) {
   if (state.selectedSentences.length === 0) {
     const empty = document.createElement('span');
     empty.className = 'order-sentences-placeholder';
-    empty.textContent = 'Arma la secuencia aquí';
+    empty.textContent = t('card.orderDropzone');
     assembled.append(empty);
   } else {
     state.selectedSentences.forEach((sentence, index) => {
@@ -243,7 +244,7 @@ function handleOrderSentencesSubmit(section, state, deps) {
   if (!alreadyRecorded) {
     state.incorrectOrders.push(attemptedOrder);
   }
-  state.statusText = 'Todavía no. Reordena la secuencia y vuelve a intentarlo.';
+  state.statusText = t('card.orderNotYet');
   state.statusTone = 'error';
   flashExerciseError(section);
   renderOrderSentencesState(section, state);

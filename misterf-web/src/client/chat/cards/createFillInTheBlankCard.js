@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../utils/formatting.js';
 import { disableTextAssist } from '../utils/textAssist.js';
 import {
@@ -71,11 +72,11 @@ export function createFillInTheBlankCard(block, context, deps) {
   label.textContent =
     block.type === 'fill_in_the_blank_input'
       ? 'Completa el espacio'
-      : 'Elige la opción correcta';
+      : t('card.chooseCorrect');
 
   const prompt = document.createElement('div');
   prompt.className = 'fill-in-the-blank-prompt';
-  prompt.innerHTML = renderMarkdown(block.prompt || 'Completa la oración.');
+  prompt.innerHTML = renderMarkdown(block.prompt || t('card.completeSentence'));
 
   const sentenceRow = document.createElement('div');
   sentenceRow.className = 'fill-in-the-blank-sentence';
@@ -249,7 +250,7 @@ function renderFillInTheBlankState(section, state) {
   if (status) {
     status.classList.remove('is-error', 'is-success');
     if (state.type === 'fill_in_the_blank_input' && state.submitted) {
-      status.textContent = 'Enviado. Mr. F está respondiendo.';
+      status.textContent = t('card.submittedResponding');
     } else if (state.completed) {
       status.textContent = 'Completado. Buen trabajo.';
       status.classList.add('is-success');
@@ -261,8 +262,8 @@ function renderFillInTheBlankState(section, state) {
     } else {
       status.textContent =
         state.type === 'fill_in_the_blank_choice'
-          ? 'Elige una opción en cada espacio y confirma cuando estés seguro.'
-          : 'Completa todos los espacios y confirma cuando estés seguro.';
+          ? t('card.chooseEachBlank')
+          : t('card.completeAllBlanks');
     }
   }
 }
@@ -331,7 +332,7 @@ function handleFillInTheBlankSubmit(section, state, deps) {
   if (!state.incorrectSentences.includes(completedSentence)) {
     state.incorrectSentences.push(completedSentence);
   }
-  state.statusText = 'Todavía no. Revísalo y vuelve a intentarlo.';
+  state.statusText = t('card.notYetReview');
   state.statusTone = 'error';
   flashFillInTheBlankError(section);
   renderFillInTheBlankState(section, state);
