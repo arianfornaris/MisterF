@@ -1,7 +1,7 @@
 <%- include('partials/app-shell-open') %>
 
 <%
-  const dateFormatter = new Intl.DateTimeFormat('es', {
+  const dateFormatter = new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
   });
@@ -20,13 +20,13 @@
   const renderList = (items) => items && items.length > 0;
 %>
 
-<section class="app-resource-view" aria-label="Progreso">
+<section class="app-resource-view" aria-label="<%= t('progress.title') %>">
   <div class="resource-page-header">
     <div>
-      <p class="resource-page-kicker">Aprendizaje</p>
-      <h1 class="resource-page-title">Progreso</h1>
+      <p class="resource-page-kicker"><%= t('progress.kicker') %></p>
+      <h1 class="resource-page-title"><%= t('progress.title') %></h1>
       <p class="resource-page-copy">
-        Una vista global y compacta de lo que has practicado con Mr. F.
+        <%= t('progress.copy') %>
       </p>
     </div>
   </div>
@@ -40,7 +40,7 @@
             role="tab"
             aria-selected="<%= selectedProgressTab === 'general' ? 'true' : 'false' %>"
           >
-            General
+            <%= t('progress.tabGeneral') %>
           </a>
         </li>
         <li class="nav-item" role="presentation">
@@ -50,7 +50,7 @@
             role="tab"
             aria-selected="<%= selectedProgressTab === 'vocabulary' ? 'true' : 'false' %>"
           >
-            Vocabulario
+            <%= t('progress.tabVocabulary') %>
           </a>
         </li>
         <li class="nav-item" role="presentation">
@@ -60,7 +60,7 @@
             role="tab"
             aria-selected="<%= selectedProgressTab === 'events' ? 'true' : 'false' %>"
           >
-            Bitácora
+            <%= t('progress.tabLog') %>
           </a>
         </li>
     </ul>
@@ -76,15 +76,15 @@
         <% if (hasGeneralProgress) { %>
           <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
             <header class="conversation-summary-header border-bottom pb-3 mb-4">
-              <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Resumen general</p>
-              <h2 class="h3 mb-3">Progreso del perfil</h2>
+              <p class="text-body-secondary small text-uppercase fw-semibold mb-2"><%= t('progress.generalSummary') %></p>
+              <h2 class="h3 mb-3"><%= t('progress.profileProgress') %></h2>
               <p class="lead mb-0"><%= summary.overview %></p>
             </header>
 
             <div class="conversation-summary-document progress-summary-document">
               <div class="row g-4">
                 <div class="col-12 col-xl-6">
-                  <h2 class="h5">Fortalezas</h2>
+                  <h2 class="h5"><%= t('progress.strengths') %></h2>
                   <% if (renderList(summary.strengths)) { %>
                     <ul class="mb-0">
                       <% summary.strengths.forEach((item) => { %>
@@ -92,12 +92,12 @@
                       <% }) %>
                     </ul>
                   <% } else { %>
-                    <p class="text-body-secondary mb-0">Todavía no hay fortalezas consolidadas.</p>
+                    <p class="text-body-secondary mb-0"><%= t('progress.noStrengths') %></p>
                   <% } %>
                 </div>
 
                 <div class="col-12 col-xl-6">
-                  <h2 class="h5">Focos de práctica</h2>
+                  <h2 class="h5"><%= t('progress.focusAreas') %></h2>
                   <% if (renderList(summary.focusAreas)) { %>
                     <ul class="mb-0">
                       <% summary.focusAreas.forEach((item) => { %>
@@ -105,12 +105,12 @@
                       <% }) %>
                     </ul>
                   <% } else { %>
-                    <p class="text-body-secondary mb-0">Aún no hay focos claros.</p>
+                    <p class="text-body-secondary mb-0"><%= t('progress.noFocus') %></p>
                   <% } %>
                 </div>
 
                 <div class="col-12 col-xl-6">
-                  <h2 class="h5">Vocabulario observado</h2>
+                  <h2 class="h5"><%= t('progress.vocabObserved') %></h2>
                   <% if (renderList(summary.vocabulary)) { %>
                     <div class="d-flex flex-wrap gap-2">
                       <% summary.vocabulary.forEach((item) => { %>
@@ -118,12 +118,12 @@
                       <% }) %>
                     </div>
                   <% } else { %>
-                    <p class="text-body-secondary mb-0">Todavía no hay vocabulario acumulado.</p>
+                    <p class="text-body-secondary mb-0"><%= t('progress.noVocab') %></p>
                   <% } %>
                 </div>
 
                 <div class="col-12 col-xl-6">
-                  <h2 class="h5">Práctica recomendada</h2>
+                  <h2 class="h5"><%= t('progress.recommendedPractice') %></h2>
                   <% if (renderList(summary.recommendedPractice)) { %>
                     <ul class="mb-0">
                       <% summary.recommendedPractice.forEach((item) => { %>
@@ -131,22 +131,22 @@
                       <% }) %>
                     </ul>
                   <% } else { %>
-                    <p class="text-body-secondary mb-0">Cierra más prácticas para generar recomendaciones.</p>
+                    <p class="text-body-secondary mb-0"><%= t('progress.noRecommended') %></p>
                   <% } %>
                 </div>
               </div>
             </div>
 
             <p class="progress-summary-meta text-body-secondary small border-top pt-3 mt-4 mb-0">
-              Construido a partir de <%= summary.updatedFromEvents %> evento<%= summary.updatedFromEvents === 1 ? '' : 's' %> reciente<%= summary.updatedFromEvents === 1 ? '' : 's' %>.
+              <%= summary.updatedFromEvents === 1 ? t('progress.builtFromOne') : t('progress.builtFromMany', { count: summary.updatedFromEvents }) %>
             </p>
           </article>
         <% } else { %>
           <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
             <div class="conversation-summary-document">
-              <h2 class="h5">Todavía no hay progreso global</h2>
+              <h2 class="h5"><%= t('progress.noGeneralTitle') %></h2>
               <p class="text-body-secondary mb-0">
-                Cuando finalices y resumas conversaciones, Mr. F empezará a construir esta vista de progreso.
+                <%= t('progress.noGeneralBody') %>
               </p>
             </div>
           </article>
@@ -163,10 +163,10 @@
         <% if (vocabularyItems.length > 0) { %>
           <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
             <header class="conversation-summary-header border-bottom pb-3 mb-4">
-              <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Vocabulario a trabajar</p>
-              <h2 class="h3 mb-3">Palabras y frases para reforzar</h2>
+              <p class="text-body-secondary small text-uppercase fw-semibold mb-2"><%= t('progress.vocabToWork') %></p>
+              <h2 class="h3 mb-3"><%= t('progress.wordsToReinforce') %></h2>
               <p class="lead mb-0">
-                Palabras y frases detectadas en prácticas cerradas que conviene reforzar en próximas conversaciones.
+                <%= t('progress.vocabIntro') %>
               </p>
             </header>
 
@@ -177,14 +177,14 @@
                     <div>
                       <h2 class="h5 mb-1"><%= item.term %></h2>
                       <p class="progress-item-meta small mb-0">
-                        Visto en <%= item.sourceLabels.join(' y ') %>
+                        <%= t('progress.seenIn') %> <%= item.sourceLabels.join(t('progress.andSep')) %>
                         <% if (item.sourceTitles.length > 0) { %>
                           · <%= item.sourceTitles.join(' · ') %>
                         <% } %>
                       </p>
                     </div>
                     <div class="d-flex flex-wrap gap-2 align-items-center">
-                      <span class="badge text-bg-primary"><%= item.count %> vez<%= item.count === 1 ? '' : 'es' %></span>
+                      <span class="badge text-bg-primary"><%= item.count === 1 ? t('progress.timesOne') : t('progress.timesMany', { count: item.count }) %></span>
                       <time class="progress-item-meta small" datetime="<%= item.lastSeenAt %>">
                         <%= formatDate(item.lastSeenAt) %>
                       </time>
@@ -197,9 +197,9 @@
         <% } else { %>
           <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
             <div class="conversation-summary-document">
-              <h2 class="h5">Todavía no hay vocabulario específico</h2>
+              <h2 class="h5"><%= t('progress.noVocabSpecificTitle') %></h2>
               <p class="text-body-secondary mb-0">
-                Cuando los reportes detecten palabras o frases a reforzar, aparecerán aquí con su origen y fecha.
+                <%= t('progress.noVocabSpecificBody') %>
               </p>
             </div>
           </article>
@@ -216,10 +216,10 @@
         <% if (events.length > 0) { %>
           <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
             <header class="conversation-summary-header border-bottom pb-3 mb-4">
-              <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Bitácora</p>
-              <h2 class="h3 mb-3">Prácticas cerradas</h2>
+              <p class="text-body-secondary small text-uppercase fw-semibold mb-2"><%= t('progress.logKicker') %></p>
+              <h2 class="h3 mb-3"><%= t('progress.closedPractices') %></h2>
               <p class="lead mb-0">
-                Un registro compacto de las conversaciones y prácticas que ya alimentan el progreso del perfil.
+                <%= t('progress.logIntro') %>
               </p>
             </header>
 
@@ -247,19 +247,19 @@
                   <div class="row g-3 progress-item-meta small">
                     <% if (event.details.practiced.length > 0) { %>
                       <div class="col-12 col-lg-4">
-                        <strong class="d-block text-body">Practicó</strong>
+                        <strong class="d-block text-body"><%= t('progress.practiced') %></strong>
                         <%= event.details.practiced.slice(0, 3).join(', ') %>
                       </div>
                     <% } %>
                     <% if (event.details.difficulties.length > 0) { %>
                       <div class="col-12 col-lg-4">
-                        <strong class="d-block text-body">Foco</strong>
+                        <strong class="d-block text-body"><%= t('progress.focus') %></strong>
                         <%= event.details.difficulties.slice(0, 2).join(', ') %>
                       </div>
                     <% } %>
                     <% if (event.details.vocabulary.length > 0) { %>
                       <div class="col-12 col-lg-4">
-                        <strong class="d-block text-body">Vocabulario</strong>
+                        <strong class="d-block text-body"><%= t('progress.vocabulary') %></strong>
                         <%= event.details.vocabulary.slice(0, 4).join(', ') %>
                       </div>
                     <% } %>
@@ -272,9 +272,9 @@
         <% } else { %>
           <article class="conversation-summary-view progress-summary-view mx-auto py-4 px-3 px-md-4">
             <div class="conversation-summary-document">
-              <h2 class="h5">Todavía no hay eventos</h2>
+              <h2 class="h5"><%= t('progress.noEventsTitle') %></h2>
               <p class="text-body-secondary mb-0">
-                Los eventos aparecerán aquí con fecha cuando cierres conversaciones o prácticas evaluables.
+                <%= t('progress.noEventsBody') %>
               </p>
             </div>
           </article>
