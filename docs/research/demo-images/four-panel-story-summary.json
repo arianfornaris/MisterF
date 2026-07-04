@@ -1,0 +1,64 @@
+{
+  "prompt": "Create a single square comic-style image with a clean 2x2 grid of four panels and absolutely no text, no letters, no captions, no speech bubbles, and no signs with readable writing.\n\nThe image should tell this simple four-step story for English learners:\n1. A young woman arrives at a small neighborhood cafe on a rainy morning, holding a closed blue umbrella.\n2. She notices that her wallet has fallen from her bag near the entrance.\n3. A young man picks up the wallet and politely gives it back to her.\n4. They sit at a small table by the window, smiling and drinking coffee while rain falls outside.\n\nUse clear visual storytelling, friendly realistic illustration, consistent characters across all four panels, natural body language, classroom-safe content, and no written text anywhere in the image.",
+  "results": [
+    {
+      "label": "flux-klein",
+      "model": "black-forest-labs/flux.2-klein-4b",
+      "status": 200,
+      "seconds": 4.55,
+      "media_type": "image/png(default)",
+      "bytes": 1838039,
+      "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-images/flux-klein-four-panel-story.png",
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 4096,
+        "total_tokens": 4096,
+        "cost": 0.014,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.014,
+          "upstream_inference_prompt_cost": 0,
+          "upstream_inference_completions_cost": 0.014
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 4096
+        }
+      }
+    },
+    {
+      "label": "gemini-flash-lite-image",
+      "model": "google/gemini-3.1-flash-lite-image",
+      "status": 200,
+      "seconds": 3.31,
+      "media_type": "image/png(default)",
+      "bytes": 966453,
+      "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-images/gemini-flash-lite-image-four-panel-story.png",
+      "usage": {
+        "prompt_tokens": 172,
+        "completion_tokens": 1597,
+        "total_tokens": 1769,
+        "cost": 0,
+        "is_byok": true,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.0343585,
+          "upstream_inference_prompt_cost": 4.3e-05,
+          "upstream_inference_completions_cost": 0.0343155
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "image_tokens": 1120
+        }
+      }
+    }
+  ]
+}

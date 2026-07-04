@@ -1,0 +1,124 @@
+{
+  "dialogue": [
+    {
+      "speaker": "Maya",
+      "gender": "female",
+      "text": "Hi Daniel, did you finish the listening homework for today?"
+    },
+    {
+      "speaker": "Daniel",
+      "gender": "male",
+      "text": "Almost. I understood the first conversation, but the second one was too fast."
+    },
+    {
+      "speaker": "Maya",
+      "gender": "female",
+      "text": "Let us play it again and write down the key words together."
+    },
+    {
+      "speaker": "Daniel",
+      "gender": "male",
+      "text": "Good idea. After that, I can answer the questions with more confidence."
+    }
+  ],
+  "usage_start": 0.00421846,
+  "models": [
+    {
+      "label": "kokoro",
+      "model": "hexgrad/kokoro-82m",
+      "characters": 266,
+      "usage_before": 0.00421846,
+      "usage_after": 0.00421846,
+      "usage_delta": 0.0,
+      "files": [
+        {
+          "turn": 1,
+          "speaker": "Maya",
+          "voice": "af_bella",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/kokoro-turn-01-maya.mp3",
+          "status": 200,
+          "content_type": "audio/mpeg",
+          "bytes": 26256
+        },
+        {
+          "turn": 2,
+          "speaker": "Daniel",
+          "voice": "am_adam",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/kokoro-turn-02-daniel.mp3",
+          "status": 200,
+          "content_type": "audio/mpeg",
+          "bytes": 37104
+        },
+        {
+          "turn": 3,
+          "speaker": "Maya",
+          "voice": "af_bella",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/kokoro-turn-03-maya.mp3",
+          "status": 200,
+          "content_type": "audio/mpeg",
+          "bytes": 25128
+        },
+        {
+          "turn": 4,
+          "speaker": "Daniel",
+          "voice": "am_adam",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/kokoro-turn-04-daniel.mp3",
+          "status": 200,
+          "content_type": "audio/mpeg",
+          "bytes": 33120
+        }
+      ]
+    },
+    {
+      "label": "gemini",
+      "model": "google/gemini-3.1-flash-tts-preview",
+      "characters": 266,
+      "usage_before": 0.00421846,
+      "usage_after": 0.00421846,
+      "usage_delta": 0.0,
+      "files": [
+        {
+          "turn": 1,
+          "speaker": "Maya",
+          "voice": "Kore",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/gemini-turn-01-maya.pcm",
+          "status": 200,
+          "content_type": "audio/pcm;rate=24000;channels=1",
+          "bytes": 163200
+        },
+        {
+          "turn": 2,
+          "speaker": "Daniel",
+          "voice": "Puck",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/gemini-turn-02-daniel.pcm",
+          "status": 200,
+          "content_type": "audio/pcm;rate=24000;channels=1",
+          "bytes": 282240
+        },
+        {
+          "turn": 3,
+          "speaker": "Maya",
+          "voice": "Kore",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/gemini-turn-03-maya.pcm",
+          "status": 200,
+          "content_type": "audio/pcm;rate=24000;channels=1",
+          "bytes": 209280
+        },
+        {
+          "turn": 4,
+          "speaker": "Daniel",
+          "voice": "Puck",
+          "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/gemini-turn-04-daniel.pcm",
+          "status": 200,
+          "content_type": "audio/pcm;rate=24000;channels=1",
+          "bytes": 232320
+        }
+      ]
+    }
+  ],
+  "usage_end": 0.00421846,
+  "combined_files": {
+    "kokoro_mp3": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/kokoro-conversation.mp3",
+    "gemini_wav": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/gemini-conversation.wav"
+  }
+}
