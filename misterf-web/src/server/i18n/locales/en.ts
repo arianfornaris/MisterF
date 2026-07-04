@@ -620,6 +620,66 @@ export const en: LocaleCatalog = {
     statusPending: 'Pending',
     noPurchases: 'You don’t have any registered purchases yet.',
   },
+  legal: {
+    back: 'Back to Mister F',
+    lastUpdated: 'Last updated: June 2, 2026',
+    privacyTitle: 'Privacy policy',
+    p1Title: 'Who operates Mister F',
+    p1Body:
+      'Mister F is operated by Little Software LLC, a company based in Florida, United States. If you have privacy questions, you can write to us at <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+    p2Title: 'Information we collect',
+    p2Body1:
+      'We collect the information needed to create and maintain your account, such as name, email, verification status, active sessions, learning profiles, and preferences.',
+    p2Body2:
+      'We also store the content you generate while using the app, including conversations with Mr. F, practice guides, quizzes, answers, evaluations, and learning progress.',
+    p3Title: 'How we use the information',
+    p3Body:
+      'We use your information to operate Mister F, personalize practice, keep your history, process credit purchases, protect the account, resolve technical issues, and improve the product experience.',
+    p4Title: 'Third-party services',
+    p4Body1:
+      'We use external providers for specific functions, including payment processing, authentication, email delivery, and artificial intelligence services.',
+    p4Body2:
+      'Payments are processed through Stripe. Tutoring responses may be processed through AI model providers configured by Mister F.',
+    p5Title: 'Credits and payments',
+    p5Body:
+      'When you buy credits, Stripe processes the payment information. Mister F does not store full card numbers. We keep internal purchase records for support, auditing, and history.',
+    p6Title: 'Your choices',
+    p6Body:
+      'You can update your account details, change your password, and manage your profiles from the app. If you need help with access, data, or privacy, write to us at <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+    p7Title: 'Changes to this policy',
+    p7Body:
+      'We may update this policy when the product, applicable law, or our providers change. We will publish the updated version on this page.',
+    termsTitle: 'Terms and conditions',
+    t1Title: 'Service',
+    t1Body:
+      'Mister F is a guided English-practice application operated by Little Software LLC, a company based in Florida, United States. By using the service, you accept these terms.',
+    t2Title: 'Account',
+    t2Body:
+      'You must keep your account secure and use correct information. You are responsible for the activities that occur with your credentials.',
+    t3Title: 'Educational use',
+    t3Body:
+      'Mister F offers educational practice and feedback. AI-generated responses may contain errors, so they should not be treated as professional advice or an infallible evaluation.',
+    t4Title: 'Credits',
+    t4Body1:
+      'Credits let you use practice features with Mr. F. Each exchange with the system may consume credits.',
+    t4Body2:
+      'Credits are not stored money, do not earn interest, and cannot be transferred outside Mister F. We may adjust packages, prices, or usage rules when necessary to operate the service.',
+    t5Title: 'Payments',
+    t5Body:
+      'Payments are made to Little Software LLC and processed through Stripe. The price and available package are shown before completing the purchase. For support or billing questions, write to us at <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+    t6Title: 'Acceptable use',
+    t6Body:
+      'You must not use Mister F for abuse, fraud, attempts to breach the service, sending illegal content, or activities that harm other users, Little Software LLC, or external providers.',
+    t7Title: 'Availability',
+    t7Body:
+      'We work to keep the service available, but we do not guarantee continuous or error-free access. We may suspend, limit, or modify features for maintenance, security, or operational reasons.',
+    t8Title: 'Changes',
+    t8Body:
+      'We may update these terms when the product, applicable law, or our operations change. The current version will be published on this page.',
+    t9Title: 'Contact',
+    t9Body:
+      'For questions about these terms or the service, contact us at <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+  },
   settings: {
     kicker: 'Account',
     title: 'Account settings',

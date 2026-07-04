@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="<%= htmlLang %>">
   <head>
     <%- include('partials/document-head', { includeBootstrapIcons: false }) %>
   </head>
@@ -8,81 +8,53 @@
       <article class="mx-auto" style="max-width: 48rem;">
         <div class="mb-4">
           <p class="text-uppercase text-body-secondary small fw-semibold mb-2">Mister F</p>
-          <h1 class="h2">Política de privacidad</h1>
-          <p class="text-body-secondary mb-0">Última actualización: 2 de junio de 2026</p>
+          <h1 class="h2"><%= t('legal.privacyTitle') %></h1>
+          <p class="text-body-secondary mb-0"><%= t('legal.lastUpdated') %></p>
         </div>
 
         <div class="card shadow-sm">
           <div class="card-body p-4 p-md-5 d-grid gap-4">
             <section>
-              <h2 class="h5">Quién opera Mister F</h2>
-              <p class="mb-0">
-                Mister F es operado por Little Software LLC, una compañía basada en Florida, Estados Unidos. Si tienes preguntas sobre privacidad, puedes escribirnos a
-                <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.
-              </p>
+              <h2 class="h5"><%= t('legal.p1Title') %></h2>
+              <p class="mb-0"><%- t('legal.p1Body') %></p>
             </section>
 
             <section>
-              <h2 class="h5">Información que recopilamos</h2>
-              <p>
-                Recopilamos la información necesaria para crear y mantener tu cuenta, como nombre, correo electrónico,
-                estado de verificación, sesiones activas, perfiles de aprendizaje y preferencias.
-              </p>
-              <p class="mb-0">
-                También guardamos el contenido que generas al usar la aplicación, incluyendo conversaciones con Mr. F,
-                guías de práctica, quizzes, respuestas, evaluaciones y progreso de aprendizaje.
-              </p>
+              <h2 class="h5"><%= t('legal.p2Title') %></h2>
+              <p><%= t('legal.p2Body1') %></p>
+              <p class="mb-0"><%= t('legal.p2Body2') %></p>
             </section>
 
             <section>
-              <h2 class="h5">Cómo usamos la información</h2>
-              <p class="mb-0">
-                Usamos tu información para operar Mister F, personalizar la práctica, mantener tu historial, procesar
-                compras de créditos, proteger la cuenta, resolver problemas técnicos y mejorar la experiencia del producto.
-              </p>
+              <h2 class="h5"><%= t('legal.p3Title') %></h2>
+              <p class="mb-0"><%= t('legal.p3Body') %></p>
             </section>
 
             <section>
-              <h2 class="h5">Servicios de terceros</h2>
-              <p>
-                Usamos proveedores externos para funciones específicas, incluyendo procesamiento de pagos, autenticación,
-                envío de correos y servicios de inteligencia artificial.
-              </p>
-              <p class="mb-0">
-                Los pagos se procesan mediante Stripe. Las respuestas de tutoría pueden procesarse mediante proveedores
-                de modelos de IA configurados por Mister F.
-              </p>
+              <h2 class="h5"><%= t('legal.p4Title') %></h2>
+              <p><%= t('legal.p4Body1') %></p>
+              <p class="mb-0"><%= t('legal.p4Body2') %></p>
             </section>
 
             <section>
-              <h2 class="h5">Créditos y pagos</h2>
-              <p class="mb-0">
-                Cuando compras créditos, Stripe procesa la información de pago. Mister F no almacena números completos
-                de tarjeta. Guardamos registros internos de compra para soporte, auditoría e historial.
-              </p>
+              <h2 class="h5"><%= t('legal.p5Title') %></h2>
+              <p class="mb-0"><%= t('legal.p5Body') %></p>
             </section>
 
             <section>
-              <h2 class="h5">Tus opciones</h2>
-              <p class="mb-0">
-                Puedes actualizar tus datos de cuenta, cambiar contraseña y gestionar tus perfiles desde la aplicación.
-                Si necesitas ayuda con acceso, datos o privacidad, escríbenos a
-                <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.
-              </p>
+              <h2 class="h5"><%= t('legal.p6Title') %></h2>
+              <p class="mb-0"><%- t('legal.p6Body') %></p>
             </section>
 
             <section>
-              <h2 class="h5">Cambios a esta política</h2>
-              <p class="mb-0">
-                Podemos actualizar esta política cuando cambie el producto, la ley aplicable o nuestros proveedores.
-                Publicaremos la versión actualizada en esta página.
-              </p>
+              <h2 class="h5"><%= t('legal.p7Title') %></h2>
+              <p class="mb-0"><%= t('legal.p7Body') %></p>
             </section>
           </div>
         </div>
 
         <div class="mt-4">
-          <a class="btn btn-secondary" href="/">Volver a Mister F</a>
+          <a class="btn btn-secondary" href="/"><%= t('legal.back') %></a>
         </div>
       </article>
     </main>
