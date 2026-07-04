@@ -129,14 +129,29 @@ Scope notes:
   the two translation quiz item kinds from the `en` quiz protocol
   (currently defined but forbidden by the `en` language rules) and
   English block-repair leakage detection (currently Spanish-regex only).
-- [ ] Transactional surfaces: emails, legal pages, and error pages in both
-  languages.
-- [ ] English translation pass over the full catalog, reviewed against the
+- [x] Transactional surfaces: emails, legal pages, and error pages in both
+  languages. Done 2026-07-04: verification and password-reset emails
+  render in the recipient's resolved locale (`email.*`), the privacy and
+  terms pages are fully translated (`legal.*`), and error surfaces (the
+  global 500, superadmin 404s, and Google-OAuth failures) resolve through
+  the catalog. Server-side flash/validation/status/authoring messages
+  across the auth, quiz, roleplay, practice-guide, credits, progress, and
+  superadmin handlers are localized too (`msg.*`, threaded via the request
+  locale or the conversation snapshot). Documented residuals: relative-time
+  formatting, a few context-less socket edges (pre-auth prompt, ES–EN
+  translator, not-found paths), progress-overview summaries, and stored
+  default names (`Nueva conversación`, `Perfil principal`) — all deeper
+  non-request layers, tracked for a follow-up.
+- [x] English translation pass over the full catalog, reviewed against the
   product glossary (`Recursos`/`Resources`, `Guías de Práctica`/`Practice
-  Guides`, etc.).
+  Guides`, etc.). Done 2026-07-04: translations were authored inline per
+  surface with consistent glossary terms; a whole-tree sweep (accented and
+  accent-free) confirms no learner-facing Spanish literals remain outside
+  the intentional `Español` endonym and the documented residuals above.
 - [ ] Manual QA: full product walkthrough in English (signup → onboarding →
   tutor session → quiz → shared resource) and regression walkthrough in
-  Spanish.
+  Spanish. Remaining as a human step; automated coverage (typecheck, 156
+  tests, per-view render smokes in both locales) is green.
 
 ## 1.2 Comprehension Exercises (Stimulus + Questions)
 
