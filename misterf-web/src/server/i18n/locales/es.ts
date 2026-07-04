@@ -360,6 +360,83 @@ export const es: LocaleCatalog = {
     createBlock: 'Crear bloque',
     updating: 'Actualizando el quiz...',
   },
+  roleplays: {
+    kicker: 'Roleplays',
+    newTitle: 'Nuevo Roleplay',
+    newCopy:
+      'Describe la situación, los personajes y lo que quieres que el estudiante practique.',
+    back: 'Volver',
+    describeLabel: 'Describe el Roleplay',
+    describePlaceholder:
+      'Ejemplo: un roleplay B1 donde el estudiante es un cliente que necesita resolver un problema con una reserva de hotel...',
+    creatingShort: 'Creando...',
+    create: 'Crear Roleplay',
+    creating: 'Creando el Roleplay...',
+    roleplayKicker: 'Roleplay',
+    situation: 'Situación',
+    youLabel: 'Tú:',
+    aiLabel: 'IA:',
+    turnsSuffix: 'turnos',
+    yourTurnLabel: 'Tu turno como {{name}}',
+    yourTurnPlaceholder: 'Escribe tu turno como {{name}}',
+    continuing: 'Continuando...',
+    sendTurn: 'Enviar turno',
+    turnLimitReached: 'Llegaste al límite de turnos de este Roleplay.',
+    evaluating: 'Evaluando...',
+    retryEvaluation: 'Reintentar evaluación',
+    beingEvaluated: 'Este intento está siendo evaluado.',
+    processing: 'Procesando el Roleplay...',
+    turnsEvaluatedSuffix: 'turnos evaluados',
+    strengths: 'Fortalezas',
+    difficulties: 'Dificultades',
+    recommendations: 'Recomendaciones',
+    turnReview: 'Revisión por turno',
+    turn: 'Turno',
+    analyzedByParts: 'Texto analizado, por partes',
+    errorLabel: 'Error',
+    canImprove: 'Puede mejorar',
+    partNeedsAdjust: 'Esta parte necesita un ajuste.',
+    editRoleplay: 'Editar Roleplay',
+    restoreRoleplay: 'Restaurar Roleplay',
+    archiveRoleplay: 'Archivar Roleplay',
+    scenario: 'Escenario',
+    pedagogicalFocus: 'Enfoque pedagógico',
+    characters: 'Personajes',
+    playedByStudent: 'Lo juega el estudiante',
+    playedByAi: 'Lo juega la IA',
+    attemptsTitle: 'Intentos de este Roleplay',
+    attempt: 'Intento',
+    noAttempts: 'Todavía no hay intentos para este Roleplay.',
+    noOtherProfiles:
+      'No tienes otros perfiles disponibles para recibir este Roleplay.',
+    shareLinkBody:
+      'Quienes usen este enlace verán siempre la versión actual de este Roleplay.',
+    qrAlt: 'QR del enlace para compartir el Roleplay',
+    editingKicker: 'Roleplay en edición',
+    editCopy:
+      'Ajusta el recurso manualmente o pídele a la IA que aplique cambios.',
+    descriptionHelp:
+      'Resumen corto para reconocer este recurso en la biblioteca.',
+    situationHelp:
+      'Incluye el escenario, lo que sabe el estudiante y qué necesita conseguir durante la conversación.',
+    situationError: 'Escribe la situación del Roleplay.',
+    turnLimit: 'Límite de turnos',
+    pedagogicalFocusLabel: 'Qué debe practicar y evaluar Mr. F',
+    pedagogicalFocusHelp:
+      'Ejemplo: practicar preguntas de cortesía, uso de “could/would”, vocabulario de reservas y corrección posterior de errores de orden de palabras.',
+    studentRole: 'Papel del estudiante',
+    aiRole: 'Personaje de la IA',
+    chooseAvatar: 'Elegir avatar',
+    visibleName: 'Nombre visible',
+    modifyWithAi: 'Modificar el Roleplay con IA',
+    modifyWithAiCopy:
+      'Usa este chat para pedir cambios concretos al Roleplay. Mister F actualizará la información general, la situación, el enfoque pedagógico o los personajes y te responderá qué modificó.',
+    authoringChatEmpty: 'Cuéntame qué quieres ajustar en este Roleplay.',
+    applyingChanges: 'Aplicando cambios...',
+    availableAvatarsAria: 'Avatares disponibles',
+    noAvatar: 'Sin avatar',
+    useIcon: 'Usar icono',
+  },
   settings: {
     kicker: 'Cuenta',
     title: 'Ajustes de cuenta',
@@ -483,6 +560,22 @@ export const es: LocaleCatalog = {
     orderDropzone: 'Arma la secuencia aquí',
     orderNotYet: 'Todavía no. Reordena la secuencia y vuelve a intentarlo.',
     openTextDefaultStatus: 'Escribe tu respuesta y envíala cuando estés listo.',
+    chooseOnlyOne: 'Marca solo una opción.',
+  },
+  clientMisc: {
+    buyCredits: 'Comprar créditos',
+    roleplayYou: 'Tú',
+    roleplayTurnLimit: 'Llegaste al límite de turnos. Puedes finalizar el Roleplay.',
+    roleplayTurnSendError:
+      'No pude enviar tu turno ahora mismo. Revisa tu conexión e inténtalo otra vez.',
+    roleplayTurnSessionExpired:
+      'No pude enviar tu turno porque la sesión expiró. Actualiza la página e inténtalo otra vez.',
+    roleplayAiThinking: '{{name}} está pensando su respuesta',
+    authoringApplyError:
+      'No pude aplicar ese cambio ahora mismo. Inténtalo otra vez.',
+    authoringApplyErrorConnection:
+      'No pude aplicar ese cambio ahora mismo. Revisa tu conexión e inténtalo otra vez.',
+    pgSharedTitle: 'Guía de práctica compartida',
   },
   clientChat: {
     resourceLabelQuiz: 'quiz',
@@ -527,6 +620,10 @@ export const es: LocaleCatalog = {
       'Por ejemplo: una guía centrada en el pasado simple que usamos hace un momento, con más ejercicios de escritura.',
     submit: 'Crear recurso',
     submitLoading: 'Creando recurso...',
+    bodyResult:
+      'Tus instrucciones son lo principal: describe qué quieres que cubra el recurso. Puedes referirte a este resultado, que se incluye como contexto de apoyo.',
+    promptPlaceholderResult:
+      'Por ejemplo: una guía centrada en los errores de pasado simple que aparecieron, con más ejercicios de escritura.',
   },
   finalizeConversation: {
     title: 'Finalizar y resumir',

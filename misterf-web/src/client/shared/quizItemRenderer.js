@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import { disableTextAssist } from '../chat/shared/textAssist.js';
 import {
   formatTokenSentence,
@@ -313,7 +314,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     helper.className = 'quiz-item-helper';
     helper.textContent =
       item.selectionMode === 'single'
-        ? 'Marca solo una opción.'
+        ? t('card.chooseOnlyOne')
         : 'Selecciona una o varias opciones.';
 
     container.append(optionsWrap, helper);
@@ -476,7 +477,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     if (itemState.selectedTokens.length === 0) {
       const empty = document.createElement('span');
       empty.className = 'unscramble-placeholder';
-      empty.textContent = 'Arma la oración aquí';
+      empty.textContent = t('card.unscrambleDropzone');
       assembled.append(empty);
     } else {
       itemState.selectedTokens.forEach((token, index) => {
@@ -505,7 +506,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     if (itemState.orderedSentences.length === 0) {
       const empty = document.createElement('span');
       empty.className = 'order-sentences-placeholder';
-      empty.textContent = 'Arma la secuencia aquí';
+      empty.textContent = t('card.orderDropzone');
       assembled.append(empty);
     } else {
       itemState.orderedSentences.forEach((sentence, index) => {

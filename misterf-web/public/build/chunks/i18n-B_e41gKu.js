@@ -1,0 +1,2 @@
+var e=typeof window<`u`&&window.__APP_I18N__||{};typeof window<`u`&&window.__APP_LOCALE__;function t(t){let n=e;for(let e of t.split(`.`)){if(n==null||typeof n==`string`)return;n=n[e]}return typeof n==`string`?n:void 0}function n(e,t){return t?e.replace(/\{\{\s*(\w+)\s*\}\}/g,(e,n)=>t[n]===void 0?e:String(t[n])):e}function r(e,r){let i=t(e);return i===void 0?(typeof console<`u`&&console.warn(`[i18n] missing client translation key: ${e}`),e):n(i,r)}export{r as t};
+//# sourceMappingURL=i18n-B_e41gKu.js.map

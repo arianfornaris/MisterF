@@ -1,6 +1,7 @@
+import { t } from './i18n.js';
 const RESOURCE_TYPE_LABELS = {
   quiz: 'quiz',
-  practice_guide: 'guía de práctica',
+  practice_guide: t('clientChat.resourceLabelPracticeGuide'),
   roleplay: 'roleplay',
 };
 

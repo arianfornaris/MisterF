@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
 import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
@@ -68,7 +69,7 @@ function initializePracticeGuideSharingUi() {
 
         try {
           await navigator.share({
-            title: 'Guía de práctica compartida',
+            title: t('clientMisc.pgSharedTitle'),
             url: shareFieldEl.value,
           });
         } catch {

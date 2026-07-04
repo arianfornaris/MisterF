@@ -10,14 +10,14 @@
 <section class="app-resource-view roleplays-page">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-eyebrow">Resultado</p>
+      <p class="resource-eyebrow"><%= t('quizzes.resultKicker') %></p>
       <h1 class="resource-page-title"><%= result.summaryTitle %></h1>
       <p class="resource-page-copy"><%= result.summary %></p>
       <div class="resource-action-row mt-3">
         <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button class="btn btn-primary" type="submit">
-            <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Practicar
+            <i class="bi bi-chat-dots me-1" aria-hidden="true"></i><%= t('quizzes.practice') %>
           </button>
         </form>
         <%- include('partials/create-resource-from-context', {
@@ -29,8 +29,8 @@
       <a
         class="resource-page-close-button"
         href="/roleplays/<%= encodeURIComponent(attempt.roleplayId) %>"
-        aria-label="Cerrar"
-        title="Cerrar"
+        aria-label="<%= t('common.close') %>"
+        title="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -41,7 +41,7 @@
     <div class="alert alert-warning" role="alert">
       <p class="mb-2"><%= resultActionError %></p>
       <% if (resultActionErrorIsCredit) { %>
-        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/roleplay-attempts/${attempt.id}/result`) %>">Comprar créditos</a>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/roleplay-attempts/${attempt.id}/result`) %>"><%= t('credit.buy') %></a>
       <% } %>
     </div>
   <% } %>
@@ -49,7 +49,7 @@
   <div class="resource-detail-summary">
     <p><%= result.overallFeedback %></p>
     <div class="resource-meta-row">
-      <span><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= result.entries.length %> turnos evaluados</span>
+      <span><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= result.entries.length %> <%= t('roleplays.turnsEvaluatedSuffix') %></span>
       <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
     </div>
   </div>
@@ -59,7 +59,7 @@
       <div class="col-12 col-lg-4">
         <section class="card h-100">
           <div class="card-body">
-            <h2 class="h6">Fortalezas</h2>
+            <h2 class="h6"><%= t('roleplays.strengths') %></h2>
             <ul class="mb-0">
               <% result.strengths.forEach((item) => { %><li><%= item %></li><% }) %>
             </ul>
@@ -71,7 +71,7 @@
       <div class="col-12 col-lg-4">
         <section class="card h-100">
           <div class="card-body">
-            <h2 class="h6">Dificultades</h2>
+            <h2 class="h6"><%= t('roleplays.difficulties') %></h2>
             <ul class="mb-0">
               <% result.difficulties.forEach((item) => { %><li><%= item %></li><% }) %>
             </ul>
@@ -83,7 +83,7 @@
       <div class="col-12 col-lg-4">
         <section class="card h-100">
           <div class="card-body">
-            <h2 class="h6">Recomendaciones</h2>
+            <h2 class="h6"><%= t('roleplays.recommendations') %></h2>
             <ul class="mb-0">
               <% result.recommendations.forEach((item) => { %><li><%= item %></li><% }) %>
             </ul>
@@ -94,7 +94,7 @@
   </div>
 
   <section class="resource-section">
-    <h2 class="h5">Revisión por turno</h2>
+    <h2 class="h5"><%= t('roleplays.turnReview') %></h2>
     <div class="d-grid gap-3">
       <% result.entries.forEach((entry) => { %>
         <%
@@ -117,7 +117,7 @@
                 <% } %>
               </span>
               <div>
-                <h3 class="sentence-evaluation-label">Turno <%= entry.turnNumber %></h3>
+                <h3 class="sentence-evaluation-label"><%= t('roleplays.turn') %> <%= entry.turnNumber %></h3>
                 <% if (evaluatedCharacter?.name) { %>
                   <p class="roleplay-evaluation-speaker mb-0"><%= evaluatedCharacter.name %></p>
                 <% } %>
@@ -126,7 +126,7 @@
             <% if (entry.scoreLabel) { %><span class="badge text-bg-light border ms-auto"><%= entry.scoreLabel %></span><% } %>
           </div>
           <div class="sentence-evaluation-body card-body">
-            <p class="sentence-evaluation-parts-label">Texto analizado, por partes</p>
+            <p class="sentence-evaluation-parts-label"><%= t('roleplays.analyzedByParts') %></p>
             <p class="sentence-parts">
               <% entry.inlineReview.parts.forEach((part, partIndex) => { %>
                 <% if (part.status === 'correct') { %>
@@ -140,10 +140,10 @@
                     data-bs-placement="top"
                     data-bs-container="body"
                     data-bs-custom-class="sentence-popover sentence-popover-<%= part.status %>"
-                    data-bs-title="<%= part.status === 'error' ? 'Error' : 'Puede mejorar' %>"
-                    data-bs-content="<%= part.explanation || 'Esta parte necesita un ajuste.' %>"
+                    data-bs-title="<%= part.status === 'error' ? t('roleplays.errorLabel') : t('roleplays.canImprove') %>"
+                    data-bs-content="<%= part.explanation || t('roleplays.partNeedsAdjust') %>"
                     data-roleplay-evaluation-popover
-                    aria-label="<%= part.text %>: <%= part.explanation || 'Esta parte necesita un ajuste.' %>"
+                    aria-label="<%= part.text %>: <%= part.explanation || t('roleplays.partNeedsAdjust') %>"
                   >
                   <%= part.text %>
                   </button>

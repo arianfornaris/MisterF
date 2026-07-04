@@ -3,16 +3,16 @@
 <section class="app-resource-view roleplays-page">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-eyebrow">Roleplay en edición</p>
+      <p class="resource-eyebrow"><%= t('roleplays.editingKicker') %></p>
       <h1 class="resource-page-title"><%= draft.title %></h1>
-      <p class="resource-page-copy">Ajusta el recurso manualmente o pídele a la IA que aplique cambios.</p>
+      <p class="resource-page-copy"><%= t('roleplays.editCopy') %></p>
     </div>
     <div class="resource-page-header-actions">
       <a
         class="resource-page-close-button"
         href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>"
-        aria-label="Cerrar"
-        title="Cerrar"
+        aria-label="<%= t('common.close') %>"
+        title="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -31,7 +31,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'general' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-card-text me-1" aria-hidden="true"></i>General
+        <i class="bi bi-card-text me-1" aria-hidden="true"></i><%= t('quizzes.tabGeneral') %>
       </a>
     </li>
     <li class="nav-item" role="presentation">
@@ -41,7 +41,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'chat' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Chat IA
+        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i><%= t('quizzes.tabChat') %>
       </a>
     </li>
   </ul>
@@ -50,14 +50,14 @@
     <form class="card resource-form-card" method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="card-body">
-        <h2 class="h5 mb-3">General</h2>
+        <h2 class="h5 mb-3"><%= t('quizzes.tabGeneral') %></h2>
         <div class="mb-3">
-          <label class="form-label" for="roleplayTitle">Título</label>
+          <label class="form-label" for="roleplayTitle"><%= t('quizzes.titleLabel') %></label>
           <input class="form-control" id="roleplayTitle" name="title" maxlength="220" required value="<%= draft.title %>">
         </div>
         <div class="mb-3">
-          <label class="form-label" for="roleplayDescription">Descripción</label>
-          <div class="form-text mb-2">Resumen corto para reconocer este recurso en la biblioteca.</div>
+          <label class="form-label" for="roleplayDescription"><%= t('resources.description') %></label>
+          <div class="form-text mb-2"><%= t('roleplays.descriptionHelp') %></div>
           <textarea
             class="form-control"
             id="roleplayDescription"
@@ -69,8 +69,8 @@
           ><%= draft.description %></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label" for="roleplayScenario">Situación</label>
-          <div class="form-text mb-2">Incluye el escenario, lo que sabe el estudiante y qué necesita conseguir durante la conversación.</div>
+          <label class="form-label" for="roleplayScenario"><%= t('roleplays.situation') %></label>
+          <div class="form-text mb-2"><%= t('roleplays.situationHelp') %></div>
           <textarea
             class="form-control"
             id="roleplayScenario"
@@ -84,25 +84,25 @@
             data-markdown-editor-min-height="12rem"
           ><%= draft.scenario %></textarea>
           <div class="invalid-feedback" id="roleplayScenarioError" hidden>
-            Escribe la situación del Roleplay.
+            <%= t('roleplays.situationError') %>
           </div>
         </div>
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label" for="roleplayLevel">Nivel</label>
+            <label class="form-label" for="roleplayLevel"><%= t('quizzes.level') %></label>
             <input class="form-control" id="roleplayLevel" name="level" maxlength="120" value="<%= draft.level %>">
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="roleplayMaxLearnerTurns">Límite de turnos</label>
+            <label class="form-label" for="roleplayMaxLearnerTurns"><%= t('roleplays.turnLimit') %></label>
             <input class="form-control" id="roleplayMaxLearnerTurns" name="maxLearnerTurns" type="number" min="1" max="20" value="<%= draft.maxLearnerTurns || '' %>">
           </div>
         </div>
       </div>
 
       <div class="card-body border-top">
-        <h2 class="h5 mb-3">Enfoque pedagógico</h2>
-        <label class="form-label" for="roleplayPedagogicalFocus">Qué debe practicar y evaluar Mr. F</label>
-        <div class="form-text mb-2">Ejemplo: practicar preguntas de cortesía, uso de “could/would”, vocabulario de reservas y corrección posterior de errores de orden de palabras.</div>
+        <h2 class="h5 mb-3"><%= t('roleplays.pedagogicalFocus') %></h2>
+        <label class="form-label" for="roleplayPedagogicalFocus"><%= t('roleplays.pedagogicalFocusLabel') %></label>
+        <div class="form-text mb-2"><%= t('roleplays.pedagogicalFocusHelp') %></div>
         <textarea
           class="form-control"
           id="roleplayPedagogicalFocus"
@@ -115,7 +115,7 @@
       </div>
 
       <div class="card-body border-top">
-        <h2 class="h5 mb-3">Personajes</h2>
+        <h2 class="h5 mb-3"><%= t('roleplays.characters') %></h2>
         <div class="row g-3">
           <div class="col-12">
             <div class="border rounded p-3">
@@ -132,14 +132,14 @@
                   <% } %>
                 </div>
                 <div class="min-w-0">
-                  <h3 class="h6 mb-1">Papel del estudiante</h3>
+                  <h3 class="h6 mb-1"><%= t('roleplays.studentRole') %></h3>
                   <button
                     class="btn btn-outline-secondary btn-sm"
                     type="button"
                     data-roleplay-avatar-open
                     data-roleplay-avatar-target="learner"
                   >
-                    <i class="bi bi-person-bounding-box me-1" aria-hidden="true"></i>Elegir avatar
+                    <i class="bi bi-person-bounding-box me-1" aria-hidden="true"></i><%= t('roleplays.chooseAvatar') %>
                   </button>
                 </div>
               </div>
@@ -150,10 +150,10 @@
                 data-roleplay-avatar-input="learner"
               >
               <div class="mb-3">
-                <label class="form-label" for="learnerCharacterName">Nombre visible</label>
+                <label class="form-label" for="learnerCharacterName"><%= t('roleplays.visibleName') %></label>
                 <input class="form-control" id="learnerCharacterName" name="learnerCharacterName" maxlength="120" value="<%= learnerCharacter.name %>" required>
               </div>
-              <label class="form-label" for="learnerCharacterDescription">Descripción</label>
+              <label class="form-label" for="learnerCharacterDescription"><%= t('resources.description') %></label>
               <textarea class="form-control" id="learnerCharacterDescription" name="learnerCharacterDescription" rows="4" maxlength="1200" required><%= learnerCharacter.description %></textarea>
             </div>
           </div>
@@ -172,14 +172,14 @@
                   <% } %>
                 </div>
                 <div class="min-w-0">
-                  <h3 class="h6 mb-1">Personaje de la IA</h3>
+                  <h3 class="h6 mb-1"><%= t('roleplays.aiRole') %></h3>
                   <button
                     class="btn btn-outline-secondary btn-sm"
                     type="button"
                     data-roleplay-avatar-open
                     data-roleplay-avatar-target="ai"
                   >
-                    <i class="bi bi-person-bounding-box me-1" aria-hidden="true"></i>Elegir avatar
+                    <i class="bi bi-person-bounding-box me-1" aria-hidden="true"></i><%= t('roleplays.chooseAvatar') %>
                   </button>
                 </div>
               </div>
@@ -190,10 +190,10 @@
                 data-roleplay-avatar-input="ai"
               >
               <div class="mb-3">
-                <label class="form-label" for="aiCharacterName">Nombre visible</label>
+                <label class="form-label" for="aiCharacterName"><%= t('roleplays.visibleName') %></label>
                 <input class="form-control" id="aiCharacterName" name="aiCharacterName" maxlength="120" value="<%= aiCharacter.name %>" required>
               </div>
-              <label class="form-label" for="aiCharacterDescription">Descripción</label>
+              <label class="form-label" for="aiCharacterDescription"><%= t('resources.description') %></label>
               <textarea class="form-control" id="aiCharacterDescription" name="aiCharacterDescription" rows="4" maxlength="1200" required><%= aiCharacter.description %></textarea>
             </div>
           </div>
@@ -201,8 +201,8 @@
       </div>
 
       <div class="card-footer d-flex justify-content-end gap-2">
-        <a class="btn btn-secondary" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>">Cancelar</a>
-        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+        <a class="btn btn-secondary" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>"><%= t('common.cancel') %></a>
+        <button class="btn btn-primary" type="submit"><%= t('common.saveChanges') %></button>
       </div>
     </form>
   <% } %>
@@ -214,17 +214,17 @@
           <i class="bi bi-stars"></i>
         </div>
         <div>
-          <h2 class="quiz-chat-context-title">Modificar el Roleplay con IA</h2>
+          <h2 class="quiz-chat-context-title"><%= t('roleplays.modifyWithAi') %></h2>
           <p class="quiz-chat-context-copy mb-0">
-            Usa este chat para pedir cambios concretos al Roleplay. Mister F actualizará la información general, la situación, el enfoque pedagógico o los personajes y te responderá qué modificó.
+            <%= t('roleplays.modifyWithAiCopy') %>
           </p>
         </div>
       </div>
-      <div class="quiz-chat-history messages" aria-label="Historial del chat de autoría" data-authoring-chat-history>
+      <div class="quiz-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
         <% if (roleplayAuthoringMessages.length === 0) { %>
           <article class="message-row is-model quiz-chat-message-row">
             <div class="message-bubble quiz-chat-message-bubble">
-              <p class="quiz-chat-message-content mb-0">Cuéntame qué quieres ajustar en este Roleplay.</p>
+              <p class="quiz-chat-message-content mb-0"><%= t('roleplays.authoringChatEmpty') %></p>
             </div>
           </article>
         <% } else { %>
@@ -245,7 +245,7 @@
         data-authoring-chat-credits-return-to="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/edit?tab=chat"
       >
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label class="visually-hidden" for="roleplayRevisionMessage">Mensaje</label>
+        <label class="visually-hidden" for="roleplayRevisionMessage"><%= t('quizzes.message') %></label>
         <div class="composer-input-wrap">
           <textarea
             class="composer-input"
@@ -254,12 +254,12 @@
             rows="2"
             maxlength="4000"
             required
-            placeholder="Describe los cambios que deseas aplicar"
+            placeholder="<%= t('quizzes.describeChangesPlaceholder') %>"
           ></textarea>
         </div>
         <div class="composer-footer">
           <button class="btn btn-primary quiz-chat-submit-button" type="submit" data-authoring-chat-submit>
-            <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.applyChanges') %>
           </button>
         </div>
       </form>
@@ -278,25 +278,25 @@
   <div class="modal-dialog modal-dialog-scrollable modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title h5" id="roleplayAvatarSelectorTitle">Elegir avatar</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="modal-title h5" id="roleplayAvatarSelectorTitle"><%= t('roleplays.chooseAvatar') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
-        <div class="roleplay-avatar-grid" role="list" aria-label="Avatares disponibles">
+        <div class="roleplay-avatar-grid" role="list" aria-label="<%= t('roleplays.availableAvatarsAria') %>">
           <button
             class="roleplay-avatar-option"
             type="button"
             data-roleplay-avatar-option
             data-avatar-id=""
-            data-avatar-name="Sin avatar"
+            data-avatar-name="<%= t('roleplays.noAvatar') %>"
             data-avatar-src=""
             role="listitem"
           >
             <span class="roleplay-avatar-option-image" aria-hidden="true">
               <i class="bi bi-person"></i>
             </span>
-            <span class="roleplay-avatar-option-name">Sin avatar</span>
-            <span class="roleplay-avatar-option-meta">Usar icono</span>
+            <span class="roleplay-avatar-option-name"><%= t('roleplays.noAvatar') %></span>
+            <span class="roleplay-avatar-option-meta"><%= t('roleplays.useIcon') %></span>
           </button>
           <% roleplayAvatarOptions.forEach((avatar) => { %>
             <button
@@ -318,7 +318,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
       </div>
     </div>
   </div>
@@ -329,7 +329,7 @@
     <div class="modal-content">
       <div class="modal-body d-flex align-items-center gap-3">
         <div class="spinner-border text-primary" aria-hidden="true"></div>
-        <p class="mb-0">Aplicando cambios...</p>
+        <p class="mb-0"><%= t('roleplays.applyingChanges') %></p>
       </div>
     </div>
   </div>

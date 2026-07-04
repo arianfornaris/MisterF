@@ -3,7 +3,7 @@
 <section class="app-resource-view roleplays-page roleplay-attempt-page">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-eyebrow">Roleplay</p>
+      <p class="resource-eyebrow"><%= t('roleplays.roleplayKicker') %></p>
       <h1 class="resource-page-title"><%= draft.title %></h1>
       <% if (draft.description) { %>
         <div class="resource-page-copy resource-markdown" data-render-markdown><%= draft.description %></div>
@@ -13,8 +13,8 @@
       <a
         class="resource-page-close-button"
         href="/roleplays/<%= encodeURIComponent(attempt.roleplayId) %>"
-        aria-label="Cerrar"
-        title="Cerrar"
+        aria-label="<%= t('common.close') %>"
+        title="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -41,13 +41,13 @@
           <i class="bi bi-compass"></i>
         </div>
         <div class="roleplay-turn-body">
-          <div class="roleplay-turn-speaker">Situación</div>
+          <div class="roleplay-turn-speaker"><%= t('roleplays.situation') %></div>
           <div class="roleplay-turn-text resource-markdown" data-render-markdown><%= draft.scenario %></div>
           <div class="resource-meta-row mt-2">
-            <span><i class="bi bi-person" aria-hidden="true"></i> Tú: <%= learnerCharacter.name %></span>
-            <span><i class="bi bi-person-video3" aria-hidden="true"></i> IA: <%= aiCharacter.name %></span>
+            <span><i class="bi bi-person" aria-hidden="true"></i> <%= t('roleplays.youLabel') %> <%= learnerCharacter.name %></span>
+            <span><i class="bi bi-person-video3" aria-hidden="true"></i> <%= t('roleplays.aiLabel') %> <%= aiCharacter.name %></span>
             <% if (draft.maxLearnerTurns) { %>
-              <span data-roleplay-turn-counter data-max-turns="<%= draft.maxLearnerTurns %>"><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= learnerTurnCount %>/<%= draft.maxLearnerTurns %> turnos</span>
+              <span data-roleplay-turn-counter data-max-turns="<%= draft.maxLearnerTurns %>"><i class="bi bi-chat-left-text" aria-hidden="true"></i> <%= learnerTurnCount %>/<%= draft.maxLearnerTurns %> <%= t('roleplays.turnsSuffix') %></span>
             <% } %>
           </div>
         </div>
@@ -76,14 +76,14 @@
       <% if (!hasReachedTurnLimit) { %>
         <form class="roleplay-response-form" method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/turns" data-roleplay-turn-form>
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <label class="visually-hidden" for="roleplayTurnText">Tu turno como <%= learnerCharacter.name %></label>
+          <label class="visually-hidden" for="roleplayTurnText"><%= t('roleplays.yourTurnLabel', { name: learnerCharacter.name }) %></label>
           <div class="roleplay-response-input-wrap">
             <textarea
               class="roleplay-response-textarea"
               id="roleplayTurnText"
               name="text"
               rows="2"
-              placeholder="Escribe tu turno como <%= learnerCharacter.name %>"
+              placeholder="<%= t('roleplays.yourTurnPlaceholder', { name: learnerCharacter.name }) %>"
               required
               autofocus
             ></textarea>
@@ -94,22 +94,22 @@
               type="submit"
               form="finishRoleplayAttemptForm"
             >
-              Finalizar y resumir
+              <%= t('chat.finalize') %>
             </button>
             <button
               class="btn btn-primary ms-auto"
               type="submit"
               data-roleplay-pending-submit
-              data-loading-text="Continuando..."
+              data-loading-text="<%= t('roleplays.continuing') %>"
             >
-              <i class="bi bi-send me-1" aria-hidden="true"></i>Enviar turno
+              <i class="bi bi-send me-1" aria-hidden="true"></i><%= t('roleplays.sendTurn') %>
             </button>
           </div>
         </form>
       <% } else { %>
-        <div class="alert alert-info mb-0" role="status">Llegaste al límite de turnos de este Roleplay.</div>
+        <div class="alert alert-info mb-0" role="status"><%= t('roleplays.turnLimitReached') %></div>
         <div class="d-flex justify-content-end mt-3">
-          <button class="btn btn-primary" type="submit" form="finishRoleplayAttemptForm">Finalizar y resumir</button>
+          <button class="btn btn-primary" type="submit" form="finishRoleplayAttemptForm"><%= t('chat.finalize') %></button>
         </div>
       <% } %>
       <form id="finishRoleplayAttemptForm" class="d-none" method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/finish" data-roleplay-pending-form>
@@ -118,12 +118,12 @@
     <% } else if (attempt.status === 'failed') { %>
       <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/finish" data-roleplay-pending-form>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <button class="btn btn-primary" type="submit" data-roleplay-pending-submit data-loading-text="Evaluando...">
-          Reintentar evaluación
+        <button class="btn btn-primary" type="submit" data-roleplay-pending-submit data-loading-text="<%= t('roleplays.evaluating') %>">
+          <%= t('roleplays.retryEvaluation') %>
         </button>
       </form>
     <% } else { %>
-      <div class="alert alert-info mb-0" role="status">Este intento está siendo evaluado.</div>
+      <div class="alert alert-info mb-0" role="status"><%= t('roleplays.beingEvaluated') %></div>
     <% } %>
   </div>
 </section>
@@ -133,7 +133,7 @@
     <div class="modal-content">
       <div class="modal-body d-flex align-items-center gap-3">
         <div class="spinner-border text-primary" aria-hidden="true"></div>
-        <p class="mb-0">Procesando el Roleplay...</p>
+        <p class="mb-0"><%= t('roleplays.processing') %></p>
       </div>
     </div>
   </div>

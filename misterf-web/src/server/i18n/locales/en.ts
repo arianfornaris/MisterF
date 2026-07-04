@@ -360,6 +360,83 @@ export const en: LocaleCatalog = {
     createBlock: 'Create block',
     updating: 'Updating the quiz...',
   },
+  roleplays: {
+    kicker: 'Roleplays',
+    newTitle: 'New Roleplay',
+    newCopy:
+      'Describe the situation, the characters, and what you want the student to practice.',
+    back: 'Back',
+    describeLabel: 'Describe the Roleplay',
+    describePlaceholder:
+      'Example: a B1 roleplay where the student is a customer who needs to solve a problem with a hotel reservation...',
+    creatingShort: 'Creating...',
+    create: 'Create Roleplay',
+    creating: 'Creating the Roleplay...',
+    roleplayKicker: 'Roleplay',
+    situation: 'Situation',
+    youLabel: 'You:',
+    aiLabel: 'AI:',
+    turnsSuffix: 'turns',
+    yourTurnLabel: 'Your turn as {{name}}',
+    yourTurnPlaceholder: 'Write your turn as {{name}}',
+    continuing: 'Continuing...',
+    sendTurn: 'Send turn',
+    turnLimitReached: 'You reached the turn limit for this Roleplay.',
+    evaluating: 'Evaluating...',
+    retryEvaluation: 'Retry evaluation',
+    beingEvaluated: 'This attempt is being evaluated.',
+    processing: 'Processing the Roleplay...',
+    turnsEvaluatedSuffix: 'turns evaluated',
+    strengths: 'Strengths',
+    difficulties: 'Difficulties',
+    recommendations: 'Recommendations',
+    turnReview: 'Turn-by-turn review',
+    turn: 'Turn',
+    analyzedByParts: 'Analyzed text, by parts',
+    errorLabel: 'Error',
+    canImprove: 'Can improve',
+    partNeedsAdjust: 'This part needs an adjustment.',
+    editRoleplay: 'Edit Roleplay',
+    restoreRoleplay: 'Restore Roleplay',
+    archiveRoleplay: 'Archive Roleplay',
+    scenario: 'Scenario',
+    pedagogicalFocus: 'Pedagogical focus',
+    characters: 'Characters',
+    playedByStudent: 'Played by the student',
+    playedByAi: 'Played by the AI',
+    attemptsTitle: 'Attempts for this Roleplay',
+    attempt: 'Attempt',
+    noAttempts: 'There are no attempts for this Roleplay yet.',
+    noOtherProfiles:
+      'You don’t have other profiles available to receive this Roleplay.',
+    shareLinkBody:
+      'Anyone who uses this link will always see the current version of this Roleplay.',
+    qrAlt: 'QR code of the Roleplay share link',
+    editingKicker: 'Roleplay being edited',
+    editCopy:
+      'Adjust the resource manually or ask the AI to apply changes.',
+    descriptionHelp:
+      'A short summary to recognize this resource in the library.',
+    situationHelp:
+      'Include the scenario, what the student knows, and what they need to achieve during the conversation.',
+    situationError: 'Write the Roleplay situation.',
+    turnLimit: 'Turn limit',
+    pedagogicalFocusLabel: 'What Mr. F should practice and evaluate',
+    pedagogicalFocusHelp:
+      'Example: practice polite questions, use of “could/would”, reservation vocabulary, and follow-up correction of word-order mistakes.',
+    studentRole: 'Student role',
+    aiRole: 'AI character',
+    chooseAvatar: 'Choose avatar',
+    visibleName: 'Visible name',
+    modifyWithAi: 'Modify the Roleplay with AI',
+    modifyWithAiCopy:
+      'Use this chat to request specific changes to the Roleplay. Mister F will update the general information, the situation, the pedagogical focus, or the characters and tell you what it modified.',
+    authoringChatEmpty: 'Tell me what you’d like to adjust in this Roleplay.',
+    applyingChanges: 'Applying changes...',
+    availableAvatarsAria: 'Available avatars',
+    noAvatar: 'No avatar',
+    useIcon: 'Use icon',
+  },
   settings: {
     kicker: 'Account',
     title: 'Account settings',
@@ -483,6 +560,22 @@ export const en: LocaleCatalog = {
     orderDropzone: 'Build the sequence here',
     orderNotYet: 'Not yet. Reorder the sequence and try again.',
     openTextDefaultStatus: 'Write your answer and send it when you’re ready.',
+    chooseOnlyOne: 'Select only one option.',
+  },
+  clientMisc: {
+    buyCredits: 'Buy credits',
+    roleplayYou: 'You',
+    roleplayTurnLimit: 'You reached the turn limit. You can finalize the Roleplay.',
+    roleplayTurnSendError:
+      'I couldn’t send your turn right now. Check your connection and try again.',
+    roleplayTurnSessionExpired:
+      'I couldn’t send your turn because the session expired. Refresh the page and try again.',
+    roleplayAiThinking: '{{name}} is thinking about their response',
+    authoringApplyError:
+      'I couldn’t apply that change right now. Try again.',
+    authoringApplyErrorConnection:
+      'I couldn’t apply that change right now. Check your connection and try again.',
+    pgSharedTitle: 'Shared practice guide',
   },
   clientChat: {
     resourceLabelQuiz: 'quiz',
@@ -527,6 +620,10 @@ export const en: LocaleCatalog = {
       'For example: a guide focused on the simple past we just used, with more writing exercises.',
     submit: 'Create resource',
     submitLoading: 'Creating resource...',
+    bodyResult:
+      'Your instructions are what matters most: describe what you want the resource to cover. You can refer to this result, which is included as supporting context.',
+    promptPlaceholderResult:
+      'For example: a guide focused on the past-simple mistakes that came up, with more writing exercises.',
   },
   finalizeConversation: {
     title: 'Finish and summarize',

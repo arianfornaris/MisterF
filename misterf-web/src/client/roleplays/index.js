@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
 import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
@@ -278,7 +279,7 @@ function initializeRoleplayTurnComposer() {
     textareaEl.value = '';
     resizeTextarea();
 
-    const learnerName = transcriptEl.dataset.learnerName || 'Tú';
+    const learnerName = transcriptEl.dataset.learnerName || t('clientMisc.roleplayYou');
     const aiName = transcriptEl.dataset.aiName || 'IA';
     appendRoleplayTurn(transcriptEl, {
       speaker: 'learner',
@@ -330,14 +331,14 @@ function initializeRoleplayTurnComposer() {
 
       if (payload.hasReachedTurnLimit) {
         hasReachedTurnLimit = true;
-        textareaEl.placeholder = 'Llegaste al límite de turnos. Puedes finalizar el Roleplay.';
+        textareaEl.placeholder = t('clientMisc.roleplayTurnLimit');
         return;
       }
 
       textareaEl.focus();
     } catch {
       loadingTurnEl.remove();
-      showRoleplayTurnError(errorEl, 'No pude enviar tu turno ahora mismo. Revisa tu conexión e inténtalo otra vez.');
+      showRoleplayTurnError(errorEl, t('clientMisc.roleplayTurnSendError'));
     } finally {
       setRoleplayTurnFormPending({
         pending: false,
@@ -358,7 +359,7 @@ function initializeRoleplayTurnComposer() {
 
 function getRoleplayTurnFallbackError(response) {
   if (response.status === 403) {
-    return 'No pude enviar tu turno porque la sesión expiró. Actualiza la página e inténtalo otra vez.';
+    return t('clientMisc.roleplayTurnSessionExpired');
   }
 
   return 'No pude generar la siguiente respuesta ahora mismo.';
@@ -405,7 +406,7 @@ function appendRoleplayThinkingTurn(transcriptEl, aiName) {
   const indicatorEl = document.createElement('div');
   indicatorEl.className = 'roleplay-response-caret is-entering';
   indicatorEl.setAttribute('role', 'status');
-  indicatorEl.setAttribute('aria-label', `${aiName} está pensando su respuesta`);
+  indicatorEl.setAttribute('aria-label', t('clientMisc.roleplayAiThinking', { name: aiName }));
 
   const caretEl = document.createElement('span');
   caretEl.className = 'roleplay-response-caret-mark';
@@ -443,7 +444,7 @@ function showRoleplayTurnError(errorEl, message, isCreditExhausted = false) {
     const buyLink = document.createElement('a');
     buyLink.className = 'btn btn-primary btn-sm ms-2';
     buyLink.href = `/credits?returnTo=${encodeURIComponent(window.location.pathname)}`;
-    buyLink.textContent = 'Comprar créditos';
+    buyLink.textContent = t('clientMisc.buyCredits');
     errorEl.append(buyLink);
   }
   errorEl.classList.remove('d-none');

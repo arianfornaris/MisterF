@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 function buildPendingMessageKey() {
   return `authoring-chat-pending:${window.location.pathname}`;
 }
@@ -86,7 +87,7 @@ export function initializeAuthoringChatRevision(root = document) {
     const link = document.createElement('a');
     link.className = 'btn btn-primary btn-sm mt-2';
     link.href = `/credits?returnTo=${encodeURIComponent(returnTo)}`;
-    link.textContent = 'Comprar créditos';
+    link.textContent = t('clientMisc.buyCredits');
     bubble.append(link);
   };
 
@@ -125,14 +126,14 @@ export function initializeAuthoringChatRevision(root = document) {
         paragraph.textContent =
           payload && typeof payload.error === 'string'
             ? payload.error
-            : 'No pude aplicar ese cambio ahora mismo. Inténtalo otra vez.';
+            : t('clientMisc.authoringApplyError');
         if (payload && payload.creditExhausted) {
           appendCreditLink(bubble);
         }
       }
     } catch {
       bubble.classList.remove('typing-caret');
-      paragraph.textContent = 'No pude aplicar ese cambio ahora mismo. Revisa tu conexión e inténtalo otra vez.';
+      paragraph.textContent = t('clientMisc.authoringApplyErrorConnection');
     } finally {
       setPending(false);
       scrollToLatestMessage();
