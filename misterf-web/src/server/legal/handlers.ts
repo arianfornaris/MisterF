@@ -1,14 +1,15 @@
 import type { Request, Response } from 'express';
 import { appDocumentTitle } from '../pages/shell.js';
+import { translate } from '../i18n/index.js';
 
-export function renderPrivacyPage(_request: Request, response: Response): void {
+export function renderPrivacyPage(request: Request, response: Response): void {
   response.render('privacy', {
-    title: `Política de privacidad · ${appDocumentTitle}`,
+    title: `${translate(request.locale, 'legal.privacyTitle')} · ${appDocumentTitle}`,
   });
 }
 
-export function renderTermsPage(_request: Request, response: Response): void {
+export function renderTermsPage(request: Request, response: Response): void {
   response.render('terms', {
-    title: `Términos y condiciones · ${appDocumentTitle}`,
+    title: `${translate(request.locale, 'legal.termsTitle')} · ${appDocumentTitle}`,
   });
 }

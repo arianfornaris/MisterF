@@ -1015,6 +1015,16 @@ export const en: LocaleCatalog = {
       'Complete the title, the description, and the tutor instructions.',
     bestFitKind: 'the best-fitting type',
     addBlockOfKind: 'Add a block of type "{{kind}}": {{prompt}}',
+    googleValidateError:
+      'I couldn’t validate the Google sign-in. Try again.',
+    backToLogin: 'Back to login',
+    loginCancelled: 'Login cancelled',
+    googleNoResponse: 'Google didn’t respond',
+    googleNotConfigured: 'Google is not configured',
+    googleConfigError:
+      'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be configured in ecosystem.config.cjs.',
+    googleGenericError:
+      'I couldn’t complete the Google login. Try again.',
   },
   practiceGuideHelp: {
     title: 'What the tutor can do',
