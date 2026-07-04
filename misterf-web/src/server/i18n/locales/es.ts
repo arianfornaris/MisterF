@@ -33,6 +33,7 @@ export const es: LocaleCatalog = {
     noPermission: 'No tienes permiso para ver esta página.',
     limitInvalid: 'El límite debe ser un número mayor o igual a 0.',
     noLimitValue: 'sin límite',
+    userNotFound: 'Usuario no encontrado.',
     updatedFem: 'Actualizada',
     lastError: 'Último error:',
     remoteReadError: 'No pude leer la key en OpenRouter:',

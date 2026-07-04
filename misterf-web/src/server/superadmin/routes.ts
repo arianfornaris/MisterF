@@ -64,7 +64,7 @@ export async function renderSuperadminUser(
   const userId = readParam(request.params.userId);
   const activeUser = findUserForSuperadmin(userId);
   if (!activeUser) {
-    response.status(404).send('Usuario no encontrado.');
+    response.status(404).send(translate(request.locale, 'superadmin.userNotFound'));
     return;
   }
 
@@ -101,7 +101,7 @@ export async function handleOpenRouterKeyUpdate(
   const userId = readParam(request.params.userId);
   const activeUser = findUserForSuperadmin(userId);
   if (!activeUser) {
-    response.status(404).send('Usuario no encontrado.');
+    response.status(404).send(translate(request.locale, 'superadmin.userNotFound'));
     return;
   }
 
