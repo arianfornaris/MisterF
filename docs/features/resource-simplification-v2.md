@@ -2,6 +2,9 @@
 
 Date: 2026-06-25
 
+Status: implemented — shipped as the core V1 product surface (deployed to
+production 2026-07-02; see [Roadmap V1](../roadmap/roadmap-v1.md)).
+
 ## Product Intent
 
 V1 leaves Mister F with several resource-like areas that are useful but

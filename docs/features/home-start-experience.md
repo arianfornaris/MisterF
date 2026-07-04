@@ -1,5 +1,8 @@
 # Home Start Experience Exploration
 
+Status: proposal (not implemented). Planned as V3 work; the idea is tracked
+in the idea inbox ([issues/incomming.md](../issues/incomming.md)).
+
 ## Product Question
 
 Today the Mister F home page starts as a new tutor conversation. That is direct

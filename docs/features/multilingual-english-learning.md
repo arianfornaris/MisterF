@@ -1,5 +1,10 @@
 # Multilingual English Learning Proposal
 
+Status: proposal (not implemented). V2 implements the first step — English as
+the second instruction language ([Roadmap V2](../roadmap/roadmap-v2.md),
+section 1.1). Haitian Creole and further support languages come after V2, on
+the architecture this document describes.
+
 ## Purpose
 
 Mister F started as an English-learning app for Spanish-speaking learners. That

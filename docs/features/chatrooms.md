@@ -1,6 +1,7 @@
 # Chat Rooms Archive
 
-Status: removed from the active product in Resource Simplification V2 Slice 7.
+Status: retired — removed from the active product in Resource Simplification
+V2 Slice 7; kept as archived notes.
 
 The former `Salas de chat` feature let users create multi-character group chat
 scenarios, run plain-text conversations, evaluate those conversations, and

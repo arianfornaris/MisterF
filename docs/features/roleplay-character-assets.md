@@ -2,6 +2,11 @@
 
 Date: 2026-07-03
 
+Status: partially implemented — the avatar registry
+(`src/server/roleplays/avatarRegistry.ts`, `characters.json`) and the first
+character entries shipped in v1.1.0; the batch generation process and the
+full ~50-avatar library remain a proposal.
+
 This document describes a proposed process for creating, storing, and loading a
 small library of roleplay character avatar assets for Mister F.
 

@@ -6,9 +6,10 @@ Date: 2026-06-29
 to the existing mini-conversation tutor blocks, but promoted to a saved resource
 with authoring, sharing, attempts, evaluation, progress, and follow-up practice.
 
-Implementation status: the first authenticated version is implemented as a V2
-resource type. Future guest/free attempts, character images, and richer guided
-roleplay branching remain deferred.
+Status: implemented — the first authenticated version shipped with V1 as a
+catalog resource type (Resource Simplification V2, Slice 11). Guest/free
+attempts, richer character images, and guided roleplay branching remain
+deferred (idea inbox).
 
 Character image asset planning lives in
 `docs/features/roleplay-character-assets.md`.

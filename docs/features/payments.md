@@ -1,5 +1,8 @@
 # Payments and Credits Design
 
+Status: implemented — current-state documentation of the live Stripe payments
+and credits behavior.
+
 ## Goal
 
 Integrate Mister F with Stripe Checkout so authenticated users can buy credits for AI usage.

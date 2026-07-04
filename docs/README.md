@@ -49,6 +49,15 @@ interactive behavior.
 
 Use `features/` for product areas, feature concepts, and future feature ideas.
 
+Every feature document MUST carry a `Status:` line directly under its title
+so implemented behavior is never confused with proposals. The vocabulary is
+closed: `implemented`, `partially implemented`, `proposal (not implemented)`,
+or `retired`, followed by a dash and one or two sentences of context (what
+shipped and when, what remains, or where the work is tracked). Partially
+implemented documents must make clear which sections describe shipped
+behavior and which are still ideas. Update the line whenever implementation
+state changes.
+
 - [Chat Rooms](./features/chatrooms.md): archived notes for the removed chat room feature
 - [Teacher-Assigned Practice](./features/teacher-assigned-practice.md): AI-assisted `Quizzes` workflow for human teachers and students, including anonymous guest attempts evaluated on the student's own account
 - [Roleplays](./features/roleplays.md): reusable free-form roleplay resources with evaluated learner English production
@@ -57,6 +66,8 @@ Use `features/` for product areas, feature concepts, and future feature ideas.
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
 - [Writing Practice Ideas](./features/writing-practice-ideas.md): writing-first practice patterns that use `open_text_prompt` for structured open responses
 - [Comprehension Exercises](./features/comprehension-exercises.md): stimulus-plus-questions concept for reading, listening (server-side quality TTS), and image comprehension
+- [Multilingual English Learning](./features/multilingual-english-learning.md): proposal separating target language, support language, and interface locale; English ships first in V2, Haitian Creole and others later
+- [Roleplay Character Assets](./features/roleplay-character-assets.md): avatar registry and curated character library for roleplay resources
 
 ### Design
 

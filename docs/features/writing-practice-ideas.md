@@ -1,5 +1,9 @@
 # Ideas para provocar escritura en ingles
 
+Status: partially implemented — the `open_text_prompt` tutor block exists in
+the block protocol; the broader catalog of writing-pretext ideas in this
+document is not implemented.
+
 El objetivo de estas ideas es darle al usuario razones naturales para escribir
 en ingles, evaluar lo que produce y convertir sus errores en practica futura.
 La meta no es solo corregir frases aisladas, sino construir evidencia real de

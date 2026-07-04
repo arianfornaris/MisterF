@@ -1,5 +1,9 @@
 # Teacher-Assigned Practice
 
+Status: implemented — shipped with V1; the Implementation Status section
+below details what landed. Remaining ideas were triaged to the roadmap and
+the idea inbox.
+
 ## Product Intent
 
 Mister F is not only a self-study tutor. A major product direction is helping

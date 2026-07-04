@@ -43,11 +43,14 @@ Scope notes:
 - For English-instruction users studying English, prompts must avoid
   translation-based scaffolding and lean on monolingual techniques.
 
-- [ ] Design doc (`docs/features/internationalization.md`): where the
-  language preference lives (per-user setting, onboarding choice, and
-  pre-login detection), the string strategy for EJS views and client
-  scripts, how system prompts parametrize the instruction language, and
-  what happens to mixed-language shared resources.
+- [ ] Design review: validate and update the existing
+  [Multilingual English Learning](../features/multilingual-english-learning.md)
+  proposal (target language / support language / interface locale) as the
+  design doc for this initiative, resolving: where the language preference
+  lives (per-user setting, onboarding choice, and pre-login detection), the
+  string strategy for EJS views and client scripts, how system prompts
+  parametrize the instruction language, and what happens to mixed-language
+  shared resources. V2 ships English only; Haitian Creole stays post-V2.
 - [ ] i18n infrastructure: externalize UI strings from EJS views, partials,
   client scripts, flash messages, and validation errors into per-language
   catalogs (`es`, `en`); pick or build a minimal helper (no heavyweight

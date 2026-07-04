@@ -1,6 +1,7 @@
 # Ejercicios de comprensión: estímulo + preguntas
 
-Estado: idea perfilada, sin implementar (2026-07-04).
+Status: proposal (not implemented), 2026-07-04. Planned for V2
+([Roadmap V2](../roadmap/roadmap-v2.md), section 1.2).
 
 La idea es que el usuario reciba un estímulo — un texto, un audio o una
 imagen — y a partir de ahí responda preguntas de comprensión. Aunque parecen
