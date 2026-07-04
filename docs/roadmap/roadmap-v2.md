@@ -100,16 +100,35 @@ target language); question wording and feedback follow the user's
 instruction language. Phase 1 should land after the i18n prompt
 parametrization to avoid double work on prompt copy.
 
+## 1.3 Resource Import/Export
+
+Replaces the V1-deferred "static manual quiz JSON for development" item:
+instead of a dev-only tool, a product feature integrated in the platform UI
+that serves end users (backup, portability, sharing outside the platform)
+and doubles as the development/debugging path — a hand-written JSON can be
+imported to materialize any resource without live inference.
+
+- [ ] Portable resource JSON format: versioned envelope (format version,
+  resource type, type-specific payload) covering quizzes, practice guides,
+  and roleplays; documented so files can be authored by hand.
+- [ ] Export: download a resource as JSON from the resource option menu.
+- [ ] Import: create a resource from an uploaded/pasted JSON via the
+  `Nuevo` menu, running the same validation as AI authoring so invalid
+  files fail with clear errors instead of persisting corrupt resources.
+- [ ] Round-trip coverage: export → import reproduces an equivalent
+  resource for every type.
+
 ---
 
 # Part 2: Engineering And Quality
 
-Carried over from Roadmap V1, Part 3 (moved here 2026-07-04):
+Carried over from Roadmap V1, Part 3 (moved here 2026-07-04). The "static
+manual quiz JSON for development" item became the Resource Import/Export
+product initiative (section 1.3).
 
 - [ ] Prompt-contract fixtures that validate representative generated quiz
   JSON (generation, single-block generation, revision, and evaluation)
   without a live model.
-- [ ] Static manual quiz JSON support for development/debugging.
 - [ ] Deeper semantic review layer for structured tutor blocks
   ([Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md)).
 - [ ] [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
