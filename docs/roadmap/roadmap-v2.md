@@ -54,7 +54,7 @@ Scope notes:
 - For English-instruction users studying English, prompts must avoid
   translation-based scaffolding and lean on monolingual techniques.
 
-- [ ] Design review: validate and update the existing
+- [x] Design review: validate and update the existing
   [Multilingual English Learning](../features/multilingual-english-learning.md)
   proposal (target language / support language / interface locale) as the
   design doc for this initiative, resolving: where the language preference
@@ -62,13 +62,31 @@ Scope notes:
   string strategy for EJS views and client scripts, how system prompts
   parametrize the instruction language, and what happens to mixed-language
   shared resources. V2 ships English only; Haitian Creole stays post-V2.
+  2026-07-04: resolved where the preference lives — a single per-profile
+  `instruction_language` field (`es`/`en`) collected at profile
+  creation/onboarding and editable, governing UI and tutor — and the
+  pre-account first-interaction language (switcher cookie →
+  `Accept-Language` → `en` fallback, seeding the first profile at
+  signup); details in the design doc's "V2 Decisions" section. Also
+  2026-07-04: string strategy approved (per-language TS dictionaries +
+  `t` helper, no framework), shared resources resolved (author picks
+  the resource language; shown as authored to every reader), and the
+  prompt parametrization proposal approved (language packs + invariant
+  sections + conversation language snapshot). Done 2026-07-04; all
+  decisions live in the design doc's "V2 Decisions" section.
 - [ ] i18n infrastructure: externalize UI strings from EJS views, partials,
   client scripts, flash messages, and validation errors into per-language
   catalogs (`es`, `en`); pick or build a minimal helper (no heavyweight
   framework unless the design doc justifies it).
-- [ ] Per-user language preference: onboarding choice, settings toggle, and
+- [~] Per-user language preference: onboarding choice, settings toggle, and
   a sensible default for anonymous/shared-link visitors (`Accept-Language`
-  with explicit override).
+  with explicit override). Started 2026-07-04: `instruction_language`
+  profile field (migration, repository, onboarding + profile forms,
+  `Accept-Language` seeding at first-profile creation).
+- [ ] Translator: adapt translator mode to the profile's instruction
+  language, and let the user select other language pairs beyond the
+  profile default. Deliberately untouched by the initial i18n work — it
+  stays Spanish–English for every profile until this item lands.
 - [ ] Tutor and LLM surface: parametrize system prompts, block protocol
   copy, evaluation feedback, and AI authoring (quiz/guide/roleplay
   generation and revision) by instruction language.

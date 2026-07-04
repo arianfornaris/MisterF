@@ -1,9 +1,154 @@
 # Multilingual English Learning Proposal
 
-Status: proposal (not implemented). V2 implements the first step — English as
-the second instruction language ([Roadmap V2](../roadmap/roadmap-v2.md),
-section 1.1). Haitian Creole and further support languages come after V2, on
-the architecture this document describes.
+Status: V2 design review complete (2026-07-04); implementation in
+progress. V2 implements the first step — English as the second instruction language
+([Roadmap V2](../roadmap/roadmap-v2.md), section 1.1). Haitian Creole and
+further support languages come after V2, on the architecture this document
+describes. Decisions resolved so far are recorded in
+[V2 Decisions](#v2-decisions) below; the rest of the document is the
+original long-term proposal and stays as reference.
+
+## V2 Decisions
+
+Decisions made during the V2 design review. Where a decision diverges from
+the long-term proposal below, the decision wins for V2.
+
+### One profile field: `instruction_language` (2026-07-04)
+
+The proposal below models three concepts (target language, support
+language, interface locale) and suggests two profile fields
+(`support_language` + `interface_locale`). V2 collapses the two
+configurable ones into a single per-profile field, since with only `es`
+and `en` a split adds cost without a use case:
+
+- Field: `instruction_language` on `profiles`, BCP 47 tag, `'es' | 'en'`
+  in V2 (`CHECK` constraint widened when a language is added). It governs
+  both the UI chrome and the tutor's assistance/explanations.
+- The name is deliberately not "native language": it is the language the
+  user *wants instruction in* — a native Spanish speaker may choose
+  English for immersion. UX copy should ask for a preference (e.g. "¿En
+  qué idioma prefieres la interfaz y las explicaciones?"), not for the
+  user's native language.
+- Per-profile, not per-user, as argued in the proposal (shared accounts:
+  families, classes, tutors managing learners with different home
+  languages).
+- Collected at profile creation: a required choice in the profile
+  onboarding form and in the create/edit profile form. Editable at any
+  time from profile settings; changes affect new tutor turns only
+  (conversation snapshot behavior per the proposal's migration notes).
+- Defaults: existing profiles migrate to `'es'`. New profiles where the
+  question is not answered (onboarding is skippable) default from the
+  request's `Accept-Language` (resolved to a supported language,
+  fallback `'es'`).
+- Anonymous / pre-login / shared-link visitors have no profile: see
+  "First interaction language" below.
+- Post-V2, if tutors need the app chrome in a different language than
+  learner explanations, `interface_locale` can be added alongside,
+  defaulting from `instruction_language`; nothing in V2 should preclude
+  that split.
+
+### First interaction language (pre-account) (2026-07-04)
+
+What language a visitor sees before any account or profile exists
+(landing, login, signup, legal pages, shared-resource links). Resolution
+is a precedence chain, first match wins:
+
+1. **Explicit choice**: a visible ES/EN language switcher on all public
+   pages, persisted in a cookie (e.g. `lang`). No account required. This
+   covers shared or mis-configured devices, common in the target
+   audience.
+2. **`Accept-Language` negotiation**: resolved against the supported
+   languages (`es`, `en`). This silently gets the majority of visitors
+   right — a Spanish-configured phone sees Spanish from the first page.
+3. **Fallback `en`** when the header matches no supported language.
+   Deliberately English, not Spanish: the typical no-match visitor is a
+   Haitian user with a French or Haitian Creole browser locale — exactly
+   the audience Spanish excludes — and English is the roadmap's base
+   language.
+
+Additionally:
+
+- Public URLs accept a `?lang=es|en` query parameter that sets the cookie
+  and redirects clean — lets marketing links and tutors share
+  signup/resource links already in the recipient's language.
+- **Continuity into the account**: at signup, the resolved pre-login
+  language (cookie or negotiated) seeds the first profile's
+  `instruction_language` default; profile onboarding then confirms it as
+  an editable question. No language "jump" between signup and the
+  product.
+- Server-rendered pages set `<html lang>` to the resolved language.
+
+### UI string strategy (2026-07-04)
+
+Approved as proposed in "UI Localization Strategy" below: per-language
+TypeScript dictionaries under `src/server/i18n/locales/` (`es.ts`,
+`en.ts`), a `t` helper passed into EJS rendering, and client scripts
+receiving their strings through page bootstrap data or `data-*`
+attributes. No heavyweight i18n framework.
+
+### Shared resources keep their authored language (2026-07-04)
+
+The author decides the language a resource is created in (defaulting to
+the authoring profile's `instruction_language`), and the resource is
+shown exactly as authored to every reader, regardless of the reading
+profile's language. No per-reader translation or adaptation layer in V2.
+Ephemeral AI output generated around a resource and addressed to the
+learner (e.g. quiz attempt feedback) is governed by the prompt
+parametrization design, not by this rule.
+
+### Prompt parametrization (approved 2026-07-04)
+
+How LLM surfaces follow `instruction_language`. Grounded in the current
+prompt architecture: versioned markdown prompts rendered through
+`renderSystemPrompt(path, placeholders)` with `{{...}}` substitution,
+and the tutor block protocol composed by `blockProtocol.ts` from
+`tutor/blocks/*.md`.
+
+- **Language packs, not duplicated prompts.** Prompt files stay
+  single-source. Per-language material lives in a small pack: a markdown
+  fragment per language (`system-prompts/tutor/language-rules/{es,en}.md`)
+  injected as `{{LANGUAGE_RULES}}`, plus a TS module
+  (`src/server/services/llmTutor/languagePack.ts`) mapping
+  `instruction_language` → placeholder values (language name,
+  learner-facing example phrases such as the direction-option examples)
+  and block-set adjustments.
+- **Parametrize, don't fork.** In `system.md` and the block docs,
+  literal "Spanish"/Spanish sample phrases become placeholders
+  (`{{INSTRUCTION_LANGUAGE_NAME}}` etc.). The tutor identity line stops
+  saying "for Spanish-speaking learners". Invariant tutor-contract
+  sections (block separation, correction gate, pedagogy) contain no
+  language placeholders at all — same text for every language.
+- **`en` pack is monolingual.** Per the roadmap scope note, the English
+  pack's language rules lean on monolingual scaffolding (definitions,
+  paraphrase, examples) instead of translation. `understand_in_spanish_prompt`
+  and `translate_to_english_prompt` are enabled only by the `es` pack;
+  the `en` pack ships without translation-based blocks. Translator mode
+  is left untouched for now (stays Spanish–English regardless of
+  profile); a dedicated roadmap item covers making it profile-aware
+  with user-selectable language pairs.
+- **Conversations snapshot the language.** `conversations` gets an
+  `instruction_language` column set at creation from the profile,
+  mirroring the existing `model_tier` snapshot. All tutor-turn prompt
+  builders read the conversation snapshot, so historical conversations
+  stay stable when the profile changes.
+- **Which language governs which surface:**
+  - Tutor conversation (system, corrections, repair, contexts, visible
+    plans, reports): the conversation snapshot.
+  - Resource authoring (quiz/guide/roleplay draft + revision): the
+    language chosen by the author (default: authoring profile), stored
+    with the resource per the shared-resources decision.
+  - Ephemeral learner-addressed feedback (quiz result evaluation,
+    roleplay evaluation): the learner's `instruction_language`, even on
+    a resource authored in the other language — feedback is fresh output
+    addressed to the learner, not stored resource content.
+- **Rollout order:** (1) thread the language parameter through prompt
+  builders with everything still hard-wired `es` (no behavior change);
+  (2) tutor family (system + blocks + correction/repair) with the `en`
+  pack; (3) secondary families (quiz evaluation, reports, resource
+  drafts, roleplay, translator gating); (4) prompt-render regression
+  fixtures per family: no unresolved `{{` placeholders, invariant
+  sections present in both languages, `es` output unchanged
+  (snapshot-guarded), `en` output free of translation-based blocks.
 
 ## Purpose
 
