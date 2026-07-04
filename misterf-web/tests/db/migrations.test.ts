@@ -111,6 +111,10 @@ describe('database migrations', () => {
         id: 14,
         name: 'add_profile_instruction_language',
       },
+      {
+        id: 15,
+        name: 'add_conversation_instruction_language',
+      },
     ]);
 
     const tableNames = (db
@@ -167,6 +171,7 @@ describe('database migrations', () => {
     ]));
     expect(getColumnNames(db, 'conversations')).toEqual(expect.arrayContaining([
       'closed_at',
+      'instruction_language',
       'model_tier',
     ]));
     expect(getColumnNames(db, 'conversations')).not.toContain(

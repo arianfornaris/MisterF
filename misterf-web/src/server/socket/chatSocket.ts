@@ -1559,6 +1559,7 @@ async function streamAssistantMessage(
       conversationId,
       currentTitle: conversation.title,
       currentPracticeGuideId: conversation.practiceGuideId,
+      instructionLanguage: conversation.instructionLanguage,
       llm: llmOptions,
       onConversationRenamed: (renamedConversation) => {
         io.to(conversationId).emit('conversation:renamed', {

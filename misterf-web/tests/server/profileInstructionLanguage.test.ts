@@ -132,6 +132,42 @@ describe('profile instruction language persistence', () => {
     );
   });
 
+  it('snapshots the profile language on new conversations', () => {
+    insertUser('user-snapshot');
+    const profile = repository.createProfile({
+      instructionLanguage: 'en',
+      name: 'Profile',
+      userId: 'user-snapshot',
+    });
+
+    const conversation = repository.createConversation(
+      'user-snapshot',
+      profile.id,
+    );
+    expect(conversation.instructionLanguage).toBe('en');
+
+    const switched = repository.updateProfile({
+      description: profile.description,
+      instructionLanguage: 'es',
+      name: profile.name,
+      profileId: profile.id,
+      userId: 'user-snapshot',
+    });
+    expect(switched?.instructionLanguage).toBe('es');
+
+    const snapshotAfterSwitch = repository.findConversationForUser(
+      conversation.id,
+      'user-snapshot',
+    );
+    expect(snapshotAfterSwitch?.instructionLanguage).toBe('en');
+
+    const newConversation = repository.createConversation(
+      'user-snapshot',
+      profile.id,
+    );
+    expect(newConversation.instructionLanguage).toBe('es');
+  });
+
   it('updates the language and preserves it when omitted', () => {
     insertUser('user-updates');
     const profile = repository.createProfile({

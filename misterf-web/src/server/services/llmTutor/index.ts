@@ -285,6 +285,7 @@ export async function runTutorAgentLoop(
     conversationId?: string | null;
     currentTitle?: string;
     currentPracticeGuideId?: string | null;
+    instructionLanguage?: 'en' | 'es';
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     onToolCall?: (toolName: string) => void;

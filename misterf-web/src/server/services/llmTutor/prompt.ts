@@ -36,6 +36,7 @@ export function buildAgentSystemInstruction(options: {
     tutorInstructions: string;
   } | null;
   currentTitle?: string;
+  instructionLanguage?: 'en' | 'es';
   titleUpdatedByUser?: boolean;
   tutorPlanText?: string | null;
 }): string {
@@ -43,6 +44,7 @@ export function buildAgentSystemInstruction(options: {
   const base = renderTutorSystemPrompt({
     BLOCK_PROTOCOL: renderTutorBlockProtocol(),
     CURRENT_TITLE: currentTitle,
+    INSTRUCTION_LANGUAGE: options.instructionLanguage ?? 'es',
     TITLE_RULE: buildConversationTitleRule({
       currentTitle,
       titleUpdatedByUser: Boolean(options.titleUpdatedByUser),

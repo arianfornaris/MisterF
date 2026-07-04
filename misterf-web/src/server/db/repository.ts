@@ -21,6 +21,7 @@ export type StoredConversation = {
   closedAt: string | null;
   practiceGuideId: string | null;
   id: string;
+  instructionLanguage: 'en' | 'es';
   modelTier: 'advanced' | 'max' | 'regular';
   profileId: string;
   titleUpdatedByUser: boolean;
@@ -406,6 +407,7 @@ type ConversationRow = {
   closed_at: string | null;
   practice_guide_id: string | null;
   id: string;
+  instruction_language: 'en' | 'es';
   model_tier: 'advanced' | 'max' | 'regular';
   profile_id: string;
   title: string;
@@ -670,6 +672,7 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     closedAt: row.closed_at,
     practiceGuideId: row.practice_guide_id,
     id: row.id,
+    instructionLanguage: row.instruction_language,
     modelTier: row.model_tier,
     profileId: row.profile_id,
     title: row.title,
@@ -2752,7 +2755,9 @@ export function createConversation(
   } = {},
 ): StoredConversation {
   const id = randomUUID();
-  const modelTier = options.modelTier ?? findProfileById(profileId)?.modelTier ?? 'regular';
+  const profile = findProfileById(profileId);
+  const modelTier = options.modelTier ?? profile?.modelTier ?? 'regular';
+  const instructionLanguage = profile?.instructionLanguage ?? 'es';
   getDb()
     .prepare(
       `
@@ -2763,9 +2768,10 @@ export function createConversation(
           title,
           practice_guide_id,
           active_agent,
-          model_tier
+          model_tier,
+          instruction_language
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -2776,6 +2782,7 @@ export function createConversation(
       options.practiceGuideId ?? null,
       'tutor',
       modelTier,
+      instructionLanguage,
     );
 
   const conversation = findConversationForUser(id, userId);
@@ -2828,7 +2835,7 @@ export function findConversationForUser(
     .prepare(
       `
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
-             , model_tier
+             , model_tier, instruction_language
         FROM conversations
         WHERE id = ? AND user_id = ?
       `,
@@ -2885,7 +2892,7 @@ export function listConversationsForProfile(
     .prepare(
       `
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
-             , model_tier
+             , model_tier, instruction_language
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -4859,7 +4866,7 @@ export function listConversationsForPracticeGuide(
   const rows = getDb()
     .prepare(
       `
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier, instruction_language
         FROM conversations
         WHERE user_id = ? AND profile_id = ? AND practice_guide_id = ?
         ORDER BY updated_at DESC, created_at DESC

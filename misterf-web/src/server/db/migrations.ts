@@ -1694,4 +1694,13 @@ export const migrations: Migration[] = [
           CHECK (instruction_language IN ('es', 'en'));
     `,
   },
+  {
+    id: 15,
+    name: 'add_conversation_instruction_language',
+    up: `
+      ALTER TABLE conversations
+        ADD COLUMN instruction_language TEXT NOT NULL DEFAULT 'es'
+          CHECK (instruction_language IN ('es', 'en'));
+    `,
+  },
 ];
