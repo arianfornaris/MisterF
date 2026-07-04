@@ -1501,6 +1501,8 @@ async function evaluateSubmittedQuizAttemptForUser(input: {
   const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
   const result = await evaluateQuizAttempt({
     attempt: evaluatingAttempt,
+    instructionLanguage: findProfileForUser(input.profileId, input.userId)
+      ?.instructionLanguage,
     llm: { openRouterApiKey },
   });
   const evaluated = saveQuizAttemptResult({ attemptId: evaluatingAttempt.id, result });

@@ -130,6 +130,7 @@ export async function handleFinalizeTutorConversation(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
     generatedReport = await generateTutorConversationReport({
+      instructionLanguage: conversation.instructionLanguage,
       messages,
       openRouterApiKey,
       userName: user.fullName,

@@ -567,6 +567,7 @@ export function normalizeQuizResponses(input: {
 
 export async function evaluateQuizAttempt(input: {
   attempt: StoredQuizAttempt;
+  instructionLanguage?: 'en' | 'es';
   llm?: LlmRequestOptions;
 }): Promise<TutorQuizResultBlock> {
   const draft = parseQuizDraft(input.attempt.snapshot);
@@ -574,6 +575,7 @@ export async function evaluateQuizAttempt(input: {
   const responses = normalizeStoredResponses(input.attempt.responses);
   const evaluations = await evaluateQuizResultItemsWithLlm({
     evaluationInstructions: draft.evaluationInstructions,
+    instructionLanguage: input.instructionLanguage,
     llm: input.llm,
     quiz,
     responses,

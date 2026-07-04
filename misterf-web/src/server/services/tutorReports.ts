@@ -17,6 +17,7 @@ import {
   shouldUseTemperature,
 } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { logger } from './logger.js';
 
 const maxTutorReportGenerationTurns = 4;
@@ -118,6 +119,7 @@ function formatTutorTranscript(messages: StoredMessage[]): string {
 function appendStructuredCorrectionRequest(
   messages: ModelMessage[],
   input: {
+    instructionLanguage?: 'en' | 'es';
     invalidOutput?: string | null;
     promptPath: string;
     reason: string;
@@ -135,6 +137,9 @@ function appendStructuredCorrectionRequest(
   messages.push({
     content: renderSystemPrompt(input.promptPath, {
       CORRECTION_REASON: input.reason,
+      INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
+        input.instructionLanguage ?? 'es',
+      ),
     }),
     role: 'user',
   });
@@ -148,6 +153,7 @@ function appendStructuredCorrectionRequest(
 }
 
 export async function generateTutorConversationReport(input: {
+  instructionLanguage?: 'en' | 'es';
   messages: StoredMessage[];
   openRouterApiKey?: string | null;
   userName: string;
@@ -156,7 +162,11 @@ export async function generateTutorConversationReport(input: {
   summaryDescription: string;
   summaryTitle: string;
 }> {
-  const system = renderSystemPrompt('tutor/conversation-report.md');
+  const system = renderSystemPrompt('tutor/conversation-report.md', {
+    INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
+      input.instructionLanguage ?? 'es',
+    ),
+  });
   const messages: ModelMessage[] = [
     {
       content: [
@@ -229,6 +239,7 @@ export async function generateTutorConversationReport(input: {
         });
         if (turn < maxTutorReportGenerationTurns - 1) {
           appendStructuredCorrectionRequest(messages, {
+            instructionLanguage: input.instructionLanguage,
             invalidOutput: result.text,
             promptPath: 'tutor/conversation-report-correction.md',
             reason: 'Your previous response was not valid JSON because it was truncated or malformed.',
@@ -250,6 +261,7 @@ export async function generateTutorConversationReport(input: {
         });
         if (turn < maxTutorReportGenerationTurns - 1) {
           appendStructuredCorrectionRequest(messages, {
+            instructionLanguage: input.instructionLanguage,
             invalidOutput: result.text,
             promptPath: 'tutor/conversation-report-correction.md',
             reason: 'Your previous JSON did not match the required schema for the tutor conversation report.',

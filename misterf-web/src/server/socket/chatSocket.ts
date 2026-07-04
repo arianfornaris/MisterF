@@ -1234,6 +1234,7 @@ export function registerChatSocket(io: Server): void {
           const llmOptions = await getLlmRequestOptionsForUser(userId);
           llmOptions.modelTier = normalizeModelTier(payload.modelTier);
           quizEvaluations = await evaluateQuizResultItemsWithLlm({
+            instructionLanguage: conversation.instructionLanguage,
             llm: llmOptions,
             quiz: block,
             responses,

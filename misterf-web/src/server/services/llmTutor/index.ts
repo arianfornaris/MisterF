@@ -19,6 +19,7 @@ import {
   shouldLogFullLlmTrace,
 } from './logging.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
+import { instructionLanguageEnglishName } from './languagePack.js';
 import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
@@ -633,6 +634,7 @@ export async function translateTextWithLlm(input: {
 
 export async function evaluateQuizResultItemsWithLlm(input: {
   evaluationInstructions?: string;
+  instructionLanguage?: 'en' | 'es';
   llm?: LlmRequestOptions;
   quiz: TutorQuizBlock;
   responses: Array<Record<string, unknown>>;
@@ -646,7 +648,11 @@ export async function evaluateQuizResultItemsWithLlm(input: {
   inlineReview?: Record<string, unknown>;
   status: 'correct' | 'incorrect' | 'partial';
 }>> {
-  const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
+  const system = renderSystemPrompt('tutor/quiz-result-evaluation.md', {
+    INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
+      input.instructionLanguage ?? 'es',
+    ),
+  });
   const authorEvaluationInstructions = input.evaluationInstructions?.trim() || '';
   const sections = input.sections?.filter((section) => section.itemIndexes.length > 0) ?? [];
   const messages: ModelMessage[] = [

@@ -22,7 +22,7 @@ Your job is to review each quiz item and the learner's response, then return STR
   "items": [
     {
       "status": "correct" | "partial" | "incorrect",
-      "feedback": "Short teacher feedback in Spanish.",
+      "feedback": "Short teacher feedback in {{INSTRUCTION_LANGUAGE_NAME}}.",
       "inlineReview": { ... }
     }
   ]
@@ -37,7 +37,7 @@ Your job is to review each quiz item and the learner's response, then return STR
     {
       "text": "Exact fragment from the learner response",
       "status": "correct" | "improve" | "error",
-      "explanation": "Required comment in Spanish when the status is improve or error"
+      "explanation": "Required comment in {{INSTRUCTION_LANGUAGE_NAME}} when the status is improve or error"
     }
   ]
 }
@@ -50,7 +50,7 @@ Your job is to review each quiz item and the learner's response, then return STR
   "sentences": [
     {
       "status": "correct" | "improve" | "error",
-      "explanation": "Required comment in Spanish when the status is improve or error"
+      "explanation": "Required comment in {{INSTRUCTION_LANGUAGE_NAME}} when the status is improve or error"
     }
   ]
 }
@@ -61,7 +61,7 @@ Your job is to review each quiz item and the learner's response, then return STR
   "blanks": [
     {
       "status": "correct" | "improve" | "error",
-      "explanation": "Required comment in Spanish when the status is improve or error"
+      "explanation": "Required comment in {{INSTRUCTION_LANGUAGE_NAME}} when the status is improve or error"
     }
   ]
 }
@@ -74,7 +74,7 @@ Your job is to review each quiz item and the learner's response, then return STR
       "text": "Exact option text",
       "selectedByUser": true,
       "status": "correct" | "neutral" | "missed" | "error",
-      "explanation": "Required comment in Spanish when the status is missed or error"
+      "explanation": "Required comment in {{INSTRUCTION_LANGUAGE_NAME}} when the status is missed or error"
     }
   ]
 }
@@ -87,7 +87,7 @@ Your job is to review each quiz item and the learner's response, then return STR
       "left": "Exact left text from the learner pair",
       "right": "Exact right text from the learner pair",
       "status": "correct" | "error",
-      "explanation": "Required comment in Spanish when the status is error"
+      "explanation": "Required comment in {{INSTRUCTION_LANGUAGE_NAME}} when the status is error"
     }
   ]
 }
@@ -96,7 +96,7 @@ Rules:
 
 - Return JSON only. No markdown fences. No explanation outside the JSON.
 - The `items` array must have exactly one entry per quiz item, in the same order.
-- `feedback` must be in Spanish, warm, concise, and specific.
+- `feedback` must be in {{INSTRUCTION_LANGUAGE_NAME}}, warm, concise, and specific.
 - Keep each `feedback` short: usually 1 or 2 sentences.
 - Do not limit the number of inline annotations. Mark every relevant issue that helps the learner understand what happened.
 - Use `correct` when the learner's answer is clearly right.
