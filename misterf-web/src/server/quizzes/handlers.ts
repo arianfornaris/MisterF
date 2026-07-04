@@ -91,53 +91,27 @@ type QuizBlockOutlineItem = {
   sentence: string;
 };
 
-const quizBlockKinds = [
-  {
-    description: 'Respuesta libre evaluada por IA.',
-    label: 'Respuesta abierta',
-    value: 'quiz_open_text',
-  },
-  {
-    description: 'Traducción con respuestas aceptables o rúbrica.',
-    label: 'Traducir al inglés',
-    value: 'quiz_translate_to_english',
-  },
-  {
-    description: 'Comprensión de una frase en inglés.',
-    label: 'Entender en español',
-    value: 'quiz_understand_in_spanish',
-  },
-  {
-    description: 'Espacios escritos, útil cuando hay variantes.',
-    label: 'Completar escribiendo',
-    value: 'quiz_fill_in_the_blank_input',
-  },
-  {
-    description: 'Espacios con opciones visibles.',
-    label: 'Completar con opciones',
-    value: 'quiz_fill_in_the_blank_choice',
-  },
-  {
-    description: 'Selección simple o múltiple.',
-    label: 'Selección múltiple',
-    value: 'quiz_multiple_choice',
-  },
-  {
-    description: 'Relacionar pares.',
-    label: 'Emparejar',
-    value: 'quiz_matching_pairs',
-  },
-  {
-    description: 'Ordenar una oración.',
-    label: 'Ordenar oración',
-    value: 'quiz_unscramble_sentence',
-  },
-  {
-    description: 'Ordenar pasos u oraciones en secuencia.',
-    label: 'Ordenar oraciones',
-    value: 'quiz_order_sentences',
-  },
-] as const;
+function getQuizBlockKinds(locale: Locale): Array<{
+  description: string;
+  label: string;
+  value: string;
+}> {
+  return [
+    ['quiz_open_text', 'quizzes.kindOpenText', 'msg.kindOpenTextDesc'],
+    ['quiz_translate_to_english', 'quizzes.kindTranslate', 'msg.kindTranslateDesc'],
+    ['quiz_understand_in_spanish', 'quizzes.kindUnderstand', 'msg.kindUnderstandDesc'],
+    ['quiz_fill_in_the_blank_input', 'quizzes.kindFillInput', 'msg.kindFillInputDesc'],
+    ['quiz_fill_in_the_blank_choice', 'quizzes.kindFillChoice', 'msg.kindFillChoiceDesc'],
+    ['quiz_multiple_choice', 'quizzes.kindMultipleChoice', 'msg.kindMultipleChoiceDesc'],
+    ['quiz_matching_pairs', 'quizzes.kindMatching', 'msg.kindMatchingDesc'],
+    ['quiz_unscramble_sentence', 'quizzes.kindUnscramble', 'msg.kindUnscrambleDesc'],
+    ['quiz_order_sentences', 'quizzes.kindOrder', 'msg.kindOrderDesc'],
+  ].map(([value, labelKey, descKey]) => ({
+    description: translate(locale, descKey),
+    label: translate(locale, labelKey),
+    value,
+  }));
+}
 
 const defaultQuizAuthoringTab: QuizAuthoringTab = 'general';
 const maxQuizAuthoringMessages = 40;
@@ -198,8 +172,13 @@ function appendQuizAuthoringMessages(
     .slice(-maxQuizAuthoringMessages);
 }
 
-function summarizeQuizDraftCreation(draft: QuizDraft): string {
-  return `Listo. Creé una primera versión de "${draft.title}" con ${formatCountLabel(draft.blocks.length, 'bloque', 'bloques')}.`;
+function summarizeQuizDraftCreation(draft: QuizDraft, locale: Locale): string {
+  const blocks = formatCountLabel(
+    draft.blocks.length,
+    translate(locale, 'msg.blockSg'),
+    translate(locale, 'msg.blockPl'),
+  );
+  return translate(locale, 'msg.draftCreatedQuiz', { blocks, title: draft.title });
 }
 
 function saveQuizAuthoringTurn(input: {
@@ -220,11 +199,15 @@ function saveQuizAuthoringTurn(input: {
   });
 }
 
-function buildQuizBlockOutlineItems(draft: QuizDraft): QuizBlockOutlineItem[] {
+function buildQuizBlockOutlineItems(
+  draft: QuizDraft,
+  locale: Locale,
+): QuizBlockOutlineItem[] {
   const sectionList = buildQuizBlockSectionList(draft);
+  const blockKinds = getQuizBlockKinds(locale);
   return draft.blocks.map((block, index) => {
     const item = block.item;
-    const kind = quizBlockKinds.find((candidate) => candidate.value === item.kind);
+    const kind = blockKinds.find((candidate) => candidate.value === item.kind);
     const metaItems: string[] = [];
     const section = sectionList[index];
     const previousSection = index > 0 ? sectionList[index - 1] : null;
@@ -243,23 +226,23 @@ function buildQuizBlockOutlineItems(draft: QuizDraft): QuizBlockOutlineItem[] {
       item.kind === 'quiz_fill_in_the_blank_input' ||
       item.kind === 'quiz_fill_in_the_blank_choice'
     ) {
-      metaItems.push(formatCountLabel(item.blanks.length, 'espacio', 'espacios'));
+      metaItems.push(formatCountLabel(item.blanks.length, translate(locale, 'msg.blankSg'), translate(locale, 'msg.blankPl')));
     }
 
     if (item.kind === 'quiz_multiple_choice') {
-      metaItems.push(formatCountLabel(item.options.length, 'opción', 'opciones'));
+      metaItems.push(formatCountLabel(item.options.length, translate(locale, 'msg.optionSg'), translate(locale, 'msg.optionPl')));
     }
 
     if (item.kind === 'quiz_matching_pairs') {
-      metaItems.push(formatCountLabel(item.leftItems.length, 'par', 'pares'));
+      metaItems.push(formatCountLabel(item.leftItems.length, translate(locale, 'msg.pairSg'), translate(locale, 'msg.pairPl')));
     }
 
     if (item.kind === 'quiz_unscramble_sentence') {
-      metaItems.push(formatCountLabel(item.tokens.length, 'palabra', 'palabras'));
+      metaItems.push(formatCountLabel(item.tokens.length, translate(locale, 'msg.wordSg'), translate(locale, 'msg.wordPl')));
     }
 
     if (item.kind === 'quiz_order_sentences') {
-      metaItems.push(formatCountLabel(item.sentences.length, 'oración', 'oraciones'));
+      metaItems.push(formatCountLabel(item.sentences.length, translate(locale, 'msg.sentenceSg'), translate(locale, 'msg.sentencePl')));
     }
 
     return {
@@ -570,7 +553,7 @@ function renderQuizAuthoring(
     }),
     activeTab: input.activeTab ?? defaultQuizAuthoringTab,
     blockSections: buildQuizBlockSectionList(draft),
-    quizBlockKinds,
+    quizBlockKinds: getQuizBlockKinds(request.locale),
     quizAuthoringMessages: input.quiz.authoringMessages,
     authoringError: input.error || '',
     draft,
@@ -822,7 +805,7 @@ export async function handleGenerateQuiz(
       authoringMessages: appendQuizAuthoringMessages(
         [],
         createQuizAuthoringMessage('user', prompt),
-        createQuizAuthoringMessage('assistant', summarizeQuizDraftCreation(draft), draft),
+        createQuizAuthoringMessage('assistant', summarizeQuizDraftCreation(draft, request.locale), draft),
       ),
       description: draft.description,
       instructions: draft.instructions,
@@ -1052,14 +1035,22 @@ export async function handleAddQuizBlock(
     return;
   }
 
-  request.body.message = buildAddQuizBlockChatMessage(blockKind, prompt);
+  request.body.message = buildAddQuizBlockChatMessage(
+    blockKind,
+    prompt,
+    request.locale,
+  );
   await handleReviseQuiz(request, response);
 }
 
-function buildAddQuizBlockChatMessage(blockKind: string, prompt: string): string {
-  const kind = quizBlockKinds.find((candidate) => candidate.value === blockKind);
-  const kindLabel = kind?.label ?? 'el tipo que mejor encaje';
-  return `Agrega un bloque de tipo "${kindLabel}": ${prompt}`;
+function buildAddQuizBlockChatMessage(
+  blockKind: string,
+  prompt: string,
+  locale: Locale,
+): string {
+  const kind = getQuizBlockKinds(locale).find((candidate) => candidate.value === blockKind);
+  const kindLabel = kind?.label ?? translate(locale, 'msg.bestFitKind');
+  return translate(locale, 'msg.addBlockOfKind', { kind: kindLabel, prompt });
 }
 
 export function handleDeleteQuizBlock(request: Request, response: Response): void {
@@ -1214,7 +1205,7 @@ export async function renderQuizShowPage(
       user: resolved.user,
     }),
     quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
-    quizBlockOutlineItems: buildQuizBlockOutlineItems(draft),
+    quizBlockOutlineItems: buildQuizBlockOutlineItems(draft, request.locale),
     canManageQuiz: resolved.canManageQuiz,
     quizShareMode,
     quizShareQrDataUrl,

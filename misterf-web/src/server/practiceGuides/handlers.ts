@@ -295,10 +295,10 @@ async function buildPracticeGuidesPageModel(
     shareTargetPracticeGuideProfiles,
     title:
       pageKind === 'new'
-        ? `Nueva guía de práctica · ${appDocumentTitle}`
+        ? `${translate(request.locale, 'practiceGuides.newTitle')} · ${appDocumentTitle}`
         : pageKind === 'edit'
-        ? `Editar guía de práctica · ${appDocumentTitle}`
-        : `${selectedPracticeGuide?.title || 'Guía de práctica'} · ${appDocumentTitle}`,
+        ? `${translate(request.locale, 'practiceGuides.editTitle')} · ${appDocumentTitle}`
+        : `${selectedPracticeGuide?.title || translate(request.locale, 'practiceGuides.defaultTitle')} · ${appDocumentTitle}`,
     user,
   };
 }
@@ -449,7 +449,7 @@ function renderPracticeGuideNewView(
       currentView: 'resources',
       guestInitialGreeting: '',
       request,
-      title: `Nueva guía de práctica - ${appDocumentTitle}`,
+      title: `${translate(request.locale, 'practiceGuides.newTitle')} - ${appDocumentTitle}`,
       user: input.user,
     }),
     generationCreditExhausted: Boolean(input.generationCreditExhausted),
@@ -498,7 +498,7 @@ export async function handleGeneratePracticeGuideDraft(
         createPracticeGuideAuthoringMessage('user', prompt),
         createPracticeGuideAuthoringMessage(
           'assistant',
-          `Listo. Creé una primera versión de "${draft.title}".`,
+          translate(request.locale, 'msg.draftCreatedGuide', { title: draft.title }),
         ),
       ),
       practiceGuideId: practiceGuide.id,
@@ -777,7 +777,7 @@ export function handleUpdatePracticeGuide(request: Request, response: Response):
     renderPracticeGuideAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'general',
-      error: 'Completa el título, la descripción y las instrucciones al tutor.',
+      error: translate(request.locale, 'msg.completeGuideFields'),
     });
     return;
   }

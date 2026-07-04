@@ -259,8 +259,14 @@ function serializeViewJson(value: unknown): string {
   });
 }
 
-function summarizeRoleplayDraftCreation(draft: RoleplayDraft): string {
-  return `Listo. Creé una primera versión de "${draft.title}" con ${draft.characters.length} personajes.`;
+function summarizeRoleplayDraftCreation(
+  draft: RoleplayDraft,
+  locale: Locale,
+): string {
+  return translate(locale, 'msg.draftCreatedRoleplay', {
+    count: draft.characters.length,
+    title: draft.title,
+  });
 }
 
 function updateRoleplayWithDraft(
@@ -557,7 +563,7 @@ export async function handleGenerateRoleplay(
       authoringMessages: appendRoleplayAuthoringMessages(
         [],
         buildRoleplayAuthoringMessage('user', prompt),
-        buildRoleplayAuthoringMessage('assistant', summarizeRoleplayDraftCreation(draft), draft),
+        buildRoleplayAuthoringMessage('assistant', summarizeRoleplayDraftCreation(draft, request.locale), draft),
       ),
       ...draft,
       profileId: auth.activeProfile.id,
