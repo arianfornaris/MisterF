@@ -16,6 +16,11 @@ done), and notes are added inline when decisions change an item's scope.
 There is no fixed execution order — the next item is chosen by analyzing
 the current state at each step.
 
+V2 development happens on the `v2` branch (created 2026-07-04 from `main`
+at the prompt-contract fixtures commit). `main` remains the production
+branch: deploys and V1.x patches come from `main`, and `v2` merges into
+`main` when V2 releases as `2.0.0`.
+
 Product context: the primary audience is students in South Florida, many of
 them Hispanic and Haitian. Today the whole platform (UI and tutor
 assistance) is Spanish-only, which serves the Hispanic audience but excludes
