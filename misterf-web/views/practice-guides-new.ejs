@@ -3,15 +3,15 @@
 <section class="app-resource-view practice-guides-page">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-eyebrow">Guías de práctica</p>
-      <h1>Nueva guía de práctica</h1>
+      <p class="resource-eyebrow"><%= t('practiceGuides.kicker') %></p>
+      <h1><%= t('practiceGuides.newTitle') %></h1>
     </div>
     <div class="resource-page-header-actions">
       <a
         class="resource-page-close-button"
         href="/resources"
-        title="Cerrar"
-        aria-label="Cerrar"
+        title="<%= t('common.close') %>"
+        aria-label="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -22,7 +22,7 @@
     <div class="alert <%= generationCreditExhausted ? 'alert-warning' : 'alert-danger' %>" role="alert">
       <p class="mb-<%= generationCreditExhausted ? '2' : '0' %>"><%= generationError %></p>
       <% if (generationCreditExhausted) { %>
-        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent('/practice-guides/new') %>">Comprar créditos</a>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent('/practice-guides/new') %>"><%= t('credit.buy') %></a>
       <% } %>
     </div>
   <% } %>
@@ -32,21 +32,21 @@
       <form method="post" action="/practice-guides/generate-draft" data-resource-generate-form>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="mb-3">
-          <label class="form-label" for="practiceGuidePrompt">Describe la guía</label>
+          <label class="form-label" for="practiceGuidePrompt"><%= t('practiceGuides.describeLabel') %></label>
           <textarea
             class="form-control"
             id="practiceGuidePrompt"
             name="prompt"
             rows="10"
             required
-            placeholder="Ejemplo: una guía para practicar conversación sobre viajes con estudiantes A2, corrigiendo el pasado simple..."
+            placeholder="<%= t('practiceGuides.describePlaceholder') %>"
           ><%= generationPrompt || '' %></textarea>
         </div>
         <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-primary" type="submit" data-resource-generate-submit data-loading-text="Creando...">
-            <i class="bi bi-stars me-1" aria-hidden="true"></i>Crear guía
+          <button class="btn btn-primary" type="submit" data-resource-generate-submit data-loading-text="<%= t('practiceGuides.creatingShort') %>">
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('practiceGuides.create') %>
           </button>
-          <a class="btn btn-outline-secondary" href="/resources">Cancelar</a>
+          <a class="btn btn-outline-secondary" href="/resources"><%= t('common.cancel') %></a>
         </div>
       </form>
     </div>
@@ -65,7 +65,7 @@
     <div class="modal-content">
       <div class="modal-body d-flex align-items-center gap-3">
         <div class="spinner-border text-primary" aria-hidden="true"></div>
-        <p class="mb-0">Creando la guía...</p>
+        <p class="mb-0"><%= t('practiceGuides.creating') %></p>
       </div>
     </div>
   </div>

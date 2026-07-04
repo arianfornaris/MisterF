@@ -3,12 +3,12 @@
 <section class="app-resource-view practice-guides-page">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-eyebrow">Guía de práctica en edición</p>
+      <p class="resource-eyebrow"><%= t('practiceGuides.editingKicker') %></p>
       <h1><%= selectedPracticeGuide.title %></h1>
       <form class="d-inline-block mt-3" method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/chats">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-primary" type="submit">
-          <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+          <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('quizzes.test') %>
         </button>
       </form>
     </div>
@@ -16,8 +16,8 @@
       <a
         class="resource-page-close-button"
         href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>"
-        title="Cerrar"
-        aria-label="Cerrar"
+        title="<%= t('common.close') %>"
+        aria-label="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -36,7 +36,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'general' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-card-text me-1" aria-hidden="true"></i>General
+        <i class="bi bi-card-text me-1" aria-hidden="true"></i><%= t('quizzes.tabGeneral') %>
       </a>
     </li>
     <li class="nav-item" role="presentation">
@@ -46,7 +46,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'chat' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Chat IA
+        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i><%= t('quizzes.tabChat') %>
       </a>
     </li>
   </ul>
@@ -57,11 +57,11 @@
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label" for="practiceGuideTitle">Título</label>
+            <label class="form-label" for="practiceGuideTitle"><%= t('quizzes.titleLabel') %></label>
             <input class="form-control" id="practiceGuideTitle" name="title" maxlength="120" value="<%= selectedPracticeGuide.title %>" required>
           </div>
           <div class="col-12">
-            <label class="form-label" for="practiceGuideDescription">Descripción</label>
+            <label class="form-label" for="practiceGuideDescription"><%= t('resources.description') %></label>
             <textarea
               class="form-control"
               id="practiceGuideDescription"
@@ -69,19 +69,19 @@
               rows="4"
               maxlength="500"
               required
-              placeholder="Describe la práctica con Markdown sencillo."
+              placeholder="<%= t('practiceGuides.descriptionPlaceholder') %>"
               data-markdown-editor
               data-markdown-editor-required="true"
               data-markdown-editor-error="practiceGuideDescriptionError"
               data-markdown-editor-min-height="8rem"
             ><%= selectedPracticeGuide.description %></textarea>
             <div class="invalid-feedback" id="practiceGuideDescriptionError" hidden>
-              Escribe una descripción para la guía.
+              <%= t('practiceGuides.descriptionError') %>
             </div>
           </div>
           <div class="col-12">
             <div class="practice-guide-help-row">
-              <label class="form-label" for="practiceGuideTutorInstructions">Instrucciones al tutor</label>
+              <label class="form-label" for="practiceGuideTutorInstructions"><%= t('practiceGuides.tutorInstructions') %></label>
               <button
                 class="btn btn-link practice-guide-help-button"
                 type="button"
@@ -89,7 +89,7 @@
                 data-bs-target="#practiceGuideHelpModal"
               >
                 <i class="bi bi-question-circle me-1" aria-hidden="true"></i>
-                Ayuda
+                <%= t('practiceGuides.help') %>
               </button>
             </div>
             <textarea
@@ -99,20 +99,20 @@
               rows="10"
               maxlength="4000"
               required
-              placeholder="Escribe las instrucciones del tutor con Markdown sencillo."
+              placeholder="<%= t('practiceGuides.tutorInstructionsPlaceholder') %>"
               data-markdown-editor
               data-markdown-editor-required="true"
               data-markdown-editor-error="practiceGuideTutorInstructionsError"
               data-markdown-editor-min-height="18rem"
             ><%= selectedPracticeGuide.tutorInstructions %></textarea>
             <div class="invalid-feedback" id="practiceGuideTutorInstructionsError" hidden>
-              Escribe las instrucciones del tutor.
+              <%= t('practiceGuides.tutorInstructionsError') %>
             </div>
           </div>
         </div>
         <div class="d-flex flex-wrap gap-2 mt-3">
           <button class="btn btn-primary" type="submit">
-            <i class="bi bi-save me-1" aria-hidden="true"></i>Guardar detalles
+            <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %>
           </button>
         </div>
       </div>
@@ -126,17 +126,17 @@
           <i class="bi bi-stars"></i>
         </div>
         <div>
-          <h2 class="quiz-chat-context-title">Modificar la guía con IA</h2>
+          <h2 class="quiz-chat-context-title"><%= t('practiceGuides.modifyWithAi') %></h2>
           <p class="quiz-chat-context-copy mb-0">
-            Usa este chat para pedir cambios concretos a la guía. Mister F actualizará el título, la descripción o las instrucciones al tutor y te responderá qué modificó.
+            <%= t('practiceGuides.modifyWithAiCopy') %>
           </p>
         </div>
       </div>
-      <div class="quiz-chat-history messages" aria-label="Historial del chat de autoría" data-authoring-chat-history>
+      <div class="quiz-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
         <% if (practiceGuideAuthoringMessages.length === 0) { %>
           <article class="message-row is-model quiz-chat-message-row">
             <div class="message-bubble quiz-chat-message-bubble">
-              <p class="quiz-chat-message-content mb-0">Cuéntame qué quieres ajustar en esta guía.</p>
+              <p class="quiz-chat-message-content mb-0"><%= t('practiceGuides.authoringChatEmpty') %></p>
             </div>
           </article>
         <% } else { %>
@@ -157,7 +157,7 @@
         data-authoring-chat-credits-return-to="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit?tab=chat"
       >
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label class="visually-hidden" for="practiceGuideRevisionMessage">Mensaje</label>
+        <label class="visually-hidden" for="practiceGuideRevisionMessage"><%= t('quizzes.message') %></label>
         <div class="composer-input-wrap">
           <textarea
             class="composer-input"
@@ -165,13 +165,13 @@
             name="message"
             rows="2"
             maxlength="4000"
-            placeholder="Describe los cambios que deseas aplicar"
+            placeholder="<%= t('quizzes.describeChangesPlaceholder') %>"
             required
           ></textarea>
         </div>
         <div class="composer-footer">
           <button class="btn btn-primary quiz-chat-submit-button" type="submit" data-authoring-chat-submit>
-            <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.applyChanges') %>
           </button>
         </div>
       </form>
@@ -189,19 +189,19 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="practiceGuideHelpModalLabel">Instrucciones al tutor</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="modal-title fs-5" id="practiceGuideHelpModalLabel"><%= t('practiceGuides.tutorInstructions') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
         <p class="mb-2">
-          Describe el objetivo de práctica, el nivel esperado, los errores que quieres corregir y el tipo de ayuda que debe ofrecer Mr. F.
+          <%= t('practiceGuides.helpBody1') %>
         </p>
         <p class="mb-0 text-body-secondary">
-          También puedes indicar si quieres que el tutor use ejemplos, preguntas de seguimiento, correcciones breves o práctica guiada.
+          <%= t('practiceGuides.helpBody2') %>
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
       </div>
     </div>
   </div>

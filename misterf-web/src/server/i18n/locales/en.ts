@@ -360,6 +360,49 @@ export const en: LocaleCatalog = {
     createBlock: 'Create block',
     updating: 'Updating the quiz...',
   },
+  practiceGuides: {
+    kicker: 'Practice guides',
+    newTitle: 'New practice guide',
+    describeLabel: 'Describe the guide',
+    describePlaceholder:
+      'Example: a guide to practice conversation about travel with A2 students, correcting the past simple...',
+    creatingShort: 'Creating...',
+    create: 'Create guide',
+    creating: 'Creating the guide...',
+    defaultTitle: 'Practice guide',
+    editGuide: 'Edit guide',
+    restoreGuide: 'Restore guide',
+    archiveGuide: 'Archive guide',
+    confirmRestore: 'Are you sure you want to restore this guide?',
+    confirmArchive:
+      'Are you sure you want to archive this guide? You can recover it later from Archived.',
+    sharedBy: 'Shared by {{name}}',
+    sharedByLink: 'Shared via link',
+    sharedFromProfile: 'Shared from another profile',
+    tutorInstructions: 'Tutor instructions',
+    chatsOfGuide: 'Chats for this guide',
+    noChats: 'There are no chats for this guide yet.',
+    noOtherProfiles:
+      'You don’t have other profiles available to receive this guide.',
+    shareLinkBody:
+      'Anyone who uses this link will always see the current version of this guide.',
+    qrAlt: 'QR code of the guide share link',
+    editingKicker: 'Practice guide being edited',
+    descriptionPlaceholder: 'Describe the practice with simple Markdown.',
+    descriptionError: 'Write a description for the guide.',
+    help: 'Help',
+    tutorInstructionsPlaceholder:
+      'Write the tutor instructions with simple Markdown.',
+    tutorInstructionsError: 'Write the tutor instructions.',
+    modifyWithAi: 'Modify the guide with AI',
+    modifyWithAiCopy:
+      'Use this chat to request specific changes to the guide. Mister F will update the title, the description, or the tutor instructions and tell you what it modified.',
+    authoringChatEmpty: 'Tell me what you’d like to adjust in this guide.',
+    helpBody1:
+      'Describe the practice goal, the expected level, the mistakes you want to correct, and the kind of help Mr. F should offer.',
+    helpBody2:
+      'You can also indicate whether you want the tutor to use examples, follow-up questions, brief corrections, or guided practice.',
+  },
   roleplays: {
     kicker: 'Roleplays',
     newTitle: 'New Roleplay',

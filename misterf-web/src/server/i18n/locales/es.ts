@@ -360,6 +360,49 @@ export const es: LocaleCatalog = {
     createBlock: 'Crear bloque',
     updating: 'Actualizando el quiz...',
   },
+  practiceGuides: {
+    kicker: 'Guías de práctica',
+    newTitle: 'Nueva guía de práctica',
+    describeLabel: 'Describe la guía',
+    describePlaceholder:
+      'Ejemplo: una guía para practicar conversación sobre viajes con estudiantes A2, corrigiendo el pasado simple...',
+    creatingShort: 'Creando...',
+    create: 'Crear guía',
+    creating: 'Creando la guía...',
+    defaultTitle: 'Guía de práctica',
+    editGuide: 'Editar guía',
+    restoreGuide: 'Restaurar guía',
+    archiveGuide: 'Archivar guía',
+    confirmRestore: '¿Seguro que quieres restaurar esta guía?',
+    confirmArchive:
+      '¿Seguro que quieres archivar esta guía? Podrás recuperarla después desde Archivados.',
+    sharedBy: 'Compartida por {{name}}',
+    sharedByLink: 'Compartida por enlace',
+    sharedFromProfile: 'Compartida desde otro perfil',
+    tutorInstructions: 'Instrucciones al tutor',
+    chatsOfGuide: 'Chats de esta guía',
+    noChats: 'Todavía no hay chats para esta guía.',
+    noOtherProfiles:
+      'No tienes otros perfiles disponibles para recibir esta guía.',
+    shareLinkBody:
+      'Quienes usen este enlace verán siempre la versión actual de esta guía.',
+    qrAlt: 'QR del enlace para compartir la guía',
+    editingKicker: 'Guía de práctica en edición',
+    descriptionPlaceholder: 'Describe la práctica con Markdown sencillo.',
+    descriptionError: 'Escribe una descripción para la guía.',
+    help: 'Ayuda',
+    tutorInstructionsPlaceholder:
+      'Escribe las instrucciones del tutor con Markdown sencillo.',
+    tutorInstructionsError: 'Escribe las instrucciones del tutor.',
+    modifyWithAi: 'Modificar la guía con IA',
+    modifyWithAiCopy:
+      'Usa este chat para pedir cambios concretos a la guía. Mister F actualizará el título, la descripción o las instrucciones al tutor y te responderá qué modificó.',
+    authoringChatEmpty: 'Cuéntame qué quieres ajustar en esta guía.',
+    helpBody1:
+      'Describe el objetivo de práctica, el nivel esperado, los errores que quieres corregir y el tipo de ayuda que debe ofrecer Mr. F.',
+    helpBody2:
+      'También puedes indicar si quieres que el tutor use ejemplos, preguntas de seguimiento, correcciones breves o práctica guiada.',
+  },
   roleplays: {
     kicker: 'Roleplays',
     newTitle: 'Nuevo Roleplay',

@@ -10,17 +10,17 @@
         %>
         <section
           class="app-resource-view practice-guides-page"
-          aria-label="Guías de práctica"
+          aria-label="<%= t('practiceGuides.kicker') %>"
         >
           <div class="resource-page-header resource-page-header-detail">
             <div>
-              <p class="resource-page-kicker">Guías de práctica</p>
+              <p class="resource-page-kicker"><%= t('practiceGuides.kicker') %></p>
               <h1 class="resource-page-title">
-                <%= selectedPracticeGuide ? selectedPracticeGuide.title : 'Guía de práctica' %>
+                <%= selectedPracticeGuide ? selectedPracticeGuide.title : t('practiceGuides.defaultTitle') %>
               </h1>
               <% if (selectedPracticeGuide) { %>
                 <p class="resource-page-copy">
-                  <a href="/resources">Recursos</a>
+                  <a href="/resources"><%= t('resources.title') %></a>
                   <% practiceGuideFolderPath.forEach((folder) => { %>
                     <span class="mx-1">/</span>
                     <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
@@ -40,7 +40,7 @@
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <button class="btn btn-primary" type="submit">
                       <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
-                      Probar
+                      <%= t('quizzes.test') %>
                     </button>
                   </form>
 
@@ -52,7 +52,7 @@
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
                     >
-                      Opciones
+                      <%= t('resources.options') %>
                     </button>
                     <ul class="dropdown-menu">
                       <% if (!selectedPracticeGuide.archivedAt) { %>
@@ -70,7 +70,7 @@
                               data-current-folder-id="<%= practiceGuideCurrentFolder ? practiceGuideCurrentFolder.id : '' %>"
                             >
                               <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>
-                              Mover a carpeta
+                              <%= t('resources.moveToFolder') %>
                             </button>
                           </li>
                         <% } %>
@@ -82,7 +82,7 @@
                             data-bs-target="#sharePracticeGuideProfileModal"
                           >
                             <i class="bi bi-person me-2" aria-hidden="true"></i>
-                            Compartir con perfil
+                            <%= t('resources.shareWithProfile') %>
                           </button>
                         </li>
                         <li>
@@ -93,7 +93,7 @@
                             data-bs-target="#sharePracticeGuideLinkModal"
                           >
                             <i class="bi bi-share me-2" aria-hidden="true"></i>
-                            Compartir
+                            <%= t('resources.share') %>
                           </button>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -103,7 +103,7 @@
                             href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit"
                           >
                             <i class="bi bi-pencil me-2" aria-hidden="true"></i>
-                            Editar guía
+                            <%= t('practiceGuides.editGuide') %>
                           </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -112,13 +112,13 @@
                         <form
                           method="post"
                           action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/<%= selectedPracticeGuide.archivedAt ? 'restore' : 'archive' %>"
-                          onsubmit="return window.confirm('<%= selectedPracticeGuide.archivedAt ? '¿Seguro que quieres restaurar esta guía?' : '¿Seguro que quieres archivar esta guía? Podrás recuperarla después desde Archivados.' %>');"
+                          onsubmit="return window.confirm('<%= selectedPracticeGuide.archivedAt ? t('practiceGuides.confirmRestore') : t('practiceGuides.confirmArchive') %>');"
                         >
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                           <input type="hidden" name="returnTo" value="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>">
                           <button class="dropdown-item" type="submit">
                             <i class="bi <%= selectedPracticeGuide.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
-                            <%= selectedPracticeGuide.archivedAt ? 'Restaurar guía' : 'Archivar guía' %>
+                            <%= selectedPracticeGuide.archivedAt ? t('practiceGuides.restoreGuide') : t('practiceGuides.archiveGuide') %>
                           </button>
                         </form>
                       </li>
@@ -131,31 +131,31 @@
                   <div class="d-flex">
                     <% if (selectedPracticeGuideSharedFromProfileName) { %>
                       <span class="badge text-bg-light border practice-guide-shared-badge" role="status">
-                        Compartida por <%= selectedPracticeGuideSharedFromProfileName %>
+                        <%= t('practiceGuides.sharedBy', { name: selectedPracticeGuideSharedFromProfileName }) %>
                       </span>
                     <% } else { %>
                       <span class="badge text-bg-light border practice-guide-shared-badge" role="status">
-                        Compartida <%= selectedPracticeGuide.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+                        <%= selectedPracticeGuide.sharedVia === 'link' ? t('practiceGuides.sharedByLink') : t('practiceGuides.sharedFromProfile') %>
                       </span>
                     <% } %>
                   </div>
                 <% } %>
 
-                <p class="resource-page-section-copy">Descripción</p>
+                <p class="resource-page-section-copy"><%= t('resources.description') %></p>
                 <div class="card">
                   <div class="card-body">
                     <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.description %></div>
                   </div>
                 </div>
 
-                <p class="resource-page-section-copy">Instrucciones al tutor</p>
+                <p class="resource-page-section-copy"><%= t('practiceGuides.tutorInstructions') %></p>
                 <div class="card">
                   <div class="card-body">
                     <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.tutorInstructions %></div>
                   </div>
                 </div>
 
-                <p class="resource-page-section-copy">Chats de esta guía</p>
+                <p class="resource-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
                 <% if (practiceGuideConversations.length > 0) { %>
                   <div class="practice-guide-chat-list list-group">
                     <% practiceGuideConversations.forEach((conversation) => { %>
@@ -171,7 +171,7 @@
                     <% }) %>
                   </div>
                 <% } else { %>
-                  <p class="practice-guide-empty mb-0">Todavía no hay chats para esta guía.</p>
+                  <p class="practice-guide-empty mb-0"><%= t('practiceGuides.noChats') %></p>
                 <% } %>
               </div>
             </section>
@@ -189,15 +189,15 @@
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="sharePracticeGuideProfileModalLabel">Compartir con perfil</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  <h2 class="modal-title fs-5" id="sharePracticeGuideProfileModalLabel"><%= t('resources.shareWithProfile') %></h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                 </div>
                 <div class="modal-body">
                   <% if (shareTargetPracticeGuideProfiles.length > 0) { %>
                     <form method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/share/profile" class="d-grid gap-3">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <div>
-                        <label class="form-label" for="shareTargetProfileId">Perfil destino</label>
+                        <label class="form-label" for="shareTargetProfileId"><%= t('resources.targetProfile') %></label>
                         <select class="form-select" id="shareTargetProfileId" name="targetProfileId" required>
                           <% shareTargetPracticeGuideProfiles.forEach((profile) => { %>
                             <option value="<%= profile.id %>"><%= profile.name %></option>
@@ -205,17 +205,17 @@
                         </select>
                       </div>
                       <div class="d-flex justify-content-end gap-2">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Compartir ahora</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+                        <button type="submit" class="btn btn-primary"><%= t('resources.shareNow') %></button>
                       </div>
                     </form>
                   <% } else { %>
-                    <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir esta guía.</p>
+                    <p class="mb-0 text-body-secondary"><%= t('practiceGuides.noOtherProfiles') %></p>
                   <% } %>
                 </div>
                 <% if (shareTargetPracticeGuideProfiles.length === 0) { %>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
                   </div>
                 <% } %>
               </div>
@@ -232,15 +232,15 @@
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="sharePracticeGuideLinkModalLabel">Enlace para compartir</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  <h2 class="modal-title fs-5" id="sharePracticeGuideLinkModalLabel"><%= t('resources.shareLinkTitle') %></h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                 </div>
                 <div class="modal-body d-grid gap-3">
                   <p class="mb-0 text-body-secondary">
-                    Quienes usen este enlace verán siempre la versión actual de esta guía.
+                    <%= t('practiceGuides.shareLinkBody') %>
                   </p>
                   <div>
-                    <label class="form-label" for="practiceGuideShareLinkField">Enlace</label>
+                    <label class="form-label" for="practiceGuideShareLinkField"><%= t('resources.link') %></label>
                     <input
                       class="form-control"
                       id="practiceGuideShareLinkField"
@@ -253,11 +253,11 @@
                   <div class="d-flex flex-wrap gap-2">
                     <button class="btn btn-outline-secondary" type="button" data-copy-practiceGuide-share-link>
                       <i class="bi bi-copy me-1" aria-hidden="true"></i>
-                      Copiar
+                      <%= t('resources.copy') %>
                     </button>
                     <button class="btn btn-outline-secondary" type="button" data-native-share-practiceGuide-link>
                       <i class="bi bi-share me-1" aria-hidden="true"></i>
-                      Compartir
+                      <%= t('resources.share') %>
                     </button>
                   </div>
                   <% if (practiceGuideShareQrDataUrl) { %>
@@ -265,7 +265,7 @@
                       <img
                         class="practiceGuide-share-qr"
                         src="<%= practiceGuideShareQrDataUrl %>"
-                        alt="QR del enlace para compartir la guía"
+                        alt="<%= t('practiceGuides.qrAlt') %>"
                         width="180"
                         height="180"
                       >
@@ -273,7 +273,7 @@
                   <% } %>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
                 </div>
               </div>
             </div>
