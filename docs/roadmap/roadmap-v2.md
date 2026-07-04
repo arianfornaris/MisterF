@@ -83,11 +83,19 @@ Scope notes:
   `attachLocale` middleware exposing `res.locals.t/locale/htmlLang`, and an
   integration test. The app shell (nav, all modals, translator, credit and
   help dialogs), `<html lang>`, and the settings page are externalized.
-  Remaining string externalization (the bulk): the ~45 other EJS views and
-  their standalone `<html lang="es">`, the 54 client scripts (via bootstrap
-  data / `data-*`), and server-side flash/validation messages (auth
-  `forms.ts` ~48 strings, profiles, quizzes, roleplays, resources,
-  practice-guide handlers).
+  2026-07-04: string externalization of every product EJS view and every
+  client script is complete — all 48 views/partials (profiles, chat,
+  resources, quizzes, roleplays, practice-guides, progress, credits,
+  superadmin, auth) plus the client bundles (chat + cards, quizzes,
+  roleplays, resources, practice-guides, and the shared modules) render
+  through `t()` / a browser-injected client dictionary
+  (`window.__APP_I18N__`). A whole-tree sweep (accented and accent-free
+  Spanish) confirms no learner-facing Spanish literals remain outside the
+  intentional `Español` endonym and the two legal-document bodies. Still
+  open: server-side flash/validation messages (auth `forms.ts`, profiles,
+  quizzes, roleplays, resources, practice-guide handlers) and the
+  `privacy`/`terms` legal-document bodies (tracked under transactional
+  surfaces below).
 - [~] Per-user language preference: onboarding choice, settings toggle, and
   a sensible default for anonymous/shared-link visitors (`Accept-Language`
   with explicit override). Done 2026-07-04: `instruction_language` profile
