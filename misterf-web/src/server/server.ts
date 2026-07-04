@@ -95,7 +95,7 @@ app.get('/session', (request, response) => {
 });
 
 app.get('/health', (_request, response) => {
-  response.json({ ok: true });
+  response.json({ ok: true, version: env.appVersion });
 });
 
 app.use(
@@ -130,6 +130,7 @@ export function startServer(): void {
       host: env.host,
       port: env.port,
       url: `http://${env.host}:${env.port}`,
+      version: env.appVersion,
     });
   });
 }

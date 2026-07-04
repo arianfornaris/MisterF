@@ -1,9 +1,15 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config as loadDotenv } from 'dotenv';
 
 const configDir = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(configDir, '../../..');
+const appVersion = (
+  JSON.parse(
+    fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'),
+  ) as { version: string }
+).version;
 const envFileName =
   process.env.ENV_FILE ??
   (process.env.NODE_ENV === 'production'
@@ -64,6 +70,7 @@ const nodeEnv = process.env.NODE_ENV ?? 'development';
 
 export const env = {
   projectRoot,
+  appVersion,
   nodeEnv,
   host:
     process.env.HOST ??

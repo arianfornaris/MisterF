@@ -33,7 +33,9 @@ Prefer the repo's `deploy.sh` (run from the repo root). It:
 
 - builds locally,
 - refuses to deploy when there are uncommitted local changes,
-- pushes git,
+- refuses to deploy when `HEAD` is not tagged with the `package.json` version
+  (see the `versioning-and-releases` skill for the bump-and-tag steps),
+- pushes git with `--follow-tags`,
 - then on the server runs `git pull` and
   `pm2 restart ecosystem.config.cjs --only misterf-web --env production --update-env`.
 

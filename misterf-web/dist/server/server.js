@@ -69,7 +69,7 @@ app.get('/session', (request, response) => {
     });
 });
 app.get('/health', (_request, response) => {
-    response.json({ ok: true });
+    response.json({ ok: true, version: env.appVersion });
 });
 app.use((error, request, response, next) => {
     logger.error('http_request_error', {
@@ -92,6 +92,7 @@ export function startServer() {
             host: env.host,
             port: env.port,
             url: `http://${env.host}:${env.port}`,
+            version: env.appVersion,
         });
     });
 }
