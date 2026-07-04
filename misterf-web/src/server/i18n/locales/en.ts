@@ -640,6 +640,8 @@ export const en: LocaleCatalog = {
     signOut: 'Sign out',
     signIn: 'Sign in',
     createAccount: 'Create account',
+    privacy: 'Privacy',
+    terms: 'Terms',
   },
   chat: {
     ariaLabel: 'Chat with Mister F',
