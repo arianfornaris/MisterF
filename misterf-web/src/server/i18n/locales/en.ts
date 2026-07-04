@@ -1025,6 +1025,27 @@ export const en: LocaleCatalog = {
       'GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be configured in ecosystem.config.cjs.',
     googleGenericError:
       'I couldn’t complete the Google login. Try again.',
+    convFinalizedSummary:
+      'This conversation has already been finalized. You can review its summary or start a new practice.',
+    convNotFound: 'I couldn’t find that conversation.',
+    convFinalized: 'This conversation has already been finalized.',
+    guideStartError: 'I couldn’t start this practice guide.',
+    guideLoadError: 'I couldn’t load this practice guide.',
+    authRequiredUse:
+      'To use Mr. F you need to sign in. [Log in](/login) or [create an account](/signup).',
+    lookCloser: 'Let’s look at this answer in more detail in the next practice.',
+    configAttention:
+      'I can’t respond well right now. There’s a tutor configuration that needs attention.',
+    responseCutoff:
+      'My response was cut off before it was ready. Try again in a few seconds.',
+    responseTangled:
+      'My response got tangled up and I don’t want to confuse you. Try again in a few seconds.',
+    finishTokenLimit:
+      'The model’s response was cut off because it reached the maximum token limit. Try sending a shorter message or asking for it in parts.',
+    finishSafety:
+      'The model stopped the response due to its safety filters. Try rephrasing your message with clearer, more neutral context.',
+    finishRecitation:
+      'The model stopped the response because it detected a possible recitation of protected content. Try asking for an explanation or an original version instead of an exact reproduction.',
   },
   practiceGuideHelp: {
     title: 'What the tutor can do',

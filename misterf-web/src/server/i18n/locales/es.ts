@@ -1025,6 +1025,27 @@ export const es: LocaleCatalog = {
       'Falta configurar GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en ecosystem.config.cjs.',
     googleGenericError:
       'No pude completar el login con Google. Intenta otra vez.',
+    convFinalizedSummary:
+      'Esta conversación ya fue finalizada. Puedes revisar su resumen o empezar una nueva práctica.',
+    convNotFound: 'No pude encontrar esa conversación.',
+    convFinalized: 'Esta conversación ya fue finalizada.',
+    guideStartError: 'No pude iniciar esta guía de práctica.',
+    guideLoadError: 'No pude cargar esta guía de práctica.',
+    authRequiredUse:
+      'Para usar Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
+    lookCloser: 'Miremos esta respuesta con más detalle en la siguiente práctica.',
+    configAttention:
+      'Ahora mismo no puedo responder bien. Hay una configuración del tutor que necesita atención.',
+    responseCutoff:
+      'Mi respuesta se cortó antes de estar lista. Inténtalo otra vez en unos segundos.',
+    responseTangled:
+      'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.',
+    finishTokenLimit:
+      'La respuesta del modelo se cortó porque alcanzó el límite máximo de tokens. Intenta enviar un mensaje más corto o vuelve a pedirlo en partes.',
+    finishSafety:
+      'El modelo detuvo la respuesta por sus filtros de seguridad. Prueba reformulando tu mensaje con un contexto más claro y neutral.',
+    finishRecitation:
+      'El modelo detuvo la respuesta porque detectó una posible recitación de contenido protegido. Intenta pedir una explicación o una versión original en vez de una reproducción exacta.',
   },
   practiceGuideHelp: {
     title: 'Qué puede hacer el tutor',

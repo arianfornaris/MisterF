@@ -61,6 +61,7 @@ import {
   getCreditExhaustedMessage,
   isCreditExhaustedError,
 } from '../services/creditGate.js';
+import { translate, type Locale } from '../i18n/index.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 import { logger, serializeError } from '../services/logger.js';
 import {
@@ -402,7 +403,7 @@ export function registerChatSocket(io: Server): void {
 
       if (conversation.closedAt) {
         socket.emit('conversation:error', {
-          message: 'Esta conversación ya fue finalizada. Puedes revisar su resumen o empezar una nueva práctica.',
+          message: translate(conversation.instructionLanguage, 'msg.convFinalizedSummary'),
         });
         return;
       }
@@ -620,14 +621,14 @@ export function registerChatSocket(io: Server): void {
       const conversation = findConversationForUser(conversationId, userId);
       if (!conversation) {
         socket.emit('conversation:error', {
-          message: 'No pude encontrar esa conversación.',
+          message: translate('es', 'msg.convNotFound'),
         });
         return;
       }
 
       if (conversation.closedAt) {
         socket.emit('conversation:error', {
-          message: 'Esta conversación ya fue finalizada.',
+          message: translate(conversation.instructionLanguage, 'msg.convFinalized'),
         });
         return;
       }
@@ -655,7 +656,7 @@ export function registerChatSocket(io: Server): void {
       const conversation = findConversationForUser(conversationId, userId);
       if (!conversation?.practiceGuideId) {
         socket.emit('assistant:error', {
-          message: 'No pude iniciar este guía de práctica.',
+          message: translate('es', 'msg.guideStartError'),
         });
         return;
       }
@@ -663,7 +664,7 @@ export function registerChatSocket(io: Server): void {
       const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversation.id);
       if (!practiceGuideSnapshot) {
         socket.emit('assistant:error', {
-          message: 'No pude cargar este guía de práctica.',
+          message: translate(conversation.instructionLanguage, 'msg.guideLoadError'),
         });
         return;
       }
@@ -1255,7 +1256,7 @@ export function registerChatSocket(io: Server): void {
             userId,
           });
           socket.emit('assistant:error', {
-            message: toUserFacingError(error),
+            message: toUserFacingError(error, conversation?.instructionLanguage),
           });
           return;
         }
@@ -2781,18 +2782,18 @@ function emitLlmRequestTokenUsage(
   });
 }
 
-function toUserFacingError(error: unknown): string {
+function toUserFacingError(error: unknown, locale: Locale = 'es'): string {
   if (isCreditExhaustedError(error)) {
-    return getCreditExhaustedMessage();
+    return getCreditExhaustedMessage(locale);
   }
 
   if (error instanceof MissingLlmApiKeyError) {
-    return 'Ahora mismo no puedo responder bien. Hay una configuración del tutor que necesita atención.';
+    return translate(locale, 'msg.configAttention');
   }
 
   if (error instanceof LlmFinishReasonError) {
-    return 'Mi respuesta se cortó antes de estar lista. Inténtalo otra vez en unos segundos.';
+    return translate(locale, 'msg.responseCutoff');
   }
 
-  return 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.';
+  return translate(locale, 'msg.responseTangled');
 }

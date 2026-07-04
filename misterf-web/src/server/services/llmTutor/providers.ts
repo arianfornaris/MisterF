@@ -6,6 +6,7 @@ import type {
   ProviderMetadata,
 } from 'ai';
 import { env } from '../../config/env.js';
+import { translate, type Locale } from '../../i18n/index.js';
 import { MissingLlmApiKeyError } from './errors.js';
 import type { LlmRequestOptions } from './types.js';
 
@@ -71,26 +72,27 @@ export function getUserFacingFinishReasonMessage(
   finishReason: FinishReason,
   rawFinishReason?: string,
   providerMetadata?: ProviderMetadata,
+  locale: Locale = 'es',
 ): string | null {
   const normalizedRawFinishReason = rawFinishReason?.toUpperCase() ?? '';
   const metadataText = JSON.stringify(providerMetadata ?? {}).toUpperCase();
 
   if (finishReason === 'length' || normalizedRawFinishReason === 'MAX_TOKENS') {
-    return 'La respuesta del modelo se cortó porque alcanzó el límite máximo de tokens. Intenta enviar un mensaje más corto o vuelve a pedirlo en partes.';
+    return translate(locale, 'msg.finishTokenLimit');
   }
 
   if (
     finishReason === 'content-filter' ||
     normalizedRawFinishReason === 'SAFETY'
   ) {
-    return 'El modelo detuvo la respuesta por sus filtros de seguridad. Prueba reformulando tu mensaje con un contexto más claro y neutral.';
+    return translate(locale, 'msg.finishSafety');
   }
 
   if (
     normalizedRawFinishReason === 'RECITATION' ||
     metadataText.includes('RECITATION')
   ) {
-    return 'El modelo detuvo la respuesta porque detectó una posible recitación de contenido protegido. Intenta pedir una explicación o una versión original en vez de una reproducción exacta.';
+    return translate(locale, 'msg.finishRecitation');
   }
 
   return null;

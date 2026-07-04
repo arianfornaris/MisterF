@@ -486,6 +486,7 @@ export async function runTutorAgentLoop(
         effectiveResult.finishReason,
         undefined,
         effectiveResult.providerMetadata,
+        options.instructionLanguage ?? 'es',
       );
       if (userFacingFinishMessage) {
         throw new LlmFinishReasonError(
@@ -592,6 +593,7 @@ export async function translateTextWithLlm(input: {
     result.finishReason,
     undefined,
     result.providerMetadata,
+    'es',
   );
   if (userFacingFinishMessage) {
     throw new LlmFinishReasonError(
@@ -689,6 +691,7 @@ export async function evaluateQuizResultItemsWithLlm(input: {
         result.finishReason,
         undefined,
         result.providerMetadata,
+        input.instructionLanguage ?? 'es',
       );
       if (userFacingFinishMessage) {
         throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
