@@ -1,19 +1,19 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view" aria-label="Perfiles">
+<section class="app-resource-view" aria-label="<%= t('profiles.kicker') %>">
   <div class="resource-page-header">
     <div>
-      <p class="resource-page-kicker">Perfiles</p>
-      <h1 class="resource-page-title">Cambiar perfil</h1>
+      <p class="resource-page-kicker"><%= t('profiles.kicker') %></p>
+      <h1 class="resource-page-title"><%= t('profiles.listTitle') %></h1>
       <p class="resource-page-copy">
-        Cada perfil mantiene separadas sus conversaciones y guías de práctica.
+        <%= t('profiles.listCopy') %>
       </p>
     </div>
 
     <% if (hasSession) { %>
       <div class="resource-page-header-actions">
         <a class="btn btn-primary" href="/profiles/new">
-          Crear perfil
+          <%= t('profiles.create') %>
         </a>
       </div>
     <% } %>
@@ -25,24 +25,24 @@
         <article class="practice-guide-card profile-card card shadow-sm <%= activeProfile && activeProfile.id === profile.id ? 'is-active' : '' %>">
           <div class="card-body d-grid gap-2">
             <div class="practice-guide-card-meta">
-              <p class="practice-guide-card-kicker">Perfil</p>
+              <p class="practice-guide-card-kicker"><%= t('profiles.cardKicker') %></p>
               <% if (activeProfile && activeProfile.id === profile.id) { %>
-                <span class="badge rounded-pill text-bg-light border practice-guide-chat-count-badge">Activo</span>
+                <span class="badge rounded-pill text-bg-light border practice-guide-chat-count-badge"><%= t('profiles.active') %></span>
               <% } %>
             </div>
             <h2 class="h4"><%= profile.name %></h2>
-            <p class="mb-0 text-body-secondary"><%= profile.description || 'Sin descripción.' %></p>
+            <p class="mb-0 text-body-secondary"><%= profile.description || t('profiles.noDescription') %></p>
             <div class="profile-card-actions">
               <% if (activeProfile && activeProfile.id === profile.id) { %>
                 <a class="btn btn-outline-secondary" href="/profiles/<%= encodeURIComponent(profile.id) %>/edit">
-                  Editar datos y preferencias
+                  <%= t('profiles.editActive') %>
                 </a>
               <% } else { %>
                 <form method="post" action="/profiles/switch">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="profileId" value="<%= profile.id %>">
                   <input type="hidden" name="returnTo" value="/profiles">
-                  <button class="btn btn-primary" type="submit">Usar este perfil</button>
+                  <button class="btn btn-primary" type="submit"><%= t('profiles.useThis') %></button>
                 </form>
               <% } %>
             </div>
@@ -52,7 +52,7 @@
     </div>
   <% } else { %>
     <div class="practice-guide-empty-state alert alert-light border mt-4">
-      <p>Todavía no hay perfiles. Crea el primero para separar tu práctica en distintos contextos.</p>
+      <p><%= t('profiles.listEmpty') %></p>
     </div>
   <% } %>
 </section>

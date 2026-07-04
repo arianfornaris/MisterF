@@ -1,14 +1,14 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view" aria-label="Perfiles">
+<section class="app-resource-view" aria-label="<%= t('profiles.kicker') %>">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-page-kicker">Perfiles</p>
-      <h1 class="resource-page-title"><%= profilePageMode === 'edit' ? 'Editar perfil' : 'Nuevo perfil' %></h1>
+      <p class="resource-page-kicker"><%= t('profiles.kicker') %></p>
+      <h1 class="resource-page-title"><%= profilePageMode === 'edit' ? t('profiles.editTitle') : t('profiles.newTitle') %></h1>
       <p class="resource-page-copy">
         <%= profilePageMode === 'edit' && selectedProfile
-          ? 'Ajusta los datos y preferencias de práctica de este perfil.'
-          : 'Crea un perfil separado para organizar conversaciones, guías y preferencias sin mezclarlas con las demás.' %>
+          ? t('profiles.editCopy')
+          : t('profiles.newCopy') %>
       </p>
     </div>
 
@@ -17,8 +17,8 @@
         <a
           class="resource-page-close-button"
           href="/profiles"
-          title="Cerrar"
-          aria-label="Cerrar"
+          title="<%= t('common.close') %>"
+          aria-label="<%= t('common.close') %>"
         >
           <i class="bi bi-x-lg" aria-hidden="true"></i>
         </a>
@@ -40,7 +40,7 @@
         ? selectedProfile.instructionLanguage
         : (activeProfile ? activeProfile.instructionLanguage : 'es'); %>
 
-      <label class="form-label" for="profileName">Nombre</label>
+      <label class="form-label" for="profileName"><%= t('profiles.name') %></label>
       <input
         class="form-control"
         id="profileName"
@@ -50,7 +50,7 @@
         required
       >
 
-      <label class="form-label" for="profileDescription">Descripción</label>
+      <label class="form-label" for="profileDescription"><%= t('profiles.description') %></label>
       <textarea
         class="form-control"
         id="profileDescription"
@@ -59,10 +59,10 @@
         maxlength="<%= profileFieldLimits.description %>"
       ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
       <div class="form-text mb-3">
-        Una nota breve para distinguir este perfil.
+        <%= t('profiles.descriptionHelp') %>
       </div>
 
-      <label class="form-label" for="profileLearningContext">Contexto para Mr. F</label>
+      <label class="form-label" for="profileLearningContext"><%= t('profiles.context') %></label>
       <textarea
         class="form-control"
         id="profileLearningContext"
@@ -72,13 +72,13 @@
         aria-describedby="profileLearningContextHelp"
       ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.learningContext : '' %></textarea>
       <div class="form-text" id="profileLearningContextHelp">
-        Puedes mencionar tus objetivos, intereses, trabajo, estudios, nivel aproximado o situaciones donde quieres usar inglés.
+        <%= t('profiles.contextHelp') %>
       </div>
 
       <fieldset class="mt-4">
-        <legend class="form-label mb-2">Idioma de instrucción</legend>
+        <legend class="form-label mb-2"><%= t('profiles.languageLegend') %></legend>
         <p class="text-body-secondary small mb-3">
-          El idioma de la interfaz y de las explicaciones de Mr. F para este perfil. El inglés que se practica no cambia.
+          <%= t('profiles.languageHelpForm') %>
         </p>
 
         <div class="list-group">
@@ -92,7 +92,7 @@
             >
             <span class="d-block">
               <span class="fw-semibold d-block">Español</span>
-              <small class="text-body-secondary">La interfaz y las explicaciones en español.</small>
+              <small class="text-body-secondary"><%= t('profiles.spanishDescForm') %></small>
             </span>
           </label>
 
@@ -106,16 +106,16 @@
             >
             <span class="d-block">
               <span class="fw-semibold d-block">English</span>
-              <small class="text-body-secondary">Interface and explanations in English, for full immersion.</small>
+              <small class="text-body-secondary"><%= t('profiles.englishDesc') %></small>
             </span>
           </label>
         </div>
       </fieldset>
 
       <fieldset class="mt-4">
-        <legend class="form-label mb-2">Modelo por defecto</legend>
+        <legend class="form-label mb-2"><%= t('profiles.modelLegend') %></legend>
         <p class="text-body-secondary small mb-3">
-          Este modelo se usará en las conversaciones nuevas de este perfil.
+          <%= t('profiles.modelHelp') %>
         </p>
 
         <div class="list-group">
@@ -128,8 +128,8 @@
               <%= selectedModelTier !== 'advanced' && selectedModelTier !== 'max' ? 'checked' : '' %>
             >
             <span class="d-block">
-              <span class="fw-semibold d-block">Regular</span>
-              <small class="text-body-secondary">Muy rápido. Ideal para práctica frecuente con costo 1x.</small>
+              <span class="fw-semibold d-block"><%= t('profiles.modelRegular') %></span>
+              <small class="text-body-secondary"><%= t('profiles.modelRegularDesc') %></small>
             </span>
           </label>
 
@@ -142,8 +142,8 @@
               <%= selectedModelTier === 'advanced' ? 'checked' : '' %>
             >
             <span class="d-block">
-              <span class="fw-semibold d-block">Avanzado</span>
-              <small class="text-body-secondary">Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 2x.</small>
+              <span class="fw-semibold d-block"><%= t('profiles.modelAdvanced') %></span>
+              <small class="text-body-secondary"><%= t('profiles.modelAdvancedDesc') %></small>
             </span>
           </label>
 
@@ -156,8 +156,8 @@
               <%= selectedModelTier === 'max' ? 'checked' : '' %>
             >
             <span class="d-block">
-              <span class="fw-semibold d-block">Max</span>
-              <small class="text-body-secondary">La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 8x.</small>
+              <span class="fw-semibold d-block"><%= t('profiles.modelMax') %></span>
+              <small class="text-body-secondary"><%= t('profiles.modelMaxDesc') %></small>
             </span>
           </label>
         </div>
@@ -165,7 +165,7 @@
 
       <div class="practice-guide-form-actions">
         <button type="submit" class="btn btn-primary">
-          <%= profilePageMode === 'edit' ? 'Guardar cambios' : 'Crear perfil' %>
+          <%= profilePageMode === 'edit' ? t('profiles.saveEdit') : t('profiles.saveNew') %>
         </button>
       </div>
     </form>

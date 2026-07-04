@@ -127,6 +127,64 @@ export const en: LocaleCatalog = {
       backToSettings: 'Back to account settings',
     },
   },
+  profiles: {
+    kicker: 'Profiles',
+    listTitle: 'Switch profile',
+    listCopy: 'Each profile keeps its conversations and practice guides separate.',
+    create: 'Create profile',
+    cardKicker: 'Profile',
+    active: 'Active',
+    noDescription: 'No description.',
+    editActive: 'Edit details and preferences',
+    useThis: 'Use this profile',
+    listEmpty:
+      'No profiles yet. Create the first one to separate your practice into different contexts.',
+    editTitle: 'Edit profile',
+    newTitle: 'New profile',
+    editCopy: 'Adjust this profile’s details and practice preferences.',
+    newCopy:
+      'Create a separate profile to organize conversations, guides, and preferences without mixing them with the others.',
+    name: 'Name',
+    description: 'Description',
+    descriptionHelp: 'A short note to tell this profile apart.',
+    context: 'Context for Mr. F',
+    contextHelp:
+      'You can mention your goals, interests, work, studies, approximate level, or situations where you want to use English.',
+    saveEdit: 'Save changes',
+    saveNew: 'Create profile',
+    languageLegend: 'Instruction language',
+    languageHelpForm:
+      'The language of the interface and of Mr. F’s explanations for this profile. The English you practice does not change.',
+    languageHelpOnboarding:
+      'Which language do you prefer for the interface and Mr. F’s explanations?',
+    spanishDescForm: 'The interface and explanations in Spanish.',
+    spanishDescOnboarding:
+      'The interface and explanations in Spanish. The English you practice is still English.',
+    englishDesc: 'Interface and explanations in English, for full immersion.',
+    modelLegend: 'Default model',
+    modelHelp: 'This model will be used in this profile’s new conversations.',
+    modelRegular: 'Regular',
+    modelRegularDesc: 'Very fast. Ideal for frequent practice at 1x cost.',
+    modelAdvanced: 'Advanced',
+    modelAdvancedDesc:
+      'Smarter and still fast. Use it when you want more precision at 2x cost.',
+    modelMax: 'Max',
+    modelMaxDesc:
+      'The most powerful and slowest option. Recommended for demanding sessions at 8x cost.',
+    onbAria: 'Complete your profile',
+    onbKicker: 'Learning profile',
+    onbTitle: 'Help Mr. F get to know you better',
+    onbIntro:
+      'This information is not part of your public account. It helps adapt the practice to your goals, interests, and context.',
+    onbNameLabel: 'Profile name',
+    onbNameHelp: 'For example: Arian, English for work, Travel, Exam.',
+    onbDescLabel: 'Short description',
+    onbDescHelp: 'A short note to recognize this profile when you have several.',
+    onbContextHelp:
+      'You can tell us why you want to learn English, what you work or study in, which topics interest you, and what you find difficult.',
+    save: 'Save and continue',
+    skip: 'Skip for now',
+  },
   settings: {
     kicker: 'Account',
     title: 'Account settings',

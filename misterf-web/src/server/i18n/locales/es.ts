@@ -127,6 +127,64 @@ export const es: LocaleCatalog = {
       backToSettings: 'Volver a ajustes de cuenta',
     },
   },
+  profiles: {
+    kicker: 'Perfiles',
+    listTitle: 'Cambiar perfil',
+    listCopy: 'Cada perfil mantiene separadas sus conversaciones y guías de práctica.',
+    create: 'Crear perfil',
+    cardKicker: 'Perfil',
+    active: 'Activo',
+    noDescription: 'Sin descripción.',
+    editActive: 'Editar datos y preferencias',
+    useThis: 'Usar este perfil',
+    listEmpty:
+      'Todavía no hay perfiles. Crea el primero para separar tu práctica en distintos contextos.',
+    editTitle: 'Editar perfil',
+    newTitle: 'Nuevo perfil',
+    editCopy: 'Ajusta los datos y preferencias de práctica de este perfil.',
+    newCopy:
+      'Crea un perfil separado para organizar conversaciones, guías y preferencias sin mezclarlas con las demás.',
+    name: 'Nombre',
+    description: 'Descripción',
+    descriptionHelp: 'Una nota breve para distinguir este perfil.',
+    context: 'Contexto para Mr. F',
+    contextHelp:
+      'Puedes mencionar tus objetivos, intereses, trabajo, estudios, nivel aproximado o situaciones donde quieres usar inglés.',
+    saveEdit: 'Guardar cambios',
+    saveNew: 'Crear perfil',
+    languageLegend: 'Idioma de instrucción',
+    languageHelpForm:
+      'El idioma de la interfaz y de las explicaciones de Mr. F para este perfil. El inglés que se practica no cambia.',
+    languageHelpOnboarding:
+      '¿En qué idioma prefieres la interfaz y las explicaciones de Mr. F?',
+    spanishDescForm: 'La interfaz y las explicaciones en español.',
+    spanishDescOnboarding:
+      'La interfaz y las explicaciones en español. El inglés que practicas sigue siendo inglés.',
+    englishDesc: 'Interface and explanations in English, for full immersion.',
+    modelLegend: 'Modelo por defecto',
+    modelHelp: 'Este modelo se usará en las conversaciones nuevas de este perfil.',
+    modelRegular: 'Regular',
+    modelRegularDesc: 'Muy rápido. Ideal para práctica frecuente con costo 1x.',
+    modelAdvanced: 'Avanzado',
+    modelAdvancedDesc:
+      'Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 2x.',
+    modelMax: 'Max',
+    modelMaxDesc:
+      'La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 8x.',
+    onbAria: 'Completa tu perfil',
+    onbKicker: 'Perfil de aprendizaje',
+    onbTitle: 'Ayuda a Mr. F a conocerte mejor',
+    onbIntro:
+      'Estos datos no son parte de tu cuenta pública. Sirven para adaptar las prácticas a tus metas, intereses y contexto.',
+    onbNameLabel: 'Nombre del perfil',
+    onbNameHelp: 'Por ejemplo: Arian, Inglés para trabajo, Viajes, Examen.',
+    onbDescLabel: 'Descripción breve',
+    onbDescHelp: 'Una nota corta para reconocer este perfil cuando tengas varios.',
+    onbContextHelp:
+      'Puedes contar para qué quieres aprender inglés, en qué trabajas o estudias, qué temas te interesan y qué se te hace difícil.',
+    save: 'Guardar y continuar',
+    skip: 'Omitir por ahora',
+  },
   settings: {
     kicker: 'Cuenta',
     title: 'Ajustes de cuenta',

@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="es">
+<html lang="<%= htmlLang %>">
   <head>
     <%- include('partials/document-head', { includeBootstrapIcons: true }) %>
   </head>
   <body>
     <main class="container min-vh-100 d-flex align-items-center py-5">
-      <section class="row justify-content-center w-100" aria-label="Completa tu perfil">
+      <section class="row justify-content-center w-100" aria-label="<%= t('profiles.onbAria') %>">
         <div class="col-12 col-sm-10 col-lg-8 col-xl-7">
           <div class="card shadow-sm">
             <div class="card-body p-4 p-md-5">
               <div class="mb-4">
-                <p class="text-uppercase text-body-secondary small fw-semibold mb-2">Perfil de aprendizaje</p>
-                <h1 class="h3 mb-2">Ayuda a Mr. F a conocerte mejor</h1>
+                <p class="text-uppercase text-body-secondary small fw-semibold mb-2"><%= t('profiles.onbKicker') %></p>
+                <h1 class="h3 mb-2"><%= t('profiles.onbTitle') %></h1>
                 <p class="text-body-secondary mb-0">
-                  Estos datos no son parte de tu cuenta pública. Sirven para adaptar las prácticas a tus metas, intereses y contexto.
+                  <%= t('profiles.onbIntro') %>
                 </p>
               </div>
 
@@ -26,7 +26,7 @@
                 <input type="hidden" name="returnTo" value="<%= returnTo %>">
 
                 <div>
-                  <label class="form-label" for="onboardingProfileName">Nombre del perfil</label>
+                  <label class="form-label" for="onboardingProfileName"><%= t('profiles.onbNameLabel') %></label>
                   <input
                     class="form-control"
                     id="onboardingProfileName"
@@ -37,14 +37,14 @@
                     autofocus
                   >
                   <div class="form-text">
-                    Por ejemplo: Arian, Inglés para trabajo, Viajes, Examen.
+                    <%= t('profiles.onbNameHelp') %>
                   </div>
                 </div>
 
                 <fieldset>
-                  <legend class="form-label mb-1">Idioma de instrucción</legend>
+                  <legend class="form-label mb-1"><%= t('profiles.languageLegend') %></legend>
                   <p class="form-text mt-0 mb-2" id="onboardingInstructionLanguageHelp">
-                    ¿En qué idioma prefieres la interfaz y las explicaciones de Mr. F?
+                    <%= t('profiles.languageHelpOnboarding') %>
                   </p>
                   <div class="list-group" aria-describedby="onboardingInstructionLanguageHelp">
                     <label class="list-group-item d-flex gap-3">
@@ -57,7 +57,7 @@
                       >
                       <span class="d-block">
                         <span class="fw-semibold d-block">Español</span>
-                        <small class="text-body-secondary">La interfaz y las explicaciones en español. El inglés que practicas sigue siendo inglés.</small>
+                        <small class="text-body-secondary"><%= t('profiles.spanishDescOnboarding') %></small>
                       </span>
                     </label>
                     <label class="list-group-item d-flex gap-3">
@@ -70,14 +70,14 @@
                       >
                       <span class="d-block">
                         <span class="fw-semibold d-block">English</span>
-                        <small class="text-body-secondary">Interface and explanations in English, for full immersion.</small>
+                        <small class="text-body-secondary"><%= t('profiles.englishDesc') %></small>
                       </span>
                     </label>
                   </div>
                 </fieldset>
 
                 <div>
-                  <label class="form-label" for="onboardingProfileDescription">Descripción breve</label>
+                  <label class="form-label" for="onboardingProfileDescription"><%= t('profiles.onbDescLabel') %></label>
                   <textarea
                     class="form-control"
                     id="onboardingProfileDescription"
@@ -86,12 +86,12 @@
                     maxlength="<%= profileFieldLimits.description %>"
                   ><%= values.description %></textarea>
                   <div class="form-text">
-                    Una nota corta para reconocer este perfil cuando tengas varios.
+                    <%= t('profiles.onbDescHelp') %>
                   </div>
                 </div>
 
                 <div>
-                  <label class="form-label" for="onboardingLearningContext">Contexto para Mr. F</label>
+                  <label class="form-label" for="onboardingLearningContext"><%= t('profiles.context') %></label>
                   <textarea
                     class="form-control"
                     id="onboardingLearningContext"
@@ -101,19 +101,19 @@
                     aria-describedby="onboardingLearningContextHelp"
                   ><%= values.learningContext %></textarea>
                   <div class="form-text" id="onboardingLearningContextHelp">
-                    Puedes contar para qué quieres aprender inglés, en qué trabajas o estudias, qué temas te interesan y qué se te hace difícil.
+                    <%= t('profiles.onbContextHelp') %>
                   </div>
                 </div>
 
                 <div class="pt-2">
-                  <button class="btn btn-primary" type="submit">Guardar y continuar</button>
+                  <button class="btn btn-primary" type="submit"><%= t('profiles.save') %></button>
                 </div>
               </form>
 
               <form class="mt-3" method="post" action="/profiles/onboarding/skip">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                 <input type="hidden" name="returnTo" value="<%= returnTo %>">
-                <button class="btn btn-secondary" type="submit">Omitir por ahora</button>
+                <button class="btn btn-secondary" type="submit"><%= t('profiles.skip') %></button>
               </form>
             </div>
           </div>
