@@ -80,6 +80,17 @@ recursos ya se archivan; esta idea aplicaría solo a conversaciones.
 
 ---
 
+Importar/exportar recursos como JSON desde la UI de la plataforma: formato
+portable versionado (tipo de recurso + payload) para quizzes, guías de
+práctica y roleplays; exportar desde el menú de opciones del recurso e
+importar desde el menú `Nuevo`, pasando por la misma validación que la
+autoría con IA. Útil para el usuario final (respaldo, portabilidad,
+compartir fuera de la plataforma), para el desarrollo (materializar un
+recurso escrito a mano sin inferencia — reemplaza la idea de "JSON manual
+de quizzes" diferida de V1), y como base futura de un marketplace.
+
+---
+
 A largo plazo: algo parecido a Grammarly/DeepL — una herramienta que "escuche"
 constantemente lo que escribimos o traduzca, corrija sobre la marcha, y loguee
 al sitio las dificultades para luego generar lecciones al respecto.
