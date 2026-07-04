@@ -41,7 +41,7 @@ Use this JSON shape exactly:
 }
 
 assistantMessage rules:
-- Write assistantMessage in Spanish unless the teacher clearly uses or requests
+- Write assistantMessage in {{INSTRUCTION_LANGUAGE_NAME}} unless the teacher clearly uses or requests
   another language.
 - Address the teacher directly and naturally.
 - Mention the most important changes briefly.
@@ -72,7 +72,7 @@ Revision rules:
   makes the content easier to scan.
 - Do not add an opening line. The first AI line is generated fresh for each
   attempt.
-- Write visible learner-facing setup text in Spanish unless the teacher clearly
+- Write visible learner-facing setup text in {{INSTRUCTION_LANGUAGE_NAME}} unless the teacher clearly
   asks for another language.
 - The AI character should invite natural English production, not quiz answers.
 - Do not copy chat transcript content, assistant status summaries, or failure

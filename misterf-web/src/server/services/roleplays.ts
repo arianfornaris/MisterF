@@ -17,6 +17,7 @@ import {
   logLlmResponse,
 } from './llmTutor/logging.js';
 import type { LlmRequestOptions } from './llmTutor/types.js';
+import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { isRoleplayCharacterAvatarId } from '../roleplays/avatarRegistry.js';
@@ -285,6 +286,7 @@ export async function generateNextRoleplayTurn(input: {
 export async function evaluateRoleplayAttempt(input: {
   attempt: StoredRoleplayAttempt;
   draft: RoleplayDraft;
+  instructionLanguage?: 'en' | 'es';
   llm: LlmRequestOptions;
 }): Promise<RoleplayEvaluationResult> {
   return generateStructuredRoleplayOutput({
@@ -293,6 +295,11 @@ export async function evaluateRoleplayAttempt(input: {
     maxOutputTokens: 5200,
     schema: roleplayEvaluationResultSchema,
     systemPromptPath: 'resources/roleplay-evaluation.md',
+    systemPromptVariables: {
+      INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
+        input.instructionLanguage ?? 'es',
+      ),
+    },
     userPayload: {
       roleplay: input.draft,
       turns: input.attempt.turns,
@@ -356,10 +363,14 @@ async function generateStructuredRoleplayOutput<T>(input: {
   maxOutputTokens: number;
   schema: z.ZodType<T>;
   systemPromptPath: string;
+  systemPromptVariables?: Record<string, string>;
   userPayload: Record<string, unknown>;
 }): Promise<T> {
   const modelTier = input.llm.modelTier ?? 'regular';
-  const system = renderSystemPrompt(input.systemPromptPath);
+  const system = renderSystemPrompt(
+    input.systemPromptPath,
+    input.systemPromptVariables,
+  );
   const messages: ModelMessage[] = [
     {
       content: JSON.stringify(input.userPayload, null, 2),

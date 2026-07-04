@@ -38,7 +38,7 @@ Use this JSON shape:
 }
 
 Evaluation rules:
-- Write summaryTitle, summary, overallFeedback, strengths, difficulties, recommendations, vocabulary, feedback, scoreLabel, and explanations in Spanish.
+- Write summaryTitle, summary, overallFeedback, strengths, difficulties, recommendations, vocabulary, feedback, scoreLabel, and explanations in {{INSTRUCTION_LANGUAGE_NAME}}.
 - Preserve each learner turn exactly in entries.text.
 - Include one entry per learner turn, in order.
 - turnNumber is the visible learner-turn number, starting at 1.

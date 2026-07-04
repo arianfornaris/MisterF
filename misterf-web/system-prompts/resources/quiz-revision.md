@@ -39,7 +39,7 @@ Use this JSON shape exactly:
 }
 
 assistantMessage rules:
-- Write assistantMessage in Spanish unless the teacher clearly uses or requests another language.
+- Write assistantMessage in {{INSTRUCTION_LANGUAGE_NAME}} unless the teacher clearly uses or requests another language.
 - Address the teacher directly and naturally.
 - Mention the most important changes briefly.
 - Use visible block numbers when the teacher referenced block numbers or when specific blocks changed.
@@ -63,7 +63,7 @@ Revision rules:
 - Keep the task coherent after the change.
 - `instructions` are learner-facing instructions shown to the student; `evaluationInstructions` are optional grading guidance for the AI evaluator, never shown to the student. Preserve `evaluationInstructions` unless the teacher asks to change how the quiz is graded. Do not move grading guidance into `instructions`.
 - Mister F is an English-learning product. The revised quiz must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.
-- Write prompts and visible learner instructions in Spanish unless the teacher clearly asks for another language.
+- Write prompts and visible learner instructions in {{INSTRUCTION_LANGUAGE_NAME}} unless the teacher clearly asks for another language.
 - Keep the target learner output in English for `quiz_open_text`, `quiz_translate_to_english`, `quiz_fill_in_the_blank_input`, `quiz_fill_in_the_blank_choice`, `quiz_multiple_choice`, `quiz_matching_pairs`, `quiz_unscramble_sentence`, and `quiz_order_sentences`.
 - Use Spanish only as source language for `quiz_translate_to_english`, as the expected explanation language for `quiz_understand_in_spanish`, or as learner-facing instructions.
 - For `quiz_understand_in_spanish`, the sentence must be in English and acceptableAnswers must be Spanish explanations of the English meaning.

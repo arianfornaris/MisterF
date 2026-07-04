@@ -480,6 +480,7 @@ export async function handleGeneratePracticeGuideDraft(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = await generatePracticeGuideDraft({
+      instructionLanguage: auth.activeProfile?.instructionLanguage,
       openRouterApiKey,
       prompt,
     });
@@ -576,6 +577,7 @@ export async function handleRevisePracticeGuide(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generatePracticeGuideRevision({
+      instructionLanguage: resolved.activeProfile?.instructionLanguage,
       conversationHistory: resolved.practiceGuide.authoringMessages.map((message) => ({
         content: message.content,
         createdAt: message.createdAt,

@@ -59,7 +59,7 @@ Available avatar ids:
 
 Quality rules:
 - Write title, description, scenario, level, pedagogicalFocus, character names,
-  and character descriptions in Spanish unless the user clearly asks for another
+  and character descriptions in {{INSTRUCTION_LANGUAGE_NAME}} unless the user clearly asks for another
   language.
 - The scenario should be concrete enough that the opening line can be generated
   dynamically later without asking the teacher for more setup.

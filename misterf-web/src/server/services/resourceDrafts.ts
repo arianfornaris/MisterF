@@ -16,9 +16,18 @@ import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './ll
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
 
 const maxDraftGenerationTurns = 4;
+
+function languagePromptVariables(
+  instructionLanguage: 'en' | 'es' = 'es',
+): Record<string, string> {
+  return {
+    INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(instructionLanguage),
+  };
+}
 
 const practiceGuideDraftSchema = z.object({
   description: z.string().trim().min(1).max(1500),
@@ -309,6 +318,7 @@ async function generateStructuredDraft<T>(input: {
 }
 
 export async function generatePracticeGuideDraft(input: {
+  instructionLanguage?: 'en' | 'es';
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<PracticeGuideDraft> {
@@ -319,12 +329,14 @@ export async function generatePracticeGuideDraft(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: practiceGuideDraftSchema,
     systemPromptPath: 'resources/practice-guide-draft.md',
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
 export async function generatePracticeGuideRevision(input: {
   conversationHistory?: PracticeGuideRevisionConversationMessage[];
   currentPracticeGuide: PracticeGuideDraft;
+  instructionLanguage?: 'en' | 'es';
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<PracticeGuideRevisionResult> {
@@ -346,6 +358,7 @@ export async function generatePracticeGuideRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: practiceGuideRevisionSchema,
     systemPromptPath: 'resources/practice-guide-revision.md',
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
@@ -369,6 +382,7 @@ function normalizePracticeGuideRevisionConversationHistory(
 }
 
 export async function generateQuizDraft(input: {
+  instructionLanguage?: 'en' | 'es';
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<QuizDraft> {
@@ -380,12 +394,14 @@ export async function generateQuizDraft(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizDraftSchema,
     systemPromptPath: 'resources/quiz-draft.md',
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
 export async function generateQuizRevision(input: {
   conversationHistory?: QuizRevisionConversationMessage[];
   currentDraft: QuizDraft;
+  instructionLanguage?: 'en' | 'es';
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<QuizRevisionResult> {
@@ -407,6 +423,7 @@ export async function generateQuizRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizRevisionSchema,
     systemPromptPath: 'resources/quiz-revision.md',
+    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
   });
 }
 
@@ -450,6 +467,7 @@ function normalizeQuizRevisionConversationHistory(
 }
 
 export async function generateRoleplayDraft(input: {
+  instructionLanguage?: 'en' | 'es';
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayDraft> {
@@ -463,6 +481,7 @@ export async function generateRoleplayDraft(input: {
     schema: roleplayDraftSchema,
     systemPromptPath: 'resources/roleplay-draft.md',
     systemPromptVariables: {
+      ...languagePromptVariables(input.instructionLanguage),
       ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
     },
   });
@@ -471,6 +490,7 @@ export async function generateRoleplayDraft(input: {
 export async function generateRoleplayRevision(input: {
   conversationHistory?: RoleplayRevisionConversationMessage[];
   currentDraft: RoleplayDraft;
+  instructionLanguage?: 'en' | 'es';
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayRevisionResult> {
@@ -494,6 +514,7 @@ export async function generateRoleplayRevision(input: {
     schema: roleplayRevisionSchema,
     systemPromptPath: 'resources/roleplay-revision.md',
     systemPromptVariables: {
+      ...languagePromptVariables(input.instructionLanguage),
       ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
     },
   });

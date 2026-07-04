@@ -112,11 +112,15 @@ Scope notes:
   learner-facing field across `tutor/blocks/*.md` authors in the
   instruction language, and the `TutorResponseBlock` union drops the
   translation members for `en`. A golden snapshot test guards Spanish
-  output byte-for-byte. Still open: fully excluding the two translation
-  quiz item kinds from the `en` quiz protocol (currently defined but
-  forbidden by the `en` language rules), quiz-result evaluation, tutor
-  reports, resource-draft authoring, and English block-repair leakage
-  detection (currently Spanish-regex only).
+  output byte-for-byte. Also 2026-07-04: the secondary LLM families are
+  parametrized — quiz-result evaluation and tutor reports render in the
+  learner's instruction language (threaded from the conversation
+  snapshot or the attempt's profile), and resource-draft authoring
+  (quiz/guide/roleplay draft + revision) plus roleplay evaluation render
+  in the authoring/reader profile's language. Still open: fully excluding
+  the two translation quiz item kinds from the `en` quiz protocol
+  (currently defined but forbidden by the `en` language rules) and
+  English block-repair leakage detection (currently Spanish-regex only).
 - [ ] Transactional surfaces: emails, legal pages, and error pages in both
   languages.
 - [ ] English translation pass over the full catalog, reviewed against the

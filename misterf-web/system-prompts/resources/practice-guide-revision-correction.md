@@ -12,7 +12,7 @@ The only valid shape is:
 }
 
 Rules to preserve:
-- assistantMessage must be a concise teacher-facing message in Spanish unless the teacher clearly uses another language.
+- assistantMessage must be a concise teacher-facing message in {{INSTRUCTION_LANGUAGE_NAME}} unless the teacher clearly uses another language.
 - Put the complete revised guide under guide, not at the top level.
 - title must be short, clear, and plain text.
 - description and tutorInstructions must be learner/teacher-facing Spanish unless the request clearly requires another language.

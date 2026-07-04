@@ -806,6 +806,7 @@ export async function handleGenerateQuiz(
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = canonicalizeQuizDraftBlockOrder(
       await generateQuizDraft({
+        instructionLanguage: auth.activeProfile?.instructionLanguage,
         openRouterApiKey,
         prompt,
       }),
@@ -924,6 +925,7 @@ export async function handleReviseQuiz(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generateQuizRevision({
+      instructionLanguage: resolved.activeProfile?.instructionLanguage,
       conversationHistory: resolved.quiz.authoringMessages.map((message) => ({
         content: message.content,
         createdAt: message.createdAt,

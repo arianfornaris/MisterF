@@ -2,6 +2,7 @@ import {
   createQuiz,
   createPracticeGuide,
   createRoleplay,
+  findProfileForUser,
 } from '../db/repository.js';
 import {
   generateQuizDraft,
@@ -90,9 +91,15 @@ export async function createResourceFromContextDraft(input: {
 }): Promise<{ detailPath: string; title: string }> {
   const { openRouterApiKey, profileId, prompt, type, userId } = input;
   const meta = contextResourceTypeMeta[type];
+  const instructionLanguage = findProfileForUser(profileId, userId)
+    ?.instructionLanguage;
 
   if (type === 'practice_guide') {
-    const draft = await generatePracticeGuideDraft({ openRouterApiKey, prompt });
+    const draft = await generatePracticeGuideDraft({
+      instructionLanguage,
+      openRouterApiKey,
+      prompt,
+    });
     const practiceGuide = createPracticeGuide({
       description: draft.description,
       profileId,
@@ -104,7 +111,11 @@ export async function createResourceFromContextDraft(input: {
   }
 
   if (type === 'quiz') {
-    const draft = await generateQuizDraft({ openRouterApiKey, prompt });
+    const draft = await generateQuizDraft({
+      instructionLanguage,
+      openRouterApiKey,
+      prompt,
+    });
     const quiz = createQuiz({
       description: draft.description,
       instructions: draft.instructions,
@@ -118,7 +129,11 @@ export async function createResourceFromContextDraft(input: {
     return { detailPath: meta.detailPath(quiz.id), title: quiz.title };
   }
 
-  const draft = await generateRoleplayDraft({ openRouterApiKey, prompt });
+  const draft = await generateRoleplayDraft({
+    instructionLanguage,
+    openRouterApiKey,
+    prompt,
+  });
   const roleplay = createRoleplay({ ...draft, profileId, userId });
   return { detailPath: meta.detailPath(roleplay.id), title: roleplay.title };
 }

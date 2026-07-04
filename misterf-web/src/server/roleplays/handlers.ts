@@ -542,6 +542,7 @@ export async function handleGenerateRoleplay(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
     const draft = await generateRoleplayDraft({
+      instructionLanguage: auth.activeProfile?.instructionLanguage,
       openRouterApiKey,
       prompt,
     });
@@ -660,6 +661,7 @@ export async function handleReviseRoleplay(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generateRoleplayRevision({
+      instructionLanguage: resolved.activeProfile?.instructionLanguage,
       conversationHistory: resolved.roleplay.authoringMessages.map((message) => ({
         content: message.content,
         createdAt: message.createdAt,
@@ -1208,6 +1210,7 @@ export async function handleFinishRoleplayAttempt(
     const result = await evaluateRoleplayAttempt({
       attempt: evaluatingAttempt,
       draft,
+      instructionLanguage: request.activeProfile?.instructionLanguage,
       llm: {
         modelTier: request.activeProfile?.modelTier ?? 'regular',
         openRouterApiKey,
