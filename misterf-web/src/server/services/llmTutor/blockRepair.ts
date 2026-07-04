@@ -3,6 +3,10 @@ import { z } from 'zod';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { logger } from '../logger.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
+import {
+  defaultInstructionLanguage,
+  type InstructionLanguage,
+} from './languagePack.js';
 import { TutorResponseValidationError } from './errors.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './providers.js';
 import { validateTutorResponseBlocks } from './validation.js';
@@ -53,6 +57,7 @@ export function detectMessageTaskLeakage(
 export async function repairTutorResponseBlocks(input: {
   abortSignal?: AbortSignal;
   blocks: TutorAgentResponseBlock[];
+  instructionLanguage?: InstructionLanguage;
   llm?: LlmRequestOptions;
 }): Promise<TutorBlockRepairResult> {
   const initialIssues = detectMessageTaskLeakage(input.blocks);
@@ -75,7 +80,10 @@ export async function repairTutorResponseBlocks(input: {
       model: getLanguageModel(input.llm),
       providerOptions: getProviderOptions(),
       system: renderSystemPrompt('tutor/block-repair.md', {
-        BLOCK_PROTOCOL: renderTutorBlockProtocol(),
+        BLOCK_PROTOCOL: renderTutorBlockProtocol(
+          undefined,
+          input.instructionLanguage ?? defaultInstructionLanguage,
+        ),
         DETECTED_ISSUES_JSON: JSON.stringify(currentIssues, null, 2),
         ORIGINAL_BLOCKS_JSON: JSON.stringify({ blocks: currentBlocks }, null, 2),
       }),

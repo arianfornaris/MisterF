@@ -1,7 +1,61 @@
 import { describe, expect, it } from 'vitest';
-import { renderTutorBlockProtocol } from '../../src/server/services/llmTutor/blockProtocol.js';
+import {
+  renderTutorBlockProtocol,
+  tutorBlockNamesForInstructionLanguage,
+} from '../../src/server/services/llmTutor/blockProtocol.js';
 import { buildAgentSystemInstruction } from '../../src/server/services/llmTutor/prompt.js';
 import { loadSystemPrompt } from '../../src/server/services/systemPrompts.js';
+
+describe('tutor instruction language parametrization', () => {
+  it('keeps the Spanish system prompt byte-for-byte identical across entry points', () => {
+    const defaultSystem = buildAgentSystemInstruction({
+      currentTitle: 'Nueva conversación',
+    });
+    const spanishSystem = buildAgentSystemInstruction({
+      currentTitle: 'Nueva conversación',
+      instructionLanguage: 'es',
+    });
+
+    expect(spanishSystem).toEqual(defaultSystem);
+    expect(spanishSystem).toContain('You are an English tutor for Spanish-speaking learners.');
+    expect(spanishSystem).toContain('Speak to the learner in Spanish by default.');
+    expect(spanishSystem).toContain('The title must be short, Spanish, human-friendly');
+    expect(spanishSystem).toContain('  - practicar vocabulario');
+    expect(spanishSystem).toContain('`message` plus `understand_in_spanish_prompt`');
+    expect(spanishSystem).not.toMatch(/\{\{[A-Z_]+\}\}/);
+  });
+
+  it('renders an English monolingual system prompt without translation scaffolding', () => {
+    const englishSystem = buildAgentSystemInstruction({
+      currentTitle: 'New conversation',
+      instructionLanguage: 'en',
+    });
+
+    expect(englishSystem).toContain('Speak to the learner in English by default.');
+    expect(englishSystem).toContain('Teach English through English.');
+    expect(englishSystem).toContain('The title must be short, English, human-friendly');
+    expect(englishSystem).toContain('  - practice vocabulary');
+    expect(englishSystem).not.toContain('for Spanish-speaking learners');
+    expect(englishSystem).not.toContain('Speak to the learner in Spanish');
+    expect(englishSystem).not.toContain('`message` plus `translate_to_english_prompt`');
+    expect(englishSystem).not.toContain('`message` plus `understand_in_spanish_prompt`');
+    expect(englishSystem).not.toMatch(/\{\{[A-Z_]+\}\}/);
+  });
+
+  it('excludes translation-based blocks from the English block set only', () => {
+    const spanishNames = tutorBlockNamesForInstructionLanguage('es');
+    const englishNames = tutorBlockNamesForInstructionLanguage('en');
+
+    expect(spanishNames).toContain('translate-to-english-prompt');
+    expect(spanishNames).toContain('understand-in-spanish-prompt');
+    expect(englishNames).not.toContain('translate-to-english-prompt');
+    expect(englishNames).not.toContain('understand-in-spanish-prompt');
+
+    const englishProtocol = renderTutorBlockProtocol(undefined, 'en');
+    expect(englishProtocol).not.toContain('interface UnderstandInSpanishPromptBlock');
+    expect(englishProtocol).not.toContain('interface TranslateToEnglishPromptBlock');
+  });
+});
 
 describe('tutor prompt contracts', () => {
   it('does not include removed block types in the tutor protocol', () => {

@@ -87,9 +87,19 @@ Scope notes:
   language, and let the user select other language pairs beyond the
   profile default. Deliberately untouched by the initial i18n work — it
   stays Spanish–English for every profile until this item lands.
-- [ ] Tutor and LLM surface: parametrize system prompts, block protocol
+- [~] Tutor and LLM surface: parametrize system prompts, block protocol
   copy, evaluation feedback, and AI authoring (quiz/guide/roleplay
-  generation and revision) by instruction language.
+  generation and revision) by instruction language. Started 2026-07-04:
+  conversations snapshot `instruction_language` at creation; the tutor
+  system prompt is parametrized via language packs
+  (`tutor/language-rules/{es,en}.md` + `languagePack.ts`) with the `en`
+  pack monolingual and translation blocks excluded from the `en` block
+  set; correction and block-repair prompts follow the conversation
+  language. A golden snapshot test guards Spanish output byte-for-byte.
+  Still open: block-doc JSDoc language name ("must be Spanish" across
+  `tutor/blocks/*.md`, incl. quiz item kinds), quiz-result evaluation,
+  tutor reports, resource-draft authoring, and English block-repair
+  leakage detection (currently Spanish-regex only).
 - [ ] Transactional surfaces: emails, legal pages, and error pages in both
   languages.
 - [ ] English translation pass over the full catalog, reviewed against the

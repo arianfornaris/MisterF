@@ -1,6 +1,12 @@
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
 import { isGenericConversationTitle } from './conversationTitles.js';
+import {
+  conversationTitleLanguageRule,
+  defaultInstructionLanguage,
+  tutorSystemLanguagePlaceholders,
+  type InstructionLanguage,
+} from './languagePack.js';
 import type { TranslationMode } from './types.js';
 
 export function buildAgentSystemInstruction(options: {
@@ -41,12 +47,15 @@ export function buildAgentSystemInstruction(options: {
   tutorPlanText?: string | null;
 }): string {
   const currentTitle = options.currentTitle?.trim() || 'Nueva conversación';
+  const instructionLanguage =
+    options.instructionLanguage ?? defaultInstructionLanguage;
   const base = renderTutorSystemPrompt({
-    BLOCK_PROTOCOL: renderTutorBlockProtocol(),
+    ...tutorSystemLanguagePlaceholders(instructionLanguage),
+    BLOCK_PROTOCOL: renderTutorBlockProtocol(undefined, instructionLanguage),
     CURRENT_TITLE: currentTitle,
-    INSTRUCTION_LANGUAGE: options.instructionLanguage ?? 'es',
     TITLE_RULE: buildConversationTitleRule({
       currentTitle,
+      instructionLanguage,
       titleUpdatedByUser: Boolean(options.titleUpdatedByUser),
     }),
   });
@@ -175,6 +184,7 @@ function appendRoleplayAttemptContext(
 
 function buildConversationTitleRule(input: {
   currentTitle: string;
+  instructionLanguage: InstructionLanguage;
   titleUpdatedByUser: boolean;
 }): string {
   if (input.titleUpdatedByUser) {
@@ -189,7 +199,7 @@ function buildConversationTitleRule(input: {
     'The current title is generic. If the learner has provided a clear topic, purpose, exercise direction, scenario, or repeated practice thread, call update_conversation_title at most once with reason "initial_topic" before or while producing your response.',
     'If the conversation is still only a greeting or the purpose is genuinely unclear, do not call update_conversation_title until the first response where the purpose becomes clear.',
     'After any title update attempt in this response, do not call update_conversation_title again unless the learner explicitly asks to rename the conversation in a later turn.',
-    'The title must be short, Spanish, human-friendly, and specific; avoid generic titles such as "Práctica de inglés", "Conversación", or "Resumen de conversación".',
+    conversationTitleLanguageRule(input.instructionLanguage),
   ].join(' ');
 }
 

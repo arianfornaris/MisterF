@@ -500,6 +500,7 @@ export async function runTutorAgentLoop(
         const repairResult = await repairTutorResponseBlocks({
           abortSignal: options.abortSignal,
           blocks: finalBlocks,
+          instructionLanguage: options.instructionLanguage,
           llm: options.llm,
         });
         finalBlocks = repairResult.blocks;
@@ -531,6 +532,7 @@ export async function runTutorAgentLoop(
 
         appendStructuredCorrectionRequest(messages, {
           error,
+          instructionLanguage: options.instructionLanguage,
           invalidOutput: effectiveResult.text,
           reason: buildStructuredValidationReason(error),
           turn: turn + 1,
@@ -552,6 +554,7 @@ export async function runTutorAgentLoop(
 
       appendStructuredCorrectionRequest(messages, {
         error,
+        instructionLanguage: options.instructionLanguage,
         invalidOutput: extractGeneratedTextFromError(error),
         reason:
           'Your previous response was not valid JSON or could not be converted into a TutorResponse object.',

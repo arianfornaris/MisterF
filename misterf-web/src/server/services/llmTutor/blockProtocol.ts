@@ -1,5 +1,9 @@
 import { loadSystemPrompt } from '../systemPrompts.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../../roleplays/avatarRegistry.js';
+import {
+  defaultInstructionLanguage,
+  type InstructionLanguage,
+} from './languagePack.js';
 
 export const tutorBlockProtocolNames = [
   'message',
@@ -25,12 +29,37 @@ export type TutorBlockProtocolName = typeof tutorBlockProtocolNames[number];
 
 const tutorBlockProtocolNameSet = new Set<string>(tutorBlockProtocolNames);
 
+/**
+ * Blocks that only make sense when the instruction language is Spanish. For an
+ * English-instruction (monolingual) profile the tutor teaches English through
+ * English, so translation-based exercises are excluded from the block set.
+ */
+const spanishOnlyTutorBlockNames = new Set<TutorBlockProtocolName>([
+  'translate-to-english-prompt',
+  'understand-in-spanish-prompt',
+]);
+
+export function tutorBlockNamesForInstructionLanguage(
+  instructionLanguage: InstructionLanguage,
+): TutorBlockProtocolName[] {
+  if (instructionLanguage === 'es') {
+    return [...tutorBlockProtocolNames];
+  }
+
+  return tutorBlockProtocolNames.filter(
+    (name) => !spanishOnlyTutorBlockNames.has(name),
+  );
+}
+
 export function renderTutorBlockProtocol(
-  names: readonly TutorBlockProtocolName[] = tutorBlockProtocolNames,
+  names?: readonly TutorBlockProtocolName[],
+  instructionLanguage: InstructionLanguage = defaultInstructionLanguage,
 ): string {
   const avatarOptions = buildRoleplayCharacterAvatarPromptOptions();
+  const selectedNames =
+    names ?? tutorBlockNamesForInstructionLanguage(instructionLanguage);
 
-  return names
+  return selectedNames
     .map((name) => (
       loadSystemPrompt(`tutor/blocks/${name}.md`)
         .replaceAll('{{DIALOGUE_AVATAR_OPTIONS}}', avatarOptions)

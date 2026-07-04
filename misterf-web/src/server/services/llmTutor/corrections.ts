@@ -4,11 +4,16 @@ import { shouldLogFullLlmTrace } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { TutorResponseValidationError } from './errors.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
+import {
+  defaultInstructionLanguage,
+  type InstructionLanguage,
+} from './languagePack.js';
 
 export function appendStructuredCorrectionRequest(
   messages: ModelMessage[],
   input: {
     error: unknown;
+    instructionLanguage?: InstructionLanguage;
     invalidOutput?: string | null;
     reason: string;
     turn: number;
@@ -25,7 +30,10 @@ export function appendStructuredCorrectionRequest(
 
   messages.push({
     content: renderSystemPrompt('tutor/structured-correction.md', {
-      BLOCK_PROTOCOL: renderTutorBlockProtocol(),
+      BLOCK_PROTOCOL: renderTutorBlockProtocol(
+        undefined,
+        input.instructionLanguage ?? defaultInstructionLanguage,
+      ),
       CORRECTION_REASON: input.reason,
     }),
     role: 'user',
