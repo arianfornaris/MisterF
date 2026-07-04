@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
+import { translate, type Locale } from '../i18n/index.js';
 import type { AuthUser } from './repository.js';
 
 type MailMessage = {
@@ -12,24 +13,28 @@ type MailMessage = {
 export async function sendEmailVerification(
   user: AuthUser,
   code: string,
+  locale: Locale = 'es',
 ): Promise<void> {
+  const t = (key: string, params?: Record<string, string>) =>
+    translate(locale, key, params);
   await sendMail({
     to: user.email,
-    subject: 'Tu código de verificación de Mister F',
+    subject: t('email.verifySubject'),
     text: [
-      `Hola ${user.fullName},`,
+      t('email.greeting', { name: user.fullName }),
       '',
-      `Tu código de verificación es: ${code}`,
+      t('email.verifyCodeLine', { code }),
       '',
-      'El código vence en 24 horas.',
+      t('email.verifyTtlLine'),
       '',
-      'Mister F',
+      t('email.signature'),
     ].join('\n'),
     html: renderCodeEmail({
       code,
-      intro: `Hola ${escapeHtml(user.fullName)}, usa este código para verificar tu correo.`,
-      title: 'Verifica tu correo',
-      ttl: '24 horas',
+      intro: t('email.verifyIntro', { name: escapeHtml(user.fullName) }),
+      title: t('email.verifyTitle'),
+      ttl: t('email.ttl24'),
+      expiresNote: t('email.expiresNote', { ttl: t('email.ttl24') }),
     }),
   });
 }
@@ -37,24 +42,28 @@ export async function sendEmailVerification(
 export async function sendPasswordReset(
   user: AuthUser,
   code: string,
+  locale: Locale = 'es',
 ): Promise<void> {
+  const t = (key: string, params?: Record<string, string>) =>
+    translate(locale, key, params);
   await sendMail({
     to: user.email,
-    subject: 'Tu código para cambiar el password de Mister F',
+    subject: t('email.resetSubject'),
     text: [
-      `Hola ${user.fullName},`,
+      t('email.greeting', { name: user.fullName }),
       '',
-      `Tu código para cambiar el password es: ${code}`,
+      t('email.resetCodeLine', { code }),
       '',
-      'El código vence en 1 hora. Si no pediste este cambio, ignora este email.',
+      t('email.resetTtlLine'),
       '',
-      'Mister F',
+      t('email.signature'),
     ].join('\n'),
     html: renderCodeEmail({
       code,
-      intro: `Hola ${escapeHtml(user.fullName)}, usa este código para cambiar tu password.`,
-      title: 'Cambia tu password',
-      ttl: '1 hora',
+      intro: t('email.resetIntro', { name: escapeHtml(user.fullName) }),
+      title: t('email.resetTitle'),
+      ttl: t('email.ttl1'),
+      expiresNote: t('email.expiresNote', { ttl: t('email.ttl1') }),
     }),
   });
 }
@@ -68,8 +77,8 @@ export function isMailerConfigured(): boolean {
   );
 }
 
-export function getMailerConfigurationError(): string {
-  return 'Falta configurar SMTP_HOST, SMTP_USER, SMTP_PASSWORD o RESEND_SMTP_API_KEY, y MAIL_FROM en ecosystem.config.cjs.';
+export function getMailerConfigurationError(locale: Locale = 'es'): string {
+  return translate(locale, 'email.configError');
 }
 
 async function sendMail(message: MailMessage): Promise<void> {
@@ -105,6 +114,7 @@ function renderCodeEmail(input: {
   intro: string;
   title: string;
   ttl: string;
+  expiresNote: string;
 }): string {
   return `
     <!doctype html>
@@ -115,7 +125,7 @@ function renderCodeEmail(input: {
           <h1 style="margin:0 0 18px;font-size:30px;font-weight:400;">${input.title}</h1>
           <p style="font-size:17px;line-height:1.5;">${input.intro}</p>
           <p style="margin:28px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:34px;letter-spacing:6px;color:#1f6f8b;">${input.code}</p>
-          <p style="font-size:15px;line-height:1.5;color:#666;">Este código vence en ${input.ttl}. No compartas este código con nadie.</p>
+          <p style="font-size:15px;line-height:1.5;color:#666;">${input.expiresNote}</p>
         </main>
       </body>
     </html>

@@ -128,6 +128,26 @@ export const es: LocaleCatalog = {
   error: {
     unexpected: 'Ocurrió un error inesperado.',
   },
+  email: {
+    verifySubject: 'Tu código de verificación de Mister F',
+    resetSubject: 'Tu código para cambiar el password de Mister F',
+    greeting: 'Hola {{name}},',
+    verifyCodeLine: 'Tu código de verificación es: {{code}}',
+    verifyTtlLine: 'El código vence en 24 horas.',
+    resetCodeLine: 'Tu código para cambiar el password es: {{code}}',
+    resetTtlLine:
+      'El código vence en 1 hora. Si no pediste este cambio, ignora este email.',
+    signature: 'Mister F',
+    verifyIntro: 'Hola {{name}}, usa este código para verificar tu correo.',
+    resetIntro: 'Hola {{name}}, usa este código para cambiar tu password.',
+    verifyTitle: 'Verifica tu correo',
+    resetTitle: 'Cambia tu password',
+    ttl24: '24 horas',
+    ttl1: '1 hora',
+    expiresNote: 'Este código vence en {{ttl}}. No compartas este código con nadie.',
+    configError:
+      'Falta configurar SMTP_HOST, SMTP_USER, SMTP_PASSWORD o RESEND_SMTP_API_KEY, y MAIL_FROM en ecosystem.config.cjs.',
+  },
   auth: {
     kicker: {
       login: 'Bienvenido',

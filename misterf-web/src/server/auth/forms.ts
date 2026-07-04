@@ -44,6 +44,7 @@ import { logger } from '../services/logger.js';
 import {
   createTranslator,
   defaultLocale,
+  type Locale,
   type Translator,
 } from '../i18n/index.js';
 
@@ -299,7 +300,7 @@ export async function handleSignup(
 
   if (!isMailerConfigured()) {
     renderAuthForm(response.status(503), {
-      error: getMailerConfigurationError(),
+      error: getMailerConfigurationError(request.locale),
       fieldErrors: {},
       mode: 'signup',
       returnTo,
@@ -325,7 +326,7 @@ export async function handleSignup(
   }
 
   try {
-    await issueEmailVerification(user);
+    await issueEmailVerification(user, request.locale);
   } catch (error) {
     renderAuthForm(response.status(503), {
       error: toMailErrorMessage(error, t),
@@ -367,7 +368,7 @@ export async function handleForgotPassword(
 
   if (!isMailerConfigured()) {
     renderAuthForm(response.status(503), {
-      error: getMailerConfigurationError(),
+      error: getMailerConfigurationError(request.locale),
       fieldErrors: {},
       mode: 'forgot',
       values: { code: '', email, fullName: '' },
@@ -378,7 +379,7 @@ export async function handleForgotPassword(
   try {
     const user = findUserByEmail(email);
     if (user) {
-      await issuePasswordReset(user);
+      await issuePasswordReset(user, request.locale);
     }
   } catch (error) {
     renderAuthForm(response.status(503), {
@@ -615,7 +616,7 @@ export async function handleResendVerification(
   const t = tr(response);
   if (!isMailerConfigured()) {
     renderAuthMessage(response.status(503), {
-      body: getMailerConfigurationError(),
+      body: getMailerConfigurationError(request.locale),
       returnTo,
       title: t('auth.message.mailFailTitle'),
     });
@@ -623,7 +624,7 @@ export async function handleResendVerification(
   }
 
   try {
-    await issueEmailVerification(request.authUser);
+    await issueEmailVerification(request.authUser, request.locale);
   } catch (error) {
     renderAuthMessage(response.status(503), {
       body: toMailErrorMessage(error, t),
@@ -719,7 +720,7 @@ function toOpenRouterProvisioningErrorMessage(
     : t('auth.serviceError.openrouter');
 }
 
-async function issueEmailVerification(user: AuthUser): Promise<void> {
+async function issueEmailVerification(user: AuthUser, locale: Locale): Promise<void> {
   const token = createActionToken();
   createAuthActionToken({
     expiresAt: new Date(Date.now() + verificationTtlMs),
@@ -727,10 +728,10 @@ async function issueEmailVerification(user: AuthUser): Promise<void> {
     type: 'email_verification',
     userId: user.id,
   });
-  await sendEmailVerification(user, token);
+  await sendEmailVerification(user, token, locale);
 }
 
-async function issuePasswordReset(user: AuthUser): Promise<void> {
+async function issuePasswordReset(user: AuthUser, locale: Locale): Promise<void> {
   const token = createActionToken();
   createAuthActionToken({
     expiresAt: new Date(Date.now() + passwordResetTtlMs),
@@ -738,7 +739,7 @@ async function issuePasswordReset(user: AuthUser): Promise<void> {
     type: 'password_reset',
     userId: user.id,
   });
-  await sendPasswordReset(user, token);
+  await sendPasswordReset(user, token, locale);
 }
 
 function renderAuthForm(response: Response, view: AuthFormView): void {
