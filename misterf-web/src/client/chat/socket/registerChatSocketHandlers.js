@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { markQuizCardEvaluationComplete } from '../cards/createQuizCard.js';
 
 export function registerChatSocketHandlers(deps) {
@@ -19,7 +20,7 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.clearPendingDisconnectNotice();
     const timerId = window.setTimeout(() => {
       deps.renderer.appendEphemeralError(
-        `Se perdió la conexión con el servidor. Intentando reconectar. (${reason})`,
+        t('clientChat.connectionLost', { reason }),
       );
       deps.setDisconnectNoticeTimerId(0);
     }, 3000);
@@ -139,7 +140,7 @@ export function registerChatSocketHandlers(deps) {
   });
 
   socketClient.on(deps.chatSocketEvents.error, ({ message }) => {
-    deps.renderer.appendEphemeralError(message || 'No pude actualizar la conversación.');
+    deps.renderer.appendEphemeralError(message || t('clientChat.conversationUpdateFailed'));
   });
 
   socketClient.on('translator:result', (payload) => {
@@ -279,7 +280,7 @@ export function registerChatSocketHandlers(deps) {
     deps.runtime.setToolStatus('');
     deps.renderer.appendMessage(
       'model',
-      message || 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.',
+      message || t('clientChat.responseError'),
     );
     deps.setIsAssistantBusy(false);
     deps.setIsAssistantStopping(false);

@@ -59,6 +59,30 @@ export function createTranslator(locale: Locale): Translator {
   return (key, params) => translate(locale, key, params);
 }
 
+/**
+ * The subset of the catalog exposed to browser scripts. Client bundles read
+ * these namespaces from `window.__APP_I18N__`; server-only namespaces are not
+ * shipped to the client.
+ */
+const clientNamespaces = ['chat', 'nav', 'translator', 'clientChat'] as const;
+
+export function getClientCatalog(locale: Locale): Record<string, unknown> {
+  const source = catalogs[locale];
+  const fallback = catalogs[defaultLocale];
+  const result: Record<string, unknown> = {};
+
+  for (const namespace of clientNamespaces) {
+    result[namespace] = source[namespace] ?? fallback[namespace] ?? {};
+  }
+
+  return result;
+}
+
+export function getClientCatalogJson(locale: Locale): string {
+  // Escape `<` so the JSON cannot break out of the inline <script> tag.
+  return JSON.stringify(getClientCatalog(locale)).replace(/</g, '\\u003c');
+}
+
 function lookup(catalog: LocaleCatalog, key: string): string | undefined {
   let current: string | LocaleCatalog | undefined = catalog;
 

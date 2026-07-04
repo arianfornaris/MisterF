@@ -1,3 +1,5 @@
+import { t } from '../../shared/i18n.js';
+
 export function createChatRuntime(deps) {
   function sendMessage(options = {}) {
     const content = deps.inputEl.value.trim();
@@ -342,8 +344,7 @@ export function createChatRuntime(deps) {
     deps.setStreamingBubble(null);
     deps.renderer.appendMessage(
       'model',
-      message ||
-        'Para practicar con Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
+      message || t('clientChat.authRequired'),
     );
     deps.setComposerEnabled(false);
     deps.scrollToBottom();
@@ -354,8 +355,7 @@ export function createChatRuntime(deps) {
     deps.setStreamingBubble(null);
     deps.renderer.appendMessage(
       'model',
-      deps.guestInitialGreeting ||
-        '¡Hola! Soy Mr. F, tu tutor de inglés. Cuéntame qué quieres practicar hoy.',
+      deps.guestInitialGreeting || t('clientChat.greeting'),
     );
     deps.setComposerEnabled(true);
     deps.focusComposer();
@@ -365,7 +365,7 @@ export function createChatRuntime(deps) {
   function showGuestAuthPrompt() {
     const bubble = deps.renderer.appendMessage(
       'model',
-      'Perfecto. Para guardar tu práctica y continuar esta conversación, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
+      t('clientChat.guestSaveHint'),
     );
     deps.markTutorMessageArrived(bubble.closest('.message-row'));
     deps.setComposerEnabled(true);

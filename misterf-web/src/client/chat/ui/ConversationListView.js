@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { formatConversationDate } from '../utils/dates.js';
 import { disableTextAssist } from '../utils/textAssist.js';
 
@@ -65,7 +66,7 @@ export class ConversationListView {
     const nextUpdatedAt = conversation.updatedAt || '';
 
     item.querySelector('.conversation-title').textContent =
-      conversation.title || 'Nueva conversación';
+      conversation.title || t('nav.newConversation');
     this.syncClosedState(item, conversation);
 
     const date = item.querySelector('.conversation-date');
@@ -92,7 +93,7 @@ export class ConversationListView {
     }
 
     item.querySelector('.conversation-title').textContent =
-      conversation.title || 'Nueva conversación';
+      conversation.title || t('nav.newConversation');
     this.syncClosedState(item, conversation);
 
     const date = item.querySelector('.conversation-date');
@@ -118,7 +119,7 @@ export class ConversationListView {
       const recentsContainer = this.panelEl?.querySelector('.panel-recents');
       const emptyState = document.createElement('p');
       emptyState.className = 'conversation-empty';
-      emptyState.textContent = 'Todavía no hay conversaciones.';
+      emptyState.textContent = t('nav.noConversations');
       recentsContainer?.append(emptyState);
     }
   }
@@ -156,7 +157,7 @@ export class ConversationListView {
 
     const title = document.createElement('span');
     title.className = 'conversation-title';
-    title.textContent = conversation.title || 'Nueva conversación';
+    title.textContent = conversation.title || t('nav.newConversation');
 
     const date = document.createElement('time');
     date.className = 'conversation-date';
@@ -202,8 +203,8 @@ export class ConversationListView {
     const button = document.createElement('button');
     button.className = 'conversation-actions-button';
     button.type = 'button';
-    button.title = 'Opciones de conversación';
-    button.setAttribute('aria-label', 'Opciones de conversación');
+    button.title = t('nav.conversationOptions');
+    button.setAttribute('aria-label', t('nav.conversationOptions'));
     button.setAttribute('aria-expanded', 'false');
     button.dataset.bsToggle = 'dropdown';
     button.innerHTML = '<i class="bi bi-three-dots" aria-hidden="true"></i>';
@@ -245,7 +246,7 @@ export class ConversationListView {
 
     const currentTitle =
       item.querySelector('.conversation-title')?.textContent?.trim() ||
-      'Nueva conversación';
+      t('nav.newConversation');
     const form = document.createElement('form');
     form.className = 'conversation-rename-form';
 
@@ -255,7 +256,7 @@ export class ConversationListView {
     input.maxLength = 90;
     input.required = true;
     input.value = currentTitle;
-    input.setAttribute('aria-label', 'Nuevo título de la conversación');
+    input.setAttribute('aria-label', t('clientChat.newTitleAriaLabel'));
     disableTextAssist(input);
 
     const saveButton = this.createRenameActionButton({
@@ -332,7 +333,7 @@ export class ConversationListView {
 
     const title =
       item.querySelector('.conversation-title')?.textContent?.trim() ||
-      'Nueva conversación';
+      t('nav.newConversation');
     if (this.deleteTitleEl) {
       this.deleteTitleEl.textContent = title;
     }

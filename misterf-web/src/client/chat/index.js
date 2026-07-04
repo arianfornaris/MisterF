@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { ChatState } from './app/ChatState.js';
 import { createChatRuntime } from './app/ChatRuntime.js';
 import { chatSocketEvents } from './constants/events.js';
@@ -424,11 +425,11 @@ function openCreateResourceFromConversationModal(action, resourceType) {
   }
   if (createResourceFromConversationLabelEl) {
     const labels = {
-      quiz: 'quiz',
-      practice_guide: 'guía de práctica',
-      roleplay: 'roleplay',
+      quiz: t('clientChat.resourceLabelQuiz'),
+      practice_guide: t('clientChat.resourceLabelPracticeGuide'),
+      roleplay: t('clientChat.resourceLabelRoleplay'),
     };
-    createResourceFromConversationLabelEl.textContent = labels[resourceType] || 'recurso';
+    createResourceFromConversationLabelEl.textContent = labels[resourceType] || t('clientChat.resourceLabelGeneric');
   }
 
   if (createResourceFromConversationModalEl && window.bootstrap?.Modal) {
@@ -579,7 +580,7 @@ function renderPracticeGuideStartPanel(practiceGuide, options = {}) {
     return;
   }
 
-  practiceGuideStartTitleEl.textContent = autoStarting ? '' : practiceGuide.title || 'Guía de Práctica';
+  practiceGuideStartTitleEl.textContent = autoStarting ? '' : practiceGuide.title || t('chat.practiceGuideKicker');
   practiceGuideStartDescriptionEl.textContent = autoStarting ? '' : practiceGuide.description || '';
   practiceGuideStartStatusEl.classList.toggle('d-none', !autoStarting);
   practiceGuideStartButtonEl.classList.toggle('d-none', autoStarting);
@@ -587,9 +588,7 @@ function renderPracticeGuideStartPanel(practiceGuide, options = {}) {
 }
 
 function showCreditExhaustedModal(message) {
-  const displayMessage =
-    message ||
-    'Tu crédito de práctica se agotó por ahora. Puedes recargar crédito o intentarlo de nuevo más tarde.';
+  const displayMessage = message || t('clientChat.creditExhaustedShort');
   const buyPath = buildCreditsReturnPath();
 
   if (streamingBubble) {
@@ -624,7 +623,7 @@ function showCreditExhaustedModal(message) {
 function appendCreditTutorMessage(buyPath) {
   const bubble = tutorMessageRenderer.appendMessage(
     'model',
-    `Me quedé sin créditos para continuar esta práctica ahora mismo. Compra créditos y te traigo de vuelta aquí para seguir justo donde nos quedamos.\n\n[Comprar créditos](${buyPath})`,
+    t('clientChat.creditExhaustedMessage', { buyPath }),
   );
   const buyLink = Array.from(bubble.querySelectorAll('a')).find(
     (link) => link.getAttribute('href') === buyPath,

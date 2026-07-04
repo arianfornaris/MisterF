@@ -1,3 +1,5 @@
+import { t } from '../../shared/i18n.js';
+
 export function createTranslatorController(deps) {
   function translateSelectedAppText() {
     const selectedText = deps.getPendingTranslatorSelection() || getSelectedAppText();
@@ -95,7 +97,7 @@ export function createTranslatorController(deps) {
 
     window.setTimeout(() => {
       button.classList.remove('is-copied');
-      button.title = source === 'result' ? 'Copiar traducción' : 'Copiar texto';
+      button.title = source === 'result' ? t('translator.copyTranslation') : t('translator.copyText');
     }, 1200);
   }
 

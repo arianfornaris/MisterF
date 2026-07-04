@@ -263,6 +263,28 @@ export const es: LocaleCatalog = {
     finalize: 'Finalizar y resumir',
     send: 'Enviar',
   },
+  clientChat: {
+    resourceLabelQuiz: 'quiz',
+    resourceLabelPracticeGuide: 'guía de práctica',
+    resourceLabelRoleplay: 'roleplay',
+    resourceLabelGeneric: 'recurso',
+    newTitleAriaLabel: 'Nuevo título de la conversación',
+    creditExhaustedShort:
+      'Tu crédito de práctica se agotó por ahora. Puedes recargar crédito o intentarlo de nuevo más tarde.',
+    creditExhaustedMessage:
+      'Me quedé sin créditos para continuar esta práctica ahora mismo. Compra créditos y te traigo de vuelta aquí para seguir justo donde nos quedamos.\n\n[Comprar créditos]({{buyPath}})',
+    authRequired:
+      'Para practicar con Mr. F necesitas autenticarte. [Inicia sesión](/login) o [crea una cuenta](/signup).',
+    greeting:
+      '¡Hola! Soy Mr. F, tu tutor de inglés. Cuéntame qué quieres practicar hoy.',
+    guestSaveHint:
+      'Perfecto. Para guardar tu práctica y continuar esta conversación, [inicia sesión](/login) o [crea una cuenta](/signup). Cuando regreses, continuaré desde tu primer mensaje.',
+    connectionLost:
+      'Se perdió la conexión con el servidor. Intentando reconectar. ({{reason}})',
+    conversationUpdateFailed: 'No pude actualizar la conversación.',
+    responseError:
+      'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.',
+  },
   deleteConversation: {
     title: 'Eliminar chat',
     bodyBefore: '¿Seguro que quieres eliminar “',

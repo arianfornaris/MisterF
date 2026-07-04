@@ -263,6 +263,28 @@ export const en: LocaleCatalog = {
     finalize: 'Finalize and summarize',
     send: 'Send',
   },
+  clientChat: {
+    resourceLabelQuiz: 'quiz',
+    resourceLabelPracticeGuide: 'practice guide',
+    resourceLabelRoleplay: 'roleplay',
+    resourceLabelGeneric: 'resource',
+    newTitleAriaLabel: 'New conversation title',
+    creditExhaustedShort:
+      'Your practice credit has run out for now. You can top up credit or try again later.',
+    creditExhaustedMessage:
+      'I ran out of credits to continue this practice right now. Buy credits and I’ll bring you right back here to pick up where we left off.\n\n[Buy credits]({{buyPath}})',
+    authRequired:
+      'To practice with Mr. F you need to sign in. [Log in](/login) or [create an account](/signup).',
+    greeting:
+      'Hi! I’m Mr. F, your English tutor. Tell me what you’d like to practice today.',
+    guestSaveHint:
+      'Great. To save your practice and continue this conversation, [log in](/login) or [create an account](/signup). When you come back, I’ll continue from your first message.',
+    connectionLost:
+      'The connection to the server was lost. Trying to reconnect. ({{reason}})',
+    conversationUpdateFailed: 'I couldn’t update the conversation.',
+    responseError:
+      'My response got tangled up and I don’t want to confuse you. Try again in a few seconds.',
+  },
   deleteConversation: {
     title: 'Delete chat',
     bodyBefore: 'Are you sure you want to delete “',

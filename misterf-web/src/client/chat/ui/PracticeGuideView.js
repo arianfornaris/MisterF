@@ -1,3 +1,5 @@
+import { t } from '../../shared/i18n.js';
+
 export class PracticeGuideView {
   constructor({
     panelEl,
@@ -36,7 +38,7 @@ export class PracticeGuideView {
       return;
     }
 
-    this.titleEl.textContent = autoStarting ? '' : practiceGuide.title || 'Guía de Práctica';
+    this.titleEl.textContent = autoStarting ? '' : practiceGuide.title || t('chat.practiceGuideKicker');
     this.descriptionEl.textContent = autoStarting ? '' : practiceGuide.description || '';
     this.statusEl.classList.toggle('d-none', !autoStarting);
     this.buttonEl.classList.toggle('d-none', autoStarting);

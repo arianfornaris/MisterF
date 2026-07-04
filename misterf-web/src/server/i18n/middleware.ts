@@ -1,5 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
-import { createTranslator, isLocale, type Locale, type Translator } from './index.js';
+import {
+  createTranslator,
+  getClientCatalogJson,
+  isLocale,
+  type Locale,
+  type Translator,
+} from './index.js';
 import { getLocaleCookie, resolveLocale, setLocaleCookie } from './resolve.js';
 
 declare global {
@@ -9,6 +15,7 @@ declare global {
       locale: Locale;
     }
     interface Locals {
+      clientI18nJson: string;
       htmlLang: Locale;
       locale: Locale;
       t: Translator;
@@ -39,6 +46,7 @@ export function attachLocale(
 
   const locale = resolveLocale(request);
   request.locale = locale;
+  response.locals.clientI18nJson = getClientCatalogJson(locale);
   response.locals.htmlLang = locale;
   response.locals.locale = locale;
   response.locals.t = createTranslator(locale);
