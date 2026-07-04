@@ -9,17 +9,17 @@
       <input type="hidden" name="returnTo" value="<%= currentPath %>">
       <input type="hidden" name="folderId" value="" data-resource-move-folder-id>
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="moveResourceModalLabel">Mover recurso</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="modal-title fs-5" id="moveResourceModalLabel"><%= t('resources.moveResource') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
         <p class="text-body-secondary mb-3">
-          Selecciona la carpeta destino para <strong data-resource-move-title>este recurso</strong>.
+          <%= t('resources.moveSelectDestination') %> <strong data-resource-move-title><%= t('resources.thisResource') %></strong>.
         </p>
 
-        <nav aria-label="Ubicación de carpetas">
+        <nav aria-label="<%= t('resources.foldersLocationAria') %>">
           <ol class="breadcrumb mb-3" data-resource-move-breadcrumb>
-            <li class="breadcrumb-item active" aria-current="page">Recursos</li>
+            <li class="breadcrumb-item active" aria-current="page"><%= t('resources.title') %></li>
           </ol>
         </nav>
 
@@ -37,17 +37,17 @@
         <div class="resource-move-browser border rounded overflow-auto">
           <div class="list-group list-group-flush" data-resource-move-destinations></div>
           <p class="text-body-secondary p-3 mb-0" hidden data-resource-move-empty>
-            No hay subcarpetas en esta ubicación.
+            <%= t('resources.noSubfolders') %>
           </p>
         </div>
 
         <p class="small text-body-secondary mt-3 mb-0" hidden data-resource-move-selection>
-          Destino seleccionado: <strong data-resource-move-selection-label></strong>
+          <%= t('resources.selectedDestination') %> <strong data-resource-move-selection-label></strong>
         </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary" disabled data-resource-move-submit>Mover</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+        <button type="submit" class="btn btn-primary" disabled data-resource-move-submit><%= t('resources.move') %></button>
       </div>
     </form>
   </div>

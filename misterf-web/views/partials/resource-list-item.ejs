@@ -6,7 +6,7 @@
 <div class="list-group-item position-relative d-flex align-items-start justify-content-between gap-2">
   <div class="min-w-0 flex-grow-1">
     <a class="stretched-link" href="<%= resource.detailPath %>">
-      <span class="visually-hidden">Abrir <%= resource.label %> <%= resource.title %></span>
+      <span class="visually-hidden"><%= t('resources.open') %> <%= resource.label %> <%= resource.title %></span>
     </a>
     <div class="d-flex align-items-center gap-2 flex-wrap">
       <h2 class="h6 fw-normal mb-0">
@@ -14,14 +14,14 @@
       </h2>
       <span class="badge rounded-pill <%= resource.badgeClass %>"><%= resource.label %></span>
       <% if (!resource.canManage || resource.accessKind === 'shared') { %>
-        <span class="badge text-bg-light border">Compartido</span>
+        <span class="badge text-bg-light border"><%= t('resources.shared') %></span>
       <% } %>
       <% if (resource.archivedAt) { %>
-        <span class="badge text-bg-light border">Archivado</span>
+        <span class="badge text-bg-light border"><%= t('resources.archived') %></span>
       <% } %>
     </div>
     <p class="mb-0 small text-body-secondary">
-      Actualizado <%= resource.relativeUpdatedAt %>
+      <%= t('resources.updated') %> <%= resource.relativeUpdatedAt %>
     </p>
   </div>
   <% if (resource.canManage) { %>
@@ -31,8 +31,8 @@
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
-        aria-label="Acciones de <%= resource.title %>"
-        title="Acciones"
+        aria-label="<%= t('resources.actionsOf', { title: resource.title }) %>"
+        title="<%= t('resources.actions') %>"
       >
         <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
       </button>
@@ -51,19 +51,19 @@
                 data-resource-type="<%= resource.type %>"
                 data-current-folder-id="<%= selectedFolder ? selectedFolder.id : '' %>"
               >
-                <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>Mover carpeta
+                <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i><%= t('resources.moveFolder') %>
               </button>
             </li>
           <% } %>
           <% if (!resource.archivedAt) { %>
             <li>
               <a class="dropdown-item" href="<%= resource.detailPath %>?share=profile">
-                <i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil
+                <i class="bi bi-person me-2" aria-hidden="true"></i><%= t('resources.shareWithProfile') %>
               </a>
             </li>
             <li>
               <a class="dropdown-item" href="<%= resource.detailPath %>?share=link">
-                <i class="bi bi-share me-2" aria-hidden="true"></i>Compartir
+                <i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.share') %>
               </a>
             </li>
           <% } %>
@@ -76,7 +76,7 @@
               <input type="hidden" name="returnTo" value="<%= currentPath %>">
               <button class="dropdown-item" type="submit">
                 <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
-                <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
+                <%= resource.archivedAt ? t('resources.restore') : t('resources.archive') %>
               </button>
             </form>
           </li>
@@ -93,14 +93,14 @@
                 data-resource-folder-title="<%= resource.title %>"
                 data-resource-folder-description="<%= resource.description %>"
               >
-                <i class="bi bi-pencil me-2" aria-hidden="true"></i>Editar carpeta
+                <i class="bi bi-pencil me-2" aria-hidden="true"></i><%= t('resources.editFolder') %>
               </button>
             </li>
           <% } %>
         <% } else { %>
           <% if (!resource.archivedAt) { %>
-            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i>Compartir con perfil</a></li>
-            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-share me-2" aria-hidden="true"></i>Compartir</a></li>
+            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=profile"><i class="bi bi-person me-2" aria-hidden="true"></i><%= t('resources.shareWithProfile') %></a></li>
+            <li><a class="dropdown-item" href="<%= resource.detailPath %>?share=link"><i class="bi bi-share me-2" aria-hidden="true"></i><%= t('resources.share') %></a></li>
             <% if (resourceCanMove) { %>
               <li><hr class="dropdown-divider"></li>
               <li>
@@ -115,7 +115,7 @@
                   data-resource-type="<%= resource.type %>"
                   data-current-folder-id="<%= selectedFolder ? selectedFolder.id : '' %>"
                 >
-                  <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>Mover a carpeta
+                  <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i><%= t('resources.moveToFolder') %>
                 </button>
               </li>
             <% } %>
@@ -127,7 +127,7 @@
               <input type="hidden" name="returnTo" value="<%= currentPath %>">
               <button class="dropdown-item" type="submit">
                 <i class="bi <%= resource.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
-                <%= resource.archivedAt ? 'Restaurar' : 'Archivar' %>
+                <%= resource.archivedAt ? t('resources.restore') : t('resources.archive') %>
               </button>
             </form>
           </li>
