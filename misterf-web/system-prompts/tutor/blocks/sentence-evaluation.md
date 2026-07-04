@@ -19,7 +19,7 @@ interface EvaluationPart {
   text: string;
   /** Evaluation status for this fragment. */
   status: "correct" | "improve" | "error";
-  /** Short Spanish explanation, required in practice for `improve` or `error`. */
+  /** Short {{INSTRUCTION_LANGUAGE_NAME}} explanation, required in practice for `improve` or `error`. */
   explanation?: string;
 }
 
@@ -79,9 +79,9 @@ interface SentenceEvaluationBlock {
   parts: EvaluationPart[];
   /** Optional. Include it to invite the learner to rewrite the corrected text inside this card. Only allowed when at least one part is `improve` or `error`. */
   correction?: {
-    /** Optional short Spanish instruction shown above the rewrite textarea. If omitted, the app uses a stable default. */
+    /** Optional short {{INSTRUCTION_LANGUAGE_NAME}} instruction shown above the rewrite textarea. If omitted, the app uses a stable default. */
     prompt?: string;
-    /** Optional short Spanish button label. If omitted or invalid, the app uses "Corregir". */
+    /** Optional short {{INSTRUCTION_LANGUAGE_NAME}} button label. If omitted or invalid, the app uses "Corregir". */
     submitLabel?: string;
   };
 }

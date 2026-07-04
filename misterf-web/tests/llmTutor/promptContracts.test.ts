@@ -54,6 +54,22 @@ describe('tutor instruction language parametrization', () => {
     const englishProtocol = renderTutorBlockProtocol(undefined, 'en');
     expect(englishProtocol).not.toContain('interface UnderstandInSpanishPromptBlock');
     expect(englishProtocol).not.toContain('interface TranslateToEnglishPromptBlock');
+    expect(englishProtocol).not.toContain('| TranslateToEnglishPromptBlock');
+    expect(englishProtocol).not.toContain('| UnderstandInSpanishPromptBlock');
+  });
+
+  it('authors block learner-facing fields in the instruction language', () => {
+    const spanishProtocol = renderTutorBlockProtocol(undefined, 'es');
+    const englishProtocol = renderTutorBlockProtocol(undefined, 'en');
+
+    expect(spanishProtocol).toContain('must be Spanish');
+    expect(spanishProtocol).toContain('Optional short Spanish quiz title');
+    expect(spanishProtocol).not.toMatch(/\{\{[A-Z_]+\}\}/);
+
+    expect(englishProtocol).toContain('must be English');
+    expect(englishProtocol).toContain('Optional short English quiz title');
+    expect(englishProtocol).not.toContain('must be Spanish');
+    expect(englishProtocol).not.toMatch(/\{\{[A-Z_]+\}\}/);
   });
 });
 

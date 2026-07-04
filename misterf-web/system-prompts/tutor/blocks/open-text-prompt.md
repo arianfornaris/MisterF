@@ -13,7 +13,7 @@
  * learner message with structured exerciseSubmission context containing this
  * block and the learner's response. The app does not render a separate learner
  * chat bubble for that submission; the visible answer remains in the exercise
- * UI while Mr. F responds naturally in Spanish.
+ * UI while Mr. F responds naturally in {{INSTRUCTION_LANGUAGE_NAME}}.
  *
  * Prefer this block over `message` for prompts such as "escribe una oración",
  * "redacta", "reescribe", "corrige estas oraciones", or "responde con tus
@@ -29,12 +29,12 @@
 interface OpenTextPromptBlock {
   /** Literal discriminator. */
   type: "open_text_prompt";
-  /** Spanish learner-facing instruction shown above the textarea. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
+  /** {{INSTRUCTION_LANGUAGE_NAME}} learner-facing instruction shown above the textarea. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt: string;
-  /** Optional visible scaffold text for the textarea; must be Spanish or English depending on the expected answer. */
+  /** Optional visible scaffold text for the textarea; must be {{INSTRUCTION_LANGUAGE_NAME}} or English depending on the expected answer. */
   placeholder?: string;
-  /** Optional short Spanish button label. If omitted or invalid, the app uses "Enviar respuesta". */
+  /** Optional short {{INSTRUCTION_LANGUAGE_NAME}} button label. If omitted or invalid, the app uses "Enviar respuesta". */
   submitLabel?: string;
-  /** Optional hidden Spanish evaluator guidance for Mr. F. Do not reveal it to the learner. */
+  /** Optional hidden {{INSTRUCTION_LANGUAGE_NAME}} evaluator guidance for Mr. F. Do not reveal it to the learner. */
   rubric?: string;
 }

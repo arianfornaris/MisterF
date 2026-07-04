@@ -27,7 +27,7 @@ interface TutorPlanUpdateBlock {
         id: string;
         /** New status for this existing step. */
         status?: "pending" | "active" | "done" | "skipped";
-        /** Optional Spanish replacement label for this existing step. */
+        /** Optional {{INSTRUCTION_LANGUAGE_NAME}} replacement label for this existing step. */
         label?: string;
       }
     | {
@@ -35,7 +35,7 @@ interface TutorPlanUpdateBlock {
         action: "add_step";
         /** New unique internal step id. */
         id: string;
-        /** Spanish learner-facing label for the new step. */
+        /** {{INSTRUCTION_LANGUAGE_NAME}} learner-facing label for the new step. */
         label: string;
         /** Existing step id after which the new step should be inserted. */
         afterId?: string;

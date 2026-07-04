@@ -16,15 +16,15 @@
 interface TutorPlanBlock {
   /** Literal discriminator. */
   type: "tutor_plan";
-  /** Short Spanish title shown in the visible plan panel. */
+  /** Short {{INSTRUCTION_LANGUAGE_NAME}} title shown in the visible plan panel. */
   title: string;
-  /** Optional Spanish summary shown under the title. */
+  /** Optional {{INSTRUCTION_LANGUAGE_NAME}} summary shown under the title. */
   summary?: string;
   /** Ordered visible plan steps. */
   steps: Array<{
     /** Internal stable step id; not learner-facing. */
     id: string;
-    /** Short Spanish learner-facing step label. */
+    /** Short {{INSTRUCTION_LANGUAGE_NAME}} learner-facing step label. */
     label: string;
     /** Initial step status; exactly one step should be `active`. */
     status: "pending" | "active" | "done";

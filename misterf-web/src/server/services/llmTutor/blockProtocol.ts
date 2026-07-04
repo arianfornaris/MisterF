@@ -2,6 +2,7 @@ import { loadSystemPrompt } from '../systemPrompts.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../../roleplays/avatarRegistry.js';
 import {
   defaultInstructionLanguage,
+  tutorBlockProtocolPlaceholders,
   type InstructionLanguage,
 } from './languagePack.js';
 
@@ -56,15 +57,21 @@ export function renderTutorBlockProtocol(
   instructionLanguage: InstructionLanguage = defaultInstructionLanguage,
 ): string {
   const avatarOptions = buildRoleplayCharacterAvatarPromptOptions();
+  const languagePlaceholders = tutorBlockProtocolPlaceholders(instructionLanguage);
   const selectedNames =
     names ?? tutorBlockNamesForInstructionLanguage(instructionLanguage);
 
   return selectedNames
-    .map((name) => (
-      loadSystemPrompt(`tutor/blocks/${name}.md`)
-        .replaceAll('{{DIALOGUE_AVATAR_OPTIONS}}', avatarOptions)
-        .trim()
-    ))
+    .map((name) => {
+      let doc = loadSystemPrompt(`tutor/blocks/${name}.md`)
+        .replaceAll('{{DIALOGUE_AVATAR_OPTIONS}}', avatarOptions);
+
+      for (const [key, value] of Object.entries(languagePlaceholders)) {
+        doc = doc.replaceAll(`{{${key}}}`, value);
+      }
+
+      return doc.trim();
+    })
     .join('\n\n');
 }
 

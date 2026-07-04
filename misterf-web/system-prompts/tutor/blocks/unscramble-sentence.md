@@ -13,7 +13,7 @@
 interface UnscrambleSentenceBlock {
   /** Literal discriminator. */
   type: "unscramble_sentence";
-  /** Optional Spanish instruction shown above the tokens. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
+  /** Optional {{INSTRUCTION_LANGUAGE_NAME}} instruction shown above the tokens. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
   /** English sentence pieces in the correct order; the app shuffles them for display. Plain text, not Markdown. */
   tokens: string[];

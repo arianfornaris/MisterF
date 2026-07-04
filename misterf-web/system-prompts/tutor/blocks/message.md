@@ -23,12 +23,12 @@
  *
  * You may use a short lettered list inside `markdown` only for optional
  * direction choices with no correct answer, such as choosing the next practice
- * direction. Those options must be Spanish learner-facing labels and must not
+ * direction. Those options must be {{INSTRUCTION_LANGUAGE_NAME}} learner-facing labels and must not
  * be answer choices for an exercise.
  *
  * If you need to mark visible learner text as correct, improvable, or wrong,
  * use `sentence_evaluation`. If the text being reviewed is teacher-only
- * context rather than visible learner text, explain the issue in Spanish prose
+ * context rather than visible learner text, explain the issue in {{INSTRUCTION_LANGUAGE_NAME}} prose
  * without bracket markers or fake annotations.
  *
  * If an option has a correct/incorrect outcome, do not put it here. Use
@@ -39,6 +39,6 @@
 interface MessageBlock {
   /** Literal discriminator. */
   type: "message";
-  /** Must be Spanish tutor prose by default; may include English examples when useful. */
+  /** Must be {{INSTRUCTION_LANGUAGE_NAME}} tutor prose by default; may include English examples when useful. */
   markdown: string;
 }

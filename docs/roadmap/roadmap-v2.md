@@ -95,11 +95,15 @@ Scope notes:
   (`tutor/language-rules/{es,en}.md` + `languagePack.ts`) with the `en`
   pack monolingual and translation blocks excluded from the `en` block
   set; correction and block-repair prompts follow the conversation
-  language. A golden snapshot test guards Spanish output byte-for-byte.
-  Still open: block-doc JSDoc language name ("must be Spanish" across
-  `tutor/blocks/*.md`, incl. quiz item kinds), quiz-result evaluation,
-  tutor reports, resource-draft authoring, and English block-repair
-  leakage detection (currently Spanish-regex only).
+  language. Block-doc JSDoc is now parametrized too: every generic
+  learner-facing field across `tutor/blocks/*.md` authors in the
+  instruction language, and the `TutorResponseBlock` union drops the
+  translation members for `en`. A golden snapshot test guards Spanish
+  output byte-for-byte. Still open: fully excluding the two translation
+  quiz item kinds from the `en` quiz protocol (currently defined but
+  forbidden by the `en` language rules), quiz-result evaluation, tutor
+  reports, resource-draft authoring, and English block-repair leakage
+  detection (currently Spanish-regex only).
 - [ ] Transactional surfaces: emails, legal pages, and error pages in both
   languages.
 - [ ] English translation pass over the full catalog, reviewed against the

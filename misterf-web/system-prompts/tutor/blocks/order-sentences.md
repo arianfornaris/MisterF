@@ -18,7 +18,7 @@
 interface OrderSentencesBlock {
   /** Literal discriminator. */
   type: "order_sentences";
-  /** Optional Spanish instruction shown above the sentences. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
+  /** Optional {{INSTRUCTION_LANGUAGE_NAME}} instruction shown above the sentences. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
   /** English sentences or steps in the correct order; the app shuffles them for display. Plain text, not Markdown, no leading numbers. */
   sentences: string[];

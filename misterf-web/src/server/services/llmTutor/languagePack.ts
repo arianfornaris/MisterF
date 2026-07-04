@@ -42,6 +42,22 @@ export function tutorSystemLanguagePlaceholders(
   };
 }
 
+/**
+ * Placeholder values applied to each tutor block document during protocol
+ * composition. `INSTRUCTION_LANGUAGE_NAME` parametrizes the language every
+ * learner-facing field must be authored in; `TRANSLATION_UNION_MEMBERS` drops
+ * the translation-based blocks from the `TutorResponseBlock` union for the
+ * English (monolingual) block set so the union has no dangling members.
+ */
+export function tutorBlockProtocolPlaceholders(
+  language: InstructionLanguage,
+): Record<string, string> {
+  return {
+    INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(language),
+    TRANSLATION_UNION_MEMBERS: translationUnionMembers[language],
+  };
+}
+
 export function conversationTitleLanguageRule(
   language: InstructionLanguage,
 ): string {
@@ -83,4 +99,9 @@ const uiPracticeGuideTerm: Record<InstructionLanguage, string> = {
 const uiResourcesTerm: Record<InstructionLanguage, string> = {
   en: 'Resources',
   es: 'Recursos',
+};
+
+const translationUnionMembers: Record<InstructionLanguage, string> = {
+  en: '',
+  es: '\n  | TranslateToEnglishPromptBlock\n  | UnderstandInSpanishPromptBlock',
 };

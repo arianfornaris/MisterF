@@ -14,7 +14,7 @@
  * containing this block, the learner's typed values, and the completed
  * sentence. The app does not render a separate learner chat bubble for that
  * submission; the visible answer remains in the inline exercise. Evaluate and
- * respond naturally in Spanish according to the conversation context, instead
+ * respond naturally in {{INSTRUCTION_LANGUAGE_NAME}} according to the conversation context, instead
  * of relying on local UI validation.
  *
  * The app shows a confirmation control, so the learner may think, edit, and
@@ -24,7 +24,7 @@
 interface FillInTheBlankInputBlock {
   /** Literal discriminator. */
   type: "fill_in_the_blank_input";
-  /** Optional Spanish instruction shown above the sentence. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
+  /** Optional {{INSTRUCTION_LANGUAGE_NAME}} instruction shown above the sentence. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
   /** English practice sentence with one or more `___` placeholders. Plain text, not Markdown. */
   sentence: string;

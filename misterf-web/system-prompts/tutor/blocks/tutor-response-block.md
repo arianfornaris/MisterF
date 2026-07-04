@@ -3,9 +3,7 @@ type TutorResponseBlock =
   | DialogueCharacterMessageBlock
   | DialogueTranscriptBlock
   | MatchingPairsBlock
-  | QuizBlock
-  | TranslateToEnglishPromptBlock
-  | UnderstandInSpanishPromptBlock
+  | QuizBlock{{TRANSLATION_UNION_MEMBERS}}
   | OpenTextPromptBlock
   | FillInTheBlankInputBlock
   | FillInTheBlankChoiceBlock

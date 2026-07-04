@@ -15,7 +15,7 @@
 interface FillInTheBlankChoiceBlock {
   /** Literal discriminator. */
   type: "fill_in_the_blank_choice";
-  /** Optional Spanish instruction shown above the sentence. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
+  /** Optional {{INSTRUCTION_LANGUAGE_NAME}} instruction shown above the sentence. Supports concise Markdown for emphasis, line breaks, examples, and short lists. */
   prompt?: string;
   /** English practice sentence with one `{{blank}}` placeholder per blank. Plain text, not Markdown. */
   sentence: string;
