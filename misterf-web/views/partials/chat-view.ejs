@@ -1,11 +1,11 @@
         <% const isTutorConversationClosed = Boolean(selectedTutorConversation && selectedTutorConversation.closedAt); %>
         <% const activeTutorConversationTab = selectedTutorConversationTab === 'summary' ? 'summary' : 'conversation'; %>
-        <section class="chat-layout <%= currentView === 'chat' ? '' : 'd-none' %> <%= isTutorConversationClosed ? 'is-closed-conversation' : '' %>" aria-label="Chat con Mister F">
+        <section class="chat-layout <%= currentView === 'chat' ? '' : 'd-none' %> <%= isTutorConversationClosed ? 'is-closed-conversation' : '' %>" aria-label="<%= t('chat.ariaLabel') %>">
           <% if (isTutorConversationClosed) { %>
             <div class="bg-body px-3 pt-3">
               <p class="mb-3 small text-body-secondary">
                 <i class="bi bi-check-circle me-1" aria-hidden="true"></i>
-                Conversación finalizada. Puedes revisar el historial o consultar su resumen.
+                <%= t('chat.closedNotice') %>
               </p>
               <ul class="nav nav-pills" role="tablist">
                 <li class="nav-item" role="presentation">
@@ -13,7 +13,7 @@
                     class="nav-link <%= activeTutorConversationTab === 'conversation' ? 'active' : '' %>"
                     href="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>?tab=conversation"
                   >
-                    Conversación
+                    <%= t('chat.tabConversation') %>
                   </a>
                 </li>
                 <li class="nav-item" role="presentation">
@@ -21,7 +21,7 @@
                     class="nav-link <%= activeTutorConversationTab === 'summary' ? 'active' : '' %>"
                     href="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>?tab=summary"
                   >
-                    Resumen
+                    <%= t('chat.tabSummary') %>
                   </a>
                 </li>
               </ul>
@@ -38,7 +38,7 @@
                 <% if (selectedTutorConversationReport) { %>
                   <% const report = selectedTutorConversationReport.report; %>
                   <header class="conversation-summary-header border-bottom pb-3 mb-4">
-                    <p class="text-body-secondary small text-uppercase fw-semibold mb-2">Resumen de conversación</p>
+                    <p class="text-body-secondary small text-uppercase fw-semibold mb-2"><%= t('chat.summaryKicker') %></p>
                     <h1 class="h3 mb-3"><%= selectedTutorConversationReport.summaryTitle %></h1>
                     <p class="lead mb-0"><%= selectedTutorConversationReport.summaryDescription %></p>
                   </header>
@@ -48,10 +48,10 @@
                       method="post"
                       action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/practice"
                       data-tutor-report-pending-form
-                      data-tutor-report-pending-label="Preparando práctica..."
+                      data-tutor-report-pending-label="<%= t('chat.preparingPractice') %>"
                     >
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <button class="btn btn-primary" type="submit" data-tutor-report-pending-button>Practicar estos puntos</button>
+                      <button class="btn btn-primary" type="submit" data-tutor-report-pending-button><%= t('chat.practiceThese') %></button>
                     </form>
                     <div class="dropdown">
                       <button
@@ -60,7 +60,7 @@
                         data-bs-toggle="dropdown"
                         aria-expanded="false"
                       >
-                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Crear recurso
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('chat.createResource') %>
                       </button>
                       <ul class="dropdown-menu">
                         <% ['quiz', 'practice_guide', 'roleplay'].forEach((resourceType) => { %>
@@ -73,7 +73,7 @@
                               data-resource-action="/c/<%= encodeURIComponent(selectedTutorConversation.id) %>/report/resource"
                             >
                               <i class="bi <%= resourceType === 'quiz' ? 'bi-ui-checks-grid' : resourceType === 'practice_guide' ? 'bi-journal-plus' : 'bi-person-video3' %> me-2" aria-hidden="true"></i>
-                              <%= resourceType === 'quiz' ? 'Quiz' : resourceType === 'practice_guide' ? 'Guía de práctica' : 'Roleplay' %>
+                              <%= resourceType === 'quiz' ? t('chat.resourceTypeQuiz') : resourceType === 'practice_guide' ? t('chat.resourceTypePracticeGuide') : t('chat.resourceTypeRoleplay') %>
                             </button>
                           </li>
                         <% }) %>
@@ -83,19 +83,19 @@
 
                   <div class="conversation-summary-document">
                     <section class="mb-4">
-                      <h2 class="h5">Lo que practicaste</h2>
+                      <h2 class="h5"><%= t('chat.summaryPracticed') %></h2>
                       <p class="mb-0"><%= report.practicedTopics.join(' ') %></p>
                     </section>
 
                     <section class="mb-4">
-                      <h2 class="h5">Progreso observado</h2>
+                      <h2 class="h5"><%= t('chat.summaryProgress') %></h2>
                       <ul>
                         <% report.progressHighlights.forEach((item) => { %><li><%= item %></li><% }) %>
                       </ul>
                     </section>
 
                     <section class="mb-4">
-                      <h2 class="h5">Dificultades principales</h2>
+                      <h2 class="h5"><%= t('chat.summaryDifficulties') %></h2>
                       <% report.difficultyAreas.forEach((area) => { %>
                         <p>
                           <strong><%= area.title %>.</strong>
@@ -105,34 +105,34 @@
                     </section>
 
                     <section class="mb-4">
-                      <h2 class="h5">Vocabulario importante</h2>
+                      <h2 class="h5"><%= t('chat.summaryVocabulary') %></h2>
                       <dl class="conversation-summary-vocabulary">
                         <% report.vocabulary.forEach((item) => { %>
                           <dt><%= item.term %></dt>
                           <dd>
                             <%= item.meaning %>
-                            <% if (item.example) { %><span class="text-body-secondary"> Ejemplo: <%= item.example %></span><% } %>
+                            <% if (item.example) { %><span class="text-body-secondary"> <%= t('chat.summaryExample') %> <%= item.example %></span><% } %>
                           </dd>
                         <% }) %>
                       </dl>
                     </section>
 
                     <section class="mb-4">
-                      <h2 class="h5">Frases útiles</h2>
+                      <h2 class="h5"><%= t('chat.summaryPhrases') %></h2>
                       <ul>
                         <% report.usefulPhrases.forEach((item) => { %><li><%= item %></li><% }) %>
                       </ul>
                     </section>
 
                     <section class="mb-4">
-                      <h2 class="h5">Recomendaciones</h2>
+                      <h2 class="h5"><%= t('chat.summaryRecommendations') %></h2>
                       <ul>
                         <% report.recommendations.forEach((item) => { %><li><%= item %></li><% }) %>
                       </ul>
                     </section>
 
                     <section>
-                      <h2 class="h5">Próximos pasos</h2>
+                      <h2 class="h5"><%= t('chat.summaryNextSteps') %></h2>
                       <ul class="mb-0">
                         <% report.nextSteps.forEach((item) => { %><li><%= item %></li><% }) %>
                       </ul>
@@ -140,21 +140,21 @@
                   </div>
                 <% } else { %>
                   <div class="alert alert-warning mb-0" role="alert">
-                    <h1 class="h4">Resumen no disponible</h1>
-                    <p class="mb-0">Todavía no hay un resumen guardado para esta conversación.</p>
+                    <h1 class="h4"><%= t('chat.summaryUnavailableTitle') %></h1>
+                    <p class="mb-0"><%= t('chat.summaryUnavailableBody') %></p>
                   </div>
                 <% } %>
               </article>
             <% } else { %>
               <section class="practice-guide-start-panel d-none" data-practice-guide-start-panel>
-                <p class="practiceGuide-start-kicker">Guía de Práctica</p>
+                <p class="practiceGuide-start-kicker"><%= t('chat.practiceGuideKicker') %></p>
                 <h2 class="practiceGuide-start-title" data-practiceGuide-start-title></h2>
                 <p class="practiceGuide-start-description" data-practiceGuide-start-description></p>
                 <p class="practice-guide-start-status text-body-secondary d-none" data-practice-guide-start-status>
-                  Comenzando la guía de práctica...
+                  <%= t('chat.practiceGuideStarting') %>
                 </p>
                 <button class="btn btn-primary" type="button" data-practiceGuide-start-button>
-                  Comenzar
+                  <%= t('chat.practiceGuideStart') %>
                 </button>
               </section>
               <div id="messages" aria-live="polite"></div>
@@ -168,14 +168,14 @@
                 data-tutor-plan-panel
                 aria-live="polite"
               ></section>
-              <label class="visually-hidden" for="messageInput">Escribe tu mensaje</label>
+              <label class="visually-hidden" for="messageInput"><%= t('chat.messagePlaceholder') %></label>
               <div class="composer-input-wrap">
                 <textarea
                   id="messageInput"
                   class="composer-input"
                   rows="1"
                   maxlength="1200"
-                  placeholder="Escribe tu mensaje"
+                  placeholder="<%= t('chat.messagePlaceholder') %>"
                   autocomplete="off"
                   autocapitalize="none"
                   autocorrect="off"
@@ -191,7 +191,7 @@
                     data-finalize-current-conversation
                     <%= initialConversationId ? '' : 'disabled' %>
                   >
-                    Finalizar y resumir
+                    <%= t('chat.finalize') %>
                   </button>
                   <div class="dropdown d-inline-block">
                     <button
@@ -202,22 +202,22 @@
                       data-create-resource-from-conversation-toggle
                       <%= initialConversationId ? '' : 'disabled' %>
                     >
-                      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Crear recurso
+                      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('chat.createResource') %>
                     </button>
                     <ul class="dropdown-menu">
                       <li>
                         <button class="dropdown-item" type="button" data-create-resource-from-conversation data-resource-type="quiz">
-                          <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i>Quiz
+                          <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i><%= t('chat.resourceTypeQuiz') %>
                         </button>
                       </li>
                       <li>
                         <button class="dropdown-item" type="button" data-create-resource-from-conversation data-resource-type="practice_guide">
-                          <i class="bi bi-journal-plus me-2" aria-hidden="true"></i>Guía de práctica
+                          <i class="bi bi-journal-plus me-2" aria-hidden="true"></i><%= t('chat.resourceTypePracticeGuide') %>
                         </button>
                       </li>
                       <li>
                         <button class="dropdown-item" type="button" data-create-resource-from-conversation data-resource-type="roleplay">
-                          <i class="bi bi-person-video3 me-2" aria-hidden="true"></i>Roleplay
+                          <i class="bi bi-person-video3 me-2" aria-hidden="true"></i><%= t('chat.resourceTypeRoleplay') %>
                         </button>
                       </li>
                     </ul>
@@ -226,8 +226,8 @@
                 <button
                   class="btn btn-primary send-button"
                   type="submit"
-                  title="Enviar"
-                  aria-label="Enviar"
+                  title="<%= t('chat.send') %>"
+                  aria-label="<%= t('chat.send') %>"
                   data-send-button
                 >
                   <i class="bi bi-send" aria-hidden="true"></i>
