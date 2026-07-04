@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { translate } from '../i18n/index.js';
 import express from 'express';
 import { env } from '../config/env.js';
 import {
@@ -147,7 +148,7 @@ function requireSuperadmin(request: Request, response: Response): boolean {
     !env.superadminEmail ||
     normalizeEmail(request.authUser.email) !== env.superadminEmail
   ) {
-    response.status(403).send('No tienes permiso para ver esta página.');
+    response.status(403).send(translate(request.locale, 'superadmin.noPermission'));
     return false;
   }
 

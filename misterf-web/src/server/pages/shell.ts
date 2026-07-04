@@ -111,8 +111,8 @@ export function resolveGuestInitialGreeting(request: Request, user: AuthUser | n
   }
 
   return hasKnownVisitorCookie(request)
-    ? pickKnownVisitorGreeting()
-    : pickInitialGreeting();
+    ? pickKnownVisitorGreeting(request.locale)
+    : pickInitialGreeting(request.locale);
 }
 
 export function buildAppShellContext(input: {

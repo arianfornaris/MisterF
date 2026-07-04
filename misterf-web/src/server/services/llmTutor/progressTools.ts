@@ -46,7 +46,7 @@ export function buildTutorProgressTools(input: {
           profileId,
           userId,
         });
-        const vocabulary = buildLearnerProgressVocabularyItems(events)
+        const vocabulary = buildLearnerProgressVocabularyItems(events, 'es')
           .slice(0, vocabularyLimit ?? 20)
           .map((item) => ({
             count: item.count,

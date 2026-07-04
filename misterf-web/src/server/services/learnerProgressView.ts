@@ -1,4 +1,5 @@
 import type { StoredLearnerProgressEvent } from '../db/repository.js';
+import { translate, type Locale } from '../i18n/index.js';
 
 export type LearnerProgressVocabularyItem = {
   count: number;
@@ -14,15 +15,17 @@ export type LearnerProgressEventView = StoredLearnerProgressEvent & {
 
 export function buildLearnerProgressEventViews(
   events: StoredLearnerProgressEvent[],
+  locale: Locale,
 ): LearnerProgressEventView[] {
   return events.map((event) => ({
     ...event,
-    sourceLabel: getProgressEventSourceLabel(event),
+    sourceLabel: getProgressEventSourceLabel(event, locale),
   }));
 }
 
 export function buildLearnerProgressVocabularyItems(
   events: StoredLearnerProgressEvent[],
+  locale: Locale,
 ): LearnerProgressVocabularyItem[] {
   const items = new Map<string, LearnerProgressVocabularyItem>();
 
@@ -35,7 +38,7 @@ export function buildLearnerProgressVocabularyItems(
 
       const key = term.toLowerCase();
       const existing = items.get(key);
-      const sourceLabel = getProgressEventSourceLabel(event);
+      const sourceLabel = getProgressEventSourceLabel(event, locale);
 
       if (existing) {
         existing.count += 1;
@@ -66,13 +69,16 @@ export function buildLearnerProgressVocabularyItems(
   });
 }
 
-export function getProgressEventSourceLabel(event: StoredLearnerProgressEvent): string {
+export function getProgressEventSourceLabel(
+  event: StoredLearnerProgressEvent,
+  locale: Locale,
+): string {
   if (event.details.resourceType === 'quiz') {
     return 'Quiz';
   }
 
   if (event.details.resourceType === 'practice_guide') {
-    return 'Guía de Práctica';
+    return translate(locale, 'resources.typePracticeGuide');
   }
 
   if (event.details.resourceType === 'roleplay') {
@@ -88,10 +94,10 @@ export function getProgressEventSourceLabel(event: StoredLearnerProgressEvent): 
   }
 
   if (event.sourceType === 'tutor_conversation_report') {
-    return 'Bitácora';
+    return translate(locale, 'progress.logKicker');
   }
 
-  return 'Práctica';
+  return translate(locale, 'progress.sourcePractice');
 }
 
 function pushUnique(items: string[], value: string, limit: number): void {
