@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
 import {
@@ -274,7 +275,7 @@ function createQuizQuizCard(block, options) {
   const previousButton = document.createElement('button');
   previousButton.className = 'btn btn-primary btn-sm quiz-nav-button';
   previousButton.type = 'button';
-  previousButton.textContent = 'Atrás';
+  previousButton.textContent = t('card.quizBack');
   previousButton.addEventListener('click', () => {
     if (state.currentIndex > 0) {
       state.currentIndex -= 1;
@@ -370,7 +371,7 @@ function renderQuizSectionContext(container, section) {
 
   const title = document.createElement('p');
   title.className = 'quiz-section-context-title';
-  title.textContent = typeof section.title === 'string' && section.title ? section.title : 'Sección';
+  title.textContent = typeof section.title === 'string' && section.title ? section.title : t('card.section');
 
   const body = document.createElement('div');
   body.className = 'quiz-section-context-instructions';
@@ -399,7 +400,7 @@ function syncQuizQuizStatus(section, state, options) {
 
   status.classList.remove('is-success', 'is-error');
   if (state.submitted) {
-    setStatusText(status, 'Quiz enviado. Mister F lo está evaluando.', {
+    setStatusText(status, t('card.quizSubmitted'), {
       pending: true,
     });
     status.classList.add('is-success');

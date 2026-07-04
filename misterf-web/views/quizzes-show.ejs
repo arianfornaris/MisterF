@@ -10,10 +10,10 @@
 <section class="app-resource-view quizzes-page">
   <div class="resource-page-header resource-page-header-detail">
     <div>
-      <p class="resource-eyebrow">Quiz</p>
+      <p class="resource-eyebrow"><%= t('quizzes.quizKicker') %></p>
       <h1 class="resource-page-title"><%= selectedQuiz.title %></h1>
       <p class="resource-page-copy">
-        <a href="/resources">Recursos</a>
+        <a href="/resources"><%= t('resources.title') %></a>
         <% quizFolderPath.forEach((folder) => { %>
           <span class="mx-1">/</span>
           <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
@@ -28,7 +28,7 @@
     <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button class="btn btn-primary" type="submit">
-        <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+        <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('quizzes.test') %>
       </button>
     </form>
     <% if (canManageQuiz) { %>
@@ -39,7 +39,7 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        Opciones
+        <%= t('resources.options') %>
       </button>
       <ul class="dropdown-menu">
         <% if (!selectedQuiz.archivedAt) { %>
@@ -57,7 +57,7 @@
                 data-current-folder-id="<%= quizCurrentFolder ? quizCurrentFolder.id : '' %>"
               >
                 <i class="bi bi-folder-symlink me-2" aria-hidden="true"></i>
-                Mover a carpeta
+                <%= t('resources.moveToFolder') %>
               </button>
             </li>
           <% } %>
@@ -69,7 +69,7 @@
               data-bs-target="#quizShareProfileModal"
             >
               <i class="bi bi-person me-2" aria-hidden="true"></i>
-              Compartir con perfil
+              <%= t('resources.shareWithProfile') %>
             </button>
           </li>
           <li>
@@ -80,14 +80,14 @@
               data-bs-target="#quizShareLinkModal"
             >
               <i class="bi bi-share me-2" aria-hidden="true"></i>
-              Compartir
+              <%= t('resources.share') %>
             </button>
           </li>
           <li><hr class="dropdown-divider"></li>
           <li>
             <a class="dropdown-item" href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit">
               <i class="bi bi-pencil me-2" aria-hidden="true"></i>
-              Editar quiz
+              <%= t('quizzes.editQuiz') %>
             </a>
           </li>
           <li><hr class="dropdown-divider"></li>
@@ -96,13 +96,13 @@
           <form
             method="post"
             action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/<%= selectedQuiz.archivedAt ? 'restore' : 'archive' %>"
-            onsubmit="return window.confirm('<%= selectedQuiz.archivedAt ? '¿Seguro que quieres restaurar este quiz?' : '¿Seguro que quieres archivar este quiz? Podrás recuperarlo después desde Archivados.' %>');"
+            onsubmit="return window.confirm('<%= selectedQuiz.archivedAt ? t('quizzes.confirmRestore') : t('quizzes.confirmArchive') %>');"
           >
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <input type="hidden" name="returnTo" value="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>">
             <button class="dropdown-item" type="submit">
               <i class="bi <%= selectedQuiz.archivedAt ? 'bi-arrow-counterclockwise' : 'bi-archive' %> me-2" aria-hidden="true"></i>
-              <%= selectedQuiz.archivedAt ? 'Restaurar quiz' : 'Archivar quiz' %>
+              <%= selectedQuiz.archivedAt ? t('quizzes.restoreQuiz') : t('quizzes.archiveQuiz') %>
             </button>
           </form>
         </li>
@@ -112,11 +112,11 @@
   </div>
 
   <div class="resource-detail-summary">
-    <div class="resource-markdown mb-2" data-render-markdown><%= selectedQuiz.description || draft.targetTopic || 'Sin descripción' %></div>
+    <div class="resource-markdown mb-2" data-render-markdown><%= selectedQuiz.description || draft.targetTopic || t('quizzes.noDescription') %></div>
     <div class="resource-meta-row">
       <% if (draft.targetTopic) { %><span><i class="bi bi-bullseye" aria-hidden="true"></i> <%= draft.targetTopic %></span><% } %>
       <% if (draft.level) { %><span><i class="bi bi-bar-chart" aria-hidden="true"></i> <%= draft.level %></span><% } %>
-      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> bloques</span>
+      <span><i class="bi bi-list-check" aria-hidden="true"></i> <%= draft.blocks.length %> <%= t('quizzes.blocksSuffix') %></span>
     </div>
   </div>
 
@@ -124,11 +124,11 @@
     <div class="d-flex">
       <% if (selectedQuizSharedFromProfileName) { %>
         <span class="badge text-bg-light border" role="status">
-          Compartido por <%= selectedQuizSharedFromProfileName %>
+          <%= t('quizzes.sharedBy', { name: selectedQuizSharedFromProfileName }) %>
         </span>
       <% } else { %>
         <span class="badge text-bg-light border" role="status">
-          Compartido <%= selectedQuiz.sharedVia === 'link' ? 'por enlace' : 'desde otro perfil' %>
+          <%= selectedQuiz.sharedVia === 'link' ? t('quizzes.sharedByLink') : t('quizzes.sharedFromProfile') %>
         </span>
       <% } %>
     </div>
@@ -136,14 +136,14 @@
 
   <section class="resource-section">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-      <h2 class="h5 mb-0">Bloques</h2>
+      <h2 class="h5 mb-0"><%= t('quizzes.blocks') %></h2>
       <span class="badge text-bg-light border"><%= draft.blocks.length %></span>
     </div>
     <div class="list-group shadow-sm">
       <% quizBlockOutlineItems.forEach((block) => { %>
         <% if (block.section && block.section.isFirstBlock) { %>
           <div class="list-group-item quiz-outline-section-header">
-            <p class="quiz-section-eyebrow mb-1">Sección <%= block.section.number %></p>
+            <p class="quiz-section-eyebrow mb-1"><%= t('quizzes.section') %> <%= block.section.number %></p>
             <% if (block.section.title) { %>
               <h3 class="h6 mb-1 text-break"><%= block.section.title %></h3>
             <% } %>
@@ -177,13 +177,13 @@
 
   <% if (quizAttempts.length > 0) { %>
     <div class="resource-section">
-      <h2 class="h5">Entregas</h2>
+      <h2 class="h5"><%= t('quizzes.submissions') %></h2>
       <div class="list-group">
         <% quizAttempts.forEach((attempt) => { %>
           <a class="list-group-item list-group-item-action" href="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/result">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
               <span>
-                Entrega
+                <%= t('quizzes.submission') %>
                 <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
               </span>
               <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
@@ -207,15 +207,15 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="quizShareProfileModalLabel">Compartir con perfil</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="modal-title fs-5" id="quizShareProfileModalLabel"><%= t('resources.shareWithProfile') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
         <% if (shareTargetQuizProfiles.length > 0) { %>
           <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/share/profile" class="d-grid gap-3">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div>
-              <label class="form-label" for="shareTargetQuizProfileId">Perfil destino</label>
+              <label class="form-label" for="shareTargetQuizProfileId"><%= t('resources.targetProfile') %></label>
               <select class="form-select" id="shareTargetQuizProfileId" name="targetProfileId" required>
                 <% shareTargetQuizProfiles.forEach((profile) => { %>
                   <option value="<%= profile.id %>"><%= profile.name %></option>
@@ -223,17 +223,17 @@
               </select>
             </div>
             <div class="d-flex justify-content-end gap-2">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-primary">Compartir ahora</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+              <button type="submit" class="btn btn-primary"><%= t('resources.shareNow') %></button>
             </div>
           </form>
         <% } else { %>
-          <p class="mb-0 text-body-secondary">No tienes otros perfiles disponibles para recibir este quiz.</p>
+          <p class="mb-0 text-body-secondary"><%= t('quizzes.noOtherProfiles') %></p>
         <% } %>
       </div>
       <% if (shareTargetQuizProfiles.length === 0) { %>
         <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
         </div>
       <% } %>
     </div>
@@ -251,21 +251,21 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="quizShareLinkModalLabel">Enlace para compartir</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="modal-title fs-5" id="quizShareLinkModalLabel"><%= t('resources.shareLinkTitle') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body d-grid gap-3">
         <p class="mb-0 text-body-secondary">
-          Quienes usen este enlace verán siempre la versión actual de este quiz.
+          <%= t('quizzes.shareLinkBody') %>
         </p>
-        <label class="form-label" for="quizShareLink">Enlace</label>
+        <label class="form-label" for="quizShareLink"><%= t('resources.link') %></label>
         <input class="form-control" id="quizShareLink" value="<%= shareUrl %>" readonly data-quiz-share-link-field>
         <div class="d-flex flex-wrap gap-2">
           <button class="btn btn-outline-secondary" type="button" data-copy-quiz-share-link>
-            <i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar
+            <i class="bi bi-copy me-1" aria-hidden="true"></i><%= t('resources.copy') %>
           </button>
           <button class="btn btn-outline-secondary" type="button" data-native-share-quiz-link>
-            <i class="bi bi-share me-1" aria-hidden="true"></i>Compartir
+            <i class="bi bi-share me-1" aria-hidden="true"></i><%= t('resources.share') %>
           </button>
         </div>
         <% if (quizShareQrDataUrl) { %>
@@ -273,7 +273,7 @@
             <img
               class="quiz-share-qr"
               src="<%= quizShareQrDataUrl %>"
-              alt="QR del enlace para compartir el quiz"
+              alt="<%= t('quizzes.qrAlt') %>"
               width="180"
               height="180"
             >
@@ -281,7 +281,7 @@
         <% } %>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
       </div>
     </div>
   </div>

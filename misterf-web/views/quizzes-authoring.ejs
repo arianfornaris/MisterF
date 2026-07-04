@@ -3,12 +3,12 @@
 <section class="app-resource-view quizzes-page <%= activeTab === 'blocks' ? 'quiz-authoring-blocks-page' : '' %>">
   <div class="resource-page-header resource-page-header-has-close">
     <div>
-      <p class="resource-eyebrow">Quiz en edición</p>
+      <p class="resource-eyebrow"><%= t('quizzes.editingKicker') %></p>
       <h1><%= draft.title %></h1>
       <form class="d-inline-block mt-3" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-primary" type="submit">
-          <i class="bi bi-play-circle me-1" aria-hidden="true"></i>Probar
+          <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('quizzes.test') %>
         </button>
       </form>
     </div>
@@ -16,8 +16,8 @@
       <a
         class="resource-page-close-button"
         href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>"
-        title="Cerrar"
-        aria-label="Cerrar"
+        title="<%= t('common.close') %>"
+        aria-label="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -36,7 +36,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'general' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-card-text me-1" aria-hidden="true"></i>General
+        <i class="bi bi-card-text me-1" aria-hidden="true"></i><%= t('quizzes.tabGeneral') %>
       </a>
     </li>
     <li class="nav-item" role="presentation">
@@ -46,7 +46,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'blocks' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-ui-checks-grid me-1" aria-hidden="true"></i>Bloques
+        <i class="bi bi-ui-checks-grid me-1" aria-hidden="true"></i><%= t('quizzes.blocks') %>
       </a>
     </li>
     <li class="nav-item" role="presentation">
@@ -56,7 +56,7 @@
         role="tab"
         aria-selected="<%= activeTab === 'chat' ? 'true' : 'false' %>"
       >
-        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i>Chat IA
+        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i><%= t('quizzes.tabChat') %>
       </a>
     </li>
   </ul>
@@ -67,35 +67,35 @@
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="row g-3">
           <div class="col-12">
-            <label class="form-label" for="quizTitle">Título</label>
+            <label class="form-label" for="quizTitle"><%= t('quizzes.titleLabel') %></label>
             <input class="form-control" id="quizTitle" name="title" value="<%= draft.title %>" required>
           </div>
           <div class="col-12">
-            <label class="form-label" for="quizDescription">Descripción</label>
+            <label class="form-label" for="quizDescription"><%= t('resources.description') %></label>
             <textarea class="form-control" id="quizDescription" name="description" rows="3"><%= draft.description %></textarea>
           </div>
           <div class="col-12 col-md-8">
-            <label class="form-label" for="quizTopic">Tema</label>
+            <label class="form-label" for="quizTopic"><%= t('quizzes.topic') %></label>
             <input class="form-control" id="quizTopic" name="targetTopic" value="<%= draft.targetTopic %>">
           </div>
           <div class="col-12 col-md-4">
-            <label class="form-label" for="quizLevel">Nivel</label>
+            <label class="form-label" for="quizLevel"><%= t('quizzes.level') %></label>
             <input class="form-control" id="quizLevel" name="level" value="<%= draft.level %>">
           </div>
           <div class="col-12">
-            <label class="form-label" for="quizInstructions">Instrucciones para el estudiante</label>
+            <label class="form-label" for="quizInstructions"><%= t('quizzes.studentInstructions') %></label>
             <textarea class="form-control" id="quizInstructions" name="instructions" rows="4"><%= draft.instructions %></textarea>
-            <div class="form-text">Se le muestran al estudiante como encabezado del quiz.</div>
+            <div class="form-text"><%= t('quizzes.studentInstructionsHelp') %></div>
           </div>
           <div class="col-12">
-            <label class="form-label" for="quizEvaluationInstructions">Instrucciones para el modelo (opcional)</label>
+            <label class="form-label" for="quizEvaluationInstructions"><%= t('quizzes.modelInstructions') %></label>
             <textarea class="form-control" id="quizEvaluationInstructions" name="evaluationInstructions" rows="3"><%= draft.evaluationInstructions %></textarea>
-            <div class="form-text">Guía de calificación para la IA (rigor, qué aceptar, foco, tono del feedback). No se le muestran al estudiante y solo influyen en los ejercicios abiertos.</div>
+            <div class="form-text"><%= t('quizzes.modelInstructionsHelp') %></div>
           </div>
         </div>
         <div class="d-flex flex-wrap gap-2 mt-3">
           <button class="btn btn-primary" type="submit">
-            <i class="bi bi-save me-1" aria-hidden="true"></i>Guardar detalles
+            <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %>
           </button>
         </div>
       </div>
@@ -105,12 +105,12 @@
   <% if (activeTab === 'blocks') { %>
     <div class="quiz-blocks-panel">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-        <h2 class="h5 mb-0">Bloques</h2>
+        <h2 class="h5 mb-0"><%= t('quizzes.blocks') %></h2>
         <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#quizAddBlockModal">
-          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Agregar bloque
+          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('quizzes.addBlock') %>
         </button>
       </div>
-      <div class="quiz-block-list" aria-label="Bloques del quiz">
+      <div class="quiz-block-list" aria-label="<%= t('quizzes.quizBlocksAria') %>">
         <% draft.blocks.forEach((block, index) => { %>
           <%
             const blockSection = blockSections[index];
@@ -151,17 +151,17 @@
           <i class="bi bi-stars"></i>
         </div>
         <div>
-          <h2 class="quiz-chat-context-title">Modificar el quiz con IA</h2>
+          <h2 class="quiz-chat-context-title"><%= t('quizzes.modifyWithAi') %></h2>
           <p class="quiz-chat-context-copy mb-0">
-            Usa este chat para pedir cambios concretos al quiz: detalles, bloques o secciones (crearlas, editarlas o quitarlas). Mister F aplicará los cambios y te responderá qué modificó.
+            <%= t('quizzes.modifyWithAiCopy') %>
           </p>
         </div>
       </div>
-      <div class="quiz-chat-history messages" aria-label="Historial del chat de autoría" data-authoring-chat-history>
+      <div class="quiz-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
         <% if (quizAuthoringMessages.length === 0) { %>
           <article class="message-row is-model quiz-chat-message-row">
             <div class="message-bubble quiz-chat-message-bubble">
-              <p class="quiz-chat-message-content mb-0">Cuéntame qué quieres ajustar en este quiz.</p>
+              <p class="quiz-chat-message-content mb-0"><%= t('quizzes.authoringChatEmpty') %></p>
             </div>
           </article>
         <% } else { %>
@@ -182,7 +182,7 @@
         data-authoring-chat-credits-return-to="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=chat"
       >
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label class="visually-hidden" for="quizRevisionMessage">Mensaje</label>
+        <label class="visually-hidden" for="quizRevisionMessage"><%= t('quizzes.message') %></label>
         <div class="composer-input-wrap">
           <textarea
             class="composer-input"
@@ -190,13 +190,13 @@
             name="message"
             rows="2"
             maxlength="4000"
-            placeholder="Describe los cambios que deseas aplicar"
+            placeholder="<%= t('quizzes.describeChangesPlaceholder') %>"
             required
           ></textarea>
         </div>
         <div class="composer-footer">
           <button class="btn btn-primary quiz-chat-submit-button" type="submit" data-authoring-chat-submit>
-            <i class="bi bi-stars me-1" aria-hidden="true"></i>Aplicar cambios
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.applyChanges') %>
           </button>
         </div>
       </form>
@@ -216,12 +216,12 @@
     >
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="quizAddBlockModalLabel">Agregar bloque</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="modal-title fs-5" id="quizAddBlockModalLabel"><%= t('quizzes.addBlock') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
-        <p class="form-label mb-2">Tipo</p>
-        <div class="quiz-block-kind-list mb-3" role="radiogroup" aria-label="Tipo de bloque">
+        <p class="form-label mb-2"><%= t('resources.typeLabel') %></p>
+        <div class="quiz-block-kind-list mb-3" role="radiogroup" aria-label="<%= t('quizzes.blockTypeAria') %>">
           <% quizBlockKinds.forEach((kind, kindIndex) => { %>
             <label class="quiz-block-kind">
               <input
@@ -240,12 +240,12 @@
         </div>
         <label class="form-label" for="quizBlockPrompt">Prompt</label>
         <textarea class="form-control" id="quizBlockPrompt" name="prompt" rows="5" required></textarea>
-        <div class="form-text">Tu pedido se enviará como mensaje al Chat IA y Mister F agregará el bloque.</div>
+        <div class="form-text"><%= t('quizzes.addBlockHelp') %></div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
         <button class="btn btn-primary" type="submit">
-          <i class="bi bi-stars me-1" aria-hidden="true"></i>Crear bloque
+          <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.createBlock') %>
         </button>
       </div>
     </form>
@@ -257,7 +257,7 @@
     <div class="modal-content">
       <div class="modal-body d-flex align-items-center gap-3">
         <div class="spinner-border text-primary" aria-hidden="true"></div>
-        <p class="mb-0">Actualizando el quiz...</p>
+        <p class="mb-0"><%= t('quizzes.updating') %></p>
       </div>
     </div>
   </div>

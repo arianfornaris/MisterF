@@ -11,39 +11,39 @@
   const quizItemKindMeta = {
     quiz_fill_in_the_blank_choice: {
       icon: 'bi-input-cursor-text',
-      label: 'Completar con opciones',
+      label: t('quizzes.kindFillChoice'),
     },
     quiz_fill_in_the_blank_input: {
       icon: 'bi-input-cursor-text',
-      label: 'Completar escribiendo',
+      label: t('quizzes.kindFillInput'),
     },
     quiz_matching_pairs: {
       icon: 'bi-arrow-left-right',
-      label: 'Emparejar',
+      label: t('quizzes.kindMatching'),
     },
     quiz_multiple_choice: {
       icon: 'bi-ui-checks',
-      label: 'Selección múltiple',
+      label: t('quizzes.kindMultipleChoice'),
     },
     quiz_open_text: {
       icon: 'bi-pencil-square',
-      label: 'Respuesta abierta',
+      label: t('quizzes.kindOpenText'),
     },
     quiz_translate_to_english: {
       icon: 'bi-translate',
-      label: 'Traducir al inglés',
+      label: t('quizzes.kindTranslate'),
     },
     quiz_understand_in_spanish: {
       icon: 'bi-chat-left-text',
-      label: 'Entender en español',
+      label: t('quizzes.kindUnderstand'),
     },
     quiz_unscramble_sentence: {
       icon: 'bi-shuffle',
-      label: 'Ordenar oración',
+      label: t('quizzes.kindUnscramble'),
     },
     quiz_order_sentences: {
       icon: 'bi-list-ol',
-      label: 'Ordenar oraciones',
+      label: t('quizzes.kindOrder'),
     },
   };
   const itemKindMeta = quizItemKindMeta[item.kind] || {
@@ -61,8 +61,8 @@
           type="button"
           data-bs-toggle="dropdown"
           aria-expanded="false"
-          aria-label="Acciones del bloque <%= index + 1 %>"
-          title="Acciones del bloque"
+          aria-label="<%= t('quizzes.blockActionsOf', { number: index + 1 }) %>"
+          title="<%= t('quizzes.blockActions') %>"
         >
           <i class="bi bi-three-dots-vertical" aria-hidden="true"></i>
         </button>
@@ -71,7 +71,7 @@
             <form method="post" action="<%= quizEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button class="dropdown-item" type="submit" <%= index === 0 ? 'disabled' : '' %>>
-                <i class="bi bi-arrow-up me-2" aria-hidden="true"></i>Subir
+                <i class="bi bi-arrow-up me-2" aria-hidden="true"></i><%= t('quizzes.moveUp') %>
               </button>
             </form>
           </li>
@@ -79,7 +79,7 @@
             <form method="post" action="<%= quizEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-down">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button class="dropdown-item" type="submit" <%= index === draft.blocks.length - 1 ? 'disabled' : '' %>>
-                <i class="bi bi-arrow-down me-2" aria-hidden="true"></i>Bajar
+                <i class="bi bi-arrow-down me-2" aria-hidden="true"></i><%= t('quizzes.moveDown') %>
               </button>
             </form>
           </li>
@@ -88,7 +88,7 @@
             <form method="post" action="<%= quizEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/delete">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button class="dropdown-item text-danger" type="submit" <%= draft.blocks.length <= 1 ? 'disabled' : '' %>>
-                <i class="bi bi-trash me-2" aria-hidden="true"></i>Eliminar
+                <i class="bi bi-trash me-2" aria-hidden="true"></i><%= t('common.delete') %>
               </button>
             </form>
           </li>
@@ -100,7 +100,7 @@
       <span class="quiz-block-number-badge" aria-hidden="true"><%= index + 1 %></span>
       <div class="quiz-block-heading-main">
         <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
-          <p class="text-body-secondary small mb-0">Bloque <%= index + 1 %></p>
+          <p class="text-body-secondary small mb-0"><%= t('quizzes.block') %> <%= index + 1 %></p>
           <span class="badge text-bg-secondary">
             <i class="bi <%= itemKindMeta.icon %> me-1" aria-hidden="true"></i><%= itemKindMeta.label %>
           </span>
@@ -111,15 +111,15 @@
 
     <% if (item.kind === 'quiz_open_text') { %>
       <% if (isAttemptMode) { %>
-        <label class="form-label" for="<%= fieldPrefix %>_text"><%= item.placeholder || 'Tu respuesta' %></label>
+        <label class="form-label" for="<%= fieldPrefix %>_text"><%= item.placeholder || t('quizzes.yourAnswer') %></label>
         <textarea class="form-control" id="<%= fieldPrefix %>_text" name="<%= fieldPrefix %>_text" rows="4" required></textarea>
       <% } else if (isPreviewMode) { %>
-        <label class="form-label"><%= item.placeholder || 'Tu respuesta' %></label>
+        <label class="form-label"><%= item.placeholder || t('quizzes.yourAnswer') %></label>
         <textarea class="form-control" rows="4" disabled></textarea>
       <% } else { %>
         <div class="quiz-design-response-box">
           <i class="bi bi-pencil-square" aria-hidden="true"></i>
-          <span><%= item.placeholder || 'Respuesta abierta' %></span>
+          <span><%= item.placeholder || t('quizzes.kindOpenText') %></span>
         </div>
         <% if (item.rubric) { %><p class="small mb-0"><strong>Rubric:</strong> <%= item.rubric %></p><% } %>
       <% } %>
@@ -128,15 +128,15 @@
     <% if (item.kind === 'quiz_translate_to_english' || item.kind === 'quiz_understand_in_spanish') { %>
       <p class="<%= isDesignMode ? 'quiz-design-quote' : 'quiz-sentence' %> mb-3"><%= item.sentence %></p>
       <% if (isAttemptMode) { %>
-        <label class="form-label" for="<%= fieldPrefix %>_text">Respuesta</label>
+        <label class="form-label" for="<%= fieldPrefix %>_text"><%= t('quizzes.answer') %></label>
         <textarea class="form-control" id="<%= fieldPrefix %>_text" name="<%= fieldPrefix %>_text" rows="3" required></textarea>
       <% } else if (isPreviewMode) { %>
-        <label class="form-label">Respuesta</label>
+        <label class="form-label"><%= t('quizzes.answer') %></label>
         <textarea class="form-control" rows="3" disabled></textarea>
       <% } else { %>
         <div class="quiz-design-response-box mb-3">
           <i class="bi bi-textarea-resize" aria-hidden="true"></i>
-          <span>Respuesta del estudiante</span>
+          <span><%= t('quizzes.studentAnswer') %></span>
         </div>
         <% if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) { %>
           <p class="small mb-2"><strong>Accepted:</strong> <%= item.acceptableAnswers.join(' | ') %></p>
@@ -151,7 +151,7 @@
         <div class="quiz-design-blank-list">
           <% item.blanks.forEach((blank, blankIndex) => { %>
             <div class="quiz-design-blank-item">
-              <span class="quiz-design-blank-label">Espacio <%= blankIndex + 1 %></span>
+              <span class="quiz-design-blank-label"><%= t('quizzes.blank') %> <%= blankIndex + 1 %></span>
               <% if (item.kind === 'quiz_fill_in_the_blank_choice') { %>
                 <span class="quiz-design-chip-row">
                   <% blank.choices.forEach((choice) => { %>
@@ -170,10 +170,10 @@
         <div class="row g-3">
           <% item.blanks.forEach((blank, blankIndex) => { %>
             <div class="col-12 col-md-6">
-              <label class="form-label" for="<%= fieldPrefix %>_blank_<%= blankIndex %>">Espacio <%= blankIndex + 1 %></label>
+              <label class="form-label" for="<%= fieldPrefix %>_blank_<%= blankIndex %>"><%= t('quizzes.blank') %> <%= blankIndex + 1 %></label>
               <% if (isAttemptMode && item.kind === 'quiz_fill_in_the_blank_choice') { %>
                 <select class="form-select" id="<%= fieldPrefix %>_blank_<%= blankIndex %>" name="<%= fieldPrefix %>_blank_<%= blankIndex %>" required>
-                  <option value="">Selecciona</option>
+                  <option value=""><%= t('quizzes.select') %></option>
                   <% blank.choices.forEach((choice) => { %>
                     <option value="<%= choice %>"><%= choice %></option>
                   <% }) %>
@@ -182,7 +182,7 @@
                 <input class="form-control" id="<%= fieldPrefix %>_blank_<%= blankIndex %>" name="<%= fieldPrefix %>_blank_<%= blankIndex %>" autocomplete="off" required>
               <% } else if (isPreviewMode && item.kind === 'quiz_fill_in_the_blank_choice') { %>
                 <select class="form-select" disabled>
-                  <option>Selecciona</option>
+                  <option><%= t('quizzes.select') %></option>
                   <% blank.choices.forEach((choice) => { %>
                     <option><%= choice %></option>
                   <% }) %>
@@ -244,14 +244,14 @@
               <label class="form-label" for="<%= fieldPrefix %>_pair_<%= pairIndex %>"><%= left %></label>
               <% if (isAttemptMode) { %>
                 <select class="form-select" id="<%= fieldPrefix %>_pair_<%= pairIndex %>" name="<%= fieldPrefix %>_pair_<%= pairIndex %>" required>
-                  <option value="">Selecciona</option>
+                  <option value=""><%= t('quizzes.select') %></option>
                   <% item.rightItems.forEach((right) => { %>
                     <option value="<%= right %>"><%= right %></option>
                   <% }) %>
                 </select>
               <% } else if (isPreviewMode) { %>
                 <select class="form-select" disabled>
-                  <option>Selecciona</option>
+                  <option><%= t('quizzes.select') %></option>
                   <% item.rightItems.forEach((right) => { %>
                     <option><%= right %></option>
                   <% }) %>
@@ -271,10 +271,10 @@
         <% }) %>
       </div>
       <% if (isAttemptMode) { %>
-        <label class="form-label" for="<%= fieldPrefix %>_sentence">Oración</label>
+        <label class="form-label" for="<%= fieldPrefix %>_sentence"><%= t('quizzes.sentence') %></label>
         <input class="form-control" id="<%= fieldPrefix %>_sentence" name="<%= fieldPrefix %>_sentence" required>
       <% } else if (isPreviewMode) { %>
-        <label class="form-label">Oración</label>
+        <label class="form-label"><%= t('quizzes.sentence') %></label>
         <input class="form-control" disabled>
       <% } else { %>
         <% if (Array.isArray(item.acceptableAnswers) && item.acceptableAnswers.length > 0) { %>
@@ -296,17 +296,17 @@
         <div class="row g-3">
           <% item.sentences.forEach((_sentence, positionIndex) => { %>
             <div class="col-12">
-              <label class="form-label" for="<%= fieldPrefix %>_order_<%= positionIndex %>">Posición <%= positionIndex + 1 %></label>
+              <label class="form-label" for="<%= fieldPrefix %>_order_<%= positionIndex %>"><%= t('quizzes.position') %> <%= positionIndex + 1 %></label>
               <% if (isAttemptMode) { %>
                 <select class="form-select" id="<%= fieldPrefix %>_order_<%= positionIndex %>" name="<%= fieldPrefix %>_order_<%= positionIndex %>" required>
-                  <option value="">Selecciona</option>
+                  <option value=""><%= t('quizzes.select') %></option>
                   <% item.sentences.forEach((sentence) => { %>
                     <option value="<%= sentence %>"><%= sentence %></option>
                   <% }) %>
                 </select>
               <% } else if (isPreviewMode) { %>
                 <select class="form-select" disabled>
-                  <option>Selecciona</option>
+                  <option><%= t('quizzes.select') %></option>
                   <% item.sentences.forEach((sentence) => { %>
                     <option><%= sentence %></option>
                   <% }) %>
