@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="<%= htmlLang %>">
   <head>
     <%- include('partials/document-head', { includeBootstrapIcons: true }) %>
   </head>
@@ -20,7 +20,7 @@
                 <form method="post" action="/resend-verification" class="mb-3">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
-                  <button class="btn btn-primary" type="submit">Reenviar verificación</button>
+                  <button class="btn btn-primary" type="submit"><%= t('auth.message.resendVerification') %></button>
                 </form>
               <% } %>
 
@@ -29,7 +29,7 @@
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <input type="hidden" name="returnTo" value="<%= returnTo || '/' %>">
                   <div>
-                    <label class="form-label" for="code">Código</label>
+                    <label class="form-label" for="code"><%= t('auth.code') %></label>
                     <input
                       id="code"
                       class="form-control"
@@ -42,7 +42,7 @@
                     >
                   </div>
                   <div>
-                    <button class="btn btn-primary" type="submit">Verificar correo</button>
+                    <button class="btn btn-primary" type="submit"><%= t('auth.message.verifyEmailButton') %></button>
                   </div>
                 </form>
               <% } %>
@@ -50,7 +50,7 @@
               <% if (linkHref && linkText) { %>
                 <a class="btn btn-secondary" href="<%= linkHref %>"><%= linkText %></a>
               <% } else { %>
-                <a class="btn btn-secondary" href="<%= returnTo || '/' %>">Volver</a>
+                <a class="btn btn-secondary" href="<%= returnTo || '/' %>"><%= t('auth.message.back') %></a>
               <% } %>
             </div>
           </div>

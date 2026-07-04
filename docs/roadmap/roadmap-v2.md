@@ -74,15 +74,28 @@ Scope notes:
   prompt parametrization proposal approved (language packs + invariant
   sections + conversation language snapshot). Done 2026-07-04; all
   decisions live in the design doc's "V2 Decisions" section.
-- [ ] i18n infrastructure: externalize UI strings from EJS views, partials,
+- [~] i18n infrastructure: externalize UI strings from EJS views, partials,
   client scripts, flash messages, and validation errors into per-language
   catalogs (`es`, `en`); pick or build a minimal helper (no heavyweight
-  framework unless the design doc justifies it).
+  framework unless the design doc justifies it). 2026-07-04: infrastructure
+  built and shipped — `src/server/i18n/` with per-language catalogs, a
+  `translate()`/`t` helper (dot-path keys, `{{param}}` interpolation), the
+  `attachLocale` middleware exposing `res.locals.t/locale/htmlLang`, and an
+  integration test. The app shell (nav, all modals, translator, credit and
+  help dialogs), `<html lang>`, and the settings page are externalized.
+  Remaining string externalization (the bulk): the ~45 other EJS views and
+  their standalone `<html lang="es">`, the 54 client scripts (via bootstrap
+  data / `data-*`), and server-side flash/validation messages (auth
+  `forms.ts` ~48 strings, profiles, quizzes, roleplays, resources,
+  practice-guide handlers).
 - [~] Per-user language preference: onboarding choice, settings toggle, and
   a sensible default for anonymous/shared-link visitors (`Accept-Language`
-  with explicit override). Started 2026-07-04: `instruction_language`
-  profile field (migration, repository, onboarding + profile forms,
-  `Accept-Language` seeding at first-profile creation).
+  with explicit override). Done 2026-07-04: `instruction_language` profile
+  field (migration, repository, onboarding + profile forms); a settings
+  language toggle (`/settings/language`) that flips UI + tutor on redirect;
+  locale resolution (profile → switcher cookie → `Accept-Language` → `en`);
+  a visible ES/EN switcher for signed-out visitors with `?lang=` override;
+  and first-profile seeding at signup inheriting the pre-account language.
 - [ ] Translator: adapt translator mode to the profile's instruction
   language, and let the user select other language pairs beyond the
   profile default. Deliberately untouched by the initial i18n work — it

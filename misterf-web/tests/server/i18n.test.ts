@@ -92,6 +92,24 @@ describe('UI localization', () => {
     expect(html).toContain('<html lang="en">');
   });
 
+  it('localizes the login page in both languages', async () => {
+    const spanish = await fetch(`${baseUrl}/login`, {
+      headers: { 'Accept-Language': 'es-ES,es;q=0.9' },
+    });
+    const spanishHtml = await spanish.text();
+    expect(spanishHtml).toContain('<html lang="es">');
+    expect(spanishHtml).toContain('Entrar');
+    expect(spanishHtml).toContain('¿No tienes cuenta?');
+
+    const english = await fetch(`${baseUrl}/login`, {
+      headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+    });
+    const englishHtml = await english.text();
+    expect(englishHtml).toContain('<html lang="en">');
+    expect(englishHtml).toContain('Don’t have an account?');
+    expect(englishHtml).not.toContain('¿No tienes cuenta?');
+  });
+
   it('honors an explicit ?lang override via a cookie and clean redirect', async () => {
     const response = await fetch(`${baseUrl}/?lang=es`, {
       headers: { 'Accept-Language': 'en-US,en;q=0.9' },
