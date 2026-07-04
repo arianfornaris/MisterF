@@ -80,14 +80,6 @@ recursos ya se archivan; esta idea aplicaría solo a conversaciones.
 
 ---
 
-Ejercicios de comprensión (escuchar un audio, ver una imagen o leer un texto
-y responder preguntas). Idea ya perfilada en
-`docs/features/comprehension-exercises.md`: patrón estímulo + preguntas sobre
-la maquinaria de `quiz`, con fases texto → audio (TTS de calidad
-server-side) → imágenes (biblioteca curada).
-
----
-
 A largo plazo: algo parecido a Grammarly/DeepL — una herramienta que "escuche"
 constantemente lo que escribimos o traduzca, corrija sobre la marcha, y loguee
 al sitio las dificultades para luego generar lecciones al respecto.
