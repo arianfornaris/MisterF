@@ -4,6 +4,8 @@ import {
   buildAppShellContext,
   getHomeAuthMessage,
 } from '../pages/shell.js';
+import { updateProfileInstructionLanguageForUser } from '../db/repository.js';
+import { normalizeInstructionLanguage } from '../profiles/instructionLanguage.js';
 
 function ensureVerifiedSettingsUser(
   request: Request,
@@ -31,8 +33,37 @@ export function renderSettingsPage(request: Request, response: Response): void {
       currentView: 'settings',
       guestInitialGreeting: '',
       request,
-      title: `Ajustes · ${appDocumentTitle}`,
+      title: `${request.res?.locals.t('settings.title')} · ${appDocumentTitle}`,
       user,
     }),
   });
+}
+
+export function handleUpdateSettingsLanguage(
+  request: Request,
+  response: Response,
+): void {
+  const user = ensureVerifiedSettingsUser(request, response);
+  if (!user) {
+    return;
+  }
+
+  const activeProfile = request.activeProfile;
+  if (!activeProfile) {
+    response.redirect('/settings');
+    return;
+  }
+
+  const instructionLanguage = normalizeInstructionLanguage(
+    request.body.instructionLanguage,
+    activeProfile.instructionLanguage,
+  );
+
+  updateProfileInstructionLanguageForUser(
+    activeProfile.id,
+    user.id,
+    instructionLanguage,
+  );
+
+  response.redirect('/settings');
 }

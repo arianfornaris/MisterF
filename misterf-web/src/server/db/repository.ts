@@ -2726,6 +2726,25 @@ export function markProfileOnboardingCompleted(input: {
   return findProfileForUser(input.profileId, input.userId);
 }
 
+export function updateProfileInstructionLanguageForUser(
+  profileId: string,
+  userId: string,
+  instructionLanguage: 'en' | 'es',
+): StoredProfile | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE profiles
+        SET instruction_language = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `,
+    )
+    .run(instructionLanguage, profileId, userId);
+
+  return findProfileForUser(profileId, userId);
+}
+
 export function updateProfileModelTierForUser(
   profileId: string,
   userId: string,

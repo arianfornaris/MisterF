@@ -11,6 +11,21 @@ export const en: LocaleCatalog = {
   error: {
     unexpected: 'An unexpected error occurred.',
   },
+  settings: {
+    kicker: 'Account',
+    title: 'Account settings',
+    intro: 'Manage your account and preferences.',
+    languageSectionKicker: 'Language',
+    languageTitle: 'Instruction language',
+    languageCopy:
+      'The language of the interface and of Mr. F’s explanations for the active profile. The English you practice does not change.',
+    languageSave: 'Save language',
+    securityKicker: 'Security',
+    passwordTitle: 'Password',
+    passwordCopy:
+      'Update your account password whenever you need to strengthen your access.',
+    changePassword: 'Change password',
+  },
   language: {
     label: 'Language',
     spanish: 'Spanish',
