@@ -14,6 +14,8 @@ import { requireSessionSecret } from './auth/session.js';
 import { chatRouter } from './chat/routes.js';
 import { env } from './config/env.js';
 import { migrate } from './db/migrator.js';
+import { attachLocale } from './i18n/middleware.js';
+import { translate } from './i18n/index.js';
 import { legalRouter } from './legal/routes.js';
 import { paymentsRouter, stripeWebhookRouter } from './payments/routes.js';
 import { practiceGuidesRouter } from './practiceGuides/routes.js';
@@ -66,6 +68,7 @@ app.use(clientTelemetryRouter);
 app.use(express.urlencoded({ extended: false, limit: '32kb' }));
 app.use(csrfProtection);
 app.use(loadAuthSession);
+app.use(attachLocale);
 
 app.use(authRouter);
 app.use(profileOnboardingRouter);
@@ -118,7 +121,7 @@ app.use(
       return;
     }
 
-    response.status(500).send('Ocurrió un error inesperado.');
+    response.status(500).send(translate(request.locale ?? 'en', 'error.unexpected'));
   },
 );
 

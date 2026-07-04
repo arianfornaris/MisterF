@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="<%= htmlLang %>">
   <head>
     <%- include('document-head', { includeBootstrapIcons: true }) %>
   </head>
@@ -15,15 +15,15 @@
   >
     <main class="app-shell">
       <div class="chat-workspace has-toolbar">
-          <div class="chat-toolbar" aria-label="Controles del chat">
+          <div class="chat-toolbar" aria-label="<%= t('nav.chatControls') %>">
             <button
               class="btn btn-link chat-menu-button d-lg-none"
               type="button"
               data-bs-toggle="offcanvas"
               data-bs-target="#conversationPanel"
               aria-controls="conversationPanel"
-              title="Conversaciones"
-              aria-label="Conversaciones"
+              title="<%= t('nav.conversations') %>"
+              aria-label="<%= t('nav.conversations') %>"
             >
               <i class="bi bi-list fs-4" aria-hidden="true"></i>
             </button>
@@ -35,8 +35,8 @@
                 data-bs-toggle="modal"
                 data-bs-target="#translatorModal"
                 data-open-translator
-                title="Traductor"
-                aria-label="Traductor"
+                title="<%= t('nav.translator') %>"
+                aria-label="<%= t('nav.translator') %>"
               >
                 <i class="bi bi-translate fs-5" aria-hidden="true"></i>
               </button>
@@ -47,14 +47,14 @@
             class="offcanvas-lg offcanvas-start conversation-panel"
             tabindex="-1"
             id="conversationPanel"
-            aria-label="Panel lateral"
+            aria-label="<%= t('nav.sidePanel') %>"
           >
             <div class="offcanvas-header">
               <a
                 class="panel-home-link d-lg-none"
                 href="/"
-                title="Ir al inicio"
-                aria-label="Ir al inicio"
+                title="<%= t('nav.goHome') %>"
+                aria-label="<%= t('nav.goHome') %>"
               >
                 <img
                   class="panel-home-logo"
@@ -64,7 +64,7 @@
                   height="24"
                 >
               </a>
-              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+              <button type="button" class="btn-close d-lg-none" data-bs-dismiss="offcanvas" aria-label="<%= t('common.close') %>"></button>
             </div>
             <div class="offcanvas-body">
               <div class="panel-nav">
@@ -85,17 +85,17 @@
                 <div class="panel-nav">
                   <a class="panel-nav-link" href="/" data-new-conversation>
                     <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                    Nueva conversación
+                    <%= t('nav.newConversation') %>
                   </a>
 
                   <a class="panel-nav-link <%= currentView === 'resources' ? 'is-active' : '' %>" href="/resources">
                     <i class="bi bi-folder2-open" aria-hidden="true"></i>
-                    Recursos
+                    <%= t('nav.resources') %>
                   </a>
 
                   <a class="panel-nav-link <%= currentView === 'progress' ? 'is-active' : '' %>" href="/progress">
                     <i class="bi bi-graph-up" aria-hidden="true"></i>
-                    Progreso
+                    <%= t('nav.progress') %>
                   </a>
 
                   <button
@@ -106,12 +106,12 @@
                     data-open-translator
                   >
                     <i class="bi bi-translate" aria-hidden="true"></i>
-                    Traductor
+                    <%= t('nav.translator') %>
                   </button>
                 </div>
 
                 <div class="panel-recents">
-                  <p class="panel-section-label">Recientes</p>
+                  <p class="panel-section-label"><%= t('nav.recent') %></p>
 
                   <% if (conversations.length > 0) { %>
                     <div class="conversation-list">
@@ -140,32 +140,32 @@
                               type="button"
                               data-bs-toggle="dropdown"
                               aria-expanded="false"
-                              title="Opciones de conversación"
-                              aria-label="Opciones de conversación"
+                              title="<%= t('nav.conversationOptions') %>"
+                              aria-label="<%= t('nav.conversationOptions') %>"
                             >
                               <i class="bi bi-three-dots" aria-hidden="true"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                              <button class="dropdown-item" type="button" data-rename-conversation>Renombrar</button>
+                              <button class="dropdown-item" type="button" data-rename-conversation><%= t('nav.rename') %></button>
                               <% if (!conversation.closedAt) { %>
-                                <button class="dropdown-item" type="button" data-finalize-conversation>Finalizar y resumir</button>
+                                <button class="dropdown-item" type="button" data-finalize-conversation><%= t('nav.finalizeAndSummarize') %></button>
                               <% } %>
-                              <button class="dropdown-item text-danger" type="button" data-delete-conversation>Eliminar</button>
+                              <button class="dropdown-item text-danger" type="button" data-delete-conversation><%= t('common.delete') %></button>
                             </div>
                           </div>
                         </div>
                       <% }) %>
                     </div>
                   <% } else { %>
-                    <p class="conversation-empty">Todavía no hay conversaciones.</p>
+                    <p class="conversation-empty"><%= t('nav.noConversations') %></p>
                   <% } %>
                 </div>
               <% } else { %>
                 <div class="panel-recents d-flex flex-column justify-content-center">
                   <div>
-                    <h2 class="h6 mb-2">Abre una sesión para practicar</h2>
+                    <h2 class="h6 mb-2"><%= t('nav.signedOutTitle') %></h2>
                     <p class="mb-0 text-body-secondary">
-                      Inicia sesión o crea una cuenta para ver las opciones de práctica con Mr. F, tus recursos y conversaciones guardadas.
+                      <%= t('nav.signedOutBody') %>
                     </p>
                   </div>
                 </div>
@@ -179,11 +179,11 @@
                       type="button"
                       data-bs-toggle="dropdown"
                       aria-expanded="false"
-                      title="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
-                      aria-label="<%= activeProfile ? activeProfile.name : 'Perfil' %>"
+                      title="<%= activeProfile ? activeProfile.name : t('nav.profile') %>"
+                      aria-label="<%= activeProfile ? activeProfile.name : t('nav.profile') %>"
                     >
                       <i class="bi bi-person-circle" aria-hidden="true"></i>
-                      <%= activeProfile ? activeProfile.name : 'Perfil' %>
+                      <%= activeProfile ? activeProfile.name : t('nav.profile') %>
                     </button>
 
                     <div class="dropdown-menu user-menu-panel">
@@ -191,19 +191,22 @@
                         <p class="user-menu-email"><strong><%= activeProfile.name %></strong></p>
                       <% } %>
                       <p class="user-menu-email"><%= user.email %></p>
-                      <a class="dropdown-item" href="/profiles">Cambiar perfil</a>
-                      <a class="dropdown-item" href="/settings">Ajustes de cuenta</a>
-                      <a class="dropdown-item" href="/credits">Créditos</a>
+                      <a class="dropdown-item" href="/profiles"><%= t('nav.switchProfile') %></a>
+                      <a class="dropdown-item" href="/settings"><%= t('nav.accountSettings') %></a>
+                      <a class="dropdown-item" href="/credits"><%= t('nav.credits') %></a>
                       <form method="post" action="/logout">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                        <button class="dropdown-item" type="submit">Cerrar sesión</button>
+                        <button class="dropdown-item" type="submit"><%= t('nav.signOut') %></button>
                       </form>
                     </div>
                   </div>
                 <% } else { %>
                   <div class="d-grid gap-2">
-                    <a class="btn btn-primary" href="/login">Iniciar sesión</a>
-                    <a class="btn btn-secondary" href="/signup">Crear cuenta</a>
+                    <a class="btn btn-primary" href="/login"><%= t('nav.signIn') %></a>
+                    <a class="btn btn-secondary" href="/signup"><%= t('nav.createAccount') %></a>
+                    <div class="d-flex justify-content-center pt-1">
+                      <%- include('language-switcher', { languageSwitcherPath: currentPath }) %>
+                    </div>
                   </div>
                 <% } %>
               </div>
@@ -220,18 +223,17 @@
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content delete-conversation-modal">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="deleteConversationModalLabel">Eliminar chat</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  <h2 class="modal-title fs-5" id="deleteConversationModalLabel"><%= t('deleteConversation.title') %></h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                 </div>
                 <div class="modal-body">
                   <p class="mb-0">
-                    ¿Seguro que quieres eliminar “<span data-delete-conversation-title></span>”?
-                    Esta acción no se puede deshacer.
+                    <%= t('deleteConversation.bodyBefore') %><span data-delete-conversation-title></span><%= t('deleteConversation.bodyAfter') %>
                   </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                  <button type="button" class="btn btn-danger" data-confirm-delete-conversation>Eliminar</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+                  <button type="button" class="btn btn-danger" data-confirm-delete-conversation><%= t('common.delete') %></button>
                 </div>
               </div>
             </div>
@@ -247,21 +249,20 @@
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="closeTutorPlanModalLabel">Concluir plan</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  <h2 class="modal-title fs-5" id="closeTutorPlanModalLabel"><%= t('closeTutorPlan.title') %></h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                 </div>
                 <div class="modal-body">
                   <p>
-                    Este plan todavía tiene pasos pendientes. Si lo concluyes ahora,
-                    dejará de aparecer como guía activa en esta conversación.
+                    <%= t('closeTutorPlan.body1') %>
                   </p>
                   <p class="mb-0 text-body-secondary">
-                    La conversación no se borra y puedes seguir practicando normalmente con Mr. F.
+                    <%= t('closeTutorPlan.body2') %>
                   </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                  <button type="button" class="btn btn-primary" data-confirm-close-tutor-plan>Concluir plan</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
+                  <button type="button" class="btn btn-primary" data-confirm-close-tutor-plan><%= t('closeTutorPlan.title') %></button>
                 </div>
               </div>
             </div>
@@ -279,17 +280,16 @@
                 <form method="post" data-create-resource-from-conversation-form>
                   <div class="modal-header">
                     <h2 class="modal-title fs-5" id="createResourceFromConversationModalLabel">
-                      Crear <span data-create-resource-from-conversation-label>recurso</span>
+                      <%= t('createResource.titlePrefix') %> <span data-create-resource-from-conversation-label><%= t('createResource.genericLabel') %></span>
                     </h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                   </div>
                   <div class="modal-body">
                     <p>
-                      Tus instrucciones son lo principal: describe qué quieres que cubra el recurso.
-                      Puedes referirte a esta conversación, que se incluye como contexto de apoyo.
+                      <%= t('createResource.body') %>
                     </p>
                     <label class="form-label" for="createResourceFromConversationPrompt">
-                      Instrucciones para el recurso
+                      <%= t('createResource.promptLabel') %>
                     </label>
                     <textarea
                       class="form-control"
@@ -297,20 +297,20 @@
                       name="prompt"
                       rows="3"
                       maxlength="2000"
-                      placeholder="Por ejemplo: una guía centrada en el pasado simple que usamos hace un momento, con más ejercicios de escritura."
+                      placeholder="<%= t('createResource.promptPlaceholder') %>"
                     ></textarea>
                   </div>
                   <div class="modal-footer">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                     <input type="hidden" name="type" value="" data-create-resource-from-conversation-type>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
                     <button
                       type="submit"
                       class="btn btn-primary"
                       data-create-resource-from-conversation-submit
-                      data-loading-text="Creando recurso..."
+                      data-loading-text="<%= t('createResource.submitLoading') %>"
                     >
-                      Crear recurso
+                      <%= t('createResource.submit') %>
                     </button>
                   </div>
                 </form>
@@ -329,28 +329,27 @@
               <div class="modal-content">
                 <form method="post" data-finalize-conversation-form>
                   <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="finalizeConversationModalLabel">Finalizar y resumir</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h2 class="modal-title fs-5" id="finalizeConversationModalLabel"><%= t('finalizeConversation.title') %></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                   </div>
                   <div class="modal-body">
                     <p>
-                      Mister F generará un resumen de esta conversación con lo que practicaste,
-                      tus avances, dificultades principales, vocabulario importante y recomendaciones.
+                      <%= t('finalizeConversation.body1') %>
                     </p>
                     <p class="mb-0 text-body-secondary">
-                      Después de finalizarla, la conversación quedará en modo lectura y podrás consultar el resumen cuando quieras.
+                      <%= t('finalizeConversation.body2') %>
                     </p>
                   </div>
                   <div class="modal-footer">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
                     <button
                       type="submit"
                       class="btn btn-primary"
                       data-finalize-conversation-submit
-                      data-loading-text="Generando resumen..."
+                      data-loading-text="<%= t('finalizeConversation.submitLoading') %>"
                     >
-                      Finalizar y resumir
+                      <%= t('finalizeConversation.submit') %>
                     </button>
                   </div>
                 </form>
@@ -378,10 +377,10 @@
                   ></div>
                   <div>
                     <h2 class="fs-6 mb-1" id="tutorReportPendingModalLabel" data-tutor-report-pending-title>
-                      Generando resumen...
+                      <%= t('tutorReportPending.title') %>
                     </h2>
                     <p class="mb-0 text-body-secondary small">
-                      Esto puede tardar unos segundos.
+                      <%= t('tutorReportPending.body') %>
                     </p>
                   </div>
                 </div>
@@ -400,22 +399,22 @@
               <div class="modal-content translator-modal">
                 <form id="translatorForm" autocomplete="off">
                   <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="translatorModalLabel">Traductor</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    <h2 class="modal-title fs-5" id="translatorModalLabel"><%= t('translator.title') %></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                   </div>
                   <div class="modal-body">
-                    <div class="translator-mode btn-group" role="group" aria-label="Modo de traducción">
+                    <div class="translator-mode btn-group" role="group" aria-label="<%= t('translator.mode') %>">
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
-                      <label class="btn btn-outline-secondary" for="translatorModeAuto">Auto</label>
+                      <label class="btn btn-outline-secondary" for="translatorModeAuto"><%= t('translator.auto') %></label>
 
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEsEn" value="es-en">
-                      <label class="btn btn-outline-secondary" for="translatorModeEsEn">ES → EN</label>
+                      <label class="btn btn-outline-secondary" for="translatorModeEsEn"><%= t('translator.esEn') %></label>
 
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEnEs" value="en-es">
-                      <label class="btn btn-outline-secondary" for="translatorModeEnEs">EN → ES</label>
+                      <label class="btn btn-outline-secondary" for="translatorModeEnEs"><%= t('translator.enEs') %></label>
                     </div>
 
-                    <label class="visually-hidden" for="translatorInput">Texto para traducir</label>
+                    <label class="visually-hidden" for="translatorInput"><%= t('translator.inputLabel') %></label>
                     <div class="translator-box">
                       <textarea
                         class="form-control translator-textarea"
@@ -431,8 +430,8 @@
                         class="translator-copy-button"
                         type="button"
                         data-translator-copy="input"
-                        title="Copiar texto"
-                        aria-label="Copiar texto"
+                        title="<%= t('translator.copyText') %>"
+                        aria-label="<%= t('translator.copyText') %>"
                       >
                         <i class="bi bi-copy" aria-hidden="true"></i>
                       </button>
@@ -444,16 +443,16 @@
                         class="translator-copy-button"
                         type="button"
                         data-translator-copy="result"
-                        title="Copiar traducción"
-                        aria-label="Copiar traducción"
+                        title="<%= t('translator.copyTranslation') %>"
+                        aria-label="<%= t('translator.copyTranslation') %>"
                       >
                         <i class="bi bi-copy" aria-hidden="true"></i>
                       </button>
                     </div>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn btn-primary" data-translator-submit>Traducir</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.close') %></button>
+                    <button type="submit" class="btn btn-primary" data-translator-submit><%= t('translator.submit') %></button>
                   </div>
                 </form>
               </div>
@@ -470,17 +469,17 @@
             <div class="modal-dialog modal-dialog-centered">
               <div class="modal-content credit-modal">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="creditModalLabel">Créditos insuficientes</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  <h2 class="modal-title fs-5" id="creditModalLabel"><%= t('credit.title') %></h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                 </div>
                 <div class="modal-body">
                   <p class="mb-0" data-credit-message>
-                    No tienes créditos suficientes para continuar esta práctica.
+                    <%= t('credit.body') %>
                   </p>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                  <a class="btn btn-primary" href="/credits" data-credit-buy-link>Comprar créditos</a>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.close') %></button>
+                  <a class="btn btn-primary" href="/credits" data-credit-buy-link><%= t('credit.buy') %></a>
                 </div>
               </div>
             </div>
@@ -496,45 +495,45 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
               <div class="modal-content translator-modal">
                 <div class="modal-header">
-                  <h2 class="modal-title fs-5" id="practiceGuideHelpModalLabel">Qué puede hacer el tutor</h2>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                  <h2 class="modal-title fs-5" id="practiceGuideHelpModalLabel"><%= t('practiceGuideHelp.title') %></h2>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                 </div>
                 <div class="modal-body practice-guide-help-modal-body">
                   <section class="practice-guide-help-section">
-                    <h3>Tipos de práctica que puedes pedir</h3>
+                    <h3><%= t('practiceGuideHelp.typesTitle') %></h3>
                     <ul>
-                      <li>Traducir del español al inglés con corrección guiada.</li>
-                      <li>Comprender frases en inglés y explicarlas en español.</li>
-                      <li>Mini-conversaciones o role-play con personajes ficticios.</li>
-                      <li>Emparejar columnas de palabras, frases o significados.</li>
-                      <li>Completar espacios escribiendo o eligiendo opciones.</li>
-                      <li>Multiple choice de una o varias respuestas correctas.</li>
-                      <li>Ordenar palabras para reconstruir una oración.</li>
+                      <li><%= t('practiceGuideHelp.type1') %></li>
+                      <li><%= t('practiceGuideHelp.type2') %></li>
+                      <li><%= t('practiceGuideHelp.type3') %></li>
+                      <li><%= t('practiceGuideHelp.type4') %></li>
+                      <li><%= t('practiceGuideHelp.type5') %></li>
+                      <li><%= t('practiceGuideHelp.type6') %></li>
+                      <li><%= t('practiceGuideHelp.type7') %></li>
                     </ul>
                   </section>
 
                   <section class="practice-guide-help-section">
-                    <h3>Ejemplos de instrucciones útiles</h3>
+                    <h3><%= t('practiceGuideHelp.examplesTitle') %></h3>
                     <ul>
-                      <li>Practica vocabulario de colores con ejercicios variados y mucha corrección paciente.</li>
-                      <li>Haz mini-conversaciones de restaurante para un nivel básico, con tono amable y situaciones realistas.</li>
-                      <li>Trabaja el pasado simple con frases cortas, completar espacios y multiple choice.</li>
-                      <li>Enfócate en inglés para entrevistas de trabajo con tono formal y correcciones claras.</li>
+                      <li><%= t('practiceGuideHelp.example1') %></li>
+                      <li><%= t('practiceGuideHelp.example2') %></li>
+                      <li><%= t('practiceGuideHelp.example3') %></li>
+                      <li><%= t('practiceGuideHelp.example4') %></li>
                     </ul>
                   </section>
 
                   <section class="practice-guide-help-section">
-                    <h3>Buenas prácticas</h3>
+                    <h3><%= t('practiceGuideHelp.goodPracticesTitle') %></h3>
                     <ul>
-                      <li>Especifica el tema, el tipo de situación y el nivel aproximado.</li>
-                      <li>Puedes combinar varias dinámicas dentro de una misma guía de práctica.</li>
-                      <li>No hace falta describir la interfaz; describe el objetivo pedagógico.</li>
-                      <li>Puedes decir si quieres que el tutor sea más paciente, más exigente o más conversacional.</li>
+                      <li><%= t('practiceGuideHelp.goodPractice1') %></li>
+                      <li><%= t('practiceGuideHelp.goodPractice2') %></li>
+                      <li><%= t('practiceGuideHelp.goodPractice3') %></li>
+                      <li><%= t('practiceGuideHelp.goodPractice4') %></li>
                     </ul>
                   </section>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Entendido</button>
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.understood') %></button>
                 </div>
               </div>
             </div>

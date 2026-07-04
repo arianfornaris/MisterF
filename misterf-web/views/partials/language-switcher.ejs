@@ -1,0 +1,14 @@
+<% const rawSwitcherPath = typeof languageSwitcherPath !== 'undefined' && languageSwitcherPath ? languageSwitcherPath : '/'; %>
+<% const switcherPath = rawSwitcherPath.split('?')[0] || '/'; %>
+<div class="language-switcher btn-group btn-group-sm" role="group" aria-label="<%= t('language.label') %>">
+  <a
+    class="btn btn-outline-secondary <%= locale === 'es' ? 'active' : '' %>"
+    href="<%= switcherPath %>?lang=es"
+    <%= locale === 'es' ? 'aria-current="true"' : '' %>
+  ><%= t('language.switchToSpanish') %></a>
+  <a
+    class="btn btn-outline-secondary <%= locale === 'en' ? 'active' : '' %>"
+    href="<%= switcherPath %>?lang=en"
+    <%= locale === 'en' ? 'aria-current="true"' : '' %>
+  ><%= t('language.switchToEnglish') %></a>
+</div>

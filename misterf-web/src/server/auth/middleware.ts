@@ -11,7 +11,7 @@ import {
 } from './repository.js';
 import { getActiveProfileId, setActiveProfileCookie } from './profiles.js';
 import { getSessionToken, hashSessionToken } from './session.js';
-import { resolveRequestInstructionLanguage } from '../profiles/instructionLanguage.js';
+import { resolvePreAccountLocale } from '../i18n/resolve.js';
 
 declare global {
   namespace Express {
@@ -53,7 +53,7 @@ export function loadAuthSession(
 
   const firstProfile = ensureUserHasProfile(
     request.authUser.id,
-    resolveRequestInstructionLanguage(request),
+    resolvePreAccountLocale(request),
   );
   const availableProfiles = listProfilesForUser(request.authUser.id);
   const preferredProfileId = getActiveProfileId(request);

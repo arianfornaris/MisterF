@@ -6,8 +6,8 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   isInstructionLanguage,
   normalizeInstructionLanguage,
-  resolveRequestInstructionLanguage,
 } from '../../src/server/profiles/instructionLanguage.js';
+import { resolvePreAccountLocale } from '../../src/server/i18n/resolve.js';
 
 const originalAppBaseUrl = process.env.APP_BASE_URL;
 const originalDatabasePath = process.env.DATABASE_PATH;
@@ -82,17 +82,23 @@ describe('instruction language helpers', () => {
     expect(normalizeInstructionLanguage(undefined, 'en')).toBe('en');
   });
 
-  it('resolves the request language from Accept-Language negotiation', () => {
-    const acceptsEnglish = {
-      acceptsLanguages: () => 'en',
+  it('resolves the pre-account locale from cookie, then Accept-Language, then default', () => {
+    const cookieOverride = {
+      headers: { cookie: 'misterf_lang=en' },
+      acceptsLanguages: () => 'es',
+    } as unknown as Request;
+    const acceptsSpanish = {
+      headers: {},
+      acceptsLanguages: () => 'es',
     } as unknown as Request;
     const acceptsNothing = {
+      headers: {},
       acceptsLanguages: () => false,
     } as unknown as Request;
 
-    expect(resolveRequestInstructionLanguage(acceptsEnglish)).toBe('en');
-    expect(resolveRequestInstructionLanguage(acceptsNothing)).toBe('es');
-    expect(resolveRequestInstructionLanguage(acceptsNothing, 'en')).toBe('en');
+    expect(resolvePreAccountLocale(cookieOverride)).toBe('en');
+    expect(resolvePreAccountLocale(acceptsSpanish)).toBe('es');
+    expect(resolvePreAccountLocale(acceptsNothing)).toBe('en');
   });
 });
 

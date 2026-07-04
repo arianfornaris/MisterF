@@ -1,5 +1,3 @@
-import type { Request } from 'express';
-
 export const instructionLanguages = ['es', 'en'] as const;
 
 export type InstructionLanguage = (typeof instructionLanguages)[number];
@@ -20,12 +18,4 @@ export function normalizeInstructionLanguage(
   fallback: InstructionLanguage = defaultInstructionLanguage,
 ): InstructionLanguage {
   return isInstructionLanguage(value) ? value : fallback;
-}
-
-export function resolveRequestInstructionLanguage(
-  request: Request,
-  fallback: InstructionLanguage = defaultInstructionLanguage,
-): InstructionLanguage {
-  const negotiated = request.acceptsLanguages(...instructionLanguages);
-  return isInstructionLanguage(negotiated) ? negotiated : fallback;
 }
