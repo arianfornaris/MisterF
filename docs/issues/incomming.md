@@ -46,18 +46,32 @@ esto; queda abierta la parte de "valoración general" agregada.
 
 ---
 
-Incorporar voz-a-texto y texto-a-voz.
+Incorporar voz-a-texto y texto-a-voz. Nota: la parte de texto-a-voz para
+ejercicios de listening ya está perfilada en
+`docs/features/comprehension-exercises.md` (TTS de calidad server-side);
+queda abierto el alcance general (leer bloques en voz alta, dictado,
+voz-a-texto).
 
 ---
 
 Permitir usar imágenes en los ejercicios. Opción gratuita: Pixabay API
-(https://pixabay.com/api/docs/).
+(https://pixabay.com/api/docs/). Nota: la variante de comprensión con
+preguntas (biblioteca curada de imágenes con metadata) está perfilada en
+`docs/features/comprehension-exercises.md`.
 
 ---
 
 Poder marcar lecciones/conversaciones favoritas y archivarlas. Nota: los
 favoritos de recursos se eliminaron por decisión de producto en V2 y los
 recursos ya se archivan; esta idea aplicaría solo a conversaciones.
+
+---
+
+Ejercicios de comprensión (escuchar un audio, ver una imagen o leer un texto
+y responder preguntas). Idea ya perfilada en
+`docs/features/comprehension-exercises.md`: patrón estímulo + preguntas sobre
+la maquinaria de `quiz`, con fases texto → audio (TTS de calidad
+server-side) → imágenes (biblioteca curada).
 
 ---
 

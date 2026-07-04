@@ -51,6 +51,7 @@ Use `features/` for product areas, feature concepts, and future feature ideas.
 - [Home Start Experience](./features/home-start-experience.md): exploration of personalized start suggestions and a built-in practice topic library
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
 - [Writing Practice Ideas](./features/writing-practice-ideas.md): writing-first practice patterns that use `open_text_prompt` for structured open responses
+- [Comprehension Exercises](./features/comprehension-exercises.md): stimulus-plus-questions concept for reading, listening (server-side quality TTS), and image comprehension
 
 ### Design
 
