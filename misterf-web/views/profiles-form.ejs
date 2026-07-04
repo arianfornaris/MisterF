@@ -36,6 +36,9 @@
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <input type="hidden" name="returnTo" value="/profiles">
       <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'regular'; %>
+      <% const selectedInstructionLanguage = profilePageMode === 'edit' && selectedProfile
+        ? selectedProfile.instructionLanguage
+        : (activeProfile ? activeProfile.instructionLanguage : 'es'); %>
 
       <label class="form-label" for="profileName">Nombre</label>
       <input
@@ -71,6 +74,43 @@
       <div class="form-text" id="profileLearningContextHelp">
         Puedes mencionar tus objetivos, intereses, trabajo, estudios, nivel aproximado o situaciones donde quieres usar inglés.
       </div>
+
+      <fieldset class="mt-4">
+        <legend class="form-label mb-2">Idioma de instrucción</legend>
+        <p class="text-body-secondary small mb-3">
+          El idioma de la interfaz y de las explicaciones de Mr. F para este perfil. El inglés que se practica no cambia.
+        </p>
+
+        <div class="list-group">
+          <label class="list-group-item d-flex gap-3">
+            <input
+              class="form-check-input flex-shrink-0 mt-1"
+              type="radio"
+              name="instructionLanguage"
+              value="es"
+              <%= selectedInstructionLanguage !== 'en' ? 'checked' : '' %>
+            >
+            <span class="d-block">
+              <span class="fw-semibold d-block">Español</span>
+              <small class="text-body-secondary">La interfaz y las explicaciones en español.</small>
+            </span>
+          </label>
+
+          <label class="list-group-item d-flex gap-3">
+            <input
+              class="form-check-input flex-shrink-0 mt-1"
+              type="radio"
+              name="instructionLanguage"
+              value="en"
+              <%= selectedInstructionLanguage === 'en' ? 'checked' : '' %>
+            >
+            <span class="d-block">
+              <span class="fw-semibold d-block">English</span>
+              <small class="text-body-secondary">Interface and explanations in English, for full immersion.</small>
+            </span>
+          </label>
+        </div>
+      </fieldset>
 
       <fieldset class="mt-4">
         <legend class="form-label mb-2">Modelo por defecto</legend>

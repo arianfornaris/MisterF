@@ -1685,4 +1685,13 @@ export const migrations: Migration[] = [
         ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
     `,
   },
+  {
+    id: 14,
+    name: 'add_profile_instruction_language',
+    up: `
+      ALTER TABLE profiles
+        ADD COLUMN instruction_language TEXT NOT NULL DEFAULT 'es'
+          CHECK (instruction_language IN ('es', 'en'));
+    `,
+  },
 ];

@@ -107,6 +107,10 @@ describe('database migrations', () => {
         id: 13,
         name: 'add_practice_guide_authoring_messages',
       },
+      {
+        id: 14,
+        name: 'add_profile_instruction_language',
+      },
     ]);
 
     const tableNames = (db
@@ -156,6 +160,7 @@ describe('database migrations', () => {
     expect(tableNames).not.toContain('practice_guide_share_links');
 
     expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
+      'instruction_language',
       'learning_context',
       'model_tier',
       'profile_onboarding_completed_at',

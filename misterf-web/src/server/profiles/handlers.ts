@@ -20,6 +20,10 @@ import {
   profileNameMaxLength,
 } from './fields.js';
 import { normalizeProfileModelTier } from './modelTier.js';
+import {
+  isInstructionLanguage,
+  normalizeInstructionLanguage,
+} from './instructionLanguage.js';
 
 const profileFieldLimits = {
   description: profileDescriptionMaxLength,
@@ -161,6 +165,7 @@ export function renderProfileOnboardingPage(
     selectedProfile: activeProfile,
     values: {
       description: activeProfile.description,
+      instructionLanguage: activeProfile.instructionLanguage,
       learningContext: activeProfile.learningContext,
       name: activeProfile.name,
     },
@@ -192,6 +197,10 @@ export function handleProfileOnboarding(
     request.body.learningContext,
     profileLearningContextMaxLength,
   );
+  const instructionLanguage = normalizeInstructionLanguage(
+    request.body.instructionLanguage,
+    activeProfile.instructionLanguage,
+  );
 
   if (!name) {
     response.status(422).render('profile-onboarding', {
@@ -210,6 +219,7 @@ export function handleProfileOnboarding(
       selectedProfile: activeProfile,
       values: {
         description,
+        instructionLanguage,
         learningContext,
         name,
       },
@@ -219,6 +229,7 @@ export function handleProfileOnboarding(
 
   updateProfile({
     description,
+    instructionLanguage,
     learningContext,
     name,
     profileId: activeProfile.id,
@@ -291,6 +302,10 @@ export function handleCreateProfile(request: Request, response: Response): void 
     profileLearningContextMaxLength,
   );
   const modelTier = normalizeProfileModelTier(request.body.modelTier);
+  const instructionLanguage = normalizeInstructionLanguage(
+    request.body.instructionLanguage,
+    request.activeProfile?.instructionLanguage,
+  );
   const returnTo = normalizeReturnTo(String(request.body.returnTo || '/'));
   if (!name) {
     response.redirect(returnTo);
@@ -299,6 +314,7 @@ export function handleCreateProfile(request: Request, response: Response): void 
 
   const profile = createProfile({
     description,
+    instructionLanguage,
     learningContext,
     modelTier,
     name,
@@ -331,6 +347,11 @@ export function handleUpdateProfile(request: Request, response: Response): void 
     profileLearningContextMaxLength,
   );
   const modelTier = normalizeProfileModelTier(request.body.modelTier);
+  const instructionLanguage = isInstructionLanguage(
+    request.body.instructionLanguage,
+  )
+    ? request.body.instructionLanguage
+    : undefined;
   if (!name) {
     response.redirect(`/profiles/${encodeURIComponent(profileId)}/edit`);
     return;
@@ -338,6 +359,7 @@ export function handleUpdateProfile(request: Request, response: Response): void 
 
   const profile = updateProfile({
     description,
+    instructionLanguage,
     learningContext,
     modelTier,
     name,

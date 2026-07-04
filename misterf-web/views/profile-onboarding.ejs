@@ -41,6 +41,41 @@
                   </div>
                 </div>
 
+                <fieldset>
+                  <legend class="form-label mb-1">Idioma de instrucción</legend>
+                  <p class="form-text mt-0 mb-2" id="onboardingInstructionLanguageHelp">
+                    ¿En qué idioma prefieres la interfaz y las explicaciones de Mr. F?
+                  </p>
+                  <div class="list-group" aria-describedby="onboardingInstructionLanguageHelp">
+                    <label class="list-group-item d-flex gap-3">
+                      <input
+                        class="form-check-input flex-shrink-0 mt-1"
+                        type="radio"
+                        name="instructionLanguage"
+                        value="es"
+                        <%= values.instructionLanguage !== 'en' ? 'checked' : '' %>
+                      >
+                      <span class="d-block">
+                        <span class="fw-semibold d-block">Español</span>
+                        <small class="text-body-secondary">La interfaz y las explicaciones en español. El inglés que practicas sigue siendo inglés.</small>
+                      </span>
+                    </label>
+                    <label class="list-group-item d-flex gap-3">
+                      <input
+                        class="form-check-input flex-shrink-0 mt-1"
+                        type="radio"
+                        name="instructionLanguage"
+                        value="en"
+                        <%= values.instructionLanguage === 'en' ? 'checked' : '' %>
+                      >
+                      <span class="d-block">
+                        <span class="fw-semibold d-block">English</span>
+                        <small class="text-body-secondary">Interface and explanations in English, for full immersion.</small>
+                      </span>
+                    </label>
+                  </div>
+                </fieldset>
+
                 <div>
                   <label class="form-label" for="onboardingProfileDescription">Descripción breve</label>
                   <textarea

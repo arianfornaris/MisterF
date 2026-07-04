@@ -10,6 +10,7 @@ export type StoredProfile = {
   name: string;
   description: string;
   learningContext: string;
+  instructionLanguage: 'en' | 'es';
   profileOnboardingCompletedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -378,6 +379,7 @@ type ProfileRow = {
   name: string;
   description: string;
   learning_context: string;
+  instruction_language: 'en' | 'es';
   profile_onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -655,6 +657,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
     name: row.name,
     description: row.description,
     learningContext: row.learning_context,
+    instructionLanguage: row.instruction_language,
     profileOnboardingCompletedAt: row.profile_onboarding_completed_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -2525,6 +2528,7 @@ export function createProfile(input: {
   description?: string;
   learningContext?: string;
   modelTier?: 'advanced' | 'max' | 'regular';
+  instructionLanguage?: 'en' | 'es';
   profileOnboardingCompleted?: boolean;
 }): StoredProfile {
   const id = randomUUID();
@@ -2538,9 +2542,10 @@ export function createProfile(input: {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -2550,6 +2555,7 @@ export function createProfile(input: {
       input.description ?? '',
       input.learningContext ?? '',
       input.modelTier ?? 'regular',
+      input.instructionLanguage ?? 'es',
       input.profileOnboardingCompleted === false ? null : new Date().toISOString(),
     );
 
@@ -2575,6 +2581,7 @@ export function findProfileForUser(
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at,
           created_at,
           updated_at
@@ -2598,6 +2605,7 @@ export function findProfileById(id: string): StoredProfile | null {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at,
           created_at,
           updated_at
@@ -2621,6 +2629,7 @@ export function listProfilesForUser(userId: string): StoredProfile[] {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at,
           created_at,
           updated_at
@@ -2634,7 +2643,10 @@ export function listProfilesForUser(userId: string): StoredProfile[] {
   return rows.map(toStoredProfile);
 }
 
-export function ensureUserHasProfile(userId: string): StoredProfile {
+export function ensureUserHasProfile(
+  userId: string,
+  instructionLanguage?: 'en' | 'es',
+): StoredProfile {
   const existingProfiles = listProfilesForUser(userId);
   if (existingProfiles.length > 0) {
     return existingProfiles[0];
@@ -2642,6 +2654,7 @@ export function ensureUserHasProfile(userId: string): StoredProfile {
 
   return createProfile({
     description: '',
+    instructionLanguage,
     name: defaultProfileName,
     profileOnboardingCompleted: false,
     userId,
@@ -2655,6 +2668,7 @@ export function updateProfile(input: {
   description: string;
   learningContext?: string;
   modelTier?: 'advanced' | 'max' | 'regular';
+  instructionLanguage?: 'en' | 'es';
   profileOnboardingCompleted?: boolean;
 }): StoredProfile | null {
   getDb()
@@ -2665,6 +2679,7 @@ export function updateProfile(input: {
             description = ?,
             learning_context = COALESCE(?, learning_context),
             model_tier = COALESCE(?, model_tier),
+            instruction_language = COALESCE(?, instruction_language),
             profile_onboarding_completed_at = CASE
               WHEN ? = 1 THEN COALESCE(profile_onboarding_completed_at, CURRENT_TIMESTAMP)
               ELSE profile_onboarding_completed_at
@@ -2678,6 +2693,7 @@ export function updateProfile(input: {
       input.description,
       input.learningContext ?? null,
       input.modelTier ?? null,
+      input.instructionLanguage ?? null,
       input.profileOnboardingCompleted ? 1 : 0,
       input.profileId,
       input.userId,
