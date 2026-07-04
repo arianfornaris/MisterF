@@ -2,6 +2,7 @@ import {
   getOpenRouterApiKeyForUser,
   getOpenRouterRemoteKeyInfoForUser,
 } from './openRouterUserKeys.js';
+import { translate, type Locale } from '../i18n/index.js';
 
 const minimumLlmCreditUsd = 0.01;
 
@@ -29,8 +30,8 @@ export async function assertUserHasLlmCredit(userId: string): Promise<void> {
   }
 }
 
-export function getCreditExhaustedMessage(): string {
-  return 'No tienes créditos suficientes para continuar esta práctica. Compra créditos para seguir usando Mr. F.';
+export function getCreditExhaustedMessage(locale: Locale = 'es'): string {
+  return translate(locale, 'credit.exhaustedFull');
 }
 
 export function isCreditExhaustedError(error: unknown): boolean {

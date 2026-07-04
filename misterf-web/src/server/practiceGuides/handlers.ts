@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import {
   archivePracticeGuideForUser,
@@ -470,7 +471,7 @@ export async function handleGeneratePracticeGuideDraft(
   if (prompt.length < 10) {
     renderPracticeGuideNewView(request, response.status(422), {
       activeProfile: auth.activeProfile,
-      generationError: 'Describe un poco mejor la guía.',
+      generationError: translate(request.locale, 'msg.describeGuideBetter'),
       generationPrompt: prompt,
       user: auth.user,
     });
@@ -522,8 +523,8 @@ export async function handleGeneratePracticeGuideDraft(
       activeProfile: auth.activeProfile,
       generationCreditExhausted: isCreditError,
       generationError: isCreditError
-        ? getCreditExhaustedMessage()
-        : 'No pude generar la guía ahora mismo. Inténtalo otra vez.',
+        ? getCreditExhaustedMessage(request.locale)
+        : translate(request.locale, 'msg.generateGuideError'),
       generationPrompt: prompt,
       user: auth.user,
     });
@@ -562,14 +563,14 @@ export async function handleRevisePracticeGuide(
   const userMessage = readMultilineField(request.body.message, 4000);
   if (userMessage.length < 3) {
     if (wantsJsonResponse(request)) {
-      response.status(422).json({ error: 'Escribe el cambio que quieres hacer.' });
+      response.status(422).json({ error: translate(request.locale, 'msg.writeChange') });
       return;
     }
 
     renderPracticeGuideAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'chat',
-      error: 'Escribe el cambio que quieres hacer.',
+      error: translate(request.locale, 'msg.writeChange'),
     });
     return;
   }
@@ -624,8 +625,8 @@ export async function handleRevisePracticeGuide(
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
     const failureMessage = isCreditError
-      ? getCreditExhaustedMessage()
-      : 'No pude aplicar ese cambio ahora mismo.';
+      ? getCreditExhaustedMessage(request.locale)
+      : translate(request.locale, 'msg.applyChangeError');
     const practiceGuideWithFailureMessage = savePracticeGuideAuthoringTurn({
       assistantMessage: failureMessage,
       practiceGuide: resolved.practiceGuide,

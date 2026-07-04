@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { translate, type Locale } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import {
   archiveQuizForUser,
@@ -420,21 +421,21 @@ function buildQuizResultPath(
   return query ? `${path}?${query}` : path;
 }
 
-function readQuizResultActionError(value: unknown): {
+function readQuizResultActionError(value: unknown, locale: Locale): {
   resultActionError: string;
   resultActionErrorIsCredit: boolean;
 } {
   const code = readField(value, 40);
   if (code === 'credit') {
     return {
-      resultActionError: getCreditExhaustedMessage(),
+      resultActionError: getCreditExhaustedMessage(locale),
       resultActionErrorIsCredit: true,
     };
   }
 
   if (code === 'practice-guide') {
     return {
-      resultActionError: 'No pude crear la guía de práctica ahora mismo. Inténtalo otra vez.',
+      resultActionError: translate(locale, 'msg.createResourceError'),
       resultActionErrorIsCredit: false,
     };
   }
@@ -500,40 +501,46 @@ function updateQuizWithDraft(
   });
 }
 
-function buildQuizAttemptListItems(attempts: StoredQuizAttempt[]) {
+function buildQuizAttemptListItems(
+  attempts: StoredQuizAttempt[],
+  locale: Locale,
+) {
   return attempts.map((attempt) => ({
     ...attempt,
-    ...getQuizAttemptStatusView(attempt.status),
+    ...getQuizAttemptStatusView(attempt.status, locale),
     relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
   }));
 }
 
-function getQuizAttemptStatusView(status: StoredQuizAttempt['status']) {
+function getQuizAttemptStatusView(
+  status: StoredQuizAttempt['status'],
+  locale: Locale,
+) {
   switch (status) {
     case 'draft':
       return {
         statusBadgeClass: 'text-bg-light border',
-        statusLabel: 'Sin enviar',
+        statusLabel: translate(locale, 'msg.statusDraft'),
       };
     case 'submitted':
       return {
         statusBadgeClass: 'text-bg-info',
-        statusLabel: 'Enviada',
+        statusLabel: translate(locale, 'msg.statusSubmitted'),
       };
     case 'evaluating':
       return {
         statusBadgeClass: 'text-bg-primary',
-        statusLabel: 'Evaluando',
+        statusLabel: translate(locale, 'msg.statusEvaluating'),
       };
     case 'evaluated':
       return {
         statusBadgeClass: 'text-bg-success',
-        statusLabel: 'Evaluada',
+        statusLabel: translate(locale, 'msg.statusEvaluatedFem'),
       };
     case 'failed':
       return {
         statusBadgeClass: 'text-bg-danger',
-        statusLabel: 'Error al evaluar',
+        statusLabel: translate(locale, 'msg.evaluateError'),
       };
   }
 }
@@ -744,7 +751,7 @@ function renderQuizResult(
   }
 
   const summary = buildQuizEvaluationSummary(result.data);
-  const actionError = readQuizResultActionError(request.query.guideError);
+  const actionError = readQuizResultActionError(request.query.guideError, request.locale);
   renderQuizzesView(response, 'quizzes-result', {
     ...buildQuizzesShellContext(request, {
       activeProfile: request.activeProfile ?? null,
@@ -796,7 +803,7 @@ export async function handleGenerateQuiz(
         title: `Nuevo quiz - ${appDocumentTitle}`,
         user: auth.user,
       }),
-      generationError: 'Describe un poco mejor el quiz.',
+      generationError: translate(request.locale, 'msg.describeQuizBetter'),
       generationPrompt: prompt,
     });
     return;
@@ -843,8 +850,8 @@ export async function handleGenerateQuiz(
       userId: auth.user.id,
     });
     const generationError = isCreditExhaustedError(error)
-      ? getCreditExhaustedMessage()
-      : 'No pude generar el quiz ahora mismo. Inténtalo otra vez.';
+      ? getCreditExhaustedMessage(request.locale)
+      : translate(request.locale, 'msg.generateQuizError');
 
     renderQuizzesView(response.status(422), 'quizzes-new', {
       ...buildQuizzesShellContext(request, {
@@ -889,7 +896,7 @@ export function handleUpdateQuizMetadata(request: Request, response: Response): 
     renderQuizAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'general',
-      error: 'No pude guardar los detalles del quiz.',
+      error: translate(request.locale, 'msg.saveQuizDetailsError'),
     });
     return;
   }
@@ -910,14 +917,14 @@ export async function handleReviseQuiz(
   const userMessage = readMultilineField(request.body.message, 4000);
   if (!draft || userMessage.length < 3) {
     if (wantsJsonResponse(request)) {
-      response.status(422).json({ error: 'Escribe el cambio que quieres hacer.' });
+      response.status(422).json({ error: translate(request.locale, 'msg.writeChange') });
       return;
     }
 
     renderQuizAuthoring(request, response, {
       ...resolved,
       activeTab: 'chat',
-      error: 'Escribe el cambio que quieres hacer.',
+      error: translate(request.locale, 'msg.writeChange'),
     });
     return;
   }
@@ -951,12 +958,12 @@ export async function handleReviseQuiz(
     if (!updatedQuiz) {
       const quizWithFailureMessage = saveQuizAuthoringTurn({
         quiz: resolved.quiz,
-        assistantMessage: 'No pude aplicar ese cambio ahora mismo.',
+        assistantMessage: translate(request.locale, 'msg.applyChangeError'),
         userId: resolved.user.id,
         userMessage,
       });
       if (wantsJsonResponse(request)) {
-        response.status(422).json({ error: 'No pude aplicar ese cambio ahora mismo.' });
+        response.status(422).json({ error: translate(request.locale, 'msg.applyChangeError') });
         return;
       }
 
@@ -964,7 +971,7 @@ export async function handleReviseQuiz(
         ...resolved,
         activeTab: 'chat',
         quiz: quizWithFailureMessage ?? resolved.quiz,
-        error: 'No pude aplicar ese cambio ahora mismo.',
+        error: translate(request.locale, 'msg.applyChangeError'),
       });
       return;
     }
@@ -985,8 +992,8 @@ export async function handleReviseQuiz(
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
     const failureMessage = isCreditError
-      ? getCreditExhaustedMessage()
-      : 'No pude aplicar ese cambio ahora mismo.';
+      ? getCreditExhaustedMessage(request.locale)
+      : translate(request.locale, 'msg.applyChangeError');
     const quizWithFailureMessage = saveQuizAuthoringTurn({
       quiz: resolved.quiz,
       assistantMessage: failureMessage,
@@ -1040,7 +1047,7 @@ export async function handleAddQuizBlock(
     renderQuizAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'blocks',
-      error: 'Describe el bloque que quieres agregar.',
+      error: translate(request.locale, 'msg.describeBlock'),
     });
     return;
   }
@@ -1101,7 +1108,7 @@ function updateDraftBlocks(
     renderQuizAuthoring(request, response.status(422), {
       ...resolved,
       activeTab: 'blocks',
-      error: 'No pude actualizar los bloques ahora mismo.',
+      error: translate(request.locale, 'msg.updateBlocksError'),
     });
     return;
   }
@@ -1206,7 +1213,7 @@ export async function renderQuizShowPage(
       title: `${resolved.quiz.title} - ${appDocumentTitle}`,
       user: resolved.user,
     }),
-    quizAttempts: buildQuizAttemptListItems(attempts),
+    quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
     quizBlockOutlineItems: buildQuizBlockOutlineItems(draft),
     canManageQuiz: resolved.canManageQuiz,
     quizShareMode,
@@ -1445,7 +1452,7 @@ export async function handleSubmitQuizAttempt(
   if (!submittedAttempt) {
     renderQuizAttempt(request, response.status(422), {
       attempt,
-      error: 'No pude enviar el quiz. Inténtalo otra vez.',
+      error: translate(request.locale, 'msg.submitQuizError'),
     });
     return;
   }
@@ -1543,8 +1550,8 @@ function renderQuizEvaluationError(
   renderQuizAttempt(request, response.status(422), {
     attempt: failedAttempt,
     error: isCredit
-      ? getCreditExhaustedMessage()
-      : 'No pude evaluar el quiz ahora mismo. Puedes volver a enviarlo en unos minutos.',
+      ? getCreditExhaustedMessage(request.locale)
+      : translate(request.locale, 'msg.evaluateQuizError'),
     errorIsCredit: isCredit,
   });
 }
