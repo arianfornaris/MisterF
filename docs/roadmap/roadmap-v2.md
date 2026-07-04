@@ -118,9 +118,13 @@ manual quiz JSON for development" item was reframed as a resource
 import/export product idea and moved to the idea inbox
 ([issues/incomming.md](../issues/incomming.md)).
 
-- [ ] Prompt-contract fixtures that validate representative generated quiz
+- [x] Prompt-contract fixtures that validate representative generated quiz
   JSON (generation, single-block generation, revision, and evaluation)
-  without a live model.
+  without a live model. Done 2026-07-04:
+  `tests/server/quizAuthoringContracts.test.ts` with fixtures in
+  `tests/server/fixtures/quizAuthoringFixtures.ts` — valid outputs for all
+  nine item kinds, broken-output recovery through the correction loop,
+  clean exhaustion, and prompt-schema drift guards.
 - [ ] Deeper semantic review layer for structured tutor blocks
   ([Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md)).
 - [ ] [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
