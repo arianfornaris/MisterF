@@ -33,6 +33,10 @@ at `v1.1.0` (2026-07-04), so `v1.0.0` has no tag.
 3. Tag the release commit with an annotated tag summarizing the release:
    `git tag -a v<new-version> -m "<one-line release summary>"`
 4. Run `./deploy.sh` from the repo root (see `production-server-ops`).
+5. After a successful deploy, publish a GitHub release for the tag on
+   `arianfornaris/MisterF` with user-facing notes (Novedades / Ingeniería /
+   Documentación sections, in Spanish). If `gh release create` fails on
+   scopes, use the REST API with the repo's configured credentials.
 
 `deploy.sh` enforces the policy: it refuses to deploy when `HEAD` is not
 tagged `v<package.json version>`, and pushes with `--follow-tags` so the tag
