@@ -16,7 +16,11 @@ deferrals.
 
 - [Roadmap V1](./roadmap/roadmap-v1.md): the first production version.
   **Complete — deployed to production (misterf.us) on 2026-07-02** with the
-  clean database baseline. Post-V1 candidates are recorded in its Part 3.
+  clean database baseline.
+- [Roadmap V2](./roadmap/roadmap-v2.md): draft for the next version, seeded
+  with the engineering and quality items deferred from V1. Product-feature
+  candidates live in the idea inbox,
+  [issues/incomming.md](./issues/incomming.md).
 
 ## Structure
 

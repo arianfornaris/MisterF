@@ -311,38 +311,16 @@ Recorded so nothing is lost; none of these block the first version.
 
 ## Product Features
 
-- Home page work (V3). Two surfaces: a logged-out landing page presenting the
-  product, and a logged-in home showing the composer plus pre-generated
-  practice-guide-style suggestion cards (random at first, later ranked by a
-  recommendation system that refreshes when profile progress updates, and
-  including the user's own recent guides). Home suggestions should reference
-  resource ids where useful. Detailed design:
-  [Home Suggestions Tracker](../issues/home-suggestions-tracker.md) and
-  [Home Start Experience](../features/home-start-experience.md).
-- Public/free shared roleplay attempts with optional max learner-turn limits.
-- Classroom layer: teacher/student roles, class groups or rosters, due dates,
-  teacher dashboards, student result review by teachers, and organization or
-  teacher-funded student credits.
-- CEFR level standardization (A1-C2) for resources, following the standards
-  used in Florida language teaching
-  ([issues/incomming.md](../issues/incomming.md)).
-- Marketplace exploration ([issues/incomming.md](../issues/incomming.md)).
-- Tutor plan sub-steps, and structured onboarding that pre-generates practice
-  guides so sessions do not start from scratch
-  ([issues/incomming.md](../issues/incomming.md)).
+Moved to the idea inbox, [issues/incomming.md](../issues/incomming.md), on
+2026-07-04: home page work (V3), public/free shared roleplay attempts,
+the classroom layer, CEFR level standardization, marketplace exploration,
+and tutor plan sub-steps with structured onboarding.
 
 ## Engineering And Quality
 
-- Prompt-contract fixtures that validate representative generated quiz JSON
-  (generation, single-block generation, revision, and evaluation) without a
-  live model.
-- Deeper manual per-block content editing in the quiz `Bloques` tab, and
-  delete confirmation for non-trivial blocks.
-- Static manual quiz JSON support for development/debugging.
-- Deeper semantic review layer for structured tutor blocks
-  ([Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md)).
-- [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
-  semantic CSS class naming pass across the app.
+Moved to [Roadmap V2](roadmap-v2.md) on 2026-07-04: prompt-contract fixtures
+for generated quiz JSON, static manual quiz JSON support, the deeper semantic
+review layer for structured tutor blocks, and the UI style consistency audit.
 
 ## Agent Skills Backlog
 

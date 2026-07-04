@@ -14,7 +14,8 @@ lives in `docs/`.
   operations, feature notes, and issue trackers
 - [Roadmaps](./docs/roadmap/): release roadmaps;
   [Roadmap V1](./docs/roadmap/roadmap-v1.md) records the first production
-  release (deployed 2026-07-02)
+  release (deployed 2026-07-02) and [Roadmap V2](./docs/roadmap/roadmap-v2.md)
+  drafts the next version
 
 ## Local Start
 
