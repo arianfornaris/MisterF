@@ -3,15 +3,15 @@
   // and in design mode: sectionBlockCount. Sections are managed through the
   // AI chat tab, so this header is display-only.
   const isSectionDesignMode = quizSectionMode === 'design';
-  const sectionHeading = section.title || `Sección ${sectionNumber}`;
+  const sectionHeading = section.title || `${t('quizzes.section')} ${sectionNumber}`;
 %>
 <div class="quiz-section-header" id="quiz-section-<%= section.id %>">
   <div class="quiz-section-header-main">
-    <p class="quiz-section-eyebrow">Sección <%= sectionNumber %></p>
+    <p class="quiz-section-eyebrow"><%= t('quizzes.section') %> <%= sectionNumber %></p>
     <h3 class="quiz-section-title h6"><%= sectionHeading %></h3>
     <p class="quiz-section-instructions mb-0"><%= section.instructions %></p>
     <% if (isSectionDesignMode && sectionBlockCount === 0) { %>
-      <p class="small text-body-secondary mt-2 mb-0">Sin bloques asignados todavía.</p>
+      <p class="small text-body-secondary mt-2 mb-0"><%= t('quizzes.noBlocksAssigned') %></p>
     <% } %>
   </div>
 </div>

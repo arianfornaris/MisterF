@@ -10,8 +10,8 @@
       <a
         class="resource-page-close-button"
         href="/quizzes/<%= encodeURIComponent(attempt.quizId) %>"
-        aria-label="Cerrar"
-        title="Cerrar"
+        aria-label="<%= t('common.close') %>"
+        title="<%= t('common.close') %>"
       >
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
@@ -22,7 +22,7 @@
     <div class="alert <%= attemptErrorIsCredit ? 'alert-warning' : 'alert-danger' %>" role="alert">
       <p class="mb-<%= attemptErrorIsCredit ? '2' : '0' %>"><%= attemptError %></p>
       <% if (attemptErrorIsCredit) { %>
-        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/quiz-attempts/${attempt.id}`) %>">Comprar créditos</a>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/quiz-attempts/${attempt.id}`) %>"><%= t('credit.buy') %></a>
       <% } %>
     </div>
   <% } %>
@@ -52,7 +52,7 @@
     </div>
     <div class="quiz-submit-bar">
       <button class="btn btn-primary" type="submit" data-quiz-submit-button>
-        <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Enviar
+        <i class="bi bi-check2-circle me-1" aria-hidden="true"></i><%= t('quizzes.submit') %>
       </button>
     </div>
   </form>
@@ -63,7 +63,7 @@
     <div class="modal-content">
       <div class="modal-body d-flex align-items-center gap-3">
         <div class="spinner-border text-primary" aria-hidden="true"></div>
-        <p class="mb-0">Evaluando el quiz...</p>
+        <p class="mb-0"><%= t('quizzes.evaluating') %></p>
       </div>
     </div>
   </div>
