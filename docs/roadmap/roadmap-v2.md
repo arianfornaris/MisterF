@@ -2,13 +2,19 @@
 
 Date: 2026-07-04 (last updated: 2026-07-04)
 
-Status: **Planning.** V2 has two product pillars: English-first
+Status: **In planning / active.** V2 has two product pillars: English-first
 internationalization of the platform, and comprehension exercises
 (listening, reading, and image comprehension). Part 2 carries the
 engineering and quality items deferred from
 [Roadmap V1](roadmap-v1.md). Remaining product-feature candidates stay in
 the idea inbox, [issues/incomming.md](../issues/incomming.md), until they
 are promoted here.
+
+This document is also the living tracker for V2: items move through the
+status legend as work happens (`[~]` when started, `[x]` with a date when
+done), and notes are added inline when decisions change an item's scope.
+There is no fixed execution order — the next item is chosen by analyzing
+the current state at each step.
 
 Product context: the primary audience is students in South Florida, many of
 them Hispanic and Haitian. Today the whole platform (UI and tutor
