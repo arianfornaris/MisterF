@@ -61,9 +61,9 @@ function initializeQuizSharingUi() {
   if (copyButtonEl && shareFieldEl instanceof HTMLInputElement) {
     copyButtonEl.addEventListener('click', async () => {
       const copied = await copyTextToClipboard(shareFieldEl.value);
-      copyButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
+      copyButtonEl.textContent = copied ? t('clientMisc.copied') : t('clientMisc.copyFailed');
       window.setTimeout(() => {
-        copyButtonEl.innerHTML = '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
+        copyButtonEl.innerHTML = `<i class="bi bi-copy me-1" aria-hidden="true"></i>${t('clientMisc.copy')}`;
       }, 1200);
     });
   }
@@ -159,8 +159,8 @@ function initializeQuizAddBlockShortcut() {
 
     const kindLabel = kindEl instanceof HTMLInputElement ? kindEl.dataset.kindLabel || '' : '';
     const message = kindLabel
-      ? `Agrega un bloque de tipo "${kindLabel}": ${prompt}`
-      : `Agrega un bloque: ${prompt}`;
+      ? t('clientMisc.addBlockOfKind', { kind: kindLabel, prompt })
+      : t('clientMisc.addBlock', { prompt });
     if (!stageAuthoringChatMessage(message)) {
       return;
     }
@@ -286,7 +286,7 @@ function createQuizQuizCard(block, options) {
   const nextButton = document.createElement('button');
   nextButton.className = 'btn btn-primary btn-sm quiz-nav-button';
   nextButton.type = 'button';
-  nextButton.textContent = 'Siguiente';
+  nextButton.textContent = t('clientMisc.next');
   nextButton.addEventListener('click', () => {
     if (state.currentIndex < state.itemStates.length - 1) {
       state.currentIndex += 1;
@@ -345,7 +345,7 @@ function renderQuizQuizCard(section, state, options) {
 
   const item = state.block.items[state.currentIndex];
   const itemState = state.itemStates[state.currentIndex];
-  itemCounter.textContent = `Pregunta ${state.currentIndex + 1} de ${state.itemStates.length}`;
+  itemCounter.textContent = t('clientMisc.questionOf', { current: state.currentIndex + 1, total: state.itemStates.length });
   renderQuizSectionContext(itemSection, item.section);
   itemPrompt.innerHTML = renderMarkdown(item.prompt || '');
 
@@ -405,9 +405,9 @@ function syncQuizQuizStatus(section, state, options) {
     });
     status.classList.add('is-success');
   } else if (ready) {
-    setStatusText(status, 'Todo listo. Puedes enviar el quiz.');
+    setStatusText(status, t('clientMisc.quizReadySend'));
   } else {
-    setStatusText(status, 'Responde todas las preguntas antes de enviar.');
+    setStatusText(status, t('clientMisc.answerAllBeforeSend'));
   }
 }
 

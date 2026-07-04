@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { normalizeModelTier } from '../utils/modelTier.js';
 
 export class ComposerView {
@@ -31,8 +32,8 @@ export class ComposerView {
 
     const isStopMode = isAssistantBusy;
     this.sendButtonEl.disabled = isStopMode ? isAssistantStopping : this.inputEl.disabled;
-    this.sendButtonEl.title = isStopMode ? 'Detener' : 'Enviar';
-    this.sendButtonEl.setAttribute('aria-label', isStopMode ? 'Detener' : 'Enviar');
+    this.sendButtonEl.title = isStopMode ? 'Detener' : t('chat.send');
+    this.sendButtonEl.setAttribute('aria-label', isStopMode ? 'Detener' : t('chat.send'));
     this.sendButtonEl.dataset.mode = isStopMode ? 'stop' : 'send';
     this.sendButtonEl.innerHTML = isStopMode
       ? '<i class="bi bi-stop-fill" aria-hidden="true"></i>'

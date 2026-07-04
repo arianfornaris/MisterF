@@ -2,7 +2,7 @@ import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../shared/markdown.js';
 import { disableTextAssist } from '../shared/textAssist.js';
 
-const DEFAULT_SUBMIT_LABEL = 'Enviar respuesta';
+const DEFAULT_SUBMIT_LABEL = t('card.sendAnswer');
 const MAX_RESPONSE_LENGTH = 2400;
 const MAX_SUBMIT_LABEL_LENGTH = 60;
 
@@ -20,7 +20,7 @@ export function createOpenTextPromptCard(block, context, deps) {
 
   const label = document.createElement('p');
   label.className = 'open-text-prompt-label';
-  label.textContent = 'Respuesta abierta';
+  label.textContent = t('card.kindOpenText');
 
   const promptEl = document.createElement('div');
   promptEl.className = 'open-text-prompt-prompt';
@@ -81,7 +81,7 @@ export function createOpenTextPromptCard(block, context, deps) {
 function submitOpenTextPromptAnswer(section, state, deps) {
   const response = state.response.trim().slice(0, MAX_RESPONSE_LENGTH);
   if (!normalizeInlineText(response) || state.submitted) {
-    state.statusText = 'Escribe tu respuesta antes de enviarla.';
+    state.statusText = t('card.writeAnswerBeforeSend');
     state.statusTone = 'error';
     renderOpenTextPromptState(section, state);
     return;
@@ -97,7 +97,7 @@ function submitOpenTextPromptAnswer(section, state, deps) {
   });
 
   if (!sent) {
-    state.statusText = 'No pude enviar la respuesta. Intenta de nuevo.';
+    state.statusText = t('card.sendAnswerError');
     state.statusTone = 'error';
     renderOpenTextPromptState(section, state);
     return;

@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 export class TutorPlanView {
   constructor({ onCloseRequest, panelEl }) {
     this.isMinimized = false;
@@ -153,7 +154,7 @@ function createIconButton({ iconClass, label, onClick }) {
 function createCloseButton(onClick) {
   return createIconButton({
     iconClass: 'bi bi-x-lg',
-    label: 'Concluir plan',
+    label: t('clientMisc.concludePlan'),
     onClick,
   });
 }

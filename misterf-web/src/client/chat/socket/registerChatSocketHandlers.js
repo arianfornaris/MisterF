@@ -35,7 +35,7 @@ export function registerChatSocketHandlers(deps) {
     }
 
     deps.renderer.appendEphemeralError(
-      'No puedo conectar con el servidor en este momento. Revisa PM2 o vuelve a intentar en unos segundos.',
+      t('clientMisc.cannotConnect'),
     );
     deps.setComposerEnabled(false);
   });

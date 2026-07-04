@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { createFillInTheBlankCard } from '../cards/createFillInTheBlankCard.js';
 import { createMatchingPairsCard } from '../cards/createMatchingPairsCard.js';
 import { createMultipleChoiceCard } from '../cards/multipleChoiceCard.js';
@@ -681,17 +682,17 @@ export function createTutorMessageRenderer(deps) {
     });
 
     const copyButton = createMessageActionButton({
-      label: 'Copiar texto',
+      label: t('translator.copyText'),
       iconClass: 'bi-copy',
     });
     copyButton.addEventListener('click', async () => {
       const copied = await copyTextToClipboard(element.dataset.rawContent || '');
       copyButton.classList.toggle('is-copied', copied);
-      copyButton.title = copied ? 'Copiado' : 'No se pudo copiar';
+      copyButton.title = copied ? t('clientMisc.copied') : t('clientMisc.copyFailed');
 
       setTimeout(() => {
         copyButton.classList.remove('is-copied');
-        copyButton.title = 'Copiar texto';
+        copyButton.title = t('translator.copyText');
       }, 1200);
     });
 

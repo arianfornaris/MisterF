@@ -63,7 +63,7 @@ export function createQuizCard(block, context, deps) {
   const closeButton = document.createElement('button');
   closeButton.className = 'btn-close quiz-close-button';
   closeButton.type = 'button';
-  closeButton.setAttribute('aria-label', 'Cerrar quiz');
+  closeButton.setAttribute('aria-label', t('clientMisc.closeQuiz'));
   closeButton.addEventListener('click', () => {
     if (state.submitted || state.aborted) {
       return;
@@ -109,7 +109,7 @@ export function createQuizCard(block, context, deps) {
   const nextButton = document.createElement('button');
   nextButton.className = 'btn btn-primary btn-sm quiz-nav-button';
   nextButton.type = 'button';
-  nextButton.textContent = 'Siguiente';
+  nextButton.textContent = t('clientMisc.next');
   nextButton.addEventListener('click', () => {
     if (state.currentIndex < state.itemStates.length - 1) {
       state.currentIndex += 1;
@@ -128,7 +128,7 @@ export function createQuizCard(block, context, deps) {
   const evaluateButton = document.createElement('button');
   evaluateButton.className = 'btn btn-primary quiz-evaluate-button';
   evaluateButton.type = 'button';
-  evaluateButton.textContent = 'Evaluar';
+  evaluateButton.textContent = t('card.evaluate');
   evaluateButton.addEventListener('click', () => {
     if (state.submitted || state.aborted || !isQuizReadyToSubmit(state)) {
       return;
@@ -172,7 +172,7 @@ function renderQuizCard(section, state, deps) {
 
   const item = state.block.items[state.currentIndex];
   const itemState = state.itemStates[state.currentIndex];
-  itemCounter.textContent = `Pregunta ${state.currentIndex + 1} de ${state.itemStates.length}`;
+  itemCounter.textContent = t('clientMisc.questionOf', { current: state.currentIndex + 1, total: state.itemStates.length });
   itemPrompt.innerHTML = renderMarkdown(item.prompt || '');
 
   itemBody.replaceChildren();
@@ -209,9 +209,9 @@ function syncQuizCardStatus(section, state) {
     });
     status.classList.add('is-success');
   } else if (isQuizReadyToSubmit(state)) {
-    setQuizStatusContent(status, 'Todo listo. Puedes evaluar el quiz cuando quieras.');
+    setQuizStatusContent(status, t('card.quizReadyEvaluate'));
   } else {
-    setQuizStatusContent(status, 'Responde todas las preguntas antes de evaluar.');
+    setQuizStatusContent(status, t('card.answerAllBeforeEvaluate'));
   }
 }
 

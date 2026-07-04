@@ -71,7 +71,7 @@ export function createFillInTheBlankCard(block, context, deps) {
   label.className = 'fill-in-the-blank-label';
   label.textContent =
     block.type === 'fill_in_the_blank_input'
-      ? 'Completa el espacio'
+      ? t('card.completeBlank')
       : t('card.chooseCorrect');
 
   const prompt = document.createElement('div');
@@ -196,7 +196,7 @@ export function createFillInTheBlankCard(block, context, deps) {
   const confirmButton = document.createElement('button');
   confirmButton.className = 'btn btn-primary exercise-confirm-button';
   confirmButton.type = 'button';
-  confirmButton.setAttribute('aria-label', 'Confirmar respuesta');
+  confirmButton.setAttribute('aria-label', t('card.confirmAnswer'));
   confirmButton.innerHTML = '<i class="bi bi-check-lg" aria-hidden="true"></i>';
   confirmButton.addEventListener('click', () => {
     handleFillInTheBlankSubmit(section, state, deps);
@@ -353,7 +353,7 @@ function submitFillInTheBlankInputAnswer(section, state, deps, submission) {
     rememberInput: false,
   });
   if (!sent) {
-    state.statusText = 'No pude enviar la respuesta. Intenta de nuevo.';
+    state.statusText = t('card.sendAnswerError');
     state.statusTone = 'error';
     flashFillInTheBlankError(section);
     renderFillInTheBlankState(section, state);

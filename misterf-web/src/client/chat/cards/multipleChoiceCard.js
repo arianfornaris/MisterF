@@ -41,7 +41,7 @@ export function createMultipleChoiceCard(block, context, deps) {
 
   const label = document.createElement('p');
   label.className = 'multiple-choice-label';
-  label.textContent = 'Selecciona la respuesta';
+  label.textContent = t('card.selectAnswer');
 
   const prompt = document.createElement('div');
   prompt.className = 'multiple-choice-prompt';

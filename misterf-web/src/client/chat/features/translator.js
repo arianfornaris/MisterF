@@ -80,7 +80,7 @@ export function createTranslatorController(deps) {
   function setTranslatorBusy(isBusy) {
     if (deps.translatorSubmitEl) {
       deps.translatorSubmitEl.disabled = isBusy;
-      deps.translatorSubmitEl.textContent = isBusy ? 'Traduciendo...' : 'Traducir';
+      deps.translatorSubmitEl.textContent = isBusy ? t('translator.translating') : t('translator.submit');
     }
   }
 
@@ -93,7 +93,7 @@ export function createTranslatorController(deps) {
     const copied = await deps.copyTextToClipboard(content);
 
     button.classList.toggle('is-copied', copied);
-    button.title = copied ? 'Copiado' : 'No se pudo copiar';
+    button.title = copied ? t('clientMisc.copied') : t('clientMisc.copyFailed');
 
     window.setTimeout(() => {
       button.classList.remove('is-copied');
@@ -144,7 +144,7 @@ export function createTranslatorController(deps) {
   function handleError({ message }) {
     setTranslatorBusy(false);
     deps.translatorResultEl.textContent =
-      message || 'No pude traducir el texto en este momento.';
+      message || t('translator.error');
   }
 
   return {

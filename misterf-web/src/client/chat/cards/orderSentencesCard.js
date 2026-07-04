@@ -29,7 +29,7 @@ export function createOrderSentencesCard(block, context, deps) {
 
   const label = document.createElement('p');
   label.className = 'order-sentences-label';
-  label.textContent = 'Ordena las oraciones';
+  label.textContent = t('card.orderSentencesLabel');
 
   const prompt = document.createElement('div');
   prompt.className = 'order-sentences-prompt';
@@ -176,7 +176,7 @@ function renderOrderSentencesState(section, state) {
   }
 
   status.textContent =
-    state.statusText || 'Toca las oraciones en el orden correcto y confirma.';
+    state.statusText || t('card.orderSentencesHint');
   if (state.statusTone === 'error') {
     status.classList.add('is-error');
   }

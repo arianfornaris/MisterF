@@ -315,7 +315,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     helper.textContent =
       item.selectionMode === 'single'
         ? t('card.chooseOnlyOne')
-        : 'Selecciona una o varias opciones.';
+        : t('card.chooseOneOrMore');
 
     container.append(optionsWrap, helper);
     return;
@@ -329,7 +329,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     leftColumn.className = 'matching-pairs-column';
     const leftTitle = document.createElement('p');
     leftTitle.className = 'matching-pairs-column-title';
-    leftTitle.textContent = 'Columna A';
+    leftTitle.textContent = t('card.columnA');
     const leftList = document.createElement('div');
     leftList.className = 'matching-pairs-list';
 
@@ -337,7 +337,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
     rightColumn.className = 'matching-pairs-column';
     const rightTitle = document.createElement('p');
     rightTitle.className = 'matching-pairs-column-title';
-    rightTitle.textContent = 'Columna B';
+    rightTitle.textContent = t('card.columnB');
     const rightList = document.createElement('div');
     rightList.className = 'matching-pairs-list';
 
@@ -424,7 +424,7 @@ export function renderQuizItemBody(container, item, itemState, state, options = 
       const empty = document.createElement('p');
       empty.className = 'quiz-item-helper';
       empty.textContent =
-        'Selecciona un elemento de una columna y luego uno de la otra para crear el par.';
+        t('card.matchingSelectHint');
       pairList.append(empty);
     } else {
       itemState.pairs.forEach((pair, pairIndex) => {

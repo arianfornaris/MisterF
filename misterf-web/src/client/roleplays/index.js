@@ -52,9 +52,9 @@ function initializeRoleplaySharingUi() {
   if (copyButtonEl && shareFieldEl instanceof HTMLInputElement) {
     copyButtonEl.addEventListener('click', async () => {
       const copied = await copyTextToClipboard(shareFieldEl.value);
-      copyButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
+      copyButtonEl.textContent = copied ? t('clientMisc.copied') : t('clientMisc.copyFailed');
       window.setTimeout(() => {
-        copyButtonEl.innerHTML = '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
+        copyButtonEl.innerHTML = `<i class="bi bi-copy me-1" aria-hidden="true"></i>${t('clientMisc.copy')}`;
       }, 1200);
     });
   }
@@ -267,7 +267,7 @@ function initializeRoleplayTurnComposer() {
 
     const text = textareaEl.value.trim();
     if (!text) {
-      showRoleplayTurnError(errorEl, 'Escribe tu respuesta antes de continuar.');
+      showRoleplayTurnError(errorEl, t('clientMisc.writeBeforeContinue'));
       return;
     }
 
@@ -362,7 +362,7 @@ function getRoleplayTurnFallbackError(response) {
     return t('clientMisc.roleplayTurnSessionExpired');
   }
 
-  return 'No pude generar la siguiente respuesta ahora mismo.';
+  return t('clientMisc.cannotGenerateResponse');
 }
 
 function appendRoleplayTurn(transcriptEl, input) {
@@ -430,7 +430,7 @@ function setRoleplayTurnFormPending(input) {
 
   input.submitButtonEl.disabled = input.pending;
   input.submitButtonEl.innerHTML = input.pending
-    ? '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Esperando respuesta'
+    ? `<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>${t('clientMisc.waitingResponse')}`
     : input.submitButtonEl.dataset.defaultHtml;
 }
 

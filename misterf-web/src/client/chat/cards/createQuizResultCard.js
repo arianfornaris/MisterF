@@ -59,7 +59,7 @@ export function createQuizResultCard(block) {
   previousButton.className = 'btn btn-outline-secondary btn-sm';
   previousButton.type = 'button';
   previousButton.innerHTML = '<i class="bi bi-arrow-left" aria-hidden="true"></i>';
-  previousButton.setAttribute('aria-label', 'Pregunta anterior');
+  previousButton.setAttribute('aria-label', t('clientMisc.previousQuestion'));
   previousButton.addEventListener('click', () => {
     if (state.currentIndex <= 0) {
       return;
@@ -73,7 +73,7 @@ export function createQuizResultCard(block) {
   nextButton.className = 'btn btn-outline-secondary btn-sm';
   nextButton.type = 'button';
   nextButton.innerHTML = '<i class="bi bi-arrow-right" aria-hidden="true"></i>';
-  nextButton.setAttribute('aria-label', 'Pregunta siguiente');
+  nextButton.setAttribute('aria-label', t('clientMisc.nextQuestion'));
   nextButton.addEventListener('click', () => {
     if (state.currentIndex >= state.items.length - 1) {
       return;
@@ -107,7 +107,7 @@ function renderQuizResultCard(section, state) {
     return;
   }
 
-  counter.textContent = `Pregunta ${state.currentIndex + 1} de ${state.items.length}`;
+  counter.textContent = t('clientMisc.questionOf', { current: state.currentIndex + 1, total: state.items.length });
   previousButton.disabled = state.currentIndex === 0;
   nextButton.disabled = state.currentIndex >= state.items.length - 1;
 
@@ -120,7 +120,7 @@ function renderQuizResultCard(section, state) {
     button.textContent = String(index + 1);
     button.setAttribute(
       'aria-label',
-      `Ir a la pregunta ${index + 1} (${getEvaluationStatusLabel(status).toLowerCase()})`,
+      t('clientMisc.goToQuestion', { number: index + 1, status: getEvaluationStatusLabel(status).toLowerCase() }),
     );
     button.addEventListener('click', () => {
       state.currentIndex = index;
@@ -152,7 +152,7 @@ function createQuizResultSlide(item, index) {
 
   const number = document.createElement('span');
   number.className = 'quiz-result-item-number';
-  number.textContent = `Pregunta ${index + 1}`;
+  number.textContent = t('clientMisc.questionNumber', { number: index + 1 });
 
   itemHeader.append(number);
   itemHeader.append(createEvaluationBadge(item.evaluation?.status));
@@ -201,7 +201,7 @@ function renderQuizResultItemContent(item) {
 function createQuizResultOpenText(item) {
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
-  wrap.append(createResponseLabel('Tu respuesta'));
+  wrap.append(createResponseLabel(t('card.yourAnswer')));
   wrap.append(
     createQuizResultPartsReview(
       item.inlineReview?.parts,
@@ -222,7 +222,7 @@ function createQuizResultTranslationLike(item) {
     : '';
 
   wrap.append(sentence);
-  wrap.append(createResponseLabel('Tu respuesta'));
+  wrap.append(createResponseLabel(t('card.yourAnswer')));
   wrap.append(
     createQuizResultPartsReview(
       item.inlineReview?.parts,
@@ -274,7 +274,7 @@ function createQuizResultFillSentence(item, placeholderToken) {
 
   const wrap = document.createElement('div');
   wrap.className = 'quiz-result-answer-stack';
-  wrap.append(createResponseLabel('Tu respuesta'));
+  wrap.append(createResponseLabel(t('card.yourAnswer')));
   wrap.append(sentence);
   return wrap;
 }
@@ -659,7 +659,7 @@ function createFeedbackCard(evaluation) {
   body.textContent =
     typeof evaluation?.feedback === 'string' && evaluation.feedback.trim()
       ? evaluation.feedback.trim()
-      : 'Sigamos practicando esta idea en el siguiente paso.';
+      : t('clientMisc.keepPracticing');
 
   section.append(title, body);
   return section;

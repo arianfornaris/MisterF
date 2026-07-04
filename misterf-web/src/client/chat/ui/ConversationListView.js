@@ -216,19 +216,19 @@ export class ConversationListView {
     rename.className = 'dropdown-item';
     rename.type = 'button';
     rename.dataset.renameConversation = '';
-    rename.textContent = 'Renombrar';
+    rename.textContent = t('nav.rename');
 
     const finalize = document.createElement('button');
     finalize.className = 'dropdown-item';
     finalize.type = 'button';
     finalize.dataset.finalizeConversation = '';
-    finalize.textContent = 'Finalizar y resumir';
+    finalize.textContent = t('chat.finalize');
 
     const remove = document.createElement('button');
     remove.className = 'dropdown-item text-danger';
     remove.type = 'button';
     remove.dataset.deleteConversation = '';
-    remove.textContent = 'Eliminar';
+    remove.textContent = t('clientMisc.delete');
 
     menu.append(rename);
     if (!conversation?.closedAt) {
@@ -260,13 +260,13 @@ export class ConversationListView {
     disableTextAssist(input);
 
     const saveButton = this.createRenameActionButton({
-      label: 'Guardar nombre',
+      label: t('clientMisc.saveName'),
       iconClass: 'bi-check-lg',
       type: 'submit',
     });
 
     const cancelButton = this.createRenameActionButton({
-      label: 'Cancelar',
+      label: t('clientMisc.cancel'),
       iconClass: 'bi-x-lg',
       type: 'button',
     });

@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n.js';
 import { renderMarkdown } from '../utils/formatting.js';
 import { seededShuffle } from '../shared/exerciseUtils.js';
 
@@ -49,7 +50,7 @@ export function createMatchingPairsCard(block, context, deps) {
 
   const prompt = document.createElement('div');
   prompt.className = 'matching-pairs-prompt';
-  prompt.innerHTML = renderMarkdown(block.prompt || 'Selecciona los pares correctos.');
+  prompt.innerHTML = renderMarkdown(block.prompt || t('card.selectCorrectPairs'));
 
   const columns = document.createElement('div');
   columns.className = 'matching-pairs-columns';
@@ -58,7 +59,7 @@ export function createMatchingPairsCard(block, context, deps) {
   leftColumn.className = 'matching-pairs-column';
   const leftTitle = document.createElement('p');
   leftTitle.className = 'matching-pairs-column-title';
-  leftTitle.textContent = 'Columna A';
+  leftTitle.textContent = t('card.columnA');
   const leftList = document.createElement('div');
   leftList.className = 'matching-pairs-list';
 
@@ -66,7 +67,7 @@ export function createMatchingPairsCard(block, context, deps) {
   rightColumn.className = 'matching-pairs-column';
   const rightTitle = document.createElement('p');
   rightTitle.className = 'matching-pairs-column-title';
-  rightTitle.textContent = 'Columna B';
+  rightTitle.textContent = t('card.columnB');
   const rightList = document.createElement('div');
   rightList.className = 'matching-pairs-list';
 
@@ -303,8 +304,8 @@ function renderMatchingPairsState(section, state) {
   status.classList.remove('is-success');
   status.textContent =
     state.lockedPairsByLeftId.size > 0
-      ? `Pares correctos: ${state.lockedPairsByLeftId.size}/${state.correctPairsByLeftId.size}`
-      : 'Selecciona un elemento de cada columna para formar un par.';
+      ? t('card.correctPairsCount', { locked: state.lockedPairsByLeftId.size, total: state.correctPairsByLeftId.size })
+      : t('card.matchingDefaultStatus');
 }
 
 function flashMatchingPairError(section, leftId, rightId) {

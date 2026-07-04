@@ -1,3 +1,4 @@
+import { t } from '../shared/i18n.js';
 import { initializeListGroupDropdownStacking } from '../shared/listGroupDropdownStacking.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
@@ -74,9 +75,9 @@ function initializeResourceFolderSharing() {
   if (copyButtonEl && shareFieldEl instanceof HTMLInputElement) {
     copyButtonEl.addEventListener('click', async () => {
       const copied = await copyTextToClipboard(shareFieldEl.value);
-      copyButtonEl.textContent = copied ? 'Copiado' : 'No se pudo copiar';
+      copyButtonEl.textContent = copied ? t('clientMisc.copied') : t('clientMisc.copyFailed');
       window.setTimeout(() => {
-        copyButtonEl.innerHTML = '<i class="bi bi-copy me-1" aria-hidden="true"></i>Copiar';
+        copyButtonEl.innerHTML = `<i class="bi bi-copy me-1" aria-hidden="true"></i>${t('clientMisc.copy')}`;
       }, 1200);
     });
   }

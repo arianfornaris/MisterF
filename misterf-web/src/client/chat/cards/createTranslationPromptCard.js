@@ -116,7 +116,7 @@ function submitTranslationPromptAnswer(card, state, deps) {
   });
 
   if (!sent) {
-    state.statusText = 'No pude enviar la respuesta. Intenta de nuevo.';
+    state.statusText = t('card.sendAnswerError');
     state.statusTone = 'error';
     renderTranslationPromptState(card, state);
     return;
