@@ -15,7 +15,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "cafe",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -82,7 +85,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "bus-stop",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -150,7 +156,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "grocery-market",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -223,7 +232,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "classroom",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -295,7 +307,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "home-kitchen",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -363,7 +378,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "office",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -430,7 +448,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "office",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -497,7 +518,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "office-project-room",
-      "level": ["A2", "B1"],
+      "level": [
+        "A2",
+        "B1"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -568,7 +592,10 @@
       "layout": "side-by-side",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "office-desk",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -627,7 +654,10 @@
       "layout": "single-scene",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "office-break-room",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -686,7 +716,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "clinic",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -757,7 +790,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "pharmacy",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -824,7 +860,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "park-and-clinic",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -896,7 +935,10 @@
       "layout": "side-by-side",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "home-living-room",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -956,7 +998,10 @@
       "layout": "single-scene",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "clinic-waiting-room",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -1015,7 +1060,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "train-station",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -1083,7 +1131,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "hotel-lobby",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -1150,7 +1201,10 @@
       "layout": "2x2-grid",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "train-station",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -1217,7 +1271,10 @@
       "layout": "side-by-side",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "home-and-hotel-room",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -1277,7 +1334,10 @@
       "layout": "single-scene",
       "styleGuide": "../illustration-style-guide.md",
       "setting": "airport-security",
-      "level": ["A1", "A2"],
+      "level": [
+        "A1",
+        "A2"
+      ],
       "useCases": [
         "chat_prompt",
         "quiz_prompt",
@@ -1321,6 +1381,337 @@
       "qaNotes": [
         "Designed as a single-panel airport security description scene.",
         "Visual QA passed: no readable text detected, and multiple airport actions are easy to describe."
+      ]
+    },
+    {
+      "id": "wrong-size-return-01",
+      "title": "Returning The Wrong Size",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "setting": "clothing-store",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "clothing_vocabulary",
+        "sizes",
+        "returns",
+        "emotions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "shopping",
+        "clothing",
+        "wrong-size",
+        "return",
+        "store-clerk",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "shopper",
+          "description": "Young adult shopper with brown skin, short curly hair, a denim jacket, and jeans."
+        },
+        {
+          "role": "store_clerk",
+          "description": "Friendly store clerk with light skin, red hair, and a green shirt."
+        }
+      ],
+      "panelSequence": [
+        "The shopper tries on a sweater that is too large.",
+        "The shopper looks disappointed and holds a blank receipt.",
+        "A clerk helps find a better size.",
+        "The shopper leaves smiling with the correct sweater."
+      ],
+      "status": "approved",
+      "file": "images/wrong-size-return-01.png",
+      "sourceFile": "images/wrong-size-return-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe the problem with the sweater.",
+        "What does the clerk do to help?",
+        "Write a short story about returning clothes.",
+        "How does the shopper feel at the end?"
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "wrong-cafe-order-01",
+      "title": "The Wrong Cafe Order",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "setting": "cafe",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "food_vocabulary",
+        "polite_requests",
+        "problem_solution",
+        "emotions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "cafe",
+        "wrong-order",
+        "customer",
+        "barista",
+        "food",
+        "drink",
+        "polite",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "customer",
+          "description": "Young woman with olive skin, long dark hair, a yellow cardigan, and glasses."
+        },
+        {
+          "role": "barista",
+          "description": "Friendly barista with dark skin, short hair, and a blue apron."
+        }
+      ],
+      "panelSequence": [
+        "The customer receives a drink and pastry.",
+        "She notices the order is wrong.",
+        "The barista listens and prepares the correct order.",
+        "The customer smiles with the correct drink and snack."
+      ],
+      "status": "approved",
+      "file": "images/wrong-cafe-order-01.png",
+      "sourceFile": "images/wrong-cafe-order-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "pedagogicalPromptIdeas": [
+        "What is wrong with the order?",
+        "How does the customer ask for help?",
+        "Describe the barista actions.",
+        "Write a cafe problem-solution story."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "phone-repair-pickup-01",
+      "title": "Picking Up A Repaired Phone",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "setting": "phone-repair-shop",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "services",
+        "technology_vocabulary",
+        "repair",
+        "polite_interactions",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "service",
+        "phone",
+        "repair",
+        "shop",
+        "technician",
+        "customer",
+        "success"
+      ],
+      "characters": [
+        {
+          "role": "customer",
+          "description": "Adult man with tan skin, beard, green hoodie, and backpack."
+        },
+        {
+          "role": "technician",
+          "description": "Technician with light-brown skin, short hair, and a gray shirt."
+        }
+      ],
+      "panelSequence": [
+        "The customer enters the repair shop with a blank claim slip.",
+        "The technician brings out the repaired phone.",
+        "The customer tests the phone and gives a thumbs up.",
+        "The customer leaves satisfied with the phone."
+      ],
+      "status": "approved",
+      "file": "images/phone-repair-pickup-01.png",
+      "sourceFile": "images/phone-repair-pickup-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "pedagogicalPromptIdeas": [
+        "What service did the customer need?",
+        "Describe what the technician does.",
+        "How does the customer test the phone?",
+        "What happens at the end?"
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-full-cart-01",
+      "title": "Empty Cart, Full Cart",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "setting": "supermarket",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "food_vocabulary",
+        "before_after",
+        "prepositions",
+        "describing_objects"
+      ],
+      "tags": [
+        "shopping",
+        "supermarket",
+        "cart",
+        "groceries",
+        "before-after",
+        "food"
+      ],
+      "characters": [
+        {
+          "role": "shopper",
+          "description": "Adult shopper with light skin, short gray hair, orange jacket, and comfortable shoes."
+        }
+      ],
+      "panelSequence": [
+        "The shopper starts with an empty shopping cart.",
+        "The shopper smiles with a full cart of groceries."
+      ],
+      "status": "approved",
+      "file": "images/empty-full-cart-01.png",
+      "sourceFile": "images/empty-full-cart-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two carts.",
+        "Name the groceries you can see.",
+        "Where are the fruits and vegetables?",
+        "What did the shopper buy?"
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "market-checkout-line-01",
+      "title": "Market Checkout Line",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "setting": "market-checkout",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "shopping",
+        "checkout",
+        "cashier",
+        "groceries",
+        "line",
+        "market"
+      ],
+      "characters": [
+        {
+          "role": "market_people",
+          "description": "Varied shoppers and a cashier in a market checkout line."
+        }
+      ],
+      "panelSequence": [
+        "People shop, wait, scan groceries, and pack reusable bags at a market checkout."
+      ],
+      "status": "approved",
+      "file": "images/market-checkout-line-01.png",
+      "sourceFile": "images/market-checkout-line-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the objects at checkout.",
+        "Where are the groceries?",
+        "Who is waiting in line?"
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
       ]
     }
   ]

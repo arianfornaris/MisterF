@@ -26,10 +26,10 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 ## Progress
 
 - Target image count: 50
-- Generated image count: 20
-- Remaining image count: 30
-- Completed batches: 4 of 10
-- Remaining batches: 6
+- Generated image count: 25
+- Remaining image count: 25
+- Completed batches: 5 of 10
+- Remaining batches: 5
 
 ## Batch Themes
 
@@ -39,7 +39,7 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 2 | Workplace Situations | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 3 | Medical And Health Situations | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 4 | Travel And Transportation | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
-| 5 | Shopping And Services | planned | Returns, sizes, payments, orders, service misunderstandings. |
+| 5 | Shopping And Services | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 6 | Home And Daily Routines | planned | Cooking, chores, morning routines, repairs, family plans. |
 | 7 | School And Learning | planned | Homework, group projects, classroom routines, tests, library help. |
 | 8 | Food And Restaurants | planned | Ordering, reservations, spills, dietary needs, table manners. |
@@ -70,11 +70,11 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 18 | 4 | Travel And Transportation | four_panel_wordless_story | `ticket-machine-help-01` | Help At The Ticket Machine | generated |
 | 19 | 4 | Travel And Transportation | two_panel_contrast | `packed-unpacked-suitcase-01` | Packed And Unpacked Suitcase | generated |
 | 20 | 4 | Travel And Transportation | single_panel_scene | `airport-security-line-01` | Airport Security Line | generated |
-| 21 | 5 | Shopping And Services | four_panel_wordless_story | `wrong-size-return-01` | Returning The Wrong Size | planned |
-| 22 | 5 | Shopping And Services | four_panel_wordless_story | `wrong-cafe-order-01` | The Wrong Cafe Order | planned |
-| 23 | 5 | Shopping And Services | four_panel_wordless_story | `phone-repair-pickup-01` | Picking Up A Repaired Phone | planned |
-| 24 | 5 | Shopping And Services | two_panel_contrast | `empty-full-cart-01` | Empty Cart, Full Cart | planned |
-| 25 | 5 | Shopping And Services | single_panel_scene | `market-checkout-line-01` | Market Checkout Line | planned |
+| 21 | 5 | Shopping And Services | four_panel_wordless_story | `wrong-size-return-01` | Returning The Wrong Size | generated |
+| 22 | 5 | Shopping And Services | four_panel_wordless_story | `wrong-cafe-order-01` | The Wrong Cafe Order | generated |
+| 23 | 5 | Shopping And Services | four_panel_wordless_story | `phone-repair-pickup-01` | Picking Up A Repaired Phone | generated |
+| 24 | 5 | Shopping And Services | two_panel_contrast | `empty-full-cart-01` | Empty Cart, Full Cart | generated |
+| 25 | 5 | Shopping And Services | single_panel_scene | `market-checkout-line-01` | Market Checkout Line | generated |
 | 26 | 6 | Home And Daily Routines | four_panel_wordless_story | `forgotten-keys-home-01` | Forgotten Keys | planned |
 | 27 | 6 | Home And Daily Routines | four_panel_wordless_story | `laundry-color-mistake-01` | Laundry Color Mistake | planned |
 | 28 | 6 | Home And Daily Routines | four_panel_wordless_story | `morning-rush-family-01` | Morning Rush | planned |
@@ -101,15 +101,15 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | planned |
 | 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | planned |
 
-## Next Batch: Shopping And Services
+## Next Batch: Home And Daily Routines
 
-When generating Batch 5, use the standard mix:
+When generating Batch 6, use the standard mix:
 
-1. `wrong-size-return-01`: four-panel story about trying on clothing, realizing it is the wrong size, returning it, and leaving with the correct item.
-2. `wrong-cafe-order-01`: four-panel story about receiving the wrong cafe order, politely asking for help, and getting the correct drink or snack.
-3. `phone-repair-pickup-01`: four-panel story about checking a repaired phone, asking a question, paying or confirming, and leaving satisfied.
-4. `empty-full-cart-01`: two-panel contrast showing an empty shopping cart before shopping and a full cart afterward.
-5. `market-checkout-line-01`: single-panel scene for describing people, objects, and actions in a checkout line.
+1. `forgotten-keys-home-01`: four-panel story about leaving keys inside, asking for help, waiting calmly, and getting back inside.
+2. `laundry-color-mistake-01`: four-panel story about mixing laundry colors, noticing the mistake, sorting clothes, and fixing the routine.
+3. `morning-rush-family-01`: four-panel story about a busy morning, missing an item, helping each other, and leaving on time.
+4. `messy-room-tidy-room-01`: two-panel contrast showing a messy bedroom before and a tidy bedroom after.
+5. `family-dinner-table-01`: single-panel scene for describing people, food, objects, and actions at dinner.
 
 ## Maintenance Notes
 
