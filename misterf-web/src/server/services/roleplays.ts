@@ -1,4 +1,5 @@
 import { generateText, type ModelMessage } from 'ai';
+import type { Locale } from '../i18n/index.js';
 import { z } from 'zod';
 import type {
   RoleplayCharacter,
@@ -286,7 +287,7 @@ export async function generateNextRoleplayTurn(input: {
 export async function evaluateRoleplayAttempt(input: {
   attempt: StoredRoleplayAttempt;
   draft: RoleplayDraft;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   llm: LlmRequestOptions;
 }): Promise<RoleplayEvaluationResult> {
   return generateStructuredRoleplayOutput({

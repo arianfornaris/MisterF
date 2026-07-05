@@ -1,4 +1,5 @@
 import { renderSystemPrompt } from '../systemPrompts.js';
+import type { Locale } from '../../i18n/index.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
 import { isGenericConversationTitle } from './conversationTitles.js';
 import {
@@ -42,7 +43,7 @@ export function buildAgentSystemInstruction(options: {
     tutorInstructions: string;
   } | null;
   currentTitle?: string;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   titleUpdatedByUser?: boolean;
   tutorPlanText?: string | null;
 }): string {

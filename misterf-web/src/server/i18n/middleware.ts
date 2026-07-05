@@ -3,6 +3,7 @@ import {
   createTranslator,
   getClientCatalogJson,
   isLocale,
+  languageOptions,
   type Locale,
   type Translator,
 } from './index.js';
@@ -17,6 +18,7 @@ declare global {
     interface Locals {
       clientI18nJson: string;
       htmlLang: Locale;
+      languages: { code: Locale; endonym: string }[];
       locale: Locale;
       t: Translator;
     }
@@ -48,6 +50,7 @@ export function attachLocale(
   request.locale = locale;
   response.locals.clientI18nJson = getClientCatalogJson(locale);
   response.locals.htmlLang = locale;
+  response.locals.languages = languageOptions();
   response.locals.locale = locale;
   response.locals.t = createTranslator(locale);
   next();

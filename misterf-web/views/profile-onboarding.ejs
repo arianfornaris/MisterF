@@ -47,32 +47,21 @@
                     <%= t('profiles.languageHelpOnboarding') %>
                   </p>
                   <div class="list-group" aria-describedby="onboardingInstructionLanguageHelp">
-                    <label class="list-group-item d-flex gap-3">
-                      <input
-                        class="form-check-input flex-shrink-0 mt-1"
-                        type="radio"
-                        name="instructionLanguage"
-                        value="es"
-                        <%= values.instructionLanguage !== 'en' ? 'checked' : '' %>
-                      >
-                      <span class="d-block">
-                        <span class="fw-semibold d-block">Español</span>
-                        <small class="text-body-secondary"><%= t('profiles.spanishDescOnboarding') %></small>
-                      </span>
-                    </label>
-                    <label class="list-group-item d-flex gap-3">
-                      <input
-                        class="form-check-input flex-shrink-0 mt-1"
-                        type="radio"
-                        name="instructionLanguage"
-                        value="en"
-                        <%= values.instructionLanguage === 'en' ? 'checked' : '' %>
-                      >
-                      <span class="d-block">
-                        <span class="fw-semibold d-block">English</span>
-                        <small class="text-body-secondary"><%= t('profiles.englishDesc') %></small>
-                      </span>
-                    </label>
+                    <% languages.forEach((language) => { %>
+                      <label class="list-group-item d-flex gap-3">
+                        <input
+                          class="form-check-input flex-shrink-0 mt-1"
+                          type="radio"
+                          name="instructionLanguage"
+                          value="<%= language.code %>"
+                          <%= values.instructionLanguage === language.code ? 'checked' : '' %>
+                        >
+                        <span class="d-block">
+                          <span class="fw-semibold d-block"><%= language.endonym %></span>
+                          <small class="text-body-secondary"><%= t('profiles.langDescOnboarding.' + language.code) %></small>
+                        </span>
+                      </label>
+                    <% }) %>
                   </div>
                 </fieldset>
 

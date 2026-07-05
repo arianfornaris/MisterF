@@ -5,6 +5,7 @@ import {
   type ModelMessage,
 } from 'ai';
 import { env } from '../../config/env.js';
+import type { Locale } from '../../i18n/index.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import {
   LlmFinishReasonError,
@@ -286,7 +287,7 @@ export async function runTutorAgentLoop(
     conversationId?: string | null;
     currentTitle?: string;
     currentPracticeGuideId?: string | null;
-    instructionLanguage?: 'en' | 'es';
+    instructionLanguage?: Locale;
     llm?: LlmRequestOptions;
     onTokenUsage?: (usage: LlmRequestTokenUsage) => void;
     onToolCall?: (toolName: string) => void;
@@ -636,7 +637,7 @@ export async function translateTextWithLlm(input: {
 
 export async function evaluateQuizResultItemsWithLlm(input: {
   evaluationInstructions?: string;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   llm?: LlmRequestOptions;
   quiz: TutorQuizBlock;
   responses: Array<Record<string, unknown>>;

@@ -1,4 +1,5 @@
 import { generateText, type ModelMessage } from 'ai';
+import type { Locale } from '../i18n/index.js';
 import { z } from 'zod';
 import {
   quizDraftSchema,
@@ -22,7 +23,7 @@ import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRe
 const maxDraftGenerationTurns = 4;
 
 function languagePromptVariables(
-  instructionLanguage: 'en' | 'es' = 'es',
+  instructionLanguage: Locale = 'es',
 ): Record<string, string> {
   return {
     INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(instructionLanguage),
@@ -318,7 +319,7 @@ async function generateStructuredDraft<T>(input: {
 }
 
 export async function generatePracticeGuideDraft(input: {
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<PracticeGuideDraft> {
@@ -336,7 +337,7 @@ export async function generatePracticeGuideDraft(input: {
 export async function generatePracticeGuideRevision(input: {
   conversationHistory?: PracticeGuideRevisionConversationMessage[];
   currentPracticeGuide: PracticeGuideDraft;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<PracticeGuideRevisionResult> {
@@ -382,7 +383,7 @@ function normalizePracticeGuideRevisionConversationHistory(
 }
 
 export async function generateQuizDraft(input: {
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<QuizDraft> {
@@ -401,7 +402,7 @@ export async function generateQuizDraft(input: {
 export async function generateQuizRevision(input: {
   conversationHistory?: QuizRevisionConversationMessage[];
   currentDraft: QuizDraft;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<QuizRevisionResult> {
@@ -467,7 +468,7 @@ function normalizeQuizRevisionConversationHistory(
 }
 
 export async function generateRoleplayDraft(input: {
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayDraft> {
@@ -490,7 +491,7 @@ export async function generateRoleplayDraft(input: {
 export async function generateRoleplayRevision(input: {
   conversationHistory?: RoleplayRevisionConversationMessage[];
   currentDraft: RoleplayDraft;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
 }): Promise<RoleplayRevisionResult> {

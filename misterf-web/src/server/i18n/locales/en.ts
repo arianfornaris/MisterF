@@ -295,10 +295,14 @@ export const en: LocaleCatalog = {
       'The language of the interface and of Mr. F’s explanations for this profile. The English you practice does not change.',
     languageHelpOnboarding:
       'Which language do you prefer for the interface and Mr. F’s explanations?',
-    spanishDescForm: 'The interface and explanations in Spanish.',
-    spanishDescOnboarding:
-      'The interface and explanations in Spanish. The English you practice is still English.',
-    englishDesc: 'Interface and explanations in English, for full immersion.',
+    langDescForm: {
+      es: 'The interface and explanations in Spanish.',
+      en: 'Interface and explanations in English, for full immersion.',
+    },
+    langDescOnboarding: {
+      es: 'The interface and explanations in Spanish. The English you practice is still English.',
+      en: 'Interface and explanations in English, for full immersion.',
+    },
     modelLegend: 'Default model',
     modelHelp: 'This model will be used in this profile’s new conversations.',
     modelRegular: 'Regular',
@@ -698,10 +702,6 @@ export const en: LocaleCatalog = {
   },
   language: {
     label: 'Language',
-    spanish: 'Spanish',
-    english: 'English',
-    switchToSpanish: 'Español',
-    switchToEnglish: 'English',
   },
   nav: {
     chatControls: 'Chat controls',

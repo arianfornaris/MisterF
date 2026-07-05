@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import type { Locale } from '../i18n/index.js';
 import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
@@ -10,7 +11,7 @@ export type StoredProfile = {
   name: string;
   description: string;
   learningContext: string;
-  instructionLanguage: 'en' | 'es';
+  instructionLanguage: Locale;
   profileOnboardingCompletedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -21,7 +22,7 @@ export type StoredConversation = {
   closedAt: string | null;
   practiceGuideId: string | null;
   id: string;
-  instructionLanguage: 'en' | 'es';
+  instructionLanguage: Locale;
   modelTier: 'advanced' | 'max' | 'regular';
   profileId: string;
   titleUpdatedByUser: boolean;
@@ -380,7 +381,7 @@ type ProfileRow = {
   name: string;
   description: string;
   learning_context: string;
-  instruction_language: 'en' | 'es';
+  instruction_language: Locale;
   profile_onboarding_completed_at: string | null;
   created_at: string;
   updated_at: string;
@@ -407,7 +408,7 @@ type ConversationRow = {
   closed_at: string | null;
   practice_guide_id: string | null;
   id: string;
-  instruction_language: 'en' | 'es';
+  instruction_language: Locale;
   model_tier: 'advanced' | 'max' | 'regular';
   profile_id: string;
   title: string;
@@ -2531,7 +2532,7 @@ export function createProfile(input: {
   description?: string;
   learningContext?: string;
   modelTier?: 'advanced' | 'max' | 'regular';
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   profileOnboardingCompleted?: boolean;
 }): StoredProfile {
   const id = randomUUID();
@@ -2648,7 +2649,7 @@ export function listProfilesForUser(userId: string): StoredProfile[] {
 
 export function ensureUserHasProfile(
   userId: string,
-  instructionLanguage?: 'en' | 'es',
+  instructionLanguage?: Locale,
 ): StoredProfile {
   const existingProfiles = listProfilesForUser(userId);
   if (existingProfiles.length > 0) {
@@ -2671,7 +2672,7 @@ export function updateProfile(input: {
   description: string;
   learningContext?: string;
   modelTier?: 'advanced' | 'max' | 'regular';
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   profileOnboardingCompleted?: boolean;
 }): StoredProfile | null {
   getDb()
@@ -2729,7 +2730,7 @@ export function markProfileOnboardingCompleted(input: {
 export function updateProfileInstructionLanguageForUser(
   profileId: string,
   userId: string,
-  instructionLanguage: 'en' | 'es',
+  instructionLanguage: Locale,
 ): StoredProfile | null {
   getDb()
     .prepare(

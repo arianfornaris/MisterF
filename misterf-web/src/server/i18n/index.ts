@@ -1,21 +1,28 @@
-import { en } from './locales/en.js';
-import { es } from './locales/es.js';
+import {
+  defaultLocale,
+  languageOptions,
+  languages,
+  supportedLocales,
+  type Locale,
+  type LocaleCatalog,
+} from './languages.js';
 
-export const supportedLocales = ['es', 'en'] as const;
-
-export type Locale = (typeof supportedLocales)[number];
-
-export const defaultLocale: Locale = 'en';
+export {
+  defaultLocale,
+  languageOptions,
+  languages,
+  supportedLocales,
+  type Locale,
+  type LocaleCatalog,
+};
 
 export type TranslationParams = Record<string, string | number>;
 
 export type Translator = (key: string, params?: TranslationParams) => string;
 
-const catalogs: Record<Locale, LocaleCatalog> = { en, es };
-
-export type LocaleCatalog = {
-  readonly [key: string]: string | LocaleCatalog;
-};
+const catalogs = Object.fromEntries(
+  supportedLocales.map((code) => [code, languages[code].catalog]),
+) as Record<Locale, LocaleCatalog>;
 
 export function isLocale(value: unknown): value is Locale {
   return (

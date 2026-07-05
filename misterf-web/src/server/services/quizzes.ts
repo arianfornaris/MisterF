@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Locale } from '../i18n/index.js';
 import type {
   TutorQuizBlock,
   TutorQuizItem,
@@ -567,7 +568,7 @@ export function normalizeQuizResponses(input: {
 
 export async function evaluateQuizAttempt(input: {
   attempt: StoredQuizAttempt;
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   llm?: LlmRequestOptions;
 }): Promise<TutorQuizResultBlock> {
   const draft = parseQuizDraft(input.attempt.snapshot);

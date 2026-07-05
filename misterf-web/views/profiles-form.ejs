@@ -82,33 +82,21 @@
         </p>
 
         <div class="list-group">
-          <label class="list-group-item d-flex gap-3">
-            <input
-              class="form-check-input flex-shrink-0 mt-1"
-              type="radio"
-              name="instructionLanguage"
-              value="es"
-              <%= selectedInstructionLanguage !== 'en' ? 'checked' : '' %>
-            >
-            <span class="d-block">
-              <span class="fw-semibold d-block">Español</span>
-              <small class="text-body-secondary"><%= t('profiles.spanishDescForm') %></small>
-            </span>
-          </label>
-
-          <label class="list-group-item d-flex gap-3">
-            <input
-              class="form-check-input flex-shrink-0 mt-1"
-              type="radio"
-              name="instructionLanguage"
-              value="en"
-              <%= selectedInstructionLanguage === 'en' ? 'checked' : '' %>
-            >
-            <span class="d-block">
-              <span class="fw-semibold d-block">English</span>
-              <small class="text-body-secondary"><%= t('profiles.englishDesc') %></small>
-            </span>
-          </label>
+          <% languages.forEach((language) => { %>
+            <label class="list-group-item d-flex gap-3">
+              <input
+                class="form-check-input flex-shrink-0 mt-1"
+                type="radio"
+                name="instructionLanguage"
+                value="<%= language.code %>"
+                <%= selectedInstructionLanguage === language.code ? 'checked' : '' %>
+              >
+              <span class="d-block">
+                <span class="fw-semibold d-block"><%= language.endonym %></span>
+                <small class="text-body-secondary"><%= t('profiles.langDescForm.' + language.code) %></small>
+              </span>
+            </label>
+          <% }) %>
         </div>
       </fieldset>
 

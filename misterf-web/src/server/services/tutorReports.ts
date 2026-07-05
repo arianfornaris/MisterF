@@ -1,4 +1,5 @@
 import { generateText, type ModelMessage } from 'ai';
+import type { Locale } from '../i18n/index.js';
 import { z } from 'zod';
 import type {
   StoredMessage,
@@ -119,7 +120,7 @@ function formatTutorTranscript(messages: StoredMessage[]): string {
 function appendStructuredCorrectionRequest(
   messages: ModelMessage[],
   input: {
-    instructionLanguage?: 'en' | 'es';
+    instructionLanguage?: Locale;
     invalidOutput?: string | null;
     promptPath: string;
     reason: string;
@@ -153,7 +154,7 @@ function appendStructuredCorrectionRequest(
 }
 
 export async function generateTutorConversationReport(input: {
-  instructionLanguage?: 'en' | 'es';
+  instructionLanguage?: Locale;
   messages: StoredMessage[];
   openRouterApiKey?: string | null;
   userName: string;

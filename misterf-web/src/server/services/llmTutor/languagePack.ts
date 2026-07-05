@@ -1,44 +1,37 @@
 import { loadSystemPrompt } from '../systemPrompts.js';
+import { languages, type Locale } from '../../i18n/index.js';
 
-export type InstructionLanguage = 'en' | 'es';
+export type InstructionLanguage = Locale;
 
 export const defaultInstructionLanguage: InstructionLanguage = 'es';
-
-const englishNames: Record<InstructionLanguage, string> = {
-  en: 'English',
-  es: 'Spanish',
-};
 
 export function instructionLanguageEnglishName(
   language: InstructionLanguage,
 ): string {
-  return englishNames[language];
+  return languages[language].englishName;
 }
 
 /**
  * Placeholder values injected into the tutor system prompt so that
  * `tutor/system.md` stays single-source while its language-specific copy
  * (learner-facing examples, translation-block enumerations, UI nouns, and the
- * language-rules section) varies by the profile's instruction language.
- *
- * The Spanish values must reproduce the pre-parametrization prompt verbatim so
- * existing Spanish conversations are byte-for-byte unchanged; this is guarded
- * by the golden snapshot test.
+ * language-rules section) varies by the profile's instruction language. The
+ * per-language values live in the language registry (`i18n/languages.ts`).
  */
 export function tutorSystemLanguagePlaceholders(
   language: InstructionLanguage,
 ): Record<string, string> {
+  const pack = languages[language].tutor;
   return {
-    DIRECTION_OPTIONS_LETTERED: directionOptionsLettered[language],
-    DIRECTION_OPTIONS_LIST: directionOptionsList[language],
-    INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(language),
+    DIRECTION_OPTIONS_LETTERED: pack.directionOptionsLettered,
+    DIRECTION_OPTIONS_LIST: pack.directionOptionsList,
+    INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
     LANGUAGE_RULES: loadSystemPrompt(`tutor/language-rules/${language}.md`).trim(),
-    LEARNER_AUDIENCE_CLAUSE: learnerAudienceClause[language],
-    TRANSLATION_EXERCISE_BLOCK_COMBINATIONS:
-      translationExerciseBlockCombinations[language],
-    TRANSLATION_EXERCISE_BLOCKS_INLINE: translationExerciseBlocksInline[language],
-    UI_PRACTICE_GUIDE_TERM: uiPracticeGuideTerm[language],
-    UI_RESOURCES_TERM: uiResourcesTerm[language],
+    LEARNER_AUDIENCE_CLAUSE: pack.learnerAudienceClause,
+    TRANSLATION_EXERCISE_BLOCK_COMBINATIONS: pack.translationExerciseBlockCombinations,
+    TRANSLATION_EXERCISE_BLOCKS_INLINE: pack.translationExerciseBlocksInline,
+    UI_PRACTICE_GUIDE_TERM: pack.uiPracticeGuideTerm,
+    UI_RESOURCES_TERM: pack.uiResourcesTerm,
   };
 }
 
@@ -46,62 +39,20 @@ export function tutorSystemLanguagePlaceholders(
  * Placeholder values applied to each tutor block document during protocol
  * composition. `INSTRUCTION_LANGUAGE_NAME` parametrizes the language every
  * learner-facing field must be authored in; `TRANSLATION_UNION_MEMBERS` drops
- * the translation-based blocks from the `TutorResponseBlock` union for the
- * English (monolingual) block set so the union has no dangling members.
+ * the translation-based blocks from the `TutorResponseBlock` union for a
+ * monolingual block set so the union has no dangling members.
  */
 export function tutorBlockProtocolPlaceholders(
   language: InstructionLanguage,
 ): Record<string, string> {
   return {
-    INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(language),
-    TRANSLATION_UNION_MEMBERS: translationUnionMembers[language],
+    INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
+    TRANSLATION_UNION_MEMBERS: languages[language].tutor.translationUnionMembers,
   };
 }
 
 export function conversationTitleLanguageRule(
   language: InstructionLanguage,
 ): string {
-  return language === 'es'
-    ? "The title must be short, Spanish, human-friendly, and specific; avoid generic titles such as \"Práctica de inglés\", \"Conversación\", or \"Resumen de conversación\"."
-    : 'The title must be short, English, human-friendly, and specific; avoid generic titles such as "English practice", "Conversation", or "Conversation summary".';
+  return languages[language].tutor.conversationTitleRule;
 }
-
-const learnerAudienceClause: Record<InstructionLanguage, string> = {
-  en: '',
-  es: ' for Spanish-speaking learners',
-};
-
-const directionOptionsList: Record<InstructionLanguage, string> = {
-  en: '  - practice vocabulary\n  - practice with sentences\n  - do a mini conversation',
-  es: '  - practicar vocabulario\n  - practicar con frases\n  - hacer una mini conversación',
-};
-
-const directionOptionsLettered: Record<InstructionLanguage, string> = {
-  en: '`a) practice vocabulary`, `b) practice with sentences`, `c) do a mini conversation`',
-  es: '`a) practicar vocabulario`, `b) practicar con frases`, `c) hacer una mini conversación`',
-};
-
-const translationExerciseBlocksInline: Record<InstructionLanguage, string> = {
-  en: '',
-  es: ', `translate_to_english_prompt`, `understand_in_spanish_prompt`',
-};
-
-const translationExerciseBlockCombinations: Record<InstructionLanguage, string> = {
-  en: '',
-  es: '\n  - `message` plus `translate_to_english_prompt`\n  - `message` plus `understand_in_spanish_prompt`',
-};
-
-const uiPracticeGuideTerm: Record<InstructionLanguage, string> = {
-  en: 'practice guide',
-  es: 'guía de práctica',
-};
-
-const uiResourcesTerm: Record<InstructionLanguage, string> = {
-  en: 'Resources',
-  es: 'Recursos',
-};
-
-const translationUnionMembers: Record<InstructionLanguage, string> = {
-  en: '',
-  es: '\n  | TranslateToEnglishPromptBlock\n  | UnderstandInSpanishPromptBlock',
-};
