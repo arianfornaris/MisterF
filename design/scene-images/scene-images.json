@@ -2598,6 +2598,310 @@
         "Designed as a single panel scene for restaurant and food practice.",
         "Visual QA passed: no readable text detected and the pedagogical situation is clear."
       ]
+    },
+    {
+      "id": "library-card-help-01",
+      "title": "Getting A Library Card",
+      "status": "approved",
+      "file": "images/library-card-help-01.png",
+      "sourceFile": "images/library-card-help-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "library",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "community",
+        "library",
+        "card",
+        "help",
+        "borrowing",
+        "books"
+      ],
+      "tags": [
+        "community",
+        "library",
+        "card",
+        "help",
+        "borrowing",
+        "books"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "An older adult gets help applying for a library card and borrows books."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "park-cleanup-01",
+      "title": "Park Cleanup",
+      "status": "approved",
+      "file": "images/park-cleanup-01.png",
+      "sourceFile": "images/park-cleanup-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "park",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "community",
+        "park",
+        "cleanup",
+        "teamwork",
+        "litter"
+      ],
+      "tags": [
+        "community",
+        "park",
+        "cleanup",
+        "teamwork",
+        "litter"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "Neighbors clean up a park together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "post-office-package-01",
+      "title": "Mailing A Package",
+      "status": "approved",
+      "file": "images/post-office-package-01.png",
+      "sourceFile": "images/post-office-package-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "post-office",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "community",
+        "post",
+        "office",
+        "package",
+        "mailing",
+        "service"
+      ],
+      "tags": [
+        "community",
+        "post",
+        "office",
+        "package",
+        "mailing",
+        "service"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "A customer gets help mailing a package."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-busy-playground-01",
+      "title": "Empty Playground, Busy Playground",
+      "status": "approved",
+      "file": "images/empty-busy-playground-01.png",
+      "sourceFile": "images/empty-busy-playground-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "playground",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "community",
+        "playground",
+        "before",
+        "after",
+        "people"
+      ],
+      "tags": [
+        "community",
+        "playground",
+        "before",
+        "after",
+        "people"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "A playground changes from empty to busy."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "community-garden-01",
+      "title": "Community Garden",
+      "status": "approved",
+      "file": "images/community-garden-01.png",
+      "sourceFile": "images/community-garden-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "community-garden",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "community",
+        "garden",
+        "plants",
+        "tools",
+        "present",
+        "continuous"
+      ],
+      "tags": [
+        "community",
+        "garden",
+        "plants",
+        "tools",
+        "present",
+        "continuous"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "Neighbors work together in a community garden."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
     }
   ]
 }
