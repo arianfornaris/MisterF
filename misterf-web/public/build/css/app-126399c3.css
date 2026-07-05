@@ -620,6 +620,16 @@ body {
   margin-bottom: 16px;
 }
 
+/*
+ * The language dropdown's <ul> is the group's last child, so Bootstrap strips
+ * the right radius from the gear button (it isn't :last-child). Restore it —
+ * the gear is the last visible button in the group.
+ */
+.translator-mode > .translator-language-button {
+  border-top-right-radius: var(--bs-border-radius) !important;
+  border-bottom-right-radius: var(--bs-border-radius) !important;
+}
+
 .translator-label {
   color: var(--muted);
   font-size: 0.88rem;
