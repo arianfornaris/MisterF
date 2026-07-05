@@ -1,0 +1,268 @@
+{
+  "methodology": "Five local macOS say-generated English WAV samples. Gemini did not receive the expected text; it was only asked to transcribe exactly as JSON. WER is word error rate after lowercasing, punctuation removal, and simple number normalization. Time expressions such as 3:15 and 3.15 are normalized to three fifteen.",
+  "results": [
+    {
+      "id": "sample_01_instruction",
+      "text": "Please open your notebook and write one sentence about your weekend.",
+      "voice": "Alex",
+      "audio_file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-speech-recognition/whisper-vs-gemini/sample_01_instruction.wav",
+      "duration_seconds": 3.38,
+      "whisper": {
+        "model": "openai/whisper-1",
+        "seconds_elapsed": 1.57,
+        "text": "Please open your notebook and write one sentence about your weekend.",
+        "usage": {
+          "seconds": 4,
+          "cost": 0.0004
+        },
+        "cost_usd": 0.0004,
+        "wer": 0.0
+      },
+      "gemini": {
+        "model": "google/gemini-3.1-flash-lite",
+        "seconds_elapsed": 2.08,
+        "text": "Please open your notebook and write one sentence about your weekend.",
+        "raw_content": "{\"text\":\"Please open your notebook and write one sentence about your weekend.\"}",
+        "usage": {
+          "prompt_tokens": 109,
+          "completion_tokens": 16,
+          "total_tokens": 125,
+          "cost": 0,
+          "is_byok": true,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 85,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 7.25e-05,
+            "upstream_inference_prompt_cost": 4.85e-05,
+            "upstream_inference_completions_cost": 2.4e-05
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "cost_usd": 7.25e-05,
+        "cost_kind": "upstream_inference_cost",
+        "wer": 0.0
+      }
+    },
+    {
+      "id": "sample_02_sequence",
+      "text": "First, wash the vegetables. Then, cut them carefully and put them in the bowl.",
+      "voice": "Samantha",
+      "audio_file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-speech-recognition/whisper-vs-gemini/sample_02_sequence.wav",
+      "duration_seconds": 4.6,
+      "whisper": {
+        "model": "openai/whisper-1",
+        "seconds_elapsed": 1.97,
+        "text": "First, wash the vegetables. Then, cut them carefully and put them in the bowl.",
+        "usage": {
+          "seconds": 5,
+          "cost": 0.0005
+        },
+        "cost_usd": 0.0005,
+        "wer": 0.0
+      },
+      "gemini": {
+        "model": "google/gemini-3.1-flash-lite",
+        "seconds_elapsed": 2.16,
+        "text": "First, wash the vegetables. Then, cut them carefully and put them in the bowl.",
+        "raw_content": "{\"text\":\"First, wash the vegetables. Then, cut them carefully and put them in the bowl.\"}",
+        "usage": {
+          "prompt_tokens": 139,
+          "completion_tokens": 22,
+          "total_tokens": 161,
+          "cost": 0,
+          "is_byok": true,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 115,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 9.65e-05,
+            "upstream_inference_prompt_cost": 6.35e-05,
+            "upstream_inference_completions_cost": 3.3e-05
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "cost_usd": 9.65e-05,
+        "cost_kind": "upstream_inference_cost",
+        "wer": 0.0
+      }
+    },
+    {
+      "id": "sample_03_dialogue",
+      "text": "Maya asked Daniel if the bus was late, and he said it would arrive in ten minutes.",
+      "voice": "Alex",
+      "audio_file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-speech-recognition/whisper-vs-gemini/sample_03_dialogue.wav",
+      "duration_seconds": 4.23,
+      "whisper": {
+        "model": "openai/whisper-1",
+        "seconds_elapsed": 1.28,
+        "text": "Maya asked Daniel if the bus was late, and he said it would arrive in 10 minutes.",
+        "usage": {
+          "seconds": 5,
+          "cost": 0.0005
+        },
+        "cost_usd": 0.0005,
+        "wer": 0.0
+      },
+      "gemini": {
+        "model": "google/gemini-3.1-flash-lite",
+        "seconds_elapsed": 3.59,
+        "text": "Maya asked Daniel if the bus was late, and he said it would arrive in 10 minutes.",
+        "raw_content": "{\"text\":\"Maya asked Daniel if the bus was late, and he said it would arrive in 10 minutes.\"}",
+        "usage": {
+          "prompt_tokens": 130,
+          "completion_tokens": 25,
+          "total_tokens": 155,
+          "cost": 0,
+          "is_byok": true,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 106,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 9.65e-05,
+            "upstream_inference_prompt_cost": 5.9e-05,
+            "upstream_inference_completions_cost": 3.75e-05
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "cost_usd": 9.65e-05,
+        "cost_kind": "upstream_inference_cost",
+        "wer": 0.0
+      }
+    },
+    {
+      "id": "sample_04_pronunciation",
+      "text": "She thought the thin thread was thrown through the window.",
+      "voice": "Samantha",
+      "audio_file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-speech-recognition/whisper-vs-gemini/sample_04_pronunciation.wav",
+      "duration_seconds": 2.4,
+      "whisper": {
+        "model": "openai/whisper-1",
+        "seconds_elapsed": 0.88,
+        "text": "She thought the thin thread was thrown through the window.",
+        "usage": {
+          "seconds": 3,
+          "cost": 0.0003
+        },
+        "cost_usd": 0.0003,
+        "wer": 0.0
+      },
+      "gemini": {
+        "model": "google/gemini-3.1-flash-lite",
+        "seconds_elapsed": 2.1,
+        "text": "She thought the thin thread was thrown through the window.",
+        "raw_content": "{\"text\":\"She thought the thin thread was thrown through the window.\"}",
+        "usage": {
+          "prompt_tokens": 85,
+          "completion_tokens": 15,
+          "total_tokens": 100,
+          "cost": 0,
+          "is_byok": true,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 61,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 5.9e-05,
+            "upstream_inference_prompt_cost": 3.65e-05,
+            "upstream_inference_completions_cost": 2.25e-05
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "cost_usd": 5.9e-05,
+        "cost_kind": "upstream_inference_cost",
+        "wer": 0.0
+      }
+    },
+    {
+      "id": "sample_05_details",
+      "text": "The meeting starts at three fifteen, but the teacher asked us to arrive ten minutes early.",
+      "voice": "Alex",
+      "audio_file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-speech-recognition/whisper-vs-gemini/sample_05_details.wav",
+      "duration_seconds": 4.71,
+      "whisper": {
+        "model": "openai/whisper-1",
+        "seconds_elapsed": 2.16,
+        "text": "The meeting starts at 3.15, but the teacher asked us to arrive 10 minutes early.",
+        "usage": {
+          "seconds": 5,
+          "cost": 0.0005
+        },
+        "cost_usd": 0.0005,
+        "wer": 0.0
+      },
+      "gemini": {
+        "model": "google/gemini-3.1-flash-lite",
+        "seconds_elapsed": 2.02,
+        "text": "The meeting starts at 3:15, but the teacher asked us to arrive 10 minutes early.",
+        "raw_content": "{\"text\":\"The meeting starts at 3:15, but the teacher asked us to arrive 10 minutes early.\"}",
+        "usage": {
+          "prompt_tokens": 142,
+          "completion_tokens": 27,
+          "total_tokens": 169,
+          "cost": 0,
+          "is_byok": true,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 118,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0001055,
+            "upstream_inference_prompt_cost": 6.5e-05,
+            "upstream_inference_completions_cost": 4.05e-05
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "cost_usd": 0.0001055,
+        "cost_kind": "upstream_inference_cost",
+        "wer": 0.0
+      }
+    }
+  ],
+  "errors": [],
+  "whisper_totals": {
+    "total_cost_usd": 0.0022,
+    "average_cost_usd": 0.00044,
+    "average_wer": 0.0,
+    "perfect_transcripts": 5
+  },
+  "gemini_totals": {
+    "total_cost_usd": 0.00043,
+    "average_cost_usd": 8.6e-05,
+    "average_wer": 0.0,
+    "perfect_transcripts": 5
+  }
+}
