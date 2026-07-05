@@ -110,10 +110,20 @@ Scope notes:
   locale resolution (profile → switcher cookie → `Accept-Language` → `en`);
   a visible ES/EN switcher for signed-out visitors with `?lang=` override;
   and first-profile seeding at signup inheriting the pre-account language.
-- [ ] Translator: adapt translator mode to the profile's instruction
-  language, and let the user select other language pairs beyond the
-  profile default. Deliberately untouched by the initial i18n work — it
-  stays Spanish–English for every profile until this item lands.
+- [x] Translator: let the user select other language pairs beyond the
+  default. Done 2026-07-05: the translator toolbar has a gear button that
+  opens a curated language picker (~10 languages: `es`, `ht`, `fr`, `pt`,
+  `it`, `de`, `zh`, `ar`, `ru`, `vi`; English excluded — it's always the
+  other side of the pair). Selecting language X sets the toolbar to
+  X → EN / EN → X, persisted in localStorage (`misterf_translator_lang`)
+  so the UI always shows the last choice, defaulting to Spanish. The
+  server contract is now language-agnostic (`auto`/`to-english`/
+  `from-english` + a language code resolved against
+  `i18n/translatorLanguages.ts`, injected to the client as
+  `window.__TRANSLATOR_LANGUAGES__`). Not done: seeding the initial
+  default from the profile's instruction language (moot for `en`
+  profiles, since English is excluded) — the persisted choice governs
+  instead.
 - [~] Tutor and LLM surface: parametrize system prompts, block protocol
   copy, evaluation feedback, and AI authoring (quiz/guide/roleplay
   generation and revision) by instruction language. Started 2026-07-04:
