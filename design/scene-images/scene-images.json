@@ -672,6 +672,335 @@
         "Designed as a single-panel workplace description scene.",
         "Visual QA passed: no readable text detected and multiple everyday actions are easy to describe."
       ]
+    },
+    {
+      "id": "doctor-visit-cough-01",
+      "title": "Doctor Visit For A Cough",
+      "status": "approved",
+      "file": "images/doctor-visit-cough-01.png",
+      "sourceFile": "images/doctor-visit-cough-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "clinic",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "symptoms",
+        "appointments",
+        "present_continuous",
+        "past_tense_story",
+        "emotions"
+      ],
+      "tags": [
+        "health",
+        "clinic",
+        "doctor",
+        "cough",
+        "appointment",
+        "stethoscope",
+        "self-care"
+      ],
+      "characters": [
+        {
+          "role": "patient",
+          "description": "Adult patient with tan skin, short dark hair, a green jacket, and a scarf."
+        },
+        {
+          "role": "doctor",
+          "description": "Doctor with dark skin, short hair, glasses, and a white coat."
+        },
+        {
+          "role": "receptionist",
+          "description": "Friendly clinic receptionist."
+        }
+      ],
+      "panelSequence": [
+        "The patient coughs gently in the clinic waiting area.",
+        "The receptionist checks the patient in.",
+        "The doctor examines the patient with a stethoscope.",
+        "The doctor gives simple care advice and the patient leaves relieved."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe the patient's symptoms.",
+        "What does the doctor do?",
+        "Write a short story about the clinic visit.",
+        "How does the patient feel at the end?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a clinic story in a clean 2x2 grid: a patient coughs gently, checks in with a receptionist, is examined by a doctor with a stethoscope, and leaves relieved after receiving simple care advice. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, clinic signs, forms, chart text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless clinic visit story.",
+        "Visual QA passed: no readable text detected, and the cough, exam, and care-advice sequence is clear."
+      ]
+    },
+    {
+      "id": "pharmacy-instructions-01",
+      "title": "Pharmacy Instructions",
+      "status": "approved",
+      "file": "images/pharmacy-instructions-01.png",
+      "sourceFile": "images/pharmacy-instructions-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "pharmacy",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "pharmacy",
+        "medicine",
+        "asking_questions",
+        "instructions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "health",
+        "pharmacy",
+        "medicine",
+        "instructions",
+        "questions",
+        "helping",
+        "self-care"
+      ],
+      "characters": [
+        {
+          "role": "customer",
+          "description": "Older woman with light skin, silver hair, and a purple cardigan."
+        },
+        {
+          "role": "pharmacist",
+          "description": "Pharmacist with brown skin, short black hair, and a white coat."
+        }
+      ],
+      "panelSequence": [
+        "The customer asks for help at the pharmacy counter.",
+        "The pharmacist shows a plain medicine bottle and bag.",
+        "The pharmacist explains using gestures and a glass of water.",
+        "The customer leaves calmly with the medicine bag."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What does the customer need?",
+        "How does the pharmacist explain the medicine?",
+        "Describe the customer's feelings in each panel.",
+        "What should the customer do next?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a pharmacy story in a clean 2x2 grid: an older customer asks for help, the pharmacist shows medicine, explains instructions with gestures and water, and the customer leaves prepared. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, pharmacy signs, medication labels, prescription text, price tags, shelf labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless pharmacy instructions story.",
+        "Visual QA passed: no readable text detected, and the instruction-giving gesture is clear."
+      ]
+    },
+    {
+      "id": "minor-sprain-clinic-01",
+      "title": "A Minor Sprain At The Clinic",
+      "status": "approved",
+      "file": "images/minor-sprain-clinic-01.png",
+      "sourceFile": "images/minor-sprain-clinic-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "park-and-clinic",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "body_parts",
+        "minor_injuries",
+        "helping",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "health",
+        "clinic",
+        "park",
+        "ankle",
+        "sprain",
+        "bandage",
+        "friendship",
+        "helping"
+      ],
+      "characters": [
+        {
+          "role": "injured_person",
+          "description": "Teenage girl with brown skin, curly hair in a ponytail, a pink hoodie, and jeans."
+        },
+        {
+          "role": "friend",
+          "description": "Friend with light skin, short blond hair, and a blue jacket."
+        },
+        {
+          "role": "nurse",
+          "description": "Nurse with olive skin, dark hair, and teal scrubs."
+        }
+      ],
+      "panelSequence": [
+        "The girl mildly twists her ankle on a park path.",
+        "Her friend helps her sit on a bench.",
+        "A nurse wraps the ankle at the clinic.",
+        "The girl leaves carefully with her friend's support."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What body part hurts?",
+        "Who helps the girl?",
+        "Describe what happens at the clinic.",
+        "Write a short story about the injury."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a minor injury story in a clean 2x2 grid: a girl twists her ankle in a park, her friend helps her sit, a nurse wraps the ankle at a clinic, and the girl leaves relieved with support. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, park signs, clinic signs, medical labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless minor injury and clinic care story.",
+        "Visual QA passed: no readable text detected, and the injury, help, and bandage sequence is clear."
+      ]
+    },
+    {
+      "id": "before-after-resting-01",
+      "title": "Before And After Resting",
+      "status": "approved",
+      "file": "images/before-after-resting-01.png",
+      "sourceFile": "images/before-after-resting-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-living-room",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "before_after",
+        "adjectives",
+        "feelings",
+        "self-care",
+        "describing_objects"
+      ],
+      "tags": [
+        "health",
+        "rest",
+        "tired",
+        "better",
+        "home",
+        "water",
+        "before-after"
+      ],
+      "characters": [
+        {
+          "role": "person_resting",
+          "description": "Adult man with dark skin, shaved head, glasses, and a soft blue sweater."
+        }
+      ],
+      "panelSequence": [
+        "The man feels tired on the sofa.",
+        "After resting, the man drinks water and looks better."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two panels.",
+        "How does the man feel before and after resting?",
+        "What objects can you see in the room?",
+        "What can people do when they feel tired?"
+      ],
+      "generationPrompt": "Create a square two-panel wordless contrast illustration for an English-learning activity. Show the same person before and after resting at home: first tired on a sofa with tissues and water, then feeling better, drinking water, and sitting near a sunny window. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, medicine labels, thermometer numbers, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a two-panel wordless health before/after contrast.",
+        "Visual QA passed: no readable text detected and the change from tired to better is clear."
+      ]
+    },
+    {
+      "id": "waiting-room-check-in-01",
+      "title": "Waiting Room Check-In",
+      "status": "approved",
+      "file": "images/waiting-room-check-in-01.png",
+      "sourceFile": "images/waiting-room-check-in-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "clinic-waiting-room",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "appointments",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "health",
+        "clinic",
+        "waiting-room",
+        "check-in",
+        "appointment",
+        "reception",
+        "nurse"
+      ],
+      "characters": [
+        {
+          "role": "clinic_people",
+          "description": "Varied patients, a receptionist, and a nurse in a clinic waiting room."
+        }
+      ],
+      "panelSequence": [
+        "People check in, wait, read, talk, and respond to a nurse in a clinic waiting room."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the objects in the waiting room.",
+        "Where are the people sitting or standing?",
+        "What might happen next?"
+      ],
+      "generationPrompt": "Create a square single-panel wordless situation illustration for an English-learning activity. Show a friendly clinic waiting room during check-in with varied people: a patient at reception, a parent and child sitting, an older adult reading a plain magazine, and a nurse gesturing toward the hallway. Include waiting chairs, reception desk, plant, tissue box, water dispenser, simple wall art, and a clock face with no numbers. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, clinic signs, forms, chart text, magazine text, posters with words, labels, clock numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a single-panel clinic waiting-room description scene.",
+        "Visual QA passed: no readable text detected and the check-in, waiting, and nurse-calling actions are easy to describe."
+      ]
     }
   ]
 }
