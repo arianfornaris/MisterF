@@ -53,6 +53,10 @@ These are not final runtime assets yet. The design folder stores source prompts,
 6. If the image is approved, mark `"status": "approved"`.
 7. If it needs another pass, keep the entry as `"draft"` or `"needs_revision"` and add QA notes.
 
+## Planning
+
+Use `generation-plan.md` as the working tracker for the first 50 curated scene images. It groups images into thematic batches of five and records planned IDs, formats, titles, and generation status.
+
 ## Runtime Direction
 
 If these assets become product assets, use a separate runtime folder such as:
