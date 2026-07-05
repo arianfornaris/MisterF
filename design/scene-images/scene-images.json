@@ -2000,6 +2000,304 @@
         "Designed as a single panel scene for home and daily-routine practice.",
         "Visual QA passed: no readable text detected and the pedagogical situation is clear."
       ]
+    },
+    {
+      "id": "group-project-library-01",
+      "title": "Group Project At The Library",
+      "status": "approved",
+      "file": "images/group-project-library-01.png",
+      "sourceFile": "images/group-project-library-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "library",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "school",
+        "learning",
+        "group",
+        "project",
+        "teamwork",
+        "research"
+      ],
+      "tags": [
+        "school",
+        "learning",
+        "group",
+        "project",
+        "teamwork",
+        "research"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "Students plan, research, make a poster, and present together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "forgotten-homework-01",
+      "title": "Forgotten Homework",
+      "status": "approved",
+      "file": "images/forgotten-homework-01.png",
+      "sourceFile": "images/forgotten-homework-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "school-and-home",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "school",
+        "homework",
+        "teacher",
+        "problem",
+        "solution"
+      ],
+      "tags": [
+        "school",
+        "homework",
+        "teacher",
+        "problem",
+        "solution"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "A student forgets homework, finds it at home, and gives it to the teacher."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "science-project-spill-01",
+      "title": "Science Project Spill",
+      "status": "approved",
+      "file": "images/science-project-spill-01.png",
+      "sourceFile": "images/science-project-spill-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "science-classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "science",
+        "classroom",
+        "spill",
+        "cleanup",
+        "teamwork"
+      ],
+      "tags": [
+        "science",
+        "classroom",
+        "spill",
+        "cleanup",
+        "teamwork"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "Students spill colored water, clean it up, and restart safely."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-full-backpack-01",
+      "title": "Empty Backpack, Full Backpack",
+      "status": "approved",
+      "file": "images/empty-full-backpack-01.png",
+      "sourceFile": "images/empty-full-backpack-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "school",
+        "supplies",
+        "backpack",
+        "before",
+        "after"
+      ],
+      "tags": [
+        "school",
+        "supplies",
+        "backpack",
+        "before",
+        "after"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "A backpack changes from empty to packed for school."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "classroom-presentation-01",
+      "title": "Classroom Presentation",
+      "status": "approved",
+      "file": "images/classroom-presentation-01.png",
+      "sourceFile": "images/classroom-presentation-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "presentation",
+        "classroom",
+        "students",
+        "teacher"
+      ],
+      "tags": [
+        "presentation",
+        "classroom",
+        "students",
+        "teacher"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "A student gives a classroom presentation while others listen."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
     }
   ]
 }
