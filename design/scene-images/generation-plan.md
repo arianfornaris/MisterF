@@ -26,10 +26,10 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 ## Progress
 
 - Target image count: 50
-- Generated image count: 15
-- Remaining image count: 35
-- Completed batches: 3 of 10
-- Remaining batches: 7
+- Generated image count: 20
+- Remaining image count: 30
+- Completed batches: 4 of 10
+- Remaining batches: 6
 
 ## Batch Themes
 
@@ -38,7 +38,7 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 1 | Everyday Problem-Solution Stories | generated | Existing starter set. All five are four-panel stories. |
 | 2 | Workplace Situations | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 3 | Medical And Health Situations | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
-| 4 | Travel And Transportation | planned | Tickets, luggage, hotel arrival, missed transit, directions. |
+| 4 | Travel And Transportation | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 5 | Shopping And Services | planned | Returns, sizes, payments, orders, service misunderstandings. |
 | 6 | Home And Daily Routines | planned | Cooking, chores, morning routines, repairs, family plans. |
 | 7 | School And Learning | planned | Homework, group projects, classroom routines, tests, library help. |
@@ -65,11 +65,11 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 13 | 3 | Medical And Health Situations | four_panel_wordless_story | `minor-sprain-clinic-01` | A Minor Sprain At The Clinic | generated |
 | 14 | 3 | Medical And Health Situations | two_panel_contrast | `before-after-resting-01` | Before And After Resting | generated |
 | 15 | 3 | Medical And Health Situations | single_panel_scene | `waiting-room-check-in-01` | Waiting Room Check-In | generated |
-| 16 | 4 | Travel And Transportation | four_panel_wordless_story | `missed-train-platform-01` | Missing The Train | planned |
-| 17 | 4 | Travel And Transportation | four_panel_wordless_story | `lost-luggage-hotel-01` | Lost Luggage At The Hotel | planned |
-| 18 | 4 | Travel And Transportation | four_panel_wordless_story | `ticket-machine-help-01` | Help At The Ticket Machine | planned |
-| 19 | 4 | Travel And Transportation | two_panel_contrast | `packed-unpacked-suitcase-01` | Packed And Unpacked Suitcase | planned |
-| 20 | 4 | Travel And Transportation | single_panel_scene | `airport-security-line-01` | Airport Security Line | planned |
+| 16 | 4 | Travel And Transportation | four_panel_wordless_story | `missed-train-platform-01` | Missing The Train | generated |
+| 17 | 4 | Travel And Transportation | four_panel_wordless_story | `lost-luggage-hotel-01` | Lost Luggage At The Hotel | generated |
+| 18 | 4 | Travel And Transportation | four_panel_wordless_story | `ticket-machine-help-01` | Help At The Ticket Machine | generated |
+| 19 | 4 | Travel And Transportation | two_panel_contrast | `packed-unpacked-suitcase-01` | Packed And Unpacked Suitcase | generated |
+| 20 | 4 | Travel And Transportation | single_panel_scene | `airport-security-line-01` | Airport Security Line | generated |
 | 21 | 5 | Shopping And Services | four_panel_wordless_story | `wrong-size-return-01` | Returning The Wrong Size | planned |
 | 22 | 5 | Shopping And Services | four_panel_wordless_story | `wrong-cafe-order-01` | The Wrong Cafe Order | planned |
 | 23 | 5 | Shopping And Services | four_panel_wordless_story | `phone-repair-pickup-01` | Picking Up A Repaired Phone | planned |
@@ -101,15 +101,15 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | planned |
 | 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | planned |
 
-## Next Batch: Travel And Transportation
+## Next Batch: Shopping And Services
 
-When generating Batch 4, use the standard mix:
+When generating Batch 5, use the standard mix:
 
-1. `missed-train-platform-01`: four-panel story about arriving late to the platform, missing a train, asking for help, and finding the next option.
-2. `lost-luggage-hotel-01`: four-panel story about arriving at a hotel, realizing luggage is missing, asking staff for help, and finding it.
-3. `ticket-machine-help-01`: four-panel story about confusion at a ticket machine, help from another traveler, buying a ticket, and heading to the platform.
-4. `packed-unpacked-suitcase-01`: two-panel contrast showing a packed suitcase before travel and an unpacked suitcase after arrival.
-5. `airport-security-line-01`: single-panel scene for describing people, objects, and actions in an airport security line.
+1. `wrong-size-return-01`: four-panel story about trying on clothing, realizing it is the wrong size, returning it, and leaving with the correct item.
+2. `wrong-cafe-order-01`: four-panel story about receiving the wrong cafe order, politely asking for help, and getting the correct drink or snack.
+3. `phone-repair-pickup-01`: four-panel story about checking a repaired phone, asking a question, paying or confirming, and leaving satisfied.
+4. `empty-full-cart-01`: two-panel contrast showing an empty shopping cart before shopping and a full cart afterward.
+5. `market-checkout-line-01`: single-panel scene for describing people, objects, and actions in a checkout line.
 
 ## Maintenance Notes
 

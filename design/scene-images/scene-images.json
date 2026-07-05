@@ -1001,6 +1001,327 @@
         "Designed as a single-panel clinic waiting-room description scene.",
         "Visual QA passed: no readable text detected and the check-in, waiting, and nurse-calling actions are easy to describe."
       ]
+    },
+    {
+      "id": "missed-train-platform-01",
+      "title": "Missing The Train",
+      "status": "approved",
+      "file": "images/missed-train-platform-01.png",
+      "sourceFile": "images/missed-train-platform-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "train-station",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "transportation",
+        "asking_for_help",
+        "emotions",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "travel",
+        "train",
+        "station",
+        "platform",
+        "late",
+        "missed-train",
+        "helping",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "traveler",
+          "description": "Young traveler with brown skin, shoulder-length curly hair, a red jacket, and a small rolling suitcase."
+        },
+        {
+          "role": "station_employee",
+          "description": "Station employee with light skin, gray hair, and a blue uniform."
+        }
+      ],
+      "panelSequence": [
+        "The traveler runs onto the platform.",
+        "The traveler misses the train and looks disappointed.",
+        "A station employee points toward another option.",
+        "The traveler walks calmly toward another train area."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe why the traveler is worried.",
+        "What happens in panel two?",
+        "How does the station employee help?",
+        "Write a short story about missing a train."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a train travel story in a clean 2x2 grid: a traveler runs onto a platform, misses a train, asks a station employee for help, and walks toward another train option. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, logos, route numbers, platform signs, schedule text, ticket text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless train station problem-solution story.",
+        "Visual QA passed: no readable text detected, and the missed-train sequence is clear."
+      ]
+    },
+    {
+      "id": "lost-luggage-hotel-01",
+      "title": "Lost Luggage At The Hotel",
+      "status": "approved",
+      "file": "images/lost-luggage-hotel-01.png",
+      "sourceFile": "images/lost-luggage-hotel-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "hotel-lobby",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "hotel_vocabulary",
+        "luggage",
+        "asking_for_help",
+        "emotions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "travel",
+        "hotel",
+        "luggage",
+        "suitcase",
+        "reception",
+        "helping",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "traveler",
+          "description": "Middle-aged traveler with dark skin, glasses, a green shirt, and a tan jacket."
+        },
+        {
+          "role": "hotel_staff",
+          "description": "Hotel staff member with olive skin, short black hair, and a navy blazer."
+        }
+      ],
+      "panelSequence": [
+        "The traveler arrives in the hotel lobby and cannot find a suitcase.",
+        "The traveler asks hotel staff for help.",
+        "They search near a luggage cart and reception area.",
+        "The traveler finds the blue suitcase and thanks the staff member."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What is missing?",
+        "Where do they search?",
+        "How does the traveler feel in each panel?",
+        "Write a hotel problem-solution story."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a hotel travel story in a clean 2x2 grid: a traveler arrives without a suitcase, asks hotel staff for help, they search the lobby, and the traveler finds the suitcase. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, hotel signs, reception text, luggage tags, room numbers, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless hotel luggage story.",
+        "Visual QA passed: no readable text detected, and the missing-luggage resolution is clear."
+      ]
+    },
+    {
+      "id": "ticket-machine-help-01",
+      "title": "Help At The Ticket Machine",
+      "status": "approved",
+      "file": "images/ticket-machine-help-01.png",
+      "sourceFile": "images/ticket-machine-help-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "train-station",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "transportation",
+        "buying_tickets",
+        "asking_for_help",
+        "polite_interactions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "travel",
+        "ticket-machine",
+        "station",
+        "ticket",
+        "helping",
+        "polite",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_needing_help",
+          "description": "Older traveler with light skin, white hair, a purple coat, and a small shoulder bag."
+        },
+        {
+          "role": "helper",
+          "description": "Young traveler with tan skin, black hair, and a yellow backpack."
+        }
+      ],
+      "panelSequence": [
+        "The older traveler looks confused at a ticket machine.",
+        "A younger traveler offers help.",
+        "The younger traveler points to the machine screen.",
+        "The older traveler holds a blank ticket and both walk toward the platform."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Who needs help?",
+        "What does the younger traveler do?",
+        "What object does the older traveler hold at the end?",
+        "Describe the polite interaction."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a ticket machine story in a clean 2x2 grid: an older traveler is confused, a younger traveler offers help, they use the machine, and the older traveler gets a blank ticket. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, machine interface text, ticket text, station signs, platform signs, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless ticket-machine help story.",
+        "Visual QA passed: no readable text detected, and the help interaction is clear."
+      ]
+    },
+    {
+      "id": "packed-unpacked-suitcase-01",
+      "title": "Packed And Unpacked Suitcase",
+      "status": "approved",
+      "file": "images/packed-unpacked-suitcase-01.png",
+      "sourceFile": "images/packed-unpacked-suitcase-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-and-hotel-room",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "clothing_vocabulary",
+        "packing",
+        "before_after",
+        "prepositions",
+        "describing_objects"
+      ],
+      "tags": [
+        "travel",
+        "suitcase",
+        "packing",
+        "unpacking",
+        "hotel",
+        "clothes",
+        "before-after"
+      ],
+      "characters": [
+        {
+          "role": "traveler",
+          "description": "Young adult traveler with medium-brown skin, short curly hair, an orange sweater, and jeans."
+        }
+      ],
+      "panelSequence": [
+        "The traveler packs a suitcase neatly before the trip.",
+        "The traveler has unpacked some items after arriving at a hotel."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two panels.",
+        "Name the objects in and around the suitcase.",
+        "Where are the shoes?",
+        "What changed after arrival?"
+      ],
+      "generationPrompt": "Create a square two-panel wordless contrast illustration for an English-learning activity. Show the same traveler before and after a trip: first packing a neat suitcase at home, then unpacking in a hotel room after arrival. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, logos, suitcase tags, hotel signs, labels, book text, clock numbers, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a two-panel wordless travel packing contrast.",
+        "Visual QA passed: no readable text detected, and the packed/unpacked contrast is clear."
+      ]
+    },
+    {
+      "id": "airport-security-line-01",
+      "title": "Airport Security Line",
+      "status": "approved",
+      "file": "images/airport-security-line-01.png",
+      "sourceFile": "images/airport-security-line-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "airport-security",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "airport_vocabulary",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "travel",
+        "airport",
+        "security",
+        "line",
+        "luggage",
+        "scanner",
+        "routine"
+      ],
+      "characters": [
+        {
+          "role": "airport_people",
+          "description": "Varied travelers and a friendly airport staff member in a security line."
+        }
+      ],
+      "panelSequence": [
+        "Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the airport objects you can see.",
+        "Where are the bags and trays?",
+        "What might happen next in the line?"
+      ],
+      "generationPrompt": "Create a square single-panel wordless situation illustration for an English-learning activity. Show a friendly airport security line with varied travelers placing bags in trays, removing shoes, helping a child, waiting with luggage, and following a staff member's polite gesture. Include trays, a conveyor belt, scanner arch, small bags, shoes, jackets, and simple airport interior elements. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, logos, airport signs, security signs, boarding pass text, passport text, labels, clock numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a single-panel airport security description scene.",
+        "Visual QA passed: no readable text detected, and multiple airport actions are easy to describe."
+      ]
     }
   ]
 }
