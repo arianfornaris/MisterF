@@ -413,24 +413,22 @@
                       <input class="btn-check" type="radio" name="translatorMode" id="translatorModeFromEn" value="from-english">
                       <label class="btn btn-outline-secondary" for="translatorModeFromEn" data-translator-from-en-label></label>
 
-                      <div class="btn-group translator-language-picker" role="group">
-                        <button
-                          class="btn btn-outline-secondary translator-language-button"
-                          type="button"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                          data-translator-language-button
-                          title="<%= t('translator.settings') %>"
-                          aria-label="<%= t('translator.settings') %>"
-                        >
-                          <i class="bi bi-gear" aria-hidden="true"></i>
-                        </button>
-                        <ul
-                          class="dropdown-menu dropdown-menu-end translator-language-menu"
-                          aria-label="<%= t('translator.languageMenuLabel') %>"
-                          data-translator-language-menu
-                        ></ul>
-                      </div>
+                      <button
+                        class="btn btn-outline-secondary translator-language-button"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        data-translator-language-button
+                        title="<%= t('translator.settings') %>"
+                        aria-label="<%= t('translator.settings') %>"
+                      >
+                        <i class="bi bi-gear" aria-hidden="true"></i>
+                      </button>
+                      <ul
+                        class="dropdown-menu dropdown-menu-end translator-language-menu"
+                        aria-label="<%= t('translator.languageMenuLabel') %>"
+                        data-translator-language-menu
+                      ></ul>
                     </div>
 
                     <label class="visually-hidden" for="translatorInput"><%= t('translator.inputLabel') %></label>
