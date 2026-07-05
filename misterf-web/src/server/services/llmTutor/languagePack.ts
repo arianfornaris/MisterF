@@ -45,7 +45,15 @@ export function tutorSystemLanguagePlaceholders(
 export function tutorBlockProtocolPlaceholders(
   language: InstructionLanguage,
 ): Record<string, string> {
+  // The Spanish-specific quiz translation items only render for `es`. Ordered
+  // before INSTRUCTION_LANGUAGE_NAME so the injected fragment's own
+  // `{{INSTRUCTION_LANGUAGE_NAME}}` is resolved by the same substitution pass.
   return {
+    QUIZ_TRANSLATION_ITEMS:
+      language === 'es'
+        ? loadSystemPrompt('tutor/blocks/quiz-translation-items.md').trim()
+        : '',
+    QUIZ_TRANSLATION_ITEM_UNION: languages[language].tutor.quizTranslationItemUnion,
     INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
     TRANSLATION_UNION_MEMBERS: languages[language].tutor.translationUnionMembers,
   };

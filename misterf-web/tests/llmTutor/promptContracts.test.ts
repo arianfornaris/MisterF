@@ -51,11 +51,23 @@ describe('tutor instruction language parametrization', () => {
     expect(englishNames).not.toContain('translate-to-english-prompt');
     expect(englishNames).not.toContain('understand-in-spanish-prompt');
 
+    const spanishProtocol = renderTutorBlockProtocol(undefined, 'es');
     const englishProtocol = renderTutorBlockProtocol(undefined, 'en');
     expect(englishProtocol).not.toContain('interface UnderstandInSpanishPromptBlock');
     expect(englishProtocol).not.toContain('interface TranslateToEnglishPromptBlock');
     expect(englishProtocol).not.toContain('| TranslateToEnglishPromptBlock');
     expect(englishProtocol).not.toContain('| UnderstandInSpanishPromptBlock');
+
+    // The two Spanish-specific quiz item kinds are excluded outside Spanish.
+    expect(spanishProtocol).toContain('interface QuizTranslateToEnglishItem');
+    expect(spanishProtocol).toContain('interface QuizUnderstandInSpanishItem');
+    expect(spanishProtocol).toContain('| QuizTranslateToEnglishItem');
+    expect(englishProtocol).not.toContain('interface QuizTranslateToEnglishItem');
+    expect(englishProtocol).not.toContain('interface QuizUnderstandInSpanishItem');
+    expect(englishProtocol).not.toContain('quiz_translate_to_english');
+    expect(englishProtocol).not.toContain('quiz_understand_in_spanish');
+    expect(englishProtocol).not.toContain('| QuizTranslateToEnglishItem');
+    expect(englishProtocol).not.toContain('| QuizUnderstandInSpanishItem');
   });
 
   it('authors block learner-facing fields in the instruction language', () => {

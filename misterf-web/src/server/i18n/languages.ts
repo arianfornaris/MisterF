@@ -20,6 +20,7 @@ export type TutorLanguagePack = {
   translationExerciseBlocksInline: string;
   translationExerciseBlockCombinations: string;
   translationUnionMembers: string;
+  quizTranslationItemUnion: string;
   uiPracticeGuideTerm: string;
   uiResourcesTerm: string;
   conversationTitleRule: string;
@@ -67,6 +68,8 @@ export const languages = {
         '\n  - `message` plus `translate_to_english_prompt`\n  - `message` plus `understand_in_spanish_prompt`',
       translationUnionMembers:
         '\n  | TranslateToEnglishPromptBlock\n  | UnderstandInSpanishPromptBlock',
+      quizTranslationItemUnion:
+        '\n  | QuizTranslateToEnglishItem\n  | QuizUnderstandInSpanishItem',
       uiPracticeGuideTerm: 'guía de práctica',
       uiResourcesTerm: 'Recursos',
       conversationTitleRule:
@@ -88,6 +91,7 @@ export const languages = {
       translationExerciseBlocksInline: '',
       translationExerciseBlockCombinations: '',
       translationUnionMembers: '',
+      quizTranslationItemUnion: '',
       uiPracticeGuideTerm: 'practice guide',
       uiResourcesTerm: 'Resources',
       conversationTitleRule:
@@ -112,6 +116,7 @@ export const languages = {
       translationExerciseBlocksInline: '',
       translationExerciseBlockCombinations: '',
       translationUnionMembers: '',
+      quizTranslationItemUnion: '',
       uiPracticeGuideTerm: 'gid pratik',
       uiResourcesTerm: 'Resous',
       conversationTitleRule:
