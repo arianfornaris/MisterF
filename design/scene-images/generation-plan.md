@@ -26,17 +26,17 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 ## Progress
 
 - Target image count: 50
-- Generated image count: 5
-- Remaining image count: 45
-- Completed batches: 1 of 10
-- Remaining batches: 9
+- Generated image count: 10
+- Remaining image count: 40
+- Completed batches: 2 of 10
+- Remaining batches: 8
 
 ## Batch Themes
 
 | Batch | Theme | Status | Notes |
 | --- | --- | --- | --- |
 | 1 | Everyday Problem-Solution Stories | generated | Existing starter set. All five are four-panel stories. |
-| 2 | Workplace Situations | planned | Meetings, office tasks, mistakes, collaboration, schedules. |
+| 2 | Workplace Situations | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 3 | Medical And Health Situations | planned | Appointments, symptoms, pharmacy, minor injuries, care instructions. |
 | 4 | Travel And Transportation | planned | Tickets, luggage, hotel arrival, missed transit, directions. |
 | 5 | Shopping And Services | planned | Returns, sizes, payments, orders, service misunderstandings. |
@@ -55,11 +55,11 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 3 | 1 | Everyday Problem-Solution Stories | four_panel_wordless_story | `torn-grocery-bag-01` | Torn Grocery Bag | generated |
 | 4 | 1 | Everyday Problem-Solution Stories | four_panel_wordless_story | `shared-lunch-classroom-01` | Shared Lunch In The Classroom | generated |
 | 5 | 1 | Everyday Problem-Solution Stories | four_panel_wordless_story | `pancake-practice-kitchen-01` | Pancake Practice | generated |
-| 6 | 2 | Workplace Situations | four_panel_wordless_story | `late-meeting-workplace-01` | Late For The Meeting | planned |
-| 7 | 2 | Workplace Situations | four_panel_wordless_story | `printer-help-workplace-01` | Helping With The Printer | planned |
-| 8 | 2 | Workplace Situations | four_panel_wordless_story | `team-deadline-workplace-01` | Finishing A Team Deadline | planned |
-| 9 | 2 | Workplace Situations | two_panel_contrast | `messy-desk-clean-desk-01` | Messy Desk, Clean Desk | planned |
-| 10 | 2 | Workplace Situations | single_panel_scene | `office-break-room-01` | Office Break Room | planned |
+| 6 | 2 | Workplace Situations | four_panel_wordless_story | `late-meeting-workplace-01` | Late For The Meeting | generated |
+| 7 | 2 | Workplace Situations | four_panel_wordless_story | `printer-help-workplace-01` | Helping With The Printer | generated |
+| 8 | 2 | Workplace Situations | four_panel_wordless_story | `team-deadline-workplace-01` | Finishing A Team Deadline | generated |
+| 9 | 2 | Workplace Situations | two_panel_contrast | `messy-desk-clean-desk-01` | Messy Desk, Clean Desk | generated |
+| 10 | 2 | Workplace Situations | single_panel_scene | `office-break-room-01` | Office Break Room | generated |
 | 11 | 3 | Medical And Health Situations | four_panel_wordless_story | `doctor-visit-cough-01` | Doctor Visit For A Cough | planned |
 | 12 | 3 | Medical And Health Situations | four_panel_wordless_story | `pharmacy-instructions-01` | Pharmacy Instructions | planned |
 | 13 | 3 | Medical And Health Situations | four_panel_wordless_story | `minor-sprain-clinic-01` | A Minor Sprain At The Clinic | planned |
@@ -101,15 +101,15 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | planned |
 | 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | planned |
 
-## Next Batch: Workplace Situations
+## Next Batch: Medical And Health Situations
 
-When generating Batch 2, use the standard mix:
+When generating Batch 3, use the standard mix:
 
-1. `late-meeting-workplace-01`: four-panel story about arriving late, apologizing, catching up, and joining the meeting.
-2. `printer-help-workplace-01`: four-panel story about a printer issue and a coworker helping solve it.
-3. `team-deadline-workplace-01`: four-panel story about teammates dividing tasks and finishing a deadline.
-4. `messy-desk-clean-desk-01`: two-panel contrast showing an untidy desk before and an organized desk after.
-5. `office-break-room-01`: single-panel scene for describing people, objects, and actions in a break room.
+1. `doctor-visit-cough-01`: four-panel story about checking in, explaining symptoms, being examined, and receiving care instructions.
+2. `pharmacy-instructions-01`: four-panel story about bringing a prescription, asking questions, listening to instructions, and leaving prepared.
+3. `minor-sprain-clinic-01`: four-panel story about a minor ankle sprain, clinic help, bandaging, and resting safely.
+4. `before-after-resting-01`: two-panel contrast showing someone tired before resting and feeling better afterward.
+5. `waiting-room-check-in-01`: single-panel scene for describing people, objects, and actions in a clinic waiting room.
 
 ## Maintenance Notes
 

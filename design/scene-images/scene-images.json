@@ -349,6 +349,329 @@
         "Designed as a four-panel wordless home cooking story.",
         "Visual QA passed: no readable text detected, the cooking mistake and resolution are clear."
       ]
+    },
+    {
+      "id": "late-meeting-workplace-01",
+      "title": "Late For The Meeting",
+      "status": "approved",
+      "file": "images/late-meeting-workplace-01.png",
+      "sourceFile": "images/late-meeting-workplace-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "meetings",
+        "apologies",
+        "present_continuous",
+        "past_tense_story",
+        "emotions"
+      ],
+      "tags": [
+        "workplace",
+        "office",
+        "meeting",
+        "late",
+        "apology",
+        "coworkers",
+        "punctuality"
+      ],
+      "characters": [
+        {
+          "role": "late_worker",
+          "description": "Young office worker with medium-brown skin, short curly hair, a teal shirt, and a messenger bag."
+        },
+        {
+          "role": "coworkers",
+          "description": "Two friendly coworkers seated at a meeting table."
+        }
+      ],
+      "panelSequence": [
+        "The worker hurries through the office hallway.",
+        "The worker arrives at the meeting room after coworkers are seated.",
+        "The worker apologizes and a coworker gestures to an empty chair.",
+        "The worker joins the meeting calmly."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe why the worker looks worried.",
+        "What happens when the worker enters the meeting room?",
+        "Write a short story about being late.",
+        "How do the coworkers respond?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a workplace story in a clean 2x2 grid: a worker rushes through an office hallway, reaches a meeting room late, apologizes with friendly body language, and joins the meeting calmly. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, signs, clock numbers, laptop text, whiteboard text, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless workplace meeting story.",
+        "Visual QA passed: no readable text detected and the late-arrival sequence is clear."
+      ]
+    },
+    {
+      "id": "printer-help-workplace-01",
+      "title": "Helping With The Printer",
+      "status": "approved",
+      "file": "images/printer-help-workplace-01.png",
+      "sourceFile": "images/printer-help-workplace-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "office_equipment",
+        "asking_for_help",
+        "problem_solution",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "workplace",
+        "office",
+        "printer",
+        "paper-jam",
+        "coworkers",
+        "helping",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_needing_help",
+          "description": "Office worker with light-brown skin, shoulder-length black hair, a yellow blouse, and dark pants."
+        },
+        {
+          "role": "helper",
+          "description": "Coworker with dark skin, glasses, and a blue cardigan."
+        }
+      ],
+      "panelSequence": [
+        "The worker waits beside the printer with blank papers.",
+        "The printer has a paper jam and the worker looks confused.",
+        "The coworker removes the stuck paper.",
+        "The printer works again and both coworkers smile."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What problem happens with the printer?",
+        "Who helps solve the problem?",
+        "Describe the steps in the story.",
+        "What office objects can you see?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a workplace printer problem in a clean 2x2 grid: a worker waits for printed pages, sees a paper jam, a coworker removes the stuck paper, and the printer works again. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, printer display text, paper text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless office equipment problem-solution story.",
+        "Visual QA passed: no readable text detected and the paper jam is easy to understand."
+      ]
+    },
+    {
+      "id": "team-deadline-workplace-01",
+      "title": "Finishing A Team Deadline",
+      "status": "approved",
+      "file": "images/team-deadline-workplace-01.png",
+      "sourceFile": "images/team-deadline-workplace-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office-project-room",
+      "level": ["A2", "B1"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "teamwork",
+        "planning",
+        "present_continuous",
+        "past_tense_story",
+        "emotions"
+      ],
+      "tags": [
+        "workplace",
+        "office",
+        "teamwork",
+        "deadline",
+        "planning",
+        "coworkers",
+        "success"
+      ],
+      "characters": [
+        {
+          "role": "team_member",
+          "description": "Coworker with fair skin, short red hair, and a navy jacket."
+        },
+        {
+          "role": "team_member",
+          "description": "Coworker with brown skin, long black hair, and a green blouse."
+        },
+        {
+          "role": "team_member",
+          "description": "Coworker with tan skin, short hair, and a gray sweater."
+        }
+      ],
+      "panelSequence": [
+        "The coworkers look stressed at a busy project table.",
+        "They organize blank sticky notes and divide the work.",
+        "Each coworker works on a different task.",
+        "The team celebrates finishing together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe how the team changes from panel one to panel four.",
+        "What are the coworkers doing in panel three?",
+        "Write a story about teamwork.",
+        "Why are they happy at the end?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a team deadline story in a clean 2x2 grid: coworkers feel stressed, divide tasks with blank sticky notes, work together, and celebrate finishing. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, sticky note text, laptop text, tablet text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless workplace teamwork story.",
+        "Visual QA passed: no readable text detected and the teamwork progression is clear."
+      ]
+    },
+    {
+      "id": "messy-desk-clean-desk-01",
+      "title": "Messy Desk, Clean Desk",
+      "status": "approved",
+      "file": "images/messy-desk-clean-desk-01.png",
+      "sourceFile": "images/messy-desk-clean-desk-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office-desk",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "adjectives",
+        "prepositions",
+        "before_after",
+        "describing_objects"
+      ],
+      "tags": [
+        "workplace",
+        "desk",
+        "messy",
+        "clean",
+        "organization",
+        "before-after",
+        "office-objects"
+      ],
+      "characters": [
+        {
+          "role": "desk_owner",
+          "description": "Adult woman with medium skin, wavy dark hair, a coral cardigan, and glasses."
+        }
+      ],
+      "panelSequence": [
+        "The worker sits at a messy desk and looks overwhelmed.",
+        "The same worker sits at an organized desk and looks calm."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two desks.",
+        "Describe where the objects are.",
+        "Which desk is easier to use? Why?",
+        "Name three things that changed."
+      ],
+      "generationPrompt": "Create a square two-panel wordless contrast illustration for an English-learning activity. Show the same office desk before and after organizing: first messy and stressful, then tidy and calm. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, laptop text, paper text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a two-panel wordless workplace before/after contrast.",
+        "Visual QA passed: no readable text detected and the messy-to-clean contrast is clear."
+      ]
+    },
+    {
+      "id": "office-break-room-01",
+      "title": "Office Break Room",
+      "status": "approved",
+      "file": "images/office-break-room-01.png",
+      "sourceFile": "images/office-break-room-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office-break-room",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "daily_routines",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "workplace",
+        "break-room",
+        "coffee",
+        "snacks",
+        "coworkers",
+        "daily-routine",
+        "office-objects"
+      ],
+      "characters": [
+        {
+          "role": "coworkers",
+          "description": "Five varied adult coworkers using an office break room."
+        }
+      ],
+      "panelSequence": [
+        "Coworkers take a short break: pouring coffee, taking snacks, chatting, and washing a mug."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the objects in the break room.",
+        "Where are the people standing or sitting?",
+        "What might the coworkers talk about?"
+      ],
+      "generationPrompt": "Create a square single-panel wordless situation illustration for an English-learning activity. Show a friendly office break room with varied coworkers pouring coffee, taking a snack, chatting at a table, and washing a mug. Include visible break room objects such as a refrigerator, microwave, coffee machine, cups, chairs, and a fruit bowl. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, appliance labels, posters, signs, labels, or watermarks.",
+      "qaNotes": [
+        "Designed as a single-panel workplace description scene.",
+        "Visual QA passed: no readable text detected and multiple everyday actions are easy to describe."
+      ]
     }
   ]
 }
