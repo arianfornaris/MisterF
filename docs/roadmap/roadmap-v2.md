@@ -74,7 +74,7 @@ Scope notes:
   prompt parametrization proposal approved (language packs + invariant
   sections + conversation language snapshot). Done 2026-07-04; all
   decisions live in the design doc's "V2 Decisions" section.
-- [~] i18n infrastructure: externalize UI strings from EJS views, partials,
+- [x] i18n infrastructure: externalize UI strings from EJS views, partials,
   client scripts, flash messages, and validation errors into per-language
   catalogs (`es`, `en`); pick or build a minimal helper (no heavyweight
   framework unless the design doc justifies it). 2026-07-04: infrastructure
@@ -91,12 +91,13 @@ Scope notes:
   through `t()` / a browser-injected client dictionary
   (`window.__APP_I18N__`). A whole-tree sweep (accented and accent-free
   Spanish) confirms no learner-facing Spanish literals remain outside the
-  intentional `Español` endonym and the two legal-document bodies. Still
-  open: server-side flash/validation messages (auth `forms.ts`, profiles,
-  quizzes, roleplays, resources, practice-guide handlers) and the
-  `privacy`/`terms` legal-document bodies (tracked under transactional
-  surfaces below).
-- [~] Per-user language preference: onboarding choice, settings toggle, and
+  intentional `Español` endonym and the two legal-document bodies.
+  2026-07-05: the previously open items — server-side flash/validation
+  messages (auth `forms.ts`, profiles, quizzes, roleplays, resources,
+  practice-guide handlers) and the `privacy`/`terms` legal-document bodies
+  — are done (see transactional surfaces below). The operational guide for
+  adding a language is [i18n](../architecture/i18n.md).
+- [x] Per-user language preference: onboarding choice, settings toggle, and
   a sensible default for anonymous/shared-link visitors (`Accept-Language`
   with explicit override). Done 2026-07-04: `instruction_language` profile
   field (migration, repository, onboarding + profile forms); a settings
@@ -125,7 +126,10 @@ Scope notes:
   learner's instruction language (threaded from the conversation
   snapshot or the attempt's profile), and resource-draft authoring
   (quiz/guide/roleplay draft + revision) plus roleplay evaluation render
-  in the authoring/reader profile's language. Still open: fully excluding
+  in the authoring/reader profile's language. 2026-07-05: fixed the socket
+  initial greeting for signed-in users to use the profile's instruction
+  language (it previously always fell back to Spanish; the guest HTTP
+  greeting already honored the locale). Still open: fully excluding
   the two translation quiz item kinds from the `en` quiz protocol
   (currently defined but forbidden by the `en` language rules) and
   English block-repair leakage detection (currently Spanish-regex only).

@@ -35,6 +35,7 @@ how the main technical pieces fit together.
 - [Data Model](./architecture/data-model.md): core entities stored by the application and how they relate
 - [Feature Flows](./architecture/feature-flows.md): end-to-end flow descriptions for the most important user journeys
 - [Prompts](./architecture/prompts.md): prompt families and what each prompt is responsible for
+- [Internationalization](./architecture/i18n.md): how instruction-language support is structured and a checklist for adding a new language
 - [Testing](./architecture/testing.md): Vitest standard, commands, and tutor-loop regression fixture guidance
 
 ### Tutor
