@@ -1,7 +1,16 @@
+import type Database from 'better-sqlite3';
+
 export type Migration = {
   id: number;
   name: string;
-  up: string;
+  /** Declarative SQL migration, run inside the migration transaction. */
+  up?: string;
+  /**
+   * Programmatic migration for changes SQL can't express cleanly (e.g.
+   * editing `sqlite_master` to drop a CHECK). Runs inside the same
+   * transaction, with better-sqlite3 unsafe mode enabled by the migrator.
+   */
+  run?: (db: Database.Database) => void;
 };
 
 export const migrations: Migration[] = [
@@ -1702,5 +1711,36 @@ export const migrations: Migration[] = [
         ADD COLUMN instruction_language TEXT NOT NULL DEFAULT 'es'
           CHECK (instruction_language IN ('es', 'en'));
     `,
+  },
+  {
+    // The instruction_language allowlist now lives in the language registry
+    // (i18n/languages.ts) and is enforced in application code, so adding a
+    // language no longer needs a schema change. Drop the DB CHECK by editing
+    // the stored table DDL in place — this moves no rows and leaves foreign
+    // keys and indexes untouched (a normal table rebuild would cascade-delete
+    // the referenced messages/snapshots under foreign_keys=ON).
+    id: 16,
+    name: 'drop_instruction_language_check',
+    run: (db) => {
+      db.pragma('writable_schema = ON');
+      const select = db.prepare(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?",
+      );
+      const update = db.prepare(
+        "UPDATE sqlite_master SET sql = ? WHERE type = 'table' AND name = ?",
+      );
+      for (const table of ['profiles', 'conversations']) {
+        const row = select.get(table) as { sql: string } | undefined;
+        if (!row) {
+          continue;
+        }
+        const rewritten = row.sql.replace(
+          /\s*CHECK \(instruction_language IN \([^)]*\)\)/,
+          '',
+        );
+        update.run(rewritten, table);
+      }
+      db.pragma('writable_schema = OFF');
+    },
   },
 ];

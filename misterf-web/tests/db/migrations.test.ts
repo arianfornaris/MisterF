@@ -115,6 +115,10 @@ describe('database migrations', () => {
         id: 15,
         name: 'add_conversation_instruction_language',
       },
+      {
+        id: 16,
+        name: 'drop_instruction_language_check',
+      },
     ]);
 
     const tableNames = (db
@@ -174,6 +178,17 @@ describe('database migrations', () => {
       'instruction_language',
       'model_tier',
     ]));
+
+    // Migration 16 drops the instruction_language CHECK so a new instruction
+    // language no longer needs a schema change (the allowlist is enforced in
+    // application code). The column survives; the constraint does not.
+    for (const table of ['profiles', 'conversations']) {
+      const { sql } = db
+        .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?")
+        .get(table) as { sql: string };
+      expect(sql).toContain('instruction_language TEXT NOT NULL');
+      expect(sql).not.toContain('CHECK (instruction_language');
+    }
     expect(getColumnNames(db, 'conversations')).not.toContain(
       'chat_room_conversation_report_id',
     );
