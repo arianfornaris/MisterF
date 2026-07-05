@@ -26,10 +26,10 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 ## Progress
 
 - Target image count: 50
-- Generated image count: 35
-- Remaining image count: 15
-- Completed batches: 7 of 10
-- Remaining batches: 3
+- Generated image count: 40
+- Remaining image count: 10
+- Completed batches: 8 of 10
+- Remaining batches: 2
 
 ## Batch Themes
 
@@ -42,7 +42,7 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 5 | Shopping And Services | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 6 | Home And Daily Routines | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 7 | School And Learning | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
-| 8 | Food And Restaurants | planned | Ordering, reservations, spills, dietary needs, table manners. |
+| 8 | Food And Restaurants | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 9 | Community And Public Places | planned | Parks, libraries, post office, neighborhood help, public events. |
 | 10 | Digital Life And Appointments | planned | Video calls, online forms, calendar mistakes, device issues, confirmations. |
 
@@ -85,11 +85,11 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 33 | 7 | School And Learning | four_panel_wordless_story | `science-project-spill-01` | Science Project Spill | generated |
 | 34 | 7 | School And Learning | two_panel_contrast | `empty-full-backpack-01` | Empty Backpack, Full Backpack | generated |
 | 35 | 7 | School And Learning | single_panel_scene | `classroom-presentation-01` | Classroom Presentation | generated |
-| 36 | 8 | Food And Restaurants | four_panel_wordless_story | `restaurant-reservation-mixup-01` | Reservation Mix-Up | planned |
-| 37 | 8 | Food And Restaurants | four_panel_wordless_story | `spilled-soup-restaurant-01` | Spilled Soup | planned |
-| 38 | 8 | Food And Restaurants | four_panel_wordless_story | `ordering-with-allergy-01` | Ordering With An Allergy | planned |
-| 39 | 8 | Food And Restaurants | two_panel_contrast | `empty-full-plate-01` | Empty Plate, Full Plate | planned |
-| 40 | 8 | Food And Restaurants | single_panel_scene | `busy-restaurant-table-01` | Busy Restaurant Table | planned |
+| 36 | 8 | Food And Restaurants | four_panel_wordless_story | `restaurant-reservation-mixup-01` | Reservation Mix-Up | generated |
+| 37 | 8 | Food And Restaurants | four_panel_wordless_story | `spilled-soup-restaurant-01` | Spilled Soup | generated |
+| 38 | 8 | Food And Restaurants | four_panel_wordless_story | `ordering-with-allergy-01` | Ordering With An Allergy | generated |
+| 39 | 8 | Food And Restaurants | two_panel_contrast | `empty-full-plate-01` | Empty Plate, Full Plate | generated |
+| 40 | 8 | Food And Restaurants | single_panel_scene | `busy-restaurant-table-01` | Busy Restaurant Table | generated |
 | 41 | 9 | Community And Public Places | four_panel_wordless_story | `library-card-help-01` | Getting A Library Card | planned |
 | 42 | 9 | Community And Public Places | four_panel_wordless_story | `park-cleanup-01` | Park Cleanup | planned |
 | 43 | 9 | Community And Public Places | four_panel_wordless_story | `post-office-package-01` | Mailing A Package | planned |
@@ -101,15 +101,15 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | planned |
 | 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | planned |
 
-## Next Batch: Food And Restaurants
+## Next Batch: Community And Public Places
 
-When generating Batch 8, use the standard mix:
+When generating Batch 9, use the standard mix:
 
-1. `restaurant-reservation-mixup-01`: four-panel story about a reservation mix-up, polite clarification, and getting seated.
-2. `spilled-soup-restaurant-01`: four-panel story about a small soup spill, asking for help, cleanup, and continuing dinner.
-3. `ordering-with-allergy-01`: four-panel story about asking about an allergy, choosing safe food, and eating comfortably.
-4. `empty-full-plate-01`: two-panel contrast showing an empty plate before serving and a full plate afterward.
-5. `busy-restaurant-table-01`: single-panel scene for describing people, food, objects, and actions at a restaurant table.
+1. `library-card-help-01`: four-panel story about getting help applying for a library card.
+2. `park-cleanup-01`: four-panel story about neighbors cleaning a park together.
+3. `post-office-package-01`: four-panel story about mailing a package at the post office.
+4. `empty-busy-playground-01`: two-panel contrast showing an empty playground and a busy playground.
+5. `community-garden-01`: single-panel scene for describing people, tools, plants, and actions in a community garden.
 
 ## Maintenance Notes
 

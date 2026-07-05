@@ -2298,6 +2298,306 @@
         "Designed as a single panel scene for school and learning practice.",
         "Visual QA passed: no readable text detected and the pedagogical situation is clear."
       ]
+    },
+    {
+      "id": "restaurant-reservation-mixup-01",
+      "title": "Reservation Mix-Up",
+      "status": "approved",
+      "file": "images/restaurant-reservation-mixup-01.png",
+      "sourceFile": "images/restaurant-reservation-mixup-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "restaurant",
+        "reservation",
+        "polite",
+        "requests",
+        "problem",
+        "solution"
+      ],
+      "tags": [
+        "restaurant",
+        "reservation",
+        "polite",
+        "requests",
+        "problem",
+        "solution"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A reservation mix-up is solved and guests are seated."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "spilled-soup-restaurant-01",
+      "title": "Spilled Soup",
+      "status": "approved",
+      "file": "images/spilled-soup-restaurant-01.png",
+      "sourceFile": "images/spilled-soup-restaurant-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "restaurant",
+        "soup",
+        "spill",
+        "cleanup",
+        "helping"
+      ],
+      "tags": [
+        "restaurant",
+        "soup",
+        "spill",
+        "cleanup",
+        "helping"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A small soup spill happens, staff help clean it, and dinner continues."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "ordering-with-allergy-01",
+      "title": "Ordering With An Allergy",
+      "status": "approved",
+      "file": "images/ordering-with-allergy-01.png",
+      "sourceFile": "images/ordering-with-allergy-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "restaurant",
+        "allergy",
+        "food",
+        "safety",
+        "ordering"
+      ],
+      "tags": [
+        "restaurant",
+        "allergy",
+        "food",
+        "safety",
+        "ordering"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A customer explains an allergy and receives a safe meal."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-full-plate-01",
+      "title": "Empty Plate, Full Plate",
+      "status": "approved",
+      "file": "images/empty-full-plate-01.png",
+      "sourceFile": "images/empty-full-plate-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant-table",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "food",
+        "before",
+        "after",
+        "restaurant",
+        "objects"
+      ],
+      "tags": [
+        "food",
+        "before",
+        "after",
+        "restaurant",
+        "objects"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A restaurant plate changes from empty to full."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "busy-restaurant-table-01",
+      "title": "Busy Restaurant Table",
+      "status": "approved",
+      "file": "images/busy-restaurant-table-01.png",
+      "sourceFile": "images/busy-restaurant-table-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant-table",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "food",
+        "restaurant",
+        "present",
+        "continuous",
+        "people"
+      ],
+      "tags": [
+        "food",
+        "restaurant",
+        "present",
+        "continuous",
+        "people"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "People eat, serve, pour, pass food, and talk at a restaurant table."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
     }
   ]
 }
