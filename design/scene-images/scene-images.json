@@ -1,0 +1,354 @@
+{
+  "version": 1,
+  "description": "Design registry for curated pre-generated Mister F scene images.",
+  "images": [
+    {
+      "id": "lost-wallet-cafe-01",
+      "title": "Lost Wallet At The Cafe",
+      "status": "approved",
+      "file": "images/lost-wallet-cafe-01.png",
+      "sourceFile": "images/lost-wallet-cafe-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "cafe",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "describing_people",
+        "present_continuous",
+        "past_tense_story",
+        "lost_and_found",
+        "emotions"
+      ],
+      "tags": [
+        "cafe",
+        "rain",
+        "lost-wallet",
+        "helping",
+        "kindness",
+        "money",
+        "weather",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_who_lost_item",
+          "description": "Young Latina woman in a yellow raincoat with a shoulder bag."
+        },
+        {
+          "role": "helper",
+          "description": "Older Black man in a green jacket returning a wallet."
+        }
+      ],
+      "panelSequence": [
+        "The woman enters the cafe from the rain.",
+        "Her wallet falls from her bag near the door.",
+        "The man notices the wallet and picks it up.",
+        "The man returns the wallet and the woman looks relieved."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what happens in each panel.",
+        "Write a short story about the lost wallet.",
+        "What should the man do next?",
+        "How does the woman feel? Why?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. The image should be a clean 2x2 comic grid with four equal panels and simple gutters. Read order should be left to right, top to bottom. Do not label the panels. Story: a simple lost-and-found story in a cozy cafe on a rainy afternoon. A young Latina woman in a yellow raincoat enters the cafe with a shoulder bag. She accidentally drops her brown wallet near the entrance. An older Black man in a green jacket notices the wallet and picks it up. He returns it to her, and she looks relieved and grateful. Panel 1: the young woman enters the cafe from the rain, holding her shoulder bag and looking for a table. Panel 2: the wallet slips from the open bag and falls near the door while she walks away unaware. Panel 3: the older man sees the wallet on the floor, bends down, and picks it up. Panel 4: the older man gives the wallet back to the woman; she smiles with relief and thanks him with friendly body language. Style: clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone, polished but not overly detailed. Strict constraints: no readable text anywhere in the image. No letters, numbers, captions, speech bubbles, logos, menus, signs, labels, posters, readable writing on papers, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless cafe lost-and-found story.",
+        "Visual QA passed: no readable text detected, the panel sequence is clear, and the style matches the platform cartoon direction."
+      ]
+    },
+    {
+      "id": "shared-umbrella-bus-stop-01",
+      "title": "Shared Umbrella At The Bus Stop",
+      "status": "approved",
+      "file": "images/shared-umbrella-bus-stop-01.png",
+      "sourceFile": "images/shared-umbrella-bus-stop-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "bus-stop",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "describing_weather",
+        "transportation",
+        "present_continuous",
+        "past_tense_story",
+        "asking_for_help",
+        "emotions"
+      ],
+      "tags": [
+        "bus-stop",
+        "rain",
+        "umbrella",
+        "transportation",
+        "helping",
+        "kindness",
+        "weather",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_needing_help",
+          "description": "Teenage boy with medium-brown skin, curly hair, a blue hoodie, and a backpack."
+        },
+        {
+          "role": "helper",
+          "description": "Middle-aged woman with light skin, short gray hair, a red coat, and an umbrella."
+        }
+      ],
+      "panelSequence": [
+        "The boy waits at a rainy bus stop.",
+        "The rain gets heavier and he realizes he has no umbrella.",
+        "The woman shares her umbrella with him.",
+        "They walk toward the bus together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe the weather in each panel.",
+        "Write a story about the bus stop.",
+        "How does the boy feel in panel two?",
+        "What does the woman do to help?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a rainy bus stop story in a clean 2x2 grid: a teenage boy waits for a bus, realizes he forgot his umbrella, a woman shares her umbrella, and they board the bus together. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, signs, route numbers, logos, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless bus stop story.",
+        "Visual QA passed: no readable text detected, the umbrella-sharing action is clear, and the panel sequence works left to right, top to bottom."
+      ]
+    },
+    {
+      "id": "torn-grocery-bag-01",
+      "title": "Torn Grocery Bag",
+      "status": "approved",
+      "file": "images/torn-grocery-bag-01.png",
+      "sourceFile": "images/torn-grocery-bag-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "grocery-market",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "food_vocabulary",
+        "shopping",
+        "family",
+        "present_continuous",
+        "past_tense_story",
+        "problem_solution"
+      ],
+      "tags": [
+        "grocery",
+        "shopping",
+        "food",
+        "apples",
+        "bread",
+        "family",
+        "helping",
+        "accident",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "parent",
+          "description": "Young father with dark skin, glasses, and a green sweater."
+        },
+        {
+          "role": "child",
+          "description": "Small daughter wearing orange overalls."
+        },
+        {
+          "role": "helper",
+          "description": "Friendly store clerk with tan skin, short black hair, and an apron."
+        }
+      ],
+      "panelSequence": [
+        "The father and daughter choose groceries.",
+        "The paper bag tears and apples roll on the sidewalk.",
+        "The clerk helps them pick up the food.",
+        "The groceries are packed safely in a stronger bag."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Name the foods you can see.",
+        "Describe what happens to the bag.",
+        "Write a short story about the shopping trip.",
+        "Who helps the family?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a grocery market story in a clean 2x2 grid: a father and daughter choose apples and bread, their paper bag tears outside, a clerk helps them pick up the food, and the groceries are placed in a stronger reusable bag. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, signs, price tags, logos, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless grocery problem-solution story.",
+        "Visual QA passed: no readable text detected, the torn bag and helping action are clear."
+      ]
+    },
+    {
+      "id": "shared-lunch-classroom-01",
+      "title": "Shared Lunch In The Classroom",
+      "status": "approved",
+      "file": "images/shared-lunch-classroom-01.png",
+      "sourceFile": "images/shared-lunch-classroom-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "classroom",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "school_vocabulary",
+        "food_vocabulary",
+        "emotions",
+        "friendship",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "classroom",
+        "lunch",
+        "sharing",
+        "friendship",
+        "food",
+        "school",
+        "kindness",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "student_needing_help",
+          "description": "Young East Asian student with short black hair and a purple sweater."
+        },
+        {
+          "role": "friend",
+          "description": "Classmate with brown skin, long braids, and a yellow cardigan."
+        },
+        {
+          "role": "teacher",
+          "description": "Teacher with curly hair and glasses."
+        }
+      ],
+      "panelSequence": [
+        "The student opens a lunchbox.",
+        "The student sees the lunchbox is empty and feels worried.",
+        "A classmate offers to share food.",
+        "The two students eat together while the teacher smiles nearby."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe how the student feels in each panel.",
+        "What food does the classmate share?",
+        "Write a story about lunchtime.",
+        "What does the teacher see?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a classroom lunch story in a clean 2x2 grid: a student opens a lunchbox, sees it is empty, a classmate offers to share food, and the two students eat together while a teacher smiles nearby. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, posters with text, worksheet writing, book words, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless classroom sharing story.",
+        "Visual QA passed: no readable text detected, the empty lunchbox and sharing action are clear."
+      ]
+    },
+    {
+      "id": "pancake-practice-kitchen-01",
+      "title": "Pancake Practice",
+      "status": "approved",
+      "file": "images/pancake-practice-kitchen-01.png",
+      "sourceFile": "images/pancake-practice-kitchen-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-kitchen",
+      "level": ["A1", "A2"],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "cooking_vocabulary",
+        "family",
+        "present_continuous",
+        "past_tense_story",
+        "mistakes_and_solutions",
+        "emotions"
+      ],
+      "tags": [
+        "kitchen",
+        "cooking",
+        "pancakes",
+        "family",
+        "learning",
+        "mistake",
+        "cleaning",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "teacher",
+          "description": "Grandmother with medium-brown skin, silver hair, and a teal cardigan."
+        },
+        {
+          "role": "learner",
+          "description": "Teenage grandson with light-brown skin and red hair."
+        }
+      ],
+      "panelSequence": [
+        "The grandmother shows the grandson pancake batter.",
+        "The grandson pours too much batter and makes a mess.",
+        "They laugh and clean the counter together.",
+        "They proudly serve a plate of pancakes."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what they are cooking.",
+        "What mistake happens in panel two?",
+        "Write a story about learning to cook.",
+        "How do the characters feel at the end?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a home kitchen cooking story in a clean 2x2 grid: a grandmother teaches her teenage grandson to make pancakes, he pours too much batter and makes a small mess, they laugh and clean up, and they proudly serve pancakes. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, labels, recipe text, appliance text, posters, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless home cooking story.",
+        "Visual QA passed: no readable text detected, the cooking mistake and resolution are clear."
+      ]
+    }
+  ]
+}
