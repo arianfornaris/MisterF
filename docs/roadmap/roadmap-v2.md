@@ -96,7 +96,12 @@ Scope notes:
   messages (auth `forms.ts`, profiles, quizzes, roleplays, resources,
   practice-guide handlers) and the `privacy`/`terms` legal-document bodies
   — are done (see transactional surfaces below). The operational guide for
-  adding a language is [i18n](../architecture/i18n.md).
+  adding a language is [i18n](../architecture/i18n.md). 2026-07-05: language
+  config centralized into a single registry (`i18n/languages.ts`) — `Locale`,
+  the supported list, the UI pickers/switcher, and the tutor packs derive
+  from it, and the DB `instruction_language` CHECK was dropped (validated in
+  app code) so adding a language needs no schema change: one registry entry
+  plus a catalog and a language-rules file.
 - [x] Per-user language preference: onboarding choice, settings toggle, and
   a sensible default for anonymous/shared-link visitors (`Accept-Language`
   with explicit override). Done 2026-07-04: `instruction_language` profile
