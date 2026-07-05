@@ -26,10 +26,10 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 ## Progress
 
 - Target image count: 50
-- Generated image count: 25
-- Remaining image count: 25
-- Completed batches: 5 of 10
-- Remaining batches: 5
+- Generated image count: 30
+- Remaining image count: 20
+- Completed batches: 6 of 10
+- Remaining batches: 4
 
 ## Batch Themes
 
@@ -40,7 +40,7 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 3 | Medical And Health Situations | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 4 | Travel And Transportation | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 5 | Shopping And Services | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
-| 6 | Home And Daily Routines | planned | Cooking, chores, morning routines, repairs, family plans. |
+| 6 | Home And Daily Routines | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 7 | School And Learning | planned | Homework, group projects, classroom routines, tests, library help. |
 | 8 | Food And Restaurants | planned | Ordering, reservations, spills, dietary needs, table manners. |
 | 9 | Community And Public Places | planned | Parks, libraries, post office, neighborhood help, public events. |
@@ -75,11 +75,11 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 23 | 5 | Shopping And Services | four_panel_wordless_story | `phone-repair-pickup-01` | Picking Up A Repaired Phone | generated |
 | 24 | 5 | Shopping And Services | two_panel_contrast | `empty-full-cart-01` | Empty Cart, Full Cart | generated |
 | 25 | 5 | Shopping And Services | single_panel_scene | `market-checkout-line-01` | Market Checkout Line | generated |
-| 26 | 6 | Home And Daily Routines | four_panel_wordless_story | `forgotten-keys-home-01` | Forgotten Keys | planned |
-| 27 | 6 | Home And Daily Routines | four_panel_wordless_story | `laundry-color-mistake-01` | Laundry Color Mistake | planned |
-| 28 | 6 | Home And Daily Routines | four_panel_wordless_story | `morning-rush-family-01` | Morning Rush | planned |
-| 29 | 6 | Home And Daily Routines | two_panel_contrast | `messy-room-tidy-room-01` | Messy Room, Tidy Room | planned |
-| 30 | 6 | Home And Daily Routines | single_panel_scene | `family-dinner-table-01` | Family Dinner Table | planned |
+| 26 | 6 | Home And Daily Routines | four_panel_wordless_story | `forgotten-keys-home-01` | Forgotten Keys | generated |
+| 27 | 6 | Home And Daily Routines | four_panel_wordless_story | `laundry-color-mistake-01` | Laundry Color Mistake | generated |
+| 28 | 6 | Home And Daily Routines | four_panel_wordless_story | `morning-rush-family-01` | Morning Rush | generated |
+| 29 | 6 | Home And Daily Routines | two_panel_contrast | `messy-room-tidy-room-01` | Messy Room, Tidy Room | generated |
+| 30 | 6 | Home And Daily Routines | single_panel_scene | `family-dinner-table-01` | Family Dinner Table | generated |
 | 31 | 7 | School And Learning | four_panel_wordless_story | `group-project-library-01` | Group Project At The Library | planned |
 | 32 | 7 | School And Learning | four_panel_wordless_story | `forgotten-homework-01` | Forgotten Homework | planned |
 | 33 | 7 | School And Learning | four_panel_wordless_story | `science-project-spill-01` | Science Project Spill | planned |
@@ -101,15 +101,15 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | planned |
 | 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | planned |
 
-## Next Batch: Home And Daily Routines
+## Next Batch: School And Learning
 
-When generating Batch 6, use the standard mix:
+When generating Batch 7, use the standard mix:
 
-1. `forgotten-keys-home-01`: four-panel story about leaving keys inside, asking for help, waiting calmly, and getting back inside.
-2. `laundry-color-mistake-01`: four-panel story about mixing laundry colors, noticing the mistake, sorting clothes, and fixing the routine.
-3. `morning-rush-family-01`: four-panel story about a busy morning, missing an item, helping each other, and leaving on time.
-4. `messy-room-tidy-room-01`: two-panel contrast showing a messy bedroom before and a tidy bedroom after.
-5. `family-dinner-table-01`: single-panel scene for describing people, food, objects, and actions at dinner.
+1. `group-project-library-01`: four-panel story about students planning, researching, making a poster, and presenting together.
+2. `forgotten-homework-01`: four-panel story about forgetting homework, talking to the teacher, finding a solution, and feeling relieved.
+3. `science-project-spill-01`: four-panel story about a small science project spill, cleanup, teamwork, and success.
+4. `empty-full-backpack-01`: two-panel contrast showing an empty backpack before packing and a full backpack afterward.
+5. `classroom-presentation-01`: single-panel scene for describing people, objects, and actions during a classroom presentation.
 
 ## Maintenance Notes
 

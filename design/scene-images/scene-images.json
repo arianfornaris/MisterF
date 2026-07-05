@@ -1713,6 +1713,293 @@
         "Designed as a single panel scene for shopping and services practice.",
         "Visual QA passed: no readable text detected and the pedagogical situation is clear."
       ]
+    },
+    {
+      "id": "forgotten-keys-home-01",
+      "title": "Forgotten Keys",
+      "status": "approved",
+      "file": "images/forgotten-keys-home-01.png",
+      "sourceFile": "images/forgotten-keys-home-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "apartment",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "home_routines",
+        "keys",
+        "asking_for_help"
+      ],
+      "tags": [
+        "home-routines",
+        "keys",
+        "asking-for-help",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "The person locks herself out, gets help from a neighbor, and receives a spare key."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "laundry-color-mistake-01",
+      "title": "Laundry Color Mistake",
+      "status": "approved",
+      "file": "images/laundry-color-mistake-01.png",
+      "sourceFile": "images/laundry-color-mistake-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "laundry-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "home_routines",
+        "laundry",
+        "colors",
+        "mistakes"
+      ],
+      "tags": [
+        "home-routines",
+        "laundry",
+        "colors",
+        "mistakes",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "A laundry color mistake happens, then siblings sort clothes and fold them correctly."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "morning-rush-family-01",
+      "title": "Morning Rush",
+      "status": "approved",
+      "file": "images/morning-rush-family-01.png",
+      "sourceFile": "images/morning-rush-family-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-entryway",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "morning_routine",
+        "family",
+        "finding_objects"
+      ],
+      "tags": [
+        "morning-routine",
+        "family",
+        "finding-objects",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "A parent and child rush in the morning, find a missing shoe, and leave together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "messy-room-tidy-room-01",
+      "title": "Messy Room, Tidy Room",
+      "status": "approved",
+      "file": "images/messy-room-tidy-room-01.png",
+      "sourceFile": "images/messy-room-tidy-room-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "bedroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "before_and_after",
+        "prepositions",
+        "room_objects"
+      ],
+      "tags": [
+        "before-and-after",
+        "prepositions",
+        "room-objects",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "The same bedroom changes from messy to tidy."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "family-dinner-table-01",
+      "title": "Family Dinner Table",
+      "status": "approved",
+      "file": "images/family-dinner-table-01.png",
+      "sourceFile": "images/family-dinner-table-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-dining-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "family",
+        "food",
+        "present_continuous",
+        "table_objects"
+      ],
+      "tags": [
+        "family",
+        "food",
+        "present-continuous",
+        "table-objects",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "A family shares dinner and passes food around the table."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
     }
   ]
 }
