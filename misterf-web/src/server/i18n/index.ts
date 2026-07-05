@@ -14,7 +14,10 @@ export {
   supportedLocales,
   type Locale,
   type LocaleCatalog,
-};
+  type LeakagePatterns,
+  type LanguageDefinition,
+  type TutorLanguagePack,
+} from './languages.js';
 
 export type TranslationParams = Record<string, string | number>;
 

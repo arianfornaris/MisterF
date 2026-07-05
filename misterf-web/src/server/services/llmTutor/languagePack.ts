@@ -49,10 +49,9 @@ export function tutorBlockProtocolPlaceholders(
   // before INSTRUCTION_LANGUAGE_NAME so the injected fragment's own
   // `{{INSTRUCTION_LANGUAGE_NAME}}` is resolved by the same substitution pass.
   return {
-    QUIZ_TRANSLATION_ITEMS:
-      language === 'es'
-        ? loadSystemPrompt('tutor/blocks/quiz-translation-items.md').trim()
-        : '',
+    QUIZ_TRANSLATION_ITEMS: languages[language].tutor.includesSpanishTranslationBlocks
+      ? loadSystemPrompt('tutor/blocks/quiz-translation-items.md').trim()
+      : '',
     QUIZ_TRANSLATION_ITEM_UNION: languages[language].tutor.quizTranslationItemUnion,
     INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
     TRANSLATION_UNION_MEMBERS: languages[language].tutor.translationUnionMembers,

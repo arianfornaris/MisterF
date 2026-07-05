@@ -1,5 +1,6 @@
 import { loadSystemPrompt } from '../systemPrompts.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../../roleplays/avatarRegistry.js';
+import { languages } from '../../i18n/index.js';
 import {
   defaultInstructionLanguage,
   tutorBlockProtocolPlaceholders,
@@ -43,7 +44,7 @@ const spanishOnlyTutorBlockNames = new Set<TutorBlockProtocolName>([
 export function tutorBlockNamesForInstructionLanguage(
   instructionLanguage: InstructionLanguage,
 ): TutorBlockProtocolName[] {
-  if (instructionLanguage === 'es') {
+  if (languages[instructionLanguage].tutor.includesSpanishTranslationBlocks) {
     return [...tutorBlockProtocolNames];
   }
 

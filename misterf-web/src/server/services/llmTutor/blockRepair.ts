@@ -7,6 +7,7 @@ import {
   defaultInstructionLanguage,
   type InstructionLanguage,
 } from './languagePack.js';
+import { languages, type LeakagePatterns } from '../../i18n/index.js';
 import { TutorResponseValidationError } from './errors.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './providers.js';
 import { validateTutorResponseBlocks } from './validation.js';
@@ -42,7 +43,7 @@ export function detectMessageTaskLeakage(
   blocks: TutorAgentResponseBlock[],
   instructionLanguage: InstructionLanguage = defaultInstructionLanguage,
 ): MessageTaskLeakageIssue[] {
-  const patterns = leakagePatterns[instructionLanguage];
+  const patterns = languages[instructionLanguage].leakagePatterns;
   return blocks.flatMap((block, blockIndex) => {
     if (block.type !== 'message') {
       return [];
@@ -130,100 +131,6 @@ export async function repairTutorResponseBlocks(input: {
     })),
   });
 }
-
-/**
- * Per-instruction-language patterns for the support-language instructions a
- * tutor might leak into a `message` (translate/unscramble/order/match/choose/
- * write tasks and inline correction cues). Structural cues that do not depend
- * on the support language (blank underscores, bracket markup, evaluation JSON
- * shape) live directly in the detectors and are shared across languages.
- */
-type LeakagePatterns = {
-  translation: RegExp;
-  unscramble: RegExp;
-  orderSentences: RegExp;
-  matching: RegExp;
-  multipleChoice: RegExp;
-  openWriting: RegExp;
-  revision: RegExp;
-  ownWords: RegExp;
-  correctionAnalysisPolite: RegExp;
-  correctionAnalysisDirect: RegExp;
-  correctionKeywords: RegExp;
-  evaluationKeywords: RegExp;
-};
-
-const leakagePatterns: Record<InstructionLanguage, LeakagePatterns> = {
-  es: {
-    translation:
-      /\btraduce(?:\s+(?:la\s+)?(?:siguiente\s+)?(?:frase|oraci[oó]n|texto))?\s+al\s+ingl[eé]s\b\s*:?/i,
-    unscramble: /\b(?:ordena|reordena)\b[\s\S]{0,180}\b(?:palabras|oraci[oó]n|frase)\b/i,
-    orderSentences:
-      /\b(?:ordena|reordena|pon)\b[\s\S]{0,180}\b(?:pasos|oraciones|frases|instrucciones|eventos)\b/i,
-    matching:
-      /\b(?:une|relaciona|empareja)\b[\s\S]{0,180}\b(?:con|cada|correct[ao]s?|significado|traducci[oó]n|pareja)\b/i,
-    multipleChoice:
-      /\b(?:elige|escoge|selecciona|marca)\b[\s\S]{0,180}\b(?:opci[oó]n correcta|respuesta correcta|la correcta)\b/i,
-    openWriting:
-      /\b(?:escrib(?:e|es|a|as|an|ir|ir[ií]a(?:s|n)?|iendo)|redact(?:a|as|an|e|es|en|ar|ar[ií]a(?:s|n)?)|crea(?:r|s|n)?|forma(?:r|s|n)?|constru(?:ye|yes|ya|yas|yan|ir|ir[ií]a(?:s|n)?))\b[\s\S]{0,180}\b(?:oraci[oó]n(?:es)?|frase(?:s)?|respuesta|p[aá]rrafo|texto|ejemplo)\b/i,
-    revision:
-      /\b(?:corrige(?:s|n)?|corrija(?:s|n)?|corregir(?:[ií]a(?:s|n)?)?|reescrib(?:e|es|a|as|an|ir|ir[ií]a(?:s|n)?|iendo))\b[\s\S]{0,180}\b(?:oraci[oó]n(?:es)?|frase(?:s)?|respuesta|p[aá]rrafo|texto|ejemplo)\b/i,
-    ownWords:
-      /\b(?:respond(?:e|es|a|as|an|er|er[ií]a(?:s|n)?)|contest(?:a|as|an|e|es|en|ar|ar[ií]a(?:s|n)?))\b[\s\S]{0,180}\bcon\s+tus\s+propias\s+palabras\b/i,
-    correctionAnalysisPolite:
-      /\b(?:puedes|podr[ií]as|podr[ií]an|puede[sn]?)\s+(?:decirme|decirnos|identificar|se[nñ]alar|explicar|indicar|encontrar)\b[\s\S]{0,280}\b(?:error(?:es)?|equivocaci[oó]n(?:es)?|problema(?:s)?)\b[\s\S]{0,280}\b(?:corregir(?:lo|la|los|las)?|corregir[ií]as|corregir[ií]an|corrige(?:lo|la|los|las)?|corriges|corrigen|correcci[oó]n|correcciones)\b/i,
-    correctionAnalysisDirect:
-      /\b(?:cu[aá]l(?:es)?\s+(?:es|son)\s+(?:el|los)?\s*error(?:es)?|encuentra\s+(?:el|los)?\s*error(?:es)?|identifica\s+(?:el|los)?\s*error(?:es)?)\b[\s\S]{0,280}\b(?:corregir(?:lo|la|los|las)?|corregir[ií]as|corregir[ií]an|corrige(?:lo|la|los|las)?|corriges|corrigen|correcci[oó]n|correcciones)\b/i,
-    correctionKeywords:
-      /\b(?:corrige|correcci[oó]n|correcciones|errores|reescribe|reescribir|int[eé]ntalo)\b/i,
-    evaluationKeywords: /\b(?:evaluaci[oó]n|revisemos esta parte|pista con la evaluaci[oó]n)\b/i,
-  },
-  en: {
-    translation:
-      /\btranslate\b(?:\s+(?:the\s+)?(?:following\s+)?(?:sentence|phrase|text))?\s+(?:in)?to\s+english\b\s*:?/i,
-    unscramble: /\b(?:unscramble|reorder|rearrange|arrange)\b[\s\S]{0,180}\b(?:words?|sentence)\b/i,
-    orderSentences:
-      /\b(?:order|reorder|arrange|put)\b[\s\S]{0,180}\b(?:steps?|sentences?|events?|instructions?)\b[\s\S]{0,60}\bin\s+(?:the\s+)?(?:right\s+|correct\s+)?order\b/i,
-    matching:
-      /\b(?:match|pair|connect|link)\b[\s\S]{0,180}\b(?:with|each|correct|meaning|translation|pair)\b/i,
-    multipleChoice:
-      /\b(?:choose|pick|select|mark)\b[\s\S]{0,180}\b(?:correct\s+(?:option|answer)|right\s+(?:option|answer)|the\s+correct\s+one)\b/i,
-    openWriting:
-      /\b(?:write|compose|create)\b[\s\S]{0,180}\b(?:sentences?|phrases?|answer|paragraphs?|text|examples?)\b/i,
-    // "correct" is verb-only here (avoid the adjective in "the correct answer")
-    // by requiring an imperative object determiner right after it.
-    revision:
-      /\b(?:rewrite|fix)\b[\s\S]{0,180}\b(?:sentences?|phrases?|answer|paragraphs?|text|examples?)\b|\bcorrect\s+(?:this|the|your|these|that|it|them)\b[\s\S]{0,160}\b(?:sentences?|phrases?|answer|paragraphs?|text|examples?)\b/i,
-    ownWords: /\b(?:answer|respond|explain|describe)\b[\s\S]{0,180}\bin\s+your\s+own\s+words\b/i,
-    correctionAnalysisPolite:
-      /\b(?:can|could)\s+you\s+(?:tell\s+me|point\s+out|identify|find|spot|explain)\b[\s\S]{0,280}\b(?:error|mistake|problem)s?\b[\s\S]{0,280}\b(?:correct|fix|rewrite)\b/i,
-    correctionAnalysisDirect:
-      /\b(?:what(?:'s| is| are)\s+(?:the\s+)?(?:error|mistake)s?|find\s+(?:the\s+)?(?:error|mistake)s?|identify\s+(?:the\s+)?(?:error|mistake)s?)\b[\s\S]{0,280}\b(?:correct|fix|rewrite)\b/i,
-    correctionKeywords: /\b(?:correct|correction|errors?|mistakes?|rewrite|try\s+again)\b/i,
-    evaluationKeywords: /\b(?:evaluation|let'?s\s+review\s+this\s+part|hint\s+with\s+the\s+evaluation)\b/i,
-  },
-  ht: {
-    // No trailing \b after accented finals: JS \b is ASCII-only, so it fails
-    // right after letters like "è" (anglè, erè).
-    translation: /\btradui\b[\s\S]{0,40}\ban\s+angl[eè]/i,
-    unscramble: /\b(?:ranje|reranje|mete)\b[\s\S]{0,180}\b(?:mo|fraz)\b/i,
-    orderSentences:
-      /\b(?:ranje|mete)\b[\s\S]{0,180}\b(?:etap|fraz|enstriksyon|evènman)\b[\s\S]{0,60}\ban\s+l[oò]d\b/i,
-    matching:
-      /\b(?:marye|konekte|asosye)\b[\s\S]{0,180}\b(?:ak|chak|k[oò]r[eè]k|siyifikasyon|tradiksyon|p[eè])\b/i,
-    multipleChoice:
-      /\b(?:chwazi|make)\b[\s\S]{0,180}\b(?:bon\s+(?:opsyon|repons)|opsyon\s+k[oò]r[eè]k|repons\s+k[oò]r[eè]k)\b/i,
-    openWriting: /\b(?:ekri|kreye|fòme|konstwi)\b[\s\S]{0,180}\b(?:fraz|repons|paragraf|t[eè]ks|egzanp)\b/i,
-    revision: /\b(?:korije|reekri)\b[\s\S]{0,180}\b(?:fraz|repons|paragraf|t[eè]ks)\b/i,
-    ownWords: /\b(?:reponn|eksplike)\b[\s\S]{0,180}\bnan\s+pw[oò]p\s+mo\s+ou\b/i,
-    correctionAnalysisPolite:
-      /\b(?:[eè]ske\s+ou\s+ka(?:pab)?|ou\s+ka(?:pab)?)\s+(?:di\s+m|idantifye|montre|jwenn|eksplike)\b[\s\S]{0,280}\ber[eè][\s\S]{0,280}\bkorije\b/i,
-    correctionAnalysisDirect:
-      /\b(?:ki(?:l[eè]s)?\s+er[eè]|jwenn\s+er[eè]|idantifye\s+er[eè])[\s\S]{0,280}\bkorije\b/i,
-    correctionKeywords: /\b(?:korije|koreksyon|er[eè]|reekri|eseye\s+ank[oò])/i,
-    evaluationKeywords: /\b(?:evalyasyon|ann\s+revize\s+pati\s+sa)\b/i,
-  },
-};
 
 function detectMessageIssues(
   markdown: string,
