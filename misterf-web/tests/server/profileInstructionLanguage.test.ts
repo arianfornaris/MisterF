@@ -71,7 +71,8 @@ describe('instruction language helpers', () => {
   it('accepts only supported languages', () => {
     expect(isInstructionLanguage('es')).toBe(true);
     expect(isInstructionLanguage('en')).toBe(true);
-    expect(isInstructionLanguage('ht')).toBe(false);
+    expect(isInstructionLanguage('ht')).toBe(true);
+    expect(isInstructionLanguage('fr')).toBe(false);
     expect(isInstructionLanguage('')).toBe(false);
     expect(isInstructionLanguage(undefined)).toBe(false);
   });

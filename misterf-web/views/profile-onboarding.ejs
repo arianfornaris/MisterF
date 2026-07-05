@@ -57,7 +57,10 @@
                           <%= values.instructionLanguage === language.code ? 'checked' : '' %>
                         >
                         <span class="d-block">
-                          <span class="fw-semibold d-block"><%= language.endonym %></span>
+                          <span class="fw-semibold d-block">
+                            <%= language.endonym %>
+                            <% if (language.experimental) { %><span class="badge text-bg-warning ms-1"><%= t('profiles.experimental') %></span><% } %>
+                          </span>
                           <small class="text-body-secondary"><%= t('profiles.langDescOnboarding.' + language.code) %></small>
                         </span>
                       </label>

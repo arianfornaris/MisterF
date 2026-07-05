@@ -295,13 +295,16 @@ export const en: LocaleCatalog = {
       'The language of the interface and of Mr. F’s explanations for this profile. The English you practice does not change.',
     languageHelpOnboarding:
       'Which language do you prefer for the interface and Mr. F’s explanations?',
+    experimental: 'Experimental',
     langDescForm: {
       es: 'The interface and explanations in Spanish.',
       en: 'Interface and explanations in English, for full immersion.',
+      ht: 'The interface and explanations in Haitian Creole.',
     },
     langDescOnboarding: {
       es: 'The interface and explanations in Spanish. The English you practice is still English.',
       en: 'Interface and explanations in English, for full immersion.',
+      ht: 'The interface and explanations in Haitian Creole. The English you practice is still English.',
     },
     modelLegend: 'Default model',
     modelHelp: 'This model will be used in this profile’s new conversations.',

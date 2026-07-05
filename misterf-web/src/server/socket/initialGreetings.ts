@@ -25,6 +25,14 @@ const initialGreetings: Record<Locale, string[]> = {
     `Hi! I'm Mr. F, your English tutor. What would you like to review: a situation, a question, or a topic?`,
     `Hi! I'm Mr. F, your English tutor. What do you need to practice today?`,
   ],
+  ht: [
+    `Bonjou! Mwen se Mr. F, titè anglè ou. Kisa ou vle repase jodi a?`,
+    `Byenveni! Mwen se Mr. F, titè anglè ou. Ki sijè ou ta renmen pratike jodi a?`,
+    `Bonjou! Mwen se Mr. F, titè anglè ou. Di m kisa ou vle travay sou li jodi a.`,
+    `Kontan wè ou! Mwen se Mr. F, titè anglè ou. Kisa ou vle repase?`,
+    `Ann kòmanse! Mwen se Mr. F, titè anglè ou. Kisa ou ta renmen amelyore jodi a?`,
+    `Bonjou! Mwen se Mr. F, titè anglè ou. Di m kisa ou vle pratike epi n ap monte l ansanm.`,
+  ],
 };
 
 const knownVisitorGreetings: Record<Locale, string[]> = {
@@ -80,6 +88,23 @@ const knownVisitorGreetings: Record<Locale, string[]> = {
       'Hi again! I\'m Mr. F, your tutor for practicing English. Whenever you\'re ready, we\'ll continue.',
       'If you already have an account, [log in](/login) to continue.',
       'If you don\'t yet, you can [create an account](/signup).',
+    ].join('\n\n'),
+  ],
+  ht: [
+    [
+      'Bonjou ankò! Mwen se Mr. F, titè ou pou pratike anglè. Mwen kontan wè ou isit la.',
+      'Si ou gen yon kont deja, ou ka [konekte](/login) epi n ap kontinye pratik ou.',
+      'Si ou poko kreye youn, ou ka [kreye yon kont](/signup) tou.',
+    ].join('\n\n'),
+    [
+      'Byenveni ankò! Mwen se Mr. F, epi espas sa a se pou pratike anglè avè w. Mwen kontan wè ou tounen.',
+      'Si ou te deja vin isit la, [konekte](/login) epi n ap kontinye apati la.',
+      'Si ou pito, ou ka [kreye yon kont](/signup) tou.',
+    ].join('\n\n'),
+    [
+      'Bonjou! Mwen se Mr. F, titè anglè ou. Mwen kwè nou te deja wè.',
+      'Si ou gen yon kont deja, [konekte](/login) epi n ap reprann pratik la.',
+      'Si ou poko, ou ka [kreye yon kont](/signup) nan yon moman.',
     ].join('\n\n'),
   ],
 };

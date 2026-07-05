@@ -171,6 +171,22 @@ Scope notes:
   tutor session → quiz → shared resource) and regression walkthrough in
   Spanish. Remaining as a human step; automated coverage (typecheck, 156
   tests, per-view render smokes in both locales) is green.
+- [~] Language registry + Haitian Creole (`ht`) as an experimental beta.
+  2026-07-05: the multilingual config was consolidated into a single
+  registry (`src/server/i18n/languages.ts`) — `Locale`, `supportedLocales`,
+  the UI catalogs, the language pickers/switcher (now a loop), and the tutor
+  language packs all derive from it, and the `instruction_language` DB
+  `CHECK` was dropped in favor of app-level validation (migration 16), so
+  adding a language needs no schema change. `ht` (Kreyòl ayisyen) was then
+  added end to end: registry entry, a machine-drafted `locales/ht.ts` (client
+  namespaces complete, long tail falling back to English), a
+  `language-rules/ht.md` support-language pack with an anti-French rule, ht
+  greetings, and an "experimental" badge in the profile language picker. It
+  is a support language (Creole explanations) but uses the monolingual block
+  set because the two translation blocks are Spanish-hardcoded. Still open
+  before leaving beta: native-speaker review of high-visibility copy, a
+  tutor-quality eval set for Haitian scenarios, and translating the
+  English-fallback long tail. Guide: [i18n architecture](../architecture/i18n.md).
 
 ## 1.2 Comprehension Exercises (Stimulus + Questions)
 

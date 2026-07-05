@@ -19,7 +19,7 @@ declare global {
     interface Locals {
       clientI18nJson: string;
       htmlLang: Locale;
-      languages: { code: Locale; endonym: string }[];
+      languages: { code: Locale; endonym: string; experimental: boolean }[];
       locale: Locale;
       t: Translator;
       translatorLanguagesJson: string;

@@ -1,5 +1,6 @@
 import { en } from './locales/en.js';
 import { es } from './locales/es.js';
+import { ht } from './locales/ht.js';
 
 export type LocaleCatalog = {
   readonly [key: string]: string | LocaleCatalog;
@@ -34,6 +35,8 @@ export type LanguageDefinition = {
    * translation-based scaffolding, translation blocks excluded).
    */
   monolingual: boolean;
+  /** Marks a beta language; pickers surface it as experimental. */
+  experimental?: boolean;
   catalog: LocaleCatalog;
   tutor: TutorLanguagePack;
 };
@@ -50,6 +53,7 @@ export const languages = {
     endonym: 'Español',
     englishName: 'Spanish',
     monolingual: false,
+    experimental: false,
     catalog: es,
     tutor: {
       learnerAudienceClause: ' for Spanish-speaking learners',
@@ -73,6 +77,7 @@ export const languages = {
     endonym: 'English',
     englishName: 'English',
     monolingual: true,
+    experimental: false,
     catalog: en,
     tutor: {
       learnerAudienceClause: '',
@@ -89,6 +94,30 @@ export const languages = {
         'The title must be short, English, human-friendly, and specific; avoid generic titles such as "English practice", "Conversation", or "Conversation summary".',
     },
   },
+  ht: {
+    endonym: 'Kreyòl ayisyen',
+    englishName: 'Haitian Creole',
+    // A support language (explanations in Creole), but the two translation
+    // blocks are Spanish-specific, so its block set matches the monolingual
+    // one until a Creole-specific comprehension block exists.
+    monolingual: false,
+    experimental: true,
+    catalog: ht,
+    tutor: {
+      learnerAudienceClause: ' for Haitian Creole-speaking learners',
+      directionOptionsList:
+        '  - pratike vokabilè\n  - pratike ak fraz\n  - fè yon ti konvèsasyon',
+      directionOptionsLettered:
+        '`a) pratike vokabilè`, `b) pratike ak fraz`, `c) fè yon ti konvèsasyon`',
+      translationExerciseBlocksInline: '',
+      translationExerciseBlockCombinations: '',
+      translationUnionMembers: '',
+      uiPracticeGuideTerm: 'gid pratik',
+      uiResourcesTerm: 'Resous',
+      conversationTitleRule:
+        'The title must be short, in Haitian Creole, human-friendly, and specific; avoid generic titles such as "Pratik anglè", "Konvèsasyon", or "Rezime konvèsasyon".',
+    },
+  },
 } as const satisfies Record<string, LanguageDefinition>;
 
 export type Locale = keyof typeof languages;
@@ -97,10 +126,15 @@ export const supportedLocales = Object.keys(languages) as Locale[];
 
 export const defaultLocale: Locale = 'en';
 
-/** `{ code, endonym }` list for rendering language pickers and switchers. */
-export function languageOptions(): { code: Locale; endonym: string }[] {
+/** Language option list for rendering pickers and switchers. */
+export function languageOptions(): {
+  code: Locale;
+  endonym: string;
+  experimental: boolean;
+}[] {
   return supportedLocales.map((code) => ({
     code,
     endonym: languages[code].endonym,
+    experimental: Boolean(languages[code].experimental),
   }));
 }
