@@ -2902,6 +2902,304 @@
         "Designed as a single panel scene for community and public-place practice.",
         "Visual QA passed: no readable text detected and the pedagogical situation is clear."
       ]
+    },
+    {
+      "id": "video-call-problem-01",
+      "title": "Video Call Problem",
+      "status": "approved",
+      "file": "images/video-call-problem-01.png",
+      "sourceFile": "images/video-call-problem-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-office",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "digital",
+        "video",
+        "call",
+        "troubleshooting",
+        "remote",
+        "work"
+      ],
+      "tags": [
+        "digital",
+        "video",
+        "call",
+        "troubleshooting",
+        "remote",
+        "work"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A video call problem is fixed and the call continues."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "calendar-mistake-01",
+      "title": "Calendar Mistake",
+      "status": "approved",
+      "file": "images/calendar-mistake-01.png",
+      "sourceFile": "images/calendar-mistake-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-and-waiting-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "calendar",
+        "appointment",
+        "time",
+        "mistake",
+        "correction"
+      ],
+      "tags": [
+        "calendar",
+        "appointment",
+        "time",
+        "mistake",
+        "correction"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A calendar mistake is noticed and corrected before an appointment."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "online-form-help-01",
+      "title": "Help With An Online Form",
+      "status": "approved",
+      "file": "images/online-form-help-01.png",
+      "sourceFile": "images/online-form-help-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-computer",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "digital",
+        "online",
+        "form",
+        "helping",
+        "technology"
+      ],
+      "tags": [
+        "digital",
+        "online",
+        "form",
+        "helping",
+        "technology"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A neighbor helps an older adult complete an online form."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "dead-charged-phone-01",
+      "title": "Dead Phone, Charged Phone",
+      "status": "approved",
+      "file": "images/dead-charged-phone-01.png",
+      "sourceFile": "images/dead-charged-phone-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "desk",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "phone",
+        "charging",
+        "before",
+        "after",
+        "technology"
+      ],
+      "tags": [
+        "phone",
+        "charging",
+        "before",
+        "after",
+        "technology"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A phone changes from dead to charged."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "appointment-confirmation-01",
+      "title": "Appointment Confirmation",
+      "status": "approved",
+      "file": "images/appointment-confirmation-01.png",
+      "sourceFile": "images/appointment-confirmation-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-kitchen-table",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "appointment",
+        "confirmation",
+        "device",
+        "calendar"
+      ],
+      "tags": [
+        "appointment",
+        "confirmation",
+        "device",
+        "calendar"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A person confirms an appointment on a device at home."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
     }
   ]
 }

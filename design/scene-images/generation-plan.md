@@ -26,10 +26,10 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 ## Progress
 
 - Target image count: 50
-- Generated image count: 45
-- Remaining image count: 5
-- Completed batches: 9 of 10
-- Remaining batches: 1
+- Generated image count: 50
+- Remaining image count: 0
+- Completed batches: 10 of 10
+- Remaining batches: 0
 
 ## Batch Themes
 
@@ -44,7 +44,7 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 7 | School And Learning | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 8 | Food And Restaurants | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 | 9 | Community And Public Places | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
-| 10 | Digital Life And Appointments | planned | Video calls, online forms, calendar mistakes, device issues, confirmations. |
+| 10 | Digital Life And Appointments | generated | Generated with the standard 3 four-panel, 1 two-panel, 1 single-panel mix. |
 
 ## Image Tracker
 
@@ -95,21 +95,15 @@ Batch 1 was generated before this mix was defined, so it contains five four-pane
 | 43 | 9 | Community And Public Places | four_panel_wordless_story | `post-office-package-01` | Mailing A Package | generated |
 | 44 | 9 | Community And Public Places | two_panel_contrast | `empty-busy-playground-01` | Empty Playground, Busy Playground | generated |
 | 45 | 9 | Community And Public Places | single_panel_scene | `community-garden-01` | Community Garden | generated |
-| 46 | 10 | Digital Life And Appointments | four_panel_wordless_story | `video-call-problem-01` | Video Call Problem | planned |
-| 47 | 10 | Digital Life And Appointments | four_panel_wordless_story | `calendar-mistake-01` | Calendar Mistake | planned |
-| 48 | 10 | Digital Life And Appointments | four_panel_wordless_story | `online-form-help-01` | Help With An Online Form | planned |
-| 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | planned |
-| 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | planned |
+| 46 | 10 | Digital Life And Appointments | four_panel_wordless_story | `video-call-problem-01` | Video Call Problem | generated |
+| 47 | 10 | Digital Life And Appointments | four_panel_wordless_story | `calendar-mistake-01` | Calendar Mistake | generated |
+| 48 | 10 | Digital Life And Appointments | four_panel_wordless_story | `online-form-help-01` | Help With An Online Form | generated |
+| 49 | 10 | Digital Life And Appointments | two_panel_contrast | `dead-charged-phone-01` | Dead Phone, Charged Phone | generated |
+| 50 | 10 | Digital Life And Appointments | single_panel_scene | `appointment-confirmation-01` | Appointment Confirmation | generated |
 
-## Next Batch: Digital Life And Appointments
+## Next Batch
 
-When generating Batch 10, use the standard mix:
-
-1. `video-call-problem-01`: four-panel story about a video call issue, troubleshooting, reconnecting, and continuing.
-2. `calendar-mistake-01`: four-panel story about checking a calendar, noticing a time mistake, correcting it, and arriving on time.
-3. `online-form-help-01`: four-panel story about getting help completing an online form.
-4. `dead-charged-phone-01`: two-panel contrast showing a dead phone and then a charged phone.
-5. `appointment-confirmation-01`: single-panel scene for describing a person confirming an appointment on a device.
+All planned batches are generated. Future batches should be added after reviewing classroom needs and runtime usage data.
 
 ## Maintenance Notes
 
