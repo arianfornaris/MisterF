@@ -124,7 +124,7 @@ Scope notes:
   default from the profile's instruction language (moot for `en`
   profiles, since English is excluded) — the persisted choice governs
   instead.
-- [~] Tutor and LLM surface: parametrize system prompts, block protocol
+- [x] Tutor and LLM surface: parametrize system prompts, block protocol
   copy, evaluation feedback, and AI authoring (quiz/guide/roleplay
   generation and revision) by instruction language. Started 2026-07-04:
   conversations snapshot `instruction_language` at creation; the tutor
@@ -144,10 +144,13 @@ Scope notes:
   in the authoring/reader profile's language. 2026-07-05: fixed the socket
   initial greeting for signed-in users to use the profile's instruction
   language (it previously always fell back to Spanish; the guest HTTP
-  greeting already honored the locale). Still open: fully excluding
-  the two translation quiz item kinds from the `en` quiz protocol
-  (currently defined but forbidden by the `en` language rules) and
-  English block-repair leakage detection (currently Spanish-regex only).
+  greeting already honored the locale). 2026-07-05: the two remaining
+  gaps are closed — the Spanish-only quiz item kinds
+  (`quiz_translate_to_english`, `quiz_understand_in_spanish`) are now
+  excluded from the non-Spanish quiz protocol (fragment + registry
+  union), and block-repair leakage detection is language-aware
+  (per-language `es`/`en`/`ht` pattern sets threaded from the
+  conversation snapshot). This item is complete.
 - [x] Transactional surfaces: emails, legal pages, and error pages in both
   languages. Done 2026-07-04: verification and password-reset emails
   render in the recipient's resolved locale (`email.*`), the privacy and
@@ -171,22 +174,23 @@ Scope notes:
   tutor session → quiz → shared resource) and regression walkthrough in
   Spanish. Remaining as a human step; automated coverage (typecheck, 156
   tests, per-view render smokes in both locales) is green.
-- [~] Language registry + Haitian Creole (`ht`) as an experimental beta.
-  2026-07-05: the multilingual config was consolidated into a single
-  registry (`src/server/i18n/languages.ts`) — `Locale`, `supportedLocales`,
-  the UI catalogs, the language pickers/switcher (now a loop), and the tutor
-  language packs all derive from it, and the `instruction_language` DB
-  `CHECK` was dropped in favor of app-level validation (migration 16), so
-  adding a language needs no schema change. `ht` (Kreyòl ayisyen) was then
-  added end to end: registry entry, a machine-drafted `locales/ht.ts` (client
-  namespaces complete, long tail falling back to English), a
+- [x] Language registry + Haitian Creole (`ht`) as a full instruction
+  language. 2026-07-05: the multilingual config was consolidated into a
+  single registry (`src/server/i18n/languages.ts`) — `Locale`,
+  `supportedLocales`, the UI catalogs, the language pickers/switcher (now a
+  loop), and the tutor language packs all derive from it, and the
+  `instruction_language` DB `CHECK` was dropped in favor of app-level
+  validation (migration 16), so adding a language needs no schema change.
+  `ht` (Kreyòl ayisyen) was added end to end: registry entry, a complete
+  `locales/ht.ts` (every namespace, no English fallback), a
   `language-rules/ht.md` support-language pack with an anti-French rule, ht
-  greetings, and an "experimental" badge in the profile language picker. It
-  is a support language (Creole explanations) but uses the monolingual block
-  set because the two translation blocks are Spanish-hardcoded. Still open
-  before leaving beta: native-speaker review of high-visibility copy, a
-  tutor-quality eval set for Haitian scenarios, and translating the
-  English-fallback long tail. Guide: [i18n architecture](../architecture/i18n.md).
+  greetings, and language-aware block-repair patterns. It is a support
+  language (Creole explanations) but uses the monolingual block set because
+  the two translation blocks are Spanish-hardcoded. Shipped out of beta
+  2026-07-05 (experimental flag removed). Recommended follow-ups, non-
+  blocking: a fluent-speaker review of high-visibility/legal copy and a
+  tutor-quality eval set for Haitian scenarios. Guide:
+  [i18n architecture](../architecture/i18n.md).
 
 ## 1.2 Comprehension Exercises (Stimulus + Questions)
 

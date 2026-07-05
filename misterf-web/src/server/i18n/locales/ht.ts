@@ -1,15 +1,13 @@
 import type { LocaleCatalog } from '../index.js';
 
 /**
- * Haitian Creole (Kreyòl ayisyen) UI catalog — EXPERIMENTAL / BETA.
+ * Haitian Creole (Kreyòl ayisyen) UI catalog.
  *
- * This is a machine-drafted first pass and has NOT been reviewed by a fluent
- * Haitian Creole speaker. Priorities before promoting out of beta: review the
- * high-visibility copy (navigation, profile, auth, translator, payments,
- * errors), keep the orthography Creole (avoid drifting into French), and check
- * register with native readers. Missing server-side keys fall back to English
- * (the default locale); the client namespaces (chat, nav, translator,
- * clientChat, card, clientMisc) are kept complete so no raw keys surface.
+ * Coverage is complete (every namespace present, no English fallback). The
+ * copy is a careful machine translation that keeps Creole orthography and
+ * avoids drifting into French; the legal bodies and other high-visibility text
+ * still merit a fluent-speaker review, but the catalog is not gated behind the
+ * experimental flag anymore.
  */
 export const ht: LocaleCatalog = {
   common: {
@@ -884,5 +882,209 @@ export const ht: LocaleCatalog = {
     buy: 'Achte kredi',
     exhaustedFull:
       'Ou pa gen ase kredi pou kontinye pratik sa a. Achte kredi pou kontinye itilize Mr. F.',
+  },
+  email: {
+    verifySubject: 'Kòd verifikasyon Mister F ou',
+    resetSubject: 'Kòd pou reyajiste modpas Mister F ou',
+    greeting: 'Bonjou {{name}},',
+    verifyCodeLine: 'Kòd verifikasyon ou se: {{code}}',
+    verifyTtlLine: 'Kòd la ekspire nan 24 èdtan.',
+    resetCodeLine: 'Kòd pou reyajiste modpas ou se: {{code}}',
+    resetTtlLine:
+      'Kòd la ekspire nan 1 èdtan. Si se pa ou ki mande chanjman sa a, inyore imèl sa a.',
+    signature: 'Mister F',
+    verifyIntro: 'Bonjou {{name}}, sèvi ak kòd sa a pou verifye imèl ou.',
+    resetIntro: 'Bonjou {{name}}, sèvi ak kòd sa a pou chanje modpas ou.',
+    verifyTitle: 'Verifye imèl ou',
+    resetTitle: 'Chanje modpas ou',
+    ttl24: '24 èdtan',
+    ttl1: '1 èdtan',
+    expiresNote: 'Kòd sa a ekspire nan {{ttl}}. Pa pataje kòd sa a ak pèsonn.',
+    configError:
+      'SMTP_HOST, SMTP_USER, SMTP_PASSWORD oswa RESEND_SMTP_API_KEY, ak MAIL_FROM dwe konfigire nan ecosystem.config.cjs.',
+  },
+  legal: {
+    back: 'Retounen nan Mister F',
+    lastUpdated: 'Dènye mizajou: 2 jen 2026',
+    privacyTitle: 'Règleman sou konfidansyalite',
+    p1Title: 'Ki moun ki opere Mister F',
+    p1Body:
+      'Mister F opere pa Little Software LLC, yon konpayi ki baze nan Florid, Etazini. Si ou gen kesyon sou konfidansyalite, ou ka ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+    p2Title: 'Enfòmasyon nou kolekte',
+    p2Body1:
+      'Nou kolekte enfòmasyon ki nesesè pou kreye ak kenbe kont ou, tankou non, imèl, estati verifikasyon, sesyon aktif, pwofil aprantisaj, ak preferans.',
+    p2Body2:
+      'Nou estoke tou kontni ou pwodwi pandan w ap itilize aplikasyon an, tankou konvèsasyon ak Mr. F, gid pratik, quiz, repons, evalyasyon, ak pwogrè aprantisaj.',
+    p3Title: 'Kijan nou itilize enfòmasyon an',
+    p3Body:
+      'Nou itilize enfòmasyon ou pou opere Mister F, pèsonalize pratik la, kenbe istwa ou, trete acha kredi, pwoteje kont lan, rezoud pwoblèm teknik, ak amelyore eksperyans pwodwi a.',
+    p4Title: 'Sèvis twazyèm pati',
+    p4Body1:
+      'Nou itilize founisè ekstèn pou fonksyon espesifik, tankou tretman peman, otantifikasyon, livrezon imèl, ak sèvis entèlijans atifisyèl.',
+    p4Body2:
+      'Peman yo trete atravè Stripe. Repons titè yo ka trete atravè founisè modèl AI Mister F konfigire.',
+    p5Title: 'Kredi ak peman',
+    p5Body:
+      'Lè ou achte kredi, Stripe trete enfòmasyon peman an. Mister F pa estoke nimewo konplè kat. Nou kenbe dosye acha entèn pou sipò, odit, ak istwa.',
+    p6Title: 'Chwa ou yo',
+    p6Body:
+      'Ou ka mete detay kont ou ajou, chanje modpas ou, ak jere pwofil ou soti nan aplikasyon an. Si ou bezwen èd ak aksè, done, oswa konfidansyalite, ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+    p7Title: 'Chanjman nan règleman sa a',
+    p7Body:
+      'Nou ka mete règleman sa a ajou lè pwodwi a, lwa ki aplikab, oswa founisè nou yo chanje. Nou pral pibliye vèsyon mizajou a sou paj sa a.',
+    termsTitle: 'Tèm ak kondisyon',
+    t1Title: 'Sèvis',
+    t1Body:
+      'Mister F se yon aplikasyon pratik anglè gide ki opere pa Little Software LLC, yon konpayi ki baze nan Florid, Etazini. Lè ou itilize sèvis la, ou aksepte tèm sa yo.',
+    t2Title: 'Kont',
+    t2Body:
+      'Ou dwe kenbe kont ou an sekirite epi itilize enfòmasyon kòrèk. Ou responsab pou aktivite ki fèt ak kalifikasyon ou yo.',
+    t3Title: 'Itilizasyon edikatif',
+    t3Body:
+      'Mister F ofri pratik edikatif ak fidbak. Repons AI jenere yo ka gen erè, kidonk yo pa ta dwe trete kòm konsèy pwofesyonèl oswa yon evalyasyon enfayib.',
+    t4Title: 'Kredi',
+    t4Body1:
+      'Kredi pèmèt ou itilize fonksyon pratik ak Mr. F. Chak echanj ak sistèm nan ka konsome kredi.',
+    t4Body2:
+      'Kredi se pa lajan ki estoke, yo pa touche enterè, epi yo pa ka transfere andeyò Mister F. Nou ka ajiste pake, pri, oswa règ itilizasyon lè sa nesesè pou opere sèvis la.',
+    t5Title: 'Peman',
+    t5Body:
+      'Peman yo fèt bay Little Software LLC epi yo trete atravè Stripe. Pri a ak pake ki disponib la montre anvan w konplete acha a. Pou sipò oswa kesyon fakti, ekri nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+    t6Title: 'Itilizasyon akseptab',
+    t6Body:
+      'Ou pa dwe itilize Mister F pou abi, fwod, tantativ pou vyole sèvis la, voye kontni ilegal, oswa aktivite ki fè lòt itilizatè, Little Software LLC, oswa founisè ekstèn mal.',
+    t7Title: 'Disponibilite',
+    t7Body:
+      'Nou travay pou kenbe sèvis la disponib, men nou pa garanti aksè kontinyèl oswa san erè. Nou ka sispann, limite, oswa modifye fonksyon pou rezon antretyen, sekirite, oswa operasyon.',
+    t8Title: 'Chanjman',
+    t8Body:
+      'Nou ka mete tèm sa yo ajou lè pwodwi a, lwa ki aplikab, oswa operasyon nou yo chanje. Vèsyon aktyèl la ap pibliye sou paj sa a.',
+    t9Title: 'Kontak',
+    t9Body:
+      'Pou kesyon sou tèm sa yo oswa sèvis la, kontakte nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
+  },
+  msg: {
+    applyChangeError: 'Mwen pa t kapab aplike chanjman sa a kounye a.',
+    writeChange: 'Ekri chanjman ou vle fè a.',
+    createResourceError:
+      'Mwen pa t kapab kreye gid pratik la kounye a. Eseye ankò.',
+    describeQuizBetter: 'Dekri quiz la yon ti jan pi byen.',
+    generateQuizError: 'Mwen pa t kapab jenere quiz la kounye a. Eseye ankò.',
+    saveQuizDetailsError: 'Mwen pa t kapab anrejistre detay quiz la.',
+    describeBlock: 'Dekri blòk ou vle ajoute a.',
+    updateBlocksError: 'Mwen pa t kapab mete blòk yo ajou kounye a.',
+    submitQuizError: 'Mwen pa t kapab soumèt quiz la. Eseye ankò.',
+    evaluateQuizError:
+      'Mwen pa t kapab evalye quiz la kounye a. Ou ka soumèt li ankò nan kèk minit.',
+    evaluateError: 'Erè pandan evalyasyon',
+    describeGuideBetter: 'Dekri gid la yon ti jan pi byen.',
+    generateGuideError: 'Mwen pa t kapab jenere gid la kounye a. Eseye ankò.',
+    describeRoleplayBetter: 'Dekri Roleplay la yon ti jan pi byen.',
+    generateRoleplayError:
+      'Mwen pa t kapab jenere Roleplay la kounye a. Eseye ankò.',
+    saveRoleplayError: 'Mwen pa t kapab anrejistre Roleplay la.',
+    writeChangesRoleplay: 'Ekri chanjman ou vle aplike yo.',
+    startRoleplayError: 'Mwen pa t kapab kòmanse Roleplay la kounye a. Eseye ankò.',
+    writeAnswerBeforeContinue: 'Ekri repons ou anvan ou kontinye.',
+    saveAnswerError: 'Mwen pa t kapab anrejistre repons ou.',
+    generateNextError: 'Mwen pa t kapab jenere pwochen repons lan kounye a.',
+    writeOneInteraction: 'Ekri omwen yon tou anvan ou fini.',
+    finalizeRoleplayError: 'Mwen pa t kapab fini Roleplay la. Eseye ankò.',
+    evaluateRoleplayError:
+      'Mwen pa t kapab evalye Roleplay la kounye a. Ou ka eseye ankò nan kèk minit.',
+    statusDraft: 'Pa soumèt',
+    statusSubmitted: 'Soumèt',
+    statusEvaluating: 'Ap evalye',
+    statusEvaluatedFem: 'Evalye',
+    statusNotStarted: 'Pa kòmanse',
+    statusInProgress: 'An kou',
+    statusEvaluatedMasc: 'Evalye',
+    kindOpenTextDesc: 'Repons lib AI evalye.',
+    kindTranslateDesc: 'Tradiksyon ak repons akseptab oswa yon rubric.',
+    kindUnderstandDesc: 'Konpreyansyon yon fraz an anglè.',
+    kindFillInputDesc: 'Espas ekri, itil lè gen varyant.',
+    kindFillChoiceDesc: 'Espas ak opsyon vizib.',
+    kindMultipleChoiceDesc: 'Seleksyon senp oswa miltip.',
+    kindMatchingDesc: 'Marye pè.',
+    kindUnscrambleDesc: 'Ranje yon fraz.',
+    kindOrderDesc: 'Ranje etap oswa fraz an sekans.',
+    blockSg: 'blòk',
+    blockPl: 'blòk',
+    blankSg: 'espas',
+    blankPl: 'espas',
+    optionSg: 'opsyon',
+    optionPl: 'opsyon',
+    pairSg: 'pè',
+    pairPl: 'pè',
+    wordSg: 'mo',
+    wordPl: 'mo',
+    sentenceSg: 'fraz',
+    sentencePl: 'fraz',
+    draftCreatedQuiz: 'Fini. Mwen kreye yon premye vèsyon "{{title}}" ak {{blocks}}.',
+    draftCreatedRoleplay:
+      'Fini. Mwen kreye yon premye vèsyon "{{title}}" ak {{count}} pèsonaj.',
+    draftCreatedGuide: 'Fini. Mwen kreye yon premye vèsyon "{{title}}".',
+    completeGuideFields:
+      'Konplete tit la, deskripsyon an, ak enstriksyon titè yo.',
+    bestFitKind: 'kalite ki pi apwopriye a',
+    addBlockOfKind: 'Ajoute yon blòk kalite "{{kind}}": {{prompt}}',
+    googleValidateError: 'Mwen pa t kapab valide koneksyon Google la. Eseye ankò.',
+    backToLogin: 'Retounen nan koneksyon',
+    loginCancelled: 'Koneksyon anile',
+    googleNoResponse: 'Google pa reponn',
+    googleNotConfigured: 'Google pa konfigire',
+    googleConfigError:
+      'GOOGLE_CLIENT_ID ak GOOGLE_CLIENT_SECRET dwe konfigire nan ecosystem.config.cjs.',
+    googleGenericError: 'Mwen pa t kapab konplete koneksyon Google la. Eseye ankò.',
+    convFinalizedSummary:
+      'Konvèsasyon sa a fini deja. Ou ka revize rezime li oswa kòmanse yon nouvo pratik.',
+    convNotFound: 'Mwen pa t jwenn konvèsasyon sa a.',
+    convFinalized: 'Konvèsasyon sa a fini deja.',
+    guideStartError: 'Mwen pa t kapab kòmanse gid pratik sa a.',
+    guideLoadError: 'Mwen pa t kapab chaje gid pratik sa a.',
+    authRequiredUse:
+      'Pou itilize Mr. F ou bezwen konekte. [Konekte](/login) oswa [kreye yon kont](/signup).',
+    lookCloser: 'Ann gade repons sa a pi an detay nan pwochen pratik la.',
+    configAttention:
+      'Mwen pa ka reponn byen kounye a. Gen yon konfigirasyon titè ki bezwen atansyon.',
+    responseCutoff:
+      'Repons mwen an te koupe anvan li te pare. Eseye ankò nan kèk segonn.',
+    responseTangled:
+      'Repons mwen an vin mele epi mwen pa vle twouble ou. Eseye ankò nan kèk segonn.',
+    finishTokenLimit:
+      'Repons modèl la te koupe paske li rive nan limit maksimòm token an. Eseye voye yon mesaj pi kout oswa mande l an pati.',
+    finishSafety:
+      'Modèl la kanpe repons lan akòz filtè sekirite li yo. Eseye refòmile mesaj ou ak yon kontèks pi klè e pi net.',
+    finishRecitation:
+      'Modèl la kanpe repons lan paske li detekte yon posib resitasyon kontni pwoteje. Eseye mande yon eksplikasyon oswa yon vèsyon orijinal olye yon repwodiksyon egzak.',
+  },
+  practiceGuideHelp: {
+    title: 'Sa titè a ka fè',
+    typesTitle: 'Kalite pratik ou ka mande',
+    type1: 'Tradui soti nan lang ou al an anglè ak koreksyon gide.',
+    type2: 'Konprann fraz an anglè epi eksplike yo nan lang ou.',
+    type3: 'Mini-konvèsasyon oswa jwe-wòl ak pèsonaj fiktif.',
+    type4: 'Marye kolòn mo, fraz, oswa siyifikasyon.',
+    type5: 'Ranpli espas lè w ekri oswa chwazi opsyon.',
+    type6: 'Chwa miltip ak youn oswa plizyè bon repons.',
+    type7: 'Reranje mo pou rekonstwi yon fraz.',
+    examplesTitle: 'Egzanp enstriksyon itil',
+    example1:
+      'Pratike vokabilè koulè ak egzèsis varye ak anpil koreksyon pasyan.',
+    example2:
+      'Fè mini-konvèsasyon restoran pou yon nivo debaz, ak yon ton zanmitay ak sitiyasyon reyalis.',
+    example3:
+      'Travay sou past simple ak fraz kout, ranpli espas, ak chwa miltip.',
+    example4:
+      'Konsantre sou anglè pou entèvyou travay ak yon ton fòmèl ak koreksyon klè.',
+    goodPracticesTitle: 'Bon pratik',
+    goodPractice1:
+      'Presize sijè a, kalite sitiyasyon an, ak nivo apwoksimatif la.',
+    goodPractice2:
+      'Ou ka konbine plizyè aktivite nan yon sèl gid pratik.',
+    goodPractice3:
+      'Ou pa bezwen dekri entèfas la; dekri objektif aprantisaj la.',
+    goodPractice4:
+      'Ou ka di si ou vle titè a vin pi pasyan, pi egzijan, oswa pi konvèsasyonèl.',
   },
 };

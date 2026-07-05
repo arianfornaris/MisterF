@@ -105,7 +105,7 @@ export const languages = {
     // blocks are Spanish-specific, so its block set matches the monolingual
     // one until a Creole-specific comprehension block exists.
     monolingual: false,
-    experimental: true,
+    experimental: false,
     catalog: ht,
     tutor: {
       learnerAudienceClause: ' for Haitian Creole-speaking learners',
