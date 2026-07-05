@@ -226,8 +226,9 @@ export function registerChatSocket(io: Server): void {
 
   io.on('connection', (socket) => {
     let currentConversationId: string | null = null;
-    let pendingInitialGreeting = pickInitialGreeting();
     let currentProfile: StoredProfile | null = null;
+    // Placeholder greeting; reassigned with the profile's language on register.
+    let pendingInitialGreeting = pickInitialGreeting();
 
     const authenticatedUserId = getAuthenticatedUserId(socket);
     if (authenticatedUserId) {
@@ -247,7 +248,7 @@ export function registerChatSocket(io: Server): void {
         : null;
 
       if (!conversation) {
-        pendingInitialGreeting = pickInitialGreeting();
+        pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
         leaveConversationRoom(socket, currentConversationId);
         currentConversationId = null;
         socket.emit('conversation:ready', {
@@ -295,7 +296,7 @@ export function registerChatSocket(io: Server): void {
       const hasOnlySourceNoticeMessages =
         isReportFollowUpConversation && hasOnlyResourceSourceNoticeMessages(messages);
       if (messages.length === 0) {
-        pendingInitialGreeting = pickInitialGreeting();
+        pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
       }
 
       socket.emit('conversation:ready', {
@@ -494,7 +495,7 @@ export function registerChatSocket(io: Server): void {
         return;
       }
 
-      pendingInitialGreeting = pickInitialGreeting();
+      pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
@@ -591,7 +592,7 @@ export function registerChatSocket(io: Server): void {
         return;
       }
 
-      pendingInitialGreeting = pickInitialGreeting();
+      pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
       leaveConversationRoom(socket, currentConversationId);
       currentConversationId = null;
       socket.emit('conversation:ready', {
