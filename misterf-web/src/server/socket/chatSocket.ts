@@ -48,7 +48,7 @@ import {
   type LlmRequestTokenUsage,
   type TutorQuizBlock,
   type TutorQuizResultBlock,
-  type TranslationMode,
+  type TranslationDirection,
   type TutorMessage,
   type TutorMessageBlock,
   type TutorMatchingPairsBlock,
@@ -62,6 +62,7 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import { translate, type Locale } from '../i18n/index.js';
+import { resolveTranslatorLanguage } from '../i18n/translatorLanguages.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 import { logger, serializeError } from '../services/logger.js';
 import {
@@ -99,7 +100,8 @@ type ModelTierPayload = {
 };
 
 type TranslatePayload = {
-  mode?: string;
+  direction?: string;
+  languageCode?: string;
   text?: string;
 };
 
@@ -692,22 +694,28 @@ export function registerChatSocket(io: Server): void {
       }
 
       const text = payload.text?.trim() ?? '';
-      const mode = normalizeTranslationMode(payload.mode);
+      const direction = normalizeTranslationDirection(payload.direction);
+      const language = resolveTranslatorLanguage(payload.languageCode);
       if (!text) {
         socket.emit('translator:error', {
-          message: 'Escribe algo para traducir.',
+          message: translate(
+            ensureUserHasProfile(userId).instructionLanguage,
+            'translator.emptyInput',
+          ),
         });
         return;
       }
 
       try {
         const translation = await translateTextWithLlm({
+          direction,
+          languageName: language.englishName,
           llm: await getLlmRequestOptionsForUser(userId),
-          mode,
           text,
         });
         socket.emit('translator:result', {
-          mode,
+          direction,
+          languageCode: language.code,
           translation,
         });
       } catch (error) {
@@ -717,8 +725,9 @@ export function registerChatSocket(io: Server): void {
         });
         if (!creditExhausted) {
           logger.error('translator_request_failed', {
+            direction,
             error,
-            mode,
+            languageCode: language.code,
             userId,
           });
         }
@@ -1451,8 +1460,10 @@ function normalizeConversationTitle(title?: string): string {
   return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
 }
 
-function normalizeTranslationMode(mode?: string): TranslationMode {
-  return mode === 'es-en' || mode === 'en-es' ? mode : 'auto';
+function normalizeTranslationDirection(direction?: string): TranslationDirection {
+  return direction === 'to-english' || direction === 'from-english'
+    ? direction
+    : 'auto';
 }
 
 async function getLlmRequestOptionsForUser(

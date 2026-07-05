@@ -31,7 +31,7 @@ import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from '.
 import type { ResourceType, StoredConversation, StoredTutorPlan } from '../../db/repository.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 import { logger } from '../logger.js';
-import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationMode, TranslationResult, TutorAgentResponseBlock, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseValidator } from './types.js';
+import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationDirection, TranslationResult, TutorAgentResponseBlock, TutorAgentResult, TutorMessage, TutorQuizBlock, TutorResponseValidator } from './types.js';
 
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
@@ -572,8 +572,9 @@ export async function runTutorAgentLoop(
 }
 
 export async function translateTextWithLlm(input: {
+  direction: TranslationDirection;
+  languageName: string;
   llm?: LlmRequestOptions;
-  mode: TranslationMode;
   text: string;
 }): Promise<TranslationResult> {
   const text = input.text.trim();
@@ -586,7 +587,7 @@ export async function translateTextWithLlm(input: {
     messages: [{ content: text, role: 'user' }],
     model: getLanguageModel(input.llm),
     providerOptions: getProviderOptions(),
-    system: buildTranslatorSystemInstruction(input.mode),
+    system: buildTranslatorSystemInstruction(input.direction, input.languageName),
     temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
   });
 
@@ -621,7 +622,7 @@ export async function translateTextWithLlm(input: {
 
   logger.debug('llm_translator_response', {
     detectedLanguage: parsed.data.detectedLanguage,
-    mode: input.mode,
+    direction: input.direction,
     model: getConfiguredModelId(input.llm),
     provider: env.llmProvider,
     userId: input.llm?.userId ?? null,

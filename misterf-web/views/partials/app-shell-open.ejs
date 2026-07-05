@@ -403,15 +403,36 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
                   </div>
                   <div class="modal-body">
-                    <div class="translator-mode btn-group" role="group" aria-label="<%= t('translator.mode') %>">
-                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
-                      <label class="btn btn-outline-secondary" for="translatorModeAuto"><%= t('translator.auto') %></label>
+                    <div class="translator-toolbar d-flex align-items-center gap-2 flex-wrap">
+                      <div class="translator-mode btn-group" role="group" aria-label="<%= t('translator.mode') %>">
+                        <input class="btn-check" type="radio" name="translatorMode" id="translatorModeAuto" value="auto" checked>
+                        <label class="btn btn-outline-secondary" for="translatorModeAuto"><%= t('translator.auto') %></label>
 
-                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEsEn" value="es-en">
-                      <label class="btn btn-outline-secondary" for="translatorModeEsEn"><%= t('translator.esEn') %></label>
+                        <input class="btn-check" type="radio" name="translatorMode" id="translatorModeToEn" value="to-english">
+                        <label class="btn btn-outline-secondary" for="translatorModeToEn" data-translator-to-en-label></label>
 
-                      <input class="btn-check" type="radio" name="translatorMode" id="translatorModeEnEs" value="en-es">
-                      <label class="btn btn-outline-secondary" for="translatorModeEnEs"><%= t('translator.enEs') %></label>
+                        <input class="btn-check" type="radio" name="translatorMode" id="translatorModeFromEn" value="from-english">
+                        <label class="btn btn-outline-secondary" for="translatorModeFromEn" data-translator-from-en-label></label>
+                      </div>
+
+                      <div class="dropdown translator-language-picker">
+                        <button
+                          class="btn btn-outline-secondary translator-language-button"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                          data-translator-language-button
+                          title="<%= t('translator.settings') %>"
+                          aria-label="<%= t('translator.settings') %>"
+                        >
+                          <i class="bi bi-gear" aria-hidden="true"></i>
+                        </button>
+                        <ul
+                          class="dropdown-menu dropdown-menu-end translator-language-menu"
+                          aria-label="<%= t('translator.languageMenuLabel') %>"
+                          data-translator-language-menu
+                        ></ul>
+                      </div>
                     </div>
 
                     <label class="visually-hidden" for="translatorInput"><%= t('translator.inputLabel') %></label>

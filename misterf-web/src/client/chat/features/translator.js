@@ -1,6 +1,81 @@
 import { t } from '../../shared/i18n.js';
 
+const STORAGE_KEY = 'misterf_translator_lang';
+
 export function createTranslatorController(deps) {
+  const languages = Array.isArray(window.__TRANSLATOR_LANGUAGES__)
+    ? window.__TRANSLATOR_LANGUAGES__
+    : [];
+
+  function getStoredLanguageCode() {
+    let stored = '';
+    try {
+      stored = window.localStorage?.getItem(STORAGE_KEY) || '';
+    } catch {
+      stored = '';
+    }
+    if (languages.some((language) => language.code === stored)) {
+      return stored;
+    }
+    return languages[0]?.code || 'es';
+  }
+
+  let currentLanguageCode = getStoredLanguageCode();
+
+  function currentLanguage() {
+    return (
+      languages.find((language) => language.code === currentLanguageCode) ||
+      languages[0] || {
+        code: currentLanguageCode,
+        endonym: currentLanguageCode.toUpperCase(),
+      }
+    );
+  }
+
+  function applyLanguage(code) {
+    currentLanguageCode = code;
+    try {
+      window.localStorage?.setItem(STORAGE_KEY, code);
+    } catch {
+      // Ignore storage failures (private mode, disabled storage).
+    }
+
+    const upper = code.toUpperCase();
+    if (deps.translatorToEnLabelEl) {
+      deps.translatorToEnLabelEl.textContent = `${upper} → EN`;
+    }
+    if (deps.translatorFromEnLabelEl) {
+      deps.translatorFromEnLabelEl.textContent = `EN → ${upper}`;
+    }
+    if (deps.translatorLanguageMenuEl) {
+      for (const item of deps.translatorLanguageMenuEl.querySelectorAll(
+        '[data-translator-language]',
+      )) {
+        item.classList.toggle('active', item.dataset.translatorLanguage === code);
+      }
+    }
+  }
+
+  function renderLanguageMenu() {
+    if (!deps.translatorLanguageMenuEl) {
+      return;
+    }
+    deps.translatorLanguageMenuEl.replaceChildren();
+    for (const language of languages) {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'dropdown-item';
+      button.dataset.translatorLanguage = language.code;
+      button.textContent = language.endonym;
+      button.addEventListener('click', () => {
+        applyLanguage(language.code);
+      });
+      item.appendChild(button);
+      deps.translatorLanguageMenuEl.appendChild(item);
+    }
+  }
+
   function translateSelectedAppText() {
     const selectedText = deps.getPendingTranslatorSelection() || getSelectedAppText();
     deps.setPendingTranslatorSelection('');
@@ -68,13 +143,17 @@ export function createTranslatorController(deps) {
       return;
     }
 
-    const mode =
+    const direction =
       deps.translatorFormEl?.querySelector('input[name="translatorMode"]:checked')?.value ||
       'auto';
 
     setTranslatorBusy(true);
     deps.translatorResultEl.textContent = '';
-    deps.getSocket().emit('translator:translate', { mode, text });
+    deps.getSocket().emit('translator:translate', {
+      direction,
+      languageCode: currentLanguage().code,
+      text,
+    });
   }
 
   function setTranslatorBusy(isBusy) {
@@ -102,6 +181,9 @@ export function createTranslatorController(deps) {
   }
 
   function bindUi() {
+    renderLanguageMenu();
+    applyLanguage(currentLanguageCode);
+
     for (const button of deps.translatorOpenButtonEls) {
       button.addEventListener('pointerdown', () => {
         deps.setPendingTranslatorSelection(getSelectedAppText());

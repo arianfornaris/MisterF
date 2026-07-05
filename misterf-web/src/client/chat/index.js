@@ -78,6 +78,9 @@ const translatorResultEl = document.querySelector('#translatorResult');
 const translatorSubmitEl = document.querySelector('[data-translator-submit]');
 const translatorOpenButtonEls = document.querySelectorAll('[data-open-translator]');
 const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
+const translatorLanguageMenuEl = document.querySelector('[data-translator-language-menu]');
+const translatorToEnLabelEl = document.querySelector('[data-translator-to-en-label]');
+const translatorFromEnLabelEl = document.querySelector('[data-translator-from-en-label]');
 const creditModalEl = document.querySelector('#creditModal');
 const creditBuyLinkEl = document.querySelector('[data-credit-buy-link]');
 const creditMessageEl = document.querySelector('[data-credit-message]');
@@ -243,11 +246,14 @@ const translatorController = createTranslatorController({
   },
   translatorCopyButtonEls,
   translatorFormEl,
+  translatorFromEnLabelEl,
   translatorInputEl,
+  translatorLanguageMenuEl,
   translatorModalEl,
   translatorOpenButtonEls,
   translatorResultEl,
   translatorSubmitEl,
+  translatorToEnLabelEl,
 });
 
 disableComposerTextAssist();

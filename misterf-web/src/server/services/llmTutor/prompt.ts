@@ -8,7 +8,7 @@ import {
   tutorSystemLanguagePlaceholders,
   type InstructionLanguage,
 } from './languagePack.js';
-import type { TranslationMode } from './types.js';
+import type { TranslationDirection } from './types.js';
 
 export function buildAgentSystemInstruction(options: {
   learnerProfile?: {
@@ -247,13 +247,16 @@ function appendTutorPlanContext(sections: string[], tutorPlanText?: string | nul
   );
 }
 
-export function buildTranslatorSystemInstruction(mode: TranslationMode): string {
+export function buildTranslatorSystemInstruction(
+  direction: TranslationDirection,
+  languageName: string,
+): string {
   const translationDirection =
-    mode === 'es-en'
-      ? 'Translate from Spanish to English.'
-      : mode === 'en-es'
-        ? 'Translate from English to Spanish.'
-        : 'Detect whether the text is Spanish or English and translate it into the other language.';
+    direction === 'to-english'
+      ? `Translate from ${languageName} to English.`
+      : direction === 'from-english'
+        ? `Translate from English to ${languageName}.`
+        : `Detect whether the text is ${languageName} or English and translate it into the other language.`;
 
   return renderSystemPrompt('tutor/translator.md', {
     TRANSLATION_DIRECTION: translationDirection,

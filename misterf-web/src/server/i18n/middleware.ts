@@ -8,6 +8,7 @@ import {
   type Translator,
 } from './index.js';
 import { getLocaleCookie, resolveLocale, setLocaleCookie } from './resolve.js';
+import { translatorLanguagesJson } from './translatorLanguages.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -21,6 +22,7 @@ declare global {
       languages: { code: Locale; endonym: string }[];
       locale: Locale;
       t: Translator;
+      translatorLanguagesJson: string;
     }
   }
 }
@@ -53,6 +55,7 @@ export function attachLocale(
   response.locals.languages = languageOptions();
   response.locals.locale = locale;
   response.locals.t = createTranslator(locale);
+  response.locals.translatorLanguagesJson = translatorLanguagesJson();
   next();
 }
 

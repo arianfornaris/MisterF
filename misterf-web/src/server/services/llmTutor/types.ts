@@ -475,7 +475,7 @@ export type TutorAgentResult = {
   provider: string;
 };
 
-export type TranslationMode = 'auto' | 'es-en' | 'en-es';
+export type TranslationDirection = 'auto' | 'to-english' | 'from-english';
 
 export type TranslationResult = {
   detectedLanguage: string;
