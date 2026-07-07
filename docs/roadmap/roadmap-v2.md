@@ -257,12 +257,18 @@ Bugs:
   is always sent; `o4` is also redundant with `o[134]`. Done 2026-07-06:
   matches the model segment after the vendor prefix, redundant `o4`
   dropped, unit tests added (`tests/llmTutor/providers.test.ts`).
-- [ ] `continueTutorResponseAfterToolUse` (`llmTutor/index.ts`) sends only
+- [x] `continueTutorResponseAfterToolUse` (`llmTutor/index.ts`) sends only
   the internal-continuation prompt + tool results — it drops the
   conversation history, so the re-emitted response cannot address what the
-  learner actually said. Include the turn's messages. Related nit: the
-  finish-reason check reads `effectiveResult.finishReason` but throws with
-  `result.finishReason`.
+  learner actually said. Related nit: the finish-reason check reads
+  `effectiveResult.finishReason` but throws with `result.finishReason`.
+  Done 2026-07-07 by removal instead of repair: the continuation was a
+  second, weaker repair mechanism overlapping the structured-correction
+  retry (which already re-runs the turn with full history), so the branch
+  now logs the invalid output and falls through to that retry.
+  `continueTutorResponseAfterToolUse`, `tutor/internal-tool-continuation.md`
+  and the `effectiveResult` split were deleted; the generateText inventory
+  in `llmCreditGateArchitecture.test.ts` dropped to 3 calls for `index.ts`.
 
 Dead code / loose ends:
 

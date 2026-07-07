@@ -36,44 +36,6 @@ import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationDirection, Tra
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
 
-async function continueTutorResponseAfterToolUse(input: {
-  abortSignal?: AbortSignal;
-  llm?: LlmRequestOptions;
-  system: string;
-  toolResults: Array<{
-    output: unknown;
-    preliminary?: boolean;
-    toolName: string;
-  }>;
-}) {
-  const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
-  const messages: ModelMessage[] = [
-    {
-      content: renderSystemPrompt('tutor/internal-tool-continuation.md', {
-        TOOL_RESULTS_JSON: JSON.stringify(
-          finalizedToolResults.map((result) => ({
-            output: result.output,
-            toolName: result.toolName,
-          })),
-          null,
-          2,
-        ),
-      }),
-      role: 'user',
-    },
-  ];
-
-  return generateText({
-    abortSignal: input.abortSignal,
-    maxOutputTokens: 1800,
-    messages,
-    model: getLanguageModel(input.llm),
-    providerOptions: getProviderOptions(),
-    system: input.system,
-    temperature: shouldUseTemperature(input.llm) ? 0.25 : undefined,
-  });
-}
-
 function parseJsonFromModelText(text: string): unknown {
   const trimmed = text.trim();
   const fencedMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
@@ -357,8 +319,6 @@ export async function runTutorAgentLoop(
         turn: turn + 1,
         userId: options.userId ?? null,
       });
-      const toolResults = result.steps.flatMap((step) => step.toolResults);
-      let effectiveResult = result;
       let finalBlocks: TutorAgentResponseBlock[] | null = null;
       let parsedObject: unknown = null;
       const initialText = result.text.trim();
@@ -422,46 +382,30 @@ export async function runTutorAgentLoop(
               text: result.text,
             });
           } else {
-            effectiveResult = await continueTutorResponseAfterToolUse({
-              abortSignal: options.abortSignal,
+            // A broken JSON attempt falls through to the structured
+            // correction retry, which re-runs the turn with full history.
+            logLlmInvalidRawResponse({
+              actorLabel: 'Mr. F',
+              conversationId: options.conversationId ?? null,
+              error,
               llm: options.llm,
-              system,
-              toolResults,
+              operation: 'tutor',
+              profileId: options.profileId ?? null,
+              ...resourceLogContext,
+              rawText: result.text,
+              turn: turn + 1,
+              userId: options.userId ?? null,
             });
-
-            try {
-              parsedObject = parseJsonFromModelText(effectiveResult.text);
-              finalBlocks = validateTutorResponseBlocks(parsedObject, {
-                conversationId: options.conversationId ?? null,
-                generatedText: effectiveResult.text,
-                llm: options.llm,
-                operation: 'tutor',
-                userId: options.userId ?? null,
-              });
-            } catch (continuationError) {
-              logLlmInvalidRawResponse({
-                actorLabel: 'Mr. F',
-                conversationId: options.conversationId ?? null,
-                error: continuationError,
-                llm: options.llm,
-                operation: 'tutor',
-                profileId: options.profileId ?? null,
-                ...resourceLogContext,
-                rawText: effectiveResult.text,
-                turn: turn + 1,
-                userId: options.userId ?? null,
-              });
-              throw continuationError;
-            }
+            throw error;
           }
         }
       }
 
       logLlmResponse(
         parsedObject ?? { blocks: finalBlocks },
-        effectiveResult.finishReason,
-        effectiveResult.usage,
-        effectiveResult.providerMetadata,
+        result.finishReason,
+        result.usage,
+        result.providerMetadata,
         turn + 1,
         {
           actorLabel: 'Mr. F',
@@ -479,14 +423,14 @@ export async function runTutorAgentLoop(
           messages,
           system,
           turn: turn + 1,
-          usage: effectiveResult.usage,
+          usage: result.usage,
         }),
       );
 
       const userFacingFinishMessage = getUserFacingFinishReasonMessage(
-        effectiveResult.finishReason,
+        result.finishReason,
         undefined,
-        effectiveResult.providerMetadata,
+        result.providerMetadata,
         options.instructionLanguage ?? 'es',
       );
       if (userFacingFinishMessage) {
@@ -536,7 +480,7 @@ export async function runTutorAgentLoop(
         appendStructuredCorrectionRequest(messages, {
           error,
           instructionLanguage: options.instructionLanguage,
-          invalidOutput: effectiveResult.text,
+          invalidOutput: result.text,
           reason: buildStructuredValidationReason(error),
           turn: turn + 1,
         });

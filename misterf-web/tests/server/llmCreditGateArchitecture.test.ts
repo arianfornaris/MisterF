@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const expectedGenerateTextCallCounts: Record<string, number> = {
   'src/server/services/llmTutor/blockRepair.ts': 1,
-  'src/server/services/llmTutor/index.ts': 4,
+  'src/server/services/llmTutor/index.ts': 3,
   'src/server/services/resourceDrafts.ts': 1,
   'src/server/services/roleplays.ts': 1,
   'src/server/services/tutorReports.ts': 1,
