@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-06)
+Date: 2026-07-06 (last updated: 2026-07-07)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -69,6 +69,34 @@ Interaction with the V2 i18n work: comprehension stimuli are always in
 English (the target language); question wording and feedback follow the
 user's instruction language. The i18n prompt parametrization shipped in V2,
 so Phase 1 can proceed without double work on prompt copy.
+
+## 1.2 Built-In Scene Media Block
+
+Promoted to V3 on 2026-07-07. Design:
+[Built-In Scene Media Block](../features/built-in-scene-media-block.md) - one
+structured tutor block for curated system media scenes, with optional image,
+audio, and script layers resolved from an approved runtime registry. This is
+explicitly limited to built-in media; dynamically generated media will use a
+separate future block.
+
+- [ ] Promote approved design assets from `design/scene-images/` and
+  `design/scene-scripts/` into product runtime asset folders.
+- [ ] Generate or maintain a runtime registry exposing only product-safe scene
+  metadata, image URLs, available levels, audio URLs, durations, and transcript
+  data without duplicated flattened transcript text.
+- [ ] Add a media resolver path that selects from a compact built-in catalog
+  using natural-language criteria, validates returned ids deterministically, and
+  can report `no_good_match` or a future hybrid dynamic-script recommendation.
+- [ ] Add the built-in scene media block to the tutor block protocol, schema,
+  validation, persisted block schema, repair prompt, and TypeScript types.
+- [ ] Render the block in tutor chat with responsive image display, audio
+  controls, optional script/transcript display, and mobile-safe Bootstrap/Flatly
+  styling.
+- [ ] Update tutor prompt guidance so the model references built-in scene ids
+  and never emits raw paths, arbitrary URLs, or dynamic generation requests
+  through this block.
+- [ ] Add focused tests/fixtures for valid block rendering, invalid asset ids,
+  missing optional layers, and the built-in-versus-dynamic media boundary.
 
 ---
 
