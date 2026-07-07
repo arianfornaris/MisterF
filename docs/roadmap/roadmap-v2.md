@@ -272,15 +272,19 @@ Bugs:
 
 Dead code / loose ends:
 
-- [ ] Delete `llmTutor/challenges/` (dialogueScene/produceEn/understandEn
+- [x] Delete `llmTutor/challenges/` (dialogueScene/produceEn/understandEn
   `challenge_started` schemas — imported nowhere, block type doesn't exist
-  in the protocol).
-- [ ] Remove the unused `toTutorBlockProtocolNames` export
-  (`llmTutor/blockProtocol.ts`).
-- [ ] Remove the dead `renderTutorSystemPrompt` fallback in
+  in the protocol). Done 2026-07-07.
+- [x] Remove the unused `toTutorBlockProtocolNames` export
+  (`llmTutor/blockProtocol.ts`). Done 2026-07-07 (with its now-unused
+  name set).
+- [x] Remove the dead `renderTutorSystemPrompt` fallback in
   `llmTutor/prompt.ts` that rebuilds the Structured Response Protocol
   section when `system.md` lacks `{{BLOCK_PROTOCOL}}` (it has it; the guard
-  contradicts the AGENTS.md no-defensive-guards rule).
+  contradicts the AGENTS.md no-defensive-guards rule). Done 2026-07-07:
+  inlined to a direct `renderSystemPrompt` call; a missing placeholder now
+  fails visibly via the placeholder regression test instead of being
+  silently patched. Spanish golden snapshot unchanged.
 - [ ] Deduplicate conversation-title helpers: `normalizeConversationTitle`
   reimplemented in `chatSocket.ts`, generic-title check triplicated across
   `conversationTitles.ts` / `chat/handlers.ts`.

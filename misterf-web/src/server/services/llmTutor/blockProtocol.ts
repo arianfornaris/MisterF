@@ -29,8 +29,6 @@ export const tutorBlockProtocolNames = [
 
 export type TutorBlockProtocolName = typeof tutorBlockProtocolNames[number];
 
-const tutorBlockProtocolNameSet = new Set<string>(tutorBlockProtocolNames);
-
 /**
  * Blocks that only make sense when the instruction language is Spanish. For an
  * English-instruction (monolingual) profile the tutor teaches English through
@@ -74,20 +72,4 @@ export function renderTutorBlockProtocol(
       return doc.trim();
     })
     .join('\n\n');
-}
-
-export function toTutorBlockProtocolNames(
-  names: Iterable<string>,
-): TutorBlockProtocolName[] {
-  const selected = new Set<TutorBlockProtocolName>(['message']);
-
-  for (const name of names) {
-    if (tutorBlockProtocolNameSet.has(name)) {
-      selected.add(name as TutorBlockProtocolName);
-    }
-  }
-
-  selected.add('tutor-response-block');
-
-  return tutorBlockProtocolNames.filter((name) => selected.has(name));
 }
