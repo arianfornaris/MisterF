@@ -41,6 +41,7 @@ const maxRepairAttempts = 2;
  * should be answered together belong in a single `quiz` block.
  */
 const interactiveExerciseBlockTypes = new Set<TutorAgentResponseBlock['type']>([
+  'dialogue_character_message',
   'fill_in_the_blank_choice',
   'fill_in_the_blank_input',
   'matching_pairs',

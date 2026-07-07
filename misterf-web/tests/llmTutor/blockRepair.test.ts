@@ -140,6 +140,26 @@ describe('multi-exercise batch detection', () => {
     expect(detectMultiExerciseBatch(blocks)).toEqual([]);
   });
 
+  it('counts a dialogue character turn as an exercise block', () => {
+    const dialogueBlock: TutorAgentResponseBlock = {
+      markdown: 'Hi! Welcome to the cafe. What would you like?',
+      name: 'Ana',
+      type: 'dialogue_character_message',
+    };
+
+    expect(
+      detectMultiExerciseBatch([messageBlock, dialogueBlock, multipleChoiceBlock]).map(
+        (issue) => issue.blockIndex,
+      ),
+    ).toEqual([2]);
+    expect(
+      detectMultiExerciseBatch([messageBlock, dialogueBlock, dialogueBlock]).map(
+        (issue) => issue.kind,
+      ),
+    ).toEqual(['multi_exercise_batch']);
+    expect(detectMultiExerciseBatch([messageBlock, dialogueBlock])).toEqual([]);
+  });
+
   it('does not flag one quiz block with multiple items', () => {
     expect(detectMultiExerciseBatch([messageBlock, quizBlock])).toEqual([]);
   });

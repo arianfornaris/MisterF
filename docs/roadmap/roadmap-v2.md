@@ -354,9 +354,13 @@ i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
 
 Protocol/loop consistency:
 
-- [ ] `system.md` counts `dialogue_character_message` as a learner exercise
+- [x] `system.md` counts `dialogue_character_message` as a learner exercise
   block but the repair loop's `interactiveExerciseBlockTypes` does not —
-  decide which is right and align contract + detector.
+  decide which is right and align contract + detector. Done 2026-07-07:
+  the contract is right (the block doc mandates one character turn per
+  response), so the detector now includes `dialogue_character_message`;
+  regression test covers dialogue+exercise and dialogue+dialogue batches
+  and keeps `message`+dialogue valid.
 - [ ] A valid response consisting only of `tutor_plan`/`tutor_plan_update`
   yields empty `blocksToMarkdown` content and is rejected as "empty
   response" in `chatSocket.ts` — cover plan blocks in the markdown
