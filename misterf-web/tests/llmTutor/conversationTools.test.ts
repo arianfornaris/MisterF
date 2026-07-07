@@ -138,6 +138,27 @@ describe('conversation runtime tools', () => {
     expect(announcedToolCalls).toBe(0);
   });
 
+  it('authors the title rule in the conversation instruction language', async () => {
+    const context = await createConversationToolTestContext();
+    const titleDescription = (instructionLanguage?: 'es' | 'en' | 'ht') => {
+      const tools = context.buildTutorConversationTools({
+        conversationId: context.conversation.id,
+        instructionLanguage,
+        userId: context.user.id,
+      });
+      const schema = (tools?.update_conversation_title as unknown as {
+        inputSchema: { shape: { title: { description?: string } } };
+      }).inputSchema;
+      return schema.shape.title.description ?? '';
+    };
+
+    expect(titleDescription()).toContain('short, Spanish');
+    expect(titleDescription('es')).toContain('short, Spanish');
+    expect(titleDescription('en')).toContain('short, English');
+    expect(titleDescription('en')).not.toContain('Spanish');
+    expect(titleDescription('ht')).toContain('in Haitian Creole');
+  });
+
   it('allows explicit learner-requested title changes and marks them as user updates', async () => {
     const context = await createConversationToolTestContext();
     context.renameConversationForUser(

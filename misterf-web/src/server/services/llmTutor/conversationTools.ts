@@ -9,6 +9,11 @@ import {
   isGenericConversationTitle,
   normalizeConversationTitle,
 } from './conversationTitles.js';
+import {
+  conversationTitleLanguageRule,
+  defaultInstructionLanguage,
+  type InstructionLanguage,
+} from './languagePack.js';
 
 const conversationTitleUpdateReasonSchema = z.enum([
   'initial_topic',
@@ -17,6 +22,7 @@ const conversationTitleUpdateReasonSchema = z.enum([
 
 export function buildTutorConversationTools(input: {
   conversationId: string | null;
+  instructionLanguage?: InstructionLanguage;
   onConversationRenamed?: (conversation: StoredConversation) => void;
   onToolCall?: (toolName: string) => void;
   userId: string | null;
@@ -30,6 +36,9 @@ export function buildTutorConversationTools(input: {
     onConversationRenamed,
     userId,
   } = input;
+  const titleLanguageRule = conversationTitleLanguageRule(
+    input.instructionLanguage ?? defaultInstructionLanguage,
+  );
   let titleUpdateAttemptedThisTurn = false;
 
   return {
@@ -40,7 +49,7 @@ export function buildTutorConversationTools(input: {
         reason: conversationTitleUpdateReasonSchema
           .describe('Why this title update is allowed. Use "initial_topic" only for the first automatic title when the current title is generic and the conversation purpose is now clear. Use "explicit_user_request" only when the learner explicitly asks in the current turn to rename or change this conversation title.'),
         title: z.string().trim().min(1).max(90)
-          .describe('Short Spanish, human-friendly, specific title for the current conversation. Avoid generic titles such as "Práctica de inglés", "Conversación", or "Resumen de conversación". Do not use English unless the learner explicitly requested an English title.'),
+          .describe(`New title for the current conversation. ${titleLanguageRule}`),
       }),
       execute: async ({ reason, title }) => {
         if (titleUpdateAttemptedThisTurn) {

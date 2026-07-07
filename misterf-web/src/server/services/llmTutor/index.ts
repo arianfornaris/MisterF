@@ -276,6 +276,7 @@ export async function runTutorAgentLoop(
   });
   const conversationTools = buildTutorConversationTools({
     conversationId: options.conversationId ?? null,
+    instructionLanguage: options.instructionLanguage,
     onConversationRenamed: options.onConversationRenamed,
     onToolCall: options.onToolCall,
     userId: options.userId ?? null,

@@ -304,10 +304,14 @@ Dead code / loose ends:
 
 i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
 
-- [ ] `update_conversation_title` tool description hardcodes "Short
+- [x] `update_conversation_title` tool description hardcodes "Short
   Spanish title" for every profile, contradicting the per-language
   `conversationTitleRule` in the system prompt; thread `instructionLanguage`
-  into `buildTutorConversationTools`.
+  into `buildTutorConversationTools`. Done 2026-07-07: the title field
+  description now embeds the registry's `conversationTitleRule` for the
+  conversation's language (same source as the system prompt, so the two
+  halves of the contract cannot diverge), threaded from
+  `runTutorAgentLoop`; test asserts the es/en/ht variants.
 - [ ] `blocksToMarkdown` (`llmTutor/validation.ts`) hardcodes Spanish
   fallback strings ('Revisemos esta parte:', 'Ejercicio de emparejar.',
   'Ordena las oraciones.', 'Traduce al ingles:', 'Resumen del quiz'); the
