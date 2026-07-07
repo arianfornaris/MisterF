@@ -14,7 +14,9 @@ export function isGenericConversationTitle(title: string): boolean {
     normalized === '' ||
     normalized === 'nueva conversacion' ||
     normalized === 'new conversation' ||
+    normalized === 'nouvo konvesasyon' ||
     normalized === 'conversacion' ||
-    normalized === 'conversation'
+    normalized === 'conversation' ||
+    normalized === 'konvesasyon'
   );
 }

@@ -35,6 +35,7 @@ import {
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
+import { normalizeConversationTitle } from '../services/llmTutor/conversationTitles.js';
 import { normalizeExerciseSubmissionForUserMessage } from '../services/llmTutor/exerciseSubmissions.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
 import {
@@ -1454,10 +1455,6 @@ function createInitialGreetingBlock(content: string): TutorMessageBlock {
     markdown: content,
     type: 'message',
   };
-}
-
-function normalizeConversationTitle(title?: string): string {
-  return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
 }
 
 function normalizeTranslationDirection(direction?: string): TranslationDirection {

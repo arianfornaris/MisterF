@@ -34,6 +34,10 @@ import {
   type ContextResourceType,
 } from '../services/resourceFromContext.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
+import {
+  isGenericConversationTitle,
+  normalizeConversationTitle,
+} from '../services/llmTutor/conversationTitles.js';
 import { logger } from '../services/logger.js';
 
 export function renderChatPage(request: Request, response: Response): void {
@@ -414,7 +418,7 @@ function renameGenericConversationFromReportTitle(
     return;
   }
 
-  const title = normalizeGeneratedConversationTitle(reportTitle);
+  const title = normalizeConversationTitle(reportTitle);
   if (!title) {
     return;
   }
@@ -423,27 +427,5 @@ function renameGenericConversationFromReportTitle(
 }
 
 function shouldUseReportTitleForConversation(conversation: StoredConversation): boolean {
-  if (conversation.titleUpdatedByUser) {
-    return false;
-  }
-
-  const normalizedTitle = normalizeTitleForComparison(conversation.title);
-  return (
-    !normalizedTitle ||
-    normalizedTitle === 'nueva conversacion' ||
-    normalizedTitle === 'new conversation'
-  );
-}
-
-function normalizeGeneratedConversationTitle(title: string): string {
-  return title.replace(/\s+/g, ' ').trim().slice(0, 90);
-}
-
-function normalizeTitleForComparison(title: string): string {
-  return title
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
+  return !conversation.titleUpdatedByUser && isGenericConversationTitle(conversation.title);
 }

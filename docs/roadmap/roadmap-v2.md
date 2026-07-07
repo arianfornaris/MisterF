@@ -285,9 +285,14 @@ Dead code / loose ends:
   inlined to a direct `renderSystemPrompt` call; a missing placeholder now
   fails visibly via the placeholder regression test instead of being
   silently patched. Spanish golden snapshot unchanged.
-- [ ] Deduplicate conversation-title helpers: `normalizeConversationTitle`
+- [x] Deduplicate conversation-title helpers: `normalizeConversationTitle`
   reimplemented in `chatSocket.ts`, generic-title check triplicated across
-  `conversationTitles.ts` / `chat/handlers.ts`.
+  `conversationTitles.ts` / `chat/handlers.ts`. Done 2026-07-07: both files
+  now import the canonical helpers from `conversationTitles.ts` (the
+  handlers copy was already out of sync — missing two generic variants),
+  and the canonical generic-title list gained the missing `ht` defaults
+  (`Nouvo konvèsasyon` / `Konvèsasyon`), with a unit test fixing the
+  three-language variants.
 - [ ] Minor: `Math.max(recentEventLimit ?? 5, 30)` in
   `llmTutor/progressTools.ts` is always 30 (limit caps at 10); the
   `rawFinishReason` parameter of `getUserFacingFinishReasonMessage` is
