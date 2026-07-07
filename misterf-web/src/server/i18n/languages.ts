@@ -28,6 +28,13 @@ export type TutorLanguagePack = {
   uiPracticeGuideTerm: string;
   uiResourcesTerm: string;
   conversationTitleRule: string;
+  /**
+   * Extra bullet rules for the quiz-result evaluator that stop it from
+   * grading the support language itself. Starts with `\n- ` so the fragment
+   * extends the rule list; empty for monolingual languages, which need no
+   * support-language carve-out.
+   */
+  quizEvaluationSupportLanguageRules: string;
 };
 
 /**
@@ -117,6 +124,9 @@ export const languages = {
       uiResourcesTerm: 'Recursos',
       conversationTitleRule:
         'The title must be short, Spanish, human-friendly, and specific; avoid generic titles such as "Práctica de inglés", "Conversación", or "Resumen de conversación".',
+      quizEvaluationSupportLanguageRules:
+        '\n- Do not evaluate Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.' +
+        '\n- For Spanish prompts or instructions, do not treat the Spanish prompt language as the language being practiced.',
     },
     greetings: {
       initial: [
@@ -205,6 +215,7 @@ export const languages = {
       uiResourcesTerm: 'Resources',
       conversationTitleRule:
         'The title must be short, English, human-friendly, and specific; avoid generic titles such as "English practice", "Conversation", or "Conversation summary".',
+      quizEvaluationSupportLanguageRules: '',
     },
     greetings: {
       initial: [
@@ -294,6 +305,9 @@ export const languages = {
       uiResourcesTerm: 'Resous',
       conversationTitleRule:
         'The title must be short, in Haitian Creole, human-friendly, and specific; avoid generic titles such as "Pratik anglè", "Konvèsasyon", or "Rezime konvèsasyon".',
+      quizEvaluationSupportLanguageRules:
+        '\n- Do not evaluate Haitian Creole grammar, writing style, or vocabulary as the target skill.' +
+        '\n- For Haitian Creole prompts or instructions, do not treat the prompt language as the language being practiced.',
     },
     greetings: {
       initial: [

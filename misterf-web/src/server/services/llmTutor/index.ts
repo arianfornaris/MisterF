@@ -20,7 +20,10 @@ import {
   shouldLogFullLlmTrace,
 } from './logging.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
-import { instructionLanguageEnglishName } from './languagePack.js';
+import {
+  instructionLanguageEnglishName,
+  quizEvaluationSupportLanguageRules,
+} from './languagePack.js';
 import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
@@ -598,6 +601,9 @@ export async function evaluateQuizResultItemsWithLlm(input: {
 }>> {
   const system = renderSystemPrompt('tutor/quiz-result-evaluation.md', {
     INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
+      input.instructionLanguage ?? 'es',
+    ),
+    SUPPORT_LANGUAGE_EVALUATION_RULES: quizEvaluationSupportLanguageRules(
       input.instructionLanguage ?? 'es',
     ),
   });

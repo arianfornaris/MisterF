@@ -340,9 +340,17 @@ i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
   the model-facing seed text (`resourceFromContext` intros, context
   labels in the chat/quiz/roleplay handlers, transcript speaker tags)
   was rewritten in English per the meta-prompt convention.
-- [ ] `tutor/quiz-result-evaluation.md` rules still hardcode Spanish as the
+- [x] `tutor/quiz-result-evaluation.md` rules still hardcode Spanish as the
   support language ("Do not evaluate Spanish grammar…") even when
-  `INSTRUCTION_LANGUAGE_NAME` is Haitian Creole.
+  `INSTRUCTION_LANGUAGE_NAME` is Haitian Creole. Done 2026-07-07: the two
+  support-language rules moved to a `quizEvaluationSupportLanguageRules`
+  field on `TutorLanguagePack` (exhaustive type — a new language must
+  define it), injected via a `SUPPORT_LANGUAGE_EVALUATION_RULES`
+  placeholder; empty for monolingual `en`, Creole rules for `ht`. The
+  `quiz_translate_to_english`/`quiz_understand_in_spanish` rules stay
+  unconditional — those item kinds are Spanish-based wherever they appear
+  (e.g. a shared es-authored quiz). Regression test covers the three
+  languages and leftover placeholders.
 
 Protocol/loop consistency:
 

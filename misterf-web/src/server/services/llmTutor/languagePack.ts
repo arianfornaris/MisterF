@@ -63,3 +63,9 @@ export function conversationTitleLanguageRule(
 ): string {
   return languages[language].tutor.conversationTitleRule;
 }
+
+export function quizEvaluationSupportLanguageRules(
+  language: InstructionLanguage,
+): string {
+  return languages[language].tutor.quizEvaluationSupportLanguageRules;
+}

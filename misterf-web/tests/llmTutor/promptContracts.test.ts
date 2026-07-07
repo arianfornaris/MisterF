@@ -3,8 +3,15 @@ import {
   renderTutorBlockProtocol,
   tutorBlockNamesForInstructionLanguage,
 } from '../../src/server/services/llmTutor/blockProtocol.js';
+import {
+  instructionLanguageEnglishName,
+  quizEvaluationSupportLanguageRules,
+} from '../../src/server/services/llmTutor/languagePack.js';
 import { buildAgentSystemInstruction } from '../../src/server/services/llmTutor/prompt.js';
-import { loadSystemPrompt } from '../../src/server/services/systemPrompts.js';
+import {
+  loadSystemPrompt,
+  renderSystemPrompt,
+} from '../../src/server/services/systemPrompts.js';
 
 describe('tutor instruction language parametrization', () => {
   it('keeps the Spanish system prompt byte-for-byte identical across entry points', () => {
@@ -82,6 +89,36 @@ describe('tutor instruction language parametrization', () => {
     expect(englishProtocol).toContain('Optional short English quiz title');
     expect(englishProtocol).not.toContain('must be Spanish');
     expect(englishProtocol).not.toMatch(/\{\{[A-Z_]+\}\}/);
+  });
+});
+
+describe('quiz result evaluation prompt', () => {
+  const renderEvaluationPrompt = (language: 'es' | 'en' | 'ht') =>
+    renderSystemPrompt('tutor/quiz-result-evaluation.md', {
+      INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(language),
+      SUPPORT_LANGUAGE_EVALUATION_RULES: quizEvaluationSupportLanguageRules(language),
+    });
+
+  it('scopes the support-language evaluation rules to the conversation language', () => {
+    const spanish = renderEvaluationPrompt('es');
+    expect(spanish).toContain('- Do not evaluate Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.');
+    expect(spanish).toContain('- For Spanish prompts or instructions, do not treat the Spanish prompt language as the language being practiced.');
+
+    const english = renderEvaluationPrompt('en');
+    expect(english).not.toContain('Do not evaluate Spanish grammar');
+    expect(english).not.toContain('For Spanish prompts or instructions');
+
+    const creole = renderEvaluationPrompt('ht');
+    expect(creole).toContain('- Do not evaluate Haitian Creole grammar, writing style, or vocabulary as the target skill.');
+    expect(creole).not.toContain('Do not evaluate Spanish grammar');
+  });
+
+  it('leaves no unreplaced placeholders or blank rule lines in any language', () => {
+    for (const language of ['es', 'en', 'ht'] as const) {
+      const prompt = renderEvaluationPrompt(language);
+      expect(prompt).not.toMatch(/\{\{[A-Z_]+\}\}/);
+      expect(prompt).not.toMatch(/\n\n- For `quiz_translate_to_english`/);
+    }
   });
 });
 
