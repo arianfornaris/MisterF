@@ -1,0 +1,28 @@
+{
+  "model": "google/gemini-3.1-flash-lite-image",
+  "seconds": 3.33,
+  "file": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-images/gemini-flash-lite-image-four-panel-story-v2.png",
+  "usage": {
+    "prompt_tokens": 313,
+    "completion_tokens": 1669,
+    "total_tokens": 1982,
+    "cost": 0,
+    "is_byok": true,
+    "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "cache_write_tokens": 0,
+      "audio_tokens": 0,
+      "video_tokens": 0
+    },
+    "cost_details": {
+      "upstream_inference_cost": 0.03450175,
+      "upstream_inference_prompt_cost": 7.825e-05,
+      "upstream_inference_completions_cost": 0.0344235
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 0,
+      "image_tokens": 1120
+    }
+  },
+  "prompt": "Create a single square WORDLESS pantomime comic illustration in a clean 2x2 grid with four panels. Absolutely no text of any kind: no letters, no numbers, no captions, no signs, no logos, no speech bubbles, no readable marks, no menu boards, no storefront names, no posters, no labels. All walls, windows, cups, bags, doors, and background surfaces must be blank or have simple non-language patterns only.\n\nTell this four-step story visually for English learners:\nPanel 1: On a rainy morning, a young woman with shoulder-length brown hair and a yellow raincoat arrives at a small cafe entrance holding a closed blue umbrella. The cafe should be recognizable only from tables, cups, warm light, and a coffee cup icon shape, not from any written sign.\nPanel 2: Inside near the entrance, she looks worried while searching inside her open shoulder bag; her brown wallet is clearly visible on the floor behind her.\nPanel 3: A young man with short dark hair and a green jacket picks up the wallet and gently hands it back to her. She looks relieved and grateful.\nPanel 4: The same woman and the same man sit at a small table by a rainy window, smiling and drinking coffee; the wallet rests on the table near her bag.\n\nUse consistent characters across all four panels, clear body language, friendly realistic watercolor comic style, classroom-safe content, and simple uncluttered backgrounds. Make the sequence easy to understand without any written text."
+}

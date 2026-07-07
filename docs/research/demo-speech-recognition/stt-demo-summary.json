@@ -1,0 +1,45 @@
+{
+  "source_audio": "/Users/arian/Documents/GameDev/MatandileGames/MisterF-assets/docs/research/demo-audio/conversation/gemini-conversation.wav",
+  "results": [
+    {
+      "model": "openai/gpt-4o-mini-transcribe",
+      "status": 200,
+      "seconds_elapsed": 2.03,
+      "response": {
+        "text": "Hi Daniel, did you finish the listening homework for today? Almost. I understood the first conversation, but the second one was too fast. Let us play it again and write down the key words together. Good idea. After that, I can answer the questions with more confidence.",
+        "usage": {
+          "total_tokens": 253,
+          "input_tokens": 195,
+          "output_tokens": 58,
+          "cost": 0.00053375
+        }
+      }
+    },
+    {
+      "model": "openai/gpt-4o-transcribe",
+      "status": 200,
+      "seconds_elapsed": 1.42,
+      "response": {
+        "text": "Hi Daniel, did you finish the listening homework for today?\n\nAlmost. I understood the first conversation, but the second one was too fast.\n\nLet us play it again and write down the key words together.\n\nGood idea. After that, I can answer the questions with more confidence.",
+        "usage": {
+          "total_tokens": 253,
+          "input_tokens": 195,
+          "output_tokens": 58,
+          "cost": 0.0010675
+        }
+      }
+    },
+    {
+      "model": "openai/whisper-1",
+      "status": 200,
+      "seconds_elapsed": 1.64,
+      "response": {
+        "text": "Hi Daniel, did you finish the listening homework for today? Almost. I understood the first conversation, but the second one was too fast. Let us play it again and write down the key words together. Good idea. After that, I can answer the questions with more confidence.",
+        "usage": {
+          "seconds": 20,
+          "cost": 0.002
+        }
+      }
+    }
+  ]
+}

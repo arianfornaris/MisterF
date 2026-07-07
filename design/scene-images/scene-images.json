@@ -1,0 +1,3205 @@
+{
+  "version": 1,
+  "description": "Design registry for curated pre-generated Mister F scene images.",
+  "images": [
+    {
+      "id": "lost-wallet-cafe-01",
+      "title": "Lost Wallet At The Cafe",
+      "status": "approved",
+      "file": "images/lost-wallet-cafe-01.png",
+      "sourceFile": "images/lost-wallet-cafe-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "cafe",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "describing_people",
+        "present_continuous",
+        "past_tense_story",
+        "lost_and_found",
+        "emotions"
+      ],
+      "tags": [
+        "cafe",
+        "rain",
+        "lost-wallet",
+        "helping",
+        "kindness",
+        "money",
+        "weather",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_who_lost_item",
+          "description": "Young Latina woman in a yellow raincoat with a shoulder bag."
+        },
+        {
+          "role": "helper",
+          "description": "Older Black man in a green jacket returning a wallet."
+        }
+      ],
+      "panelSequence": [
+        "The woman enters the cafe from the rain.",
+        "Her wallet falls from her bag near the door.",
+        "The man notices the wallet and picks it up.",
+        "The man returns the wallet and the woman looks relieved."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what happens in each panel.",
+        "Write a short story about the lost wallet.",
+        "What should the man do next?",
+        "How does the woman feel? Why?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. The image should be a clean 2x2 comic grid with four equal panels and simple gutters. Read order should be left to right, top to bottom. Do not label the panels. Story: a simple lost-and-found story in a cozy cafe on a rainy afternoon. A young Latina woman in a yellow raincoat enters the cafe with a shoulder bag. She accidentally drops her brown wallet near the entrance. An older Black man in a green jacket notices the wallet and picks it up. He returns it to her, and she looks relieved and grateful. Panel 1: the young woman enters the cafe from the rain, holding her shoulder bag and looking for a table. Panel 2: the wallet slips from the open bag and falls near the door while she walks away unaware. Panel 3: the older man sees the wallet on the floor, bends down, and picks it up. Panel 4: the older man gives the wallet back to the woman; she smiles with relief and thanks him with friendly body language. Style: clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone, polished but not overly detailed. Strict constraints: no readable text anywhere in the image. No letters, numbers, captions, speech bubbles, logos, menus, signs, labels, posters, readable writing on papers, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless cafe lost-and-found story.",
+        "Visual QA passed: no readable text detected, the panel sequence is clear, and the style matches the platform cartoon direction."
+      ]
+    },
+    {
+      "id": "shared-umbrella-bus-stop-01",
+      "title": "Shared Umbrella At The Bus Stop",
+      "status": "approved",
+      "file": "images/shared-umbrella-bus-stop-01.png",
+      "sourceFile": "images/shared-umbrella-bus-stop-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "bus-stop",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "describing_weather",
+        "transportation",
+        "present_continuous",
+        "past_tense_story",
+        "asking_for_help",
+        "emotions"
+      ],
+      "tags": [
+        "bus-stop",
+        "rain",
+        "umbrella",
+        "transportation",
+        "helping",
+        "kindness",
+        "weather",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_needing_help",
+          "description": "Teenage boy with medium-brown skin, curly hair, a blue hoodie, and a backpack."
+        },
+        {
+          "role": "helper",
+          "description": "Middle-aged woman with light skin, short gray hair, a red coat, and an umbrella."
+        }
+      ],
+      "panelSequence": [
+        "The boy waits at a rainy bus stop.",
+        "The rain gets heavier and he realizes he has no umbrella.",
+        "The woman shares her umbrella with him.",
+        "They walk toward the bus together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe the weather in each panel.",
+        "Write a story about the bus stop.",
+        "How does the boy feel in panel two?",
+        "What does the woman do to help?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a rainy bus stop story in a clean 2x2 grid: a teenage boy waits for a bus, realizes he forgot his umbrella, a woman shares her umbrella, and they board the bus together. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, signs, route numbers, logos, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless bus stop story.",
+        "Visual QA passed: no readable text detected, the umbrella-sharing action is clear, and the panel sequence works left to right, top to bottom."
+      ]
+    },
+    {
+      "id": "torn-grocery-bag-01",
+      "title": "Torn Grocery Bag",
+      "status": "approved",
+      "file": "images/torn-grocery-bag-01.png",
+      "sourceFile": "images/torn-grocery-bag-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "grocery-market",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "food_vocabulary",
+        "shopping",
+        "family",
+        "present_continuous",
+        "past_tense_story",
+        "problem_solution"
+      ],
+      "tags": [
+        "grocery",
+        "shopping",
+        "food",
+        "apples",
+        "bread",
+        "family",
+        "helping",
+        "accident",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "parent",
+          "description": "Young father with dark skin, glasses, and a green sweater."
+        },
+        {
+          "role": "child",
+          "description": "Small daughter wearing orange overalls."
+        },
+        {
+          "role": "helper",
+          "description": "Friendly store clerk with tan skin, short black hair, and an apron."
+        }
+      ],
+      "panelSequence": [
+        "The father and daughter choose groceries.",
+        "The paper bag tears and apples roll on the sidewalk.",
+        "The clerk helps them pick up the food.",
+        "The groceries are packed safely in a stronger bag."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Name the foods you can see.",
+        "Describe what happens to the bag.",
+        "Write a short story about the shopping trip.",
+        "Who helps the family?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a grocery market story in a clean 2x2 grid: a father and daughter choose apples and bread, their paper bag tears outside, a clerk helps them pick up the food, and the groceries are placed in a stronger reusable bag. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, signs, price tags, logos, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless grocery problem-solution story.",
+        "Visual QA passed: no readable text detected, the torn bag and helping action are clear."
+      ]
+    },
+    {
+      "id": "shared-lunch-classroom-01",
+      "title": "Shared Lunch In The Classroom",
+      "status": "approved",
+      "file": "images/shared-lunch-classroom-01.png",
+      "sourceFile": "images/shared-lunch-classroom-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "school_vocabulary",
+        "food_vocabulary",
+        "emotions",
+        "friendship",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "classroom",
+        "lunch",
+        "sharing",
+        "friendship",
+        "food",
+        "school",
+        "kindness",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "student_needing_help",
+          "description": "Young East Asian student with short black hair and a purple sweater."
+        },
+        {
+          "role": "friend",
+          "description": "Classmate with brown skin, long braids, and a yellow cardigan."
+        },
+        {
+          "role": "teacher",
+          "description": "Teacher with curly hair and glasses."
+        }
+      ],
+      "panelSequence": [
+        "The student opens a lunchbox.",
+        "The student sees the lunchbox is empty and feels worried.",
+        "A classmate offers to share food.",
+        "The two students eat together while the teacher smiles nearby."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe how the student feels in each panel.",
+        "What food does the classmate share?",
+        "Write a story about lunchtime.",
+        "What does the teacher see?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a classroom lunch story in a clean 2x2 grid: a student opens a lunchbox, sees it is empty, a classmate offers to share food, and the two students eat together while a teacher smiles nearby. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, posters with text, worksheet writing, book words, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless classroom sharing story.",
+        "Visual QA passed: no readable text detected, the empty lunchbox and sharing action are clear."
+      ]
+    },
+    {
+      "id": "pancake-practice-kitchen-01",
+      "title": "Pancake Practice",
+      "status": "approved",
+      "file": "images/pancake-practice-kitchen-01.png",
+      "sourceFile": "images/pancake-practice-kitchen-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-kitchen",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "cooking_vocabulary",
+        "family",
+        "present_continuous",
+        "past_tense_story",
+        "mistakes_and_solutions",
+        "emotions"
+      ],
+      "tags": [
+        "kitchen",
+        "cooking",
+        "pancakes",
+        "family",
+        "learning",
+        "mistake",
+        "cleaning",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "teacher",
+          "description": "Grandmother with medium-brown skin, silver hair, and a teal cardigan."
+        },
+        {
+          "role": "learner",
+          "description": "Teenage grandson with light-brown skin and red hair."
+        }
+      ],
+      "panelSequence": [
+        "The grandmother shows the grandson pancake batter.",
+        "The grandson pours too much batter and makes a mess.",
+        "They laugh and clean the counter together.",
+        "They proudly serve a plate of pancakes."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what they are cooking.",
+        "What mistake happens in panel two?",
+        "Write a story about learning to cook.",
+        "How do the characters feel at the end?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a home kitchen cooking story in a clean 2x2 grid: a grandmother teaches her teenage grandson to make pancakes, he pours too much batter and makes a small mess, they laugh and clean up, and they proudly serve pancakes. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, labels, recipe text, appliance text, posters, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless home cooking story.",
+        "Visual QA passed: no readable text detected, the cooking mistake and resolution are clear."
+      ]
+    },
+    {
+      "id": "late-meeting-workplace-01",
+      "title": "Late For The Meeting",
+      "status": "approved",
+      "file": "images/late-meeting-workplace-01.png",
+      "sourceFile": "images/late-meeting-workplace-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "meetings",
+        "apologies",
+        "present_continuous",
+        "past_tense_story",
+        "emotions"
+      ],
+      "tags": [
+        "workplace",
+        "office",
+        "meeting",
+        "late",
+        "apology",
+        "coworkers",
+        "punctuality"
+      ],
+      "characters": [
+        {
+          "role": "late_worker",
+          "description": "Young office worker with medium-brown skin, short curly hair, a teal shirt, and a messenger bag."
+        },
+        {
+          "role": "coworkers",
+          "description": "Two friendly coworkers seated at a meeting table."
+        }
+      ],
+      "panelSequence": [
+        "The worker hurries through the office hallway.",
+        "The worker arrives at the meeting room after coworkers are seated.",
+        "The worker apologizes and a coworker gestures to an empty chair.",
+        "The worker joins the meeting calmly."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe why the worker looks worried.",
+        "What happens when the worker enters the meeting room?",
+        "Write a short story about being late.",
+        "How do the coworkers respond?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a workplace story in a clean 2x2 grid: a worker rushes through an office hallway, reaches a meeting room late, apologizes with friendly body language, and joins the meeting calmly. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, signs, clock numbers, laptop text, whiteboard text, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless workplace meeting story.",
+        "Visual QA passed: no readable text detected and the late-arrival sequence is clear."
+      ]
+    },
+    {
+      "id": "printer-help-workplace-01",
+      "title": "Helping With The Printer",
+      "status": "approved",
+      "file": "images/printer-help-workplace-01.png",
+      "sourceFile": "images/printer-help-workplace-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "office_equipment",
+        "asking_for_help",
+        "problem_solution",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "workplace",
+        "office",
+        "printer",
+        "paper-jam",
+        "coworkers",
+        "helping",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_needing_help",
+          "description": "Office worker with light-brown skin, shoulder-length black hair, a yellow blouse, and dark pants."
+        },
+        {
+          "role": "helper",
+          "description": "Coworker with dark skin, glasses, and a blue cardigan."
+        }
+      ],
+      "panelSequence": [
+        "The worker waits beside the printer with blank papers.",
+        "The printer has a paper jam and the worker looks confused.",
+        "The coworker removes the stuck paper.",
+        "The printer works again and both coworkers smile."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What problem happens with the printer?",
+        "Who helps solve the problem?",
+        "Describe the steps in the story.",
+        "What office objects can you see?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a workplace printer problem in a clean 2x2 grid: a worker waits for printed pages, sees a paper jam, a coworker removes the stuck paper, and the printer works again. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, printer display text, paper text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless office equipment problem-solution story.",
+        "Visual QA passed: no readable text detected and the paper jam is easy to understand."
+      ]
+    },
+    {
+      "id": "team-deadline-workplace-01",
+      "title": "Finishing A Team Deadline",
+      "status": "approved",
+      "file": "images/team-deadline-workplace-01.png",
+      "sourceFile": "images/team-deadline-workplace-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office-project-room",
+      "level": [
+        "A2",
+        "B1"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "teamwork",
+        "planning",
+        "present_continuous",
+        "past_tense_story",
+        "emotions"
+      ],
+      "tags": [
+        "workplace",
+        "office",
+        "teamwork",
+        "deadline",
+        "planning",
+        "coworkers",
+        "success"
+      ],
+      "characters": [
+        {
+          "role": "team_member",
+          "description": "Coworker with fair skin, short red hair, and a navy jacket."
+        },
+        {
+          "role": "team_member",
+          "description": "Coworker with brown skin, long black hair, and a green blouse."
+        },
+        {
+          "role": "team_member",
+          "description": "Coworker with tan skin, short hair, and a gray sweater."
+        }
+      ],
+      "panelSequence": [
+        "The coworkers look stressed at a busy project table.",
+        "They organize blank sticky notes and divide the work.",
+        "Each coworker works on a different task.",
+        "The team celebrates finishing together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe how the team changes from panel one to panel four.",
+        "What are the coworkers doing in panel three?",
+        "Write a story about teamwork.",
+        "Why are they happy at the end?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a team deadline story in a clean 2x2 grid: coworkers feel stressed, divide tasks with blank sticky notes, work together, and celebrate finishing. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, sticky note text, laptop text, tablet text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless workplace teamwork story.",
+        "Visual QA passed: no readable text detected and the teamwork progression is clear."
+      ]
+    },
+    {
+      "id": "messy-desk-clean-desk-01",
+      "title": "Messy Desk, Clean Desk",
+      "status": "approved",
+      "file": "images/messy-desk-clean-desk-01.png",
+      "sourceFile": "images/messy-desk-clean-desk-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office-desk",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "adjectives",
+        "prepositions",
+        "before_after",
+        "describing_objects"
+      ],
+      "tags": [
+        "workplace",
+        "desk",
+        "messy",
+        "clean",
+        "organization",
+        "before-after",
+        "office-objects"
+      ],
+      "characters": [
+        {
+          "role": "desk_owner",
+          "description": "Adult woman with medium skin, wavy dark hair, a coral cardigan, and glasses."
+        }
+      ],
+      "panelSequence": [
+        "The worker sits at a messy desk and looks overwhelmed.",
+        "The same worker sits at an organized desk and looks calm."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two desks.",
+        "Describe where the objects are.",
+        "Which desk is easier to use? Why?",
+        "Name three things that changed."
+      ],
+      "generationPrompt": "Create a square two-panel wordless contrast illustration for an English-learning activity. Show the same office desk before and after organizing: first messy and stressful, then tidy and calm. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, laptop text, paper text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a two-panel wordless workplace before/after contrast.",
+        "Visual QA passed: no readable text detected and the messy-to-clean contrast is clear."
+      ]
+    },
+    {
+      "id": "office-break-room-01",
+      "title": "Office Break Room",
+      "status": "approved",
+      "file": "images/office-break-room-01.png",
+      "sourceFile": "images/office-break-room-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "office-break-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "workplace_vocabulary",
+        "daily_routines",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "workplace",
+        "break-room",
+        "coffee",
+        "snacks",
+        "coworkers",
+        "daily-routine",
+        "office-objects"
+      ],
+      "characters": [
+        {
+          "role": "coworkers",
+          "description": "Five varied adult coworkers using an office break room."
+        }
+      ],
+      "panelSequence": [
+        "Coworkers take a short break: pouring coffee, taking snacks, chatting, and washing a mug."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the objects in the break room.",
+        "Where are the people standing or sitting?",
+        "What might the coworkers talk about?"
+      ],
+      "generationPrompt": "Create a square single-panel wordless situation illustration for an English-learning activity. Show a friendly office break room with varied coworkers pouring coffee, taking a snack, chatting at a table, and washing a mug. Include visible break room objects such as a refrigerator, microwave, coffee machine, cups, chairs, and a fruit bowl. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, appliance labels, posters, signs, labels, or watermarks.",
+      "qaNotes": [
+        "Designed as a single-panel workplace description scene.",
+        "Visual QA passed: no readable text detected and multiple everyday actions are easy to describe."
+      ]
+    },
+    {
+      "id": "doctor-visit-cough-01",
+      "title": "Doctor Visit For A Cough",
+      "status": "approved",
+      "file": "images/doctor-visit-cough-01.png",
+      "sourceFile": "images/doctor-visit-cough-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "clinic",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "symptoms",
+        "appointments",
+        "present_continuous",
+        "past_tense_story",
+        "emotions"
+      ],
+      "tags": [
+        "health",
+        "clinic",
+        "doctor",
+        "cough",
+        "appointment",
+        "stethoscope",
+        "self-care"
+      ],
+      "characters": [
+        {
+          "role": "patient",
+          "description": "Adult patient with tan skin, short dark hair, a green jacket, and a scarf."
+        },
+        {
+          "role": "doctor",
+          "description": "Doctor with dark skin, short hair, glasses, and a white coat."
+        },
+        {
+          "role": "receptionist",
+          "description": "Friendly clinic receptionist."
+        }
+      ],
+      "panelSequence": [
+        "The patient coughs gently in the clinic waiting area.",
+        "The receptionist checks the patient in.",
+        "The doctor examines the patient with a stethoscope.",
+        "The doctor gives simple care advice and the patient leaves relieved."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe the patient's symptoms.",
+        "What does the doctor do?",
+        "Write a short story about the clinic visit.",
+        "How does the patient feel at the end?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a clinic story in a clean 2x2 grid: a patient coughs gently, checks in with a receptionist, is examined by a doctor with a stethoscope, and leaves relieved after receiving simple care advice. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, clinic signs, forms, chart text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless clinic visit story.",
+        "Visual QA passed: no readable text detected, and the cough, exam, and care-advice sequence is clear."
+      ]
+    },
+    {
+      "id": "pharmacy-instructions-01",
+      "title": "Pharmacy Instructions",
+      "status": "approved",
+      "file": "images/pharmacy-instructions-01.png",
+      "sourceFile": "images/pharmacy-instructions-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "pharmacy",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "pharmacy",
+        "medicine",
+        "asking_questions",
+        "instructions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "health",
+        "pharmacy",
+        "medicine",
+        "instructions",
+        "questions",
+        "helping",
+        "self-care"
+      ],
+      "characters": [
+        {
+          "role": "customer",
+          "description": "Older woman with light skin, silver hair, and a purple cardigan."
+        },
+        {
+          "role": "pharmacist",
+          "description": "Pharmacist with brown skin, short black hair, and a white coat."
+        }
+      ],
+      "panelSequence": [
+        "The customer asks for help at the pharmacy counter.",
+        "The pharmacist shows a plain medicine bottle and bag.",
+        "The pharmacist explains using gestures and a glass of water.",
+        "The customer leaves calmly with the medicine bag."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What does the customer need?",
+        "How does the pharmacist explain the medicine?",
+        "Describe the customer's feelings in each panel.",
+        "What should the customer do next?"
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a pharmacy story in a clean 2x2 grid: an older customer asks for help, the pharmacist shows medicine, explains instructions with gestures and water, and the customer leaves prepared. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, pharmacy signs, medication labels, prescription text, price tags, shelf labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless pharmacy instructions story.",
+        "Visual QA passed: no readable text detected, and the instruction-giving gesture is clear."
+      ]
+    },
+    {
+      "id": "minor-sprain-clinic-01",
+      "title": "A Minor Sprain At The Clinic",
+      "status": "approved",
+      "file": "images/minor-sprain-clinic-01.png",
+      "sourceFile": "images/minor-sprain-clinic-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "park-and-clinic",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "body_parts",
+        "minor_injuries",
+        "helping",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "health",
+        "clinic",
+        "park",
+        "ankle",
+        "sprain",
+        "bandage",
+        "friendship",
+        "helping"
+      ],
+      "characters": [
+        {
+          "role": "injured_person",
+          "description": "Teenage girl with brown skin, curly hair in a ponytail, a pink hoodie, and jeans."
+        },
+        {
+          "role": "friend",
+          "description": "Friend with light skin, short blond hair, and a blue jacket."
+        },
+        {
+          "role": "nurse",
+          "description": "Nurse with olive skin, dark hair, and teal scrubs."
+        }
+      ],
+      "panelSequence": [
+        "The girl mildly twists her ankle on a park path.",
+        "Her friend helps her sit on a bench.",
+        "A nurse wraps the ankle at the clinic.",
+        "The girl leaves carefully with her friend's support."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What body part hurts?",
+        "Who helps the girl?",
+        "Describe what happens at the clinic.",
+        "Write a short story about the injury."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a minor injury story in a clean 2x2 grid: a girl twists her ankle in a park, her friend helps her sit, a nurse wraps the ankle at a clinic, and the girl leaves relieved with support. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, park signs, clinic signs, medical labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless minor injury and clinic care story.",
+        "Visual QA passed: no readable text detected, and the injury, help, and bandage sequence is clear."
+      ]
+    },
+    {
+      "id": "before-after-resting-01",
+      "title": "Before And After Resting",
+      "status": "approved",
+      "file": "images/before-after-resting-01.png",
+      "sourceFile": "images/before-after-resting-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-living-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "before_after",
+        "adjectives",
+        "feelings",
+        "self-care",
+        "describing_objects"
+      ],
+      "tags": [
+        "health",
+        "rest",
+        "tired",
+        "better",
+        "home",
+        "water",
+        "before-after"
+      ],
+      "characters": [
+        {
+          "role": "person_resting",
+          "description": "Adult man with dark skin, shaved head, glasses, and a soft blue sweater."
+        }
+      ],
+      "panelSequence": [
+        "The man feels tired on the sofa.",
+        "After resting, the man drinks water and looks better."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two panels.",
+        "How does the man feel before and after resting?",
+        "What objects can you see in the room?",
+        "What can people do when they feel tired?"
+      ],
+      "generationPrompt": "Create a square two-panel wordless contrast illustration for an English-learning activity. Show the same person before and after resting at home: first tired on a sofa with tissues and water, then feeling better, drinking water, and sitting near a sunny window. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, medicine labels, thermometer numbers, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a two-panel wordless health before/after contrast.",
+        "Visual QA passed: no readable text detected and the change from tired to better is clear."
+      ]
+    },
+    {
+      "id": "waiting-room-check-in-01",
+      "title": "Waiting Room Check-In",
+      "status": "approved",
+      "file": "images/waiting-room-check-in-01.png",
+      "sourceFile": "images/waiting-room-check-in-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "clinic-waiting-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "health_vocabulary",
+        "appointments",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "health",
+        "clinic",
+        "waiting-room",
+        "check-in",
+        "appointment",
+        "reception",
+        "nurse"
+      ],
+      "characters": [
+        {
+          "role": "clinic_people",
+          "description": "Varied patients, a receptionist, and a nurse in a clinic waiting room."
+        }
+      ],
+      "panelSequence": [
+        "People check in, wait, read, talk, and respond to a nurse in a clinic waiting room."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the objects in the waiting room.",
+        "Where are the people sitting or standing?",
+        "What might happen next?"
+      ],
+      "generationPrompt": "Create a square single-panel wordless situation illustration for an English-learning activity. Show a friendly clinic waiting room during check-in with varied people: a patient at reception, a parent and child sitting, an older adult reading a plain magazine, and a nurse gesturing toward the hallway. Include waiting chairs, reception desk, plant, tissue box, water dispenser, simple wall art, and a clock face with no numbers. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, clinic signs, forms, chart text, magazine text, posters with words, labels, clock numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a single-panel clinic waiting-room description scene.",
+        "Visual QA passed: no readable text detected and the check-in, waiting, and nurse-calling actions are easy to describe."
+      ]
+    },
+    {
+      "id": "missed-train-platform-01",
+      "title": "Missing The Train",
+      "status": "approved",
+      "file": "images/missed-train-platform-01.png",
+      "sourceFile": "images/missed-train-platform-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "train-station",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "transportation",
+        "asking_for_help",
+        "emotions",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "travel",
+        "train",
+        "station",
+        "platform",
+        "late",
+        "missed-train",
+        "helping",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "traveler",
+          "description": "Young traveler with brown skin, shoulder-length curly hair, a red jacket, and a small rolling suitcase."
+        },
+        {
+          "role": "station_employee",
+          "description": "Station employee with light skin, gray hair, and a blue uniform."
+        }
+      ],
+      "panelSequence": [
+        "The traveler runs onto the platform.",
+        "The traveler misses the train and looks disappointed.",
+        "A station employee points toward another option.",
+        "The traveler walks calmly toward another train area."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe why the traveler is worried.",
+        "What happens in panel two?",
+        "How does the station employee help?",
+        "Write a short story about missing a train."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a train travel story in a clean 2x2 grid: a traveler runs onto a platform, misses a train, asks a station employee for help, and walks toward another train option. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, logos, route numbers, platform signs, schedule text, ticket text, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless train station problem-solution story.",
+        "Visual QA passed: no readable text detected, and the missed-train sequence is clear."
+      ]
+    },
+    {
+      "id": "lost-luggage-hotel-01",
+      "title": "Lost Luggage At The Hotel",
+      "status": "approved",
+      "file": "images/lost-luggage-hotel-01.png",
+      "sourceFile": "images/lost-luggage-hotel-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "hotel-lobby",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "hotel_vocabulary",
+        "luggage",
+        "asking_for_help",
+        "emotions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "travel",
+        "hotel",
+        "luggage",
+        "suitcase",
+        "reception",
+        "helping",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "traveler",
+          "description": "Middle-aged traveler with dark skin, glasses, a green shirt, and a tan jacket."
+        },
+        {
+          "role": "hotel_staff",
+          "description": "Hotel staff member with olive skin, short black hair, and a navy blazer."
+        }
+      ],
+      "panelSequence": [
+        "The traveler arrives in the hotel lobby and cannot find a suitcase.",
+        "The traveler asks hotel staff for help.",
+        "They search near a luggage cart and reception area.",
+        "The traveler finds the blue suitcase and thanks the staff member."
+      ],
+      "pedagogicalPromptIdeas": [
+        "What is missing?",
+        "Where do they search?",
+        "How does the traveler feel in each panel?",
+        "Write a hotel problem-solution story."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a hotel travel story in a clean 2x2 grid: a traveler arrives without a suitcase, asks hotel staff for help, they search the lobby, and the traveler finds the suitcase. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, hotel signs, reception text, luggage tags, room numbers, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless hotel luggage story.",
+        "Visual QA passed: no readable text detected, and the missing-luggage resolution is clear."
+      ]
+    },
+    {
+      "id": "ticket-machine-help-01",
+      "title": "Help At The Ticket Machine",
+      "status": "approved",
+      "file": "images/ticket-machine-help-01.png",
+      "sourceFile": "images/ticket-machine-help-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "train-station",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "transportation",
+        "buying_tickets",
+        "asking_for_help",
+        "polite_interactions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "travel",
+        "ticket-machine",
+        "station",
+        "ticket",
+        "helping",
+        "polite",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "person_needing_help",
+          "description": "Older traveler with light skin, white hair, a purple coat, and a small shoulder bag."
+        },
+        {
+          "role": "helper",
+          "description": "Young traveler with tan skin, black hair, and a yellow backpack."
+        }
+      ],
+      "panelSequence": [
+        "The older traveler looks confused at a ticket machine.",
+        "A younger traveler offers help.",
+        "The younger traveler points to the machine screen.",
+        "The older traveler holds a blank ticket and both walk toward the platform."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Who needs help?",
+        "What does the younger traveler do?",
+        "What object does the older traveler hold at the end?",
+        "Describe the polite interaction."
+      ],
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a ticket machine story in a clean 2x2 grid: an older traveler is confused, a younger traveler offers help, they use the machine, and the older traveler gets a blank ticket. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, machine interface text, ticket text, station signs, platform signs, labels, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a four-panel wordless ticket-machine help story.",
+        "Visual QA passed: no readable text detected, and the help interaction is clear."
+      ]
+    },
+    {
+      "id": "packed-unpacked-suitcase-01",
+      "title": "Packed And Unpacked Suitcase",
+      "status": "approved",
+      "file": "images/packed-unpacked-suitcase-01.png",
+      "sourceFile": "images/packed-unpacked-suitcase-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-and-hotel-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "clothing_vocabulary",
+        "packing",
+        "before_after",
+        "prepositions",
+        "describing_objects"
+      ],
+      "tags": [
+        "travel",
+        "suitcase",
+        "packing",
+        "unpacking",
+        "hotel",
+        "clothes",
+        "before-after"
+      ],
+      "characters": [
+        {
+          "role": "traveler",
+          "description": "Young adult traveler with medium-brown skin, short curly hair, an orange sweater, and jeans."
+        }
+      ],
+      "panelSequence": [
+        "The traveler packs a suitcase neatly before the trip.",
+        "The traveler has unpacked some items after arriving at a hotel."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two panels.",
+        "Name the objects in and around the suitcase.",
+        "Where are the shoes?",
+        "What changed after arrival?"
+      ],
+      "generationPrompt": "Create a square two-panel wordless contrast illustration for an English-learning activity. Show the same traveler before and after a trip: first packing a neat suitcase at home, then unpacking in a hotel room after arrival. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, logos, suitcase tags, hotel signs, labels, book text, clock numbers, panel numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a two-panel wordless travel packing contrast.",
+        "Visual QA passed: no readable text detected, and the packed/unpacked contrast is clear."
+      ]
+    },
+    {
+      "id": "airport-security-line-01",
+      "title": "Airport Security Line",
+      "status": "approved",
+      "file": "images/airport-security-line-01.png",
+      "sourceFile": "images/airport-security-line-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "airport-security",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "travel_vocabulary",
+        "airport_vocabulary",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "travel",
+        "airport",
+        "security",
+        "line",
+        "luggage",
+        "scanner",
+        "routine"
+      ],
+      "characters": [
+        {
+          "role": "airport_people",
+          "description": "Varied travelers and a friendly airport staff member in a security line."
+        }
+      ],
+      "panelSequence": [
+        "Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the airport objects you can see.",
+        "Where are the bags and trays?",
+        "What might happen next in the line?"
+      ],
+      "generationPrompt": "Create a square single-panel wordless situation illustration for an English-learning activity. Show a friendly airport security line with varied travelers placing bags in trays, removing shoes, helping a child, waiting with luggage, and following a staff member's polite gesture. Include trays, a conveyor belt, scanner arch, small bags, shoes, jackets, and simple airport interior elements. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars. No readable text anywhere: no captions, speech bubbles, logos, airport signs, security signs, boarding pass text, passport text, labels, clock numbers, or watermarks.",
+      "qaNotes": [
+        "Designed as a single-panel airport security description scene.",
+        "Visual QA passed: no readable text detected, and multiple airport actions are easy to describe."
+      ]
+    },
+    {
+      "id": "wrong-size-return-01",
+      "title": "Returning The Wrong Size",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "setting": "clothing-store",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "clothing_vocabulary",
+        "sizes",
+        "returns",
+        "emotions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "shopping",
+        "clothing",
+        "wrong-size",
+        "return",
+        "store-clerk",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "shopper",
+          "description": "Young adult shopper with brown skin, short curly hair, a denim jacket, and jeans."
+        },
+        {
+          "role": "store_clerk",
+          "description": "Friendly store clerk with light skin, red hair, and a green shirt."
+        }
+      ],
+      "panelSequence": [
+        "The shopper tries on a sweater that is too large.",
+        "The shopper looks disappointed and holds a blank receipt.",
+        "A clerk helps find a better size.",
+        "The shopper leaves smiling with the correct sweater."
+      ],
+      "status": "approved",
+      "file": "images/wrong-size-return-01.png",
+      "sourceFile": "images/wrong-size-return-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe the problem with the sweater.",
+        "What does the clerk do to help?",
+        "Write a short story about returning clothes.",
+        "How does the shopper feel at the end?"
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "wrong-cafe-order-01",
+      "title": "The Wrong Cafe Order",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "setting": "cafe",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "food_vocabulary",
+        "polite_requests",
+        "problem_solution",
+        "emotions",
+        "past_tense_story"
+      ],
+      "tags": [
+        "cafe",
+        "wrong-order",
+        "customer",
+        "barista",
+        "food",
+        "drink",
+        "polite",
+        "problem-solution"
+      ],
+      "characters": [
+        {
+          "role": "customer",
+          "description": "Young woman with olive skin, long dark hair, a yellow cardigan, and glasses."
+        },
+        {
+          "role": "barista",
+          "description": "Friendly barista with dark skin, short hair, and a blue apron."
+        }
+      ],
+      "panelSequence": [
+        "The customer receives a drink and pastry.",
+        "She notices the order is wrong.",
+        "The barista listens and prepares the correct order.",
+        "The customer smiles with the correct drink and snack."
+      ],
+      "status": "approved",
+      "file": "images/wrong-cafe-order-01.png",
+      "sourceFile": "images/wrong-cafe-order-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "pedagogicalPromptIdeas": [
+        "What is wrong with the order?",
+        "How does the customer ask for help?",
+        "Describe the barista actions.",
+        "Write a cafe problem-solution story."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "phone-repair-pickup-01",
+      "title": "Picking Up A Repaired Phone",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "setting": "phone-repair-shop",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "services",
+        "technology_vocabulary",
+        "repair",
+        "polite_interactions",
+        "present_continuous",
+        "past_tense_story"
+      ],
+      "tags": [
+        "service",
+        "phone",
+        "repair",
+        "shop",
+        "technician",
+        "customer",
+        "success"
+      ],
+      "characters": [
+        {
+          "role": "customer",
+          "description": "Adult man with tan skin, beard, green hoodie, and backpack."
+        },
+        {
+          "role": "technician",
+          "description": "Technician with light-brown skin, short hair, and a gray shirt."
+        }
+      ],
+      "panelSequence": [
+        "The customer enters the repair shop with a blank claim slip.",
+        "The technician brings out the repaired phone.",
+        "The customer tests the phone and gives a thumbs up.",
+        "The customer leaves satisfied with the phone."
+      ],
+      "status": "approved",
+      "file": "images/phone-repair-pickup-01.png",
+      "sourceFile": "images/phone-repair-pickup-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "pedagogicalPromptIdeas": [
+        "What service did the customer need?",
+        "Describe what the technician does.",
+        "How does the customer test the phone?",
+        "What happens at the end?"
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-full-cart-01",
+      "title": "Empty Cart, Full Cart",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "setting": "supermarket",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "food_vocabulary",
+        "before_after",
+        "prepositions",
+        "describing_objects"
+      ],
+      "tags": [
+        "shopping",
+        "supermarket",
+        "cart",
+        "groceries",
+        "before-after",
+        "food"
+      ],
+      "characters": [
+        {
+          "role": "shopper",
+          "description": "Adult shopper with light skin, short gray hair, orange jacket, and comfortable shoes."
+        }
+      ],
+      "panelSequence": [
+        "The shopper starts with an empty shopping cart.",
+        "The shopper smiles with a full cart of groceries."
+      ],
+      "status": "approved",
+      "file": "images/empty-full-cart-01.png",
+      "sourceFile": "images/empty-full-cart-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "pedagogicalPromptIdeas": [
+        "Compare the two carts.",
+        "Name the groceries you can see.",
+        "Where are the fruits and vegetables?",
+        "What did the shopper buy?"
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "market-checkout-line-01",
+      "title": "Market Checkout Line",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "setting": "market-checkout",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "skills": [
+        "shopping",
+        "present_continuous",
+        "prepositions",
+        "describing_people",
+        "describing_objects"
+      ],
+      "tags": [
+        "shopping",
+        "checkout",
+        "cashier",
+        "groceries",
+        "line",
+        "market"
+      ],
+      "characters": [
+        {
+          "role": "market_people",
+          "description": "Varied shoppers and a cashier in a market checkout line."
+        }
+      ],
+      "panelSequence": [
+        "People shop, wait, scan groceries, and pack reusable bags at a market checkout."
+      ],
+      "status": "approved",
+      "file": "images/market-checkout-line-01.png",
+      "sourceFile": "images/market-checkout-line-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "styleGuide": "../illustration-style-guide.md",
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what each person is doing.",
+        "Name the objects at checkout.",
+        "Where are the groceries?",
+        "Who is waiting in line?"
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Shopping And Services batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for shopping and services practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "forgotten-keys-home-01",
+      "title": "Forgotten Keys",
+      "status": "approved",
+      "file": "images/forgotten-keys-home-01.png",
+      "sourceFile": "images/forgotten-keys-home-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "apartment",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "home_routines",
+        "keys",
+        "asking_for_help"
+      ],
+      "tags": [
+        "home-routines",
+        "keys",
+        "asking-for-help",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "The person locks herself out, gets help from a neighbor, and receives a spare key."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "laundry-color-mistake-01",
+      "title": "Laundry Color Mistake",
+      "status": "approved",
+      "file": "images/laundry-color-mistake-01.png",
+      "sourceFile": "images/laundry-color-mistake-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "laundry-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "home_routines",
+        "laundry",
+        "colors",
+        "mistakes"
+      ],
+      "tags": [
+        "home-routines",
+        "laundry",
+        "colors",
+        "mistakes",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "A laundry color mistake happens, then siblings sort clothes and fold them correctly."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "morning-rush-family-01",
+      "title": "Morning Rush",
+      "status": "approved",
+      "file": "images/morning-rush-family-01.png",
+      "sourceFile": "images/morning-rush-family-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-entryway",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "morning_routine",
+        "family",
+        "finding_objects"
+      ],
+      "tags": [
+        "morning-routine",
+        "family",
+        "finding-objects",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "A parent and child rush in the morning, find a missing shoe, and leave together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "messy-room-tidy-room-01",
+      "title": "Messy Room, Tidy Room",
+      "status": "approved",
+      "file": "images/messy-room-tidy-room-01.png",
+      "sourceFile": "images/messy-room-tidy-room-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "bedroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "before_and_after",
+        "prepositions",
+        "room_objects"
+      ],
+      "tags": [
+        "before-and-after",
+        "prepositions",
+        "room-objects",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "The same bedroom changes from messy to tidy."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "family-dinner-table-01",
+      "title": "Family Dinner Table",
+      "status": "approved",
+      "file": "images/family-dinner-table-01.png",
+      "sourceFile": "images/family-dinner-table-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-dining-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "family",
+        "food",
+        "present_continuous",
+        "table_objects"
+      ],
+      "tags": [
+        "family",
+        "food",
+        "present-continuous",
+        "table-objects",
+        "home"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied, natural characters shown in a home and daily-routine context."
+        }
+      ],
+      "panelSequence": [
+        "A family shares dinner and passes food around the table."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects you can see.",
+        "What happens before and after?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Home And Daily Routines batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for home and daily-routine practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "group-project-library-01",
+      "title": "Group Project At The Library",
+      "status": "approved",
+      "file": "images/group-project-library-01.png",
+      "sourceFile": "images/group-project-library-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "library",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "school",
+        "learning",
+        "group",
+        "project",
+        "teamwork",
+        "research"
+      ],
+      "tags": [
+        "school",
+        "learning",
+        "group",
+        "project",
+        "teamwork",
+        "research"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "Students plan, research, make a poster, and present together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "forgotten-homework-01",
+      "title": "Forgotten Homework",
+      "status": "approved",
+      "file": "images/forgotten-homework-01.png",
+      "sourceFile": "images/forgotten-homework-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "school-and-home",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "school",
+        "homework",
+        "teacher",
+        "problem",
+        "solution"
+      ],
+      "tags": [
+        "school",
+        "homework",
+        "teacher",
+        "problem",
+        "solution"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "A student forgets homework, finds it at home, and gives it to the teacher."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "science-project-spill-01",
+      "title": "Science Project Spill",
+      "status": "approved",
+      "file": "images/science-project-spill-01.png",
+      "sourceFile": "images/science-project-spill-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "science-classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "science",
+        "classroom",
+        "spill",
+        "cleanup",
+        "teamwork"
+      ],
+      "tags": [
+        "science",
+        "classroom",
+        "spill",
+        "cleanup",
+        "teamwork"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "Students spill colored water, clean it up, and restart safely."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-full-backpack-01",
+      "title": "Empty Backpack, Full Backpack",
+      "status": "approved",
+      "file": "images/empty-full-backpack-01.png",
+      "sourceFile": "images/empty-full-backpack-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "school",
+        "supplies",
+        "backpack",
+        "before",
+        "after"
+      ],
+      "tags": [
+        "school",
+        "supplies",
+        "backpack",
+        "before",
+        "after"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "A backpack changes from empty to packed for school."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "classroom-presentation-01",
+      "title": "Classroom Presentation",
+      "status": "approved",
+      "file": "images/classroom-presentation-01.png",
+      "sourceFile": "images/classroom-presentation-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "classroom",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "presentation",
+        "classroom",
+        "students",
+        "teacher"
+      ],
+      "tags": [
+        "presentation",
+        "classroom",
+        "students",
+        "teacher"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied students and school adults in a learning context."
+        }
+      ],
+      "panelSequence": [
+        "A student gives a classroom presentation while others listen."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people and objects.",
+        "What problem or activity do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the School And Learning batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for school and learning practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "restaurant-reservation-mixup-01",
+      "title": "Reservation Mix-Up",
+      "status": "approved",
+      "file": "images/restaurant-reservation-mixup-01.png",
+      "sourceFile": "images/restaurant-reservation-mixup-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "restaurant",
+        "reservation",
+        "polite",
+        "requests",
+        "problem",
+        "solution"
+      ],
+      "tags": [
+        "restaurant",
+        "reservation",
+        "polite",
+        "requests",
+        "problem",
+        "solution"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A reservation mix-up is solved and guests are seated."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "spilled-soup-restaurant-01",
+      "title": "Spilled Soup",
+      "status": "approved",
+      "file": "images/spilled-soup-restaurant-01.png",
+      "sourceFile": "images/spilled-soup-restaurant-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "restaurant",
+        "soup",
+        "spill",
+        "cleanup",
+        "helping"
+      ],
+      "tags": [
+        "restaurant",
+        "soup",
+        "spill",
+        "cleanup",
+        "helping"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A small soup spill happens, staff help clean it, and dinner continues."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "ordering-with-allergy-01",
+      "title": "Ordering With An Allergy",
+      "status": "approved",
+      "file": "images/ordering-with-allergy-01.png",
+      "sourceFile": "images/ordering-with-allergy-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "restaurant",
+        "allergy",
+        "food",
+        "safety",
+        "ordering"
+      ],
+      "tags": [
+        "restaurant",
+        "allergy",
+        "food",
+        "safety",
+        "ordering"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A customer explains an allergy and receives a safe meal."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-full-plate-01",
+      "title": "Empty Plate, Full Plate",
+      "status": "approved",
+      "file": "images/empty-full-plate-01.png",
+      "sourceFile": "images/empty-full-plate-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant-table",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "food",
+        "before",
+        "after",
+        "restaurant",
+        "objects"
+      ],
+      "tags": [
+        "food",
+        "before",
+        "after",
+        "restaurant",
+        "objects"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "A restaurant plate changes from empty to full."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "busy-restaurant-table-01",
+      "title": "Busy Restaurant Table",
+      "status": "approved",
+      "file": "images/busy-restaurant-table-01.png",
+      "sourceFile": "images/busy-restaurant-table-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "restaurant-table",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "food",
+        "restaurant",
+        "present",
+        "continuous",
+        "people"
+      ],
+      "tags": [
+        "food",
+        "restaurant",
+        "present",
+        "continuous",
+        "people"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied restaurant customers and staff in everyday dining situations."
+        }
+      ],
+      "panelSequence": [
+        "People eat, serve, pour, pass food, and talk at a restaurant table."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the food and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Food And Restaurants batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for restaurant and food practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "library-card-help-01",
+      "title": "Getting A Library Card",
+      "status": "approved",
+      "file": "images/library-card-help-01.png",
+      "sourceFile": "images/library-card-help-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "library",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "community",
+        "library",
+        "card",
+        "help",
+        "borrowing",
+        "books"
+      ],
+      "tags": [
+        "community",
+        "library",
+        "card",
+        "help",
+        "borrowing",
+        "books"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "An older adult gets help applying for a library card and borrows books."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "park-cleanup-01",
+      "title": "Park Cleanup",
+      "status": "approved",
+      "file": "images/park-cleanup-01.png",
+      "sourceFile": "images/park-cleanup-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "park",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "community",
+        "park",
+        "cleanup",
+        "teamwork",
+        "litter"
+      ],
+      "tags": [
+        "community",
+        "park",
+        "cleanup",
+        "teamwork",
+        "litter"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "Neighbors clean up a park together."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "post-office-package-01",
+      "title": "Mailing A Package",
+      "status": "approved",
+      "file": "images/post-office-package-01.png",
+      "sourceFile": "images/post-office-package-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "post-office",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "community",
+        "post",
+        "office",
+        "package",
+        "mailing",
+        "service"
+      ],
+      "tags": [
+        "community",
+        "post",
+        "office",
+        "package",
+        "mailing",
+        "service"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "A customer gets help mailing a package."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "empty-busy-playground-01",
+      "title": "Empty Playground, Busy Playground",
+      "status": "approved",
+      "file": "images/empty-busy-playground-01.png",
+      "sourceFile": "images/empty-busy-playground-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "playground",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "community",
+        "playground",
+        "before",
+        "after",
+        "people"
+      ],
+      "tags": [
+        "community",
+        "playground",
+        "before",
+        "after",
+        "people"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "A playground changes from empty to busy."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "community-garden-01",
+      "title": "Community Garden",
+      "status": "approved",
+      "file": "images/community-garden-01.png",
+      "sourceFile": "images/community-garden-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "community-garden",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "community",
+        "garden",
+        "plants",
+        "tools",
+        "present",
+        "continuous"
+      ],
+      "tags": [
+        "community",
+        "garden",
+        "plants",
+        "tools",
+        "present",
+        "continuous"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied community members in public-place situations."
+        }
+      ],
+      "panelSequence": [
+        "Neighbors work together in a community garden."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the people, places, and objects.",
+        "How are people helping?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Community And Public Places batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for community and public-place practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "video-call-problem-01",
+      "title": "Video Call Problem",
+      "status": "approved",
+      "file": "images/video-call-problem-01.png",
+      "sourceFile": "images/video-call-problem-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-office",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "digital",
+        "video",
+        "call",
+        "troubleshooting",
+        "remote",
+        "work"
+      ],
+      "tags": [
+        "digital",
+        "video",
+        "call",
+        "troubleshooting",
+        "remote",
+        "work"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A video call problem is fixed and the call continues."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "calendar-mistake-01",
+      "title": "Calendar Mistake",
+      "status": "approved",
+      "file": "images/calendar-mistake-01.png",
+      "sourceFile": "images/calendar-mistake-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-and-waiting-room",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "calendar",
+        "appointment",
+        "time",
+        "mistake",
+        "correction"
+      ],
+      "tags": [
+        "calendar",
+        "appointment",
+        "time",
+        "mistake",
+        "correction"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A calendar mistake is noticed and corrected before an appointment."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "online-form-help-01",
+      "title": "Help With An Online Form",
+      "status": "approved",
+      "file": "images/online-form-help-01.png",
+      "sourceFile": "images/online-form-help-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "four_panel_wordless_story",
+      "panelCount": 4,
+      "layout": "2x2-grid",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-computer",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "story_prompt",
+        "story_sequence"
+      ],
+      "skills": [
+        "digital",
+        "online",
+        "form",
+        "helping",
+        "technology"
+      ],
+      "tags": [
+        "digital",
+        "online",
+        "form",
+        "helping",
+        "technology"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A neighbor helps an older adult complete an online form."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a four panel wordless story for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a four panel wordless story for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "dead-charged-phone-01",
+      "title": "Dead Phone, Charged Phone",
+      "status": "approved",
+      "file": "images/dead-charged-phone-01.png",
+      "sourceFile": "images/dead-charged-phone-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "two_panel_contrast",
+      "panelCount": 2,
+      "layout": "side-by-side",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "desk",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "comparison_prompt"
+      ],
+      "skills": [
+        "phone",
+        "charging",
+        "before",
+        "after",
+        "technology"
+      ],
+      "tags": [
+        "phone",
+        "charging",
+        "before",
+        "after",
+        "technology"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A phone changes from dead to charged."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a two panel contrast for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a two panel contrast for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    },
+    {
+      "id": "appointment-confirmation-01",
+      "title": "Appointment Confirmation",
+      "status": "approved",
+      "file": "images/appointment-confirmation-01.png",
+      "sourceFile": "images/appointment-confirmation-01-source.png",
+      "source": "codex-imagegen",
+      "generatedAt": "2026-07-05",
+      "format": "single_panel_scene",
+      "panelCount": 1,
+      "layout": "single-scene",
+      "styleGuide": "../illustration-style-guide.md",
+      "setting": "home-kitchen-table",
+      "level": [
+        "A1",
+        "A2"
+      ],
+      "useCases": [
+        "chat_prompt",
+        "quiz_prompt",
+        "writing_prompt",
+        "speaking_prompt",
+        "description_prompt"
+      ],
+      "skills": [
+        "appointment",
+        "confirmation",
+        "device",
+        "calendar"
+      ],
+      "tags": [
+        "appointment",
+        "confirmation",
+        "device",
+        "calendar"
+      ],
+      "characters": [
+        {
+          "role": "scene_characters",
+          "description": "Varied people using everyday digital tools and appointment workflows."
+        }
+      ],
+      "panelSequence": [
+        "A person confirms an appointment on a device at home."
+      ],
+      "pedagogicalPromptIdeas": [
+        "Describe what is happening.",
+        "Name the devices and objects.",
+        "What problem or action do you see?",
+        "Write a short story based on the image."
+      ],
+      "generationPrompt": "Generated as a single panel scene for the Digital Life And Appointments batch, in clean 2D cartoon Mister F workbook style with no readable text.",
+      "qaNotes": [
+        "Designed as a single panel scene for digital life and appointment practice.",
+        "Visual QA passed: no readable text detected and the pedagogical situation is clear."
+      ]
+    }
+  ]
+}
