@@ -466,7 +466,7 @@ export async function runTutorAgentLoop(
 
         return {
           blocks: finalBlocks,
-          content: blocksToMarkdown(finalBlocks),
+          content: blocksToMarkdown(finalBlocks, options.instructionLanguage),
           model: getConfiguredModelId(options.llm),
           provider: env.llmProvider,
         };

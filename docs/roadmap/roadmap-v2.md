@@ -312,10 +312,15 @@ i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
   conversation's language (same source as the system prompt, so the two
   halves of the contract cannot diverge), threaded from
   `runTutorAgentLoop`; test asserts the es/en/ht variants.
-- [ ] `blocksToMarkdown` (`llmTutor/validation.ts`) hardcodes Spanish
+- [x] `blocksToMarkdown` (`llmTutor/validation.ts`) hardcodes Spanish
   fallback strings ('Revisemos esta parte:', 'Ejercicio de emparejar.',
   'Ordena las oraciones.', 'Traduce al ingles:', 'Resumen del quiz'); the
-  text is persisted as message content and re-enters the model history.
+  text is persisted as message content and feeds the tutor-report
+  transcript and conversation previews (the model chat history uses the
+  blocks JSON, not this content). Done 2026-07-07: strings moved to a
+  `tutorBlocks.*` catalog namespace (es byte-identical, en/ht authored)
+  and `blocksToMarkdown` takes the conversation locale, threaded from
+  `runTutorAgentLoop`; covered by `tests/llmTutor/blocksToMarkdown.test.ts`.
 - [ ] `get_learner_progress` builds vocabulary with a hardcoded `'es'`
   locale (`llmTutor/progressTools.ts`).
 - [ ] Remaining hardcoded-Spanish learner-facing strings in LLM flows:

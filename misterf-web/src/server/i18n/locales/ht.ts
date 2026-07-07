@@ -963,6 +963,14 @@ export const ht: LocaleCatalog = {
     t9Body:
       'Pou kesyon sou tèm sa yo oswa sèvis la, kontakte nou nan <a href="mailto:support@littlesoftware.info">support@littlesoftware.info</a>.',
   },
+  tutorBlocks: {
+    matchingPairsFallback: 'Egzèsis marye eleman yo.',
+    orderSentencesFallback: 'Mete fraz yo an lòd.',
+    quizResultFallback: 'Rezime quiz la',
+    sentenceEvaluationIntro: 'Ann revize pati sa a:',
+    translateToEnglishPrompt: 'Tradui an anglè: "{{sentence}}"',
+    understandInSpanishPrompt: 'Eksplike an panyòl: "{{sentence}}"',
+  },
   msg: {
     applyChangeError: 'Mwen pa t kapab aplike chanjman sa a kounye a.',
     writeChange: 'Ekri chanjman ou vle fè a.',

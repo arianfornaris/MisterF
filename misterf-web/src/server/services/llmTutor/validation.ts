@@ -23,6 +23,8 @@ import { TutorResponseValidationError } from './errors.js';
 import { logger } from '../logger.js';
 import { shouldLogFullLlmTrace } from './logging.js';
 import { tutorAgentResponseSchema } from './schemas.js';
+import { translate, type Locale } from '../../i18n/index.js';
+import { defaultInstructionLanguage } from './languagePack.js';
 
 export function toModelMessage(message: TutorMessage) {
   return {
@@ -134,7 +136,10 @@ function sanitizeTutorResponseBlock(block: unknown): unknown | null {
   };
 }
 
-export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
+export function blocksToMarkdown(
+  blocks: TutorResponseBlock[],
+  locale: Locale = defaultInstructionLanguage,
+): string {
   const messageMarkdown = blocks
     .filter(
       (
@@ -173,7 +178,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
     )
     .map((block) => {
       if (block.type === 'sentence_evaluation') {
-        return 'Revisemos esta parte:';
+        return translate(locale, 'tutorBlocks.sentenceEvaluationIntro');
       }
 
       if (block.type === 'dialogue_character_message') {
@@ -187,7 +192,7 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
       }
 
       if (block.type === 'matching_pairs') {
-        return block.prompt?.trim() || 'Ejercicio de emparejar.';
+        return block.prompt?.trim() || translate(locale, 'tutorBlocks.matchingPairsFallback');
       }
 
       if (block.type === 'quiz') {
@@ -195,7 +200,11 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
       }
 
       if (block.type === 'quiz_result') {
-        return block.title?.trim() || block.prompt?.trim() || 'Resumen del quiz';
+        return (
+          block.title?.trim() ||
+          block.prompt?.trim() ||
+          translate(locale, 'tutorBlocks.quizResultFallback')
+        );
       }
 
       if (
@@ -218,15 +227,19 @@ export function blocksToMarkdown(blocks: TutorResponseBlock[]): string {
       }
 
       if (block.type === 'order_sentences') {
-        return block.prompt?.trim() || 'Ordena las oraciones.';
+        return block.prompt?.trim() || translate(locale, 'tutorBlocks.orderSentencesFallback');
       }
 
       if (block.type === 'translate_to_english_prompt') {
-        return `Traduce al ingles: "${block.sentence.trim()}"`;
+        return translate(locale, 'tutorBlocks.translateToEnglishPrompt', {
+          sentence: block.sentence.trim(),
+        });
       }
 
       if (block.type === 'understand_in_spanish_prompt') {
-        return `Explica en espanol: "${block.sentence.trim()}"`;
+        return translate(locale, 'tutorBlocks.understandInSpanishPrompt', {
+          sentence: block.sentence.trim(),
+        });
       }
 
       if (block.type === 'open_text_prompt') {

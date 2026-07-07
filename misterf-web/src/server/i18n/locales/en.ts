@@ -954,6 +954,14 @@ export const en: LocaleCatalog = {
     exhaustedFull:
       'You don’t have enough credits to continue this practice. Buy credits to keep using Mr. F.',
   },
+  tutorBlocks: {
+    matchingPairsFallback: 'Matching exercise.',
+    orderSentencesFallback: 'Put the sentences in order.',
+    quizResultFallback: 'Quiz summary',
+    sentenceEvaluationIntro: 'Let’s review this part:',
+    translateToEnglishPrompt: 'Translate to English: "{{sentence}}"',
+    understandInSpanishPrompt: 'Explain in Spanish: "{{sentence}}"',
+  },
   msg: {
     applyChangeError: 'I couldn’t apply that change right now.',
     writeChange: 'Write the change you want to make.',

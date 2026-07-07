@@ -954,6 +954,14 @@ export const es: LocaleCatalog = {
     exhaustedFull:
       'No tienes créditos suficientes para continuar esta práctica. Compra créditos para seguir usando Mr. F.',
   },
+  tutorBlocks: {
+    matchingPairsFallback: 'Ejercicio de emparejar.',
+    orderSentencesFallback: 'Ordena las oraciones.',
+    quizResultFallback: 'Resumen del quiz',
+    sentenceEvaluationIntro: 'Revisemos esta parte:',
+    translateToEnglishPrompt: 'Traduce al ingles: "{{sentence}}"',
+    understandInSpanishPrompt: 'Explica en espanol: "{{sentence}}"',
+  },
   msg: {
     applyChangeError: 'No pude aplicar ese cambio ahora mismo.',
     writeChange: 'Escribe el cambio que quieres hacer.',
