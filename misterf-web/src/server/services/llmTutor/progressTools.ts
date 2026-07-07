@@ -7,8 +7,13 @@ import {
 } from '../../db/repository.js';
 import { buildLearnerProgressVocabularyItems } from '../learnerProgressView.js';
 import { createTeacherOnlyContextEnvelope } from './contextEnvelope.js';
+import {
+  defaultInstructionLanguage,
+  type InstructionLanguage,
+} from './languagePack.js';
 
 export function buildTutorProgressTools(input: {
+  instructionLanguage?: InstructionLanguage;
   onToolCall?: (toolName: string) => void;
   profileId: string | null;
   userId: string | null;
@@ -18,6 +23,8 @@ export function buildTutorProgressTools(input: {
   }
 
   const { onToolCall, profileId, userId } = input;
+  const instructionLanguage =
+    input.instructionLanguage ?? defaultInstructionLanguage;
 
   function announceToolCall(toolName: string) {
     onToolCall?.(toolName);
@@ -48,7 +55,7 @@ export function buildTutorProgressTools(input: {
           profileId,
           userId,
         });
-        const vocabulary = buildLearnerProgressVocabularyItems(events, 'es')
+        const vocabulary = buildLearnerProgressVocabularyItems(events, instructionLanguage)
           .slice(0, vocabularyLimit ?? 20)
           .map((item) => ({
             count: item.count,

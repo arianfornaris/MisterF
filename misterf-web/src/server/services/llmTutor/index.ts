@@ -270,6 +270,7 @@ export async function runTutorAgentLoop(
   const resourceLogContext = buildTutorResourceLogContext(options);
   let lastError: unknown = null;
   const progressTools = buildTutorProgressTools({
+    instructionLanguage: options.instructionLanguage,
     onToolCall: options.onToolCall,
     profileId: options.profileId ?? null,
     userId: options.userId ?? null,

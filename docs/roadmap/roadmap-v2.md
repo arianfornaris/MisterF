@@ -321,8 +321,13 @@ i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
   `tutorBlocks.*` catalog namespace (es byte-identical, en/ht authored)
   and `blocksToMarkdown` takes the conversation locale, threaded from
   `runTutorAgentLoop`; covered by `tests/llmTutor/blocksToMarkdown.test.ts`.
-- [ ] `get_learner_progress` builds vocabulary with a hardcoded `'es'`
-  locale (`llmTutor/progressTools.ts`).
+- [x] `get_learner_progress` builds vocabulary with a hardcoded `'es'`
+  locale (`llmTutor/progressTools.ts`). Done 2026-07-07:
+  `buildTutorProgressTools` takes `instructionLanguage` (threaded from
+  `runTutorAgentLoop`, same pattern as the title tool) so vocabulary
+  source labels render in the conversation language. The Spanish
+  "bitácora" trigger word in the tool description stays — it is a
+  learner-phrase trigger, not learner-visible text.
 - [ ] Remaining hardcoded-Spanish learner-facing strings in LLM flows:
   tool status label in `chatSocket.ts` ('Ejecutando herramienta…'),
   `buildQuizResultTitle` ('X/Y respuestas correctas') and the fallback
