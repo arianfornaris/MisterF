@@ -65,7 +65,10 @@ export function getProviderOptions(): ProviderOptions | undefined {
 export function shouldUseTemperature(
   options: LlmRequestOptions = {},
 ): boolean {
-  return !/^(gpt-5|o[134]|o4)/i.test(getConfiguredModelId(options));
+  // OpenRouter ids are vendor-prefixed (e.g. `openai/gpt-5-mini`); match on
+  // the model segment. GPT-5 and o-series models reject a custom temperature.
+  const modelSegment = getConfiguredModelId(options).split('/').pop() ?? '';
+  return !/^(gpt-5|o[134])/i.test(modelSegment);
 }
 
 export function getUserFacingFinishReasonMessage(

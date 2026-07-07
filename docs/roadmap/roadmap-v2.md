@@ -251,11 +251,12 @@ Bugs:
   fully-loaded system-instruction regression test (all contexts × three
   languages) asserting no leftover `{{PLACEHOLDER}}` remains — this also
   covers part of the "regression test" item below.
-- [ ] `shouldUseTemperature` (`llmTutor/providers.ts`) matches
+- [x] `shouldUseTemperature` (`llmTutor/providers.ts`) matches
   `/^(gpt-5|o[134]|o4)/i` against vendor-prefixed OpenRouter ids
   (`openai/gpt-5-mini`), so it never excludes anything and `temperature`
-  is always sent; `o4` is also redundant with `o[134]`. Match on the model
-  segment after the vendor prefix.
+  is always sent; `o4` is also redundant with `o[134]`. Done 2026-07-06:
+  matches the model segment after the vendor prefix, redundant `o4`
+  dropped, unit tests added (`tests/llmTutor/providers.test.ts`).
 - [ ] `continueTutorResponseAfterToolUse` (`llmTutor/index.ts`) sends only
   the internal-continuation prompt + tool results — it drops the
   conversation history, so the re-emitted response cannot address what the
