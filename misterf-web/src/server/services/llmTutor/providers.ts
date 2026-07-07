@@ -73,28 +73,20 @@ export function shouldUseTemperature(
 
 export function getUserFacingFinishReasonMessage(
   finishReason: FinishReason,
-  rawFinishReason?: string,
   providerMetadata?: ProviderMetadata,
   locale: Locale = 'es',
 ): string | null {
-  const normalizedRawFinishReason = rawFinishReason?.toUpperCase() ?? '';
   const metadataText = JSON.stringify(providerMetadata ?? {}).toUpperCase();
 
-  if (finishReason === 'length' || normalizedRawFinishReason === 'MAX_TOKENS') {
+  if (finishReason === 'length') {
     return translate(locale, 'msg.finishTokenLimit');
   }
 
-  if (
-    finishReason === 'content-filter' ||
-    normalizedRawFinishReason === 'SAFETY'
-  ) {
+  if (finishReason === 'content-filter') {
     return translate(locale, 'msg.finishSafety');
   }
 
-  if (
-    normalizedRawFinishReason === 'RECITATION' ||
-    metadataText.includes('RECITATION')
-  ) {
+  if (metadataText.includes('RECITATION')) {
     return translate(locale, 'msg.finishRecitation');
   }
 

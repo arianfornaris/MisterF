@@ -293,10 +293,14 @@ Dead code / loose ends:
   and the canonical generic-title list gained the missing `ht` defaults
   (`Nouvo konvèsasyon` / `Konvèsasyon`), with a unit test fixing the
   three-language variants.
-- [ ] Minor: `Math.max(recentEventLimit ?? 5, 30)` in
+- [x] Minor: `Math.max(recentEventLimit ?? 5, 30)` in
   `llmTutor/progressTools.ts` is always 30 (limit caps at 10); the
   `rawFinishReason` parameter of `getUserFacingFinishReasonMessage` is
-  never passed by any call site.
+  never passed by any call site. Done 2026-07-07: the events query is a
+  plain `limit: 30` with a comment on the recency window, and the
+  Gemini-era `rawFinishReason` parameter (raw `MAX_TOKENS`/`SAFETY`
+  string checks) was removed from the signature and the three call
+  sites; the metadata `RECITATION` check stays.
 
 i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
 

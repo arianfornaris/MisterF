@@ -41,8 +41,10 @@ export function buildTutorProgressTools(input: {
       execute: async ({ includeRecentEvents, recentEventLimit, vocabularyLimit }) => {
         announceToolCall('get_learner_progress');
         const progressProfile = findLearnerProgressProfile(userId, profileId);
+        // Vocabulary aggregates over the most recent 30 progress events;
+        // recentEventLimit only caps how many events are echoed back.
         const events = listLearnerProgressEvents({
-          limit: includeRecentEvents ? Math.max(recentEventLimit ?? 5, 30) : 30,
+          limit: 30,
           profileId,
           userId,
         });

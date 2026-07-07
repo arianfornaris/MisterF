@@ -429,7 +429,6 @@ export async function runTutorAgentLoop(
 
       const userFacingFinishMessage = getUserFacingFinishReasonMessage(
         result.finishReason,
-        undefined,
         result.providerMetadata,
         options.instructionLanguage ?? 'es',
       );
@@ -537,7 +536,6 @@ export async function translateTextWithLlm(input: {
 
   const userFacingFinishMessage = getUserFacingFinishReasonMessage(
     result.finishReason,
-    undefined,
     result.providerMetadata,
     'es',
   );
@@ -635,7 +633,6 @@ export async function evaluateQuizResultItemsWithLlm(input: {
     try {
       const userFacingFinishMessage = getUserFacingFinishReasonMessage(
         result.finishReason,
-        undefined,
         result.providerMetadata,
         input.instructionLanguage ?? 'es',
       );
