@@ -2,10 +2,12 @@
 
 Date: 2026-07-04 (last updated: 2026-07-04)
 
-Status: **In planning / active.** V2 has two product pillars: English-first
-internationalization of the platform, and comprehension exercises
-(listening, reading, and image comprehension). Part 2 carries the
-engineering and quality items deferred from
+Status: **Active.** V2 is the English-first internationalization release: it
+makes the platform's instruction language selectable (Spanish, English,
+Haitian Creole). The comprehension-exercises pillar (listening, reading, and
+image comprehension) that originally shared this roadmap was moved to
+[Roadmap V3](roadmap-v3.md) on 2026-07-06 so V2 can ship as the i18n release;
+Part 2 carries the engineering and quality items deferred from
 [Roadmap V1](roadmap-v1.md). Remaining product-feature candidates stay in
 the idea inbox, [issues/incomming.md](../issues/incomming.md), until they
 are promoted here.
@@ -170,10 +172,11 @@ Scope notes:
   surface with consistent glossary terms; a whole-tree sweep (accented and
   accent-free) confirms no learner-facing Spanish literals remain outside
   the intentional `Español` endonym and the documented residuals above.
-- [ ] Manual QA: full product walkthrough in English (signup → onboarding →
+- [x] Manual QA: full product walkthrough in English (signup → onboarding →
   tutor session → quiz → shared resource) and regression walkthrough in
-  Spanish. Remaining as a human step; automated coverage (typecheck, 156
-  tests, per-view render smokes in both locales) is green.
+  Spanish. Done 2026-07-06: manual walkthrough completed in English with the
+  Spanish regression pass; automated coverage (typecheck, 156 tests, per-view
+  render smokes in both locales) is green.
 - [x] Language registry + Haitian Creole (`ht`) as a full instruction
   language. 2026-07-05: the multilingual config was consolidated into a
   single registry (`src/server/i18n/languages.ts`) — `Locale`,
@@ -192,38 +195,12 @@ Scope notes:
   tutor-quality eval set for Haitian scenarios. Guide:
   [i18n architecture](../architecture/i18n.md).
 
-## 1.2 Comprehension Exercises (Stimulus + Questions)
+## 1.2 Comprehension Exercises — moved to V3
 
-Promoted from the idea inbox 2026-07-04. Design:
-[Comprehension Exercises](../features/comprehension-exercises.md) — one
-reusable pattern (a stimulus plus questions bound to it) reusing the `quiz`
-item kinds and the `quiz_result` evaluation pipeline, rendered as a single
-card. Implementation follows the design doc's phase order; each phase ships
-independently.
-
-- [ ] Detailed block design decision: `stimulus` field on the existing
-  `quiz` block versus dedicated stimulus blocks (the design doc leans to
-  the former).
-- [ ] Phase 1 — Reading comprehension: LLM-generated passage at the
-  learner's level, questions in the same card, results through the
-  `quiz_result` pipeline and progress events. No new infrastructure;
-  validates the pattern.
-- [ ] Phase 2 — Listening comprehension: server-side quality TTS from an
-  LLM-generated transcript, audio cached by transcript hash in object
-  storage (DigitalOcean Spaces), two voices for dialogues, player UX
-  (limited replays, 0.75x speed, transcript revealed after answering), and
-  TTS spend inside the existing credit guardrails.
-- [ ] Phase 3 — Image comprehension: curated image library with rich
-  metadata (batch pre-generated or stock, e.g. Pixabay); the tutor selects
-  by metadata and generates questions about the description.
-- [ ] Availability in teacher quizzes: reading/listening sections as quiz
-  items once the stimulus pattern exists in the protocol.
-- [ ] Manual QA per phase against live inference.
-
-Interaction with 1.1: comprehension stimuli are always in English (the
-target language); question wording and feedback follow the user's
-instruction language. Phase 1 should land after the i18n prompt
-parametrization to avoid double work on prompt copy.
+Moved 2026-07-06 to [Roadmap V3](roadmap-v3.md) (Part 1.1). This pillar
+(reading, listening, and image comprehension) was scoped out of V2 so V2 can
+ship as the internationalization release. The i18n prompt parametrization it
+depended on shipped in V2, so V3 can proceed without double work.
 
 ---
 
@@ -241,8 +218,17 @@ import/export product idea and moved to the idea inbox
   `tests/server/fixtures/quizAuthoringFixtures.ts` — valid outputs for all
   nine item kinds, broken-output recovery through the correction loop,
   clean exhaustion, and prompt-schema drift guards.
-- [ ] Deeper semantic review layer for structured tutor blocks
+- [x] Deeper semantic review layer for structured tutor blocks
   ([Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md)).
+  Done 2026-07-06 for V2 scope: the three-layer pipeline (hard validation →
+  deterministic semantic lint → model repair) was already shipped and
+  language-aware; this pass added the multi-exercise batch guard
+  (`detectMultiExerciseBatch` — at most one top-level interactive exercise
+  per response, extras consolidated into a single `quiz` via the repair
+  loop) with regression fixtures, and fixed a stale Spanish-only line in
+  the repair prompt. The always-on message classifier was deferred to
+  Roadmap V3 with a data prerequisite (quantify linter miss rate from
+  production logs).
 - [ ] [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
   semantic CSS class naming pass across the app.
 
@@ -250,12 +236,13 @@ import/export product idea and moved to the idea inbox
 
 # V2 Exit Criteria (Draft)
 
-- [ ] A new user can complete the full product experience with English as
-  the instruction language, and Spanish behavior is unchanged.
-- [ ] Reading and listening comprehension exercises work end to end in
-  tutor conversations (image comprehension may ship later without blocking
-  V2).
-- [ ] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass;
-  new prompt surfaces have regression fixtures.
+- [x] A new user can complete the full product experience with English as
+  the instruction language, and Spanish behavior is unchanged. Met
+  2026-07-06 with the 1.1 manual QA walkthrough (English + Spanish
+  regression) on top of the completed i18n initiative.
+- [x] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass;
+  new prompt surfaces have regression fixtures. Green 2026-07-06 (typecheck
+  clean, `test:typecheck` clean after fixing the migration-test `up?`
+  guards, 156 tests passing). Re-verify before the 2.0.0 release.
 - [ ] Deployed to production as `2.0.0` per the versioning policy
   (`versioning-and-releases` skill).
