@@ -81,12 +81,15 @@ separate future block.
 
 - [ ] Promote approved design assets from `design/scene-images/` and
   `design/scene-scripts/` into product runtime asset folders.
-- [ ] Generate or maintain a runtime registry exposing only product-safe scene
-  metadata, image URLs, available levels, audio URLs, durations, and transcript
-  data without duplicated flattened transcript text.
-- [ ] Add a media resolver path that selects from a compact built-in catalog
-  using natural-language criteria, validates returned ids deterministically, and
-  can report `no_good_match` or a future hybrid dynamic-script recommendation.
+- [ ] Generate or maintain a non-public server-side runtime registry with
+  product-safe scene metadata, public image/audio URLs, available levels,
+  durations, and structured script data without duplicated flattened transcript
+  text.
+- [ ] Add a reusable built-in scene media resolver service that selects from a
+  compact catalog using natural-language criteria, validates returned ids
+  deterministically, uses credit-gated inference in user-scoped flows, exposes
+  `resolve_builtin_scene_media` as a tutor tool adapter, and can also be called
+  directly by quiz/resource services.
 - [ ] Add the built-in scene media block to the tutor block protocol, schema,
   validation, persisted block schema, repair prompt, and TypeScript types.
 - [ ] Render the block in tutor chat with responsive image display, audio
