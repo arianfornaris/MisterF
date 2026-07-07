@@ -1275,6 +1275,7 @@ export function registerChatSocket(io: Server): void {
         const quizResultBlock = buildQuizResultBlock({
           block,
           evaluations: quizEvaluations,
+          locale: conversation?.instructionLanguage ?? 'es',
           responses,
         });
         const quizResultMessage = addMessage(
@@ -1508,7 +1509,7 @@ async function streamAssistantMessage(
       emitLlmRequestTokenUsage(io, conversationId, usage);
     };
     const onToolCall = (toolName: string) => {
-      emitAssistantToolStatus(io, conversationId, toolName);
+      emitAssistantToolStatus(io, conversationId, toolName, conversation.instructionLanguage);
     };
     const history = [...toTutorHistory(messages), ...extraHistory];
     const practiceGuideContext = practiceGuideSnapshot
@@ -1652,20 +1653,21 @@ function emitAssistantToolStatus(
   io: Server,
   conversationId: string,
   toolName: string,
+  locale: Locale,
 ): void {
   const payload: AssistantToolStatusPayload = {
-    label: getToolStatusLabel(toolName),
+    label: getToolStatusLabel(toolName, locale),
     toolName,
   };
   io.to(conversationId).emit('assistant:tool_status', payload);
 }
 
-function getToolStatusLabel(toolName: string): string {
+function getToolStatusLabel(toolName: string, locale: Locale): string {
   switch (toolName) {
     case 'get_learner_progress':
-      return 'Ejecutando herramienta: revisar tu progreso...';
+      return translate(locale, 'msg.toolStatusProgress');
     default:
-      return `Ejecutando herramienta: ${toolName}...`;
+      return translate(locale, 'msg.toolStatusGeneric', { toolName });
   }
 }
 
@@ -1974,16 +1976,17 @@ function buildQuizResultBlock(input: {
     inlineReview?: Record<string, unknown>;
     status: 'correct' | 'incorrect' | 'partial';
   }>;
+  locale: Locale;
   responses: Array<Record<string, unknown>>;
 }): TutorQuizResultBlock {
   return {
     type: 'quiz_result',
-    title: input.block.title?.trim() || 'Quiz completado',
+    title: input.block.title?.trim() || translate(input.locale, 'msg.quizCompletedFallback'),
     prompt: input.block.prompt.trim(),
     items: input.block.items.map((item, index) => {
       const response = input.responses[index] ?? {};
       const evaluation = input.evaluations[index] ?? {
-        feedback: 'Miremos esta respuesta con más detalle en la siguiente práctica.',
+        feedback: translate(input.locale, 'msg.lookCloser'),
         status: 'partial' as const,
       };
 

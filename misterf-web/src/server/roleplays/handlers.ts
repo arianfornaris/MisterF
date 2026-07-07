@@ -1353,7 +1353,7 @@ export async function handleCreateRoleplayResource(
   const instruction = readMultilineField(request.body.prompt, 2000);
   const prompt = buildResourceFromContextPrompt({
     context: buildRoleplayResultContext({ attempt, draft, result: result.data }),
-    contextLabel: 'Resultado del roleplay completado',
+    contextLabel: 'Completed roleplay result',
     instruction,
     type,
   });

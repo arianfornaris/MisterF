@@ -4,6 +4,7 @@ import {
   createRoleplay,
   findProfileForUser,
 } from '../db/repository.js';
+import { translate, type Locale } from '../i18n/index.js';
 import {
   generateQuizDraft,
   generatePracticeGuideDraft,
@@ -12,32 +13,35 @@ import {
 
 export type ContextResourceType = 'quiz' | 'practice_guide' | 'roleplay';
 
+// The prompt intros are model-facing meta text and follow the project
+// convention of English meta-prompts; the draft system prompt makes the
+// model author the resource itself in the profile's instruction language.
 const contextResourceTypeMeta: Record<
   ContextResourceType,
   {
-    articledLabel: string;
+    articledLabelKey: string;
     detailPath: (id: string) => string;
-    label: string;
+    labelKey: string;
     promptIntro: string;
   }
 > = {
   quiz: {
-    articledLabel: 'un quiz',
+    articledLabelKey: 'msg.resourceQuizArticled',
     detailPath: (id) => `/quizzes/${encodeURIComponent(id)}`,
-    label: 'quiz',
-    promptIntro: 'Crea un quiz evaluable usando el contexto proporcionado.',
+    labelKey: 'msg.resourceQuizLabel',
+    promptIntro: 'Create a gradable quiz using the provided context.',
   },
   practice_guide: {
-    articledLabel: 'una guía de práctica',
+    articledLabelKey: 'msg.resourcePracticeGuideArticled',
     detailPath: (id) => `/practice-guides/${encodeURIComponent(id)}`,
-    label: 'guía de práctica',
-    promptIntro: 'Crea una guía de práctica reutilizable usando el contexto proporcionado.',
+    labelKey: 'msg.resourcePracticeGuideLabel',
+    promptIntro: 'Create a reusable practice guide using the provided context.',
   },
   roleplay: {
-    articledLabel: 'un roleplay',
+    articledLabelKey: 'msg.resourceRoleplayArticled',
     detailPath: (id) => `/roleplays/${encodeURIComponent(id)}`,
-    label: 'roleplay',
-    promptIntro: 'Crea un roleplay usando el contexto proporcionado.',
+    labelKey: 'msg.resourceRoleplayLabel',
+    promptIntro: 'Create a roleplay using the provided context.',
   },
 };
 
@@ -47,12 +51,18 @@ export function normalizeContextResourceType(value: unknown): ContextResourceTyp
     : null;
 }
 
-export function contextResourceTypeLabel(type: ContextResourceType): string {
-  return contextResourceTypeMeta[type].label;
+export function contextResourceTypeLabel(
+  type: ContextResourceType,
+  locale: Locale,
+): string {
+  return translate(locale, contextResourceTypeMeta[type].labelKey);
 }
 
-export function articledContextResourceTypeLabel(type: ContextResourceType): string {
-  return contextResourceTypeMeta[type].articledLabel;
+export function articledContextResourceTypeLabel(
+  type: ContextResourceType,
+  locale: Locale,
+): string {
+  return translate(locale, contextResourceTypeMeta[type].articledLabelKey);
 }
 
 /**
@@ -68,12 +78,12 @@ export function buildResourceFromContextPrompt(input: {
 }): string {
   const lines = [
     contextResourceTypeMeta[input.type].promptIntro,
-    'La indicación del usuario es lo principal. Usa el contexto como apoyo para inferir el tema, los objetivos y el tipo de práctica que más le conviene al estudiante.',
+    'The user instruction is the primary input. Use the context as supporting material to infer the topic, the goals, and the kind of practice that fits the learner best.',
   ];
   if (input.instruction) {
-    lines.push(`Indicación del usuario: ${input.instruction}`);
+    lines.push(`User instruction: ${input.instruction}`);
   }
-  lines.push('', `${input.contextLabel}:`, input.context || '(sin contexto)');
+  lines.push('', `${input.contextLabel}:`, input.context || '(no context)');
 
   return lines.join('\n');
 }

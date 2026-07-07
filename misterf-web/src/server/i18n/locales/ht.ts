@@ -974,6 +974,18 @@ export const ht: LocaleCatalog = {
   msg: {
     applyChangeError: 'Mwen pa t kapab aplike chanjman sa a kounye a.',
     writeChange: 'Ekri chanjman ou vle fè a.',
+    toolStatusProgress: 'Ap egzekite zouti: revize pwogrè ou...',
+    toolStatusGeneric: 'Ap egzekite zouti: {{toolName}}...',
+    quizCorrectAnswers: '{{correct}}/{{total}} repons kòrèk',
+    quizCompletedFallback: 'Quiz fini',
+    resourceCreatedMessage:
+      'Mwen kreye {{articledLabel}} **{{title}}** apati konvèsasyon sa a.\n\n[Louvri {{label}}]({{path}})',
+    resourceQuizLabel: 'quiz',
+    resourceQuizArticled: 'yon quiz',
+    resourcePracticeGuideLabel: 'gid pratik',
+    resourcePracticeGuideArticled: 'yon gid pratik',
+    resourceRoleplayLabel: 'roleplay',
+    resourceRoleplayArticled: 'yon roleplay',
     createResourceError:
       'Mwen pa t kapab kreye gid pratik la kounye a. Eseye ankò.',
     describeQuizBetter: 'Dekri quiz la yon ti jan pi byen.',

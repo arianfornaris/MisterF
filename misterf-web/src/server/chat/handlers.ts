@@ -34,6 +34,7 @@ import {
   type ContextResourceType,
 } from '../services/resourceFromContext.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
+import { translate, type Locale } from '../i18n/index.js';
 import {
   isGenericConversationTitle,
   normalizeConversationTitle,
@@ -234,7 +235,7 @@ export async function handleCreateResourceFromTutorConversationReport(
     typeof request.body.prompt === 'string' ? request.body.prompt.trim().slice(0, 2000) : '';
   const prompt = buildResourceFromContextPrompt({
     context: buildTutorReportContext(report),
-    contextLabel: 'Resumen de la conversación',
+    contextLabel: 'Conversation summary',
     instruction,
     type,
   });
@@ -307,7 +308,7 @@ export async function handleCreateResourceFromConversation(
     typeof request.body.prompt === 'string' ? request.body.prompt.trim().slice(0, 2000) : '';
   const prompt = buildResourceFromContextPrompt({
     context: formatConversationTranscript(messages),
-    contextLabel: 'Transcripción de la conversación',
+    contextLabel: 'Conversation transcript',
     instruction,
     type,
   });
@@ -339,6 +340,7 @@ export async function handleCreateResourceFromConversation(
   appendConversationResourceLinkMessage({
     conversationId: conversation.id,
     detailPath: created.detailPath,
+    locale: conversation.instructionLanguage,
     title: created.title,
     type,
   });
@@ -355,12 +357,18 @@ export async function handleCreateResourceFromConversation(
 function appendConversationResourceLinkMessage(input: {
   conversationId: string;
   detailPath: string;
+  locale: Locale;
   title: string;
   type: ContextResourceType;
 }): void {
-  const label = contextResourceTypeLabel(input.type);
+  const label = contextResourceTypeLabel(input.type, input.locale);
   const safeTitle = input.title.replace(/[\[\]]/g, '').trim() || label;
-  const markdown = `Creé ${articledContextResourceTypeLabel(input.type)} **${safeTitle}** a partir de esta conversación.\n\n[Abrir ${label}](${input.detailPath})`;
+  const markdown = translate(input.locale, 'msg.resourceCreatedMessage', {
+    articledLabel: articledContextResourceTypeLabel(input.type, input.locale),
+    label,
+    path: input.detailPath,
+    title: safeTitle,
+  });
   addMessage(input.conversationId, 'model', markdown, {
     blocks: [{ markdown, type: 'message' }],
     source: 'resource_created',
@@ -371,7 +379,7 @@ function formatConversationTranscript(messages: StoredMessage[]): string {
   const recent = messages.slice(-40);
   const transcript = recent
     .map((message) => {
-      const speaker = message.role === 'user' ? 'Estudiante' : 'Mister F';
+      const speaker = message.role === 'user' ? 'Learner' : 'Mister F';
       return `${speaker}: ${message.content}`;
     })
     .join('\n\n');

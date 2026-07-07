@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { Locale } from '../i18n/index.js';
+import { translate, type Locale } from '../i18n/index.js';
 import type {
   TutorQuizBlock,
   TutorQuizItem,
@@ -587,6 +587,7 @@ export async function evaluateQuizAttempt(input: {
     buildQuizResultBlock({
       draft,
       evaluations,
+      locale: input.instructionLanguage,
       responses,
     }),
   );
@@ -615,9 +616,15 @@ export function buildQuizEvaluationSummary(
   return summary;
 }
 
-export function buildQuizResultTitle(result: TutorQuizResultBlock): string {
+export function buildQuizResultTitle(
+  result: TutorQuizResultBlock,
+  locale: Locale = 'es',
+): string {
   const summary = buildQuizEvaluationSummary(result);
-  return `${summary.correctCount}/${summary.totalCount} respuestas correctas`;
+  return translate(locale, 'msg.quizCorrectAnswers', {
+    correct: summary.correctCount,
+    total: summary.totalCount,
+  });
 }
 
 export function buildQuizResultBlock(input: {
@@ -627,13 +634,14 @@ export function buildQuizResultBlock(input: {
     inlineReview?: Record<string, unknown>;
     status: 'correct' | 'incorrect' | 'partial';
   }>;
+  locale?: Locale;
   responses: Array<Record<string, unknown>>;
 }): TutorQuizResultBlock {
   return {
     items: input.draft.blocks.map((block, index) =>
       buildQuizResultItem({
         evaluation: input.evaluations[index] ?? {
-          feedback: 'Miremos esta respuesta con más detalle en la siguiente práctica.',
+          feedback: translate(input.locale ?? 'es', 'msg.lookCloser'),
           status: 'partial' as const,
         },
         item: block.item,

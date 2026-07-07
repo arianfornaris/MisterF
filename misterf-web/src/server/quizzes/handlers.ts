@@ -746,7 +746,7 @@ function renderQuizResult(
     guestToken: attempt.guestToken || '',
     resultBlockJson: serializeViewJson(result.data),
     resultBlock: result.data,
-    resultTitle: buildQuizResultTitle(result.data),
+    resultTitle: buildQuizResultTitle(result.data, request.locale),
     ...actionError,
     summary,
   });
@@ -1710,7 +1710,7 @@ export async function handleCreateQuizResource(
   const instruction = readMultilineField(request.body.prompt, 2000);
   const prompt = buildResourceFromContextPrompt({
     context: buildQuizResultContext({ attempt, draft, result: result.data }),
-    contextLabel: 'Resultado del quiz completado',
+    contextLabel: 'Completed quiz result',
     instruction,
     type,
   });

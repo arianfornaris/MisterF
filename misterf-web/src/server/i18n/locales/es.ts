@@ -965,6 +965,18 @@ export const es: LocaleCatalog = {
   msg: {
     applyChangeError: 'No pude aplicar ese cambio ahora mismo.',
     writeChange: 'Escribe el cambio que quieres hacer.',
+    toolStatusProgress: 'Ejecutando herramienta: revisar tu progreso...',
+    toolStatusGeneric: 'Ejecutando herramienta: {{toolName}}...',
+    quizCorrectAnswers: '{{correct}}/{{total}} respuestas correctas',
+    quizCompletedFallback: 'Quiz completado',
+    resourceCreatedMessage:
+      'Creé {{articledLabel}} **{{title}}** a partir de esta conversación.\n\n[Abrir {{label}}]({{path}})',
+    resourceQuizLabel: 'quiz',
+    resourceQuizArticled: 'un quiz',
+    resourcePracticeGuideLabel: 'guía de práctica',
+    resourcePracticeGuideArticled: 'una guía de práctica',
+    resourceRoleplayLabel: 'roleplay',
+    resourceRoleplayArticled: 'un roleplay',
     createResourceError:
       'No pude crear la guía de práctica ahora mismo. Inténtalo otra vez.',
     describeQuizBetter: 'Describe un poco mejor el quiz.',

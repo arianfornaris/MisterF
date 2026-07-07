@@ -328,11 +328,18 @@ i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
   source labels render in the conversation language. The Spanish
   "bitácora" trigger word in the tool description stays — it is a
   learner-phrase trigger, not learner-visible text.
-- [ ] Remaining hardcoded-Spanish learner-facing strings in LLM flows:
+- [x] Remaining hardcoded-Spanish learner-facing strings in LLM flows:
   tool status label in `chatSocket.ts` ('Ejecutando herramienta…'),
   `buildQuizResultTitle` ('X/Y respuestas correctas') and the fallback
   feedback in `quizzes.ts`, and the Spanish seed prompts in
-  `resourceFromContext.ts`.
+  `resourceFromContext.ts`. Done 2026-07-07, wider than listed: the
+  learner-visible strings (tool status, quiz result title/fallbacks —
+  including the socket copy with 'Quiz completado' — and the stored
+  "Creé …" resource-link chat message with its type labels) moved to
+  `msg.*` catalog keys threaded with the conversation/request locale;
+  the model-facing seed text (`resourceFromContext` intros, context
+  labels in the chat/quiz/roleplay handlers, transcript speaker tags)
+  was rewritten in English per the meta-prompt convention.
 - [ ] `tutor/quiz-result-evaluation.md` rules still hardcode Spanish as the
   support language ("Do not evaluate Spanish grammar…") even when
   `INSTRUCTION_LANGUAGE_NAME` is Haitian Creole.
