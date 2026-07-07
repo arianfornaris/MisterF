@@ -22,7 +22,8 @@ type MessageTaskLeakageKind =
   | 'matching_prompt'
   | 'multiple_choice_prompt'
   | 'inline_correction_markup'
-  | 'inline_evaluation_json';
+  | 'inline_evaluation_json'
+  | 'multi_exercise_batch';
 
 type MessageTaskLeakageIssue = {
   blockIndex: number;
@@ -33,6 +34,24 @@ type MessageTaskLeakageIssue = {
 };
 
 const maxRepairAttempts = 2;
+
+/**
+ * Top-level blocks that ask the learner to interact/answer. Normal guided
+ * practice emits at most one of these per tutor response; several items that
+ * should be answered together belong in a single `quiz` block.
+ */
+const interactiveExerciseBlockTypes = new Set<TutorAgentResponseBlock['type']>([
+  'fill_in_the_blank_choice',
+  'fill_in_the_blank_input',
+  'matching_pairs',
+  'multiple_choice',
+  'open_text_prompt',
+  'order_sentences',
+  'quiz',
+  'translate_to_english_prompt',
+  'understand_in_spanish_prompt',
+  'unscramble_sentence',
+]);
 
 export type TutorBlockRepairResult = {
   blocks: TutorAgentResponseBlock[];
@@ -57,6 +76,38 @@ export function detectMessageTaskLeakage(
   });
 }
 
+export function detectMultiExerciseBatch(
+  blocks: TutorAgentResponseBlock[],
+): MessageTaskLeakageIssue[] {
+  const exerciseIndexes = blocks.flatMap((block, blockIndex) => (
+    interactiveExerciseBlockTypes.has(block.type) ? [blockIndex] : []
+  ));
+  if (exerciseIndexes.length <= 1) {
+    return [];
+  }
+
+  return exerciseIndexes.slice(1).map((blockIndex) => ({
+    blockIndex,
+    expectedBlockTypes: ['quiz'],
+    excerpt: buildExcerpt(JSON.stringify(blocks[blockIndex])),
+    kind: 'multi_exercise_batch',
+    reason:
+      `The response contains ${exerciseIndexes.length} top-level exercise blocks; ` +
+      'a tutor response should present at most one interactive exercise at a time. ' +
+      'Consolidate the items into a single quiz block, or keep only the primary exercise.',
+  }));
+}
+
+function detectTutorBlockIssues(
+  blocks: TutorAgentResponseBlock[],
+  instructionLanguage: InstructionLanguage,
+): MessageTaskLeakageIssue[] {
+  return [
+    ...detectMessageTaskLeakage(blocks, instructionLanguage),
+    ...detectMultiExerciseBatch(blocks),
+  ];
+}
+
 export async function repairTutorResponseBlocks(input: {
   abortSignal?: AbortSignal;
   blocks: TutorAgentResponseBlock[];
@@ -64,7 +115,7 @@ export async function repairTutorResponseBlocks(input: {
   llm?: LlmRequestOptions;
 }): Promise<TutorBlockRepairResult> {
   const language = input.instructionLanguage ?? defaultInstructionLanguage;
-  const initialIssues = detectMessageTaskLeakage(input.blocks, language);
+  const initialIssues = detectTutorBlockIssues(input.blocks, language);
   if (initialIssues.length === 0) {
     return {
       blocks: input.blocks,
@@ -100,7 +151,7 @@ export async function repairTutorResponseBlocks(input: {
         operation: 'tutor_block_repair',
       },
     );
-    const remainingIssues = detectMessageTaskLeakage(repairedBlocks, language);
+    const remainingIssues = detectTutorBlockIssues(repairedBlocks, language);
 
     logger.info('llm_block_repair_attempt', {
       attempt: attempt + 1,
@@ -124,11 +175,19 @@ export async function repairTutorResponseBlocks(input: {
 
   throw new TutorResponseValidationError({
     generatedText: lastGeneratedText,
-    issues: currentIssues.map((issue) => ({
-      code: z.ZodIssueCode.custom,
-      message: `message block still simulates a typed tutor block: ${issue.reason}`,
-      path: ['blocks', issue.blockIndex, 'markdown'],
-    })),
+    issues: currentIssues.map((issue) => (
+      issue.kind === 'multi_exercise_batch'
+        ? {
+            code: z.ZodIssueCode.custom,
+            message: `response still batches multiple exercises: ${issue.reason}`,
+            path: ['blocks', issue.blockIndex],
+          }
+        : {
+            code: z.ZodIssueCode.custom,
+            message: `message block still simulates a typed tutor block: ${issue.reason}`,
+            path: ['blocks', issue.blockIndex, 'markdown'],
+          }
+    )),
   });
 }
 

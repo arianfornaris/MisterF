@@ -88,6 +88,13 @@ message.
 
 ## Proposed Always-On Message Classifier
 
+**Status 2026-07-06:** deferred to Roadmap V3 (`docs/roadmap/roadmap-v3.md`).
+Prerequisite before building it: review production block-repair logs to
+quantify how often the local linter misses real leakage — the classifier adds
+inference cost and latency to every tutor turn, so it must be justified by
+measured miss frequency. V3's new block types (comprehension stimuli) will
+also change the leakage surface the classifier needs to cover.
+
 The current repair loop only runs when the local deterministic detector finds a
 high-confidence issue. Recent tutor logs show that this can miss valid-looking
 `message` prose that is actually a learner exercise. Examples include polite or
@@ -174,6 +181,17 @@ Preferred behavior:
 
 This issue should be tracked alongside message leakage because both are
 semantic block-boundary failures that pass normal JSON validation.
+
+**Shipped 2026-07-06:** the semantic lint layer now includes a deterministic
+multi-exercise batch guard (`detectMultiExerciseBatch` in `blockRepair.ts`).
+It flags every top-level interactive exercise block beyond the first
+(`multi_exercise_batch` issue kind, target block `quiz`) and routes the
+response through the existing model-repair loop, whose prompt instructs
+consolidation into a single `quiz` block (or keeping only the primary
+exercise when the extras are duplicates). Feedback blocks
+(`sentence_evaluation`, `tutor_plan`, `tutor_plan_update`, `message`,
+dialogue blocks) may still accompany the one exercise. Regression fixtures
+live in `tests/llmTutor/blockRepair.test.ts`.
 
 ## Current Prompt-Level Guard
 
