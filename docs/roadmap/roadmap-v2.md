@@ -1,6 +1,6 @@
 # Roadmap V2
 
-Date: 2026-07-04 (last updated: 2026-07-04)
+Date: 2026-07-04 (last updated: 2026-07-06)
 
 Status: **Active.** V2 is the English-first internationalization release: it
 makes the platform's instruction language selectable (Spanish, English,
@@ -231,6 +231,96 @@ import/export product idea and moved to the idea inbox
   production logs).
 - [ ] [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
   semantic CSS class naming pass across the app.
+
+## 2.1 Prompt & Agent-Loop Audit Fixes
+
+Added 2026-07-06 from a full audit of `system-prompts/` against every call
+site and of the seven LLM loops (tutor agent loop, block repair, quiz
+evaluation, tutor reports, resource drafts, roleplay turns/evaluation,
+translator). Fix before the `2.0.0` release; items are independent unless
+noted.
+
+Bugs:
+
+- [x] Quiz follow-up context never reaches the tutor:
+  `tutor/quiz-attempt-context.md` still uses `{{ASSIGNMENT_*}}` placeholders
+  while `llmTutor/prompt.ts` injects `QUIZ_*` (rename miss from the
+  Tarea→Quiz commit `032f0629`), so the model receives literal
+  `{{ASSIGNMENT_TITLE}}` etc. and works without the quiz title/topic/
+  snapshot. Done 2026-07-06: prompt file renamed to `QUIZ_*`, plus a
+  fully-loaded system-instruction regression test (all contexts × three
+  languages) asserting no leftover `{{PLACEHOLDER}}` remains — this also
+  covers part of the "regression test" item below.
+- [ ] `shouldUseTemperature` (`llmTutor/providers.ts`) matches
+  `/^(gpt-5|o[134]|o4)/i` against vendor-prefixed OpenRouter ids
+  (`openai/gpt-5-mini`), so it never excludes anything and `temperature`
+  is always sent; `o4` is also redundant with `o[134]`. Match on the model
+  segment after the vendor prefix.
+- [ ] `continueTutorResponseAfterToolUse` (`llmTutor/index.ts`) sends only
+  the internal-continuation prompt + tool results — it drops the
+  conversation history, so the re-emitted response cannot address what the
+  learner actually said. Include the turn's messages. Related nit: the
+  finish-reason check reads `effectiveResult.finishReason` but throws with
+  `result.finishReason`.
+
+Dead code / loose ends:
+
+- [ ] Delete `llmTutor/challenges/` (dialogueScene/produceEn/understandEn
+  `challenge_started` schemas — imported nowhere, block type doesn't exist
+  in the protocol).
+- [ ] Remove the unused `toTutorBlockProtocolNames` export
+  (`llmTutor/blockProtocol.ts`).
+- [ ] Remove the dead `renderTutorSystemPrompt` fallback in
+  `llmTutor/prompt.ts` that rebuilds the Structured Response Protocol
+  section when `system.md` lacks `{{BLOCK_PROTOCOL}}` (it has it; the guard
+  contradicts the AGENTS.md no-defensive-guards rule).
+- [ ] Deduplicate conversation-title helpers: `normalizeConversationTitle`
+  reimplemented in `chatSocket.ts`, generic-title check triplicated across
+  `conversationTitles.ts` / `chat/handlers.ts`.
+- [ ] Minor: `Math.max(recentEventLimit ?? 5, 30)` in
+  `llmTutor/progressTools.ts` is always 30 (limit caps at 10); the
+  `rawFinishReason` parameter of `getUserFacingFinishReasonMessage` is
+  never passed by any call site.
+
+i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
+
+- [ ] `update_conversation_title` tool description hardcodes "Short
+  Spanish title" for every profile, contradicting the per-language
+  `conversationTitleRule` in the system prompt; thread `instructionLanguage`
+  into `buildTutorConversationTools`.
+- [ ] `blocksToMarkdown` (`llmTutor/validation.ts`) hardcodes Spanish
+  fallback strings ('Revisemos esta parte:', 'Ejercicio de emparejar.',
+  'Ordena las oraciones.', 'Traduce al ingles:', 'Resumen del quiz'); the
+  text is persisted as message content and re-enters the model history.
+- [ ] `get_learner_progress` builds vocabulary with a hardcoded `'es'`
+  locale (`llmTutor/progressTools.ts`).
+- [ ] Remaining hardcoded-Spanish learner-facing strings in LLM flows:
+  tool status label in `chatSocket.ts` ('Ejecutando herramienta…'),
+  `buildQuizResultTitle` ('X/Y respuestas correctas') and the fallback
+  feedback in `quizzes.ts`, and the Spanish seed prompts in
+  `resourceFromContext.ts`.
+- [ ] `tutor/quiz-result-evaluation.md` rules still hardcode Spanish as the
+  support language ("Do not evaluate Spanish grammar…") even when
+  `INSTRUCTION_LANGUAGE_NAME` is Haitian Creole.
+
+Protocol/loop consistency:
+
+- [ ] `system.md` counts `dialogue_character_message` as a learner exercise
+  block but the repair loop's `interactiveExerciseBlockTypes` does not —
+  decide which is right and align contract + detector.
+- [ ] A valid response consisting only of `tutor_plan`/`tutor_plan_update`
+  yields empty `blocksToMarkdown` content and is rejected as "empty
+  response" in `chatSocket.ts` — cover plan blocks in the markdown
+  fallback or enforce the message+plan pairing in validation.
+- [ ] Loop robustness parity: roleplays/resourceDrafts/tutorReports loops
+  use bare `JSON.parse` (no ```json fence tolerance) and never check
+  `finishReason`, unlike the tutor and quiz-evaluation loops; also
+  `practice-guide-draft-correction.md` lacks `INSTRUCTION_LANGUAGE_NAME`
+  while its revision twin has it.
+- [ ] Regression test: render every prompt with its real placeholder set
+  and fail on any leftover `{{PLACEHOLDER}}` (would have caught the
+  `ASSIGNMENT_*` bug; `promptContracts.test.ts` only spot-checks
+  `DIALOGUE_AVATAR_OPTIONS` today).
 
 ---
 

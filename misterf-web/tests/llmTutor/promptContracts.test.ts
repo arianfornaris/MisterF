@@ -86,6 +86,52 @@ describe('tutor instruction language parametrization', () => {
 });
 
 describe('tutor prompt contracts', () => {
+  it('leaves no unreplaced placeholders in a fully loaded system instruction', () => {
+    for (const instructionLanguage of ['es', 'en', 'ht'] as const) {
+      const system = buildAgentSystemInstruction({
+        currentTitle: 'Nueva conversación',
+        instructionLanguage,
+        learnerProfile: {
+          description: 'Perfil para inglés profesional.',
+          learningContext: 'Trabajo en software y quiero practicar reuniones.',
+          name: 'Arian',
+        },
+        practiceGuide: {
+          description: 'Practicar presente perfecto.',
+          title: 'Presente perfecto',
+          tutorInstructions: 'Ejercicios progresivos de present perfect.',
+        },
+        quizAttempt: {
+          quizDescription: 'Quiz de verbos irregulares.',
+          quizSnapshotJson: '{"blocks":[]}',
+          quizTargetTopic: 'Verbos irregulares',
+          quizTitle: 'Irregular verbs checkpoint',
+          responsesJson: '[]',
+          resultJson: '{"items":[]}',
+        },
+        roleplayAttempt: {
+          resultJson: '{"entries":[]}',
+          roleplayDescription: 'Pedir comida en un restaurante.',
+          roleplaySnapshotJson: '{"characters":[]}',
+          roleplayTitle: 'En el restaurante',
+          turnsJson: '[]',
+        },
+        tutorPlanText: 'title: Plan\nsteps:\n- s1: active — Primer paso',
+        tutorReport: {
+          reportJson: '{"practicedTopics":[]}',
+          reportSummaryDescription: 'Resumen de la conversación anterior.',
+          reportSummaryTitle: 'Práctica previa',
+          sourceConversationId: 'conv-1',
+        },
+      });
+
+      expect(system).not.toMatch(/\{\{[A-Z_]+\}\}/);
+      expect(system).toContain('Irregular verbs checkpoint');
+      expect(system).toContain('Verbos irregulares');
+      expect(system).toContain('En el restaurante');
+    }
+  });
+
   it('does not include removed block types in the tutor protocol', () => {
     const protocol = renderTutorBlockProtocol();
 

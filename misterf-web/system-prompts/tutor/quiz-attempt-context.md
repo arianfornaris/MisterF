@@ -21,13 +21,13 @@ Practical rules:
 
 Quiz:
 
-- Title: {{ASSIGNMENT_TITLE}}
-- Description: {{ASSIGNMENT_DESCRIPTION}}
-- Target topic: {{ASSIGNMENT_TARGET_TOPIC}}
+- Title: {{QUIZ_TITLE}}
+- Description: {{QUIZ_DESCRIPTION}}
+- Target topic: {{QUIZ_TARGET_TOPIC}}
 
 Quiz snapshot JSON:
 
-{{ASSIGNMENT_SNAPSHOT_JSON}}
+{{QUIZ_SNAPSHOT_JSON}}
 
 Learner responses JSON:
 
