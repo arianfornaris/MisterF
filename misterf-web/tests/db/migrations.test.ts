@@ -303,7 +303,8 @@ describe('database migrations', () => {
     `);
 
     for (const migration of migrations.filter((migration) => migration.id <= 9)) {
-      db.exec(migration.up);
+      if (migration.up) db.exec(migration.up);
+      else migration.run?.(db);
       db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
         .run(migration.id, migration.name);
     }
@@ -370,7 +371,8 @@ describe('database migrations', () => {
     `);
 
     for (const migration of migrations.filter((migration) => migration.id <= 8)) {
-      db.exec(migration.up);
+      if (migration.up) db.exec(migration.up);
+      else migration.run?.(db);
       db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
         .run(migration.id, migration.name);
     }
@@ -465,7 +467,8 @@ describe('database migrations', () => {
     `);
 
     for (const migration of migrations.filter((migration) => migration.id <= 2)) {
-      db.exec(migration.up);
+      if (migration.up) db.exec(migration.up);
+      else migration.run?.(db);
       db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
         .run(migration.id, migration.name);
     }
@@ -596,7 +599,8 @@ describe('database migrations', () => {
     `);
 
     for (const migration of migrations.filter((migration) => migration.id <= 4)) {
-      db.exec(migration.up);
+      if (migration.up) db.exec(migration.up);
+      else migration.run?.(db);
       db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
         .run(migration.id, migration.name);
     }
