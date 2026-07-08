@@ -3,6 +3,7 @@ import {
   persistedTutorResponseSchema,
   tutorAgentResponseSchema,
 } from '../../src/server/services/llmTutor/schemas.js';
+import { TutorResponseValidationError } from '../../src/server/services/llmTutor/errors.js';
 import { validateTutorResponseBlocks } from '../../src/server/services/llmTutor/validation.js';
 
 describe('normal tutor response schema', () => {
@@ -264,6 +265,52 @@ describe('order_sentences schema', () => {
     });
 
     expect(result.success).toBe(false);
+  });
+});
+
+describe('plan-only response validation', () => {
+  const planBlock = {
+    steps: [
+      { id: 'step-1', label: 'Repasar vocabulario', status: 'active' },
+      { id: 'step-2', label: 'Practicar frases', status: 'pending' },
+    ],
+    title: 'Plan de práctica',
+    type: 'tutor_plan',
+  };
+  const planUpdateBlock = {
+    operations: [{ action: 'update_step', id: 'step-1', status: 'done' }],
+    type: 'tutor_plan_update',
+  };
+
+  it('rejects responses made only of plan blocks as a correctable error', () => {
+    const expectPlanOnlyRejection = (blocks: unknown[]) => {
+      let caught: unknown;
+      try {
+        validateTutorResponseBlocks({ blocks });
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).toBeInstanceOf(TutorResponseValidationError);
+      const issues = (caught as TutorResponseValidationError).issues;
+      expect(issues).toHaveLength(1);
+      expect(issues[0].message).toMatch(/only plan blocks/);
+    };
+
+    expectPlanOnlyRejection([planBlock]);
+    expectPlanOnlyRejection([planUpdateBlock]);
+    expectPlanOnlyRejection([planBlock, planUpdateBlock]);
+  });
+
+  it('accepts plan blocks paired with a visible block', () => {
+    const blocks = validateTutorResponseBlocks({
+      blocks: [
+        { markdown: 'Aquí tienes el plan para hoy.', type: 'message' },
+        planBlock,
+      ],
+    });
+
+    expect(blocks.map((block) => block.type)).toEqual(['message', 'tutor_plan']);
   });
 });
 

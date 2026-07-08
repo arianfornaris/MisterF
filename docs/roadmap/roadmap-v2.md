@@ -361,10 +361,18 @@ Protocol/loop consistency:
   response), so the detector now includes `dialogue_character_message`;
   regression test covers dialogue+exercise and dialogue+dialogue batches
   and keeps `message`+dialogue valid.
-- [ ] A valid response consisting only of `tutor_plan`/`tutor_plan_update`
+- [x] A valid response consisting only of `tutor_plan`/`tutor_plan_update`
   yields empty `blocksToMarkdown` content and is rejected as "empty
-  response" in `chatSocket.ts` — cover plan blocks in the markdown
-  fallback or enforce the message+plan pairing in validation.
+  response" in `chatSocket.ts` — after the plan side effect already
+  ran. Done 2026-07-07: enforced in validation instead —
+  `validateTutorResponseBlocks` rejects responses with zero visible
+  blocks as a correctable `TutorResponseValidationError`, so the
+  correction loop retries with history before any side effect; the
+  visible-block set is now shared between `blocksToMarkdown` and the
+  check. The socket empty-content check stays as a boundary assertion.
+  Deliberately enforcing the floor (≥1 visible block), not the strict
+  message-pairing contract, to avoid correction retries for harmless
+  exercise-only responses.
 - [ ] Loop robustness parity: roleplays/resourceDrafts/tutorReports loops
   use bare `JSON.parse` (no ```json fence tolerance) and never check
   `finishReason`, unlike the tutor and quiz-evaluation loops; also

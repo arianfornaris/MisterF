@@ -19,6 +19,7 @@ import type {
   TutorUnscrambleSentenceBlock,
   TutorOrderSentencesBlock,
 } from './types.js';
+import { z } from 'zod';
 import { TutorResponseValidationError } from './errors.js';
 import { logger } from '../logger.js';
 import { shouldLogFullLlmTrace } from './logging.js';
@@ -31,6 +32,53 @@ export function toModelMessage(message: TutorMessage) {
     content: message.content,
     role: message.role === 'model' ? 'assistant' : 'user',
   } as const;
+}
+
+type VisibleTutorResponseBlock =
+  | TutorMessageBlock
+  | TutorDialogueCharacterMessageBlock
+  | TutorDialogueTranscriptBlock
+  | TutorMatchingPairsBlock
+  | TutorQuizBlock
+  | TutorQuizResultBlock
+  | TutorTranslateToEnglishPromptBlock
+  | TutorUnderstandInSpanishPromptBlock
+  | TutorOpenTextPromptBlock
+  | TutorFillInTheBlankInputBlock
+  | TutorFillInTheBlankChoiceBlock
+  | TutorMultipleChoiceBlock
+  | TutorUnscrambleSentenceBlock
+  | TutorOrderSentencesBlock
+  | TutorSentenceEvaluationBlock;
+
+/**
+ * Block types that render chat content. Plan blocks (`tutor_plan`,
+ * `tutor_plan_update`) are excluded: they update the plan panel, so a
+ * response made only of them would leave the tutor's turn silent.
+ * `blocksToMarkdown` and the plan-only validation below share this set.
+ */
+const visibleTutorBlockTypes: ReadonlySet<TutorResponseBlock['type']> = new Set([
+  'message',
+  'dialogue_character_message',
+  'dialogue_transcript',
+  'matching_pairs',
+  'quiz',
+  'quiz_result',
+  'translate_to_english_prompt',
+  'understand_in_spanish_prompt',
+  'open_text_prompt',
+  'fill_in_the_blank_input',
+  'fill_in_the_blank_choice',
+  'multiple_choice',
+  'unscramble_sentence',
+  'order_sentences',
+  'sentence_evaluation',
+]);
+
+function isVisibleTutorBlock(
+  block: TutorResponseBlock,
+): block is VisibleTutorResponseBlock {
+  return visibleTutorBlockTypes.has(block.type);
 }
 
 export function validateTutorResponseBlocks(
@@ -64,7 +112,28 @@ export function validateTutorResponseBlocks(
     });
   }
 
-  return parsed.data.blocks as TutorAgentResponseBlock[];
+  const blocks = parsed.data.blocks as TutorAgentResponseBlock[];
+  if (blocks.length > 0 && !blocks.some((block) => visibleTutorBlockTypes.has(block.type))) {
+    logger.warn('llm_plan_only_response_rejected', {
+      blockTypes: blocks.map((block) => block.type),
+      conversationId: options.conversationId ?? null,
+      operation: options.operation ?? 'tutor',
+      userId: options.userId ?? options.llm?.userId ?? null,
+    });
+    throw new TutorResponseValidationError({
+      generatedText: options.generatedText,
+      issues: [
+        {
+          code: z.ZodIssueCode.custom,
+          message:
+            'The response contains only plan blocks (tutor_plan / tutor_plan_update). Every tutor response must include at least one visible block; pair plan changes with a `message` that narrates them.',
+          path: ['blocks'],
+        },
+      ],
+    });
+  }
+
+  return blocks;
 }
 
 function summarizeInvalidTutorResponse(value: unknown): unknown {
@@ -141,41 +210,7 @@ export function blocksToMarkdown(
   locale: Locale = defaultInstructionLanguage,
 ): string {
   const messageMarkdown = blocks
-    .filter(
-      (
-        block,
-      ): block is
-        | TutorMessageBlock
-        | TutorDialogueCharacterMessageBlock
-        | TutorDialogueTranscriptBlock
-        | TutorMatchingPairsBlock
-        | TutorQuizBlock
-        | TutorQuizResultBlock
-        | TutorTranslateToEnglishPromptBlock
-        | TutorUnderstandInSpanishPromptBlock
-        | TutorOpenTextPromptBlock
-        | TutorFillInTheBlankInputBlock
-        | TutorFillInTheBlankChoiceBlock
-        | TutorMultipleChoiceBlock
-        | TutorUnscrambleSentenceBlock
-        | TutorOrderSentencesBlock
-        | TutorSentenceEvaluationBlock =>
-        block.type === 'message' ||
-        block.type === 'dialogue_character_message' ||
-        block.type === 'dialogue_transcript' ||
-        block.type === 'matching_pairs' ||
-        block.type === 'quiz' ||
-        block.type === 'quiz_result' ||
-        block.type === 'translate_to_english_prompt' ||
-        block.type === 'understand_in_spanish_prompt' ||
-        block.type === 'open_text_prompt' ||
-        block.type === 'fill_in_the_blank_input' ||
-        block.type === 'fill_in_the_blank_choice' ||
-        block.type === 'multiple_choice' ||
-        block.type === 'unscramble_sentence' ||
-        block.type === 'order_sentences' ||
-        block.type === 'sentence_evaluation',
-    )
+    .filter(isVisibleTutorBlock)
     .map((block) => {
       if (block.type === 'sentence_evaluation') {
         return translate(locale, 'tutorBlocks.sentenceEvaluationIntro');
