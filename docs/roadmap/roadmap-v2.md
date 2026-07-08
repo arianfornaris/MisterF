@@ -1,6 +1,6 @@
 # Roadmap V2
 
-Date: 2026-07-04 (last updated: 2026-07-06)
+Date: 2026-07-04 (last updated: 2026-07-08)
 
 Status: **Active.** V2 is the English-first internationalization release: it
 makes the platform's instruction language selectable (Spanish, English,
@@ -201,6 +201,46 @@ Moved 2026-07-06 to [Roadmap V3](roadmap-v3.md) (Part 1.1). This pillar
 (reading, listening, and image comprehension) was scoped out of V2 so V2 can
 ship as the internationalization release. The i18n prompt parametrization it
 depended on shipped in V2, so V3 can proceed without double work.
+
+## 1.3 Four-Tier Model Ladder (lite / regular / advanced / max)
+
+Added 2026-07-08. Motivation: manual QA showed the current `regular` model
+(`google/gemini-3.1-flash-lite`) failing the tutor's structured contract and
+burning 4–6 correction calls before surfacing a user-facing error (see the
+`multiple_choice`-as-menu incident and its fixes in 2.1). Lite-class models
+stay valuable for cost/speed, so instead of dropping flash-lite, the tier
+ladder grows to four explicit steps and the default moves to a
+contract-reliable model.
+
+Proposed models with OpenRouter pricing (USD per 1M tokens in/out, checked
+2026-07-08 via the OpenRouter models API — re-verify before shipping):
+
+| Tier | Model | Price (in/out) | Rationale |
+|---|---|---|---|
+| lite | `google/gemini-3.1-flash-lite` | $0.25 / $1.50 | Today's regular; fastest/cheapest, contract fragility becomes an explicit user choice |
+| regular | `openai/gpt-5-mini` | $0.25 / $2.00 | Same input price as flash-lite, far stronger JSON-contract adherence; temperature exclusion already handled by `shouldUseTemperature` |
+| advanced | `google/gemini-3.5-flash` | $1.50 / $9.00 | Today's max steps down one rung; fast premium flash (cheaper alt considered: `anthropic/claude-haiku-4.5` $1/$5) |
+| max | `anthropic/claude-sonnet-5` | $2.00 / $10.00 | True premium at the best price in its class (alt: `openai/gpt-5.1` $1.25/$10) |
+
+Decision notes: per-turn cost (~12k in / 600 out) makes lite→regular only
+~5% more ($0.0040 → $0.0042), so the reliable regular likely costs *less*
+in practice once burned correction calls are counted. Avoid `-preview`
+models in paid tiers (`gemini-3-flash-preview`, `gemini-3.1-pro-preview`):
+they can change or vanish without notice. If gpt-5-mini latency bothers in
+practice, fallback candidate for regular is `gemini-3-flash-preview`
+($0.50/$3.00) accepting the preview risk. Compare correction rates per
+model using the existing telemetry events (`llm_structured_correction_requested`,
+`llm_response_validation_failed`, `llm_block_repair_attempt`).
+
+- [ ] Implement the `lite` tier end to end: extend `ProfileModelTier`
+  (`src/server/profiles/modelTier.ts`) with `'lite'`, add `LLM_MODEL_LITE`
+  to the env fallback chain (`src/server/config/env.ts` — lite falls back
+  to regular), update the tier selector UI (profile/settings forms and
+  views) with labels/descriptions in the three catalogs (`es`, `en`,
+  `ht`), check whether credit multipliers or `creditGate` differentiate
+  by tier and extend them if so, update `.env.development` /
+  production env to the proposed models, and cover the tier
+  normalization and fallback chain with tests.
 
 ---
 
