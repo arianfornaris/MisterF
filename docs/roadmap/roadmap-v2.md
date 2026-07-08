@@ -352,6 +352,16 @@ i18n hardening (tutor/LLM surfaces beyond the documented catalog residuals):
   (e.g. a shared es-authored quiz). Regression test covers the three
   languages and leftover placeholders.
 
+- [x] Found in manual QA 2026-07-07: the open-text exercise card in the
+  tutor chat showed the raw key `CARD.KINDOPENTEXT` — the client references
+  `card.kindOpenText` but the label only existed as `quizzes.kindOpenText`,
+  a namespace not shipped to the browser. Fixed by adding the key to the
+  `card` namespace in the three catalogs, plus a regression test
+  (`tests/server/clientCatalogKeys.test.ts`) that scans every
+  `t('ns.key')` reference in the client bundles and fails if any key is
+  missing from any locale's shipped client catalog (the `t` fallback
+  renders raw keys, so misses were silent).
+
 Protocol/loop consistency:
 
 - [x] `system.md` counts `dialogue_character_message` as a learner exercise

@@ -703,6 +703,7 @@ export const ht: LocaleCatalog = {
     optionNeedsReview: 'Opsyon sa a bezwen revizyon.',
     pairNeedsReview: 'Pè sa a bezwen revizyon.',
     mrFAssessment: 'Evalyasyon Mr. F',
+    kindOpenText: 'Repons lib',
     translateLabel: 'Tradui an anglè',
     translatePlaceholder: 'Ekri tradiksyon ou an anglè…',
     translateSubmit: 'Voye tradiksyon',

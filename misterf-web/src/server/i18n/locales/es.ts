@@ -774,6 +774,7 @@ export const es: LocaleCatalog = {
     optionNeedsReview: 'Esta opción necesita revisión.',
     pairNeedsReview: 'Esta pareja necesita revisión.',
     mrFAssessment: 'Valoración de Mr. F',
+    kindOpenText: 'Respuesta abierta',
     translateLabel: 'Traduce al inglés',
     translatePlaceholder: 'Escribe tu traducción en inglés…',
     translateSubmit: 'Enviar traducción',
