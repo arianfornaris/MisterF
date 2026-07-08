@@ -10,5 +10,6 @@ The only valid shape is:
 
 Markdown rules:
 - title must be plain text.
+- title, description, and tutorInstructions must be authored in {{INSTRUCTION_LANGUAGE_NAME}} unless the teacher's request clearly requires another language.
 - description and tutorInstructions must be Markdown content inside the JSON string values.
 - Do not wrap the JSON response in markdown fences.

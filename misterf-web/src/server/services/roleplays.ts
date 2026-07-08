@@ -19,6 +19,7 @@ import {
 } from './llmTutor/logging.js';
 import type { LlmRequestOptions } from './llmTutor/types.js';
 import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
+import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { isRoleplayCharacterAvatarId } from '../roleplays/avatarRegistry.js';
@@ -414,7 +415,7 @@ async function generateStructuredRoleplayOutput<T>(input: {
 
     let parsedJson: unknown;
     try {
-      parsedJson = JSON.parse(result.text.trim()) as unknown;
+      parsedJson = parseJsonFromModelText(result.text);
     } catch (error) {
       logLlmInvalidRawResponse({
         actorLabel: input.actorLabel,

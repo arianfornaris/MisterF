@@ -13,6 +13,7 @@ import {
   type RoleplayRevisionConversationMessage,
   type RoleplayRevisionResult,
 } from './roleplays.js';
+import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
@@ -63,9 +64,6 @@ export type QuizRevisionConversationMessage = {
   role: 'assistant' | 'user';
 };
 
-function parseJsonFromModelText(text: string): unknown {
-  return JSON.parse(text.trim()) as unknown;
-}
 
 function appendCorrectionRequest(messages: ModelMessage[], input: {
   actorLabel: string;

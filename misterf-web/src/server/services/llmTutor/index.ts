@@ -30,6 +30,7 @@ import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from '.
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
+import { parseJsonFromModelText } from './modelJson.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 import type { ResourceType, StoredConversation, StoredTutorPlan } from '../../db/repository.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
@@ -38,19 +39,6 @@ import type { LlmRequestOptions, LlmRequestTokenUsage, TranslationDirection, Tra
 
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
-
-function parseJsonFromModelText(text: string): unknown {
-  const trimmed = text.trim();
-  const fencedMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-  const candidate = fencedMatch ? fencedMatch[1].trim() : trimmed;
-
-  try {
-    return JSON.parse(candidate) as unknown;
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Invalid JSON';
-    throw new Error(`JSON parsing failed: ${message}`);
-  }
-}
 
 function buildTutorResourceLogContext(options: {
   currentPracticeGuideId?: string | null;

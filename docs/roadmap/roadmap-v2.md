@@ -373,11 +373,28 @@ Protocol/loop consistency:
   Deliberately enforcing the floor (≥1 visible block), not the strict
   message-pairing contract, to avoid correction retries for harmless
   exercise-only responses.
-- [ ] Loop robustness parity: roleplays/resourceDrafts/tutorReports loops
+- [x] Loop robustness parity: roleplays/resourceDrafts/tutorReports loops
   use bare `JSON.parse` (no ```json fence tolerance) and never check
   `finishReason`, unlike the tutor and quiz-evaluation loops; also
   `practice-guide-draft-correction.md` lacks `INSTRUCTION_LANGUAGE_NAME`
-  while its revision twin has it.
+  while its revision twin has it. Done 2026-07-07 (the `finishReason`
+  half turned out to be already fixed in the i18n pass): the
+  fence-tolerant parser was extracted to `llmTutor/modelJson.ts` (also
+  deduplicating the two copies in `index.ts`/`blockRepair.ts`) and now
+  backs all five loops, so fenced output parses on the first turn
+  instead of burning a correction call (authoring contract fixtures
+  updated). Found and fixed in passing: the practice-guide correction
+  prompts told the model to author guide content in *Spanish* for every
+  profile — both now use `{{INSTRUCTION_LANGUAGE_NAME}}` (the draft
+  correction had no language rule at all).
+- [ ] Quiz authoring offers the Spanish-based item kinds
+  (`quiz_translate_to_english`, `quiz_understand_in_spanish`) to every
+  authoring profile: `resources/quiz-draft.md` / `quiz-revision.md` list
+  them unconditionally, unlike the tutor's in-chat quiz protocol, which
+  excludes them for non-Spanish conversations (found 2026-07-07 during
+  the loop-parity fix). Decide: gate the item-kind sections by the
+  author's instruction language (registry fragment, like the tutor
+  protocol), or keep them available product-wide and document that.
 - [ ] Regression test: render every prompt with its real placeholder set
   and fail on any leftover `{{PLACEHOLDER}}` (would have caught the
   `ASSIGNMENT_*` bug; `promptContracts.test.ts` only spot-checks

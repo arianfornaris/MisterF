@@ -82,8 +82,8 @@ describe('quiz draft generation contract', () => {
     expect(generateTextMock).toHaveBeenCalledTimes(1);
   });
 
-  it('recovers from markdown-fenced output through one correction turn', async () => {
-    enqueueModelTexts(markdownFencedDraftText, JSON.stringify(validQuizDraft));
+  it('accepts markdown-fenced output without burning a correction turn', async () => {
+    enqueueModelTexts(markdownFencedDraftText);
 
     const draft = await generateQuizDraft({
       openRouterApiKey: testApiKey,
@@ -91,15 +91,7 @@ describe('quiz draft generation contract', () => {
     });
 
     expect(draft.blocks).toHaveLength(9);
-    expect(generateTextMock).toHaveBeenCalledTimes(2);
-
-    const retryMessages = capturedMessages(1);
-    expect(retryMessages.at(-2)?.role).toBe('assistant');
-    expect(retryMessages.at(-2)?.content).toContain('```json');
-    expect(retryMessages.at(-1)?.role).toBe('user');
-    expect(retryMessages.at(-1)?.content).toContain(
-      'Your previous response was not valid JSON.',
-    );
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
   });
 
   it('recovers from prose-wrapped output through one correction turn', async () => {
@@ -134,10 +126,10 @@ describe('quiz draft generation contract', () => {
 
   it('gives up cleanly after exhausting correction turns on invalid JSON', async () => {
     enqueueModelTexts(
-      markdownFencedDraftText,
-      markdownFencedDraftText,
-      markdownFencedDraftText,
-      markdownFencedDraftText,
+      proseWrappedDraftText,
+      proseWrappedDraftText,
+      proseWrappedDraftText,
+      proseWrappedDraftText,
     );
 
     await expect(

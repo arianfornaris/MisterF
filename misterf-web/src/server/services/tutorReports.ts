@@ -19,6 +19,7 @@ import {
 } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
+import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { logger } from './logger.js';
 
 const maxTutorReportGenerationTurns = 4;
@@ -102,10 +103,6 @@ function sanitizeTutorReportLogDetails(
   const sanitized = { ...details };
   delete sanitized.userName;
   return sanitized;
-}
-
-function parseJsonFromModelText(text: string): unknown {
-  return JSON.parse(text.trim()) as unknown;
 }
 
 function formatTutorTranscript(messages: StoredMessage[]): string {
