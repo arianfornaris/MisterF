@@ -2,7 +2,7 @@
 
 Date: 2026-07-04 (last updated: 2026-07-08)
 
-Status: **Active.** V2 is the English-first internationalization release: it
+Status: **Shipped 2026-07-08 as `2.0.0`.** V2 is the English-first internationalization release: it
 makes the platform's instruction language selectable (Spanish, English,
 Haitian Creole). The comprehension-exercises pillar (listening, reading, and
 image comprehension) that originally shared this roadmap was moved to
@@ -505,6 +505,12 @@ Protocol/loop consistency:
 - [x] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass;
   new prompt surfaces have regression fixtures. Green 2026-07-06 (typecheck
   clean, `test:typecheck` clean after fixing the migration-test `up?`
-  guards, 156 tests passing). Re-verify before the 2.0.0 release.
-- [ ] Deployed to production as `2.0.0` per the versioning policy
-  (`versioning-and-releases` skill).
+  guards, 156 tests passing). Re-verified 2026-07-08 before the release
+  (198 tests passing).
+- [x] Deployed to production as `2.0.0` per the versioning policy
+  (`versioning-and-releases` skill). Done 2026-07-08: `v2` merged into
+  `main` (fast-forward), the production `.env.production` model vars
+  updated to the four-tier ladder (lite/regular/advanced/max — backup at
+  `.env.production.bak-pre-v2`), tagged `v2.0.0`, deployed via
+  `deploy.sh`; `/health` reports `2.0.0` and the app serves the new
+  client bundle.
