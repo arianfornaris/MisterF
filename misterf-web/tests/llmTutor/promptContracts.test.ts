@@ -264,6 +264,13 @@ describe('tutor prompt contracts', () => {
     expect(specificTitleSystem).toContain('reason "explicit_user_request"');
   });
 
+  it('forbids using multiple_choice as a preference menu', () => {
+    const protocol = renderTutorBlockProtocol();
+
+    expect(protocol).toContain('Never use this block for preference, navigation,');
+    expect(protocol).toContain('offer those choices as plain text inside a `message` block instead');
+  });
+
   it('documents order_sentences as a normal interactive exercise', () => {
     const system = buildAgentSystemInstruction({
       currentTitle: 'Nueva conversación',

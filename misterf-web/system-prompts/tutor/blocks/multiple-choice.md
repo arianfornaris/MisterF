@@ -9,6 +9,11 @@
  * `isCorrect: true`. The app lets the learner select options and confirm with
  * a checkmark.
  *
+ * This is a gradable exercise: `isCorrect` is the answer key, not a way to
+ * mark acceptable choices. Never use this block for preference, navigation,
+ * or "what would you like to practice next?" questions where every option is
+ * valid — offer those choices as plain text inside a `message` block instead.
+ *
  * This block represents one interactive exercise. Do not emit several
  * top-level `multiple_choice` blocks in the same response. If the learner should
  * answer several multiple-choice questions before feedback, use one `quiz`

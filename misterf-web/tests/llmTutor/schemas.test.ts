@@ -268,6 +268,35 @@ describe('order_sentences schema', () => {
   });
 });
 
+describe('multiple_choice answer-key validation', () => {
+  it('rejects a single-selection block where every option is marked correct, with menu guidance', () => {
+    let caught: unknown;
+    try {
+      validateTutorResponseBlocks({
+        blocks: [
+          {
+            options: [
+              { isCorrect: true, text: 'Practicar conversación' },
+              { isCorrect: true, text: 'Repasar vocabulario' },
+              { isCorrect: true, text: 'Hacer una prueba' },
+            ],
+            question: '¿Cómo prefieres continuar?',
+            selectionMode: 'single',
+            type: 'multiple_choice',
+          },
+        ],
+      });
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(TutorResponseValidationError);
+    const issues = (caught as TutorResponseValidationError).issues;
+    expect(issues[0].message).toMatch(/exactly one correct option/);
+    expect(issues[0].message).toMatch(/preference or menu question/);
+  });
+});
+
 describe('plan-only response validation', () => {
   const planBlock = {
     steps: [

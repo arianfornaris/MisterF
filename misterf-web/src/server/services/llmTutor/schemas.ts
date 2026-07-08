@@ -319,7 +319,9 @@ const quizMultipleChoiceItemSchema = z
     path: ['correctOptions'],
   })
   .refine((item) => item.selectionMode === 'multiple' || item.correctOptions.length === 1, {
-    message: 'multiple_choice with selectionMode "single" must include exactly one correct option.',
+    message:
+      'quiz_multiple_choice with selectionMode "single" must include exactly one correct option; ' +
+      'use selectionMode "multiple" when several options are correct.',
     path: ['selectionMode'],
   });
 
@@ -851,7 +853,9 @@ export const multipleChoiceBlockSchema = z
     return block.options.filter((option) => option.isCorrect).length === 1;
   }, {
     message:
-      'multiple_choice with selectionMode "single" must include exactly one correct option.',
+      'multiple_choice with selectionMode "single" must include exactly one correct option. ' +
+      'If every option is acceptable (a preference or menu question with no wrong answer), ' +
+      'do not use multiple_choice at all; present the choices as plain text inside a `message` block.',
     path: ['selectionMode'],
   });
 
