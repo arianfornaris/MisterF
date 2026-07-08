@@ -1,6 +1,10 @@
-export type ProfileModelTier = 'advanced' | 'max' | 'regular';
+export type ProfileModelTier = 'advanced' | 'lite' | 'max' | 'regular';
 
 export function normalizeProfileModelTier(value: unknown): ProfileModelTier {
+  if (value === 'lite') {
+    return 'lite';
+  }
+
   if (value === 'max') {
     return 'max';
   }

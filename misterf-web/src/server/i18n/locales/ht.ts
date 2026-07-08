@@ -297,14 +297,18 @@ export const ht: LocaleCatalog = {
     },
     modelLegend: 'Modèl pa defo',
     modelHelp: 'Modèl sa a ap itilize nan nouvo konvèsasyon pwofil sa a.',
+    modelLite: 'Lite',
+    modelLiteDesc:
+      'Pi rapid e pi bon mache a. Li ka gen plis difikilte ak egzèsis entèaktif yo; kou 1x.',
     modelRegular: 'Regilye',
-    modelRegularDesc: 'Trè rapid. Ideyal pou pratik regilye ak kou 1x.',
+    modelRegularDesc:
+      'Rapid e fyab. Ideyal pou pratik regilye ak kou 1x.',
     modelAdvanced: 'Avanse',
     modelAdvancedDesc:
-      'Pi entelijan e toujou rapid. Sèvi avè l lè ou vle plis presizyon ak kou 2x.',
+      'Pi entelijan e toujou rapid. Sèvi avè l lè ou vle plis presizyon ak kou 6x.',
     modelMax: 'Max',
     modelMaxDesc:
-      'Opsyon ki pi pwisan e ki pi lan. Rekòmande pou sesyon egzijan ak kou 8x.',
+      'Opsyon ki pi pwisan e ki pi lan. Rekòmande pou sesyon egzijan ak kou 7x.',
     onbAria: 'Konplete pwofil ou',
     onbKicker: 'Pwofil aprantisaj',
     onbTitle: 'Ede Mr. F konnen ou pi byen',

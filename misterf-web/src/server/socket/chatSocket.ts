@@ -33,6 +33,10 @@ import {
   type StoredProfile,
 } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
+import {
+  normalizeProfileModelTier,
+  type ProfileModelTier,
+} from '../profiles/modelTier.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
 import { normalizeConversationTitle } from '../services/llmTutor/conversationTitles.js';
@@ -463,7 +467,7 @@ export function registerChatSocket(io: Server): void {
       const conversation = updateConversationModelTierForUser(
         conversationId,
         userId,
-        normalizeModelTier(payload.modelTier),
+        normalizeProfileModelTier(payload.modelTier),
       );
       if (!conversation) {
         return;
@@ -683,7 +687,7 @@ export function registerChatSocket(io: Server): void {
         userId,
         undefined,
         [buildPracticeGuideStartMessage(practiceGuideSnapshot)],
-        normalizeModelTier(payload.modelTier),
+        normalizeProfileModelTier(payload.modelTier),
       );
     });
 
@@ -818,7 +822,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
-          normalizeModelTier(payload.modelTier),
+          normalizeProfileModelTier(payload.modelTier),
         );
       },
     );
@@ -907,7 +911,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
-          normalizeModelTier(payload.modelTier),
+          normalizeProfileModelTier(payload.modelTier),
         );
       },
     );
@@ -995,7 +999,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
-          normalizeModelTier(payload.modelTier),
+          normalizeProfileModelTier(payload.modelTier),
         );
       },
     );
@@ -1084,7 +1088,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
-          normalizeModelTier(payload.modelTier),
+          normalizeProfileModelTier(payload.modelTier),
         );
       },
     );
@@ -1172,7 +1176,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
-          normalizeModelTier(payload.modelTier),
+          normalizeProfileModelTier(payload.modelTier),
         );
       },
     );
@@ -1244,7 +1248,7 @@ export function registerChatSocket(io: Server): void {
         }>;
         try {
           const llmOptions = await getLlmRequestOptionsForUser(userId);
-          llmOptions.modelTier = normalizeModelTier(payload.modelTier);
+          llmOptions.modelTier = normalizeProfileModelTier(payload.modelTier);
           quizEvaluations = await evaluateQuizResultItemsWithLlm({
             instructionLanguage: conversation.instructionLanguage,
             llm: llmOptions,
@@ -1308,7 +1312,7 @@ export function registerChatSocket(io: Server): void {
               role: 'user',
             },
           ],
-          normalizeModelTier(payload.modelTier),
+          normalizeProfileModelTier(payload.modelTier),
         );
       },
     );
@@ -1479,7 +1483,7 @@ async function streamAssistantMessage(
   userId: string,
   lastUserMessageId?: number,
   extraHistory: TutorMessage[] = [],
-  modelTier: 'advanced' | 'max' | 'regular' = 'regular',
+  modelTier: ProfileModelTier = 'regular',
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;
@@ -1633,20 +1637,6 @@ async function streamAssistantMessage(
     runningConversations.delete(conversationId);
     runningConversationControllers.delete(conversationId);
   }
-}
-
-function normalizeModelTier(
-  value: string | null | undefined,
-): 'advanced' | 'max' | 'regular' {
-  if (value === 'max') {
-    return 'max';
-  }
-
-  if (value === 'advanced') {
-    return 'advanced';
-  }
-
-  return 'regular';
 }
 
 function emitAssistantToolStatus(

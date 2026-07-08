@@ -25,6 +25,10 @@ export function getConfiguredModelId(
     return env.llmAdvancedModel;
   }
 
+  if (options.modelTier === 'lite') {
+    return env.llmLiteModel;
+  }
+
   return env.llmRegularModel;
 }
 

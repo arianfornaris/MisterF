@@ -308,14 +308,18 @@ export const es: LocaleCatalog = {
     },
     modelLegend: 'Modelo por defecto',
     modelHelp: 'Este modelo se usará en las conversaciones nuevas de este perfil.',
+    modelLite: 'Lite',
+    modelLiteDesc:
+      'El más rápido y económico. Puede fallar más en los ejercicios interactivos; costo 1x.',
     modelRegular: 'Regular',
-    modelRegularDesc: 'Muy rápido. Ideal para práctica frecuente con costo 1x.',
+    modelRegularDesc:
+      'Rápido y confiable. Ideal para práctica frecuente con costo 1x.',
     modelAdvanced: 'Avanzado',
     modelAdvancedDesc:
-      'Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 2x.',
+      'Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 6x.',
     modelMax: 'Max',
     modelMaxDesc:
-      'La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 8x.',
+      'La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 7x.',
     onbAria: 'Completa tu perfil',
     onbKicker: 'Perfil de aprendizaje',
     onbTitle: 'Ayuda a Mr. F a conocerte mejor',

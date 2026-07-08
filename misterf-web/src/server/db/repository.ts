@@ -1,5 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { Locale } from '../i18n/index.js';
+import type { ProfileModelTier } from '../profiles/modelTier.js';
 import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
@@ -7,7 +8,7 @@ export type MessageRole = 'user' | 'model';
 export type StoredProfile = {
   id: string;
   userId: string;
-  modelTier: 'advanced' | 'max' | 'regular';
+  modelTier: ProfileModelTier;
   name: string;
   description: string;
   learningContext: string;
@@ -23,7 +24,7 @@ export type StoredConversation = {
   practiceGuideId: string | null;
   id: string;
   instructionLanguage: Locale;
-  modelTier: 'advanced' | 'max' | 'regular';
+  modelTier: ProfileModelTier;
   profileId: string;
   titleUpdatedByUser: boolean;
   title: string;
@@ -377,7 +378,7 @@ export type StoredTutorPlan = {
 type ProfileRow = {
   id: string;
   user_id: string;
-  model_tier: 'advanced' | 'max' | 'regular';
+  model_tier: ProfileModelTier;
   name: string;
   description: string;
   learning_context: string;
@@ -409,7 +410,7 @@ type ConversationRow = {
   practice_guide_id: string | null;
   id: string;
   instruction_language: Locale;
-  model_tier: 'advanced' | 'max' | 'regular';
+  model_tier: ProfileModelTier;
   profile_id: string;
   title: string;
   title_updated_by_user: number;
@@ -2531,7 +2532,7 @@ export function createProfile(input: {
   name: string;
   description?: string;
   learningContext?: string;
-  modelTier?: 'advanced' | 'max' | 'regular';
+  modelTier?: ProfileModelTier;
   instructionLanguage?: Locale;
   profileOnboardingCompleted?: boolean;
 }): StoredProfile {
@@ -2671,7 +2672,7 @@ export function updateProfile(input: {
   name: string;
   description: string;
   learningContext?: string;
-  modelTier?: 'advanced' | 'max' | 'regular';
+  modelTier?: ProfileModelTier;
   instructionLanguage?: Locale;
   profileOnboardingCompleted?: boolean;
 }): StoredProfile | null {
@@ -2749,7 +2750,7 @@ export function updateProfileInstructionLanguageForUser(
 export function updateProfileModelTierForUser(
   profileId: string,
   userId: string,
-  modelTier: 'advanced' | 'max' | 'regular',
+  modelTier: ProfileModelTier,
 ): StoredProfile | null {
   getDb()
     .prepare(
@@ -2770,7 +2771,7 @@ export function createConversation(
   profileId: string,
   title = defaultConversationTitle,
   options: {
-    modelTier?: 'advanced' | 'max' | 'regular';
+    modelTier?: ProfileModelTier;
     practiceGuideId?: string | null;
   } = {},
 ): StoredConversation {
@@ -2949,7 +2950,7 @@ export function renameConversationForUser(
 export function updateConversationModelTierForUser(
   id: string,
   userId: string,
-  modelTier: 'advanced' | 'max' | 'regular',
+  modelTier: ProfileModelTier,
 ): StoredConversation | null {
   getDb()
     .prepare(
@@ -2967,7 +2968,7 @@ export function updateConversationModelTierForUser(
 export function updateConversationModelTierForProfile(
   userId: string,
   profileId: string,
-  modelTier: 'advanced' | 'max' | 'regular',
+  modelTier: ProfileModelTier,
 ): void {
   getDb()
     .prepare(

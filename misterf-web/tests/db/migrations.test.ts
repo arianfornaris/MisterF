@@ -119,6 +119,10 @@ describe('database migrations', () => {
         id: 16,
         name: 'drop_instruction_language_check',
       },
+      {
+        id: 17,
+        name: 'drop_model_tier_check',
+      },
     ]);
 
     const tableNames = (db
@@ -179,15 +183,18 @@ describe('database migrations', () => {
       'model_tier',
     ]));
 
-    // Migration 16 drops the instruction_language CHECK so a new instruction
-    // language no longer needs a schema change (the allowlist is enforced in
-    // application code). The column survives; the constraint does not.
+    // Migrations 16 and 17 drop the instruction_language and model_tier
+    // CHECKs so a new instruction language or model tier no longer needs a
+    // schema change (the allowlists are enforced in application code). The
+    // columns survive; the constraints do not.
     for (const table of ['profiles', 'conversations']) {
       const { sql } = db
         .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?")
         .get(table) as { sql: string };
       expect(sql).toContain('instruction_language TEXT NOT NULL');
       expect(sql).not.toContain('CHECK (instruction_language');
+      expect(sql).toContain('model_tier TEXT NOT NULL');
+      expect(sql).not.toContain('CHECK (model_tier');
     }
     expect(getColumnNames(db, 'conversations')).not.toContain(
       'chat_room_conversation_report_id',

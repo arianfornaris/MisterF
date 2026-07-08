@@ -232,7 +232,7 @@ practice, fallback candidate for regular is `gemini-3-flash-preview`
 model using the existing telemetry events (`llm_structured_correction_requested`,
 `llm_response_validation_failed`, `llm_block_repair_attempt`).
 
-- [ ] Implement the `lite` tier end to end: extend `ProfileModelTier`
+- [x] Implement the `lite` tier end to end: extend `ProfileModelTier`
   (`src/server/profiles/modelTier.ts`) with `'lite'`, add `LLM_MODEL_LITE`
   to the env fallback chain (`src/server/config/env.ts` — lite falls back
   to regular), update the tier selector UI (profile/settings forms and
@@ -240,7 +240,24 @@ model using the existing telemetry events (`llm_structured_correction_requested`
   `ht`), check whether credit multipliers or `creditGate` differentiate
   by tier and extend them if so, update `.env.development` /
   production env to the proposed models, and cover the tier
-  normalization and fallback chain with tests.
+  normalization and fallback chain with tests. Done 2026-07-08:
+  `ProfileModelTier` gained `'lite'` and the inline tier unions across
+  `repository.ts` / `chatSocket.ts` / `llmTutor/types.ts` were
+  consolidated onto it (the duplicate `normalizeModelTier` in
+  `chatSocket.ts` and the dead client `getModelTierLabel` were removed;
+  the client normalizer knows `lite` too). `LLM_MODEL_LITE` joins the
+  fallback chain, `getConfiguredModelId` maps the new tier, and all
+  three env files carry the proposed four-model ladder. Migration 17
+  drops the `model_tier` DB CHECK (same in-place DDL edit as migration
+  16) so future tiers need no schema change. The profiles form shows
+  four radios with `lite` copy in the three catalogs; the advanced/max
+  cost multipliers in the descriptions were refreshed to the new price
+  ratios (~6x/~7x vs regular). Confirmed the credit system has no
+  per-tier multipliers — cost differences flow from real OpenRouter
+  spend — so nothing to extend there. Tests:
+  `tests/server/modelTier.test.ts` (normalization, env fallback chain,
+  tier→model mapping) and the migration test now asserts the dropped
+  CHECK; suite at 198 passing.
 
 ---
 

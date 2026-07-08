@@ -308,14 +308,18 @@ export const en: LocaleCatalog = {
     },
     modelLegend: 'Default model',
     modelHelp: 'This model will be used in this profile’s new conversations.',
+    modelLite: 'Lite',
+    modelLiteDesc:
+      'The fastest and cheapest. May struggle more with interactive exercises; 1x cost.',
     modelRegular: 'Regular',
-    modelRegularDesc: 'Very fast. Ideal for frequent practice at 1x cost.',
+    modelRegularDesc:
+      'Fast and reliable. Ideal for frequent practice at 1x cost.',
     modelAdvanced: 'Advanced',
     modelAdvancedDesc:
-      'Smarter and still fast. Use it when you want more precision at 2x cost.',
+      'Smarter and still fast. Use it when you want more precision at 6x cost.',
     modelMax: 'Max',
     modelMaxDesc:
-      'The most powerful and slowest option. Recommended for demanding sessions at 8x cost.',
+      'The most powerful and slowest option. Recommended for demanding sessions at 7x cost.',
     onbAria: 'Complete your profile',
     onbKicker: 'Learning profile',
     onbTitle: 'Help Mr. F get to know you better',

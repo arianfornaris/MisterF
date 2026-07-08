@@ -1743,4 +1743,34 @@ export const migrations: Migration[] = [
       db.pragma('writable_schema = OFF');
     },
   },
+  {
+    // The model-tier allowlist now lives in application code
+    // (profiles/modelTier.ts), so adding a tier (e.g. 'lite') no longer
+    // needs a schema change. Drop the DB CHECK the same way migration 16
+    // dropped the instruction_language one: edit the stored table DDL in
+    // place, moving no rows and leaving foreign keys and indexes untouched.
+    id: 17,
+    name: 'drop_model_tier_check',
+    run: (db) => {
+      db.pragma('writable_schema = ON');
+      const select = db.prepare(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?",
+      );
+      const update = db.prepare(
+        "UPDATE sqlite_master SET sql = ? WHERE type = 'table' AND name = ?",
+      );
+      for (const table of ['profiles', 'conversations']) {
+        const row = select.get(table) as { sql: string } | undefined;
+        if (!row) {
+          continue;
+        }
+        const rewritten = row.sql.replace(
+          /\s*CHECK \(model_tier IN \([^)]*\)\)/,
+          '',
+        );
+        update.run(rewritten, table);
+      }
+      db.pragma('writable_schema = OFF');
+    },
+  },
 ];

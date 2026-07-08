@@ -1,3 +1,5 @@
+import type { ProfileModelTier } from '../../profiles/modelTier.js';
+
 export type TutorMessage = {
   role: 'user' | 'model';
   content: string;
@@ -5,7 +7,7 @@ export type TutorMessage = {
 
 export type LlmRequestOptions = {
   modelId?: string;
-  modelTier?: 'advanced' | 'max' | 'regular';
+  modelTier?: ProfileModelTier;
   openRouterApiKey?: string | null;
   userId?: string;
 };

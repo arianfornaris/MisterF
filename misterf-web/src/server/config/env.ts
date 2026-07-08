@@ -83,6 +83,11 @@ export const env = {
     process.env.LOG_LEVEL ??
     (nodeEnv === 'production' ? 'info' : 'debug'),
   llmProvider: 'openrouter',
+  llmLiteModel:
+    process.env.LLM_MODEL_LITE ??
+    process.env.LLM_MODEL_REGULAR ??
+    process.env.LLM_MODEL ??
+    'openai/gpt-5-mini',
   llmRegularModel:
     process.env.LLM_MODEL_REGULAR ??
     process.env.LLM_MODEL ??

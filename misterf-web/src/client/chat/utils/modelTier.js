@@ -1,4 +1,8 @@
 export function normalizeModelTier(value) {
+  if (value === 'lite') {
+    return 'lite';
+  }
+
   if (value === 'max') {
     return 'max';
   }
@@ -8,17 +12,4 @@ export function normalizeModelTier(value) {
   }
 
   return 'regular';
-}
-
-export function getModelTierLabel(value) {
-  const tier = normalizeModelTier(value);
-  if (tier === 'max') {
-    return 'Max';
-  }
-
-  if (tier === 'advanced') {
-    return 'Avanzado';
-  }
-
-  return 'Regular';
 }
