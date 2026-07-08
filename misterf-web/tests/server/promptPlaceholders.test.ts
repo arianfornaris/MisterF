@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { renderTutorBlockProtocol } from '../../src/server/services/llmTutor/blockProtocol.js';
 import {
   instructionLanguageEnglishName,
+  quizAuthoringPlaceholders,
   quizEvaluationSupportLanguageRules,
   tutorSystemLanguagePlaceholders,
 } from '../../src/server/services/llmTutor/languagePack.js';
@@ -64,22 +65,22 @@ const promptRenderers: Record<string, (locale: TestLocale) => string> = {
     renderSystemPrompt('resources/practice-guide-revision.md', {
       INSTRUCTION_LANGUAGE_NAME: languageName(locale),
     }),
-  'resources/quiz-draft-correction.md': () =>
+  'resources/quiz-draft-correction.md': (locale) =>
     renderSystemPrompt('resources/quiz-draft-correction.md', {
       CORRECTION_REASON: correctionReason,
+      ...quizAuthoringPlaceholders(locale),
     }),
   'resources/quiz-draft.md': (locale) =>
-    renderSystemPrompt('resources/quiz-draft.md', {
-      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
-    }),
-  'resources/quiz-revision-correction.md': () =>
+    renderSystemPrompt('resources/quiz-draft.md', quizAuthoringPlaceholders(locale)),
+  'resources/quiz-revision-correction.md': (locale) =>
     renderSystemPrompt('resources/quiz-revision-correction.md', {
       CORRECTION_REASON: correctionReason,
+      ...quizAuthoringPlaceholders(locale),
     }),
   'resources/quiz-revision.md': (locale) =>
-    renderSystemPrompt('resources/quiz-revision.md', {
-      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
-    }),
+    renderSystemPrompt('resources/quiz-revision.md', quizAuthoringPlaceholders(locale)),
+  'resources/quiz-translation-authoring-kinds.md': () =>
+    renderSystemPrompt('resources/quiz-translation-authoring-kinds.md', {}),
   'resources/roleplay-draft-correction.md': () =>
     renderSystemPrompt('resources/roleplay-draft-correction.md', {
       CORRECTION_REASON: correctionReason,

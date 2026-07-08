@@ -387,14 +387,23 @@ Protocol/loop consistency:
   prompts told the model to author guide content in *Spanish* for every
   profile — both now use `{{INSTRUCTION_LANGUAGE_NAME}}` (the draft
   correction had no language rule at all).
-- [ ] Quiz authoring offers the Spanish-based item kinds
+- [x] Quiz authoring offers the Spanish-based item kinds
   (`quiz_translate_to_english`, `quiz_understand_in_spanish`) to every
   authoring profile: `resources/quiz-draft.md` / `quiz-revision.md` list
   them unconditionally, unlike the tutor's in-chat quiz protocol, which
   excludes them for non-Spanish conversations (found 2026-07-07 during
-  the loop-parity fix). Decide: gate the item-kind sections by the
-  author's instruction language (registry fragment, like the tutor
-  protocol), or keep them available product-wide and document that.
+  the loop-parity fix). Decided: gate by the author's instruction
+  language. Done 2026-07-07 with the registry pattern: the kind sections
+  moved to a `quiz-translation-authoring-kinds.md` fragment injected only
+  when `includesSpanishTranslationBlocks` (kinds renumbered so the
+  invariant list is 1–7), the Spanish rules cluster moved to a
+  `quizAuthoringSupportLanguageRules` pack field (es/ht variants, empty
+  for `en`), the two correction prompts' kind enumerations gained the
+  same gating, and the authoring UI kind picker (`getQuizBlockKinds`)
+  filters on the same registry flag. Existing quizzes with those kinds
+  are untouched (schema still accepts them; shared resources render as
+  authored). Drift guards updated + gating test across the four
+  authoring prompts in the three languages.
 - [x] Regression test: render every prompt with its real placeholder set
   and fail on any leftover `{{PLACEHOLDER}}` (would have caught the
   `ASSIGNMENT_*` bug; `promptContracts.test.ts` only spot-checks

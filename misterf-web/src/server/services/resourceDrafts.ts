@@ -18,7 +18,10 @@ import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './ll
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
-import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
+import {
+  instructionLanguageEnglishName,
+  quizAuthoringPlaceholders,
+} from './llmTutor/languagePack.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
 
 const maxDraftGenerationTurns = 4;
@@ -393,7 +396,7 @@ export async function generateQuizDraft(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizDraftSchema,
     systemPromptPath: 'resources/quiz-draft.md',
-    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
   });
 }
 
@@ -422,7 +425,7 @@ export async function generateQuizRevision(input: {
     openRouterApiKey: input.openRouterApiKey,
     schema: quizRevisionSchema,
     systemPromptPath: 'resources/quiz-revision.md',
-    systemPromptVariables: languagePromptVariables(input.instructionLanguage),
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
   });
 }
 

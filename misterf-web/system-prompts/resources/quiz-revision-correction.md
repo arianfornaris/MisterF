@@ -40,12 +40,10 @@ Rules to preserve:
 - Every section id must be unique and match ^[a-z][a-z0-9_-]*$.
 - Every block sectionId must match the id of one entry in draft.sections; omit sectionId for ungrouped blocks.
 - Keep blocks of the same section adjacent, in the order the sections are declared, with ungrouped blocks first.
-- Use only these supported quiz item kinds: quiz_open_text, quiz_translate_to_english, quiz_understand_in_spanish, quiz_fill_in_the_blank_input, quiz_fill_in_the_blank_choice, quiz_multiple_choice, quiz_matching_pairs, quiz_unscramble_sentence, quiz_order_sentences.
+- Use only these supported quiz item kinds: quiz_open_text, quiz_fill_in_the_blank_input, quiz_fill_in_the_blank_choice, quiz_multiple_choice, quiz_matching_pairs, quiz_unscramble_sentence, quiz_order_sentences{{QUIZ_TRANSLATION_KIND_LIST}}.
 - Do not use quiz_true_false, quiz_ordering, short-answer, essay, or any other unsupported kind; rewrite unsupported items as one of the supported kinds.
 - For quiz_order_sentences, provide sentences in the correct order. Do not pre-shuffle them, number them, or add letter labels.
-- Preserve that this is an English-learning quiz: prompts may be in Spanish, but target learner output and accepted/correct answers must be English except for `quiz_understand_in_spanish`.
-- For `quiz_understand_in_spanish`, the sentence must be English and acceptableAnswers must be Spanish explanations of the English meaning.
-- Do not rewrite invalid items into exercises that grade Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.
+- Preserve that this is an English-learning quiz: target learner output and accepted/correct answers must be English.{{QUIZ_SUPPORT_LANGUAGE_RULES}}
 - The number of blanks must match the number of placeholders in fill-in-the-blank items.
 - correctOptions must exist in options.
 - correctPairs must cover all leftItems and rightItems.

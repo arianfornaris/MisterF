@@ -69,3 +69,25 @@ export function quizEvaluationSupportLanguageRules(
 ): string {
   return languages[language].tutor.quizEvaluationSupportLanguageRules;
 }
+
+/**
+ * Placeholder values for the quiz authoring prompts (draft/revision and their
+ * corrections). The Spanish-based translation item kinds
+ * (`quiz_translate_to_english`, `quiz_understand_in_spanish`) are offered
+ * only to languages that use them, mirroring the tutor quiz protocol.
+ */
+export function quizAuthoringPlaceholders(
+  language: InstructionLanguage,
+): Record<string, string> {
+  const pack = languages[language].tutor;
+  return {
+    INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
+    QUIZ_SUPPORT_LANGUAGE_RULES: pack.quizAuthoringSupportLanguageRules,
+    QUIZ_TRANSLATION_AUTHORING_KINDS: pack.includesSpanishTranslationBlocks
+      ? `\n\n${loadSystemPrompt('resources/quiz-translation-authoring-kinds.md').trim()}`
+      : '',
+    QUIZ_TRANSLATION_KIND_LIST: pack.includesSpanishTranslationBlocks
+      ? ', quiz_translate_to_english, quiz_understand_in_spanish'
+      : '',
+  };
+}

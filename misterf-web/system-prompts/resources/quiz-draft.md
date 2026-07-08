@@ -63,23 +63,7 @@ Supported quiz item shapes:
   "placeholder": "..."
 }
 
-2. Translate to English
-{
-  "kind": "quiz_translate_to_english",
-  "prompt": "...",
-  "sentence": "...",
-  "acceptableAnswers": ["..."]
-}
-
-3. Understand in Spanish
-{
-  "kind": "quiz_understand_in_spanish",
-  "prompt": "...",
-  "sentence": "...",
-  "acceptableAnswers": ["..."]
-}
-
-4. Fill in the blank with typed answers
+2. Fill in the blank with typed answers
 Use ___ once per blank.
 {
   "kind": "quiz_fill_in_the_blank_input",
@@ -92,7 +76,7 @@ Use ___ once per blank.
   ]
 }
 
-5. Fill in the blank with choices
+3. Fill in the blank with choices
 Use {{blank}} once per blank.
 {
   "kind": "quiz_fill_in_the_blank_choice",
@@ -106,7 +90,7 @@ Use {{blank}} once per blank.
   ]
 }
 
-6. Multiple choice
+4. Multiple choice
 {
   "kind": "quiz_multiple_choice",
   "prompt": "...",
@@ -115,7 +99,7 @@ Use {{blank}} once per blank.
   "correctOptions": ["..."]
 }
 
-7. Matching pairs
+5. Matching pairs
 {
   "kind": "quiz_matching_pairs",
   "prompt": "...",
@@ -126,7 +110,7 @@ Use {{blank}} once per blank.
   ]
 }
 
-8. Unscramble sentence
+6. Unscramble sentence
 {
   "kind": "quiz_unscramble_sentence",
   "prompt": "...",
@@ -134,7 +118,7 @@ Use {{blank}} once per blank.
   "acceptableAnswers": ["She is studying English."]
 }
 
-9. Order sentences
+7. Order sentences
 List `sentences` in the correct order; the app shuffles them for the student
 and uses the array order as the hidden correct order. Do not pre-shuffle and
 do not number the sentences. Use it for steps of a process, story lines, or
@@ -148,17 +132,13 @@ instructions; for reordering words inside one sentence use
     "Tell the worker what mail service you want.",
     "Pay for sending your mail."
   ]
-}
+}{{QUIZ_TRANSLATION_AUTHORING_KINDS}}
 
 Quality rules:
-- Mister F is an English-learning product. The quiz must practice and evaluate English, not Spanish, unless the teacher explicitly asks for a Spanish meta-explanation that supports English learning.
+- Mister F is an English-learning product. The quiz must practice and evaluate English as the target skill.
 - Write title, description, targetTopic, instructions, prompts, and visible learner instructions in {{INSTRUCTION_LANGUAGE_NAME}} unless the user clearly asks for another language.
-- Keep the target learner output in English for `quiz_open_text`, `quiz_translate_to_english`, `quiz_fill_in_the_blank_input`, `quiz_fill_in_the_blank_choice`, `quiz_multiple_choice`, `quiz_matching_pairs`, `quiz_unscramble_sentence`, and `quiz_order_sentences`.
-- Use Spanish only as source language for `quiz_translate_to_english`, as the expected explanation language for `quiz_understand_in_spanish`, or as learner-facing instructions.
-- For `quiz_understand_in_spanish`, the sentence must be in English and acceptableAnswers must be Spanish explanations of the English meaning.
-- For `quiz_translate_to_english`, the sentence may be Spanish, but acceptableAnswers must be natural English translations.
+- Keep the target learner output in English for every item kind.{{QUIZ_SUPPORT_LANGUAGE_RULES}}
 - For fill-in-the-blank and unscramble items, the sentence being completed or reconstructed should normally be English.
-- Do not create exercises that grade Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.
 - Keep the task focused on one coherent learning goal or a tight cluster of related goals.
 - Mix item types when that helps learning, but do not force variety at the expense of clarity.
 - For open-ended items, make the prompt specific enough that the evaluator can judge the answer from the item and quiz context.

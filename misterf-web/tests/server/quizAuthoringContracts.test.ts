@@ -34,7 +34,11 @@ import {
   quizDraftSchema,
   quizDraftToQuizBlock,
 } from '../../src/server/services/quizzes.js';
-import { loadSystemPrompt } from '../../src/server/services/systemPrompts.js';
+import { quizAuthoringPlaceholders } from '../../src/server/services/llmTutor/languagePack.js';
+import {
+  loadSystemPrompt,
+  renderSystemPrompt,
+} from '../../src/server/services/systemPrompts.js';
 
 const testApiKey = 'test-openrouter-key';
 
@@ -287,10 +291,42 @@ describe('quiz evaluation contract', () => {
 });
 
 describe('prompt-schema drift guards', () => {
-  it('documents every accepted quiz item kind in the draft prompt', () => {
-    const prompt = loadSystemPrompt('resources/quiz-draft.md');
+  it('documents every accepted quiz item kind in the Spanish draft prompt', () => {
+    const prompt = renderSystemPrompt(
+      'resources/quiz-draft.md',
+      quizAuthoringPlaceholders('es'),
+    );
     for (const kind of quizItemKinds) {
       expect(prompt).toContain(kind);
+    }
+  });
+
+  it('offers the Spanish translation kinds only to Spanish authoring profiles', () => {
+    const authoringPrompts = [
+      'resources/quiz-draft.md',
+      'resources/quiz-revision.md',
+      'resources/quiz-draft-correction.md',
+      'resources/quiz-revision-correction.md',
+    ];
+
+    for (const promptPath of authoringPrompts) {
+      const spanish = renderSystemPrompt(promptPath, {
+        CORRECTION_REASON: 'reason',
+        ...quizAuthoringPlaceholders('es'),
+      });
+      expect(spanish).toContain('quiz_translate_to_english');
+      expect(spanish).toContain('quiz_understand_in_spanish');
+
+      for (const locale of ['en', 'ht'] as const) {
+        const rendered = renderSystemPrompt(promptPath, {
+          CORRECTION_REASON: 'reason',
+          ...quizAuthoringPlaceholders(locale),
+        });
+        expect(rendered).not.toContain('quiz_translate_to_english');
+        expect(rendered).not.toContain('quiz_understand_in_spanish');
+        expect(rendered).not.toContain('Spanish grammar');
+        expect(rendered).not.toMatch(/\{\{[A-Z_]+\}\}/);
+      }
     }
   });
 

@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { translate, type Locale } from '../i18n/index.js';
+import { languages, translate, type Locale } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import {
   archiveQuizForUser,
@@ -96,6 +96,10 @@ function getQuizBlockKinds(locale: Locale): Array<{
   label: string;
   value: string;
 }> {
+  // The Spanish-based translation kinds are offered only to languages that
+  // use them, mirroring the authoring prompts and the tutor quiz protocol.
+  const includeTranslationKinds =
+    languages[locale].tutor.includesSpanishTranslationBlocks;
   return [
     ['quiz_open_text', 'quizzes.kindOpenText', 'msg.kindOpenTextDesc'],
     ['quiz_translate_to_english', 'quizzes.kindTranslate', 'msg.kindTranslateDesc'],
@@ -106,11 +110,18 @@ function getQuizBlockKinds(locale: Locale): Array<{
     ['quiz_matching_pairs', 'quizzes.kindMatching', 'msg.kindMatchingDesc'],
     ['quiz_unscramble_sentence', 'quizzes.kindUnscramble', 'msg.kindUnscrambleDesc'],
     ['quiz_order_sentences', 'quizzes.kindOrder', 'msg.kindOrderDesc'],
-  ].map(([value, labelKey, descKey]) => ({
-    description: translate(locale, descKey),
-    label: translate(locale, labelKey),
-    value,
-  }));
+  ]
+    .filter(
+      ([value]) =>
+        includeTranslationKinds ||
+        (value !== 'quiz_translate_to_english' &&
+          value !== 'quiz_understand_in_spanish'),
+    )
+    .map(([value, labelKey, descKey]) => ({
+      description: translate(locale, descKey),
+      label: translate(locale, labelKey),
+      value,
+    }));
 }
 
 const defaultQuizAuthoringTab: QuizAuthoringTab = 'general';

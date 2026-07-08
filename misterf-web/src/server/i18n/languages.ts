@@ -35,6 +35,13 @@ export type TutorLanguagePack = {
    * support-language carve-out.
    */
   quizEvaluationSupportLanguageRules: string;
+  /**
+   * Extra bullet rules for the quiz authoring prompts (draft/revision and
+   * their corrections) covering how the support language may appear in
+   * authored items. Same `\n- ` fragment convention as the evaluator rules;
+   * empty for monolingual languages.
+   */
+  quizAuthoringSupportLanguageRules: string;
 };
 
 /**
@@ -127,6 +134,11 @@ export const languages = {
       quizEvaluationSupportLanguageRules:
         '\n- Do not evaluate Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.' +
         '\n- For Spanish prompts or instructions, do not treat the Spanish prompt language as the language being practiced.',
+      quizAuthoringSupportLanguageRules:
+        '\n- Use Spanish only as source language for `quiz_translate_to_english`, as the expected explanation language for `quiz_understand_in_spanish`, or as learner-facing instructions; a Spanish meta-explanation is acceptable when the teacher explicitly asks for one.' +
+        '\n- For `quiz_understand_in_spanish`, the sentence must be in English and acceptableAnswers must be Spanish explanations of the English meaning; this is the one kind whose expected learner answer is not English.' +
+        '\n- For `quiz_translate_to_english`, the sentence may be Spanish, but acceptableAnswers must be natural English translations.' +
+        '\n- Do not create exercises that grade Spanish grammar, Spanish writing style, or Spanish vocabulary as the target skill.',
     },
     greetings: {
       initial: [
@@ -216,6 +228,7 @@ export const languages = {
       conversationTitleRule:
         'The title must be short, English, human-friendly, and specific; avoid generic titles such as "English practice", "Conversation", or "Conversation summary".',
       quizEvaluationSupportLanguageRules: '',
+      quizAuthoringSupportLanguageRules: '',
     },
     greetings: {
       initial: [
@@ -308,6 +321,9 @@ export const languages = {
       quizEvaluationSupportLanguageRules:
         '\n- Do not evaluate Haitian Creole grammar, writing style, or vocabulary as the target skill.' +
         '\n- For Haitian Creole prompts or instructions, do not treat the prompt language as the language being practiced.',
+      quizAuthoringSupportLanguageRules:
+        '\n- Use Haitian Creole only for learner-facing instructions.' +
+        '\n- Do not create exercises that grade Haitian Creole grammar, writing style, or vocabulary as the target skill.',
     },
     greetings: {
       initial: [
