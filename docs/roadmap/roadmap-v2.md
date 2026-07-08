@@ -286,8 +286,19 @@ import/export product idea and moved to the idea inbox
   the repair prompt. The always-on message classifier was deferred to
   Roadmap V3 with a data prerequisite (quantify linter miss rate from
   production logs).
-- [ ] [UI Style Consistency Audit](../issues/ui-style-consistency-audit.md):
-  semantic CSS class naming pass across the app.
+- [x] [UI Style Consistency Audit](../issues/completed/ui-style-consistency-audit.md):
+  semantic CSS class naming pass across the app. Done 2026-07-08: the app-wide
+  page scaffold that every page borrowed under resource names
+  (`app-resource-view`, `resource-page-*`, plus the duplicate
+  `resource-eyebrow`/section-kicker synonyms) is now the `app-page-*` family in
+  `app-pages.css`; the profile pages dropped their `practice-guide-*` classes
+  for `app-form-grid`/`app-form-actions`, `profile-card`, and Bootstrap
+  utilities; the authoring revision chat shared by quizzes/guides/roleplays
+  moved from `quiz-chat-*`/`quiz-tabs` to `authoring-*` in `authoring.css`;
+  camelCase `practiceGuide-*` class names were normalized and ~30 dead rules
+  deleted. `uiClassArchitecture.test.ts` forbids every retired name, and the
+  conventions are documented in `docs/design/visual-design.md` ("Semantic
+  Class Naming"). Suite at 198 passing; client bundle rebuilt.
 
 ## 2.1 Prompt & Agent-Loop Audit Fixes
 

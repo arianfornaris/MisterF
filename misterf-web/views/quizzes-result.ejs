@@ -1,9 +1,9 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view quizzes-page">
-  <div class="resource-page-header resource-page-header-has-close">
+<section class="app-page quizzes-page">
+  <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="resource-eyebrow"><%= t('quizzes.resultKicker') %></p>
+      <p class="app-page-kicker"><%= t('quizzes.resultKicker') %></p>
       <h1><%= resultTitle %></h1>
       <div class="resource-action-row mt-3">
         <% if (isAuthenticated) { %>
@@ -33,9 +33,9 @@
         <% } %>
       </div>
     </div>
-    <div class="resource-page-header-actions">
+    <div class="app-page-header-actions">
       <a
-        class="resource-page-close-button"
+        class="app-page-close-button"
         href="/quizzes/<%= encodeURIComponent(attempt.quizId) %>"
         aria-label="<%= t('common.close') %>"
         title="<%= t('common.close') %>"

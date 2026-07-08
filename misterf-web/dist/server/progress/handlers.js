@@ -24,8 +24,8 @@ export function renderProgressPage(request, response) {
         profileId: request.activeProfile.id,
         userId: user.id,
     });
-    const eventViews = buildLearnerProgressEventViews(events);
-    const vocabularyItems = buildLearnerProgressVocabularyItems(events);
+    const eventViews = buildLearnerProgressEventViews(events, request.locale);
+    const vocabularyItems = buildLearnerProgressVocabularyItems(events, request.locale);
     response.render('progress', {
         ...buildAppShellContext({
             activeProfile: request.activeProfile,

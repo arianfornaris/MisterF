@@ -5,6 +5,8 @@ import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, resolveGues
 import { generateTutorConversationReport } from '../services/tutorReports.js';
 import { articledContextResourceTypeLabel, buildResourceFromContextPrompt, contextResourceTypeLabel, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { recordTutorConversationReportProgress } from '../services/learnerProgress.js';
+import { translate } from '../i18n/index.js';
+import { isGenericConversationTitle, normalizeConversationTitle, } from '../services/llmTutor/conversationTitles.js';
 import { logger } from '../services/logger.js';
 export function renderChatPage(request, response) {
     const user = request.authUser;
@@ -86,6 +88,7 @@ export async function handleFinalizeTutorConversation(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(user.id);
         generatedReport = await generateTutorConversationReport({
+            instructionLanguage: conversation.instructionLanguage,
             messages,
             openRouterApiKey,
             userName: user.fullName,
@@ -166,7 +169,7 @@ export async function handleCreateResourceFromTutorConversationReport(request, r
     const instruction = typeof request.body.prompt === 'string' ? request.body.prompt.trim().slice(0, 2000) : '';
     const prompt = buildResourceFromContextPrompt({
         context: buildTutorReportContext(report),
-        contextLabel: 'Resumen de la conversación',
+        contextLabel: 'Conversation summary',
         instruction,
         type,
     });
@@ -227,7 +230,7 @@ export async function handleCreateResourceFromConversation(request, response) {
     const instruction = typeof request.body.prompt === 'string' ? request.body.prompt.trim().slice(0, 2000) : '';
     const prompt = buildResourceFromContextPrompt({
         context: formatConversationTranscript(messages),
-        contextLabel: 'Transcripción de la conversación',
+        contextLabel: 'Conversation transcript',
         instruction,
         type,
     });
@@ -257,6 +260,7 @@ export async function handleCreateResourceFromConversation(request, response) {
     appendConversationResourceLinkMessage({
         conversationId: conversation.id,
         detailPath: created.detailPath,
+        locale: conversation.instructionLanguage,
         title: created.title,
         type,
     });
@@ -269,9 +273,14 @@ export async function handleCreateResourceFromConversation(request, response) {
     response.redirect(conversationPath);
 }
 function appendConversationResourceLinkMessage(input) {
-    const label = contextResourceTypeLabel(input.type);
+    const label = contextResourceTypeLabel(input.type, input.locale);
     const safeTitle = input.title.replace(/[\[\]]/g, '').trim() || label;
-    const markdown = `Creé ${articledContextResourceTypeLabel(input.type)} **${safeTitle}** a partir de esta conversación.\n\n[Abrir ${label}](${input.detailPath})`;
+    const markdown = translate(input.locale, 'msg.resourceCreatedMessage', {
+        articledLabel: articledContextResourceTypeLabel(input.type, input.locale),
+        label,
+        path: input.detailPath,
+        title: safeTitle,
+    });
     addMessage(input.conversationId, 'model', markdown, {
         blocks: [{ markdown, type: 'message' }],
         source: 'resource_created',
@@ -281,7 +290,7 @@ function formatConversationTranscript(messages) {
     const recent = messages.slice(-40);
     const transcript = recent
         .map((message) => {
-        const speaker = message.role === 'user' ? 'Estudiante' : 'Mister F';
+        const speaker = message.role === 'user' ? 'Learner' : 'Mister F';
         return `${speaker}: ${message.content}`;
     })
         .join('\n\n');
@@ -308,30 +317,13 @@ function renameGenericConversationFromReportTitle(conversation, reportTitle) {
     if (!shouldUseReportTitleForConversation(conversation)) {
         return;
     }
-    const title = normalizeGeneratedConversationTitle(reportTitle);
+    const title = normalizeConversationTitle(reportTitle);
     if (!title) {
         return;
     }
     renameConversationForUser(conversation.id, conversation.userId, title);
 }
 function shouldUseReportTitleForConversation(conversation) {
-    if (conversation.titleUpdatedByUser) {
-        return false;
-    }
-    const normalizedTitle = normalizeTitleForComparison(conversation.title);
-    return (!normalizedTitle ||
-        normalizedTitle === 'nueva conversacion' ||
-        normalizedTitle === 'new conversation');
-}
-function normalizeGeneratedConversationTitle(title) {
-    return title.replace(/\s+/g, ' ').trim().slice(0, 90);
-}
-function normalizeTitleForComparison(title) {
-    return title
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .toLowerCase();
+    return !conversation.titleUpdatedByUser && isGenericConversationTitle(conversation.title);
 }
 //# sourceMappingURL=handlers.js.map

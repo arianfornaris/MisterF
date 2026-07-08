@@ -1,23 +1,23 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view resources-page">
-  <div class="resource-page-header">
+<section class="app-page resources-page">
+  <div class="app-page-header">
     <div>
-      <p class="resource-page-kicker"><%= t('resources.sharedResourceKicker') %></p>
-      <h1 class="resource-page-title"><%= sharedResource.title %></h1>
+      <p class="app-page-kicker"><%= t('resources.sharedResourceKicker') %></p>
+      <h1 class="app-page-title"><%= sharedResource.title %></h1>
       <% if (quizTakeAction) { %>
-        <p class="resource-page-copy">
+        <p class="app-page-copy">
           <%= t('resources.quizTakeCopy') %>
         </p>
       <% } else { %>
-        <p class="resource-page-copy">
+        <p class="app-page-copy">
           <%= t('resources.addToProfileCopy') %>
         </p>
       <% } %>
     </div>
   </div>
 
-  <section class="resource-page-detail-shell">
+  <section class="app-page-detail-shell">
     <div class="d-grid gap-4">
       <div class="d-flex align-items-center gap-2 flex-wrap">
         <span class="badge rounded-pill <%= sharedResource.badgeClass %>">

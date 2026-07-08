@@ -10,6 +10,7 @@ function toStoredProfile(row) {
         name: row.name,
         description: row.description,
         learningContext: row.learning_context,
+        instructionLanguage: row.instruction_language,
         profileOnboardingCompletedAt: row.profile_onboarding_completed_at,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
@@ -21,6 +22,7 @@ function toStoredConversation(row) {
         closedAt: row.closed_at,
         practiceGuideId: row.practice_guide_id,
         id: row.id,
+        instructionLanguage: row.instruction_language,
         modelTier: row.model_tier,
         profileId: row.profile_id,
         title: row.title,
@@ -1452,11 +1454,12 @@ export function createProfile(input) {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.userId, input.name, input.description ?? '', input.learningContext ?? '', input.modelTier ?? 'regular', input.profileOnboardingCompleted === false ? null : new Date().toISOString());
+        .run(id, input.userId, input.name, input.description ?? '', input.learningContext ?? '', input.modelTier ?? 'regular', input.instructionLanguage ?? 'es', input.profileOnboardingCompleted === false ? null : new Date().toISOString());
     const profile = findProfileForUser(id, input.userId);
     if (!profile) {
         throw new Error('Could not load newly created profile.');
@@ -1473,6 +1476,7 @@ export function findProfileForUser(id, userId) {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at,
           created_at,
           updated_at
@@ -1492,6 +1496,7 @@ export function findProfileById(id) {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at,
           created_at,
           updated_at
@@ -1511,6 +1516,7 @@ export function listProfilesForUser(userId) {
           description,
           learning_context,
           model_tier,
+          instruction_language,
           profile_onboarding_completed_at,
           created_at,
           updated_at
@@ -1521,13 +1527,14 @@ export function listProfilesForUser(userId) {
         .all(userId);
     return rows.map(toStoredProfile);
 }
-export function ensureUserHasProfile(userId) {
+export function ensureUserHasProfile(userId, instructionLanguage) {
     const existingProfiles = listProfilesForUser(userId);
     if (existingProfiles.length > 0) {
         return existingProfiles[0];
     }
     return createProfile({
         description: '',
+        instructionLanguage,
         name: defaultProfileName,
         profileOnboardingCompleted: false,
         userId,
@@ -1541,6 +1548,7 @@ export function updateProfile(input) {
             description = ?,
             learning_context = COALESCE(?, learning_context),
             model_tier = COALESCE(?, model_tier),
+            instruction_language = COALESCE(?, instruction_language),
             profile_onboarding_completed_at = CASE
               WHEN ? = 1 THEN COALESCE(profile_onboarding_completed_at, CURRENT_TIMESTAMP)
               ELSE profile_onboarding_completed_at
@@ -1548,7 +1556,7 @@ export function updateProfile(input) {
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
       `)
-        .run(input.name, input.description, input.learningContext ?? null, input.modelTier ?? null, input.profileOnboardingCompleted ? 1 : 0, input.profileId, input.userId);
+        .run(input.name, input.description, input.learningContext ?? null, input.modelTier ?? null, input.instructionLanguage ?? null, input.profileOnboardingCompleted ? 1 : 0, input.profileId, input.userId);
     return findProfileForUser(input.profileId, input.userId);
 }
 export function markProfileOnboardingCompleted(input) {
@@ -1565,6 +1573,17 @@ export function markProfileOnboardingCompleted(input) {
         .run(input.profileId, input.userId);
     return findProfileForUser(input.profileId, input.userId);
 }
+export function updateProfileInstructionLanguageForUser(profileId, userId, instructionLanguage) {
+    getDb()
+        .prepare(`
+        UPDATE profiles
+        SET instruction_language = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND user_id = ?
+      `)
+        .run(instructionLanguage, profileId, userId);
+    return findProfileForUser(profileId, userId);
+}
 export function updateProfileModelTierForUser(profileId, userId, modelTier) {
     getDb()
         .prepare(`
@@ -1578,7 +1597,9 @@ export function updateProfileModelTierForUser(profileId, userId, modelTier) {
 }
 export function createConversation(userId, profileId, title = defaultConversationTitle, options = {}) {
     const id = randomUUID();
-    const modelTier = options.modelTier ?? findProfileById(profileId)?.modelTier ?? 'regular';
+    const profile = findProfileById(profileId);
+    const modelTier = options.modelTier ?? profile?.modelTier ?? 'regular';
+    const instructionLanguage = profile?.instructionLanguage ?? 'es';
     getDb()
         .prepare(`
         INSERT INTO conversations (
@@ -1588,11 +1609,12 @@ export function createConversation(userId, profileId, title = defaultConversatio
           title,
           practice_guide_id,
           active_agent,
-          model_tier
+          model_tier,
+          instruction_language
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, userId, profileId, title, options.practiceGuideId ?? null, 'tutor', modelTier);
+        .run(id, userId, profileId, title, options.practiceGuideId ?? null, 'tutor', modelTier, instructionLanguage);
     const conversation = findConversationForUser(id, userId);
     if (!conversation) {
         throw new Error('Could not load newly created conversation.');
@@ -1615,7 +1637,7 @@ export function findConversationForUser(id, userId) {
     const row = getDb()
         .prepare(`
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
-             , model_tier
+             , model_tier, instruction_language
         FROM conversations
         WHERE id = ? AND user_id = ?
       `)
@@ -1651,7 +1673,7 @@ export function listConversationsForProfile(userId, profileId) {
     const rows = getDb()
         .prepare(`
         SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent
-             , model_tier
+             , model_tier, instruction_language
         FROM conversations
         WHERE user_id = ? AND profile_id = ?
         ORDER BY updated_at DESC, created_at DESC
@@ -2944,7 +2966,7 @@ export function restorePracticeGuideForUser(practiceGuideId, userId) {
 export function listConversationsForPracticeGuide(practiceGuideId, userId, profileId) {
     const rows = getDb()
         .prepare(`
-        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier
+        SELECT id, user_id, title, title_updated_by_user, created_at, updated_at, closed_at, practice_guide_id, profile_id, active_agent, model_tier, instruction_language
         FROM conversations
         WHERE user_id = ? AND profile_id = ? AND practice_guide_id = ?
         ORDER BY updated_at DESC, created_at DESC

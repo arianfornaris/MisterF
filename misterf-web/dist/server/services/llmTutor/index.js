@@ -4,52 +4,19 @@ import { renderSystemPrompt } from '../systemPrompts.js';
 import { LlmFinishReasonError, QuizResultEvaluationValidationError, } from './errors.js';
 import { buildLlmRequestTokenUsage, logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, logLlmToolCalls, shouldLogFullLlmTrace, } from './logging.js';
 import { repairTutorResponseBlocks } from './blockRepair.js';
+import { instructionLanguageEnglishName, quizEvaluationSupportLanguageRules, } from './languagePack.js';
 import { buildTutorConversationTools } from './conversationTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
 import { appendStructuredCorrectionRequest, buildStructuredValidationReason, extractGeneratedTextFromError, isCorrectableLlmOutputError } from './corrections.js';
 import { quizResultEvaluationsSchema, translationResultSchema } from './schemas.js';
+import { parseJsonFromModelText } from './modelJson.js';
 import { blocksToMarkdown, toModelMessage, validateTutorResponseBlocks } from './validation.js';
 import { applyTutorPlanBlocks, formatTutorPlanForModel } from '../tutorPlans.js';
 import { logger } from '../logger.js';
 const maxAgentTurns = 6;
 const maxQuizEvaluationCorrectionAttempts = 3;
-async function continueTutorResponseAfterToolUse(input) {
-    const finalizedToolResults = input.toolResults.filter((result) => !result.preliminary);
-    const messages = [
-        {
-            content: renderSystemPrompt('tutor/internal-tool-continuation.md', {
-                TOOL_RESULTS_JSON: JSON.stringify(finalizedToolResults.map((result) => ({
-                    output: result.output,
-                    toolName: result.toolName,
-                })), null, 2),
-            }),
-            role: 'user',
-        },
-    ];
-    return generateText({
-        abortSignal: input.abortSignal,
-        maxOutputTokens: 1800,
-        messages,
-        model: getLanguageModel(input.llm),
-        providerOptions: getProviderOptions(),
-        system: input.system,
-        temperature: shouldUseTemperature(input.llm) ? 0.25 : undefined,
-    });
-}
-function parseJsonFromModelText(text) {
-    const trimmed = text.trim();
-    const fencedMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-    const candidate = fencedMatch ? fencedMatch[1].trim() : trimmed;
-    try {
-        return JSON.parse(candidate);
-    }
-    catch (error) {
-        const message = error instanceof Error ? error.message : 'Invalid JSON';
-        throw new Error(`JSON parsing failed: ${message}`);
-    }
-}
 function buildTutorResourceLogContext(options) {
     return options.currentPracticeGuideId
         ? {
@@ -173,12 +140,14 @@ export async function runTutorAgentLoop(history, options) {
     const resourceLogContext = buildTutorResourceLogContext(options);
     let lastError = null;
     const progressTools = buildTutorProgressTools({
+        instructionLanguage: options.instructionLanguage,
         onToolCall: options.onToolCall,
         profileId: options.profileId ?? null,
         userId: options.userId ?? null,
     });
     const conversationTools = buildTutorConversationTools({
         conversationId: options.conversationId ?? null,
+        instructionLanguage: options.instructionLanguage,
         onConversationRenamed: options.onConversationRenamed,
         onToolCall: options.onToolCall,
         userId: options.userId ?? null,
@@ -215,8 +184,6 @@ export async function runTutorAgentLoop(history, options) {
                 turn: turn + 1,
                 userId: options.userId ?? null,
             });
-            const toolResults = result.steps.flatMap((step) => step.toolResults);
-            let effectiveResult = result;
             let finalBlocks = null;
             let parsedObject = null;
             const initialText = result.text.trim();
@@ -282,41 +249,25 @@ export async function runTutorAgentLoop(history, options) {
                         });
                     }
                     else {
-                        effectiveResult = await continueTutorResponseAfterToolUse({
-                            abortSignal: options.abortSignal,
+                        // A broken JSON attempt falls through to the structured
+                        // correction retry, which re-runs the turn with full history.
+                        logLlmInvalidRawResponse({
+                            actorLabel: 'Mr. F',
+                            conversationId: options.conversationId ?? null,
+                            error,
                             llm: options.llm,
-                            system,
-                            toolResults,
+                            operation: 'tutor',
+                            profileId: options.profileId ?? null,
+                            ...resourceLogContext,
+                            rawText: result.text,
+                            turn: turn + 1,
+                            userId: options.userId ?? null,
                         });
-                        try {
-                            parsedObject = parseJsonFromModelText(effectiveResult.text);
-                            finalBlocks = validateTutorResponseBlocks(parsedObject, {
-                                conversationId: options.conversationId ?? null,
-                                generatedText: effectiveResult.text,
-                                llm: options.llm,
-                                operation: 'tutor',
-                                userId: options.userId ?? null,
-                            });
-                        }
-                        catch (continuationError) {
-                            logLlmInvalidRawResponse({
-                                actorLabel: 'Mr. F',
-                                conversationId: options.conversationId ?? null,
-                                error: continuationError,
-                                llm: options.llm,
-                                operation: 'tutor',
-                                profileId: options.profileId ?? null,
-                                ...resourceLogContext,
-                                rawText: effectiveResult.text,
-                                turn: turn + 1,
-                                userId: options.userId ?? null,
-                            });
-                            throw continuationError;
-                        }
+                        throw error;
                     }
                 }
             }
-            logLlmResponse(parsedObject ?? { blocks: finalBlocks }, effectiveResult.finishReason, effectiveResult.usage, effectiveResult.providerMetadata, turn + 1, {
+            logLlmResponse(parsedObject ?? { blocks: finalBlocks }, result.finishReason, result.usage, result.providerMetadata, turn + 1, {
                 actorLabel: 'Mr. F',
                 conversationId: options.conversationId ?? null,
                 llm: options.llm,
@@ -330,9 +281,9 @@ export async function runTutorAgentLoop(history, options) {
                 messages,
                 system,
                 turn: turn + 1,
-                usage: effectiveResult.usage,
+                usage: result.usage,
             }));
-            const userFacingFinishMessage = getUserFacingFinishReasonMessage(effectiveResult.finishReason, undefined, effectiveResult.providerMetadata);
+            const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, result.providerMetadata, options.instructionLanguage ?? 'es');
             if (userFacingFinishMessage) {
                 throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
             }
@@ -343,6 +294,7 @@ export async function runTutorAgentLoop(history, options) {
                 const repairResult = await repairTutorResponseBlocks({
                     abortSignal: options.abortSignal,
                     blocks: finalBlocks,
+                    instructionLanguage: options.instructionLanguage,
                     llm: options.llm,
                 });
                 finalBlocks = repairResult.blocks;
@@ -360,7 +312,7 @@ export async function runTutorAgentLoop(history, options) {
                 applyTutorPlanBlocks(finalBlocks, options.tutorPlan ?? null);
                 return {
                     blocks: finalBlocks,
-                    content: blocksToMarkdown(finalBlocks),
+                    content: blocksToMarkdown(finalBlocks, options.instructionLanguage),
                     model: getConfiguredModelId(options.llm),
                     provider: env.llmProvider,
                 };
@@ -372,7 +324,8 @@ export async function runTutorAgentLoop(history, options) {
                 }
                 appendStructuredCorrectionRequest(messages, {
                     error,
-                    invalidOutput: effectiveResult.text,
+                    instructionLanguage: options.instructionLanguage,
+                    invalidOutput: result.text,
                     reason: buildStructuredValidationReason(error),
                     turn: turn + 1,
                 });
@@ -389,6 +342,7 @@ export async function runTutorAgentLoop(history, options) {
             }
             appendStructuredCorrectionRequest(messages, {
                 error,
+                instructionLanguage: options.instructionLanguage,
                 invalidOutput: extractGeneratedTextFromError(error),
                 reason: 'Your previous response was not valid JSON or could not be converted into a TutorResponse object.',
                 turn: turn + 1,
@@ -409,10 +363,10 @@ export async function translateTextWithLlm(input) {
         messages: [{ content: text, role: 'user' }],
         model: getLanguageModel(input.llm),
         providerOptions: getProviderOptions(),
-        system: buildTranslatorSystemInstruction(input.mode),
+        system: buildTranslatorSystemInstruction(input.direction, input.languageName),
         temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
     });
-    const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, undefined, result.providerMetadata);
+    const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, result.providerMetadata, 'es');
     if (userFacingFinishMessage) {
         throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
     }
@@ -433,7 +387,7 @@ export async function translateTextWithLlm(input) {
     }
     logger.debug('llm_translator_response', {
         detectedLanguage: parsed.data.detectedLanguage,
-        mode: input.mode,
+        direction: input.direction,
         model: getConfiguredModelId(input.llm),
         provider: env.llmProvider,
         userId: input.llm?.userId ?? null,
@@ -446,7 +400,10 @@ export async function translateTextWithLlm(input) {
     };
 }
 export async function evaluateQuizResultItemsWithLlm(input) {
-    const system = renderSystemPrompt('tutor/quiz-result-evaluation.md');
+    const system = renderSystemPrompt('tutor/quiz-result-evaluation.md', {
+        INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(input.instructionLanguage ?? 'es'),
+        SUPPORT_LANGUAGE_EVALUATION_RULES: quizEvaluationSupportLanguageRules(input.instructionLanguage ?? 'es'),
+    });
     const authorEvaluationInstructions = input.evaluationInstructions?.trim() || '';
     const sections = input.sections?.filter((section) => section.itemIndexes.length > 0) ?? [];
     const messages = [
@@ -473,7 +430,7 @@ export async function evaluateQuizResultItemsWithLlm(input) {
             temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
         });
         try {
-            const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, undefined, result.providerMetadata);
+            const userFacingFinishMessage = getUserFacingFinishReasonMessage(result.finishReason, result.providerMetadata, input.instructionLanguage ?? 'es');
             if (userFacingFinishMessage) {
                 throw new LlmFinishReasonError(result.finishReason, userFacingFinishMessage);
             }

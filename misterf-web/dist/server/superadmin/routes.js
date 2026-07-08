@@ -1,3 +1,4 @@
+import { translate } from '../i18n/index.js';
 import express from 'express';
 import { env } from '../config/env.js';
 import { findUserForSuperadmin, listUsersForSuperadmin, normalizeEmail, } from '../auth/repository.js';
@@ -25,7 +26,7 @@ export async function renderSuperadminUser(request, response) {
     const userId = readParam(request.params.userId);
     const activeUser = findUserForSuperadmin(userId);
     if (!activeUser) {
-        response.status(404).send('Usuario no encontrado.');
+        response.status(404).send(translate(request.locale, 'superadmin.userNotFound'));
         return;
     }
     const keyRecord = getOpenRouterKeyRecordForUser(userId);
@@ -55,7 +56,7 @@ export async function handleOpenRouterKeyUpdate(request, response) {
     const userId = readParam(request.params.userId);
     const activeUser = findUserForSuperadmin(userId);
     if (!activeUser) {
-        response.status(404).send('Usuario no encontrado.');
+        response.status(404).send(translate(request.locale, 'superadmin.userNotFound'));
         return;
     }
     const limitUsd = parseLimitUsd(readField(request.body.limitUsd));
@@ -88,7 +89,7 @@ function requireSuperadmin(request, response) {
     }
     if (!env.superadminEmail ||
         normalizeEmail(request.authUser.email) !== env.superadminEmail) {
-        response.status(403).send('No tienes permiso para ver esta página.');
+        response.status(403).send(translate(request.locale, 'superadmin.noPermission'));
         return false;
     }
     return true;

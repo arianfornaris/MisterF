@@ -91,54 +91,6 @@
   padding-left: 1.1rem;
 }
 
-.llm-context-meter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  align-self: center;
-  user-select: none;
-}
-
-.llm-context-meter-copy,
-.llm-context-meter-label,
-.llm-context-meter-value {
-  display: none !important;
-}
-
-.llm-context-meter-ring {
-  width: 28px;
-  height: 28px;
-  overflow: visible;
-  transform: rotate(-90deg);
-  flex: 0 0 auto;
-}
-
-.llm-context-meter-track,
-.llm-context-meter-progress {
-  fill: none;
-  stroke-width: 2.75;
-}
-
-.llm-context-meter-track {
-  stroke: color-mix(in srgb, var(--line) 78%, white 22%);
-}
-
-.llm-context-meter-progress {
-  stroke: var(--bs-link-color);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 180ms ease, stroke 180ms ease;
-}
-
-.llm-context-meter[data-context-level='warn'] .llm-context-meter-progress {
-  stroke: var(--bs-warning);
-}
-
-.llm-context-meter[data-context-level='danger'] .llm-context-meter-progress {
-  stroke: var(--bs-danger);
-}
-
 .send-button {
   justify-self: end;
   margin-left: auto;

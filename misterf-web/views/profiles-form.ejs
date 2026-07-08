@@ -1,11 +1,11 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view" aria-label="<%= t('profiles.kicker') %>">
-  <div class="resource-page-header resource-page-header-has-close">
+<section class="app-page" aria-label="<%= t('profiles.kicker') %>">
+  <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="resource-page-kicker"><%= t('profiles.kicker') %></p>
-      <h1 class="resource-page-title"><%= profilePageMode === 'edit' ? t('profiles.editTitle') : t('profiles.newTitle') %></h1>
-      <p class="resource-page-copy">
+      <p class="app-page-kicker"><%= t('profiles.kicker') %></p>
+      <h1 class="app-page-title"><%= profilePageMode === 'edit' ? t('profiles.editTitle') : t('profiles.newTitle') %></h1>
+      <p class="app-page-copy">
         <%= profilePageMode === 'edit' && selectedProfile
           ? t('profiles.editCopy')
           : t('profiles.newCopy') %>
@@ -13,9 +13,9 @@
     </div>
 
     <% if (hasSession) { %>
-      <div class="resource-page-header-actions">
+      <div class="app-page-header-actions">
         <a
-          class="resource-page-close-button"
+          class="app-page-close-button"
           href="/profiles"
           title="<%= t('common.close') %>"
           aria-label="<%= t('common.close') %>"
@@ -26,155 +26,153 @@
     <% } %>
   </div>
 
-  <section class="resource-page-form-shell">
-    <form
-      class="practice-guide-form"
-      method="post"
-      action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
-      autocomplete="off"
+  <form
+    class="app-form-grid"
+    method="post"
+    action="<%= profilePageMode === 'edit' && selectedProfile ? `/profiles/${encodeURIComponent(selectedProfile.id)}` : '/profiles' %>"
+    autocomplete="off"
+  >
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <input type="hidden" name="returnTo" value="/profiles">
+    <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'regular'; %>
+    <% const selectedInstructionLanguage = profilePageMode === 'edit' && selectedProfile
+      ? selectedProfile.instructionLanguage
+      : (activeProfile ? activeProfile.instructionLanguage : 'es'); %>
+
+    <label class="form-label" for="profileName"><%= t('profiles.name') %></label>
+    <input
+      class="form-control"
+      id="profileName"
+      name="name"
+      maxlength="<%= profileFieldLimits.name %>"
+      value="<%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.name : '' %>"
+      required
     >
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <input type="hidden" name="returnTo" value="/profiles">
-      <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'regular'; %>
-      <% const selectedInstructionLanguage = profilePageMode === 'edit' && selectedProfile
-        ? selectedProfile.instructionLanguage
-        : (activeProfile ? activeProfile.instructionLanguage : 'es'); %>
 
-      <label class="form-label" for="profileName"><%= t('profiles.name') %></label>
-      <input
-        class="form-control"
-        id="profileName"
-        name="name"
-        maxlength="<%= profileFieldLimits.name %>"
-        value="<%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.name : '' %>"
-        required
-      >
+    <label class="form-label" for="profileDescription"><%= t('profiles.description') %></label>
+    <textarea
+      class="form-control"
+      id="profileDescription"
+      name="description"
+      rows="4"
+      maxlength="<%= profileFieldLimits.description %>"
+    ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
+    <div class="form-text mb-3">
+      <%= t('profiles.descriptionHelp') %>
+    </div>
 
-      <label class="form-label" for="profileDescription"><%= t('profiles.description') %></label>
-      <textarea
-        class="form-control"
-        id="profileDescription"
-        name="description"
-        rows="4"
-        maxlength="<%= profileFieldLimits.description %>"
-      ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.description : '' %></textarea>
-      <div class="form-text mb-3">
-        <%= t('profiles.descriptionHelp') %>
-      </div>
+    <label class="form-label" for="profileLearningContext"><%= t('profiles.context') %></label>
+    <textarea
+      class="form-control"
+      id="profileLearningContext"
+      name="learningContext"
+      rows="6"
+      maxlength="<%= profileFieldLimits.learningContext %>"
+      aria-describedby="profileLearningContextHelp"
+    ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.learningContext : '' %></textarea>
+    <div class="form-text" id="profileLearningContextHelp">
+      <%= t('profiles.contextHelp') %>
+    </div>
 
-      <label class="form-label" for="profileLearningContext"><%= t('profiles.context') %></label>
-      <textarea
-        class="form-control"
-        id="profileLearningContext"
-        name="learningContext"
-        rows="6"
-        maxlength="<%= profileFieldLimits.learningContext %>"
-        aria-describedby="profileLearningContextHelp"
-      ><%= profilePageMode === 'edit' && selectedProfile ? selectedProfile.learningContext : '' %></textarea>
-      <div class="form-text" id="profileLearningContextHelp">
-        <%= t('profiles.contextHelp') %>
-      </div>
+    <fieldset class="mt-4">
+      <legend class="form-label mb-2"><%= t('profiles.languageLegend') %></legend>
+      <p class="text-body-secondary small mb-3">
+        <%= t('profiles.languageHelpForm') %>
+      </p>
 
-      <fieldset class="mt-4">
-        <legend class="form-label mb-2"><%= t('profiles.languageLegend') %></legend>
-        <p class="text-body-secondary small mb-3">
-          <%= t('profiles.languageHelpForm') %>
-        </p>
-
-        <div class="list-group">
-          <% languages.forEach((language) => { %>
-            <label class="list-group-item d-flex gap-3">
-              <input
-                class="form-check-input flex-shrink-0 mt-1"
-                type="radio"
-                name="instructionLanguage"
-                value="<%= language.code %>"
-                <%= selectedInstructionLanguage === language.code ? 'checked' : '' %>
-              >
-              <span class="d-block">
-                <span class="fw-semibold d-block">
-                  <%= language.endonym %>
-                  <% if (language.experimental) { %><span class="badge text-bg-warning ms-1"><%= t('profiles.experimental') %></span><% } %>
-                </span>
-                <small class="text-body-secondary"><%= t('profiles.langDescForm.' + language.code) %></small>
+      <div class="list-group">
+        <% languages.forEach((language) => { %>
+          <label class="list-group-item d-flex gap-3">
+            <input
+              class="form-check-input flex-shrink-0 mt-1"
+              type="radio"
+              name="instructionLanguage"
+              value="<%= language.code %>"
+              <%= selectedInstructionLanguage === language.code ? 'checked' : '' %>
+            >
+            <span class="d-block">
+              <span class="fw-semibold d-block">
+                <%= language.endonym %>
+                <% if (language.experimental) { %><span class="badge text-bg-warning ms-1"><%= t('profiles.experimental') %></span><% } %>
               </span>
-            </label>
-          <% }) %>
-        </div>
-      </fieldset>
-
-      <fieldset class="mt-4">
-        <legend class="form-label mb-2"><%= t('profiles.modelLegend') %></legend>
-        <p class="text-body-secondary small mb-3">
-          <%= t('profiles.modelHelp') %>
-        </p>
-
-        <div class="list-group">
-          <label class="list-group-item d-flex gap-3">
-            <input
-              class="form-check-input flex-shrink-0 mt-1"
-              type="radio"
-              name="modelTier"
-              value="lite"
-              <%= selectedModelTier === 'lite' ? 'checked' : '' %>
-            >
-            <span class="d-block">
-              <span class="fw-semibold d-block"><%= t('profiles.modelLite') %></span>
-              <small class="text-body-secondary"><%= t('profiles.modelLiteDesc') %></small>
+              <small class="text-body-secondary"><%= t('profiles.langDescForm.' + language.code) %></small>
             </span>
           </label>
-
-          <label class="list-group-item d-flex gap-3">
-            <input
-              class="form-check-input flex-shrink-0 mt-1"
-              type="radio"
-              name="modelTier"
-              value="regular"
-              <%= selectedModelTier !== 'lite' && selectedModelTier !== 'advanced' && selectedModelTier !== 'max' ? 'checked' : '' %>
-            >
-            <span class="d-block">
-              <span class="fw-semibold d-block"><%= t('profiles.modelRegular') %></span>
-              <small class="text-body-secondary"><%= t('profiles.modelRegularDesc') %></small>
-            </span>
-          </label>
-
-          <label class="list-group-item d-flex gap-3">
-            <input
-              class="form-check-input flex-shrink-0 mt-1"
-              type="radio"
-              name="modelTier"
-              value="advanced"
-              <%= selectedModelTier === 'advanced' ? 'checked' : '' %>
-            >
-            <span class="d-block">
-              <span class="fw-semibold d-block"><%= t('profiles.modelAdvanced') %></span>
-              <small class="text-body-secondary"><%= t('profiles.modelAdvancedDesc') %></small>
-            </span>
-          </label>
-
-          <label class="list-group-item d-flex gap-3">
-            <input
-              class="form-check-input flex-shrink-0 mt-1"
-              type="radio"
-              name="modelTier"
-              value="max"
-              <%= selectedModelTier === 'max' ? 'checked' : '' %>
-            >
-            <span class="d-block">
-              <span class="fw-semibold d-block"><%= t('profiles.modelMax') %></span>
-              <small class="text-body-secondary"><%= t('profiles.modelMaxDesc') %></small>
-            </span>
-          </label>
-        </div>
-      </fieldset>
-
-      <div class="practice-guide-form-actions">
-        <button type="submit" class="btn btn-primary">
-          <%= profilePageMode === 'edit' ? t('profiles.saveEdit') : t('profiles.saveNew') %>
-        </button>
+        <% }) %>
       </div>
-    </form>
-  </section>
+    </fieldset>
+
+    <fieldset class="mt-4">
+      <legend class="form-label mb-2"><%= t('profiles.modelLegend') %></legend>
+      <p class="text-body-secondary small mb-3">
+        <%= t('profiles.modelHelp') %>
+      </p>
+
+      <div class="list-group">
+        <label class="list-group-item d-flex gap-3">
+          <input
+            class="form-check-input flex-shrink-0 mt-1"
+            type="radio"
+            name="modelTier"
+            value="lite"
+            <%= selectedModelTier === 'lite' ? 'checked' : '' %>
+          >
+          <span class="d-block">
+            <span class="fw-semibold d-block"><%= t('profiles.modelLite') %></span>
+            <small class="text-body-secondary"><%= t('profiles.modelLiteDesc') %></small>
+          </span>
+        </label>
+
+        <label class="list-group-item d-flex gap-3">
+          <input
+            class="form-check-input flex-shrink-0 mt-1"
+            type="radio"
+            name="modelTier"
+            value="regular"
+            <%= selectedModelTier !== 'lite' && selectedModelTier !== 'advanced' && selectedModelTier !== 'max' ? 'checked' : '' %>
+          >
+          <span class="d-block">
+            <span class="fw-semibold d-block"><%= t('profiles.modelRegular') %></span>
+            <small class="text-body-secondary"><%= t('profiles.modelRegularDesc') %></small>
+          </span>
+        </label>
+
+        <label class="list-group-item d-flex gap-3">
+          <input
+            class="form-check-input flex-shrink-0 mt-1"
+            type="radio"
+            name="modelTier"
+            value="advanced"
+            <%= selectedModelTier === 'advanced' ? 'checked' : '' %>
+          >
+          <span class="d-block">
+            <span class="fw-semibold d-block"><%= t('profiles.modelAdvanced') %></span>
+            <small class="text-body-secondary"><%= t('profiles.modelAdvancedDesc') %></small>
+          </span>
+        </label>
+
+        <label class="list-group-item d-flex gap-3">
+          <input
+            class="form-check-input flex-shrink-0 mt-1"
+            type="radio"
+            name="modelTier"
+            value="max"
+            <%= selectedModelTier === 'max' ? 'checked' : '' %>
+          >
+          <span class="d-block">
+            <span class="fw-semibold d-block"><%= t('profiles.modelMax') %></span>
+            <small class="text-body-secondary"><%= t('profiles.modelMaxDesc') %></small>
+          </span>
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="app-form-actions">
+      <button type="submit" class="btn btn-primary">
+        <%= profilePageMode === 'edit' ? t('profiles.saveEdit') : t('profiles.saveNew') %>
+      </button>
+    </div>
+  </form>
 </section>
 
 <%- include('partials/app-shell-close') %>

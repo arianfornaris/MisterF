@@ -1,12 +1,41 @@
+import { z } from 'zod';
 import { TutorResponseValidationError } from './errors.js';
 import { logger } from '../logger.js';
 import { shouldLogFullLlmTrace } from './logging.js';
 import { tutorAgentResponseSchema } from './schemas.js';
+import { translate } from '../../i18n/index.js';
+import { defaultInstructionLanguage } from './languagePack.js';
 export function toModelMessage(message) {
     return {
         content: message.content,
         role: message.role === 'model' ? 'assistant' : 'user',
     };
+}
+/**
+ * Block types that render chat content. Plan blocks (`tutor_plan`,
+ * `tutor_plan_update`) are excluded: they update the plan panel, so a
+ * response made only of them would leave the tutor's turn silent.
+ * `blocksToMarkdown` and the plan-only validation below share this set.
+ */
+const visibleTutorBlockTypes = new Set([
+    'message',
+    'dialogue_character_message',
+    'dialogue_transcript',
+    'matching_pairs',
+    'quiz',
+    'quiz_result',
+    'translate_to_english_prompt',
+    'understand_in_spanish_prompt',
+    'open_text_prompt',
+    'fill_in_the_blank_input',
+    'fill_in_the_blank_choice',
+    'multiple_choice',
+    'unscramble_sentence',
+    'order_sentences',
+    'sentence_evaluation',
+]);
+function isVisibleTutorBlock(block) {
+    return visibleTutorBlockTypes.has(block.type);
 }
 export function validateTutorResponseBlocks(value, options = {}) {
     const parsed = tutorAgentResponseSchema.safeParse(sanitizeTutorResponse(value));
@@ -29,7 +58,26 @@ export function validateTutorResponseBlocks(value, options = {}) {
             issues: parsed.error.issues,
         });
     }
-    return parsed.data.blocks;
+    const blocks = parsed.data.blocks;
+    if (blocks.length > 0 && !blocks.some((block) => visibleTutorBlockTypes.has(block.type))) {
+        logger.warn('llm_plan_only_response_rejected', {
+            blockTypes: blocks.map((block) => block.type),
+            conversationId: options.conversationId ?? null,
+            operation: options.operation ?? 'tutor',
+            userId: options.userId ?? options.llm?.userId ?? null,
+        });
+        throw new TutorResponseValidationError({
+            generatedText: options.generatedText,
+            issues: [
+                {
+                    code: z.ZodIssueCode.custom,
+                    message: 'The response contains only plan blocks (tutor_plan / tutor_plan_update). Every tutor response must include at least one visible block; pair plan changes with a `message` that narrates them.',
+                    path: ['blocks'],
+                },
+            ],
+        });
+    }
+    return blocks;
 }
 function summarizeInvalidTutorResponse(value) {
     if (!value || typeof value !== 'object') {
@@ -88,26 +136,12 @@ function sanitizeTutorResponseBlock(block) {
         parts: cleanedParts,
     };
 }
-export function blocksToMarkdown(blocks) {
+export function blocksToMarkdown(blocks, locale = defaultInstructionLanguage) {
     const messageMarkdown = blocks
-        .filter((block) => block.type === 'message' ||
-        block.type === 'dialogue_character_message' ||
-        block.type === 'dialogue_transcript' ||
-        block.type === 'matching_pairs' ||
-        block.type === 'quiz' ||
-        block.type === 'quiz_result' ||
-        block.type === 'translate_to_english_prompt' ||
-        block.type === 'understand_in_spanish_prompt' ||
-        block.type === 'open_text_prompt' ||
-        block.type === 'fill_in_the_blank_input' ||
-        block.type === 'fill_in_the_blank_choice' ||
-        block.type === 'multiple_choice' ||
-        block.type === 'unscramble_sentence' ||
-        block.type === 'order_sentences' ||
-        block.type === 'sentence_evaluation')
+        .filter(isVisibleTutorBlock)
         .map((block) => {
         if (block.type === 'sentence_evaluation') {
-            return 'Revisemos esta parte:';
+            return translate(locale, 'tutorBlocks.sentenceEvaluationIntro');
         }
         if (block.type === 'dialogue_character_message') {
             return `**${block.name}:** ${block.markdown.trim()}`;
@@ -118,13 +152,15 @@ export function blocksToMarkdown(blocks) {
                 .join('\n\n');
         }
         if (block.type === 'matching_pairs') {
-            return block.prompt?.trim() || 'Ejercicio de emparejar.';
+            return block.prompt?.trim() || translate(locale, 'tutorBlocks.matchingPairsFallback');
         }
         if (block.type === 'quiz') {
             return block.title?.trim() || block.prompt.trim();
         }
         if (block.type === 'quiz_result') {
-            return block.title?.trim() || block.prompt?.trim() || 'Resumen del quiz';
+            return (block.title?.trim() ||
+                block.prompt?.trim() ||
+                translate(locale, 'tutorBlocks.quizResultFallback'));
         }
         if (block.type === 'fill_in_the_blank_input' ||
             block.type === 'fill_in_the_blank_choice') {
@@ -140,13 +176,17 @@ export function blocksToMarkdown(blocks) {
             return block.prompt?.trim() || block.tokens.join(' ').trim();
         }
         if (block.type === 'order_sentences') {
-            return block.prompt?.trim() || 'Ordena las oraciones.';
+            return block.prompt?.trim() || translate(locale, 'tutorBlocks.orderSentencesFallback');
         }
         if (block.type === 'translate_to_english_prompt') {
-            return `Traduce al ingles: "${block.sentence.trim()}"`;
+            return translate(locale, 'tutorBlocks.translateToEnglishPrompt', {
+                sentence: block.sentence.trim(),
+            });
         }
         if (block.type === 'understand_in_spanish_prompt') {
-            return `Explica en espanol: "${block.sentence.trim()}"`;
+            return translate(locale, 'tutorBlocks.understandInSpanishPrompt', {
+                sentence: block.sentence.trim(),
+            });
         }
         if (block.type === 'open_text_prompt') {
             return block.prompt.trim();

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { translate } from '../i18n/index.js';
 import { quizBlockSchema as tutorQuizBlockSchema, quizItemSchema, quizResultBlockSchema, } from './llmTutor/schemas.js';
 import { evaluateQuizResultItemsWithLlm } from './llmTutor/index.js';
 function stripQuizUnsupportedFields(value) {
@@ -376,6 +377,7 @@ export async function evaluateQuizAttempt(input) {
     const responses = normalizeStoredResponses(input.attempt.responses);
     const evaluations = await evaluateQuizResultItemsWithLlm({
         evaluationInstructions: draft.evaluationInstructions,
+        instructionLanguage: input.instructionLanguage,
         llm: input.llm,
         quiz,
         responses,
@@ -384,6 +386,7 @@ export async function evaluateQuizAttempt(input) {
     return quizResultBlockSchema.parse(buildQuizResultBlock({
         draft,
         evaluations,
+        locale: input.instructionLanguage,
         responses,
     }));
 }
@@ -407,15 +410,18 @@ export function buildQuizEvaluationSummary(result) {
     }
     return summary;
 }
-export function buildQuizResultTitle(result) {
+export function buildQuizResultTitle(result, locale = 'es') {
     const summary = buildQuizEvaluationSummary(result);
-    return `${summary.correctCount}/${summary.totalCount} respuestas correctas`;
+    return translate(locale, 'msg.quizCorrectAnswers', {
+        correct: summary.correctCount,
+        total: summary.totalCount,
+    });
 }
 export function buildQuizResultBlock(input) {
     return {
         items: input.draft.blocks.map((block, index) => buildQuizResultItem({
             evaluation: input.evaluations[index] ?? {
-                feedback: 'Miremos esta respuesta con más detalle en la siguiente práctica.',
+                feedback: translate(input.locale ?? 'es', 'msg.lookCloser'),
                 status: 'partial',
             },
             item: block.item,

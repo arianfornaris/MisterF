@@ -63,7 +63,6 @@ export function registerChatSocketHandlers(deps) {
         .filter((content) => content.trim().length > 0),
     );
     deps.runtime.resetUserInputHistoryNavigation();
-    deps.runtime.updateLlmContextMeter(null);
     deps.runtime.setToolStatus('');
     deps.setPendingPracticeGuideStart(Boolean(payload.pendingPracticeGuideStart));
     const shouldAutoStartPracticeGuide =
@@ -157,7 +156,6 @@ export function registerChatSocketHandlers(deps) {
     }
 
     deps.runtime.logLlmRequestTokens(payload.usage);
-    deps.runtime.updateLlmContextMeter(payload.usage);
   });
 
   socketClient.on('llm:credit_exhausted', ({ message }) => {

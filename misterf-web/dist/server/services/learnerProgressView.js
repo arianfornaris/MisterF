@@ -1,10 +1,11 @@
-export function buildLearnerProgressEventViews(events) {
+import { translate } from '../i18n/index.js';
+export function buildLearnerProgressEventViews(events, locale) {
     return events.map((event) => ({
         ...event,
-        sourceLabel: getProgressEventSourceLabel(event),
+        sourceLabel: getProgressEventSourceLabel(event, locale),
     }));
 }
-export function buildLearnerProgressVocabularyItems(events) {
+export function buildLearnerProgressVocabularyItems(events, locale) {
     const items = new Map();
     for (const event of events) {
         for (const rawTerm of event.details.vocabulary) {
@@ -14,7 +15,7 @@ export function buildLearnerProgressVocabularyItems(events) {
             }
             const key = term.toLowerCase();
             const existing = items.get(key);
-            const sourceLabel = getProgressEventSourceLabel(event);
+            const sourceLabel = getProgressEventSourceLabel(event, locale);
             if (existing) {
                 existing.count += 1;
                 if (Date.parse(event.eventDate) > Date.parse(existing.lastSeenAt)) {
@@ -40,12 +41,12 @@ export function buildLearnerProgressVocabularyItems(events) {
         return Date.parse(b.lastSeenAt) - Date.parse(a.lastSeenAt);
     });
 }
-export function getProgressEventSourceLabel(event) {
+export function getProgressEventSourceLabel(event, locale) {
     if (event.details.resourceType === 'quiz') {
         return 'Quiz';
     }
     if (event.details.resourceType === 'practice_guide') {
-        return 'Guía de Práctica';
+        return translate(locale, 'resources.typePracticeGuide');
     }
     if (event.details.resourceType === 'roleplay') {
         return 'Roleplay';
@@ -57,9 +58,9 @@ export function getProgressEventSourceLabel(event) {
         return 'Roleplay';
     }
     if (event.sourceType === 'tutor_conversation_report') {
-        return 'Bitácora';
+        return translate(locale, 'progress.logKicker');
     }
-    return 'Práctica';
+    return translate(locale, 'progress.sourcePractice');
 }
 function pushUnique(items, value, limit) {
     if (!items.includes(value)) {

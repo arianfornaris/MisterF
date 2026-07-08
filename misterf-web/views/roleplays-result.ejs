@@ -7,12 +7,12 @@
   const roleplayResultLearnerTurns = attempt.turns.filter((turn) => turn.speaker === 'learner');
 %>
 
-<section class="app-resource-view roleplays-page">
-  <div class="resource-page-header resource-page-header-has-close">
+<section class="app-page roleplays-page">
+  <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="resource-eyebrow"><%= t('quizzes.resultKicker') %></p>
-      <h1 class="resource-page-title"><%= result.summaryTitle %></h1>
-      <p class="resource-page-copy"><%= result.summary %></p>
+      <p class="app-page-kicker"><%= t('quizzes.resultKicker') %></p>
+      <h1 class="app-page-title"><%= result.summaryTitle %></h1>
+      <p class="app-page-copy"><%= result.summary %></p>
       <div class="resource-action-row mt-3">
         <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -25,9 +25,9 @@
         }) %>
       </div>
     </div>
-    <div class="resource-page-header-actions">
+    <div class="app-page-header-actions">
       <a
-        class="resource-page-close-button"
+        class="app-page-close-button"
         href="/roleplays/<%= encodeURIComponent(attempt.roleplayId) %>"
         aria-label="<%= t('common.close') %>"
         title="<%= t('common.close') %>"

@@ -1,9 +1,9 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view quizzes-page">
-  <div class="resource-page-header">
+<section class="app-page quizzes-page">
+  <div class="app-page-header">
     <div>
-      <p class="resource-eyebrow"><%= t('quizzes.sharedKicker') %></p>
+      <p class="app-page-kicker"><%= t('quizzes.sharedKicker') %></p>
       <h1><%= selectedQuiz.title %></h1>
     </div>
     <form method="post" action="/resources/shared/<%= encodeURIComponent(shareLink.id) %>/accept">

@@ -1,6 +1,6 @@
 {
-  "_authoringChatScroll-Bk0pPMMQ.js": {
-    "file": "chunks/authoringChatScroll-Bk0pPMMQ.js",
+  "_authoringChatScroll-JBsB13kf.js": {
+    "file": "chunks/authoringChatScroll-JBsB13kf.js",
     "name": "authoringChatScroll",
     "imports": [
       "_staticMarkdown-DuzORjkX.js"
@@ -40,7 +40,7 @@
     "name": "staticMarkdown"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-DfKIiAhu.js",
+    "file": "entries/chat-BhDxJ04-.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
@@ -50,27 +50,27 @@
     ]
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-w_4-XcYJ.js",
+    "file": "entries/practice-guides-B5dqNIaj.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
     "imports": [
       "_markdownEditor-6mWZj1MA.js",
       "_staticMarkdown-DuzORjkX.js",
-      "_authoringChatScroll-Bk0pPMMQ.js",
+      "_authoringChatScroll-JBsB13kf.js",
       "_listGroupDropdownStacking-KxA_MlJ2.js",
       "_resourceMoveModal-D7d-tMTV.js"
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-DHVWXqyK.js",
+    "file": "entries/quizzes-Ddw5vDM8.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
       "_quizItemRenderer-BdUwulsa.js",
       "_staticMarkdown-DuzORjkX.js",
-      "_authoringChatScroll-Bk0pPMMQ.js",
+      "_authoringChatScroll-JBsB13kf.js",
       "_createResourceFromContext-DT1q-OiQ.js",
       "_resourceMoveModal-D7d-tMTV.js"
     ]
@@ -87,14 +87,14 @@
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-CIZtJMKb.js",
+    "file": "entries/roleplays-lsSL_zvW.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
       "_markdownEditor-6mWZj1MA.js",
       "_staticMarkdown-DuzORjkX.js",
-      "_authoringChatScroll-Bk0pPMMQ.js",
+      "_authoringChatScroll-JBsB13kf.js",
       "_createResourceFromContext-DT1q-OiQ.js",
       "_resourceMoveModal-D7d-tMTV.js"
     ]

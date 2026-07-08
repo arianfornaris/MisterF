@@ -1,0 +1,73 @@
+import { loadSystemPrompt } from '../systemPrompts.js';
+import { languages } from '../../i18n/index.js';
+export const defaultInstructionLanguage = 'es';
+export function instructionLanguageEnglishName(language) {
+    return languages[language].englishName;
+}
+/**
+ * Placeholder values injected into the tutor system prompt so that
+ * `tutor/system.md` stays single-source while its language-specific copy
+ * (learner-facing examples, translation-block enumerations, UI nouns, and the
+ * language-rules section) varies by the profile's instruction language. The
+ * per-language values live in the language registry (`i18n/languages.ts`).
+ */
+export function tutorSystemLanguagePlaceholders(language) {
+    const pack = languages[language].tutor;
+    return {
+        DIRECTION_OPTIONS_LETTERED: pack.directionOptionsLettered,
+        DIRECTION_OPTIONS_LIST: pack.directionOptionsList,
+        INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
+        LANGUAGE_RULES: loadSystemPrompt(`tutor/language-rules/${language}.md`).trim(),
+        LEARNER_AUDIENCE_CLAUSE: pack.learnerAudienceClause,
+        TRANSLATION_EXERCISE_BLOCK_COMBINATIONS: pack.translationExerciseBlockCombinations,
+        TRANSLATION_EXERCISE_BLOCKS_INLINE: pack.translationExerciseBlocksInline,
+        UI_PRACTICE_GUIDE_TERM: pack.uiPracticeGuideTerm,
+        UI_RESOURCES_TERM: pack.uiResourcesTerm,
+    };
+}
+/**
+ * Placeholder values applied to each tutor block document during protocol
+ * composition. `INSTRUCTION_LANGUAGE_NAME` parametrizes the language every
+ * learner-facing field must be authored in; `TRANSLATION_UNION_MEMBERS` drops
+ * the translation-based blocks from the `TutorResponseBlock` union for a
+ * monolingual block set so the union has no dangling members.
+ */
+export function tutorBlockProtocolPlaceholders(language) {
+    // The Spanish-specific quiz translation items only render for `es`. Ordered
+    // before INSTRUCTION_LANGUAGE_NAME so the injected fragment's own
+    // `{{INSTRUCTION_LANGUAGE_NAME}}` is resolved by the same substitution pass.
+    return {
+        QUIZ_TRANSLATION_ITEMS: languages[language].tutor.includesSpanishTranslationBlocks
+            ? loadSystemPrompt('tutor/blocks/quiz-translation-items.md').trim()
+            : '',
+        QUIZ_TRANSLATION_ITEM_UNION: languages[language].tutor.quizTranslationItemUnion,
+        INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
+        TRANSLATION_UNION_MEMBERS: languages[language].tutor.translationUnionMembers,
+    };
+}
+export function conversationTitleLanguageRule(language) {
+    return languages[language].tutor.conversationTitleRule;
+}
+export function quizEvaluationSupportLanguageRules(language) {
+    return languages[language].tutor.quizEvaluationSupportLanguageRules;
+}
+/**
+ * Placeholder values for the quiz authoring prompts (draft/revision and their
+ * corrections). The Spanish-based translation item kinds
+ * (`quiz_translate_to_english`, `quiz_understand_in_spanish`) are offered
+ * only to languages that use them, mirroring the tutor quiz protocol.
+ */
+export function quizAuthoringPlaceholders(language) {
+    const pack = languages[language].tutor;
+    return {
+        INSTRUCTION_LANGUAGE_NAME: languages[language].englishName,
+        QUIZ_SUPPORT_LANGUAGE_RULES: pack.quizAuthoringSupportLanguageRules,
+        QUIZ_TRANSLATION_AUTHORING_KINDS: pack.includesSpanishTranslationBlocks
+            ? `\n\n${loadSystemPrompt('resources/quiz-translation-authoring-kinds.md').trim()}`
+            : '',
+        QUIZ_TRANSLATION_KIND_LIST: pack.includesSpanishTranslationBlocks
+            ? ', quiz_translate_to_english, quiz_understand_in_spanish'
+            : '',
+    };
+}
+//# sourceMappingURL=languagePack.js.map

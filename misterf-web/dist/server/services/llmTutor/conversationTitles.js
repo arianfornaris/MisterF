@@ -11,7 +11,9 @@ export function isGenericConversationTitle(title) {
     return (normalized === '' ||
         normalized === 'nueva conversacion' ||
         normalized === 'new conversation' ||
+        normalized === 'nouvo konvesasyon' ||
         normalized === 'conversacion' ||
-        normalized === 'conversation');
+        normalized === 'conversation' ||
+        normalized === 'konvesasyon');
 }
 //# sourceMappingURL=conversationTitles.js.map

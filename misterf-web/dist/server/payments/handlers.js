@@ -1,3 +1,4 @@
+import { translate } from '../i18n/index.js';
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { constructStripeWebhookEvent, createCreditsCheckoutSession, getCreditBalanceForUser, getStripeConfigurationError, getWebhookConfigurationError, fulfillCheckoutSession, } from './credits.js';
 import { defaultCreditPackage } from './packages.js';
@@ -25,13 +26,17 @@ export async function renderCreditsPage(request, response) {
             currentView: 'credits',
             guestInitialGreeting: '',
             request,
-            title: `Créditos · ${appDocumentTitle}`,
+            title: `${translate(request.locale, 'credits.title')} · ${appDocumentTitle}`,
             user,
         }),
         balance,
         checkoutError: readQueryString(request.query.error),
         checkoutStatus: readQueryString(request.query.checkout),
-        creditPackage: defaultCreditPackage,
+        creditPackage: {
+            ...defaultCreditPackage,
+            description: translate(request.locale, 'credits.packageDescription'),
+            label: translate(request.locale, 'credits.package200'),
+        },
         purchases: listFulfilledCreditPurchasesForUser(user.id),
         returnTo,
         stripeConfigurationError: getStripeConfigurationError(),

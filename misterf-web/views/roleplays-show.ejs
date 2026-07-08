@@ -7,12 +7,12 @@
   const showRoleplayMoveOption = canManageRoleplay && !selectedRoleplay.archivedAt && (roleplayCurrentFolder || roleplayFolderOptions.length > 0);
 %>
 
-<section class="app-resource-view roleplays-page">
-  <div class="resource-page-header resource-page-header-detail">
+<section class="app-page roleplays-page">
+  <div class="app-page-header app-page-header-detail">
     <div>
-      <p class="resource-eyebrow"><%= t('roleplays.roleplayKicker') %></p>
-      <h1 class="resource-page-title"><%= selectedRoleplay.title %></h1>
-      <p class="resource-page-copy">
+      <p class="app-page-kicker"><%= t('roleplays.roleplayKicker') %></p>
+      <h1 class="app-page-title"><%= selectedRoleplay.title %></h1>
+      <p class="app-page-copy">
         <a href="/resources"><%= t('resources.title') %></a>
         <% roleplayFolderPath.forEach((folder) => { %>
           <span class="mx-1">/</span>
@@ -175,7 +175,7 @@
         <% }) %>
       </div>
     <% } else { %>
-      <p class="practice-guide-empty mb-0"><%= t('roleplays.noAttempts') %></p>
+      <p class="text-body-secondary mb-0"><%= t('roleplays.noAttempts') %></p>
     <% } %>
   </section>
 </section>

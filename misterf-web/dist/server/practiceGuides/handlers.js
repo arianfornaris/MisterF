@@ -1,3 +1,4 @@
+import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import { archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, updatePracticeGuideAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
@@ -184,10 +185,10 @@ async function buildPracticeGuidesPageModel(request, response, pageKind) {
         selectedPracticeGuideSharedFromProfileName,
         shareTargetPracticeGuideProfiles,
         title: pageKind === 'new'
-            ? `Nueva guía de práctica · ${appDocumentTitle}`
+            ? `${translate(request.locale, 'practiceGuides.newTitle')} · ${appDocumentTitle}`
             : pageKind === 'edit'
-                ? `Editar guía de práctica · ${appDocumentTitle}`
-                : `${selectedPracticeGuide?.title || 'Guía de práctica'} · ${appDocumentTitle}`,
+                ? `${translate(request.locale, 'practiceGuides.editTitle')} · ${appDocumentTitle}`
+                : `${selectedPracticeGuide?.title || translate(request.locale, 'practiceGuides.defaultTitle')} · ${appDocumentTitle}`,
         user,
     };
 }
@@ -289,7 +290,7 @@ function renderPracticeGuideNewView(request, response, input) {
             currentView: 'resources',
             guestInitialGreeting: '',
             request,
-            title: `Nueva guía de práctica - ${appDocumentTitle}`,
+            title: `${translate(request.locale, 'practiceGuides.newTitle')} - ${appDocumentTitle}`,
             user: input.user,
         }),
         generationCreditExhausted: Boolean(input.generationCreditExhausted),
@@ -306,7 +307,7 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
     if (prompt.length < 10) {
         renderPracticeGuideNewView(request, response.status(422), {
             activeProfile: auth.activeProfile,
-            generationError: 'Describe un poco mejor la guía.',
+            generationError: translate(request.locale, 'msg.describeGuideBetter'),
             generationPrompt: prompt,
             user: auth.user,
         });
@@ -315,6 +316,7 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
         const draft = await generatePracticeGuideDraft({
+            instructionLanguage: auth.activeProfile?.instructionLanguage,
             openRouterApiKey,
             prompt,
         });
@@ -326,7 +328,7 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
             userId: auth.user.id,
         });
         updatePracticeGuideAuthoringMessages({
-            messages: appendPracticeGuideAuthoringMessages([], createPracticeGuideAuthoringMessage('user', prompt), createPracticeGuideAuthoringMessage('assistant', `Listo. Creé una primera versión de "${draft.title}".`)),
+            messages: appendPracticeGuideAuthoringMessages([], createPracticeGuideAuthoringMessage('user', prompt), createPracticeGuideAuthoringMessage('assistant', translate(request.locale, 'msg.draftCreatedGuide', { title: draft.title }))),
             practiceGuideId: practiceGuide.id,
             userId: auth.user.id,
         });
@@ -348,8 +350,8 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
             activeProfile: auth.activeProfile,
             generationCreditExhausted: isCreditError,
             generationError: isCreditError
-                ? getCreditExhaustedMessage()
-                : 'No pude generar la guía ahora mismo. Inténtalo otra vez.',
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.generateGuideError'),
             generationPrompt: prompt,
             user: auth.user,
         });
@@ -379,19 +381,20 @@ export async function handleRevisePracticeGuide(request, response) {
     const userMessage = readMultilineField(request.body.message, 4000);
     if (userMessage.length < 3) {
         if (wantsJsonResponse(request)) {
-            response.status(422).json({ error: 'Escribe el cambio que quieres hacer.' });
+            response.status(422).json({ error: translate(request.locale, 'msg.writeChange') });
             return;
         }
         renderPracticeGuideAuthoring(request, response.status(422), {
             ...resolved,
             activeTab: 'chat',
-            error: 'Escribe el cambio que quieres hacer.',
+            error: translate(request.locale, 'msg.writeChange'),
         });
         return;
     }
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const revision = await generatePracticeGuideRevision({
+            instructionLanguage: resolved.activeProfile?.instructionLanguage,
             conversationHistory: resolved.practiceGuide.authoringMessages.map((message) => ({
                 content: message.content,
                 createdAt: message.createdAt,
@@ -436,8 +439,8 @@ export async function handleRevisePracticeGuide(request, response) {
     catch (error) {
         const isCreditError = isCreditExhaustedError(error);
         const failureMessage = isCreditError
-            ? getCreditExhaustedMessage()
-            : 'No pude aplicar ese cambio ahora mismo.';
+            ? getCreditExhaustedMessage(request.locale)
+            : translate(request.locale, 'msg.applyChangeError');
         const practiceGuideWithFailureMessage = savePracticeGuideAuthoringTurn({
             assistantMessage: failureMessage,
             practiceGuide: resolved.practiceGuide,
@@ -558,7 +561,7 @@ export function handleUpdatePracticeGuide(request, response) {
         renderPracticeGuideAuthoring(request, response.status(422), {
             ...resolved,
             activeTab: 'general',
-            error: 'Completa el título, la descripción y las instrucciones al tutor.',
+            error: translate(request.locale, 'msg.completeGuideFields'),
         });
         return;
     }

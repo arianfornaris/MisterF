@@ -1,3 +1,4 @@
+import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import { appendRoleplayAttemptTurns, createConversationFromRoleplayAttempt, createRoleplay, createRoleplayAttempt, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, findRoleplayAttemptById, findRoleplayById, findRoleplayForUser, getOrCreateResourceShareLink, grantResourceAccess, listResourceFolderPathForResource, listResourceFoldersForProfile, listRoleplayAttemptsForUser, markRoleplayAttemptFailed, saveRoleplayAttemptResult, submitRoleplayAttempt, updateRoleplay, updateRoleplayAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
@@ -89,17 +90,17 @@ function buildRoleplayResultPath(attemptId, params = {}) {
     const path = `/roleplay-attempts/${encodeURIComponent(attemptId)}/result`;
     return query ? `${path}?${query}` : path;
 }
-function readRoleplayResultActionError(value) {
+function readRoleplayResultActionError(value, locale) {
     const code = readField(value, 40);
     if (code === 'credit') {
         return {
-            resultActionError: getCreditExhaustedMessage(),
+            resultActionError: getCreditExhaustedMessage(locale),
             resultActionErrorIsCredit: true,
         };
     }
     if (code === 'practice-guide') {
         return {
-            resultActionError: 'No pude crear la guía de práctica ahora mismo. Inténtalo otra vez.',
+            resultActionError: translate(locale, 'msg.createResourceError'),
             resultActionErrorIsCredit: false,
         };
     }
@@ -141,8 +142,11 @@ function serializeViewJson(value) {
         }
     });
 }
-function summarizeRoleplayDraftCreation(draft) {
-    return `Listo. Creé una primera versión de "${draft.title}" con ${draft.characters.length} personajes.`;
+function summarizeRoleplayDraftCreation(draft, locale) {
+    return translate(locale, 'msg.draftCreatedRoleplay', {
+        count: draft.characters.length,
+        title: draft.title,
+    });
 }
 function updateRoleplayWithDraft(roleplay, userId, draft, authoringMessages) {
     return updateRoleplay({
@@ -263,26 +267,26 @@ function readCharactersFromBody(body, previousDraft) {
         readRoleplayCharacterFromBody(body, 'ai', getAiCharacter(previousDraft)),
     ];
 }
-function buildAttemptListItems(attempts) {
+function buildAttemptListItems(attempts, locale) {
     return attempts.map((attempt) => ({
         ...attempt,
-        ...getRoleplayAttemptStatusView(attempt.status),
+        ...getRoleplayAttemptStatusView(attempt.status, locale),
         learnerTurnCount: countLearnerTurns(attempt.turns),
         relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
     }));
 }
-function getRoleplayAttemptStatusView(status) {
+function getRoleplayAttemptStatusView(status, locale) {
     switch (status) {
         case 'draft':
-            return { statusBadgeClass: 'text-bg-light border', statusLabel: 'Sin iniciar' };
+            return { statusBadgeClass: 'text-bg-light border', statusLabel: translate(locale, 'msg.statusNotStarted') };
         case 'in_progress':
-            return { statusBadgeClass: 'text-bg-info', statusLabel: 'En progreso' };
+            return { statusBadgeClass: 'text-bg-info', statusLabel: translate(locale, 'msg.statusInProgress') };
         case 'evaluating':
-            return { statusBadgeClass: 'text-bg-primary', statusLabel: 'Evaluando' };
+            return { statusBadgeClass: 'text-bg-primary', statusLabel: translate(locale, 'msg.statusEvaluating') };
         case 'evaluated':
-            return { statusBadgeClass: 'text-bg-success', statusLabel: 'Evaluado' };
+            return { statusBadgeClass: 'text-bg-success', statusLabel: translate(locale, 'msg.statusEvaluatedMasc') };
         case 'failed':
-            return { statusBadgeClass: 'text-bg-danger', statusLabel: 'Error al evaluar' };
+            return { statusBadgeClass: 'text-bg-danger', statusLabel: translate(locale, 'msg.evaluateError') };
     }
 }
 function renderRoleplayEdit(request, response, input) {
@@ -339,7 +343,7 @@ export async function handleGenerateRoleplay(request, response) {
                 title: `Nuevo Roleplay - ${appDocumentTitle}`,
                 user: auth.user,
             }),
-            generationError: 'Describe un poco mejor el Roleplay.',
+            generationError: translate(request.locale, 'msg.describeRoleplayBetter'),
             generationPrompt: prompt,
         });
         return;
@@ -347,11 +351,12 @@ export async function handleGenerateRoleplay(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
         const draft = await generateRoleplayDraft({
+            instructionLanguage: auth.activeProfile?.instructionLanguage,
             openRouterApiKey,
             prompt,
         });
         const roleplay = createRoleplay({
-            authoringMessages: appendRoleplayAuthoringMessages([], buildRoleplayAuthoringMessage('user', prompt), buildRoleplayAuthoringMessage('assistant', summarizeRoleplayDraftCreation(draft), draft)),
+            authoringMessages: appendRoleplayAuthoringMessages([], buildRoleplayAuthoringMessage('user', prompt), buildRoleplayAuthoringMessage('assistant', summarizeRoleplayDraftCreation(draft, request.locale), draft)),
             ...draft,
             profileId: auth.activeProfile.id,
             userId: auth.user.id,
@@ -377,8 +382,8 @@ export async function handleGenerateRoleplay(request, response) {
                 user: auth.user,
             }),
             generationError: isCreditExhaustedError(error)
-                ? getCreditExhaustedMessage()
-                : 'No pude generar el Roleplay ahora mismo. Inténtalo otra vez.',
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.generateRoleplayError'),
             generationPrompt: prompt,
         });
     }
@@ -414,7 +419,7 @@ export function handleUpdateRoleplay(request, response) {
         renderRoleplayEdit(request, response.status(422), {
             ...resolved,
             activeTab: 'general',
-            error: 'No pude guardar el Roleplay.',
+            error: translate(request.locale, 'msg.saveRoleplayError'),
         });
         return;
     }
@@ -429,19 +434,20 @@ export async function handleReviseRoleplay(request, response) {
     const userMessage = readMultilineField(request.body.message, 4000);
     if (userMessage.length < 3) {
         if (wantsJsonResponse(request)) {
-            response.status(422).json({ error: 'Escribe los cambios que deseas aplicar.' });
+            response.status(422).json({ error: translate(request.locale, 'msg.writeChangesRoleplay') });
             return;
         }
         renderRoleplayEdit(request, response.status(422), {
             ...resolved,
             activeTab: 'chat',
-            error: 'Escribe los cambios que deseas aplicar.',
+            error: translate(request.locale, 'msg.writeChangesRoleplay'),
         });
         return;
     }
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const revision = await generateRoleplayRevision({
+            instructionLanguage: resolved.activeProfile?.instructionLanguage,
             conversationHistory: resolved.roleplay.authoringMessages.map((message) => ({
                 content: message.content,
                 createdAt: message.createdAt,
@@ -456,13 +462,13 @@ export async function handleReviseRoleplay(request, response) {
         const updatedRoleplay = updateRoleplayWithDraft(resolved.roleplay, resolved.user.id, revision.draft, nextAuthoringMessages);
         if (!updatedRoleplay) {
             if (wantsJsonResponse(request)) {
-                response.status(422).json({ error: 'No pude aplicar ese cambio ahora mismo.' });
+                response.status(422).json({ error: translate(request.locale, 'msg.applyChangeError') });
                 return;
             }
             renderRoleplayEdit(request, response.status(422), {
                 ...resolved,
                 activeTab: 'chat',
-                error: 'No pude aplicar ese cambio ahora mismo.',
+                error: translate(request.locale, 'msg.applyChangeError'),
             });
             return;
         }
@@ -481,8 +487,8 @@ export async function handleReviseRoleplay(request, response) {
     catch (error) {
         const isCreditError = isCreditExhaustedError(error);
         const failureMessage = isCreditError
-            ? getCreditExhaustedMessage()
-            : 'No pude aplicar ese cambio ahora mismo.';
+            ? getCreditExhaustedMessage(request.locale)
+            : translate(request.locale, 'msg.applyChangeError');
         updateRoleplayAuthoringMessages({
             messages: appendRoleplayAuthoringMessages(resolved.roleplay.authoringMessages, buildRoleplayAuthoringMessage('user', userMessage), buildRoleplayAuthoringMessage('assistant', failureMessage)),
             roleplayId: resolved.roleplay.id,
@@ -565,9 +571,9 @@ export async function renderRoleplayShowPage(request, response) {
         resourceCurrentFolder,
         resourceFolderOptions,
         resourceFolderPath,
-        roleplayAttempts: buildAttemptListItems(attempts),
+        roleplayAttempts: buildAttemptListItems(attempts, request.locale),
         roleplayAvatarById: buildRoleplayAvatarById(),
-        roleplayStartError: readRoleplayStartError(request.query.startError),
+        roleplayStartError: readRoleplayStartError(request.query.startError, request.locale),
         roleplayShareMode,
         roleplayShareQrDataUrl,
         selectedRoleplay: resolved.roleplay,
@@ -577,13 +583,13 @@ export async function renderRoleplayShowPage(request, response) {
         shareUrl,
     });
 }
-function readRoleplayStartError(value) {
+function readRoleplayStartError(value, locale) {
     const errorCode = readField(value, 40);
     if (errorCode === 'credit') {
-        return getCreditExhaustedMessage();
+        return getCreditExhaustedMessage(locale);
     }
     if (errorCode === 'opening') {
-        return 'No pude iniciar el Roleplay ahora mismo. Inténtalo otra vez.';
+        return translate(locale, 'msg.startRoleplayError');
     }
     return '';
 }
@@ -777,14 +783,14 @@ export async function handleSubmitRoleplayTurn(request, response) {
     if (!draft || !learnerText || attempt.status !== 'in_progress') {
         if (wantsJson) {
             response.status(422).json({
-                error: 'Escribe tu respuesta antes de continuar.',
+                error: translate(request.locale, 'msg.writeAnswerBeforeContinue'),
                 ok: false,
             });
             return;
         }
         renderRoleplayAttempt(request, response.status(422), {
             attempt,
-            error: 'Escribe tu respuesta antes de continuar.',
+            error: translate(request.locale, 'msg.writeAnswerBeforeContinue'),
         });
         return;
     }
@@ -802,14 +808,14 @@ export async function handleSubmitRoleplayTurn(request, response) {
     if (!attemptWithLearnerTurn) {
         if (wantsJson) {
             response.status(422).json({
-                error: 'No pude guardar tu respuesta.',
+                error: translate(request.locale, 'msg.saveAnswerError'),
                 ok: false,
             });
             return;
         }
         renderRoleplayAttempt(request, response.status(422), {
             attempt,
-            error: 'No pude guardar tu respuesta.',
+            error: translate(request.locale, 'msg.saveAnswerError'),
         });
         return;
     }
@@ -870,8 +876,8 @@ export async function handleSubmitRoleplayTurn(request, response) {
             response.status(isCreditExhaustedError(error) ? 402 : 502).json({
                 creditExhausted: isCreditExhaustedError(error),
                 error: isCreditExhaustedError(error)
-                    ? getCreditExhaustedMessage()
-                    : 'No pude generar la siguiente respuesta ahora mismo.',
+                    ? getCreditExhaustedMessage(request.locale)
+                    : translate(request.locale, 'msg.generateNextError'),
                 learnerTurn,
                 learnerTurnCount: countLearnerTurns(attemptWithLearnerTurn.turns),
                 ok: false,
@@ -881,8 +887,8 @@ export async function handleSubmitRoleplayTurn(request, response) {
         renderRoleplayAttempt(request, response.status(422), {
             attempt: findRoleplayAttemptById(attempt.id) ?? attemptWithLearnerTurn,
             error: isCreditExhaustedError(error)
-                ? getCreditExhaustedMessage()
-                : 'No pude generar la siguiente respuesta ahora mismo.',
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.generateNextError'),
         });
     }
 }
@@ -895,7 +901,7 @@ export async function handleFinishRoleplayAttempt(request, response) {
     if (!draft || countLearnerTurns(attempt.turns) < 1) {
         renderRoleplayAttempt(request, response.status(422), {
             attempt,
-            error: 'Escribe al menos una intervención antes de finalizar.',
+            error: translate(request.locale, 'msg.writeOneInteraction'),
         });
         return;
     }
@@ -903,7 +909,7 @@ export async function handleFinishRoleplayAttempt(request, response) {
     if (!evaluatingAttempt) {
         renderRoleplayAttempt(request, response.status(422), {
             attempt,
-            error: 'No pude finalizar el Roleplay. Inténtalo otra vez.',
+            error: translate(request.locale, 'msg.finalizeRoleplayError'),
         });
         return;
     }
@@ -912,6 +918,7 @@ export async function handleFinishRoleplayAttempt(request, response) {
         const result = await evaluateRoleplayAttempt({
             attempt: evaluatingAttempt,
             draft,
+            instructionLanguage: request.activeProfile?.instructionLanguage,
             llm: {
                 modelTier: request.activeProfile?.modelTier ?? 'regular',
                 openRouterApiKey,
@@ -948,8 +955,8 @@ export async function handleFinishRoleplayAttempt(request, response) {
         renderRoleplayAttempt(request, response.status(422), {
             attempt: failedAttempt,
             error: isCreditExhaustedError(error)
-                ? getCreditExhaustedMessage()
-                : 'No pude evaluar el Roleplay ahora mismo. Puedes volver a intentarlo en unos minutos.',
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.evaluateRoleplayError'),
         });
     }
 }
@@ -964,7 +971,7 @@ export function renderRoleplayResultPage(request, response) {
         response.redirect(`/roleplay-attempts/${encodeURIComponent(attempt.id)}`);
         return;
     }
-    const actionError = readRoleplayResultActionError(request.query.guideError);
+    const actionError = readRoleplayResultActionError(request.query.guideError, request.locale);
     response.render('roleplays-result', {
         ...buildRoleplaysShellContext(request, {
             activeProfile: request.activeProfile ?? null,
@@ -1025,7 +1032,7 @@ export async function handleCreateRoleplayResource(request, response) {
     const instruction = readMultilineField(request.body.prompt, 2000);
     const prompt = buildResourceFromContextPrompt({
         context: buildRoleplayResultContext({ attempt, draft, result: result.data }),
-        contextLabel: 'Resultado del roleplay completado',
+        contextLabel: 'Completed roleplay result',
         instruction,
         type,
     });

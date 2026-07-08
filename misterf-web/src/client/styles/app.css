@@ -1,9 +1,11 @@
 @import './base.css';
 @import '../../../node_modules/easymde/dist/easymde.min.css';
 @import './app-shell.css';
+@import './app-pages.css';
 @import './resource-pages.css';
 @import './practice-guides.css';
 @import './quizzes.css';
+@import './authoring.css';
 @import './chat-content.css';
 @import './composer.css';
 @import './auth.css';

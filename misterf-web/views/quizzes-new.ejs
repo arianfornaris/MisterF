@@ -1,14 +1,14 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view quizzes-page">
-  <div class="resource-page-header resource-page-header-has-close">
+<section class="app-page quizzes-page">
+  <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="resource-eyebrow"><%= t('quizzes.kicker') %></p>
+      <p class="app-page-kicker"><%= t('quizzes.kicker') %></p>
       <h1><%= t('quizzes.newTitle') %></h1>
     </div>
-    <div class="resource-page-header-actions">
+    <div class="app-page-header-actions">
       <a
-        class="resource-page-close-button"
+        class="app-page-close-button"
         href="/resources"
         title="<%= t('common.close') %>"
         aria-label="<%= t('common.close') %>"

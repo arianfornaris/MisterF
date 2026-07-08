@@ -1,9 +1,9 @@
 <%- include('partials/app-shell-open') %>
 
-<section class="app-resource-view quizzes-page <%= activeTab === 'blocks' ? 'quiz-authoring-blocks-page' : '' %>">
-  <div class="resource-page-header resource-page-header-has-close">
+<section class="app-page quizzes-page <%= activeTab === 'blocks' ? 'quiz-authoring-blocks-page' : '' %>">
+  <div class="app-page-header app-page-header-has-close">
     <div>
-      <p class="resource-eyebrow"><%= t('quizzes.editingKicker') %></p>
+      <p class="app-page-kicker"><%= t('quizzes.editingKicker') %></p>
       <h1><%= draft.title %></h1>
       <form class="d-inline-block mt-3" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -12,9 +12,9 @@
         </button>
       </form>
     </div>
-    <div class="resource-page-header-actions">
+    <div class="app-page-header-actions">
       <a
-        class="resource-page-close-button"
+        class="app-page-close-button"
         href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>"
         title="<%= t('common.close') %>"
         aria-label="<%= t('common.close') %>"
@@ -28,7 +28,7 @@
     <div class="alert alert-danger" role="alert"><%= authoringError %></div>
   <% } %>
 
-  <ul class="nav nav-pills quiz-tabs" role="tablist">
+  <ul class="nav nav-pills authoring-tabs" role="tablist">
     <li class="nav-item" role="presentation">
       <a
         class="nav-link <%= activeTab === 'general' ? 'active' : '' %>"
@@ -145,37 +145,37 @@
   <% } %>
 
   <% if (activeTab === 'chat') { %>
-    <div class="quiz-chat-panel">
-      <div class="quiz-chat-context">
-        <div class="quiz-chat-context-icon" aria-hidden="true">
+    <div class="authoring-chat-panel">
+      <div class="authoring-chat-context">
+        <div class="authoring-chat-context-icon" aria-hidden="true">
           <i class="bi bi-stars"></i>
         </div>
         <div>
-          <h2 class="quiz-chat-context-title"><%= t('quizzes.modifyWithAi') %></h2>
-          <p class="quiz-chat-context-copy mb-0">
+          <h2 class="authoring-chat-context-title"><%= t('quizzes.modifyWithAi') %></h2>
+          <p class="authoring-chat-context-copy mb-0">
             <%= t('quizzes.modifyWithAiCopy') %>
           </p>
         </div>
       </div>
-      <div class="quiz-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
+      <div class="authoring-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
         <% if (quizAuthoringMessages.length === 0) { %>
-          <article class="message-row is-model quiz-chat-message-row">
-            <div class="message-bubble quiz-chat-message-bubble">
-              <p class="quiz-chat-message-content mb-0"><%= t('quizzes.authoringChatEmpty') %></p>
+          <article class="message-row is-model authoring-chat-message-row">
+            <div class="message-bubble">
+              <p class="authoring-chat-message-content mb-0"><%= t('quizzes.authoringChatEmpty') %></p>
             </div>
           </article>
         <% } else { %>
           <% quizAuthoringMessages.forEach((message) => { %>
-            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> quiz-chat-message-row">
-              <div class="message-bubble quiz-chat-message-bubble">
-                <p class="quiz-chat-message-content mb-0"><%= message.content %></p>
+            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> authoring-chat-message-row">
+              <div class="message-bubble">
+                <p class="authoring-chat-message-content mb-0"><%= message.content %></p>
               </div>
             </article>
           <% }) %>
         <% } %>
       </div>
       <form
-        class="composer quiz-chat-composer"
+        class="composer authoring-chat-composer"
         method="post"
         action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/revise"
         data-authoring-chat-form
@@ -195,7 +195,7 @@
           ></textarea>
         </div>
         <div class="composer-footer">
-          <button class="btn btn-primary quiz-chat-submit-button" type="submit" data-authoring-chat-submit>
+          <button class="btn btn-primary authoring-chat-submit-button" type="submit" data-authoring-chat-submit>
             <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.applyChanges') %>
           </button>
         </div>

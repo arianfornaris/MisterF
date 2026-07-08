@@ -81,8 +81,8 @@ export function resolveGuestInitialGreeting(request, user) {
         return '';
     }
     return hasKnownVisitorCookie(request)
-        ? pickKnownVisitorGreeting()
-        : pickInitialGreeting();
+        ? pickKnownVisitorGreeting(request.locale)
+        : pickInitialGreeting(request.locale);
 }
 export function buildAppShellContext(input) {
     const isAuthenticated = Boolean(input.user?.emailVerified);

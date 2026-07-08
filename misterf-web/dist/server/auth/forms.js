@@ -8,7 +8,11 @@ import { clearActiveProfileCookie } from './profiles.js';
 import { appDocumentTitle as shellAppDocumentTitle, buildAppShellContext, getHomeAuthMessage as getShellHomeAuthMessage, } from '../pages/shell.js';
 import { buildProfileOnboardingPath } from '../profiles/fields.js';
 import { logger } from '../services/logger.js';
+import { createTranslator, defaultLocale, } from '../i18n/index.js';
 const appDocumentTitle = 'Mr. F, tutor de inglés';
+function tr(response) {
+    return createTranslator(response.req?.locale ?? defaultLocale);
+}
 const loginAttempts = new Map();
 const maxAttempts = 12;
 const attemptWindowMs = 10 * 60 * 1000;
@@ -106,12 +110,13 @@ export async function handleLogin(request, response) {
     });
     const email = normalizeEmail(readField(request.body.email));
     const password = readField(request.body.password);
+    const t = tr(response);
     const fieldErrors = {};
     if (!email) {
-        fieldErrors.email = 'Escribe tu correo.';
+        fieldErrors.email = t('auth.field.emailRequired');
     }
     if (!password) {
-        fieldErrors.password = 'Escribe tu password.';
+        fieldErrors.password = t('auth.field.passwordRequired');
     }
     if (Object.keys(fieldErrors).length > 0) {
         renderAuthForm(response.status(422), {
@@ -125,7 +130,7 @@ export async function handleLogin(request, response) {
     }
     if (isRateLimited(request)) {
         renderAuthForm(response.status(429), {
-            error: 'Demasiados intentos. Espera unos minutos y vuelve a probar.',
+            error: t('auth.error.tooManyAttempts'),
             fieldErrors: {},
             mode: 'login',
             returnTo,
@@ -138,7 +143,7 @@ export async function handleLogin(request, response) {
     if (!user || !isPasswordValid) {
         registerFailedAttempt(request);
         renderAuthForm(response.status(401), {
-            error: 'El correo o el password no son correctos.',
+            error: t('auth.error.invalidCredentials'),
             fieldErrors: {},
             mode: 'login',
             returnTo,
@@ -162,12 +167,13 @@ export async function handleSignup(request, response) {
     const fullName = readField(request.body.fullName);
     const password = readField(request.body.password);
     const confirmPassword = readField(request.body.confirmPassword);
+    const t = tr(response);
     const fieldErrors = validateSignup({
         confirmPassword,
         email,
         fullName,
         password,
-    });
+    }, t);
     if (Object.keys(fieldErrors).length > 0) {
         renderAuthForm(response.status(422), {
             error: '',
@@ -182,7 +188,7 @@ export async function handleSignup(request, response) {
         renderAuthForm(response.status(409), {
             error: '',
             fieldErrors: {
-                email: 'Ya existe una cuenta con este correo.',
+                email: t('auth.field.emailExists'),
             },
             mode: 'signup',
             returnTo,
@@ -192,7 +198,7 @@ export async function handleSignup(request, response) {
     }
     if (!isMailerConfigured()) {
         renderAuthForm(response.status(503), {
-            error: getMailerConfigurationError(),
+            error: getMailerConfigurationError(request.locale),
             fieldErrors: {},
             mode: 'signup',
             returnTo,
@@ -208,7 +214,7 @@ export async function handleSignup(request, response) {
     catch (error) {
         deleteUserById(user.id);
         renderAuthForm(response.status(503), {
-            error: toOpenRouterProvisioningErrorMessage(error),
+            error: toOpenRouterProvisioningErrorMessage(error, t),
             fieldErrors: {},
             mode: 'signup',
             returnTo,
@@ -217,11 +223,11 @@ export async function handleSignup(request, response) {
         return;
     }
     try {
-        await issueEmailVerification(user);
+        await issueEmailVerification(user, request.locale);
     }
     catch (error) {
         renderAuthForm(response.status(503), {
-            error: toMailErrorMessage(error),
+            error: toMailErrorMessage(error, t),
             fieldErrors: {},
             mode: 'signup',
             returnTo,
@@ -240,11 +246,12 @@ export async function handleSignup(request, response) {
     await signInUser(request, response, user.id, verifyReturnTo);
 }
 export async function handleForgotPassword(request, response) {
+    const t = tr(response);
     const email = normalizeEmail(readField(request.body.email));
     if (!isEmail(email)) {
         renderAuthForm(response.status(422), {
             error: '',
-            fieldErrors: { email: 'Escribe un correo válido.' },
+            fieldErrors: { email: t('auth.field.emailInvalid') },
             mode: 'forgot',
             values: { code: '', email, fullName: '' },
         });
@@ -252,7 +259,7 @@ export async function handleForgotPassword(request, response) {
     }
     if (!isMailerConfigured()) {
         renderAuthForm(response.status(503), {
-            error: getMailerConfigurationError(),
+            error: getMailerConfigurationError(request.locale),
             fieldErrors: {},
             mode: 'forgot',
             values: { code: '', email, fullName: '' },
@@ -262,12 +269,12 @@ export async function handleForgotPassword(request, response) {
     try {
         const user = findUserByEmail(email);
         if (user) {
-            await issuePasswordReset(user);
+            await issuePasswordReset(user, request.locale);
         }
     }
     catch (error) {
         renderAuthForm(response.status(503), {
-            error: toMailErrorMessage(error),
+            error: toMailErrorMessage(error, t),
             fieldErrors: {},
             mode: 'forgot',
             values: { code: '', email, fullName: '' },
@@ -275,25 +282,26 @@ export async function handleForgotPassword(request, response) {
         return;
     }
     renderAuthMessage(response, {
-        body: 'Si existe una cuenta con ese correo, enviamos un código para recuperar el password.',
+        body: t('auth.message.forgotSentBody'),
         linkHref: '/reset-password',
-        linkText: 'Escribir código',
-        title: 'Revisa tu correo',
+        linkText: t('auth.message.forgotSentLink'),
+        title: t('auth.message.forgotSentTitle'),
     });
 }
 export async function handleResetPassword(request, response) {
     const email = normalizeEmail(readField(request.body.email));
     const code = normalizeActionToken(readField(request.body.code));
     const password = readField(request.body.password);
+    const t = tr(response);
     const fieldErrors = {};
     if (!isEmail(email)) {
-        fieldErrors.email = 'Escribe el correo de tu cuenta.';
+        fieldErrors.email = t('auth.field.resetEmailRequired');
     }
     if (!code) {
-        fieldErrors.code = 'Escribe el código que recibiste.';
+        fieldErrors.code = t('auth.field.codeRequired');
     }
     if (password.length < 10) {
-        fieldErrors.password = 'Usa al menos 10 caracteres.';
+        fieldErrors.password = t('auth.field.passwordTooShort');
     }
     if (Object.keys(fieldErrors).length > 0) {
         renderAuthForm(response.status(422), {
@@ -311,7 +319,7 @@ export async function handleResetPassword(request, response) {
     });
     if (!user || user.email !== email) {
         renderAuthForm(response.status(400), {
-            error: 'El código no es válido o ya expiró.',
+            error: t('auth.error.invalidOrExpiredCode'),
             fieldErrors: {},
             mode: 'reset',
             values: { code, email, fullName: '' },
@@ -326,10 +334,10 @@ export async function handleResetPassword(request, response) {
     revokeUserSessions(user.id);
     clearSessionCookie(response);
     renderAuthMessage(response, {
-        body: 'Tu contraseña fue actualizada. Ya puedes iniciar sesión.',
+        body: t('auth.message.passwordUpdatedResetBody'),
         linkHref: '/login',
-        linkText: 'Iniciar sesión',
-        title: 'Contraseña actualizada',
+        linkText: t('auth.message.signInLink'),
+        title: t('auth.message.passwordUpdatedTitle'),
     });
 }
 export async function handleChangePassword(request, response) {
@@ -341,18 +349,19 @@ export async function handleChangePassword(request, response) {
     const currentPassword = readField(request.body.currentPassword);
     const newPassword = readField(request.body.newPassword);
     const confirmPassword = readField(request.body.confirmPassword);
+    const t = tr(response);
     const fieldErrors = {};
     if (user.passwordHash && !currentPassword) {
-        fieldErrors.currentPassword = 'Escribe tu password actual.';
+        fieldErrors.currentPassword = t('auth.field.currentPasswordRequired');
     }
     if (newPassword.length < 10) {
-        fieldErrors.newPassword = 'Usa al menos 10 caracteres.';
+        fieldErrors.newPassword = t('auth.field.passwordTooShort');
     }
     if (!confirmPassword) {
-        fieldErrors.confirmPassword = 'Repite la nueva contraseña.';
+        fieldErrors.confirmPassword = t('auth.field.confirmNewRequired');
     }
     else if (newPassword !== confirmPassword) {
-        fieldErrors.confirmPassword = 'Las contraseñas no coinciden.';
+        fieldErrors.confirmPassword = t('auth.field.newPasswordsMismatch');
     }
     if (Object.keys(fieldErrors).length > 0) {
         renderChangePasswordForm(response.status(422), {
@@ -368,7 +377,7 @@ export async function handleChangePassword(request, response) {
         const isCurrentPasswordValid = await verifyPassword(currentPassword, user.passwordHash);
         if (!isCurrentPasswordValid) {
             renderChangePasswordForm(response.status(401), {
-                error: 'El password actual no es correcto.',
+                error: t('auth.error.wrongCurrentPassword'),
                 fieldErrors: {},
                 hasPassword: true,
                 request,
@@ -384,10 +393,10 @@ export async function handleChangePassword(request, response) {
     revokeUserSessions(user.id);
     clearSessionCookie(response);
     renderAuthMessage(response, {
-        body: 'Tu contraseña fue actualizada. Vuelve a iniciar sesión.',
+        body: t('auth.message.passwordUpdatedChangeBody'),
         linkHref: '/login',
-        linkText: 'Iniciar sesión',
-        title: 'Contraseña actualizada',
+        linkText: t('auth.message.signInLink'),
+        title: t('auth.message.passwordUpdatedTitle'),
     });
 }
 export async function handleVerifyEmail(request, response) {
@@ -400,13 +409,14 @@ export async function handleVerifyEmail(request, response) {
         response.redirect('/login');
         return;
     }
+    const t = tr(response);
     const code = normalizeActionToken(readField(request.body.code));
     if (!code) {
         renderAuthMessage(response.status(422), {
-            body: 'Escribe el código que enviamos a tu correo.',
+            body: t('auth.message.verifyEnterCode'),
             returnTo,
             showVerificationCodeForm: true,
-            title: 'Verifica tu correo',
+            title: t('auth.message.verifyTitle'),
         });
         return;
     }
@@ -417,10 +427,10 @@ export async function handleVerifyEmail(request, response) {
     });
     if (!user || user.id !== request.authUser.id) {
         renderAuthMessage(response.status(400), {
-            body: 'El código de verificación no es válido o ya expiró.',
+            body: t('auth.message.invalidCodeBody'),
             returnTo,
             showVerificationCodeForm: true,
-            title: 'Código inválido',
+            title: t('auth.message.invalidCodeTitle'),
         });
         return;
     }
@@ -431,11 +441,11 @@ export async function handleVerifyEmail(request, response) {
         userId: user.id,
     });
     renderAuthMessage(response, {
-        body: 'Tu correo ya está verificado. Completa tu perfil de aprendizaje para que Mr. F pueda adaptar mejor la práctica.',
+        body: t('auth.message.verifiedBody'),
         linkHref: buildProfileOnboardingPath(returnTo),
-        linkText: 'Completar perfil',
+        linkText: t('auth.message.completeProfileLink'),
         returnTo,
-        title: 'Correo verificado',
+        title: t('auth.message.verifiedTitle'),
     });
 }
 export async function handleResendVerification(request, response) {
@@ -452,30 +462,31 @@ export async function handleResendVerification(request, response) {
         response.redirect('/');
         return;
     }
+    const t = tr(response);
     if (!isMailerConfigured()) {
         renderAuthMessage(response.status(503), {
-            body: getMailerConfigurationError(),
+            body: getMailerConfigurationError(request.locale),
             returnTo,
-            title: 'No pude enviar el email',
+            title: t('auth.message.mailFailTitle'),
         });
         return;
     }
     try {
-        await issueEmailVerification(request.authUser);
+        await issueEmailVerification(request.authUser, request.locale);
     }
     catch (error) {
         renderAuthMessage(response.status(503), {
-            body: toMailErrorMessage(error),
+            body: toMailErrorMessage(error, t),
             returnTo,
-            title: 'No pude enviar el email',
+            title: t('auth.message.mailFailTitle'),
         });
         return;
     }
     renderAuthMessage(response, {
-        body: 'Enviamos otro código de verificación a tu correo.',
+        body: t('auth.message.resentBody'),
         returnTo,
         showVerificationCodeForm: true,
-        title: 'Revisa tu correo',
+        title: t('auth.message.forgotSentTitle'),
     });
 }
 export function renderVerifyNeeded(request, response) {
@@ -494,11 +505,13 @@ export function renderVerifyNeeded(request, response) {
         return;
     }
     renderAuthMessage(response, {
-        body: `Antes de usar el tutor, escribe el código que enviamos a ${request.authUser.email}.`,
+        body: tr(response)('auth.message.verifyNeededBody', {
+            email: request.authUser.email,
+        }),
         returnTo,
         showVerificationCodeForm: true,
         showResendVerification: true,
-        title: 'Verifica tu correo',
+        title: tr(response)('auth.message.verifyTitle'),
     });
 }
 export function handleLogout(request, response) {
@@ -528,13 +541,13 @@ async function signInUser(request, response, userId, returnTo = '/') {
     setKnownVisitorCookie(response);
     response.redirect(returnTo);
 }
-function toOpenRouterProvisioningErrorMessage(error) {
+function toOpenRouterProvisioningErrorMessage(error, t) {
     logger.error('openrouter_user_key_provisioning_failed', { error });
     return error instanceof Error
-        ? `No pude preparar la cuenta de IA para este usuario: ${error.message}`
-        : 'No pude preparar la cuenta de IA para este usuario.';
+        ? t('auth.serviceError.openrouterWithReason', { reason: error.message })
+        : t('auth.serviceError.openrouter');
 }
-async function issueEmailVerification(user) {
+async function issueEmailVerification(user, locale) {
     const token = createActionToken();
     createAuthActionToken({
         expiresAt: new Date(Date.now() + verificationTtlMs),
@@ -542,9 +555,9 @@ async function issueEmailVerification(user) {
         type: 'email_verification',
         userId: user.id,
     });
-    await sendEmailVerification(user, token);
+    await sendEmailVerification(user, token, locale);
 }
-async function issuePasswordReset(user) {
+async function issuePasswordReset(user, locale) {
     const token = createActionToken();
     createAuthActionToken({
         expiresAt: new Date(Date.now() + passwordResetTtlMs),
@@ -552,13 +565,14 @@ async function issuePasswordReset(user) {
         type: 'password_reset',
         userId: user.id,
     });
-    await sendPasswordReset(user, token);
+    await sendPasswordReset(user, token, locale);
 }
 function renderAuthForm(response, view) {
+    const documentTitle = tr(response)(`auth.documentTitle.${view.mode}`);
     response.render('auth', {
         ...view,
         csrfToken: response.locals.csrfToken,
-        title: `${getFormTitle(view.mode)} · ${appDocumentTitle}`,
+        title: `${documentTitle} · ${appDocumentTitle}`,
     });
 }
 function renderChangePasswordForm(response, view) {
@@ -570,7 +584,7 @@ function renderChangePasswordForm(response, view) {
             currentView: 'settings',
             guestInitialGreeting: '',
             request: view.request,
-            title: `Cambiar contraseña · ${shellAppDocumentTitle}`,
+            title: `${tr(response)('auth.message.changePasswordTitle')} · ${shellAppDocumentTitle}`,
             user: view.user,
         }),
         csrfToken: response.locals.csrfToken,
@@ -588,34 +602,22 @@ function renderAuthMessage(response, view) {
         title: `${view.title} · ${appDocumentTitle}`,
     });
 }
-function getFormTitle(mode) {
-    if (mode === 'signup') {
-        return 'Crear cuenta';
-    }
-    if (mode === 'forgot') {
-        return 'Recuperar password';
-    }
-    if (mode === 'reset') {
-        return 'Nuevo password';
-    }
-    return 'Iniciar sesión';
-}
-function validateSignup(input) {
+function validateSignup(input, t) {
     const errors = {};
     if (!isEmail(input.email)) {
-        errors.email = 'Escribe un correo válido.';
+        errors.email = t('auth.field.emailInvalid');
     }
     if (input.fullName.trim().length < 2) {
-        errors.fullName = 'Escribe tu nombre completo.';
+        errors.fullName = t('auth.field.fullNameRequired');
     }
     if (input.password.length < 10) {
-        errors.password = 'Usa al menos 10 caracteres.';
+        errors.password = t('auth.field.passwordTooShort');
     }
     if (!input.confirmPassword) {
-        errors.confirmPassword = 'Repite tu password.';
+        errors.confirmPassword = t('auth.field.confirmRequired');
     }
     else if (input.password !== input.confirmPassword) {
-        errors.confirmPassword = 'Los passwords no coinciden.';
+        errors.confirmPassword = t('auth.field.passwordsMismatch');
     }
     return errors;
 }
@@ -640,10 +642,10 @@ function registerFailedAttempt(request) {
     }
     item.count += 1;
 }
-function toMailErrorMessage(error) {
+function toMailErrorMessage(error, t) {
     if (error instanceof Error) {
-        return `No pude enviar el email: ${error.message}`;
+        return t('auth.serviceError.mailWithReason', { reason: error.message });
     }
-    return 'No pude enviar el email por un error inesperado.';
+    return t('auth.serviceError.mail');
 }
 //# sourceMappingURL=forms.js.map

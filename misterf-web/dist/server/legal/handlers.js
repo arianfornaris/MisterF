@@ -1,12 +1,13 @@
 import { appDocumentTitle } from '../pages/shell.js';
-export function renderPrivacyPage(_request, response) {
+import { translate } from '../i18n/index.js';
+export function renderPrivacyPage(request, response) {
     response.render('privacy', {
-        title: `Política de privacidad · ${appDocumentTitle}`,
+        title: `${translate(request.locale, 'legal.privacyTitle')} · ${appDocumentTitle}`,
     });
 }
-export function renderTermsPage(_request, response) {
+export function renderTermsPage(request, response) {
     response.render('terms', {
-        title: `Términos y condiciones · ${appDocumentTitle}`,
+        title: `${translate(request.locale, 'legal.termsTitle')} · ${appDocumentTitle}`,
     });
 }
 //# sourceMappingURL=handlers.js.map

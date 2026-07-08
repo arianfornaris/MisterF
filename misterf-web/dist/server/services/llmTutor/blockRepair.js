@@ -3,24 +3,68 @@ import { z } from 'zod';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { logger } from '../logger.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
+import { defaultInstructionLanguage, } from './languagePack.js';
+import { languages } from '../../i18n/index.js';
 import { TutorResponseValidationError } from './errors.js';
+import { parseJsonFromModelText } from './modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './providers.js';
 import { validateTutorResponseBlocks } from './validation.js';
 const maxRepairAttempts = 2;
-export function detectMessageTaskLeakage(blocks) {
+/**
+ * Top-level blocks that ask the learner to interact/answer. Normal guided
+ * practice emits at most one of these per tutor response; several items that
+ * should be answered together belong in a single `quiz` block.
+ */
+const interactiveExerciseBlockTypes = new Set([
+    'dialogue_character_message',
+    'fill_in_the_blank_choice',
+    'fill_in_the_blank_input',
+    'matching_pairs',
+    'multiple_choice',
+    'open_text_prompt',
+    'order_sentences',
+    'quiz',
+    'translate_to_english_prompt',
+    'understand_in_spanish_prompt',
+    'unscramble_sentence',
+]);
+export function detectMessageTaskLeakage(blocks, instructionLanguage = defaultInstructionLanguage) {
+    const patterns = languages[instructionLanguage].leakagePatterns;
     return blocks.flatMap((block, blockIndex) => {
         if (block.type !== 'message') {
             return [];
         }
-        return detectMessageIssues(block.markdown).map((issue) => ({
+        return detectMessageIssues(block.markdown, patterns).map((issue) => ({
             ...issue,
             blockIndex,
             excerpt: buildExcerpt(block.markdown),
         }));
     });
 }
+export function detectMultiExerciseBatch(blocks) {
+    const exerciseIndexes = blocks.flatMap((block, blockIndex) => (interactiveExerciseBlockTypes.has(block.type) ? [blockIndex] : []));
+    if (exerciseIndexes.length <= 1) {
+        return [];
+    }
+    return exerciseIndexes.slice(1).map((blockIndex) => ({
+        blockIndex,
+        expectedBlockTypes: ['quiz'],
+        excerpt: buildExcerpt(JSON.stringify(blocks[blockIndex])),
+        kind: 'multi_exercise_batch',
+        reason: `The response contains ${exerciseIndexes.length} top-level exercise blocks; ` +
+            'a tutor response should present at most one interactive exercise at a time. ' +
+            'Consolidate the items into a single quiz block, or keep only the primary exercise.',
+    }));
+}
+function detectTutorBlockIssues(blocks, instructionLanguage) {
+    return [
+        ...detectMessageTaskLeakage(blocks, instructionLanguage),
+        ...detectMultiExerciseBatch(blocks),
+    ];
+}
 export async function repairTutorResponseBlocks(input) {
-    const initialIssues = detectMessageTaskLeakage(input.blocks);
+    const language = input.instructionLanguage ?? defaultInstructionLanguage;
+    const initialIssues = detectTutorBlockIssues(input.blocks, language);
     if (initialIssues.length === 0) {
         return {
             blocks: input.blocks,
@@ -38,7 +82,7 @@ export async function repairTutorResponseBlocks(input) {
             model: getLanguageModel(input.llm),
             providerOptions: getProviderOptions(),
             system: renderSystemPrompt('tutor/block-repair.md', {
-                BLOCK_PROTOCOL: renderTutorBlockProtocol(),
+                BLOCK_PROTOCOL: renderTutorBlockProtocol(undefined, language),
                 DETECTED_ISSUES_JSON: JSON.stringify(currentIssues, null, 2),
                 ORIGINAL_BLOCKS_JSON: JSON.stringify({ blocks: currentBlocks }, null, 2),
             }),
@@ -50,7 +94,7 @@ export async function repairTutorResponseBlocks(input) {
             llm: input.llm,
             operation: 'tutor_block_repair',
         });
-        const remainingIssues = detectMessageTaskLeakage(repairedBlocks);
+        const remainingIssues = detectTutorBlockIssues(repairedBlocks, language);
         logger.info('llm_block_repair_attempt', {
             attempt: attempt + 1,
             issueKinds: currentIssues.map((issue) => issue.kind),
@@ -70,14 +114,20 @@ export async function repairTutorResponseBlocks(input) {
     }
     throw new TutorResponseValidationError({
         generatedText: lastGeneratedText,
-        issues: currentIssues.map((issue) => ({
-            code: z.ZodIssueCode.custom,
-            message: `message block still simulates a typed tutor block: ${issue.reason}`,
-            path: ['blocks', issue.blockIndex, 'markdown'],
-        })),
+        issues: currentIssues.map((issue) => (issue.kind === 'multi_exercise_batch'
+            ? {
+                code: z.ZodIssueCode.custom,
+                message: `response still batches multiple exercises: ${issue.reason}`,
+                path: ['blocks', issue.blockIndex],
+            }
+            : {
+                code: z.ZodIssueCode.custom,
+                message: `message block still simulates a typed tutor block: ${issue.reason}`,
+                path: ['blocks', issue.blockIndex, 'markdown'],
+            })),
     });
 }
-function detectMessageIssues(markdown) {
+function detectMessageIssues(markdown, patterns) {
     const issues = [];
     if (/_{3,}|\{\{\s*blank\s*\}\}/i.test(markdown)) {
         issues.push({
@@ -86,56 +136,56 @@ function detectMessageIssues(markdown) {
             reason: 'A message contains a blank placeholder that should be rendered by a fill-in-the-blank block.',
         });
     }
-    if (/\btraduce(?:\s+(?:la\s+)?(?:siguiente\s+)?(?:frase|oraci[oó]n|texto))?\s+al\s+ingl[eé]s\b\s*:?/i.test(markdown)) {
+    if (patterns.translation.test(markdown)) {
         issues.push({
             expectedBlockTypes: ['translate_to_english_prompt', 'quiz'],
             kind: 'translation_prompt',
-            reason: 'A message contains an explicit Spanish-to-English translation task.',
+            reason: 'A message contains an explicit translation-to-English task.',
         });
     }
-    if (containsOpenTextPrompt(markdown)) {
+    if (containsOpenTextPrompt(markdown, patterns)) {
         issues.push({
             expectedBlockTypes: ['open_text_prompt', 'quiz'],
             kind: 'open_text_prompt',
             reason: 'A message asks the learner to submit an open-ended written answer.',
         });
     }
-    if (/\b(?:ordena|reordena)\b[\s\S]{0,180}\b(?:palabras|oraci[oó]n|frase)\b/i.test(markdown)) {
+    if (patterns.unscramble.test(markdown)) {
         issues.push({
             expectedBlockTypes: ['unscramble_sentence', 'quiz'],
             kind: 'unscramble_prompt',
             reason: 'A message asks the learner to reorder words or a sentence.',
         });
     }
-    if (/\b(?:ordena|reordena|pon)\b[\s\S]{0,180}\b(?:pasos|oraciones|frases|instrucciones|eventos)\b/i.test(markdown)) {
+    if (patterns.orderSentences.test(markdown)) {
         issues.push({
             expectedBlockTypes: ['order_sentences', 'quiz'],
             kind: 'order_sentences_prompt',
             reason: 'A message asks the learner to put sentences or steps in order.',
         });
     }
-    if (/\b(?:une|relaciona|empareja)\b[\s\S]{0,180}\b(?:con|cada|correct[ao]s?|significado|traducci[oó]n|pareja)\b/i.test(markdown)) {
+    if (patterns.matching.test(markdown)) {
         issues.push({
             expectedBlockTypes: ['matching_pairs', 'quiz'],
             kind: 'matching_prompt',
             reason: 'A message asks the learner to match related items.',
         });
     }
-    if (/\b(?:elige|escoge|selecciona|marca)\b[\s\S]{0,180}\b(?:opci[oó]n correcta|respuesta correcta|la correcta)\b/i.test(markdown)) {
+    if (patterns.multipleChoice.test(markdown)) {
         issues.push({
             expectedBlockTypes: ['multiple_choice', 'quiz'],
             kind: 'multiple_choice_prompt',
             reason: 'A message asks the learner to choose a correct answer among options.',
         });
     }
-    if (containsInlineCorrectionMarkup(markdown)) {
+    if (containsInlineCorrectionMarkup(markdown, patterns)) {
         issues.push({
             expectedBlockTypes: ['sentence_evaluation'],
             kind: 'inline_correction_markup',
             reason: 'A message uses bracketed inline correction markup instead of a sentence_evaluation block.',
         });
     }
-    if (containsInlineEvaluationJson(markdown)) {
+    if (containsInlineEvaluationJson(markdown, patterns)) {
         issues.push({
             expectedBlockTypes: ['sentence_evaluation'],
             kind: 'inline_evaluation_json',
@@ -144,25 +194,16 @@ function detectMessageIssues(markdown) {
     }
     return issues;
 }
-function containsOpenTextPrompt(markdown) {
-    const openProductionVerb = String.raw `(?:escrib(?:e|es|a|as|an|ir|ir[ií]a(?:s|n)?|iendo)|redact(?:a|as|an|e|es|en|ar|ar[ií]a(?:s|n)?)|crea(?:r|s|n)?|forma(?:r|s|n)?|constru(?:ye|yes|ya|yas|yan|ir|ir[ií]a(?:s|n)?))`;
-    const revisionVerb = String.raw `(?:corrige(?:s|n)?|corrija(?:s|n)?|corregir(?:[ií]a(?:s|n)?)?|reescrib(?:e|es|a|as|an|ir|ir[ií]a(?:s|n)?|iendo))`;
-    const responseVerb = String.raw `(?:respond(?:e|es|a|as|an|er|er[ií]a(?:s|n)?)|contest(?:a|as|an|e|es|en|ar|ar[ií]a(?:s|n)?))`;
-    const openTextObject = String.raw `(?:oraci[oó]n(?:es)?|frase(?:s)?|respuesta|p[aá]rrafo|texto|ejemplo)`;
-    const openWritingTaskPattern = new RegExp(String.raw `\b${openProductionVerb}\b[\s\S]{0,180}\b${openTextObject}\b`, 'i');
-    const revisionTaskPattern = new RegExp(String.raw `\b${revisionVerb}\b[\s\S]{0,180}\b${openTextObject}\b`, 'i');
-    const ownWordsTaskPattern = new RegExp(String.raw `\b${responseVerb}\b[\s\S]{0,180}\bcon\s+tus\s+propias\s+palabras\b`, 'i');
-    return (openWritingTaskPattern.test(markdown) ||
-        revisionTaskPattern.test(markdown) ||
-        ownWordsTaskPattern.test(markdown) ||
-        containsCorrectionAnalysisPrompt(markdown));
+function containsOpenTextPrompt(markdown, patterns) {
+    return (patterns.openWriting.test(markdown) ||
+        patterns.revision.test(markdown) ||
+        patterns.ownWords.test(markdown) ||
+        containsCorrectionAnalysisPrompt(markdown, patterns));
 }
-function containsCorrectionAnalysisPrompt(markdown) {
-    const politeCorrectionQuestionPattern = /\b(?:puedes|podr[ií]as|podr[ií]an|puede[sn]?)\s+(?:decirme|decirnos|identificar|se[nñ]alar|explicar|indicar|encontrar)\b[\s\S]{0,280}\b(?:error(?:es)?|equivocaci[oó]n(?:es)?|problema(?:s)?)\b[\s\S]{0,280}\b(?:corregir(?:lo|la|los|las)?|corregir[ií]as|corregir[ií]an|corrige(?:lo|la|los|las)?|corriges|corrigen|correcci[oó]n|correcciones)\b/i;
-    const directCorrectionQuestionPattern = /\b(?:cu[aá]l(?:es)?\s+(?:es|son)\s+(?:el|los)?\s*error(?:es)?|encuentra\s+(?:el|los)?\s*error(?:es)?|identifica\s+(?:el|los)?\s*error(?:es)?)\b[\s\S]{0,280}\b(?:corregir(?:lo|la|los|las)?|corregir[ií]as|corregir[ií]an|corrige(?:lo|la|los|las)?|corriges|corrigen|correcci[oó]n|correcciones)\b/i;
+function containsCorrectionAnalysisPrompt(markdown, patterns) {
     return (containsNumberedSentenceList(markdown) &&
-        (politeCorrectionQuestionPattern.test(markdown) ||
-            directCorrectionQuestionPattern.test(markdown)));
+        (patterns.correctionAnalysisPolite.test(markdown) ||
+            patterns.correctionAnalysisDirect.test(markdown)));
 }
 function containsNumberedSentenceList(markdown) {
     const numberedItems = markdown.match(/(?:^|\n)\s*\d+[.)]\s+\S[^\n]{8,240}/gm) ?? [];
@@ -170,15 +211,14 @@ function containsNumberedSentenceList(markdown) {
         /[.!?]\s*$/.test(item.trim())));
     return sentenceLikeItems.length >= 2;
 }
-function containsInlineCorrectionMarkup(markdown) {
+function containsInlineCorrectionMarkup(markdown, patterns) {
     const bracketedWords = markdown.match(/\[[^\]\n]{2,80}\]/g) ?? [];
     if (bracketedWords.length >= 2) {
         return true;
     }
-    return (bracketedWords.length === 1 &&
-        /\b(?:corrige|correcci[oó]n|correcciones|errores|reescribe|reescribir|int[eé]ntalo)\b/i.test(markdown));
+    return bracketedWords.length === 1 && patterns.correctionKeywords.test(markdown);
 }
-function containsInlineEvaluationJson(markdown) {
+function containsInlineEvaluationJson(markdown, patterns) {
     const hasEvaluationShape = /"parts"\s*:\s*\[/i.test(markdown) &&
         /"text"\s*:\s*"[^"]+"/i.test(markdown) &&
         /"status"\s*:\s*"(?:correct|improve|error)"/i.test(markdown);
@@ -186,7 +226,7 @@ function containsInlineEvaluationJson(markdown) {
         return true;
     }
     return (/"type"\s*:\s*"sentence_evaluation"/i.test(markdown) ||
-        (/\b(?:evaluaci[oó]n|revisemos esta parte|pista con la evaluaci[oó]n)\b/i.test(markdown) &&
+        (patterns.evaluationKeywords.test(markdown) &&
             /"explanation"\s*:\s*"[^"]+"/i.test(markdown) &&
             /"status"\s*:\s*"(?:correct|improve|error)"/i.test(markdown)));
 }
@@ -203,17 +243,5 @@ function buildRepairMessages() {
             role: 'user',
         },
     ];
-}
-function parseJsonFromModelText(text) {
-    const trimmed = text.trim();
-    const fencedMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
-    const candidate = fencedMatch ? fencedMatch[1].trim() : trimmed;
-    try {
-        return JSON.parse(candidate);
-    }
-    catch (error) {
-        const message = error instanceof Error ? error.message : 'Invalid JSON';
-        throw new Error(`JSON parsing failed: ${message}`);
-    }
 }
 //# sourceMappingURL=blockRepair.js.map

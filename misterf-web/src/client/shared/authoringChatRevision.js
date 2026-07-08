@@ -58,13 +58,13 @@ export function initializeAuthoringChatRevision(root = document) {
 
   const appendMessage = (role, content) => {
     const row = document.createElement('article');
-    row.className = `message-row ${role === 'user' ? 'is-user' : 'is-model'} quiz-chat-message-row`;
+    row.className = `message-row ${role === 'user' ? 'is-user' : 'is-model'} authoring-chat-message-row`;
 
     const bubble = document.createElement('div');
-    bubble.className = 'message-bubble quiz-chat-message-bubble';
+    bubble.className = 'message-bubble';
 
     const paragraph = document.createElement('p');
-    paragraph.className = 'quiz-chat-message-content mb-0';
+    paragraph.className = 'authoring-chat-message-content mb-0';
     paragraph.textContent = content;
 
     bubble.append(paragraph);

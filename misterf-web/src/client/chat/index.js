@@ -31,8 +31,6 @@ const practiceGuideStartButtonEl = document.querySelector('[data-practiceGuide-s
 const tutorPlanPanelEl = document.querySelector('[data-tutor-plan-panel]');
 const sendButtonEl = document.querySelector('[data-send-button]');
 const toolStatusEl = document.querySelector('[data-tool-status]');
-const llmContextMeterEl = document.querySelector('[data-llm-context-meter]');
-const llmContextCircleEl = document.querySelector('[data-llm-context-circle]');
 const conversationPanelEl = document.querySelector('#conversationPanel');
 const newConversationButtonEl = document.querySelector('[data-new-conversation]');
 const deleteConversationModalEl = document.querySelector(
@@ -98,11 +96,6 @@ const socketClient = new ChatSocketClient(
   shouldInitializeSocket ? io({ auth: { token: socketAuthToken } }) : null,
 );
 const socket = socketClient.raw;
-const llmContextCircleRadius = llmContextCircleEl
-  ? Number.parseFloat(llmContextCircleEl.getAttribute('r') || '0')
-  : 0;
-const llmContextCircleCircumference = 2 * Math.PI * llmContextCircleRadius;
-
 let conversationId = chatState.conversationId;
 let streamingBubble = null;
 let isAssistantBusy = false;
@@ -186,9 +179,6 @@ runtime = createChatRuntime({
   guestInitialGreeting,
   inputEl,
   isInitiallyAuthenticated,
-  llmContextCircleCircumference,
-  llmContextCircleEl,
-  llmContextMeterEl,
   markTutorMessageArrived: (...args) => tutorMessageRenderer.markTutorMessageArrived(...args),
   messagesEl,
   practiceGuideView,
@@ -258,7 +248,6 @@ const translatorController = createTranslatorController({
 
 disableComposerTextAssist();
 tutorMessageRenderer.initializeStaticMarkdown();
-runtime.initializeLlmContextMeter();
 initializeTutorReportPendingForms();
 initializeCreditExhaustedQueryModal();
 
@@ -561,7 +550,6 @@ function setCanFinalizeConversation(enabled) {
     createResourceFromConversationToggleEl.disabled = disabled;
   }
 }
-
 
 function renderPracticeGuideStartPanel(practiceGuide, options = {}) {
   if (

@@ -2,12 +2,19 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 import { quizDraftSchema, } from './quizzes.js';
 import { normalizeRoleplayRevisionConversationHistory, roleplayDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
+import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { instructionLanguageEnglishName, quizAuthoringPlaceholders, } from './llmTutor/languagePack.js';
 import { buildRoleplayCharacterAvatarPromptOptions } from '../roleplays/avatarRegistry.js';
 const maxDraftGenerationTurns = 4;
+function languagePromptVariables(instructionLanguage = 'es') {
+    return {
+        INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(instructionLanguage),
+    };
+}
 const practiceGuideDraftSchema = z.object({
     description: z.string().trim().min(1).max(1500),
     title: z.string().trim().min(1).max(220),
@@ -21,9 +28,6 @@ const quizRevisionSchema = z.object({
     assistantMessage: z.string().trim().min(1).max(2000),
     draft: quizDraftSchema,
 }).strict();
-function parseJsonFromModelText(text) {
-    return JSON.parse(text.trim());
-}
 function appendCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();
     if (invalidOutput) {
@@ -215,6 +219,7 @@ export async function generatePracticeGuideDraft(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: practiceGuideDraftSchema,
         systemPromptPath: 'resources/practice-guide-draft.md',
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage),
     });
 }
 export async function generatePracticeGuideRevision(input) {
@@ -230,6 +235,7 @@ export async function generatePracticeGuideRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: practiceGuideRevisionSchema,
         systemPromptPath: 'resources/practice-guide-revision.md',
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage),
     });
 }
 function normalizePracticeGuideRevisionConversationHistory(messages) {
@@ -256,6 +262,7 @@ export async function generateQuizDraft(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: quizDraftSchema,
         systemPromptPath: 'resources/quiz-draft.md',
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
     });
 }
 export async function generateQuizRevision(input) {
@@ -271,6 +278,7 @@ export async function generateQuizRevision(input) {
         openRouterApiKey: input.openRouterApiKey,
         schema: quizRevisionSchema,
         systemPromptPath: 'resources/quiz-revision.md',
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
     });
 }
 function normalizeQuizRevisionConversationHistory(messages) {
@@ -317,6 +325,7 @@ export async function generateRoleplayDraft(input) {
         schema: roleplayDraftSchema,
         systemPromptPath: 'resources/roleplay-draft.md',
         systemPromptVariables: {
+            ...languagePromptVariables(input.instructionLanguage),
             ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
         },
     });
@@ -336,6 +345,7 @@ export async function generateRoleplayRevision(input) {
         schema: roleplayRevisionSchema,
         systemPromptPath: 'resources/roleplay-revision.md',
         systemPromptVariables: {
+            ...languagePromptVariables(input.instructionLanguage),
             ROLEPLAY_AVATAR_OPTIONS: roleplayAvatarOptions,
         },
     });

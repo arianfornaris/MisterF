@@ -1679,5 +1679,70 @@ export const migrations = [
         ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
     `,
     },
+    {
+        id: 14,
+        name: 'add_profile_instruction_language',
+        up: `
+      ALTER TABLE profiles
+        ADD COLUMN instruction_language TEXT NOT NULL DEFAULT 'es'
+          CHECK (instruction_language IN ('es', 'en'));
+    `,
+    },
+    {
+        id: 15,
+        name: 'add_conversation_instruction_language',
+        up: `
+      ALTER TABLE conversations
+        ADD COLUMN instruction_language TEXT NOT NULL DEFAULT 'es'
+          CHECK (instruction_language IN ('es', 'en'));
+    `,
+    },
+    {
+        // The instruction_language allowlist now lives in the language registry
+        // (i18n/languages.ts) and is enforced in application code, so adding a
+        // language no longer needs a schema change. Drop the DB CHECK by editing
+        // the stored table DDL in place — this moves no rows and leaves foreign
+        // keys and indexes untouched (a normal table rebuild would cascade-delete
+        // the referenced messages/snapshots under foreign_keys=ON).
+        id: 16,
+        name: 'drop_instruction_language_check',
+        run: (db) => {
+            db.pragma('writable_schema = ON');
+            const select = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?");
+            const update = db.prepare("UPDATE sqlite_master SET sql = ? WHERE type = 'table' AND name = ?");
+            for (const table of ['profiles', 'conversations']) {
+                const row = select.get(table);
+                if (!row) {
+                    continue;
+                }
+                const rewritten = row.sql.replace(/\s*CHECK \(instruction_language IN \([^)]*\)\)/, '');
+                update.run(rewritten, table);
+            }
+            db.pragma('writable_schema = OFF');
+        },
+    },
+    {
+        // The model-tier allowlist now lives in application code
+        // (profiles/modelTier.ts), so adding a tier (e.g. 'lite') no longer
+        // needs a schema change. Drop the DB CHECK the same way migration 16
+        // dropped the instruction_language one: edit the stored table DDL in
+        // place, moving no rows and leaving foreign keys and indexes untouched.
+        id: 17,
+        name: 'drop_model_tier_check',
+        run: (db) => {
+            db.pragma('writable_schema = ON');
+            const select = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?");
+            const update = db.prepare("UPDATE sqlite_master SET sql = ? WHERE type = 'table' AND name = ?");
+            for (const table of ['profiles', 'conversations']) {
+                const row = select.get(table);
+                if (!row) {
+                    continue;
+                }
+                const rewritten = row.sql.replace(/\s*CHECK \(model_tier IN \([^)]*\)\)/, '');
+                update.run(rewritten, table);
+            }
+            db.pragma('writable_schema = OFF');
+        },
+    },
 ];
 //# sourceMappingURL=migrations.js.map

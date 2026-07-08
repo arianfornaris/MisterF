@@ -1710,36 +1710,6 @@ button.quiz-result-pair-row:focus {
   color: var(--bs-success-text-emphasis);
 }
 
-.tutor-message-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 0.85rem;
-}
-
-.tutor-message-action-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem;
-  padding: 0.42rem 0.8rem;
-  font-size: 0.92rem;
-  font-family: var(--bs-body-font-family);
-  font-weight: 600;
-  line-height: 1;
-  text-decoration: none;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
-}
-
-.tutor-message-action-link:hover,
-.tutor-message-action-link:focus {
-  transform: translateY(-1px);
-}
-
 .sentence-evaluation {
   --bs-card-border-color: rgb(var(--mf-practice-rgb) / 14%);
   --bs-card-border-radius: 8px;

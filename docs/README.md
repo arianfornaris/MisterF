@@ -96,13 +96,13 @@ Open:
 
 - [Incoming Ideas](./issues/incomming.md): idea inbox for unshaped product notes
 - [Home Suggestions Tracker](./issues/home-suggestions-tracker.md): design tracker for personalized home and new-chat practice suggestions (post-V1)
-- [UI Style Consistency Audit](./issues/ui-style-consistency-audit.md): future audit for shared CSS, semantic class names, and app-wide UI consistency
 
 Completed:
 
 - [V1 LLM, Credit, And Payment Guardrails](./issues/completed/v1-llm-credit-payment-guardrails.md): inventory of server-side LLM calls and their credit/fulfillment guardrails
 - [Block Input Standardization](./issues/completed/block-input-standardization.md): which tutor blocks own their input UI versus use the chat composer
 - [Structured Block Post-Processing](./issues/completed/structured-block-postprocessing.md): the implemented repair loop and future deeper semantic review ideas for tutor block output
+- [UI Style Consistency Audit](./issues/completed/ui-style-consistency-audit.md): the shipped semantic CSS class naming pass (app-page/app-form/authoring families) and its guard test
 - [Message Block Task Leakage](./issues/completed/message-block-task-leakage.md): observed and repaired patterns where `message` blocks leak exercise payloads that should be typed blocks
 
 ## Scope

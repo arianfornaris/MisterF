@@ -9,17 +9,17 @@
             && (practiceGuideCurrentFolder || practiceGuideFolderOptions.length > 0);
         %>
         <section
-          class="app-resource-view practice-guides-page"
+          class="app-page practice-guides-page"
           aria-label="<%= t('practiceGuides.kicker') %>"
         >
-          <div class="resource-page-header resource-page-header-detail">
+          <div class="app-page-header app-page-header-detail">
             <div>
-              <p class="resource-page-kicker"><%= t('practiceGuides.kicker') %></p>
-              <h1 class="resource-page-title">
+              <p class="app-page-kicker"><%= t('practiceGuides.kicker') %></p>
+              <h1 class="app-page-title">
                 <%= selectedPracticeGuide ? selectedPracticeGuide.title : t('practiceGuides.defaultTitle') %>
               </h1>
               <% if (selectedPracticeGuide) { %>
-                <p class="resource-page-copy">
+                <p class="app-page-copy">
                   <a href="/resources"><%= t('resources.title') %></a>
                   <% practiceGuideFolderPath.forEach((folder) => { %>
                     <span class="mx-1">/</span>
@@ -33,7 +33,7 @@
           </div>
 
           <% if (practiceGuidePageMode === 'detail' && selectedPracticeGuide) { %>
-            <section class="resource-page-detail-shell">
+            <section class="app-page-detail-shell">
               <div class="d-grid gap-3">
                 <div class="d-flex flex-wrap align-items-center gap-2">
                   <form method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/chats">
@@ -141,21 +141,21 @@
                   </div>
                 <% } %>
 
-                <p class="resource-page-section-copy"><%= t('resources.description') %></p>
+                <p class="app-page-section-copy"><%= t('resources.description') %></p>
                 <div class="card">
                   <div class="card-body">
                     <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.description %></div>
                   </div>
                 </div>
 
-                <p class="resource-page-section-copy"><%= t('practiceGuides.tutorInstructions') %></p>
+                <p class="app-page-section-copy"><%= t('practiceGuides.tutorInstructions') %></p>
                 <div class="card">
                   <div class="card-body">
                     <div class="resource-markdown" data-render-markdown><%= selectedPracticeGuide.tutorInstructions %></div>
                   </div>
                 </div>
 
-                <p class="resource-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
+                <p class="app-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
                 <% if (practiceGuideConversations.length > 0) { %>
                   <div class="practice-guide-chat-list list-group">
                     <% practiceGuideConversations.forEach((conversation) => { %>
@@ -171,7 +171,7 @@
                     <% }) %>
                   </div>
                 <% } else { %>
-                  <p class="practice-guide-empty mb-0"><%= t('practiceGuides.noChats') %></p>
+                  <p class="text-body-secondary mb-0"><%= t('practiceGuides.noChats') %></p>
                 <% } %>
               </div>
             </section>
@@ -263,7 +263,6 @@
                   <% if (practiceGuideShareQrDataUrl) { %>
                     <div class="d-flex justify-content-center">
                       <img
-                        class="practiceGuide-share-qr"
                         src="<%= practiceGuideShareQrDataUrl %>"
                         alt="<%= t('practiceGuides.qrAlt') %>"
                         width="180"

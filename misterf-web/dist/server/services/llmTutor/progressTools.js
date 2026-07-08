@@ -3,11 +3,13 @@ import { z } from 'zod';
 import { findLearnerProgressProfile, listLearnerProgressEvents, } from '../../db/repository.js';
 import { buildLearnerProgressVocabularyItems } from '../learnerProgressView.js';
 import { createTeacherOnlyContextEnvelope } from './contextEnvelope.js';
+import { defaultInstructionLanguage, } from './languagePack.js';
 export function buildTutorProgressTools(input) {
     if (!input.userId || !input.profileId) {
         return undefined;
     }
     const { onToolCall, profileId, userId } = input;
+    const instructionLanguage = input.instructionLanguage ?? defaultInstructionLanguage;
     function announceToolCall(toolName) {
         onToolCall?.(toolName);
     }
@@ -28,12 +30,14 @@ export function buildTutorProgressTools(input) {
             execute: async ({ includeRecentEvents, recentEventLimit, vocabularyLimit }) => {
                 announceToolCall('get_learner_progress');
                 const progressProfile = findLearnerProgressProfile(userId, profileId);
+                // Vocabulary aggregates over the most recent 30 progress events;
+                // recentEventLimit only caps how many events are echoed back.
                 const events = listLearnerProgressEvents({
-                    limit: includeRecentEvents ? Math.max(recentEventLimit ?? 5, 30) : 30,
+                    limit: 30,
                     profileId,
                     userId,
                 });
-                const vocabulary = buildLearnerProgressVocabularyItems(events)
+                const vocabulary = buildLearnerProgressVocabularyItems(events, instructionLanguage)
                     .slice(0, vocabularyLimit ?? 20)
                     .map((item) => ({
                     count: item.count,

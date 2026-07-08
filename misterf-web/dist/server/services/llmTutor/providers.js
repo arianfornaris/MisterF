@@ -1,5 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider';
 import { env } from '../../config/env.js';
+import { translate } from '../../i18n/index.js';
 import { MissingLlmApiKeyError } from './errors.js';
 export function getConfiguredModelId(options = {}) {
     if (options.modelId?.trim()) {
@@ -10,6 +11,9 @@ export function getConfiguredModelId(options = {}) {
     }
     if (options.modelTier === 'advanced') {
         return env.llmAdvancedModel;
+    }
+    if (options.modelTier === 'lite') {
+        return env.llmLiteModel;
     }
     return env.llmRegularModel;
 }
@@ -36,21 +40,21 @@ export function getProviderOptions() {
     };
 }
 export function shouldUseTemperature(options = {}) {
-    return !/^(gpt-5|o[134]|o4)/i.test(getConfiguredModelId(options));
+    // OpenRouter ids are vendor-prefixed (e.g. `openai/gpt-5-mini`); match on
+    // the model segment. GPT-5 and o-series models reject a custom temperature.
+    const modelSegment = getConfiguredModelId(options).split('/').pop() ?? '';
+    return !/^(gpt-5|o[134])/i.test(modelSegment);
 }
-export function getUserFacingFinishReasonMessage(finishReason, rawFinishReason, providerMetadata) {
-    const normalizedRawFinishReason = rawFinishReason?.toUpperCase() ?? '';
+export function getUserFacingFinishReasonMessage(finishReason, providerMetadata, locale = 'es') {
     const metadataText = JSON.stringify(providerMetadata ?? {}).toUpperCase();
-    if (finishReason === 'length' || normalizedRawFinishReason === 'MAX_TOKENS') {
-        return 'La respuesta del modelo se cortó porque alcanzó el límite máximo de tokens. Intenta enviar un mensaje más corto o vuelve a pedirlo en partes.';
+    if (finishReason === 'length') {
+        return translate(locale, 'msg.finishTokenLimit');
     }
-    if (finishReason === 'content-filter' ||
-        normalizedRawFinishReason === 'SAFETY') {
-        return 'El modelo detuvo la respuesta por sus filtros de seguridad. Prueba reformulando tu mensaje con un contexto más claro y neutral.';
+    if (finishReason === 'content-filter') {
+        return translate(locale, 'msg.finishSafety');
     }
-    if (normalizedRawFinishReason === 'RECITATION' ||
-        metadataText.includes('RECITATION')) {
-        return 'El modelo detuvo la respuesta porque detectó una posible recitación de contenido protegido. Intenta pedir una explicación o una versión original en vez de una reproducción exacta.';
+    if (metadataText.includes('RECITATION')) {
+        return translate(locale, 'msg.finishRecitation');
     }
     return null;
 }

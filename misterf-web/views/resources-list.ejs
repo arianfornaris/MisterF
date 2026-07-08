@@ -8,13 +8,13 @@
     && (selectedFolderParent || resourceFolderOptions.some((folder) => folder.id !== selectedFolder.id));
 %>
 
-<section class="app-resource-view resources-page">
-  <div class="resource-page-header">
+<section class="app-page resources-page">
+  <div class="app-page-header">
     <div>
-      <p class="resource-page-kicker"><%= selectedFolder ? t('resources.kickerFolder') : t('resources.kickerLibrary') %></p>
-      <h1 class="resource-page-title"><%= selectedFolder ? selectedFolder.title : t('resources.title') %></h1>
+      <p class="app-page-kicker"><%= selectedFolder ? t('resources.kickerFolder') : t('resources.kickerLibrary') %></p>
+      <h1 class="app-page-title"><%= selectedFolder ? selectedFolder.title : t('resources.title') %></h1>
       <% if (selectedFolder) { %>
-        <p class="resource-page-copy">
+        <p class="app-page-copy">
           <a href="/resources"><%= t('resources.title') %></a>
           <% resourceFolderBreadcrumbItems.forEach((folder, index) => { %>
             <span class="mx-1">/</span>
@@ -146,13 +146,13 @@
           </div>
         <% } %>
         <% if (selectedFolder.description) { %>
-          <div class="resource-page-copy resource-markdown mt-2" data-render-markdown><%= selectedFolder.description %></div>
+          <div class="app-page-copy resource-markdown mt-2" data-render-markdown><%= selectedFolder.description %></div>
         <% } %>
       <% } %>
     </div>
 
     <% if (!selectedFolder) { %>
-      <div class="resource-page-header-actions">
+      <div class="app-page-header-actions">
         <div class="dropdown">
           <button
             class="btn btn-primary dropdown-toggle"

@@ -2,6 +2,8 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
+import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
+import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
 import { isRoleplayCharacterAvatarId } from '../roleplays/avatarRegistry.js';
@@ -214,6 +216,9 @@ export async function evaluateRoleplayAttempt(input) {
         maxOutputTokens: 5200,
         schema: roleplayEvaluationResultSchema,
         systemPromptPath: 'resources/roleplay-evaluation.md',
+        systemPromptVariables: {
+            INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(input.instructionLanguage ?? 'es'),
+        },
         userPayload: {
             roleplay: input.draft,
             turns: input.attempt.turns,
@@ -250,7 +255,7 @@ export function appendRoleplayAuthoringMessages(existingMessages, ...messages) {
 }
 async function generateStructuredRoleplayOutput(input) {
     const modelTier = input.llm.modelTier ?? 'regular';
-    const system = renderSystemPrompt(input.systemPromptPath);
+    const system = renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables);
     const messages = [
         {
             content: JSON.stringify(input.userPayload, null, 2),
@@ -277,7 +282,7 @@ async function generateStructuredRoleplayOutput(input) {
         });
         let parsedJson;
         try {
-            parsedJson = JSON.parse(result.text.trim());
+            parsedJson = parseJsonFromModelText(result.text);
         }
         catch (error) {
             logLlmInvalidRawResponse({

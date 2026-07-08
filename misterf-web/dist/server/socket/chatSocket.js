@@ -3,12 +3,16 @@ import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/sess
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationQuizAttemptSnapshot, getConversationPracticeGuideSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
+import { normalizeProfileModelTier, } from '../profiles/modelTier.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
+import { normalizeConversationTitle } from '../services/llmTutor/conversationTitles.js';
 import { normalizeExerciseSubmissionForUserMessage } from '../services/llmTutor/exerciseSubmissions.js';
 import { renderSystemPrompt } from '../services/systemPrompts.js';
 import { LlmFinishReasonError, MissingLlmApiKeyError, evaluateQuizResultItemsWithLlm, runTutorAgentLoop, translateTextWithLlm, } from '../services/llmTutor.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
+import { translate } from '../i18n/index.js';
+import { resolveTranslatorLanguage } from '../i18n/translatorLanguages.js';
 import { applyTutorBlocksRuntime } from '../services/tutorWorkflow/index.js';
 import { logger, serializeError } from '../services/logger.js';
 import { emitCreditExhaustedIfNeeded, emitRoomCreditExhaustedIfNeeded, } from './creditExhaustion.js';
@@ -32,8 +36,9 @@ export function registerChatSocket(io) {
     });
     io.on('connection', (socket) => {
         let currentConversationId = null;
-        let pendingInitialGreeting = pickInitialGreeting();
         let currentProfile = null;
+        // Placeholder greeting; reassigned with the profile's language on register.
+        let pendingInitialGreeting = pickInitialGreeting();
         const authenticatedUserId = getAuthenticatedUserId(socket);
         if (authenticatedUserId) {
             currentProfile = resolveSocketProfile(socket, authenticatedUserId);
@@ -49,7 +54,7 @@ export function registerChatSocket(io) {
                 ? findConversationForUser(payload.conversationId, userId)
                 : null;
             if (!conversation) {
-                pendingInitialGreeting = pickInitialGreeting();
+                pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
                 leaveConversationRoom(socket, currentConversationId);
                 currentConversationId = null;
                 socket.emit('conversation:ready', {
@@ -84,7 +89,7 @@ export function registerChatSocket(io) {
                 !practiceGuideSnapshot);
             const hasOnlySourceNoticeMessages = isReportFollowUpConversation && hasOnlyResourceSourceNoticeMessages(messages);
             if (messages.length === 0) {
-                pendingInitialGreeting = pickInitialGreeting();
+                pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
             }
             socket.emit('conversation:ready', {
                 activeAgent: conversation.activeAgent,
@@ -164,7 +169,7 @@ export function registerChatSocket(io) {
             }
             if (conversation.closedAt) {
                 socket.emit('conversation:error', {
-                    message: 'Esta conversación ya fue finalizada. Puedes revisar su resumen o empezar una nueva práctica.',
+                    message: translate(conversation.instructionLanguage, 'msg.convFinalizedSummary'),
                 });
                 return;
             }
@@ -191,7 +196,7 @@ export function registerChatSocket(io) {
             if (!conversationId) {
                 return;
             }
-            const conversation = updateConversationModelTierForUser(conversationId, userId, normalizeModelTier(payload.modelTier));
+            const conversation = updateConversationModelTierForUser(conversationId, userId, normalizeProfileModelTier(payload.modelTier));
             if (!conversation) {
                 return;
             }
@@ -219,7 +224,7 @@ export function registerChatSocket(io) {
                 emitAuthRequired(socket);
                 return;
             }
-            pendingInitialGreeting = pickInitialGreeting();
+            pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
             leaveConversationRoom(socket, currentConversationId);
             currentConversationId = null;
             socket.emit('conversation:ready', {
@@ -300,7 +305,7 @@ export function registerChatSocket(io) {
                 });
                 return;
             }
-            pendingInitialGreeting = pickInitialGreeting();
+            pendingInitialGreeting = pickInitialGreeting(currentProfile?.instructionLanguage);
             leaveConversationRoom(socket, currentConversationId);
             currentConversationId = null;
             socket.emit('conversation:ready', {
@@ -327,13 +332,13 @@ export function registerChatSocket(io) {
             const conversation = findConversationForUser(conversationId, userId);
             if (!conversation) {
                 socket.emit('conversation:error', {
-                    message: 'No pude encontrar esa conversación.',
+                    message: translate('es', 'msg.convNotFound'),
                 });
                 return;
             }
             if (conversation.closedAt) {
                 socket.emit('conversation:error', {
-                    message: 'Esta conversación ya fue finalizada.',
+                    message: translate(conversation.instructionLanguage, 'msg.convFinalized'),
                 });
                 return;
             }
@@ -357,21 +362,21 @@ export function registerChatSocket(io) {
             const conversation = findConversationForUser(conversationId, userId);
             if (!conversation?.practiceGuideId) {
                 socket.emit('assistant:error', {
-                    message: 'No pude iniciar este guía de práctica.',
+                    message: translate('es', 'msg.guideStartError'),
                 });
                 return;
             }
             const practiceGuideSnapshot = getConversationPracticeGuideSnapshot(conversation.id);
             if (!practiceGuideSnapshot) {
                 socket.emit('assistant:error', {
-                    message: 'No pude cargar este guía de práctica.',
+                    message: translate(conversation.instructionLanguage, 'msg.guideLoadError'),
                 });
                 return;
             }
             if (listMessages(conversation.id).length > 0) {
                 return;
             }
-            await streamAssistantMessage(io, conversation.id, userId, undefined, [buildPracticeGuideStartMessage(practiceGuideSnapshot)], normalizeModelTier(payload.modelTier));
+            await streamAssistantMessage(io, conversation.id, userId, undefined, [buildPracticeGuideStartMessage(practiceGuideSnapshot)], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('translator:translate', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -380,21 +385,24 @@ export function registerChatSocket(io) {
                 return;
             }
             const text = payload.text?.trim() ?? '';
-            const mode = normalizeTranslationMode(payload.mode);
+            const direction = normalizeTranslationDirection(payload.direction);
+            const language = resolveTranslatorLanguage(payload.languageCode);
             if (!text) {
                 socket.emit('translator:error', {
-                    message: 'Escribe algo para traducir.',
+                    message: translate(ensureUserHasProfile(userId).instructionLanguage, 'translator.emptyInput'),
                 });
                 return;
             }
             try {
                 const translation = await translateTextWithLlm({
+                    direction,
+                    languageName: language.englishName,
                     llm: await getLlmRequestOptionsForUser(userId),
-                    mode,
                     text,
                 });
                 socket.emit('translator:result', {
-                    mode,
+                    direction,
+                    languageCode: language.code,
                     translation,
                 });
             }
@@ -405,8 +413,9 @@ export function registerChatSocket(io) {
                 });
                 if (!creditExhausted) {
                     logger.error('translator_request_failed', {
+                        direction,
                         error,
-                        mode,
+                        languageCode: language.code,
                         userId,
                     });
                 }
@@ -476,7 +485,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ], normalizeModelTier(payload.modelTier));
+            ], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('exercise:fill_in_the_blank_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -543,7 +552,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ], normalizeModelTier(payload.modelTier));
+            ], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('exercise:multiple_choice_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -609,7 +618,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ], normalizeModelTier(payload.modelTier));
+            ], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('exercise:unscramble_sentence_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -676,7 +685,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ], normalizeModelTier(payload.modelTier));
+            ], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('exercise:order_sentences_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -742,7 +751,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ], normalizeModelTier(payload.modelTier));
+            ], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('exercise:quiz_completed', async (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -797,8 +806,9 @@ export function registerChatSocket(io) {
             let quizEvaluations;
             try {
                 const llmOptions = await getLlmRequestOptionsForUser(userId);
-                llmOptions.modelTier = normalizeModelTier(payload.modelTier);
+                llmOptions.modelTier = normalizeProfileModelTier(payload.modelTier);
                 quizEvaluations = await evaluateQuizResultItemsWithLlm({
+                    instructionLanguage: conversation.instructionLanguage,
                     llm: llmOptions,
                     quiz: block,
                     responses,
@@ -820,13 +830,14 @@ export function registerChatSocket(io) {
                     userId,
                 });
                 socket.emit('assistant:error', {
-                    message: toUserFacingError(error),
+                    message: toUserFacingError(error, conversation?.instructionLanguage),
                 });
                 return;
             }
             const quizResultBlock = buildQuizResultBlock({
                 block,
                 evaluations: quizEvaluations,
+                locale: conversation?.instructionLanguage ?? 'es',
                 responses,
             });
             const quizResultMessage = addMessage(conversationId, 'model', buildQuizResultMessageContent(quizResultBlock), {
@@ -847,7 +858,7 @@ export function registerChatSocket(io) {
                     }),
                     role: 'user',
                 },
-            ], normalizeModelTier(payload.modelTier));
+            ], normalizeProfileModelTier(payload.modelTier));
         });
         socket.on('exercise:quiz_aborted', (payload = {}) => {
             const userId = getAuthenticatedUserId(socket);
@@ -956,11 +967,10 @@ function createInitialGreetingBlock(content) {
         type: 'message',
     };
 }
-function normalizeConversationTitle(title) {
-    return title?.replace(/\s+/g, ' ').trim().slice(0, 90) ?? '';
-}
-function normalizeTranslationMode(mode) {
-    return mode === 'es-en' || mode === 'en-es' ? mode : 'auto';
+function normalizeTranslationDirection(direction) {
+    return direction === 'to-english' || direction === 'from-english'
+        ? direction
+        : 'auto';
 }
 async function getLlmRequestOptionsForUser(userId) {
     return {
@@ -994,7 +1004,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             emitLlmRequestTokenUsage(io, conversationId, usage);
         };
         const onToolCall = (toolName) => {
-            emitAssistantToolStatus(io, conversationId, toolName);
+            emitAssistantToolStatus(io, conversationId, toolName, conversation.instructionLanguage);
         };
         const history = [...toTutorHistory(messages), ...extraHistory];
         const practiceGuideContext = practiceGuideSnapshot
@@ -1047,6 +1057,7 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
             conversationId,
             currentTitle: conversation.title,
             currentPracticeGuideId: conversation.practiceGuideId,
+            instructionLanguage: conversation.instructionLanguage,
             llm: llmOptions,
             onConversationRenamed: (renamedConversation) => {
                 io.to(conversationId).emit('conversation:renamed', {
@@ -1101,28 +1112,19 @@ async function streamAssistantMessage(io, conversationId, userId, lastUserMessag
         runningConversationControllers.delete(conversationId);
     }
 }
-function normalizeModelTier(value) {
-    if (value === 'max') {
-        return 'max';
-    }
-    if (value === 'advanced') {
-        return 'advanced';
-    }
-    return 'regular';
-}
-function emitAssistantToolStatus(io, conversationId, toolName) {
+function emitAssistantToolStatus(io, conversationId, toolName, locale) {
     const payload = {
-        label: getToolStatusLabel(toolName),
+        label: getToolStatusLabel(toolName, locale),
         toolName,
     };
     io.to(conversationId).emit('assistant:tool_status', payload);
 }
-function getToolStatusLabel(toolName) {
+function getToolStatusLabel(toolName, locale) {
     switch (toolName) {
         case 'get_learner_progress':
-            return 'Ejecutando herramienta: revisar tu progreso...';
+            return translate(locale, 'msg.toolStatusProgress');
         default:
-            return `Ejecutando herramienta: ${toolName}...`;
+            return translate(locale, 'msg.toolStatusGeneric', { toolName });
     }
 }
 function isAbortError(error, signal) {
@@ -1328,12 +1330,12 @@ function fillSentencePlaceholdersForQuiz(sentence, values, placeholderToken) {
 function buildQuizResultBlock(input) {
     return {
         type: 'quiz_result',
-        title: input.block.title?.trim() || 'Quiz completado',
+        title: input.block.title?.trim() || translate(input.locale, 'msg.quizCompletedFallback'),
         prompt: input.block.prompt.trim(),
         items: input.block.items.map((item, index) => {
             const response = input.responses[index] ?? {};
             const evaluation = input.evaluations[index] ?? {
-                feedback: 'Miremos esta respuesta con más detalle en la siguiente práctica.',
+                feedback: translate(input.locale, 'msg.lookCloser'),
                 status: 'partial',
             };
             if (item.kind === 'quiz_open_text') {
@@ -1895,16 +1897,16 @@ function emitLlmRequestTokenUsage(io, conversationId, usage, roomId = conversati
         usage,
     });
 }
-function toUserFacingError(error) {
+function toUserFacingError(error, locale = 'es') {
     if (isCreditExhaustedError(error)) {
-        return getCreditExhaustedMessage();
+        return getCreditExhaustedMessage(locale);
     }
     if (error instanceof MissingLlmApiKeyError) {
-        return 'Ahora mismo no puedo responder bien. Hay una configuración del tutor que necesita atención.';
+        return translate(locale, 'msg.configAttention');
     }
     if (error instanceof LlmFinishReasonError) {
-        return 'Mi respuesta se cortó antes de estar lista. Inténtalo otra vez en unos segundos.';
+        return translate(locale, 'msg.responseCutoff');
     }
-    return 'Se me enredó la respuesta y no quiero confundirte. Inténtalo otra vez en unos segundos.';
+    return translate(locale, 'msg.responseTangled');
 }
 //# sourceMappingURL=chatSocket.js.map

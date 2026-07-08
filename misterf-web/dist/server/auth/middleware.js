@@ -2,6 +2,7 @@ import { ensureUserHasProfile, findProfileForUser, listProfilesForUser, } from '
 import { findUserBySessionTokenHash, } from './repository.js';
 import { getActiveProfileId, setActiveProfileCookie } from './profiles.js';
 import { getSessionToken, hashSessionToken } from './session.js';
+import { resolvePreAccountLocale } from '../i18n/resolve.js';
 export function loadAuthSession(request, response, next) {
     const token = getSessionToken(request);
     if (!token) {
@@ -22,7 +23,7 @@ export function loadAuthSession(request, response, next) {
         next();
         return;
     }
-    const firstProfile = ensureUserHasProfile(request.authUser.id);
+    const firstProfile = ensureUserHasProfile(request.authUser.id, resolvePreAccountLocale(request));
     const availableProfiles = listProfilesForUser(request.authUser.id);
     const preferredProfileId = getActiveProfileId(request);
     const activeProfile = (preferredProfileId

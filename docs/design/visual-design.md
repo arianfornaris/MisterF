@@ -271,14 +271,42 @@ Important style files:
 
 - `base.css`: global Bootstrap aliases and Mister F custom tokens
 - `app-shell.css`: app shell, sidebar, modals, dropdowns
+- `app-pages.css`: the shared `app-page-*` scaffold, `app-form-*` helpers, and
+  profile pages
+- `resource-pages.css`: layouts specific to resource pages (quizzes, practice
+  guides, roleplays as a product family), plus the EasyMDE theme overrides
+- `practice-guides.css` / `quizzes.css`: feature-specific layout
+- `authoring.css`: the AI-revision chat and tab layout shared by the quiz,
+  practice-guide, and roleplay authoring pages (`authoring-*` classes)
 - `composer.css`: tutor composer and context meter
 - `chat-content.css`: tutor message content and exercise block visuals
-- `chatrooms.css`: chat room thread visuals
 - `responsive.css`: responsive layout adjustments
 - `auth.css`: intentionally minimal; auth pages should use Bootstrap
 
 Keep app-level UI outside `chat-content.css` whenever possible. That file is for
 tutor message content and practice blocks.
+
+## Semantic Class Naming
+
+Shared page scaffolding uses neutral names; feature names never leak into other
+features. `tests/server/uiClassArchitecture.test.ts` enforces the retired names.
+
+- Every full page inside the app shell uses the `app-page` panel plus the
+  `app-page-header` / `app-page-kicker` / `app-page-title` / `app-page-copy`
+  family (settings, credits, progress, profiles, and account pages included).
+- Stacked forms with a right-aligned action row use `app-form-grid` and
+  `app-form-actions`.
+- `resource-*` classes are reserved for actual resource pages (the `/resources`
+  catalog and quiz/guide/roleplay pages). Do not use them on non-resource pages.
+- The authoring-page revision chat and tabs use `authoring-*` classes, never
+  `quiz-*`, even though they first shipped with quizzes.
+- Feature-specific classes keep their feature prefix (`quiz-*`, `roleplay-*`,
+  `practice-guide-*`, `profile-*`) and are only used inside that feature.
+- Class names are kebab-case; camelCase segments (for example the old
+  `practiceGuide-*` names) are not allowed in class attributes. Data attributes
+  are unaffected.
+- When a behavior is standard, prefer a Bootstrap utility over a new class
+  (`text-nowrap`, `text-body-secondary`, flex utilities).
 
 ## Practical Rules
 

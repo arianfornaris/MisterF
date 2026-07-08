@@ -1,3 +1,4 @@
+import { languages, translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
@@ -10,53 +11,30 @@ import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter
 import { recordQuizAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
 import { quizResultBlockSchema } from '../services/llmTutor/schemas.js';
-const quizBlockKinds = [
-    {
-        description: 'Respuesta libre evaluada por IA.',
-        label: 'Respuesta abierta',
-        value: 'quiz_open_text',
-    },
-    {
-        description: 'Traducción con respuestas aceptables o rúbrica.',
-        label: 'Traducir al inglés',
-        value: 'quiz_translate_to_english',
-    },
-    {
-        description: 'Comprensión de una frase en inglés.',
-        label: 'Entender en español',
-        value: 'quiz_understand_in_spanish',
-    },
-    {
-        description: 'Espacios escritos, útil cuando hay variantes.',
-        label: 'Completar escribiendo',
-        value: 'quiz_fill_in_the_blank_input',
-    },
-    {
-        description: 'Espacios con opciones visibles.',
-        label: 'Completar con opciones',
-        value: 'quiz_fill_in_the_blank_choice',
-    },
-    {
-        description: 'Selección simple o múltiple.',
-        label: 'Selección múltiple',
-        value: 'quiz_multiple_choice',
-    },
-    {
-        description: 'Relacionar pares.',
-        label: 'Emparejar',
-        value: 'quiz_matching_pairs',
-    },
-    {
-        description: 'Ordenar una oración.',
-        label: 'Ordenar oración',
-        value: 'quiz_unscramble_sentence',
-    },
-    {
-        description: 'Ordenar pasos u oraciones en secuencia.',
-        label: 'Ordenar oraciones',
-        value: 'quiz_order_sentences',
-    },
-];
+function getQuizBlockKinds(locale) {
+    // The Spanish-based translation kinds are offered only to languages that
+    // use them, mirroring the authoring prompts and the tutor quiz protocol.
+    const includeTranslationKinds = languages[locale].tutor.includesSpanishTranslationBlocks;
+    return [
+        ['quiz_open_text', 'quizzes.kindOpenText', 'msg.kindOpenTextDesc'],
+        ['quiz_translate_to_english', 'quizzes.kindTranslate', 'msg.kindTranslateDesc'],
+        ['quiz_understand_in_spanish', 'quizzes.kindUnderstand', 'msg.kindUnderstandDesc'],
+        ['quiz_fill_in_the_blank_input', 'quizzes.kindFillInput', 'msg.kindFillInputDesc'],
+        ['quiz_fill_in_the_blank_choice', 'quizzes.kindFillChoice', 'msg.kindFillChoiceDesc'],
+        ['quiz_multiple_choice', 'quizzes.kindMultipleChoice', 'msg.kindMultipleChoiceDesc'],
+        ['quiz_matching_pairs', 'quizzes.kindMatching', 'msg.kindMatchingDesc'],
+        ['quiz_unscramble_sentence', 'quizzes.kindUnscramble', 'msg.kindUnscrambleDesc'],
+        ['quiz_order_sentences', 'quizzes.kindOrder', 'msg.kindOrderDesc'],
+    ]
+        .filter(([value]) => includeTranslationKinds ||
+        (value !== 'quiz_translate_to_english' &&
+            value !== 'quiz_understand_in_spanish'))
+        .map(([value, labelKey, descKey]) => ({
+        description: translate(locale, descKey),
+        label: translate(locale, labelKey),
+        value,
+    }));
+}
 const defaultQuizAuthoringTab = 'general';
 const maxQuizAuthoringMessages = 40;
 const maxQuizAuthoringMessageLength = 6000;
@@ -99,8 +77,9 @@ function appendQuizAuthoringMessages(existingMessages, ...messages) {
     })
         .slice(-maxQuizAuthoringMessages);
 }
-function summarizeQuizDraftCreation(draft) {
-    return `Listo. Creé una primera versión de "${draft.title}" con ${formatCountLabel(draft.blocks.length, 'bloque', 'bloques')}.`;
+function summarizeQuizDraftCreation(draft, locale) {
+    const blocks = formatCountLabel(draft.blocks.length, translate(locale, 'msg.blockSg'), translate(locale, 'msg.blockPl'));
+    return translate(locale, 'msg.draftCreatedQuiz', { blocks, title: draft.title });
 }
 function saveQuizAuthoringTurn(input) {
     return updateQuizAuthoringMessages({
@@ -109,11 +88,12 @@ function saveQuizAuthoringTurn(input) {
         userId: input.userId,
     });
 }
-function buildQuizBlockOutlineItems(draft) {
+function buildQuizBlockOutlineItems(draft, locale) {
     const sectionList = buildQuizBlockSectionList(draft);
+    const blockKinds = getQuizBlockKinds(locale);
     return draft.blocks.map((block, index) => {
         const item = block.item;
-        const kind = quizBlockKinds.find((candidate) => candidate.value === item.kind);
+        const kind = blockKinds.find((candidate) => candidate.value === item.kind);
         const metaItems = [];
         const section = sectionList[index];
         const previousSection = index > 0 ? sectionList[index - 1] : null;
@@ -126,19 +106,19 @@ function buildQuizBlockOutlineItems(draft) {
         }
         if (item.kind === 'quiz_fill_in_the_blank_input' ||
             item.kind === 'quiz_fill_in_the_blank_choice') {
-            metaItems.push(formatCountLabel(item.blanks.length, 'espacio', 'espacios'));
+            metaItems.push(formatCountLabel(item.blanks.length, translate(locale, 'msg.blankSg'), translate(locale, 'msg.blankPl')));
         }
         if (item.kind === 'quiz_multiple_choice') {
-            metaItems.push(formatCountLabel(item.options.length, 'opción', 'opciones'));
+            metaItems.push(formatCountLabel(item.options.length, translate(locale, 'msg.optionSg'), translate(locale, 'msg.optionPl')));
         }
         if (item.kind === 'quiz_matching_pairs') {
-            metaItems.push(formatCountLabel(item.leftItems.length, 'par', 'pares'));
+            metaItems.push(formatCountLabel(item.leftItems.length, translate(locale, 'msg.pairSg'), translate(locale, 'msg.pairPl')));
         }
         if (item.kind === 'quiz_unscramble_sentence') {
-            metaItems.push(formatCountLabel(item.tokens.length, 'palabra', 'palabras'));
+            metaItems.push(formatCountLabel(item.tokens.length, translate(locale, 'msg.wordSg'), translate(locale, 'msg.wordPl')));
         }
         if (item.kind === 'quiz_order_sentences') {
-            metaItems.push(formatCountLabel(item.sentences.length, 'oración', 'oraciones'));
+            metaItems.push(formatCountLabel(item.sentences.length, translate(locale, 'msg.sentenceSg'), translate(locale, 'msg.sentencePl')));
         }
         return {
             blockNumber: index + 1,
@@ -258,17 +238,17 @@ function buildQuizResultPath(attempt, params = {}) {
     const path = `/quiz-attempts/${encodeURIComponent(attempt.id)}/result`;
     return query ? `${path}?${query}` : path;
 }
-function readQuizResultActionError(value) {
+function readQuizResultActionError(value, locale) {
     const code = readField(value, 40);
     if (code === 'credit') {
         return {
-            resultActionError: getCreditExhaustedMessage(),
+            resultActionError: getCreditExhaustedMessage(locale),
             resultActionErrorIsCredit: true,
         };
     }
     if (code === 'practice-guide') {
         return {
-            resultActionError: 'No pude crear la guía de práctica ahora mismo. Inténtalo otra vez.',
+            resultActionError: translate(locale, 'msg.createResourceError'),
             resultActionErrorIsCredit: false,
         };
     }
@@ -315,39 +295,39 @@ function updateQuizWithDraft(quiz, userId, draft, authoringMessages) {
         userId,
     });
 }
-function buildQuizAttemptListItems(attempts) {
+function buildQuizAttemptListItems(attempts, locale) {
     return attempts.map((attempt) => ({
         ...attempt,
-        ...getQuizAttemptStatusView(attempt.status),
+        ...getQuizAttemptStatusView(attempt.status, locale),
         relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
     }));
 }
-function getQuizAttemptStatusView(status) {
+function getQuizAttemptStatusView(status, locale) {
     switch (status) {
         case 'draft':
             return {
                 statusBadgeClass: 'text-bg-light border',
-                statusLabel: 'Sin enviar',
+                statusLabel: translate(locale, 'msg.statusDraft'),
             };
         case 'submitted':
             return {
                 statusBadgeClass: 'text-bg-info',
-                statusLabel: 'Enviada',
+                statusLabel: translate(locale, 'msg.statusSubmitted'),
             };
         case 'evaluating':
             return {
                 statusBadgeClass: 'text-bg-primary',
-                statusLabel: 'Evaluando',
+                statusLabel: translate(locale, 'msg.statusEvaluating'),
             };
         case 'evaluated':
             return {
                 statusBadgeClass: 'text-bg-success',
-                statusLabel: 'Evaluada',
+                statusLabel: translate(locale, 'msg.statusEvaluatedFem'),
             };
         case 'failed':
             return {
                 statusBadgeClass: 'text-bg-danger',
-                statusLabel: 'Error al evaluar',
+                statusLabel: translate(locale, 'msg.evaluateError'),
             };
     }
 }
@@ -365,7 +345,7 @@ function renderQuizAuthoring(request, response, input) {
         }),
         activeTab: input.activeTab ?? defaultQuizAuthoringTab,
         blockSections: buildQuizBlockSectionList(draft),
-        quizBlockKinds,
+        quizBlockKinds: getQuizBlockKinds(request.locale),
         quizAuthoringMessages: input.quiz.authoringMessages,
         authoringError: input.error || '',
         draft,
@@ -493,7 +473,7 @@ function renderQuizResult(request, response, attempt) {
         return;
     }
     const summary = buildQuizEvaluationSummary(result.data);
-    const actionError = readQuizResultActionError(request.query.guideError);
+    const actionError = readQuizResultActionError(request.query.guideError, request.locale);
     renderQuizzesView(response, 'quizzes-result', {
         ...buildQuizzesShellContext(request, {
             activeProfile: request.activeProfile ?? null,
@@ -505,7 +485,7 @@ function renderQuizResult(request, response, attempt) {
         guestToken: attempt.guestToken || '',
         resultBlockJson: serializeViewJson(result.data),
         resultBlock: result.data,
-        resultTitle: buildQuizResultTitle(result.data),
+        resultTitle: buildQuizResultTitle(result.data, request.locale),
         ...actionError,
         summary,
     });
@@ -538,7 +518,7 @@ export async function handleGenerateQuiz(request, response) {
                 title: `Nuevo quiz - ${appDocumentTitle}`,
                 user: auth.user,
             }),
-            generationError: 'Describe un poco mejor el quiz.',
+            generationError: translate(request.locale, 'msg.describeQuizBetter'),
             generationPrompt: prompt,
         });
         return;
@@ -546,11 +526,12 @@ export async function handleGenerateQuiz(request, response) {
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(auth.user.id);
         const draft = canonicalizeQuizDraftBlockOrder(await generateQuizDraft({
+            instructionLanguage: auth.activeProfile?.instructionLanguage,
             openRouterApiKey,
             prompt,
         }));
         const quiz = createQuiz({
-            authoringMessages: appendQuizAuthoringMessages([], createQuizAuthoringMessage('user', prompt), createQuizAuthoringMessage('assistant', summarizeQuizDraftCreation(draft), draft)),
+            authoringMessages: appendQuizAuthoringMessages([], createQuizAuthoringMessage('user', prompt), createQuizAuthoringMessage('assistant', summarizeQuizDraftCreation(draft, request.locale), draft)),
             description: draft.description,
             instructions: draft.instructions,
             level: draft.level,
@@ -576,8 +557,8 @@ export async function handleGenerateQuiz(request, response) {
             userId: auth.user.id,
         });
         const generationError = isCreditExhaustedError(error)
-            ? getCreditExhaustedMessage()
-            : 'No pude generar el quiz ahora mismo. Inténtalo otra vez.';
+            ? getCreditExhaustedMessage(request.locale)
+            : translate(request.locale, 'msg.generateQuizError');
         renderQuizzesView(response.status(422), 'quizzes-new', {
             ...buildQuizzesShellContext(request, {
                 activeProfile: auth.activeProfile,
@@ -613,7 +594,7 @@ export function handleUpdateQuizMetadata(request, response) {
         renderQuizAuthoring(request, response.status(422), {
             ...resolved,
             activeTab: 'general',
-            error: 'No pude guardar los detalles del quiz.',
+            error: translate(request.locale, 'msg.saveQuizDetailsError'),
         });
         return;
     }
@@ -628,19 +609,20 @@ export async function handleReviseQuiz(request, response) {
     const userMessage = readMultilineField(request.body.message, 4000);
     if (!draft || userMessage.length < 3) {
         if (wantsJsonResponse(request)) {
-            response.status(422).json({ error: 'Escribe el cambio que quieres hacer.' });
+            response.status(422).json({ error: translate(request.locale, 'msg.writeChange') });
             return;
         }
         renderQuizAuthoring(request, response, {
             ...resolved,
             activeTab: 'chat',
-            error: 'Escribe el cambio que quieres hacer.',
+            error: translate(request.locale, 'msg.writeChange'),
         });
         return;
     }
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
         const revision = await generateQuizRevision({
+            instructionLanguage: resolved.activeProfile?.instructionLanguage,
             conversationHistory: resolved.quiz.authoringMessages.map((message) => ({
                 content: message.content,
                 createdAt: message.createdAt,
@@ -657,19 +639,19 @@ export async function handleReviseQuiz(request, response) {
         if (!updatedQuiz) {
             const quizWithFailureMessage = saveQuizAuthoringTurn({
                 quiz: resolved.quiz,
-                assistantMessage: 'No pude aplicar ese cambio ahora mismo.',
+                assistantMessage: translate(request.locale, 'msg.applyChangeError'),
                 userId: resolved.user.id,
                 userMessage,
             });
             if (wantsJsonResponse(request)) {
-                response.status(422).json({ error: 'No pude aplicar ese cambio ahora mismo.' });
+                response.status(422).json({ error: translate(request.locale, 'msg.applyChangeError') });
                 return;
             }
             renderQuizAuthoring(request, response.status(422), {
                 ...resolved,
                 activeTab: 'chat',
                 quiz: quizWithFailureMessage ?? resolved.quiz,
-                error: 'No pude aplicar ese cambio ahora mismo.',
+                error: translate(request.locale, 'msg.applyChangeError'),
             });
             return;
         }
@@ -689,8 +671,8 @@ export async function handleReviseQuiz(request, response) {
     catch (error) {
         const isCreditError = isCreditExhaustedError(error);
         const failureMessage = isCreditError
-            ? getCreditExhaustedMessage()
-            : 'No pude aplicar ese cambio ahora mismo.';
+            ? getCreditExhaustedMessage(request.locale)
+            : translate(request.locale, 'msg.applyChangeError');
         const quizWithFailureMessage = saveQuizAuthoringTurn({
             quiz: resolved.quiz,
             assistantMessage: failureMessage,
@@ -737,17 +719,17 @@ export async function handleAddQuizBlock(request, response) {
         renderQuizAuthoring(request, response.status(422), {
             ...resolved,
             activeTab: 'blocks',
-            error: 'Describe el bloque que quieres agregar.',
+            error: translate(request.locale, 'msg.describeBlock'),
         });
         return;
     }
-    request.body.message = buildAddQuizBlockChatMessage(blockKind, prompt);
+    request.body.message = buildAddQuizBlockChatMessage(blockKind, prompt, request.locale);
     await handleReviseQuiz(request, response);
 }
-function buildAddQuizBlockChatMessage(blockKind, prompt) {
-    const kind = quizBlockKinds.find((candidate) => candidate.value === blockKind);
-    const kindLabel = kind?.label ?? 'el tipo que mejor encaje';
-    return `Agrega un bloque de tipo "${kindLabel}": ${prompt}`;
+function buildAddQuizBlockChatMessage(blockKind, prompt, locale) {
+    const kind = getQuizBlockKinds(locale).find((candidate) => candidate.value === blockKind);
+    const kindLabel = kind?.label ?? translate(locale, 'msg.bestFitKind');
+    return translate(locale, 'msg.addBlockOfKind', { kind: kindLabel, prompt });
 }
 export function handleDeleteQuizBlock(request, response) {
     updateDraftBlocks(request, response, (draft, blockId) => removeQuizBlock(draft, blockId));
@@ -776,7 +758,7 @@ function updateDraftBlocks(request, response, updater, options = {}) {
         renderQuizAuthoring(request, response.status(422), {
             ...resolved,
             activeTab: 'blocks',
-            error: 'No pude actualizar los bloques ahora mismo.',
+            error: translate(request.locale, 'msg.updateBlocksError'),
         });
         return;
     }
@@ -861,8 +843,8 @@ export async function renderQuizShowPage(request, response) {
             title: `${resolved.quiz.title} - ${appDocumentTitle}`,
             user: resolved.user,
         }),
-        quizAttempts: buildQuizAttemptListItems(attempts),
-        quizBlockOutlineItems: buildQuizBlockOutlineItems(draft),
+        quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
+        quizBlockOutlineItems: buildQuizBlockOutlineItems(draft, request.locale),
         canManageQuiz: resolved.canManageQuiz,
         quizShareMode,
         quizShareQrDataUrl,
@@ -1066,7 +1048,7 @@ export async function handleSubmitQuizAttempt(request, response) {
     if (!submittedAttempt) {
         renderQuizAttempt(request, response.status(422), {
             attempt,
-            error: 'No pude enviar el quiz. Inténtalo otra vez.',
+            error: translate(request.locale, 'msg.submitQuizError'),
         });
         return;
     }
@@ -1113,6 +1095,8 @@ async function evaluateSubmittedQuizAttemptForUser(input) {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(input.userId);
     const result = await evaluateQuizAttempt({
         attempt: evaluatingAttempt,
+        instructionLanguage: findProfileForUser(input.profileId, input.userId)
+            ?.instructionLanguage,
         llm: { openRouterApiKey },
     });
     const evaluated = saveQuizAttemptResult({ attemptId: evaluatingAttempt.id, result });
@@ -1145,8 +1129,8 @@ function renderQuizEvaluationError(request, response, attempt, error) {
     renderQuizAttempt(request, response.status(422), {
         attempt: failedAttempt,
         error: isCredit
-            ? getCreditExhaustedMessage()
-            : 'No pude evaluar el quiz ahora mismo. Puedes volver a enviarlo en unos minutos.',
+            ? getCreditExhaustedMessage(request.locale)
+            : translate(request.locale, 'msg.evaluateQuizError'),
         errorIsCredit: isCredit,
     });
 }
@@ -1285,7 +1269,7 @@ export async function handleCreateQuizResource(request, response) {
     const instruction = readMultilineField(request.body.prompt, 2000);
     const prompt = buildResourceFromContextPrompt({
         context: buildQuizResultContext({ attempt, draft, result: result.data }),
-        contextLabel: 'Resultado del quiz completado',
+        contextLabel: 'Completed quiz result',
         instruction,
         type,
     });

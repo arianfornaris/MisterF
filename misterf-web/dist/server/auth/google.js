@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { env } from '../config/env.js';
+import { translate } from '../i18n/index.js';
 import { createExternalUser, createSession, findUserByEmail, findUserByIdentity, linkUserIdentity, markEmailVerified, } from './repository.js';
 import { createSessionCookie, requireSessionSecret, setSessionCookie, } from './session.js';
 import { ensureOpenRouterKeyForUser } from '../services/openRouterUserKeys.js';
@@ -55,14 +56,14 @@ export async function finishGoogleLogin(request, response) {
     response.clearCookie(returnToCookieName, { path: '/' });
     if (!code || !state || !storedState || !verifyGoogleState(state, storedState)) {
         response.status(400).render('auth_message', {
-            body: 'No pude validar el inicio de sesión con Google. Intenta otra vez.',
+            body: translate(request.locale, 'msg.googleValidateError'),
             csrfToken: response.locals.csrfToken,
             linkHref: `/login?returnTo=${encodeURIComponent(returnTo)}`,
-            linkText: 'Volver a login',
+            linkText: translate(response.req.locale, 'msg.backToLogin'),
             returnTo,
             showResendVerification: false,
             showVerificationCodeForm: false,
-            title: 'Login cancelado',
+            title: translate(request.locale, 'msg.loginCancelled'),
         });
         return;
     }
@@ -76,14 +77,14 @@ export async function finishGoogleLogin(request, response) {
     }
     catch (error) {
         response.status(502).render('auth_message', {
-            body: toGoogleErrorMessage(error),
+            body: toGoogleErrorMessage(request.locale),
             csrfToken: response.locals.csrfToken,
             linkHref: `/login?returnTo=${encodeURIComponent(returnTo)}`,
-            linkText: 'Volver a login',
+            linkText: translate(response.req.locale, 'msg.backToLogin'),
             returnTo,
             showResendVerification: false,
             showVerificationCodeForm: false,
-            title: 'Google no respondió',
+            title: translate(request.locale, 'msg.googleNoResponse'),
         });
     }
 }
@@ -235,19 +236,16 @@ function isGoogleConfigured() {
 }
 function renderGoogleConfigurationError(response) {
     response.status(503).render('auth_message', {
-        body: 'Falta configurar GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET en ecosystem.config.cjs.',
+        body: translate(response.req.locale, 'msg.googleConfigError'),
         csrfToken: response.locals.csrfToken,
         linkHref: '/login',
-        linkText: 'Volver a login',
+        linkText: translate(response.req.locale, 'msg.backToLogin'),
         showResendVerification: false,
         showVerificationCodeForm: false,
-        title: 'Google no está configurado',
+        title: translate(response.req.locale, 'msg.googleNotConfigured'),
     });
 }
-function toGoogleErrorMessage(error) {
-    if (error instanceof Error) {
-        return `No pude completar el login con Google: ${error.message}`;
-    }
-    return 'No pude completar el login con Google por un error inesperado.';
+function toGoogleErrorMessage(locale) {
+    return translate(locale, 'msg.googleGenericError');
 }
 //# sourceMappingURL=google.js.map

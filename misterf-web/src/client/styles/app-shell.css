@@ -162,13 +162,6 @@
   padding: 20px 22px 12px;
 }
 
-.conversation-panel .offcanvas-title {
-  color: var(--ink);
-  font-family: var(--app-serif-font);
-  font-size: 1.45rem;
-  letter-spacing: 0;
-}
-
 .conversation-panel .offcanvas-body {
   min-height: 0;
   display: flex;
@@ -478,12 +471,6 @@
   border-bottom-right-radius: var(--bs-border-radius) !important;
 }
 
-.translator-label {
-  color: var(--muted);
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
 .translator-box {
   position: relative;
 }
@@ -547,24 +534,11 @@
   font-size: 0.95rem;
 }
 
-.user-menu-button {
-  width: 36px;
-  height: 36px;
-  display: inline-grid;
-  place-items: center;
-  padding: 0;
-  border-radius: 8px;
-  color: var(--bs-secondary-color);
-  text-decoration: none;
-}
-
 .chat-menu-button,
 .translator-button,
 .conversation-actions-button,
-.user-menu-button,
 .message-action-button,
-.conversation-rename-action,
-.new-conversation-button {
+.conversation-rename-action {
   background: transparent;
   border: 0;
   border-color: transparent;
@@ -578,8 +552,6 @@
 .translator-button:focus,
 .conversation-actions-button:hover,
 .conversation-actions-button:focus,
-.user-menu-button:hover,
-.user-menu-button:focus,
 .message-action-button:hover,
 .message-action-button:focus,
 .conversation-rename-action:hover,
@@ -592,19 +564,9 @@
 .chat-menu-button:not(:hover):not(:focus):not([aria-expanded="true"]),
 .translator-button:not(:hover):not(:focus),
 .conversation-actions-button:not(:hover):not(:focus):not([aria-expanded="true"]),
-.user-menu-button:not(:hover):not(:focus):not([aria-expanded="true"]),
 .message-action-button:not(:hover):not(:focus),
-.conversation-rename-action:not(:hover):not(:focus),
-.new-conversation-button:not(:hover):not(:focus) {
+.conversation-rename-action:not(:hover):not(:focus) {
   background: transparent;
-}
-
-.user-menu-button:hover,
-.user-menu-button:focus,
-.user-menu-button[aria-expanded="true"] {
-  outline: 0;
-  background: var(--bs-primary-bg-subtle);
-  color: var(--bs-primary-text-emphasis);
 }
 
 .user-menu-panel {

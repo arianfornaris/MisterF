@@ -270,51 +270,6 @@ export function createChatRuntime(deps) {
     });
   }
 
-  function updateLlmContextMeter(usage) {
-    if (!deps.llmContextMeterEl || !deps.llmContextCircleEl) {
-      return;
-    }
-
-    const rawPercent = Number(usage?.percentUsed);
-    const hasPercent = Number.isFinite(rawPercent);
-    const clampedPercent = hasPercent
-      ? Math.min(100, Math.max(0, rawPercent))
-      : 0;
-    const progress = clampedPercent / 100;
-    const dashOffset =
-      deps.llmContextCircleCircumference * (1 - progress);
-
-    deps.llmContextCircleEl.style.strokeDashoffset = `${dashOffset}`;
-    deps.llmContextMeterEl.setAttribute(
-      'aria-valuenow',
-      hasPercent ? `${Math.round(clampedPercent)}` : '0',
-    );
-    deps.llmContextMeterEl.setAttribute(
-      'aria-valuetext',
-      hasPercent
-        ? `${Math.round(clampedPercent)} por ciento del contexto usado`
-        : '0 por ciento del contexto usado',
-    );
-
-    let level = 'normal';
-    if (clampedPercent >= 85) {
-      level = 'danger';
-    } else if (clampedPercent >= 65) {
-      level = 'warn';
-    }
-
-    deps.llmContextMeterEl.dataset.contextLevel = level;
-  }
-
-  function initializeLlmContextMeter() {
-    if (!deps.llmContextCircleEl || !deps.llmContextMeterEl) {
-      return;
-    }
-
-    deps.llmContextCircleEl.style.strokeDasharray = `${deps.llmContextCircleCircumference}`;
-    updateLlmContextMeter(null);
-  }
-
   function startNewConversation() {
     if (deps.getIsAssistantBusy()) {
       return;
@@ -425,7 +380,6 @@ export function createChatRuntime(deps) {
     clearPendingDisconnectNotice,
     flushPendingBootGuestDraft,
     handleUserInputHistoryKeydown,
-    initializeLlmContextMeter,
     isCurrentConversationPayload,
     logLlmRequestTokens,
     navigateUserInputHistory,
@@ -440,6 +394,5 @@ export function createChatRuntime(deps) {
     startNewConversation,
     startPracticeGuideConversation,
     stopAssistantResponse,
-    updateLlmContextMeter,
   };
 }

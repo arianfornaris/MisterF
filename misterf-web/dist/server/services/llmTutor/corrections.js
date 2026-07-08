@@ -3,6 +3,7 @@ import { shouldLogFullLlmTrace } from './logging.js';
 import { renderSystemPrompt } from '../systemPrompts.js';
 import { TutorResponseValidationError } from './errors.js';
 import { renderTutorBlockProtocol } from './blockProtocol.js';
+import { defaultInstructionLanguage, } from './languagePack.js';
 export function appendStructuredCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();
     if (invalidOutput) {
@@ -13,7 +14,7 @@ export function appendStructuredCorrectionRequest(messages, input) {
     }
     messages.push({
         content: renderSystemPrompt('tutor/structured-correction.md', {
-            BLOCK_PROTOCOL: renderTutorBlockProtocol(),
+            BLOCK_PROTOCOL: renderTutorBlockProtocol(undefined, input.instructionLanguage ?? defaultInstructionLanguage),
             CORRECTION_REASON: input.reason,
         }),
         role: 'user',

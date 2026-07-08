@@ -13,11 +13,25 @@ const forbiddenSharedClassNames = [
   'practice-guides-copy',
   'practice-guide-close-button',
   'practice-guide-detail-shell',
-  'practice-guide-form-card',
-  'practice-guide-form-shell',
+  'practice-guide-form',
   'practice-guide-section-copy',
-  'practiceGuide-section-copy',
-  'practiceGuide-section-kicker',
+  // Retired 2026-07-08 (UI style consistency audit): the app-wide page
+  // scaffold is app-page-*, the shared authoring chat is authoring-*, and
+  // camelCase class names are banned (data attributes may keep camelCase).
+  'app-resource-view',
+  'resource-page-',
+  'resource-eyebrow',
+  'practice-guide-card',
+  'practice-guide-chat-count-badge',
+  'practice-guide-empty',
+  'practice-guide-markdown',
+  'practice-guide-detail-inline-actions',
+  'practice-guide-modal-body',
+  'practice-guide-start-form',
+  'practice-guides-grid',
+  'quiz-chat-',
+  'quiz-tabs',
+  'practiceGuide-',
 ];
 
 function readProjectFile(relativePath: string): string {
@@ -70,14 +84,16 @@ describe('UI class architecture', () => {
     }
   });
 
-  it('keeps resource and practice-guide styles outside the app shell stylesheet', () => {
+  it('keeps page and feature styles outside the app shell stylesheet', () => {
     const appCss = readProjectFile('src/client/styles/app.css');
     const appShellCss = readProjectFile('src/client/styles/app-shell.css');
 
+    expect(appCss).toContain("@import './app-pages.css';");
     expect(appCss).toContain("@import './resource-pages.css';");
     expect(appCss).toContain("@import './practice-guides.css';");
-    expect(appShellCss).not.toContain('.app-resource-view');
+    expect(appCss).toContain("@import './authoring.css';");
+    expect(appShellCss).not.toContain('.app-page');
     expect(appShellCss).not.toContain('.practice-guides-page');
-    expect(appShellCss).not.toContain('.practice-guide-card');
+    expect(appShellCss).not.toContain('.practice-guide-');
   });
 });

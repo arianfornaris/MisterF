@@ -1,23 +1,27 @@
-import { createQuiz, createPracticeGuide, createRoleplay, } from '../db/repository.js';
+import { createQuiz, createPracticeGuide, createRoleplay, findProfileForUser, } from '../db/repository.js';
+import { translate } from '../i18n/index.js';
 import { generateQuizDraft, generatePracticeGuideDraft, generateRoleplayDraft, } from './resourceDrafts.js';
+// The prompt intros are model-facing meta text and follow the project
+// convention of English meta-prompts; the draft system prompt makes the
+// model author the resource itself in the profile's instruction language.
 const contextResourceTypeMeta = {
     quiz: {
-        articledLabel: 'un quiz',
+        articledLabelKey: 'msg.resourceQuizArticled',
         detailPath: (id) => `/quizzes/${encodeURIComponent(id)}`,
-        label: 'quiz',
-        promptIntro: 'Crea un quiz evaluable usando el contexto proporcionado.',
+        labelKey: 'msg.resourceQuizLabel',
+        promptIntro: 'Create a gradable quiz using the provided context.',
     },
     practice_guide: {
-        articledLabel: 'una guía de práctica',
+        articledLabelKey: 'msg.resourcePracticeGuideArticled',
         detailPath: (id) => `/practice-guides/${encodeURIComponent(id)}`,
-        label: 'guía de práctica',
-        promptIntro: 'Crea una guía de práctica reutilizable usando el contexto proporcionado.',
+        labelKey: 'msg.resourcePracticeGuideLabel',
+        promptIntro: 'Create a reusable practice guide using the provided context.',
     },
     roleplay: {
-        articledLabel: 'un roleplay',
+        articledLabelKey: 'msg.resourceRoleplayArticled',
         detailPath: (id) => `/roleplays/${encodeURIComponent(id)}`,
-        label: 'roleplay',
-        promptIntro: 'Crea un roleplay usando el contexto proporcionado.',
+        labelKey: 'msg.resourceRoleplayLabel',
+        promptIntro: 'Create a roleplay using the provided context.',
     },
 };
 export function normalizeContextResourceType(value) {
@@ -25,11 +29,11 @@ export function normalizeContextResourceType(value) {
         ? value
         : null;
 }
-export function contextResourceTypeLabel(type) {
-    return contextResourceTypeMeta[type].label;
+export function contextResourceTypeLabel(type, locale) {
+    return translate(locale, contextResourceTypeMeta[type].labelKey);
 }
-export function articledContextResourceTypeLabel(type) {
-    return contextResourceTypeMeta[type].articledLabel;
+export function articledContextResourceTypeLabel(type, locale) {
+    return translate(locale, contextResourceTypeMeta[type].articledLabelKey);
 }
 /**
  * Builds the seed prompt for AI authoring from a free-form context. The learner
@@ -39,12 +43,12 @@ export function articledContextResourceTypeLabel(type) {
 export function buildResourceFromContextPrompt(input) {
     const lines = [
         contextResourceTypeMeta[input.type].promptIntro,
-        'La indicación del usuario es lo principal. Usa el contexto como apoyo para inferir el tema, los objetivos y el tipo de práctica que más le conviene al estudiante.',
+        'The user instruction is the primary input. Use the context as supporting material to infer the topic, the goals, and the kind of practice that fits the learner best.',
     ];
     if (input.instruction) {
-        lines.push(`Indicación del usuario: ${input.instruction}`);
+        lines.push(`User instruction: ${input.instruction}`);
     }
-    lines.push('', `${input.contextLabel}:`, input.context || '(sin contexto)');
+    lines.push('', `${input.contextLabel}:`, input.context || '(no context)');
     return lines.join('\n');
 }
 /**
@@ -54,8 +58,14 @@ export function buildResourceFromContextPrompt(input) {
 export async function createResourceFromContextDraft(input) {
     const { openRouterApiKey, profileId, prompt, type, userId } = input;
     const meta = contextResourceTypeMeta[type];
+    const instructionLanguage = findProfileForUser(profileId, userId)
+        ?.instructionLanguage;
     if (type === 'practice_guide') {
-        const draft = await generatePracticeGuideDraft({ openRouterApiKey, prompt });
+        const draft = await generatePracticeGuideDraft({
+            instructionLanguage,
+            openRouterApiKey,
+            prompt,
+        });
         const practiceGuide = createPracticeGuide({
             description: draft.description,
             profileId,
@@ -66,7 +76,11 @@ export async function createResourceFromContextDraft(input) {
         return { detailPath: meta.detailPath(practiceGuide.id), title: practiceGuide.title };
     }
     if (type === 'quiz') {
-        const draft = await generateQuizDraft({ openRouterApiKey, prompt });
+        const draft = await generateQuizDraft({
+            instructionLanguage,
+            openRouterApiKey,
+            prompt,
+        });
         const quiz = createQuiz({
             description: draft.description,
             instructions: draft.instructions,
@@ -79,7 +93,11 @@ export async function createResourceFromContextDraft(input) {
         });
         return { detailPath: meta.detailPath(quiz.id), title: quiz.title };
     }
-    const draft = await generateRoleplayDraft({ openRouterApiKey, prompt });
+    const draft = await generateRoleplayDraft({
+        instructionLanguage,
+        openRouterApiKey,
+        prompt,
+    });
     const roleplay = createRoleplay({ ...draft, profileId, userId });
     return { detailPath: meta.detailPath(roleplay.id), title: roleplay.title };
 }

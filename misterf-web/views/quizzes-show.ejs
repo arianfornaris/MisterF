@@ -7,12 +7,12 @@
   const showQuizMoveOption = canManageQuiz && !selectedQuiz.archivedAt && (quizCurrentFolder || quizFolderOptions.length > 0);
 %>
 
-<section class="app-resource-view quizzes-page">
-  <div class="resource-page-header resource-page-header-detail">
+<section class="app-page quizzes-page">
+  <div class="app-page-header app-page-header-detail">
     <div>
-      <p class="resource-eyebrow"><%= t('quizzes.quizKicker') %></p>
-      <h1 class="resource-page-title"><%= selectedQuiz.title %></h1>
-      <p class="resource-page-copy">
+      <p class="app-page-kicker"><%= t('quizzes.quizKicker') %></p>
+      <h1 class="app-page-title"><%= selectedQuiz.title %></h1>
+      <p class="app-page-copy">
         <a href="/resources"><%= t('resources.title') %></a>
         <% quizFolderPath.forEach((folder) => { %>
           <span class="mx-1">/</span>

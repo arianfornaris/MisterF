@@ -1,4 +1,7 @@
 export function normalizeProfileModelTier(value) {
+    if (value === 'lite') {
+        return 'lite';
+    }
     if (value === 'max') {
         return 'max';
     }
