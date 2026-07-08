@@ -395,10 +395,17 @@ Protocol/loop consistency:
   the loop-parity fix). Decide: gate the item-kind sections by the
   author's instruction language (registry fragment, like the tutor
   protocol), or keep them available product-wide and document that.
-- [ ] Regression test: render every prompt with its real placeholder set
+- [x] Regression test: render every prompt with its real placeholder set
   and fail on any leftover `{{PLACEHOLDER}}` (would have caught the
   `ASSIGNMENT_*` bug; `promptContracts.test.ts` only spot-checks
-  `DIALOGUE_AVATAR_OPTIONS` today).
+  `DIALOGUE_AVATAR_OPTIONS` today). Done 2026-07-07:
+  `tests/server/promptPlaceholders.test.ts` enumerates every `.md` under
+  `system-prompts/` and requires a renderer entry mirroring the call
+  site's placeholders (fragments under `tutor/blocks/` and
+  `tutor/language-rules/` are covered through their composition
+  renders); each prompt renders in the three languages and fails on any
+  leftover `{{...}}`. New prompt files fail the test until registered;
+  stale entries for deleted files fail too.
 
 ---
 
