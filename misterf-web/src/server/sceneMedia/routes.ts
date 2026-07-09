@@ -4,6 +4,7 @@ import {
   createSceneMediaVariation,
   renderSceneMediaDetailPage,
   renderSceneMediaLibraryPage,
+  serveSceneMediaAudioAsset,
   serveSceneMediaImageAsset,
 } from './handlers.js';
 
@@ -13,4 +14,5 @@ sceneMediaRouter.get('/media-library', renderSceneMediaLibraryPage);
 sceneMediaRouter.post('/media-library', createSceneMediaFromPrompt);
 sceneMediaRouter.get('/media-library/:mediaId', renderSceneMediaDetailPage);
 sceneMediaRouter.get('/media-library/:mediaId/image', serveSceneMediaImageAsset);
+sceneMediaRouter.get('/media-library/:mediaId/audio', serveSceneMediaAudioAsset);
 sceneMediaRouter.post('/media-library/:mediaId/variations', createSceneMediaVariation);

@@ -20,8 +20,14 @@ export type SceneMediaImageLayer = {
 export type SceneMediaAudioLayer = {
   durationSeconds: number;
   format: 'mp3';
+  model?: string;
+  provider?: 'openrouter';
   src: string;
   storageKey?: string;
+  voices?: Array<{
+    speaker: string;
+    voice: string;
+  }>;
 };
 
 export type SceneMediaScript =

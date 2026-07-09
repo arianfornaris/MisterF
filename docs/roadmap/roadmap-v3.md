@@ -128,19 +128,24 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     issues short-lived Spaces URLs. Audio storage remains pending.
   - [~] Wire generated-image creation for `Image only`, complete-scene, and
     variation jobs that choose `generate_new` image. Started 2026-07-09:
-    `Image only` jobs and variation jobs that regenerate only the image call
-    OpenRouter's dedicated Images API, store PNG bytes in Spaces, and map
-    content-policy rejections to the approved failure message. Complete-scene
-    jobs still wait on structured script and audio generation before spending
-    image credits.
-  - [ ] Wire structured script generation for complete-scene jobs:
-    use prompt, level, format, image context, and script-type preference;
-    enforce the MVP atomic layer rule where script and audio are created or
-    omitted together; cap dialogue at three speakers.
-  - [ ] Wire audio generation from structured scripts:
-    choose voices automatically, use one voice for narration/monologue and a
-    different voice per dialogue speaker when possible, store MP3 in Spaces,
-    persist provider/voice provenance, and keep target durations by level.
+    `Image only` jobs, complete-scene jobs, and variation jobs that regenerate
+    the image call OpenRouter's dedicated Images API, default to
+    `google/gemini-3.1-flash-lite-image` per the asset-generation research,
+    store PNG bytes in Spaces, and map content-policy rejections to the
+    approved failure message. Post-processing to 720px WebP/JPEG remains
+    pending.
+  - [~] Wire structured script generation for complete-scene jobs. Started
+    2026-07-09: complete-scene jobs now generate validated JSON script
+    packages from prompt, level, format, image/source context, and script-type
+    preference; the generator enforces the MVP atomic script-and-audio layer
+    and caps dialogue at three speakers.
+  - [~] Wire audio generation from structured scripts. Started 2026-07-09:
+    scripts are synthesized through OpenRouter's Speech API, defaulting to
+    `google/gemini-3.1-flash-tts-preview` per the research; narration and
+    monologue use one voice, dialogue assigns distinct voices where possible,
+    MP3 output is stored in Spaces, and provider/model/voice metadata is
+    persisted on the audio layer. Human QA, exact duration targeting, and
+    fallback/draft model controls remain pending.
   - [ ] Implement retry and archive actions for failed/generated user media.
     Retry should reuse completed or kept layers instead of spending credits and
     storage on duplicates unless the user explicitly regenerates them.

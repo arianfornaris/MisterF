@@ -131,7 +131,9 @@ export const env = {
   openrouterUserKeyLimitReset:
     process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
   sceneMediaImageModel:
-    process.env.SCENE_MEDIA_IMAGE_MODEL ?? 'openai/gpt-image-1',
+    process.env.SCENE_MEDIA_IMAGE_MODEL ?? 'google/gemini-3.1-flash-lite-image',
+  sceneMediaTtsModel:
+    process.env.SCENE_MEDIA_TTS_MODEL ?? 'google/gemini-3.1-flash-tts-preview',
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
   stripeCredits200PriceId: process.env.STRIPE_CREDITS_200_PRICE_ID ?? '',

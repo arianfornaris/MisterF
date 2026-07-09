@@ -103,6 +103,12 @@ interface SceneMediaAudioLayer {
   durationSeconds: number;
   format: "mp3";
   storageKey?: string;
+  provider?: "openrouter";
+  model?: string;
+  voices?: Array<{
+    speaker: string;
+    voice: string;
+  }>;
 }
 
 type SceneMediaScript =

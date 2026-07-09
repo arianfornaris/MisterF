@@ -19,20 +19,33 @@ import {
   UserFileStorageOperationError,
 } from '../storage/userFileStorage.js';
 import {
+  generateSceneMediaAudio,
+  SceneMediaAudioContentPolicyError,
+  SceneMediaAudioProviderError,
+} from './audioGeneration.js';
+import {
   generateSceneMediaImage,
   SceneMediaImageContentPolicyError,
   SceneMediaImageProviderError,
 } from './imageGeneration.js';
+import {
+  generateSceneMediaScriptPackage,
+  SceneMediaScriptContentPolicyError,
+  SceneMediaScriptProviderError,
+  type GeneratedSceneMediaScriptPackage,
+} from '../services/sceneMediaScripts.js';
 import type {
+  SceneMediaAudioLayer,
   SceneMediaImageLayer,
+  SceneMediaScript,
   UserSceneMediaJob,
 } from './types.js';
 import { findSceneMediaItemById } from './library.js';
 
-const providerNotConfiguredReason = 'provider_not_configured';
 const contentPolicyMessage =
   'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.';
 const generatedImageCacheControl = 'private, max-age=31536000, immutable';
+const generatedAudioCacheControl = 'private, max-age=31536000, immutable';
 
 export function scheduleSceneMediaGenerationJob(jobId: string): void {
   setTimeout(() => {
@@ -65,26 +78,28 @@ export async function runSceneMediaGenerationJob(jobId: string): Promise<void> {
       (job.type === 'new_media' && job.generationMode === 'complete_scene') ||
       job.layerDecisions?.scriptAndAudio === 'generate_new';
 
-    if (requiresGeneratedScriptAndAudio) {
-      const failedItem = failUserSceneMediaJob({
-        failureMessage: 'Script and audio generation provider is not configured yet.',
-        failureReason: providerNotConfiguredReason,
-        mediaId: job.mediaId,
-      });
-      if (failedItem) {
-        emitSceneMediaGenerationFailed(failedItem);
-      }
-      return;
-    }
-
     const generatedImage = requiresGeneratedImage
       ? await generateAndStoreImageLayer(job)
       : undefined;
+    const generatedScriptPackage = requiresGeneratedScriptAndAudio
+      ? await generateScriptPackage(job, generatedImage)
+      : undefined;
+    const generatedAudio = generatedScriptPackage
+      ? await generateAndStoreAudioLayer(job, generatedScriptPackage.script)
+      : undefined;
     const completedItem = completeUserSceneMediaJob({
+      audio: generatedAudio,
       image: generatedImage,
       mediaId: job.mediaId,
+      script: generatedScriptPackage?.script,
+      setting: generatedScriptPackage?.setting,
+      skills: generatedScriptPackage?.skills,
       status: 'ready',
-      visualSummary: generatedImage ? [job.prompt] : undefined,
+      tags: generatedScriptPackage?.tags,
+      title: generatedScriptPackage?.title,
+      useCases: generatedScriptPackage?.useCases,
+      visualSummary: generatedScriptPackage?.visualSummary ??
+        (generatedImage ? [job.prompt] : undefined),
     });
     if (completedItem) {
       emitSceneMediaGenerationCompleted(completedItem);
@@ -114,6 +129,125 @@ export async function runSceneMediaGenerationJob(jobId: string): Promise<void> {
     if (failedItem) {
       emitSceneMediaGenerationFailed(failedItem);
     }
+  }
+}
+
+async function generateScriptPackage(
+  job: UserSceneMediaJob,
+  generatedImage: SceneMediaImageLayer | undefined,
+): Promise<GeneratedSceneMediaScriptPackage> {
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
+      job.ownerUserId,
+    );
+    if (!openRouterApiKey) {
+      throw new SceneMediaScriptProviderError('Missing user OpenRouter API key.');
+    }
+
+    const sourceItem = job.sourceMediaId
+      ? findSceneMediaItemById(job.sourceMediaId, {
+        profileId: job.ownerProfileId,
+        userId: job.ownerUserId,
+      })
+      : null;
+    return await generateSceneMediaScriptPackage({
+      format: job.format,
+      imageAlt: generatedImage?.alt,
+      level: job.level,
+      openRouterApiKey,
+      prompt: job.prompt,
+      scriptTypePreference: job.scriptTypePreference,
+      sourceVisualSummary: sourceItem?.visualSummary,
+    });
+  } catch (error) {
+    if (error instanceof SceneMediaScriptContentPolicyError) {
+      throw new SceneMediaGenerationFailure({
+        failureMessage: contentPolicyMessage,
+        failureReason: 'content_policy',
+      });
+    }
+
+    if (error instanceof SceneMediaScriptProviderError) {
+      throw new SceneMediaGenerationFailure({
+        failureMessage: 'Unable to generate this media script.',
+        failureReason: 'script_provider_error',
+      });
+    }
+
+    throw error;
+  }
+}
+
+async function generateAndStoreAudioLayer(
+  job: UserSceneMediaJob,
+  script: SceneMediaScript,
+): Promise<SceneMediaAudioLayer> {
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
+      job.ownerUserId,
+    );
+    if (!openRouterApiKey) {
+      throw new SceneMediaAudioProviderError('Missing user OpenRouter API key.');
+    }
+
+    const generatedAudio = await generateSceneMediaAudio({
+      openRouterApiKey,
+      script,
+    });
+    const storageKey = createSceneMediaStorageKey({
+      extension: generatedAudio.extension,
+      fileRole: 'audio',
+      mediaId: job.mediaId,
+      userId: job.ownerUserId,
+    });
+    await getUserFileStorageProvider().putObject({
+      body: generatedAudio.bytes,
+      cacheControl: generatedAudioCacheControl,
+      contentType: generatedAudio.contentType,
+      key: storageKey,
+      metadata: {
+        mediaId: job.mediaId,
+        model: generatedAudio.model,
+        provider: generatedAudio.provider,
+        userId: job.ownerUserId,
+      },
+    });
+
+    return {
+      durationSeconds: generatedAudio.durationSeconds,
+      format: 'mp3',
+      model: generatedAudio.model,
+      provider: generatedAudio.provider,
+      src: `/media-library/${encodeURIComponent(job.mediaId)}/audio`,
+      storageKey,
+      voices: generatedAudio.voices,
+    };
+  } catch (error) {
+    if (error instanceof SceneMediaAudioContentPolicyError) {
+      throw new SceneMediaGenerationFailure({
+        failureMessage: contentPolicyMessage,
+        failureReason: 'content_policy',
+      });
+    }
+
+    if (
+      error instanceof UserFileStorageConfigurationError ||
+      error instanceof UserFileStorageOperationError
+    ) {
+      throw new SceneMediaGenerationFailure({
+        failureMessage: 'Unable to store the generated media audio.',
+        failureReason: 'storage_error',
+      });
+    }
+
+    if (error instanceof SceneMediaAudioProviderError) {
+      throw new SceneMediaGenerationFailure({
+        failureMessage: 'Unable to generate this media audio.',
+        failureReason: 'audio_provider_error',
+      });
+    }
+
+    throw error;
   }
 }
 

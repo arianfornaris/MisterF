@@ -29,6 +29,50 @@ const imageGenerationMocks = vi.hoisted(() => {
   };
 });
 
+const scriptGenerationMocks = vi.hoisted(() => {
+  class SceneMediaScriptContentPolicyError extends Error {
+    constructor(message = 'Content policy rejected this script prompt.') {
+      super(message);
+      this.name = 'SceneMediaScriptContentPolicyError';
+    }
+  }
+
+  class SceneMediaScriptProviderError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'SceneMediaScriptProviderError';
+    }
+  }
+
+  return {
+    generateSceneMediaScriptPackage: vi.fn(),
+    SceneMediaScriptContentPolicyError,
+    SceneMediaScriptProviderError,
+  };
+});
+
+const audioGenerationMocks = vi.hoisted(() => {
+  class SceneMediaAudioContentPolicyError extends Error {
+    constructor(message = 'Content policy rejected this audio script.') {
+      super(message);
+      this.name = 'SceneMediaAudioContentPolicyError';
+    }
+  }
+
+  class SceneMediaAudioProviderError extends Error {
+    constructor(message: string) {
+      super(message);
+      this.name = 'SceneMediaAudioProviderError';
+    }
+  }
+
+  return {
+    generateSceneMediaAudio: vi.fn(),
+    SceneMediaAudioContentPolicyError,
+    SceneMediaAudioProviderError,
+  };
+});
+
 const storageMocks = vi.hoisted(() => {
   class UserFileStorageConfigurationError extends Error {}
   class UserFileStorageOperationError extends Error {}
@@ -44,6 +88,8 @@ const storageMocks = vi.hoisted(() => {
 
 vi.mock('../../src/server/services/creditGate.js', () => creditGateMocks);
 vi.mock('../../src/server/sceneMedia/imageGeneration.js', () => imageGenerationMocks);
+vi.mock('../../src/server/services/sceneMediaScripts.js', () => scriptGenerationMocks);
+vi.mock('../../src/server/sceneMedia/audioGeneration.js', () => audioGenerationMocks);
 vi.mock('../../src/server/storage/userFileStorage.js', () => ({
   createSceneMediaStorageKey: storageMocks.createSceneMediaStorageKey,
   getUserFileStorageProvider: storageMocks.getUserFileStorageProvider,
@@ -70,6 +116,45 @@ beforeEach(async () => {
     model: 'test/image-model',
     prompt: 'image prompt',
     provider: 'openrouter',
+  });
+  scriptGenerationMocks.generateSceneMediaScriptPackage.mockResolvedValue({
+    script: {
+      scriptType: 'dialogue',
+      turns: [
+        {
+          speaker: 'Agent',
+          text: 'Where are you going today?',
+        },
+        {
+          speaker: 'Traveler',
+          text: 'I am going to Boston.',
+        },
+      ],
+    },
+    setting: 'Train station',
+    skills: ['Travel questions'],
+    tags: ['travel', 'tickets'],
+    title: 'Train Ticket Conversation',
+    useCases: ['listening', 'speaking'],
+    visualSummary: ['A traveler buys a ticket at a train station.'],
+  });
+  audioGenerationMocks.generateSceneMediaAudio.mockResolvedValue({
+    bytes: Buffer.from('generated-audio'),
+    contentType: 'audio/mpeg',
+    durationSeconds: 18.5,
+    extension: 'mp3',
+    model: 'test-tts-model',
+    provider: 'openrouter',
+    voices: [
+      {
+        speaker: 'Agent',
+        voice: 'Kore',
+      },
+      {
+        speaker: 'Traveler',
+        voice: 'Puck',
+      },
+    ],
   });
   storageMocks.createSceneMediaStorageKey.mockReturnValue(
     'misterf/users/user_1/scene-media/media_1/image/file_1.png',
@@ -221,5 +306,108 @@ describe('scene media generation runner', () => {
       'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.',
     );
     expect(storageMocks.putObject).not.toHaveBeenCalled();
+  });
+
+  it('generates script and audio for complete scene media', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+    const {
+      createUserSceneMediaJob,
+      findUserSceneMediaById,
+      findUserSceneMediaJobById,
+    } = await import('../../src/server/sceneMedia/userMediaRepository.js');
+    const { runSceneMediaGenerationJob } = await import(
+      '../../src/server/sceneMedia/generation.js'
+    );
+    const user = createExternalUser({
+      email: 'scene-media-complete@example.com',
+      emailVerified: true,
+      fullName: 'Scene Media Complete',
+      provider: 'google',
+      providerSubject: 'scene-media-complete',
+    });
+    const profile = createProfile({
+      name: 'Complete profile',
+      userId: user.id,
+    });
+    storageMocks.createSceneMediaStorageKey.mockImplementation((input) => (
+      `misterf/users/${input.userId}/scene-media/${input.mediaId}/${input.fileRole}/file_1.${input.extension}`
+    ));
+    const job = createUserSceneMediaJob({
+      format: 'single_panel_scene',
+      generationMode: 'complete_scene',
+      level: 'A1-A2',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      prompt: 'Create a train station listening scene.',
+      scriptTypePreference: 'dialogue',
+      type: 'new_media',
+    });
+
+    await runSceneMediaGenerationJob(job.id);
+
+    const completedJob = findUserSceneMediaJobById(job.id);
+    const media = findUserSceneMediaById(job.mediaId);
+    expect(completedJob?.status).toBe('ready');
+    expect(media).toEqual(expect.objectContaining({
+      setting: 'Train station',
+      skills: ['Travel questions'],
+      status: 'ready',
+      tags: ['travel', 'tickets'],
+      title: 'Train Ticket Conversation',
+      useCases: ['listening', 'speaking'],
+      visualSummary: ['A traveler buys a ticket at a train station.'],
+    }));
+    expect(media?.script).toEqual({
+      scriptType: 'dialogue',
+      turns: [
+        {
+          speaker: 'Agent',
+          text: 'Where are you going today?',
+        },
+        {
+          speaker: 'Traveler',
+          text: 'I am going to Boston.',
+        },
+      ],
+    });
+    expect(media?.audio).toEqual(expect.objectContaining({
+      durationSeconds: 18.5,
+      format: 'mp3',
+      model: 'test-tts-model',
+      provider: 'openrouter',
+      src: `/media-library/${job.mediaId}/audio`,
+      storageKey: `misterf/users/${user.id}/scene-media/${job.mediaId}/audio/file_1.mp3`,
+      voices: [
+        {
+          speaker: 'Agent',
+          voice: 'Kore',
+        },
+        {
+          speaker: 'Traveler',
+          voice: 'Puck',
+        },
+      ],
+    }));
+    expect(scriptGenerationMocks.generateSceneMediaScriptPackage)
+      .toHaveBeenCalledWith(expect.objectContaining({
+        format: 'single_panel_scene',
+        imageAlt: 'Generated scene media image for: Create a train station listening scene.',
+        level: 'A1-A2',
+        openRouterApiKey: 'user-openrouter-key',
+        scriptTypePreference: 'dialogue',
+      }));
+    expect(audioGenerationMocks.generateSceneMediaAudio).toHaveBeenCalledWith({
+      openRouterApiKey: 'user-openrouter-key',
+      script: media?.script,
+    });
+    expect(storageMocks.putObject).toHaveBeenCalledWith(expect.objectContaining({
+      contentType: 'image/png',
+      key: `misterf/users/${user.id}/scene-media/${job.mediaId}/image/file_1.png`,
+    }));
+    expect(storageMocks.putObject).toHaveBeenCalledWith(expect.objectContaining({
+      contentType: 'audio/mpeg',
+      key: `misterf/users/${user.id}/scene-media/${job.mediaId}/audio/file_1.mp3`,
+    }));
   });
 });

@@ -198,6 +198,35 @@ export async function serveSceneMediaImageAsset(
   response.redirect(readUrl);
 }
 
+export async function serveSceneMediaAudioAsset(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const mediaId = typeof request.params.mediaId === 'string'
+    ? request.params.mediaId
+    : '';
+  const mediaItem = findSceneMediaItemById(mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  const storageKey = mediaItem?.audio?.storageKey;
+  if (!mediaItem || mediaItem.source !== 'user_generated' || !storageKey) {
+    response.sendStatus(404);
+    return;
+  }
+
+  const readUrl = await getUserFileStorageProvider().createReadUrl({
+    expiresInSeconds: 300,
+    storageKey,
+  });
+  response.redirect(readUrl);
+}
+
 export async function createSceneMediaFromPrompt(
   request: Request,
   response: Response,
