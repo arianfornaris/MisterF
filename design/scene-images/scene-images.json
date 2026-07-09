@@ -1028,12 +1028,24 @@
       ],
       "characters": [
         {
-          "role": "clinic_people",
-          "description": "Varied patients, a receptionist, and a nurse in a clinic waiting room."
+          "role": "receptionist",
+          "description": "Clinic receptionist with a dark ponytail and blue scrubs at the front desk."
+        },
+        {
+          "role": "patient",
+          "description": "Woman with curly dark hair, a green sweater, and a shoulder bag checking in."
+        },
+        {
+          "role": "nurse",
+          "description": "Nurse with dark skin and blue scrubs holding a door open to call a patient."
+        },
+        {
+          "role": "waiting_family",
+          "description": "A father in a green hoodie and his son in an orange hoodie waiting on the couch, and an older woman reading nearby."
         }
       ],
       "panelSequence": [
-        "People check in, wait, read, talk, and respond to a nurse in a clinic waiting room."
+        "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what each person is doing.",
@@ -1364,12 +1376,28 @@
       ],
       "characters": [
         {
-          "role": "airport_people",
-          "description": "Varied travelers and a friendly airport staff member in a security line."
+          "role": "security_officer",
+          "description": "Security officer with dark skin, a white shirt, a tie, and blue gloves, directing travelers."
+        },
+        {
+          "role": "young_traveler",
+          "description": "Young man in a green hoodie placing his backpack in a bin on the conveyor."
+        },
+        {
+          "role": "family_mother",
+          "description": "Woman in a denim jacket with curly hair and a shoulder bag."
+        },
+        {
+          "role": "family_child",
+          "description": "Young boy in a yellow hoodie holding a teddy bear and a backpack."
+        },
+        {
+          "role": "grandfather",
+          "description": "Older man with a gray beard and a tan jacket with a suitcase."
         }
       ],
       "panelSequence": [
-        "Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security."
+        "Travelers move through an airport security line, placing bags in bins as an officer directs them."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what each person is doing.",
@@ -1682,12 +1710,28 @@
       ],
       "characters": [
         {
-          "role": "market_people",
-          "description": "Varied shoppers and a cashier in a market checkout line."
+          "role": "cashier",
+          "description": "Cashier with a black ponytail, a blue shirt, and a green apron scanning groceries."
+        },
+        {
+          "role": "shopper",
+          "description": "Woman in a denim jacket and striped shirt placing groceries on the belt."
+        },
+        {
+          "role": "waiting_father",
+          "description": "Father in a blue sweater with a beard and his young son in a yellow hoodie with a cart."
+        },
+        {
+          "role": "waiting_grandmother",
+          "description": "Older woman with gray hair, glasses, and a purple cardigan holding a basket."
+        },
+        {
+          "role": "bagger",
+          "description": "A helper in a green hoodie bagging groceries at the end of the counter."
         }
       ],
       "panelSequence": [
-        "People shop, wait, scan groceries, and pack reusable bags at a market checkout."
+        "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
       ],
       "status": "approved",
       "file": "images/market-checkout-line-01.png",
@@ -1752,12 +1796,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied, natural characters shown in a home and daily-routine context."
+          "role": "resident",
+          "description": "Woman with a black bob and hoop earrings, wearing a blue coat and carrying a cream tote bag."
+        },
+        {
+          "role": "helper",
+          "description": "Neighbor with dark skin, glasses, and a gray sweater who keeps a spare key."
         }
       ],
       "panelSequence": [
-        "The person locks herself out, gets help from a neighbor, and receives a spare key."
+        "A woman reaches for her apartment door, ready to go inside.",
+        "Out on the walkway she pats her empty pockets and realizes she has no keys.",
+        "A friendly neighbor notices she is locked out and offers to help.",
+        "The neighbor hands her a spare key and she smiles with relief."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -1811,12 +1862,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied, natural characters shown in a home and daily-routine context."
+          "role": "person_doing_laundry",
+          "description": "Teenage boy with short black hair, a yellow t-shirt, and blue jeans."
+        },
+        {
+          "role": "friend",
+          "description": "Teenage girl with long dark braids and a green hoodie who knows how to sort laundry."
         }
       ],
       "panelSequence": [
-        "A laundry color mistake happens, then siblings sort clothes and fold them correctly."
+        "A boy happily loads a pile of mixed-color clothes into the washing machine.",
+        "He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor.",
+        "A friend shows him how one red item colored the whites and explains sorting.",
+        "Together they fold the clean clothes into separate color piles."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -1868,12 +1926,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied, natural characters shown in a home and daily-routine context."
+          "role": "parent",
+          "description": "Father with short dark hair and a teal sweater, holding coffee and checking his watch."
+        },
+        {
+          "role": "child",
+          "description": "Young boy with curly hair, a yellow hoodie, and a red backpack, eating toast."
         }
       ],
       "panelSequence": [
-        "A parent and child rush in the morning, find a missing shoe, and leave together."
+        "A father checks his watch while his son rushes through breakfast in the kitchen.",
+        "In the entryway the boy is missing one shoe and looks worried.",
+        "The father kneels to look for the missing shoe behind the sofa.",
+        "He finds the shoe and they leave together, holding hands."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -1924,12 +1989,13 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied, natural characters shown in a home and daily-routine context."
+          "role": "room_owner",
+          "description": "Teenage girl with curly dark hair, a purple sweater, and blue jeans."
         }
       ],
       "panelSequence": [
-        "The same bedroom changes from messy to tidy."
+        "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
+        "The same room is tidy and organized, and she stands proudly with her hands on her hips."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -1982,12 +2048,28 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied, natural characters shown in a home and daily-routine context."
+          "role": "grandmother",
+          "description": "Older woman with silver hair in a bun and a purple cardigan, serving rice."
+        },
+        {
+          "role": "father",
+          "description": "Man with dark skin, a short beard, and a green shirt, pouring water."
+        },
+        {
+          "role": "mother",
+          "description": "Woman with dark hair in a bun and a cream sweater."
+        },
+        {
+          "role": "teen_son",
+          "description": "Teenage boy in a blue hoodie passing a bowl of salad."
+        },
+        {
+          "role": "young_daughter",
+          "description": "Young girl with a ponytail and a pink polka-dot top, reaching for the bread."
         }
       ],
       "panelSequence": [
-        "A family shares dinner and passes food around the table."
+        "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2044,12 +2126,27 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied students and school adults in a learning context."
+          "role": "student_planner",
+          "description": "Teen boy with dark skin and short black hair in a green hoodie."
+        },
+        {
+          "role": "student_researcher",
+          "description": "Teen girl with straight black hair in a purple hoodie, using a laptop."
+        },
+        {
+          "role": "student_designer",
+          "description": "Teen boy with brown hair in a blue hoodie."
+        },
+        {
+          "role": "student_presenter",
+          "description": "Teen girl with curly hair in a bun and a yellow sweater."
         }
       ],
       "panelSequence": [
-        "Students plan, research, make a poster, and present together."
+        "Four classmates gather around a library table with a laptop and books to plan a group project.",
+        "They research and trade ideas, one tapping the laptop while another thinks aloud.",
+        "Together they draw a colorful poster with shapes and diagrams.",
+        "They present the finished poster to the rest of the class."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2104,12 +2201,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied students and school adults in a learning context."
+          "role": "student",
+          "description": "Boy with spiky black hair and a blue sweater."
+        },
+        {
+          "role": "teacher",
+          "description": "Older teacher with gray hair, glasses, and a green cardigan."
         }
       ],
       "panelSequence": [
-        "A student forgets homework, finds it at home, and gives it to the teacher."
+        "A boy searches his backpack at his desk and cannot find his homework.",
+        "He explains to his teacher that he left the assignment at home.",
+        "That evening at his desk he finds the finished paper under his books.",
+        "The next day he hands the completed homework to his smiling teacher."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2164,12 +2268,23 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied students and school adults in a learning context."
+          "role": "student_pourer",
+          "description": "Teen boy with dark skin and curly hair, wearing a green hoodie and safety goggles."
+        },
+        {
+          "role": "student_partner",
+          "description": "Teen girl with straight black hair, a purple sweater, and safety goggles."
+        },
+        {
+          "role": "teacher",
+          "description": "Science teacher with a brown ponytail and a blue cardigan."
         }
       ],
       "panelSequence": [
-        "Students spill colored water, clean it up, and restart safely."
+        "Two lab partners carefully mix a blue liquid in a beaker.",
+        "A beaker tips over and the blue liquid spills across the table.",
+        "Their teacher helps them wipe up the spill with paper towels.",
+        "Calm again, the partners return to their experiment with a dropper."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2223,12 +2338,13 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied students and school adults in a learning context."
+          "role": "student",
+          "description": "Boy with short curly hair and a red hoodie."
         }
       ],
       "panelSequence": [
-        "A backpack changes from empty to packed for school."
+        "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
+        "He wears the packed, full backpack and smiles, ready for school."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2280,12 +2396,20 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied students and school adults in a learning context."
+          "role": "presenter",
+          "description": "Girl with long black hair and a purple sweater, holding a hand-drawn environment poster."
+        },
+        {
+          "role": "teacher",
+          "description": "Teacher with shoulder-length brown hair and a green cardigan."
+        },
+        {
+          "role": "classmates",
+          "description": "Several seated classmates watching the presentation."
         }
       ],
       "panelSequence": [
-        "A student gives a classroom presentation while others listen."
+        "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2342,12 +2466,23 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied restaurant customers and staff in everyday dining situations."
+          "role": "guest_woman",
+          "description": "Woman with dark curly hair in a bun, a green blouse, and a tan shoulder bag."
+        },
+        {
+          "role": "guest_man",
+          "description": "Man with dark hair and a short beard in a blue blazer."
+        },
+        {
+          "role": "host",
+          "description": "Restaurant host with a dark ponytail and a black shirt, holding a tablet."
         }
       ],
       "panelSequence": [
-        "A reservation mix-up is solved and guests are seated."
+        "A couple arrives at the restaurant host stand for their reservation.",
+        "The host checks the tablet and cannot find their booking.",
+        "They talk it over and the host finds a way to seat them.",
+        "The couple sits at a table, happily reading the menus."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2402,12 +2537,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied restaurant customers and staff in everyday dining situations."
+          "role": "diner",
+          "description": "Woman with long dark hair and a green cardigan."
+        },
+        {
+          "role": "waiter",
+          "description": "Waiter with black hair, a white shirt, and a black vest."
         }
       ],
       "panelSequence": [
-        "A small soup spill happens, staff help clean it, and dinner continues."
+        "A waiter serves a bowl of soup to a smiling diner.",
+        "The bowl tips over and the soup spills across the table.",
+        "The waiter quickly wipes up the spill and reassures her.",
+        "A fresh bowl of soup arrives and she enjoys her meal."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2462,12 +2604,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied restaurant customers and staff in everyday dining situations."
+          "role": "customer",
+          "description": "Young man with curly red hair and a blue sweater."
+        },
+        {
+          "role": "server",
+          "description": "Server with a black ponytail and a black shirt, holding a notepad."
         }
       ],
       "panelSequence": [
-        "A customer explains an allergy and receives a safe meal."
+        "A customer gives his order while the server writes it down.",
+        "He points to his allergy bracelet to explain what he cannot eat.",
+        "The server reassures him and brings a safe dish of rice and vegetables.",
+        "He happily eats the meal that fits his allergy."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2521,12 +2670,13 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied restaurant customers and staff in everyday dining situations."
+          "role": "diner",
+          "description": "Man with short dark hair and a green shirt."
         }
       ],
       "panelSequence": [
-        "A restaurant plate changes from empty to full."
+        "The man sits at a restaurant table with an empty plate, waiting patiently.",
+        "His plate is now full of pasta and vegetables, and he smiles with delight."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2580,12 +2730,32 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied restaurant customers and staff in everyday dining situations."
+          "role": "server",
+          "description": "Waitress with black hair and a black apron, serving plates of pasta and chicken."
+        },
+        {
+          "role": "guest_mother",
+          "description": "Woman with dark hair and a green cardigan."
+        },
+        {
+          "role": "guest_father",
+          "description": "Man with dark skin, glasses, a beard, and a blue sweater."
+        },
+        {
+          "role": "guest_boy",
+          "description": "Boy with dark hair in a blue hoodie."
+        },
+        {
+          "role": "guest_girl",
+          "description": "Young girl with a ponytail and a pink top."
+        },
+        {
+          "role": "guest_friends",
+          "description": "A couple across the table: a man in a cream shirt and a woman in a yellow sweater pouring water."
         }
       ],
       "panelSequence": [
-        "People eat, serve, pour, pass food, and talk at a restaurant table."
+        "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2642,12 +2812,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied community members in public-place situations."
+          "role": "patron",
+          "description": "Older woman with silver curly hair, a purple cardigan, and a tan crossbody bag."
+        },
+        {
+          "role": "librarian",
+          "description": "Librarian with dark hair in a bun, glasses, a green cardigan, and a lanyard."
         }
       ],
       "panelSequence": [
-        "An older adult gets help applying for a library card and borrows books."
+        "An older woman enters the library and looks around.",
+        "At the desk the librarian welcomes her and explains how to get a card.",
+        "The woman fills out a short form and receives her new library card.",
+        "She leaves happily carrying a stack of borrowed books."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2702,12 +2879,31 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied community members in public-place situations."
+          "role": "volunteer_teen_girl",
+          "description": "Teen girl with a ponytail, a purple hoodie, and blue work gloves."
+        },
+        {
+          "role": "volunteer_teen_boy",
+          "description": "Teen boy in a green hoodie with a litter grabber."
+        },
+        {
+          "role": "volunteer_child",
+          "description": "Young boy in a yellow hoodie holding a trash bag."
+        },
+        {
+          "role": "volunteer_dad",
+          "description": "Man with dark skin, glasses, a beard, and a blue sweater."
+        },
+        {
+          "role": "volunteer_grandmother",
+          "description": "Older woman in a purple jacket and a sun hat."
         }
       ],
       "panelSequence": [
-        "Neighbors clean up a park together."
+        "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
+        "They spread out and pick up litter around the park.",
+        "They sort the collected trash and recycling into the right bins.",
+        "They celebrate the clean park together with a thumbs up."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2764,12 +2960,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied community members in public-place situations."
+          "role": "customer",
+          "description": "Young man with black hair, a blue jacket, and a shoulder bag, carrying a box."
+        },
+        {
+          "role": "clerk",
+          "description": "Postal clerk with dark skin, glasses, and a light blue polo shirt."
         }
       ],
       "panelSequence": [
-        "A customer gets help mailing a package."
+        "A man carries a cardboard box into the post office.",
+        "At the counter the clerk greets him and weighs the package.",
+        "The man seals the box with tape on the counter.",
+        "He hands the finished package to the clerk to mail."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2823,12 +3026,17 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied community members in public-place situations."
+          "role": "children",
+          "description": "Several children playing: two building a sandcastle, one on a swing, and one on the slide."
+        },
+        {
+          "role": "parents",
+          "description": "A few parents watching and helping near the benches."
         }
       ],
       "panelSequence": [
-        "A playground changes from empty to busy."
+        "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
+        "The same playground is now busy with children playing and parents watching."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2884,12 +3092,32 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied community members in public-place situations."
+          "role": "gardener_watering",
+          "description": "Woman in a green shirt and gloves watering plants with a blue can."
+        },
+        {
+          "role": "gardener_grandmother",
+          "description": "Older woman with silver hair and a purple cardigan holding a basket of tomatoes."
+        },
+        {
+          "role": "gardener_man",
+          "description": "Man with dark skin, glasses, and a teal shirt, chatting with a neighbor."
+        },
+        {
+          "role": "gardener_neighbor",
+          "description": "Woman in a straw hat and red shirt holding a potted plant."
+        },
+        {
+          "role": "gardener_boy",
+          "description": "Boy in a yellow shirt planting a seedling with a trowel."
+        },
+        {
+          "role": "gardener_kneeling",
+          "description": "Woman in a straw hat and blue shirt tending a garden bed."
         }
       ],
       "panelSequence": [
-        "Neighbors work together in a community garden."
+        "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -2946,12 +3174,23 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied people using everyday digital tools and appointment workflows."
+          "role": "caller",
+          "description": "Woman with curly dark brown hair and a yellow blouse, on a video call at her desk."
+        },
+        {
+          "role": "support_agent",
+          "description": "Support agent with a headset and a blue shirt, appearing on the screen."
+        },
+        {
+          "role": "call_participants",
+          "description": "Four coworkers shown in the video-call grid."
         }
       ],
       "panelSequence": [
-        "A video call problem is fixed and the call continues."
+        "A woman waves hello as her video call with four coworkers begins.",
+        "The call freezes and the screen buffers because of a weak wifi signal.",
+        "A support agent on the call guides her to fix the router.",
+        "The call works again and she happily waves to everyone."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -3006,12 +3245,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied people using everyday digital tools and appointment workflows."
+          "role": "person",
+          "description": "Man with brown hair and a green sweater, checking his phone calendar."
+        },
+        {
+          "role": "friend",
+          "description": "Friend with dark skin and an orange jacket who helps read the calendar."
         }
       ],
       "panelSequence": [
-        "A calendar mistake is noticed and corrected before an appointment."
+        "A man compares his phone calendar with the wall calendar.",
+        "He realizes he wrote the appointment on the wrong day.",
+        "A friend points at the calendar and helps him find the correct date.",
+        "He arrives on the right day and waits calmly at the office."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -3066,12 +3312,19 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied people using everyday digital tools and appointment workflows."
+          "role": "learner",
+          "description": "Older woman with silver hair and a purple blouse, using a laptop."
+        },
+        {
+          "role": "helper",
+          "description": "Younger woman with black hair and a blue cardigan who helps with the form."
         }
       ],
       "panelSequence": [
-        "A neighbor helps an older adult complete an online form."
+        "An older woman feels stuck while filling out an online form.",
+        "A younger woman points at the screen and explains each step.",
+        "Together they complete the form, checking the boxes.",
+        "The form is finished and the helper gives a happy thumbs up."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -3125,12 +3378,13 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied people using everyday digital tools and appointment workflows."
+          "role": "person",
+          "description": "Young man with black hair and a gray hoodie."
         }
       ],
       "panelSequence": [
-        "A phone changes from dead to charged."
+        "The young man looks frustrated at his dead phone with an unplugged charger.",
+        "His phone is now charging on a power strip and he smiles, relieved."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
@@ -3182,12 +3436,12 @@
       ],
       "characters": [
         {
-          "role": "scene_characters",
-          "description": "Varied people using everyday digital tools and appointment workflows."
+          "role": "person",
+          "description": "Woman with long dark braids, hoop earrings, and a teal sweater in her kitchen."
         }
       ],
       "panelSequence": [
-        "A person confirms an appointment on a device at home."
+        "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
       ],
       "pedagogicalPromptIdeas": [
         "Describe what is happening.",
