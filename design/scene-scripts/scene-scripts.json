@@ -37,9 +37,9 @@
       "dialogue": 123,
       "monologue": 27
     },
-    "audioReadyCount": 27,
-    "audioPendingCount": 123,
-    "audioReadyDurationSeconds": 693.42,
+    "audioReadyCount": 150,
+    "audioPendingCount": 0,
+    "audioReadyDurationSeconds": 5073.49,
     "levelCounts": {
       "A1-A2": 50,
       "B1-B2": 50,
@@ -2088,7 +2088,7 @@
       "sceneImageId": "messy-desk-clean-desk-01",
       "sceneImageFile": "../scene-images/images/messy-desk-clean-desk-01.png",
       "title": "A Tidy Desk",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -2125,14 +2125,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/messy-desk-clean-desk-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 23.09,
+        "bytes": 184940,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011024,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "messy-desk-clean-desk-01-b1-b2",
       "sceneImageId": "messy-desk-clean-desk-01",
       "sceneImageFile": "../scene-images/images/messy-desk-clean-desk-01.png",
       "title": "A Tidy Desk",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -2169,14 +2182,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/messy-desk-clean-desk-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 31.37,
+        "bytes": 251180,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.014977,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "messy-desk-clean-desk-01-c1",
       "sceneImageId": "messy-desk-clean-desk-01",
       "sceneImageFile": "../scene-images/images/messy-desk-clean-desk-01.png",
       "title": "A Tidy Desk",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -2212,7 +2238,20 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/messy-desk-clean-desk-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 44.42,
+        "bytes": 355628,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.021208,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "office-break-room-01-a1-a2",
@@ -2467,7 +2506,7 @@
       "sceneImageId": "doctor-visit-cough-01",
       "sceneImageFile": "../scene-images/images/doctor-visit-cough-01.png",
       "title": "A Cough At The Clinic",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -2546,14 +2585,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/doctor-visit-cough-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 28.66,
+        "bytes": 229484,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013683,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "doctor-visit-cough-01-b1-b2",
       "sceneImageId": "doctor-visit-cough-01",
       "sceneImageFile": "../scene-images/images/doctor-visit-cough-01.png",
       "title": "A Cough At The Clinic",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -2642,14 +2694,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/doctor-visit-cough-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 42.41,
+        "bytes": 339500,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.020248,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "doctor-visit-cough-01-c1",
       "sceneImageId": "doctor-visit-cough-01",
       "sceneImageFile": "../scene-images/images/doctor-visit-cough-01.png",
       "title": "A Cough At The Clinic",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -2737,14 +2802,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/doctor-visit-cough-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 54.26,
+        "bytes": 434348,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.025906,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "pharmacy-instructions-01-a1-a2",
       "sceneImageId": "pharmacy-instructions-01",
       "sceneImageFile": "../scene-images/images/pharmacy-instructions-01.png",
       "title": "How To Take The Medicine",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -2817,14 +2895,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/pharmacy-instructions-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.25,
+        "bytes": 202220,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012055,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "pharmacy-instructions-01-b1-b2",
       "sceneImageId": "pharmacy-instructions-01",
       "sceneImageFile": "../scene-images/images/pharmacy-instructions-01.png",
       "title": "How To Take The Medicine",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -2902,14 +2993,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/pharmacy-instructions-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 35.35,
+        "bytes": 283052,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016877,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "pharmacy-instructions-01-c1",
       "sceneImageId": "pharmacy-instructions-01",
       "sceneImageFile": "../scene-images/images/pharmacy-instructions-01.png",
       "title": "How To Take The Medicine",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -2986,14 +3090,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/pharmacy-instructions-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 46.37,
+        "bytes": 371180,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022139,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "minor-sprain-clinic-01-a1-a2",
       "sceneImageId": "minor-sprain-clinic-01",
       "sceneImageFile": "../scene-images/images/minor-sprain-clinic-01.png",
       "title": "A Hurt Ankle",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -3077,14 +3194,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/minor-sprain-clinic-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.51,
+        "bytes": 204332,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012179,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "minor-sprain-clinic-01-b1-b2",
       "sceneImageId": "minor-sprain-clinic-01",
       "sceneImageFile": "../scene-images/images/minor-sprain-clinic-01.png",
       "title": "A Hurt Ankle",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -3168,14 +3298,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/minor-sprain-clinic-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 36.41,
+        "bytes": 291500,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017383,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "minor-sprain-clinic-01-c1",
       "sceneImageId": "minor-sprain-clinic-01",
       "sceneImageFile": "../scene-images/images/minor-sprain-clinic-01.png",
       "title": "A Hurt Ankle",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -3258,14 +3401,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/minor-sprain-clinic-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 48.24,
+        "bytes": 386156,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023032,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "before-after-resting-01-a1-a2",
       "sceneImageId": "before-after-resting-01",
       "sceneImageFile": "../scene-images/images/before-after-resting-01.png",
       "title": "A Day Of Rest",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -3302,14 +3458,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/before-after-resting-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 19.82,
+        "bytes": 158828,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.009463,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "before-after-resting-01-b1-b2",
       "sceneImageId": "before-after-resting-01",
       "sceneImageFile": "../scene-images/images/before-after-resting-01.png",
       "title": "A Day Of Rest",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -3346,14 +3515,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/before-after-resting-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 29.09,
+        "bytes": 232940,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013889,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "before-after-resting-01-c1",
       "sceneImageId": "before-after-resting-01",
       "sceneImageFile": "../scene-images/images/before-after-resting-01.png",
       "title": "A Day Of Rest",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -3389,14 +3571,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/before-after-resting-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 49.34,
+        "bytes": 394988,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023557,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "waiting-room-check-in-01-a1-a2",
       "sceneImageId": "waiting-room-check-in-01",
       "sceneImageFile": "../scene-images/images/waiting-room-check-in-01.png",
       "title": "Checking In",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -3480,14 +3675,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/waiting-room-check-in-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.75,
+        "bytes": 206252,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012294,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "waiting-room-check-in-01-b1-b2",
       "sceneImageId": "waiting-room-check-in-01",
       "sceneImageFile": "../scene-images/images/waiting-room-check-in-01.png",
       "title": "Checking In",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -3571,14 +3779,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/waiting-room-check-in-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 32.09,
+        "bytes": 256940,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015321,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "waiting-room-check-in-01-c1",
       "sceneImageId": "waiting-room-check-in-01",
       "sceneImageFile": "../scene-images/images/waiting-room-check-in-01.png",
       "title": "Checking In",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -3661,14 +3882,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/waiting-room-check-in-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 42.29,
+        "bytes": 338540,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.020191,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "missed-train-platform-01-a1-a2",
       "sceneImageId": "missed-train-platform-01",
       "sceneImageFile": "../scene-images/images/missed-train-platform-01.png",
       "title": "The Next Train",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -3741,14 +3975,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/missed-train-platform-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 26.14,
+        "bytes": 209324,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.01248,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "missed-train-platform-01-b1-b2",
       "sceneImageId": "missed-train-platform-01",
       "sceneImageFile": "../scene-images/images/missed-train-platform-01.png",
       "title": "The Next Train",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -3821,14 +4068,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/missed-train-platform-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 31.94,
+        "bytes": 255788,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015249,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "missed-train-platform-01-c1",
       "sceneImageId": "missed-train-platform-01",
       "sceneImageFile": "../scene-images/images/missed-train-platform-01.png",
       "title": "The Next Train",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -3900,14 +4160,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/missed-train-platform-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 47.21,
+        "bytes": 377900,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.02254,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "lost-luggage-hotel-01-a1-a2",
       "sceneImageId": "lost-luggage-hotel-01",
       "sceneImageFile": "../scene-images/images/lost-luggage-hotel-01.png",
       "title": "The Missing Suitcase",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -3980,14 +4253,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/lost-luggage-hotel-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 23.42,
+        "bytes": 187628,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011182,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "lost-luggage-hotel-01-b1-b2",
       "sceneImageId": "lost-luggage-hotel-01",
       "sceneImageFile": "../scene-images/images/lost-luggage-hotel-01.png",
       "title": "The Missing Suitcase",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -4060,14 +4346,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/lost-luggage-hotel-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 32.33,
+        "bytes": 258860,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015436,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "lost-luggage-hotel-01-c1",
       "sceneImageId": "lost-luggage-hotel-01",
       "sceneImageFile": "../scene-images/images/lost-luggage-hotel-01.png",
       "title": "The Missing Suitcase",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -4139,14 +4438,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/lost-luggage-hotel-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 50.09,
+        "bytes": 400940,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023915,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "ticket-machine-help-01-a1-a2",
       "sceneImageId": "ticket-machine-help-01",
       "sceneImageFile": "../scene-images/images/ticket-machine-help-01.png",
       "title": "Help At The Ticket Machine",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -4224,14 +4536,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/ticket-machine-help-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 27.65,
+        "bytes": 221420,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013201,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "ticket-machine-help-01-b1-b2",
       "sceneImageId": "ticket-machine-help-01",
       "sceneImageFile": "../scene-images/images/ticket-machine-help-01.png",
       "title": "Help At The Ticket Machine",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -4309,14 +4634,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/ticket-machine-help-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 36.24,
+        "bytes": 290156,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017302,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "ticket-machine-help-01-c1",
       "sceneImageId": "ticket-machine-help-01",
       "sceneImageFile": "../scene-images/images/ticket-machine-help-01.png",
       "title": "Help At The Ticket Machine",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -4393,14 +4731,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/ticket-machine-help-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 48.31,
+        "bytes": 386732,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023065,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "packed-unpacked-suitcase-01-a1-a2",
       "sceneImageId": "packed-unpacked-suitcase-01",
       "sceneImageFile": "../scene-images/images/packed-unpacked-suitcase-01.png",
       "title": "Packing For A Trip",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -4437,14 +4788,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/packed-unpacked-suitcase-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 19.78,
+        "bytes": 158444,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.009444,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "packed-unpacked-suitcase-01-b1-b2",
       "sceneImageId": "packed-unpacked-suitcase-01",
       "sceneImageFile": "../scene-images/images/packed-unpacked-suitcase-01.png",
       "title": "Packing For A Trip",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -4481,14 +4845,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/packed-unpacked-suitcase-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 29.18,
+        "bytes": 233708,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013932,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "packed-unpacked-suitcase-01-c1",
       "sceneImageId": "packed-unpacked-suitcase-01",
       "sceneImageFile": "../scene-images/images/packed-unpacked-suitcase-01.png",
       "title": "Packing For A Trip",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -4524,14 +4901,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/packed-unpacked-suitcase-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 51.65,
+        "bytes": 413420,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.02466,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "airport-security-line-01-a1-a2",
       "sceneImageId": "airport-security-line-01",
       "sceneImageFile": "../scene-images/images/airport-security-line-01.png",
       "title": "Through Security",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -4616,14 +5006,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/airport-security-line-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 24.29,
+        "bytes": 194540,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011597,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "airport-security-line-01-b1-b2",
       "sceneImageId": "airport-security-line-01",
       "sceneImageFile": "../scene-images/images/airport-security-line-01.png",
       "title": "Through Security",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -4713,14 +5116,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/airport-security-line-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 36.48,
+        "bytes": 292076,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017417,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "airport-security-line-01-c1",
       "sceneImageId": "airport-security-line-01",
       "sceneImageFile": "../scene-images/images/airport-security-line-01.png",
       "title": "Through Security",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -4809,14 +5225,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/airport-security-line-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 49.8,
+        "bytes": 398636,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023776,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "wrong-size-return-01-a1-a2",
       "sceneImageId": "wrong-size-return-01",
       "sceneImageFile": "../scene-images/images/wrong-size-return-01.png",
       "title": "The Wrong Size",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -4889,14 +5318,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/wrong-size-return-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.37,
+        "bytes": 203180,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012113,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "wrong-size-return-01-b1-b2",
       "sceneImageId": "wrong-size-return-01",
       "sceneImageFile": "../scene-images/images/wrong-size-return-01.png",
       "title": "The Wrong Size",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -4974,14 +5416,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/wrong-size-return-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 34.2,
+        "bytes": 273836,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016328,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "wrong-size-return-01-c1",
       "sceneImageId": "wrong-size-return-01",
       "sceneImageFile": "../scene-images/images/wrong-size-return-01.png",
       "title": "The Wrong Size",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -5058,14 +5513,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/wrong-size-return-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 43.44,
+        "bytes": 347756,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.02074,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "wrong-cafe-order-01-a1-a2",
       "sceneImageId": "wrong-cafe-order-01",
       "sceneImageFile": "../scene-images/images/wrong-cafe-order-01.png",
       "title": "Not My Order",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -5138,14 +5606,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/wrong-cafe-order-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 23.81,
+        "bytes": 190700,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011368,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "wrong-cafe-order-01-b1-b2",
       "sceneImageId": "wrong-cafe-order-01",
       "sceneImageFile": "../scene-images/images/wrong-cafe-order-01.png",
       "title": "Not My Order",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -5223,14 +5704,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/wrong-cafe-order-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 31.8,
+        "bytes": 254636,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015182,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "wrong-cafe-order-01-c1",
       "sceneImageId": "wrong-cafe-order-01",
       "sceneImageFile": "../scene-images/images/wrong-cafe-order-01.png",
       "title": "Not My Order",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -5307,14 +5801,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/wrong-cafe-order-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 44.33,
+        "bytes": 354860,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.021165,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "phone-repair-pickup-01-a1-a2",
       "sceneImageId": "phone-repair-pickup-01",
       "sceneImageFile": "../scene-images/images/phone-repair-pickup-01.png",
       "title": "Picking Up The Phone",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -5387,14 +5894,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/phone-repair-pickup-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.37,
+        "bytes": 203180,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012113,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "phone-repair-pickup-01-b1-b2",
       "sceneImageId": "phone-repair-pickup-01",
       "sceneImageFile": "../scene-images/images/phone-repair-pickup-01.png",
       "title": "Picking Up The Phone",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -5472,14 +5992,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/phone-repair-pickup-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 37.03,
+        "bytes": 296492,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017679,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "phone-repair-pickup-01-c1",
       "sceneImageId": "phone-repair-pickup-01",
       "sceneImageFile": "../scene-images/images/phone-repair-pickup-01.png",
       "title": "Picking Up The Phone",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -5556,14 +6089,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/phone-repair-pickup-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 46.49,
+        "bytes": 372140,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022196,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-cart-01-a1-a2",
       "sceneImageId": "empty-full-cart-01",
       "sceneImageFile": "../scene-images/images/empty-full-cart-01.png",
       "title": "The Weekly Shop",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -5600,14 +6146,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/empty-full-cart-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 22.37,
+        "bytes": 179180,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.01068,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-cart-01-b1-b2",
       "sceneImageId": "empty-full-cart-01",
       "sceneImageFile": "../scene-images/images/empty-full-cart-01.png",
       "title": "The Weekly Shop",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -5644,14 +6203,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/empty-full-cart-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 27.82,
+        "bytes": 222764,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013282,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-cart-01-c1",
       "sceneImageId": "empty-full-cart-01",
       "sceneImageFile": "../scene-images/images/empty-full-cart-01.png",
       "title": "The Weekly Shop",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -5687,14 +6259,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/empty-full-cart-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 41.62,
+        "bytes": 333164,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.019871,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "market-checkout-line-01-a1-a2",
       "sceneImageId": "market-checkout-line-01",
       "sceneImageFile": "../scene-images/images/market-checkout-line-01.png",
       "title": "At The Checkout",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -5767,14 +6352,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/market-checkout-line-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 24.5,
+        "bytes": 196268,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011697,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "market-checkout-line-01-b1-b2",
       "sceneImageId": "market-checkout-line-01",
       "sceneImageFile": "../scene-images/images/market-checkout-line-01.png",
       "title": "At The Checkout",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -5852,14 +6450,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/market-checkout-line-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 36.29,
+        "bytes": 290540,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017326,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "market-checkout-line-01-c1",
       "sceneImageId": "market-checkout-line-01",
       "sceneImageFile": "../scene-images/images/market-checkout-line-01.png",
       "title": "At The Checkout",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -5936,14 +6547,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/market-checkout-line-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 52.63,
+        "bytes": 421292,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.025127,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "forgotten-keys-home-01-a1-a2",
       "sceneImageId": "forgotten-keys-home-01",
       "sceneImageFile": "../scene-images/images/forgotten-keys-home-01.png",
       "title": "Locked Out",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -6016,14 +6640,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/forgotten-keys-home-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 27.65,
+        "bytes": 221420,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013201,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "forgotten-keys-home-01-b1-b2",
       "sceneImageId": "forgotten-keys-home-01",
       "sceneImageFile": "../scene-images/images/forgotten-keys-home-01.png",
       "title": "Locked Out",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -6096,14 +6733,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/forgotten-keys-home-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 30.89,
+        "bytes": 247340,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.014748,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "forgotten-keys-home-01-c1",
       "sceneImageId": "forgotten-keys-home-01",
       "sceneImageFile": "../scene-images/images/forgotten-keys-home-01.png",
       "title": "Locked Out",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -6175,14 +6825,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/forgotten-keys-home-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 46.54,
+        "bytes": 372524,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.02222,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "laundry-color-mistake-01-a1-a2",
       "sceneImageId": "laundry-color-mistake-01",
       "sceneImageFile": "../scene-images/images/laundry-color-mistake-01.png",
       "title": "The Pink Shirt",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -6260,14 +6923,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/laundry-color-mistake-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 29.04,
+        "bytes": 232556,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013865,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "laundry-color-mistake-01-b1-b2",
       "sceneImageId": "laundry-color-mistake-01",
       "sceneImageFile": "../scene-images/images/laundry-color-mistake-01.png",
       "title": "The Pink Shirt",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -6345,14 +7021,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/laundry-color-mistake-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 38.71,
+        "bytes": 309932,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.018482,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "laundry-color-mistake-01-c1",
       "sceneImageId": "laundry-color-mistake-01",
       "sceneImageFile": "../scene-images/images/laundry-color-mistake-01.png",
       "title": "The Pink Shirt",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -6429,14 +7118,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/laundry-color-mistake-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 52.51,
+        "bytes": 420332,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.02507,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "morning-rush-family-01-a1-a2",
       "sceneImageId": "morning-rush-family-01",
       "sceneImageFile": "../scene-images/images/morning-rush-family-01.png",
       "title": "The Missing Shoe",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -6509,14 +7211,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/morning-rush-family-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 26.3,
+        "bytes": 210668,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012557,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "morning-rush-family-01-b1-b2",
       "sceneImageId": "morning-rush-family-01",
       "sceneImageFile": "../scene-images/images/morning-rush-family-01.png",
       "title": "The Missing Shoe",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -6594,14 +7309,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/morning-rush-family-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 32.11,
+        "bytes": 257132,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.01533,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "morning-rush-family-01-c1",
       "sceneImageId": "morning-rush-family-01",
       "sceneImageFile": "../scene-images/images/morning-rush-family-01.png",
       "title": "The Missing Shoe",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -6678,14 +7406,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/morning-rush-family-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 47.09,
+        "bytes": 376940,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022482,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "messy-room-tidy-room-01-a1-a2",
       "sceneImageId": "messy-room-tidy-room-01",
       "sceneImageFile": "../scene-images/images/messy-room-tidy-room-01.png",
       "title": "Tidying My Room",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -6722,14 +7463,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/messy-room-tidy-room-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 22.06,
+        "bytes": 176684,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.010532,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "messy-room-tidy-room-01-b1-b2",
       "sceneImageId": "messy-room-tidy-room-01",
       "sceneImageFile": "../scene-images/images/messy-room-tidy-room-01.png",
       "title": "Tidying My Room",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -6766,14 +7520,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/messy-room-tidy-room-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 28.22,
+        "bytes": 226028,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013473,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "messy-room-tidy-room-01-c1",
       "sceneImageId": "messy-room-tidy-room-01",
       "sceneImageFile": "../scene-images/images/messy-room-tidy-room-01.png",
       "title": "Tidying My Room",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -6809,14 +7576,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/messy-room-tidy-room-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 46.3,
+        "bytes": 370604,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022105,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "family-dinner-table-01-a1-a2",
       "sceneImageId": "family-dinner-table-01",
       "sceneImageFile": "../scene-images/images/family-dinner-table-01.png",
       "title": "Family Dinner",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -6907,14 +7687,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/family-dinner-table-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 22.58,
+        "bytes": 180908,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.010781,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "family-dinner-table-01-b1-b2",
       "sceneImageId": "family-dinner-table-01",
       "sceneImageFile": "../scene-images/images/family-dinner-table-01.png",
       "title": "Family Dinner",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -7010,14 +7803,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/family-dinner-table-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 34.25,
+        "bytes": 274220,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016352,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "family-dinner-table-01-c1",
       "sceneImageId": "family-dinner-table-01",
       "sceneImageFile": "../scene-images/images/family-dinner-table-01.png",
       "title": "Family Dinner",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -7112,14 +7918,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/family-dinner-table-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 46.2,
+        "bytes": 369836,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022058,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "group-project-library-01-a1-a2",
       "sceneImageId": "group-project-library-01",
       "sceneImageFile": "../scene-images/images/group-project-library-01.png",
       "title": "The Group Project",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -7204,14 +8023,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/group-project-library-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 23.66,
+        "bytes": 189548,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011296,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "group-project-library-01-b1-b2",
       "sceneImageId": "group-project-library-01",
       "sceneImageFile": "../scene-images/images/group-project-library-01.png",
       "title": "The Group Project",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -7301,14 +8133,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/group-project-library-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 34.92,
+        "bytes": 279596,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016672,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "group-project-library-01-c1",
       "sceneImageId": "group-project-library-01",
       "sceneImageFile": "../scene-images/images/group-project-library-01.png",
       "title": "The Group Project",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -7397,14 +8242,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/group-project-library-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 48.17,
+        "bytes": 385580,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022998,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "forgotten-homework-01-a1-a2",
       "sceneImageId": "forgotten-homework-01",
       "sceneImageFile": "../scene-images/images/forgotten-homework-01.png",
       "title": "The Forgotten Homework",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -7477,14 +8335,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/forgotten-homework-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 26.66,
+        "bytes": 213548,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012728,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "forgotten-homework-01-b1-b2",
       "sceneImageId": "forgotten-homework-01",
       "sceneImageFile": "../scene-images/images/forgotten-homework-01.png",
       "title": "The Forgotten Homework",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -7562,14 +8433,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/forgotten-homework-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 35.04,
+        "bytes": 280556,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016729,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "forgotten-homework-01-c1",
       "sceneImageId": "forgotten-homework-01",
       "sceneImageFile": "../scene-images/images/forgotten-homework-01.png",
       "title": "The Forgotten Homework",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -7646,14 +8530,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/forgotten-homework-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 50.95,
+        "bytes": 407852,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.024325,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "science-project-spill-01-a1-a2",
       "sceneImageId": "science-project-spill-01",
       "sceneImageFile": "../scene-images/images/science-project-spill-01.png",
       "title": "The Lab Spill",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -7737,14 +8634,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/science-project-spill-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 29.11,
+        "bytes": 233132,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013898,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "science-project-spill-01-b1-b2",
       "sceneImageId": "science-project-spill-01",
       "sceneImageFile": "../scene-images/images/science-project-spill-01.png",
       "title": "The Lab Spill",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -7828,14 +8738,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/science-project-spill-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 43.25,
+        "bytes": 346220,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.020649,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "science-project-spill-01-c1",
       "sceneImageId": "science-project-spill-01",
       "sceneImageFile": "../scene-images/images/science-project-spill-01.png",
       "title": "The Lab Spill",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -7918,14 +8841,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/science-project-spill-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 50.52,
+        "bytes": 404396,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.02412,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-backpack-01-a1-a2",
       "sceneImageId": "empty-full-backpack-01",
       "sceneImageFile": "../scene-images/images/empty-full-backpack-01.png",
       "title": "Packing My Backpack",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -7962,14 +8898,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/empty-full-backpack-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 18.98,
+        "bytes": 152108,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.009062,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-backpack-01-b1-b2",
       "sceneImageId": "empty-full-backpack-01",
       "sceneImageFile": "../scene-images/images/empty-full-backpack-01.png",
       "title": "Packing My Backpack",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -8006,14 +8955,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/empty-full-backpack-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 29.26,
+        "bytes": 234284,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.01397,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-backpack-01-c1",
       "sceneImageId": "empty-full-backpack-01",
       "sceneImageFile": "../scene-images/images/empty-full-backpack-01.png",
       "title": "Packing My Backpack",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -8049,14 +9011,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/empty-full-backpack-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 37.49,
+        "bytes": 300140,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017899,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "classroom-presentation-01-a1-a2",
       "sceneImageId": "classroom-presentation-01",
       "sceneImageFile": "../scene-images/images/classroom-presentation-01.png",
       "title": "Saving The Planet",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -8140,14 +9115,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/classroom-presentation-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 29.4,
+        "bytes": 235436,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.014037,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "classroom-presentation-01-b1-b2",
       "sceneImageId": "classroom-presentation-01",
       "sceneImageFile": "../scene-images/images/classroom-presentation-01.png",
       "title": "Saving The Planet",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -8231,14 +9219,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/classroom-presentation-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 40.44,
+        "bytes": 323756,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.019308,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "classroom-presentation-01-c1",
       "sceneImageId": "classroom-presentation-01",
       "sceneImageFile": "../scene-images/images/classroom-presentation-01.png",
       "title": "Saving The Planet",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -8321,14 +9322,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/classroom-presentation-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 56.23,
+        "bytes": 450092,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.026846,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "restaurant-reservation-mixup-01-a1-a2",
       "sceneImageId": "restaurant-reservation-mixup-01",
       "sceneImageFile": "../scene-images/images/restaurant-reservation-mixup-01.png",
       "title": "The Missing Reservation",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -8407,14 +9421,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/restaurant-reservation-mixup-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 27.89,
+        "bytes": 223340,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013316,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "restaurant-reservation-mixup-01-b1-b2",
       "sceneImageId": "restaurant-reservation-mixup-01",
       "sceneImageFile": "../scene-images/images/restaurant-reservation-mixup-01.png",
       "title": "The Missing Reservation",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -8493,14 +9520,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/restaurant-reservation-mixup-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 35.33,
+        "bytes": 282860,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016868,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "restaurant-reservation-mixup-01-c1",
       "sceneImageId": "restaurant-reservation-mixup-01",
       "sceneImageFile": "../scene-images/images/restaurant-reservation-mixup-01.png",
       "title": "The Missing Reservation",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -8578,14 +9618,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/restaurant-reservation-mixup-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 47.26,
+        "bytes": 378284,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022564,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "spilled-soup-restaurant-01-a1-a2",
       "sceneImageId": "spilled-soup-restaurant-01",
       "sceneImageFile": "../scene-images/images/spilled-soup-restaurant-01.png",
       "title": "The Spilled Soup",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -8658,14 +9711,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/spilled-soup-restaurant-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.13,
+        "bytes": 201260,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011998,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "spilled-soup-restaurant-01-b1-b2",
       "sceneImageId": "spilled-soup-restaurant-01",
       "sceneImageFile": "../scene-images/images/spilled-soup-restaurant-01.png",
       "title": "The Spilled Soup",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -8743,14 +9809,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/spilled-soup-restaurant-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 35.35,
+        "bytes": 283052,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016877,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "spilled-soup-restaurant-01-c1",
       "sceneImageId": "spilled-soup-restaurant-01",
       "sceneImageFile": "../scene-images/images/spilled-soup-restaurant-01.png",
       "title": "The Spilled Soup",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -8827,14 +9906,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/spilled-soup-restaurant-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 45.0,
+        "bytes": 360236,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.021485,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "ordering-with-allergy-01-a1-a2",
       "sceneImageId": "ordering-with-allergy-01",
       "sceneImageFile": "../scene-images/images/ordering-with-allergy-01.png",
       "title": "A Food Allergy",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -8907,14 +9999,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/ordering-with-allergy-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 27.1,
+        "bytes": 217004,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012939,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "ordering-with-allergy-01-b1-b2",
       "sceneImageId": "ordering-with-allergy-01",
       "sceneImageFile": "../scene-images/images/ordering-with-allergy-01.png",
       "title": "A Food Allergy",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -8987,14 +10092,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/ordering-with-allergy-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 34.1,
+        "bytes": 273068,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016281,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "ordering-with-allergy-01-c1",
       "sceneImageId": "ordering-with-allergy-01",
       "sceneImageFile": "../scene-images/images/ordering-with-allergy-01.png",
       "title": "A Food Allergy",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -9066,14 +10184,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/ordering-with-allergy-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 45.86,
+        "bytes": 367148,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.021895,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-plate-01-a1-a2",
       "sceneImageId": "empty-full-plate-01",
       "sceneImageFile": "../scene-images/images/empty-full-plate-01.png",
       "title": "Waiting For My Meal",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -9110,14 +10241,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/empty-full-plate-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 20.81,
+        "bytes": 166700,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.009935,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-plate-01-b1-b2",
       "sceneImageId": "empty-full-plate-01",
       "sceneImageFile": "../scene-images/images/empty-full-plate-01.png",
       "title": "Waiting For My Meal",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -9154,14 +10298,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/empty-full-plate-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 24.98,
+        "bytes": 200108,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011926,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-full-plate-01-c1",
       "sceneImageId": "empty-full-plate-01",
       "sceneImageFile": "../scene-images/images/empty-full-plate-01.png",
       "title": "Waiting For My Meal",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -9197,14 +10354,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/empty-full-plate-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 46.06,
+        "bytes": 368684,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.021991,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "busy-restaurant-table-01-a1-a2",
       "sceneImageId": "busy-restaurant-table-01",
       "sceneImageFile": "../scene-images/images/busy-restaurant-table-01.png",
       "title": "Ordering Dinner",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -9295,14 +10465,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/busy-restaurant-table-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 22.22,
+        "bytes": 178028,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.010609,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "busy-restaurant-table-01-b1-b2",
       "sceneImageId": "busy-restaurant-table-01",
       "sceneImageFile": "../scene-images/images/busy-restaurant-table-01.png",
       "title": "Ordering Dinner",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -9398,14 +10581,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/busy-restaurant-table-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 32.69,
+        "bytes": 261740,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015607,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "busy-restaurant-table-01-c1",
       "sceneImageId": "busy-restaurant-table-01",
       "sceneImageFile": "../scene-images/images/busy-restaurant-table-01.png",
       "title": "Ordering Dinner",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -9500,14 +10696,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/busy-restaurant-table-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 43.08,
+        "bytes": 344876,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.020568,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "library-card-help-01-a1-a2",
       "sceneImageId": "library-card-help-01",
       "sceneImageFile": "../scene-images/images/library-card-help-01.png",
       "title": "A New Library Card",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -9580,14 +10789,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/library-card-help-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.66,
+        "bytes": 205484,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012251,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "library-card-help-01-b1-b2",
       "sceneImageId": "library-card-help-01",
       "sceneImageFile": "../scene-images/images/library-card-help-01.png",
       "title": "A New Library Card",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -9665,14 +10887,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/library-card-help-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 34.68,
+        "bytes": 277676,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016557,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "library-card-help-01-c1",
       "sceneImageId": "library-card-help-01",
       "sceneImageFile": "../scene-images/images/library-card-help-01.png",
       "title": "A New Library Card",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -9749,14 +10984,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/library-card-help-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 47.45,
+        "bytes": 379820,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022654,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "park-cleanup-01-a1-a2",
       "sceneImageId": "park-cleanup-01",
       "sceneImageFile": "../scene-images/images/park-cleanup-01.png",
       "title": "Cleaning The Park",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -9847,14 +11095,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/park-cleanup-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 25.01,
+        "bytes": 200300,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011941,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "park-cleanup-01-b1-b2",
       "sceneImageId": "park-cleanup-01",
       "sceneImageFile": "../scene-images/images/park-cleanup-01.png",
       "title": "Cleaning The Park",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -9950,14 +11211,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/park-cleanup-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 36.0,
+        "bytes": 288236,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017188,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "park-cleanup-01-c1",
       "sceneImageId": "park-cleanup-01",
       "sceneImageFile": "../scene-images/images/park-cleanup-01.png",
       "title": "Cleaning The Park",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -10052,14 +11326,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/park-cleanup-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 48.24,
+        "bytes": 386156,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023032,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "post-office-package-01-a1-a2",
       "sceneImageId": "post-office-package-01",
       "sceneImageFile": "../scene-images/images/post-office-package-01.png",
       "title": "Mailing A Package",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -10137,14 +11424,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/post-office-package-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 24.72,
+        "bytes": 197996,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.011802,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "post-office-package-01-b1-b2",
       "sceneImageId": "post-office-package-01",
       "sceneImageFile": "../scene-images/images/post-office-package-01.png",
       "title": "Mailing A Package",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -10222,14 +11522,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/post-office-package-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 34.37,
+        "bytes": 275180,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.016409,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "post-office-package-01-c1",
       "sceneImageId": "post-office-package-01",
       "sceneImageFile": "../scene-images/images/post-office-package-01.png",
       "title": "Mailing A Package",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -10306,14 +11619,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/post-office-package-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 45.77,
+        "bytes": 366380,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.021852,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-busy-playground-01-a1-a2",
       "sceneImageId": "empty-busy-playground-01",
       "sceneImageFile": "../scene-images/images/empty-busy-playground-01.png",
       "title": "The Playground Fills Up",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -10392,14 +11718,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/empty-busy-playground-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 26.33,
+        "bytes": 210860,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012571,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-busy-playground-01-b1-b2",
       "sceneImageId": "empty-busy-playground-01",
       "sceneImageFile": "../scene-images/images/empty-busy-playground-01.png",
       "title": "The Playground Fills Up",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -10478,14 +11817,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/empty-busy-playground-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 35.69,
+        "bytes": 285740,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.01704,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "empty-busy-playground-01-c1",
       "sceneImageId": "empty-busy-playground-01",
       "sceneImageFile": "../scene-images/images/empty-busy-playground-01.png",
       "title": "The Playground Fills Up",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -10568,14 +11920,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/empty-busy-playground-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 47.59,
+        "bytes": 380972,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.022721,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "community-garden-01-a1-a2",
       "sceneImageId": "community-garden-01",
       "sceneImageFile": "../scene-images/images/community-garden-01.png",
       "title": "In The Community Garden",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -10660,14 +12025,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/community-garden-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 26.21,
+        "bytes": 209900,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012514,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "community-garden-01-b1-b2",
       "sceneImageId": "community-garden-01",
       "sceneImageFile": "../scene-images/images/community-garden-01.png",
       "title": "In The Community Garden",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -10757,14 +12135,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/community-garden-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 37.61,
+        "bytes": 301100,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017956,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "community-garden-01-c1",
       "sceneImageId": "community-garden-01",
       "sceneImageFile": "../scene-images/images/community-garden-01.png",
       "title": "In The Community Garden",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -10853,14 +12244,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/community-garden-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 48.31,
+        "bytes": 386732,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023065,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "video-call-problem-01-a1-a2",
       "sceneImageId": "video-call-problem-01",
       "sceneImageFile": "../scene-images/images/video-call-problem-01.png",
       "title": "The Frozen Call",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -10939,14 +12343,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/video-call-problem-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 33.38,
+        "bytes": 267308,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015937,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "video-call-problem-01-b1-b2",
       "sceneImageId": "video-call-problem-01",
       "sceneImageFile": "../scene-images/images/video-call-problem-01.png",
       "title": "The Frozen Call",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -11030,14 +12447,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/video-call-problem-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 38.16,
+        "bytes": 305516,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.018219,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "video-call-problem-01-c1",
       "sceneImageId": "video-call-problem-01",
       "sceneImageFile": "../scene-images/images/video-call-problem-01.png",
       "title": "The Frozen Call",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -11120,14 +12550,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/video-call-problem-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 50.4,
+        "bytes": 403436,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.024063,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "calendar-mistake-01-a1-a2",
       "sceneImageId": "calendar-mistake-01",
       "sceneImageFile": "../scene-images/images/calendar-mistake-01.png",
       "title": "The Wrong Day",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -11200,14 +12643,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/calendar-mistake-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 28.61,
+        "bytes": 229100,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.013659,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "calendar-mistake-01-b1-b2",
       "sceneImageId": "calendar-mistake-01",
       "sceneImageFile": "../scene-images/images/calendar-mistake-01.png",
       "title": "The Wrong Day",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -11285,14 +12741,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/calendar-mistake-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 36.89,
+        "bytes": 295340,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.017613,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "calendar-mistake-01-c1",
       "sceneImageId": "calendar-mistake-01",
       "sceneImageFile": "../scene-images/images/calendar-mistake-01.png",
       "title": "The Wrong Day",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -11369,14 +12838,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/calendar-mistake-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 48.77,
+        "bytes": 390380,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.023285,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "online-form-help-01-a1-a2",
       "sceneImageId": "online-form-help-01",
       "sceneImageFile": "../scene-images/images/online-form-help-01.png",
       "title": "Filling In The Form",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -11454,14 +12936,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/online-form-help-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 32.09,
+        "bytes": 256940,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.015321,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "online-form-help-01-b1-b2",
       "sceneImageId": "online-form-help-01",
       "sceneImageFile": "../scene-images/images/online-form-help-01.png",
       "title": "Filling In The Form",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -11539,14 +13034,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/online-form-help-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 41.04,
+        "bytes": 328556,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.019594,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "online-form-help-01-c1",
       "sceneImageId": "online-form-help-01",
       "sceneImageFile": "../scene-images/images/online-form-help-01.png",
       "title": "Filling In The Form",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -11623,14 +13131,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/online-form-help-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 53.23,
+        "bytes": 426092,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.025414,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "dead-charged-phone-01-a1-a2",
       "sceneImageId": "dead-charged-phone-01",
       "sceneImageFile": "../scene-images/images/dead-charged-phone-01.png",
       "title": "My Phone Is Dead",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -11667,14 +13188,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/dead-charged-phone-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 22.97,
+        "bytes": 183980,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.010967,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "dead-charged-phone-01-b1-b2",
       "sceneImageId": "dead-charged-phone-01",
       "sceneImageFile": "../scene-images/images/dead-charged-phone-01.png",
       "title": "My Phone Is Dead",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -11711,14 +13245,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/dead-charged-phone-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 30.1,
+        "bytes": 241004,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.014371,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "dead-charged-phone-01-c1",
       "sceneImageId": "dead-charged-phone-01",
       "sceneImageFile": "../scene-images/images/dead-charged-phone-01.png",
       "title": "My Phone Is Dead",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -11754,14 +13301,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/dead-charged-phone-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 42.17,
+        "bytes": 337580,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.020133,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "appointment-confirmation-01-a1-a2",
       "sceneImageId": "appointment-confirmation-01",
       "sceneImageFile": "../scene-images/images/appointment-confirmation-01.png",
       "title": "Everything Is Ready",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -11798,14 +13358,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/a1-a2/appointment-confirmation-01-a1-a2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 21.98,
+        "bytes": 176108,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.010494,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "appointment-confirmation-01-b1-b2",
       "sceneImageId": "appointment-confirmation-01",
       "sceneImageFile": "../scene-images/images/appointment-confirmation-01.png",
       "title": "Everything Is Ready",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -11842,14 +13415,27 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/b1-b2/appointment-confirmation-01-b1-b2.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 26.98,
+        "bytes": 216044,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.012881,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     },
     {
       "id": "appointment-confirmation-01-c1",
       "sceneImageId": "appointment-confirmation-01",
       "sceneImageFile": "../scene-images/images/appointment-confirmation-01.png",
       "title": "Everything Is Ready",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -11885,7 +13471,20 @@
       "qaNotes": [
         "Rewritten as a leveled, character-driven scene tied to the visible image.",
         "No panel numbers or meta phrases (image, learner, listener) are spoken."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "file": "audio/c1/appointment-confirmation-01-c1.mp3",
+        "format": "mp3",
+        "bitrateKbps": 64,
+        "durationSeconds": 40.97,
+        "bytes": 327980,
+        "generatedAt": "2026-07-09",
+        "voiceStrategy": "turn_by_turn_concatenation",
+        "estimatedCostUsd": 0.019561,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+      }
     }
   ]
 }

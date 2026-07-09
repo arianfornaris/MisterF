@@ -5,14 +5,14 @@ export const builtInSceneMediaItems =
 [
   {
     "audio": {
-      "durationSeconds": 13.46,
+      "durationSeconds": 24.29,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "airport-security-line-01-a1-a2",
     "image": {
-      "alt": "Airport Security Line. Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security.",
+      "alt": "Airport Security Line. Travelers move through an airport security line, placing bags in bins as an officer directs them.",
       "height": 1024,
       "mediaId": "airport-security-line-01",
       "source": "built_in",
@@ -21,8 +21,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Jon stood in the airport security line with his backpack. He was worried because the line moved fast. A worker showed him where to put his shoes and bag. Jon followed the steps and reached his gate on time."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Officer Dawn",
+          "text": "Next, please. Put your bag in the box."
+        },
+        {
+          "speaker": "Ben",
+          "text": "Okay. Do I take off my shoes?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "Yes. Shoes and jacket in the box, too."
+        },
+        {
+          "speaker": "Lena",
+          "text": "And the teddy bear? My son is a little worried."
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "The teddy can go through, too. He comes back on the other side."
+        },
+        {
+          "speaker": "Sammy",
+          "text": "Okay. See you soon, Teddy!"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "Good job! Now walk through, please."
+        }
+      ]
     },
     "setting": "airport-security",
     "skills": [
@@ -32,9 +61,9 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "travel_and_transport",
+      "following_instructions",
+      "imperatives"
     ],
     "source": "built_in",
     "status": "ready",
@@ -47,7 +76,7 @@ export const builtInSceneMediaItems =
       "scanner",
       "routine"
     ],
-    "title": "Airport Security Line - Simple Story",
+    "title": "Through Security",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -57,19 +86,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "airport-security-line-01",
     "visualSummary": [
-      "Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security."
+      "Travelers move through an airport security line, placing bags in bins as an officer directs them."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 23.3,
+      "durationSeconds": 36.48,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/airport-security-line-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "airport-security-line-01-b1-b2",
     "image": {
-      "alt": "Airport Security Line. Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security.",
+      "alt": "Airport Security Line. Travelers move through an airport security line, placing bags in bins as an officer directs them.",
       "height": 1024,
       "mediaId": "airport-security-line-01",
       "source": "built_in",
@@ -78,8 +107,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Jon had flown before, but airport security still made him nervous. The line moved quickly, and everyone seemed to know what to do. When he hesitated with his backpack, a staff member pointed to an empty tray and gave simple directions. Jon placed his things inside, walked through the scanner, and collected everything on the other side. He reached his gate with enough time to buy water."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Officer Dawn",
+          "text": "Good morning. Please place your bag, laptop, and jacket in separate trays."
+        },
+        {
+          "speaker": "Ben",
+          "text": "Sure. Should my shoes go in as well?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "Yes, shoes and belt too, please. Empty your pockets into the tray."
+        },
+        {
+          "speaker": "Lena",
+          "text": "My son doesn't want to let go of his teddy bear. Is that alright?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "Of course. We'll send Teddy through the machine, and he'll be waiting right here for him."
+        },
+        {
+          "speaker": "Sammy",
+          "text": "Will Teddy be scared?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "Not at all — he's very brave. Off he goes… and here he is again, safe and sound."
+        },
+        {
+          "speaker": "Sammy",
+          "text": "Thank you!"
+        }
+      ]
     },
     "setting": "airport-security",
     "skills": [
@@ -89,9 +151,9 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "travel_and_transport",
+      "procedures",
+      "reassuring_a_child"
     ],
     "source": "built_in",
     "status": "ready",
@@ -104,7 +166,7 @@ export const builtInSceneMediaItems =
       "scanner",
       "routine"
     ],
-    "title": "Airport Security Line - Everyday Story",
+    "title": "Through Security",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -114,19 +176,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "airport-security-line-01",
     "visualSummary": [
-      "Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security."
+      "Travelers move through an airport security line, placing bags in bins as an officer directs them."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 28.82,
+      "durationSeconds": 49.8,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/airport-security-line-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "airport-security-line-01-c1",
     "image": {
-      "alt": "Airport Security Line. Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security.",
+      "alt": "Airport Security Line. Travelers move through an airport security line, placing bags in bins as an officer directs them.",
       "height": 1024,
       "mediaId": "airport-security-line-01",
       "source": "built_in",
@@ -135,8 +197,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Airport security always made Jon feel as if he were taking a test no one had explained. The people around him removed shoes, opened bags, and moved trays with practiced speed. When he paused, a staff member noticed and guided him with a calm gesture. Jon followed the sequence step by step, then watched his backpack emerge from the scanner. Nothing dramatic happened, which felt like the victory. He left the line more confident than when he had entered it."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Officer Dawn",
+          "text": "Morning, folks. Everything out of your pockets, and please use separate trays for your bag, laptop, and jacket."
+        },
+        {
+          "speaker": "Ben",
+          "text": "No problem. I always forget — do shoes and belts come off as well?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "They do, yes. It speeds things up if the trays aren't overloaded, so spread it out a little."
+        },
+        {
+          "speaker": "Lena",
+          "text": "I should warn you, my son is refusing to part with his teddy bear. Is there any way around that?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "We deal with this a dozen times a day. We'll simply pop Teddy on the belt, he'll take a short ride through the scanner, and he'll be waiting on the other side."
+        },
+        {
+          "speaker": "Sammy",
+          "text": "But what if he gets lost in there?"
+        },
+        {
+          "speaker": "Officer Dawn",
+          "text": "He won't, I promise. See? Out he comes, none the worse for the adventure. You can tell him he passed the test."
+        },
+        {
+          "speaker": "Sammy",
+          "text": "He was very brave!"
+        }
+      ]
     },
     "setting": "airport-security",
     "skills": [
@@ -146,9 +241,9 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "travel_and_transport",
+      "procedures",
+      "handling_a_worried_child"
     ],
     "source": "built_in",
     "status": "ready",
@@ -161,7 +256,7 @@ export const builtInSceneMediaItems =
       "scanner",
       "routine"
     ],
-    "title": "Airport Security Line - Nuanced Story",
+    "title": "Through Security",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -171,19 +266,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "airport-security-line-01",
     "visualSummary": [
-      "Travelers place bags in trays, remove shoes, wait in line, and follow a staff member's gesture near airport security."
+      "Travelers move through an airport security line, placing bags in bins as an officer directs them."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 12.22,
+      "durationSeconds": 21.98,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/appointment-confirmation-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "appointment-confirmation-01-a1-a2",
     "image": {
-      "alt": "Appointment Confirmation. A person confirms an appointment on a device at home.",
+      "alt": "Appointment Confirmation. A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop.",
       "height": 1024,
       "mediaId": "appointment-confirmation-01",
       "source": "built_in",
@@ -192,8 +287,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Marta sat at the kitchen table and checked her phone. Her appointment was tomorrow morning. She pressed confirm and wrote the time on a paper. Then she put her keys beside the door so she would be ready."
+      "scriptType": "monologue",
+      "text": "Let me check my appointment for tomorrow. I open the app on my phone. Yes! There is a green check. My appointment is confirmed for ten o'clock. I write it in my notebook too. Now I won't forget. My keys are ready by the door. I feel organized and calm. Everything is ready for tomorrow!"
     },
     "setting": "home-kitchen-table",
     "skills": [
@@ -201,9 +296,9 @@ export const builtInSceneMediaItems =
       "confirmation",
       "device",
       "calendar",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "technology",
+      "appointments",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -213,7 +308,7 @@ export const builtInSceneMediaItems =
       "device",
       "calendar"
     ],
-    "title": "Appointment Confirmation - Simple Story",
+    "title": "Everything Is Ready",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -223,19 +318,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "appointment-confirmation-01",
     "visualSummary": [
-      "A person confirms an appointment on a device at home."
+      "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 22.54,
+      "durationSeconds": 26.98,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/appointment-confirmation-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "appointment-confirmation-01-b1-b2",
     "image": {
-      "alt": "Appointment Confirmation. A person confirms an appointment on a device at home.",
+      "alt": "Appointment Confirmation. A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop.",
       "height": 1024,
       "mediaId": "appointment-confirmation-01",
       "source": "built_in",
@@ -244,8 +339,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Marta almost ignored the appointment message because she was making dinner. Then she remembered missing an appointment once before. She sat at the table, read the time carefully, and pressed confirm. After that, she wrote the address on a paper and placed her keys near the door. The next morning would still be busy, but one important thing was already prepared."
+      "scriptType": "monologue",
+      "text": "I like to double-check my appointments the day before, just to be safe. I open the app on my phone, and there it is — a big green tick next to tomorrow at ten o'clock. Confirmed! To be extra careful, I write it in my notebook and set an alarm as a backup. My keys are already by the door, ready to go. There's something satisfying about being this organized. Tomorrow-me will thank today-me for doing the boring part now."
     },
     "setting": "home-kitchen-table",
     "skills": [
@@ -253,9 +348,9 @@ export const builtInSceneMediaItems =
       "confirmation",
       "device",
       "calendar",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "technology",
+      "planning_ahead",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -265,7 +360,7 @@ export const builtInSceneMediaItems =
       "device",
       "calendar"
     ],
-    "title": "Appointment Confirmation - Everyday Story",
+    "title": "Everything Is Ready",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -275,19 +370,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "appointment-confirmation-01",
     "visualSummary": [
-      "A person confirms an appointment on a device at home."
+      "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 30.1,
+      "durationSeconds": 40.97,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/appointment-confirmation-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "appointment-confirmation-01-c1",
     "image": {
-      "alt": "Appointment Confirmation. A person confirms an appointment on a device at home.",
+      "alt": "Appointment Confirmation. A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop.",
       "height": 1024,
       "mediaId": "appointment-confirmation-01",
       "source": "built_in",
@@ -296,8 +391,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Marta was in the middle of an ordinary evening when the appointment reminder appeared. In the past, she might have trusted herself to remember it later, which usually meant remembering too late. This time, she stopped what she was doing, confirmed the appointment, wrote down the time, and placed her keys where she would see them in the morning. Nothing dramatic happened, and that was the point. A quiet decision at the kitchen table protected tomorrow from unnecessary stress."
+      "scriptType": "monologue",
+      "text": "I've become slightly obsessive about confirming appointments, and I make no apology for it. The evening before, I open the app, and there's the little green tick beside tomorrow's ten o'clock slot — confirmed, official, no room for doubt. Just to be thorough, I jot it in my notebook, set an alarm, and leave my keys by the door so morning-me has nothing to think about. Some people find this level of planning excessive, but I've missed enough appointments in my life to know the alternative. There's a quiet pleasure in closing the day knowing tomorrow is already handled — that whatever chaos arrives, at least this one thing will go exactly as it should."
     },
     "setting": "home-kitchen-table",
     "skills": [
@@ -305,9 +400,9 @@ export const builtInSceneMediaItems =
       "confirmation",
       "device",
       "calendar",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "technology",
+      "planning_ahead",
+      "reflection"
     ],
     "source": "built_in",
     "status": "ready",
@@ -317,7 +412,7 @@ export const builtInSceneMediaItems =
       "device",
       "calendar"
     ],
-    "title": "Appointment Confirmation - Nuanced Story",
+    "title": "Everything Is Ready",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -327,12 +422,12 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "appointment-confirmation-01",
     "visualSummary": [
-      "A person confirms an appointment on a device at home."
+      "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.82,
+      "durationSeconds": 19.82,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/before-after-resting-01-a1-a2.mp3"
     },
@@ -348,8 +443,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Marco came home tired and quiet. He wanted to finish many chores, but his body needed a break. He rested on the sofa and drank water. After a short time, he felt better and made dinner slowly."
+      "scriptType": "monologue",
+      "text": "Ugh, I feel terrible today. My head hurts and my nose is blocked. I don't want to work. I make a cup of tea and sit on the sofa. I rest all afternoon. Now it is evening. I drink some water. I feel much better! Tomorrow I can go outside again."
     },
     "setting": "home-living-room",
     "skills": [
@@ -359,9 +454,9 @@ export const builtInSceneMediaItems =
       "feelings",
       "self-care",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "health_and_recovery",
+      "self_care",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -374,7 +469,7 @@ export const builtInSceneMediaItems =
       "water",
       "before-after"
     ],
-    "title": "Before And After Resting - Simple Story",
+    "title": "A Day Of Rest",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -390,7 +485,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 24.17,
+      "durationSeconds": 29.09,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/before-after-resting-01-b1-b2.mp3"
     },
@@ -406,8 +501,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Marco came home with a headache and a long list of things to do. He almost started cleaning right away, but he noticed he was moving too slowly to do anything well. He sat on the sofa, closed his eyes, and drank a glass of water. After twenty minutes, the room looked the same, but Marco did not. He made dinner calmly and saved the chores for later."
+      "scriptType": "monologue",
+      "text": "This morning I felt awful. My whole body ached, and I couldn't stop coughing. At first I wanted to push through and keep working, but I decided to stop and take care of myself instead. I stayed on the sofa with a warm blanket, drank plenty of tea, and slept for a while. It's amazing what a little rest can do. By the evening my headache was gone, and I finally had some energy again. Sometimes the best medicine is simply slowing down."
     },
     "setting": "home-living-room",
     "skills": [
@@ -417,9 +512,9 @@ export const builtInSceneMediaItems =
       "feelings",
       "self-care",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "health_and_recovery",
+      "self_care",
+      "past_and_present"
     ],
     "source": "built_in",
     "status": "ready",
@@ -432,7 +527,7 @@ export const builtInSceneMediaItems =
       "water",
       "before-after"
     ],
-    "title": "Before And After Resting - Everyday Story",
+    "title": "A Day Of Rest",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -448,7 +543,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 33.05,
+      "durationSeconds": 49.34,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/before-after-resting-01-c1.mp3"
     },
@@ -464,8 +559,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Marco was proud of being useful, which is why resting felt strangely difficult. He came home exhausted, saw the laundry basket, and immediately felt guilty. Then he caught himself staring at the same sock for almost a minute. Instead of forcing his way through the evening, he sat down, drank water, and allowed the day to slow. The pause did not erase his responsibilities, but it changed his relationship to them. When he stood up again, he chose one small task and did it well."
+      "scriptType": "monologue",
+      "text": "I'll admit it — I'm terrible at resting. This morning I woke up aching all over, with a stubborn cough and no energy at all, and my first instinct was to ignore it and carry on as usual. But for once I actually listened to my body. I wrapped myself in a blanket, kept a mug of tea within reach, and let myself do absolutely nothing for a few hours. It felt strangely difficult, as if slowing down were somehow a waste of time. By evening, though, the difference was remarkable: the fog in my head had lifted, my throat felt easier, and I even started looking forward to tomorrow. I keep relearning the same lesson — rest isn't laziness, it's how the body quietly repairs itself."
     },
     "setting": "home-living-room",
     "skills": [
@@ -475,9 +570,9 @@ export const builtInSceneMediaItems =
       "feelings",
       "self-care",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "health_and_recovery",
+      "reflection",
+      "discourse_markers"
     ],
     "source": "built_in",
     "status": "ready",
@@ -490,7 +585,7 @@ export const builtInSceneMediaItems =
       "water",
       "before-after"
     ],
-    "title": "Before And After Resting - Nuanced Story",
+    "title": "A Day Of Rest",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -506,14 +601,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 15.41,
+      "durationSeconds": 22.22,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/busy-restaurant-table-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "busy-restaurant-table-01-a1-a2",
     "image": {
-      "alt": "Busy Restaurant Table. People eat, serve, pour, pass food, and talk at a restaurant table.",
+      "alt": "Busy Restaurant Table. A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken.",
       "height": 1024,
       "mediaId": "busy-restaurant-table-01",
       "source": "built_in",
@@ -522,8 +617,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "The table was busy with plates, drinks, and many hands. Leo could not reach the bread. His cousin passed it to him and poured water for their aunt. Everyone talked, shared food, and left the restaurant smiling."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Maya",
+          "text": "Good evening! Are you ready to order?"
+        },
+        {
+          "speaker": "Lea",
+          "text": "Yes. Can we have the pasta and the chicken, please?"
+        },
+        {
+          "speaker": "Sam",
+          "text": "And some water for the table, please."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Can I have pasta too? I love pasta!"
+        },
+        {
+          "speaker": "Maya",
+          "text": "Of course. And for the little girl?"
+        },
+        {
+          "speaker": "Ada",
+          "text": "Chicken, please! And bread."
+        },
+        {
+          "speaker": "Maya",
+          "text": "Great. I'll bring it soon."
+        }
+      ]
     },
     "setting": "restaurant-table",
     "skills": [
@@ -532,9 +656,8 @@ export const builtInSceneMediaItems =
       "present",
       "continuous",
       "people",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "ordering_food",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -545,7 +668,7 @@ export const builtInSceneMediaItems =
       "continuous",
       "people"
     ],
-    "title": "Busy Restaurant Table - Simple Story",
+    "title": "Ordering Dinner",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -555,19 +678,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "busy-restaurant-table-01",
     "visualSummary": [
-      "People eat, serve, pour, pass food, and talk at a restaurant table."
+      "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 26.5,
+      "durationSeconds": 32.69,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/busy-restaurant-table-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "busy-restaurant-table-01-b1-b2",
     "image": {
-      "alt": "Busy Restaurant Table. People eat, serve, pour, pass food, and talk at a restaurant table.",
+      "alt": "Busy Restaurant Table. A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken.",
       "height": 1024,
       "mediaId": "busy-restaurant-table-01",
       "source": "built_in",
@@ -576,8 +699,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "At first, the restaurant table felt too crowded. Plates arrived, glasses moved, and everyone talked at the same time. Leo wanted bread but could not reach it, so his cousin passed the basket across the table. That small action started a chain: someone poured water, someone shared salad, and someone made room for dessert. The table stayed busy, but it became friendly instead of confusing."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Maya",
+          "text": "Good evening, everyone! Have you decided what you'd like?"
+        },
+        {
+          "speaker": "Lea",
+          "text": "I think so. We'll have the pasta and the grilled chicken to share."
+        },
+        {
+          "speaker": "Sam",
+          "text": "And a big jug of water for the table, please."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Can I get my own plate of pasta? I'm really hungry."
+        },
+        {
+          "speaker": "Maya",
+          "text": "Absolutely. And what about you, young lady?"
+        },
+        {
+          "speaker": "Ada",
+          "text": "Chicken and lots of bread, please!"
+        },
+        {
+          "speaker": "Maya",
+          "text": "Perfect choices. I'll get everything started for you."
+        },
+        {
+          "speaker": "Lea",
+          "text": "Thank you. This place is always so busy — it must be good!"
+        }
+      ]
     },
     "setting": "restaurant-table",
     "skills": [
@@ -586,9 +742,8 @@ export const builtInSceneMediaItems =
       "present",
       "continuous",
       "people",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "ordering_food",
+      "family_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -599,7 +754,7 @@ export const builtInSceneMediaItems =
       "continuous",
       "people"
     ],
-    "title": "Busy Restaurant Table - Everyday Story",
+    "title": "Ordering Dinner",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -609,19 +764,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "busy-restaurant-table-01",
     "visualSummary": [
-      "People eat, serve, pour, pass food, and talk at a restaurant table."
+      "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 37.78,
+      "durationSeconds": 43.08,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/busy-restaurant-table-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "busy-restaurant-table-01-c1",
     "image": {
-      "alt": "Busy Restaurant Table. People eat, serve, pour, pass food, and talk at a restaurant table.",
+      "alt": "Busy Restaurant Table. A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken.",
       "height": 1024,
       "mediaId": "busy-restaurant-table-01",
       "source": "built_in",
@@ -630,8 +785,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The restaurant table looked chaotic from a distance: arms crossing, glasses filling, plates arriving, and conversations competing for space. Leo nearly stayed quiet because he could not reach anything without interrupting. Then his cousin noticed and passed the bread. The gesture seemed small, but it changed the rhythm of the meal. People began offering dishes before being asked, making jokes, and making space. The table remained crowded, yet it no longer felt disorganized. It felt like a family learning how to share the same moment."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Maya",
+          "text": "Good evening, all! Quite a full table tonight — have you had a chance to decide?"
+        },
+        {
+          "speaker": "Lea",
+          "text": "We have, more or less. We'll share the pasta and the grilled chicken between us."
+        },
+        {
+          "speaker": "Sam",
+          "text": "And could we get a jug of water for the table? It's thirsty work keeping this lot happy."
+        },
+        {
+          "speaker": "Theo",
+          "text": "Dad, can I have my own pasta though? I don't want to share tonight."
+        },
+        {
+          "speaker": "Maya",
+          "text": "Growing appetite, I see — no problem at all. And for the youngest at the table?"
+        },
+        {
+          "speaker": "Ada",
+          "text": "Chicken, please, and as much bread as you can carry!"
+        },
+        {
+          "speaker": "Maya",
+          "text": "A girl who knows what she wants — I like it. I'll have it out to you shortly."
+        },
+        {
+          "speaker": "Lea",
+          "text": "Thank you. It's chaos, but it's our favourite kind of evening."
+        }
+      ]
     },
     "setting": "restaurant-table",
     "skills": [
@@ -640,9 +828,8 @@ export const builtInSceneMediaItems =
       "present",
       "continuous",
       "people",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "ordering_food",
+      "lively_family_talk"
     ],
     "source": "built_in",
     "status": "ready",
@@ -653,7 +840,7 @@ export const builtInSceneMediaItems =
       "continuous",
       "people"
     ],
-    "title": "Busy Restaurant Table - Nuanced Story",
+    "title": "Ordering Dinner",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -663,19 +850,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "busy-restaurant-table-01",
     "visualSummary": [
-      "People eat, serve, pour, pass food, and talk at a restaurant table."
+      "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.1,
+      "durationSeconds": 28.61,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/calendar-mistake-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "calendar-mistake-01-a1-a2",
     "image": {
-      "alt": "Calendar Mistake. A calendar mistake is noticed and corrected before an appointment.",
+      "alt": "Calendar Mistake. A man compares his phone calendar with the wall calendar. He realizes he wrote the appointment on the wrong day. A friend points at the calendar and helps him find the correct date. He arrives on the right day and waits calmly at the office.",
       "height": 1024,
       "mediaId": "calendar-mistake-01",
       "source": "built_in",
@@ -684,8 +871,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Iris thought her appointment was on Thursday. Then she checked her calendar and saw it was today. She called quickly and changed her plan. Iris arrived on time because she fixed the mistake early."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Tom",
+          "text": "Oh no. I think my appointment is today, but I'm not sure."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Let me see your calendar. Hmm, no. It's not today."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Really? When is it?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "Look here. Your appointment is on Thursday, not Tuesday."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Oh! I made a mistake. Thank you!"
+        },
+        {
+          "speaker": "Andre",
+          "text": "No problem. Now you have two more days."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Great. I feel much better now."
+        }
+      ]
     },
     "setting": "home-and-waiting-room",
     "skills": [
@@ -694,9 +910,9 @@ export const builtInSceneMediaItems =
       "time",
       "mistake",
       "correction",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "technology",
+      "days_and_dates",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -707,7 +923,7 @@ export const builtInSceneMediaItems =
       "mistake",
       "correction"
     ],
-    "title": "Calendar Mistake - Simple Story",
+    "title": "The Wrong Day",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -718,19 +934,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "calendar-mistake-01",
     "visualSummary": [
-      "A calendar mistake is noticed and corrected before an appointment."
+      "A man compares his phone calendar with the wall calendar.",
+      "He realizes he wrote the appointment on the wrong day.",
+      "A friend points at the calendar and helps him find the correct date.",
+      "He arrives on the right day and waits calmly at the office."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.34,
+      "durationSeconds": 36.89,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/calendar-mistake-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "calendar-mistake-01-b1-b2",
     "image": {
-      "alt": "Calendar Mistake. A calendar mistake is noticed and corrected before an appointment.",
+      "alt": "Calendar Mistake. A man compares his phone calendar with the wall calendar. He realizes he wrote the appointment on the wrong day. A friend points at the calendar and helps him find the correct date. He arrives on the right day and waits calmly at the office.",
       "height": 1024,
       "mediaId": "calendar-mistake-01",
       "source": "built_in",
@@ -739,8 +958,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Iris was drinking coffee when a reminder appeared on her phone. She stared at it twice. The appointment she thought was on Thursday was actually that afternoon. For one minute, she panicked. Then she called work, moved one task, and packed her bag. She reached the office with five minutes to spare. The calendar mistake became a warning, not a disaster."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Tom",
+          "text": "I'm confused. I thought my doctor's appointment was today, but something feels wrong."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Let me have a look at your calendar. Ah, I see the problem."
+        },
+        {
+          "speaker": "Tom",
+          "text": "What is it?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "You wrote it on the wrong day. It's actually on Thursday, not Tuesday."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Oh no, I completely mixed up the dates. Good thing you checked!"
+        },
+        {
+          "speaker": "Andre",
+          "text": "Easy mistake. At least now you have two extra days to prepare."
+        },
+        {
+          "speaker": "Tom",
+          "text": "True. I'll set a reminder on my phone this time."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Good idea. That way you won't forget again."
+        }
+      ]
     },
     "setting": "home-and-waiting-room",
     "skills": [
@@ -749,9 +1001,9 @@ export const builtInSceneMediaItems =
       "time",
       "mistake",
       "correction",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "technology",
+      "scheduling",
+      "correcting_mistakes"
     ],
     "source": "built_in",
     "status": "ready",
@@ -762,7 +1014,7 @@ export const builtInSceneMediaItems =
       "mistake",
       "correction"
     ],
-    "title": "Calendar Mistake - Everyday Story",
+    "title": "The Wrong Day",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -773,19 +1025,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "calendar-mistake-01",
     "visualSummary": [
-      "A calendar mistake is noticed and corrected before an appointment."
+      "A man compares his phone calendar with the wall calendar.",
+      "He realizes he wrote the appointment on the wrong day.",
+      "A friend points at the calendar and helps him find the correct date.",
+      "He arrives on the right day and waits calmly at the office."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 36.1,
+      "durationSeconds": 48.77,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/calendar-mistake-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "calendar-mistake-01-c1",
     "image": {
-      "alt": "Calendar Mistake. A calendar mistake is noticed and corrected before an appointment.",
+      "alt": "Calendar Mistake. A man compares his phone calendar with the wall calendar. He realizes he wrote the appointment on the wrong day. A friend points at the calendar and helps him find the correct date. He arrives on the right day and waits calmly at the office.",
       "height": 1024,
       "mediaId": "calendar-mistake-01",
       "source": "built_in",
@@ -794,8 +1049,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Iris trusted her memory until her phone quietly proved it wrong. The appointment she had been saving for Thursday was scheduled for that very afternoon. Panic arrived first, followed by the urge to blame the calendar. Instead, Iris checked the details, rearranged her work, and left earlier than planned. She arrived with only five minutes to spare, but five minutes was enough. The mistake did not disappear; it became the reason she started checking tomorrow before ending today."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Tom",
+          "text": "Something's nagging at me — I was sure my appointment was today, but now I'm second-guessing myself."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Pass me your phone and let's check the calendar properly. Ah, there's your answer."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Go on, what have I done this time?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "You've logged it under the wrong day. It's Thursday, not Tuesday — you were about to turn up two days early."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Honestly, that's so like me. I glance at the date and my brain fills in the rest."
+        },
+        {
+          "speaker": "Andre",
+          "text": "It happens. The upside is you've now got two extra days instead of a wasted trip."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Fair point. I'm going to set a reminder the second I get home, and a backup one the night before."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Now you're thinking. Belt and braces — that's how you never miss anything."
+        }
+      ]
     },
     "setting": "home-and-waiting-room",
     "skills": [
@@ -804,9 +1092,9 @@ export const builtInSceneMediaItems =
       "time",
       "mistake",
       "correction",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "technology",
+      "scheduling",
+      "problem_solving"
     ],
     "source": "built_in",
     "status": "ready",
@@ -817,7 +1105,7 @@ export const builtInSceneMediaItems =
       "mistake",
       "correction"
     ],
-    "title": "Calendar Mistake - Nuanced Story",
+    "title": "The Wrong Day",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -828,19 +1116,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "calendar-mistake-01",
     "visualSummary": [
-      "A calendar mistake is noticed and corrected before an appointment."
+      "A man compares his phone calendar with the wall calendar.",
+      "He realizes he wrote the appointment on the wrong day.",
+      "A friend points at the calendar and helps him find the correct date.",
+      "He arrives on the right day and waits calmly at the office."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.66,
+      "durationSeconds": 29.4,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/classroom-presentation-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "classroom-presentation-01-a1-a2",
     "image": {
-      "alt": "Classroom Presentation. A student gives a classroom presentation while others listen.",
+      "alt": "Classroom Presentation. A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen.",
       "height": 1024,
       "mediaId": "classroom-presentation-01",
       "source": "built_in",
@@ -849,8 +1140,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mila stood in front of the class with her poster. Her hands felt cold, but she started speaking. Her friends listened and smiled. When she finished, the teacher clapped, and Mila felt brave."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Okay, Lucia. It's your turn. Show us your poster."
+        },
+        {
+          "speaker": "Lucia",
+          "text": "This is my poster about the Earth. We must protect nature."
+        },
+        {
+          "speaker": "Lucia",
+          "text": "We can save water, plant trees, and recycle."
+        },
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Very good! Class, any questions?"
+        },
+        {
+          "speaker": "Ben",
+          "text": "Why do we plant trees?"
+        },
+        {
+          "speaker": "Lucia",
+          "text": "Trees give us clean air. They are important."
+        },
+        {
+          "speaker": "Ben",
+          "text": "Cool! I want to plant a tree."
+        },
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Great work, Lucia!"
+        }
+      ]
     },
     "setting": "classroom",
     "skills": [
@@ -858,9 +1182,9 @@ export const builtInSceneMediaItems =
       "classroom",
       "students",
       "teacher",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "school_and_environment",
+      "presenting",
+      "modal_can_and_must"
     ],
     "source": "built_in",
     "status": "ready",
@@ -870,7 +1194,7 @@ export const builtInSceneMediaItems =
       "students",
       "teacher"
     ],
-    "title": "Classroom Presentation - Simple Story",
+    "title": "Saving The Planet",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -880,19 +1204,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "classroom-presentation-01",
     "visualSummary": [
-      "A student gives a classroom presentation while others listen."
+      "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 25.66,
+      "durationSeconds": 40.44,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/classroom-presentation-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "classroom-presentation-01-b1-b2",
     "image": {
-      "alt": "Classroom Presentation. A student gives a classroom presentation while others listen.",
+      "alt": "Classroom Presentation. A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen.",
       "height": 1024,
       "mediaId": "classroom-presentation-01",
       "source": "built_in",
@@ -901,8 +1225,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mila had practiced her presentation three times at home, but the classroom still looked very large. When she stood beside her poster, she forgot the first sentence. Then her friend smiled from the front row, and Mila remembered to breathe. She began again, slowly. By the end, her voice was stronger. The applause felt good, but finishing felt even better."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Whenever you're ready, Lucia, come up and present your poster to the class."
+        },
+        {
+          "speaker": "Lucia",
+          "text": "Thank you. My project is about protecting our planet. Small actions can make a big difference."
+        },
+        {
+          "speaker": "Lucia",
+          "text": "For example, we can save water, recycle plastic, and plant more trees."
+        },
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Well explained. Does anyone have a question for Lucia?"
+        },
+        {
+          "speaker": "Ben",
+          "text": "Why is recycling so important?"
+        },
+        {
+          "speaker": "Lucia",
+          "text": "Because it means we use less new plastic, and that keeps our oceans cleaner."
+        },
+        {
+          "speaker": "Ben",
+          "text": "That makes sense. I'm going to start recycling at home."
+        },
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Wonderful. That's exactly the kind of change we're talking about."
+        }
+      ]
     },
     "setting": "classroom",
     "skills": [
@@ -910,9 +1267,9 @@ export const builtInSceneMediaItems =
       "classroom",
       "students",
       "teacher",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "school_and_environment",
+      "presenting_ideas",
+      "asking_and_answering"
     ],
     "source": "built_in",
     "status": "ready",
@@ -922,7 +1279,7 @@ export const builtInSceneMediaItems =
       "students",
       "teacher"
     ],
-    "title": "Classroom Presentation - Everyday Story",
+    "title": "Saving The Planet",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -932,19 +1289,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "classroom-presentation-01",
     "visualSummary": [
-      "A student gives a classroom presentation while others listen."
+      "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 32.42,
+      "durationSeconds": 56.23,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/classroom-presentation-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "classroom-presentation-01-c1",
     "image": {
-      "alt": "Classroom Presentation. A student gives a classroom presentation while others listen.",
+      "alt": "Classroom Presentation. A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen.",
       "height": 1024,
       "mediaId": "classroom-presentation-01",
       "source": "built_in",
@@ -953,8 +1310,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Mila thought the hardest part of the presentation would be remembering the facts. She was wrong. The hardest part was standing in front of the class while everyone waited for her first word. For a few seconds, silence felt enormous. Then she saw her friend nod, took a breath, and trusted the practice she had done at home. The presentation was not perfect, but it was clear. When she sat down, Mila understood that courage could sound like a shaking voice that continues anyway."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Take your time, Lucia. When you're ready, walk us through your poster."
+        },
+        {
+          "speaker": "Lucia",
+          "text": "Thank you. My project looks at how everyday choices affect the environment, and why small habits add up."
+        },
+        {
+          "speaker": "Lucia",
+          "text": "Take water, recycling, and planting trees — none of them seem dramatic, but together they genuinely reduce our impact."
+        },
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "Beautifully put. Class, who'd like to ask Lucia something?"
+        },
+        {
+          "speaker": "Ben",
+          "text": "You mention recycling a lot — does it really make a difference if just one person does it?"
+        },
+        {
+          "speaker": "Lucia",
+          "text": "On its own, hardly any. But if a whole class, or a whole town, forms the habit, the effect multiplies enormously. That's the point."
+        },
+        {
+          "speaker": "Ben",
+          "text": "I hadn't thought of it that way. I think I'll actually start at home."
+        },
+        {
+          "speaker": "Ms. Alvarez",
+          "text": "And that, everyone, is what a good presentation does — it changes how we act."
+        }
+      ]
     },
     "setting": "classroom",
     "skills": [
@@ -962,9 +1352,9 @@ export const builtInSceneMediaItems =
       "classroom",
       "students",
       "teacher",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "school_and_environment",
+      "persuasive_speaking",
+      "handling_questions"
     ],
     "source": "built_in",
     "status": "ready",
@@ -974,7 +1364,7 @@ export const builtInSceneMediaItems =
       "students",
       "teacher"
     ],
-    "title": "Classroom Presentation - Nuanced Story",
+    "title": "Saving The Planet",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -984,19 +1374,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "classroom-presentation-01",
     "visualSummary": [
-      "A student gives a classroom presentation while others listen."
+      "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.94,
+      "durationSeconds": 26.21,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/community-garden-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "community-garden-01-a1-a2",
     "image": {
-      "alt": "Community Garden. Neighbors work together in a community garden.",
+      "alt": "Community Garden. Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables.",
       "height": 1024,
       "mediaId": "community-garden-01",
       "source": "built_in",
@@ -1005,8 +1395,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Neighbors met in the community garden on Sunday. Ana planted tomatoes, and Mr. Green watered the flowers. A child found the first small strawberry. Everyone smiled because the garden was growing."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Timmy",
+          "text": "Look! I'm planting a small tomato plant."
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Good job, Timmy. Now I water the flowers."
+        },
+        {
+          "speaker": "Grandma Su",
+          "text": "My basket is full of red tomatoes!"
+        },
+        {
+          "speaker": "Mr. Bako",
+          "text": "Wonderful. The garden looks beautiful this year."
+        },
+        {
+          "speaker": "Timmy",
+          "text": "Can I water my plant too?"
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Of course. Water it gently, like this."
+        },
+        {
+          "speaker": "Grandma Su",
+          "text": "Let's share the vegetables with everyone."
+        }
+      ]
     },
     "setting": "community-garden",
     "skills": [
@@ -1016,9 +1435,9 @@ export const builtInSceneMediaItems =
       "tools",
       "present",
       "continuous",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "community_and_nature",
+      "gardening_vocabulary",
+      "present_continuous"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1030,7 +1449,7 @@ export const builtInSceneMediaItems =
       "present",
       "continuous"
     ],
-    "title": "Community Garden - Simple Story",
+    "title": "In The Community Garden",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1040,19 +1459,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "community-garden-01",
     "visualSummary": [
-      "Neighbors work together in a community garden."
+      "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 25.7,
+      "durationSeconds": 37.61,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/community-garden-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "community-garden-01-b1-b2",
     "image": {
-      "alt": "Community Garden. Neighbors work together in a community garden.",
+      "alt": "Community Garden. Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables.",
       "height": 1024,
       "mediaId": "community-garden-01",
       "source": "built_in",
@@ -1061,8 +1480,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "The community garden began as an empty corner between two buildings. On Sunday, the neighbors met there with tools, seeds, and old gloves. Ana planted tomatoes while Mr. Green fixed a loose wooden box. A child found the first small strawberry and called everyone over. The garden was not finished, but it already felt alive. The neighbors left tired and happy."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Timmy",
+          "text": "Look, I'm planting a little tomato seedling in the soil!"
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Well done, Timmy. Press the soil gently around it, then I'll water it."
+        },
+        {
+          "speaker": "Grandma Su",
+          "text": "My basket is already full of ripe tomatoes this morning."
+        },
+        {
+          "speaker": "Mr. Bako",
+          "text": "The garden's really thriving this year. All our hard work is paying off."
+        },
+        {
+          "speaker": "Timmy",
+          "text": "Can I help water the flowers too?"
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Of course. Just a little at the base of each plant, not too much."
+        },
+        {
+          "speaker": "Grandma Su",
+          "text": "When we finish, let's share the vegetables with the whole street."
+        },
+        {
+          "speaker": "Mr. Bako",
+          "text": "Perfect. That's what a community garden is all about."
+        }
+      ]
     },
     "setting": "community-garden",
     "skills": [
@@ -1072,9 +1524,9 @@ export const builtInSceneMediaItems =
       "tools",
       "present",
       "continuous",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "community_and_nature",
+      "gardening_vocabulary",
+      "cooperation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1086,7 +1538,7 @@ export const builtInSceneMediaItems =
       "present",
       "continuous"
     ],
-    "title": "Community Garden - Everyday Story",
+    "title": "In The Community Garden",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1096,19 +1548,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "community-garden-01",
     "visualSummary": [
-      "Neighbors work together in a community garden."
+      "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 33.38,
+      "durationSeconds": 48.31,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/community-garden-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "community-garden-01-c1",
     "image": {
-      "alt": "Community Garden. Neighbors work together in a community garden.",
+      "alt": "Community Garden. Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables.",
       "height": 1024,
       "mediaId": "community-garden-01",
       "source": "built_in",
@@ -1117,8 +1569,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The community garden had started as a practical idea: turn unused land into something useful. Over time, it became more than vegetables. On Sunday, neighbors who rarely spoke in the hallway worked side by side, sharing tools and advice. Ana planted tomatoes, Mr. Green repaired a box, and a child discovered a strawberry so small everyone laughed. The harvest was still weeks away, but something had already grown. The garden gave the neighborhood a reason to meet."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Timmy",
+          "text": "Look, everyone — I planted my very first tomato seedling all by myself!"
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Beautifully done, Timmy. Firm the soil around the roots and I'll give it a drink."
+        },
+        {
+          "speaker": "Grandma Su",
+          "text": "My basket's overflowing already. I've never seen the tomatoes come in so well."
+        },
+        {
+          "speaker": "Mr. Bako",
+          "text": "It's been a wonderful season. Amazing what a few neighbours and a bit of patience can grow."
+        },
+        {
+          "speaker": "Timmy",
+          "text": "Can I water the flowers too? I promise I won't drown them this time."
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Go ahead — gently at the base, and let the soil soak it up before you move on."
+        },
+        {
+          "speaker": "Grandma Su",
+          "text": "Once we've picked everything, we should share the harvest along the whole street."
+        },
+        {
+          "speaker": "Mr. Bako",
+          "text": "That's the whole point, isn't it? We grow far more together than any of us could alone."
+        }
+      ]
     },
     "setting": "community-garden",
     "skills": [
@@ -1128,9 +1613,9 @@ export const builtInSceneMediaItems =
       "tools",
       "present",
       "continuous",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "community_and_nature",
+      "gardening",
+      "community_spirit"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1142,7 +1627,7 @@ export const builtInSceneMediaItems =
       "present",
       "continuous"
     ],
-    "title": "Community Garden - Nuanced Story",
+    "title": "In The Community Garden",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1152,19 +1637,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "community-garden-01",
     "visualSummary": [
-      "Neighbors work together in a community garden."
+      "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 14.45,
+      "durationSeconds": 22.97,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/dead-charged-phone-01-a1-a2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "dead-charged-phone-01-a1-a2",
     "image": {
-      "alt": "Dead Phone, Charged Phone. A phone changes from dead to charged.",
+      "alt": "Dead Phone, Charged Phone. The young man looks frustrated at his dead phone with an unplugged charger. His phone is now charging on a power strip and he smiles, relieved.",
       "height": 1024,
       "mediaId": "dead-charged-phone-01",
       "source": "built_in",
@@ -1173,8 +1658,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Leo wanted to call his mother, but his phone was dead. He found a charger and waited near the wall. After a few minutes, the screen turned on. Leo called his mother and told her he was safe."
+      "scriptType": "monologue",
+      "text": "Oh no, my phone is dead! The screen is black. No messages, no music, nothing! Wait… where is my charger? Here! I plug it in. Come on, come on… Yes! The green battery! My phone is alive again. Now I can call my friend. What a relief!"
     },
     "setting": "desk",
     "skills": [
@@ -1183,9 +1668,8 @@ export const builtInSceneMediaItems =
       "before",
       "after",
       "technology",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "phones_and_charging",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1196,7 +1680,7 @@ export const builtInSceneMediaItems =
       "after",
       "technology"
     ],
-    "title": "Dead Phone, Charged Phone - Simple Story",
+    "title": "My Phone Is Dead",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1206,19 +1690,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "dead-charged-phone-01",
     "visualSummary": [
-      "A phone changes from dead to charged."
+      "The young man looks frustrated at his dead phone with an unplugged charger.",
+      "His phone is now charging on a power strip and he smiles, relieved."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 23.69,
+      "durationSeconds": 30.1,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/dead-charged-phone-01-b1-b2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "dead-charged-phone-01-b1-b2",
     "image": {
-      "alt": "Dead Phone, Charged Phone. A phone changes from dead to charged.",
+      "alt": "Dead Phone, Charged Phone. The young man looks frustrated at his dead phone with an unplugged charger. His phone is now charging on a power strip and he smiles, relieved.",
       "height": 1024,
       "mediaId": "dead-charged-phone-01",
       "source": "built_in",
@@ -1227,8 +1712,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Leo reached for his phone to call his mother and saw a black screen. The battery was dead, and he had promised to check in after school. He searched his backpack and found the charger at the bottom. While the phone charged, he watched the screen nervously. When it turned on, he called right away. His mother was not angry; she was just glad to hear his voice."
+      "scriptType": "monologue",
+      "text": "Great, my phone just died in the middle of everything. The screen's completely black — no messages, no music, no way to check the time. I really need to stop leaving it on one percent all day. Now, where did I put that charger? Under the notebook, of course. I plug it in and wait… come on… yes! The battery icon turns green and the screen lights up. Crisis over. Note to self: charge it before it hits zero next time."
     },
     "setting": "desk",
     "skills": [
@@ -1237,9 +1722,8 @@ export const builtInSceneMediaItems =
       "before",
       "after",
       "technology",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "phones_and_charging",
+      "present_continuous"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1250,7 +1734,7 @@ export const builtInSceneMediaItems =
       "after",
       "technology"
     ],
-    "title": "Dead Phone, Charged Phone - Everyday Story",
+    "title": "My Phone Is Dead",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1260,19 +1744,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "dead-charged-phone-01",
     "visualSummary": [
-      "A phone changes from dead to charged."
+      "The young man looks frustrated at his dead phone with an unplugged charger.",
+      "His phone is now charging on a power strip and he smiles, relieved."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 31.9,
+      "durationSeconds": 42.17,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/dead-charged-phone-01-c1.mp3"
     },
     "format": "two_panel_contrast",
     "id": "dead-charged-phone-01-c1",
     "image": {
-      "alt": "Dead Phone, Charged Phone. A phone changes from dead to charged.",
+      "alt": "Dead Phone, Charged Phone. The young man looks frustrated at his dead phone with an unplugged charger. His phone is now charging on a power strip and he smiles, relieved.",
       "height": 1024,
       "mediaId": "dead-charged-phone-01",
       "source": "built_in",
@@ -1281,8 +1766,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Leo's dead phone turned a small promise into a small crisis. He had told his mother he would call after school, and the black screen made him imagine her worry growing minute by minute. He found the charger tangled at the bottom of his backpack and waited beside the outlet as if patience could speed electricity. When the phone finally woke up, he called before checking any messages. His mother's first words were simple relief, and Leo learned that staying connected sometimes begins with being prepared."
+      "scriptType": "monologue",
+      "text": "There's a very particular kind of panic that hits when your phone dies at the worst possible moment. The screen goes black mid-message, and suddenly I'm cut off — no maps, no music, no idea what time it is, as if the whole world paused without me. I dig frantically through my bag, convinced I've left the charger at home, until I find it tangled under a notebook. I plug it in, and then comes the agonising wait for that first flicker of life. When the battery finally glows green and the screen wakes up, the relief is almost embarrassing. I really must learn to charge it before it reaches zero — but somehow I never do."
     },
     "setting": "desk",
     "skills": [
@@ -1291,9 +1776,8 @@ export const builtInSceneMediaItems =
       "before",
       "after",
       "technology",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "reflection",
+      "descriptive_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1304,7 +1788,7 @@ export const builtInSceneMediaItems =
       "after",
       "technology"
     ],
-    "title": "Dead Phone, Charged Phone - Nuanced Story",
+    "title": "My Phone Is Dead",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1314,12 +1798,13 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "dead-charged-phone-01",
     "visualSummary": [
-      "A phone changes from dead to charged."
+      "The young man looks frustrated at his dead phone with an unplugged charger.",
+      "His phone is now charging on a power strip and he smiles, relieved."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 16.22,
+      "durationSeconds": 28.66,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/doctor-visit-cough-01-a1-a2.mp3"
     },
@@ -1335,8 +1820,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Rosa had a cough all weekend, so she went to the clinic on Monday. The receptionist helped her check in. The doctor listened to her chest and asked simple questions. Rosa went home with clear advice, warm tea, and a plan to rest."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Rosa",
+          "text": "Good morning! How can I help you?"
+        },
+        {
+          "speaker": "Daniel",
+          "text": "Hi. I have a bad cough. I feel very tired."
+        },
+        {
+          "speaker": "Rosa",
+          "text": "Okay. Please sit down. The doctor is ready soon."
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "Hello. Let me listen to your chest. Breathe in… and out."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "Is it serious, doctor?"
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "No, don't worry. Drink warm tea and rest for two days."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "Thank you. I feel better already!"
+        }
+      ]
     },
     "setting": "clinic",
     "skills": [
@@ -1346,9 +1860,9 @@ export const builtInSceneMediaItems =
       "present_continuous",
       "past_tense_story",
       "emotions",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "health_and_symptoms",
+      "clinic_visit",
+      "giving_advice"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1361,7 +1875,7 @@ export const builtInSceneMediaItems =
       "stethoscope",
       "self-care"
     ],
-    "title": "Doctor Visit For A Cough - Simple Story",
+    "title": "A Cough At The Clinic",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1380,7 +1894,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 23.14,
+      "durationSeconds": 42.41,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/doctor-visit-cough-01-b1-b2.mp3"
     },
@@ -1396,8 +1910,45 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Rosa tried to ignore her cough during the weekend, but by Monday morning she sounded worse. At the clinic, the receptionist helped her check in and told her to wait for the doctor. The doctor listened carefully, checked her breathing, and explained that she needed rest and water. Rosa left relieved because the problem was not serious and she knew what to do next."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Rosa",
+          "text": "Good morning. Do you have an appointment today?"
+        },
+        {
+          "speaker": "Daniel",
+          "text": "Not exactly. My cough started on the weekend, and now it's worse."
+        },
+        {
+          "speaker": "Rosa",
+          "text": "No problem. Take a seat, and the doctor will see you in a few minutes."
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "So, tell me what's going on."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "I keep coughing, especially at night, and I feel really tired."
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "Let me listen to your chest. Breathe in deeply… and out. Good."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "Is it something serious?"
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "No, it's just a mild chest cold. Drink plenty of water, rest for a couple of days, and it should pass."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "That's a relief. Thank you, doctor."
+        }
+      ]
     },
     "setting": "clinic",
     "skills": [
@@ -1407,9 +1958,9 @@ export const builtInSceneMediaItems =
       "present_continuous",
       "past_tense_story",
       "emotions",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "health_and_symptoms",
+      "clinic_visit",
+      "giving_advice"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1422,7 +1973,7 @@ export const builtInSceneMediaItems =
       "stethoscope",
       "self-care"
     ],
-    "title": "Doctor Visit For A Cough - Everyday Story",
+    "title": "A Cough At The Clinic",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1441,7 +1992,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 29.62,
+      "durationSeconds": 54.26,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/doctor-visit-cough-01-c1.mp3"
     },
@@ -1457,8 +2008,45 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Rosa had been telling herself the cough was nothing, mostly because she disliked missing work. By Monday, even her short sentences ended in a rough sound, so she finally went to the clinic. The doctor examined her, asked about sleep and fever, and spoke calmly enough to make the visit feel less frightening. Rosa left without dramatic news, but with something better: a practical plan, permission to rest, and the quiet confidence that she had acted in time."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Rosa",
+          "text": "Good morning. Have you checked in with us before?"
+        },
+        {
+          "speaker": "Daniel",
+          "text": "It's my first time. Honestly, I kept telling myself the cough was nothing, but it dragged on all weekend."
+        },
+        {
+          "speaker": "Rosa",
+          "text": "You did the right thing coming in. Have a seat, and the doctor won't be long."
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "Let's take a look. When did the cough start, and is it worse at any particular time?"
+        },
+        {
+          "speaker": "Daniel",
+          "text": "It began on Friday, and it's definitely worse at night. I've barely slept."
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "I understand. Take a slow, deep breath for me… and let it out. Once more, please."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "Should I be worried?"
+        },
+        {
+          "speaker": "Dr. Osei",
+          "text": "Not at all. Your chest is clear — it's a lingering cold, not an infection. Stay hydrated, rest properly, and give your body a couple of days."
+        },
+        {
+          "speaker": "Daniel",
+          "text": "That's exactly what I needed to hear. Thank you for taking the time."
+        }
+      ]
     },
     "setting": "clinic",
     "skills": [
@@ -1468,9 +2056,9 @@ export const builtInSceneMediaItems =
       "present_continuous",
       "past_tense_story",
       "emotions",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "health_and_symptoms",
+      "clinic_visit",
+      "giving_advice"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1483,7 +2071,7 @@ export const builtInSceneMediaItems =
       "stethoscope",
       "self-care"
     ],
-    "title": "Doctor Visit For A Cough - Nuanced Story",
+    "title": "A Cough At The Clinic",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1502,14 +2090,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 16.01,
+      "durationSeconds": 26.33,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/empty-busy-playground-01-a1-a2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-busy-playground-01-a1-a2",
     "image": {
-      "alt": "Empty Playground, Busy Playground. A playground changes from empty to busy.",
+      "alt": "Empty Playground, Busy Playground. The neighborhood playground is empty and quiet, with still swings and an empty slide. The same playground is now busy with children playing and parents watching.",
       "height": 1024,
       "mediaId": "empty-busy-playground-01",
       "source": "built_in",
@@ -1518,8 +2106,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "In the morning, the playground was empty and quiet. After school, children ran to the swings and slide. One shy boy stood near the gate. A girl invited him to play, and soon the playground was full of noise."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Lily",
+          "text": "Look, the playground is empty! Nobody is here."
+        },
+        {
+          "speaker": "Max",
+          "text": "Great! I want to go on the swings first."
+        },
+        {
+          "speaker": "Mom",
+          "text": "Okay, but be careful. Have fun!"
+        },
+        {
+          "speaker": "Lily",
+          "text": "Now more children are coming. It's busy!"
+        },
+        {
+          "speaker": "Max",
+          "text": "Let's build a sandcastle with them."
+        },
+        {
+          "speaker": "Mom",
+          "text": "What a good idea. Play nicely together."
+        },
+        {
+          "speaker": "Lily",
+          "text": "The park is fun when it's full of friends!"
+        }
+      ]
     },
     "setting": "playground",
     "skills": [
@@ -1528,9 +2145,9 @@ export const builtInSceneMediaItems =
       "before",
       "after",
       "people",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "community_and_play",
+      "there_is_there_are",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1541,7 +2158,7 @@ export const builtInSceneMediaItems =
       "after",
       "people"
     ],
-    "title": "Empty Playground, Busy Playground - Simple Story",
+    "title": "The Playground Fills Up",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1551,19 +2168,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-busy-playground-01",
     "visualSummary": [
-      "A playground changes from empty to busy."
+      "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
+      "The same playground is now busy with children playing and parents watching."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.29,
+      "durationSeconds": 35.69,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/empty-busy-playground-01-b1-b2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-busy-playground-01-b1-b2",
     "image": {
-      "alt": "Empty Playground, Busy Playground. A playground changes from empty to busy.",
+      "alt": "Empty Playground, Busy Playground. The neighborhood playground is empty and quiet, with still swings and an empty slide. The same playground is now busy with children playing and parents watching.",
       "height": 1024,
       "mediaId": "empty-busy-playground-01",
       "source": "built_in",
@@ -1572,8 +2190,37 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "The playground was silent before school ended. The swings moved only when the wind pushed them. Then the first children arrived, and the empty space changed quickly. One boy stayed near the gate because he did not know anyone. A girl saw him watching and asked if he wanted to join the game. By the time parents came to pick everyone up, the boy was laughing near the slide."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Lily",
+          "text": "Look, Mom, the playground is completely empty! We have it all to ourselves."
+        },
+        {
+          "speaker": "Max",
+          "text": "Quick, let's go on the swings before anyone else arrives!"
+        },
+        {
+          "speaker": "Mom",
+          "text": "Go on, but take turns and watch out for each other."
+        },
+        {
+          "speaker": "Lily",
+          "text": "Oh, look — lots of children are coming now. It's getting busy."
+        },
+        {
+          "speaker": "Max",
+          "text": "Even better! Let's ask them to build a giant sandcastle with us."
+        },
+        {
+          "speaker": "Mom",
+          "text": "That's a lovely idea. Make some new friends while you're at it."
+        },
+        {
+          "speaker": "Lily",
+          "text": "An empty park is fun, but a busy one is the best!"
+        }
+      ]
     },
     "setting": "playground",
     "skills": [
@@ -1582,9 +2229,9 @@ export const builtInSceneMediaItems =
       "before",
       "after",
       "people",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "community_and_play",
+      "quiet_and_busy",
+      "making_friends"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1595,7 +2242,7 @@ export const builtInSceneMediaItems =
       "after",
       "people"
     ],
-    "title": "Empty Playground, Busy Playground - Everyday Story",
+    "title": "The Playground Fills Up",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1605,19 +2252,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-busy-playground-01",
     "visualSummary": [
-      "A playground changes from empty to busy."
+      "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
+      "The same playground is now busy with children playing and parents watching."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 35.38,
+      "durationSeconds": 47.59,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/empty-busy-playground-01-c1.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-busy-playground-01-c1",
     "image": {
-      "alt": "Empty Playground, Busy Playground. A playground changes from empty to busy.",
+      "alt": "Empty Playground, Busy Playground. The neighborhood playground is empty and quiet, with still swings and an empty slide. The same playground is now busy with children playing and parents watching.",
       "height": 1024,
       "mediaId": "empty-busy-playground-01",
       "source": "built_in",
@@ -1626,8 +2274,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "In the morning, the playground looked almost forgotten: empty swings, a quiet slide, and a gate waiting for footsteps. After school, the space filled with movement, but not everyone entered the noise easily. A boy stood near the edge, unsure how to become part of a group that already seemed complete. A girl noticed him and made the invitation simple: one game, one turn, one chance. The playground grew busy, but the real change was smaller. One child stopped feeling invisible."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Lily",
+          "text": "Mom, look — the whole playground's empty! It's like it's just for us."
+        },
+        {
+          "speaker": "Max",
+          "text": "Race you to the swings before the crowd shows up!"
+        },
+        {
+          "speaker": "Mom",
+          "text": "Off you go, but keep an eye on your little friend and take turns."
+        },
+        {
+          "speaker": "Lily",
+          "text": "Uh-oh, here come loads of other kids. It's filling up fast."
+        },
+        {
+          "speaker": "Max",
+          "text": "That's not a problem — more people means a bigger sandcastle. Let's invite them over."
+        },
+        {
+          "speaker": "Mom",
+          "text": "Now that's the right attitude. A quiet park is peaceful, but a busy one is where the fun really starts."
+        },
+        {
+          "speaker": "Lily",
+          "text": "Exactly! It was calm before, and now it's noisy and brilliant."
+        },
+        {
+          "speaker": "Max",
+          "text": "Come on, everyone — let's build the biggest castle this park has ever seen!"
+        }
+      ]
     },
     "setting": "playground",
     "skills": [
@@ -1636,9 +2317,9 @@ export const builtInSceneMediaItems =
       "before",
       "after",
       "people",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "community_and_play",
+      "describing_change",
+      "positive_attitude"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1649,7 +2330,7 @@ export const builtInSceneMediaItems =
       "after",
       "people"
     ],
-    "title": "Empty Playground, Busy Playground - Nuanced Story",
+    "title": "The Playground Fills Up",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1659,19 +2340,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-busy-playground-01",
     "visualSummary": [
-      "A playground changes from empty to busy."
+      "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
+      "The same playground is now busy with children playing and parents watching."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 12.5,
+      "durationSeconds": 18.98,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/empty-full-backpack-01-a1-a2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-full-backpack-01-a1-a2",
     "image": {
-      "alt": "Empty Backpack, Full Backpack. A backpack changes from empty to packed for school.",
+      "alt": "Empty Backpack, Full Backpack. The boy looks into his empty backpack while his school supplies sit spread across the desk. He wears the packed, full backpack and smiles, ready for school.",
       "height": 1024,
       "mediaId": "empty-full-backpack-01",
       "source": "built_in",
@@ -1680,8 +2362,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Aiden's backpack was empty on Sunday night. He put in books, pencils, a notebook, and his lunch box. In the morning, he checked the bag again. At school, he had everything he needed."
+      "scriptType": "monologue",
+      "text": "It's Sunday night. My backpack is empty. What do I need for school tomorrow? I need my books, my pencil case, and my notebook. Oh, and my water bottle and my lunch. I put everything inside. Now my backpack is full and ready. Tomorrow I don't forget anything. Good night!"
     },
     "setting": "classroom",
     "skills": [
@@ -1690,9 +2372,9 @@ export const builtInSceneMediaItems =
       "backpack",
       "before",
       "after",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "school_and_organisation",
+      "school_supplies",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1703,7 +2385,7 @@ export const builtInSceneMediaItems =
       "before",
       "after"
     ],
-    "title": "Empty Backpack, Full Backpack - Simple Story",
+    "title": "Packing My Backpack",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1713,19 +2395,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-full-backpack-01",
     "visualSummary": [
-      "A backpack changes from empty to packed for school."
+      "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
+      "He wears the packed, full backpack and smiles, ready for school."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 23.38,
+      "durationSeconds": 29.26,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/empty-full-backpack-01-b1-b2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-full-backpack-01-b1-b2",
     "image": {
-      "alt": "Empty Backpack, Full Backpack. A backpack changes from empty to packed for school.",
+      "alt": "Empty Backpack, Full Backpack. The boy looks into his empty backpack while his school supplies sit spread across the desk. He wears the packed, full backpack and smiles, ready for school.",
       "height": 1024,
       "mediaId": "empty-full-backpack-01",
       "source": "built_in",
@@ -1734,8 +2417,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Aiden usually packed his backpack five minutes before leaving, and something was always missing. This Sunday, he tried a new plan. He opened the empty bag and placed each school item inside: notebook, pencils, book, water, and lunch. In the morning, he did not need to run around the house. He picked up the full backpack and left calmly."
+      "scriptType": "monologue",
+      "text": "Every Sunday evening I pack my backpack for the week, because Monday mornings are always crazy in my house. I start with an empty bag and check my timetable: maths, science, and English tomorrow, so I need those books. Then I add my pencil case, my notebook, my water bottle, and I never forget my lunch. When the bag is full and ready by the door, I feel calm. It's a small habit, but it saves me from a lot of morning panic."
     },
     "setting": "classroom",
     "skills": [
@@ -1744,9 +2427,9 @@ export const builtInSceneMediaItems =
       "backpack",
       "before",
       "after",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "school_and_organisation",
+      "planning_ahead",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1757,7 +2440,7 @@ export const builtInSceneMediaItems =
       "before",
       "after"
     ],
-    "title": "Empty Backpack, Full Backpack - Everyday Story",
+    "title": "Packing My Backpack",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1767,19 +2450,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-full-backpack-01",
     "visualSummary": [
-      "A backpack changes from empty to packed for school."
+      "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
+      "He wears the packed, full backpack and smiles, ready for school."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 28.9,
+      "durationSeconds": 37.49,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/empty-full-backpack-01-c1.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-full-backpack-01-c1",
     "image": {
-      "alt": "Empty Backpack, Full Backpack. A backpack changes from empty to packed for school.",
+      "alt": "Empty Backpack, Full Backpack. The boy looks into his empty backpack while his school supplies sit spread across the desk. He wears the packed, full backpack and smiles, ready for school.",
       "height": 1024,
       "mediaId": "empty-full-backpack-01",
       "source": "built_in",
@@ -1788,8 +2472,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Aiden's empty backpack looked harmless, but it represented every rushed morning he wanted to stop repeating. On Sunday night, he packed it slowly, checking each item against the next day's schedule. The simple routine felt almost too small to matter. Yet the next morning, while his sister searched for a pencil, Aiden was already ready by the door. The full backpack gave him more than supplies; it gave him a quieter start."
+      "scriptType": "monologue",
+      "text": "There's a quiet satisfaction in packing my school bag the night before. I lay the empty backpack open on the desk and run through the next day in my head — which classes I have, which books they demand, whether anything's due. In go the folders, the pencil case, the half-finished project, the water bottle I always forget, and finally my lunch, which is the one thing guaranteed to ruin my day if I leave it behind. By the time it's zipped up and waiting by the door, my future self has already thanked me. Morning-me is chaotic and half-asleep; evening-me, at least, can be organised on his behalf."
     },
     "setting": "classroom",
     "skills": [
@@ -1798,9 +2482,9 @@ export const builtInSceneMediaItems =
       "backpack",
       "before",
       "after",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "school_and_organisation",
+      "reflection",
+      "descriptive_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1811,7 +2495,7 @@ export const builtInSceneMediaItems =
       "before",
       "after"
     ],
-    "title": "Empty Backpack, Full Backpack - Nuanced Story",
+    "title": "Packing My Backpack",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1821,12 +2505,13 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-full-backpack-01",
     "visualSummary": [
-      "A backpack changes from empty to packed for school."
+      "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
+      "He wears the packed, full backpack and smiles, ready for school."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 15.98,
+      "durationSeconds": 22.37,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/empty-full-cart-01-a1-a2.mp3"
     },
@@ -1842,8 +2527,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Grace entered the supermarket with an empty cart and a short list. She bought bread, fruit, milk, and rice. At the end, the cart was full. Grace checked her list and felt proud because she had not forgotten anything."
+      "scriptType": "monologue",
+      "text": "Time to do the shopping! My cart is empty now. What do I need? I need apples, bread, and milk. Oh, and some vegetables for soup. I walk around the store. I put everything in my cart. Now my cart is full! I have everything for the week. Now I can go home and cook."
     },
     "setting": "supermarket",
     "skills": [
@@ -1852,9 +2537,7 @@ export const builtInSceneMediaItems =
       "before_after",
       "prepositions",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1866,7 +2549,7 @@ export const builtInSceneMediaItems =
       "before-after",
       "food"
     ],
-    "title": "Empty Cart, Full Cart - Simple Story",
+    "title": "The Weekly Shop",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1882,7 +2565,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 23.18,
+      "durationSeconds": 27.82,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/empty-full-cart-01-b1-b2.mp3"
     },
@@ -1898,8 +2581,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Grace promised herself she would buy only what her family needed. She started with an empty cart and a list in her hand. In each aisle, she chose carefully: fruit for breakfast, rice for dinner, and milk for the children. By the time she reached the checkout, the cart was full but organized. Grace smiled because every item had a purpose."
+      "scriptType": "monologue",
+      "text": "I do the big shop every Saturday morning, when the store is still quiet. I start with an empty cart and a list in my head: fresh vegetables, some fruit, bread, and milk for the week. I always try to buy what's in season, because it's cheaper and it tastes better. Little by little the cart fills up, and by the end it's almost too heavy to push. There's something satisfying about a full cart — it means good meals are waiting at home."
     },
     "setting": "supermarket",
     "skills": [
@@ -1908,9 +2591,8 @@ export const builtInSceneMediaItems =
       "before_after",
       "prepositions",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "planning_meals",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1922,7 +2604,7 @@ export const builtInSceneMediaItems =
       "before-after",
       "food"
     ],
-    "title": "Empty Cart, Full Cart - Everyday Story",
+    "title": "The Weekly Shop",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1938,7 +2620,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 29.14,
+      "durationSeconds": 41.62,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/empty-full-cart-01-c1.mp3"
     },
@@ -1954,8 +2636,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Grace had learned that a full cart could mean planning, not waste. She entered the supermarket with a list, a budget, and the memory of last week's forgotten dinner ingredients. This time, she moved through the aisles slowly, choosing food for real meals instead of sudden cravings. When the cart was full, it looked like the week ahead: breakfast, lunches, dinners, and a few small treats. Grace checked the list one last time and felt quietly prepared."
+      "scriptType": "monologue",
+      "text": "There's a small ritual to my weekly shop that I've never quite managed to rush. I set off with an empty cart, wander past the produce first, and let the colours decide half of what I'm cooking that week — the ripe tomatoes, a bunch of greens, whatever fruit smells best. I keep a loose list, but I'm easily tempted by anything fresh and in season. By the time I reach the checkout, the cart is brimming and my arms are aching, yet I feel oddly accomplished. A full cart isn't just groceries; it's a week of dinners planned, a fridge that won't disappoint me on a tired evening, and the quiet comfort of being prepared."
     },
     "setting": "supermarket",
     "skills": [
@@ -1964,9 +2646,8 @@ export const builtInSceneMediaItems =
       "before_after",
       "prepositions",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "reflection",
+      "descriptive_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -1978,7 +2659,7 @@ export const builtInSceneMediaItems =
       "before-after",
       "food"
     ],
-    "title": "Empty Cart, Full Cart - Nuanced Story",
+    "title": "The Weekly Shop",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -1994,14 +2675,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 15.46,
+      "durationSeconds": 20.81,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/empty-full-plate-01-a1-a2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-full-plate-01-a1-a2",
     "image": {
-      "alt": "Empty Plate, Full Plate. A restaurant plate changes from empty to full.",
+      "alt": "Empty Plate, Full Plate. The man sits at a restaurant table with an empty plate, waiting patiently. His plate is now full of pasta and vegetables, and he smiles with delight.",
       "height": 1024,
       "mediaId": "empty-full-plate-01",
       "source": "built_in",
@@ -2010,8 +2691,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Sam sat at the restaurant with an empty plate and a hungry stomach. The server brought rice, chicken, and vegetables. Sam waited until everyone had food. Then he ate slowly and saved the last bite for his favorite sauce."
+      "scriptType": "monologue",
+      "text": "I am very hungry! My plate is empty. I ordered pasta with chicken. I hope it comes soon. I can smell the food… Here it is! Now my plate is full. It looks delicious. There is pasta, chicken, and bread. Time to eat. Mmm, so good!"
     },
     "setting": "restaurant-table",
     "skills": [
@@ -2020,9 +2701,8 @@ export const builtInSceneMediaItems =
       "after",
       "restaurant",
       "objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "food_vocabulary",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2033,7 +2713,7 @@ export const builtInSceneMediaItems =
       "restaurant",
       "objects"
     ],
-    "title": "Empty Plate, Full Plate - Simple Story",
+    "title": "Waiting For My Meal",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2043,19 +2723,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-full-plate-01",
     "visualSummary": [
-      "A restaurant plate changes from empty to full."
+      "The man sits at a restaurant table with an empty plate, waiting patiently.",
+      "His plate is now full of pasta and vegetables, and he smiles with delight."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 26.21,
+      "durationSeconds": 24.98,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/empty-full-plate-01-b1-b2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-full-plate-01-b1-b2",
     "image": {
-      "alt": "Empty Plate, Full Plate. A restaurant plate changes from empty to full.",
+      "alt": "Empty Plate, Full Plate. The man sits at a restaurant table with an empty plate, waiting patiently. His plate is now full of pasta and vegetables, and he smiles with delight.",
       "height": 1024,
       "mediaId": "empty-full-plate-01",
       "source": "built_in",
@@ -2064,8 +2745,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Sam arrived at the restaurant so hungry that the empty plate looked almost funny. He tried not to stare at the kitchen door. When the server brought the meal, the colors and smell made everyone at the table smile. Sam waited until his grandmother had been served, then began eating. By the end, the plate was empty again, but this time he felt happy and full."
+      "scriptType": "monologue",
+      "text": "I've been sitting here for ten minutes, staring at an empty plate and getting hungrier by the second. I ordered the pasta with chicken, and honestly, the smells from the kitchen are torture. But it's a busy night, so I'll be patient… Finally! Here comes my meal, and it looks even better than I imagined — pasta, grilled chicken, vegetables, and warm bread on the side. Some things are definitely worth the wait."
     },
     "setting": "restaurant-table",
     "skills": [
@@ -2074,9 +2755,8 @@ export const builtInSceneMediaItems =
       "after",
       "restaurant",
       "objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "describing_food",
+      "present_continuous"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2087,7 +2767,7 @@ export const builtInSceneMediaItems =
       "restaurant",
       "objects"
     ],
-    "title": "Empty Plate, Full Plate - Everyday Story",
+    "title": "Waiting For My Meal",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2097,19 +2777,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-full-plate-01",
     "visualSummary": [
-      "A restaurant plate changes from empty to full."
+      "The man sits at a restaurant table with an empty plate, waiting patiently.",
+      "His plate is now full of pasta and vegetables, and he smiles with delight."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 34.06,
+      "durationSeconds": 46.06,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/empty-full-plate-01-c1.mp3"
     },
     "format": "two_panel_contrast",
     "id": "empty-full-plate-01-c1",
     "image": {
-      "alt": "Empty Plate, Full Plate. A restaurant plate changes from empty to full.",
+      "alt": "Empty Plate, Full Plate. The man sits at a restaurant table with an empty plate, waiting patiently. His plate is now full of pasta and vegetables, and he smiles with delight.",
       "height": 1024,
       "mediaId": "empty-full-plate-01",
       "source": "built_in",
@@ -2118,8 +2799,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The empty plate in front of Sam made the wait feel longer than it was. He had skipped lunch, and every sound from the kitchen seemed meant for another table. Then the server arrived with a meal bright enough to change his mood before he even tasted it. Sam waited for his grandmother to begin, then took the first bite with theatrical seriousness. The plate emptied slowly, through conversation and shared jokes. What had started as impatience ended as the kind of meal people remember."
+      "scriptType": "monologue",
+      "text": "There's a peculiar torment in waiting for food you can already smell. My plate sits there, stubbornly empty, while the aroma of garlic and grilled chicken drifts over from the kitchen and my stomach stages a small protest. I remind myself that good things take time, that a rushed dish is rarely a good one, and I try to look relaxed rather than ravenous. And then, at last, it arrives — a generous plate of pasta, tender chicken, bright vegetables, a slice of warm bread on the side. The wait dissolves instantly. That first forkful, when you're truly hungry, is worth every impatient minute that came before it."
     },
     "setting": "restaurant-table",
     "skills": [
@@ -2128,9 +2809,8 @@ export const builtInSceneMediaItems =
       "after",
       "restaurant",
       "objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "descriptive_language",
+      "reflection"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2141,7 +2821,7 @@ export const builtInSceneMediaItems =
       "restaurant",
       "objects"
     ],
-    "title": "Empty Plate, Full Plate - Nuanced Story",
+    "title": "Waiting For My Meal",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2151,19 +2831,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "empty-full-plate-01",
     "visualSummary": [
-      "A restaurant plate changes from empty to full."
+      "The man sits at a restaurant table with an empty plate, waiting patiently.",
+      "His plate is now full of pasta and vegetables, and he smiles with delight."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 14.57,
+      "durationSeconds": 22.58,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/family-dinner-table-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "family-dinner-table-01-a1-a2",
     "image": {
-      "alt": "Family Dinner Table. A family shares dinner and passes food around the table.",
+      "alt": "Family Dinner Table. A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table.",
       "height": 1024,
       "mediaId": "family-dinner-table-01",
       "source": "built_in",
@@ -2172,8 +2853,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "The Rivera family sat down for dinner after a busy day. Ana passed the rice, and her brother poured water. Everyone shared one good thing from the day. By the end of dinner, the room felt warm and quiet."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Emma",
+          "text": "Can I have some bread, please?"
+        },
+        {
+          "speaker": "Grandma Rosa",
+          "text": "Here you are, Emma. It's still warm."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Who wants water? I'll pour it."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Yes, please, Dad. And pass the salad!"
+        },
+        {
+          "speaker": "Mom",
+          "text": "This dinner looks delicious. Thank you, Grandma."
+        },
+        {
+          "speaker": "Grandma Rosa",
+          "text": "You're welcome. Eat well, everyone!"
+        },
+        {
+          "speaker": "Emma",
+          "text": "I love family dinner."
+        }
+      ]
     },
     "setting": "home-dining-room",
     "skills": [
@@ -2181,9 +2891,9 @@ export const builtInSceneMediaItems =
       "food",
       "present_continuous",
       "table_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "family_and_meals",
+      "polite_requests",
+      "food_vocabulary"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2194,7 +2904,7 @@ export const builtInSceneMediaItems =
       "table-objects",
       "home"
     ],
-    "title": "Family Dinner Table - Simple Story",
+    "title": "Family Dinner",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2204,19 +2914,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "family-dinner-table-01",
     "visualSummary": [
-      "A family shares dinner and passes food around the table."
+      "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 22.13,
+      "durationSeconds": 34.25,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/family-dinner-table-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "family-dinner-table-01-b1-b2",
     "image": {
-      "alt": "Family Dinner Table. A family shares dinner and passes food around the table.",
+      "alt": "Family Dinner Table. A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table.",
       "height": 1024,
       "mediaId": "family-dinner-table-01",
       "source": "built_in",
@@ -2225,8 +2935,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "The Rivera family almost ate dinner at different times because everyone was tired. Then Ana's father asked them to sit together for just twenty minutes. They passed food, told small stories, and laughed about a mistake at work. Nobody checked a phone. When the plates were empty, the family was still at the table, enjoying a little more time together."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Emma",
+          "text": "Grandma, can you pass me the bread, please?"
+        },
+        {
+          "speaker": "Grandma Rosa",
+          "text": "Of course, sweetheart. Careful, it's fresh from the oven."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Let me pour everyone some water. Leo, hold your glass."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Thanks, Dad. Could someone send the salad down this way?"
+        },
+        {
+          "speaker": "Mom",
+          "text": "Here you go. Grandma, everything smells amazing tonight."
+        },
+        {
+          "speaker": "Grandma Rosa",
+          "text": "I'm happy you're all here. A full table makes me the happiest."
+        },
+        {
+          "speaker": "Leo",
+          "text": "We should do this every week, honestly."
+        },
+        {
+          "speaker": "Emma",
+          "text": "Yes! Family dinner is the best."
+        }
+      ]
     },
     "setting": "home-dining-room",
     "skills": [
@@ -2234,9 +2977,9 @@ export const builtInSceneMediaItems =
       "food",
       "present_continuous",
       "table_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "family_and_meals",
+      "polite_requests",
+      "offering_and_passing"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2247,7 +2990,7 @@ export const builtInSceneMediaItems =
       "table-objects",
       "home"
     ],
-    "title": "Family Dinner Table - Everyday Story",
+    "title": "Family Dinner",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2257,19 +3000,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "family-dinner-table-01",
     "visualSummary": [
-      "A family shares dinner and passes food around the table."
+      "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 33.34,
+      "durationSeconds": 46.2,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/family-dinner-table-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "family-dinner-table-01-c1",
     "image": {
-      "alt": "Family Dinner Table. A family shares dinner and passes food around the table.",
+      "alt": "Family Dinner Table. A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table.",
       "height": 1024,
       "mediaId": "family-dinner-table-01",
       "source": "built_in",
@@ -2278,8 +3021,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Dinner at the Rivera house nearly became another rushed stop between homework, work messages, and bedtime. Ana's father, however, placed the food in the middle of the table and asked everyone to stay until they had shared one detail from the day. At first the stories were small: a late bus, a funny answer in class, a difficult customer. Then the room softened. The meal did not solve anyone's problems, but it reminded them they did not have to carry those problems alone."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Emma",
+          "text": "Grandma, would you mind passing the bread? It smells incredible."
+        },
+        {
+          "speaker": "Grandma Rosa",
+          "text": "Here you are, love — straight from the oven, so mind your fingers."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Let me top everyone up with water before we start. Leo, pass me your glass."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Cheers, Dad. And could somebody send the salad my way before it's all gone?"
+        },
+        {
+          "speaker": "Mom",
+          "text": "There you go. Honestly, Grandma, you've outdone yourself — the whole kitchen smells wonderful."
+        },
+        {
+          "speaker": "Grandma Rosa",
+          "text": "You spoil me. But truly, there's nothing I love more than a noisy table with all of you around it."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Then it's settled — we make this a proper weekly thing, no excuses."
+        },
+        {
+          "speaker": "Emma",
+          "text": "Yes! These dinners are my favourite part of the week."
+        }
+      ]
     },
     "setting": "home-dining-room",
     "skills": [
@@ -2287,9 +3063,9 @@ export const builtInSceneMediaItems =
       "food",
       "present_continuous",
       "table_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "family_and_meals",
+      "gracious_language",
+      "warm_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2300,7 +3076,7 @@ export const builtInSceneMediaItems =
       "table-objects",
       "home"
     ],
-    "title": "Family Dinner Table - Nuanced Story",
+    "title": "Family Dinner",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2310,19 +3086,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "family-dinner-table-01",
     "visualSummary": [
-      "A family shares dinner and passes food around the table."
+      "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.01,
+      "durationSeconds": 26.66,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/forgotten-homework-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "forgotten-homework-01-a1-a2",
     "image": {
-      "alt": "Forgotten Homework. A student forgets homework, finds it at home, and gives it to the teacher.",
+      "alt": "Forgotten Homework. A boy searches his backpack at his desk and cannot find his homework. He explains to his teacher that he left the assignment at home. That evening at his desk he finds the finished paper under his books. The next day he hands the completed homework to his smiling teacher.",
       "height": 1024,
       "mediaId": "forgotten-homework-01",
       "source": "built_in",
@@ -2331,8 +3107,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Tom reached school and opened his backpack. His homework was not there. He remembered it was on the kitchen table. After school, he brought it to his teacher and promised to pack his bag at night."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Ravi",
+          "text": "Ms. Green, I can't find my homework. It's not in my bag."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "Oh? Did you do it last night?"
+        },
+        {
+          "speaker": "Ravi",
+          "text": "Yes, I did. But I think I left it at home."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "It's okay. Bring it tomorrow, please."
+        },
+        {
+          "speaker": "Ravi",
+          "text": "Thank you. I'm sorry."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "No problem. Just don't forget it again."
+        },
+        {
+          "speaker": "Ravi",
+          "text": "I won't. Here it is, Ms. Green! I brought it today."
+        }
+      ]
     },
     "setting": "school-and-home",
     "skills": [
@@ -2341,9 +3146,9 @@ export const builtInSceneMediaItems =
       "teacher",
       "problem",
       "solution",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "school_and_learning",
+      "apologising",
+      "past_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2354,7 +3159,7 @@ export const builtInSceneMediaItems =
       "problem",
       "solution"
     ],
-    "title": "Forgotten Homework - Simple Story",
+    "title": "The Forgotten Homework",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2365,19 +3170,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "forgotten-homework-01",
     "visualSummary": [
-      "A student forgets homework, finds it at home, and gives it to the teacher."
+      "A boy searches his backpack at his desk and cannot find his homework.",
+      "He explains to his teacher that he left the assignment at home.",
+      "That evening at his desk he finds the finished paper under his books.",
+      "The next day he hands the completed homework to his smiling teacher."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 25.54,
+      "durationSeconds": 35.04,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/forgotten-homework-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "forgotten-homework-01-b1-b2",
     "image": {
-      "alt": "Forgotten Homework. A student forgets homework, finds it at home, and gives it to the teacher.",
+      "alt": "Forgotten Homework. A boy searches his backpack at his desk and cannot find his homework. He explains to his teacher that he left the assignment at home. That evening at his desk he finds the finished paper under his books. The next day he hands the completed homework to his smiling teacher.",
       "height": 1024,
       "mediaId": "forgotten-homework-01",
       "source": "built_in",
@@ -2386,8 +3194,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Tom felt confident until the teacher asked for the homework. He opened his backpack and found only books. Then he remembered the paper sitting on the kitchen table beside his breakfast plate. His teacher gave him one day to bring it. That evening, Tom put the homework in his bag before dinner. The next morning, he handed it in and felt the lesson more than the assignment."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Ravi",
+          "text": "Ms. Green, I've got a problem. My homework isn't in my bag."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "Did you finish it, or did you forget to do it?"
+        },
+        {
+          "speaker": "Ravi",
+          "text": "I finished it, I promise! I think I left it on my desk at home."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "I believe you. Just bring it in tomorrow morning."
+        },
+        {
+          "speaker": "Ravi",
+          "text": "Thank you for understanding. I was really worried."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "Everyone forgets things sometimes. Next time, pack your bag the night before."
+        },
+        {
+          "speaker": "Ravi",
+          "text": "Good idea. Here you go — I found it and brought it today."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "Well done. That's exactly what I like to see."
+        }
+      ]
     },
     "setting": "school-and-home",
     "skills": [
@@ -2396,9 +3237,9 @@ export const builtInSceneMediaItems =
       "teacher",
       "problem",
       "solution",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "school_and_learning",
+      "explaining_and_apologising",
+      "advice"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2409,7 +3250,7 @@ export const builtInSceneMediaItems =
       "problem",
       "solution"
     ],
-    "title": "Forgotten Homework - Everyday Story",
+    "title": "The Forgotten Homework",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2420,19 +3261,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "forgotten-homework-01",
     "visualSummary": [
-      "A student forgets homework, finds it at home, and gives it to the teacher."
+      "A boy searches his backpack at his desk and cannot find his homework.",
+      "He explains to his teacher that he left the assignment at home.",
+      "That evening at his desk he finds the finished paper under his books.",
+      "The next day he hands the completed homework to his smiling teacher."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 30.29,
+      "durationSeconds": 50.95,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/forgotten-homework-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "forgotten-homework-01-c1",
     "image": {
-      "alt": "Forgotten Homework. A student forgets homework, finds it at home, and gives it to the teacher.",
+      "alt": "Forgotten Homework. A boy searches his backpack at his desk and cannot find his homework. He explains to his teacher that he left the assignment at home. That evening at his desk he finds the finished paper under his books. The next day he hands the completed homework to his smiling teacher.",
       "height": 1024,
       "mediaId": "forgotten-homework-01",
       "source": "built_in",
@@ -2441,8 +3285,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Tom had completed the homework carefully, which made forgetting it feel especially unfair. At school, his empty folder seemed to accuse him. The teacher listened, then gave him one chance to bring it the next day. Tom went home annoyed at himself, found the paper exactly where he had left it, and changed his routine. He packed his bag before he relaxed. The next morning, handing in the assignment felt less like fixing a mistake and more like becoming reliable."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Ravi",
+          "text": "Ms. Green, I need to be honest — I've turned my bag inside out and my homework simply isn't here."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "Did you actually complete it, or is this a case of forgetting to do it altogether?"
+        },
+        {
+          "speaker": "Ravi",
+          "text": "I genuinely finished it last night. I'm almost certain I left it sitting on my desk at home."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "I'll take you at your word. Bring it in first thing tomorrow and we'll say no more about it."
+        },
+        {
+          "speaker": "Ravi",
+          "text": "Thank you for being fair. I hate the feeling of letting an assignment slip."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "It happens to the best of us. My advice? Pack everything the night before, while it's still fresh in your mind."
+        },
+        {
+          "speaker": "Ravi",
+          "text": "That's a habit worth building. And look — here it is, handed in a day late but complete."
+        },
+        {
+          "speaker": "Ms. Green",
+          "text": "Excellent. Owning the mistake and fixing it is half the lesson."
+        }
+      ]
     },
     "setting": "school-and-home",
     "skills": [
@@ -2451,9 +3328,9 @@ export const builtInSceneMediaItems =
       "teacher",
       "problem",
       "solution",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "school_and_learning",
+      "taking_responsibility",
+      "natural_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2464,7 +3341,7 @@ export const builtInSceneMediaItems =
       "problem",
       "solution"
     ],
-    "title": "Forgotten Homework - Nuanced Story",
+    "title": "The Forgotten Homework",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2475,19 +3352,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "forgotten-homework-01",
     "visualSummary": [
-      "A student forgets homework, finds it at home, and gives it to the teacher."
+      "A boy searches his backpack at his desk and cannot find his homework.",
+      "He explains to his teacher that he left the assignment at home.",
+      "That evening at his desk he finds the finished paper under his books.",
+      "The next day he hands the completed homework to his smiling teacher."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 14.66,
+      "durationSeconds": 27.65,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/forgotten-keys-home-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "forgotten-keys-home-01-a1-a2",
     "image": {
-      "alt": "Forgotten Keys. The person locks herself out, gets help from a neighbor, and receives a spare key.",
+      "alt": "Forgotten Keys. A woman reaches for her apartment door, ready to go inside. Out on the walkway she pats her empty pockets and realizes she has no keys. A friendly neighbor notices she is locked out and offers to help. The neighbor hands her a spare key and she smiles with relief.",
       "height": 1024,
       "mediaId": "forgotten-keys-home-01",
       "source": "built_in",
@@ -2496,17 +3376,45 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mia closed her apartment door and then touched her empty pocket. Her keys were inside. She asked her neighbor for help. The neighbor had a spare key, and Mia got back inside before the rain started."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Aisha",
+          "text": "Oh no. Where are my keys? They are not in my bag!"
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Hello! Is there a problem?"
+        },
+        {
+          "speaker": "Aisha",
+          "text": "Yes. I can't open my door. I don't have my keys."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Don't worry. I have your spare key. Remember?"
+        },
+        {
+          "speaker": "Aisha",
+          "text": "Oh, thank you! That's right. I gave it to you."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Here it is. Now you can go inside."
+        },
+        {
+          "speaker": "Aisha",
+          "text": "Thank you so much. You saved my day!"
+        }
+      ]
     },
     "setting": "apartment",
     "skills": [
       "home_routines",
       "keys",
       "asking_for_help",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "home_and_neighbours",
+      "possessives"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2516,7 +3424,7 @@ export const builtInSceneMediaItems =
       "asking-for-help",
       "home"
     ],
-    "title": "Forgotten Keys - Simple Story",
+    "title": "Locked Out",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2527,19 +3435,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "forgotten-keys-home-01",
     "visualSummary": [
-      "The person locks herself out, gets help from a neighbor, and receives a spare key."
+      "A woman reaches for her apartment door, ready to go inside.",
+      "Out on the walkway she pats her empty pockets and realizes she has no keys.",
+      "A friendly neighbor notices she is locked out and offers to help.",
+      "The neighbor hands her a spare key and she smiles with relief."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 21.53,
+      "durationSeconds": 30.89,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/forgotten-keys-home-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "forgotten-keys-home-01-b1-b2",
     "image": {
-      "alt": "Forgotten Keys. The person locks herself out, gets help from a neighbor, and receives a spare key.",
+      "alt": "Forgotten Keys. A woman reaches for her apartment door, ready to go inside. Out on the walkway she pats her empty pockets and realizes she has no keys. A friendly neighbor notices she is locked out and offers to help. The neighbor hands her a spare key and she smiles with relief.",
       "height": 1024,
       "mediaId": "forgotten-keys-home-01",
       "source": "built_in",
@@ -2548,17 +3459,45 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mia was carrying two bags when the door closed behind her. The sound was small, but the problem was big: her keys were still on the table. She knocked on her neighbor's door and explained what happened. Luckily, the neighbor kept a spare key for emergencies. Mia opened the door again, thanked her, and decided to put a key hook by the entrance."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Aisha",
+          "text": "Oh no. I've searched my whole bag and my keys just aren't here."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Everything okay? You look a bit stressed."
+        },
+        {
+          "speaker": "Aisha",
+          "text": "I'm locked out. I think I left my keys inside this morning."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Ah, lucky for you, I've still got the spare key you gave me last year."
+        },
+        {
+          "speaker": "Aisha",
+          "text": "You're a lifesaver. I completely forgot I left one with you."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "That's what neighbours are for. Here you go."
+        },
+        {
+          "speaker": "Aisha",
+          "text": "Thank you so much. I owe you a coffee for this."
+        }
+      ]
     },
     "setting": "apartment",
     "skills": [
       "home_routines",
       "keys",
       "asking_for_help",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "home_and_neighbours",
+      "past_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2568,7 +3507,7 @@ export const builtInSceneMediaItems =
       "asking-for-help",
       "home"
     ],
-    "title": "Forgotten Keys - Everyday Story",
+    "title": "Locked Out",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2579,19 +3518,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "forgotten-keys-home-01",
     "visualSummary": [
-      "The person locks herself out, gets help from a neighbor, and receives a spare key."
+      "A woman reaches for her apartment door, ready to go inside.",
+      "Out on the walkway she pats her empty pockets and realizes she has no keys.",
+      "A friendly neighbor notices she is locked out and offers to help.",
+      "The neighbor hands her a spare key and she smiles with relief."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 30.77,
+      "durationSeconds": 46.54,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/forgotten-keys-home-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "forgotten-keys-home-01-c1",
     "image": {
-      "alt": "Forgotten Keys. The person locks herself out, gets help from a neighbor, and receives a spare key.",
+      "alt": "Forgotten Keys. A woman reaches for her apartment door, ready to go inside. Out on the walkway she pats her empty pockets and realizes she has no keys. A friendly neighbor notices she is locked out and offers to help. The neighbor hands her a spare key and she smiles with relief.",
       "height": 1024,
       "mediaId": "forgotten-keys-home-01",
       "source": "built_in",
@@ -2600,17 +3542,46 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Mia knew the mistake the second the door clicked shut. Her keys were visible through the small window, sitting calmly on the table as if they had chosen to stay home. For a moment, she stood in the hallway with grocery bags cutting into her hands. Then she remembered the spare key she had given her neighbor months ago. One embarrassed knock later, the crisis was over. Mia stepped back inside, grateful for past planning and determined to build better habits."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Aisha",
+          "text": "You have got to be joking. I've been through every pocket twice and my keys have simply vanished."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "You look like you're having quite the morning. Everything alright?"
+        },
+        {
+          "speaker": "Aisha",
+          "text": "I've managed to lock myself out. I must have left them on the kitchen counter as I rushed out."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Well, this is your lucky day — I never got round to returning that spare you trusted me with."
+        },
+        {
+          "speaker": "Aisha",
+          "text": "Honestly, I'd completely forgotten I'd given you one. You've just rescued me from a very long wait."
+        },
+        {
+          "speaker": "Mr. Bello",
+          "text": "Happy to help. It's precisely why swapping spare keys with a neighbour is worth the trouble."
+        },
+        {
+          "speaker": "Aisha",
+          "text": "I'm putting a proper thank-you through your door later. You've turned a disaster into a minor hiccup."
+        }
+      ]
     },
     "setting": "apartment",
     "skills": [
       "home_routines",
       "keys",
       "asking_for_help",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "home_and_neighbours",
+      "storytelling",
+      "community"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2620,7 +3591,7 @@ export const builtInSceneMediaItems =
       "asking-for-help",
       "home"
     ],
-    "title": "Forgotten Keys - Nuanced Story",
+    "title": "Locked Out",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2631,19 +3602,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "forgotten-keys-home-01",
     "visualSummary": [
-      "The person locks herself out, gets help from a neighbor, and receives a spare key."
+      "A woman reaches for her apartment door, ready to go inside.",
+      "Out on the walkway she pats her empty pockets and realizes she has no keys.",
+      "A friendly neighbor notices she is locked out and offers to help.",
+      "The neighbor hands her a spare key and she smiles with relief."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 14.62,
+      "durationSeconds": 23.66,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/group-project-library-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "group-project-library-01-a1-a2",
     "image": {
-      "alt": "Group Project At The Library. Students plan, research, make a poster, and present together.",
+      "alt": "Group Project At The Library. Four classmates gather around a library table with a laptop and books to plan a group project. They research and trade ideas, one tapping the laptop while another thinks aloud. Together they draw a colorful poster with shapes and diagrams. They present the finished poster to the rest of the class.",
       "height": 1024,
       "mediaId": "group-project-library-01",
       "source": "built_in",
@@ -2652,8 +3626,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Three students met at the library for a group project. At first, they did not know what to do. They chose jobs: one read, one drew, and one wrote. The next day, they presented their poster together."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Malik",
+          "text": "Okay, team. What is our project about?"
+        },
+        {
+          "speaker": "Sara",
+          "text": "Let's do it about animals. I can find facts online."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Good idea! I can draw the pictures."
+        },
+        {
+          "speaker": "Aya",
+          "text": "And I can talk in front of the class."
+        },
+        {
+          "speaker": "Malik",
+          "text": "Perfect. Let's start now."
+        },
+        {
+          "speaker": "Sara",
+          "text": "Here are three facts about tigers."
+        },
+        {
+          "speaker": "Aya",
+          "text": "Nice! Our poster looks great."
+        }
+      ]
     },
     "setting": "library",
     "skills": [
@@ -2663,9 +3666,9 @@ export const builtInSceneMediaItems =
       "project",
       "teamwork",
       "research",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "school_and_teamwork",
+      "sharing_tasks",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2677,7 +3680,7 @@ export const builtInSceneMediaItems =
       "teamwork",
       "research"
     ],
-    "title": "Group Project At The Library - Simple Story",
+    "title": "The Group Project",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2688,19 +3691,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "group-project-library-01",
     "visualSummary": [
-      "Students plan, research, make a poster, and present together."
+      "Four classmates gather around a library table with a laptop and books to plan a group project.",
+      "They research and trade ideas, one tapping the laptop while another thinks aloud.",
+      "Together they draw a colorful poster with shapes and diagrams.",
+      "They present the finished poster to the rest of the class."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 25.13,
+      "durationSeconds": 34.92,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/group-project-library-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "group-project-library-01-b1-b2",
     "image": {
-      "alt": "Group Project At The Library. Students plan, research, make a poster, and present together.",
+      "alt": "Group Project At The Library. Four classmates gather around a library table with a laptop and books to plan a group project. They research and trade ideas, one tapping the laptop while another thinks aloud. Together they draw a colorful poster with shapes and diagrams. They present the finished poster to the rest of the class.",
       "height": 1024,
       "mediaId": "group-project-library-01",
       "source": "built_in",
@@ -2709,8 +3715,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "At the beginning of the project, the group felt lost. There were too many books, too many ideas, and not enough time. Sara suggested that each person choose one job. Mateo found facts, Lina made the poster, and Sara organized the notes. When they practiced in the library, the presentation finally made sense. The group walked into class nervous but prepared."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Malik",
+          "text": "Alright, everyone. We need a topic for our project. Any ideas?"
+        },
+        {
+          "speaker": "Sara",
+          "text": "How about endangered animals? I can look up the information."
+        },
+        {
+          "speaker": "Tom",
+          "text": "I like that. I'll design the poster and add some drawings."
+        },
+        {
+          "speaker": "Aya",
+          "text": "And I'm happy to present it to the class if you write the notes."
+        },
+        {
+          "speaker": "Malik",
+          "text": "Great, that way everyone has a job. Let's get to work."
+        },
+        {
+          "speaker": "Sara",
+          "text": "I've already found some interesting facts about tigers and pandas."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Send them over and I'll fit them around the pictures."
+        },
+        {
+          "speaker": "Aya",
+          "text": "This is going to be the best poster in the class."
+        }
+      ]
     },
     "setting": "library",
     "skills": [
@@ -2720,9 +3759,9 @@ export const builtInSceneMediaItems =
       "project",
       "teamwork",
       "research",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "school_and_teamwork",
+      "planning_together",
+      "giving_opinions"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2734,7 +3773,7 @@ export const builtInSceneMediaItems =
       "teamwork",
       "research"
     ],
-    "title": "Group Project At The Library - Everyday Story",
+    "title": "The Group Project",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2745,19 +3784,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "group-project-library-01",
     "visualSummary": [
-      "Students plan, research, make a poster, and present together."
+      "Four classmates gather around a library table with a laptop and books to plan a group project.",
+      "They research and trade ideas, one tapping the laptop while another thinks aloud.",
+      "Together they draw a colorful poster with shapes and diagrams.",
+      "They present the finished poster to the rest of the class."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 31.13,
+      "durationSeconds": 48.17,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/group-project-library-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "group-project-library-01-c1",
     "image": {
-      "alt": "Group Project At The Library. Students plan, research, make a poster, and present together.",
+      "alt": "Group Project At The Library. Four classmates gather around a library table with a laptop and books to plan a group project. They research and trade ideas, one tapping the laptop while another thinks aloud. Together they draw a colorful poster with shapes and diagrams. They present the finished poster to the rest of the class.",
       "height": 1024,
       "mediaId": "group-project-library-01",
       "source": "built_in",
@@ -2766,8 +3808,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The group project began with polite confusion. Everyone had ideas, but no one knew how to turn them into a presentation. In the library, Sara finally drew three columns on a sheet of paper and divided the work. Mateo searched for evidence, Lina designed the poster, and Sara connected the pieces into a clear order. Their first practice sounded awkward, but each round improved. By presentation day, they had not only finished the project; they had learned how to become a team."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Malik",
+          "text": "Right, let's get organised. We need a strong topic before we do anything else."
+        },
+        {
+          "speaker": "Sara",
+          "text": "What about endangered species? There's loads of solid research out there, and I'm happy to dig into it."
+        },
+        {
+          "speaker": "Tom",
+          "text": "I'm in. I'll handle the layout and illustrations so it actually looks the part."
+        },
+        {
+          "speaker": "Aya",
+          "text": "And I'll take the speaking role, as long as someone helps me structure the key points."
+        },
+        {
+          "speaker": "Malik",
+          "text": "Perfect — that plays to everyone's strengths. Let's divide it up and check in every ten minutes."
+        },
+        {
+          "speaker": "Sara",
+          "text": "I've already pulled some striking facts about tigers and coral reefs."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Send them my way and I'll weave them around the visuals so nothing feels crowded."
+        },
+        {
+          "speaker": "Aya",
+          "text": "Honestly, if we keep this up, we'll walk into that presentation completely prepared."
+        }
+      ]
     },
     "setting": "library",
     "skills": [
@@ -2777,9 +3852,9 @@ export const builtInSceneMediaItems =
       "project",
       "teamwork",
       "research",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "school_and_teamwork",
+      "collaboration",
+      "organising_work"
     ],
     "source": "built_in",
     "status": "ready",
@@ -2791,7 +3866,7 @@ export const builtInSceneMediaItems =
       "teamwork",
       "research"
     ],
-    "title": "Group Project At The Library - Nuanced Story",
+    "title": "The Group Project",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -2802,7 +3877,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "group-project-library-01",
     "visualSummary": [
-      "Students plan, research, make a poster, and present together."
+      "Four classmates gather around a library table with a laptop and books to plan a group project.",
+      "They research and trade ideas, one tapping the laptop while another thinks aloud.",
+      "Together they draw a colorful poster with shapes and diagrams.",
+      "They present the finished poster to the rest of the class."
     ]
   },
   {
@@ -3052,14 +4130,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 14.3,
+      "durationSeconds": 29.04,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/laundry-color-mistake-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "laundry-color-mistake-01-a1-a2",
     "image": {
-      "alt": "Laundry Color Mistake. A laundry color mistake happens, then siblings sort clothes and fold them correctly.",
+      "alt": "Laundry Color Mistake. A boy happily loads a pile of mixed-color clothes into the washing machine. He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor. A friend shows him how one red item colored the whites and explains sorting. Together they fold the clean clothes into separate color piles.",
       "height": 1024,
       "mediaId": "laundry-color-mistake-01",
       "source": "built_in",
@@ -3068,8 +4146,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Noah washed his white shirt with a red sock. The shirt came out pink. His sister laughed, but then she helped him sort the clothes. They washed the next load carefully, and Noah learned to check pockets and colors."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Kai",
+          "text": "Look! My white shirt is pink now. What happened?"
+        },
+        {
+          "speaker": "Zoe",
+          "text": "Oh! A red sock was in the white clothes."
+        },
+        {
+          "speaker": "Kai",
+          "text": "Oh no. I didn't see it."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "It's okay. Next time, we sort the colors first."
+        },
+        {
+          "speaker": "Kai",
+          "text": "How do we do that?"
+        },
+        {
+          "speaker": "Zoe",
+          "text": "White clothes here. Dark clothes there. Easy!"
+        },
+        {
+          "speaker": "Kai",
+          "text": "Now I understand. Thank you, Zoe."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "No problem. Let's fold these together."
+        }
+      ]
     },
     "setting": "laundry-room",
     "skills": [
@@ -3077,9 +4188,9 @@ export const builtInSceneMediaItems =
       "laundry",
       "colors",
       "mistakes",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "home_and_chores",
+      "colors_and_clothes",
+      "past_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3090,7 +4201,7 @@ export const builtInSceneMediaItems =
       "mistakes",
       "home"
     ],
-    "title": "Laundry Color Mistake - Simple Story",
+    "title": "The Pink Shirt",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3101,19 +4212,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "laundry-color-mistake-01",
     "visualSummary": [
-      "A laundry color mistake happens, then siblings sort clothes and fold them correctly."
+      "A boy happily loads a pile of mixed-color clothes into the washing machine.",
+      "He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor.",
+      "A friend shows him how one red item colored the whites and explains sorting.",
+      "Together they fold the clean clothes into separate color piles."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 23.45,
+      "durationSeconds": 38.71,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/laundry-color-mistake-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "laundry-color-mistake-01-b1-b2",
     "image": {
-      "alt": "Laundry Color Mistake. A laundry color mistake happens, then siblings sort clothes and fold them correctly.",
+      "alt": "Laundry Color Mistake. A boy happily loads a pile of mixed-color clothes into the washing machine. He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor. A friend shows him how one red item colored the whites and explains sorting. Together they fold the clean clothes into separate color piles.",
       "height": 1024,
       "mediaId": "laundry-color-mistake-01",
       "source": "built_in",
@@ -3122,8 +4236,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Noah wanted to finish the laundry quickly, so he put everything into one machine. When the cycle ended, his favorite white shirt had turned pale pink. His sister laughed for a second, then showed him how to separate colors. They sorted the next basket together and folded the clean clothes. Noah still had a pink shirt, but now he also had a useful lesson."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Kai",
+          "text": "I don't get it — how did my white shirt turn pink?"
+        },
+        {
+          "speaker": "Zoe",
+          "text": "Let me guess… did you wash it with anything red?"
+        },
+        {
+          "speaker": "Kai",
+          "text": "Now that you mention it, there was a red sock in the basket."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "That's the culprit. When it gets wet, the colour runs onto everything white."
+        },
+        {
+          "speaker": "Kai",
+          "text": "Great. So how do I stop that from happening again?"
+        },
+        {
+          "speaker": "Zoe",
+          "text": "Just sort your laundry first — whites in one pile, darks and colours in another."
+        },
+        {
+          "speaker": "Kai",
+          "text": "That's actually really simple. Thanks for saving my other shirts."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "Any time. Come on, let's fold the rest."
+        }
+      ]
     },
     "setting": "laundry-room",
     "skills": [
@@ -3131,9 +4278,9 @@ export const builtInSceneMediaItems =
       "laundry",
       "colors",
       "mistakes",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "home_and_chores",
+      "cause_and_effect",
+      "giving_advice"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3144,7 +4291,7 @@ export const builtInSceneMediaItems =
       "mistakes",
       "home"
     ],
-    "title": "Laundry Color Mistake - Everyday Story",
+    "title": "The Pink Shirt",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3155,19 +4302,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "laundry-color-mistake-01",
     "visualSummary": [
-      "A laundry color mistake happens, then siblings sort clothes and fold them correctly."
+      "A boy happily loads a pile of mixed-color clothes into the washing machine.",
+      "He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor.",
+      "A friend shows him how one red item colored the whites and explains sorting.",
+      "Together they fold the clean clothes into separate color piles."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 30.14,
+      "durationSeconds": 52.51,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/laundry-color-mistake-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "laundry-color-mistake-01-c1",
     "image": {
-      "alt": "Laundry Color Mistake. A laundry color mistake happens, then siblings sort clothes and fold them correctly.",
+      "alt": "Laundry Color Mistake. A boy happily loads a pile of mixed-color clothes into the washing machine. He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor. A friend shows him how one red item colored the whites and explains sorting. Together they fold the clean clothes into separate color piles.",
       "height": 1024,
       "mediaId": "laundry-color-mistake-01",
       "source": "built_in",
@@ -3176,8 +4326,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Noah believed laundry was simple until one red sock quietly changed the color of his favorite shirt. At first, he stared at the pink fabric as if it might apologize. His sister found the situation funny, but she did not leave him alone with the problem. She showed him how to sort colors, check pockets, and read the labels he had always ignored. The shirt never became white again, but Noah kept it as a reminder that speed is not the same as efficiency."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Kai",
+          "text": "Explain this to me, because I'm baffled — my favourite white shirt has come out a lovely shade of pink."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "Classic mistake. I'm willing to bet something red found its way into that load."
+        },
+        {
+          "speaker": "Kai",
+          "text": "Ugh, there was a red sock hiding at the bottom of the basket. I never even noticed it."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "That'll do it. Once it's soaked, the dye bleeds out and the whites soak it right up."
+        },
+        {
+          "speaker": "Kai",
+          "text": "So what's the trick to avoiding a wardrobe full of pink?"
+        },
+        {
+          "speaker": "Zoe",
+          "text": "Sort before you wash — keep whites together, darks together, and wash anything new separately the first time."
+        },
+        {
+          "speaker": "Kai",
+          "text": "Honestly, that's such an obvious habit and I've been ignoring it for years."
+        },
+        {
+          "speaker": "Zoe",
+          "text": "We've all ruined a shirt or two. Right, let's rescue what's left and fold it properly this time."
+        }
+      ]
     },
     "setting": "laundry-room",
     "skills": [
@@ -3185,9 +4368,9 @@ export const builtInSceneMediaItems =
       "laundry",
       "colors",
       "mistakes",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "home_and_chores",
+      "explaining_and_advising",
+      "natural_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3198,7 +4381,7 @@ export const builtInSceneMediaItems =
       "mistakes",
       "home"
     ],
-    "title": "Laundry Color Mistake - Nuanced Story",
+    "title": "The Pink Shirt",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3209,19 +4392,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "laundry-color-mistake-01",
     "visualSummary": [
-      "A laundry color mistake happens, then siblings sort clothes and fold them correctly."
+      "A boy happily loads a pile of mixed-color clothes into the washing machine.",
+      "He pulls out a white t-shirt that has turned pink and looks shocked, a red sock on the floor.",
+      "A friend shows him how one red item colored the whites and explains sorting.",
+      "Together they fold the clean clothes into separate color piles."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 12.74,
+      "durationSeconds": 25.66,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/library-card-help-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "library-card-help-01-a1-a2",
     "image": {
-      "alt": "Getting A Library Card. An older adult gets help applying for a library card and borrows books.",
+      "alt": "Getting A Library Card. An older woman enters the library and looks around. At the desk the librarian welcomes her and explains how to get a card. The woman fills out a short form and receives her new library card. She leaves happily carrying a stack of borrowed books.",
       "height": 1024,
       "mediaId": "library-card-help-01",
       "source": "built_in",
@@ -3230,8 +4416,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mrs. Patel wanted a library card, but the form was new to her. A librarian helped her fill it out. Then Mrs. Patel chose two books. She walked home proud of her new card."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Hello. I want to get a library card, please."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Welcome! It's easy. Do you have some ID?"
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Yes, here is my ID card."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Perfect. Please write your name and address here."
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Okay… Is it ready now?"
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Yes! Here is your new card. You can take five books."
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Wonderful. Thank you very much!"
+        }
+      ]
     },
     "setting": "library",
     "skills": [
@@ -3241,9 +4456,9 @@ export const builtInSceneMediaItems =
       "help",
       "borrowing",
       "books",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "community_and_services",
+      "registering",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3255,7 +4470,7 @@ export const builtInSceneMediaItems =
       "borrowing",
       "books"
     ],
-    "title": "Getting A Library Card - Simple Story",
+    "title": "A New Library Card",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3266,19 +4481,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "library-card-help-01",
     "visualSummary": [
-      "An older adult gets help applying for a library card and borrows books."
+      "An older woman enters the library and looks around.",
+      "At the desk the librarian welcomes her and explains how to get a card.",
+      "The woman fills out a short form and receives her new library card.",
+      "She leaves happily carrying a stack of borrowed books."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 27.62,
+      "durationSeconds": 34.68,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/library-card-help-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "library-card-help-01-b1-b2",
     "image": {
-      "alt": "Getting A Library Card. An older adult gets help applying for a library card and borrows books.",
+      "alt": "Getting A Library Card. An older woman enters the library and looks around. At the desk the librarian welcomes her and explains how to get a card. The woman fills out a short form and receives her new library card. She leaves happily carrying a stack of borrowed books.",
       "height": 1024,
       "mediaId": "library-card-help-01",
       "source": "built_in",
@@ -3287,8 +4505,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mrs. Patel had passed the library many times but had never gone inside to borrow a book. One afternoon, she decided to ask for a card. The form looked confusing, and she almost left. A librarian noticed and offered help. Together they completed the application. Mrs. Patel borrowed two books and held the card carefully, as if it were a small key to a larger room."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Good morning. I'd like to sign up for a library card."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Of course, welcome! Do you have some form of ID with you?"
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Yes, I brought my ID and a letter with my address."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Perfect. Just fill in this short form, and I'll do the rest."
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "There you go. How many books can I borrow?"
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Up to five at a time, for three weeks each. Here's your new card."
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "That's marvellous. I haven't had a library card in years."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Then welcome back. Enjoy exploring the shelves."
+        }
+      ]
     },
     "setting": "library",
     "skills": [
@@ -3298,9 +4549,9 @@ export const builtInSceneMediaItems =
       "help",
       "borrowing",
       "books",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "community_and_services",
+      "registering",
+      "polite_requests"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3312,7 +4563,7 @@ export const builtInSceneMediaItems =
       "borrowing",
       "books"
     ],
-    "title": "Getting A Library Card - Everyday Story",
+    "title": "A New Library Card",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3323,19 +4574,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "library-card-help-01",
     "visualSummary": [
-      "An older adult gets help applying for a library card and borrows books."
+      "An older woman enters the library and looks around.",
+      "At the desk the librarian welcomes her and explains how to get a card.",
+      "The woman fills out a short form and receives her new library card.",
+      "She leaves happily carrying a stack of borrowed books."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 32.3,
+      "durationSeconds": 47.45,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/library-card-help-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "library-card-help-01-c1",
     "image": {
-      "alt": "Getting A Library Card. An older adult gets help applying for a library card and borrows books.",
+      "alt": "Getting A Library Card. An older woman enters the library and looks around. At the desk the librarian welcomes her and explains how to get a card. The woman fills out a short form and receives her new library card. She leaves happily carrying a stack of borrowed books.",
       "height": 1024,
       "mediaId": "library-card-help-01",
       "source": "built_in",
@@ -3344,8 +4598,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "For years, Mrs. Patel had treated the library as a place for other people, even though she loved books. The application form seemed to confirm her worry: too many boxes, too many unfamiliar steps. A librarian approached before embarrassment could send her back to the door. She explained each part patiently, then helped Mrs. Patel choose her first books. When the new card slid across the desk, it felt less like plastic and more like permission. Mrs. Patel left with stories under her arm."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "Good morning. I was hoping to sign up for a library card, if it's not too much trouble."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "No trouble at all — that's what we're here for. Do you happen to have some ID on you?"
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "I do. My ID card, and a utility bill showing my address, just in case."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "You've come well prepared. Fill in this short form and I'll have you set up in a moment."
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "There we are. And what are the borrowing rules these days?"
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Five items at a time, three weeks each, and you can renew online if you're not finished. Here's your card."
+        },
+        {
+          "speaker": "Mrs. Okafor",
+          "text": "How wonderful. I used to spend whole afternoons in libraries as a girl."
+        },
+        {
+          "speaker": "Ms. Reed",
+          "text": "Then consider this your invitation to start again. Take your time and browse."
+        }
+      ]
     },
     "setting": "library",
     "skills": [
@@ -3355,9 +4642,9 @@ export const builtInSceneMediaItems =
       "help",
       "borrowing",
       "books",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "community_and_services",
+      "registering",
+      "warm_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3369,7 +4656,7 @@ export const builtInSceneMediaItems =
       "borrowing",
       "books"
     ],
-    "title": "Getting A Library Card - Nuanced Story",
+    "title": "A New Library Card",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3380,12 +4667,15 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "library-card-help-01",
     "visualSummary": [
-      "An older adult gets help applying for a library card and borrows books."
+      "An older woman enters the library and looks around.",
+      "At the desk the librarian welcomes her and explains how to get a card.",
+      "The woman fills out a short form and receives her new library card.",
+      "She leaves happily carrying a stack of borrowed books."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 14.42,
+      "durationSeconds": 23.42,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/lost-luggage-hotel-01-a1-a2.mp3"
     },
@@ -3401,8 +4691,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Omar arrived at the hotel after a long trip. His blue suitcase was not beside him. A hotel worker helped him look near the desk and the cart. They found the suitcase, and Omar finally smiled."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Kwame",
+          "text": "Excuse me. I can't find my suitcase."
+        },
+        {
+          "speaker": "Marco",
+          "text": "Don't worry, sir. What does it look like?"
+        },
+        {
+          "speaker": "Kwame",
+          "text": "It is blue. It is not very big."
+        },
+        {
+          "speaker": "Marco",
+          "text": "Let me check. Please wait one moment."
+        },
+        {
+          "speaker": "Marco",
+          "text": "Is this blue suitcase yours?"
+        },
+        {
+          "speaker": "Kwame",
+          "text": "Yes! That's it. Thank you so much."
+        },
+        {
+          "speaker": "Marco",
+          "text": "You're welcome. Have a nice stay!"
+        }
+      ]
     },
     "setting": "hotel-lobby",
     "skills": [
@@ -3412,9 +4731,9 @@ export const builtInSceneMediaItems =
       "asking_for_help",
       "emotions",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "travel_and_transport",
+      "describing_objects",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3427,7 +4746,7 @@ export const builtInSceneMediaItems =
       "helping",
       "problem-solution"
     ],
-    "title": "Lost Luggage At The Hotel - Simple Story",
+    "title": "The Missing Suitcase",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3446,7 +4765,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 23.9,
+      "durationSeconds": 32.33,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/lost-luggage-hotel-01-b1-b2.mp3"
     },
@@ -3462,8 +4781,37 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Omar was tired when he reached the hotel, and he wanted only a shower and sleep. Then he noticed that his blue suitcase was missing. He checked near the door, near the elevator, and beside the luggage cart. A hotel worker listened carefully and helped him search. The suitcase had been placed behind another bag at reception. Omar thanked her and went upstairs feeling lucky."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Kwame",
+          "text": "Hello, I think there's a problem. My suitcase isn't with the others."
+        },
+        {
+          "speaker": "Marco",
+          "text": "I'm sorry to hear that. Can you describe it for me?"
+        },
+        {
+          "speaker": "Kwame",
+          "text": "It's a dark blue case with wheels, and it has a red tag on the handle."
+        },
+        {
+          "speaker": "Marco",
+          "text": "Let me have a look on the luggage cart… I think I've found it."
+        },
+        {
+          "speaker": "Kwame",
+          "text": "Oh, thank goodness. That's definitely mine."
+        },
+        {
+          "speaker": "Marco",
+          "text": "Here you are. It was moved by mistake — my apologies for the worry."
+        },
+        {
+          "speaker": "Kwame",
+          "text": "No harm done. Thank you for sorting it out so quickly."
+        }
+      ]
     },
     "setting": "hotel-lobby",
     "skills": [
@@ -3473,9 +4821,9 @@ export const builtInSceneMediaItems =
       "asking_for_help",
       "emotions",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "travel_and_transport",
+      "describing_objects",
+      "polite_complaints"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3488,7 +4836,7 @@ export const builtInSceneMediaItems =
       "helping",
       "problem-solution"
     ],
-    "title": "Lost Luggage At The Hotel - Everyday Story",
+    "title": "The Missing Suitcase",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3507,7 +4855,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 32.02,
+      "durationSeconds": 50.09,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/lost-luggage-hotel-01-c1.mp3"
     },
@@ -3523,8 +4871,37 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "After nine hours of travel, Omar had very little patience left, so the missing suitcase felt like the final insult of the day. The hotel lobby was busy, and every bag seemed almost, but not quite, like his. A staff member asked him to describe it, then began searching with a calmness Omar did not feel. They found the suitcase hidden behind a larger one near reception. Omar laughed with relief, suddenly aware that the disaster he imagined had lasted only ten minutes."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Kwame",
+          "text": "Excuse me — I've got a bit of a situation. My suitcase seems to have vanished from the group we left at reception."
+        },
+        {
+          "speaker": "Marco",
+          "text": "I do apologise. Let's not assume the worst; could you describe it in as much detail as possible?"
+        },
+        {
+          "speaker": "Kwame",
+          "text": "It's a navy hard-shell case, medium-sized, with a bright red ribbon tied to the handle so I can spot it."
+        },
+        {
+          "speaker": "Marco",
+          "text": "That's very helpful. Give me a moment to check the trolley behind the desk… ah, I believe this is the one."
+        },
+        {
+          "speaker": "Kwame",
+          "text": "That's it, exactly. You have no idea how relieved I am."
+        },
+        {
+          "speaker": "Marco",
+          "text": "It appears it was loaded with another guest's bags by accident. Again, I'm sorry for the inconvenience."
+        },
+        {
+          "speaker": "Kwame",
+          "text": "Honestly, these things happen. I appreciate you handling it so calmly and quickly."
+        }
+      ]
     },
     "setting": "hotel-lobby",
     "skills": [
@@ -3534,9 +4911,9 @@ export const builtInSceneMediaItems =
       "asking_for_help",
       "emotions",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "travel_and_transport",
+      "describing_in_detail",
+      "handling_problems"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3549,7 +4926,7 @@ export const builtInSceneMediaItems =
       "helping",
       "problem-solution"
     ],
-    "title": "Lost Luggage At The Hotel - Nuanced Story",
+    "title": "The Missing Suitcase",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3812,14 +5189,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 13.1,
+      "durationSeconds": 24.5,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/market-checkout-line-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "market-checkout-line-01-a1-a2",
     "image": {
-      "alt": "Market Checkout Line. People shop, wait, scan groceries, and pack reusable bags at a market checkout.",
+      "alt": "Market Checkout Line. A shopper unloads groceries at the checkout while the cashier scans items and others wait in line.",
       "height": 1024,
       "mediaId": "market-checkout-line-01",
       "source": "built_in",
@@ -3828,8 +5205,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Leo waited in the market line with a basket of food. The line was long, and he felt impatient. Then he helped an older woman pick up an orange. Soon it was his turn, and the wait felt shorter."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Lin",
+          "text": "Hello! Did you find everything today?"
+        },
+        {
+          "speaker": "Elena",
+          "text": "Yes, thank you. Here are my things."
+        },
+        {
+          "speaker": "Lin",
+          "text": "Okay. One bread, some fruit, and a pepper. That is twelve dollars."
+        },
+        {
+          "speaker": "Elena",
+          "text": "Can I pay by card?"
+        },
+        {
+          "speaker": "Lin",
+          "text": "Of course. Tap your card here, please."
+        },
+        {
+          "speaker": "Elena",
+          "text": "Do you have a bag?"
+        },
+        {
+          "speaker": "Lin",
+          "text": "Yes, here you are. Have a nice day!"
+        }
+      ]
     },
     "setting": "market-checkout",
     "skills": [
@@ -3838,9 +5244,8 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "paying",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3852,7 +5257,7 @@ export const builtInSceneMediaItems =
       "line",
       "market"
     ],
-    "title": "Market Checkout Line - Simple Story",
+    "title": "At The Checkout",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3862,19 +5267,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "market-checkout-line-01",
     "visualSummary": [
-      "People shop, wait, scan groceries, and pack reusable bags at a market checkout."
+      "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.94,
+      "durationSeconds": 36.29,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/market-checkout-line-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "market-checkout-line-01-b1-b2",
     "image": {
-      "alt": "Market Checkout Line. People shop, wait, scan groceries, and pack reusable bags at a market checkout.",
+      "alt": "Market Checkout Line. A shopper unloads groceries at the checkout while the cashier scans items and others wait in line.",
       "height": 1024,
       "mediaId": "market-checkout-line-01",
       "source": "built_in",
@@ -3883,8 +5288,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Leo chose the slowest checkout line by mistake. He had only a few groceries, but every cart in front of him seemed full. While he waited, an orange rolled from an older woman's bag. Leo picked it up and handed it back. She thanked him, and they talked for a minute. By the time the cashier called him forward, Leo was surprised that the line no longer felt annoying."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Lin",
+          "text": "Hi there! Did you find everything you were looking for?"
+        },
+        {
+          "speaker": "Elena",
+          "text": "I did, thanks. It's quite a lot this week."
+        },
+        {
+          "speaker": "Lin",
+          "text": "No problem, I'll scan it all. Bread, peppers, bananas… that comes to eighteen fifty."
+        },
+        {
+          "speaker": "Elena",
+          "text": "Great. Can I pay by card and use my own bag?"
+        },
+        {
+          "speaker": "Lin",
+          "text": "Absolutely. Tap whenever you're ready, and I'll help you pack."
+        },
+        {
+          "speaker": "Elena",
+          "text": "Thank you. Could you put the eggs on top, please?"
+        },
+        {
+          "speaker": "Lin",
+          "text": "Good idea — we don't want any accidents. There you go, all done."
+        },
+        {
+          "speaker": "Elena",
+          "text": "Perfect. Thanks for your help!"
+        }
+      ]
     },
     "setting": "market-checkout",
     "skills": [
@@ -3893,9 +5331,8 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "paying_and_bagging",
+      "polite_requests"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3907,7 +5344,7 @@ export const builtInSceneMediaItems =
       "line",
       "market"
     ],
-    "title": "Market Checkout Line - Everyday Story",
+    "title": "At The Checkout",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3917,19 +5354,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "market-checkout-line-01",
     "visualSummary": [
-      "People shop, wait, scan groceries, and pack reusable bags at a market checkout."
+      "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 32.02,
+      "durationSeconds": 52.63,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/market-checkout-line-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "market-checkout-line-01-c1",
     "image": {
-      "alt": "Market Checkout Line. People shop, wait, scan groceries, and pack reusable bags at a market checkout.",
+      "alt": "Market Checkout Line. A shopper unloads groceries at the checkout while the cashier scans items and others wait in line.",
       "height": 1024,
       "mediaId": "market-checkout-line-01",
       "source": "built_in",
@@ -3938,8 +5375,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Leo entered the market in a hurry and immediately regretted choosing the longest checkout line. He watched the cashier scan groceries, heard bags rustle, and felt his patience disappear. Then an orange escaped from the bag of the woman ahead of him and rolled to his shoe. Leo picked it up, and the small act opened a conversation. They talked about recipes, rainy weather, and busy afternoons. The line did not move faster, but Leo did. He left the market less rushed than he had entered it."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Lin",
+          "text": "Afternoon! Did you manage to find everything on your list?"
+        },
+        {
+          "speaker": "Elena",
+          "text": "More or less — I got a bit carried away in the fruit section, as usual."
+        },
+        {
+          "speaker": "Lin",
+          "text": "That's the danger of shopping while hungry! Let me ring these through… bread, peppers, bananas, and the pepper. That's twenty-two even."
+        },
+        {
+          "speaker": "Elena",
+          "text": "Lovely. I'll tap my card, and I've brought my own bags to save the plastic."
+        },
+        {
+          "speaker": "Lin",
+          "text": "Much appreciated — every little helps. Would you like the delicate things bagged separately?"
+        },
+        {
+          "speaker": "Elena",
+          "text": "Please. If the bread and eggs could go on top, that'd be perfect."
+        },
+        {
+          "speaker": "Lin",
+          "text": "Consider it done. Nothing squashed, nothing cracked. Here's your receipt, and enjoy the rest of your day."
+        },
+        {
+          "speaker": "Elena",
+          "text": "You've made that painless. Thanks so much!"
+        }
+      ]
     },
     "setting": "market-checkout",
     "skills": [
@@ -3948,9 +5418,8 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "paying_and_bagging",
+      "friendly_small_talk"
     ],
     "source": "built_in",
     "status": "ready",
@@ -3962,7 +5431,7 @@ export const builtInSceneMediaItems =
       "line",
       "market"
     ],
-    "title": "Market Checkout Line - Nuanced Story",
+    "title": "At The Checkout",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -3972,12 +5441,12 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "market-checkout-line-01",
     "visualSummary": [
-      "People shop, wait, scan groceries, and pack reusable bags at a market checkout."
+      "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 16.3,
+      "durationSeconds": 23.09,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/messy-desk-clean-desk-01-a1-a2.mp3"
     },
@@ -3993,8 +5462,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ben came to work early, but his desk was full of papers and cups. He could not find one important note. He stopped, put everything in order, and found the note under a book. When his boss arrived, Ben was ready to start."
+      "scriptType": "monologue",
+      "text": "I came to work early today, but look at my desk! Papers, cups, and pens everywhere. I need one important note, but I can't find it. Okay, let's clean up. I put the papers in order. I throw away the old cups. There it is — my note, under a book! Now my desk is clean and I feel ready to work."
     },
     "setting": "office-desk",
     "skills": [
@@ -4003,9 +5472,9 @@ export const builtInSceneMediaItems =
       "prepositions",
       "before_after",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "workplace_and_organisation",
+      "tidying_up",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4018,7 +5487,7 @@ export const builtInSceneMediaItems =
       "before-after",
       "office-objects"
     ],
-    "title": "Messy Desk, Clean Desk - Simple Story",
+    "title": "A Tidy Desk",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4034,7 +5503,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 23.86,
+      "durationSeconds": 31.37,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/messy-desk-clean-desk-01-b1-b2.mp3"
     },
@@ -4050,8 +5519,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ben arrived before the office was busy because he wanted a quiet start. His desk, however, looked like yesterday had never ended. He needed one small note for a morning call, but it was hidden under papers, pens, and an empty cup. Ben took ten minutes to sort the mess. By the time the phone rang, the note was in front of him and his mind felt clear."
+      "scriptType": "monologue",
+      "text": "I like to get to the office early, before the phones start ringing. This morning, though, my desk looked like a disaster — papers everywhere, empty cups, and pens rolling around. Worst of all, I couldn't find one important note for my first call. Instead of panicking, I spent ten minutes putting everything in order. And there it was, hiding under a book the whole time. Funny how a tidy desk makes my head feel tidy too. Now I'm actually ready for the day."
     },
     "setting": "office-desk",
     "skills": [
@@ -4060,9 +5529,9 @@ export const builtInSceneMediaItems =
       "prepositions",
       "before_after",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "workplace_and_organisation",
+      "tidying_up",
+      "reflection"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4075,7 +5544,7 @@ export const builtInSceneMediaItems =
       "before-after",
       "office-objects"
     ],
-    "title": "Messy Desk, Clean Desk - Everyday Story",
+    "title": "A Tidy Desk",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4091,7 +5560,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 31.06,
+      "durationSeconds": 44.42,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/messy-desk-clean-desk-01-c1.mp3"
     },
@@ -4107,8 +5576,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Ben planned to spend the first hour finishing a proposal, but his desk told a different story. Every paper seemed urgent, every note seemed unfinished, and the one detail he needed had vanished. Instead of pretending the chaos was harmless, he paused and rebuilt the space piece by piece. When the missing note finally appeared, the proposal no longer felt impossible. The clean desk had not done the work for him, but it had given him room to think."
+      "scriptType": "monologue",
+      "text": "There's a reason I come in before everyone else: I do my best thinking in a quiet office. This morning, however, my desk had other plans. Every surface was buried under papers, half-finished notes, and yesterday's coffee cups, and of course the one document I needed had vanished into the chaos. Rather than shuffle things around and hope, I stopped and rebuilt the space properly — sorting, filing, clearing. The missing note turned up under a book, exactly where a tidy person would never have lost it. The clean desk didn't do my work for me, but it gave my mind the room to breathe. I always forget how much clutter quietly weighs on me until it's gone."
     },
     "setting": "office-desk",
     "skills": [
@@ -4117,9 +5586,9 @@ export const builtInSceneMediaItems =
       "prepositions",
       "before_after",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "workplace_and_organisation",
+      "reflection",
+      "descriptive_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4132,7 +5601,7 @@ export const builtInSceneMediaItems =
       "before-after",
       "office-objects"
     ],
-    "title": "Messy Desk, Clean Desk - Nuanced Story",
+    "title": "A Tidy Desk",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4148,14 +5617,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 14.93,
+      "durationSeconds": 22.06,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/messy-room-tidy-room-01-a1-a2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "messy-room-tidy-room-01-a1-a2",
     "image": {
-      "alt": "Messy Room, Tidy Room. The same bedroom changes from messy to tidy.",
+      "alt": "Messy Room, Tidy Room. The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress. The same room is tidy and organized, and she stands proudly with her hands on her hips.",
       "height": 1024,
       "mediaId": "messy-room-tidy-room-01",
       "source": "built_in",
@@ -4164,17 +5633,17 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Lily wanted to invite a friend over, but her room was very messy. She picked up clothes, books, and toys. After one hour, the room was tidy. When her friend arrived, Lily opened the door proudly."
+      "scriptType": "monologue",
+      "text": "Wow, my room is so messy! Clothes on the floor, books on the bed. Where do I start? Okay, first the clothes. I put them in the basket. Then the books go on the shelf. I make my bed too. Look now — my room is clean! I feel so happy. It's much better."
     },
     "setting": "bedroom",
     "skills": [
       "before_and_after",
       "prepositions",
       "room_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "home_and_chores",
+      "sequencing",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4184,7 +5653,7 @@ export const builtInSceneMediaItems =
       "room-objects",
       "home"
     ],
-    "title": "Messy Room, Tidy Room - Simple Story",
+    "title": "Tidying My Room",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4194,19 +5663,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "messy-room-tidy-room-01",
     "visualSummary": [
-      "The same bedroom changes from messy to tidy."
+      "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
+      "The same room is tidy and organized, and she stands proudly with her hands on her hips."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 23.74,
+      "durationSeconds": 28.22,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/messy-room-tidy-room-01-b1-b2.mp3"
     },
     "format": "two_panel_contrast",
     "id": "messy-room-tidy-room-01-b1-b2",
     "image": {
-      "alt": "Messy Room, Tidy Room. The same bedroom changes from messy to tidy.",
+      "alt": "Messy Room, Tidy Room. The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress. The same room is tidy and organized, and she stands proudly with her hands on her hips.",
       "height": 1024,
       "mediaId": "messy-room-tidy-room-01",
       "source": "built_in",
@@ -4215,17 +5685,17 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Lily invited her friend to visit after school, then looked around her room and panicked. Clothes were on the chair, books were on the floor, and one sock was on the desk. She almost canceled the visit, but instead she made a quick plan. First books, then clothes, then trash. By the time the doorbell rang, the room looked welcoming and Lily felt ready."
+      "scriptType": "monologue",
+      "text": "Honestly, my room got out of control this week. There were clothes all over the floor, books everywhere, and I couldn't even see the carpet. At first it felt impossible, so I decided to do one thing at a time. I started with the clothes, then the books, and then I made the bed. Twenty minutes later, the whole room looked completely different. It's funny how a tidy space makes my mind feel tidy too. I should really do this more often."
     },
     "setting": "bedroom",
     "skills": [
       "before_and_after",
       "prepositions",
       "room_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "home_and_chores",
+      "sequencing",
+      "reflection"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4235,7 +5705,7 @@ export const builtInSceneMediaItems =
       "room-objects",
       "home"
     ],
-    "title": "Messy Room, Tidy Room - Everyday Story",
+    "title": "Tidying My Room",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4245,19 +5715,20 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "messy-room-tidy-room-01",
     "visualSummary": [
-      "The same bedroom changes from messy to tidy."
+      "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
+      "The same room is tidy and organized, and she stands proudly with her hands on her hips."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 30.7,
+      "durationSeconds": 46.3,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/messy-room-tidy-room-01-c1.mp3"
     },
     "format": "two_panel_contrast",
     "id": "messy-room-tidy-room-01-c1",
     "image": {
-      "alt": "Messy Room, Tidy Room. The same bedroom changes from messy to tidy.",
+      "alt": "Messy Room, Tidy Room. The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress. The same room is tidy and organized, and she stands proudly with her hands on her hips.",
       "height": 1024,
       "mediaId": "messy-room-tidy-room-01",
       "source": "built_in",
@@ -4266,17 +5737,17 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Lily's room had become a record of every rushed morning that week. When her friend asked to come over, Lily saw the mess differently: not as a private problem, but as a story she did not want the room to tell. She sorted books, rescued clothes from the floor, and cleared the desk one small area at a time. The room did not become perfect, but it became honest and comfortable. When her friend arrived, Lily felt she had made space for both of them."
+      "scriptType": "monologue",
+      "text": "I let my room reach a state of total chaos this week — clothes draped over every surface, books stacked at random, the floor barely visible. Standing in the doorway, I felt that familiar wave of 'where do I even begin?' The trick, I've learned, is not to look at the whole mess but to pick one corner and start. So I gathered the clothes, cleared the books onto the shelf, straightened the bed, and slowly the room reappeared from underneath the clutter. What surprises me every time is how much lighter I feel afterwards, as if tidying the space somehow tidies my thoughts along with it. I always promise myself I'll keep it this way — and I usually last about a week."
     },
     "setting": "bedroom",
     "skills": [
       "before_and_after",
       "prepositions",
       "room_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "home_and_chores",
+      "reflection",
+      "descriptive_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4286,7 +5757,7 @@ export const builtInSceneMediaItems =
       "room-objects",
       "home"
     ],
-    "title": "Messy Room, Tidy Room - Nuanced Story",
+    "title": "Tidying My Room",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4296,12 +5767,13 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "messy-room-tidy-room-01",
     "visualSummary": [
-      "The same bedroom changes from messy to tidy."
+      "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
+      "The same room is tidy and organized, and she stands proudly with her hands on her hips."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.06,
+      "durationSeconds": 25.51,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/minor-sprain-clinic-01-a1-a2.mp3"
     },
@@ -4317,8 +5789,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Nina was walking in the park when her ankle turned. Her friend Luis helped her sit on a bench. Later, a nurse wrapped the ankle at the clinic. Nina walked slowly home, happy that Luis stayed with her."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Maya",
+          "text": "Ow! My foot hurts. I can't walk."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Sit here on the bench. Let me help you."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Don't worry. The clinic is very close."
+        },
+        {
+          "speaker": "Nurse Elena",
+          "text": "Let me see your ankle. Does this hurt?"
+        },
+        {
+          "speaker": "Maya",
+          "text": "Yes, a little."
+        },
+        {
+          "speaker": "Nurse Elena",
+          "text": "It's a small sprain. I will put a bandage on it."
+        },
+        {
+          "speaker": "Maya",
+          "text": "Thank you. It feels better now."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Come on. I'll walk with you."
+        }
+      ]
     },
     "setting": "park-and-clinic",
     "skills": [
@@ -4328,9 +5833,9 @@ export const builtInSceneMediaItems =
       "helping",
       "present_continuous",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "injuries_and_body",
+      "offering_help",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4344,7 +5849,7 @@ export const builtInSceneMediaItems =
       "friendship",
       "helping"
     ],
-    "title": "A Minor Sprain At The Clinic - Simple Story",
+    "title": "A Hurt Ankle",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4363,7 +5868,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 21.77,
+      "durationSeconds": 36.41,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/minor-sprain-clinic-01-b1-b2.mp3"
     },
@@ -4379,8 +5884,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Nina and Luis were taking a quick walk before lunch when Nina stepped on a loose stone. Her ankle hurt, and she tried to laugh, but Luis could see she needed help. He helped her sit down, then walked with her to the clinic. The nurse wrapped the ankle and told Nina to rest. The walk ended early, but the friendship felt stronger."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Maya",
+          "text": "Ouch! I think I twisted my ankle. It really hurts."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Okay, don't move too much. Sit on this bench and lean on me."
+        },
+        {
+          "speaker": "Maya",
+          "text": "I feel silly. I just tripped on the path."
+        },
+        {
+          "speaker": "Tom",
+          "text": "It happens to everyone. Let's get you to the clinic — it's just around the corner."
+        },
+        {
+          "speaker": "Nurse Elena",
+          "text": "Let me take a look. Can you move your foot slowly?"
+        },
+        {
+          "speaker": "Maya",
+          "text": "A little, but it hurts when I press it."
+        },
+        {
+          "speaker": "Nurse Elena",
+          "text": "It's only a mild sprain. I'll wrap it, and you should rest it for a few days."
+        },
+        {
+          "speaker": "Maya",
+          "text": "That's good news. Thanks so much."
+        }
+      ]
     },
     "setting": "park-and-clinic",
     "skills": [
@@ -4390,9 +5928,9 @@ export const builtInSceneMediaItems =
       "helping",
       "present_continuous",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "injuries_and_body",
+      "offering_help",
+      "past_simple_narrative"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4406,7 +5944,7 @@ export const builtInSceneMediaItems =
       "friendship",
       "helping"
     ],
-    "title": "A Minor Sprain At The Clinic - Everyday Story",
+    "title": "A Hurt Ankle",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4425,7 +5963,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 31.9,
+      "durationSeconds": 48.24,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/minor-sprain-clinic-01-c1.mp3"
     },
@@ -4441,8 +5979,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Nina wanted the park walk to feel ordinary after a stressful week, so she was annoyed when one small stone changed the plan. Her ankle twisted, and for a moment she was more embarrassed than hurt. Luis did not make a big scene; he simply offered his arm, found a bench, and helped her get to the clinic. The nurse wrapped the sprain and explained how to care for it. Nina left moving slowly, but she also left grateful that an inconvenient accident had revealed such steady friendship."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Maya",
+          "text": "Ow — I went over on my ankle. I can't put any weight on it."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Alright, stay calm. Lean on my shoulder and we'll take it slowly."
+        },
+        {
+          "speaker": "Maya",
+          "text": "I feel so clumsy. One second I was walking, the next I was on the ground."
+        },
+        {
+          "speaker": "Tom",
+          "text": "Honestly, that path is uneven — it could've happened to anyone. The clinic's right here, let's get it checked."
+        },
+        {
+          "speaker": "Nurse Elena",
+          "text": "Let me examine it. Tell me if this is painful… and try to rotate your foot gently."
+        },
+        {
+          "speaker": "Maya",
+          "text": "It's sore, but I can still move it a bit."
+        },
+        {
+          "speaker": "Nurse Elena",
+          "text": "Good — nothing's broken. It's a mild sprain, so I'll bandage it and you'll need to rest and ice it for a few days."
+        },
+        {
+          "speaker": "Maya",
+          "text": "What a relief. Thank you both for looking after me."
+        }
+      ]
     },
     "setting": "park-and-clinic",
     "skills": [
@@ -4452,9 +6023,9 @@ export const builtInSceneMediaItems =
       "helping",
       "present_continuous",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "injuries_and_body",
+      "reassurance",
+      "narrative_past"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4468,7 +6039,7 @@ export const builtInSceneMediaItems =
       "friendship",
       "helping"
     ],
-    "title": "A Minor Sprain At The Clinic - Nuanced Story",
+    "title": "A Hurt Ankle",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4487,7 +6058,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 14.18,
+      "durationSeconds": 26.14,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/missed-train-platform-01-a1-a2.mp3"
     },
@@ -4503,8 +6074,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Maya ran to the platform, but the train left without her. She looked at the empty tracks and felt upset. A station worker showed her another way. Maya took a deep breath and walked to the next train."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Nora",
+          "text": "Oh no! The train is leaving. I am too late!"
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Don't worry. There is another train soon."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Really? When is the next one?"
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "In twenty minutes, from platform two."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Thank you! Where is platform two?"
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Go straight and turn left. It's very close."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Great. Now I am not worried."
+        }
+      ]
     },
     "setting": "train-station",
     "skills": [
@@ -4514,9 +6114,9 @@ export const builtInSceneMediaItems =
       "emotions",
       "present_continuous",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "travel_and_transport",
+      "asking_for_information",
+      "directions"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4530,7 +6130,189 @@ export const builtInSceneMediaItems =
       "helping",
       "problem-solution"
     ],
-    "title": "Missing The Train - Simple Story",
+    "title": "The Next Train",
+    "useCases": [
+      "chat_prompt",
+      "quiz_prompt",
+      "writing_prompt",
+      "speaking_prompt",
+      "story_prompt",
+      "story_sequence"
+    ],
+    "visualAssetId": "missed-train-platform-01",
+    "visualSummary": [
+      "The traveler runs onto the platform.",
+      "The traveler misses the train and looks disappointed.",
+      "A station employee points toward another option.",
+      "The traveler walks calmly toward another train area."
+    ]
+  },
+  {
+    "audio": {
+      "durationSeconds": 31.94,
+      "format": "mp3",
+      "src": "/public/scene-media/audio/b1-b2/missed-train-platform-01-b1-b2.mp3"
+    },
+    "format": "four_panel_wordless_story",
+    "id": "missed-train-platform-01-b1-b2",
+    "image": {
+      "alt": "Missing The Train. The traveler runs onto the platform. The traveler misses the train and looks disappointed. A station employee points toward another option. The traveler walks calmly toward another train area.",
+      "height": 1024,
+      "mediaId": "missed-train-platform-01",
+      "source": "built_in",
+      "src": "/public/scene-media/images/missed-train-platform-01.png",
+      "width": 1024
+    },
+    "level": "B1-B2",
+    "script": {
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Nora",
+          "text": "Wait — that's my train! I missed it by a few seconds."
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Take a deep breath. It's not the end of the world."
+        },
+        {
+          "speaker": "Nora",
+          "text": "But I have an important meeting. What can I do?"
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Let me check the screen. There's another train to the city in twenty minutes."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Oh, that's a relief. Which platform is it?"
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Platform two, just down the stairs and to your left. You'll still arrive on time."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Thank you so much. I was starting to panic."
+        }
+      ]
+    },
+    "setting": "train-station",
+    "skills": [
+      "travel_vocabulary",
+      "transportation",
+      "asking_for_help",
+      "emotions",
+      "present_continuous",
+      "past_tense_story",
+      "travel_and_transport",
+      "asking_for_information",
+      "reassurance"
+    ],
+    "source": "built_in",
+    "status": "ready",
+    "tags": [
+      "travel",
+      "train",
+      "station",
+      "platform",
+      "late",
+      "missed-train",
+      "helping",
+      "problem-solution"
+    ],
+    "title": "The Next Train",
+    "useCases": [
+      "chat_prompt",
+      "quiz_prompt",
+      "writing_prompt",
+      "speaking_prompt",
+      "story_prompt",
+      "story_sequence"
+    ],
+    "visualAssetId": "missed-train-platform-01",
+    "visualSummary": [
+      "The traveler runs onto the platform.",
+      "The traveler misses the train and looks disappointed.",
+      "A station employee points toward another option.",
+      "The traveler walks calmly toward another train area."
+    ]
+  },
+  {
+    "audio": {
+      "durationSeconds": 47.21,
+      "format": "mp3",
+      "src": "/public/scene-media/audio/c1/missed-train-platform-01-c1.mp3"
+    },
+    "format": "four_panel_wordless_story",
+    "id": "missed-train-platform-01-c1",
+    "image": {
+      "alt": "Missing The Train. The traveler runs onto the platform. The traveler misses the train and looks disappointed. A station employee points toward another option. The traveler walks calmly toward another train area.",
+      "height": 1024,
+      "mediaId": "missed-train-platform-01",
+      "source": "built_in",
+      "src": "/public/scene-media/images/missed-train-platform-01.png",
+      "width": 1024
+    },
+    "level": "C1",
+    "script": {
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Nora",
+          "text": "No, no, no — that's my train pulling away. I was literally ten seconds too late."
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "I can see you're flustered, but honestly, missing one train is rarely a disaster. Let's sort it out."
+        },
+        {
+          "speaker": "Nora",
+          "text": "The trouble is, I've got an interview across town and I can't afford to be late."
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Then you're in luck. According to the board, there's a fast service leaving from platform two in about twenty minutes."
+        },
+        {
+          "speaker": "Nora",
+          "text": "That would actually get me there earlier than my original train, wouldn't it?"
+        },
+        {
+          "speaker": "Mrs. Blake",
+          "text": "Very possibly. Head down the stairs, turn left, and keep an eye on the announcements in case the platform changes."
+        },
+        {
+          "speaker": "Nora",
+          "text": "You've completely turned my morning around. Thank you for being so calm about it."
+        }
+      ]
+    },
+    "setting": "train-station",
+    "skills": [
+      "travel_vocabulary",
+      "transportation",
+      "asking_for_help",
+      "emotions",
+      "present_continuous",
+      "past_tense_story",
+      "travel_and_transport",
+      "problem_solving",
+      "staying_calm"
+    ],
+    "source": "built_in",
+    "status": "ready",
+    "tags": [
+      "travel",
+      "train",
+      "station",
+      "platform",
+      "late",
+      "missed-train",
+      "helping",
+      "problem-solution"
+    ],
+    "title": "The Next Train",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4551,136 +6333,12 @@ export const builtInSceneMediaItems =
     "audio": {
       "durationSeconds": 26.3,
       "format": "mp3",
-      "src": "/public/scene-media/audio/b1-b2/missed-train-platform-01-b1-b2.mp3"
-    },
-    "format": "four_panel_wordless_story",
-    "id": "missed-train-platform-01-b1-b2",
-    "image": {
-      "alt": "Missing The Train. The traveler runs onto the platform. The traveler misses the train and looks disappointed. A station employee points toward another option. The traveler walks calmly toward another train area.",
-      "height": 1024,
-      "mediaId": "missed-train-platform-01",
-      "source": "built_in",
-      "src": "/public/scene-media/images/missed-train-platform-01.png",
-      "width": 1024
-    },
-    "level": "B1-B2",
-    "script": {
-      "scriptType": "narration",
-      "text": "Maya thought she had five minutes, but the station clock disagreed. She ran down the stairs just as the train doors closed. For a moment, she wanted to blame the rain, her alarm, and the slow ticket machine. Then a station worker pointed her toward another platform. The next train was not perfect, but it would still get her there. Maya changed plans and kept moving."
-    },
-    "setting": "train-station",
-    "skills": [
-      "travel_vocabulary",
-      "transportation",
-      "asking_for_help",
-      "emotions",
-      "present_continuous",
-      "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
-    ],
-    "source": "built_in",
-    "status": "ready",
-    "tags": [
-      "travel",
-      "train",
-      "station",
-      "platform",
-      "late",
-      "missed-train",
-      "helping",
-      "problem-solution"
-    ],
-    "title": "Missing The Train - Everyday Story",
-    "useCases": [
-      "chat_prompt",
-      "quiz_prompt",
-      "writing_prompt",
-      "speaking_prompt",
-      "story_prompt",
-      "story_sequence"
-    ],
-    "visualAssetId": "missed-train-platform-01",
-    "visualSummary": [
-      "The traveler runs onto the platform.",
-      "The traveler misses the train and looks disappointed.",
-      "A station employee points toward another option.",
-      "The traveler walks calmly toward another train area."
-    ]
-  },
-  {
-    "audio": {
-      "durationSeconds": 28.54,
-      "format": "mp3",
-      "src": "/public/scene-media/audio/c1/missed-train-platform-01-c1.mp3"
-    },
-    "format": "four_panel_wordless_story",
-    "id": "missed-train-platform-01-c1",
-    "image": {
-      "alt": "Missing The Train. The traveler runs onto the platform. The traveler misses the train and looks disappointed. A station employee points toward another option. The traveler walks calmly toward another train area.",
-      "height": 1024,
-      "mediaId": "missed-train-platform-01",
-      "source": "built_in",
-      "src": "/public/scene-media/images/missed-train-platform-01.png",
-      "width": 1024
-    },
-    "level": "C1",
-    "script": {
-      "scriptType": "narration",
-      "text": "Maya reached the platform just in time to watch her train become part of the distance. The missed train felt personal at first, as if the whole morning had chosen to work against her. A station employee noticed her panic and explained a different route with two transfers. It was not the simple trip she had planned, but it was still a trip. Maya put away her frustration, followed the signs, and discovered that a ruined schedule did not have to ruin the day."
-    },
-    "setting": "train-station",
-    "skills": [
-      "travel_vocabulary",
-      "transportation",
-      "asking_for_help",
-      "emotions",
-      "present_continuous",
-      "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
-    ],
-    "source": "built_in",
-    "status": "ready",
-    "tags": [
-      "travel",
-      "train",
-      "station",
-      "platform",
-      "late",
-      "missed-train",
-      "helping",
-      "problem-solution"
-    ],
-    "title": "Missing The Train - Nuanced Story",
-    "useCases": [
-      "chat_prompt",
-      "quiz_prompt",
-      "writing_prompt",
-      "speaking_prompt",
-      "story_prompt",
-      "story_sequence"
-    ],
-    "visualAssetId": "missed-train-platform-01",
-    "visualSummary": [
-      "The traveler runs onto the platform.",
-      "The traveler misses the train and looks disappointed.",
-      "A station employee points toward another option.",
-      "The traveler walks calmly toward another train area."
-    ]
-  },
-  {
-    "audio": {
-      "durationSeconds": 14.14,
-      "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/morning-rush-family-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "morning-rush-family-01-a1-a2",
     "image": {
-      "alt": "Morning Rush. A parent and child rush in the morning, find a missing shoe, and leave together.",
+      "alt": "Morning Rush. A father checks his watch while his son rushes through breakfast in the kitchen. In the entryway the boy is missing one shoe and looks worried. The father kneels to look for the missing shoe behind the sofa. He finds the shoe and they leave together, holding hands.",
       "height": 1024,
       "mediaId": "morning-rush-family-01",
       "source": "built_in",
@@ -4689,17 +6347,46 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ella and her son were late for school. He could not find one shoe. They looked under the bed, beside the door, and near the sofa. Ella found it under a jacket, and they left together just in time."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Dad",
+          "text": "Come on, Milo! We are late. Get your shoes."
+        },
+        {
+          "speaker": "Milo",
+          "text": "I can only find one shoe! Where is the other one?"
+        },
+        {
+          "speaker": "Dad",
+          "text": "Look under the sofa. Sometimes shoes hide there."
+        },
+        {
+          "speaker": "Milo",
+          "text": "It's not here, Dad!"
+        },
+        {
+          "speaker": "Dad",
+          "text": "Wait… here it is! Behind the pillow."
+        },
+        {
+          "speaker": "Milo",
+          "text": "Yes! Thank you, Dad."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Okay, shoes on. Let's go. We can still be on time!"
+        }
+      ]
     },
     "setting": "home-entryway",
     "skills": [
       "morning_routine",
       "family",
       "finding_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "home_and_family",
+      "daily_routines",
+      "prepositions_of_place"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4709,7 +6396,7 @@ export const builtInSceneMediaItems =
       "finding-objects",
       "home"
     ],
-    "title": "Morning Rush - Simple Story",
+    "title": "The Missing Shoe",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4720,19 +6407,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "morning-rush-family-01",
     "visualSummary": [
-      "A parent and child rush in the morning, find a missing shoe, and leave together."
+      "A father checks his watch while his son rushes through breakfast in the kitchen.",
+      "In the entryway the boy is missing one shoe and looks worried.",
+      "The father kneels to look for the missing shoe behind the sofa.",
+      "He finds the shoe and they leave together, holding hands."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 27.14,
+      "durationSeconds": 32.11,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/morning-rush-family-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "morning-rush-family-01-b1-b2",
     "image": {
-      "alt": "Morning Rush. A parent and child rush in the morning, find a missing shoe, and leave together.",
+      "alt": "Morning Rush. A father checks his watch while his son rushes through breakfast in the kitchen. In the entryway the boy is missing one shoe and looks worried. The father kneels to look for the missing shoe behind the sofa. He finds the shoe and they leave together, holding hands.",
       "height": 1024,
       "mediaId": "morning-rush-family-01",
       "source": "built_in",
@@ -4741,17 +6431,50 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ella's morning plan was simple: breakfast, shoes, backpack, bus. Then one shoe disappeared. Her son looked worried because he did not want to be late. Ella stopped rushing and turned the search into a game. They checked the bedroom, the hallway, and finally the sofa. The shoe was hiding under a jacket. They ran to the bus laughing, a little late but still together."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Dad",
+          "text": "Milo, we need to leave in two minutes! Have you got your shoes on?"
+        },
+        {
+          "speaker": "Milo",
+          "text": "I can't find my other shoe! I only have one."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Okay, don't panic. Where did you take them off last night?"
+        },
+        {
+          "speaker": "Milo",
+          "text": "I think I was on the sofa watching TV."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Let me look behind the cushions… aha, found it!"
+        },
+        {
+          "speaker": "Milo",
+          "text": "Yes! You're the best, Dad."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Quick, put it on. If we hurry, we won't miss the bus."
+        },
+        {
+          "speaker": "Milo",
+          "text": "Ready! Let's run!"
+        }
+      ]
     },
     "setting": "home-entryway",
     "skills": [
       "morning_routine",
       "family",
       "finding_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "home_and_family",
+      "daily_routines",
+      "problem_solving"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4761,7 +6484,7 @@ export const builtInSceneMediaItems =
       "finding-objects",
       "home"
     ],
-    "title": "Morning Rush - Everyday Story",
+    "title": "The Missing Shoe",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4772,19 +6495,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "morning-rush-family-01",
     "visualSummary": [
-      "A parent and child rush in the morning, find a missing shoe, and leave together."
+      "A father checks his watch while his son rushes through breakfast in the kitchen.",
+      "In the entryway the boy is missing one shoe and looks worried.",
+      "The father kneels to look for the missing shoe behind the sofa.",
+      "He finds the shoe and they leave together, holding hands."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 28.25,
+      "durationSeconds": 47.09,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/morning-rush-family-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "morning-rush-family-01-c1",
     "image": {
-      "alt": "Morning Rush. A parent and child rush in the morning, find a missing shoe, and leave together.",
+      "alt": "Morning Rush. A father checks his watch while his son rushes through breakfast in the kitchen. In the entryway the boy is missing one shoe and looks worried. The father kneels to look for the missing shoe behind the sofa. He finds the shoe and they leave together, holding hands.",
       "height": 1024,
       "mediaId": "morning-rush-family-01",
       "source": "built_in",
@@ -4793,17 +6519,50 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The morning began with the usual race against the clock. Ella packed lunch while her son searched for his shoes, and then the whole schedule collapsed over one missing sneaker. Instead of shouting, Ella forced herself to slow down. They retraced his steps, lifted a jacket near the sofa, and found the shoe waiting there. The bus arrived just as they reached the stop. It was not a perfect morning, but it became a small victory in patience."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Dad",
+          "text": "Milo, we're leaving in two minutes — please tell me you've got both shoes this time."
+        },
+        {
+          "speaker": "Milo",
+          "text": "That's the problem! I've got one, but the other has completely disappeared."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Deep breath. Retrace your steps — where were you when you kicked them off?"
+        },
+        {
+          "speaker": "Milo",
+          "text": "Probably on the sofa. I was watching cartoons before bed."
+        },
+        {
+          "speaker": "Dad",
+          "text": "Then that's where it'll be hiding. Let me check behind the cushions… there we go, one runaway shoe."
+        },
+        {
+          "speaker": "Milo",
+          "text": "You found it! How do you always know where things are?"
+        },
+        {
+          "speaker": "Dad",
+          "text": "Years of practice, believe me. Now slip it on quickly — if we move fast, we'll still catch the bus."
+        },
+        {
+          "speaker": "Milo",
+          "text": "Okay, I'm ready. Race you to the door!"
+        }
+      ]
     },
     "setting": "home-entryway",
     "skills": [
       "morning_routine",
       "family",
       "finding_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "home_and_family",
+      "daily_routines",
+      "conditionals"
     ],
     "source": "built_in",
     "status": "ready",
@@ -4813,7 +6572,7 @@ export const builtInSceneMediaItems =
       "finding-objects",
       "home"
     ],
-    "title": "Morning Rush - Nuanced Story",
+    "title": "The Missing Shoe",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -4824,7 +6583,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "morning-rush-family-01",
     "visualSummary": [
-      "A parent and child rush in the morning, find a missing shoe, and leave together."
+      "A father checks his watch while his son rushes through breakfast in the kitchen.",
+      "In the entryway the boy is missing one shoe and looks worried.",
+      "The father kneels to look for the missing shoe behind the sofa.",
+      "He finds the shoe and they leave together, holding hands."
     ]
   },
   {
@@ -5063,14 +6825,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 14.18,
+      "durationSeconds": 32.09,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/online-form-help-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "online-form-help-01-a1-a2",
     "image": {
-      "alt": "Help With An Online Form. A neighbor helps an older adult complete an online form.",
+      "alt": "Help With An Online Form. An older woman feels stuck while filling out an online form. A younger woman points at the screen and explains each step. Together they complete the form, checking the boxes. The form is finished and the helper gives a happy thumbs up.",
       "height": 1024,
       "mediaId": "online-form-help-01",
       "source": "built_in",
@@ -5079,8 +6841,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mrs. Chen needed to finish an online form, but one question confused her. Her neighbor sat beside her and read it slowly. They filled in the answer together. Mrs. Chen clicked send and smiled."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Grandma Vera",
+          "text": "This form is so difficult. I don't know what to do."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Don't worry, Grandma. I can help you. What does it ask?"
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "It asks for my name and my email."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Okay. Type your name here, and your email here."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "Like this? Oh, it works!"
+        },
+        {
+          "speaker": "Mia",
+          "text": "Yes! Now click the blue button to finish."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "It's done! Thank you so much."
+        },
+        {
+          "speaker": "Mia",
+          "text": "You did it, Grandma! Good job."
+        }
+      ]
     },
     "setting": "home-computer",
     "skills": [
@@ -5089,9 +6884,8 @@ export const builtInSceneMediaItems =
       "form",
       "helping",
       "technology",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "online_forms",
+      "imperatives"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5102,7 +6896,7 @@ export const builtInSceneMediaItems =
       "helping",
       "technology"
     ],
-    "title": "Help With An Online Form - Simple Story",
+    "title": "Filling In The Form",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5113,19 +6907,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "online-form-help-01",
     "visualSummary": [
-      "A neighbor helps an older adult complete an online form."
+      "An older woman feels stuck while filling out an online form.",
+      "A younger woman points at the screen and explains each step.",
+      "Together they complete the form, checking the boxes.",
+      "The form is finished and the helper gives a happy thumbs up."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.34,
+      "durationSeconds": 41.04,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/online-form-help-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "online-form-help-01-b1-b2",
     "image": {
-      "alt": "Help With An Online Form. A neighbor helps an older adult complete an online form.",
+      "alt": "Help With An Online Form. An older woman feels stuck while filling out an online form. A younger woman points at the screen and explains each step. Together they complete the form, checking the boxes. The form is finished and the helper gives a happy thumbs up.",
       "height": 1024,
       "mediaId": "online-form-help-01",
       "source": "built_in",
@@ -5134,8 +6931,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mrs. Chen had almost finished the online form when the final page asked for information she did not understand. She wanted to close the computer. Her neighbor Ben came over and helped her read each question. He did not type for her; he explained, and she chose the answers. When Mrs. Chen clicked send, she felt proud because the form was truly hers."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Grandma Vera",
+          "text": "I really can't work out this online form. There are too many boxes."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Take a breath, Grandma. Let's do it together, one step at a time."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "Alright. The first box asks for my full name."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Type it here, then move down to the email box below it."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "Okay… and what about this little square with the tick?"
+        },
+        {
+          "speaker": "Mia",
+          "text": "Just click it to agree to the rules, then press the blue 'submit' button."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "There! It says 'thank you'. I actually did it!"
+        },
+        {
+          "speaker": "Mia",
+          "text": "See? You didn't need me at all, really. Well done!"
+        }
+      ]
     },
     "setting": "home-computer",
     "skills": [
@@ -5144,9 +6974,8 @@ export const builtInSceneMediaItems =
       "form",
       "helping",
       "technology",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "online_forms",
+      "step_by_step_help"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5157,7 +6986,7 @@ export const builtInSceneMediaItems =
       "helping",
       "technology"
     ],
-    "title": "Help With An Online Form - Everyday Story",
+    "title": "Filling In The Form",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5168,19 +6997,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "online-form-help-01",
     "visualSummary": [
-      "A neighbor helps an older adult complete an online form."
+      "An older woman feels stuck while filling out an online form.",
+      "A younger woman points at the screen and explains each step.",
+      "Together they complete the form, checking the boxes.",
+      "The form is finished and the helper gives a happy thumbs up."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 32.9,
+      "durationSeconds": 53.23,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/online-form-help-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "online-form-help-01-c1",
     "image": {
-      "alt": "Help With An Online Form. A neighbor helps an older adult complete an online form.",
+      "alt": "Help With An Online Form. An older woman feels stuck while filling out an online form. A younger woman points at the screen and explains each step. Together they complete the form, checking the boxes. The form is finished and the helper gives a happy thumbs up.",
       "height": 1024,
       "mediaId": "online-form-help-01",
       "source": "built_in",
@@ -5189,8 +7021,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Mrs. Chen disliked online forms because they made simple tasks feel suddenly official and unforgiving. She reached the final page, saw a question she did not understand, and nearly gave up. Her neighbor Ben pulled up a chair and slowed the process down. He explained the words, waited for her decisions, and let her control the keyboard. When the confirmation appeared, Mrs. Chen smiled with relief. The help had not taken independence away; it had returned it."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Grandma Vera",
+          "text": "I'm hopeless with these online forms. Every time I fill one box, three more appear."
+        },
+        {
+          "speaker": "Mia",
+          "text": "You're not hopeless, Grandma — they're deliberately confusing. Let's just take it slowly, box by box."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "Fine. It's asking for my full name and, apparently, my date of birth."
+        },
+        {
+          "speaker": "Mia",
+          "text": "Type your name here, tab down for the date, and use the little calendar icon if it's easier."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "Ah, that's cleverer than typing it. And this box demanding a password?"
+        },
+        {
+          "speaker": "Mia",
+          "text": "Make it something memorable but not obvious, then tick the agreement box and hit 'submit'."
+        },
+        {
+          "speaker": "Grandma Vera",
+          "text": "Well, would you look at that — 'registration complete'. I feel almost modern."
+        },
+        {
+          "speaker": "Mia",
+          "text": "You should be proud. Next time you'll breeze through it without me hovering."
+        }
+      ]
     },
     "setting": "home-computer",
     "skills": [
@@ -5199,9 +7064,8 @@ export const builtInSceneMediaItems =
       "form",
       "helping",
       "technology",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "online_forms",
+      "patient_guidance"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5212,7 +7076,7 @@ export const builtInSceneMediaItems =
       "helping",
       "technology"
     ],
-    "title": "Help With An Online Form - Nuanced Story",
+    "title": "Filling In The Form",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5223,19 +7087,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "online-form-help-01",
     "visualSummary": [
-      "A neighbor helps an older adult complete an online form."
+      "An older woman feels stuck while filling out an online form.",
+      "A younger woman points at the screen and explains each step.",
+      "Together they complete the form, checking the boxes.",
+      "The form is finished and the helper gives a happy thumbs up."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 12.62,
+      "durationSeconds": 27.1,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/ordering-with-allergy-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "ordering-with-allergy-01-a1-a2",
     "image": {
-      "alt": "Ordering With An Allergy. A customer explains an allergy and receives a safe meal.",
+      "alt": "Ordering With An Allergy. A customer gives his order while the server writes it down. He points to his allergy bracelet to explain what he cannot eat. The server reassures him and brings a safe dish of rice and vegetables. He happily eats the meal that fits his allergy.",
       "height": 1024,
       "mediaId": "ordering-with-allergy-01",
       "source": "built_in",
@@ -5244,8 +7111,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Kai wanted lunch at a new restaurant. He told the server about his nut allergy. The server checked with the kitchen and helped him choose safe food. Kai ate carefully and enjoyed the meal."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Finn",
+          "text": "Hello. I want to order, but I have an allergy."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Okay. What are you allergic to?"
+        },
+        {
+          "speaker": "Finn",
+          "text": "I am allergic to nuts. Is the chicken dish safe?"
+        },
+        {
+          "speaker": "Nora",
+          "text": "Let me check with the kitchen… Yes, it has no nuts."
+        },
+        {
+          "speaker": "Finn",
+          "text": "Great. I'll have the chicken with rice, please."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Good choice. I'll tell the chef about your allergy."
+        },
+        {
+          "speaker": "Finn",
+          "text": "Thank you. That makes me feel safe."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -5254,9 +7150,8 @@ export const builtInSceneMediaItems =
       "food",
       "safety",
       "ordering",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "food_allergies",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5267,7 +7162,7 @@ export const builtInSceneMediaItems =
       "safety",
       "ordering"
     ],
-    "title": "Ordering With An Allergy - Simple Story",
+    "title": "A Food Allergy",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5278,19 +7173,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "ordering-with-allergy-01",
     "visualSummary": [
-      "A customer explains an allergy and receives a safe meal."
+      "A customer gives his order while the server writes it down.",
+      "He points to his allergy bracelet to explain what he cannot eat.",
+      "The server reassures him and brings a safe dish of rice and vegetables.",
+      "He happily eats the meal that fits his allergy."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 22.54,
+      "durationSeconds": 34.1,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/ordering-with-allergy-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "ordering-with-allergy-01-b1-b2",
     "image": {
-      "alt": "Ordering With An Allergy. A customer explains an allergy and receives a safe meal.",
+      "alt": "Ordering With An Allergy. A customer gives his order while the server writes it down. He points to his allergy bracelet to explain what he cannot eat. The server reassures him and brings a safe dish of rice and vegetables. He happily eats the meal that fits his allergy.",
       "height": 1024,
       "mediaId": "ordering-with-allergy-01",
       "source": "built_in",
@@ -5299,8 +7197,37 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Kai liked trying new restaurants, but his nut allergy meant he had to ask questions. When the server came to the table, Kai explained the allergy clearly. She did not guess. She checked with the kitchen and suggested a safe dish. Kai thanked her because asking can feel awkward. When the food arrived, he relaxed and enjoyed lunch with his friends."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Finn",
+          "text": "Hi there. Before I order, I should mention I have a food allergy."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Of course, thanks for telling me. What can't you eat?"
+        },
+        {
+          "speaker": "Finn",
+          "text": "I'm allergic to nuts, so I need to be careful. Does the chicken bowl contain any?"
+        },
+        {
+          "speaker": "Nora",
+          "text": "Let me double-check with the chef… no, that one's completely nut-free."
+        },
+        {
+          "speaker": "Finn",
+          "text": "Perfect. I'll have the chicken bowl with rice and vegetables, then."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Great choice. I'll make a note so the kitchen keeps it separate."
+        },
+        {
+          "speaker": "Finn",
+          "text": "Thank you so much. It's a relief when staff take it seriously."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -5309,9 +7236,8 @@ export const builtInSceneMediaItems =
       "food",
       "safety",
       "ordering",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "food_allergies",
+      "asking_and_confirming"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5322,7 +7248,7 @@ export const builtInSceneMediaItems =
       "safety",
       "ordering"
     ],
-    "title": "Ordering With An Allergy - Everyday Story",
+    "title": "A Food Allergy",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5333,19 +7259,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "ordering-with-allergy-01",
     "visualSummary": [
-      "A customer explains an allergy and receives a safe meal."
+      "A customer gives his order while the server writes it down.",
+      "He points to his allergy bracelet to explain what he cannot eat.",
+      "The server reassures him and brings a safe dish of rice and vegetables.",
+      "He happily eats the meal that fits his allergy."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 28.54,
+      "durationSeconds": 45.86,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/ordering-with-allergy-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "ordering-with-allergy-01-c1",
     "image": {
-      "alt": "Ordering With An Allergy. A customer explains an allergy and receives a safe meal.",
+      "alt": "Ordering With An Allergy. A customer gives his order while the server writes it down. He points to his allergy bracelet to explain what he cannot eat. The server reassures him and brings a safe dish of rice and vegetables. He happily eats the meal that fits his allergy.",
       "height": 1024,
       "mediaId": "ordering-with-allergy-01",
       "source": "built_in",
@@ -5354,8 +7283,37 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Kai had learned that eating out required both courage and clarity. At the new restaurant, he wanted to enjoy lunch without turning his allergy into a dramatic announcement. He explained it calmly to the server, who paused the order instead of rushing him. She checked with the kitchen, returned with safe options, and made sure the plate was prepared separately. Kai's friends barely noticed the extra steps, but he did. The meal tasted better because it came with trust."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Finn",
+          "text": "Hi. Before we go any further, I need to flag that I've got a nut allergy — a fairly serious one."
+        },
+        {
+          "speaker": "Nora",
+          "text": "I'm really glad you told me. We take that very seriously here. What were you hoping to order?"
+        },
+        {
+          "speaker": "Finn",
+          "text": "I was eyeing the chicken bowl, but I'd want to be sure there's no cross-contamination in the kitchen."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Let me confirm with the chef directly rather than guess… right, it's nut-free, and they'll prepare it on a clean surface for you."
+        },
+        {
+          "speaker": "Finn",
+          "text": "That's exactly what I needed to hear. I'll go with the chicken bowl and rice, then."
+        },
+        {
+          "speaker": "Nora",
+          "text": "Consider it done. I'll write 'nut allergy' on the ticket so it's impossible to miss."
+        },
+        {
+          "speaker": "Finn",
+          "text": "Honestly, thank you. Eating out can be stressful, and you've made it easy."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -5364,9 +7322,8 @@ export const builtInSceneMediaItems =
       "food",
       "safety",
       "ordering",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "food_allergies",
+      "being_clear_and_assertive"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5377,7 +7334,7 @@ export const builtInSceneMediaItems =
       "safety",
       "ordering"
     ],
-    "title": "Ordering With An Allergy - Nuanced Story",
+    "title": "A Food Allergy",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5388,12 +7345,15 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "ordering-with-allergy-01",
     "visualSummary": [
-      "A customer explains an allergy and receives a safe meal."
+      "A customer gives his order while the server writes it down.",
+      "He points to his allergy bracelet to explain what he cannot eat.",
+      "The server reassures him and brings a safe dish of rice and vegetables.",
+      "He happily eats the meal that fits his allergy."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 16.37,
+      "durationSeconds": 19.78,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/packed-unpacked-suitcase-01-a1-a2.mp3"
     },
@@ -5409,8 +7369,8 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Lena packed her suitcase carefully before her trip. She folded shirts, socks, and a small gift. At the hotel, she opened the suitcase and found everything in the right place. The gift was safe, so she called her sister with a smile."
+      "scriptType": "monologue",
+      "text": "Tomorrow I go on a trip! I put my clothes in my suitcase. Two shirts, one jacket, and my shoes. Where is my toothbrush? Here it is. Okay, I have everything. Now I am at the hotel. I open my suitcase. My clothes are ready. Time to relax!"
     },
     "setting": "home-and-hotel-room",
     "skills": [
@@ -5420,9 +7380,9 @@ export const builtInSceneMediaItems =
       "before_after",
       "prepositions",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "travel_and_transport",
+      "clothes_vocabulary",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5435,7 +7395,7 @@ export const builtInSceneMediaItems =
       "clothes",
       "before-after"
     ],
-    "title": "Packed And Unpacked Suitcase - Simple Story",
+    "title": "Packing For A Trip",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5451,7 +7411,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 24.41,
+      "durationSeconds": 29.18,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/packed-unpacked-suitcase-01-b1-b2.mp3"
     },
@@ -5467,8 +7427,8 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Lena usually packed in a hurry, but this trip mattered. She folded her clothes carefully and placed a small birthday gift between two soft sweaters. When she arrived at the hotel, she opened the suitcase with a little fear. Nothing was broken, and the gift was still wrapped. Lena unpacked slowly, then called her sister to say she would be there on time."
+      "scriptType": "monologue",
+      "text": "I always get a little excited the night before a trip. I fold my shirts carefully, roll up my jeans to save space, and squeeze my shoes into the corner. The trick is to make a list so I don't forget anything important, like my charger or my toothbrush. A few hours later, I'm finally in my hotel room. I open the suitcase, and everything is exactly where I put it. There's a nice feeling in arriving and knowing you packed well."
     },
     "setting": "home-and-hotel-room",
     "skills": [
@@ -5478,9 +7438,9 @@ export const builtInSceneMediaItems =
       "before_after",
       "prepositions",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "travel_and_transport",
+      "organising_and_planning",
+      "sequencing"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5493,7 +7453,7 @@ export const builtInSceneMediaItems =
       "clothes",
       "before-after"
     ],
-    "title": "Packed And Unpacked Suitcase - Everyday Story",
+    "title": "Packing For A Trip",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5509,7 +7469,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 31.66,
+      "durationSeconds": 51.65,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/packed-unpacked-suitcase-01-c1.mp3"
     },
@@ -5525,8 +7485,8 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Lena treated the suitcase like a promise. She packed each item with unusual care because the trip was not just a vacation; it was the first family birthday she had attended in years. At the hotel, she opened the bag and found the gift exactly where she had placed it, protected between layers of clothes. The sight made her unexpectedly emotional. For once, nothing had been forgotten, crushed, or delayed. She unpacked, breathed out, and prepared to show up."
+      "scriptType": "monologue",
+      "text": "Packing is a strange little ritual of mine. The night before I travel, I lay everything out on the bed, then negotiate with myself about what I actually need versus what I'll inevitably carry back unused. I fold, I roll, I rearrange, convinced there's a perfect way to fit it all into one carry-on. By the time I zip it shut, it feels like a small victory. Hours later, when I finally sink onto the hotel bed and open the case, there's an unexpected calm in seeing my clothes neatly waiting, nothing crushed, nothing forgotten. A well-packed bag, I've decided, is the quiet foundation of a good trip. Everything else — the delays, the wrong turns, the language mix-ups — feels far more manageable when at least your suitcase behaved itself."
     },
     "setting": "home-and-hotel-room",
     "skills": [
@@ -5536,9 +7496,9 @@ export const builtInSceneMediaItems =
       "before_after",
       "prepositions",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "travel_and_transport",
+      "reflection",
+      "descriptive_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5551,7 +7511,7 @@ export const builtInSceneMediaItems =
       "clothes",
       "before-after"
     ],
-    "title": "Packed And Unpacked Suitcase - Nuanced Story",
+    "title": "Packing For A Trip",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5815,14 +7775,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 12.98,
+      "durationSeconds": 25.01,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/park-cleanup-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "park-cleanup-01-a1-a2",
     "image": {
-      "alt": "Park Cleanup. Neighbors clean up a park together.",
+      "alt": "Park Cleanup. A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup. They spread out and pick up litter around the park. They sort the collected trash and recycling into the right bins. They celebrate the clean park together with a thumbs up.",
       "height": 1024,
       "mediaId": "park-cleanup-01",
       "source": "built_in",
@@ -5831,8 +7791,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "On Saturday, neighbors came to clean the park. They picked up bottles, bags, and paper. A little girl found a clean flower bed under the trash. By noon, the park looked bright again."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mr. Grant",
+          "text": "Okay, team! Let's clean the park. Take your gloves."
+        },
+        {
+          "speaker": "Zara",
+          "text": "I have my bag and my grabber. I'm ready!"
+        },
+        {
+          "speaker": "Sami",
+          "text": "Look! I found a bottle. Where does it go?"
+        },
+        {
+          "speaker": "Grandma Pat",
+          "text": "Plastic goes in the blue bin, sweetie."
+        },
+        {
+          "speaker": "Kofi",
+          "text": "The park looks better already!"
+        },
+        {
+          "speaker": "Mr. Grant",
+          "text": "Great work, everyone. Thank you for your help."
+        },
+        {
+          "speaker": "Zara",
+          "text": "This was fun. Let's do it again next month!"
+        }
+      ]
     },
     "setting": "park",
     "skills": [
@@ -5841,9 +7830,8 @@ export const builtInSceneMediaItems =
       "cleanup",
       "teamwork",
       "litter",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "community_and_environment",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5854,7 +7842,7 @@ export const builtInSceneMediaItems =
       "teamwork",
       "litter"
     ],
-    "title": "Park Cleanup - Simple Story",
+    "title": "Cleaning The Park",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5865,19 +7853,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "park-cleanup-01",
     "visualSummary": [
-      "Neighbors clean up a park together."
+      "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
+      "They spread out and pick up litter around the park.",
+      "They sort the collected trash and recycling into the right bins.",
+      "They celebrate the clean park together with a thumbs up."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.62,
+      "durationSeconds": 36,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/park-cleanup-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "park-cleanup-01-b1-b2",
     "image": {
-      "alt": "Park Cleanup. Neighbors clean up a park together.",
+      "alt": "Park Cleanup. A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup. They spread out and pick up litter around the park. They sort the collected trash and recycling into the right bins. They celebrate the clean park together with a thumbs up.",
       "height": 1024,
       "mediaId": "park-cleanup-01",
       "source": "built_in",
@@ -5886,8 +7877,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "The park had looked sad for weeks, so a few neighbors planned a cleanup. At first, only five people arrived. Then more people came with gloves, bags, and water. They picked up trash, swept the path, and cleared the flower beds. A child found a hidden patch of yellow flowers. By lunchtime, the park felt like a place people wanted to protect."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mr. Grant",
+          "text": "Alright, team, let's get started! Everyone grab some gloves and a bag."
+        },
+        {
+          "speaker": "Zara",
+          "text": "I've got my grabber ready. Where should we begin?"
+        },
+        {
+          "speaker": "Mr. Grant",
+          "text": "Let's start near the benches and work towards the playground."
+        },
+        {
+          "speaker": "Sami",
+          "text": "I found a plastic bottle! Which bin does it go in?"
+        },
+        {
+          "speaker": "Grandma Pat",
+          "text": "Plastic goes in the blue one, and paper in the green. Well spotted!"
+        },
+        {
+          "speaker": "Kofi",
+          "text": "Wow, we've already filled two whole bags."
+        },
+        {
+          "speaker": "Mr. Grant",
+          "text": "The park looks completely different. I'm proud of all of you."
+        },
+        {
+          "speaker": "Zara",
+          "text": "Same time next month? I actually enjoyed this."
+        }
+      ]
     },
     "setting": "park",
     "skills": [
@@ -5896,9 +7920,8 @@ export const builtInSceneMediaItems =
       "cleanup",
       "teamwork",
       "litter",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "community_and_environment",
+      "recycling_vocabulary"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5909,7 +7932,7 @@ export const builtInSceneMediaItems =
       "teamwork",
       "litter"
     ],
-    "title": "Park Cleanup - Everyday Story",
+    "title": "Cleaning The Park",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5920,19 +7943,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "park-cleanup-01",
     "visualSummary": [
-      "Neighbors clean up a park together."
+      "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
+      "They spread out and pick up litter around the park.",
+      "They sort the collected trash and recycling into the right bins.",
+      "They celebrate the clean park together with a thumbs up."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 33.7,
+      "durationSeconds": 48.24,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/park-cleanup-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "park-cleanup-01-c1",
     "image": {
-      "alt": "Park Cleanup. Neighbors clean up a park together.",
+      "alt": "Park Cleanup. A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup. They spread out and pick up litter around the park. They sort the collected trash and recycling into the right bins. They celebrate the clean park together with a thumbs up.",
       "height": 1024,
       "mediaId": "park-cleanup-01",
       "source": "built_in",
@@ -5941,8 +7967,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The neighborhood park had not become dirty all at once; it had changed slowly, one bottle and one forgotten bag at a time. On Saturday, the neighbors decided to reverse that story. They arrived with gloves, trash bags, and a little uncertainty about whether anyone else would help. By midmorning, strangers were working side by side. When a child uncovered yellow flowers near the path, everyone stopped to look. The cleanup gave the park back its color, and the neighbors back their sense of ownership."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mr. Grant",
+          "text": "Right, team, let's make a plan before we scatter. Gloves on, bags ready, and we'll sweep from the benches to the playground."
+        },
+        {
+          "speaker": "Zara",
+          "text": "Good idea. If we work in pairs, we'll cover twice the ground."
+        },
+        {
+          "speaker": "Sami",
+          "text": "I found a bottle and a crushed can! Do they go in the same bin?"
+        },
+        {
+          "speaker": "Grandma Pat",
+          "text": "Almost — the bottle's plastic for the blue bin, the can's metal for recycling too. You're a natural at this."
+        },
+        {
+          "speaker": "Kofi",
+          "text": "Honestly, I can't believe how much rubbish was hiding in the bushes."
+        },
+        {
+          "speaker": "Mr. Grant",
+          "text": "It's amazing what a couple of hours and a bit of teamwork can do. Look at the place now."
+        },
+        {
+          "speaker": "Zara",
+          "text": "It feels good, doesn't it? We should make this a regular thing."
+        },
+        {
+          "speaker": "Grandma Pat",
+          "text": "I'm in, as long as someone brings the lemonade next time."
+        }
+      ]
     },
     "setting": "park",
     "skills": [
@@ -5951,9 +8010,9 @@ export const builtInSceneMediaItems =
       "cleanup",
       "teamwork",
       "litter",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "community_and_environment",
+      "organising_teamwork",
+      "recycling"
     ],
     "source": "built_in",
     "status": "ready",
@@ -5964,7 +8023,7 @@ export const builtInSceneMediaItems =
       "teamwork",
       "litter"
     ],
-    "title": "Park Cleanup - Nuanced Story",
+    "title": "Cleaning The Park",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -5975,12 +8034,15 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "park-cleanup-01",
     "visualSummary": [
-      "Neighbors clean up a park together."
+      "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
+      "They spread out and pick up litter around the park.",
+      "They sort the collected trash and recycling into the right bins.",
+      "They celebrate the clean park together with a thumbs up."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 14.86,
+      "durationSeconds": 25.25,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/pharmacy-instructions-01-a1-a2.mp3"
     },
@@ -5996,8 +8058,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Eli picked up medicine for his mother, but he did not understand the instructions. He asked the pharmacist for help. She showed him the bottle and a glass of water. Eli listened carefully and went home ready to help his mother safely."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Margaret",
+          "text": "Excuse me. I have this paper from my doctor."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Of course. Let me get your medicine. One moment."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Here it is. Take one pill in the morning and one at night."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "With food or without food?"
+        },
+        {
+          "speaker": "Leo",
+          "text": "With food, please. And drink a full glass of water."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "Okay. Thank you very much!"
+        },
+        {
+          "speaker": "Leo",
+          "text": "You're welcome. Feel better soon!"
+        }
+      ]
     },
     "setting": "pharmacy",
     "skills": [
@@ -6007,9 +8098,8 @@ export const builtInSceneMediaItems =
       "asking_questions",
       "instructions",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "medicine_instructions",
+      "imperatives"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6022,7 +8112,7 @@ export const builtInSceneMediaItems =
       "helping",
       "self-care"
     ],
-    "title": "Pharmacy Instructions - Simple Story",
+    "title": "How To Take The Medicine",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6041,7 +8131,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 24.5,
+      "durationSeconds": 35.35,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/pharmacy-instructions-01-b1-b2.mp3"
     },
@@ -6057,8 +8147,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Eli wanted to help his mother, so he went to the pharmacy after school. When the pharmacist gave him the medicine, he realized he was not sure how she should take it. Instead of guessing, he asked for the instructions again. The pharmacist explained slowly and used gestures to make everything clear. Eli wrote down the important details and left feeling responsible, not confused."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Margaret",
+          "text": "Hello. My doctor gave me this prescription, but I'm not sure how to take it."
+        },
+        {
+          "speaker": "Leo",
+          "text": "No problem, I'll explain everything. Let me find it for you… here you are."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "It looks like a lot of pills."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Don't worry. You only take one in the morning and one in the evening, always with food."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "And how many days should I take them?"
+        },
+        {
+          "speaker": "Leo",
+          "text": "For one week. If you still feel sick after that, call your doctor."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "That's clear now. Thank you so much for your patience."
+        },
+        {
+          "speaker": "Leo",
+          "text": "Anytime. Take care of yourself!"
+        }
+      ]
     },
     "setting": "pharmacy",
     "skills": [
@@ -6068,9 +8191,9 @@ export const builtInSceneMediaItems =
       "asking_questions",
       "instructions",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "medicine_instructions",
+      "asking_for_clarification",
+      "frequency"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6083,7 +8206,7 @@ export const builtInSceneMediaItems =
       "helping",
       "self-care"
     ],
-    "title": "Pharmacy Instructions - Everyday Story",
+    "title": "How To Take The Medicine",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6102,7 +8225,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 32.14,
+      "durationSeconds": 46.37,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/pharmacy-instructions-01-c1.mp3"
     },
@@ -6118,8 +8241,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Eli had promised his mother he would handle the pharmacy errand, and at first it felt simple. Then the pharmacist placed the medicine on the counter and explained the schedule faster than he expected. Eli almost nodded and left, but he imagined giving the wrong instructions at home. He took a breath and asked her to repeat everything. The pharmacist smiled, clarified the timing, and showed him exactly what mattered. By asking one careful question, Eli turned a nervous errand into a useful act of care."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Margaret",
+          "text": "Hello. I picked up this prescription, but the instructions on the box are a little confusing."
+        },
+        {
+          "speaker": "Leo",
+          "text": "That happens all the time — let me walk you through it. Here's your medication."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "There seem to be so many pills. I'm worried I'll take the wrong amount."
+        },
+        {
+          "speaker": "Leo",
+          "text": "It's simpler than it looks. One tablet with breakfast and one with dinner, always after eating so it doesn't upset your stomach."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "And if I happen to forget a dose?"
+        },
+        {
+          "speaker": "Leo",
+          "text": "Just take it as soon as you remember, but never double up. Finish the full week even if you start feeling better."
+        },
+        {
+          "speaker": "Margaret",
+          "text": "That makes perfect sense. I feel much more confident now — thank you for being so thorough."
+        },
+        {
+          "speaker": "Leo",
+          "text": "My pleasure. Don't hesitate to come back if anything's unclear."
+        }
+      ]
     },
     "setting": "pharmacy",
     "skills": [
@@ -6129,9 +8285,9 @@ export const builtInSceneMediaItems =
       "asking_questions",
       "instructions",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "medicine_instructions",
+      "clarifying_and_confirming",
+      "conditionals"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6144,7 +8300,7 @@ export const builtInSceneMediaItems =
       "helping",
       "self-care"
     ],
-    "title": "Pharmacy Instructions - Nuanced Story",
+    "title": "How To Take The Medicine",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6163,7 +8319,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 13.49,
+      "durationSeconds": 25.37,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/phone-repair-pickup-01-a1-a2.mp3"
     },
@@ -6179,8 +8335,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Diego broke his phone screen on Tuesday. On Friday, he went back to the repair shop. The technician brought out the phone, and Diego tested it. The screen worked again, so he left with a big smile."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Omar",
+          "text": "Hi. I am here for my phone. Here is my ticket."
+        },
+        {
+          "speaker": "Rick",
+          "text": "Let me check. Yes, your phone is ready."
+        },
+        {
+          "speaker": "Omar",
+          "text": "Is the screen fixed now?"
+        },
+        {
+          "speaker": "Rick",
+          "text": "Yes. The new screen works very well. Try it."
+        },
+        {
+          "speaker": "Omar",
+          "text": "Wow, it looks like new! Thank you."
+        },
+        {
+          "speaker": "Rick",
+          "text": "You're welcome. It has a three-month guarantee."
+        },
+        {
+          "speaker": "Omar",
+          "text": "Perfect. Have a good day!"
+        }
+      ]
     },
     "setting": "phone-repair-shop",
     "skills": [
@@ -6190,9 +8375,9 @@ export const builtInSceneMediaItems =
       "polite_interactions",
       "present_continuous",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "technology_and_repairs",
+      "present_simple",
+      "confirming"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6205,7 +8390,7 @@ export const builtInSceneMediaItems =
       "customer",
       "success"
     ],
-    "title": "Picking Up A Repaired Phone - Simple Story",
+    "title": "Picking Up The Phone",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6224,7 +8409,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 21.82,
+      "durationSeconds": 37.03,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/phone-repair-pickup-01-b1-b2.mp3"
     },
@@ -6240,8 +8425,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Diego had spent three days borrowing his sister's phone, so he was eager to pick up his repaired one. At the shop, the technician checked his claim slip and brought out the phone. Diego turned it on, tried the camera, and sent a quick message. Everything worked. He thanked the technician because the small device suddenly felt important again."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Omar",
+          "text": "Good afternoon. I've come to pick up my phone. Here's the receipt."
+        },
+        {
+          "speaker": "Rick",
+          "text": "Let me find it… yes, the screen replacement is all done."
+        },
+        {
+          "speaker": "Omar",
+          "text": "Great. Does the touch screen work properly now?"
+        },
+        {
+          "speaker": "Rick",
+          "text": "Perfectly. Give it a try — swipe, tap, open an app."
+        },
+        {
+          "speaker": "Omar",
+          "text": "It's so smooth. It really does look brand new."
+        },
+        {
+          "speaker": "Rick",
+          "text": "We also cleaned the speakers while we were at it, no extra charge."
+        },
+        {
+          "speaker": "Omar",
+          "text": "That's a nice surprise. How long is the repair guaranteed?"
+        },
+        {
+          "speaker": "Rick",
+          "text": "Three months. If anything goes wrong, just bring it back."
+        }
+      ]
     },
     "setting": "phone-repair-shop",
     "skills": [
@@ -6251,9 +8469,9 @@ export const builtInSceneMediaItems =
       "polite_interactions",
       "present_continuous",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "technology_and_repairs",
+      "checking_and_confirming",
+      "guarantees"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6266,7 +8484,7 @@ export const builtInSceneMediaItems =
       "customer",
       "success"
     ],
-    "title": "Picking Up A Repaired Phone - Everyday Story",
+    "title": "Picking Up The Phone",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6285,7 +8503,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 31.7,
+      "durationSeconds": 46.49,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/phone-repair-pickup-01-c1.mp3"
     },
@@ -6301,8 +8519,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Diego did not realize how much he used his phone until the screen broke and every simple task became complicated. When he returned to the repair shop, he tried not to look too hopeful. The technician placed the phone on the counter, clean and working, and invited him to test it. Diego opened the camera, checked his messages, and laughed when the screen responded perfectly. The repair had not only fixed a device; it had returned a little order to his week."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Omar",
+          "text": "Afternoon. I'm here to collect my phone — the cracked screen. Here's my ticket."
+        },
+        {
+          "speaker": "Rick",
+          "text": "Let me locate it… here we go. The screen's been fully replaced and tested."
+        },
+        {
+          "speaker": "Omar",
+          "text": "Brilliant. I was worried the touch might not respond the same as before."
+        },
+        {
+          "speaker": "Rick",
+          "text": "Give it a proper go — scroll, zoom, type something. It should feel exactly like the original."
+        },
+        {
+          "speaker": "Omar",
+          "text": "Honestly, it's better than I remembered. You can't even tell it was ever damaged."
+        },
+        {
+          "speaker": "Rick",
+          "text": "We gave the charging port a clean too, since it was looking a bit clogged. No charge for that."
+        },
+        {
+          "speaker": "Omar",
+          "text": "That's genuinely thoughtful. And if the screen plays up down the line?"
+        },
+        {
+          "speaker": "Rick",
+          "text": "You're covered for three months, parts and labour. Just walk back in and we'll take care of it."
+        }
+      ]
     },
     "setting": "phone-repair-shop",
     "skills": [
@@ -6312,9 +8563,9 @@ export const builtInSceneMediaItems =
       "polite_interactions",
       "present_continuous",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "technology_and_repairs",
+      "confirming_quality",
+      "warranties"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6327,7 +8578,7 @@ export const builtInSceneMediaItems =
       "customer",
       "success"
     ],
-    "title": "Picking Up A Repaired Phone - Nuanced Story",
+    "title": "Picking Up The Phone",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6346,14 +8597,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 13.25,
+      "durationSeconds": 24.72,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/post-office-package-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "post-office-package-01-a1-a2",
     "image": {
-      "alt": "Mailing A Package. A customer gets help mailing a package.",
+      "alt": "Mailing A Package. A man carries a cardboard box into the post office. At the counter the clerk greets him and weighs the package. The man seals the box with tape on the counter. He hands the finished package to the clerk to mail.",
       "height": 1024,
       "mediaId": "post-office-package-01",
       "source": "built_in",
@@ -6362,8 +8613,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ruben brought a package to the post office for his sister. He did not know which label to use. The clerk helped him choose one and weigh the box. Ruben mailed the package and sent his sister a happy message."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Hugo",
+          "text": "Hello. I want to send this package, please."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Sure. Let me weigh it. Where is it going?"
+        },
+        {
+          "speaker": "Hugo",
+          "text": "To my sister in Canada."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Okay. That will be fifteen dollars."
+        },
+        {
+          "speaker": "Hugo",
+          "text": "Do I need to write the address here?"
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Yes, please write it clearly on this box."
+        },
+        {
+          "speaker": "Hugo",
+          "text": "Done. When will it arrive?"
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "In about one week. Thank you!"
+        }
+      ]
     },
     "setting": "post-office",
     "skills": [
@@ -6373,9 +8657,9 @@ export const builtInSceneMediaItems =
       "package",
       "mailing",
       "service",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "community_and_services",
+      "sending_mail",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6387,7 +8671,7 @@ export const builtInSceneMediaItems =
       "mailing",
       "service"
     ],
-    "title": "Mailing A Package - Simple Story",
+    "title": "Mailing A Package",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6398,19 +8682,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "post-office-package-01",
     "visualSummary": [
-      "A customer gets help mailing a package."
+      "A man carries a cardboard box into the post office.",
+      "At the counter the clerk greets him and weighs the package.",
+      "The man seals the box with tape on the counter.",
+      "He hands the finished package to the clerk to mail."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 22.46,
+      "durationSeconds": 34.37,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/post-office-package-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "post-office-package-01-b1-b2",
     "image": {
-      "alt": "Mailing A Package. A customer gets help mailing a package.",
+      "alt": "Mailing A Package. A man carries a cardboard box into the post office. At the counter the clerk greets him and weighs the package. The man seals the box with tape on the counter. He hands the finished package to the clerk to mail.",
       "height": 1024,
       "mediaId": "post-office-package-01",
       "source": "built_in",
@@ -6419,8 +8706,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ruben wanted to mail a birthday gift to his sister, but the post office had too many labels and choices. He held the box and looked confused. The clerk asked where it was going, weighed it, and showed him the right option. Ruben paid, watched the label go on the box, and felt relieved. His sister would not get the gift early, but it would arrive."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Hugo",
+          "text": "Good afternoon. I'd like to post this package, please."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "No problem. Let me pop it on the scale. Where's it headed?"
+        },
+        {
+          "speaker": "Hugo",
+          "text": "It's going to my sister in Canada. It's a birthday gift."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Lovely. It's not too heavy, so that'll be fifteen dollars for standard delivery."
+        },
+        {
+          "speaker": "Hugo",
+          "text": "Great. Should I write the address on the box myself?"
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Yes, nice and clear here, and don't forget your return address on the back."
+        },
+        {
+          "speaker": "Hugo",
+          "text": "All done. Any idea when it'll get there?"
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Roughly a week. Would you like tracking, just in case?"
+        }
+      ]
     },
     "setting": "post-office",
     "skills": [
@@ -6430,9 +8750,9 @@ export const builtInSceneMediaItems =
       "package",
       "mailing",
       "service",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "community_and_services",
+      "sending_mail",
+      "asking_about_options"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6444,7 +8764,7 @@ export const builtInSceneMediaItems =
       "mailing",
       "service"
     ],
-    "title": "Mailing A Package - Everyday Story",
+    "title": "Mailing A Package",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6455,19 +8775,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "post-office-package-01",
     "visualSummary": [
-      "A customer gets help mailing a package."
+      "A man carries a cardboard box into the post office.",
+      "At the counter the clerk greets him and weighs the package.",
+      "The man seals the box with tape on the counter.",
+      "He hands the finished package to the clerk to mail."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 32.54,
+      "durationSeconds": 45.77,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/post-office-package-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "post-office-package-01-c1",
     "image": {
-      "alt": "Mailing A Package. A customer gets help mailing a package.",
+      "alt": "Mailing A Package. A man carries a cardboard box into the post office. At the counter the clerk greets him and weighs the package. The man seals the box with tape on the counter. He hands the finished package to the clerk to mail.",
       "height": 1024,
       "mediaId": "post-office-package-01",
       "source": "built_in",
@@ -6476,8 +8799,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Ruben had wrapped the gift carefully, but mailing it turned out to be the part that made him nervous. The post office counter was busy, and every label seemed designed for someone who already knew the answer. The clerk asked a few simple questions, weighed the package, and explained the delivery choices without rushing him. When the label finally stuck to the box, Ruben felt as if the gift had begun its own small journey. He stepped outside and texted his sister, not what he had sent, but that something was on the way."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Hugo",
+          "text": "Good afternoon. I'd like to send this package off, if I could."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Of course. Let me weigh it first… where's it going?"
+        },
+        {
+          "speaker": "Hugo",
+          "text": "To my sister in Canada — it's her birthday, so I'd rather it didn't take forever."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Understood. Standard is about a week at fifteen dollars; express is three days but a fair bit more."
+        },
+        {
+          "speaker": "Hugo",
+          "text": "Let's play it safe and go express. I've cut it close as it is."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Wise choice. Write the address clearly here, your return details on the back, and I'll add tracking so you can follow it."
+        },
+        {
+          "speaker": "Hugo",
+          "text": "Perfect. At least now I'll know exactly when it lands on her doorstep."
+        },
+        {
+          "speaker": "Mr. Diaz",
+          "text": "Precisely. You'll get a message at every step. Happy birthday to your sister."
+        }
+      ]
     },
     "setting": "post-office",
     "skills": [
@@ -6487,9 +8843,9 @@ export const builtInSceneMediaItems =
       "package",
       "mailing",
       "service",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "community_and_services",
+      "comparing_options",
+      "decision_making"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6501,7 +8857,7 @@ export const builtInSceneMediaItems =
       "mailing",
       "service"
     ],
-    "title": "Mailing A Package - Nuanced Story",
+    "title": "Mailing A Package",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6512,7 +8868,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "post-office-package-01",
     "visualSummary": [
-      "A customer gets help mailing a package."
+      "A man carries a cardboard box into the post office.",
+      "At the counter the clerk greets him and weighs the package.",
+      "The man seals the box with tape on the counter.",
+      "He hands the finished package to the clerk to mail."
     ]
   },
   {
@@ -6762,14 +9121,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 13.06,
+      "durationSeconds": 27.89,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/restaurant-reservation-mixup-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "restaurant-reservation-mixup-01-a1-a2",
     "image": {
-      "alt": "Reservation Mix-Up. A reservation mix-up is solved and guests are seated.",
+      "alt": "Reservation Mix-Up. A couple arrives at the restaurant host stand for their reservation. The host checks the tablet and cannot find their booking. They talk it over and the host finds a way to seat them. The couple sits at a table, happily reading the menus.",
       "height": 1024,
       "mediaId": "restaurant-reservation-mixup-01",
       "source": "built_in",
@@ -6778,8 +9137,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Nora and her father arrived at the restaurant for dinner. The host could not find their reservation. Nora showed the confirmation on her phone. The host found a table, and dinner began with a laugh."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Carlos",
+          "text": "Good evening. We have a reservation for two. The name is Carlos."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "Let me check… I'm sorry, I don't see your name here."
+        },
+        {
+          "speaker": "Dina",
+          "text": "Oh no. But we booked it last week!"
+        },
+        {
+          "speaker": "Ivy",
+          "text": "Don't worry. We have a free table by the window. Is that okay?"
+        },
+        {
+          "speaker": "Carlos",
+          "text": "Yes, that's perfect. Thank you!"
+        },
+        {
+          "speaker": "Ivy",
+          "text": "Great. Please follow me."
+        },
+        {
+          "speaker": "Dina",
+          "text": "What a nice table. I'm happy now."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -6789,9 +9177,8 @@ export const builtInSceneMediaItems =
       "requests",
       "problem",
       "solution",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "reservations",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6803,7 +9190,7 @@ export const builtInSceneMediaItems =
       "problem",
       "solution"
     ],
-    "title": "Reservation Mix-Up - Simple Story",
+    "title": "The Missing Reservation",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6814,19 +9201,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "restaurant-reservation-mixup-01",
     "visualSummary": [
-      "A reservation mix-up is solved and guests are seated."
+      "A couple arrives at the restaurant host stand for their reservation.",
+      "The host checks the tablet and cannot find their booking.",
+      "They talk it over and the host finds a way to seat them.",
+      "The couple sits at a table, happily reading the menus."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.41,
+      "durationSeconds": 35.33,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/restaurant-reservation-mixup-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "restaurant-reservation-mixup-01-b1-b2",
     "image": {
-      "alt": "Reservation Mix-Up. A reservation mix-up is solved and guests are seated.",
+      "alt": "Reservation Mix-Up. A couple arrives at the restaurant host stand for their reservation. The host checks the tablet and cannot find their booking. They talk it over and the host finds a way to seat them. The couple sits at a table, happily reading the menus.",
       "height": 1024,
       "mediaId": "restaurant-reservation-mixup-01",
       "source": "built_in",
@@ -6835,8 +9225,37 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Nora had planned the dinner for her father's birthday, so her heart dropped when the host could not find the reservation. The restaurant was full, and her father tried to say it was fine. Nora checked her phone and found the confirmation. The host apologized and searched again. A table opened near the window. The evening started with a problem, but it became a story they would retell."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Carlos",
+          "text": "Good evening. We have a table booked for two under the name Carlos."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "Let me look… hmm, I'm afraid I can't find that reservation."
+        },
+        {
+          "speaker": "Dina",
+          "text": "Really? We called to book it last Tuesday. There must be a mistake."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "I'm sorry about the mix-up. Luckily, there's a lovely table free by the window."
+        },
+        {
+          "speaker": "Carlos",
+          "text": "That would be great, actually. We don't mind at all."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "Wonderful. Right this way, and I'll bring you the menus straight away."
+        },
+        {
+          "speaker": "Dina",
+          "text": "Well, that turned out fine. This spot is even nicer."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -6846,9 +9265,8 @@ export const builtInSceneMediaItems =
       "requests",
       "problem",
       "solution",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "solving_problems",
+      "past_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6860,7 +9278,7 @@ export const builtInSceneMediaItems =
       "problem",
       "solution"
     ],
-    "title": "Reservation Mix-Up - Everyday Story",
+    "title": "The Missing Reservation",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6871,19 +9289,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "restaurant-reservation-mixup-01",
     "visualSummary": [
-      "A reservation mix-up is solved and guests are seated."
+      "A couple arrives at the restaurant host stand for their reservation.",
+      "The host checks the tablet and cannot find their booking.",
+      "They talk it over and the host finds a way to seat them.",
+      "The couple sits at a table, happily reading the menus."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 34.22,
+      "durationSeconds": 47.26,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/restaurant-reservation-mixup-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "restaurant-reservation-mixup-01-c1",
     "image": {
-      "alt": "Reservation Mix-Up. A reservation mix-up is solved and guests are seated.",
+      "alt": "Reservation Mix-Up. A couple arrives at the restaurant host stand for their reservation. The host checks the tablet and cannot find their booking. They talk it over and the host finds a way to seat them. The couple sits at a table, happily reading the menus.",
       "height": 1024,
       "mediaId": "restaurant-reservation-mixup-01",
       "source": "built_in",
@@ -6892,8 +9313,37 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Nora wanted the birthday dinner to feel effortless, which is exactly why the missing reservation felt so painful. The host searched the list twice while Nora's father pretended not to be disappointed. Then Nora found the confirmation message buried under a week of notifications. The host recognized the mistake, apologized, and found a quiet table near the window. The dinner was not flawless, but perhaps that helped. By dessert, the mix-up had become part of the celebration rather than a threat to it."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Carlos",
+          "text": "Good evening. We've a table reserved for two, booked under the name Carlos."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "Bear with me while I check… I'm sorry to say your name doesn't appear in the system."
+        },
+        {
+          "speaker": "Dina",
+          "text": "That's strange — we phoned to confirm only last Tuesday. Something must have gone wrong on your end."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "You're quite right, and I do apologise. Rather than leave you standing, may I offer you that table by the window?"
+        },
+        {
+          "speaker": "Carlos",
+          "text": "Honestly, that suits us perfectly. No harm done, as long as we're fed."
+        },
+        {
+          "speaker": "Ivy",
+          "text": "You're very gracious about it. Follow me, and I'll send someone over with the menus and a drink on the house."
+        },
+        {
+          "speaker": "Dina",
+          "text": "See? A little patience and we've ended up with the best seat in the place."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -6903,9 +9353,8 @@ export const builtInSceneMediaItems =
       "requests",
       "problem",
       "solution",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "handling_problems",
+      "gracious_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6917,7 +9366,7 @@ export const builtInSceneMediaItems =
       "problem",
       "solution"
     ],
-    "title": "Reservation Mix-Up - Nuanced Story",
+    "title": "The Missing Reservation",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6928,19 +9377,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "restaurant-reservation-mixup-01",
     "visualSummary": [
-      "A reservation mix-up is solved and guests are seated."
+      "A couple arrives at the restaurant host stand for their reservation.",
+      "The host checks the tablet and cannot find their booking.",
+      "They talk it over and the host finds a way to seat them.",
+      "The couple sits at a table, happily reading the menus."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 13.42,
+      "durationSeconds": 29.11,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/science-project-spill-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "science-project-spill-01-a1-a2",
     "image": {
-      "alt": "Science Project Spill. Students spill colored water, clean it up, and restart safely.",
+      "alt": "Science Project Spill. Two lab partners carefully mix a blue liquid in a beaker. A beaker tips over and the blue liquid spills across the table. Their teacher helps them wipe up the spill with paper towels. Calm again, the partners return to their experiment with a dropper.",
       "height": 1024,
       "mediaId": "science-project-spill-01",
       "source": "built_in",
@@ -6949,8 +9401,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "The science group mixed colored water for a project. One cup fell, and blue water spread across the table. The students stopped and cleaned it together. Then they started again more carefully."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Jomo",
+          "text": "Okay, I pour the blue liquid slowly."
+        },
+        {
+          "speaker": "Mei",
+          "text": "Careful! Not too fast."
+        },
+        {
+          "speaker": "Mei",
+          "text": "Oh no! It spilled on the table!"
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Don't worry. Nobody is hurt. Let's clean it up."
+        },
+        {
+          "speaker": "Jomo",
+          "text": "I'm sorry, Ms. Park."
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "It's okay. Accidents happen in science. Use these paper towels."
+        },
+        {
+          "speaker": "Mei",
+          "text": "All clean now. Can we try again?"
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Yes. Go slowly this time."
+        }
+      ]
     },
     "setting": "science-classroom",
     "skills": [
@@ -6959,9 +9444,9 @@ export const builtInSceneMediaItems =
       "spill",
       "cleanup",
       "teamwork",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "school_and_science",
+      "accidents",
+      "imperatives"
     ],
     "source": "built_in",
     "status": "ready",
@@ -6972,7 +9457,7 @@ export const builtInSceneMediaItems =
       "cleanup",
       "teamwork"
     ],
-    "title": "Science Project Spill - Simple Story",
+    "title": "The Lab Spill",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6983,19 +9468,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "science-project-spill-01",
     "visualSummary": [
-      "Students spill colored water, clean it up, and restart safely."
+      "Two lab partners carefully mix a blue liquid in a beaker.",
+      "A beaker tips over and the blue liquid spills across the table.",
+      "Their teacher helps them wipe up the spill with paper towels.",
+      "Calm again, the partners return to their experiment with a dropper."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 27.98,
+      "durationSeconds": 43.25,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/science-project-spill-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "science-project-spill-01-b1-b2",
     "image": {
-      "alt": "Science Project Spill. Students spill colored water, clean it up, and restart safely.",
+      "alt": "Science Project Spill. Two lab partners carefully mix a blue liquid in a beaker. A beaker tips over and the blue liquid spills across the table. Their teacher helps them wipe up the spill with paper towels. Calm again, the partners return to their experiment with a dropper.",
       "height": 1024,
       "mediaId": "science-project-spill-01",
       "source": "built_in",
@@ -7004,8 +9492,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "The science project was going well until Ben reached across the table and knocked over a cup of blue water. Everyone froze. For a second, the group looked at the spill instead of the solution. Then Maya grabbed paper towels, and Ben moved the papers away. The teacher checked that everyone was safe. After cleaning up, they restarted the experiment with slower hands and a better plan."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Jomo",
+          "text": "Alright, I'll pour the blue liquid into the beaker, nice and slow."
+        },
+        {
+          "speaker": "Mei",
+          "text": "Watch out — you're going a little too fast!"
+        },
+        {
+          "speaker": "Mei",
+          "text": "Oh no, it tipped over! There's liquid everywhere."
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Stay calm, everyone. Is anyone hurt? No? Good."
+        },
+        {
+          "speaker": "Jomo",
+          "text": "I'm really sorry, Ms. Park. It was my fault."
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Don't worry about it. Spills are part of doing experiments. Grab the paper towels."
+        },
+        {
+          "speaker": "Mei",
+          "text": "Okay, the table's clean again. Can we start over?"
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Of course. This time, pour a little at a time and keep the beaker steady."
+        }
+      ]
     },
     "setting": "science-classroom",
     "skills": [
@@ -7014,9 +9535,9 @@ export const builtInSceneMediaItems =
       "spill",
       "cleanup",
       "teamwork",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "school_and_science",
+      "handling_accidents",
+      "reassurance"
     ],
     "source": "built_in",
     "status": "ready",
@@ -7027,7 +9548,7 @@ export const builtInSceneMediaItems =
       "cleanup",
       "teamwork"
     ],
-    "title": "Science Project Spill - Everyday Story",
+    "title": "The Lab Spill",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7038,19 +9559,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "science-project-spill-01",
     "visualSummary": [
-      "Students spill colored water, clean it up, and restart safely."
+      "Two lab partners carefully mix a blue liquid in a beaker.",
+      "A beaker tips over and the blue liquid spills across the table.",
+      "Their teacher helps them wipe up the spill with paper towels.",
+      "Calm again, the partners return to their experiment with a dropper."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 34.1,
+      "durationSeconds": 50.52,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/science-project-spill-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "science-project-spill-01-c1",
     "image": {
-      "alt": "Science Project Spill. Students spill colored water, clean it up, and restart safely.",
+      "alt": "Science Project Spill. Two lab partners carefully mix a blue liquid in a beaker. A beaker tips over and the blue liquid spills across the table. Their teacher helps them wipe up the spill with paper towels. Calm again, the partners return to their experiment with a dropper.",
       "height": 1024,
       "mediaId": "science-project-spill-01",
       "source": "built_in",
@@ -7059,8 +9583,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The spill happened at the worst possible moment, just as the group thought their science project was finally working. Blue water ran across the table toward their notes, and Ben's face turned red with embarrassment. Maya moved first, lifting the papers while another student found towels. Their teacher reminded them that safe scientists respond before they complain. Ten minutes later, the table was clean and the experiment began again. The project survived because the group chose teamwork over blame."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Jomo",
+          "text": "Right, I'll add the blue solution to the beaker slowly, drop by drop."
+        },
+        {
+          "speaker": "Mei",
+          "text": "Careful — your hand's shaking a bit, and that's more than a drop!"
+        },
+        {
+          "speaker": "Mei",
+          "text": "Oh no, the whole beaker's gone over. There's liquid all across the bench."
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Everyone step back for a second. Nobody's hurt? Perfect, then it's nothing we can't fix."
+        },
+        {
+          "speaker": "Jomo",
+          "text": "I'm so sorry, Ms. Park. I completely lost control of it."
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Honestly, don't give it a second thought. Mistakes like this are exactly how you learn to handle equipment. Here are the towels."
+        },
+        {
+          "speaker": "Mei",
+          "text": "There, all wiped down. Are we allowed to run it again?"
+        },
+        {
+          "speaker": "Ms. Park",
+          "text": "Absolutely — that's the whole point. Just steady the beaker and add the liquid gradually this time."
+        }
+      ]
     },
     "setting": "science-classroom",
     "skills": [
@@ -7069,9 +9626,9 @@ export const builtInSceneMediaItems =
       "spill",
       "cleanup",
       "teamwork",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "school_and_science",
+      "staying_calm",
+      "learning_from_mistakes"
     ],
     "source": "built_in",
     "status": "ready",
@@ -7082,7 +9639,7 @@ export const builtInSceneMediaItems =
       "cleanup",
       "teamwork"
     ],
-    "title": "Science Project Spill - Nuanced Story",
+    "title": "The Lab Spill",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7093,7 +9650,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "science-project-spill-01",
     "visualSummary": [
-      "Students spill colored water, clean it up, and restart safely."
+      "Two lab partners carefully mix a blue liquid in a beaker.",
+      "A beaker tips over and the blue liquid spills across the table.",
+      "Their teacher helps them wipe up the spill with paper towels.",
+      "Calm again, the partners return to their experiment with a dropper."
     ]
   },
   {
@@ -7594,14 +10154,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 11.66,
+      "durationSeconds": 25.13,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/spilled-soup-restaurant-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "spilled-soup-restaurant-01-a1-a2",
     "image": {
-      "alt": "Spilled Soup. A small soup spill happens, staff help clean it, and dinner continues.",
+      "alt": "Spilled Soup. A waiter serves a bowl of soup to a smiling diner. The bowl tips over and the soup spills across the table. The waiter quickly wipes up the spill and reassures her. A fresh bowl of soup arrives and she enjoys her meal.",
       "height": 1024,
       "mediaId": "spilled-soup-restaurant-01",
       "source": "built_in",
@@ -7610,8 +10170,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "A waiter brought soup to the table, but the bowl slipped. A little soup spilled near Emma's chair. The waiter cleaned it quickly and brought a new bowl. Emma thanked him, and dinner continued."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Diego",
+          "text": "Here is your soup. Be careful, it's hot."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Thank you… Oh! It's spilling!"
+        },
+        {
+          "speaker": "Diego",
+          "text": "Oh no! I'm so sorry. Let me clean it."
+        },
+        {
+          "speaker": "Hana",
+          "text": "It's okay. Nobody is hurt."
+        },
+        {
+          "speaker": "Diego",
+          "text": "I'll bring you a new bowl. Please wait one minute."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Thank you very much."
+        },
+        {
+          "speaker": "Diego",
+          "text": "Here is a fresh soup. Enjoy your meal!"
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -7620,9 +10209,8 @@ export const builtInSceneMediaItems =
       "spill",
       "cleanup",
       "helping",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "apologising",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -7633,7 +10221,7 @@ export const builtInSceneMediaItems =
       "cleanup",
       "helping"
     ],
-    "title": "Spilled Soup - Simple Story",
+    "title": "The Spilled Soup",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7644,19 +10232,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "spilled-soup-restaurant-01",
     "visualSummary": [
-      "A small soup spill happens, staff help clean it, and dinner continues."
+      "A waiter serves a bowl of soup to a smiling diner.",
+      "The bowl tips over and the soup spills across the table.",
+      "The waiter quickly wipes up the spill and reassures her.",
+      "A fresh bowl of soup arrives and she enjoys her meal."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.62,
+      "durationSeconds": 35.35,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/spilled-soup-restaurant-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "spilled-soup-restaurant-01-b1-b2",
     "image": {
-      "alt": "Spilled Soup. A small soup spill happens, staff help clean it, and dinner continues.",
+      "alt": "Spilled Soup. A waiter serves a bowl of soup to a smiling diner. The bowl tips over and the soup spills across the table. The waiter quickly wipes up the spill and reassures her. A fresh bowl of soup arrives and she enjoys her meal.",
       "height": 1024,
       "mediaId": "spilled-soup-restaurant-01",
       "source": "built_in",
@@ -7665,8 +10256,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Emma was telling a story when the waiter arrived with hot soup. The bowl slipped slightly, and soup splashed onto the table. Everyone stopped. The waiter apologized, Emma moved her napkin, and another staff member came with towels. Nobody was hurt. A new bowl arrived a few minutes later, and the table relaxed again. The accident became a small interruption, not a ruined meal."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Diego",
+          "text": "Here's your soup. Careful, the bowl is very hot."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Thanks so much… oh no, it's tipping over!"
+        },
+        {
+          "speaker": "Diego",
+          "text": "I'm terribly sorry! Let me wipe that up right away."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Don't worry, these things happen. At least it didn't burn me."
+        },
+        {
+          "speaker": "Diego",
+          "text": "That's a relief. I'll bring you a fresh bowl immediately, no charge."
+        },
+        {
+          "speaker": "Hana",
+          "text": "That's very kind, thank you."
+        },
+        {
+          "speaker": "Diego",
+          "text": "Here you are, a new soup. Again, I apologise for the mess."
+        },
+        {
+          "speaker": "Hana",
+          "text": "It's completely fine. Now it looks delicious."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -7675,9 +10299,8 @@ export const builtInSceneMediaItems =
       "spill",
       "cleanup",
       "helping",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "apologising",
+      "reassurance"
     ],
     "source": "built_in",
     "status": "ready",
@@ -7688,7 +10311,7 @@ export const builtInSceneMediaItems =
       "cleanup",
       "helping"
     ],
-    "title": "Spilled Soup - Everyday Story",
+    "title": "The Spilled Soup",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7699,19 +10322,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "spilled-soup-restaurant-01",
     "visualSummary": [
-      "A small soup spill happens, staff help clean it, and dinner continues."
+      "A waiter serves a bowl of soup to a smiling diner.",
+      "The bowl tips over and the soup spills across the table.",
+      "The waiter quickly wipes up the spill and reassures her.",
+      "A fresh bowl of soup arrives and she enjoys her meal."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 31.3,
+      "durationSeconds": 45,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/spilled-soup-restaurant-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "spilled-soup-restaurant-01-c1",
     "image": {
-      "alt": "Spilled Soup. A small soup spill happens, staff help clean it, and dinner continues.",
+      "alt": "Spilled Soup. A waiter serves a bowl of soup to a smiling diner. The bowl tips over and the soup spills across the table. The waiter quickly wipes up the spill and reassures her. A fresh bowl of soup arrives and she enjoys her meal.",
       "height": 1024,
       "mediaId": "spilled-soup-restaurant-01",
       "source": "built_in",
@@ -7720,8 +10346,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "The soup spill was small, but for one second the whole table went silent. Emma saw the waiter's face change from focus to panic, and she understood that he was more upset than anyone else. She moved her chair back, smiled, and said she was fine. The staff cleaned the table quickly and replaced the bowl. When dinner continued, the conversation returned slowly, then warmly. Emma later remembered the meal not for the spill, but for how kindly everyone let the mistake pass."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Diego",
+          "text": "Here's your soup — mind yourself, the bowl's extremely hot."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Thank you… oh dear, it's slipping off the plate!"
+        },
+        {
+          "speaker": "Diego",
+          "text": "I am so sorry! Let me get that cleaned up before it spreads."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Please don't worry about it. Honestly, it could have happened to anyone, and I'm not hurt."
+        },
+        {
+          "speaker": "Diego",
+          "text": "You're being very kind about it. I'll fetch you a fresh bowl straight away, and it's on us, of course."
+        },
+        {
+          "speaker": "Hana",
+          "text": "That's really not necessary, but I appreciate the gesture."
+        },
+        {
+          "speaker": "Diego",
+          "text": "It's the least we can do. Here's your replacement, and thank you for your patience."
+        },
+        {
+          "speaker": "Hana",
+          "text": "Not at all. It smells wonderful — let's pretend the first one never happened."
+        }
+      ]
     },
     "setting": "restaurant",
     "skills": [
@@ -7730,9 +10389,8 @@ export const builtInSceneMediaItems =
       "spill",
       "cleanup",
       "helping",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "apologising_gracefully",
+      "natural_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -7743,7 +10401,7 @@ export const builtInSceneMediaItems =
       "cleanup",
       "helping"
     ],
-    "title": "Spilled Soup - Nuanced Story",
+    "title": "The Spilled Soup",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7754,7 +10412,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "spilled-soup-restaurant-01",
     "visualSummary": [
-      "A small soup spill happens, staff help clean it, and dinner continues."
+      "A waiter serves a bowl of soup to a smiling diner.",
+      "The bowl tips over and the soup spills across the table.",
+      "The waiter quickly wipes up the spill and reassures her.",
+      "A fresh bowl of soup arrives and she enjoys her meal."
     ]
   },
   {
@@ -8002,7 +10663,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 13.54,
+      "durationSeconds": 27.65,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/ticket-machine-help-01-a1-a2.mp3"
     },
@@ -8018,8 +10679,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mr. Lee wanted to buy a train ticket, but the machine confused him. A young traveler saw the problem and offered help. She showed him where to press. Soon Mr. Lee had his ticket and walked to the platform."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Oh dear. This machine is difficult. I don't understand."
+        },
+        {
+          "speaker": "Sam",
+          "text": "Hi. Can I help you?"
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Yes, please. I want one ticket to the city."
+        },
+        {
+          "speaker": "Sam",
+          "text": "Okay. First, touch here. Then choose the city."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Like this?"
+        },
+        {
+          "speaker": "Sam",
+          "text": "Yes! Now put in your money."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "It works! Thank you, young man."
+        },
+        {
+          "speaker": "Sam",
+          "text": "You're welcome. Have a good trip!"
+        }
+      ]
     },
     "setting": "train-station",
     "skills": [
@@ -8029,9 +10723,9 @@ export const builtInSceneMediaItems =
       "asking_for_help",
       "polite_interactions",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "travel_and_transport",
+      "giving_instructions",
+      "offering_help"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8044,7 +10738,7 @@ export const builtInSceneMediaItems =
       "polite",
       "problem-solution"
     ],
-    "title": "Help At The Ticket Machine - Simple Story",
+    "title": "Help At The Ticket Machine",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8063,7 +10757,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 21.62,
+      "durationSeconds": 36.24,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/ticket-machine-help-01-b1-b2.mp3"
     },
@@ -8079,8 +10773,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Mr. Lee needed a ticket for the city train, but the machine had too many choices. He stepped back and looked worried. A young traveler asked if he needed help, then showed him the correct button and where to pay. Mr. Lee thanked her twice because he had been afraid of missing the train. With the ticket in his hand, he walked toward the platform with a lighter step."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mrs. Ito",
+          "text": "I can't make sense of this machine. All these buttons confuse me."
+        },
+        {
+          "speaker": "Sam",
+          "text": "No worries, I use it every day. Would you like some help?"
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "That would be lovely. I just need a single ticket to the city centre."
+        },
+        {
+          "speaker": "Sam",
+          "text": "Easy. Tap the screen here, select 'city centre', and then choose 'one adult'."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Oh, I see it now. And where does the money go?"
+        },
+        {
+          "speaker": "Sam",
+          "text": "Coins go in this slot, or you can tap your card here."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Wonderful, it's printing! Thank you for your patience."
+        },
+        {
+          "speaker": "Sam",
+          "text": "Any time. Enjoy your journey!"
+        }
+      ]
     },
     "setting": "train-station",
     "skills": [
@@ -8090,9 +10817,9 @@ export const builtInSceneMediaItems =
       "asking_for_help",
       "polite_interactions",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "travel_and_transport",
+      "step_by_step_instructions",
+      "offering_help"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8105,7 +10832,7 @@ export const builtInSceneMediaItems =
       "polite",
       "problem-solution"
     ],
-    "title": "Help At The Ticket Machine - Everyday Story",
+    "title": "Help At The Ticket Machine",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8124,7 +10851,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 30.65,
+      "durationSeconds": 48.31,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/ticket-machine-help-01-c1.mp3"
     },
@@ -8140,8 +10867,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Mr. Lee had traveled by train for years, but the new ticket machine made him feel suddenly out of place. The screen changed faster than he expected, and the people behind him seemed impatient. A younger traveler noticed his hesitation and offered help without making him feel foolish. She guided him through each step, then stepped aside as if it were the most ordinary kindness in the world. Mr. Lee boarded with his ticket and a little more trust in asking for help."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Mrs. Ito",
+          "text": "I'm afraid this machine has completely defeated me. In my day you simply asked a person for a ticket."
+        },
+        {
+          "speaker": "Sam",
+          "text": "They're not as friendly as they could be, are they? Let me give you a hand."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Would you? I only need a single fare into the city centre, nothing complicated."
+        },
+        {
+          "speaker": "Sam",
+          "text": "That's no trouble at all. Tap the screen to wake it up, choose your destination here, then select the number of passengers."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Ah, it's much clearer when someone shows you. And the payment?"
+        },
+        {
+          "speaker": "Sam",
+          "text": "Either feed the coins into this slot or tap your card on the reader — whichever you prefer."
+        },
+        {
+          "speaker": "Mrs. Ito",
+          "text": "Marvellous, there's my ticket. You've been terribly kind to a confused stranger."
+        },
+        {
+          "speaker": "Sam",
+          "text": "Not at all. We all need a hand now and then. Have a pleasant trip."
+        }
+      ]
     },
     "setting": "train-station",
     "skills": [
@@ -8151,9 +10911,9 @@ export const builtInSceneMediaItems =
       "asking_for_help",
       "polite_interactions",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "travel_and_transport",
+      "guiding_someone",
+      "technology_and_kindness"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8166,7 +10926,7 @@ export const builtInSceneMediaItems =
       "polite",
       "problem-solution"
     ],
-    "title": "Help At The Ticket Machine - Nuanced Story",
+    "title": "Help At The Ticket Machine",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8434,14 +11194,14 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 14.06,
+      "durationSeconds": 33.38,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/video-call-problem-01-a1-a2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "video-call-problem-01-a1-a2",
     "image": {
-      "alt": "Video Call Problem. A video call problem is fixed and the call continues.",
+      "alt": "Video Call Problem. A woman waves hello as her video call with four coworkers begins. The call freezes and the screen buffers because of a weak wifi signal. A support agent on the call guides her to fix the router. The call works again and she happily waves to everyone.",
       "height": 1024,
       "mediaId": "video-call-problem-01",
       "source": "built_in",
@@ -8450,8 +11210,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Nora joined an important video call, but no one could hear her. She checked the button and looked worried. Her brother pointed to the microphone setting. Nora fixed it and said hello just in time."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Amara",
+          "text": "Hi everyone! Can you see me? Can you hear me?"
+        },
+        {
+          "speaker": "Coworker",
+          "text": "Yes, we can see you! Hello!"
+        },
+        {
+          "speaker": "Amara",
+          "text": "Oh no. The screen is frozen now. Everyone stopped moving."
+        },
+        {
+          "speaker": "Raj",
+          "text": "Hi, this is IT support. Your internet is weak. Please restart the router."
+        },
+        {
+          "speaker": "Amara",
+          "text": "Okay. I press this button… now the light is green."
+        },
+        {
+          "speaker": "Raj",
+          "text": "Great. Try again now."
+        },
+        {
+          "speaker": "Amara",
+          "text": "It works! Hi everyone, I'm back!"
+        }
+      ]
     },
     "setting": "home-office",
     "skills": [
@@ -8461,9 +11250,9 @@ export const builtInSceneMediaItems =
       "troubleshooting",
       "remote",
       "work",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "technology",
+      "video_calls",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8475,7 +11264,7 @@ export const builtInSceneMediaItems =
       "remote",
       "work"
     ],
-    "title": "Video Call Problem - Simple Story",
+    "title": "The Frozen Call",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8486,19 +11275,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "video-call-problem-01",
     "visualSummary": [
-      "A video call problem is fixed and the call continues."
+      "A woman waves hello as her video call with four coworkers begins.",
+      "The call freezes and the screen buffers because of a weak wifi signal.",
+      "A support agent on the call guides her to fix the router.",
+      "The call works again and she happily waves to everyone."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.17,
+      "durationSeconds": 38.16,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/video-call-problem-01-b1-b2.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "video-call-problem-01-b1-b2",
     "image": {
-      "alt": "Video Call Problem. A video call problem is fixed and the call continues.",
+      "alt": "Video Call Problem. A woman waves hello as her video call with four coworkers begins. The call freezes and the screen buffers because of a weak wifi signal. A support agent on the call guides her to fix the router. The call works again and she happily waves to everyone.",
       "height": 1024,
       "mediaId": "video-call-problem-01",
       "source": "built_in",
@@ -8507,8 +11299,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Nora prepared for her video call all morning, but when the meeting started, her microphone did not work. She waved at the screen while everyone waited. Her brother noticed the problem from across the room and pointed to the settings. Nora clicked the right button, tested her voice, and finally joined the conversation. The call began late, but her idea was still heard."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Amara",
+          "text": "Morning, everyone! Can you all see and hear me okay?"
+        },
+        {
+          "speaker": "Coworker",
+          "text": "Loud and clear! Good to see you."
+        },
+        {
+          "speaker": "Amara",
+          "text": "Oh no… the video's frozen. Everyone's stuck on the screen."
+        },
+        {
+          "speaker": "Raj",
+          "text": "Hello, this is IT support. It looks like your wifi signal is very weak. Try restarting your router."
+        },
+        {
+          "speaker": "Amara",
+          "text": "Alright, I'll switch it off and on again… the lights are coming back."
+        },
+        {
+          "speaker": "Raj",
+          "text": "Perfect. Give it a few seconds and rejoin the call."
+        },
+        {
+          "speaker": "Amara",
+          "text": "It's working now! Sorry about that, everyone — I'm back."
+        },
+        {
+          "speaker": "Coworker",
+          "text": "No worries, it happens to all of us!"
+        }
+      ]
     },
     "setting": "home-office",
     "skills": [
@@ -8518,9 +11343,8 @@ export const builtInSceneMediaItems =
       "troubleshooting",
       "remote",
       "work",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "technology",
+      "video_calls"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8532,7 +11356,7 @@ export const builtInSceneMediaItems =
       "remote",
       "work"
     ],
-    "title": "Video Call Problem - Everyday Story",
+    "title": "The Frozen Call",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8543,19 +11367,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "video-call-problem-01",
     "visualSummary": [
-      "A video call problem is fixed and the call continues."
+      "A woman waves hello as her video call with four coworkers begins.",
+      "The call freezes and the screen buffers because of a weak wifi signal.",
+      "A support agent on the call guides her to fix the router.",
+      "The call works again and she happily waves to everyone."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 32.02,
+      "durationSeconds": 50.4,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/video-call-problem-01-c1.mp3"
     },
     "format": "four_panel_wordless_story",
     "id": "video-call-problem-01-c1",
     "image": {
-      "alt": "Video Call Problem. A video call problem is fixed and the call continues.",
+      "alt": "Video Call Problem. A woman waves hello as her video call with four coworkers begins. The call freezes and the screen buffers because of a weak wifi signal. A support agent on the call guides her to fix the router. The call works again and she happily waves to everyone.",
       "height": 1024,
       "mediaId": "video-call-problem-01",
       "source": "built_in",
@@ -8564,8 +11391,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Nora had practiced her presentation until every sentence felt ready, which made the silent microphone especially cruel. On screen, her colleagues watched her smile, gesture, and slowly panic. Her brother, passing behind the desk, noticed the muted setting before she did. One click brought her voice back into the room. Nora apologized, took a breath, and began. The technical problem had stolen two minutes, but it had not stolen her preparation."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Amara",
+          "text": "Morning, all! Before we start, can everyone confirm you can see and hear me clearly?"
+        },
+        {
+          "speaker": "Coworker",
+          "text": "Crystal clear on our end. Fire away whenever you're ready."
+        },
+        {
+          "speaker": "Amara",
+          "text": "Oh, that's not good — the whole screen's frozen. You've all turned into statues."
+        },
+        {
+          "speaker": "Raj",
+          "text": "Hi there, IT support here. Your connection's dropped to almost nothing; the quickest fix is a full router restart."
+        },
+        {
+          "speaker": "Amara",
+          "text": "Right, unplugging it now… waiting for the lights… okay, they're blinking back to life."
+        },
+        {
+          "speaker": "Raj",
+          "text": "Give it about thirty seconds to reconnect, then rejoin the meeting."
+        },
+        {
+          "speaker": "Amara",
+          "text": "And… we're back! Apologies, everyone — technology has a sense of timing."
+        },
+        {
+          "speaker": "Coworker",
+          "text": "Don't apologise, we've all been there. Shall we pick up where we left off?"
+        }
+      ]
     },
     "setting": "home-office",
     "skills": [
@@ -8575,9 +11435,9 @@ export const builtInSceneMediaItems =
       "troubleshooting",
       "remote",
       "work",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "technology",
+      "video_calls",
+      "solving_tech_problems"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8589,7 +11449,7 @@ export const builtInSceneMediaItems =
       "remote",
       "work"
     ],
-    "title": "Video Call Problem - Nuanced Story",
+    "title": "The Frozen Call",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8600,19 +11460,22 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "video-call-problem-01",
     "visualSummary": [
-      "A video call problem is fixed and the call continues."
+      "A woman waves hello as her video call with four coworkers begins.",
+      "The call freezes and the screen buffers because of a weak wifi signal.",
+      "A support agent on the call guides her to fix the router.",
+      "The call works again and she happily waves to everyone."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 16.06,
+      "durationSeconds": 25.75,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/waiting-room-check-in-01-a1-a2.mp3"
     },
     "format": "single_panel_scene",
     "id": "waiting-room-check-in-01-a1-a2",
     "image": {
-      "alt": "Waiting Room Check-In. People check in, wait, read, talk, and respond to a nurse in a clinic waiting room.",
+      "alt": "Waiting Room Check-In. A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby.",
       "height": 1024,
       "mediaId": "waiting-room-check-in-01",
       "source": "built_in",
@@ -8621,8 +11484,41 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Sam arrived early for his appointment, but he felt nervous. The receptionist smiled and helped him check in. In the waiting room, he saw other people reading and talking quietly. When the nurse called his name, Sam stood up feeling calmer."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Carla",
+          "text": "Hello. I have an appointment at ten o'clock."
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Good morning. What is your name, please?"
+        },
+        {
+          "speaker": "Carla",
+          "text": "Carla Ruiz."
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Thank you. Please sit down and wait."
+        },
+        {
+          "speaker": "Carla",
+          "text": "Okay. Is the doctor busy today?"
+        },
+        {
+          "speaker": "Nadia",
+          "text": "A little. Please wait ten minutes."
+        },
+        {
+          "speaker": "Grace",
+          "text": "Mr. Lee? The doctor is ready for you."
+        },
+        {
+          "speaker": "Carla",
+          "text": "I will wait here. Thank you."
+        }
+      ]
     },
     "setting": "clinic-waiting-room",
     "skills": [
@@ -8632,9 +11528,8 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "personal_information",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8647,7 +11542,7 @@ export const builtInSceneMediaItems =
       "reception",
       "nurse"
     ],
-    "title": "Waiting Room Check-In - Simple Story",
+    "title": "Checking In",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8657,19 +11552,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "waiting-room-check-in-01",
     "visualSummary": [
-      "People check in, wait, read, talk, and respond to a nurse in a clinic waiting room."
+      "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 24.62,
+      "durationSeconds": 32.09,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/waiting-room-check-in-01-b1-b2.mp3"
     },
     "format": "single_panel_scene",
     "id": "waiting-room-check-in-01-b1-b2",
     "image": {
-      "alt": "Waiting Room Check-In. People check in, wait, read, talk, and respond to a nurse in a clinic waiting room.",
+      "alt": "Waiting Room Check-In. A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby.",
       "height": 1024,
       "mediaId": "waiting-room-check-in-01",
       "source": "built_in",
@@ -8678,8 +11573,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Sam had never visited this clinic before, so he arrived twenty minutes early. He was worried about missing a form or sitting in the wrong place. The receptionist checked his name and pointed to a chair near the window. As Sam waited, he watched a nurse help an older man and a mother comfort her child. The room was busy, but kind. When his name was called, he was ready."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Carla",
+          "text": "Hi, I'm here for a ten o'clock appointment with Dr. Kim."
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Welcome. Could you give me your name and date of birth?"
+        },
+        {
+          "speaker": "Carla",
+          "text": "Carla Ruiz, the third of May."
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Perfect, you're checked in. Please have a seat — it'll be a short wait."
+        },
+        {
+          "speaker": "Carla",
+          "text": "No problem. Do I need to fill in any forms?"
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Not today, everything's up to date. The nurse will call you soon."
+        },
+        {
+          "speaker": "Grace",
+          "text": "Mr. Lee? Come through, please. The doctor's waiting."
+        },
+        {
+          "speaker": "Carla",
+          "text": "Thanks. I'll just sit over here, then."
+        }
+      ]
     },
     "setting": "clinic-waiting-room",
     "skills": [
@@ -8689,9 +11617,8 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "personal_information",
+      "polite_requests"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8704,7 +11631,7 @@ export const builtInSceneMediaItems =
       "reception",
       "nurse"
     ],
-    "title": "Waiting Room Check-In - Everyday Story",
+    "title": "Checking In",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8714,19 +11641,19 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "waiting-room-check-in-01",
     "visualSummary": [
-      "People check in, wait, read, talk, and respond to a nurse in a clinic waiting room."
+      "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 31.66,
+      "durationSeconds": 42.29,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/waiting-room-check-in-01-c1.mp3"
     },
     "format": "single_panel_scene",
     "id": "waiting-room-check-in-01-c1",
     "image": {
-      "alt": "Waiting Room Check-In. People check in, wait, read, talk, and respond to a nurse in a clinic waiting room.",
+      "alt": "Waiting Room Check-In. A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby.",
       "height": 1024,
       "mediaId": "waiting-room-check-in-01",
       "source": "built_in",
@@ -8735,8 +11662,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Sam entered the clinic with the small fear that everyone else understood the system except him. The receptionist, however, made the first step easy: name, appointment time, and a calm gesture toward the waiting area. As he sat down, Sam noticed the quiet choreography of the room. People arrived uncertain, staff guided them, and each small instruction reduced the confusion. By the time the nurse called his name, the appointment had already become less intimidating."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Carla",
+          "text": "Good morning. I've got a ten o'clock appointment, though I think I'm a few minutes early."
+        },
+        {
+          "speaker": "Nadia",
+          "text": "That's absolutely fine — better early than late. May I have your name and date of birth to check you in?"
+        },
+        {
+          "speaker": "Carla",
+          "text": "Of course. Carla Ruiz, the third of May."
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Lovely, you're all set. If you'd like to take a seat, the wait shouldn't be long today."
+        },
+        {
+          "speaker": "Carla",
+          "text": "Thank you. Should I let you know if I ever need to reschedule?"
+        },
+        {
+          "speaker": "Nadia",
+          "text": "Please do — just give us a call a day ahead and we'll sort it out. The nurse will be with you shortly."
+        },
+        {
+          "speaker": "Grace",
+          "text": "Mr. Lee? Whenever you're ready, the doctor can see you now."
+        },
+        {
+          "speaker": "Carla",
+          "text": "Perfect. I'll wait right here until it's my turn."
+        }
+      ]
     },
     "setting": "clinic-waiting-room",
     "skills": [
@@ -8746,9 +11706,8 @@ export const builtInSceneMediaItems =
       "prepositions",
       "describing_people",
       "describing_objects",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "polite_interaction",
+      "future_and_conditionals"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8761,7 +11720,7 @@ export const builtInSceneMediaItems =
       "reception",
       "nurse"
     ],
-    "title": "Waiting Room Check-In - Nuanced Story",
+    "title": "Checking In",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8771,12 +11730,12 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "waiting-room-check-in-01",
     "visualSummary": [
-      "People check in, wait, read, talk, and respond to a nurse in a clinic waiting room."
+      "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
     ]
   },
   {
     "audio": {
-      "durationSeconds": 12.98,
+      "durationSeconds": 23.81,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/wrong-cafe-order-01-a1-a2.mp3"
     },
@@ -8792,8 +11751,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ava ordered tea and a muffin, but the barista gave her coffee and cake. Ava spoke politely and showed the mistake. The barista made the right order. Ava thanked him and enjoyed her snack."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Jamal",
+          "text": "Here you are. One coffee and a muffin."
+        },
+        {
+          "speaker": "Priya",
+          "text": "Oh, sorry. This is not my order."
+        },
+        {
+          "speaker": "Priya",
+          "text": "I want a green tea and a cookie, please."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Oh! I am so sorry. Let me fix it."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Here is your green tea and a cookie."
+        },
+        {
+          "speaker": "Priya",
+          "text": "Thank you! Now it is perfect."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Enjoy! And sorry again."
+        }
+      ]
     },
     "setting": "cafe",
     "skills": [
@@ -8803,9 +11791,9 @@ export const builtInSceneMediaItems =
       "problem_solution",
       "emotions",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "cafe_and_food",
+      "correcting_a_mistake",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8819,7 +11807,7 @@ export const builtInSceneMediaItems =
       "polite",
       "problem-solution"
     ],
-    "title": "The Wrong Cafe Order - Simple Story",
+    "title": "Not My Order",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8838,7 +11826,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 24.05,
+      "durationSeconds": 31.8,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/wrong-cafe-order-01-b1-b2.mp3"
     },
@@ -8854,8 +11842,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Ava was tired after class and wanted her usual tea and muffin. When the barista handed her coffee and cake, she almost stayed quiet because the cafe was busy. Then she remembered she had paid for something else. She explained the mistake politely. The barista apologized and made the correct order. Ava sat by the window, glad she had spoken up kindly."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Jamal",
+          "text": "Here's your order — a coffee and a chocolate muffin."
+        },
+        {
+          "speaker": "Priya",
+          "text": "Hmm, I think there's been a mix-up. I didn't order this."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Really? What did you ask for?"
+        },
+        {
+          "speaker": "Priya",
+          "text": "A green tea and a cookie. I'm not a big coffee drinker."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "I'm so sorry about that. Give me one second to make it right."
+        },
+        {
+          "speaker": "Priya",
+          "text": "No worries, it happens."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Here we are — green tea and a fresh cookie, on the house for the mistake."
+        },
+        {
+          "speaker": "Priya",
+          "text": "Oh, that's very kind. Thank you!"
+        }
+      ]
     },
     "setting": "cafe",
     "skills": [
@@ -8865,8 +11886,9 @@ export const builtInSceneMediaItems =
       "problem_solution",
       "emotions",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions"
+      "cafe_and_food",
+      "correcting_a_mistake",
+      "polite_interaction"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8880,7 +11902,7 @@ export const builtInSceneMediaItems =
       "polite",
       "problem-solution"
     ],
-    "title": "The Wrong Cafe Order - Everyday Story",
+    "title": "Not My Order",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8899,7 +11921,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 31.22,
+      "durationSeconds": 44.33,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/wrong-cafe-order-01-c1.mp3"
     },
@@ -8915,8 +11937,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Ava had practiced difficult conversations in class, but correcting a real order still made her nervous. The cafe was crowded, the barista looked busy, and the wrong drink was already in her hand. She considered accepting it just to avoid trouble. Instead, she used a calm voice and explained what she had ordered. The barista thanked her for being patient and fixed it quickly. Ava carried the right tea to her table, pleased that politeness had worked without making her invisible."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Jamal",
+          "text": "Right, that's a coffee and a chocolate muffin for you."
+        },
+        {
+          "speaker": "Priya",
+          "text": "Actually, I think the orders have got crossed — this isn't what I asked for."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Oh no, my apologies. What was yours supposed to be?"
+        },
+        {
+          "speaker": "Priya",
+          "text": "A green tea and a cookie. Coffee tends to keep me up half the night, unfortunately."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "Completely my fault — it's been one of those mornings. Let me sort it out straight away."
+        },
+        {
+          "speaker": "Priya",
+          "text": "Honestly, don't worry about it. These things happen when it's busy."
+        },
+        {
+          "speaker": "Jamal",
+          "text": "That's kind of you. Here's your green tea and a warm cookie, and let me not charge you for the trouble."
+        },
+        {
+          "speaker": "Priya",
+          "text": "You really didn't have to, but thank you. That's turned a small mix-up into a lovely surprise."
+        }
+      ]
     },
     "setting": "cafe",
     "skills": [
@@ -8926,9 +11981,9 @@ export const builtInSceneMediaItems =
       "problem_solution",
       "emotions",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "cafe_and_food",
+      "resolving_mix_ups",
+      "gracious_language"
     ],
     "source": "built_in",
     "status": "ready",
@@ -8942,7 +11997,7 @@ export const builtInSceneMediaItems =
       "polite",
       "problem-solution"
     ],
-    "title": "The Wrong Cafe Order - Nuanced Story",
+    "title": "Not My Order",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8961,7 +12016,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 12.02,
+      "durationSeconds": 25.37,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/wrong-size-return-01-a1-a2.mp3"
     },
@@ -8977,8 +12032,37 @@ export const builtInSceneMediaItems =
     },
     "level": "A1-A2",
     "script": {
-      "scriptType": "narration",
-      "text": "Tara bought a sweater, but it was too big. She took it back to the store with her receipt. The clerk helped her find a smaller size. Tara tried it on, smiled, and went home happy."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Andre",
+          "text": "Hello. This sweater is too big for me."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Oh, I see. What size do you need?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "I need a medium. This one is large."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "No problem. Here is a medium. Do you want to try it?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "Yes, please… It fits! This is perfect."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Great! I will pack it for you."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Thank you very much."
+        }
+      ]
     },
     "setting": "clothing-store",
     "skills": [
@@ -8988,9 +12072,8 @@ export const builtInSceneMediaItems =
       "returns",
       "emotions",
       "past_tense_story",
-      "simple_story_sequence",
-      "everyday_vocabulary",
-      "basic_listening"
+      "sizes_and_clothes",
+      "present_simple"
     ],
     "source": "built_in",
     "status": "ready",
@@ -9002,7 +12085,7 @@ export const builtInSceneMediaItems =
       "store-clerk",
       "problem-solution"
     ],
-    "title": "Returning The Wrong Size - Simple Story",
+    "title": "The Wrong Size",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -9021,7 +12104,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 21.7,
+      "durationSeconds": 34.2,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/wrong-size-return-01-b1-b2.mp3"
     },
@@ -9037,8 +12120,41 @@ export const builtInSceneMediaItems =
     },
     "level": "B1-B2",
     "script": {
-      "scriptType": "narration",
-      "text": "Tara loved the color of the sweater, but at home she saw that it was much too large. The next day, she returned to the store and showed the receipt to the clerk. She was afraid the return would be difficult, but the clerk simply asked what size she needed. Together they found the right one. Tara left with the same sweater, only now it actually fit."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Andre",
+          "text": "Hi. I bought this sweater yesterday, but it's a bit too big."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Let me see. Yes, that's a large. Would you like to exchange it?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "Please. I think a medium would fit me better."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Here's a medium in the same colour. The changing room is just over there."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Thanks… Yes, this one is much better."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "It looks great on you. Do you have your receipt?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "Right here."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Perfect. It's an even exchange, so there's nothing more to pay. Enjoy it!"
+        }
+      ]
     },
     "setting": "clothing-store",
     "skills": [
@@ -9048,9 +12164,8 @@ export const builtInSceneMediaItems =
       "returns",
       "emotions",
       "past_tense_story",
-      "story_sequence",
-      "reasons_and_reactions",
-      "problem_solution"
+      "returns_and_exchanges",
+      "polite_requests"
     ],
     "source": "built_in",
     "status": "ready",
@@ -9062,7 +12177,7 @@ export const builtInSceneMediaItems =
       "store-clerk",
       "problem-solution"
     ],
-    "title": "Returning The Wrong Size - Everyday Story",
+    "title": "The Wrong Size",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -9081,7 +12196,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 28.54,
+      "durationSeconds": 43.44,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/wrong-size-return-01-c1.mp3"
     },
@@ -9097,8 +12212,41 @@ export const builtInSceneMediaItems =
     },
     "level": "C1",
     "script": {
-      "scriptType": "narration",
-      "text": "Tara had bought the sweater because the color made a gray afternoon feel brighter. Unfortunately, the mirror at home told the truth: it hung on her like someone else's coat. She returned to the store expecting a complicated conversation, but the clerk listened, checked the receipt, and guided her to the correct size. When Tara tried it on again, the sweater looked the way she had imagined. The purchase was no longer a mistake; it had simply needed one more step."
+      "scriptType": "dialogue",
+      "turns": [
+        {
+          "speaker": "Andre",
+          "text": "Hi there. I picked this sweater up yesterday, but once I got home I realised it's swimming on me."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Ah, that's a large — easily done under shop lighting. Shall we swap it for a smaller size?"
+        },
+        {
+          "speaker": "Andre",
+          "text": "That'd be ideal. I'm guessing a medium is more my fit."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Let me grab one in the same shade… here you go. The fitting room's free if you'd like to check."
+        },
+        {
+          "speaker": "Andre",
+          "text": "Much better. It actually sits properly on the shoulders now."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "Suits you far more. As long as you've kept the receipt, it's a straight exchange."
+        },
+        {
+          "speaker": "Andre",
+          "text": "I do, right here. I appreciate you making it so painless."
+        },
+        {
+          "speaker": "Ruby",
+          "text": "That's what we're here for. No sense keeping something that doesn't feel right."
+        }
+      ]
     },
     "setting": "clothing-store",
     "skills": [
@@ -9108,9 +12256,8 @@ export const builtInSceneMediaItems =
       "returns",
       "emotions",
       "past_tense_story",
-      "nuanced_storytelling",
-      "inference",
-      "natural_listening"
+      "returns_and_exchanges",
+      "natural_conversation"
     ],
     "source": "built_in",
     "status": "ready",
@@ -9122,7 +12269,7 @@ export const builtInSceneMediaItems =
       "store-clerk",
       "problem-solution"
     ],
-    "title": "Returning The Wrong Size - Nuanced Story",
+    "title": "The Wrong Size",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
