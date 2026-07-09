@@ -72,7 +72,7 @@
       <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 g-3">
         <% mediaItems.forEach((item) => { %>
           <div class="col">
-            <article class="card scene-media-card h-100">
+            <article class="card scene-media-card h-100 position-relative">
               <% if (item.image) { %>
                 <div class="ratio ratio-4x3 bg-body-tertiary">
                   <img
@@ -90,22 +90,22 @@
                   </div>
                 <% } %>
                 <p class="mb-2"><%= item.title %></p>
+                <a
+                  class="stretched-link"
+                  href="/media-library/<%= encodeURIComponent(item.id) %>?returnTo=<%= encodeURIComponent(currentPath) %>"
+                  aria-label="<%= t('mediaLibrary.details') %>"
+                  title="<%= t('mediaLibrary.details') %>"
+                ></a>
                 <div class="mt-auto d-flex flex-wrap gap-2">
-                  <a
-                    class="btn btn-outline-primary btn-sm"
-                    href="/media-library/<%= encodeURIComponent(item.id) %>?returnTo=<%= encodeURIComponent(currentPath) %>"
-                  >
-                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-                    <%= t('mediaLibrary.details') %>
-                  </a>
                   <button
-                    class="btn btn-primary btn-sm"
+                    class="btn btn-primary btn-sm position-relative z-2"
                     type="button"
+                    aria-label="<%= t('mediaLibrary.play') %>"
+                    title="<%= t('mediaLibrary.play') %>"
                     data-scene-media-play
                     data-media-id="<%= item.id %>"
                   >
-                    <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
-                    <%= t('mediaLibrary.play') %>
+                    <i class="bi bi-play-fill" aria-hidden="true"></i>
                   </button>
                 </div>
               </div>

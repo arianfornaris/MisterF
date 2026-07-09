@@ -694,8 +694,10 @@ describe('main route smoke tests', () => {
     expect(libraryHtml).toContain('/media-library/airport-security-line-01-a1-a2');
     expect(libraryHtml).toContain('data-scene-media-play');
     expect(libraryHtml).toContain('data-scene-media-preview-modal');
-    expect(libraryHtml).toContain('Detalles');
-    expect(libraryHtml).toContain('Reproducir');
+    expect(libraryHtml).toContain('class="stretched-link"');
+    expect(libraryHtml).toContain('aria-label="Detalles"');
+    expect(libraryHtml).toContain('aria-label="Reproducir"');
+    expect(libraryHtml).not.toContain('bi-info-circle');
     expect(libraryHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
     expect(libraryHtml).toContain('Jon stood in the airport security line');
 
