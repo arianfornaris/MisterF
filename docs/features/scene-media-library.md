@@ -200,6 +200,9 @@ Generated item rules:
 - Metadata and scripts can live in the database. Large binary files should not be stored in SQLite.
 - Store generated audio/images through a storage abstraction so the first implementation can use local disk if needed, while DigitalOcean Spaces or another object store can replace it without changing the media domain.
 - Generated media should have lifecycle states in the generation flow (`pending`, `generating`, `ready`, `failed`, `archived`), even if the library only exposes ready/archived items for normal use.
+- Any OpenRouter-backed generation path must run through the normal user credit
+  gate before provider calls. Insufficient credit is a product state, not an
+  exception page.
 
 Recommended storage boundary:
 
@@ -215,6 +218,105 @@ interface MediaStorageProvider {
 ```
 
 Do not design the application domain around the droplet filesystem. A local-disk adapter is acceptable for local development or a first constrained deployment, but the interface should be object-storage-compatible from the start.
+
+## Creating User Media
+
+User-generated media can enter the library through two product flows: creating a
+new media item from a prompt, or creating a variation from an existing media
+item. Both flows create media through an asynchronous job/lifecycle, not a
+synchronous form submit that assumes all assets are ready immediately.
+
+### New Media From The Library
+
+The authenticated media library should expose a primary `New` action, similar
+to the Resources page. The action opens a Bootstrap modal for creating a new
+media item.
+
+The first version of the modal should collect:
+
+- a free-form prompt describing the scene or learning goal;
+- a generation mode selection:
+  - `Image only` — generate a visual scene without script or audio;
+  - `Complete scene` — generate image, structured script, and listening audio.
+
+The modal should communicate that generation consumes credits. The server must
+check credits before starting any user-scoped OpenRouter-backed generation. If
+credit is insufficient, the modal/page should show the normal credits purchase
+UI with a return path to the media library.
+
+New-media generation should create a database record immediately with a
+lifecycle state such as `pending` or `generating`. The library can then show the
+item as in-progress, failed, or ready instead of blocking the request until all
+provider calls finish.
+
+### Variations From Existing Media
+
+The media detail page for either built-in or user-generated media should expose
+a portable action such as `Create variation`. This action opens a modal that
+starts from the selected media item.
+
+The variation modal should collect:
+
+- a free-form instruction describing what should change;
+- a per-layer decision for image, script, and audio:
+  - keep existing;
+  - generate new.
+
+The UI should disable impossible combinations. For example, a source media item
+with no audio layer cannot "keep existing audio"; a user may still ask the app
+to generate new audio if there is a script or if the generation plan includes a
+new script.
+
+Variation generation must preserve layer references whenever a layer is kept.
+If the user keeps the image, the new user-generated media item references the
+same image layer or `visualAssetId`; it must not copy the image object into
+user storage. The same reuse principle applies to kept script/audio layers when
+the source layer can be referenced safely. This keeps storage use low and avoids
+duplicating built-in or already-generated assets.
+
+The created item should record provenance:
+
+- source media id;
+- source visual asset id when present;
+- user prompt/instruction;
+- which layers were kept;
+- which layers were generated;
+- provider/model ids used for generated layers;
+- storage keys for any new binary layers.
+
+### Library Display Rules
+
+The library should merge user-generated and built-in media into one list backed
+by the same normalized item contract.
+
+Ordering:
+
+- user-generated media visible to the current user should appear before built-in
+  media;
+- within each source group, sort by most recently updated/created first for
+  user media and by the built-in catalog order or title for built-ins.
+
+Cards should make the source visible without creating a separate UI vocabulary.
+Use restrained Bootstrap/Flatly styling, such as a compact card header or source
+badge:
+
+- `Your media` for user-generated items;
+- `Built-in` for curated global items.
+
+Pending and failed user media should have clear states. Ready items behave like
+other media. Failed items can expose retry/archive actions once those flows
+exist.
+
+### Generation Failure And Retry
+
+Generation can partially fail. The first implementation should prefer a single
+job state over exposing incomplete ready media. For example, if image and script
+succeed but audio fails for a `Complete scene`, the item should remain `failed`
+or `needs_retry` until the missing required layer is generated or the user
+archives it.
+
+Retry should reuse completed layers instead of regenerating them unless the user
+explicitly asks to regenerate. This avoids extra credits and duplicate storage.
 
 ## Resolver Service
 
@@ -447,17 +549,29 @@ Recommended implementation order:
 5. Add user-generated media persistence:
    - create database tables for generated media metadata, scripts, ownership, origin, status, and storage keys;
    - use a storage provider abstraction for generated audio/images;
-   - keep generated items private by default.
-6. Add resource derivation from media:
+   - keep generated items private by default;
+   - support lifecycle states for pending/generating/ready/failed/archived media.
+6. Add user media creation flows:
+   - add a primary media library `New` action and modal for prompt-based media creation;
+   - support `Image only` and `Complete scene` generation modes;
+   - add a media detail `Create variation` action and modal for deriving from existing media;
+   - let the variation modal choose whether image, script, and audio are kept or generated;
+   - preserve references for kept layers instead of copying binary assets;
+   - run all OpenRouter-backed generation through the user credit gate.
+7. Add source-aware library display:
+   - show current-user media before built-in media;
+   - visually distinguish `Your media` from `Built-in` with restrained Bootstrap/Flatly card styling;
+   - show pending and failed user media states without mixing them up with ready media.
+8. Add resource derivation from media:
    - add media action-menu entries for creating target resources;
    - collect resource-specific generation instructions in a modal;
    - pass `sourceMediaId` plus resolved media context into the selected resource authoring flow;
    - preserve provenance so the resource can show it was created from media.
-7. Decide whether to ship a first-class media resource wrapper:
+9. Decide whether to ship a first-class media resource wrapper:
    - if included in V3, add the resource kind, detail page, folder/share/archive integration, and resource catalog card;
    - if deferred, keep media library items usable by derived resources without appearing directly in `/resources`.
-8. Render the block in tutor chat and resource surfaces.
-9. Add focused tests and prompt fixtures.
+10. Render the block in tutor chat and resource surfaces.
+11. Add focused tests and prompt fixtures.
 
 ## Testing Requirements
 
@@ -467,6 +581,10 @@ Add or update tests for:
 - schema rejection for raw paths, unknown layers, unsupported layer requests, and invalid block shapes;
 - built-in registry validation against a minimal fixture;
 - media library access checks for private user-generated items;
+- user media creation job lifecycle, including pending, ready, failed, retry, and archive states;
+- credit exhaustion paths for image-only, complete-scene, and variation generation;
+- layer reuse when creating a variation, especially keeping a built-in image without copying it to object storage;
+- library ordering and source styling when user-generated and built-in items are listed together;
 - resolver fallback when the model returns a non-existent `mediaId`, unavailable
   layer request, unauthorized media item, malformed strategy, or low-quality
   no-match result;
