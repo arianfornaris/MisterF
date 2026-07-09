@@ -10,6 +10,13 @@ The goal is to turn each reusable image into a listening-ready learning asset wi
 - `scene-scripts.json` stores learner-facing scripts, levels, speaker metadata, transcript turns, audio paths, and generation metadata.
 - `audio/` stores generated listening audio grouped by CEFR range.
 
+The design registry may keep several script/audio variants for the same visual
+scene. Runtime media library items should be promoted as flat records: one
+media item has at most one level, one script, and one audio layer. When one
+image has `A1-A2`, `B1-B2`, and `C1` variants, the runtime registry should
+create three media items that share the same visual asset id instead of one
+media item with nested level variants.
+
 ## Script Types
 
 - `dialogue`: two or more in-scene speakers.
@@ -38,7 +45,9 @@ Batch 1 covers the first ten approved scene images:
 - five everyday problem-solution stories;
 - five workplace situations.
 
-Each scene receives one script at each level, for a total of 30 scripts and 30 generated audio files.
+Each scene receives one script at each level, for a total of 30 scripts and 30
+generated audio files. When promoted to runtime, those become 30 flat media
+items that reuse ten visual assets.
 
 ## Full Library Scope
 
@@ -48,7 +57,12 @@ The full scene script registry targets all 50 approved scene images. Each image 
 - `B1-B2`
 - `C1`
 
-This produces 150 scripts and 150 generated listening audio files. The first ten scenes use hand-authored mixed dialogue/narration scripts; the remaining scenes use structured narration generated from the approved visual metadata so every scene has a reusable listening layer.
+This produces 150 scripts and 150 generated listening audio files. In the
+runtime media library, that means 150 flat media items grouped by 50 shared
+visual asset ids. The first ten scenes use hand-authored mixed
+dialogue/narration scripts; the remaining scenes use structured narration
+generated from the approved visual metadata so every scene has a reusable
+listening layer.
 
 ## Review Index
 

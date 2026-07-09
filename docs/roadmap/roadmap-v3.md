@@ -81,9 +81,11 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
 - [ ] Promote approved design assets from `design/scene-images/` and
   `design/scene-scripts/` into product runtime asset folders.
 - [ ] Generate or maintain a non-public server-side built-in registry with
-  product-safe scene metadata, public image/audio URLs, available levels,
-  durations, and structured script data without duplicated flattened transcript
-  text.
+  product-safe scene metadata, public image/audio URLs, one concrete learner
+  level per media item, durations, and structured script data without duplicated
+  flattened transcript text. Multiple script/audio levels for the same visual
+  scene are represented as separate flat media items that share a visual asset
+  id, not as nested variants on one media item.
 - [ ] Add a reusable scene media resolver service that selects from a compact
   catalog using natural-language criteria, validates returned ids
   deterministically, uses credit-gated inference in user-scoped flows, exposes

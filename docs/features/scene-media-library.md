@@ -24,11 +24,6 @@ interface SceneMediaBlock {
   type: "scene_media";
   /** Stable id from the server-side scene media library. */
   mediaId: string;
-  /**
-   * Optional script/listening level to attach when audio or script should be
-   * rendered. The server resolves this to an available media item variant.
-   */
-  level?: "A1-A2" | "B1-B2" | "C1";
   /** Optional learner-facing activity framing. */
   prompt?: string;
   /** Which layers the caller wants visible. */
@@ -45,8 +40,8 @@ Block rules:
 - The model emits `mediaId` and rendering intent, not raw file paths.
 - `mediaId` must be a real id from a resolver result, current context, or saved media library item. Never invent, slugify, translate, or guess ids.
 - `layers` defaults to `{ image: true }` when omitted.
-- `level` is required when `layers.audio` or `layers.script` is `true` and the media item has leveled variants.
-- `level` is optional for image-only use or for generated items that have a single un-leveled script/audio variant.
+- The block does not carry a separate level selector. The media item already
+  represents one concrete level/script/audio combination.
 - `prompt` is learner-facing activity framing. It must not contain raw asset paths, generation instructions, or hidden implementation details.
 
 The source (`built_in` or `user_generated`) must not be encoded in the block type. Source lives in the media library item metadata.
@@ -60,20 +55,28 @@ interface SceneMediaLibraryItem {
   id: string;
   source: "built_in" | "user_generated";
   ownerUserId?: string;
+  /**
+   * Shared visual asset id. Several flat media items may reuse the same image
+   * while carrying different scripts, audio, or learner levels.
+   */
+  visualAssetId?: string;
   title: string;
   format:
     | "four_panel_wordless_story"
     | "two_panel_contrast"
     | "single_panel_scene";
+  level?: "A1-A2" | "B1-B2" | "C1";
   setting?: string;
   image?: SceneMediaImageLayer;
+  audio?: SceneMediaAudioLayer;
+  script?: SceneMediaScript;
   tags: string[];
   skills: string[];
   useCases: string[];
   visualSummary: string[];
-  levels: Partial<Record<"A1-A2" | "B1-B2" | "C1", SceneMediaLevel>>;
   createdFrom?: {
     baseBuiltInMediaId?: string;
+    baseVisualAssetId?: string;
     conversationId?: string;
     resourceId?: string;
     prompt?: string;
@@ -90,14 +93,11 @@ interface SceneMediaImageLayer {
   mediaId?: string;
 }
 
-interface SceneMediaLevel {
-  audio?: {
-    src: string;
-    durationSeconds: number;
-    format: "mp3";
-    storageKey?: string;
-  };
-  script?: SceneMediaScript;
+interface SceneMediaAudioLayer {
+  src: string;
+  durationSeconds: number;
+  format: "mp3";
+  storageKey?: string;
 }
 
 type SceneMediaScript =
@@ -113,6 +113,17 @@ type SceneMediaScript =
       text: string;
     };
 ```
+
+Media items are flat by design. A media item should represent one concrete
+renderable asset selection: one image layer, optional one script, optional one
+audio layer, and at most one learner level. If the same visual scene has
+`A1-A2`, `B1-B2`, and `C1` listening variants, promote those as separate media
+items with distinct `id` values and the same `visualAssetId`.
+
+This keeps built-in and user-generated media on the same contract. A user
+generated item normally has one chosen level, script, and audio file; it should
+not need to mimic a built-in matrix of variants to be usable by tutor,
+resource, or quiz flows.
 
 The runtime registry should not carry duplicated `plainText` transcripts. Use `turns` for dialogue and `text` for narration or monologue.
 
@@ -131,10 +142,17 @@ The built-in registry should contain only product-safe fields:
 - media item id;
 - title;
 - visual format;
+- optional single learner level;
 - public image URL and alt text;
-- available script levels;
-- public audio URL, duration, and structured script data for each level;
+- optional public audio URL, duration, and format;
+- optional structured script data for that media item;
 - teaching tags/use cases needed for selection.
+
+Design metadata may still contain multiple script/audio variants per scene
+image. The runtime promotion step should flatten those variants: for example,
+`lost-wallet-cafe-01-a1-a2`, `lost-wallet-cafe-01-b1-b2`, and
+`lost-wallet-cafe-01-c1` are separate built-in media items that share the same
+`visualAssetId` and image file.
 
 Source prompts, QA notes, source images, cost estimates, flattened transcript text, and other design-only fields should stay out of the runtime registry unless there is a product reason to expose them.
 
@@ -150,20 +168,19 @@ Example: if the tutor starts from a built-in airport image but creates a new irr
   source: "user_generated",
   ownerUserId: "user_abc",
   title: "Airport Story With Irregular Verbs",
+  visualAssetId: "airport-security-line-01",
+  level: "A1-A2",
   image: {
     source: "built_in",
     mediaId: "airport-security-line-01",
     src: "/public/scene-media/images/airport-security-line-01.png",
     alt: "..."
   },
-  levels: {
-    "A1-A2": {
-      script: { scriptType: "narration", text: "..." },
-      audio: { src: "...", durationSeconds: 32.4, format: "mp3" }
-    }
-  },
+  script: { scriptType: "narration", text: "..." },
+  audio: { src: "...", durationSeconds: 32.4, format: "mp3" },
   createdFrom: {
     baseBuiltInMediaId: "airport-security-line-01",
+    baseVisualAssetId: "airport-security-line-01",
     conversationId: "..."
   },
   status: "ready"
@@ -203,7 +220,11 @@ The current design metadata is too large for routine prompt injection:
 - `design/scene-scripts/scene-scripts.json`: about 377 KB;
 - combined design metadata: about 487 KB.
 
-A compact resolver catalog is much smaller. With the current 50 scenes, a line-oriented catalog containing `id`, `title`, `format`, `setting`, available script/audio levels, tags, skills, and a short visual sequence is about 22 KB, roughly 5k-6k tokens. That is viable for a separate resolver call, but should still be kept out of every normal tutor turn.
+A compact resolver catalog is much smaller. With the current built-in scene set,
+a line-oriented catalog containing `id`, `visualAssetId`, `title`, `format`,
+`level`, `setting`, script/audio availability, tags, skills, and a short visual
+sequence is viable for a separate resolver call, but should still be kept out of
+every normal tutor turn.
 
 Implementation decision: build the resolver as an application service, not as tutor-only logic. The core service should be usable by tutor chat, resource authoring, quizzes, practice guides, and future media-aware flows. The tutor can expose a thin internal tool adapter named `resolve_scene_media`, but that tool should delegate to the shared resolver service.
 
@@ -213,10 +234,12 @@ Compact resolver catalog fields:
 
 - `id`;
 - `source`;
+- `visualAssetId`;
 - `title`;
 - `format`;
+- optional single `level`;
 - `setting`;
-- available levels with script type, approximate word count, audio duration, and audio availability;
+- script type, approximate word count, audio duration, and audio availability;
 - `tags`;
 - `skills`;
 - `useCases`;
@@ -252,7 +275,6 @@ interface ResolveSceneMediaRecommendation {
     | "built_in_image_dynamic_script"
     | "no_good_match";
   mediaId?: string;
-  level?: "A1-A2" | "B1-B2" | "C1";
   layers?: {
     image?: boolean;
     audio?: boolean;
@@ -267,7 +289,7 @@ interface ResolveSceneMediaRecommendation {
 Resolver rules:
 
 - The resolver may use model judgment over the compact catalog instead of a vector database for the first 50 built-in scenes.
-- The shared service must deterministically validate resolver output before any caller receives it. Invalid ids, invalid levels, unavailable requested layers, or unauthorized user-generated ids become `no_good_match` or a lower-ranked valid alternate.
+- The shared service must deterministically validate resolver output before any caller receives it. Invalid ids, unavailable requested layers, or unauthorized user-generated ids become `no_good_match` or a lower-ranked valid alternate.
 - The resolver may return `no_good_match` when the library does not fit the requested context.
 - The resolver may recommend `built_in_image_dynamic_script` when an approved image fits the visual context but no existing script/audio fits the learner's requested grammar, vocabulary, or topic.
 - The resolver must not silently generate dynamic media. Dynamic script, audio, or image generation should happen in a separate generation flow with its own validation, credit handling, storage, and UI states.
@@ -397,7 +419,8 @@ Recommended implementation order:
 1. Generate built-in runtime assets and registry:
    - copy approved final images into `misterf-web/public/scene-media/images/`;
    - copy approved audio into `misterf-web/public/scene-media/audio/`;
-   - generate a non-public built-in registry from approved design metadata;
+   - generate a non-public flat built-in registry from approved design metadata,
+     with one media item per concrete level/script/audio variant;
    - generate the compact resolver catalog from the same source.
 2. Add the server-side scene media library:
    - validate built-in registry JSON with Zod at startup;
@@ -435,10 +458,12 @@ Recommended implementation order:
 Add or update tests for:
 
 - schema acceptance for valid `scene_media` blocks;
-- schema rejection for raw paths, unknown layers, invalid levels, and invalid block shapes;
+- schema rejection for raw paths, unknown layers, unsupported layer requests, and invalid block shapes;
 - built-in registry validation against a minimal fixture;
 - media library access checks for private user-generated items;
-- resolver fallback when the model returns a non-existent `mediaId`, unavailable level, unauthorized media item, malformed strategy, or low-quality no-match result;
+- resolver fallback when the model returns a non-existent `mediaId`, unavailable
+  layer request, unauthorized media item, malformed strategy, or low-quality
+  no-match result;
 - direct service usage from non-tutor callers, using mocked inference and a compact catalog fixture;
 - client rendering for image-only, image plus audio, image plus script, and missing/unauthorized resolved asset fallback;
 - prompt-contract behavior so the tutor knows to call the resolver instead of inventing ids;
