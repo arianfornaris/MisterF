@@ -135,6 +135,7 @@ export const en: LocaleCatalog = {
     detailIntro:
       'Review the exact media item that other app surfaces can reference.',
     detailKicker: 'Media item',
+    details: 'Details',
     duration: '{{seconds}} seconds',
     empty: 'No media items match these filters.',
     filtersAria: 'Search and filter media',
@@ -158,6 +159,8 @@ export const en: LocaleCatalog = {
     mediaId: 'Media ID',
     metadata: 'Metadata',
     open: 'Open',
+    play: 'Play',
+    preview: 'Play media',
     script: 'Script',
     search: 'Search',
     searchPlaceholder: 'Search by title, tag, skill, or scene',

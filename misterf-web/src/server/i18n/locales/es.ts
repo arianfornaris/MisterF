@@ -135,6 +135,7 @@ export const es: LocaleCatalog = {
     detailIntro:
       'Revisa la media exacta que otras partes de la app podrán referenciar.',
     detailKicker: 'Media',
+    details: 'Detalles',
     duration: '{{seconds}} segundos',
     empty: 'No hay medias que coincidan con estos filtros.',
     filtersAria: 'Buscar y filtrar medias',
@@ -158,6 +159,8 @@ export const es: LocaleCatalog = {
     mediaId: 'ID de media',
     metadata: 'Metadata',
     open: 'Abrir',
+    play: 'Reproducir',
+    preview: 'Reproducir media',
     script: 'Guion',
     search: 'Buscar',
     searchPlaceholder: 'Buscar por título, tag, skill o escena',

@@ -101,13 +101,23 @@
                   <span class="badge text-bg-secondary"><%= label %></span>
                 <% }) %>
               </div>
-              <div class="mt-auto">
+              <div class="mt-auto d-flex flex-wrap gap-2">
                 <a
-                  class="btn btn-outline-primary btn-sm stretched-link"
+                  class="btn btn-outline-primary btn-sm"
                   href="/media-library/<%= encodeURIComponent(item.id) %>?returnTo=<%= encodeURIComponent(currentPath) %>"
                 >
-                  <%= t('mediaLibrary.open') %>
+                  <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                  <%= t('mediaLibrary.details') %>
                 </a>
+                <button
+                  class="btn btn-primary btn-sm"
+                  type="button"
+                  data-scene-media-play
+                  data-media-id="<%= item.id %>"
+                >
+                  <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
+                  <%= t('mediaLibrary.play') %>
+                </button>
               </div>
             </div>
           </article>
@@ -120,5 +130,158 @@
     <% } %>
   </section>
 </section>
+
+<div
+  class="modal fade"
+  id="sceneMediaPreviewModal"
+  tabindex="-1"
+  aria-labelledby="sceneMediaPreviewModalLabel"
+  aria-hidden="true"
+  data-scene-media-preview-modal
+>
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="sceneMediaPreviewModalLabel" data-scene-media-preview-title>
+          <%= t('mediaLibrary.preview') %>
+        </h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
+      </div>
+      <div class="modal-body d-grid gap-3">
+        <img
+          class="scene-media-detail-image d-none"
+          src=""
+          alt=""
+          data-scene-media-preview-image
+        >
+        <audio
+          class="w-100 d-none"
+          controls
+          preload="metadata"
+          data-scene-media-preview-audio
+        ></audio>
+        <section class="d-none" data-scene-media-preview-script-section>
+          <h3 class="h6 mb-2"><%= t('mediaLibrary.script') %></h3>
+          <div data-scene-media-preview-script></div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" data-scene-media-preview-json><%- mediaPreviewItemsJson %></script>
+<script>
+  (() => {
+    document.addEventListener('DOMContentLoaded', () => {
+      const dataEl = document.querySelector('[data-scene-media-preview-json]');
+      const modalEl = document.querySelector('[data-scene-media-preview-modal]');
+      if (!dataEl || !modalEl || !window.bootstrap) {
+        return;
+      }
+
+      let mediaItems = [];
+      try {
+        mediaItems = JSON.parse(dataEl.textContent || '[]');
+      } catch {
+        mediaItems = [];
+      }
+
+      const itemsById = new Map(mediaItems.map((item) => [item.id, item]));
+      const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+      const titleEl = modalEl.querySelector('[data-scene-media-preview-title]');
+      const imageEl = modalEl.querySelector('[data-scene-media-preview-image]');
+      const audioEl = modalEl.querySelector('[data-scene-media-preview-audio]');
+      const scriptSectionEl = modalEl.querySelector('[data-scene-media-preview-script-section]');
+      const scriptEl = modalEl.querySelector('[data-scene-media-preview-script]');
+
+      document.querySelectorAll('[data-scene-media-play]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const item = itemsById.get(button.getAttribute('data-media-id'));
+          if (!item) {
+            return;
+          }
+
+          if (titleEl) {
+            titleEl.textContent = item.title;
+          }
+          renderPreviewImage(imageEl, item.image);
+          renderPreviewAudio(audioEl, item.audio);
+          renderPreviewScript(scriptSectionEl, scriptEl, item.script);
+          modal.show();
+
+          if (audioEl && item.audio?.src) {
+            void audioEl.play().catch(() => {});
+          }
+        });
+      });
+
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        if (!audioEl) {
+          return;
+        }
+        audioEl.pause();
+        audioEl.removeAttribute('src');
+        audioEl.load();
+      });
+    });
+
+    function renderPreviewImage(imageEl, image) {
+      if (!imageEl || !image?.src) {
+        imageEl?.classList.add('d-none');
+        return;
+      }
+      imageEl.src = image.src;
+      imageEl.alt = image.alt || '';
+      imageEl.classList.remove('d-none');
+    }
+
+    function renderPreviewAudio(audioEl, audio) {
+      if (!audioEl || !audio?.src) {
+        audioEl?.classList.add('d-none');
+        audioEl?.removeAttribute('src');
+        return;
+      }
+      audioEl.src = audio.src;
+      audioEl.classList.remove('d-none');
+      audioEl.load();
+    }
+
+    function renderPreviewScript(sectionEl, scriptEl, script) {
+      if (!sectionEl || !scriptEl || !script) {
+        sectionEl?.classList.add('d-none');
+        scriptEl?.replaceChildren();
+        return;
+      }
+
+      scriptEl.replaceChildren();
+      if (script.scriptType === 'dialogue') {
+        const listEl = document.createElement('div');
+        listEl.className = 'list-group list-group-flush';
+        script.turns.forEach((turn) => {
+          const itemEl = document.createElement('div');
+          itemEl.className = 'list-group-item px-0';
+          const speakerEl = document.createElement('p');
+          speakerEl.className = 'fw-semibold mb-1';
+          speakerEl.textContent = turn.speaker;
+          const textEl = document.createElement('p');
+          textEl.className = 'mb-0';
+          textEl.textContent = turn.text;
+          itemEl.append(speakerEl, textEl);
+          listEl.append(itemEl);
+        });
+        scriptEl.append(listEl);
+      } else {
+        const textEl = document.createElement('p');
+        textEl.className = 'mb-0 scene-media-script-text';
+        textEl.textContent = script.text;
+        scriptEl.append(textEl);
+      }
+      sectionEl.classList.remove('d-none');
+    }
+  })();
+</script>
 
 <%- include('partials/app-shell-close') %>

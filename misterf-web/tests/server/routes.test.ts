@@ -692,6 +692,12 @@ describe('main route smoke tests', () => {
     expect(libraryHtml).toContain('airport-security-line-01-a1-a2');
     expect(libraryHtml).toContain('/public/scene-media/images/airport-security-line-01.png');
     expect(libraryHtml).toContain('/media-library/airport-security-line-01-a1-a2');
+    expect(libraryHtml).toContain('data-scene-media-play');
+    expect(libraryHtml).toContain('data-scene-media-preview-modal');
+    expect(libraryHtml).toContain('Detalles');
+    expect(libraryHtml).toContain('Reproducir');
+    expect(libraryHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
+    expect(libraryHtml).toContain('Jon stood in the airport security line');
 
     const filteredResponse = await fetch(`${baseUrl}/media-library?level=C1`, {
       headers: { cookie },

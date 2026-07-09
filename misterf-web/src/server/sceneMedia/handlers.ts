@@ -12,6 +12,7 @@ import {
   sceneMediaFormats,
   sceneMediaLevels,
 } from './library.js';
+import type { SceneMediaLibraryItem } from './types.js';
 
 type SceneMediaRequestUser = {
   activeProfile: NonNullable<Request['activeProfile']>;
@@ -63,12 +64,50 @@ export function renderSceneMediaLibraryPage(
     }),
     formatOptions: sceneMediaFormats,
     mediaItems,
+    mediaPreviewItemsJson: serializeViewJson(
+      mediaItems.map(toSceneMediaPreviewItem),
+    ),
     sceneMediaLevels,
     selectedFormat,
     selectedLevel,
     searchQuery,
     totalMediaCount: listSceneMediaItems().length,
   });
+}
+
+function toSceneMediaPreviewItem(item: SceneMediaLibraryItem): Pick<
+  SceneMediaLibraryItem,
+  'audio' | 'id' | 'image' | 'script' | 'title'
+> {
+  return {
+    audio: item.audio,
+    id: item.id,
+    image: item.image,
+    script: item.script,
+    title: item.title,
+  };
+}
+
+function serializeViewJson(value: unknown): string {
+  return (JSON.stringify(value) ?? 'null').replace(
+    /[<>&\u2028\u2029]/g,
+    (character) => {
+      switch (character) {
+        case '<':
+          return '\\u003c';
+        case '>':
+          return '\\u003e';
+        case '&':
+          return '\\u0026';
+        case '\u2028':
+          return '\\u2028';
+        case '\u2029':
+          return '\\u2029';
+        default:
+          return character;
+      }
+    },
+  );
 }
 
 export function renderSceneMediaDetailPage(
