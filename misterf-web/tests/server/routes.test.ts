@@ -723,6 +723,53 @@ describe('main route smoke tests', () => {
     expect(detailHtml).toContain('href="/media-library?level=A1-A2"');
   });
 
+  it('localizes the media library pages for the active profile language', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'route-media-library-ht@example.com',
+      emailVerified: true,
+      fullName: 'Route Media Library HT',
+      provider: 'google',
+      providerSubject: 'route-media-library-ht',
+    });
+    const profile = createProfile({
+      instructionLanguage: 'ht',
+      name: 'Route media library HT profile',
+      userId: user.id,
+    });
+    const cookie = await createAuthenticatedCookie(user.id, profile.id);
+
+    const libraryResponse = await fetch(`${baseUrl}/media-library`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const libraryHtml = await libraryResponse.text();
+    expect(libraryResponse.status).toBe(200);
+    expect(libraryHtml).toContain('<html lang="ht">');
+    expect(libraryHtml).toContain('Bibliyotèk medya');
+    expect(libraryHtml).toContain('Detay');
+    expect(libraryHtml).toContain('Jwe');
+    expect(libraryHtml).toContain('Jwe medya');
+    expect(libraryHtml).not.toContain('Details');
+    expect(libraryHtml).not.toContain('Play media');
+
+    const detailResponse = await fetch(
+      `${baseUrl}/media-library/airport-security-line-01-a1-a2`,
+      {
+        headers: { cookie },
+        redirect: 'manual',
+      },
+    );
+    const detailHtml = await detailResponse.text();
+    expect(detailResponse.status).toBe(200);
+    expect(detailHtml).toContain('<html lang="ht">');
+    expect(detailHtml).toContain('Retounen nan bibliyotèk medya a');
+    expect(detailHtml).toContain('Odyo');
+    expect(detailHtml).toContain('Skrip');
+  });
+
   it('guards the create-resource-from-conversation route before calling the model', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createConversation, createProfile } = await import('../../src/server/db/repository.js');

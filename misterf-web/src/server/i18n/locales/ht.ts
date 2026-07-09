@@ -144,6 +144,7 @@ export const ht: LocaleCatalog = {
     detailIntro:
       'Revize medya egzak lòt pati nan app la ka refere a.',
     detailKicker: 'Medya',
+    details: 'Detay',
     duration: '{{seconds}} segonn',
     empty: 'Pa gen medya ki matche ak filtè sa yo.',
     filtersAria: 'Chèche epi filtre medya',
@@ -167,6 +168,8 @@ export const ht: LocaleCatalog = {
     mediaId: 'ID medya',
     metadata: 'Metadata',
     open: 'Louvri',
+    play: 'Jwe',
+    preview: 'Jwe medya',
     script: 'Skrip',
     search: 'Chèche',
     searchPlaceholder: 'Chèche pa tit, tag, skill, oswa sèn',
