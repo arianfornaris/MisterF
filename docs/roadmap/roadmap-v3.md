@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-06)
+Date: 2026-07-06 (last updated: 2026-07-08)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -69,6 +69,39 @@ Interaction with the V2 i18n work: comprehension stimuli are always in
 English (the target language); question wording and feedback follow the
 user's instruction language. The i18n prompt parametrization shipped in V2,
 so Phase 1 can proceed without double work on prompt copy.
+
+## 1.2 Voice Messages in Roleplays
+
+Added 2026-07-08. Idea: let the learner send **audio messages** in a
+[Roleplay](../features/roleplays.md) attempt, and let the fictional character
+reply with audio too when the learner turns that on. This deepens the
+English-production goal of roleplays — practicing speaking and listening, not
+only writing — while staying inside the existing roleplay resource shape
+(snapshot attempt, evaluate, progress, follow-up).
+
+- [ ] Learner audio input: record a spoken English turn in the roleplay-writing
+  UI, transcribe it (speech-to-text), and feed the transcript into the same
+  turn pipeline the written turns use, so evaluation and progress work
+  unchanged. Decide whether the transcript, the audio, or both are persisted in
+  the attempt for later evaluation.
+- [ ] Character audio output (opt-in): when the learner enables it, the
+  fictional character's turns are voiced with TTS. Reuses the comprehension
+  Phase 2 TTS infrastructure (server-side quality TTS, object-storage caching,
+  voice selection, credit guardrails) — sequence this after 1.1 Phase 2 so the
+  audio pipeline exists.
+- [ ] Evaluation of spoken turns: decide how pronunciation/fluency factor into
+  Mr. F's turn-by-turn evaluation, or whether v1 evaluates only the transcript
+  text (same as written turns) and defers spoken-specific feedback.
+- [ ] Cost, latency, and guardrails: STT and TTS spend inside the existing
+  credit guardrails; UX for record/playback limits mirrors the comprehension
+  listening constraints where sensible.
+- [ ] Manual QA against live inference (record → transcribe → character voice
+  reply → evaluate).
+
+Dependency note: the character-audio half leans on the same TTS work as 1.1
+Phase 2 (Listening comprehension), so it is naturally sequenced after that
+lands. The learner-audio (STT) half is more independent and could pilot the
+speech surface earlier.
 
 ---
 
