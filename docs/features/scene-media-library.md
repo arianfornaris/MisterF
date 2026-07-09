@@ -1,6 +1,10 @@
 # Scene Media Library
 
-Status: proposal (not implemented) - Planned for Roadmap V3 as the shared media foundation for curated built-in scenes first, then user-generated scene media. The visible tutor/resource block should be source-neutral so built-in, generated, and hybrid media can all render through the same contract.
+Status: partially implemented - V3 has a first built-in media library slice with
+flat built-in scene media items, runtime image/audio assets, a server-side
+registry, and `/media-library` list/detail pages. The `scene_media` tutor block,
+resolver, user-generated media persistence, and resource derivation remain
+planned.
 
 ## Purpose
 

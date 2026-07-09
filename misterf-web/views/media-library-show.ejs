@@ -1,0 +1,155 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
+  const levelLabel = (level) => level || t('mediaLibrary.levelNone');
+  const sourceLabel = (source) => t(`mediaLibrary.source.${source}`);
+%>
+
+<section class="app-page" aria-label="<%= mediaItem.title %>">
+  <div class="app-page-header app-page-header-has-close app-page-header-detail">
+    <div>
+      <p class="app-page-kicker"><%= t('mediaLibrary.detailKicker') %></p>
+      <h1 class="app-page-title"><%= mediaItem.title %></h1>
+      <p class="app-page-copy">
+        <%= t('mediaLibrary.detailIntro') %>
+      </p>
+    </div>
+    <div class="app-page-header-actions">
+      <a
+        class="btn btn-link app-page-close-button"
+        href="<%= returnTo %>"
+        title="<%= t('mediaLibrary.backToLibrary') %>"
+        aria-label="<%= t('mediaLibrary.backToLibrary') %>"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <section class="app-page-detail-shell">
+    <div class="row g-4">
+      <div class="col-12 col-xl-7">
+        <div class="card">
+          <% if (mediaItem.image) { %>
+            <img
+              class="card-img-top scene-media-detail-image"
+              src="<%= mediaItem.image.src %>"
+              alt="<%= mediaItem.image.alt %>"
+            >
+          <% } %>
+          <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+              <span class="badge text-bg-primary"><%= levelLabel(mediaItem.level) %></span>
+              <span class="badge text-bg-light border"><%= formatLabel(mediaItem.format) %></span>
+              <span class="badge text-bg-secondary"><%= sourceLabel(mediaItem.source) %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-5">
+        <div class="d-grid gap-3">
+          <% if (mediaItem.audio) { %>
+            <section class="card">
+              <div class="card-body">
+                <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
+                <audio class="w-100" controls preload="metadata" src="<%= mediaItem.audio.src %>"></audio>
+                <p class="text-body-secondary small mb-0 mt-2">
+                  <%= t('mediaLibrary.duration', { seconds: Math.round(mediaItem.audio.durationSeconds) }) %>
+                </p>
+              </div>
+            </section>
+          <% } %>
+
+          <section class="card">
+            <div class="card-body">
+              <h2 class="h5 mb-3"><%= t('mediaLibrary.metadata') %></h2>
+              <dl class="scene-media-definition-list mb-0">
+                <dt><%= t('mediaLibrary.mediaId') %></dt>
+                <dd><code><%= mediaItem.id %></code></dd>
+                <% if (mediaItem.visualAssetId) { %>
+                  <dt><%= t('mediaLibrary.visualAssetId') %></dt>
+                  <dd><code><%= mediaItem.visualAssetId %></code></dd>
+                <% } %>
+                <% if (mediaItem.setting) { %>
+                  <dt><%= t('mediaLibrary.setting') %></dt>
+                  <dd><%= mediaItem.setting %></dd>
+                <% } %>
+                <dt><%= t('mediaLibrary.layers') %></dt>
+                <dd>
+                  <span class="badge text-bg-secondary"><%= t('mediaLibrary.layerImage') %></span>
+                  <% if (mediaItem.audio) { %>
+                    <span class="badge text-bg-secondary"><%= t('mediaLibrary.layerAudio') %></span>
+                  <% } %>
+                  <% if (mediaItem.script) { %>
+                    <span class="badge text-bg-secondary"><%= t('mediaLibrary.layerScript') %></span>
+                  <% } %>
+                </dd>
+              </dl>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <% if (mediaItem.visualSummary.length > 0) { %>
+      <section class="card mt-4">
+        <div class="card-body">
+          <h2 class="h5 mb-3"><%= t('mediaLibrary.visualSummary') %></h2>
+          <ol class="mb-0">
+            <% mediaItem.visualSummary.forEach((line) => { %>
+              <li><%= line %></li>
+            <% }) %>
+          </ol>
+        </div>
+      </section>
+    <% } %>
+
+    <% if (mediaItem.script) { %>
+      <section class="card mt-4">
+        <div class="card-body">
+          <h2 class="h5 mb-3"><%= t('mediaLibrary.script') %></h2>
+          <% if (mediaItem.script.scriptType === 'dialogue') { %>
+            <div class="list-group list-group-flush">
+              <% mediaItem.script.turns.forEach((turn) => { %>
+                <div class="list-group-item px-0">
+                  <p class="fw-semibold mb-1"><%= turn.speaker %></p>
+                  <p class="mb-0"><%= turn.text %></p>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="mb-0 scene-media-script-text"><%= mediaItem.script.text %></p>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
+
+    <section class="card mt-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3"><%= t('mediaLibrary.tagsAndSkills') %></h2>
+        <div class="row g-4">
+          <div class="col-12 col-lg-6">
+            <h3 class="h6"><%= t('mediaLibrary.tags') %></h3>
+            <div class="d-flex flex-wrap gap-2">
+              <% mediaItem.tags.forEach((tag) => { %>
+                <span class="badge text-bg-light border"><%= tag %></span>
+              <% }) %>
+            </div>
+          </div>
+          <div class="col-12 col-lg-6">
+            <h3 class="h6"><%= t('mediaLibrary.skills') %></h3>
+            <div class="d-flex flex-wrap gap-2">
+              <% mediaItem.skills.forEach((skill) => { %>
+                <span class="badge text-bg-light border"><%= skill %></span>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+</section>
+
+<%- include('partials/app-shell-close') %>

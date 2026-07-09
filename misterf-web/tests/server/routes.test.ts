@@ -91,6 +91,14 @@ describe('main route smoke tests', () => {
     },
     {
       location: '/login',
+      route: '/media-library',
+    },
+    {
+      location: '/login',
+      route: '/media-library/airport-security-line-01-a1-a2',
+    },
+    {
+      location: '/login',
       route: '/resources/folders/test-folder',
     },
     {
@@ -655,6 +663,58 @@ describe('main route smoke tests', () => {
     );
     expect(restoreResponse.status).toBe(302);
     expect(findResourceForUser(folderId, owner.id)?.archivedAt).toBeFalsy();
+  });
+
+  it('renders the built-in media library and media detail pages', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'route-media-library@example.com',
+      emailVerified: true,
+      fullName: 'Route Media Library',
+      provider: 'google',
+      providerSubject: 'route-media-library',
+    });
+    const profile = createProfile({
+      name: 'Route media library profile',
+      userId: user.id,
+    });
+    const cookie = await createAuthenticatedCookie(user.id, profile.id);
+
+    const libraryResponse = await fetch(`${baseUrl}/media-library`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const libraryHtml = await libraryResponse.text();
+    expect(libraryResponse.status).toBe(200);
+    expect(libraryHtml).toContain('Biblioteca de medios');
+    expect(libraryHtml).toContain('airport-security-line-01-a1-a2');
+    expect(libraryHtml).toContain('/public/scene-media/images/airport-security-line-01.png');
+    expect(libraryHtml).toContain('/media-library/airport-security-line-01-a1-a2');
+
+    const filteredResponse = await fetch(`${baseUrl}/media-library?level=C1`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const filteredHtml = await filteredResponse.text();
+    expect(filteredResponse.status).toBe(200);
+    expect(filteredHtml).toContain('airport-security-line-01-c1');
+    expect(filteredHtml).not.toContain('airport-security-line-01-a1-a2');
+
+    const detailResponse = await fetch(
+      `${baseUrl}/media-library/airport-security-line-01-a1-a2?returnTo=${encodeURIComponent('/media-library?level=A1-A2')}`,
+      {
+        headers: { cookie },
+        redirect: 'manual',
+      },
+    );
+    const detailHtml = await detailResponse.text();
+    expect(detailResponse.status).toBe(200);
+    expect(detailHtml).toContain('Airport Security Line - Simple Story');
+    expect(detailHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
+    expect(detailHtml).toContain('Jon stood in the airport security line');
+    expect(detailHtml).toContain('href="/media-library?level=A1-A2"');
   });
 
   it('guards the create-resource-from-conversation route before calling the model', async () => {

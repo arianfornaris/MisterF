@@ -78,14 +78,22 @@ Promoted to V3 on 2026-07-07. Design:
 scene media. V3 starts by promoting curated built-in assets, while the library
 shape leaves room for generated scripts/audio and later dynamic media flows.
 
-- [ ] Promote approved design assets from `design/scene-images/` and
-  `design/scene-scripts/` into product runtime asset folders.
-- [ ] Generate or maintain a non-public server-side built-in registry with
+- [x] Promote approved design assets from `design/scene-images/` and
+  `design/scene-scripts/` into product runtime asset folders. Done 2026-07-09:
+  the first built-in slice copied 50 approved final scene images and 150
+  generated listening audio files into `misterf-web/public/scene-media/`.
+- [x] Generate or maintain a non-public server-side built-in registry with
   product-safe scene metadata, public image/audio URLs, one concrete learner
   level per media item, durations, and structured script data without duplicated
   flattened transcript text. Multiple script/audio levels for the same visual
   scene are represented as separate flat media items that share a visual asset
-  id, not as nested variants on one media item.
+  id, not as nested variants on one media item. Done 2026-07-09:
+  `build:scene-media` generates 150 flat built-in media items and validates them
+  through the scene media service at startup.
+- [x] Add a first authenticated media library UI under `/media-library`, with a
+  side-panel link between New Conversation and Resources, filters, built-in
+  media cards, and dedicated media detail pages with a close button back to the
+  library. Done 2026-07-09.
 - [ ] Add a reusable scene media resolver service that selects from a compact
   catalog using natural-language criteria, validates returned ids
   deterministically, uses credit-gated inference in user-scoped flows, exposes

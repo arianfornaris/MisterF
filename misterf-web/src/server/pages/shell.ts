@@ -122,6 +122,7 @@ export function buildAppShellContext(input: {
     | 'quizzes'
     | 'chat'
     | 'credits'
+    | 'mediaLibrary'
     | 'practiceGuides'
     | 'progress'
     | 'profiles'

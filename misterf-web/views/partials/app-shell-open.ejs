@@ -88,6 +88,11 @@
                     <%= t('nav.newConversation') %>
                   </a>
 
+                  <a class="panel-nav-link <%= currentView === 'mediaLibrary' ? 'is-active' : '' %>" href="/media-library">
+                    <i class="bi bi-collection-play" aria-hidden="true"></i>
+                    <%= t('nav.mediaLibrary') %>
+                  </a>
+
                   <a class="panel-nav-link <%= currentView === 'resources' ? 'is-active' : '' %>" href="/resources">
                     <i class="bi bi-folder2-open" aria-hidden="true"></i>
                     <%= t('nav.resources') %>
