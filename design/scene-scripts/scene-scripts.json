@@ -39,7 +39,7 @@
     },
     "audioReadyCount": 150,
     "audioPendingCount": 0,
-    "audioReadyDurationSeconds": 5073.49,
+    "audioReadyDurationSeconds": 5074.23,
     "levelCounts": {
       "A1-A2": 50,
       "B1-B2": 50,
@@ -624,7 +624,7 @@
           "id": "clerk",
           "name": "Clerk",
           "role": "helper",
-          "voice": "Kore"
+          "voice": "Charon"
         }
       ],
       "transcript": [
@@ -670,11 +670,11 @@
         "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 15.62,
-        "bytes": 125228,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 15.26,
+        "bytes": 122348,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007458,
+        "estimatedCostUsd": 0.007286,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -707,7 +707,7 @@
           "id": "clerk",
           "name": "Clerk",
           "role": "helper",
-          "voice": "Kore"
+          "voice": "Charon"
         }
       ],
       "transcript": [
@@ -753,11 +753,11 @@
         "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 27.86,
-        "bytes": 223148,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 27.1,
+        "bytes": 217004,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013301,
+        "estimatedCostUsd": 0.012939,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -789,7 +789,7 @@
           "id": "clerk",
           "name": "Clerk",
           "role": "helper",
-          "voice": "Kore"
+          "voice": "Charon"
         }
       ],
       "transcript": [
@@ -835,11 +835,11 @@
         "file": "audio/c1/torn-grocery-bag-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 35.5,
-        "bytes": 284204,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 35.93,
+        "bytes": 287660,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016949,
+        "estimatedCostUsd": 0.017154,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -1111,42 +1111,42 @@
       ],
       "speakers": [
         {
-          "id": "uncle_ben",
-          "name": "Uncle Ben",
-          "role": "helper",
-          "voice": "Puck"
+          "id": "grandma",
+          "name": "Grandma Rosa",
+          "role": "grandmother",
+          "voice": "Kore"
         },
         {
-          "id": "nina",
-          "name": "Nina",
+          "id": "leo",
+          "name": "Leo",
           "role": "learner_cook",
-          "voice": "Kore"
+          "voice": "Puck"
         }
       ],
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "My pancake is too dark."
         },
         {
           "turn": 2,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "That is okay. Turn down the heat."
         },
         {
           "turn": 3,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "Now I pour a little batter."
         },
         {
           "turn": 4,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "Good. Wait for small bubbles."
         },
         {
           "turn": 5,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "This pancake looks much better."
         }
       ],
@@ -1168,7 +1168,7 @@
         "bitrateKbps": 64,
         "durationSeconds": 16.01,
         "bytes": 128300,
-        "generatedAt": "2026-07-05",
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
         "estimatedCostUsd": 0.007644,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
@@ -1194,42 +1194,42 @@
       ],
       "speakers": [
         {
-          "id": "uncle_ben",
-          "name": "Uncle Ben",
-          "role": "helper",
-          "voice": "Puck"
+          "id": "grandma",
+          "name": "Grandma Rosa",
+          "role": "grandmother",
+          "voice": "Kore"
         },
         {
-          "id": "nina",
-          "name": "Nina",
+          "id": "leo",
+          "name": "Leo",
           "role": "learner_cook",
-          "voice": "Kore"
+          "voice": "Puck"
         }
       ],
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "The first pancake burned because I left it in the pan too long."
         },
         {
           "turn": 2,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "That is how everyone learns. Lower the heat and watch for bubbles on top."
         },
         {
           "turn": 3,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "So I should wait until the edges look dry before I flip it?"
         },
         {
           "turn": 4,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "Exactly. Then slide the spatula under it and turn it over quickly."
         },
         {
           "turn": 5,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "This one is golden. I think breakfast is improving."
         }
       ],
@@ -1249,11 +1249,11 @@
         "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 25.97,
-        "bytes": 207980,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 25.61,
+        "bytes": 205100,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012399,
+        "estimatedCostUsd": 0.012227,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -1276,42 +1276,42 @@
       ],
       "speakers": [
         {
-          "id": "uncle_ben",
-          "name": "Uncle Ben",
-          "role": "helper",
-          "voice": "Puck"
+          "id": "grandma",
+          "name": "Grandma Rosa",
+          "role": "grandmother",
+          "voice": "Kore"
         },
         {
-          "id": "nina",
-          "name": "Nina",
+          "id": "leo",
+          "name": "Leo",
           "role": "learner_cook",
-          "voice": "Kore"
+          "voice": "Puck"
         }
       ],
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "The first pancake looks like evidence from a kitchen disaster."
         },
         {
           "turn": 2,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "It looks like practice. Pancakes are surprisingly good teachers because they show every mistake immediately."
         },
         {
           "turn": 3,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "So the heat was too high, and I waited too long before turning it."
         },
         {
           "turn": 4,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
         },
         {
           "turn": 5,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
         }
       ],
@@ -1331,11 +1331,11 @@
         "file": "audio/c1/pancake-practice-kitchen-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 33.26,
-        "bytes": 266348,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 34.46,
+        "bytes": 275948,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01588,
+        "estimatedCostUsd": 0.016452,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -1359,10 +1359,10 @@
       ],
       "speakers": [
         {
-          "id": "emma",
-          "name": "Emma",
+          "id": "diego",
+          "name": "Diego",
           "role": "late_employee",
-          "voice": "Kore"
+          "voice": "Charon"
         },
         {
           "id": "noah",
@@ -1374,7 +1374,7 @@
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "I am sorry I am late."
         },
         {
@@ -1384,7 +1384,7 @@
         },
         {
           "turn": 3,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Did I miss anything important?"
         },
         {
@@ -1394,7 +1394,7 @@
         },
         {
           "turn": 5,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Thanks. I will sit down quietly."
         }
       ],
@@ -1414,11 +1414,11 @@
         "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 14.86,
-        "bytes": 119084,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 15.02,
+        "bytes": 120428,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007095,
+        "estimatedCostUsd": 0.007171,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -1442,10 +1442,10 @@
       ],
       "speakers": [
         {
-          "id": "emma",
-          "name": "Emma",
+          "id": "diego",
+          "name": "Diego",
           "role": "late_employee",
-          "voice": "Kore"
+          "voice": "Charon"
         },
         {
           "id": "noah",
@@ -1457,7 +1457,7 @@
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Sorry I am late. The elevator stopped on almost every floor."
         },
         {
@@ -1467,7 +1467,7 @@
         },
         {
           "turn": 3,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Good. I was afraid I had missed the decision about the client presentation."
         },
         {
@@ -1477,7 +1477,7 @@
         },
         {
           "turn": 5,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."
         }
       ],
@@ -1497,11 +1497,11 @@
         "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 25.25,
-        "bytes": 202220,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 24.7,
+        "bytes": 197804,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012055,
+        "estimatedCostUsd": 0.011793,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -1524,10 +1524,10 @@
       ],
       "speakers": [
         {
-          "id": "emma",
-          "name": "Emma",
+          "id": "diego",
+          "name": "Diego",
           "role": "late_employee",
-          "voice": "Kore"
+          "voice": "Charon"
         },
         {
           "id": "noah",
@@ -1539,7 +1539,7 @@
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "I apologize for slipping in late. The elevator queue downstairs was worse than I expected."
         },
         {
@@ -1549,7 +1549,7 @@
         },
         {
           "turn": 3,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "That is a relief. I was worried I had missed the part where we divide the presentation tasks."
         },
         {
@@ -1559,7 +1559,7 @@
         },
         {
           "turn": 5,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."
         }
       ],
@@ -1579,11 +1579,11 @@
         "file": "audio/c1/late-meeting-workplace-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 32.14,
-        "bytes": 257324,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 30.34,
+        "bytes": 242924,
+        "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015345,
+        "estimatedCostUsd": 0.014485,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -4957,7 +4957,7 @@
           "id": "child",
           "name": "Sammy",
           "role": "family_child",
-          "voice": "Leda"
+          "voice": "Fenrir"
         }
       ],
       "transcript": [
@@ -5013,11 +5013,11 @@
         "file": "audio/a1-a2/airport-security-line-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 24.29,
-        "bytes": 194540,
+        "durationSeconds": 24.26,
+        "bytes": 194348,
         "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011597,
+        "estimatedCostUsd": 0.011583,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -5062,7 +5062,7 @@
           "id": "child",
           "name": "Sammy",
           "role": "family_child",
-          "voice": "Leda"
+          "voice": "Fenrir"
         }
       ],
       "transcript": [
@@ -5123,11 +5123,11 @@
         "file": "audio/b1-b2/airport-security-line-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 36.48,
-        "bytes": 292076,
+        "durationSeconds": 37.08,
+        "bytes": 296876,
         "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017417,
+        "estimatedCostUsd": 0.017703,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },
@@ -5171,7 +5171,7 @@
           "id": "child",
           "name": "Sammy",
           "role": "family_child",
-          "voice": "Leda"
+          "voice": "Fenrir"
         }
       ],
       "transcript": [
@@ -5232,11 +5232,11 @@
         "file": "audio/c1/airport-security-line-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 49.8,
-        "bytes": 398636,
+        "durationSeconds": 52.01,
+        "bytes": 416300,
         "generatedAt": "2026-07-09",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.023776,
+        "estimatedCostUsd": 0.024831,
         "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
       }
     },

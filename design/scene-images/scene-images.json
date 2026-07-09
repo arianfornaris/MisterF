@@ -198,7 +198,7 @@
         },
         {
           "role": "helper",
-          "description": "Friendly store clerk with tan skin, short black hair, and an apron."
+          "description": "Friendly male store clerk with tan skin, short black hair, and a black apron."
         }
       ],
       "panelSequence": [
@@ -410,11 +410,11 @@
       "characters": [
         {
           "role": "late_worker",
-          "description": "Young office worker with medium-brown skin, short curly hair, a teal shirt, and a messenger bag."
+          "description": "Young man with medium-brown skin, short curly hair, a teal shirt, and a messenger bag."
         },
         {
           "role": "coworkers",
-          "description": "Two friendly coworkers seated at a meeting table."
+          "description": "Two coworkers already seated at the meeting table: a woman in a cream blouse and a bearded man in a blue blazer."
         }
       ],
       "panelSequence": [

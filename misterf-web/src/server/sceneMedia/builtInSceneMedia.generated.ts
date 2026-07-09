@@ -5,7 +5,7 @@ export const builtInSceneMediaItems =
 [
   {
     "audio": {
-      "durationSeconds": 24.29,
+      "durationSeconds": 24.26,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3"
     },
@@ -91,7 +91,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 36.48,
+      "durationSeconds": 37.08,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/airport-security-line-01-b1-b2.mp3"
     },
@@ -181,7 +181,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 49.8,
+      "durationSeconds": 52.01,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/airport-security-line-01-c1.mp3"
     },
@@ -3885,7 +3885,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 14.86,
+      "durationSeconds": 15.02,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/late-meeting-workplace-01-a1-a2.mp3"
     },
@@ -3904,7 +3904,7 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "turns": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "I am sorry I am late."
         },
         {
@@ -3912,7 +3912,7 @@ export const builtInSceneMediaItems =
           "text": "It is okay. The meeting just started."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Did I miss anything important?"
         },
         {
@@ -3920,7 +3920,7 @@ export const builtInSceneMediaItems =
           "text": "Not yet. We are looking at the plan."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Thanks. I will sit down quietly."
         }
       ]
@@ -3966,7 +3966,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 25.25,
+      "durationSeconds": 24.7,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/late-meeting-workplace-01-b1-b2.mp3"
     },
@@ -3985,7 +3985,7 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "turns": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Sorry I am late. The elevator stopped on almost every floor."
         },
         {
@@ -3993,7 +3993,7 @@ export const builtInSceneMediaItems =
           "text": "Do not worry. We have only reviewed the schedule so far."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Good. I was afraid I had missed the decision about the client presentation."
         },
         {
@@ -4001,7 +4001,7 @@ export const builtInSceneMediaItems =
           "text": "That part is next. I saved you a seat and opened the notes on my laptop."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."
         }
       ]
@@ -4048,7 +4048,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 32.14,
+      "durationSeconds": 30.34,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/late-meeting-workplace-01-c1.mp3"
     },
@@ -4067,7 +4067,7 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "turns": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "I apologize for slipping in late. The elevator queue downstairs was worse than I expected."
         },
         {
@@ -4075,7 +4075,7 @@ export const builtInSceneMediaItems =
           "text": "You are fine. We have covered the timeline, but the main discussion has not started yet."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "That is a relief. I was worried I had missed the part where we divide the presentation tasks."
         },
         {
@@ -4083,7 +4083,7 @@ export const builtInSceneMediaItems =
           "text": "Not yet. I put the shared notes in front of you, and I marked the section where your input will matter most."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."
         }
       ]
@@ -7546,23 +7546,23 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "turns": [
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "My pancake is too dark."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "That is okay. Turn down the heat."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "Now I pour a little batter."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "Good. Wait for small bubbles."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "This pancake looks much better."
         }
       ]
@@ -7609,7 +7609,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 25.97,
+      "durationSeconds": 25.61,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/pancake-practice-kitchen-01-b1-b2.mp3"
     },
@@ -7628,23 +7628,23 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "turns": [
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "The first pancake burned because I left it in the pan too long."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "That is how everyone learns. Lower the heat and watch for bubbles on top."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "So I should wait until the edges look dry before I flip it?"
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "Exactly. Then slide the spatula under it and turn it over quickly."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "This one is golden. I think breakfast is improving."
         }
       ]
@@ -7692,7 +7692,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 33.26,
+      "durationSeconds": 34.46,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/pancake-practice-kitchen-01-c1.mp3"
     },
@@ -7711,23 +7711,23 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "turns": [
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "The first pancake looks like evidence from a kitchen disaster."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "It looks like practice. Pancakes are surprisingly good teachers because they show every mistake immediately."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "So the heat was too high, and I waited too long before turning it."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
         }
       ]
@@ -10945,7 +10945,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 15.62,
+      "durationSeconds": 15.26,
       "format": "mp3",
       "src": "/public/scene-media/audio/a1-a2/torn-grocery-bag-01-a1-a2.mp3"
     },
@@ -11027,7 +11027,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 27.86,
+      "durationSeconds": 27.1,
       "format": "mp3",
       "src": "/public/scene-media/audio/b1-b2/torn-grocery-bag-01-b1-b2.mp3"
     },
@@ -11110,7 +11110,7 @@ export const builtInSceneMediaItems =
   },
   {
     "audio": {
-      "durationSeconds": 35.5,
+      "durationSeconds": 35.93,
       "format": "mp3",
       "src": "/public/scene-media/audio/c1/torn-grocery-bag-01-c1.mp3"
     },
