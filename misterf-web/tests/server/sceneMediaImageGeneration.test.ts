@@ -1,0 +1,115 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const originalEnv = {
+  APP_BASE_URL: process.env.APP_BASE_URL,
+  ENV_FILE: process.env.ENV_FILE,
+  OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL,
+  SCENE_MEDIA_IMAGE_MODEL: process.env.SCENE_MEDIA_IMAGE_MODEL,
+};
+
+afterEach(() => {
+  for (const [name, value] of Object.entries(originalEnv)) {
+    if (value === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = value;
+    }
+  }
+  vi.restoreAllMocks();
+  vi.resetModules();
+});
+
+describe('scene media image generation', () => {
+  it('requests a generated image from the OpenRouter Images API', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.APP_BASE_URL = 'https://misterf.test';
+    process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';
+    process.env.SCENE_MEDIA_IMAGE_MODEL = 'test/image-model';
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      Response.json({
+        data: [
+          {
+            b64_json: Buffer.from('generated-image').toString('base64'),
+            media_type: 'image/png',
+          },
+        ],
+        usage: {
+          completion_tokens: 20,
+          cost: 0.04,
+          prompt_tokens: 10,
+          total_tokens: 30,
+        },
+      }),
+    );
+    const { generateSceneMediaImage } = await import(
+      '../../src/server/sceneMedia/imageGeneration.js'
+    );
+
+    const result = await generateSceneMediaImage({
+      format: 'four_panel_wordless_story',
+      level: 'B1-B2',
+      openRouterApiKey: 'user-openrouter-key',
+      prompt: 'A student checks in at an airport.',
+      scriptTypePreference: 'dialogue',
+    });
+
+    expect(result).toMatchObject({
+      contentType: 'image/png',
+      extension: 'png',
+      model: 'test/image-model',
+      provider: 'openrouter',
+      usage: {
+        completionTokens: 20,
+        costUsd: 0.04,
+        promptTokens: 10,
+        totalTokens: 30,
+      },
+    });
+    expect(result.bytes.toString()).toBe('generated-image');
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toBe('https://openrouter.test/api/v1/images');
+    expect(init?.method).toBe('POST');
+    const headers = init?.headers as Record<string, string>;
+    expect(headers.Authorization).toBe('Bearer user-openrouter-key');
+    expect(headers['HTTP-Referer']).toBe('https://misterf.test');
+    const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      aspect_ratio: '16:9',
+      model: 'test/image-model',
+      n: 1,
+      output_format: 'png',
+      quality: 'medium',
+    });
+    expect(String(body.prompt)).toContain('A student checks in at an airport.');
+  });
+
+  it('maps provider safety rejections to a content-policy error', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      Response.json(
+        {
+          error: {
+            code: 'moderation_blocked',
+            message: 'Prompt rejected by content policy.',
+          },
+        },
+        { status: 400 },
+      ),
+    );
+    const {
+      generateSceneMediaImage,
+      SceneMediaImageContentPolicyError,
+    } = await import('../../src/server/sceneMedia/imageGeneration.js');
+
+    await expect(generateSceneMediaImage({
+      format: 'single_panel_scene',
+      level: 'A1-A2',
+      openRouterApiKey: 'user-openrouter-key',
+      prompt: 'Rejected prompt',
+      scriptTypePreference: 'unspecified',
+    })).rejects.toBeInstanceOf(SceneMediaImageContentPolicyError);
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+});

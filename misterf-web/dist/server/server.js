@@ -20,9 +20,11 @@ import { profileOnboardingRouter, profilesRouter } from './profiles/routes.js';
 import { progressRouter } from './progress/routes.js';
 import { resourcesRouter } from './resources/routes.js';
 import { roleplaysRouter } from './roleplays/routes.js';
+import { sceneMediaRouter } from './sceneMedia/routes.js';
 import { settingsRouter } from './settings/routes.js';
 import { logger } from './services/logger.js';
 import { registerChatSocket } from './socket/chatSocket.js';
+import { registerSceneMediaSocket } from './sceneMedia/socket.js';
 import { superadminRouter } from './superadmin/routes.js';
 import { clientTelemetryRouter } from './telemetry/clientErrors.js';
 requireSessionSecret();
@@ -49,6 +51,7 @@ app.use(authRouter);
 app.use(profileOnboardingRouter);
 app.use(redirectIncompleteProfileOnboarding);
 app.use(superadminRouter);
+app.use(sceneMediaRouter);
 app.use(resourcesRouter);
 app.use(practiceGuidesRouter);
 app.use(quizzesRouter);
@@ -89,6 +92,7 @@ app.use((error, request, response, next) => {
     response.status(500).send(translate(request.locale ?? 'en', 'error.unexpected'));
 });
 registerChatSocket(io);
+registerSceneMediaSocket(io);
 export function startServer() {
     server.listen(env.port, env.host, () => {
         logger.info('server_started', {

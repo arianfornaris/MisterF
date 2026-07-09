@@ -13,6 +13,7 @@ export type SceneMediaImageLayer = {
   mediaId?: string;
   source?: SceneMediaSource;
   src: string;
+  storageKey?: string;
   width?: number;
 };
 

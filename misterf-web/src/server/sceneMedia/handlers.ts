@@ -25,6 +25,7 @@ import type {
 import { scheduleSceneMediaGenerationJob } from './generation.js';
 import { emitSceneMediaGenerationCreated } from './socket.js';
 import { createUserSceneMediaJob } from './userMediaRepository.js';
+import { getUserFileStorageProvider } from '../storage/userFileStorage.js';
 
 type SceneMediaRequestUser = {
   activeProfile: NonNullable<Request['activeProfile']>;
@@ -166,6 +167,35 @@ export function renderSceneMediaDetailPage(
     returnTo: normalizeMediaLibraryReturnTo(request.query.returnTo),
     sceneMediaLevels,
   });
+}
+
+export async function serveSceneMediaImageAsset(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const mediaId = typeof request.params.mediaId === 'string'
+    ? request.params.mediaId
+    : '';
+  const mediaItem = findSceneMediaItemById(mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  const storageKey = mediaItem?.image?.storageKey;
+  if (!mediaItem || mediaItem.source !== 'user_generated' || !storageKey) {
+    response.sendStatus(404);
+    return;
+  }
+
+  const readUrl = await getUserFileStorageProvider().createReadUrl({
+    expiresInSeconds: 300,
+    storageKey,
+  });
+  response.redirect(readUrl);
 }
 
 export async function createSceneMediaFromPrompt(

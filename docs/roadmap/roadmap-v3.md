@@ -115,17 +115,24 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     `USER_FILE_STORAGE_ROOT_PREFIX=misterf`, and
     `DO_SPACES_ENDPOINT=https://atl1.digitaloceanspaces.com`; production
     defaults to `misterf.us-files`. Done 2026-07-09.
-  - [ ] Add the user-file storage adapter used by generated media:
-    read `DO_SPACES_ACCESS_KEY` and `DO_SPACES_SECRET_KEY` from runtime
-    environment only, write generated objects under
-    `misterf/users/{userId}/scene-media/{mediaId}/...`, persist storage keys
-    and file metadata in SQLite, and create authorized read URLs or app-served
-    responses for private user media.
-  - [ ] Wire generated-image creation for `Image only`, complete-scene, and
-    variation jobs that choose `generate_new` image. Store image binaries in
-    the development Spaces bucket, generate title/setting/tags/skills/useCases
-    from prompt and level, and fail with the content-policy message when the
-    provider rejects a prompt.
+  - [x] Add the user-file storage adapter boundary for generated media. Done
+    2026-07-09: implemented a DigitalOcean Spaces/S3-compatible provider with
+    SigV4 signed PUT, DELETE, presigned GET URLs, scene-media storage key
+    helpers, and unit tests. Runtime credentials still come only from
+    `DO_SPACES_ACCESS_KEY` and `DO_SPACES_SECRET_KEY`; the provider is ready for
+    the generation pipeline but generated image/audio jobs do not call it yet.
+  - [~] Connect generated media jobs to user-file storage. Started
+    2026-07-09: generated image layers are written under
+    `misterf/users/{userId}/scene-media/{mediaId}/image/...`, persisted with
+    `storageKey` metadata, and read through an authenticated app route that
+    issues short-lived Spaces URLs. Audio storage remains pending.
+  - [~] Wire generated-image creation for `Image only`, complete-scene, and
+    variation jobs that choose `generate_new` image. Started 2026-07-09:
+    `Image only` jobs and variation jobs that regenerate only the image call
+    OpenRouter's dedicated Images API, store PNG bytes in Spaces, and map
+    content-policy rejections to the approved failure message. Complete-scene
+    jobs still wait on structured script and audio generation before spending
+    image credits.
   - [ ] Wire structured script generation for complete-scene jobs:
     use prompt, level, format, image context, and script-type preference;
     enforce the MVP atomic layer rule where script and audio are created or

@@ -130,6 +130,8 @@ export const env = {
   openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
   openrouterUserKeyLimitReset:
     process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
+  sceneMediaImageModel:
+    process.env.SCENE_MEDIA_IMAGE_MODEL ?? 'openai/gpt-image-1',
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
   stripeCredits200PriceId: process.env.STRIPE_CREDITS_200_PRICE_ID ?? '',
