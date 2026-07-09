@@ -70,7 +70,44 @@ English (the target language); question wording and feedback follow the
 user's instruction language. The i18n prompt parametrization shipped in V2,
 so Phase 1 can proceed without double work on prompt copy.
 
-## 1.2 Voice Messages in Roleplays
+## 1.2 Scene Media Library
+
+Promoted to V3 on 2026-07-07. Design:
+[Scene Media Library](../features/scene-media-library.md) - one source-neutral
+`scene_media` block backed by a shared library of built-in and user-generated
+scene media. V3 starts by promoting curated built-in assets, while the library
+shape leaves room for generated scripts/audio and later dynamic media flows.
+
+- [ ] Promote approved design assets from `design/scene-images/` and
+  `design/scene-scripts/` into product runtime asset folders.
+- [ ] Generate or maintain a non-public server-side built-in registry with
+  product-safe scene metadata, public image/audio URLs, available levels,
+  durations, and structured script data without duplicated flattened transcript
+  text.
+- [ ] Add a reusable scene media resolver service that selects from a compact
+  catalog using natural-language criteria, validates returned ids
+  deterministically, uses credit-gated inference in user-scoped flows, exposes
+  `resolve_scene_media` as a tutor tool adapter, and can also be called directly
+  by quiz/resource services.
+- [ ] Add user-generated scene media persistence with database metadata,
+  structured scripts, ownership/access checks, lifecycle status, and a storage
+  provider abstraction for generated audio/images.
+- [ ] Add media-to-resource derivation so a selected media item can create
+  quizzes, practice guides, and future resource types through a resource-specific
+  instruction modal while preserving `sourceMediaId` provenance.
+- [ ] Add the `scene_media` block to the tutor block protocol, schema,
+  validation, persisted block schema, repair prompt, and TypeScript types.
+- [ ] Render the block in tutor chat with responsive image display, audio
+  controls, optional script/transcript display, and mobile-safe Bootstrap/Flatly
+  styling.
+- [ ] Update tutor prompt guidance so the model references media ids
+  and never emits raw paths, arbitrary URLs, or dynamic generation requests
+  through this block.
+- [ ] Add focused tests/fixtures for valid block rendering, invalid asset ids,
+  missing optional layers, private generated media access, and the media library
+  source boundary.
+
+## 1.3 Voice Messages in Roleplays
 
 Added 2026-07-08. Idea: let the learner send **audio messages** in a
 [Roleplay](../features/roleplays.md) attempt, and let the fictional character

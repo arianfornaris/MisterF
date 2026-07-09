@@ -67,6 +67,7 @@ state changes.
 - [Payments](./features/payments.md): Stripe payments, credits, OpenRouter balance, and fulfillment rules
 - [Writing Practice Ideas](./features/writing-practice-ideas.md): writing-first practice patterns that use `open_text_prompt` for structured open responses
 - [Comprehension Exercises](./features/comprehension-exercises.md): stimulus-plus-questions concept for reading, listening (server-side quality TTS), and image comprehension
+- [Scene Media Library](./features/scene-media-library.md): proposal for a source-neutral `scene_media` block backed by built-in and user-generated scene media
 - [Multilingual English Learning](./features/multilingual-english-learning.md): proposal separating target language, support language, and interface locale; English ships first in V2, Haitian Creole and others later
 - [Roleplay Character Assets](./features/roleplay-character-assets.md): avatar registry and curated character library for roleplay resources
 
