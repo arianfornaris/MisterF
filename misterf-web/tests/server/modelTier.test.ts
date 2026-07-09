@@ -10,9 +10,16 @@ const MODEL_ENV_VARS = [
   'LLM_MODEL_ADVANCED',
   'LLM_MODEL_MAX',
 ] as const;
+const STORAGE_ENV_VARS = [
+  'DO_SPACES_ENDPOINT',
+  'USER_FILE_STORAGE_BUCKET',
+  'USER_FILE_STORAGE_PROVIDER',
+  'USER_FILE_STORAGE_REGION',
+  'USER_FILE_STORAGE_ROOT_PREFIX',
+] as const;
 
 const originalEnv: Record<string, string | undefined> = {};
-for (const name of [...MODEL_ENV_VARS, 'ENV_FILE']) {
+for (const name of [...MODEL_ENV_VARS, ...STORAGE_ENV_VARS, 'ENV_FILE', 'NODE_ENV']) {
   originalEnv[name] = process.env[name];
 }
 
@@ -100,6 +107,57 @@ describe('model env fallback chain', () => {
     expect(env.llmAdvancedModel).not.toBe('');
     expect(env.llmMaxModel).not.toBe('');
     expect(env.llmLiteModel).toBe(env.llmRegularModel);
+  });
+});
+
+describe('user file storage env defaults', () => {
+  it('uses the development Spaces bucket outside production', async () => {
+    for (const name of STORAGE_ENV_VARS) {
+      delete process.env[name];
+    }
+    process.env.ENV_FILE = '/dev/null';
+    process.env.NODE_ENV = 'development';
+    vi.resetModules();
+
+    const { env } = await import('../../src/server/config/env.js');
+
+    expect(env.userFileStorageProvider).toBe('spaces');
+    expect(env.userFileStorageBucket).toBe('misterf.us-files-dev');
+    expect(env.userFileStorageRegion).toBe('atl1');
+    expect(env.userFileStorageRootPrefix).toBe('misterf');
+    expect(env.doSpacesEndpoint).toBe('https://atl1.digitaloceanspaces.com');
+  });
+
+  it('uses the production Spaces bucket in production', async () => {
+    for (const name of STORAGE_ENV_VARS) {
+      delete process.env[name];
+    }
+    process.env.ENV_FILE = '/dev/null';
+    process.env.NODE_ENV = 'production';
+    vi.resetModules();
+
+    const { env } = await import('../../src/server/config/env.js');
+
+    expect(env.userFileStorageBucket).toBe('misterf.us-files');
+  });
+
+  it('lets storage env variables override the defaults', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.NODE_ENV = 'development';
+    process.env.USER_FILE_STORAGE_BUCKET = 'custom-bucket';
+    process.env.USER_FILE_STORAGE_REGION = 'nyc3';
+    process.env.USER_FILE_STORAGE_ROOT_PREFIX = 'custom-root';
+    process.env.USER_FILE_STORAGE_PROVIDER = 'local';
+    process.env.DO_SPACES_ENDPOINT = 'https://custom.example.com';
+    vi.resetModules();
+
+    const { env } = await import('../../src/server/config/env.js');
+
+    expect(env.userFileStorageProvider).toBe('local');
+    expect(env.userFileStorageBucket).toBe('custom-bucket');
+    expect(env.userFileStorageRegion).toBe('nyc3');
+    expect(env.userFileStorageRootPrefix).toBe('custom-root');
+    expect(env.doSpacesEndpoint).toBe('https://custom.example.com');
   });
 });
 

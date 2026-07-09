@@ -67,6 +67,13 @@ function resolveProjectPath(value: string): string {
 }
 
 const nodeEnv = process.env.NODE_ENV ?? 'development';
+const userFileStorageRegion =
+  process.env.USER_FILE_STORAGE_REGION ?? 'atl1';
+const userFileStorageEndpoint =
+  process.env.DO_SPACES_ENDPOINT ??
+  `https://${userFileStorageRegion}.digitaloceanspaces.com`;
+const defaultUserFileStorageBucket =
+  nodeEnv === 'production' ? 'misterf.us-files' : 'misterf.us-files-dev';
 
 export const env = {
   projectRoot,
@@ -140,4 +147,13 @@ export const env = {
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
   superadminEmail: (process.env.SUPERADMIN_EMAIL ?? '').trim().toLowerCase(),
+  userFileStorageProvider: process.env.USER_FILE_STORAGE_PROVIDER ?? 'spaces',
+  userFileStorageBucket:
+    process.env.USER_FILE_STORAGE_BUCKET ?? defaultUserFileStorageBucket,
+  userFileStorageRegion,
+  userFileStorageRootPrefix:
+    process.env.USER_FILE_STORAGE_ROOT_PREFIX ?? 'misterf',
+  doSpacesEndpoint: userFileStorageEndpoint,
+  doSpacesAccessKey: process.env.DO_SPACES_ACCESS_KEY ?? '',
+  doSpacesSecretKey: process.env.DO_SPACES_SECRET_KEY ?? '',
 };
