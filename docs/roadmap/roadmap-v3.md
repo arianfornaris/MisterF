@@ -94,11 +94,14 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   side-panel link between New Conversation and Resources, filters, built-in
   media cards, and dedicated media detail pages with a close button back to the
   library. Done 2026-07-09.
-- [ ] Add a reusable scene media resolver service that selects from a compact
+- [~] Add a reusable scene media resolver service that selects from a compact
   catalog using natural-language criteria, validates returned ids
   deterministically, uses credit-gated inference in user-scoped flows, exposes
   `resolve_scene_media` as a tutor tool adapter, and can also be called directly
-  by quiz/resource services.
+  by quiz/resource services. Started 2026-07-09: added the shared resolver
+  service, compact catalog builder, deterministic id/layer/recent-media
+  validation, malformed-output fallback, and mocked inference tests. The tutor
+  tool adapter and direct quiz/resource call sites remain pending.
 - [~] Add user-generated scene media. Foundation done 2026-07-09: persisted
   `user_scene_media` and generation-job rows, active-profile ownership,
   user-media-first listing, source/status badges, `Create media` and
