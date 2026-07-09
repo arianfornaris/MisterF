@@ -163,6 +163,8 @@ Source prompts, QA notes, source images, cost estimates, flattened transcript te
 ## User-Generated Media
 
 Generated media should enter the same library instead of creating a separate block type.
+User-generated media files use the shared
+[User File Storage](../architecture/user-file-storage.md) bucket/prefix design.
 
 Example: if the tutor starts from a built-in airport image but creates a new irregular-verb script and audio, store that as a `user_generated` media item:
 
