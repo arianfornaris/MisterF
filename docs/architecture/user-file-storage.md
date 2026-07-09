@@ -3,13 +3,14 @@
 Mister F stores user-owned binary files in DigitalOcean Spaces through an
 object-storage-compatible boundary. The first shared bucket is:
 
-- Bucket: `littlesoftware-files`
+- Production bucket: `misterf.us-files`
+- Development bucket: `misterf.us-files-dev`
 - Region: `atl1`
 - App root prefix: `misterf/`
 
-The bucket is shared infrastructure for Little Software applications. Mister F
-owns only objects under the `misterf/` prefix. All user files created by Mister F
-must live under that prefix.
+The buckets are dedicated to Mister F user files. All files created by Mister F
+must still live under the `misterf/` prefix so app-owned objects remain grouped
+and future tooling can share one root convention.
 
 ## Goals
 
@@ -60,22 +61,21 @@ input directly. Use stable ids and generated file names.
 Recommended layout:
 
 ```text
-misterf/{environment}/users/{userId}/{domain}/{ownerEntityId}/{fileRole}/{fileId}.{ext}
+misterf/users/{userId}/{domain}/{ownerEntityId}/{fileRole}/{fileId}.{ext}
 ```
 
 Examples:
 
 ```text
-misterf/production/users/user_123/scene-media/media_user_456/audio/file_789.mp3
-misterf/production/users/user_123/scene-media/media_user_456/image/file_790.png
-misterf/production/users/user_123/roleplay-attempts/attempt_abc/audio/file_def.webm
+misterf/users/user_123/scene-media/media_user_456/audio/file_789.mp3
+misterf/users/user_123/scene-media/media_user_456/image/file_790.png
+misterf/users/user_123/roleplay-attempts/attempt_abc/audio/file_def.webm
 ```
 
 Rules:
 
 - The first path segment after the bucket must be `misterf`.
-- Include an environment segment (`production`, `development`, `test`, or a
-  deploy-specific value) so non-production files cannot collide with production.
+- Separate production and development by bucket, not only by path prefix.
 - Include the owning user id for private user files.
 - Include the feature domain and owner entity id so cleanup jobs can find
   related objects.
@@ -129,7 +129,7 @@ storage, referenced by `storageKey` from the scene media metadata.
 If a user-generated media item reuses a built-in image, only the generated
 layers need object storage. The media item can reference the built-in image by
 `visualAssetId` while storing generated audio or image layers under
-`misterf/{environment}/users/...`.
+`misterf/users/...` in the configured environment bucket.
 
 Derived resources should reference `sourceMediaId` and should receive grants
 that let their students render the required media without exposing the owner's
@@ -144,10 +144,21 @@ Suggested variables:
 
 ```text
 USER_FILE_STORAGE_PROVIDER=spaces
-USER_FILE_STORAGE_BUCKET=littlesoftware-files
+USER_FILE_STORAGE_BUCKET=misterf.us-files
 USER_FILE_STORAGE_REGION=atl1
 USER_FILE_STORAGE_ROOT_PREFIX=misterf
-USER_FILE_STORAGE_ENVIRONMENT=production
+DO_SPACES_ENDPOINT=https://atl1.digitaloceanspaces.com
+DO_SPACES_ACCESS_KEY=...
+DO_SPACES_SECRET_KEY=...
+```
+
+Development should use:
+
+```text
+USER_FILE_STORAGE_PROVIDER=spaces
+USER_FILE_STORAGE_BUCKET=misterf.us-files-dev
+USER_FILE_STORAGE_REGION=atl1
+USER_FILE_STORAGE_ROOT_PREFIX=misterf
 DO_SPACES_ENDPOINT=https://atl1.digitaloceanspaces.com
 DO_SPACES_ACCESS_KEY=...
 DO_SPACES_SECRET_KEY=...
@@ -156,12 +167,12 @@ DO_SPACES_SECRET_KEY=...
 Local development may use either:
 
 - a local-disk adapter rooted in an ignored directory; or
-- a non-production Spaces prefix such as `misterf/development/...`.
+- the development Spaces bucket `misterf.us-files-dev`.
 
 ## Operational Notes
 
-- A zero-byte marker object exists at `misterf/` so the app prefix appears as a
-  folder in Spaces UI.
+- A zero-byte marker object exists at `misterf/` in each bucket so the app
+  prefix appears as a folder in Spaces UI.
 - Provisioning keys used to create or update bucket structure should be
   temporary and revoked after use.
 - Application runtime keys should be scoped as narrowly as DigitalOcean Spaces
