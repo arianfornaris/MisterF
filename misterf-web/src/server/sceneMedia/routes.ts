@@ -2,8 +2,10 @@ import express from 'express';
 import {
   createSceneMediaFromPrompt,
   createSceneMediaVariation,
+  archiveSceneMedia,
   renderSceneMediaDetailPage,
   renderSceneMediaLibraryPage,
+  retrySceneMediaGeneration,
   serveSceneMediaAudioAsset,
   serveSceneMediaImageAsset,
 } from './handlers.js';
@@ -15,4 +17,6 @@ sceneMediaRouter.post('/media-library', createSceneMediaFromPrompt);
 sceneMediaRouter.get('/media-library/:mediaId', renderSceneMediaDetailPage);
 sceneMediaRouter.get('/media-library/:mediaId/image', serveSceneMediaImageAsset);
 sceneMediaRouter.get('/media-library/:mediaId/audio', serveSceneMediaAudioAsset);
+sceneMediaRouter.post('/media-library/:mediaId/retry', retrySceneMediaGeneration);
+sceneMediaRouter.post('/media-library/:mediaId/archive', archiveSceneMedia);
 sceneMediaRouter.post('/media-library/:mediaId/variations', createSceneMediaVariation);

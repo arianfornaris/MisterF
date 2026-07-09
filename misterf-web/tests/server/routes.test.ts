@@ -668,6 +668,11 @@ describe('main route smoke tests', () => {
   it('renders the built-in media library and media detail pages', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
+    const {
+      createUserSceneMediaJob,
+      failUserSceneMediaJob,
+      findUserSceneMediaForProfile,
+    } = await import('../../src/server/sceneMedia/userMediaRepository.js');
 
     const user = createExternalUser({
       email: 'route-media-library@example.com',
@@ -743,6 +748,49 @@ describe('main route smoke tests', () => {
     );
     expect(createResponse.status).toBe(302);
     expect(createResponse.headers.get('location')).toMatch(/^\/media-library\/[-0-9a-f]+$/);
+
+    const failedJob = createUserSceneMediaJob({
+      format: 'single_panel_scene',
+      generationMode: 'image_only',
+      level: 'A1-A2',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      prompt: 'A failed generated media item.',
+      scriptTypePreference: 'unspecified',
+      type: 'new_media',
+    });
+    failUserSceneMediaJob({
+      failureMessage: 'Unable to generate this media.',
+      failureReason: 'unexpected_error',
+      mediaId: failedJob.mediaId,
+    });
+
+    const failedDetailResponse = await fetch(
+      `${baseUrl}/media-library/${failedJob.mediaId}`,
+      {
+        headers: { cookie },
+        redirect: 'manual',
+      },
+    );
+    const failedDetailHtml = await failedDetailResponse.text();
+    expect(failedDetailResponse.status).toBe(200);
+    expect(failedDetailHtml).toContain(`action="/media-library/${failedJob.mediaId}/retry"`);
+    expect(failedDetailHtml).toContain(`action="/media-library/${failedJob.mediaId}/archive"`);
+
+    const archiveResponse = await postForm(
+      `/media-library/${failedJob.mediaId}/archive`,
+      {
+        _csrf: csrfToken,
+      },
+      cookie,
+    );
+    expect(archiveResponse.status).toBe(302);
+    expect(archiveResponse.headers.get('location')).toBe('/media-library');
+    expect(findUserSceneMediaForProfile({
+      mediaId: failedJob.mediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })).toBeNull();
   });
 
   it('localizes the media library pages for the active profile language', async () => {

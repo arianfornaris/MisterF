@@ -23,6 +23,24 @@
       </p>
     </div>
     <div class="app-page-header-actions">
+      <% if (mediaItem.source === 'user_generated' && mediaItem.status === 'failed') { %>
+        <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/retry">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-outline-primary" type="submit">
+            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
+            <%= t('mediaLibrary.retry') %>
+          </button>
+        </form>
+      <% } %>
+      <% if (mediaItem.source === 'user_generated') { %>
+        <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/archive">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button class="btn btn-outline-danger" type="submit">
+            <i class="bi bi-archive me-1" aria-hidden="true"></i>
+            <%= t('mediaLibrary.archive') %>
+          </button>
+        </form>
+      <% } %>
       <button
         class="btn btn-primary"
         type="button"

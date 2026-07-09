@@ -112,6 +112,11 @@ export type FailUserSceneMediaJobInput = {
   mediaId: string;
 };
 
+export type SaveUserSceneMediaGeneratedLayersInput = {
+  image?: SceneMediaImageLayer;
+  mediaId: string;
+};
+
 export function createUserSceneMediaJob(
   input: CreateUserSceneMediaJobInput,
 ): UserSceneMediaJob {
@@ -313,6 +318,26 @@ export function updateUserSceneMediaJobStatus(input: {
   return job;
 }
 
+export function saveUserSceneMediaGeneratedLayers(
+  input: SaveUserSceneMediaGeneratedLayersInput,
+): SceneMediaLibraryItem | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE user_scene_media
+        SET image_json = COALESCE(?, image_json),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+    )
+    .run(
+      input.image ? JSON.stringify(input.image) : null,
+      input.mediaId,
+    );
+
+  return findUserSceneMediaById(input.mediaId);
+}
+
 export function completeUserSceneMediaJob(
   input: CompleteUserSceneMediaJobInput,
 ): SceneMediaLibraryItem | null {
@@ -401,6 +426,137 @@ export function failUserSceneMediaJob(
   transaction();
 
   return findUserSceneMediaById(input.mediaId);
+}
+
+export function retryUserSceneMediaGenerationJob(input: {
+  mediaId: string;
+  ownerProfileId: string;
+  ownerUserId: string;
+}): UserSceneMediaJob | null {
+  const db = getDb();
+  const mediaRow = db
+    .prepare(
+      `
+        SELECT *
+        FROM user_scene_media
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND status = 'failed'
+          AND archived_at IS NULL
+      `,
+    )
+    .get(input.mediaId, input.ownerUserId, input.ownerProfileId) as
+    | UserSceneMediaRow
+    | undefined;
+  if (!mediaRow) {
+    return null;
+  }
+
+  const previousJob = db
+    .prepare(
+      `
+        SELECT *
+        FROM user_scene_media_generation_jobs
+        WHERE media_id = ?
+        ORDER BY updated_at DESC, created_at DESC
+        LIMIT 1
+      `,
+    )
+    .get(input.mediaId) as UserSceneMediaJobRow | undefined;
+  const jobId = randomUUID();
+  const insertJob = db.prepare(
+    `
+      INSERT INTO user_scene_media_generation_jobs (
+        id,
+        media_id,
+        user_id,
+        profile_id,
+        type,
+        prompt,
+        status,
+        generation_mode,
+        script_type_preference,
+        format,
+        level,
+        source_media_id,
+        layer_decisions_json
+      )
+      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)
+    `,
+  );
+  const updateMedia = db.prepare(
+    `
+      UPDATE user_scene_media
+      SET status = 'pending',
+          failure_reason = NULL,
+          failure_message = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `,
+  );
+
+  const transaction = db.transaction(() => {
+    insertJob.run(
+      jobId,
+      mediaRow.id,
+      mediaRow.user_id,
+      mediaRow.profile_id,
+      previousJob?.type ?? 'new_media',
+      mediaRow.generation_prompt,
+      mediaRow.generation_mode,
+      mediaRow.script_type_preference,
+      mediaRow.format,
+      mediaRow.level,
+      mediaRow.source_media_id,
+      previousJob?.layer_decisions_json ?? null,
+    );
+    updateMedia.run(mediaRow.id);
+  });
+  transaction();
+
+  return findUserSceneMediaJobById(jobId);
+}
+
+export function archiveUserSceneMediaForProfile(input: {
+  mediaId: string;
+  ownerProfileId: string;
+  ownerUserId: string;
+}): boolean {
+  const db = getDb();
+  const updateMedia = db.prepare(
+    `
+      UPDATE user_scene_media
+      SET status = 'archived',
+          archived_at = CURRENT_TIMESTAMP,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+        AND user_id = ?
+        AND profile_id = ?
+        AND archived_at IS NULL
+    `,
+  );
+  const updateJobs = db.prepare(
+    `
+      UPDATE user_scene_media_generation_jobs
+      SET status = 'archived',
+          updated_at = CURRENT_TIMESTAMP
+      WHERE media_id = ?
+        AND user_id = ?
+        AND profile_id = ?
+        AND status IN ('pending', 'generating', 'failed')
+    `,
+  );
+
+  const transaction = db.transaction(() => {
+    const result = updateMedia.run(input.mediaId, input.ownerUserId, input.ownerProfileId);
+    if (result.changes > 0) {
+      updateJobs.run(input.mediaId, input.ownerUserId, input.ownerProfileId);
+    }
+    return result.changes > 0;
+  });
+
+  return transaction() as boolean;
 }
 
 function updateUserSceneMediaStatus(input: {

@@ -131,6 +131,7 @@ export const ht = {
     },
     mediaLibrary: {
         applyFilters: 'Aplike filtè yo',
+        archive: 'Achive',
         audio: 'Odyo',
         backToLibrary: 'Retounen nan bibliyotèk medya a',
         clearFilters: 'Netwaye filtè yo',
@@ -185,6 +186,7 @@ export const ht = {
         promptGuide: 'Dekri sèn nan, kiyès ki parèt, kote sa rive, ak ki skill anglè li dwe pratike.',
         promptPlaceholder: 'Yon elèv mande direksyon nan yon estasyon tren ki gen anpil moun epi li pratike kesyon politès.',
         preview: 'Jwe medya',
+        retry: 'Eseye ankò',
         script: 'Skrip',
         scriptAndAudioLayer: 'Skrip ak odyo',
         scriptType: 'Kalite skrip',

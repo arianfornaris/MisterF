@@ -23,8 +23,15 @@ import type {
   UserSceneMediaScriptTypePreference,
 } from './types.js';
 import { scheduleSceneMediaGenerationJob } from './generation.js';
-import { emitSceneMediaGenerationCreated } from './socket.js';
-import { createUserSceneMediaJob } from './userMediaRepository.js';
+import {
+  emitSceneMediaGenerationCreated,
+  emitSceneMediaGenerationUpdated,
+} from './socket.js';
+import {
+  archiveUserSceneMediaForProfile,
+  createUserSceneMediaJob,
+  retryUserSceneMediaGenerationJob,
+} from './userMediaRepository.js';
 import { getUserFileStorageProvider } from '../storage/userFileStorage.js';
 
 type SceneMediaRequestUser = {
@@ -392,6 +399,80 @@ export async function createSceneMediaVariation(
   }
   scheduleSceneMediaGenerationJob(job.id);
   response.redirect(`/media-library/${encodeURIComponent(job.mediaId)}`);
+}
+
+export async function retrySceneMediaGeneration(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const mediaId = typeof request.params.mediaId === 'string'
+    ? request.params.mediaId
+    : '';
+  const mediaItem = findSceneMediaItemById(mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  if (!mediaItem || mediaItem.source !== 'user_generated' || mediaItem.status !== 'failed') {
+    response.redirect('/media-library?media_error=invalid_request');
+    return;
+  }
+
+  try {
+    await assertUserHasLlmCredit(auth.user.id);
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect(
+        `/media-library/${encodeURIComponent(mediaItem.id)}?media_error=credit_exhausted`,
+      );
+      return;
+    }
+    throw error;
+  }
+
+  const job = retryUserSceneMediaGenerationJob({
+    mediaId: mediaItem.id,
+    ownerProfileId: auth.activeProfile.id,
+    ownerUserId: auth.user.id,
+  });
+  if (!job) {
+    response.redirect('/media-library?media_error=invalid_request');
+    return;
+  }
+
+  const updatedItem = findSceneMediaItemById(job.mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  if (updatedItem) {
+    emitSceneMediaGenerationUpdated(updatedItem);
+  }
+  scheduleSceneMediaGenerationJob(job.id);
+  response.redirect(`/media-library/${encodeURIComponent(job.mediaId)}`);
+}
+
+export function archiveSceneMedia(
+  request: Request,
+  response: Response,
+): void {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const mediaId = typeof request.params.mediaId === 'string'
+    ? request.params.mediaId
+    : '';
+  archiveUserSceneMediaForProfile({
+    mediaId,
+    ownerProfileId: auth.activeProfile.id,
+    ownerUserId: auth.user.id,
+  });
+  response.redirect('/media-library');
 }
 
 function readField(value: unknown, maxLength: number): string {

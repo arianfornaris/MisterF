@@ -3,6 +3,7 @@ import {
   failUserSceneMediaJob,
   findUserSceneMediaById,
   findUserSceneMediaJobById,
+  saveUserSceneMediaGeneratedLayers,
   updateUserSceneMediaJobStatus,
 } from './userMediaRepository.js';
 import {
@@ -78,9 +79,16 @@ export async function runSceneMediaGenerationJob(jobId: string): Promise<void> {
       (job.type === 'new_media' && job.generationMode === 'complete_scene') ||
       job.layerDecisions?.scriptAndAudio === 'generate_new';
 
+    const currentItem = findUserSceneMediaById(job.mediaId);
     const generatedImage = requiresGeneratedImage
-      ? await generateAndStoreImageLayer(job)
+      ? currentItem?.image ?? await generateAndStoreImageLayer(job)
       : undefined;
+    if (generatedImage && !currentItem?.image) {
+      saveUserSceneMediaGeneratedLayers({
+        image: generatedImage,
+        mediaId: job.mediaId,
+      });
+    }
     const generatedScriptPackage = requiresGeneratedScriptAndAudio
       ? await generateScriptPackage(job, generatedImage)
       : undefined;

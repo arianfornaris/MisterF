@@ -104,10 +104,9 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   user-media-first listing, source/status badges, `Create media` and
   `Create variation` modals, profile-scoped socket update events, credit checks
   before provider-backed jobs, and no-copy reuse for kept image or
-  script-and-audio layers. The current runner is intentionally a scaffold:
-  requests that need generated image or script-and-audio layers fail with a
-  controlled `provider_not_configured` status until the provider pipeline below
-  is connected.
+  script-and-audio layers. The runner now connects image, structured script,
+  audio, and object storage for the first complete-scene pipeline; retry,
+  archive, post-processing, and QA controls are still being filled in.
   - [x] Configure user-file storage defaults. Development resolves to
     `USER_FILE_STORAGE_PROVIDER=spaces`,
     `USER_FILE_STORAGE_BUCKET=misterf.us-files-dev`,
@@ -123,9 +122,11 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     the generation pipeline but generated image/audio jobs do not call it yet.
   - [~] Connect generated media jobs to user-file storage. Started
     2026-07-09: generated image layers are written under
-    `misterf/users/{userId}/scene-media/{mediaId}/image/...`, persisted with
-    `storageKey` metadata, and read through an authenticated app route that
-    issues short-lived Spaces URLs. Audio storage remains pending.
+    `misterf/users/{userId}/scene-media/{mediaId}/image/...`, generated audio
+    layers are written under
+    `misterf/users/{userId}/scene-media/{mediaId}/audio/...`, both persist
+    `storageKey` metadata, and both read through authenticated app routes that
+    issue short-lived Spaces URLs.
   - [~] Wire generated-image creation for `Image only`, complete-scene, and
     variation jobs that choose `generate_new` image. Started 2026-07-09:
     `Image only` jobs, complete-scene jobs, and variation jobs that regenerate
@@ -146,14 +147,12 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     MP3 output is stored in Spaces, and provider/model/voice metadata is
     persisted on the audio layer. Human QA, exact duration targeting, and
     fallback/draft model controls remain pending.
-  - [ ] Implement retry and archive actions for failed/generated user media.
-    Retry should reuse completed or kept layers instead of spending credits and
-    storage on duplicates unless the user explicitly regenerates them.
-  - [ ] Gate or clarify unimplemented generation options while the provider
-    pipeline is incomplete. Before generated-image and generated-script/audio
-    jobs are wired, the UI should not let users choose `generate_new` layers
-    without an explicit unavailable-state message; variation flows that keep all
-    required layers may still complete.
+  - [~] Implement retry and archive actions for failed/generated user media.
+    Started 2026-07-09: failed generated media can be retried, generated/user
+    media can be archived from cards and detail pages, archived media is hidden
+    from the active profile library, and retries reuse an already persisted
+    generated image layer when a later step failed. Explicit per-layer
+    regeneration controls remain pending.
   - [ ] Add route/render and repository tests for storage-backed generated
     media, profile access boundaries, generated-layer failure modes, retry,
     archive, and no-copy reuse of built-in/user layers.

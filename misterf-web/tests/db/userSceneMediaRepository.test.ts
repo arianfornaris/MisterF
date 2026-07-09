@@ -39,8 +39,11 @@ describe('user scene media repository', () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
     const {
+      archiveUserSceneMediaForProfile,
       createUserSceneMediaJob,
+      failUserSceneMediaJob,
       listUserSceneMediaForProfile,
+      retryUserSceneMediaGenerationJob,
     } = await import('../../src/server/sceneMedia/userMediaRepository.js');
 
     const user = createExternalUser({
@@ -123,5 +126,35 @@ describe('user scene media repository', () => {
       visualAssetId: 'airport-security-line-01',
     }));
     expect(otherItems).toEqual([]);
+
+    const failedItem = failUserSceneMediaJob({
+      failureMessage: 'Unable to generate this media.',
+      failureReason: 'unexpected_error',
+      mediaId: job.mediaId,
+    });
+    expect(failedItem?.status).toBe('failed');
+
+    const retryJob = retryUserSceneMediaGenerationJob({
+      mediaId: job.mediaId,
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    });
+    expect(retryJob).toEqual(expect.objectContaining({
+      mediaId: job.mediaId,
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+      status: 'pending',
+    }));
+
+    const archived = archiveUserSceneMediaForProfile({
+      mediaId: job.mediaId,
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    });
+    expect(archived).toBe(true);
+    expect(listUserSceneMediaForProfile({
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })).toEqual([]);
   });
 });

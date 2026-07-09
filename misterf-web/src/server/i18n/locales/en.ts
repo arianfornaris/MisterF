@@ -128,6 +128,7 @@ export const en: LocaleCatalog = {
   },
   mediaLibrary: {
     applyFilters: 'Apply filters',
+    archive: 'Archive',
     audio: 'Audio',
     backToLibrary: 'Back to media library',
     clearFilters: 'Clear filters',
@@ -189,6 +190,7 @@ export const en: LocaleCatalog = {
     promptPlaceholder:
       'A learner asks for directions in a busy train station and practices polite questions.',
     preview: 'Play media',
+    retry: 'Retry',
     script: 'Script',
     scriptAndAudioLayer: 'Script and audio',
     scriptType: 'Script type',

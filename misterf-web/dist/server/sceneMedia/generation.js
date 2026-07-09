@@ -1,4 +1,4 @@
-import { completeUserSceneMediaJob, failUserSceneMediaJob, findUserSceneMediaById, findUserSceneMediaJobById, updateUserSceneMediaJobStatus, } from './userMediaRepository.js';
+import { completeUserSceneMediaJob, failUserSceneMediaJob, findUserSceneMediaById, findUserSceneMediaJobById, saveUserSceneMediaGeneratedLayers, updateUserSceneMediaJobStatus, } from './userMediaRepository.js';
 import { emitSceneMediaGenerationCompleted, emitSceneMediaGenerationFailed, emitSceneMediaGenerationUpdated, } from './socket.js';
 import { logger, serializeError } from '../services/logger.js';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
@@ -35,9 +35,16 @@ export async function runSceneMediaGenerationJob(jobId) {
             job.layerDecisions?.image === 'generate_new';
         const requiresGeneratedScriptAndAudio = (job.type === 'new_media' && job.generationMode === 'complete_scene') ||
             job.layerDecisions?.scriptAndAudio === 'generate_new';
+        const currentItem = findUserSceneMediaById(job.mediaId);
         const generatedImage = requiresGeneratedImage
-            ? await generateAndStoreImageLayer(job)
+            ? currentItem?.image ?? await generateAndStoreImageLayer(job)
             : undefined;
+        if (generatedImage && !currentItem?.image) {
+            saveUserSceneMediaGeneratedLayers({
+                image: generatedImage,
+                mediaId: job.mediaId,
+            });
+        }
         const generatedScriptPackage = requiresGeneratedScriptAndAudio
             ? await generateScriptPackage(job, generatedImage)
             : undefined;

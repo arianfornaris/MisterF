@@ -128,6 +128,7 @@ export const es: LocaleCatalog = {
   },
   mediaLibrary: {
     applyFilters: 'Aplicar filtros',
+    archive: 'Archivar',
     audio: 'Audio',
     backToLibrary: 'Volver a la biblioteca de medios',
     clearFilters: 'Limpiar filtros',
@@ -189,6 +190,7 @@ export const es: LocaleCatalog = {
     promptPlaceholder:
       'Un estudiante pide direcciones en una estación de tren concurrida y practica preguntas amables.',
     preview: 'Reproducir media',
+    retry: 'Reintentar',
     script: 'Guion',
     scriptAndAudioLayer: 'Guion y audio',
     scriptType: 'Tipo de guion',
