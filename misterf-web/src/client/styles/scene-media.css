@@ -1,9 +1,3 @@
-.scene-media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
 .scene-media-card {
   overflow: hidden;
 }
@@ -43,10 +37,6 @@
 }
 
 @media (max-width: 575.98px) {
-  .scene-media-grid {
-    grid-template-columns: 1fr;
-  }
-
   .scene-media-definition-list {
     grid-template-columns: 1fr;
   }

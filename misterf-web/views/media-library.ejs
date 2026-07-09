@@ -74,53 +74,57 @@
     </div>
 
     <% if (mediaItems.length > 0) { %>
-      <div class="scene-media-grid">
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5 g-3">
         <% mediaItems.forEach((item) => { %>
-          <article class="card scene-media-card h-100">
-            <% if (item.image) { %>
-              <img
-                class="card-img-top scene-media-card-image"
-                src="<%= item.image.src %>"
-                alt="<%= item.image.alt %>"
-                loading="lazy"
-              >
-            <% } %>
-            <div class="card-body d-flex flex-column">
-              <div class="d-flex flex-wrap gap-2 mb-2">
-                <% if (item.level) { %>
-                  <span class="badge text-bg-primary"><%= levelLabel(item.level) %></span>
-                <% } %>
-                <span class="badge text-bg-light border"><%= formatLabel(item.format) %></span>
+          <div class="col">
+            <article class="card scene-media-card h-100">
+              <% if (item.image) { %>
+                <div class="ratio ratio-4x3 bg-body-tertiary">
+                  <img
+                    class="card-img-top scene-media-card-image w-100 h-100"
+                    src="<%= item.image.src %>"
+                    alt="<%= item.image.alt %>"
+                    loading="lazy"
+                  >
+                </div>
+              <% } %>
+              <div class="card-body d-flex flex-column p-3">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <% if (item.level) { %>
+                    <span class="badge text-bg-primary"><%= levelLabel(item.level) %></span>
+                  <% } %>
+                  <span class="badge text-bg-light border"><%= formatLabel(item.format) %></span>
+                </div>
+                <h2 class="h6 mb-1"><%= item.title %></h2>
+                <p class="text-body-secondary small mb-2 text-truncate">
+                  <%= item.visualSummary[0] || item.setting || t('mediaLibrary.summaryFallback') %>
+                </p>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <% layerLabels(item).forEach((label) => { %>
+                    <span class="badge text-bg-secondary"><%= label %></span>
+                  <% }) %>
+                </div>
+                <div class="mt-auto d-flex flex-wrap gap-2">
+                  <a
+                    class="btn btn-outline-primary btn-sm"
+                    href="/media-library/<%= encodeURIComponent(item.id) %>?returnTo=<%= encodeURIComponent(currentPath) %>"
+                  >
+                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                    <%= t('mediaLibrary.details') %>
+                  </a>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    type="button"
+                    data-scene-media-play
+                    data-media-id="<%= item.id %>"
+                  >
+                    <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
+                    <%= t('mediaLibrary.play') %>
+                  </button>
+                </div>
               </div>
-              <h2 class="h5 mb-2"><%= item.title %></h2>
-              <p class="text-body-secondary small mb-3">
-                <%= item.visualSummary[0] || item.setting || t('mediaLibrary.summaryFallback') %>
-              </p>
-              <div class="d-flex flex-wrap gap-2 mb-3">
-                <% layerLabels(item).forEach((label) => { %>
-                  <span class="badge text-bg-secondary"><%= label %></span>
-                <% }) %>
-              </div>
-              <div class="mt-auto d-flex flex-wrap gap-2">
-                <a
-                  class="btn btn-outline-primary btn-sm"
-                  href="/media-library/<%= encodeURIComponent(item.id) %>?returnTo=<%= encodeURIComponent(currentPath) %>"
-                >
-                  <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-                  <%= t('mediaLibrary.details') %>
-                </a>
-                <button
-                  class="btn btn-primary btn-sm"
-                  type="button"
-                  data-scene-media-play
-                  data-media-id="<%= item.id %>"
-                >
-                  <i class="bi bi-play-fill me-1" aria-hidden="true"></i>
-                  <%= t('mediaLibrary.play') %>
-                </button>
-              </div>
-            </div>
-          </article>
+            </article>
+          </div>
         <% }) %>
       </div>
     <% } else { %>
