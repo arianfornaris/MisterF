@@ -28,6 +28,7 @@ import { sceneMediaRouter } from './sceneMedia/routes.js';
 import { settingsRouter } from './settings/routes.js';
 import { logger } from './services/logger.js';
 import { registerChatSocket } from './socket/chatSocket.js';
+import { registerSceneMediaSocket } from './sceneMedia/socket.js';
 import { superadminRouter } from './superadmin/routes.js';
 import { clientTelemetryRouter } from './telemetry/clientErrors.js';
 
@@ -128,6 +129,7 @@ app.use(
 );
 
 registerChatSocket(io);
+registerSceneMediaSocket(io);
 
 export function startServer(): void {
   server.listen(env.port, env.host, () => {

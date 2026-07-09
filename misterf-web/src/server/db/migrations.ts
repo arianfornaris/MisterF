@@ -1773,4 +1773,85 @@ export const migrations: Migration[] = [
       db.pragma('writable_schema = OFF');
     },
   },
+  {
+    id: 18,
+    name: 'add_user_scene_media',
+    up: `
+      CREATE TABLE user_scene_media (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        source_media_id TEXT,
+        source_visual_asset_id TEXT,
+        title TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'generating', 'ready', 'failed', 'archived')),
+        generation_mode TEXT NOT NULL CHECK (generation_mode IN ('image_only', 'complete_scene')),
+        generation_prompt TEXT NOT NULL,
+        script_type_preference TEXT NOT NULL DEFAULT 'unspecified'
+          CHECK (script_type_preference IN ('unspecified', 'dialogue', 'narration', 'monologue')),
+        format TEXT NOT NULL CHECK (format IN ('four_panel_wordless_story', 'single_panel_scene', 'two_panel_contrast')),
+        level TEXT NOT NULL CHECK (level IN ('A1-A2', 'B1-B2', 'C1')),
+        setting TEXT,
+        visual_summary_json TEXT NOT NULL DEFAULT '[]',
+        tags_json TEXT NOT NULL DEFAULT '[]',
+        skills_json TEXT NOT NULL DEFAULT '[]',
+        use_cases_json TEXT NOT NULL DEFAULT '[]',
+        image_json TEXT,
+        audio_json TEXT,
+        script_json TEXT,
+        created_from_json TEXT NOT NULL DEFAULT '{}',
+        provenance_json TEXT NOT NULL DEFAULT '{}',
+        failure_reason TEXT,
+        failure_message TEXT,
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_user_scene_media_profile_status_updated
+        ON user_scene_media (user_id, profile_id, status, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_user_scene_media_profile_source
+        ON user_scene_media (user_id, profile_id, source_media_id, updated_at DESC);
+
+      CREATE TABLE user_scene_media_generation_jobs (
+        id TEXT PRIMARY KEY,
+        media_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        type TEXT NOT NULL CHECK (type IN ('new_media', 'variation')),
+        prompt TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('pending', 'generating', 'ready', 'failed', 'archived')),
+        generation_mode TEXT NOT NULL CHECK (generation_mode IN ('image_only', 'complete_scene')),
+        script_type_preference TEXT NOT NULL DEFAULT 'unspecified'
+          CHECK (script_type_preference IN ('unspecified', 'dialogue', 'narration', 'monologue')),
+        format TEXT NOT NULL CHECK (format IN ('four_panel_wordless_story', 'single_panel_scene', 'two_panel_contrast')),
+        level TEXT NOT NULL CHECK (level IN ('A1-A2', 'B1-B2', 'C1')),
+        source_media_id TEXT,
+        layer_decisions_json TEXT,
+        failure_reason TEXT,
+        failure_message TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (media_id)
+          REFERENCES user_scene_media (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      CREATE INDEX idx_user_scene_media_jobs_profile_status_updated
+        ON user_scene_media_generation_jobs (user_id, profile_id, status, updated_at DESC, created_at DESC);
+    `,
+  },
 ];

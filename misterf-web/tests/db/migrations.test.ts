@@ -123,6 +123,10 @@ describe('database migrations', () => {
         id: 17,
         name: 'drop_model_tier_check',
       },
+      {
+        id: 18,
+        name: 'add_user_scene_media',
+      },
     ]);
 
     const tableNames = (db
@@ -154,6 +158,8 @@ describe('database migrations', () => {
       'schema_migrations',
       'tutor_conversation_reports',
       'user_openrouter_keys',
+      'user_scene_media',
+      'user_scene_media_generation_jobs',
       'user_sessions',
       'users',
     ]));
@@ -288,6 +294,38 @@ describe('database migrations', () => {
       'snapshot_json',
       'turns_json',
     ]));
+    expect(getColumnNames(db, 'user_scene_media')).toEqual(expect.arrayContaining([
+      'audio_json',
+      'created_from_json',
+      'failure_message',
+      'failure_reason',
+      'format',
+      'generation_mode',
+      'generation_prompt',
+      'image_json',
+      'level',
+      'profile_id',
+      'script_json',
+      'script_type_preference',
+      'status',
+      'user_id',
+      'visual_summary_json',
+    ]));
+    expect(getColumnNames(db, 'user_scene_media_generation_jobs')).toEqual(
+      expect.arrayContaining([
+        'format',
+        'generation_mode',
+        'layer_decisions_json',
+        'level',
+        'media_id',
+        'profile_id',
+        'prompt',
+        'source_media_id',
+        'status',
+        'type',
+        'user_id',
+      ]),
+    );
   });
 
   it('upgrades resource folder membership to allow nested folders', async () => {

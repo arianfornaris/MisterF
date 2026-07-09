@@ -2,6 +2,14 @@
   overflow: hidden;
 }
 
+.scene-media-card-user {
+  border-color: rgba(var(--bs-info-rgb), 0.45);
+}
+
+.scene-media-card .card-header {
+  min-height: 2.5rem;
+}
+
 .scene-media-card-image {
   aspect-ratio: 1 / 1;
   object-fit: cover;

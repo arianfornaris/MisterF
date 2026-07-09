@@ -7,6 +7,10 @@ import type {
   SceneMediaLibraryFilters,
   SceneMediaLibraryItem,
 } from './types.js';
+import {
+  findUserSceneMediaForProfile,
+  listUserSceneMediaForProfile,
+} from './userMediaRepository.js';
 
 export const sceneMediaLevels = ['A1-A2', 'B1-B2', 'C1'] as const;
 export const sceneMediaFormats = [
@@ -81,7 +85,7 @@ const sceneMediaLibraryItemSchema = z
     setting: z.string().trim().min(1).optional(),
     skills: z.array(z.string().trim().min(1)),
     source: z.enum(['built_in', 'user_generated']),
-    status: z.enum(['archived', 'ready']),
+    status: z.enum(['archived', 'failed', 'generating', 'pending', 'ready']),
     tags: z.array(z.string().trim().min(1)),
     title: z.string().trim().min(1),
     useCases: z.array(z.string().trim().min(1)),
@@ -98,11 +102,25 @@ const itemsById = new Map(validatedBuiltInItems.map((item) => [item.id, item]));
 
 export function listSceneMediaItems(
   filters: SceneMediaLibraryFilters = {},
+  owner?: {
+    profileId: string;
+    userId: string;
+  },
 ): SceneMediaLibraryItem[] {
   const normalizedQuery = normalizeSearchText(filters.query ?? '');
+  const userItems = owner
+    ? listUserSceneMediaForProfile({
+      ownerProfileId: owner.profileId,
+      ownerUserId: owner.userId,
+    })
+    : [];
+  const items = [
+    ...userItems,
+    ...validatedBuiltInItems,
+  ];
 
-  return validatedBuiltInItems.filter((item) => {
-    if (item.status !== 'ready') {
+  return items.filter((item) => {
+    if (item.status === 'archived') {
       return false;
     }
 
@@ -133,7 +151,22 @@ export function listSceneMediaItems(
 
 export function findSceneMediaItemById(
   mediaId: string,
+  owner?: {
+    profileId: string;
+    userId: string;
+  },
 ): SceneMediaLibraryItem | null {
+  if (owner) {
+    const userItem = findUserSceneMediaForProfile({
+      mediaId,
+      ownerProfileId: owner.profileId,
+      ownerUserId: owner.userId,
+    });
+    if (userItem) {
+      return userItem;
+    }
+  }
+
   const item = itemsById.get(mediaId);
   return item && item.status === 'ready' ? item : null;
 }

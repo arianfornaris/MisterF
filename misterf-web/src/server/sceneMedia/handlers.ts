@@ -1,5 +1,9 @@
 import type { Request, Response } from 'express';
 import {
+  assertUserHasLlmCredit,
+  isCreditExhaustedError,
+} from '../services/creditGate.js';
+import {
   appDocumentTitle,
   buildAppShellContext,
   getHomeAuthMessage,
@@ -12,7 +16,15 @@ import {
   sceneMediaFormats,
   sceneMediaLevels,
 } from './library.js';
-import type { SceneMediaLibraryItem } from './types.js';
+import type {
+  SceneMediaLibraryItem,
+  UserSceneMediaGenerationMode,
+  UserSceneMediaLayerDecisions,
+  UserSceneMediaScriptTypePreference,
+} from './types.js';
+import { scheduleSceneMediaGenerationJob } from './generation.js';
+import { emitSceneMediaGenerationCreated } from './socket.js';
+import { createUserSceneMediaJob } from './userMediaRepository.js';
 
 type SceneMediaRequestUser = {
   activeProfile: NonNullable<Request['activeProfile']>;
@@ -50,6 +62,9 @@ export function renderSceneMediaLibraryPage(
     format: selectedFormat,
     level: selectedLevel,
     query: searchQuery,
+  }, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
   });
 
   response.render('media-library', {
@@ -67,11 +82,15 @@ export function renderSceneMediaLibraryPage(
     mediaPreviewItemsJson: serializeViewJson(
       mediaItems.map(toSceneMediaPreviewItem),
     ),
+    mediaError: normalizeMediaLibraryError(request.query.media_error),
     sceneMediaLevels,
     selectedFormat,
     selectedLevel,
     searchQuery,
-    totalMediaCount: listSceneMediaItems().length,
+    totalMediaCount: listSceneMediaItems({}, {
+      profileId: auth.activeProfile.id,
+      userId: auth.user.id,
+    }).length,
   });
 }
 
@@ -122,7 +141,10 @@ export function renderSceneMediaDetailPage(
   const mediaId = typeof request.params.mediaId === 'string'
     ? request.params.mediaId
     : '';
-  const mediaItem = findSceneMediaItemById(mediaId);
+  const mediaItem = findSceneMediaItemById(mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
   if (!mediaItem) {
     response.redirect('/media-library');
     return;
@@ -138,9 +160,179 @@ export function renderSceneMediaDetailPage(
       title: `${mediaItem.title} · ${appDocumentTitle}`,
       user: auth.user,
     }),
+    formatOptions: sceneMediaFormats,
     mediaItem,
+    mediaError: normalizeMediaLibraryError(request.query.media_error),
     returnTo: normalizeMediaLibraryReturnTo(request.query.returnTo),
+    sceneMediaLevels,
   });
+}
+
+export async function createSceneMediaFromPrompt(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const prompt = readField(request.body.prompt, 2000);
+  const level = normalizeSceneMediaLevel(request.body.level);
+  const format = normalizeSceneMediaFormat(request.body.format);
+  const generationMode = normalizeGenerationMode(request.body.generationMode);
+  const scriptTypePreference = generationMode === 'complete_scene'
+    ? normalizeScriptTypePreference(request.body.scriptTypePreference)
+    : 'unspecified';
+
+  if (!prompt || !level || !format || !generationMode) {
+    response.redirect('/media-library?media_error=invalid_request');
+    return;
+  }
+
+  try {
+    await assertUserHasLlmCredit(auth.user.id);
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect('/media-library?media_error=credit_exhausted');
+      return;
+    }
+    throw error;
+  }
+
+  const job = createUserSceneMediaJob({
+    format,
+    generationMode,
+    level,
+    ownerProfileId: auth.activeProfile.id,
+    ownerUserId: auth.user.id,
+    prompt,
+    scriptTypePreference,
+    type: 'new_media',
+  });
+  const createdItem = findSceneMediaItemById(job.mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  if (createdItem) {
+    emitSceneMediaGenerationCreated(createdItem);
+  }
+  scheduleSceneMediaGenerationJob(job.id);
+  response.redirect(`/media-library/${encodeURIComponent(job.mediaId)}`);
+}
+
+export async function createSceneMediaVariation(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const sourceMediaId = typeof request.params.mediaId === 'string'
+    ? request.params.mediaId
+    : '';
+  const sourceItem = findSceneMediaItemById(sourceMediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  if (!sourceItem) {
+    response.redirect('/media-library');
+    return;
+  }
+
+  const prompt = readField(request.body.prompt, 2000);
+  const level = normalizeSceneMediaLevel(request.body.level) ?? sourceItem.level;
+  const imageDecision = normalizeImageDecision(request.body.imageDecision);
+  const scriptAndAudioDecision = normalizeScriptAndAudioDecision(
+    request.body.scriptAndAudioDecision,
+    sourceItem,
+  );
+  const format = imageDecision === 'keep_existing'
+    ? sourceItem.format
+    : normalizeSceneMediaFormat(request.body.format);
+  const scriptTypePreference = scriptAndAudioDecision === 'generate_new'
+    ? normalizeScriptTypePreference(request.body.scriptTypePreference)
+    : 'unspecified';
+
+  if (!prompt || !level || !format || !imageDecision || !scriptAndAudioDecision) {
+    response.redirect(
+      `/media-library/${encodeURIComponent(sourceItem.id)}?media_error=invalid_request`,
+    );
+    return;
+  }
+
+  const layerDecisions: UserSceneMediaLayerDecisions = {
+    image: imageDecision,
+    scriptAndAudio: scriptAndAudioDecision,
+  };
+  const needsGeneratedLayer =
+    imageDecision === 'generate_new' ||
+    scriptAndAudioDecision === 'generate_new';
+
+  if (needsGeneratedLayer) {
+    try {
+      await assertUserHasLlmCredit(auth.user.id);
+    } catch (error) {
+      if (isCreditExhaustedError(error)) {
+        response.redirect(
+          `/media-library/${encodeURIComponent(sourceItem.id)}?media_error=credit_exhausted`,
+        );
+        return;
+      }
+      throw error;
+    }
+  }
+
+  const generationMode: UserSceneMediaGenerationMode =
+    scriptAndAudioDecision === 'do_not_include' ? 'image_only' : 'complete_scene';
+  const keptImage = imageDecision === 'keep_existing' ? sourceItem.image : undefined;
+  const keptScriptAndAudio =
+    scriptAndAudioDecision === 'keep_existing' && sourceItem.script && sourceItem.audio
+      ? {
+        audio: sourceItem.audio,
+        script: sourceItem.script,
+      }
+      : {};
+
+  const job = createUserSceneMediaJob({
+    audio: keptScriptAndAudio.audio,
+    createdFrom: {
+      baseBuiltInMediaId: sourceItem.source === 'built_in' ? sourceItem.id : undefined,
+      baseVisualAssetId: sourceItem.visualAssetId,
+      sourceMediaId: sourceItem.id,
+    },
+    format,
+    generationMode,
+    image: keptImage,
+    layerDecisions,
+    level,
+    ownerProfileId: auth.activeProfile.id,
+    ownerUserId: auth.user.id,
+    prompt,
+    script: keptScriptAndAudio.script,
+    scriptTypePreference,
+    setting: sourceItem.setting,
+    skills: sourceItem.skills,
+    sourceMediaId: sourceItem.id,
+    sourceVisualAssetId: sourceItem.visualAssetId,
+    tags: sourceItem.tags,
+    title: promptTitle(prompt, sourceItem.title),
+    type: 'variation',
+    useCases: sourceItem.useCases,
+    visualSummary: sourceItem.visualSummary,
+  });
+
+  const createdItem = findSceneMediaItemById(job.mediaId, {
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  if (createdItem) {
+    emitSceneMediaGenerationCreated(createdItem);
+  }
+  scheduleSceneMediaGenerationJob(job.id);
+  response.redirect(`/media-library/${encodeURIComponent(job.mediaId)}`);
 }
 
 function readField(value: unknown, maxLength: number): string {
@@ -153,10 +345,55 @@ function readField(value: unknown, maxLength: number): string {
     : '';
 }
 
+function normalizeGenerationMode(value: unknown): UserSceneMediaGenerationMode | null {
+  return value === 'image_only' || value === 'complete_scene' ? value : null;
+}
+
+function normalizeScriptTypePreference(
+  value: unknown,
+): UserSceneMediaScriptTypePreference {
+  return value === 'dialogue' ||
+    value === 'narration' ||
+    value === 'monologue'
+    ? value
+    : 'unspecified';
+}
+
+function normalizeImageDecision(
+  value: unknown,
+): UserSceneMediaLayerDecisions['image'] | null {
+  return value === 'keep_existing' || value === 'generate_new' ? value : null;
+}
+
+function normalizeScriptAndAudioDecision(
+  value: unknown,
+  sourceItem: SceneMediaLibraryItem,
+): UserSceneMediaLayerDecisions['scriptAndAudio'] | null {
+  if (value === 'keep_existing') {
+    return sourceItem.script && sourceItem.audio ? value : null;
+  }
+  return value === 'generate_new' || value === 'do_not_include' ? value : null;
+}
+
+function promptTitle(prompt: string, sourceTitle: string): string {
+  const firstSentence = prompt.replace(/\s+/g, ' ').trim().split(/[.!?]/)[0]?.trim();
+  if (!firstSentence) {
+    return `Variation of ${sourceTitle}`;
+  }
+  return firstSentence.length > 64
+    ? `${firstSentence.slice(0, 61).trim()}...`
+    : firstSentence;
+}
+
 function normalizeMediaLibraryReturnTo(value: unknown): string {
   const returnTo = readField(value, 2000);
   return returnTo === '/media-library' ||
     returnTo.startsWith('/media-library?')
     ? returnTo
     : '/media-library';
+}
+
+function normalizeMediaLibraryError(value: unknown): string {
+  const error = readField(value, 80);
+  return error === 'credit_exhausted' || error === 'invalid_request' ? error : '';
 }

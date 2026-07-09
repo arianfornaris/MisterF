@@ -689,6 +689,8 @@ describe('main route smoke tests', () => {
     const libraryHtml = await libraryResponse.text();
     expect(libraryResponse.status).toBe(200);
     expect(libraryHtml).toContain('Biblioteca de medios');
+    expect(libraryHtml).toContain('Crear media');
+    expect(libraryHtml).toContain('id="createSceneMediaModal"');
     expect(libraryHtml).toContain('airport-security-line-01-a1-a2');
     expect(libraryHtml).toContain('/public/scene-media/images/airport-security-line-01.png');
     expect(libraryHtml).toContain('/media-library/airport-security-line-01-a1-a2');
@@ -699,7 +701,7 @@ describe('main route smoke tests', () => {
     expect(libraryHtml).toContain('aria-label="Reproducir"');
     expect(libraryHtml).not.toContain('bi-info-circle');
     expect(libraryHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
-    expect(libraryHtml).toContain('Jon stood in the airport security line');
+    expect(libraryHtml).toContain('Put your bag in the box');
 
     const filteredResponse = await fetch(`${baseUrl}/media-library?level=C1`, {
       headers: { cookie },
@@ -719,10 +721,28 @@ describe('main route smoke tests', () => {
     );
     const detailHtml = await detailResponse.text();
     expect(detailResponse.status).toBe(200);
-    expect(detailHtml).toContain('Airport Security Line - Simple Story');
+    expect(detailHtml).toContain('Through Security');
+    expect(detailHtml).toContain('Crear variación');
+    expect(detailHtml).toContain('id="createSceneMediaVariationModal"');
     expect(detailHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
-    expect(detailHtml).toContain('Jon stood in the airport security line');
+    expect(detailHtml).toContain('Put your bag in the box');
     expect(detailHtml).toContain('href="/media-library?level=A1-A2"');
+
+    const csrfToken = extractCsrfToken(libraryHtml);
+    const createResponse = await postForm(
+      '/media-library',
+      {
+        _csrf: csrfToken,
+        format: 'single_panel_scene',
+        generationMode: 'image_only',
+        level: 'A1-A2',
+        prompt: 'A learner orders coffee politely.',
+        scriptTypePreference: 'unspecified',
+      },
+      cookie,
+    );
+    expect(createResponse.status).toBe(302);
+    expect(createResponse.headers.get('location')).toMatch(/^\/media-library\/[-0-9a-f]+$/);
   });
 
   it('localizes the media library pages for the active profile language', async () => {
