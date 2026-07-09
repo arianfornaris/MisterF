@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-08)
+Date: 2026-07-06 (last updated: 2026-07-09)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -99,13 +99,52 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   deterministically, uses credit-gated inference in user-scoped flows, exposes
   `resolve_scene_media` as a tutor tool adapter, and can also be called directly
   by quiz/resource services.
-- [ ] Add user-generated scene media persistence with database metadata,
-  structured scripts, ownership/access checks, lifecycle status, and a storage
-  provider abstraction for generated audio/images. Include the media library
-  `New` flow, the media detail `Create variation` flow, credit-gated
-  generation, source-aware card styling, user-media-first ordering, and
-  no-copy layer reuse when a variation keeps an existing image or
-  script-and-audio layer.
+- [~] Add user-generated scene media. Foundation done 2026-07-09: persisted
+  `user_scene_media` and generation-job rows, active-profile ownership,
+  user-media-first listing, source/status badges, `Create media` and
+  `Create variation` modals, profile-scoped socket update events, credit checks
+  before provider-backed jobs, and no-copy reuse for kept image or
+  script-and-audio layers. The current runner is intentionally a scaffold:
+  requests that need generated image or script-and-audio layers fail with a
+  controlled `provider_not_configured` status until the provider pipeline below
+  is connected.
+  - [x] Configure user-file storage defaults. Development resolves to
+    `USER_FILE_STORAGE_PROVIDER=spaces`,
+    `USER_FILE_STORAGE_BUCKET=misterf.us-files-dev`,
+    `USER_FILE_STORAGE_REGION=atl1`,
+    `USER_FILE_STORAGE_ROOT_PREFIX=misterf`, and
+    `DO_SPACES_ENDPOINT=https://atl1.digitaloceanspaces.com`; production
+    defaults to `misterf.us-files`. Done 2026-07-09.
+  - [ ] Add the user-file storage adapter used by generated media:
+    read `DO_SPACES_ACCESS_KEY` and `DO_SPACES_SECRET_KEY` from runtime
+    environment only, write generated objects under
+    `misterf/users/{userId}/scene-media/{mediaId}/...`, persist storage keys
+    and file metadata in SQLite, and create authorized read URLs or app-served
+    responses for private user media.
+  - [ ] Wire generated-image creation for `Image only`, complete-scene, and
+    variation jobs that choose `generate_new` image. Store image binaries in
+    the development Spaces bucket, generate title/setting/tags/skills/useCases
+    from prompt and level, and fail with the content-policy message when the
+    provider rejects a prompt.
+  - [ ] Wire structured script generation for complete-scene jobs:
+    use prompt, level, format, image context, and script-type preference;
+    enforce the MVP atomic layer rule where script and audio are created or
+    omitted together; cap dialogue at three speakers.
+  - [ ] Wire audio generation from structured scripts:
+    choose voices automatically, use one voice for narration/monologue and a
+    different voice per dialogue speaker when possible, store MP3 in Spaces,
+    persist provider/voice provenance, and keep target durations by level.
+  - [ ] Implement retry and archive actions for failed/generated user media.
+    Retry should reuse completed or kept layers instead of spending credits and
+    storage on duplicates unless the user explicitly regenerates them.
+  - [ ] Gate or clarify unimplemented generation options while the provider
+    pipeline is incomplete. Before generated-image and generated-script/audio
+    jobs are wired, the UI should not let users choose `generate_new` layers
+    without an explicit unavailable-state message; variation flows that keep all
+    required layers may still complete.
+  - [ ] Add route/render and repository tests for storage-backed generated
+    media, profile access boundaries, generated-layer failure modes, retry,
+    archive, and no-copy reuse of built-in/user layers.
 - [ ] Add media-to-resource derivation so a selected media item can create
   quizzes, practice guides, and future resource types through a resource-specific
   instruction modal while preserving `sourceMediaId` provenance.
