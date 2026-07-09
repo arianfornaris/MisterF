@@ -104,7 +104,8 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   provider abstraction for generated audio/images. Include the media library
   `New` flow, the media detail `Create variation` flow, credit-gated
   generation, source-aware card styling, user-media-first ordering, and
-  no-copy layer reuse when a variation keeps an existing image/script/audio.
+  no-copy layer reuse when a variation keeps an existing image or
+  script-and-audio layer.
 - [ ] Add media-to-resource derivation so a selected media item can create
   quizzes, practice guides, and future resource types through a resource-specific
   instruction modal while preserving `sourceMediaId` provenance.

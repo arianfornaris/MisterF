@@ -18,7 +18,8 @@ Use a unified media library with a common item contract:
 
 - `built_in`: curated assets shipped with Mister F and available globally.
 - `user_generated`: assets created for a user or organization, private by default.
-- hybrid generated items: user-generated script/audio that reuse a built-in image without duplicating that image.
+- hybrid generated items: user-generated script-and-audio layers that reuse a
+  built-in image without duplicating that image.
 
 All three should be renderable through the same `scene_media` block.
 
@@ -125,9 +126,9 @@ audio layer, and at most one learner level. If the same visual scene has
 items with distinct `id` values and the same `visualAssetId`.
 
 This keeps built-in and user-generated media on the same contract. A user
-generated item normally has one chosen level, script, and audio file; it should
-not need to mimic a built-in matrix of variants to be usable by tutor,
-resource, or quiz flows.
+generated item normally has one chosen level and, when complete-scene audio is
+requested, one atomic script-and-audio layer. It should not need to mimic a
+built-in matrix of variants to be usable by tutor, resource, or quiz flows.
 
 The runtime registry should not carry duplicated `plainText` transcripts. Use `turns` for dialogue and `text` for narration or monologue.
 
@@ -166,7 +167,9 @@ Generated media should enter the same library instead of creating a separate blo
 User-generated media files use the shared
 [User File Storage](../architecture/user-file-storage.md) bucket/prefix design.
 
-Example: if the tutor starts from a built-in airport image but creates a new irregular-verb script and audio, store that as a `user_generated` media item:
+Example: if the tutor starts from a built-in airport image but creates a new
+irregular-verb script-and-audio layer, store that as a `user_generated` media
+item:
 
 ```ts
 {
@@ -226,28 +229,141 @@ new media item from a prompt, or creating a variation from an existing media
 item. Both flows create media through an asynchronous job/lifecycle, not a
 synchronous form submit that assumes all assets are ready immediately.
 
+The asynchronous job should be represented by persistent database rows plus a
+worker. The first implementation can run the worker in the main Node process,
+but HTTP requests must not wait for generation to complete. Persisted jobs let
+the app recover from restarts, show in-progress states, and later move the
+worker to a dedicated process or queue without changing the product model.
+
+The job record should include at least:
+
+- owner user id;
+- owner profile id;
+- job type (`new_media` or `variation`);
+- prompt or variation instruction;
+- selected level;
+- selected visual format;
+- selected script type preference when applicable;
+- requested generation mode;
+- source media id for variations;
+- layer decisions for variations;
+- status (`pending`, `generating`, `ready`, `failed`, `archived`);
+- friendly failure reason code;
+- created media id when ready;
+- timestamps.
+
 ### New Media From The Library
 
-The authenticated media library should expose a primary `New` action, similar
-to the Resources page. The action opens a Bootstrap modal for creating a new
-media item.
+The authenticated media library should expose a primary `Create media` action.
+The action opens a Bootstrap modal for creating a new media item.
 
 The first version of the modal should collect:
 
 - a free-form prompt describing the scene or learning goal;
-- a generation mode selection:
+- prompt guidance that helps the user write effective prompts, for example:
+  describe the scene, who appears, where it happens, and what English skill it
+  should practice;
+- a required level selector:
+  - `A1-A2`;
+  - `B1-B2`;
+  - `C1`;
+- a required visual format selector:
+  - `single_panel_scene`;
+  - `two_panel_contrast`;
+  - `four_panel_wordless_story`;
+- a radio-button generation mode selection:
   - `Image only` — generate a visual scene without script or audio;
-  - `Complete scene` — generate image, structured script, and listening audio.
+  - `Complete scene` — generate image, structured script, and listening audio;
+- a script type selector shown only for `Complete scene`:
+  - unspecified;
+  - dialogue;
+  - narration;
+  - monologue.
+
+The modal does not ask for a title. The generation pipeline creates a short
+title from the prompt. Users can still suggest a desired title inside the prompt.
+
+The prompt is stored as private provenance for the owner profile. It must not be
+used in object storage keys and must not be exposed to other users or shared
+resource viewers.
 
 The modal should communicate that generation consumes credits. The server must
 check credits before starting any user-scoped OpenRouter-backed generation. If
 credit is insufficient, the modal/page should show the normal credits purchase
 UI with a return path to the media library.
 
+The MVP credit behavior is:
+
+- verify that the user has enough credit to attempt generation before creating
+  the job;
+- do not implement credit reservation/preauthorization yet;
+- each provider call during job execution still goes through the normal credit
+  gate and usage accounting;
+- if credit is exhausted during execution, the job fails with a credit-specific
+  reason and the UI shows the product credits flow.
+
 New-media generation should create a database record immediately with a
 lifecycle state such as `pending` or `generating`. The library can then show the
 item as in-progress, failed, or ready instead of blocking the request until all
 provider calls finish.
+
+Image is required for user-generated scene media in this phase. Valid user media
+shapes are:
+
+- image only;
+- image plus script-and-audio.
+
+The MVP does not allow script-only, audio-only, or script-plus-audio without an
+image.
+
+Script and audio are one atomic functional layer for user-generated media:
+`Script and audio`. If this layer exists, both structured script and generated
+audio exist. If it does not exist, neither script nor audio exists. Audio is
+always generated from the script; the app does not generate standalone audio.
+
+For `Complete scene`, the pipeline should generate:
+
+1. image;
+2. structured script;
+3. audio from that script.
+
+Generated user media should include the same conceptual metadata as built-in
+media:
+
+- title;
+- format;
+- level;
+- setting;
+- visual summary;
+- tags;
+- skills;
+- use cases;
+- image layer;
+- optional script-and-audio layer;
+- source and ownership fields;
+- lifecycle status;
+- provenance.
+
+For `Image only`, the prompt can still include a pedagogical goal. The system
+should still generate/searchable metadata such as tags, skills, use cases,
+setting, and visual summary.
+
+Audio and script generation rules:
+
+- voice selection is automatic in the MVP;
+- dialogue uses a different voice per speaker when possible;
+- dialogue may have at most three speakers;
+- if the prompt asks for more than three speakers, the generator should simplify
+  or merge roles;
+- narration and monologue use one voice;
+- voice/provider metadata should be stored as provenance;
+- `A1-A2` audio should target roughly 20-45 seconds;
+- `B1-B2` audio should target roughly 35-75 seconds;
+- `C1` audio should target roughly 60-120 seconds.
+
+The selected level does not impose strict visual-complexity limits on
+`Image only` media in the MVP. It is stored for metadata, resolver behavior, and
+future resource generation, and it strongly guides script/audio when present.
 
 ### Variations From Existing Media
 
@@ -258,21 +374,44 @@ starts from the selected media item.
 The variation modal should collect:
 
 - a free-form instruction describing what should change;
-- a per-layer decision for image, script, and audio:
+- a level selector that defaults to the source media level and can be changed;
+- a visual format selector that defaults to the source media format;
+- a script type selector when script-and-audio will be generated;
+- a per-layer decision for image:
   - keep existing;
-  - generate new.
+  - generate new;
+- a per-layer decision for the `Script and audio` layer:
+  - keep existing, when the source has script-and-audio;
+  - generate new;
+  - do not include.
 
-The UI should disable impossible combinations. For example, a source media item
-with no audio layer cannot "keep existing audio"; a user may still ask the app
-to generate new audio if there is a script or if the generation plan includes a
-new script.
+Image is required. The variation UI must not offer `Do not include image`.
+
+If the source does not have script-and-audio, the variation UI must not offer
+`Keep existing` for that layer. It should offer `Generate new` or
+`Do not include`.
+
+If the user keeps the image, the visual format is locked to the source media
+format because format describes the image structure. If the user generates a new
+image, the visual format can be changed.
+
+Changing level while keeping the image is allowed without warning. Changing
+level while keeping script-and-audio is allowed, but the modal should show a
+warning that the existing script-and-audio may not match the new level.
 
 Variation generation must preserve layer references whenever a layer is kept.
 If the user keeps the image, the new user-generated media item references the
 same image layer or `visualAssetId`; it must not copy the image object into
-user storage. The same reuse principle applies to kept script/audio layers when
-the source layer can be referenced safely. This keeps storage use low and avoids
-duplicating built-in or already-generated assets.
+user storage. The same reuse principle applies to kept script-and-audio layers
+when the source layer can be referenced safely. This keeps storage use low and
+avoids duplicating built-in or already-generated assets.
+
+When script-and-audio is generated, it must align with the selected level,
+visual format, prompt, image, and visual summary:
+
+- `four_panel_wordless_story` should follow the panel sequence;
+- `two_panel_contrast` should reflect the contrast between both scenes;
+- `single_panel_scene` should describe or dramatize the central scene.
 
 The created item should record provenance:
 
@@ -282,6 +421,7 @@ The created item should record provenance:
 - which layers were kept;
 - which layers were generated;
 - provider/model ids used for generated layers;
+- speaker-to-voice mapping when audio is generated;
 - storage keys for any new binary layers.
 
 ### Library Display Rules
@@ -307,6 +447,32 @@ Pending and failed user media should have clear states. Ready items behave like
 other media. Failed items can expose retry/archive actions once those flows
 exist.
 
+User-generated media belongs to the active profile that created it. It should be
+visible only to that user/profile pair. Other profiles under the same user do
+not see it. Sharing user media directly is out of scope for this phase; sharing
+will happen later through media resources or derived resources that grant access
+to the referenced media without exposing the owner's whole media library.
+
+Pending, generating, failed, and ready user media should all appear in the
+library as cards. Cards should carry a status badge. `Archived` items should not
+appear by default unless a future filter asks for archived media.
+
+Generating cards remain navigable. Their detail page can show status, prompt,
+selected level/format/mode, requested layers, and a generating state. Ready and
+failed updates should arrive in the UI through realtime socket events rather
+than polling.
+
+Realtime updates should be scoped by profile id. Clients should join a room such
+as `profile:{profileId}`. Media generation jobs emit updates to the owner
+profile room, not to the entire user account.
+
+Suggested events:
+
+- `media_generation:created`;
+- `media_generation:updated`;
+- `media_generation:completed`;
+- `media_generation:failed`.
+
 ### Generation Failure And Retry
 
 Generation can partially fail. The first implementation should prefer a single
@@ -317,6 +483,16 @@ archives it.
 
 Retry should reuse completed layers instead of regenerating them unless the user
 explicitly asks to regenerate. This avoids extra credits and duplicate storage.
+
+User-facing failure messages:
+
+- generic failure: `Unable to generate this media`;
+- policy/safety failure: `This media could not be created because the content
+  does not comply with our content policy`.
+
+The user-facing message should appear on the failed card. Technical provider
+errors stay in logs and internal failure reason codes. Prompts that violate
+policy should not expose technical policy details to the user.
 
 ## Resolver Service
 
@@ -555,9 +731,10 @@ Recommended implementation order:
    - add a primary media library `New` action and modal for prompt-based media creation;
    - support `Image only` and `Complete scene` generation modes;
    - add a media detail `Create variation` action and modal for deriving from existing media;
-   - let the variation modal choose whether image, script, and audio are kept or generated;
+   - let the variation modal choose whether image and script-and-audio are kept, generated, or omitted where allowed;
    - preserve references for kept layers instead of copying binary assets;
-   - run all OpenRouter-backed generation through the user credit gate.
+   - run all OpenRouter-backed generation through the user credit gate;
+   - emit realtime job updates to the owner profile room.
 7. Add source-aware library display:
    - show current-user media before built-in media;
    - visually distinguish `Your media` from `Built-in` with restrained Bootstrap/Flatly card styling;
@@ -583,7 +760,10 @@ Add or update tests for:
 - media library access checks for private user-generated items;
 - user media creation job lifecycle, including pending, ready, failed, retry, and archive states;
 - credit exhaustion paths for image-only, complete-scene, and variation generation;
+- policy/safety failure paths that render the content-policy message on the failed card;
 - layer reuse when creating a variation, especially keeping a built-in image without copying it to object storage;
+- script-and-audio atomicity: no user-generated media with only script or only audio in the MVP;
+- realtime profile-scoped socket updates for media generation jobs;
 - library ordering and source styling when user-generated and built-in items are listed together;
 - resolver fallback when the model returns a non-existent `mediaId`, unavailable
   layer request, unauthorized media item, malformed strategy, or low-quality
