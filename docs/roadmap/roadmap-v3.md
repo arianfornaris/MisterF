@@ -122,10 +122,11 @@ only writing — while staying inside the existing roleplay resource shape
   unchanged. Decide whether the transcript, the audio, or both are persisted in
   the attempt for later evaluation.
 - [ ] Character audio output (opt-in): when the learner enables it, the
-  fictional character's turns are voiced with TTS. Reuses the comprehension
-  Phase 2 TTS infrastructure (server-side quality TTS, object-storage caching,
-  voice selection, credit guardrails) — sequence this after 1.1 Phase 2 so the
-  audio pipeline exists.
+  fictional character's turns are voiced with TTS. Reuses the shared audio
+  infrastructure from [1.2 Scene Media Library](#12-scene-media-library) and the
+  comprehension Phase 2 TTS work (server-side quality TTS, object-storage
+  caching, voice selection, credit guardrails) — sequence this after that
+  infrastructure exists.
 - [ ] Evaluation of spoken turns: decide how pronunciation/fluency factor into
   Mr. F's turn-by-turn evaluation, or whether v1 evaluates only the transcript
   text (same as written turns) and defers spoken-specific feedback.
@@ -135,7 +136,8 @@ only writing — while staying inside the existing roleplay resource shape
 - [ ] Manual QA against live inference (record → transcribe → character voice
   reply → evaluate).
 
-Dependency note: the character-audio half leans on the same TTS work as 1.1
+Dependency note: the character-audio half leans on the shared media/TTS
+infrastructure from [1.2 Scene Media Library](#12-scene-media-library) and 1.1
 Phase 2 (Listening comprehension), so it is naturally sequenced after that
 lands. The learner-audio (STT) half is more independent and could pilot the
 speech surface earlier.
