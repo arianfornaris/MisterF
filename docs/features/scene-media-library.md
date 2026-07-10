@@ -204,11 +204,14 @@ item:
 
 Generated item rules:
 
-- Generated items are private to their owner by default.
+- Generated media records and management actions are private to their owner by
+  default; immutable image/audio binaries use opaque public URLs in the MVP.
 - Content should be immutable once referenced by a quiz, practice guide, assignment, or shared resource. Editing title/tags is fine; replacing audio/script should create a new item or version.
 - Metadata and scripts can live in the database. Large binary files should not be stored in SQLite.
 - Store generated audio/images through a storage abstraction so the first implementation can use local disk if needed, while DigitalOcean Spaces or another object store can replace it without changing the media domain.
-- Generated media should have lifecycle states in the generation flow (`pending`, `generating`, `ready`, `failed`, `archived`), even if the library only exposes ready/archived items for normal use.
+- New synchronous creation flows persist only complete `ready` items. Legacy
+  `pending`, `generating`, and `failed` rows remain readable and retryable for
+  compatibility; `archived` remains the normal hidden lifecycle state.
 - Any OpenRouter-backed generation path must run through the normal user credit
   gate before provider calls. Insufficient credit is a product state, not an
   exception page.
@@ -232,38 +235,19 @@ Do not design the application domain around the droplet filesystem. A local-disk
 
 User-generated media can enter the library through two product flows: creating a
 new media item from a prompt, or creating a variation from an existing media
-item. Both flows create media through an asynchronous job/lifecycle, not a
-synchronous form submit that assumes all assets are ready immediately.
-
-The asynchronous job should be represented by persistent database rows plus a
-worker. The first implementation can run the worker in the main Node process,
-but HTTP requests must not wait for generation to complete. Persisted jobs let
-the app recover from restarts, show in-progress states, and later move the
-worker to a dedicated process or queue without changing the product model.
-
-The job record should include at least:
-
-- owner user id;
-- owner profile id;
-- job type (`new_media` or `variation`);
-- prompt or variation instruction;
-- selected level;
-- selected visual format;
-- selected script type preference when applicable;
-- requested generation mode;
-- source media id for variations;
-- layer decisions for variations;
-- status (`pending`, `generating`, `ready`, `failed`, `archived`);
-- friendly failure reason code;
-- created media id when ready;
-- timestamps.
+item. Both flows use synchronous resource-style authoring requests. The app may
+allocate a media UUID in memory for immutable storage keys, but it does not
+insert a media row until all required provider calls, validation, image
+post-processing, and uploads succeed. The ready-only media migration removes
+the former generation-job table and
+discards every incomplete media row.
 
 ### New Media From The Library
 
 The authenticated media library should expose a primary `Create media` action.
-The action opens a Bootstrap modal for creating a new media item.
+The action opens a dedicated page for creating a new media item.
 
-The first version of the modal should collect:
+The first version of the page should collect:
 
 - a free-form prompt describing the scene or learning goal;
 - prompt guidance that helps the user write effective prompts, for example:
@@ -286,35 +270,35 @@ The first version of the modal should collect:
   - narration;
   - monologue.
 
-The modal does not ask for a title. A variation receives a provisional title
-based on its source media, never a verbatim copy of the generation prompt. When
-the generation flow produces a new metadata/script package, its concise title
-replaces the provisional title. Users can still suggest a desired title inside
-the prompt.
+The creation page does not ask for a title. Every generation mode runs a
+structured metadata inference after the final image exists, and its concise
+title becomes the stored title. The generation prompt is never used directly as
+the title. Users can still suggest a desired title inside the prompt.
 
 The prompt is stored as private provenance for the owner profile. It must not be
 used in object storage keys and must not be exposed to other users or shared
 resource viewers.
 
-The modal should communicate that generation consumes credits. The server must
+The page should communicate that generation consumes credits. The server must
 check credits before starting any user-scoped OpenRouter-backed generation. If
 credit is insufficient, the modal/page should show the normal credits purchase
 UI with a return path to the media library.
 
 The MVP credit behavior is:
 
-- verify that the user has enough credit to attempt generation before creating
-  the job;
+- verify credit before every provider call;
 - do not implement credit reservation/preauthorization yet;
-- each provider call during job execution still goes through the normal credit
+- each provider call during synchronous execution goes through the normal credit
   gate and usage accounting;
-- if credit is exhausted during execution, the job fails with a credit-specific
-  reason and the UI shows the product credits flow.
+- if credit is exhausted during execution, no media is persisted and the page
+  shows the product credits flow with the form preserved.
 
-New-media generation should create a database record immediately with a
-lifecycle state such as `pending` or `generating`. The library can then show the
-item as in-progress, failed, or ready instead of blocking the request until all
-provider calls finish.
+New-media generation follows the same synchronous authoring workflow as AI
+resource creation. A dedicated page submits one request and shows a blocking
+progress dialog while image, metadata, optional script, and optional audio are
+generated. No media row is created until every required inference and upload has
+succeeded. Failures return to the creation page with the form preserved; only a
+complete `ready` media item appears in the library.
 
 Image is required for user-generated scene media in this phase. Valid user media
 shapes are:
@@ -376,11 +360,13 @@ future resource generation, and it strongly guides script/audio when present.
 
 ### Variations From Existing Media
 
-The media detail page for either built-in or user-generated media should expose
-a portable action such as `Create variation`. This action opens a modal that
-starts from the selected media item.
+The media detail page for either built-in or user-generated media exposes
+`Create variation`. This action opens a dedicated creation page based on the
+selected media item. Submission shows the same blocking progress dialog as new
+media and only redirects to the new detail page after successful inference and
+persistence.
 
-The variation modal should collect:
+The variation page should collect:
 
 - a free-form instruction describing what should change;
 - a level selector that defaults to the source media level and can be changed;
@@ -444,6 +430,26 @@ The created item should record provenance:
 - speaker-to-voice mapping when audio is generated;
 - storage keys for any new binary layers.
 
+### User Media Authoring
+
+Ready user-generated media has an authoring page that follows the resource
+authoring pattern:
+
+- `General` supports manual title editing in the first phase;
+- `AI Chat` accepts conversational revisions through one revise endpoint;
+- authoring messages are stored on the media row and may include applied media
+  snapshots so later requests can refer to earlier versions;
+- every revision-planning inference receives the current image bytes alongside
+  metadata, script, history, and the requested change;
+- visual changes send the current image to the image model as an image-to-image
+  reference;
+- changed images and audio receive new immutable storage keys and never overwrite
+  an existing object;
+- the current media row is updated only after every replacement layer succeeds.
+
+Built-in media cannot be edited directly. It can enter this authoring lifecycle
+only by first creating a user-owned variation.
+
 ### Library Display Rules
 
 The library should merge user-generated and built-in media into one list backed
@@ -463,9 +469,9 @@ badge:
 - `Your media` for user-generated items;
 - `Built-in` for curated global items.
 
-Pending and failed user media should have clear states. Ready items behave like
-other media. Failed items can expose retry/archive actions once those flows
-exist.
+User media appears in the library only after every requested layer has been
+generated and persisted successfully. Generation progress and failures belong
+to the creation page and never become library items.
 
 User-generated media belongs to the active profile that created it. It should be
 visible only to that user/profile pair. Other profiles under the same user do
@@ -474,43 +480,27 @@ will happen later through media resources or derived resources that grant access
 to the referenced media without exposing the owner's whole media library.
 
 For the V3 MVP, that access rule protects the media record and management UI,
-not the generated image or audio bytes once their opaque public CDN URL is known.
+not the generated image or audio bytes once their opaque public URL is known.
 Generated binary layers are immutable and use stable public URLs with long-lived
-browser and CDN caching. This deliberate exception avoids presigned URLs, whose
-changing query strings prevent effective edge caching. Direct binary access can
+browser caching and CDN caching once a compatible edge hostname is configured.
+This deliberate exception avoids presigned URLs, whose changing query strings
+prevent effective edge caching. Direct binary access can
 be protected later with grant-aware edge authorization without changing media ids
-or copying stored layers.
+or copying stored layers. The period-containing MVP bucket names currently use
+stable path-style public origin URLs because DigitalOcean cannot attach its
+default wildcard CDN hostname to them.
 
-Pending, generating, failed, and ready user media should all appear in the
-library as cards. Cards should carry a status badge. `Archived` items should not
-appear by default unless a future filter asks for archived media.
-
-Generating cards remain navigable. Their detail page can show status, prompt,
-selected level/format/mode, requested layers, and a generating state. Ready and
-failed updates should arrive in the UI through realtime socket events rather
-than polling.
-
-Realtime updates should be scoped by profile id. Clients should join a room such
-as `profile:{profileId}`. Media generation jobs emit updates to the owner
-profile room, not to the entire user account.
-
-Suggested events:
-
-- `media_generation:created`;
-- `media_generation:updated`;
-- `media_generation:completed`;
-- `media_generation:failed`.
+Newly created user media appears in the library only after it is ready.
+`Archived` items do not appear by default unless a future filter asks for them.
+There is no persisted generation-job model or realtime job channel.
 
 ### Generation Failure And Retry
 
-Generation can partially fail. The first implementation should prefer a single
-job state over exposing incomplete ready media. For example, if image and script
-succeed but audio fails for a `Complete scene`, the item should remain `failed`
-or `needs_retry` until the missing required layer is generated or the user
-archives it.
-
-Retry should reuse completed layers instead of regenerating them unless the user
-explicitly asks to regenerate. This avoids extra credits and duplicate storage.
+Generation can partially fail before persistence. Any newly uploaded objects are
+deleted on a best-effort basis, the form is rendered again with its values, and
+no incomplete media card is created. An AI chat revision follows the same atomic
+rule: the current media remains unchanged until every replacement layer is
+ready.
 
 User-facing failure messages:
 
@@ -518,9 +508,8 @@ User-facing failure messages:
 - policy/safety failure: `This media could not be created because the content
   does not comply with our content policy`.
 
-The user-facing message should appear on the failed card. Technical provider
-errors stay in logs and internal failure reason codes. Prompts that violate
-policy should not expose technical policy details to the user.
+The user-facing message appears on the creation/variation page or as an
+assistant message in the authoring chat. Technical provider errors stay in logs.
 
 ## Resolver Service
 
@@ -753,20 +742,22 @@ Recommended implementation order:
 5. Add user-generated media persistence:
    - create database tables for generated media metadata, scripts, ownership, origin, status, and storage keys;
    - use a storage provider abstraction for generated audio/images;
-   - keep generated items private by default;
-   - support lifecycle states for pending/generating/ready/failed/archived media.
+   - expose opaque immutable image/audio objects publicly for the MVP while
+     keeping records and management actions profile-authorized;
+   - persist only ready media; generation progress and failures are transient
+     creation-page state.
 6. Add user media creation flows:
-   - add a primary media library `New` action and modal for prompt-based media creation;
+   - add a primary media library `New` action and page for prompt-based media creation;
    - support `Image only` and `Complete scene` generation modes;
-   - add a media detail `Create variation` action and modal for deriving from existing media;
-   - let the variation modal choose whether image and script-and-audio are kept, generated, or omitted where allowed;
+   - add a media detail `Create variation` action and page for deriving from existing media;
+   - let the variation page choose whether image and script-and-audio are kept, generated, or omitted where allowed;
    - preserve references for kept layers instead of copying binary assets;
    - run all OpenRouter-backed generation through the user credit gate;
-   - emit realtime job updates to the owner profile room.
+   - show blocking resource-style progress until the ready media can be opened.
 7. Add source-aware library display:
    - show current-user media before built-in media;
    - visually distinguish `Your media` from `Built-in` with restrained Bootstrap/Flatly card styling;
-   - show pending and failed user media states without mixing them up with ready media.
+   - never add pending or failed generation placeholders to the library.
 8. Add resource derivation from media:
    - add media action-menu entries for creating target resources;
    - collect resource-specific generation instructions in a modal;
@@ -786,12 +777,14 @@ Add or update tests for:
 - schema rejection for raw paths, unknown layers, unsupported layer requests, and invalid block shapes;
 - built-in registry validation against a minimal fixture;
 - media library access checks for private user-generated items;
-- user media creation job lifecycle, including pending, ready, failed, retry, and archive states;
+- synchronous user media creation that persists only ready items and preserves
+  form state on failure;
 - credit exhaustion paths for image-only, complete-scene, and variation generation;
-- policy/safety failure paths that render the content-policy message on the failed card;
+- policy/safety failure paths that render the content-policy message on the
+  creation page or authoring chat without creating a media row;
 - layer reuse when creating a variation, especially keeping a built-in image without copying it to object storage;
 - script-and-audio atomicity: no user-generated media with only script or only audio in the MVP;
-- realtime profile-scoped socket updates for media generation jobs;
+- absence of media rows when generation fails before persistence;
 - library ordering and source styling when user-generated and built-in items are listed together;
 - resolver fallback when the model returns a non-existent `mediaId`, unavailable
   layer request, unauthorized media item, malformed strategy, or low-quality

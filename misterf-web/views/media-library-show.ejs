@@ -4,12 +4,6 @@
   const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
   const levelLabel = (level) => level || t('mediaLibrary.levelNone');
   const sourceLabel = (source) => t(`mediaLibrary.source.${source}`);
-  const statusLabel = (status) => t(`mediaLibrary.status.${status}`);
-  const failureLabel = (reason) => reason === 'provider_not_configured'
-    ? t('mediaLibrary.failure.providerNotConfigured')
-    : reason === 'content_policy'
-      ? t('mediaLibrary.failure.contentPolicy')
-      : t('mediaLibrary.failure.generic');
   const hasScriptAndAudio = Boolean(mediaItem.script && mediaItem.audio);
 %>
 
@@ -35,14 +29,12 @@
   </div>
 
   <div class="resource-action-row mb-4">
-    <button
+    <a
       class="btn btn-primary"
-      type="button"
-      data-bs-toggle="modal"
-      data-bs-target="#createSceneMediaVariationModal"
+      href="/media-library/<%= encodeURIComponent(mediaItem.id) %>/variations/new"
     >
       <i class="bi bi-magic me-1" aria-hidden="true"></i><%= t('mediaLibrary.createVariation') %>
-    </button>
+    </a>
     <% if (mediaItem.source === 'user_generated') { %>
       <div class="dropdown">
         <button
@@ -54,17 +46,12 @@
           <%= t('resources.options') %>
         </button>
         <ul class="dropdown-menu">
-          <% if (mediaItem.status === 'failed') { %>
-            <li>
-              <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/retry">
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                <button class="dropdown-item" type="submit">
-                  <i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i><%= t('mediaLibrary.retry') %>
-                </button>
-              </form>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-          <% } %>
+          <li>
+            <a class="dropdown-item" href="/media-library/<%= encodeURIComponent(mediaItem.id) %>/edit?tab=general">
+              <i class="bi bi-pencil me-2" aria-hidden="true"></i><%= t('common.edit') %>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
           <li>
             <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/archive">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -79,23 +66,6 @@
   </div>
 
   <section class="app-page-detail-shell">
-    <% if (mediaError) { %>
-      <div class="alert alert-warning" role="alert">
-        <%= mediaError === 'credit_exhausted' ? t('mediaLibrary.creditExhausted') : t('mediaLibrary.invalidRequest') %>
-      </div>
-    <% } %>
-
-    <% if (mediaItem.status !== 'ready') { %>
-      <div class="alert <%= mediaItem.status === 'failed' ? 'alert-danger' : 'alert-info' %>" role="status">
-        <strong><%= statusLabel(mediaItem.status) %>.</strong>
-        <% if (mediaItem.status === 'failed') { %>
-          <%= failureLabel(mediaItem.failureReason) %>
-        <% } else { %>
-          <%= t('mediaLibrary.generationInProgress') %>
-        <% } %>
-      </div>
-    <% } %>
-
     <div class="row g-4">
       <div class="col-12 col-xl-7">
         <div class="card">
@@ -111,9 +81,6 @@
               <span class="badge text-bg-primary"><%= levelLabel(mediaItem.level) %></span>
               <span class="badge text-bg-light border"><%= formatLabel(mediaItem.format) %></span>
               <span class="badge text-bg-secondary"><%= sourceLabel(mediaItem.source) %></span>
-              <% if (mediaItem.status !== 'ready') { %>
-                <span class="badge <%= mediaItem.status === 'failed' ? 'text-bg-danger' : 'text-bg-warning' %>"><%= statusLabel(mediaItem.status) %></span>
-              <% } %>
             </div>
           </div>
         </div>
@@ -222,158 +189,5 @@
     </section>
   </section>
 </section>
-
-<div
-  class="modal fade"
-  id="createSceneMediaVariationModal"
-  tabindex="-1"
-  aria-labelledby="createSceneMediaVariationModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <form class="modal-content" method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/variations" data-scene-media-variation-form>
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="modal-header">
-        <h2 class="modal-title fs-5" id="createSceneMediaVariationModalLabel"><%= t('mediaLibrary.createVariation') %></h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
-      </div>
-      <div class="modal-body d-grid gap-3">
-        <div>
-          <label class="form-label" for="sceneMediaVariationPrompt"><%= t('mediaLibrary.variationPrompt') %></label>
-          <textarea
-            class="form-control"
-            id="sceneMediaVariationPrompt"
-            name="prompt"
-            rows="4"
-            maxlength="2000"
-            required
-            placeholder="<%= t('mediaLibrary.variationPromptPlaceholder') %>"
-          ></textarea>
-          <div class="form-text"><%= t('mediaLibrary.promptGuide') %></div>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="sceneMediaVariationLevel"><%= t('mediaLibrary.level') %></label>
-            <select class="form-select" id="sceneMediaVariationLevel" name="level" required data-scene-media-variation-level>
-              <% sceneMediaLevels.forEach((level) => { %>
-                <option value="<%= level %>" <%= mediaItem.level === level ? 'selected' : '' %>><%= levelLabel(level) %></option>
-              <% }) %>
-            </select>
-          </div>
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="sceneMediaVariationFormat"><%= t('mediaLibrary.formatLabel') %></label>
-            <select class="form-select" id="sceneMediaVariationFormat" name="format" required disabled data-scene-media-variation-format>
-              <% formatOptions.forEach((format) => { %>
-                <option value="<%= format %>" <%= mediaItem.format === format ? 'selected' : '' %>><%= formatLabel(format) %></option>
-              <% }) %>
-            </select>
-          </div>
-        </div>
-
-        <fieldset>
-          <legend class="form-label"><%= t('mediaLibrary.imageLayer') %></legend>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="imageDecision" id="variationImageKeep" value="keep_existing" checked data-scene-media-image-decision>
-            <label class="form-check-label" for="variationImageKeep"><%= t('mediaLibrary.keepExistingImage') %></label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="imageDecision" id="variationImageGenerate" value="generate_new" data-scene-media-image-decision>
-            <label class="form-check-label" for="variationImageGenerate"><%= t('mediaLibrary.generateNewImage') %></label>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend class="form-label"><%= t('mediaLibrary.scriptAndAudioLayer') %></legend>
-          <% if (hasScriptAndAudio) { %>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="scriptAndAudioDecision" id="variationScriptAudioKeep" value="keep_existing" checked data-scene-media-script-audio-decision>
-              <label class="form-check-label" for="variationScriptAudioKeep"><%= t('mediaLibrary.keepExistingScriptAndAudio') %></label>
-            </div>
-          <% } %>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="scriptAndAudioDecision" id="variationScriptAudioGenerate" value="generate_new" <%= hasScriptAndAudio ? '' : 'checked' %> data-scene-media-script-audio-decision>
-            <label class="form-check-label" for="variationScriptAudioGenerate"><%= t('mediaLibrary.generateNewScriptAndAudio') %></label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="scriptAndAudioDecision" id="variationScriptAudioNone" value="do_not_include" data-scene-media-script-audio-decision>
-            <label class="form-check-label" for="variationScriptAudioNone"><%= t('mediaLibrary.doNotIncludeScriptAndAudio') %></label>
-          </div>
-        </fieldset>
-
-        <div class="d-none" data-scene-media-level-warning>
-          <div class="alert alert-warning mb-0" role="status"><%= t('mediaLibrary.levelScriptAudioWarning') %></div>
-        </div>
-
-        <div class="<%= hasScriptAndAudio ? 'd-none' : '' %>" data-scene-media-variation-script-type-wrap>
-          <label class="form-label" for="sceneMediaVariationScriptType"><%= t('mediaLibrary.scriptType') %></label>
-          <select class="form-select" id="sceneMediaVariationScriptType" name="scriptTypePreference">
-            <option value="unspecified"><%= t('mediaLibrary.scriptTypeUnspecified') %></option>
-            <option value="dialogue"><%= t('mediaLibrary.scriptTypeDialogue') %></option>
-            <option value="narration"><%= t('mediaLibrary.scriptTypeNarration') %></option>
-            <option value="monologue"><%= t('mediaLibrary.scriptTypeMonologue') %></option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
-        <button class="btn btn-primary" type="submit" data-scene-media-variation-submit><%= t('mediaLibrary.createVariation') %></button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  (() => {
-     document.addEventListener('DOMContentLoaded', () => {
-      const sourceLevel = <%- JSON.stringify(mediaItem.level || '') %>;
-      const creatingLabel = <%- JSON.stringify(t('mediaLibrary.creating')) %>;
-      const formatSelect = document.querySelector('[data-scene-media-variation-format]');
-      const levelSelect = document.querySelector('[data-scene-media-variation-level]');
-      const warning = document.querySelector('[data-scene-media-level-warning]');
-      const scriptTypeWrap = document.querySelector('[data-scene-media-variation-script-type-wrap]');
-      const form = document.querySelector('[data-scene-media-variation-form]');
-      const submit = document.querySelector('[data-scene-media-variation-submit]');
-
-      function syncVariationControls() {
-        const keepImage = document.querySelector('[name="imageDecision"][value="keep_existing"]')?.checked;
-        const generateScriptAudio = document.querySelector('[name="scriptAndAudioDecision"][value="generate_new"]')?.checked;
-        const keepScriptAudio = document.querySelector('[name="scriptAndAudioDecision"][value="keep_existing"]')?.checked;
-        if (formatSelect) {
-          formatSelect.disabled = Boolean(keepImage);
-        }
-        scriptTypeWrap?.classList.toggle('d-none', !generateScriptAudio);
-        const changedLevel = levelSelect && levelSelect.value !== sourceLevel;
-        warning?.classList.toggle('d-none', !(changedLevel && keepScriptAudio));
-      }
-
-      document.querySelectorAll('[data-scene-media-image-decision], [data-scene-media-script-audio-decision]').forEach((input) => {
-        input.addEventListener('change', syncVariationControls);
-      });
-      levelSelect?.addEventListener('change', syncVariationControls);
-      form?.addEventListener('submit', () => {
-        if (formatSelect) {
-          formatSelect.disabled = false;
-        }
-        if (submit) {
-          submit.disabled = true;
-          submit.textContent = creatingLabel;
-        }
-      });
-      syncVariationControls();
-
-      if (window.io && document.body.dataset.socketAuthToken) {
-        const socket = window.io({ auth: { token: document.body.dataset.socketAuthToken } });
-        ['media_generation:updated', 'media_generation:completed', 'media_generation:failed'].forEach((eventName) => {
-          socket.on(eventName, (payload) => {
-            if (!payload || payload.mediaId === '<%= mediaItem.id %>') {
-              window.location.reload();
-            }
-          });
-        });
-      }
-    });
-  })();
-</script>
 
 <%- include('partials/app-shell-close') %>

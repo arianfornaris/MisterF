@@ -5,6 +5,8 @@ export const en: LocaleCatalog = {
     cancel: 'Cancel',
     close: 'Close',
     delete: 'Delete',
+    edit: 'Edit',
+    loading: 'Loading',
     understood: 'Got it',
     save: 'Save',
     saveChanges: 'Save changes',
@@ -129,13 +131,16 @@ export const en: LocaleCatalog = {
   mediaLibrary: {
     applyFilters: 'Apply filters',
     archive: 'Archive',
+    authoringChatEmpty: 'Describe the change you want to make to this media.',
     audio: 'Audio',
     backToLibrary: 'Back to media library',
     clearFilters: 'Clear filters',
     count: '{{shown}} of {{total}} media items',
     createMedia: 'Create media',
     createVariation: 'Create variation',
+    createdChatMessage: 'The media was created successfully.',
     creating: 'Creating...',
+    creationFailed: 'This media could not be created. Review the request and try again.',
     creditExhausted:
       'You need more credits to create this media. Buy credits and try again.',
     detailIntro:
@@ -145,12 +150,10 @@ export const en: LocaleCatalog = {
     doNotIncludeScriptAndAudio: 'Do not include script and audio',
     duration: '{{seconds}} seconds',
     empty: 'No media items match these filters.',
+    editingKicker: 'Editing media',
     failure: {
       contentPolicy:
         'This media could not be created because the content does not comply with our content policy.',
-      generic: 'Unable to generate this media',
-      providerNotConfigured:
-        'Media generation is not connected yet. The request was saved, but no provider ran.',
     },
     filtersAria: 'Search and filter media',
     format: {
@@ -162,7 +165,7 @@ export const en: LocaleCatalog = {
     formatLabel: 'Format',
     generateNewImage: 'Generate new image',
     generateNewScriptAndAudio: 'Generate new script and audio',
-    generationInProgress: 'This media is still being generated.',
+    generationPending: 'Creating your media. This may take a moment.',
     generationMode: 'Generation mode',
     imageLayer: 'Image',
     intro:
@@ -182,6 +185,8 @@ export const en: LocaleCatalog = {
     metadata: 'Metadata',
     modeCompleteScene: 'Complete scene',
     modeImageOnly: 'Image only',
+    modifyWithAi: 'Modify with AI',
+    modifyWithAiCopy: 'Ask for changes to the image, level, metadata, script, or audio.',
     open: 'Open',
     play: 'Play',
     prompt: 'Prompt',
@@ -190,7 +195,7 @@ export const en: LocaleCatalog = {
     promptPlaceholder:
       'A learner asks for directions in a busy train station and practices polite questions.',
     preview: 'Play media',
-    retry: 'Retry',
+    revisionFailed: 'I could not apply that change. The current media was not modified.',
     script: 'Script',
     scriptAndAudioLayer: 'Script and audio',
     scriptType: 'Script type',
@@ -206,22 +211,19 @@ export const en: LocaleCatalog = {
       built_in: 'Built-in',
       user_generated: 'User generated',
     },
-    status: {
-      archived: 'Archived',
-      failed: 'Failed',
-      generating: 'Generating',
-      pending: 'Pending',
-      ready: 'Ready',
-    },
     summaryFallback: 'Scene media item',
     tags: 'Tags',
     tagsAndSkills: 'Tags and skills',
     title: 'Media Library',
+    titleRequired: 'Enter a title for this media.',
     visualAssetId: 'Visual asset ID',
     visualSummary: 'Visual summary',
     variationPrompt: 'Variation instructions',
     variationPromptPlaceholder:
       'Keep the image, but make the conversation practice past tense with two speakers.',
+    variationCreatedChatMessage: 'The media variation was created successfully.',
+    variationOf: 'Variation of {{title}}',
+    writeChange: 'Describe the change you want to make.',
     levelScriptAudioWarning:
       'The existing script and audio may not match the new level.',
   },

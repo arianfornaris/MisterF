@@ -29,6 +29,10 @@ export type GenerateSceneMediaImageInput = {
   level: SceneMediaLevel;
   openRouterApiKey: string;
   prompt: string;
+  referenceImages?: Array<{
+    bytes: Buffer;
+    contentType: string;
+  }>;
   scriptTypePreference: UserSceneMediaScriptTypePreference;
   sourceContext?: SceneMediaGenerationSourceContext;
 };
@@ -70,12 +74,19 @@ export async function generateSceneMediaImage(
   const imagePrompt = buildSceneMediaImagePrompt(input);
   const response = await fetch(`${env.openrouterBaseUrl.replace(/\/+$/, '')}/images`, {
     body: JSON.stringify({
-      aspect_ratio: getAspectRatio(input.format),
+      aspect_ratio: '1:1',
+      input_references: input.referenceImages?.map((image) => ({
+        image_url: {
+          url: `data:${image.contentType};base64,${image.bytes.toString('base64')}`,
+        },
+        type: 'image_url',
+      })),
       model: env.sceneMediaImageModel,
       n: 1,
       output_format: 'png',
       prompt: imagePrompt,
       quality: 'medium',
+      resolution: '1K',
     }),
     headers: {
       Authorization: `Bearer ${input.openRouterApiKey}`,
@@ -145,13 +156,6 @@ function buildSceneMediaImagePrompt(input: GenerateSceneMediaImageInput): string
     'Use a friendly, classroom-safe style with natural people, recognizable actions, and visual details that invite language practice.',
     'Avoid political, sexual, graphic, hateful, copyrighted-character, branded, or unsafe content.',
   ].filter(Boolean).join('\n');
-}
-
-function getAspectRatio(format: SceneMediaFormat): string {
-  if (format === 'single_panel_scene') {
-    return '4:3';
-  }
-  return '16:9';
 }
 
 function normalizeImageContentType(contentType: string | undefined): string {

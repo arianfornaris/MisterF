@@ -1,0 +1,83 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-page">
+  <div class="app-page-header app-page-header-has-close">
+    <div>
+      <p class="app-page-kicker"><%= t('mediaLibrary.kicker') %></p>
+      <h1 class="app-page-title"><%= t('mediaLibrary.createMedia') %></h1>
+    </div>
+    <div class="app-page-header-actions">
+      <a class="app-page-close-button" href="/media-library" title="<%= t('common.close') %>" aria-label="<%= t('common.close') %>">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert alert-danger" role="alert">
+      <%= error %>
+      <% if (creditExhausted) { %>
+        <a class="alert-link ms-1" href="/credits?returnTo=<%= encodeURIComponent('/media-library/new') %>"><%= t('credits.buyCredits') %></a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <form class="card resource-form-card" method="post" action="/media-library" data-scene-media-generate-form>
+    <div class="card-body">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="d-grid gap-3">
+        <div>
+          <label class="form-label" for="sceneMediaPrompt"><%= t('mediaLibrary.prompt') %></label>
+          <textarea class="form-control" id="sceneMediaPrompt" name="prompt" rows="5" maxlength="2000" required placeholder="<%= t('mediaLibrary.promptPlaceholder') %>"><%= form.prompt %></textarea>
+          <div class="form-text"><%= t('mediaLibrary.promptGuide') %></div>
+        </div>
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="sceneMediaLevel"><%= t('mediaLibrary.level') %></label>
+            <select class="form-select" id="sceneMediaLevel" name="level" required>
+              <% sceneMediaLevels.forEach((level) => { %>
+                <option value="<%= level %>" <%= form.level === level ? 'selected' : '' %>><%= level %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label" for="sceneMediaFormat"><%= t('mediaLibrary.formatLabel') %></label>
+            <select class="form-select" id="sceneMediaFormat" name="format" required>
+              <% formatOptions.forEach((format) => { %>
+                <option value="<%= format %>" <%= form.format === format ? 'selected' : '' %>><%= t(`mediaLibrary.format.${format}`) %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+        <fieldset>
+          <legend class="form-label"><%= t('mediaLibrary.generationMode') %></legend>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="generationMode" id="mediaModeImage" value="image_only" <%= form.generationMode === 'image_only' ? 'checked' : '' %> data-scene-media-mode>
+            <label class="form-check-label" for="mediaModeImage"><%= t('mediaLibrary.modeImageOnly') %></label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="generationMode" id="mediaModeComplete" value="complete_scene" <%= form.generationMode === 'complete_scene' ? 'checked' : '' %> data-scene-media-mode>
+            <label class="form-check-label" for="mediaModeComplete"><%= t('mediaLibrary.modeCompleteScene') %></label>
+          </div>
+        </fieldset>
+        <div class="<%= form.generationMode === 'complete_scene' ? '' : 'd-none' %>" data-scene-media-script-type-wrap>
+          <label class="form-label" for="sceneMediaScriptType"><%= t('mediaLibrary.scriptType') %></label>
+          <select class="form-select" id="sceneMediaScriptType" name="scriptTypePreference">
+            <% ['unspecified', 'dialogue', 'narration', 'monologue'].forEach((type) => { %>
+              <option value="<%= type %>" <%= form.scriptTypePreference === type ? 'selected' : '' %>><%= t(`mediaLibrary.scriptType${type === 'unspecified' ? 'Unspecified' : type.charAt(0).toUpperCase() + type.slice(1)}`) %></option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <button class="btn btn-primary" type="submit" data-scene-media-generate-submit data-loading-text="<%= t('mediaLibrary.creating') %>">
+          <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.createMedia') %>
+        </button>
+        <a class="btn btn-secondary" href="/media-library"><%= t('common.cancel') %></a>
+      </div>
+    </div>
+  </form>
+</section>
+
+<%- include('partials/scene-media-pending-modal') %>
+<%- include('partials/app-shell-close', { pageScriptPartial: 'media-library-client-script' }) %>

@@ -669,8 +669,7 @@ describe('main route smoke tests', () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
     const {
-      createUserSceneMediaJob,
-      failUserSceneMediaJob,
+      createReadyUserSceneMedia,
       findUserSceneMediaForProfile,
     } = await import('../../src/server/sceneMedia/userMediaRepository.js');
 
@@ -686,6 +685,26 @@ describe('main route smoke tests', () => {
       userId: user.id,
     });
     const cookie = await createAuthenticatedCookie(user.id, profile.id);
+    createReadyUserSceneMedia({
+      format: 'single_panel_scene',
+      generationMode: 'image_only',
+      id: 'route-ready-media',
+      image: {
+        alt: 'A traveler at airport security.',
+        src: '/public/scene-media/images/airport-security-line-01.png',
+      },
+      level: 'A1-A2',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      prompt: 'Create an airport scene.',
+      scriptTypePreference: 'unspecified',
+      setting: 'Airport security',
+      skills: ['Travel questions'],
+      tags: ['airport'],
+      title: 'Route Ready Media',
+      useCases: ['speaking'],
+      visualSummary: ['A traveler speaks with a security officer.'],
+    });
 
     const libraryResponse = await fetch(`${baseUrl}/media-library`, {
       headers: { cookie },
@@ -695,8 +714,8 @@ describe('main route smoke tests', () => {
     expect(libraryResponse.status).toBe(200);
     expect(libraryHtml).toContain('Biblioteca de medios');
     expect(libraryHtml).toContain('Nuevo');
-    expect(libraryHtml).toContain('Crear media');
-    expect(libraryHtml).toContain('id="createSceneMediaModal"');
+    expect(libraryHtml).toContain('href="/media-library/new"');
+    expect(libraryHtml).not.toContain('id="createSceneMediaModal"');
     expect(libraryHtml).toContain('airport-security-line-01-a1-a2');
     expect(libraryHtml).toContain('/public/scene-media/images/airport-security-line-01.png');
     expect(libraryHtml).toContain('/media-library/airport-security-line-01-a1-a2');
@@ -708,6 +727,50 @@ describe('main route smoke tests', () => {
     expect(libraryHtml).not.toContain('bi-info-circle');
     expect(libraryHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
     expect(libraryHtml).toContain('Put your bag in the box');
+
+    const newMediaResponse = await fetch(`${baseUrl}/media-library/new`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const newMediaHtml = await newMediaResponse.text();
+    expect(newMediaResponse.status).toBe(200);
+    expect(newMediaHtml).toContain('Crear media');
+    expect(newMediaHtml).toContain('data-scene-media-generate-form');
+    expect(newMediaHtml).toContain('data-scene-media-pending-modal');
+
+    const mediaAuthoringResponse = await fetch(
+      `${baseUrl}/media-library/route-ready-media/edit?tab=general`,
+      { headers: { cookie }, redirect: 'manual' },
+    );
+    const mediaAuthoringHtml = await mediaAuthoringResponse.text();
+    expect(mediaAuthoringResponse.status).toBe(200);
+    expect(mediaAuthoringHtml).toContain('Editando media');
+    expect(mediaAuthoringHtml).toContain('Chat IA');
+    expect(mediaAuthoringHtml).toContain('value="Route Ready Media"');
+    const authoringCsrfToken = extractCsrfToken(mediaAuthoringHtml);
+    const saveTitleResponse = await postForm(
+      '/media-library/route-ready-media/edit/save',
+      { _csrf: authoringCsrfToken, title: 'Updated Route Media' },
+      cookie,
+    );
+    expect(saveTitleResponse.status).toBe(302);
+    expect(saveTitleResponse.headers.get('location')).toBe(
+      '/media-library/route-ready-media/edit?tab=general',
+    );
+    expect(findUserSceneMediaForProfile({
+      mediaId: 'route-ready-media',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })?.title).toBe('Updated Route Media');
+
+    const mediaChatResponse = await fetch(
+      `${baseUrl}/media-library/route-ready-media/edit?tab=chat`,
+      { headers: { cookie }, redirect: 'manual' },
+    );
+    const mediaChatHtml = await mediaChatResponse.text();
+    expect(mediaChatResponse.status).toBe(200);
+    expect(mediaChatHtml).toContain('Modificar con IA');
+    expect(mediaChatHtml).toContain('data-authoring-chat-form');
 
     const filteredResponse = await fetch(`${baseUrl}/media-library?level=C1`, {
       headers: { cookie },
@@ -729,12 +792,24 @@ describe('main route smoke tests', () => {
     expect(detailResponse.status).toBe(200);
     expect(detailHtml).toContain('Through Security');
     expect(detailHtml).toContain('Crear variación');
-    expect(detailHtml).toContain('id="createSceneMediaVariationModal"');
+    expect(detailHtml).toContain('href="/media-library/airport-security-line-01-a1-a2/variations/new"');
+    expect(detailHtml).not.toContain('data-bs-target="#createSceneMediaVariationModal"');
+    expect(detailHtml).not.toContain('id="createSceneMediaVariationModal"');
     expect(detailHtml).toContain('/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3');
     expect(detailHtml).toContain('Put your bag in the box');
     expect(detailHtml).toContain('href="/media-library?level=A1-A2"');
 
-    const csrfToken = extractCsrfToken(libraryHtml);
+    const variationPageResponse = await fetch(
+      `${baseUrl}/media-library/airport-security-line-01-a1-a2/variations/new`,
+      { headers: { cookie }, redirect: 'manual' },
+    );
+    const variationPageHtml = await variationPageResponse.text();
+    expect(variationPageResponse.status).toBe(200);
+    expect(variationPageHtml).toContain('Variación de Through Security');
+    expect(variationPageHtml).toContain('data-scene-media-variation-form');
+    expect(variationPageHtml).toContain('data-scene-media-pending-modal');
+
+    const csrfToken = extractCsrfToken(newMediaHtml);
     const variationResponse = await postForm(
       '/media-library/airport-security-line-01-a1-a2/variations',
       {
@@ -742,21 +817,14 @@ describe('main route smoke tests', () => {
         format: 'single_panel_scene',
         imageDecision: 'keep_existing',
         level: 'A1-A2',
-        prompt: 'Make the same scene feel calmer.',
+        prompt: '',
         scriptAndAudioDecision: 'keep_existing',
         scriptTypePreference: 'unspecified',
       },
       cookie,
     );
-    expect(variationResponse.status).toBe(302);
-    const variationLocation = variationResponse.headers.get('location') ?? '';
-    const variationMediaId = variationLocation.split('/').pop() ?? '';
-    expect(variationLocation).toMatch(/^\/media-library\/[-0-9a-f]+$/);
-    expect(findUserSceneMediaForProfile({
-      mediaId: variationMediaId,
-      ownerProfileId: profile.id,
-      ownerUserId: user.id,
-    })?.title).toBe('Variation: Through Security');
+    expect(variationResponse.status).toBe(422);
+    expect(await variationResponse.text()).toContain('Revisa el formulario');
 
     const createResponse = await postForm(
       '/media-library',
@@ -765,62 +833,16 @@ describe('main route smoke tests', () => {
         format: 'single_panel_scene',
         generationMode: 'image_only',
         level: 'A1-A2',
-        prompt: 'A learner orders coffee politely.',
+        prompt: '',
         scriptTypePreference: 'unspecified',
       },
       cookie,
     );
-    expect(createResponse.status).toBe(302);
-    expect(createResponse.headers.get('location')).toMatch(/^\/media-library\/[-0-9a-f]+$/);
-
-    const failedJob = createUserSceneMediaJob({
-      format: 'single_panel_scene',
-      generationMode: 'image_only',
-      level: 'A1-A2',
-      ownerProfileId: profile.id,
-      ownerUserId: user.id,
-      prompt: 'A failed generated media item.',
-      scriptTypePreference: 'unspecified',
-      type: 'new_media',
-    });
-    failUserSceneMediaJob({
-      failureMessage: 'Unable to generate this media.',
-      failureReason: 'unexpected_error',
-      mediaId: failedJob.mediaId,
-    });
-
-    const failedLibraryResponse = await fetch(`${baseUrl}/media-library`, {
-      headers: { cookie },
-      redirect: 'manual',
-    });
-    const failedLibraryHtml = await failedLibraryResponse.text();
-    expect(failedLibraryResponse.status).toBe(200);
-    expect(failedLibraryHtml).toContain('A failed generated media item');
-    expect(failedLibraryHtml).toContain('bi-exclamation-triangle-fill');
-    expect(failedLibraryHtml).not.toContain('No se pudo generar esta media');
-    expect(failedLibraryHtml).not.toContain(`action="/media-library/${failedJob.mediaId}/retry"`);
-    expect(failedLibraryHtml).not.toContain(`action="/media-library/${failedJob.mediaId}/archive"`);
-
-    const failedDetailResponse = await fetch(
-      `${baseUrl}/media-library/${failedJob.mediaId}`,
-      {
-        headers: { cookie },
-        redirect: 'manual',
-      },
-    );
-    const failedDetailHtml = await failedDetailResponse.text();
-    expect(failedDetailResponse.status).toBe(200);
-    expect(failedDetailHtml).toContain('class="resource-action-row mb-4"');
-    expect(failedDetailHtml).toContain('class="btn btn-secondary dropdown-toggle"');
-    expect(failedDetailHtml).toContain('Opciones');
-    expect(failedDetailHtml).toContain(`action="/media-library/${failedJob.mediaId}/retry"`);
-    expect(failedDetailHtml).toContain(`action="/media-library/${failedJob.mediaId}/archive"`);
-    expect(failedDetailHtml.indexOf('Crear variación')).toBeLessThan(
-      failedDetailHtml.indexOf('Opciones'),
-    );
+    expect(createResponse.status).toBe(422);
+    expect(await createResponse.text()).toContain('Revisa el formulario');
 
     const archiveResponse = await postForm(
-      `/media-library/${failedJob.mediaId}/archive`,
+      '/media-library/route-ready-media/archive',
       {
         _csrf: csrfToken,
       },
@@ -829,10 +851,17 @@ describe('main route smoke tests', () => {
     expect(archiveResponse.status).toBe(302);
     expect(archiveResponse.headers.get('location')).toBe('/media-library');
     expect(findUserSceneMediaForProfile({
-      mediaId: failedJob.mediaId,
+      mediaId: 'route-ready-media',
       ownerProfileId: profile.id,
       ownerUserId: user.id,
     })).toBeNull();
+
+    const retryResponse = await postForm(
+      '/media-library/route-ready-media/retry',
+      { _csrf: csrfToken },
+      cookie,
+    );
+    expect(retryResponse.status).toBe(404);
   });
 
   it('localizes the media library pages for the active profile language', async () => {

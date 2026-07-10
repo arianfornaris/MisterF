@@ -8,6 +8,7 @@
     "dev:client": "vite build --watch",
     "build": "npm run build:server && npm run build:client",
     "build:scene-media": "node scripts/build-scene-media.mjs",
+    "storage:publicize-scene-media": "tsx scripts/publicize-scene-media.ts",
     "build:server": "rm -rf dist && tsc",
     "build:client": "node scripts/build-client.mjs",
     "start": "node dist/server/server.js",
@@ -45,6 +46,7 @@
     "marked": "^18.0.1",
     "nodemailer": "^8.0.5",
     "qrcode": "^1.5.4",
+    "sharp": "^0.35.3",
     "socket.io": "^4.8.3",
     "stripe": "^22.2.0",
     "zod": "^4.3.6"

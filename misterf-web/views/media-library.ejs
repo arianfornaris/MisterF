@@ -4,7 +4,6 @@
   const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
   const levelLabel = (level) => level || t('mediaLibrary.levelNone');
   const sourceLabel = (source) => t(`mediaLibrary.source.${source}`);
-  const statusLabel = (status) => t(`mediaLibrary.status.${status}`);
 %>
 
 <section class="app-page" aria-label="<%= t('mediaLibrary.title') %>">
@@ -17,25 +16,14 @@
       </p>
     </div>
     <div class="app-page-header-actions">
-      <button
-        class="btn btn-primary"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#createSceneMediaModal"
-      >
+      <a class="btn btn-primary" href="/media-library/new">
         <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
         <%= t('resources.new') %>
-      </button>
+      </a>
     </div>
   </div>
 
   <section class="app-page-detail-shell">
-    <% if (mediaError) { %>
-      <div class="alert alert-warning" role="alert">
-        <%= mediaError === 'credit_exhausted' ? t('mediaLibrary.creditExhausted') : t('mediaLibrary.invalidRequest') %>
-      </div>
-    <% } %>
-
     <form class="card mb-4" method="get" action="/media-library" aria-label="<%= t('mediaLibrary.filtersAria') %>">
       <div class="card-body">
         <div class="row g-3 align-items-end">
@@ -96,11 +84,6 @@
                 <span class="badge <%= item.source === 'user_generated' ? 'text-bg-info' : 'text-bg-light border' %>">
                   <%= sourceLabel(item.source) %>
                 </span>
-                <% if (item.status !== 'ready') { %>
-                  <span class="badge <%= item.status === 'failed' ? 'text-bg-danger' : 'text-bg-warning' %>">
-                    <%= statusLabel(item.status) %>
-                  </span>
-                <% } %>
               </div>
               <% if (item.image) { %>
                 <div class="ratio ratio-4x3 bg-body-tertiary">
@@ -125,14 +108,6 @@
                   </div>
                 <% } %>
                 <p class="mb-2"><%= item.title %></p>
-                <% if (item.status === 'failed') { %>
-                  <div class="text-danger mb-2" title="<%= statusLabel(item.status) %>">
-                    <i
-                      class="bi bi-exclamation-triangle-fill"
-                      aria-label="<%= statusLabel(item.status) %>"
-                    ></i>
-                  </div>
-                <% } %>
                 <a
                   class="stretched-link"
                   href="/media-library/<%= encodeURIComponent(item.id) %>?returnTo=<%= encodeURIComponent(currentPath) %>"
@@ -165,86 +140,6 @@
     <% } %>
   </section>
 </section>
-
-<div
-  class="modal fade"
-  id="createSceneMediaModal"
-  tabindex="-1"
-  aria-labelledby="createSceneMediaModalLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-    <form class="modal-content" method="post" action="/media-library" data-scene-media-create-form>
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <div class="modal-header">
-        <h2 class="modal-title fs-5" id="createSceneMediaModalLabel"><%= t('mediaLibrary.createMedia') %></h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
-      </div>
-      <div class="modal-body d-grid gap-3">
-        <div>
-          <label class="form-label" for="sceneMediaPrompt"><%= t('mediaLibrary.prompt') %></label>
-          <textarea
-            class="form-control"
-            id="sceneMediaPrompt"
-            name="prompt"
-            rows="4"
-            maxlength="2000"
-            required
-            placeholder="<%= t('mediaLibrary.promptPlaceholder') %>"
-          ></textarea>
-          <div class="form-text"><%= t('mediaLibrary.promptGuide') %></div>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="sceneMediaCreateLevel"><%= t('mediaLibrary.level') %></label>
-            <select class="form-select" id="sceneMediaCreateLevel" name="level" required>
-              <% sceneMediaLevels.forEach((level) => { %>
-                <option value="<%= level %>"><%= levelLabel(level) %></option>
-              <% }) %>
-            </select>
-          </div>
-          <div class="col-12 col-md-6">
-            <label class="form-label" for="sceneMediaCreateFormat"><%= t('mediaLibrary.formatLabel') %></label>
-            <select class="form-select" id="sceneMediaCreateFormat" name="format" required>
-              <% formatOptions.forEach((format) => { %>
-                <option value="<%= format %>"><%= formatLabel(format) %></option>
-              <% }) %>
-            </select>
-          </div>
-        </div>
-
-        <fieldset>
-          <legend class="form-label"><%= t('mediaLibrary.generationMode') %></legend>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="generationMode" id="sceneMediaModeImageOnly" value="image_only" checked data-scene-media-mode>
-            <label class="form-check-label" for="sceneMediaModeImageOnly"><%= t('mediaLibrary.modeImageOnly') %></label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="generationMode" id="sceneMediaModeComplete" value="complete_scene" data-scene-media-mode>
-            <label class="form-check-label" for="sceneMediaModeComplete"><%= t('mediaLibrary.modeCompleteScene') %></label>
-          </div>
-        </fieldset>
-
-        <div class="d-none" data-scene-media-script-type-wrap>
-          <label class="form-label" for="sceneMediaCreateScriptType"><%= t('mediaLibrary.scriptType') %></label>
-          <select class="form-select" id="sceneMediaCreateScriptType" name="scriptTypePreference">
-            <option value="unspecified"><%= t('mediaLibrary.scriptTypeUnspecified') %></option>
-            <option value="dialogue"><%= t('mediaLibrary.scriptTypeDialogue') %></option>
-            <option value="narration"><%= t('mediaLibrary.scriptTypeNarration') %></option>
-            <option value="monologue"><%= t('mediaLibrary.scriptTypeMonologue') %></option>
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
-        <button class="btn btn-primary" type="submit" data-scene-media-submit>
-          <%= t('mediaLibrary.createMedia') %>
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
 
 <div
   class="modal fade"
@@ -359,14 +254,6 @@
         }
       });
 
-      if (window.io && document.body.dataset.socketAuthToken) {
-        const socket = window.io({ auth: { token: document.body.dataset.socketAuthToken } });
-        ['media_generation:created', 'media_generation:updated', 'media_generation:completed', 'media_generation:failed'].forEach((eventName) => {
-          socket.on(eventName, () => {
-            window.location.reload();
-          });
-        });
-      }
     });
 
     function renderPreviewImage(imageEl, image) {

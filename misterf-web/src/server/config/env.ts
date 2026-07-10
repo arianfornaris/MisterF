@@ -157,6 +157,8 @@ export const env = {
   userFileStorageRegion,
   userFileStorageRootPrefix:
     process.env.USER_FILE_STORAGE_ROOT_PREFIX ?? 'misterf',
+  userFileStoragePublicBaseUrl:
+    process.env.USER_FILE_STORAGE_PUBLIC_BASE_URL ?? '',
   doSpacesEndpoint: userFileStorageEndpoint,
   doSpacesAccessKey: process.env.DO_SPACES_ACCESS_KEY ?? '',
   doSpacesSecretKey: process.env.DO_SPACES_SECRET_KEY ?? '',

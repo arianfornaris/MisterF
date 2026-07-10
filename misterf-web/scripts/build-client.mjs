@@ -18,6 +18,12 @@ const practiceGuidesScriptPartialPath = path.join(
   'partials',
   'practice-guides-client-script.ejs',
 );
+const mediaLibraryScriptPartialPath = path.join(
+  projectRoot,
+  'views',
+  'partials',
+  'media-library-client-script.ejs',
+);
 const resourcesScriptPartialPath = path.join(
   projectRoot,
   'views',
@@ -108,6 +114,7 @@ const quizzesEntry = manifest['src/client/quizzes/index.js'];
 const chatEntry = manifest['src/client/chat/index.js'];
 const clientErrorTelemetryEntry = manifest['src/client/telemetry/clientErrorReporter.js'];
 const practiceGuidesEntry = manifest['src/client/practiceGuides/index.js'];
+const mediaLibraryEntry = manifest['src/client/mediaLibrary/index.js'];
 const resourcesEntry = manifest['src/client/resources/index.js'];
 const roleplaysEntry = manifest['src/client/roleplays/index.js'];
 
@@ -127,6 +134,10 @@ if (!practiceGuidesEntry?.file) {
   console.error('Could not find practice guides entry in Vite manifest.');
   process.exit(1);
 }
+if (!mediaLibraryEntry?.file) {
+  console.error('Could not find media library entry in Vite manifest.');
+  process.exit(1);
+}
 if (!resourcesEntry?.file) {
   console.error('Could not find resources entry in Vite manifest.');
   process.exit(1);
@@ -140,6 +151,7 @@ const quizzesScriptPath = `/public/build/${quizzesEntry.file}`;
 const chatScriptPath = `/public/build/${chatEntry.file}`;
 const clientErrorTelemetryScriptPath = `/public/build/${clientErrorTelemetryEntry.file}`;
 const practiceGuidesScriptPath = `/public/build/${practiceGuidesEntry.file}`;
+const mediaLibraryScriptPath = `/public/build/${mediaLibraryEntry.file}`;
 const resourcesScriptPath = `/public/build/${resourcesEntry.file}`;
 const roleplaysScriptPath = `/public/build/${roleplaysEntry.file}`;
 
@@ -161,6 +173,11 @@ fs.writeFileSync(
 fs.writeFileSync(
   practiceGuidesScriptPartialPath,
   `    <script type="module" src="${practiceGuidesScriptPath}"></script>\n`,
+  'utf8',
+);
+fs.writeFileSync(
+  mediaLibraryScriptPartialPath,
+  `    <script type="module" src="${mediaLibraryScriptPath}"></script>\n`,
   'utf8',
 );
 fs.writeFileSync(

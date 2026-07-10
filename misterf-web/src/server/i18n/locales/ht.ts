@@ -14,6 +14,8 @@ export const ht: LocaleCatalog = {
     cancel: 'Anile',
     close: 'Fèmen',
     delete: 'Efase',
+    edit: 'Modifye',
+    loading: 'Ap chaje',
     understood: 'Mwen konprann',
     save: 'Anrejistre',
     saveChanges: 'Anrejistre chanjman yo',
@@ -138,13 +140,16 @@ export const ht: LocaleCatalog = {
   mediaLibrary: {
     applyFilters: 'Aplike filtè yo',
     archive: 'Achive',
+    authoringChatEmpty: 'Dekri chanjman ou vle fè nan medya sa a.',
     audio: 'Odyo',
     backToLibrary: 'Retounen nan bibliyotèk medya a',
     clearFilters: 'Netwaye filtè yo',
     count: '{{shown}} sou {{total}} medya',
     createMedia: 'Kreye medya',
     createVariation: 'Kreye varyasyon',
+    createdChatMessage: 'Medya a kreye avèk siksè.',
     creating: 'Ap kreye...',
+    creationFailed: 'Nou pa t kapab kreye medya sa a. Verifye demann lan epi eseye ankò.',
     creditExhausted:
       'Ou bezwen plis kredi pou kreye medya sa a. Achte kredi epi eseye ankò.',
     detailIntro:
@@ -154,12 +159,10 @@ export const ht: LocaleCatalog = {
     doNotIncludeScriptAndAudio: 'Pa mete skrip ak odyo',
     duration: '{{seconds}} segonn',
     empty: 'Pa gen medya ki matche ak filtè sa yo.',
+    editingKicker: 'Ap modifye medya',
     failure: {
       contentPolicy:
         'Nou pa t kapab kreye medya sa a paske kontni an pa respekte politik kontni nou an.',
-      generic: 'Nou pa t kapab jenere medya sa a',
-      providerNotConfigured:
-        'Jenerasyon medya poko konekte. Demann nan anrejistre, men pa gen founisè ki kouri.',
     },
     filtersAria: 'Chèche epi filtre medya',
     format: {
@@ -171,7 +174,7 @@ export const ht: LocaleCatalog = {
     formatLabel: 'Fòma',
     generateNewImage: 'Jenere nouvo imaj',
     generateNewScriptAndAudio: 'Jenere nouvo skrip ak odyo',
-    generationInProgress: 'Medya sa a toujou ap jenere.',
+    generationPending: 'N ap kreye medya ou a. Sa ka pran yon ti moman.',
     generationMode: 'Mòd jenerasyon',
     imageLayer: 'Imaj',
     intro:
@@ -191,6 +194,8 @@ export const ht: LocaleCatalog = {
     metadata: 'Metadata',
     modeCompleteScene: 'Sèn konplè',
     modeImageOnly: 'Imaj sèlman',
+    modifyWithAi: 'Modifye ak IA',
+    modifyWithAiCopy: 'Mande chanjman nan imaj, nivo, metadata, skrip oswa odyo.',
     open: 'Louvri',
     play: 'Jwe',
     prompt: 'Prompt',
@@ -199,7 +204,7 @@ export const ht: LocaleCatalog = {
     promptPlaceholder:
       'Yon elèv mande direksyon nan yon estasyon tren ki gen anpil moun epi li pratike kesyon politès.',
     preview: 'Jwe medya',
-    retry: 'Eseye ankò',
+    revisionFailed: 'Mwen pa t kapab aplike chanjman sa a. Medya aktyèl la pa chanje.',
     script: 'Skrip',
     scriptAndAudioLayer: 'Skrip ak odyo',
     scriptType: 'Kalite skrip',
@@ -215,22 +220,19 @@ export const ht: LocaleCatalog = {
       built_in: 'Built-in',
       user_generated: 'Itilizatè kreye',
     },
-    status: {
-      archived: 'Achive',
-      failed: 'Echwe',
-      generating: 'Ap jenere',
-      pending: 'An atant',
-      ready: 'Pare',
-    },
     summaryFallback: 'Medya sèn',
     tags: 'Tags',
     tagsAndSkills: 'Tags ak skills',
     title: 'Bibliyotèk medya',
+    titleRequired: 'Ekri yon tit pou medya sa a.',
     visualAssetId: 'ID asset vizyèl',
     visualSummary: 'Rezime vizyèl',
     variationPrompt: 'Enstriksyon varyasyon',
     variationPromptPlaceholder:
       'Kenbe imaj la, men fè konvèsasyon an pratike pase senp ak de pèsonaj.',
+    variationCreatedChatMessage: 'Varyasyon medya a kreye avèk siksè.',
+    variationOf: 'Varyasyon {{title}}',
+    writeChange: 'Dekri chanjman ou vle fè a.',
     levelScriptAudioWarning:
       'Skrip ak odyo ki egziste yo ka pa koresponn ak nouvo nivo a.',
   },

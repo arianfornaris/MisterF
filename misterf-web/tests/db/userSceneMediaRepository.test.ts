@@ -35,15 +35,93 @@ afterEach(async () => {
 });
 
 describe('user scene media repository', () => {
-  it('stores user media jobs under the owning profile only', async () => {
+  it('persists ready media and authoring history', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+    const {
+      createReadyUserSceneMedia,
+      findUserSceneMediaForProfile,
+      updateUserSceneMediaAuthoringMessages,
+      updateUserSceneMediaTitle,
+    } = await import('../../src/server/sceneMedia/userMediaRepository.js');
+    const user = createExternalUser({
+      email: 'ready-scene-media@example.com',
+      emailVerified: true,
+      fullName: 'Ready Scene Media',
+      provider: 'google',
+      providerSubject: 'ready-scene-media',
+    });
+    const profile = createProfile({ name: 'Ready media profile', userId: user.id });
+    const mediaId = 'ready-media-1';
+    const initialMessages = [{
+      content: 'Create an airport scene.',
+      createdAt: '2026-07-10T12:00:00.000Z',
+      role: 'user' as const,
+    }];
+
+    const media = createReadyUserSceneMedia({
+      authoringMessages: initialMessages,
+      format: 'single_panel_scene',
+      generationMode: 'image_only',
+      id: mediaId,
+      image: {
+        alt: 'A traveler at an airport desk.',
+        contentType: 'image/webp',
+        height: 720,
+        src: 'https://cdn.example.test/image.webp',
+        storageKey: 'misterf/users/user/scene-media/ready-media-1/image/file.webp',
+        width: 720,
+      },
+      level: 'A1-A2',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      prompt: 'Create an airport scene.',
+      scriptTypePreference: 'unspecified',
+      setting: 'Airport desk',
+      skills: ['Polite questions'],
+      tags: ['airport'],
+      title: 'At the Airport Desk',
+      useCases: ['speaking'],
+      visualSummary: ['A traveler speaks with an airport agent.'],
+    });
+
+    expect(media.status).toBe('ready');
+    expect(media.authoringMessages).toEqual(initialMessages);
+
+    updateUserSceneMediaTitle({
+      mediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      title: 'Airport Check-In',
+    });
+    const revisedMessages = [...initialMessages, {
+      content: 'Title updated.',
+      createdAt: '2026-07-10T12:01:00.000Z',
+      role: 'assistant' as const,
+    }];
+    updateUserSceneMediaAuthoringMessages({
+      mediaId,
+      messages: revisedMessages,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    });
+    expect(findUserSceneMediaForProfile({
+      mediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })).toEqual(expect.objectContaining({
+      authoringMessages: revisedMessages,
+      title: 'Airport Check-In',
+    }));
+  });
+
+  it('stores ready media under the owning profile only and archives it', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
     const {
       archiveUserSceneMediaForProfile,
-      createUserSceneMediaJob,
-      failUserSceneMediaJob,
+      createReadyUserSceneMedia,
       listUserSceneMediaForProfile,
-      retryUserSceneMediaGenerationJob,
     } = await import('../../src/server/sceneMedia/userMediaRepository.js');
 
     const user = createExternalUser({
@@ -82,15 +160,13 @@ describe('user scene media repository', () => {
       src: '/public/scene-media/audio/airport.mp3',
     };
 
-    const job = createUserSceneMediaJob({
+    const media = createReadyUserSceneMedia({
       audio,
+      authoringMessages: [],
       format: 'single_panel_scene',
       generationMode: 'complete_scene',
+      id: 'airport-variation',
       image,
-      layerDecisions: {
-        image: 'keep_existing',
-        scriptAndAudio: 'keep_existing',
-      },
       level: 'A1-A2',
       ownerProfileId: ownerProfile.id,
       ownerUserId: user.id,
@@ -100,7 +176,9 @@ describe('user scene media repository', () => {
       sourceMediaId: 'airport-security-line-01-a1-a2',
       sourceVisualAssetId: 'airport-security-line-01',
       title: 'Airport Variation',
-      type: 'variation',
+      skills: [],
+      tags: [],
+      useCases: [],
       visualSummary: ['A traveler waits in an airport line.'],
     });
 
@@ -113,7 +191,7 @@ describe('user scene media repository', () => {
       ownerUserId: user.id,
     });
 
-    expect(job.mediaId).toEqual(ownerItems[0]?.id);
+    expect(media.id).toEqual(ownerItems[0]?.id);
     expect(ownerItems).toHaveLength(1);
     expect(ownerItems[0]).toEqual(expect.objectContaining({
       audio,
@@ -122,37 +200,13 @@ describe('user scene media repository', () => {
       ownerUserId: user.id,
       script,
       source: 'user_generated',
-      status: 'pending',
+      status: 'ready',
       visualAssetId: 'airport-security-line-01',
     }));
     expect(otherItems).toEqual([]);
 
-    const failedItem = failUserSceneMediaJob({
-      failureMessage: 'Unable to generate this media.',
-      failureReason: 'unexpected_error',
-      mediaId: job.mediaId,
-    });
-    expect(failedItem?.status).toBe('failed');
-
-    const retryJob = retryUserSceneMediaGenerationJob({
-      mediaId: job.mediaId,
-      ownerProfileId: ownerProfile.id,
-      ownerUserId: user.id,
-      title: 'Variation: Through Security',
-    });
-    expect(retryJob).toEqual(expect.objectContaining({
-      mediaId: job.mediaId,
-      ownerProfileId: ownerProfile.id,
-      ownerUserId: user.id,
-      status: 'pending',
-    }));
-    expect(listUserSceneMediaForProfile({
-      ownerProfileId: ownerProfile.id,
-      ownerUserId: user.id,
-    })[0]?.title).toBe('Variation: Through Security');
-
     const archived = archiveUserSceneMediaForProfile({
-      mediaId: job.mediaId,
+      mediaId: media.id,
       ownerProfileId: ownerProfile.id,
       ownerUserId: user.id,
     });

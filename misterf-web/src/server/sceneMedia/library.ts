@@ -85,7 +85,7 @@ const sceneMediaLibraryItemSchema = z
     setting: z.string().trim().min(1).optional(),
     skills: z.array(z.string().trim().min(1)),
     source: z.enum(['built_in', 'user_generated']),
-    status: z.enum(['archived', 'failed', 'generating', 'pending', 'ready']),
+    status: z.literal('ready'),
     tags: z.array(z.string().trim().min(1)),
     title: z.string().trim().min(1),
     useCases: z.array(z.string().trim().min(1)),
@@ -120,10 +120,6 @@ export function listSceneMediaItems(
   ];
 
   return items.filter((item) => {
-    if (item.status === 'archived') {
-      return false;
-    }
-
     if (filters.level && item.level !== filters.level) {
       return false;
     }
@@ -168,7 +164,7 @@ export function findSceneMediaItemById(
   }
 
   const item = itemsById.get(mediaId);
-  return item && item.status === 'ready' ? item : null;
+  return item ?? null;
 }
 
 export function normalizeSceneMediaLevel(

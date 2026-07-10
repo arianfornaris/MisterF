@@ -14,6 +14,7 @@ const STORAGE_ENV_VARS = [
   'DO_SPACES_ENDPOINT',
   'USER_FILE_STORAGE_BUCKET',
   'USER_FILE_STORAGE_PROVIDER',
+  'USER_FILE_STORAGE_PUBLIC_BASE_URL',
   'USER_FILE_STORAGE_REGION',
   'USER_FILE_STORAGE_ROOT_PREFIX',
 ] as const;
@@ -148,6 +149,7 @@ describe('user file storage env defaults', () => {
     process.env.USER_FILE_STORAGE_REGION = 'nyc3';
     process.env.USER_FILE_STORAGE_ROOT_PREFIX = 'custom-root';
     process.env.USER_FILE_STORAGE_PROVIDER = 'local';
+    process.env.USER_FILE_STORAGE_PUBLIC_BASE_URL = 'https://media.example.test';
     process.env.DO_SPACES_ENDPOINT = 'https://custom.example.com';
     vi.resetModules();
 
@@ -157,6 +159,7 @@ describe('user file storage env defaults', () => {
     expect(env.userFileStorageBucket).toBe('custom-bucket');
     expect(env.userFileStorageRegion).toBe('nyc3');
     expect(env.userFileStorageRootPrefix).toBe('custom-root');
+    expect(env.userFileStoragePublicBaseUrl).toBe('https://media.example.test');
     expect(env.doSpacesEndpoint).toBe('https://custom.example.com');
   });
 });

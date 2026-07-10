@@ -1854,4 +1854,136 @@ export const migrations: Migration[] = [
         ON user_scene_media_generation_jobs (user_id, profile_id, status, updated_at DESC, created_at DESC);
     `,
   },
+  {
+    id: 19,
+    name: 'add_scene_media_authoring_history',
+    up: `
+      ALTER TABLE user_scene_media
+        ADD COLUMN authoring_messages_json TEXT NOT NULL DEFAULT '[]';
+    `,
+  },
+  {
+    id: 20,
+    name: 'remove_scene_media_generation_jobs',
+    up: `
+      DROP TABLE IF EXISTS user_scene_media_generation_jobs;
+
+      CREATE TABLE user_scene_media_current (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        profile_id TEXT NOT NULL,
+        source_media_id TEXT,
+        source_visual_asset_id TEXT,
+        title TEXT NOT NULL,
+        status TEXT NOT NULL CHECK (status IN ('ready', 'archived')),
+        generation_mode TEXT NOT NULL CHECK (generation_mode IN ('image_only', 'complete_scene')),
+        generation_prompt TEXT NOT NULL,
+        script_type_preference TEXT NOT NULL DEFAULT 'unspecified'
+          CHECK (script_type_preference IN ('unspecified', 'dialogue', 'narration', 'monologue')),
+        format TEXT NOT NULL CHECK (format IN ('four_panel_wordless_story', 'single_panel_scene', 'two_panel_contrast')),
+        level TEXT NOT NULL CHECK (level IN ('A1-A2', 'B1-B2', 'C1')),
+        setting TEXT,
+        visual_summary_json TEXT NOT NULL DEFAULT '[]',
+        tags_json TEXT NOT NULL DEFAULT '[]',
+        skills_json TEXT NOT NULL DEFAULT '[]',
+        use_cases_json TEXT NOT NULL DEFAULT '[]',
+        image_json TEXT NOT NULL,
+        audio_json TEXT,
+        script_json TEXT,
+        created_from_json TEXT NOT NULL DEFAULT '{}',
+        provenance_json TEXT NOT NULL DEFAULT '{}',
+        authoring_messages_json TEXT NOT NULL DEFAULT '[]',
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CHECK (
+          (generation_mode = 'image_only' AND script_json IS NULL AND audio_json IS NULL)
+          OR (generation_mode = 'complete_scene' AND script_json IS NOT NULL AND audio_json IS NOT NULL)
+        ),
+        CHECK (
+          (status = 'ready' AND archived_at IS NULL)
+          OR (status = 'archived' AND archived_at IS NOT NULL)
+        ),
+        FOREIGN KEY (user_id)
+          REFERENCES users (id)
+          ON DELETE CASCADE,
+        FOREIGN KEY (profile_id)
+          REFERENCES profiles (id)
+          ON DELETE CASCADE
+      );
+
+      INSERT INTO user_scene_media_current (
+        id,
+        user_id,
+        profile_id,
+        source_media_id,
+        source_visual_asset_id,
+        title,
+        status,
+        generation_mode,
+        generation_prompt,
+        script_type_preference,
+        format,
+        level,
+        setting,
+        visual_summary_json,
+        tags_json,
+        skills_json,
+        use_cases_json,
+        image_json,
+        audio_json,
+        script_json,
+        created_from_json,
+        provenance_json,
+        authoring_messages_json,
+        archived_at,
+        created_at,
+        updated_at
+      )
+      SELECT
+        id,
+        user_id,
+        profile_id,
+        source_media_id,
+        source_visual_asset_id,
+        title,
+        'ready',
+        generation_mode,
+        generation_prompt,
+        script_type_preference,
+        format,
+        level,
+        setting,
+        visual_summary_json,
+        tags_json,
+        skills_json,
+        use_cases_json,
+        image_json,
+        audio_json,
+        script_json,
+        created_from_json,
+        provenance_json,
+        authoring_messages_json,
+        NULL,
+        created_at,
+        updated_at
+      FROM user_scene_media
+      WHERE status = 'ready'
+        AND archived_at IS NULL
+        AND image_json IS NOT NULL
+        AND (
+          (script_json IS NULL AND audio_json IS NULL)
+          OR (script_json IS NOT NULL AND audio_json IS NOT NULL)
+        );
+
+      DROP TABLE user_scene_media;
+      ALTER TABLE user_scene_media_current RENAME TO user_scene_media;
+
+      CREATE INDEX idx_user_scene_media_profile_status_updated
+        ON user_scene_media (user_id, profile_id, status, updated_at DESC, created_at DESC);
+
+      CREATE INDEX idx_user_scene_media_profile_source
+        ON user_scene_media (user_id, profile_id, source_media_id, updated_at DESC);
+    `,
+  },
 ];

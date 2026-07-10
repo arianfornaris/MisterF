@@ -97,11 +97,12 @@ describe('scene media image generation', () => {
     expect(headers['HTTP-Referer']).toBe('https://misterf.test');
     const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
     expect(body).toMatchObject({
-      aspect_ratio: '16:9',
+      aspect_ratio: '1:1',
       model: 'test/image-model',
       n: 1,
       output_format: 'png',
       quality: 'medium',
+      resolution: '1K',
     });
     expect(String(body.prompt)).toContain('A student checks in at an airport.');
     expect(String(body.prompt)).toContain('"title": "Checking In"');

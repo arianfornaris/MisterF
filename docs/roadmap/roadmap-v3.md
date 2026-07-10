@@ -103,13 +103,15 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   validation, malformed-output fallback, and mocked inference tests. The tutor
   tool adapter and direct quiz/resource call sites remain pending.
 - [~] Add user-generated scene media. Foundation done 2026-07-09: persisted
-  `user_scene_media` and generation-job rows, active-profile ownership,
-  user-media-first listing, source/status badges, `Create media` and
-  `Create variation` modals, profile-scoped socket update events, credit checks
-  before provider-backed jobs, and no-copy reuse for kept image or
-  script-and-audio layers. The runner now connects image, structured script,
-  audio, and object storage for the first complete-scene pipeline; retry,
-  archive, post-processing, and QA controls are still being filled in.
+  ready-only `user_scene_media`, active-profile ownership, user-media-first
+  listing, source badges, dedicated `Create media` and
+  `Create variation` pages, resource-style blocking generation progress, credit
+  checks before each provider call, and no-copy reuse for kept image or
+  script-and-audio layers. The synchronous pipeline connects image, structured
+  script, audio, and object storage and persists a media row only after all
+  requested layers are ready. Generation jobs, retry placeholders, and their
+  realtime socket channel were removed on 2026-07-10. Archive, post-processing,
+  and QA controls are still being filled in.
   - [x] Configure user-file storage defaults. Development resolves to
     `USER_FILE_STORAGE_PROVIDER=spaces`,
     `USER_FILE_STORAGE_BUCKET=misterf.us-files-dev`,
@@ -122,28 +124,31 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     SigV4 signed PUT, DELETE, presigned GET URLs, scene-media storage key
     helpers, and unit tests. Runtime credentials still come only from
     `DO_SPACES_ACCESS_KEY` and `DO_SPACES_SECRET_KEY`; the provider is ready for
-    the generation pipeline but generated image/audio jobs do not call it yet.
-  - [~] Connect generated media jobs to user-file storage. Started
+    the generation pipeline.
+  - [~] Connect generated media creation to user-file storage. Started
     2026-07-09: generated image layers are written under
     `misterf/users/{userId}/scene-media/{mediaId}/image/...`, generated audio
     layers are written under
     `misterf/users/{userId}/scene-media/{mediaId}/audio/...`, both persist
     `storageKey` metadata, and both read through authenticated app routes that
-    issue short-lived Spaces URLs. Decision updated 2026-07-10: replace those
-    presigned redirects with stable public CDN URLs for immutable scene-media
-    image and audio objects, using long-lived browser/CDN cache headers. The MVP
+    issue short-lived Spaces URLs. Updated 2026-07-10: new and retried layers use
+    stable public origin URLs for immutable scene-media image and audio objects,
+    with long-lived browser cache headers. The MVP
     accepts direct binary access by anyone who knows the opaque URL; grant-aware
-    edge protection is deferred until the media-resource sharing model.
+    edge protection is deferred until the media-resource sharing model. The
+    current period-containing bucket names cannot use DigitalOcean's default
+    wildcard CDN endpoint, so edge caching requires a custom domain/certificate
+    or future dash-only buckets.
   - [~] Wire generated-image creation for `Image only`, complete-scene, and
-    variation jobs that choose `generate_new` image. Started 2026-07-09:
-    `Image only` jobs, complete-scene jobs, and variation jobs that regenerate
+    variations that choose `generate_new` image. Started 2026-07-09:
+    `Image only`, complete-scene, and variation flows that regenerate
     the image call OpenRouter's dedicated Images API, default to
     `google/gemini-3.1-flash-lite-image` per the asset-generation research,
-    store PNG bytes in Spaces, and map content-policy rejections to the
-    approved failure message. Post-processing to 720px WebP/JPEG remains
-    pending.
-  - [~] Wire structured script generation for complete-scene jobs. Started
-    2026-07-09: complete-scene jobs now generate validated JSON script
+    request a square 1K source, pass source images as image-to-image references,
+    post-process to exact 720x720 WebP, store public immutable bytes in Spaces,
+    and map content-policy rejections to the approved failure message.
+  - [~] Wire structured script generation for complete scenes. Started
+    2026-07-09: complete-scene creation now generates validated JSON script
     packages from prompt, level, format, image/source context, and script-type
     preference; variation image and script generators now share structured
     source context containing title, setting, level, format, image alt text,
@@ -157,15 +162,14 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     MP3 output is stored in Spaces, and provider/model/voice metadata is
     persisted on the audio layer. Human QA, exact duration targeting, and
     fallback/draft model controls remain pending.
-  - [~] Implement retry and archive actions for failed/generated user media.
-    Started 2026-07-09: failed generated media can be retried, generated/user
-    media can be archived from cards and detail pages, archived media is hidden
-    from the active profile library, and retries reuse an already persisted
-    generated image layer when a later step failed. Explicit per-layer
-    regeneration controls remain pending.
+  - [x] Remove persisted generation jobs and incomplete media placeholders.
+    Completed 2026-07-10: failures return to the creation page with preserved
+    form state, no media row is created until every requested layer is ready,
+    and legacy job/incomplete rows are deleted by migration. Ready user media
+    can still be archived from its detail page.
   - [ ] Add route/render and repository tests for storage-backed generated
-    media, profile access boundaries, generated-layer failure modes, retry,
-    archive, and no-copy reuse of built-in/user layers.
+    media, profile access boundaries, generated-layer failure modes, archive,
+    atomic persistence, and no-copy reuse of built-in/user layers.
 - [ ] Add media-to-resource derivation so a selected media item can create
   quizzes, practice guides, and future resource types through a resource-specific
   instruction modal while preserving `sourceMediaId` provenance.

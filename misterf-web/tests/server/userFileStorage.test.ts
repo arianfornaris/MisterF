@@ -6,6 +6,7 @@ const originalEnv = {
   USER_FILE_STORAGE_BUCKET: process.env.USER_FILE_STORAGE_BUCKET,
   USER_FILE_STORAGE_REGION: process.env.USER_FILE_STORAGE_REGION,
   USER_FILE_STORAGE_ROOT_PREFIX: process.env.USER_FILE_STORAGE_ROOT_PREFIX,
+  USER_FILE_STORAGE_PUBLIC_BASE_URL: process.env.USER_FILE_STORAGE_PUBLIC_BASE_URL,
 };
 
 afterEach(() => {
@@ -79,6 +80,27 @@ describe('user file storage', () => {
     expect(url).not.toContain('test-secret-key');
   });
 
+  it('creates stable public URLs for immutable objects', async () => {
+    const { SpacesUserFileStorageProvider } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+    const provider = new SpacesUserFileStorageProvider({
+      accessKey: 'test-access-key',
+      bucket: 'misterf.us-files-dev',
+      endpoint: 'https://atl1.digitaloceanspaces.com',
+      publicBaseUrl: 'https://media.example.test',
+      region: 'atl1',
+      rootPrefix: 'misterf',
+      secretKey: 'test-secret-key',
+    });
+
+    expect(provider.createPublicUrl(
+      'misterf/users/user_1/scene-media/media_1/image/file_1.webp',
+    )).toBe(
+      'https://media.example.test/misterf/users/user_1/scene-media/media_1/image/file_1.webp',
+    );
+  });
+
   it('signs PUT requests to DigitalOcean Spaces', async () => {
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
       new Response(null, { status: 200 }),
@@ -97,12 +119,13 @@ describe('user file storage', () => {
 
     const result = await provider.putObject({
       body: Buffer.from('image-bytes'),
-      cacheControl: 'private, max-age=60',
+      cacheControl: 'public, max-age=31536000, immutable',
       contentType: 'image/png',
       key: 'misterf/users/user_1/scene-media/media_1/image/file_1.png',
       metadata: {
         mediaId: 'media_1',
       },
+      visibility: 'public-read',
     });
 
     expect(result).toEqual({
@@ -121,7 +144,8 @@ describe('user file storage', () => {
     );
     expect(headers.authorization).not.toContain('AWS4-HMAC-SHA256,');
     expect(headers['content-type']).toBe('image/png');
-    expect(headers['cache-control']).toBe('private, max-age=60');
+    expect(headers['cache-control']).toBe('public, max-age=31536000, immutable');
+    expect(headers['x-amz-acl']).toBe('public-read');
     expect(headers['x-amz-meta-mediaid']).toBe('media_1');
   });
 

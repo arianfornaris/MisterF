@@ -7,6 +7,7 @@ export type UserFileStoragePutInput = {
   contentType: string;
   key: string;
   metadata?: Record<string, string>;
+  visibility?: 'private' | 'public-read';
 };
 
 export type UserFileStoragePutResult = {
@@ -20,8 +21,10 @@ export type UserFileStorageReadUrlInput = {
 };
 
 export type UserFileStorageProvider = {
+  createPublicUrl(storageKey: string): string;
   createReadUrl(input: UserFileStorageReadUrlInput): Promise<string>;
   deleteObject(storageKey: string): Promise<void>;
+  makeObjectPublic(storageKey: string): Promise<void>;
   putObject(input: UserFileStoragePutInput): Promise<UserFileStoragePutResult>;
 };
 
@@ -31,6 +34,7 @@ export type SpacesUserFileStorageConfig = {
   endpoint: string;
   region: string;
   rootPrefix: string;
+  publicBaseUrl?: string;
   secretKey: string;
 };
 
@@ -64,6 +68,7 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
       ...config,
       endpoint: config.endpoint.replace(/\/+$/, ''),
       rootPrefix: normalizePathSegment(config.rootPrefix, 'root prefix'),
+      publicBaseUrl: config.publicBaseUrl?.replace(/\/+$/, ''),
     };
   }
 
@@ -80,6 +85,9 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
     };
     if (input.cacheControl) {
       headers['cache-control'] = input.cacheControl;
+    }
+    if (input.visibility === 'public-read') {
+      headers['x-amz-acl'] = 'public-read';
     }
 
     const signedRequest = this.signHeaderRequest({
@@ -123,6 +131,30 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
     }
   }
 
+  async makeObjectPublic(storageKey: string): Promise<void> {
+    const body = Buffer.alloc(0);
+    const payloadHash = sha256Hex(body);
+    const signedRequest = this.signHeaderRequest({
+      headers: {
+        'content-length': '0',
+        'x-amz-acl': 'public-read',
+        'x-amz-content-sha256': payloadHash,
+      },
+      method: 'PUT',
+      payloadHash,
+      query: new URLSearchParams({ acl: '' }),
+      storageKey: normalizeStorageKey(storageKey),
+    });
+    const response = await fetch(signedRequest.url, {
+      body,
+      headers: signedRequest.headers,
+      method: 'PUT',
+    });
+    if (!response.ok) {
+      throw await createSpacesOperationError('PUT', response);
+    }
+  }
+
   async createReadUrl(input: UserFileStorageReadUrlInput): Promise<string> {
     const expiresInSeconds = Math.max(
       1,
@@ -134,19 +166,39 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
     });
   }
 
+  createPublicUrl(storageKey: string): string {
+    const normalizedKey = normalizeStorageKey(storageKey);
+    const encodedKey = normalizedKey
+      .split('/')
+      .map((segment) => encodeURIComponent(segment))
+      .join('/');
+    if (this.config.publicBaseUrl) {
+      return `${this.config.publicBaseUrl}/${encodedKey}`;
+    }
+    return `${this.config.endpoint}/${encodeURIComponent(this.config.bucket)}/${encodedKey}`;
+  }
+
   private signHeaderRequest(input: {
     headers: Record<string, string>;
     method: 'DELETE' | 'PUT';
     payloadHash: string;
+    query?: URLSearchParams;
     storageKey: string;
   }): SignedRequest {
     const now = new Date();
     const amzDate = formatAmzDate(now);
     const datestamp = amzDate.slice(0, 8);
     const { canonicalUri, url } = this.objectUrl(input.storageKey);
+    const urlObject = new URL(url);
+    const canonicalQuery = input.query
+      ? canonicalizeSearchParams(input.query)
+      : '';
+    if (input.query) {
+      urlObject.search = input.query.toString();
+    }
     const headers = normalizeHeaders({
       ...input.headers,
-      host: new URL(url).host,
+      host: urlObject.host,
       'x-amz-date': amzDate,
     });
     const signedHeaders = Object.keys(headers).sort().join(';');
@@ -157,7 +209,7 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
     const canonicalRequest = [
       input.method,
       canonicalUri,
-      '',
+      canonicalQuery,
       canonicalHeaders,
       signedHeaders,
       input.payloadHash,
@@ -182,7 +234,7 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
           `Signature=${signature}`,
         ].join(', '),
       },
-      url,
+      url: urlObject.toString(),
     };
   }
 
@@ -262,6 +314,7 @@ export function getUserFileStorageProvider(): UserFileStorageProvider {
     endpoint: env.doSpacesEndpoint,
     region: env.userFileStorageRegion,
     rootPrefix: env.userFileStorageRootPrefix,
+    publicBaseUrl: env.userFileStoragePublicBaseUrl,
     secretKey: env.doSpacesSecretKey,
   });
 }

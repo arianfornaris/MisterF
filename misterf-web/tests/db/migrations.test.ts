@@ -127,6 +127,14 @@ describe('database migrations', () => {
         id: 18,
         name: 'add_user_scene_media',
       },
+      {
+        id: 19,
+        name: 'add_scene_media_authoring_history',
+      },
+      {
+        id: 20,
+        name: 'remove_scene_media_generation_jobs',
+      },
     ]);
 
     const tableNames = (db
@@ -159,7 +167,6 @@ describe('database migrations', () => {
       'tutor_conversation_reports',
       'user_openrouter_keys',
       'user_scene_media',
-      'user_scene_media_generation_jobs',
       'user_sessions',
       'users',
     ]));
@@ -176,6 +183,7 @@ describe('database migrations', () => {
     expect(tableNames).not.toContain('conversation_chat_room_report_snapshots');
     expect(tableNames).not.toContain('quiz_share_links');
     expect(tableNames).not.toContain('practice_guide_share_links');
+    expect(tableNames).not.toContain('user_scene_media_generation_jobs');
 
     expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
       'instruction_language',
@@ -296,9 +304,8 @@ describe('database migrations', () => {
     ]));
     expect(getColumnNames(db, 'user_scene_media')).toEqual(expect.arrayContaining([
       'audio_json',
+      'authoring_messages_json',
       'created_from_json',
-      'failure_message',
-      'failure_reason',
       'format',
       'generation_mode',
       'generation_prompt',
@@ -311,21 +318,85 @@ describe('database migrations', () => {
       'user_id',
       'visual_summary_json',
     ]));
-    expect(getColumnNames(db, 'user_scene_media_generation_jobs')).toEqual(
-      expect.arrayContaining([
-        'format',
-        'generation_mode',
-        'layer_decisions_json',
-        'level',
-        'media_id',
-        'profile_id',
-        'prompt',
-        'source_media_id',
-        'status',
-        'type',
-        'user_id',
-      ]),
+    expect(getColumnNames(db, 'user_scene_media')).not.toEqual(expect.arrayContaining([
+      'failure_message',
+      'failure_reason',
+    ]));
+    const sceneMediaSchema = db.prepare(
+      "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'user_scene_media'",
+    ).get() as { sql: string };
+    expect(sceneMediaSchema.sql).toContain("generation_mode = 'image_only'");
+    expect(sceneMediaSchema.sql).toContain("generation_mode = 'complete_scene'");
+  });
+
+  it('removes legacy scene media jobs and incomplete media rows', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-media-job-removal-'));
+    process.env.DATABASE_PATH = path.join(tempDir, 'legacy-media.sqlite');
+    process.env.ENV_FILE = '/dev/null';
+    vi.resetModules();
+
+    const { getDb } = await import('../../src/server/db/database.js');
+    const { migrations } = await import('../../src/server/db/migrations.js');
+    const db = getDb();
+
+    db.unsafeMode(true);
+    try {
+      for (const migration of migrations.filter(({ id }) => id <= 19)) {
+        if (migration.up) db.exec(migration.up);
+        else migration.run?.(db);
+      }
+    } finally {
+      db.unsafeMode(false);
+      db.pragma('writable_schema = RESET');
+    }
+
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, email_verified)
+      VALUES ('media_user', 'media@example.com', 'Media User', 1)
+    `).run();
+    db.prepare(`
+      INSERT INTO profiles (id, user_id, name)
+      VALUES ('media_profile', 'media_user', 'Media Profile')
+    `).run();
+    const insertMedia = db.prepare(`
+      INSERT INTO user_scene_media (
+        id, user_id, profile_id, title, status, generation_mode,
+        generation_prompt, format, level, image_json
+      )
+      VALUES (?, 'media_user', 'media_profile', ?, ?, 'image_only', ?,
+        'single_panel_scene', 'A1-A2', ?)
+    `);
+    insertMedia.run(
+      'ready_media',
+      'Ready media',
+      'ready',
+      'A complete scene',
+      JSON.stringify({ alt: 'A complete scene', src: 'https://example.test/image.webp' }),
     );
+    insertMedia.run('pending_media', 'Pending media', 'pending', 'An incomplete scene', null);
+    db.prepare(`
+      INSERT INTO user_scene_media_generation_jobs (
+        id, media_id, user_id, profile_id, type, prompt, status,
+        generation_mode, format, level
+      )
+      VALUES (
+        'legacy_job', 'pending_media', 'media_user', 'media_profile',
+        'new_media', 'An incomplete scene', 'pending', 'image_only',
+        'single_panel_scene', 'A1-A2'
+      )
+    `).run();
+
+    const cleanupMigration = migrations.find(({ id }) => id === 20);
+    expect(cleanupMigration?.up).toBeTruthy();
+    db.exec(cleanupMigration?.up ?? '');
+
+    expect(db.prepare('SELECT id FROM user_scene_media ORDER BY id').all()).toEqual([
+      { id: 'ready_media' },
+    ]);
+    expect(db.prepare(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'user_scene_media_generation_jobs'",
+    ).get()).toBeUndefined();
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
   it('upgrades resource folder membership to allow nested folders', async () => {

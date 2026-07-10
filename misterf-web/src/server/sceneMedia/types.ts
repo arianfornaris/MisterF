@@ -9,6 +9,8 @@ export type SceneMediaFormat =
 
 export type SceneMediaImageLayer = {
   alt: string;
+  checksumSha256?: string;
+  contentType?: string;
   height?: number;
   mediaId?: string;
   source?: SceneMediaSource;
@@ -44,6 +46,7 @@ export type SceneMediaScript =
     };
 
 export type SceneMediaLibraryItem = {
+  authoringMessages?: SceneMediaAuthoringMessage[];
   audio?: SceneMediaAudioLayer;
   archivedAt?: string | null;
   createdFrom?: {
@@ -55,8 +58,6 @@ export type SceneMediaLibraryItem = {
     sourceMediaId?: string;
   };
   createdAt?: string;
-  failureMessage?: string | null;
-  failureReason?: string | null;
   format: SceneMediaFormat;
   generationMode?: UserSceneMediaGenerationMode;
   generationPrompt?: string;
@@ -79,6 +80,13 @@ export type SceneMediaLibraryItem = {
   visualSummary: string[];
 };
 
+export type SceneMediaAuthoringMessage = {
+  content: string;
+  createdAt: string;
+  draftSnapshot?: Record<string, unknown>;
+  role: 'assistant' | 'user';
+};
+
 export type SceneMediaLibraryFilters = {
   format?: SceneMediaFormat;
   level?: SceneMediaLevel;
@@ -87,9 +95,6 @@ export type SceneMediaLibraryFilters = {
 
 export type SceneMediaStatus =
   | 'archived'
-  | 'failed'
-  | 'generating'
-  | 'pending'
   | 'ready';
 
 export type UserSceneMediaGenerationMode = 'complete_scene' | 'image_only';
@@ -100,38 +105,9 @@ export type UserSceneMediaScriptTypePreference =
   | 'narration'
   | 'unspecified';
 
-export type UserSceneMediaJobStatus =
-  | 'archived'
-  | 'failed'
-  | 'generating'
-  | 'pending'
-  | 'ready';
-
-export type UserSceneMediaJobType = 'new_media' | 'variation';
-
 export type UserSceneMediaLayerDecision = 'do_not_include' | 'generate_new' | 'keep_existing';
 
 export type UserSceneMediaLayerDecisions = {
   image: Exclude<UserSceneMediaLayerDecision, 'do_not_include'>;
   scriptAndAudio: UserSceneMediaLayerDecision;
-};
-
-export type UserSceneMediaJob = {
-  createdAt: string;
-  failureMessage: string | null;
-  failureReason: string | null;
-  format: SceneMediaFormat;
-  generationMode: UserSceneMediaGenerationMode;
-  id: string;
-  layerDecisions: UserSceneMediaLayerDecisions | null;
-  level: SceneMediaLevel;
-  mediaId: string;
-  ownerProfileId: string;
-  ownerUserId: string;
-  prompt: string;
-  scriptTypePreference: UserSceneMediaScriptTypePreference;
-  sourceMediaId: string | null;
-  status: UserSceneMediaJobStatus;
-  type: UserSceneMediaJobType;
-  updatedAt: string;
 };
