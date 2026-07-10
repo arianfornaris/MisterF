@@ -96,6 +96,16 @@ interface SceneMediaLevel {
     durationSeconds: number;
     format: "mp3";
     storageKey?: string;
+    // Per-turn timing marks into the single concatenated file (dialogue only).
+    // Marks the spoken region of each turn; inter-turn silence is the gap
+    // between one turn's endMs and the next turn's startMs.
+    segments?: Array<{
+      turn: number;
+      speaker: string;
+      startMs: number;
+      endMs: number;
+    }>;
+    interTurnSilenceMs?: number;
   };
   script?: SceneMediaScript;
 }
@@ -116,6 +126,10 @@ type SceneMediaScript =
 
 The runtime registry should not carry duplicated `plainText` transcripts. Use `turns` for dialogue and `text` for narration or monologue.
 
+### Audio Packaging
+
+Each script level exposes a **single** concatenated audio file, not one file per turn. Dialogue audio is synthesized turn by turn but joined into one asset for delivery and playback. When per-turn playback is needed — replaying a single line, syncing transcript highlight, shadowing, or the tutor pointing at one turn — use the `audio.segments` timing marks to seek within the single file rather than fetching separate clips. Mark only the spoken region of each turn; the inter-turn pause is the gap between turns. See `design/scene-scripts/README.md` ("Audio Packaging & Segmentation") for the generation-side rationale and how offsets are derived. Roleplay (feature 1.3), which assembles turns dynamically at runtime, is the one flow that may consume turn-level audio directly instead of this packaged asset.
+
 ## Built-In Assets
 
 Approved design assets should be promoted before the first implementation ships:
@@ -133,7 +147,7 @@ The built-in registry should contain only product-safe fields:
 - visual format;
 - public image URL and alt text;
 - available script levels;
-- public audio URL, duration, and structured script data for each level;
+- public audio URL, duration, per-turn timing segments, and structured script data for each level;
 - teaching tags/use cases needed for selection.
 
 Source prompts, QA notes, source images, cost estimates, flattened transcript text, and other design-only fields should stay out of the runtime registry unless there is a product reason to expose them.
