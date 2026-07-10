@@ -110,11 +110,26 @@ interface SceneMediaLevel {
   script?: SceneMediaScript;
 }
 
+// How speakers are identified to the listener. Drives whether the tutor may
+// refer to a speaker by name or must use their role. See
+// design/scene-scripts/README.md ("Identity & Audio Metadata").
+type IdentityStrategy = "named_in_dialogue" | "role_only" | "narrator_intro";
+
 type SceneMediaScript =
   | {
       scriptType: "dialogue";
+      identityStrategy: IdentityStrategy;
+      // One descriptor per distinct speaker. `nameSpokenInAudio` gates whether
+      // a question/tutor line may use this speaker's name; when false, refer to
+      // them by `role` only (for role_only scripts `name` is itself the role,
+      // e.g. "the store clerk").
+      speakers: Array<{
+        name: string;
+        role: string;
+        nameSpokenInAudio: boolean;
+      }>;
       turns: Array<{
-        speaker: string;
+        speaker: string; // matches speakers[].name
         text: string;
       }>;
     }
@@ -125,6 +140,8 @@ type SceneMediaScript =
 ```
 
 The runtime registry should not carry duplicated `plainText` transcripts. Use `turns` for dialogue and `text` for narration or monologue.
+
+`audio.segments[].speaker` (runtime) corresponds to the design registry's `speakerId`; the runtime uses the display name to line up with `turns[].speaker`.
 
 ### Audio Packaging
 

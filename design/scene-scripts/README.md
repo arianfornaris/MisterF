@@ -108,6 +108,26 @@ This is the highest-priority requirement. Speaker `name` and `role` are authorin
 
 - `transcript`, `plainText`, and the generated audio must all correspond to the same content. `plainText` is derived from `transcript`; the audio is generated from `transcript`. Any drift means questions could reference text the learner never heard.
 
+## Identity & Audio Metadata (schema)
+
+These fields are the contract the comprehension/tutor layer and the UI consume. They are added by `apply_script_rewrites.py` when a rewrite is approved. **This is the source of truth for the code-agent handoff.**
+
+**Script entry — `identityStrategy`** (string enum, one per script):
+
+| Value | Meaning | How the tutor/UI must refer to speakers |
+| --- | --- | --- |
+| `named_in_dialogue` | Every named speaker says/hears their name aloud in the audio. | By name (e.g. "Maria", "Mr. James"). |
+| `role_only` | Speakers are roles, not proper names; no name is spoken. | By role only (e.g. "the father", "the store clerk"). Never invent a name. |
+| `narrator_intro` | A narrator names the characters before/within the passage. | By the name(s) the narrator speaks. |
+
+**Speaker — `speakers[].nameSpokenInAudio`** (boolean): whether *this* speaker's name is actually spoken in the audio. `true` for named speakers in a `named_in_dialogue` script; `false` for `role_only` speakers. A question may use a speaker's name only when this is `true`.
+
+For `role_only` scripts the speaker's `name`/`role` are also rewritten to the spoken role (e.g. `name: "the store clerk"`, `role: "store_staff"`).
+
+**Audio — `audio.segments`** (array) and **`audio.interTurnSilenceMs`** (number): per-turn timing marks into the single concatenated MP3 (see "Audio Packaging & Segmentation"). Each segment is `{ turn, speakerId, startMs, endMs }` and marks the **spoken** region of that turn; the pause between turns is the gap between one turn's `endMs` and the next turn's `startMs`. Used for single-line replay, transcript-highlight sync, shadowing, and tutor "replay line N".
+
+The runtime-facing shape of these fields lives in `docs/features/scene-media-library.md`; a consumer-oriented summary for the UI/tutor work lives in `docs/features/scene-media-metadata-v3.md`.
+
 ## Batch 1 Scope
 
 Batch 1 covers the first ten approved scene images:
