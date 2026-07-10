@@ -129,7 +129,11 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     layers are written under
     `misterf/users/{userId}/scene-media/{mediaId}/audio/...`, both persist
     `storageKey` metadata, and both read through authenticated app routes that
-    issue short-lived Spaces URLs.
+    issue short-lived Spaces URLs. Decision updated 2026-07-10: replace those
+    presigned redirects with stable public CDN URLs for immutable scene-media
+    image and audio objects, using long-lived browser/CDN cache headers. The MVP
+    accepts direct binary access by anyone who knows the opaque URL; grant-aware
+    edge protection is deferred until the media-resource sharing model.
   - [~] Wire generated-image creation for `Image only`, complete-scene, and
     variation jobs that choose `generate_new` image. Started 2026-07-09:
     `Image only` jobs, complete-scene jobs, and variation jobs that regenerate

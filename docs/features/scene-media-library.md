@@ -473,6 +473,14 @@ not see it. Sharing user media directly is out of scope for this phase; sharing
 will happen later through media resources or derived resources that grant access
 to the referenced media without exposing the owner's whole media library.
 
+For the V3 MVP, that access rule protects the media record and management UI,
+not the generated image or audio bytes once their opaque public CDN URL is known.
+Generated binary layers are immutable and use stable public URLs with long-lived
+browser and CDN caching. This deliberate exception avoids presigned URLs, whose
+changing query strings prevent effective edge caching. Direct binary access can
+be protected later with grant-aware edge authorization without changing media ids
+or copying stored layers.
+
 Pending, generating, failed, and ready user media should all appear in the
 library as cards. Cards should carry a status badge. `Archived` items should not
 appear by default unless a future filter asks for archived media.
