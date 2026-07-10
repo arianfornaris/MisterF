@@ -23,33 +23,6 @@
       </p>
     </div>
     <div class="app-page-header-actions">
-      <% if (mediaItem.source === 'user_generated' && mediaItem.status === 'failed') { %>
-        <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/retry">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="btn btn-outline-primary" type="submit">
-            <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>
-            <%= t('mediaLibrary.retry') %>
-          </button>
-        </form>
-      <% } %>
-      <% if (mediaItem.source === 'user_generated') { %>
-        <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/archive">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-          <button class="btn btn-outline-danger" type="submit">
-            <i class="bi bi-archive me-1" aria-hidden="true"></i>
-            <%= t('mediaLibrary.archive') %>
-          </button>
-        </form>
-      <% } %>
-      <button
-        class="btn btn-primary"
-        type="button"
-        data-bs-toggle="modal"
-        data-bs-target="#createSceneMediaVariationModal"
-      >
-        <i class="bi bi-magic me-1" aria-hidden="true"></i>
-        <%= t('mediaLibrary.createVariation') %>
-      </button>
       <a
         class="btn btn-link app-page-close-button"
         href="<%= returnTo %>"
@@ -59,6 +32,50 @@
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </a>
     </div>
+  </div>
+
+  <div class="resource-action-row mb-4">
+    <button
+      class="btn btn-primary"
+      type="button"
+      data-bs-toggle="modal"
+      data-bs-target="#createSceneMediaVariationModal"
+    >
+      <i class="bi bi-magic me-1" aria-hidden="true"></i><%= t('mediaLibrary.createVariation') %>
+    </button>
+    <% if (mediaItem.source === 'user_generated') { %>
+      <div class="dropdown">
+        <button
+          class="btn btn-secondary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <%= t('resources.options') %>
+        </button>
+        <ul class="dropdown-menu">
+          <% if (mediaItem.status === 'failed') { %>
+            <li>
+              <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/retry">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="dropdown-item" type="submit">
+                  <i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i><%= t('mediaLibrary.retry') %>
+                </button>
+              </form>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+          <% } %>
+          <li>
+            <form method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/archive">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <button class="dropdown-item text-danger" type="submit">
+                <i class="bi bi-archive me-2" aria-hidden="true"></i><%= t('mediaLibrary.archive') %>
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    <% } %>
   </div>
 
   <section class="app-page-detail-shell">

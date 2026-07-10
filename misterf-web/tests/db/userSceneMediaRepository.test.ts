@@ -138,6 +138,7 @@ describe('user scene media repository', () => {
       mediaId: job.mediaId,
       ownerProfileId: ownerProfile.id,
       ownerUserId: user.id,
+      title: 'Variation: Through Security',
     });
     expect(retryJob).toEqual(expect.objectContaining({
       mediaId: job.mediaId,
@@ -145,6 +146,10 @@ describe('user scene media repository', () => {
       ownerUserId: user.id,
       status: 'pending',
     }));
+    expect(listUserSceneMediaForProfile({
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })[0]?.title).toBe('Variation: Through Security');
 
     const archived = archiveUserSceneMediaForProfile({
       mediaId: job.mediaId,

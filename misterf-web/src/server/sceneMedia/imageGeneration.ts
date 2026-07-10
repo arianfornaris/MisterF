@@ -4,6 +4,10 @@ import type {
   SceneMediaLevel,
   UserSceneMediaScriptTypePreference,
 } from './types.js';
+import {
+  buildSceneMediaSourceContextPrompt,
+  type SceneMediaGenerationSourceContext,
+} from './generationContext.js';
 
 export type GeneratedSceneMediaImage = {
   bytes: Buffer;
@@ -26,7 +30,7 @@ export type GenerateSceneMediaImageInput = {
   openRouterApiKey: string;
   prompt: string;
   scriptTypePreference: UserSceneMediaScriptTypePreference;
-  sourceVisualSummary?: string[];
+  sourceContext?: SceneMediaGenerationSourceContext;
 };
 
 type OpenRouterImageResponse = {
@@ -122,8 +126,8 @@ function buildSceneMediaImagePrompt(input: GenerateSceneMediaImageInput): string
     two_panel_contrast:
       'Create one two-panel contrast image with clear before/after or compare/contrast structure.',
   } satisfies Record<SceneMediaFormat, string>;
-  const sourceContext = input.sourceVisualSummary?.length
-    ? ` Preserve useful context from this source media: ${input.sourceVisualSummary.join('; ')}.`
+  const sourceContext = input.sourceContext
+    ? buildSceneMediaSourceContextPrompt(input.sourceContext)
     : '';
   const scriptHint = input.scriptTypePreference === 'dialogue'
     ? 'Include two or three visible characters with distinct speaking roles, but do not render speech bubbles or readable text.'
@@ -140,7 +144,7 @@ function buildSceneMediaImagePrompt(input: GenerateSceneMediaImageInput): string
     scriptHint,
     'Use a friendly, classroom-safe style with natural people, recognizable actions, and visual details that invite language practice.',
     'Avoid political, sexual, graphic, hateful, copyrighted-character, branded, or unsafe content.',
-  ].filter(Boolean).join(' ');
+  ].filter(Boolean).join('\n');
 }
 
 function getAspectRatio(format: SceneMediaFormat): string {

@@ -410,4 +410,109 @@ describe('scene media generation runner', () => {
       key: `misterf/users/${user.id}/scene-media/${job.mediaId}/audio/file_1.mp3`,
     }));
   });
+
+  it('passes complete source media context to variation generators', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile } = await import('../../src/server/db/repository.js');
+    const { createUserSceneMediaJob } = await import(
+      '../../src/server/sceneMedia/userMediaRepository.js'
+    );
+    const { runSceneMediaGenerationJob } = await import(
+      '../../src/server/sceneMedia/generation.js'
+    );
+    const user = createExternalUser({
+      email: 'scene-media-variation-context@example.com',
+      emailVerified: true,
+      fullName: 'Scene Media Variation Context',
+      provider: 'google',
+      providerSubject: 'scene-media-variation-context',
+    });
+    const profile = createProfile({
+      name: 'Variation context profile',
+      userId: user.id,
+    });
+    storageMocks.createSceneMediaStorageKey.mockImplementation((input) => (
+      `misterf/users/${input.userId}/scene-media/${input.mediaId}/${input.fileRole}/file_1.${input.extension}`
+    ));
+    const sourceScript = {
+      scriptType: 'dialogue' as const,
+      turns: [
+        { speaker: 'Officer', text: 'Please place your bag on the belt.' },
+        { speaker: 'Traveler', text: 'Should I remove my laptop?' },
+      ],
+    };
+    const sourceJob = createUserSceneMediaJob({
+      audio: {
+        durationSeconds: 12,
+        format: 'mp3',
+        src: '/source-audio.mp3',
+      },
+      format: 'single_panel_scene',
+      generationMode: 'complete_scene',
+      image: {
+        alt: 'A traveler and an officer at an airport security checkpoint.',
+        src: '/source-image.png',
+      },
+      level: 'A1-A2',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      prompt: 'Original airport security scene.',
+      script: sourceScript,
+      scriptTypePreference: 'dialogue',
+      setting: 'Airport security checkpoint',
+      skills: ['Travel questions', 'Polite requests'],
+      status: 'ready',
+      tags: ['airport', 'security'],
+      title: 'Through Security',
+      type: 'new_media',
+      useCases: ['listening', 'speaking'],
+      visualSummary: [
+        'A traveler places a bag on the security belt.',
+        'An officer points toward the laptop tray.',
+      ],
+    });
+    const layerDecisions = {
+      image: 'generate_new' as const,
+      scriptAndAudio: 'generate_new' as const,
+    };
+    const variationJob = createUserSceneMediaJob({
+      format: 'two_panel_contrast',
+      generationMode: 'complete_scene',
+      layerDecisions,
+      level: 'B1-B2',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      prompt: 'Show a smoother security experience while keeping the same people.',
+      scriptTypePreference: 'dialogue',
+      sourceMediaId: sourceJob.mediaId,
+      type: 'variation',
+    });
+
+    await runSceneMediaGenerationJob(variationJob.id);
+
+    const expectedSourceContext = {
+      format: 'single_panel_scene',
+      imageAlt: 'A traveler and an officer at an airport security checkpoint.',
+      layerDecisions,
+      level: 'A1-A2',
+      script: sourceScript,
+      setting: 'Airport security checkpoint',
+      skills: ['Travel questions', 'Polite requests'],
+      tags: ['airport', 'security'],
+      title: 'Through Security',
+      useCases: ['listening', 'speaking'],
+      visualSummary: [
+        'A traveler places a bag on the security belt.',
+        'An officer points toward the laptop tray.',
+      ],
+    };
+    expect(imageGenerationMocks.generateSceneMediaImage).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceContext: expectedSourceContext }),
+    );
+    expect(scriptGenerationMocks.generateSceneMediaScriptPackage).toHaveBeenCalledWith(
+      expect.objectContaining({ sourceContext: expectedSourceContext }),
+    );
+    const imageInput = imageGenerationMocks.generateSceneMediaImage.mock.calls[0]?.[0];
+    expect(imageInput?.sourceContext).not.toHaveProperty('audio');
+  });
 });

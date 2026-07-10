@@ -384,7 +384,7 @@ export async function createSceneMediaVariation(
     sourceMediaId: sourceItem.id,
     sourceVisualAssetId: sourceItem.visualAssetId,
     tags: sourceItem.tags,
-    title: promptTitle(prompt, sourceItem.title),
+    title: variationTitle(sourceItem.title),
     type: 'variation',
     useCases: sourceItem.useCases,
     visualSummary: sourceItem.visualSummary,
@@ -434,10 +434,18 @@ export async function retrySceneMediaGeneration(
     throw error;
   }
 
+  const sourceMediaId = mediaItem.createdFrom?.sourceMediaId;
+  const sourceItem = sourceMediaId
+    ? findSceneMediaItemById(sourceMediaId, {
+      profileId: auth.activeProfile.id,
+      userId: auth.user.id,
+    })
+    : null;
   const job = retryUserSceneMediaGenerationJob({
     mediaId: mediaItem.id,
     ownerProfileId: auth.activeProfile.id,
     ownerUserId: auth.user.id,
+    title: sourceItem ? variationTitle(sourceItem.title) : undefined,
   });
   if (!job) {
     response.redirect('/media-library?media_error=invalid_request');
@@ -515,14 +523,8 @@ function normalizeScriptAndAudioDecision(
   return value === 'generate_new' || value === 'do_not_include' ? value : null;
 }
 
-function promptTitle(prompt: string, sourceTitle: string): string {
-  const firstSentence = prompt.replace(/\s+/g, ' ').trim().split(/[.!?]/)[0]?.trim();
-  if (!firstSentence) {
-    return `Variation of ${sourceTitle}`;
-  }
-  return firstSentence.length > 64
-    ? `${firstSentence.slice(0, 61).trim()}...`
-    : firstSentence;
+function variationTitle(sourceTitle: string): string {
+  return `Variation: ${sourceTitle}`;
 }
 
 function normalizeMediaLibraryReturnTo(value: unknown): string {

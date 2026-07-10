@@ -141,8 +141,11 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   - [~] Wire structured script generation for complete-scene jobs. Started
     2026-07-09: complete-scene jobs now generate validated JSON script
     packages from prompt, level, format, image/source context, and script-type
-    preference; the generator enforces the MVP atomic script-and-audio layer
-    and caps dialogue at three speakers.
+    preference; variation image and script generators now share structured
+    source context containing title, setting, level, format, image alt text,
+    visual summary, tags, skills, use cases, source script, and binding layer
+    decisions. The generator enforces the MVP atomic script-and-audio layer and
+    caps dialogue at three speakers.
   - [~] Wire audio generation from structured scripts. Started 2026-07-09:
     scripts are synthesized through OpenRouter's Speech API, defaulting to
     `google/gemini-3.1-flash-tts-preview` per the research; narration and

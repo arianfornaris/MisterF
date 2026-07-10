@@ -432,6 +432,7 @@ export function retryUserSceneMediaGenerationJob(input: {
   mediaId: string;
   ownerProfileId: string;
   ownerUserId: string;
+  title?: string;
 }): UserSceneMediaJob | null {
   const db = getDb();
   const mediaRow = db
@@ -489,6 +490,7 @@ export function retryUserSceneMediaGenerationJob(input: {
     `
       UPDATE user_scene_media
       SET status = 'pending',
+          title = COALESCE(?, title),
           failure_reason = NULL,
           failure_message = NULL,
           updated_at = CURRENT_TIMESTAMP
@@ -511,7 +513,7 @@ export function retryUserSceneMediaGenerationJob(input: {
       mediaRow.source_media_id,
       previousJob?.layer_decisions_json ?? null,
     );
-    updateMedia.run(mediaRow.id);
+    updateMedia.run(input.title ?? null, mediaRow.id);
   });
   transaction();
 

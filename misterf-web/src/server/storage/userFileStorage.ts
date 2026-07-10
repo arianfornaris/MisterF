@@ -95,9 +95,7 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
     });
 
     if (!response.ok) {
-      throw new UserFileStorageOperationError(
-        `Spaces PUT failed with HTTP ${response.status}.`,
-      );
+      throw await createSpacesOperationError('PUT', response);
     }
 
     return {
@@ -121,9 +119,7 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
     });
 
     if (!response.ok && response.status !== 404) {
-      throw new UserFileStorageOperationError(
-        `Spaces DELETE failed with HTTP ${response.status}.`,
-      );
+      throw await createSpacesOperationError('DELETE', response);
     }
   }
 
@@ -181,8 +177,7 @@ export class SpacesUserFileStorageProvider implements UserFileStorageProvider {
       headers: {
         ...headers,
         authorization: [
-          'AWS4-HMAC-SHA256',
-          `Credential=${this.config.accessKey}/${credentialScope}`,
+          `AWS4-HMAC-SHA256 Credential=${this.config.accessKey}/${credentialScope}`,
           `SignedHeaders=${signedHeaders}`,
           `Signature=${signature}`,
         ].join(', '),
@@ -394,4 +389,33 @@ function awsEncode(value: string): string {
   return encodeURIComponent(value).replace(/[!'()*]/g, (character) =>
     `%${character.charCodeAt(0).toString(16).toUpperCase()}`,
   );
+}
+
+async function createSpacesOperationError(
+  operation: 'DELETE' | 'PUT',
+  response: Response,
+): Promise<UserFileStorageOperationError> {
+  const responseBody = await response.text().catch(() => '');
+  const providerCode = readXmlElement(responseBody, 'Code');
+  const providerMessage = readXmlElement(responseBody, 'Message');
+  const providerDetail = [providerCode, providerMessage]
+    .filter(Boolean)
+    .join(': ')
+    .slice(0, 500);
+
+  return new UserFileStorageOperationError(
+    `Spaces ${operation} failed with HTTP ${response.status}${providerDetail ? ` (${providerDetail})` : ''}.`,
+  );
+}
+
+function readXmlElement(xml: string, elementName: 'Code' | 'Message'): string {
+  const match = xml.match(new RegExp(`<${elementName}>([\\s\\S]*?)</${elementName}>`, 'i'));
+  return match?.[1]
+    ?.replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim() ?? '';
 }

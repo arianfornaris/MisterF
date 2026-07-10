@@ -116,9 +116,40 @@ describe('user file storage', () => {
     );
     expect(init?.method).toBe('PUT');
     const headers = init?.headers as Record<string, string>;
-    expect(headers.authorization).toContain('AWS4-HMAC-SHA256');
+    expect(headers.authorization).toMatch(
+      /^AWS4-HMAC-SHA256 Credential=test-access-key\//,
+    );
+    expect(headers.authorization).not.toContain('AWS4-HMAC-SHA256,');
     expect(headers['content-type']).toBe('image/png');
     expect(headers['cache-control']).toBe('private, max-age=60');
     expect(headers['x-amz-meta-mediaid']).toBe('media_1');
+  });
+
+  it('preserves safe DigitalOcean error details for storage diagnostics', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        '<?xml version="1.0"?><Error><Code>AccessDenied</Code><Message>The provided key does not have write access.</Message><RequestId>request-id</RequestId></Error>',
+        { status: 403 },
+      ),
+    );
+    const { SpacesUserFileStorageProvider } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+    const provider = new SpacesUserFileStorageProvider({
+      accessKey: 'test-access-key',
+      bucket: 'misterf.us-files-dev',
+      endpoint: 'https://atl1.digitaloceanspaces.com',
+      region: 'atl1',
+      rootPrefix: 'misterf',
+      secretKey: 'test-secret-key',
+    });
+
+    await expect(provider.putObject({
+      body: Buffer.from('image-bytes'),
+      contentType: 'image/png',
+      key: 'misterf/users/user_1/scene-media/media_1/image/file_1.png',
+    })).rejects.toThrow(
+      'Spaces PUT failed with HTTP 403 (AccessDenied: The provided key does not have write access.).',
+    );
   });
 });

@@ -51,6 +51,28 @@ describe('scene media image generation', () => {
       openRouterApiKey: 'user-openrouter-key',
       prompt: 'A student checks in at an airport.',
       scriptTypePreference: 'dialogue',
+      sourceContext: {
+        format: 'single_panel_scene',
+        imageAlt: 'A student stands at an airport check-in counter.',
+        layerDecisions: {
+          image: 'generate_new',
+          scriptAndAudio: 'keep_existing',
+        },
+        level: 'A1-A2',
+        script: {
+          scriptType: 'dialogue',
+          turns: [
+            { speaker: 'Agent', text: 'May I see your passport?' },
+            { speaker: 'Student', text: 'Yes, here it is.' },
+          ],
+        },
+        setting: 'Airport check-in counter',
+        skills: ['Travel questions'],
+        tags: ['airport', 'check-in'],
+        title: 'Checking In',
+        useCases: ['listening', 'speaking'],
+        visualSummary: ['A student gives a passport to an airline agent.'],
+      },
     });
 
     expect(result).toMatchObject({
@@ -82,6 +104,11 @@ describe('scene media image generation', () => {
       quality: 'medium',
     });
     expect(String(body.prompt)).toContain('A student checks in at an airport.');
+    expect(String(body.prompt)).toContain('"title": "Checking In"');
+    expect(String(body.prompt)).toContain('"setting": "Airport check-in counter"');
+    expect(String(body.prompt)).toContain('"scriptAndAudio": "keep_existing"');
+    expect(String(body.prompt)).toContain('"text": "May I see your passport?"');
+    expect(String(body.prompt)).toContain('keep_existing layers are immutable anchors');
   });
 
   it('maps provider safety rejections to a content-policy error', async () => {

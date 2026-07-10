@@ -78,6 +78,15 @@ describe('LLM credit gate architecture', () => {
     }
   });
 
+  it('lets models use their native output budget', () => {
+    for (const file of listFiles('src/server', new Set(['.ts']))) {
+      expect(
+        readProjectFile(file),
+        `${file} should not impose an application-level LLM output token cap`,
+      ).not.toContain('maxOutputTokens');
+    }
+  });
+
   it('keeps LLM entrypoints connected to the shared credit gate', () => {
     for (const file of creditCheckedEntrypoints) {
       expect(readProjectFile(file), `${file} must use the shared credit gate`).toContain(

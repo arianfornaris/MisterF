@@ -91,7 +91,6 @@ export async function resolveSceneMedia(
   }
 
   const result = await generateText({
-    maxOutputTokens: 900,
     messages: [{
       content: buildResolverUserPrompt(request, catalog),
       role: 'user',

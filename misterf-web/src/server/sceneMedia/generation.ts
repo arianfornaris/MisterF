@@ -30,6 +30,10 @@ import {
   SceneMediaImageProviderError,
 } from './imageGeneration.js';
 import {
+  createSceneMediaGenerationSourceContext,
+  type SceneMediaGenerationSourceContext,
+} from './generationContext.js';
+import {
   generateSceneMediaScriptPackage,
   SceneMediaScriptContentPolicyError,
   SceneMediaScriptProviderError,
@@ -78,10 +82,11 @@ export async function runSceneMediaGenerationJob(jobId: string): Promise<void> {
     const requiresGeneratedScriptAndAudio =
       (job.type === 'new_media' && job.generationMode === 'complete_scene') ||
       job.layerDecisions?.scriptAndAudio === 'generate_new';
+    const sourceContext = resolveGenerationSourceContext(job);
 
     const currentItem = findUserSceneMediaById(job.mediaId);
     const generatedImage = requiresGeneratedImage
-      ? currentItem?.image ?? await generateAndStoreImageLayer(job)
+      ? currentItem?.image ?? await generateAndStoreImageLayer(job, sourceContext)
       : undefined;
     if (generatedImage && !currentItem?.image) {
       saveUserSceneMediaGeneratedLayers({
@@ -90,7 +95,7 @@ export async function runSceneMediaGenerationJob(jobId: string): Promise<void> {
       });
     }
     const generatedScriptPackage = requiresGeneratedScriptAndAudio
-      ? await generateScriptPackage(job, generatedImage)
+      ? await generateScriptPackage(job, generatedImage, sourceContext)
       : undefined;
     const generatedAudio = generatedScriptPackage
       ? await generateAndStoreAudioLayer(job, generatedScriptPackage.script)
@@ -143,6 +148,7 @@ export async function runSceneMediaGenerationJob(jobId: string): Promise<void> {
 async function generateScriptPackage(
   job: UserSceneMediaJob,
   generatedImage: SceneMediaImageLayer | undefined,
+  sourceContext: SceneMediaGenerationSourceContext | undefined,
 ): Promise<GeneratedSceneMediaScriptPackage> {
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
@@ -152,12 +158,6 @@ async function generateScriptPackage(
       throw new SceneMediaScriptProviderError('Missing user OpenRouter API key.');
     }
 
-    const sourceItem = job.sourceMediaId
-      ? findSceneMediaItemById(job.sourceMediaId, {
-        profileId: job.ownerProfileId,
-        userId: job.ownerUserId,
-      })
-      : null;
     return await generateSceneMediaScriptPackage({
       format: job.format,
       imageAlt: generatedImage?.alt,
@@ -165,7 +165,7 @@ async function generateScriptPackage(
       openRouterApiKey,
       prompt: job.prompt,
       scriptTypePreference: job.scriptTypePreference,
-      sourceVisualSummary: sourceItem?.visualSummary,
+      sourceContext,
     });
   } catch (error) {
     if (error instanceof SceneMediaScriptContentPolicyError) {
@@ -242,6 +242,12 @@ async function generateAndStoreAudioLayer(
       error instanceof UserFileStorageConfigurationError ||
       error instanceof UserFileStorageOperationError
     ) {
+      logger.error('scene_media_storage_operation_failed', {
+        error: serializeError(error),
+        fileRole: 'audio',
+        jobId: job.id,
+        mediaId: job.mediaId,
+      });
       throw new SceneMediaGenerationFailure({
         failureMessage: 'Unable to store the generated media audio.',
         failureReason: 'storage_error',
@@ -261,6 +267,7 @@ async function generateAndStoreAudioLayer(
 
 async function generateAndStoreImageLayer(
   job: UserSceneMediaJob,
+  sourceContext: SceneMediaGenerationSourceContext | undefined,
 ): Promise<SceneMediaImageLayer> {
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
@@ -270,19 +277,13 @@ async function generateAndStoreImageLayer(
       throw new SceneMediaImageProviderError('Missing user OpenRouter API key.');
     }
 
-    const sourceItem = job.sourceMediaId
-      ? findSceneMediaItemById(job.sourceMediaId, {
-        profileId: job.ownerProfileId,
-        userId: job.ownerUserId,
-      })
-      : null;
     const generatedImage = await generateSceneMediaImage({
       format: job.format,
       level: job.level,
       openRouterApiKey,
       prompt: job.prompt,
       scriptTypePreference: job.scriptTypePreference,
-      sourceVisualSummary: sourceItem?.visualSummary,
+      sourceContext,
     });
     const storageKey = createSceneMediaStorageKey({
       extension: generatedImage.extension,
@@ -323,6 +324,12 @@ async function generateAndStoreImageLayer(
       error instanceof UserFileStorageConfigurationError ||
       error instanceof UserFileStorageOperationError
     ) {
+      logger.error('scene_media_storage_operation_failed', {
+        error: serializeError(error),
+        fileRole: 'image',
+        jobId: job.id,
+        mediaId: job.mediaId,
+      });
       throw new SceneMediaGenerationFailure({
         failureMessage: 'Unable to store the generated media file.',
         failureReason: 'storage_error',
@@ -338,6 +345,25 @@ async function generateAndStoreImageLayer(
 
     throw error;
   }
+}
+
+function resolveGenerationSourceContext(
+  job: UserSceneMediaJob,
+): SceneMediaGenerationSourceContext | undefined {
+  if (!job.sourceMediaId || !job.layerDecisions) {
+    return undefined;
+  }
+
+  const sourceItem = findSceneMediaItemById(job.sourceMediaId, {
+    profileId: job.ownerProfileId,
+    userId: job.ownerUserId,
+  });
+  return sourceItem
+    ? createSceneMediaGenerationSourceContext({
+      layerDecisions: job.layerDecisions,
+      sourceItem,
+    })
+    : undefined;
 }
 
 class SceneMediaGenerationFailure extends Error {

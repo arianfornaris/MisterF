@@ -201,7 +201,6 @@ export async function generateTutorConversationReport(input: {
       );
 
       const result = await generateText({
-        maxOutputTokens: 2600,
         messages,
         model: getLanguageModel({
           modelTier: 'regular',

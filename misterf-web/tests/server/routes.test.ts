@@ -694,6 +694,7 @@ describe('main route smoke tests', () => {
     const libraryHtml = await libraryResponse.text();
     expect(libraryResponse.status).toBe(200);
     expect(libraryHtml).toContain('Biblioteca de medios');
+    expect(libraryHtml).toContain('Nuevo');
     expect(libraryHtml).toContain('Crear media');
     expect(libraryHtml).toContain('id="createSceneMediaModal"');
     expect(libraryHtml).toContain('airport-security-line-01-a1-a2');
@@ -734,6 +735,29 @@ describe('main route smoke tests', () => {
     expect(detailHtml).toContain('href="/media-library?level=A1-A2"');
 
     const csrfToken = extractCsrfToken(libraryHtml);
+    const variationResponse = await postForm(
+      '/media-library/airport-security-line-01-a1-a2/variations',
+      {
+        _csrf: csrfToken,
+        format: 'single_panel_scene',
+        imageDecision: 'keep_existing',
+        level: 'A1-A2',
+        prompt: 'Make the same scene feel calmer.',
+        scriptAndAudioDecision: 'keep_existing',
+        scriptTypePreference: 'unspecified',
+      },
+      cookie,
+    );
+    expect(variationResponse.status).toBe(302);
+    const variationLocation = variationResponse.headers.get('location') ?? '';
+    const variationMediaId = variationLocation.split('/').pop() ?? '';
+    expect(variationLocation).toMatch(/^\/media-library\/[-0-9a-f]+$/);
+    expect(findUserSceneMediaForProfile({
+      mediaId: variationMediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })?.title).toBe('Variation: Through Security');
+
     const createResponse = await postForm(
       '/media-library',
       {
@@ -765,6 +789,18 @@ describe('main route smoke tests', () => {
       mediaId: failedJob.mediaId,
     });
 
+    const failedLibraryResponse = await fetch(`${baseUrl}/media-library`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const failedLibraryHtml = await failedLibraryResponse.text();
+    expect(failedLibraryResponse.status).toBe(200);
+    expect(failedLibraryHtml).toContain('A failed generated media item');
+    expect(failedLibraryHtml).toContain('bi-exclamation-triangle-fill');
+    expect(failedLibraryHtml).not.toContain('No se pudo generar esta media');
+    expect(failedLibraryHtml).not.toContain(`action="/media-library/${failedJob.mediaId}/retry"`);
+    expect(failedLibraryHtml).not.toContain(`action="/media-library/${failedJob.mediaId}/archive"`);
+
     const failedDetailResponse = await fetch(
       `${baseUrl}/media-library/${failedJob.mediaId}`,
       {
@@ -774,8 +810,14 @@ describe('main route smoke tests', () => {
     );
     const failedDetailHtml = await failedDetailResponse.text();
     expect(failedDetailResponse.status).toBe(200);
+    expect(failedDetailHtml).toContain('class="resource-action-row mb-4"');
+    expect(failedDetailHtml).toContain('class="btn btn-secondary dropdown-toggle"');
+    expect(failedDetailHtml).toContain('Opciones');
     expect(failedDetailHtml).toContain(`action="/media-library/${failedJob.mediaId}/retry"`);
     expect(failedDetailHtml).toContain(`action="/media-library/${failedJob.mediaId}/archive"`);
+    expect(failedDetailHtml.indexOf('Crear variación')).toBeLessThan(
+      failedDetailHtml.indexOf('Opciones'),
+    );
 
     const archiveResponse = await postForm(
       `/media-library/${failedJob.mediaId}/archive`,

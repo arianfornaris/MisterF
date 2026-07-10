@@ -286,8 +286,11 @@ The first version of the modal should collect:
   - narration;
   - monologue.
 
-The modal does not ask for a title. The generation pipeline creates a short
-title from the prompt. Users can still suggest a desired title inside the prompt.
+The modal does not ask for a title. A variation receives a provisional title
+based on its source media, never a verbatim copy of the generation prompt. When
+the generation flow produces a new metadata/script package, its concise title
+replaces the provisional title. Users can still suggest a desired title inside
+the prompt.
 
 The prompt is stored as private provenance for the owner profile. It must not be
 used in object storage keys and must not be exposed to other users or shared
@@ -418,6 +421,17 @@ visual format, prompt, image, and visual summary:
 - `four_panel_wordless_story` should follow the panel sequence;
 - `two_panel_contrast` should reflect the contrast between both scenes;
 - `single_panel_scene` should describe or dramatize the central scene.
+
+Generation for a variation must receive one structured source-media context for
+every generated layer. The context includes the source title, setting, level,
+format, image alt text, visual summary, tags, skills, use cases, script when
+present, and the user's layer decisions. The image and script generators use
+the same context contract. The user's variation prompt defines the requested
+changes, kept layers are immutable compatibility anchors, and source traits not
+explicitly changed should remain continuous. Source context is delimited as
+reference data and must not be treated as model instructions. Audio metadata is
+not included because generated audio is derived directly from the resulting
+script.
 
 The created item should record provenance:
 
