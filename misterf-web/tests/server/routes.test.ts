@@ -759,6 +759,8 @@ describe('main route smoke tests', () => {
     expect(mediaAuthoringHtml).toContain('Editando media');
     expect(mediaAuthoringHtml).toContain('Información');
     expect(mediaAuthoringHtml).toContain('Chat IA');
+    expect(mediaAuthoringHtml).toContain('app-page-header app-page-header-has-close mb-4');
+    expect(mediaAuthoringHtml).toContain('nav nav-pills authoring-tabs mb-4');
     expect(mediaAuthoringHtml).toContain('value="Route Ready Media"');
     expect(mediaAuthoringHtml).toContain('Escena completa');
     expect(mediaAuthoringHtml).toContain('Escena de un panel');
