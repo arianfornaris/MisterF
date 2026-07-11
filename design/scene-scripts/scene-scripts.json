@@ -174,46 +174,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 22.46,
-        "bytes": 179948,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010723,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "maria",
-            "startMs": 0,
-            "endMs": 3640
+            "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-01.wav",
+            "bytes": 186284
           },
           {
             "turn": 2,
             "speakerId": "mr_james",
-            "startMs": 4020,
-            "endMs": 7380
+            "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-02.wav",
+            "bytes": 149804
           },
           {
             "turn": 3,
             "speakerId": "maria",
-            "startMs": 7760,
-            "endMs": 12800
+            "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-03.wav",
+            "bytes": 228524
           },
           {
             "turn": 4,
             "speakerId": "mr_james",
-            "startMs": 13180,
-            "endMs": 18100
+            "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-04.wav",
+            "bytes": 230444
           },
           {
             "turn": 5,
             "speakerId": "maria",
-            "startMs": 18480,
-            "endMs": 22400
+            "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-05.wav",
+            "bytes": 192044
           }
         ]
       }
@@ -293,46 +286,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.49,
-        "bytes": 228140,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013602,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "maria",
-            "startMs": 0,
-            "endMs": 5840
+            "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2/turn-01.wav",
+            "bytes": 293804
           },
           {
             "turn": 2,
             "speakerId": "mr_james",
-            "startMs": 6220,
-            "endMs": 10660
+            "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2/turn-02.wav",
+            "bytes": 226604
           },
           {
             "turn": 3,
             "speakerId": "maria",
-            "startMs": 11040,
-            "endMs": 18360
+            "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2/turn-03.wav",
+            "bytes": 351404
           },
           {
             "turn": 4,
             "speakerId": "mr_james",
-            "startMs": 18740,
-            "endMs": 24340
+            "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2/turn-04.wav",
+            "bytes": 280364
           },
           {
             "turn": 5,
             "speakerId": "maria",
-            "startMs": 24720,
-            "endMs": 28440
+            "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2/turn-05.wav",
+            "bytes": 167084
           }
         ]
       }
@@ -411,46 +397,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/lost-wallet-cafe-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 41.33,
-        "bytes": 330860,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.019732,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "maria",
-            "startMs": 0,
-            "endMs": 5840
+            "file": "audio/c1/lost-wallet-cafe-01-c1/turn-01.wav",
+            "bytes": 268844
           },
           {
             "turn": 2,
             "speakerId": "mr_james",
-            "startMs": 6220,
-            "endMs": 13220
+            "file": "audio/c1/lost-wallet-cafe-01-c1/turn-02.wav",
+            "bytes": 326444
           },
           {
             "turn": 3,
             "speakerId": "maria",
-            "startMs": 13600,
-            "endMs": 22240
+            "file": "audio/c1/lost-wallet-cafe-01-c1/turn-03.wav",
+            "bytes": 405164
           },
           {
             "turn": 4,
             "speakerId": "mr_james",
-            "startMs": 22620,
-            "endMs": 32020
+            "file": "audio/c1/lost-wallet-cafe-01-c1/turn-04.wav",
+            "bytes": 435884
           },
           {
             "turn": 5,
             "speakerId": "maria",
-            "startMs": 32400,
-            "endMs": 41280
+            "file": "audio/c1/lost-wallet-cafe-01-c1/turn-05.wav",
+            "bytes": 405164
           }
         ]
       }
@@ -530,46 +509,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 20.38,
-        "bytes": 163244,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.00973,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "leo",
-            "startMs": 0,
-            "endMs": 4480
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-01.wav",
+            "bytes": 199724
           },
           {
             "turn": 2,
             "speakerId": "ms_clark",
-            "startMs": 4860,
-            "endMs": 8460
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-02.wav",
+            "bytes": 172844
           },
           {
             "turn": 3,
             "speakerId": "leo",
-            "startMs": 8840,
-            "endMs": 13240
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-03.wav",
+            "bytes": 217004
           },
           {
             "turn": 4,
             "speakerId": "ms_clark",
-            "startMs": 13620,
-            "endMs": 16620
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-04.wav",
+            "bytes": 147884
           },
           {
             "turn": 5,
             "speakerId": "leo",
-            "startMs": 17000,
-            "endMs": 20320
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-05.wav",
+            "bytes": 157484
           }
         ]
       }
@@ -649,46 +621,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 29.98,
-        "bytes": 240044,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014314,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "leo",
-            "startMs": 0,
-            "endMs": 4120
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-01.wav",
+            "bytes": 205484
           },
           {
             "turn": 2,
             "speakerId": "ms_clark",
-            "startMs": 4500,
-            "endMs": 12540
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-02.wav",
+            "bytes": 337964
           },
           {
             "turn": 3,
             "speakerId": "leo",
-            "startMs": 12920,
-            "endMs": 19440
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-03.wav",
+            "bytes": 305324
           },
           {
             "turn": 4,
             "speakerId": "ms_clark",
-            "startMs": 19820,
-            "endMs": 24900
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-04.wav",
+            "bytes": 249644
           },
           {
             "turn": 5,
             "speakerId": "leo",
-            "startMs": 25280,
-            "endMs": 29920
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-05.wav",
+            "bytes": 232364
           }
         ]
       }
@@ -767,46 +732,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/shared-umbrella-bus-stop-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 38.5,
-        "bytes": 308204,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.018381,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "leo",
-            "startMs": 0,
-            "endMs": 7240
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-01.wav",
+            "bytes": 332204
           },
           {
             "turn": 2,
             "speakerId": "ms_clark",
-            "startMs": 7620,
-            "endMs": 16340
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-02.wav",
+            "bytes": 410924
           },
           {
             "turn": 3,
             "speakerId": "leo",
-            "startMs": 16720,
-            "endMs": 25640
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-03.wav",
+            "bytes": 364844
           },
           {
             "turn": 4,
             "speakerId": "ms_clark",
-            "startMs": 26020,
-            "endMs": 32020
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-04.wav",
+            "bytes": 297644
           },
           {
             "turn": 5,
             "speakerId": "leo",
-            "startMs": 32400,
-            "endMs": 38440
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-05.wav",
+            "bytes": 280364
           }
         ]
       }
@@ -886,46 +844,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.22,
-        "bytes": 130028,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007744,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "dad",
-            "startMs": 0,
-            "endMs": 2680
+            "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2/turn-01.wav",
+            "bytes": 155564
           },
           {
             "turn": 2,
             "speakerId": "clerk",
-            "startMs": 3060,
-            "endMs": 6180
+            "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2/turn-02.wav",
+            "bytes": 153644
           },
           {
             "turn": 3,
             "speakerId": "dad",
-            "startMs": 6560,
-            "endMs": 9360
+            "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2/turn-03.wav",
+            "bytes": 157484
           },
           {
             "turn": 4,
             "speakerId": "clerk",
-            "startMs": 9740,
-            "endMs": 12660
+            "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2/turn-04.wav",
+            "bytes": 145964
           },
           {
             "turn": 5,
             "speakerId": "dad",
-            "startMs": 13040,
-            "endMs": 16160
+            "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2/turn-05.wav",
+            "bytes": 147884
           }
         ]
       }
@@ -1005,46 +956,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.49,
-        "bytes": 228140,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013602,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "dad",
-            "startMs": 0,
-            "endMs": 5920
+            "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2/turn-01.wav",
+            "bytes": 289964
           },
           {
             "turn": 2,
             "speakerId": "clerk",
-            "startMs": 6300,
-            "endMs": 11100
+            "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2/turn-02.wav",
+            "bytes": 247724
           },
           {
             "turn": 3,
             "speakerId": "dad",
-            "startMs": 11480,
-            "endMs": 16680
+            "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2/turn-03.wav",
+            "bytes": 274604
           },
           {
             "turn": 4,
             "speakerId": "clerk",
-            "startMs": 17060,
-            "endMs": 23020
+            "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2/turn-04.wav",
+            "bytes": 286124
           },
           {
             "turn": 5,
             "speakerId": "dad",
-            "startMs": 23400,
-            "endMs": 28440
+            "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2/turn-05.wav",
+            "bytes": 251564
           }
         ]
       }
@@ -1123,46 +1067,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/torn-grocery-bag-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 35.09,
-        "bytes": 280940,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016753,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "dad",
-            "startMs": 0,
-            "endMs": 7840
+            "file": "audio/c1/torn-grocery-bag-01-c1/turn-01.wav",
+            "bytes": 370604
           },
           {
             "turn": 2,
             "speakerId": "clerk",
-            "startMs": 8220,
-            "endMs": 14100
+            "file": "audio/c1/torn-grocery-bag-01-c1/turn-02.wav",
+            "bytes": 284204
           },
           {
             "turn": 3,
             "speakerId": "dad",
-            "startMs": 14480,
-            "endMs": 21440
+            "file": "audio/c1/torn-grocery-bag-01-c1/turn-03.wav",
+            "bytes": 322604
           },
           {
             "turn": 4,
             "speakerId": "clerk",
-            "startMs": 21820,
-            "endMs": 28620
+            "file": "audio/c1/torn-grocery-bag-01-c1/turn-04.wav",
+            "bytes": 339884
           },
           {
             "turn": 5,
             "speakerId": "dad",
-            "startMs": 29000,
-            "endMs": 35040
+            "file": "audio/c1/torn-grocery-bag-01-c1/turn-05.wav",
+            "bytes": 286124
           }
         ]
       }
@@ -1242,46 +1179,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.9,
-        "bytes": 111404,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006636,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "sam",
-            "startMs": 0,
-            "endMs": 2120
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-01.wav",
+            "bytes": 117164
           },
           {
             "turn": 2,
             "speakerId": "mina",
-            "startMs": 2500,
-            "endMs": 5140
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-02.wav",
+            "bytes": 132524
           },
           {
             "turn": 3,
             "speakerId": "sam",
-            "startMs": 5520,
-            "endMs": 7840
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-03.wav",
+            "bytes": 136364
           },
           {
             "turn": 4,
             "speakerId": "mina",
-            "startMs": 8220,
-            "endMs": 10980
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-04.wav",
+            "bytes": 149804
           },
           {
             "turn": 5,
             "speakerId": "sam",
-            "startMs": 11360,
-            "endMs": 13840
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-05.wav",
+            "bytes": 119084
           }
         ]
       }
@@ -1361,46 +1291,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.22,
-        "bytes": 202028,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012041,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "sam",
-            "startMs": 0,
-            "endMs": 4720
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-01.wav",
+            "bytes": 243884
           },
           {
             "turn": 2,
             "speakerId": "mina",
-            "startMs": 5100,
-            "endMs": 9420
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-02.wav",
+            "bytes": 211244
           },
           {
             "turn": 3,
             "speakerId": "sam",
-            "startMs": 9800,
-            "endMs": 14320
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-03.wav",
+            "bytes": 178604
           },
           {
             "turn": 4,
             "speakerId": "mina",
-            "startMs": 14700,
-            "endMs": 19700
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-04.wav",
+            "bytes": 251564
           },
           {
             "turn": 5,
             "speakerId": "sam",
-            "startMs": 20080,
-            "endMs": 25160
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-05.wav",
+            "bytes": 243884
           }
         ]
       }
@@ -1479,46 +1402,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/shared-lunch-classroom-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 35.09,
-        "bytes": 280940,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016753,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "sam",
-            "startMs": 0,
-            "endMs": 6600
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-01.wav",
+            "bytes": 299564
           },
           {
             "turn": 2,
             "speakerId": "mina",
-            "startMs": 6980,
-            "endMs": 13420
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-02.wav",
+            "bytes": 313004
           },
           {
             "turn": 3,
             "speakerId": "sam",
-            "startMs": 13800,
-            "endMs": 19440
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-03.wav",
+            "bytes": 288044
           },
           {
             "turn": 4,
             "speakerId": "mina",
-            "startMs": 19820,
-            "endMs": 26980
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-04.wav",
+            "bytes": 372524
           },
           {
             "turn": 5,
             "speakerId": "sam",
-            "startMs": 27360,
-            "endMs": 35040
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-05.wav",
+            "bytes": 385964
           }
         ]
       }
@@ -1598,46 +1514,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.34,
-        "bytes": 130988,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007801,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "nina",
-            "startMs": 0,
-            "endMs": 3200
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-01.wav",
+            "bytes": 145964
           },
           {
             "turn": 2,
             "speakerId": "uncle_ben",
-            "startMs": 3580,
-            "endMs": 6700
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-02.wav",
+            "bytes": 188204
           },
           {
             "turn": 3,
             "speakerId": "nina",
-            "startMs": 7080,
-            "endMs": 9560
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-03.wav",
+            "bytes": 107564
           },
           {
             "turn": 4,
             "speakerId": "uncle_ben",
-            "startMs": 9940,
-            "endMs": 12900
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-04.wav",
+            "bytes": 151724
           },
           {
             "turn": 5,
             "speakerId": "nina",
-            "startMs": 13280,
-            "endMs": 16280
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-05.wav",
+            "bytes": 134444
           }
         ]
       }
@@ -1717,46 +1626,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 26.69,
-        "bytes": 213740,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012743,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "nina",
-            "startMs": 0,
-            "endMs": 4880
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-01.wav",
+            "bytes": 230444
           },
           {
             "turn": 2,
             "speakerId": "uncle_ben",
-            "startMs": 5260,
-            "endMs": 11460
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-02.wav",
+            "bytes": 280364
           },
           {
             "turn": 3,
             "speakerId": "nina",
-            "startMs": 11840,
-            "endMs": 16240
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-03.wav",
+            "bytes": 190124
           },
           {
             "turn": 4,
             "speakerId": "uncle_ben",
-            "startMs": 16620,
-            "endMs": 21900
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-04.wav",
+            "bytes": 251564
           },
           {
             "turn": 5,
             "speakerId": "nina",
-            "startMs": 22280,
-            "endMs": 26640
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-05.wav",
+            "bytes": 213164
           }
         ]
       }
@@ -1835,46 +1737,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/pancake-practice-kitchen-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 33.74,
-        "bytes": 270188,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016109,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "nina",
-            "startMs": 0,
-            "endMs": 5160
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-01.wav",
+            "bytes": 253484
           },
           {
             "turn": 2,
             "speakerId": "uncle_ben",
-            "startMs": 5540,
-            "endMs": 13500
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-02.wav",
+            "bytes": 374444
           },
           {
             "turn": 3,
             "speakerId": "nina",
-            "startMs": 13880,
-            "endMs": 18520
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-03.wav",
+            "bytes": 213164
           },
           {
             "turn": 4,
             "speakerId": "uncle_ben",
-            "startMs": 18900,
-            "endMs": 26980
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-04.wav",
+            "bytes": 393644
           },
           {
             "turn": 5,
             "speakerId": "nina",
-            "startMs": 27360,
-            "endMs": 33680
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-05.wav",
+            "bytes": 284204
           }
         ]
       }
@@ -1954,46 +1849,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.25,
-        "bytes": 130220,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007758,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "emma",
-            "startMs": 0,
-            "endMs": 3040
+            "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-01.wav",
+            "bytes": 138284
           },
           {
             "turn": 2,
             "speakerId": "noah",
-            "startMs": 3420,
-            "endMs": 7020
+            "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-02.wav",
+            "bytes": 174764
           },
           {
             "turn": 3,
             "speakerId": "emma",
-            "startMs": 7400,
-            "endMs": 9720
+            "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-03.wav",
+            "bytes": 119084
           },
           {
             "turn": 4,
             "speakerId": "noah",
-            "startMs": 10100,
-            "endMs": 13020
+            "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-04.wav",
+            "bytes": 134444
           },
           {
             "turn": 5,
             "speakerId": "emma",
-            "startMs": 13400,
-            "endMs": 16200
+            "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-05.wav",
+            "bytes": 140204
           }
         ]
       }
@@ -2073,46 +1961,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.58,
-        "bytes": 204908,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012213,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "emma",
-            "startMs": 0,
-            "endMs": 5320
+            "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-01.wav",
+            "bytes": 274604
           },
           {
             "turn": 2,
             "speakerId": "noah",
-            "startMs": 5700,
-            "endMs": 9660
+            "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-02.wav",
+            "bytes": 205484
           },
           {
             "turn": 3,
             "speakerId": "emma",
-            "startMs": 10040,
-            "endMs": 14760
+            "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-03.wav",
+            "bytes": 226604
           },
           {
             "turn": 4,
             "speakerId": "noah",
-            "startMs": 15140,
-            "endMs": 20340
+            "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-04.wav",
+            "bytes": 245804
           },
           {
             "turn": 5,
             "speakerId": "emma",
-            "startMs": 20720,
-            "endMs": 25520
+            "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-05.wav",
+            "bytes": 232364
           }
         ]
       }
@@ -2191,46 +2072,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/late-meeting-workplace-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 33.41,
-        "bytes": 267500,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015951,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "emma",
-            "startMs": 0,
-            "endMs": 6720
+            "file": "audio/c1/late-meeting-workplace-01-c1/turn-01.wav",
+            "bytes": 316844
           },
           {
             "turn": 2,
             "speakerId": "noah",
-            "startMs": 7100,
-            "endMs": 13940
+            "file": "audio/c1/late-meeting-workplace-01-c1/turn-02.wav",
+            "bytes": 278444
           },
           {
             "turn": 3,
             "speakerId": "emma",
-            "startMs": 14320,
-            "endMs": 20840
+            "file": "audio/c1/late-meeting-workplace-01-c1/turn-03.wav",
+            "bytes": 280364
           },
           {
             "turn": 4,
             "speakerId": "noah",
-            "startMs": 21220,
-            "endMs": 27340
+            "file": "audio/c1/late-meeting-workplace-01-c1/turn-04.wav",
+            "bytes": 297644
           },
           {
             "turn": 5,
             "speakerId": "emma",
-            "startMs": 27720,
-            "endMs": 33360
+            "file": "audio/c1/late-meeting-workplace-01-c1/turn-05.wav",
+            "bytes": 282284
           }
         ]
       }
@@ -2310,46 +2184,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/printer-help-workplace-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.66,
-        "bytes": 133484,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007954,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "maya",
-            "startMs": 0,
-            "endMs": 3040
+            "file": "audio/a1-a2/printer-help-workplace-01-a1-a2/turn-01.wav",
+            "bytes": 161324
           },
           {
             "turn": 2,
             "speakerId": "liam",
-            "startMs": 3420,
-            "endMs": 6340
+            "file": "audio/a1-a2/printer-help-workplace-01-a1-a2/turn-02.wav",
+            "bytes": 155564
           },
           {
             "turn": 3,
             "speakerId": "maya",
-            "startMs": 6720,
-            "endMs": 9680
+            "file": "audio/a1-a2/printer-help-workplace-01-a1-a2/turn-03.wav",
+            "bytes": 134444
           },
           {
             "turn": 4,
             "speakerId": "liam",
-            "startMs": 10060,
-            "endMs": 13180
+            "file": "audio/a1-a2/printer-help-workplace-01-a1-a2/turn-04.wav",
+            "bytes": 142124
           },
           {
             "turn": 5,
             "speakerId": "maya",
-            "startMs": 13560,
-            "endMs": 16600
+            "file": "audio/a1-a2/printer-help-workplace-01-a1-a2/turn-05.wav",
+            "bytes": 142124
           }
         ]
       }
@@ -2429,46 +2296,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/printer-help-workplace-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.85,
-        "bytes": 231020,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013774,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "maya",
-            "startMs": 0,
-            "endMs": 6040
+            "file": "audio/b1-b2/printer-help-workplace-01-b1-b2/turn-01.wav",
+            "bytes": 305324
           },
           {
             "turn": 2,
             "speakerId": "liam",
-            "startMs": 6420,
-            "endMs": 12220
+            "file": "audio/b1-b2/printer-help-workplace-01-b1-b2/turn-02.wav",
+            "bytes": 270764
           },
           {
             "turn": 3,
             "speakerId": "maya",
-            "startMs": 12600,
-            "endMs": 18480
+            "file": "audio/b1-b2/printer-help-workplace-01-b1-b2/turn-03.wav",
+            "bytes": 253484
           },
           {
             "turn": 4,
             "speakerId": "liam",
-            "startMs": 18860,
-            "endMs": 24340
+            "file": "audio/b1-b2/printer-help-workplace-01-b1-b2/turn-04.wav",
+            "bytes": 238124
           },
           {
             "turn": 5,
             "speakerId": "maya",
-            "startMs": 24720,
-            "endMs": 28800
+            "file": "audio/b1-b2/printer-help-workplace-01-b1-b2/turn-05.wav",
+            "bytes": 182444
           }
         ]
       }
@@ -2547,46 +2407,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/printer-help-workplace-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 36.98,
-        "bytes": 296108,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017656,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "maya",
-            "startMs": 0,
-            "endMs": 6120
+            "file": "audio/c1/printer-help-workplace-01-c1/turn-01.wav",
+            "bytes": 286124
           },
           {
             "turn": 2,
             "speakerId": "liam",
-            "startMs": 6500,
-            "endMs": 14540
+            "file": "audio/c1/printer-help-workplace-01-c1/turn-02.wav",
+            "bytes": 424364
           },
           {
             "turn": 3,
             "speakerId": "maya",
-            "startMs": 14920,
-            "endMs": 21360
+            "file": "audio/c1/printer-help-workplace-01-c1/turn-03.wav",
+            "bytes": 297644
           },
           {
             "turn": 4,
             "speakerId": "liam",
-            "startMs": 21740,
-            "endMs": 29700
+            "file": "audio/c1/printer-help-workplace-01-c1/turn-04.wav",
+            "bytes": 397484
           },
           {
             "turn": 5,
             "speakerId": "maya",
-            "startMs": 30080,
-            "endMs": 36920
+            "file": "audio/c1/printer-help-workplace-01-c1/turn-05.wav",
+            "bytes": 326444
           }
         ]
       }
@@ -2666,46 +2519,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.81,
-        "bytes": 118700,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007071,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "sofia",
-            "startMs": 0,
-            "endMs": 2760
+            "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2/turn-01.wav",
+            "bytes": 136364
           },
           {
             "turn": 2,
             "speakerId": "omar",
-            "startMs": 3140,
-            "endMs": 6500
+            "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2/turn-02.wav",
+            "bytes": 165164
           },
           {
             "turn": 3,
             "speakerId": "sofia",
-            "startMs": 6880,
-            "endMs": 8800
+            "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2/turn-03.wav",
+            "bytes": 99884
           },
           {
             "turn": 4,
             "speakerId": "omar",
-            "startMs": 9180,
-            "endMs": 11740
+            "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2/turn-04.wav",
+            "bytes": 128684
           },
           {
             "turn": 5,
             "speakerId": "sofia",
-            "startMs": 12120,
-            "endMs": 14760
+            "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2/turn-05.wav",
+            "bytes": 144044
           }
         ]
       }
@@ -2785,46 +2631,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.61,
-        "bytes": 205100,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012227,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "sofia",
-            "startMs": 0,
-            "endMs": 5680
+            "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2/turn-01.wav",
+            "bytes": 255404
           },
           {
             "turn": 2,
             "speakerId": "omar",
-            "startMs": 6060,
-            "endMs": 10300
+            "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2/turn-02.wav",
+            "bytes": 213164
           },
           {
             "turn": 3,
             "speakerId": "sofia",
-            "startMs": 10680,
-            "endMs": 15120
+            "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2/turn-03.wav",
+            "bytes": 211244
           },
           {
             "turn": 4,
             "speakerId": "omar",
-            "startMs": 15500,
-            "endMs": 20420
+            "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2/turn-04.wav",
+            "bytes": 226604
           },
           {
             "turn": 5,
             "speakerId": "sofia",
-            "startMs": 20800,
-            "endMs": 25560
+            "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2/turn-05.wav",
+            "bytes": 232364
           }
         ]
       }
@@ -2903,46 +2742,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/team-deadline-workplace-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 36.65,
-        "bytes": 293420,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017498,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "sofia",
-            "startMs": 0,
-            "endMs": 6440
+            "file": "audio/c1/team-deadline-workplace-01-c1/turn-01.wav",
+            "bytes": 316844
           },
           {
             "turn": 2,
             "speakerId": "omar",
-            "startMs": 6820,
-            "endMs": 12980
+            "file": "audio/c1/team-deadline-workplace-01-c1/turn-02.wav",
+            "bytes": 311084
           },
           {
             "turn": 3,
             "speakerId": "sofia",
-            "startMs": 13360,
-            "endMs": 21080
+            "file": "audio/c1/team-deadline-workplace-01-c1/turn-03.wav",
+            "bytes": 337964
           },
           {
             "turn": 4,
             "speakerId": "omar",
-            "startMs": 21460,
-            "endMs": 29780
+            "file": "audio/c1/team-deadline-workplace-01-c1/turn-04.wav",
+            "bytes": 389804
           },
           {
             "turn": 5,
             "speakerId": "sofia",
-            "startMs": 30160,
-            "endMs": 36600
+            "file": "audio/c1/team-deadline-workplace-01-c1/turn-05.wav",
+            "bytes": 326444
           }
         ]
       }
@@ -2995,15 +2827,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/messy-desk-clean-desk-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.3,
-        "bytes": 130604,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007782,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/messy-desk-clean-desk-01-a1-a2/turn-01.wav",
+            "bytes": 756524
+          }
+        ]
       }
     },
     {
@@ -3054,15 +2888,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/messy-desk-clean-desk-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.86,
-        "bytes": 191084,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011392,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/messy-desk-clean-desk-01-b1-b2/turn-01.wav",
+            "bytes": 1129004
+          }
+        ]
       }
     },
     {
@@ -3112,15 +2948,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/messy-desk-clean-desk-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.06,
-        "bytes": 248684,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014829,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/messy-desk-clean-desk-01-c1/turn-01.wav",
+            "bytes": 1493804
+          }
+        ]
       }
     },
     {
@@ -3198,46 +3036,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/office-break-room-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 15.89,
-        "bytes": 127340,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007586,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "anna",
-            "startMs": 0,
-            "endMs": 2360
+            "file": "audio/a1-a2/office-break-room-01-a1-a2/turn-01.wav",
+            "bytes": 113324
           },
           {
             "turn": 2,
             "speakerId": "marco",
-            "startMs": 2740,
-            "endMs": 5700
+            "file": "audio/a1-a2/office-break-room-01-a1-a2/turn-02.wav",
+            "bytes": 134444
           },
           {
             "turn": 3,
             "speakerId": "anna",
-            "startMs": 6080,
-            "endMs": 8600
+            "file": "audio/a1-a2/office-break-room-01-a1-a2/turn-03.wav",
+            "bytes": 119084
           },
           {
             "turn": 4,
             "speakerId": "marco",
-            "startMs": 8980,
-            "endMs": 11980
+            "file": "audio/a1-a2/office-break-room-01-a1-a2/turn-04.wav",
+            "bytes": 157484
           },
           {
             "turn": 5,
             "speakerId": "anna",
-            "startMs": 12360,
-            "endMs": 15840
+            "file": "audio/a1-a2/office-break-room-01-a1-a2/turn-05.wav",
+            "bytes": 163244
           }
         ]
       }
@@ -3317,46 +3148,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/office-break-room-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.37,
-        "bytes": 203180,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012113,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "anna",
-            "startMs": 0,
-            "endMs": 3240
+            "file": "audio/b1-b2/office-break-room-01-b1-b2/turn-01.wav",
+            "bytes": 157484
           },
           {
             "turn": 2,
             "speakerId": "marco",
-            "startMs": 3620,
-            "endMs": 10020
+            "file": "audio/b1-b2/office-break-room-01-b1-b2/turn-02.wav",
+            "bytes": 286124
           },
           {
             "turn": 3,
             "speakerId": "anna",
-            "startMs": 10400,
-            "endMs": 15640
+            "file": "audio/b1-b2/office-break-room-01-b1-b2/turn-03.wav",
+            "bytes": 232364
           },
           {
             "turn": 4,
             "speakerId": "marco",
-            "startMs": 16020,
-            "endMs": 20740
+            "file": "audio/b1-b2/office-break-room-01-b1-b2/turn-04.wav",
+            "bytes": 217004
           },
           {
             "turn": 5,
             "speakerId": "anna",
-            "startMs": 21120,
-            "endMs": 25320
+            "file": "audio/b1-b2/office-break-room-01-b1-b2/turn-05.wav",
+            "bytes": 205484
           }
         ]
       }
@@ -3435,46 +3259,39 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/office-break-room-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 37.66,
-        "bytes": 301484,
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
         "generatedAt": "2026-07-11",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01798,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
-        "interTurnSilenceMs": 380,
-        "segments": [
+        "clips": [
           {
             "turn": 1,
             "speakerId": "anna",
-            "startMs": 0,
-            "endMs": 5800
+            "file": "audio/c1/office-break-room-01-c1/turn-01.wav",
+            "bytes": 259244
           },
           {
             "turn": 2,
             "speakerId": "marco",
-            "startMs": 6180,
-            "endMs": 14340
+            "file": "audio/c1/office-break-room-01-c1/turn-02.wav",
+            "bytes": 374444
           },
           {
             "turn": 3,
             "speakerId": "anna",
-            "startMs": 14720,
-            "endMs": 23120
+            "file": "audio/c1/office-break-room-01-c1/turn-03.wav",
+            "bytes": 385964
           },
           {
             "turn": 4,
             "speakerId": "marco",
-            "startMs": 23500,
-            "endMs": 29820
+            "file": "audio/c1/office-break-room-01-c1/turn-04.wav",
+            "bytes": 299564
           },
           {
             "turn": 5,
             "speakerId": "anna",
-            "startMs": 30200,
-            "endMs": 37600
+            "file": "audio/c1/office-break-room-01-c1/turn-05.wav",
+            "bytes": 370604
           }
         ]
       }
@@ -3527,15 +3344,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/doctor-visit-cough-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.22,
-        "bytes": 130028,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007744,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/doctor-visit-cough-01-a1-a2/turn-01.wav",
+            "bytes": 777644
+          }
+        ]
       }
     },
     {
@@ -3586,15 +3405,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/doctor-visit-cough-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.14,
-        "bytes": 185324,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011048,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/doctor-visit-cough-01-b1-b2/turn-01.wav",
+            "bytes": 1065644
+          }
+        ]
       }
     },
     {
@@ -3644,15 +3465,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/doctor-visit-cough-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 29.62,
-        "bytes": 237164,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014142,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/doctor-visit-cough-01-c1/turn-01.wav",
+            "bytes": 1447724
+          }
+        ]
       }
     },
     {
@@ -3703,15 +3526,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/pharmacy-instructions-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.86,
-        "bytes": 119084,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007095,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/pharmacy-instructions-01-a1-a2/turn-01.wav",
+            "bytes": 729644
+          }
+        ]
       }
     },
     {
@@ -3762,15 +3587,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/pharmacy-instructions-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.5,
-        "bytes": 196268,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011697,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/pharmacy-instructions-01-b1-b2/turn-01.wav",
+            "bytes": 1163564
+          }
+        ]
       }
     },
     {
@@ -3820,15 +3647,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/pharmacy-instructions-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.14,
-        "bytes": 257324,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015345,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/pharmacy-instructions-01-c1/turn-01.wav",
+            "bytes": 1687724
+          }
+        ]
       }
     },
     {
@@ -3879,15 +3708,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/minor-sprain-clinic-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.06,
-        "bytes": 104684,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006235,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/minor-sprain-clinic-01-a1-a2/turn-01.wav",
+            "bytes": 633644
+          }
+        ]
       }
     },
     {
@@ -3938,15 +3769,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/minor-sprain-clinic-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 21.77,
-        "bytes": 174380,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010394,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/minor-sprain-clinic-01-b1-b2/turn-01.wav",
+            "bytes": 1094444
+          }
+        ]
       }
     },
     {
@@ -3996,15 +3829,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/minor-sprain-clinic-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.9,
-        "bytes": 255404,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01523,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/minor-sprain-clinic-01-c1/turn-01.wav",
+            "bytes": 1516844
+          }
+        ]
       }
     },
     {
@@ -4055,15 +3890,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/before-after-resting-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.82,
-        "bytes": 110828,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006598,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/before-after-resting-01-a1-a2/turn-01.wav",
+            "bytes": 695084
+          }
+        ]
       }
     },
     {
@@ -4114,15 +3951,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/before-after-resting-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.17,
-        "bytes": 193580,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01154,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/before-after-resting-01-b1-b2/turn-01.wav",
+            "bytes": 1163564
+          }
+        ]
       }
     },
     {
@@ -4172,15 +4011,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/before-after-resting-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 33.05,
-        "bytes": 264620,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015779,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/before-after-resting-01-c1/turn-01.wav",
+            "bytes": 1601324
+          }
+        ]
       }
     },
     {
@@ -4231,15 +4072,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/waiting-room-check-in-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.06,
-        "bytes": 128684,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007668,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/waiting-room-check-in-01-a1-a2/turn-01.wav",
+            "bytes": 775724
+          }
+        ]
       }
     },
     {
@@ -4290,15 +4133,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/waiting-room-check-in-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.62,
-        "bytes": 197228,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011754,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/waiting-room-check-in-01-b1-b2/turn-01.wav",
+            "bytes": 1150124
+          }
+        ]
       }
     },
     {
@@ -4348,15 +4193,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/waiting-room-check-in-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.66,
-        "bytes": 253484,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015116,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/waiting-room-check-in-01-c1/turn-01.wav",
+            "bytes": 1493804
+          }
+        ]
       }
     },
     {
@@ -4407,15 +4254,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/missed-train-platform-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.18,
-        "bytes": 113708,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.00677,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/missed-train-platform-01-a1-a2/turn-01.wav",
+            "bytes": 673964
+          }
+        ]
       }
     },
     {
@@ -4466,15 +4315,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/missed-train-platform-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 26.3,
-        "bytes": 210668,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012557,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/missed-train-platform-01-b1-b2/turn-01.wav",
+            "bytes": 1248044
+          }
+        ]
       }
     },
     {
@@ -4524,15 +4375,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/missed-train-platform-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.54,
-        "bytes": 228524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013626,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/missed-train-platform-01-c1/turn-01.wav",
+            "bytes": 1357484
+          }
+        ]
       }
     },
     {
@@ -4583,15 +4436,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/lost-luggage-hotel-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.42,
-        "bytes": 115628,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006885,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/lost-luggage-hotel-01-a1-a2/turn-01.wav",
+            "bytes": 652844
+          }
+        ]
       }
     },
     {
@@ -4642,15 +4497,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/lost-luggage-hotel-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.9,
-        "bytes": 191468,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011411,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/lost-luggage-hotel-01-b1-b2/turn-01.wav",
+            "bytes": 1200044
+          }
+        ]
       }
     },
     {
@@ -4700,15 +4557,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/lost-luggage-hotel-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.02,
-        "bytes": 256364,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015287,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/lost-luggage-hotel-01-c1/turn-01.wav",
+            "bytes": 1593644
+          }
+        ]
       }
     },
     {
@@ -4759,15 +4618,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/ticket-machine-help-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.54,
-        "bytes": 108524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006464,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/ticket-machine-help-01-a1-a2/turn-01.wav",
+            "bytes": 658604
+          }
+        ]
       }
     },
     {
@@ -4818,15 +4679,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/ticket-machine-help-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 21.62,
-        "bytes": 173228,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010322,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/ticket-machine-help-01-b1-b2/turn-01.wav",
+            "bytes": 1081004
+          }
+        ]
       }
     },
     {
@@ -4876,15 +4739,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/ticket-machine-help-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 30.65,
-        "bytes": 245420,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014633,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/ticket-machine-help-01-c1/turn-01.wav",
+            "bytes": 1459244
+          }
+        ]
       }
     },
     {
@@ -4935,15 +4800,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/packed-unpacked-suitcase-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.37,
-        "bytes": 131180,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007816,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/packed-unpacked-suitcase-01-a1-a2/turn-01.wav",
+            "bytes": 731564
+          }
+        ]
       }
     },
     {
@@ -4994,15 +4861,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/packed-unpacked-suitcase-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.41,
-        "bytes": 195500,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011654,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/packed-unpacked-suitcase-01-b1-b2/turn-01.wav",
+            "bytes": 1105964
+          }
+        ]
       }
     },
     {
@@ -5052,15 +4921,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/packed-unpacked-suitcase-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.66,
-        "bytes": 253484,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015116,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/packed-unpacked-suitcase-01-c1/turn-01.wav",
+            "bytes": 1541804
+          }
+        ]
       }
     },
     {
@@ -5111,15 +4982,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/airport-security-line-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.46,
-        "bytes": 107948,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006426,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/airport-security-line-01-a1-a2/turn-01.wav",
+            "bytes": 620204
+          }
+        ]
       }
     },
     {
@@ -5170,15 +5043,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/airport-security-line-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.3,
-        "bytes": 186668,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011124,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/airport-security-line-01-b1-b2/turn-01.wav",
+            "bytes": 1123244
+          }
+        ]
       }
     },
     {
@@ -5228,15 +5103,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/airport-security-line-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.82,
-        "bytes": 230828,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01376,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/airport-security-line-01-c1/turn-01.wav",
+            "bytes": 1426604
+          }
+        ]
       }
     },
     {
@@ -5287,15 +5164,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/wrong-size-return-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.02,
-        "bytes": 96428,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.005739,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/wrong-size-return-01-a1-a2/turn-01.wav",
+            "bytes": 591404
+          }
+        ]
       }
     },
     {
@@ -5346,15 +5225,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/wrong-size-return-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 21.7,
-        "bytes": 173804,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01036,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/wrong-size-return-01-b1-b2/turn-01.wav",
+            "bytes": 1113644
+          }
+        ]
       }
     },
     {
@@ -5404,15 +5285,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/wrong-size-return-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.54,
-        "bytes": 228524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013626,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/wrong-size-return-01-c1/turn-01.wav",
+            "bytes": 1397804
+          }
+        ]
       }
     },
     {
@@ -5463,15 +5346,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/wrong-cafe-order-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.98,
-        "bytes": 104108,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006197,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/wrong-cafe-order-01-a1-a2/turn-01.wav",
+            "bytes": 624044
+          }
+        ]
       }
     },
     {
@@ -5522,15 +5407,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/wrong-cafe-order-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.05,
-        "bytes": 192620,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011482,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/wrong-cafe-order-01-b1-b2/turn-01.wav",
+            "bytes": 1152044
+          }
+        ]
       }
     },
     {
@@ -5580,15 +5467,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/wrong-cafe-order-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.22,
-        "bytes": 250028,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014906,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/wrong-cafe-order-01-c1/turn-01.wav",
+            "bytes": 1520684
+          }
+        ]
       }
     },
     {
@@ -5639,15 +5528,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/phone-repair-pickup-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.49,
-        "bytes": 108140,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006441,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/phone-repair-pickup-01-a1-a2/turn-01.wav",
+            "bytes": 604844
+          }
+        ]
       }
     },
     {
@@ -5698,15 +5589,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/phone-repair-pickup-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 21.82,
-        "bytes": 174764,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010418,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/phone-repair-pickup-01-b1-b2/turn-01.wav",
+            "bytes": 1009964
+          }
+        ]
       }
     },
     {
@@ -5756,15 +5649,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/phone-repair-pickup-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.7,
-        "bytes": 253868,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015135,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/phone-repair-pickup-01-c1/turn-01.wav",
+            "bytes": 1488044
+          }
+        ]
       }
     },
     {
@@ -5815,15 +5710,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/empty-full-cart-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 15.98,
-        "bytes": 128108,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007629,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/empty-full-cart-01-a1-a2/turn-01.wav",
+            "bytes": 731564
+          }
+        ]
       }
     },
     {
@@ -5874,15 +5771,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/empty-full-cart-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.18,
-        "bytes": 185708,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011067,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/empty-full-cart-01-b1-b2/turn-01.wav",
+            "bytes": 1107884
+          }
+        ]
       }
     },
     {
@@ -5932,15 +5831,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/empty-full-cart-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 29.14,
-        "bytes": 233324,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013912,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/empty-full-cart-01-c1/turn-01.wav",
+            "bytes": 1418924
+          }
+        ]
       }
     },
     {
@@ -5991,15 +5892,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/market-checkout-line-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.1,
-        "bytes": 105068,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006254,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/market-checkout-line-01-a1-a2/turn-01.wav",
+            "bytes": 625964
+          }
+        ]
       }
     },
     {
@@ -6050,15 +5953,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/market-checkout-line-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.94,
-        "bytes": 199724,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011907,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/market-checkout-line-01-b1-b2/turn-01.wav",
+            "bytes": 1155884
+          }
+        ]
       }
     },
     {
@@ -6108,15 +6013,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/market-checkout-line-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.02,
-        "bytes": 256364,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015287,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/market-checkout-line-01-c1/turn-01.wav",
+            "bytes": 1497644
+          }
+        ]
       }
     },
     {
@@ -6167,15 +6074,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/forgotten-keys-home-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.66,
-        "bytes": 117548,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006999,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/forgotten-keys-home-01-a1-a2/turn-01.wav",
+            "bytes": 666284
+          }
+        ]
       }
     },
     {
@@ -6226,15 +6135,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/forgotten-keys-home-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 21.53,
-        "bytes": 172460,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010279,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/forgotten-keys-home-01-b1-b2/turn-01.wav",
+            "bytes": 1046444
+          }
+        ]
       }
     },
     {
@@ -6284,15 +6195,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/forgotten-keys-home-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 30.77,
-        "bytes": 246380,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014691,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/forgotten-keys-home-01-c1/turn-01.wav",
+            "bytes": 1491884
+          }
+        ]
       }
     },
     {
@@ -6343,15 +6256,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/laundry-color-mistake-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.3,
-        "bytes": 114668,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006827,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/laundry-color-mistake-01-a1-a2/turn-01.wav",
+            "bytes": 714284
+          }
+        ]
       }
     },
     {
@@ -6402,15 +6317,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/laundry-color-mistake-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.45,
-        "bytes": 187820,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011196,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/laundry-color-mistake-01-b1-b2/turn-01.wav",
+            "bytes": 1182764
+          }
+        ]
       }
     },
     {
@@ -6460,15 +6377,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/laundry-color-mistake-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 30.14,
-        "bytes": 241388,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01439,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/laundry-color-mistake-01-c1/turn-01.wav",
+            "bytes": 1472684
+          }
+        ]
       }
     },
     {
@@ -6519,15 +6438,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/morning-rush-family-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.14,
-        "bytes": 113324,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006751,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/morning-rush-family-01-a1-a2/turn-01.wav",
+            "bytes": 670124
+          }
+        ]
       }
     },
     {
@@ -6578,15 +6499,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/morning-rush-family-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 27.14,
-        "bytes": 217388,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012958,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/morning-rush-family-01-b1-b2/turn-01.wav",
+            "bytes": 1330604
+          }
+        ]
       }
     },
     {
@@ -6636,15 +6559,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/morning-rush-family-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.25,
-        "bytes": 226220,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013488,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/morning-rush-family-01-c1/turn-01.wav",
+            "bytes": 1486124
+          }
+        ]
       }
     },
     {
@@ -6695,15 +6620,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/messy-room-tidy-room-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.93,
-        "bytes": 119660,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007128,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/messy-room-tidy-room-01-a1-a2/turn-01.wav",
+            "bytes": 773804
+          }
+        ]
       }
     },
     {
@@ -6754,15 +6681,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/messy-room-tidy-room-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.74,
-        "bytes": 190124,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011334,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/messy-room-tidy-room-01-b1-b2/turn-01.wav",
+            "bytes": 1159724
+          }
+        ]
       }
     },
     {
@@ -6812,15 +6741,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/messy-room-tidy-room-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 30.7,
-        "bytes": 245804,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014657,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/messy-room-tidy-room-01-c1/turn-01.wav",
+            "bytes": 1503404
+          }
+        ]
       }
     },
     {
@@ -6871,15 +6802,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/family-dinner-table-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.57,
-        "bytes": 116780,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006956,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/family-dinner-table-01-a1-a2/turn-01.wav",
+            "bytes": 683564
+          }
+        ]
       }
     },
     {
@@ -6930,15 +6863,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/family-dinner-table-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 22.13,
-        "bytes": 177260,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010566,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/family-dinner-table-01-b1-b2/turn-01.wav",
+            "bytes": 1094444
+          }
+        ]
       }
     },
     {
@@ -6988,15 +6923,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/family-dinner-table-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 33.34,
-        "bytes": 266924,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015918,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/family-dinner-table-01-c1/turn-01.wav",
+            "bytes": 1593644
+          }
+        ]
       }
     },
     {
@@ -7047,15 +6984,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/group-project-library-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.62,
-        "bytes": 117164,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.00698,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/group-project-library-01-a1-a2/turn-01.wav",
+            "bytes": 698924
+          }
+        ]
       }
     },
     {
@@ -7106,15 +7045,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/group-project-library-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.13,
-        "bytes": 201260,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011998,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/group-project-library-01-b1-b2/turn-01.wav",
+            "bytes": 1234604
+          }
+        ]
       }
     },
     {
@@ -7164,15 +7105,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/group-project-library-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.13,
-        "bytes": 249260,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014863,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/group-project-library-01-c1/turn-01.wav",
+            "bytes": 1545644
+          }
+        ]
       }
     },
     {
@@ -7223,15 +7166,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/forgotten-homework-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.01,
-        "bytes": 104300,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006211,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/forgotten-homework-01-a1-a2/turn-01.wav",
+            "bytes": 610604
+          }
+        ]
       }
     },
     {
@@ -7282,15 +7227,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/forgotten-homework-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.54,
-        "bytes": 204524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012194,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/forgotten-homework-01-b1-b2/turn-01.wav",
+            "bytes": 1153964
+          }
+        ]
       }
     },
     {
@@ -7340,15 +7287,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/forgotten-homework-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 30.29,
-        "bytes": 242540,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014462,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/forgotten-homework-01-c1/turn-01.wav",
+            "bytes": 1518764
+          }
+        ]
       }
     },
     {
@@ -7399,15 +7348,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/science-project-spill-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.42,
-        "bytes": 107564,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006407,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/science-project-spill-01-a1-a2/turn-01.wav",
+            "bytes": 649004
+          }
+        ]
       }
     },
     {
@@ -7458,15 +7409,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/science-project-spill-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 27.98,
-        "bytes": 224108,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013359,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/science-project-spill-01-b1-b2/turn-01.wav",
+            "bytes": 1232684
+          }
+        ]
       }
     },
     {
@@ -7516,15 +7469,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/science-project-spill-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 34.1,
-        "bytes": 273068,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016281,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/science-project-spill-01-c1/turn-01.wav",
+            "bytes": 1486124
+          }
+        ]
       }
     },
     {
@@ -7575,15 +7530,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/empty-full-backpack-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.5,
-        "bytes": 100268,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.005968,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/empty-full-backpack-01-a1-a2/turn-01.wav",
+            "bytes": 597164
+          }
+        ]
       }
     },
     {
@@ -7634,15 +7591,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/empty-full-backpack-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.38,
-        "bytes": 187244,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011162,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/empty-full-backpack-01-b1-b2/turn-01.wav",
+            "bytes": 1081004
+          }
+        ]
       }
     },
     {
@@ -7692,15 +7651,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/empty-full-backpack-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.9,
-        "bytes": 231404,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013798,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/empty-full-backpack-01-c1/turn-01.wav",
+            "bytes": 1372844
+          }
+        ]
       }
     },
     {
@@ -7751,15 +7712,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/classroom-presentation-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.66,
-        "bytes": 109484,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006522,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/classroom-presentation-01-a1-a2/turn-01.wav",
+            "bytes": 693164
+          }
+        ]
       }
     },
     {
@@ -7810,15 +7773,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/classroom-presentation-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.66,
-        "bytes": 205484,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012251,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/classroom-presentation-01-b1-b2/turn-01.wav",
+            "bytes": 1228844
+          }
+        ]
       }
     },
     {
@@ -7868,15 +7833,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/classroom-presentation-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.42,
-        "bytes": 259628,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015478,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/classroom-presentation-01-c1/turn-01.wav",
+            "bytes": 1557164
+          }
+        ]
       }
     },
     {
@@ -7927,15 +7894,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/restaurant-reservation-mixup-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.06,
-        "bytes": 104684,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006235,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/restaurant-reservation-mixup-01-a1-a2/turn-01.wav",
+            "bytes": 643244
+          }
+        ]
       }
     },
     {
@@ -7986,15 +7955,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/restaurant-reservation-mixup-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.41,
-        "bytes": 195500,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011654,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/restaurant-reservation-mixup-01-b1-b2/turn-01.wav",
+            "bytes": 1171244
+          }
+        ]
       }
     },
     {
@@ -8044,15 +8015,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/restaurant-reservation-mixup-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 34.22,
-        "bytes": 274028,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016338,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/restaurant-reservation-mixup-01-c1/turn-01.wav",
+            "bytes": 1693484
+          }
+        ]
       }
     },
     {
@@ -8103,15 +8076,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/spilled-soup-restaurant-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 11.66,
-        "bytes": 93548,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.005567,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/spilled-soup-restaurant-01-a1-a2/turn-01.wav",
+            "bytes": 574124
+          }
+        ]
       }
     },
     {
@@ -8162,15 +8137,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/spilled-soup-restaurant-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.62,
-        "bytes": 197228,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011754,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/spilled-soup-restaurant-01-b1-b2/turn-01.wav",
+            "bytes": 1175084
+          }
+        ]
       }
     },
     {
@@ -8220,15 +8197,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/spilled-soup-restaurant-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.3,
-        "bytes": 250604,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014944,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/spilled-soup-restaurant-01-c1/turn-01.wav",
+            "bytes": 1622444
+          }
+        ]
       }
     },
     {
@@ -8279,15 +8258,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/ordering-with-allergy-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.62,
-        "bytes": 101228,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006025,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/ordering-with-allergy-01-a1-a2/turn-01.wav",
+            "bytes": 570284
+          }
+        ]
       }
     },
     {
@@ -8338,15 +8319,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/ordering-with-allergy-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 22.54,
-        "bytes": 180524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010761,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/ordering-with-allergy-01-b1-b2/turn-01.wav",
+            "bytes": 1086764
+          }
+        ]
       }
     },
     {
@@ -8396,15 +8379,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/ordering-with-allergy-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 28.54,
-        "bytes": 228524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013626,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/ordering-with-allergy-01-c1/turn-01.wav",
+            "bytes": 1365164
+          }
+        ]
       }
     },
     {
@@ -8455,15 +8440,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/empty-full-plate-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 15.46,
-        "bytes": 123884,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007381,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/empty-full-plate-01-a1-a2/turn-01.wav",
+            "bytes": 764204
+          }
+        ]
       }
     },
     {
@@ -8514,15 +8501,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/empty-full-plate-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 26.21,
-        "bytes": 209900,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012514,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/empty-full-plate-01-b1-b2/turn-01.wav",
+            "bytes": 1205804
+          }
+        ]
       }
     },
     {
@@ -8572,15 +8561,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/empty-full-plate-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 34.06,
-        "bytes": 272684,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016261,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/empty-full-plate-01-c1/turn-01.wav",
+            "bytes": 1484204
+          }
+        ]
       }
     },
     {
@@ -8631,15 +8622,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/busy-restaurant-table-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 15.41,
-        "bytes": 123500,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007357,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/busy-restaurant-table-01-a1-a2/turn-01.wav",
+            "bytes": 758444
+          }
+        ]
       }
     },
     {
@@ -8690,15 +8683,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/busy-restaurant-table-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 26.5,
-        "bytes": 212204,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012652,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/busy-restaurant-table-01-b1-b2/turn-01.wav",
+            "bytes": 1347884
+          }
+        ]
       }
     },
     {
@@ -8748,15 +8743,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/busy-restaurant-table-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 37.78,
-        "bytes": 302444,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.018038,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/busy-restaurant-table-01-c1/turn-01.wav",
+            "bytes": 1906604
+          }
+        ]
       }
     },
     {
@@ -8807,15 +8804,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/library-card-help-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.74,
-        "bytes": 102188,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006083,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/library-card-help-01-a1-a2/turn-01.wav",
+            "bytes": 627884
+          }
+        ]
       }
     },
     {
@@ -8866,15 +8865,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/library-card-help-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 27.62,
-        "bytes": 221228,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013187,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/library-card-help-01-b1-b2/turn-01.wav",
+            "bytes": 1259564
+          }
+        ]
       }
     },
     {
@@ -8924,15 +8925,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/library-card-help-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.3,
-        "bytes": 258668,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015421,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/library-card-help-01-c1/turn-01.wav",
+            "bytes": 1616684
+          }
+        ]
       }
     },
     {
@@ -8983,15 +8986,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/park-cleanup-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.98,
-        "bytes": 104108,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006197,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/park-cleanup-01-a1-a2/turn-01.wav",
+            "bytes": 656684
+          }
+        ]
       }
     },
     {
@@ -9042,15 +9047,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/park-cleanup-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.62,
-        "bytes": 197228,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011754,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/park-cleanup-01-b1-b2/turn-01.wav",
+            "bytes": 1142444
+          }
+        ]
       }
     },
     {
@@ -9100,15 +9107,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/park-cleanup-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 33.7,
-        "bytes": 269804,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01609,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/park-cleanup-01-c1/turn-01.wav",
+            "bytes": 1787564
+          }
+        ]
       }
     },
     {
@@ -9159,15 +9168,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/post-office-package-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.25,
-        "bytes": 106220,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006326,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/post-office-package-01-a1-a2/turn-01.wav",
+            "bytes": 622124
+          }
+        ]
       }
     },
     {
@@ -9218,15 +9229,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/post-office-package-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 22.46,
-        "bytes": 179948,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010723,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/post-office-package-01-b1-b2/turn-01.wav",
+            "bytes": 1065644
+          }
+        ]
       }
     },
     {
@@ -9276,15 +9289,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/post-office-package-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.54,
-        "bytes": 260588,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015536,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/post-office-package-01-c1/turn-01.wav",
+            "bytes": 1645484
+          }
+        ]
       }
     },
     {
@@ -9335,15 +9350,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/empty-busy-playground-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 16.01,
-        "bytes": 128300,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007644,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/empty-busy-playground-01-a1-a2/turn-01.wav",
+            "bytes": 783404
+          }
+        ]
       }
     },
     {
@@ -9394,15 +9411,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/empty-busy-playground-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.29,
-        "bytes": 194540,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011597,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/empty-busy-playground-01-b1-b2/turn-01.wav",
+            "bytes": 1192364
+          }
+        ]
       }
     },
     {
@@ -9452,15 +9471,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/empty-busy-playground-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 35.38,
-        "bytes": 283244,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016892,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/empty-busy-playground-01-c1/turn-01.wav",
+            "bytes": 1827884
+          }
+        ]
       }
     },
     {
@@ -9511,15 +9532,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/community-garden-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.94,
-        "bytes": 111788,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006655,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/community-garden-01-a1-a2/turn-01.wav",
+            "bytes": 708524
+          }
+        ]
       }
     },
     {
@@ -9570,15 +9593,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/community-garden-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 25.7,
-        "bytes": 205868,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01227,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/community-garden-01-b1-b2/turn-01.wav",
+            "bytes": 1269164
+          }
+        ]
       }
     },
     {
@@ -9628,15 +9653,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/community-garden-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 33.38,
-        "bytes": 267308,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015937,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/community-garden-01-c1/turn-01.wav",
+            "bytes": 1612844
+          }
+        ]
       }
     },
     {
@@ -9687,15 +9714,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/video-call-problem-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.06,
-        "bytes": 112748,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006713,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/video-call-problem-01-a1-a2/turn-01.wav",
+            "bytes": 652844
+          }
+        ]
       }
     },
     {
@@ -9746,15 +9775,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/video-call-problem-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.17,
-        "bytes": 193580,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01154,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/video-call-problem-01-b1-b2/turn-01.wav",
+            "bytes": 1107884
+          }
+        ]
       }
     },
     {
@@ -9804,15 +9835,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/video-call-problem-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.02,
-        "bytes": 256364,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015287,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/video-call-problem-01-c1/turn-01.wav",
+            "bytes": 1530284
+          }
+        ]
       }
     },
     {
@@ -9863,15 +9896,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/calendar-mistake-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 13.1,
-        "bytes": 105068,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006254,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/calendar-mistake-01-a1-a2/turn-01.wav",
+            "bytes": 597164
+          }
+        ]
       }
     },
     {
@@ -9922,15 +9957,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/calendar-mistake-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.34,
-        "bytes": 194924,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011621,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/calendar-mistake-01-b1-b2/turn-01.wav",
+            "bytes": 1173164
+          }
+        ]
       }
     },
     {
@@ -9980,15 +10017,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/calendar-mistake-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 36.1,
-        "bytes": 289004,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017235,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/calendar-mistake-01-c1/turn-01.wav",
+            "bytes": 1651244
+          }
+        ]
       }
     },
     {
@@ -10039,15 +10078,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/online-form-help-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.18,
-        "bytes": 113708,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.00677,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/online-form-help-01-a1-a2/turn-01.wav",
+            "bytes": 664364
+          }
+        ]
       }
     },
     {
@@ -10098,15 +10139,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/online-form-help-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 24.34,
-        "bytes": 194924,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011621,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/online-form-help-01-b1-b2/turn-01.wav",
+            "bytes": 1130924
+          }
+        ]
       }
     },
     {
@@ -10156,15 +10199,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/online-form-help-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 32.9,
-        "bytes": 263468,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015708,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/online-form-help-01-c1/turn-01.wav",
+            "bytes": 1465004
+          }
+        ]
       }
     },
     {
@@ -10215,15 +10260,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/dead-charged-phone-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 14.45,
-        "bytes": 115820,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006899,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/dead-charged-phone-01-a1-a2/turn-01.wav",
+            "bytes": 576044
+          }
+        ]
       }
     },
     {
@@ -10274,15 +10321,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/dead-charged-phone-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 23.69,
-        "bytes": 189740,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01131,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/dead-charged-phone-01-b1-b2/turn-01.wav",
+            "bytes": 1061804
+          }
+        ]
       }
     },
     {
@@ -10332,15 +10381,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/dead-charged-phone-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 31.9,
-        "bytes": 255404,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01523,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/dead-charged-phone-01-c1/turn-01.wav",
+            "bytes": 1570604
+          }
+        ]
       }
     },
     {
@@ -10391,15 +10442,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/a1-a2/appointment-confirmation-01-a1-a2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 12.22,
-        "bytes": 97964,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.005834,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/a1-a2/appointment-confirmation-01-a1-a2/turn-01.wav",
+            "bytes": 620204
+          }
+        ]
       }
     },
     {
@@ -10450,15 +10503,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/b1-b2/appointment-confirmation-01-b1-b2.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 22.54,
-        "bytes": 180524,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.010761,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/b1-b2/appointment-confirmation-01-b1-b2/turn-01.wav",
+            "bytes": 1150124
+          }
+        ]
       }
     },
     {
@@ -10508,15 +10563,17 @@
       "audio": {
         "provider": "openrouter",
         "model": "google/gemini-3.1-flash-tts-preview",
-        "file": "audio/c1/appointment-confirmation-01-c1.mp3",
-        "format": "mp3",
-        "bitrateKbps": 64,
-        "durationSeconds": 30.1,
-        "bytes": 241004,
-        "generatedAt": "2026-07-05",
-        "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.014371,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-11",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "narrator",
+            "file": "audio/c1/appointment-confirmation-01-c1/turn-01.wav",
+            "bytes": 1495724
+          }
+        ]
       }
     }
   ]

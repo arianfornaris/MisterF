@@ -92,20 +92,18 @@ interface SceneMediaImageLayer {
 
 interface SceneMediaLevel {
   audio?: {
-    src: string;
-    durationSeconds: number;
-    format: "mp3";
-    storageKey?: string;
-    // Per-turn timing marks into the single concatenated file (dialogue only).
-    // Marks the spoken region of each turn; inter-turn silence is the gap
-    // between one turn's endMs and the next turn's startMs.
-    segments?: Array<{
+    format: "wav";
+    // One clip per spoken turn, in playback order. A narration or monologue
+    // is a single clip; a dialogue is one clip per turn. The client plays the
+    // clips back to back — the small gap between clips is the natural pause
+    // between speakers. There is no concatenated file and no timing marks:
+    // each turn IS its own file, so single-line replay is just playing one src.
+    clips: Array<{
       turn: number;
-      speaker: string;
-      startMs: number;
-      endMs: number;
+      speaker: string; // display name, matches turns[].speaker
+      src: string;
+      storageKey?: string;
     }>;
-    interTurnSilenceMs?: number;
   };
   script?: SceneMediaScript;
 }
@@ -150,11 +148,20 @@ type SceneMediaScript =
 
 The runtime registry should not carry duplicated `plainText` transcripts. Use `turns` for dialogue and `text` for narration or monologue.
 
-`audio.segments[].speaker` (runtime) corresponds to the design registry's `speakerId`; the runtime uses the display name to line up with `turns[].speaker`.
+`audio.clips[].speaker` (runtime) corresponds to the design registry's `speakerId`; the runtime uses the display name to line up with `turns[].speaker`.
 
 ### Audio Packaging
 
-Each script level exposes a **single** concatenated audio file, not one file per turn. Dialogue audio is synthesized turn by turn but joined into one asset for delivery and playback. When per-turn playback is needed — replaying a single line, syncing transcript highlight, shadowing, or the tutor pointing at one turn — use the `audio.segments` timing marks to seek within the single file rather than fetching separate clips. Mark only the spoken region of each turn; the inter-turn pause is the gap between turns. See `design/scene-scripts/README.md` ("Audio Packaging & Segmentation") for the generation-side rationale and how offsets are derived. Roleplay (feature 1.3), which assembles turns dynamically at runtime, is the one flow that may consume turn-level audio directly instead of this packaged asset.
+Each script level exposes its audio as an **ordered list of per-turn WAV clips**, not a single concatenated file. A narration or monologue is a one-clip list; a dialogue is one clip per turn. The client plays the clips back to back through a single sequencer, so the same playback path serves built-in listening, runtime-generated audio, and roleplay.
+
+Why per-turn clips instead of one concatenated file:
+
+- **No server-side audio processing.** Gemini TTS via OpenRouter returns PCM only (a direct `mp3` request is rejected), so each turn's PCM is wrapped in a WAV header in code — nothing is decoded, stitched, or re-encoded on the server. Runtime generation needs no `ffmpeg`, no encoding queue, and no separate worker. This is the deciding factor for user-generated audio.
+- **Distinct voices are guaranteed.** Because each turn is a separate single-voice TTS call, speakers never share a timbre (the failure mode of native multi-speaker TTS).
+- **Single-line replay is trivial.** Replaying one turn is just playing `clips[i].src` — no seeking into a larger file, no timing marks to maintain.
+- **Natural turn pauses come for free.** The small gap between playing one clip and the next reads as the pause between speakers; there is no baked-in silence to store or tune.
+
+Trade-off accepted: more objects to store/serve (≈150 scripts × several turns) instead of one file per script, and WAV is uncompressed (24 kHz / 16-bit mono ≈ 48 KB/s) so it is larger than MP3. This is fine — clips are static and cache well, and the client preloads them before playback. Durations are not stored; the client reads each clip's duration on load when it needs one. See `design/scene-scripts/README.md` ("Audio Packaging") for the generation-side details.
 
 ## Built-In Assets
 
@@ -173,10 +180,12 @@ The built-in registry should contain only product-safe fields:
 - visual format;
 - public image URL and alt text;
 - available script levels;
-- public audio URL, duration, per-turn timing segments, and structured script data for each level;
+- per-turn audio clip URLs (in playback order) and structured script data for each level;
 - teaching tags/use cases needed for selection.
 
 Source prompts, QA notes, source images, cost estimates, flattened transcript text, and other design-only fields should stay out of the runtime registry unless there is a product reason to expose them.
+
+**Storage note (interim):** the built-in audio clips are currently committed to the repo under `design/scene-scripts/audio/` while the generation approach is still experimental. This is temporary — the WAV library is large (~130 MB) and should not live in version control long-term. Once the built-in media generation protocol stabilizes, these assets should move to DigitalOcean Spaces and be served from object storage, the same boundary used for user-generated media (see "Storage" below).
 
 ## User-Generated Media
 
@@ -199,7 +208,7 @@ Example: if the tutor starts from a built-in airport image but creates a new irr
   levels: {
     "A1-A2": {
       script: { scriptType: "narration", text: "..." },
-      audio: { src: "...", durationSeconds: 32.4, format: "mp3" }
+      audio: { format: "wav", clips: [{ turn: 1, speaker: "Narrator", src: "..." }] }
     }
   },
   createdFrom: {
@@ -256,7 +265,7 @@ Compact resolver catalog fields:
 - `title`;
 - `format`;
 - `setting`;
-- available levels with script type, approximate word count, audio duration, and audio availability;
+- available levels with script type, approximate word count, and audio availability;
 - `tags`;
 - `skills`;
 - `useCases`;

@@ -13,8 +13,10 @@ actually perceive. Two new pieces of metadata make that safe:
 1. **Speaker identity** — dialogue audio never spoke the character names (only distinct voices).
    A question like "What did Maria order?" was unanswerable by ear. Fixed by naming characters in
    the audio and recording who is nameable.
-2. **Per-turn audio timing** — the audio is one concatenated file; timing marks let the UI replay
-   a single line, sync a transcript highlight, or let the tutor point at one turn.
+2. **Per-turn audio clips** — the audio ships as one WAV clip per turn in playback order, so the UI can
+   replay a single line, sync a transcript highlight, or let the tutor point at one turn by playing
+   the matching clip. (Earlier revisions shipped a single concatenated file with timing marks; that
+   was replaced by per-turn clips — see `scene-media-library.md` "Audio Packaging".)
 
 Full rules: `design/scene-scripts/README.md` (Script & Audio Quality Requirements, Identity &
 Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
@@ -43,11 +45,11 @@ Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
 
 ### Audio object (`audio`)
 
-- `segments: Array<{ turn, speakerId, startMs, endMs }>` — per-turn marks into the single MP3.
-  `startMs`/`endMs` bound the **spoken** region of each turn; the inter-turn pause is the gap
-  between one turn's `endMs` and the next turn's `startMs`.
-- `interTurnSilenceMs: number` — the pause inserted between turns (currently 380).
-- (Runtime flattens `speakerId` to `speaker` = display name to match `turns[].speaker`.)
+- `clips: Array<{ turn, speakerId, file, bytes }>` — one WAV clip per spoken turn, in playback order. A
+  narration/monologue is a single-clip list; a dialogue is one clip per turn. There is no
+  concatenated file, no timing marks, and no stored durations — each turn IS its own file.
+- (Runtime flattens `speakerId` to `speaker` = display name to match `turns[].speaker`, and
+  exposes each clip's public URL as `src`.)
 
 ## What the code work must do
 
@@ -55,11 +57,12 @@ Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
   by name only if `nameSpokenInAudio` is true; for `role_only` scripts use the role. Never surface
   a name that was not spoken.
 - **Runtime registry / resolver:** carry `identityStrategy`, per-speaker `nameSpokenInAudio`, and
-  `audio.segments` + `interTurnSilenceMs` through to resolved render payloads. These are
-  product-safe fields (already listed in `scene-media-library.md`).
-- **Player UI:** use `segments` for single-line replay (`seek(startMs)` … stop at `endMs`),
-  optional transcript-highlight sync, and shadowing/repeat-after-me. Fall back gracefully when a
-  script has no `segments` (single-turn narration/monologue audio omits them by design).
+  the ordered `audio.clips` (public URL + turn + speaker) through to resolved render payloads. These
+  are product-safe fields (already listed in `scene-media-library.md`).
+- **Player UI:** play `clips` back to back through one sequencer (the gap between clips is the
+  natural pause between speakers). Single-line replay is just playing `clips[i].src`; transcript
+  highlight and shadowing/repeat-after-me key off the clip currently playing. A narration/monologue
+  is a one-clip list and plays through the same path.
 
 ## Current coverage
 
@@ -67,10 +70,12 @@ Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
 the interface is uniform; consumers never special-case by `scriptType`.
 
 - **27 dialogues** via `apply_script_rewrites.py`: text rewrite + `identityStrategy` +
-  `nameSpokenInAudio` + regenerated audio with `segments` (24 `named_in_dialogue`, 3 `role_only`).
-- **123 narrations** via `apply_narration_identity.py` (metadata only, no audio change):
-  115 `named_in_narration`, 8 `role_only` (collective/generic subjects). Narrations are single-turn,
-  so they carry no `segments` — `segments` is optional and only present on multi-turn dialogue audio.
+  `nameSpokenInAudio` (24 `named_in_dialogue`, 3 `role_only`).
+- **123 narrations** via `apply_narration_identity.py` (metadata only):
+  115 `named_in_narration`, 8 `role_only` (collective/generic subjects).
+
+All 150 scripts' audio was subsequently regenerated as per-turn WAV clips (`generate_clip_audio.py`):
+narrations are a single clip, dialogues are one clip per turn. `audio.clips` is uniform across both.
 
 Distribution: `named_in_dialogue` 24, `named_in_narration` 115, `role_only` 11.
 

@@ -29,35 +29,42 @@ This keeps the assets useful before the platform finalizes a learner-level stand
 
 ## Audio Direction
 
-Gemini TTS is the default for approved listening assets because previous local tests found it clearer and more natural than the cheaper Kokoro baseline. Dialogue audio is generated turn by turn and concatenated with short pauses so speaker changes stay predictable.
+Gemini TTS is the default for approved listening assets because previous local tests found it clearer and more natural than the cheaper Kokoro baseline. Audio is generated one clip per spoken turn, each turn synthesized with its speaker's own voice.
 
-## Audio Packaging & Segmentation
+## Audio Packaging
 
-**Decision: ship one audio file per script, plus per-turn timing marks. Do not ship one file per turn.**
+**Decision: ship one WAV clip per spoken turn, in playback order. Do not concatenate turns into a single file.**
 
-Each script's canonical listening asset is a single concatenated MP3. A dialogue is still *synthesized* turn by turn (each turn with its speaker's voice, `SILENCE_SECONDS` between turns), but those turns are joined into one file for delivery and playback.
+Each turn is synthesized as PCM and stored as its own WAV clip. (Gemini TTS via OpenRouter returns PCM only — a direct `mp3` request is rejected — so each turn's PCM is wrapped in a WAV header in code, with no encoding step.) A narration/monologue is a single clip; a dialogue is one clip per turn. The client plays the clips back to back through one sequencer, and the small gap between clips reads as the natural pause between speakers.
 
-Rationale:
+This reverses the earlier "single concatenated file + per-turn timing marks (`segments`)" decision. Why per-turn clips win:
 
-- A single file preserves natural flow across the passage, needs one request and one storage key, and caches well. One file per turn would explode into hundreds of tiny objects (≈150 scripts × several turns each) with worse caching and audible seams on playback.
-- Per-turn timing marks recover everything separate files would give — without those downsides. With start/end offsets the client can replay a single line (`seek(startMs)` … stop at `endMs`), highlight the transcript in sync, drive shadowing/repeat-after-me, and let the tutor point at and replay one turn (which pairs with the P1 identity work below).
-- The marks are nearly free to produce. `generate_audio` already holds each turn's PCM in order before concatenation; per-turn offsets come from summing PCM lengths (`bytes / (sampleRate * channels * bytesPerSample)`). Today those boundaries are discarded — persist them.
+- **No server-side audio processing.** A WAV clip is just the returned PCM plus a ~44-byte header written in code — nothing is decoded, stitched, or re-encoded. Runtime generation (a user creating audio in the app) needs no `ffmpeg`, no encoding queue, and no separate worker droplet — the deciding factor. Concatenating turns *server-side* into one compressed file would require exactly that infrastructure.
+- **Distinct voices are guaranteed.** Each turn is a separate single-voice call, so speakers never collapse to a shared timbre (the failure mode of native multi-speaker TTS).
+- **Single-line replay is trivial.** Replaying turn *N* is playing `clips[N].src` — no seeking, no timing marks to compute or keep in sync with the audio.
+- **One playback path everywhere.** Built-in listening, runtime-generated audio, and roleplay (feature 1.3, which already wanted turn-level audio) all consume the same clip list.
 
-Persist the marks on the `audio` object. Mark the **spoken** region only, so single-line replay does not drag the trailing pause; the inter-turn silence is implied by the gap between one turn's `endMs` and the next turn's `startMs`:
+Trade-off accepted: more objects (≈150 scripts × several turns), and WAV is uncompressed (24 kHz / 16-bit mono ≈ 48 KB/s), so the library is larger on disk than the old MP3s. This is fine for a single format with zero encoding on any path; clips are static and cache well, and the client preloads them before playback.
+
+> **Storage note (interim):** while the built-in generation approach is still being worked out, the generated WAV clips are committed to the repo alongside `scene-scripts.json` for convenience. This is deliberately temporary — the full library is on the order of ~130 MB and does not belong in version control long-term. Once there is a stable protocol for generating built-in media, these assets should move to DigitalOcean Spaces (object storage) and be referenced from there rather than versioned in the repo, matching how user-generated media is stored (see `docs/features/scene-media-library.md`, "Storage").
+
+Durations are **not** stored on the `audio` object. Playback does not need them (the client reads a clip's duration on load if it ever needs one), and computing them offline would only re-introduce an `ffprobe`/`ffmpeg` dependency for no product gain.
 
 ```json
 "audio": {
-  "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2.mp3",
-  "durationSeconds": 12.4,
-  "interTurnSilenceMs": 380,
-  "segments": [
-    { "turn": 1, "speakerId": "maria",    "startMs": 0,    "endMs": 2100 },
-    { "turn": 2, "speakerId": "mr_james", "startMs": 2480, "endMs": 5300 }
+  "provider": "openrouter",
+  "model": "google/gemini-3.1-flash-tts-preview",
+  "format": "wav",
+  "voiceStrategy": "per_turn_clips",
+  "generatedAt": "2026-07-11",
+  "clips": [
+    { "turn": 1, "speakerId": "maria",    "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-01.wav", "bytes": 186284 },
+    { "turn": 2, "speakerId": "mr_james", "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2/turn-02.wav", "bytes": 149804 }
   ]
 }
 ```
 
-**Roleplay exception:** the single-file-plus-marks asset is canonical for *listening/comprehension* (fixed passages). Roleplay (Roadmap V3, feature 1.3) is different: the learner takes one character, so only the other character's turns play, often generated at runtime — that flow wants turn-level audio. Since the pipeline already synthesizes each turn separately, retain those per-turn PCM/segments as a cheap optional artifact for roleplay rather than making them the primary scene-script asset.
+Generated by `generate_clip_audio.py`, which reads `scene-scripts.json`, synthesizes each transcript turn (PCM), wraps it as `audio/<level>/<scriptId>/turn-NN.wav`, and rewrites each `audio` object to the `clips` shape above.
 
 ## Script & Audio Quality Requirements
 
@@ -125,7 +132,7 @@ These fields are the contract the comprehension/tutor layer and the UI consume. 
 - Dialogue: `true` for named speakers, `false` for `role_only` speakers. A question may use a speaker's name only when this is `true`. For `role_only` dialogue the speaker's `name`/`role` are also rewritten to the spoken role (e.g. `name: "the store clerk"`, `role: "store_staff"`).
 - Narration/monologue narrator: always `false` — **the narrator is a voice, not a character.** Whether the *story's* character is nameable is carried by `identityStrategy` (`named_in_narration` vs `role_only`), not by the narrator's flag. Do not read the narrator's `nameSpokenInAudio` to decide whether to name the protagonist; read `identityStrategy` and take the name from the transcript text.
 
-**Audio — `audio.segments`** (array) and **`audio.interTurnSilenceMs`** (number): per-turn timing marks into the single concatenated MP3 (see "Audio Packaging & Segmentation"). Each segment is `{ turn, speakerId, startMs, endMs }` and marks the **spoken** region of that turn; the pause between turns is the gap between one turn's `endMs` and the next turn's `startMs`. Used for single-line replay, transcript-highlight sync, shadowing, and tutor "replay line N".
+**Audio — `audio.clips`** (array): one WAV clip per spoken turn, in playback order (see "Audio Packaging"). Each clip is `{ turn, speakerId, file, bytes }`. A narration/monologue has a single clip; a dialogue has one clip per turn. The client plays them back to back; single-line replay, transcript-highlight sync, shadowing, and tutor "replay line N" all key off the individual clip rather than an offset into a larger file. No durations or timing marks are stored.
 
 The runtime-facing shape of these fields lives in `docs/features/scene-media-library.md`; a consumer-oriented summary for the UI/tutor work lives in `docs/features/scene-media-metadata-v3.md`.
 

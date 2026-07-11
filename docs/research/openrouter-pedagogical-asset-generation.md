@@ -178,6 +178,39 @@ Demo artifacts:
 - Gemini winner audio: `docs/research/demo-audio/conversation/gemini-conversation.wav`
 - Generation summary: `docs/research/demo-audio/conversation/generation-summary.json`
 
+### Finding: Multi-Speaker vs. Turn-by-Turn Concatenation (2026-07-11)
+
+The scene-scripts audio pipeline (`design/scene-scripts/generate_batch_01.py`) currently uses `voiceStrategy: turn_by_turn_concatenation`: one TTS request per dialogue turn through OpenRouter's OpenAI-compatible `/api/v1/audio/speech` endpoint, then local assembly (PCM silence between turns, WAV concat, `ffmpeg` to MP3). The open question from line 169 above — "prefer one request per dialogue if OpenRouter exposes multi-speaker controls" — is now resolved.
+
+What was confirmed:
+
+- **Gemini TTS natively supports multi-speaker, but exactly 2 speakers max.** Native Gemini `generateContent` (`responseModalities: ["AUDIO"]`) accepts `speechConfig.multiSpeakerVoiceConfig.speakerVoiceConfigs`, with turns marked by speaker name in the prompt text (`Maria: ...\nMr. James: ...`). Supported on Gemini 3.1 Flash TTS Preview, 2.5 Flash Preview TTS, and 2.5 Pro Preview TTS.
+- **OpenRouter's speech endpoint does NOT expose it.** The `/audio/speech` endpoint is OpenAI-style and accepts only a single `voice`. Multi-speaker (`multiSpeakerVoiceConfig`) is not documented as a passthrough option. To use native 2-speaker generation we would have to call the Gemini native API (Google AI Studio / Vertex) directly for audio, leaving the OpenRouter speech surface.
+
+What this changes about the trade-off:
+
+- **It is not a cost saver.** Audio is priced by output tokens (≈ duration). A single multi-speaker call and N per-turn calls cost roughly the same in dollars. The real win is operational: 1 request instead of N, no artificial silence, no `ffmpeg` stitching step, and natural conversational prosody / turn-taking instead of glued clips.
+- **Quality risk specific to our use case.** Multiple sources report that in multi-speaker mode voice differentiation is not reliably applied — both speakers can render with the same timbre despite distinct voice assignments (e.g. Kore vs. Puck). Our exercises depend on two distinguishable character voices, which is exactly what this mode can degrade. The current turn-by-turn strategy *guarantees* distinct voices because each turn is a separate single-voice call.
+- **2-speaker ceiling.** Any scene with 3+ speakers cannot use native multi-speaker at all and would still need concatenation.
+
+**Decision (2026-07-11): ship per-turn MP3 clips; do not concatenate. Skip native multi-speaker.**
+
+The driver turned out to be runtime, not the offline build. When a user generates listening audio in the app, any server-side concatenation forces an `ffmpeg` encoding step — which in practice means an encoding queue plus a separate worker droplet, since MP3 files cannot be reliably byte-joined. That infrastructure is not worth it for a first version. Native multi-speaker was also rejected: it caps at 2 speakers, requires leaving the OpenRouter speech endpoint for the native Gemini API, and carries the voice-differentiation risk above.
+
+Correction to the earlier note: OpenRouter's `/audio/speech` endpoint documents `mp3` and `pcm`, but **Gemini TTS specifically returns PCM only** — a direct `mp3` request is rejected with `HTTP 400: Gemini TTS only supports response_format="pcm"`. So "MP3 directly from the API" is not available for the chosen model. This does not change the decision: each turn's PCM is wrapped in a WAV header (pure code, stdlib `wave`; a WAV file is just PCM + a ~44-byte header), which the browser plays natively with no encoding step.
+
+The adopted architecture:
+
+- Request each turn from OpenRouter as PCM, then wrap it as a WAV clip. No `ffmpeg`, no MP3 encoding — the WAV header is written in code.
+- Store one clip per turn (`audio.clips[]`), in order. Narration/monologue = one clip; dialogue = one clip per turn. `format: "wav"`.
+- The client plays the clips back to back through a single sequencer. The gap between clips is the natural pause between speakers; single-line replay is just playing one clip's URL.
+- Distinct speaker voices are guaranteed because each turn remains a separate single-voice call.
+- No durations or timing marks are stored — the client reads a clip's duration on load if needed, so nothing re-introduces an `ffprobe`/`ffmpeg` dependency.
+
+Format note: WAV is uncompressed (24 kHz / 16-bit mono ≈ 48 KB/s), so the built-in library is larger on disk than the old MP3s. That is an accepted trade for a single format with zero encoding on any path (build or runtime). If compressed built-in assets are ever needed, encode them offline where `ffmpeg` is fine — the runtime path stays WAV.
+
+This makes built-in listening, runtime-generated audio, and roleplay (feature 1.3) share one audio shape and one playback path. Runtime shape: `docs/features/scene-media-library.md` (`SceneMediaLevel.audio.clips`); generation-side details: `design/scene-scripts/README.md` ("Audio Packaging").
+
 ### Other TTS Models Considered
 
 `mistralai/voxtral-mini-tts-2603` is listed at $16 per million characters and includes expressive English and French voices. It is much more expensive than Kokoro, so it only makes sense if voice cloning or its specific voice set is needed.
