@@ -111,6 +111,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "lost_and_found",
@@ -122,20 +123,22 @@
           "id": "maria",
           "name": "Maria",
           "role": "person_who_lost_item",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "mr_james",
           "name": "Mr. James",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "maria",
-          "text": "Oh no, my wallet is not in my bag."
+          "text": "Oh no. My wallet is not in my bag."
         },
         {
           "turn": 2,
@@ -145,23 +148,23 @@
         {
           "turn": 3,
           "speakerId": "maria",
-          "text": "Yes, it is. Thank you so much."
+          "text": "Yes, it is! Thank you so much. I am Maria."
         },
         {
           "turn": 4,
           "speakerId": "mr_james",
-          "text": "You are welcome. It was near the door."
+          "text": "You are welcome, Maria. I am Mr. James. It was near the door."
         },
         {
           "turn": 5,
           "speakerId": "maria",
-          "text": "I am very lucky today."
+          "text": "Thank you, Mr. James. I am very lucky today."
         }
       ],
-      "plainText": "Oh no, my wallet is not in my bag.\nExcuse me. Is this brown wallet yours?\nYes, it is. Thank you so much.\nYou are welcome. It was near the door.\nI am very lucky today.",
+      "plainText": "Oh no. My wallet is not in my bag.\nExcuse me. Is this brown wallet yours?\nYes, it is! Thank you so much. I am Maria.\nYou are welcome, Maria. I am Mr. James. It was near the door.\nThank you, Mr. James. I am very lucky today.",
       "stats": {
-        "characterCount": 166,
-        "wordCount": 36,
+        "characterCount": 223,
+        "wordCount": 48,
         "turnCount": 5
       },
       "qaNotes": [
@@ -174,12 +177,45 @@
         "file": "audio/a1-a2/lost-wallet-cafe-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 16.54,
-        "bytes": 132524,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 22.46,
+        "bytes": 179948,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007897,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.010723,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "maria",
+            "startMs": 0,
+            "endMs": 3640
+          },
+          {
+            "turn": 2,
+            "speakerId": "mr_james",
+            "startMs": 4020,
+            "endMs": 7380
+          },
+          {
+            "turn": 3,
+            "speakerId": "maria",
+            "startMs": 7760,
+            "endMs": 12800
+          },
+          {
+            "turn": 4,
+            "speakerId": "mr_james",
+            "startMs": 13180,
+            "endMs": 18100
+          },
+          {
+            "turn": 5,
+            "speakerId": "maria",
+            "startMs": 18480,
+            "endMs": 22400
+          }
+        ]
       }
     },
     {
@@ -194,6 +230,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "lost_and_found",
@@ -205,20 +242,22 @@
           "id": "maria",
           "name": "Maria",
           "role": "person_who_lost_item",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "mr_james",
           "name": "Mr. James",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "maria",
-          "text": "I just ordered coffee, but I cannot find my wallet anywhere."
+          "text": "Excuse me, I just ordered coffee, but I cannot find my wallet anywhere."
         },
         {
           "turn": 2,
@@ -228,23 +267,23 @@
         {
           "turn": 3,
           "speakerId": "maria",
-          "text": "That is it. I was sure I had lost it outside in the rain."
+          "text": "That is it! I was sure I had lost it outside in the rain. I'm Maria — thank you."
         },
         {
           "turn": 4,
           "speakerId": "mr_james",
-          "text": "I saw it before anyone stepped on it, so I picked it up right away."
+          "text": "You're welcome, Maria. I'm James, I work here. I picked it up before anyone stepped on it."
         },
         {
           "turn": 5,
           "speakerId": "maria",
-          "text": "Thank you. You saved me a lot of trouble."
+          "text": "Thank you, Mr. James. You saved me a lot of trouble."
         }
       ],
-      "plainText": "I just ordered coffee, but I cannot find my wallet anywhere.\nI think this may be yours. It fell from your bag when you came in.\nThat is it. I was sure I had lost it outside in the rain.\nI saw it before anyone stepped on it, so I picked it up right away.\nThank you. You saved me a lot of trouble.",
+      "plainText": "Excuse me, I just ordered coffee, but I cannot find my wallet anywhere.\nI think this may be yours. It fell from your bag when you came in.\nThat is it! I was sure I had lost it outside in the rain. I'm Maria — thank you.\nYou're welcome, Maria. I'm James, I work here. I picked it up before anyone stepped on it.\nThank you, Mr. James. You saved me a lot of trouble.",
       "stats": {
-        "characterCount": 295,
-        "wordCount": 64,
+        "characterCount": 363,
+        "wordCount": 75,
         "turnCount": 5
       },
       "qaNotes": [
@@ -257,12 +296,45 @@
         "file": "audio/b1-b2/lost-wallet-cafe-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 23.93,
-        "bytes": 191660,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 28.49,
+        "bytes": 228140,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011425,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.013602,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "maria",
+            "startMs": 0,
+            "endMs": 5840
+          },
+          {
+            "turn": 2,
+            "speakerId": "mr_james",
+            "startMs": 6220,
+            "endMs": 10660
+          },
+          {
+            "turn": 3,
+            "speakerId": "maria",
+            "startMs": 11040,
+            "endMs": 18360
+          },
+          {
+            "turn": 4,
+            "speakerId": "mr_james",
+            "startMs": 18740,
+            "endMs": 24340
+          },
+          {
+            "turn": 5,
+            "speakerId": "maria",
+            "startMs": 24720,
+            "endMs": 28440
+          }
+        ]
       }
     },
     {
@@ -276,6 +348,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "narrative_detail",
@@ -287,13 +360,15 @@
           "id": "maria",
           "name": "Maria",
           "role": "person_who_lost_item",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "mr_james",
           "name": "Mr. James",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -310,23 +385,23 @@
         {
           "turn": 3,
           "speakerId": "maria",
-          "text": "That is mine. I honestly thought it had fallen outside, and with this rain I would never have found it."
+          "text": "That is mine. I honestly thought it had fallen outside, and with this rain I would never have found it. I'm Maria, by the way."
         },
         {
           "turn": 4,
           "speakerId": "mr_james",
-          "text": "Luckily, it landed just inside the door. I picked it up before the next customer walked in."
+          "text": "Nice to meet you, Maria. I'm James — I manage the café. Luckily it landed just inside the door, so I picked it up before the next customer walked in."
         },
         {
           "turn": 5,
           "speakerId": "maria",
-          "text": "I really appreciate your honesty. You turned a very stressful moment into a small reminder that strangers can be kind."
+          "text": "I really appreciate your honesty, Mr. James. You turned a stressful moment into a small reminder that strangers can be kind."
         }
       ],
-      "plainText": "I have checked every pocket twice, and my wallet has somehow disappeared.\nBefore you panic, take a look at this. I noticed it sliding out of your bag as you stepped away from the entrance.\nThat is mine. I honestly thought it had fallen outside, and with this rain I would never have found it.\nLuckily, it landed just inside the door. I picked it up before the next customer walked in.\nI really appreciate your honesty. You turned a very stressful moment into a small reminder that strangers can be kind.",
+      "plainText": "I have checked every pocket twice, and my wallet has somehow disappeared.\nBefore you panic, take a look at this. I noticed it sliding out of your bag as you stepped away from the entrance.\nThat is mine. I honestly thought it had fallen outside, and with this rain I would never have found it. I'm Maria, by the way.\nNice to meet you, Maria. I'm James — I manage the café. Luckily it landed just inside the door, so I picked it up before the next customer walked in.\nI really appreciate your honesty, Mr. James. You turned a stressful moment into a small reminder that strangers can be kind.",
       "stats": {
-        "characterCount": 503,
-        "wordCount": 92,
+        "characterCount": 590,
+        "wordCount": 111,
         "turnCount": 5
       },
       "qaNotes": [
@@ -339,12 +414,45 @@
         "file": "audio/c1/lost-wallet-cafe-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 36.7,
-        "bytes": 293804,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 41.33,
+        "bytes": 330860,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017522,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.019732,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "maria",
+            "startMs": 0,
+            "endMs": 5840
+          },
+          {
+            "turn": 2,
+            "speakerId": "mr_james",
+            "startMs": 6220,
+            "endMs": 13220
+          },
+          {
+            "turn": 3,
+            "speakerId": "maria",
+            "startMs": 13600,
+            "endMs": 22240
+          },
+          {
+            "turn": 4,
+            "speakerId": "mr_james",
+            "startMs": 22620,
+            "endMs": 32020
+          },
+          {
+            "turn": 5,
+            "speakerId": "maria",
+            "startMs": 32400,
+            "endMs": 41280
+          }
+        ]
       }
     },
     {
@@ -359,6 +467,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "weather",
@@ -370,13 +479,15 @@
           "id": "leo",
           "name": "Leo",
           "role": "person_needing_help",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         },
         {
           "id": "ms_clark",
           "name": "Ms. Clark",
           "role": "helper",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -388,17 +499,17 @@
         {
           "turn": 2,
           "speakerId": "ms_clark",
-          "text": "You can stand under my umbrella."
+          "text": "Come under my umbrella. I am Ms. Clark."
         },
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Thank you. Is the bus coming soon?"
+          "text": "Thank you, Ms. Clark. I am Leo. Is the bus coming soon?"
         },
         {
           "turn": 4,
           "speakerId": "ms_clark",
-          "text": "Yes, I can see it now."
+          "text": "Yes, Leo, I can see it now."
         },
         {
           "turn": 5,
@@ -406,10 +517,10 @@
           "text": "Great. Now I am not so wet."
         }
       ],
-      "plainText": "It is raining a lot. I forgot my umbrella.\nYou can stand under my umbrella.\nThank you. Is the bus coming soon?\nYes, I can see it now.\nGreat. Now I am not so wet.",
+      "plainText": "It is raining a lot. I forgot my umbrella.\nCome under my umbrella. I am Ms. Clark.\nThank you, Ms. Clark. I am Leo. Is the bus coming soon?\nYes, Leo, I can see it now.\nGreat. Now I am not so wet.",
       "stats": {
-        "characterCount": 161,
-        "wordCount": 35,
+        "characterCount": 194,
+        "wordCount": 43,
         "turnCount": 5
       },
       "qaNotes": [
@@ -422,12 +533,45 @@
         "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 17.3,
-        "bytes": 138668,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 20.38,
+        "bytes": 163244,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.00826,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.00973,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "startMs": 0,
+            "endMs": 4480
+          },
+          {
+            "turn": 2,
+            "speakerId": "ms_clark",
+            "startMs": 4860,
+            "endMs": 8460
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "startMs": 8840,
+            "endMs": 13240
+          },
+          {
+            "turn": 4,
+            "speakerId": "ms_clark",
+            "startMs": 13620,
+            "endMs": 16620
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "startMs": 17000,
+            "endMs": 20320
+          }
+        ]
       }
     },
     {
@@ -442,6 +586,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "weather",
@@ -453,13 +598,15 @@
           "id": "leo",
           "name": "Leo",
           "role": "person_needing_help",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         },
         {
           "id": "ms_clark",
           "name": "Ms. Clark",
           "role": "helper",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -471,17 +618,17 @@
         {
           "turn": 2,
           "speakerId": "ms_clark",
-          "text": "That happens all the time. Come closer, or your backpack will get completely wet."
+          "text": "That happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way."
         },
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Thanks. I have homework in there, and I really do not want it to get ruined."
+          "text": "Thanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined."
         },
         {
           "turn": 4,
           "speakerId": "ms_clark",
-          "text": "No problem. The bus is turning the corner now, so we only need to wait a minute."
+          "text": "No problem, Leo. The bus is turning the corner now, so we only need to wait a minute."
         },
         {
           "turn": 5,
@@ -489,10 +636,10 @@
           "text": "You are very kind. I will remember to bring my own umbrella next time."
         }
       ],
-      "plainText": "I checked the weather this morning, but it said the rain would start later.\nThat happens all the time. Come closer, or your backpack will get completely wet.\nThanks. I have homework in there, and I really do not want it to get ruined.\nNo problem. The bus is turning the corner now, so we only need to wait a minute.\nYou are very kind. I will remember to bring my own umbrella next time.",
+      "plainText": "I checked the weather this morning, but it said the rain would start later.\nThat happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way.\nThanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined.\nNo problem, Leo. The bus is turning the corner now, so we only need to wait a minute.\nYou are very kind. I will remember to bring my own umbrella next time.",
       "stats": {
-        "characterCount": 386,
-        "wordCount": 75,
+        "characterCount": 438,
+        "wordCount": 86,
         "turnCount": 5
       },
       "qaNotes": [
@@ -505,12 +652,45 @@
         "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 26.81,
-        "bytes": 214700,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 29.98,
+        "bytes": 240044,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.0128,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.014314,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "startMs": 0,
+            "endMs": 4120
+          },
+          {
+            "turn": 2,
+            "speakerId": "ms_clark",
+            "startMs": 4500,
+            "endMs": 12540
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "startMs": 12920,
+            "endMs": 19440
+          },
+          {
+            "turn": 4,
+            "speakerId": "ms_clark",
+            "startMs": 19820,
+            "endMs": 24900
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "startMs": 25280,
+            "endMs": 29920
+          }
+        ]
       }
     },
     {
@@ -524,6 +704,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "polite_offers",
@@ -535,35 +716,37 @@
           "id": "leo",
           "name": "Leo",
           "role": "person_needing_help",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         },
         {
           "id": "ms_clark",
           "name": "Ms. Clark",
           "role": "helper",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "I should have known better than to trust a clear sky in the morning. Now everything in my bag is getting soaked."
+          "text": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked."
         },
         {
           "turn": 2,
           "speakerId": "ms_clark",
-          "text": "Step in a little closer. There is enough room under the umbrella, and it would be a shame to let your books take the worst of the storm."
+          "text": "Step in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark."
         },
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Thank you. I did not want to bother anyone, but I was running out of dry places to stand."
+          "text": "Thank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand."
         },
         {
           "turn": 4,
           "speakerId": "ms_clark",
-          "text": "It is no bother. Public transport is much easier when people look out for each other."
+          "text": "It is no bother at all, Leo. Public transport is much easier when people look out for each other."
         },
         {
           "turn": 5,
@@ -571,10 +754,10 @@
           "text": "That is true. A small favor can make a miserable wait feel almost pleasant."
         }
       ],
-      "plainText": "I should have known better than to trust a clear sky in the morning. Now everything in my bag is getting soaked.\nStep in a little closer. There is enough room under the umbrella, and it would be a shame to let your books take the worst of the storm.\nThank you. I did not want to bother anyone, but I was running out of dry places to stand.\nIt is no bother. Public transport is much easier when people look out for each other.\nThat is true. A small favor can make a miserable wait feel almost pleasant.",
+      "plainText": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked.\nStep in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark.\nThank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand.\nIt is no bother at all, Leo. Public transport is much easier when people look out for each other.\nThat is true. A small favor can make a miserable wait feel almost pleasant.",
       "stats": {
-        "characterCount": 501,
-        "wordCount": 99,
+        "characterCount": 523,
+        "wordCount": 105,
         "turnCount": 5
       },
       "qaNotes": [
@@ -587,12 +770,45 @@
         "file": "audio/c1/shared-umbrella-bus-stop-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 34.94,
-        "bytes": 279788,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 38.5,
+        "bytes": 308204,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016682,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.018381,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "startMs": 0,
+            "endMs": 7240
+          },
+          {
+            "turn": 2,
+            "speakerId": "ms_clark",
+            "startMs": 7620,
+            "endMs": 16340
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "startMs": 16720,
+            "endMs": 25640
+          },
+          {
+            "turn": 4,
+            "speakerId": "ms_clark",
+            "startMs": 26020,
+            "endMs": 32020
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "startMs": 32400,
+            "endMs": 38440
+          }
+        ]
       }
     },
     {
@@ -607,6 +823,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "role_only",
       "source": "codex-authored",
       "teachingFocus": [
         "shopping",
@@ -616,15 +833,17 @@
       "speakers": [
         {
           "id": "dad",
-          "name": "Dad",
+          "name": "the father",
           "role": "parent",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": false
         },
         {
           "id": "clerk",
-          "name": "Clerk",
-          "role": "helper",
-          "voice": "Kore"
+          "name": "the store clerk",
+          "role": "store_staff",
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -636,7 +855,7 @@
         {
           "turn": 2,
           "speakerId": "clerk",
-          "text": "I can help you pick up the apples."
+          "text": "I work here. I can help you pick up the apples."
         },
         {
           "turn": 3,
@@ -646,7 +865,7 @@
         {
           "turn": 4,
           "speakerId": "clerk",
-          "text": "Here is a stronger bag."
+          "text": "Here is a stronger bag from the store."
         },
         {
           "turn": 5,
@@ -654,10 +873,10 @@
           "text": "That is much better. Thanks for your help."
         }
       ],
-      "plainText": "Oh no. The bag broke.\nI can help you pick up the apples.\nThank you. The bread is on the ground too.\nHere is a stronger bag.\nThat is much better. Thanks for your help.",
+      "plainText": "Oh no. The bag broke.\nI work here. I can help you pick up the apples.\nThank you. The bread is on the ground too.\nHere is a stronger bag from the store.\nThat is much better. Thanks for your help.",
       "stats": {
-        "characterCount": 166,
-        "wordCount": 35,
+        "characterCount": 194,
+        "wordCount": 41,
         "turnCount": 5
       },
       "qaNotes": [
@@ -670,12 +889,45 @@
         "file": "audio/a1-a2/torn-grocery-bag-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 15.62,
-        "bytes": 125228,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 16.22,
+        "bytes": 130028,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007458,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.007744,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "dad",
+            "startMs": 0,
+            "endMs": 2680
+          },
+          {
+            "turn": 2,
+            "speakerId": "clerk",
+            "startMs": 3060,
+            "endMs": 6180
+          },
+          {
+            "turn": 3,
+            "speakerId": "dad",
+            "startMs": 6560,
+            "endMs": 9360
+          },
+          {
+            "turn": 4,
+            "speakerId": "clerk",
+            "startMs": 9740,
+            "endMs": 12660
+          },
+          {
+            "turn": 5,
+            "speakerId": "dad",
+            "startMs": 13040,
+            "endMs": 16160
+          }
+        ]
       }
     },
     {
@@ -690,6 +942,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "role_only",
       "source": "codex-authored",
       "teachingFocus": [
         "shopping_problem",
@@ -699,15 +952,17 @@
       "speakers": [
         {
           "id": "dad",
-          "name": "Dad",
+          "name": "the father",
           "role": "parent",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": false
         },
         {
           "id": "clerk",
-          "name": "Clerk",
-          "role": "helper",
-          "voice": "Kore"
+          "name": "the store clerk",
+          "role": "store_staff",
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -719,7 +974,7 @@
         {
           "turn": 2,
           "speakerId": "clerk",
-          "text": "Do not worry. I will grab them before they go into the street."
+          "text": "Do not worry, I work here. I will grab them before they go into the street."
         },
         {
           "turn": 3,
@@ -729,18 +984,18 @@
         {
           "turn": 4,
           "speakerId": "clerk",
-          "text": "Here, put everything in this reusable one. It is stronger and easier to carry."
+          "text": "Here, put everything in this reusable store bag. It is stronger and easier to carry."
         },
         {
           "turn": 5,
           "speakerId": "dad",
-          "text": "Perfect. Now we can get home without losing dinner on the sidewalk."
+          "text": "Perfect. Now my daughter and I can get home without losing dinner on the sidewalk."
         }
       ],
-      "plainText": "Careful, Mia. The bottom of the bag just tore, and the apples are rolling everywhere.\nDo not worry. I will grab them before they go into the street.\nThanks. I should have used two bags because these groceries are heavier than I thought.\nHere, put everything in this reusable one. It is stronger and easier to carry.\nPerfect. Now we can get home without losing dinner on the sidewalk.",
+      "plainText": "Careful, Mia. The bottom of the bag just tore, and the apples are rolling everywhere.\nDo not worry, I work here. I will grab them before they go into the street.\nThanks. I should have used two bags because these groceries are heavier than I thought.\nHere, put everything in this reusable store bag. It is stronger and easier to carry.\nPerfect. Now my daughter and I can get home without losing dinner on the sidewalk.",
       "stats": {
-        "characterCount": 383,
-        "wordCount": 69,
+        "characterCount": 417,
+        "wordCount": 76,
         "turnCount": 5
       },
       "qaNotes": [
@@ -753,12 +1008,45 @@
         "file": "audio/b1-b2/torn-grocery-bag-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 27.86,
-        "bytes": 223148,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 28.49,
+        "bytes": 228140,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013301,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.013602,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "dad",
+            "startMs": 0,
+            "endMs": 5920
+          },
+          {
+            "turn": 2,
+            "speakerId": "clerk",
+            "startMs": 6300,
+            "endMs": 11100
+          },
+          {
+            "turn": 3,
+            "speakerId": "dad",
+            "startMs": 11480,
+            "endMs": 16680
+          },
+          {
+            "turn": 4,
+            "speakerId": "clerk",
+            "startMs": 17060,
+            "endMs": 23020
+          },
+          {
+            "turn": 5,
+            "speakerId": "dad",
+            "startMs": 23400,
+            "endMs": 28440
+          }
+        ]
       }
     },
     {
@@ -772,6 +1060,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "role_only",
       "source": "codex-authored",
       "teachingFocus": [
         "problem_solving",
@@ -781,15 +1070,17 @@
       "speakers": [
         {
           "id": "dad",
-          "name": "Dad",
+          "name": "the father",
           "role": "parent",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": false
         },
         {
           "id": "clerk",
-          "name": "Clerk",
-          "role": "helper",
-          "voice": "Kore"
+          "name": "the store clerk",
+          "role": "store_staff",
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -801,7 +1092,7 @@
         {
           "turn": 2,
           "speakerId": "clerk",
-          "text": "I saw the bag give way. Let me help before the apples roll any farther."
+          "text": "I saw the bag give way from the register. Let me help before the apples roll any farther."
         },
         {
           "turn": 3,
@@ -811,7 +1102,7 @@
         {
           "turn": 4,
           "speakerId": "clerk",
-          "text": "This reusable one should survive the trip home. It has wider handles and can hold quite a bit more weight."
+          "text": "This reusable one from the store should survive the trip home. It has wider handles and holds more weight."
         },
         {
           "turn": 5,
@@ -819,10 +1110,10 @@
           "text": "Excellent. Next time I will not underestimate a harmless-looking bag full of apples."
         }
       ],
-      "plainText": "Well, that was dramatic. One second we had groceries, and the next second dinner was escaping across the sidewalk.\nI saw the bag give way. Let me help before the apples roll any farther.\nI appreciate it. My daughter is trying to rescue the bread, but I think the bag has officially retired.\nThis reusable one should survive the trip home. It has wider handles and can hold quite a bit more weight.\nExcellent. Next time I will not underestimate a harmless-looking bag full of apples.",
+      "plainText": "Well, that was dramatic. One second we had groceries, and the next second dinner was escaping across the sidewalk.\nI saw the bag give way from the register. Let me help before the apples roll any farther.\nI appreciate it. My daughter is trying to rescue the bread, but I think the bag has officially retired.\nThis reusable one from the store should survive the trip home. It has wider handles and holds more weight.\nExcellent. Next time I will not underestimate a harmless-looking bag full of apples.",
       "stats": {
-        "characterCount": 482,
-        "wordCount": 86,
+        "characterCount": 500,
+        "wordCount": 88,
         "turnCount": 5
       },
       "qaNotes": [
@@ -835,12 +1126,45 @@
         "file": "audio/c1/torn-grocery-bag-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 35.5,
-        "bytes": 284204,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 35.09,
+        "bytes": 280940,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.016949,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.016753,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "dad",
+            "startMs": 0,
+            "endMs": 7840
+          },
+          {
+            "turn": 2,
+            "speakerId": "clerk",
+            "startMs": 8220,
+            "endMs": 14100
+          },
+          {
+            "turn": 3,
+            "speakerId": "dad",
+            "startMs": 14480,
+            "endMs": 21440
+          },
+          {
+            "turn": 4,
+            "speakerId": "clerk",
+            "startMs": 21820,
+            "endMs": 28620
+          },
+          {
+            "turn": 5,
+            "speakerId": "dad",
+            "startMs": 29000,
+            "endMs": 35040
+          }
+        ]
       }
     },
     {
@@ -855,6 +1179,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "food",
@@ -866,13 +1191,15 @@
           "id": "mina",
           "name": "Mina",
           "role": "student_sharing_food",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "sam",
           "name": "Sam",
           "role": "student_without_lunch",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -884,12 +1211,12 @@
         {
           "turn": 2,
           "speakerId": "mina",
-          "text": "You can have half of my sandwich."
+          "text": "You can have half of my sandwich, Sam."
         },
         {
           "turn": 3,
           "speakerId": "sam",
-          "text": "Really? Thank you."
+          "text": "Really? Thank you, Mina."
         },
         {
           "turn": 4,
@@ -902,10 +1229,10 @@
           "text": "You are a good friend."
         }
       ],
-      "plainText": "I forgot my lunch today.\nYou can have half of my sandwich.\nReally? Thank you.\nYes. I also have an apple.\nYou are a good friend.",
+      "plainText": "I forgot my lunch today.\nYou can have half of my sandwich, Sam.\nReally? Thank you, Mina.\nYes. I also have an apple.\nYou are a good friend.",
       "stats": {
-        "characterCount": 127,
-        "wordCount": 26,
+        "characterCount": 138,
+        "wordCount": 28,
         "turnCount": 5
       },
       "qaNotes": [
@@ -918,12 +1245,45 @@
         "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 13.94,
-        "bytes": 111788,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 13.9,
+        "bytes": 111404,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006655,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.006636,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "sam",
+            "startMs": 0,
+            "endMs": 2120
+          },
+          {
+            "turn": 2,
+            "speakerId": "mina",
+            "startMs": 2500,
+            "endMs": 5140
+          },
+          {
+            "turn": 3,
+            "speakerId": "sam",
+            "startMs": 5520,
+            "endMs": 7840
+          },
+          {
+            "turn": 4,
+            "speakerId": "mina",
+            "startMs": 8220,
+            "endMs": 10980
+          },
+          {
+            "turn": 5,
+            "speakerId": "sam",
+            "startMs": 11360,
+            "endMs": 13840
+          }
+        ]
       }
     },
     {
@@ -938,6 +1298,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "friendship",
@@ -949,13 +1310,15 @@
           "id": "mina",
           "name": "Mina",
           "role": "student_sharing_food",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "sam",
           "name": "Sam",
           "role": "student_without_lunch",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -967,7 +1330,7 @@
         {
           "turn": 2,
           "speakerId": "mina",
-          "text": "That is okay. I packed more than I need, so we can share."
+          "text": "That is okay, Sam. I packed more than I need, so we can share."
         },
         {
           "turn": 3,
@@ -985,10 +1348,10 @@
           "text": "Thanks, Mina. I will bring something extra tomorrow, just in case you forget too."
         }
       ],
-      "plainText": "I was in such a hurry this morning that I left my lunch on the kitchen table.\nThat is okay. I packed more than I need, so we can share.\nAre you sure? I do not want you to be hungry later.\nI am sure. You can have half the sandwich, and we can split the fruit.\nThanks, Mina. I will bring something extra tomorrow, just in case you forget too.",
+      "plainText": "I was in such a hurry this morning that I left my lunch on the kitchen table.\nThat is okay, Sam. I packed more than I need, so we can share.\nAre you sure? I do not want you to be hungry later.\nI am sure. You can have half the sandwich, and we can split the fruit.\nThanks, Mina. I will bring something extra tomorrow, just in case you forget too.",
       "stats": {
-        "characterCount": 340,
-        "wordCount": 71,
+        "characterCount": 345,
+        "wordCount": 72,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1001,12 +1364,45 @@
         "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 25.3,
-        "bytes": 202604,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 25.22,
+        "bytes": 202028,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012079,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.012041,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "sam",
+            "startMs": 0,
+            "endMs": 4720
+          },
+          {
+            "turn": 2,
+            "speakerId": "mina",
+            "startMs": 5100,
+            "endMs": 9420
+          },
+          {
+            "turn": 3,
+            "speakerId": "sam",
+            "startMs": 9800,
+            "endMs": 14320
+          },
+          {
+            "turn": 4,
+            "speakerId": "mina",
+            "startMs": 14700,
+            "endMs": 19700
+          },
+          {
+            "turn": 5,
+            "speakerId": "sam",
+            "startMs": 20080,
+            "endMs": 25160
+          }
+        ]
       }
     },
     {
@@ -1020,6 +1416,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "social_awareness",
@@ -1031,13 +1428,15 @@
           "id": "mina",
           "name": "Mina",
           "role": "student_sharing_food",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "sam",
           "name": "Sam",
           "role": "student_without_lunch",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -1049,12 +1448,12 @@
         {
           "turn": 2,
           "speakerId": "mina",
-          "text": "That sounds exactly like something that happens on a busy morning. Here, take half of my sandwich."
+          "text": "That sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich."
         },
         {
           "turn": 3,
           "speakerId": "sam",
-          "text": "I appreciate it, but I do not want your kindness to turn into your afternoon hunger."
+          "text": "I appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger."
         },
         {
           "turn": 4,
@@ -1067,10 +1466,10 @@
           "text": "Fair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance."
         }
       ],
-      "plainText": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter.\nThat sounds exactly like something that happens on a busy morning. Here, take half of my sandwich.\nI appreciate it, but I do not want your kindness to turn into your afternoon hunger.\nDo not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry.\nFair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance.",
+      "plainText": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter.\nThat sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich.\nI appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger.\nDo not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry.\nFair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance.",
       "stats": {
-        "characterCount": 493,
-        "wordCount": 87,
+        "characterCount": 504,
+        "wordCount": 89,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1083,12 +1482,45 @@
         "file": "audio/c1/shared-lunch-classroom-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 35.74,
-        "bytes": 286124,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 35.09,
+        "bytes": 280940,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017064,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.016753,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "sam",
+            "startMs": 0,
+            "endMs": 6600
+          },
+          {
+            "turn": 2,
+            "speakerId": "mina",
+            "startMs": 6980,
+            "endMs": 13420
+          },
+          {
+            "turn": 3,
+            "speakerId": "sam",
+            "startMs": 13800,
+            "endMs": 19440
+          },
+          {
+            "turn": 4,
+            "speakerId": "mina",
+            "startMs": 19820,
+            "endMs": 26980
+          },
+          {
+            "turn": 5,
+            "speakerId": "sam",
+            "startMs": 27360,
+            "endMs": 35040
+          }
+        ]
       }
     },
     {
@@ -1103,6 +1535,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "cooking",
@@ -1114,25 +1547,27 @@
           "id": "uncle_ben",
           "name": "Uncle Ben",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         },
         {
           "id": "nina",
           "name": "Nina",
           "role": "learner_cook",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "nina",
-          "text": "My pancake is too dark."
+          "text": "My pancake is too dark, Uncle Ben."
         },
         {
           "turn": 2,
           "speakerId": "uncle_ben",
-          "text": "That is okay. Turn down the heat."
+          "text": "That is okay, Nina. Turn down the heat."
         },
         {
           "turn": 3,
@@ -1150,10 +1585,10 @@
           "text": "This pancake looks much better."
         }
       ],
-      "plainText": "My pancake is too dark.\nThat is okay. Turn down the heat.\nNow I pour a little batter.\nGood. Wait for small bubbles.\nThis pancake looks much better.",
+      "plainText": "My pancake is too dark, Uncle Ben.\nThat is okay, Nina. Turn down the heat.\nNow I pour a little batter.\nGood. Wait for small bubbles.\nThis pancake looks much better.",
       "stats": {
-        "characterCount": 147,
-        "wordCount": 28,
+        "characterCount": 164,
+        "wordCount": 31,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1166,12 +1601,45 @@
         "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 16.01,
-        "bytes": 128300,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 16.34,
+        "bytes": 130988,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007644,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.007801,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "nina",
+            "startMs": 0,
+            "endMs": 3200
+          },
+          {
+            "turn": 2,
+            "speakerId": "uncle_ben",
+            "startMs": 3580,
+            "endMs": 6700
+          },
+          {
+            "turn": 3,
+            "speakerId": "nina",
+            "startMs": 7080,
+            "endMs": 9560
+          },
+          {
+            "turn": 4,
+            "speakerId": "uncle_ben",
+            "startMs": 9940,
+            "endMs": 12900
+          },
+          {
+            "turn": 5,
+            "speakerId": "nina",
+            "startMs": 13280,
+            "endMs": 16280
+          }
+        ]
       }
     },
     {
@@ -1186,6 +1654,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "instructions",
@@ -1197,25 +1666,27 @@
           "id": "uncle_ben",
           "name": "Uncle Ben",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         },
         {
           "id": "nina",
           "name": "Nina",
           "role": "learner_cook",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "nina",
-          "text": "The first pancake burned because I left it in the pan too long."
+          "text": "The first pancake burned, Uncle Ben, because I left it in the pan too long."
         },
         {
           "turn": 2,
           "speakerId": "uncle_ben",
-          "text": "That is how everyone learns. Lower the heat and watch for bubbles on top."
+          "text": "That is how everyone learns, Nina. Lower the heat and watch for bubbles on top."
         },
         {
           "turn": 3,
@@ -1233,10 +1704,10 @@
           "text": "This one is golden. I think breakfast is improving."
         }
       ],
-      "plainText": "The first pancake burned because I left it in the pan too long.\nThat is how everyone learns. Lower the heat and watch for bubbles on top.\nSo I should wait until the edges look dry before I flip it?\nExactly. Then slide the spatula under it and turn it over quickly.\nThis one is golden. I think breakfast is improving.",
+      "plainText": "The first pancake burned, Uncle Ben, because I left it in the pan too long.\nThat is how everyone learns, Nina. Lower the heat and watch for bubbles on top.\nSo I should wait until the edges look dry before I flip it?\nExactly. Then slide the spatula under it and turn it over quickly.\nThis one is golden. I think breakfast is improving.",
       "stats": {
-        "characterCount": 316,
-        "wordCount": 61,
+        "characterCount": 334,
+        "wordCount": 64,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1249,12 +1720,45 @@
         "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 25.97,
-        "bytes": 207980,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 26.69,
+        "bytes": 213740,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012399,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.012743,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "nina",
+            "startMs": 0,
+            "endMs": 4880
+          },
+          {
+            "turn": 2,
+            "speakerId": "uncle_ben",
+            "startMs": 5260,
+            "endMs": 11460
+          },
+          {
+            "turn": 3,
+            "speakerId": "nina",
+            "startMs": 11840,
+            "endMs": 16240
+          },
+          {
+            "turn": 4,
+            "speakerId": "uncle_ben",
+            "startMs": 16620,
+            "endMs": 21900
+          },
+          {
+            "turn": 5,
+            "speakerId": "nina",
+            "startMs": 22280,
+            "endMs": 26640
+          }
+        ]
       }
     },
     {
@@ -1268,6 +1772,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "process_language",
@@ -1279,25 +1784,27 @@
           "id": "uncle_ben",
           "name": "Uncle Ben",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         },
         {
           "id": "nina",
           "name": "Nina",
           "role": "learner_cook",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "nina",
-          "text": "The first pancake looks like evidence from a kitchen disaster."
+          "text": "The first pancake looks like evidence from a kitchen disaster, Uncle Ben."
         },
         {
           "turn": 2,
           "speakerId": "uncle_ben",
-          "text": "It looks like practice. Pancakes are surprisingly good teachers because they show every mistake immediately."
+          "text": "It looks like practice, Nina. Pancakes are surprisingly good teachers because they show every mistake immediately."
         },
         {
           "turn": 3,
@@ -1315,10 +1822,10 @@
           "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
         }
       ],
-      "plainText": "The first pancake looks like evidence from a kitchen disaster.\nIt looks like practice. Pancakes are surprisingly good teachers because they show every mistake immediately.\nSo the heat was too high, and I waited too long before turning it.\nRight. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set.\nThis one is actually golden. I suppose breakfast forgives beginners after all.",
+      "plainText": "The first pancake looks like evidence from a kitchen disaster, Uncle Ben.\nIt looks like practice, Nina. Pancakes are surprisingly good teachers because they show every mistake immediately.\nSo the heat was too high, and I waited too long before turning it.\nRight. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set.\nThis one is actually golden. I suppose breakfast forgives beginners after all.",
       "stats": {
-        "characterCount": 433,
-        "wordCount": 72,
+        "characterCount": 450,
+        "wordCount": 75,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1331,12 +1838,45 @@
         "file": "audio/c1/pancake-practice-kitchen-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 33.26,
-        "bytes": 266348,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 33.74,
+        "bytes": 270188,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.01588,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.016109,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "nina",
+            "startMs": 0,
+            "endMs": 5160
+          },
+          {
+            "turn": 2,
+            "speakerId": "uncle_ben",
+            "startMs": 5540,
+            "endMs": 13500
+          },
+          {
+            "turn": 3,
+            "speakerId": "nina",
+            "startMs": 13880,
+            "endMs": 18520
+          },
+          {
+            "turn": 4,
+            "speakerId": "uncle_ben",
+            "startMs": 18900,
+            "endMs": 26980
+          },
+          {
+            "turn": 5,
+            "speakerId": "nina",
+            "startMs": 27360,
+            "endMs": 33680
+          }
+        ]
       }
     },
     {
@@ -1351,6 +1891,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "workplace",
@@ -1362,25 +1903,27 @@
           "id": "emma",
           "name": "Emma",
           "role": "late_employee",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "noah",
           "name": "Noah",
           "role": "coworker",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "emma",
-          "text": "I am sorry I am late."
+          "text": "I am sorry I am late, Noah."
         },
         {
           "turn": 2,
           "speakerId": "noah",
-          "text": "It is okay. The meeting just started."
+          "text": "It is okay, Emma. The meeting just started."
         },
         {
           "turn": 3,
@@ -1398,10 +1941,10 @@
           "text": "Thanks. I will sit down quietly."
         }
       ],
-      "plainText": "I am sorry I am late.\nIt is okay. The meeting just started.\nDid I miss anything important?\nNot yet. We are looking at the plan.\nThanks. I will sit down quietly.",
+      "plainText": "I am sorry I am late, Noah.\nIt is okay, Emma. The meeting just started.\nDid I miss anything important?\nNot yet. We are looking at the plan.\nThanks. I will sit down quietly.",
       "stats": {
-        "characterCount": 160,
-        "wordCount": 32,
+        "characterCount": 172,
+        "wordCount": 34,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1414,12 +1957,45 @@
         "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 14.86,
-        "bytes": 119084,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 16.25,
+        "bytes": 130220,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007095,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.007758,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "emma",
+            "startMs": 0,
+            "endMs": 3040
+          },
+          {
+            "turn": 2,
+            "speakerId": "noah",
+            "startMs": 3420,
+            "endMs": 7020
+          },
+          {
+            "turn": 3,
+            "speakerId": "emma",
+            "startMs": 7400,
+            "endMs": 9720
+          },
+          {
+            "turn": 4,
+            "speakerId": "noah",
+            "startMs": 10100,
+            "endMs": 13020
+          },
+          {
+            "turn": 5,
+            "speakerId": "emma",
+            "startMs": 13400,
+            "endMs": 16200
+          }
+        ]
       }
     },
     {
@@ -1434,6 +2010,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "workplace_apologies",
@@ -1445,25 +2022,27 @@
           "id": "emma",
           "name": "Emma",
           "role": "late_employee",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "noah",
           "name": "Noah",
           "role": "coworker",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "emma",
-          "text": "Sorry I am late. The elevator stopped on almost every floor."
+          "text": "Sorry I am late, Noah. The elevator stopped on almost every floor."
         },
         {
           "turn": 2,
           "speakerId": "noah",
-          "text": "Do not worry. We have only reviewed the schedule so far."
+          "text": "Do not worry, Emma. We have only reviewed the schedule so far."
         },
         {
           "turn": 3,
@@ -1481,10 +2060,10 @@
           "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."
         }
       ],
-      "plainText": "Sorry I am late. The elevator stopped on almost every floor.\nDo not worry. We have only reviewed the schedule so far.\nGood. I was afraid I had missed the decision about the client presentation.\nThat part is next. I saved you a seat and opened the notes on my laptop.\nThanks, Noah. I will catch up quickly and add my comments after the overview.",
+      "plainText": "Sorry I am late, Noah. The elevator stopped on almost every floor.\nDo not worry, Emma. We have only reviewed the schedule so far.\nGood. I was afraid I had missed the decision about the client presentation.\nThat part is next. I saved you a seat and opened the notes on my laptop.\nThanks, Noah. I will catch up quickly and add my comments after the overview.",
       "stats": {
-        "characterCount": 344,
-        "wordCount": 65,
+        "characterCount": 356,
+        "wordCount": 67,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1497,12 +2076,45 @@
         "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 25.25,
-        "bytes": 202220,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 25.58,
+        "bytes": 204908,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012055,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.012213,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "emma",
+            "startMs": 0,
+            "endMs": 5320
+          },
+          {
+            "turn": 2,
+            "speakerId": "noah",
+            "startMs": 5700,
+            "endMs": 9660
+          },
+          {
+            "turn": 3,
+            "speakerId": "emma",
+            "startMs": 10040,
+            "endMs": 14760
+          },
+          {
+            "turn": 4,
+            "speakerId": "noah",
+            "startMs": 15140,
+            "endMs": 20340
+          },
+          {
+            "turn": 5,
+            "speakerId": "emma",
+            "startMs": 20720,
+            "endMs": 25520
+          }
+        ]
       }
     },
     {
@@ -1516,6 +2128,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "professional_language",
@@ -1527,25 +2140,27 @@
           "id": "emma",
           "name": "Emma",
           "role": "late_employee",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "noah",
           "name": "Noah",
           "role": "coworker",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "emma",
-          "text": "I apologize for slipping in late. The elevator queue downstairs was worse than I expected."
+          "text": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected."
         },
         {
           "turn": 2,
           "speakerId": "noah",
-          "text": "You are fine. We have covered the timeline, but the main discussion has not started yet."
+          "text": "You are fine, Emma. We have covered the timeline, but the main discussion has not started yet."
         },
         {
           "turn": 3,
@@ -1563,10 +2178,10 @@
           "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."
         }
       ],
-      "plainText": "I apologize for slipping in late. The elevator queue downstairs was worse than I expected.\nYou are fine. We have covered the timeline, but the main discussion has not started yet.\nThat is a relief. I was worried I had missed the part where we divide the presentation tasks.\nNot yet. I put the shared notes in front of you, and I marked the section where your input will matter most.\nPerfect. I will listen for a minute, then jump in once I understand where the group has landed.",
+      "plainText": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected.\nYou are fine, Emma. We have covered the timeline, but the main discussion has not started yet.\nThat is a relief. I was worried I had missed the part where we divide the presentation tasks.\nNot yet. I put the shared notes in front of you, and I marked the section where your input will matter most.\nPerfect. I will listen for a minute, then jump in once I understand where the group has landed.",
       "stats": {
-        "characterCount": 478,
-        "wordCount": 89,
+        "characterCount": 490,
+        "wordCount": 91,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1579,12 +2194,45 @@
         "file": "audio/c1/late-meeting-workplace-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 32.14,
-        "bytes": 257324,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 33.41,
+        "bytes": 267500,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.015345,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.015951,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "emma",
+            "startMs": 0,
+            "endMs": 6720
+          },
+          {
+            "turn": 2,
+            "speakerId": "noah",
+            "startMs": 7100,
+            "endMs": 13940
+          },
+          {
+            "turn": 3,
+            "speakerId": "emma",
+            "startMs": 14320,
+            "endMs": 20840
+          },
+          {
+            "turn": 4,
+            "speakerId": "noah",
+            "startMs": 21220,
+            "endMs": 27340
+          },
+          {
+            "turn": 5,
+            "speakerId": "emma",
+            "startMs": 27720,
+            "endMs": 33360
+          }
+        ]
       }
     },
     {
@@ -1599,6 +2247,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "office",
@@ -1610,25 +2259,27 @@
           "id": "maya",
           "name": "Maya",
           "role": "person_needing_help",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "liam",
           "name": "Liam",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "maya",
-          "text": "The printer is not working."
+          "text": "Liam, the printer is not working."
         },
         {
           "turn": 2,
           "speakerId": "liam",
-          "text": "Let me look. Is there paper inside?"
+          "text": "Let me look, Maya. Is there paper inside?"
         },
         {
           "turn": 3,
@@ -1646,10 +2297,10 @@
           "text": "Great. I need these pages for the meeting."
         }
       ],
-      "plainText": "The printer is not working.\nLet me look. Is there paper inside?\nYes, but the light is red.\nThe paper is stuck. I can fix it.\nGreat. I need these pages for the meeting.",
+      "plainText": "Liam, the printer is not working.\nLet me look, Maya. Is there paper inside?\nYes, but the light is red.\nThe paper is stuck. I can fix it.\nGreat. I need these pages for the meeting.",
       "stats": {
-        "characterCount": 167,
-        "wordCount": 34,
+        "characterCount": 179,
+        "wordCount": 36,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1662,12 +2313,45 @@
         "file": "audio/a1-a2/printer-help-workplace-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 16.49,
-        "bytes": 132140,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 16.66,
+        "bytes": 133484,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007873,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.007954,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "maya",
+            "startMs": 0,
+            "endMs": 3040
+          },
+          {
+            "turn": 2,
+            "speakerId": "liam",
+            "startMs": 3420,
+            "endMs": 6340
+          },
+          {
+            "turn": 3,
+            "speakerId": "maya",
+            "startMs": 6720,
+            "endMs": 9680
+          },
+          {
+            "turn": 4,
+            "speakerId": "liam",
+            "startMs": 10060,
+            "endMs": 13180
+          },
+          {
+            "turn": 5,
+            "speakerId": "maya",
+            "startMs": 13560,
+            "endMs": 16600
+          }
+        ]
       }
     },
     {
@@ -1682,6 +2366,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "office_technology",
@@ -1693,25 +2378,27 @@
           "id": "maya",
           "name": "Maya",
           "role": "person_needing_help",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "liam",
           "name": "Liam",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "maya",
-          "text": "The printer stopped halfway through my report, and now it keeps flashing a red light."
+          "text": "Liam, the printer stopped halfway through my report, and now it keeps flashing a red light."
         },
         {
           "turn": 2,
           "speakerId": "liam",
-          "text": "That usually means there is a paper jam. Open this tray and pull the page out slowly."
+          "text": "That usually means a paper jam, Maya. Open this tray and pull the page out slowly."
         },
         {
           "turn": 3,
@@ -1726,13 +2413,13 @@
         {
           "turn": 5,
           "speakerId": "maya",
-          "text": "Thanks. I still have time to bring the copies to the meeting."
+          "text": "Thanks, Liam. I still have time to bring the copies to the meeting."
         }
       ],
-      "plainText": "The printer stopped halfway through my report, and now it keeps flashing a red light.\nThat usually means there is a paper jam. Open this tray and pull the page out slowly.\nI see it. The corner is folded, so it must have gone in at an angle.\nExactly. Once we remove it, press this button and send the file again.\nThanks. I still have time to bring the copies to the meeting.",
+      "plainText": "Liam, the printer stopped halfway through my report, and now it keeps flashing a red light.\nThat usually means a paper jam, Maya. Open this tray and pull the page out slowly.\nI see it. The corner is folded, so it must have gone in at an angle.\nExactly. Once we remove it, press this button and send the file again.\nThanks, Liam. I still have time to bring the copies to the meeting.",
       "stats": {
-        "characterCount": 373,
-        "wordCount": 73,
+        "characterCount": 382,
+        "wordCount": 74,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1745,12 +2432,45 @@
         "file": "audio/b1-b2/printer-help-workplace-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 27.86,
-        "bytes": 223148,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 28.85,
+        "bytes": 231020,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.013301,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.013774,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "maya",
+            "startMs": 0,
+            "endMs": 6040
+          },
+          {
+            "turn": 2,
+            "speakerId": "liam",
+            "startMs": 6420,
+            "endMs": 12220
+          },
+          {
+            "turn": 3,
+            "speakerId": "maya",
+            "startMs": 12600,
+            "endMs": 18480
+          },
+          {
+            "turn": 4,
+            "speakerId": "liam",
+            "startMs": 18860,
+            "endMs": 24340
+          },
+          {
+            "turn": 5,
+            "speakerId": "maya",
+            "startMs": 24720,
+            "endMs": 28800
+          }
+        ]
       }
     },
     {
@@ -1764,6 +2484,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "technical_explanation",
@@ -1775,30 +2496,32 @@
           "id": "maya",
           "name": "Maya",
           "role": "person_needing_help",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "liam",
           "name": "Liam",
           "role": "helper",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "maya",
-          "text": "Of course the printer waits until ten minutes before the meeting to become mysterious."
+          "text": "Of course the printer waits until ten minutes before the meeting to become mysterious, Liam."
         },
         {
           "turn": 2,
           "speakerId": "liam",
-          "text": "It is not being mysterious, just dramatic. The red light usually means a page is trapped somewhere inside the tray."
+          "text": "It is not being mysterious, Maya, just dramatic. The red light usually means a page is trapped inside the tray."
         },
         {
           "turn": 3,
           "speakerId": "maya",
-          "text": "I can see the edge, but I am afraid if I pull too hard I will tear it and make things worse."
+          "text": "I can see the edge, but if I pull too hard I will tear it and make things worse."
         },
         {
           "turn": 4,
@@ -1808,13 +2531,13 @@
         {
           "turn": 5,
           "speakerId": "maya",
-          "text": "Thank you. If this works, the meeting will never know how close it came to being paperless."
+          "text": "Thank you, Liam. If this works, the meeting will never know how close it came to being paperless."
         }
       ],
-      "plainText": "Of course the printer waits until ten minutes before the meeting to become mysterious.\nIt is not being mysterious, just dramatic. The red light usually means a page is trapped somewhere inside the tray.\nI can see the edge, but I am afraid if I pull too hard I will tear it and make things worse.\nGood instinct. Hold both sides and ease it out slowly. Then we will reset the tray before you print the report again.\nThank you. If this works, the meeting will never know how close it came to being paperless.",
+      "plainText": "Of course the printer waits until ten minutes before the meeting to become mysterious, Liam.\nIt is not being mysterious, Maya, just dramatic. The red light usually means a page is trapped inside the tray.\nI can see the edge, but if I pull too hard I will tear it and make things worse.\nGood instinct. Hold both sides and ease it out slowly. Then we will reset the tray before you print the report again.\nThank you, Liam. If this works, the meeting will never know how close it came to being paperless.",
       "stats": {
-        "characterCount": 505,
-        "wordCount": 95,
+        "characterCount": 501,
+        "wordCount": 94,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1827,12 +2550,45 @@
         "file": "audio/c1/printer-help-workplace-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 37.42,
-        "bytes": 299564,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 36.98,
+        "bytes": 296108,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017866,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.017656,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "maya",
+            "startMs": 0,
+            "endMs": 6120
+          },
+          {
+            "turn": 2,
+            "speakerId": "liam",
+            "startMs": 6500,
+            "endMs": 14540
+          },
+          {
+            "turn": 3,
+            "speakerId": "maya",
+            "startMs": 14920,
+            "endMs": 21360
+          },
+          {
+            "turn": 4,
+            "speakerId": "liam",
+            "startMs": 21740,
+            "endMs": 29700
+          },
+          {
+            "turn": 5,
+            "speakerId": "maya",
+            "startMs": 30080,
+            "endMs": 36920
+          }
+        ]
       }
     },
     {
@@ -1847,6 +2603,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "teamwork",
@@ -1858,25 +2615,27 @@
           "id": "sofia",
           "name": "Sofia",
           "role": "team_member",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "omar",
           "name": "Omar",
           "role": "team_member",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "sofia",
-          "text": "We have a lot of work today."
+          "text": "We have a lot of work today, Omar."
         },
         {
           "turn": 2,
           "speakerId": "omar",
-          "text": "Yes, but we can finish together."
+          "text": "Yes, Sofia, but we can finish together."
         },
         {
           "turn": 3,
@@ -1894,10 +2653,10 @@
           "text": "Good. Then we can send the project."
         }
       ],
-      "plainText": "We have a lot of work today.\nYes, but we can finish together.\nI will check the pictures.\nI will write the last notes.\nGood. Then we can send the project.",
+      "plainText": "We have a lot of work today, Omar.\nYes, Sofia, but we can finish together.\nI will check the pictures.\nI will write the last notes.\nGood. Then we can send the project.",
       "stats": {
-        "characterCount": 153,
-        "wordCount": 31,
+        "characterCount": 166,
+        "wordCount": 33,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1910,12 +2669,45 @@
         "file": "audio/a1-a2/team-deadline-workplace-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 14.09,
-        "bytes": 112940,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 14.81,
+        "bytes": 118700,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.006727,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.007071,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "sofia",
+            "startMs": 0,
+            "endMs": 2760
+          },
+          {
+            "turn": 2,
+            "speakerId": "omar",
+            "startMs": 3140,
+            "endMs": 6500
+          },
+          {
+            "turn": 3,
+            "speakerId": "sofia",
+            "startMs": 6880,
+            "endMs": 8800
+          },
+          {
+            "turn": 4,
+            "speakerId": "omar",
+            "startMs": 9180,
+            "endMs": 11740
+          },
+          {
+            "turn": 5,
+            "speakerId": "sofia",
+            "startMs": 12120,
+            "endMs": 14760
+          }
+        ]
       }
     },
     {
@@ -1930,6 +2722,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "teamwork",
@@ -1941,25 +2734,27 @@
           "id": "sofia",
           "name": "Sofia",
           "role": "team_member",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "omar",
           "name": "Omar",
           "role": "team_member",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "sofia",
-          "text": "The deadline is in one hour, so we need to choose what matters most."
+          "text": "The deadline is in one hour, Omar, so we need to choose what matters most."
         },
         {
           "turn": 2,
           "speakerId": "omar",
-          "text": "I can finish the summary while you check the images and numbers."
+          "text": "I can finish the summary, Sofia, while you check the images and numbers."
         },
         {
           "turn": 3,
@@ -1977,10 +2772,10 @@
           "text": "I was nervous before, but now the plan feels possible."
         }
       ],
-      "plainText": "The deadline is in one hour, so we need to choose what matters most.\nI can finish the summary while you check the images and numbers.\nThat works. After that, we should read the whole project once more.\nAgreed. If we find small mistakes, we can fix them before sending it.\nI was nervous before, but now the plan feels possible.",
+      "plainText": "The deadline is in one hour, Omar, so we need to choose what matters most.\nI can finish the summary, Sofia, while you check the images and numbers.\nThat works. After that, we should read the whole project once more.\nAgreed. If we find small mistakes, we can fix them before sending it.\nI was nervous before, but now the plan feels possible.",
       "stats": {
-        "characterCount": 326,
-        "wordCount": 61,
+        "characterCount": 340,
+        "wordCount": 63,
         "turnCount": 5
       },
       "qaNotes": [
@@ -1993,12 +2788,45 @@
         "file": "audio/b1-b2/team-deadline-workplace-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 24.98,
-        "bytes": 200108,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 25.61,
+        "bytes": 205100,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.011926,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.012227,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "sofia",
+            "startMs": 0,
+            "endMs": 5680
+          },
+          {
+            "turn": 2,
+            "speakerId": "omar",
+            "startMs": 6060,
+            "endMs": 10300
+          },
+          {
+            "turn": 3,
+            "speakerId": "sofia",
+            "startMs": 10680,
+            "endMs": 15120
+          },
+          {
+            "turn": 4,
+            "speakerId": "omar",
+            "startMs": 15500,
+            "endMs": 20420
+          },
+          {
+            "turn": 5,
+            "speakerId": "sofia",
+            "startMs": 20800,
+            "endMs": 25560
+          }
+        ]
       }
     },
     {
@@ -2012,6 +2840,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "prioritization",
@@ -2023,25 +2852,27 @@
           "id": "sofia",
           "name": "Sofia",
           "role": "team_member",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "omar",
           "name": "Omar",
           "role": "team_member",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "sofia",
-          "text": "We are not going to polish every detail before the deadline, so we need to be strategic."
+          "text": "We are not going to polish every detail before the deadline, Omar, so we need to be strategic."
         },
         {
           "turn": 2,
           "speakerId": "omar",
-          "text": "Agreed. I will tighten the conclusion and remove anything that repeats information from the chart."
+          "text": "Agreed, Sofia. I will tighten the conclusion and remove anything that repeats information from the chart."
         },
         {
           "turn": 3,
@@ -2059,10 +2890,10 @@
           "text": "Exactly. The deadline still feels close, but at least the work now has a shape we can finish."
         }
       ],
-      "plainText": "We are not going to polish every detail before the deadline, so we need to be strategic.\nAgreed. I will tighten the conclusion and remove anything that repeats information from the chart.\nGood. I will verify the numbers and make sure the visuals support the main argument instead of distracting from it.\nOnce those pieces are done, we can read the project aloud. That usually reveals awkward sentences faster than staring at the screen.\nExactly. The deadline still feels close, but at least the work now has a shape we can finish.",
+      "plainText": "We are not going to polish every detail before the deadline, Omar, so we need to be strategic.\nAgreed, Sofia. I will tighten the conclusion and remove anything that repeats information from the chart.\nGood. I will verify the numbers and make sure the visuals support the main argument instead of distracting from it.\nOnce those pieces are done, we can read the project aloud. That usually reveals awkward sentences faster than staring at the screen.\nExactly. The deadline still feels close, but at least the work now has a shape we can finish.",
       "stats": {
-        "characterCount": 530,
-        "wordCount": 92,
+        "characterCount": 543,
+        "wordCount": 94,
         "turnCount": 5
       },
       "qaNotes": [
@@ -2075,12 +2906,45 @@
         "file": "audio/c1/team-deadline-workplace-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 36.62,
-        "bytes": 293228,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 36.65,
+        "bytes": 293420,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017484,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.017498,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "sofia",
+            "startMs": 0,
+            "endMs": 6440
+          },
+          {
+            "turn": 2,
+            "speakerId": "omar",
+            "startMs": 6820,
+            "endMs": 12980
+          },
+          {
+            "turn": 3,
+            "speakerId": "sofia",
+            "startMs": 13360,
+            "endMs": 21080
+          },
+          {
+            "turn": 4,
+            "speakerId": "omar",
+            "startMs": 21460,
+            "endMs": 29780
+          },
+          {
+            "turn": 5,
+            "speakerId": "sofia",
+            "startMs": 30160,
+            "endMs": 36600
+          }
+        ]
       }
     },
     {
@@ -2265,6 +3129,7 @@
         "A2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "workplace",
@@ -2276,13 +3141,15 @@
           "id": "anna",
           "name": "Anna",
           "role": "coworker",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "marco",
           "name": "Marco",
           "role": "coworker",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
@@ -2294,7 +3161,7 @@
         {
           "turn": 2,
           "speakerId": "marco",
-          "text": "Yes. I need some water."
+          "text": "Yes, Anna. I need some water."
         },
         {
           "turn": 3,
@@ -2312,10 +3179,10 @@
           "text": "Yes, but five quiet minutes help."
         }
       ],
-      "plainText": "Hi Marco. Are you on a break?\nYes. I need some water.\nI have coffee and a snack.\nNice. The morning was busy.\nYes, but five quiet minutes help.",
+      "plainText": "Hi Marco. Are you on a break?\nYes, Anna. I need some water.\nI have coffee and a snack.\nNice. The morning was busy.\nYes, but five quiet minutes help.",
       "stats": {
-        "characterCount": 142,
-        "wordCount": 29,
+        "characterCount": 148,
+        "wordCount": 30,
         "turnCount": 5
       },
       "qaNotes": [
@@ -2328,12 +3195,45 @@
         "file": "audio/a1-a2/office-break-room-01-a1-a2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 15.77,
-        "bytes": 126380,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 15.89,
+        "bytes": 127340,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.007529,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.007586,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "anna",
+            "startMs": 0,
+            "endMs": 2360
+          },
+          {
+            "turn": 2,
+            "speakerId": "marco",
+            "startMs": 2740,
+            "endMs": 5700
+          },
+          {
+            "turn": 3,
+            "speakerId": "anna",
+            "startMs": 6080,
+            "endMs": 8600
+          },
+          {
+            "turn": 4,
+            "speakerId": "marco",
+            "startMs": 8980,
+            "endMs": 11980
+          },
+          {
+            "turn": 5,
+            "speakerId": "anna",
+            "startMs": 12360,
+            "endMs": 15840
+          }
+        ]
       }
     },
     {
@@ -2348,6 +3248,7 @@
         "B2"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "small_talk",
@@ -2359,25 +3260,27 @@
           "id": "anna",
           "name": "Anna",
           "role": "coworker",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "marco",
           "name": "Marco",
           "role": "coworker",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "anna",
-          "text": "You look relieved to be away from your desk for a moment."
+          "text": "You look relieved to be away from your desk, Marco."
         },
         {
           "turn": 2,
           "speakerId": "marco",
-          "text": "I am. The morning was full of calls, and I needed a short break before the next one."
+          "text": "I am, Anna. The morning was full of calls, and I needed a short break before the next one."
         },
         {
           "turn": 3,
@@ -2395,10 +3298,10 @@
           "text": "Exactly. After this, I can go back with a clearer head."
         }
       ],
-      "plainText": "You look relieved to be away from your desk for a moment.\nI am. The morning was full of calls, and I needed a short break before the next one.\nSame here. I made coffee, but I am mostly enjoying the quiet.\nSometimes five minutes in the break room makes the rest of the day easier.\nExactly. After this, I can go back with a clearer head.",
+      "plainText": "You look relieved to be away from your desk, Marco.\nI am, Anna. The morning was full of calls, and I needed a short break before the next one.\nSame here. I made coffee, but I am mostly enjoying the quiet.\nSometimes five minutes in the break room makes the rest of the day easier.\nExactly. After this, I can go back with a clearer head.",
       "stats": {
         "characterCount": 335,
-        "wordCount": 67,
+        "wordCount": 66,
         "turnCount": 5
       },
       "qaNotes": [
@@ -2411,12 +3314,45 @@
         "file": "audio/b1-b2/office-break-room-01-b1-b2.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 25.66,
-        "bytes": 205484,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 25.37,
+        "bytes": 203180,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.012251,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.012113,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "anna",
+            "startMs": 0,
+            "endMs": 3240
+          },
+          {
+            "turn": 2,
+            "speakerId": "marco",
+            "startMs": 3620,
+            "endMs": 10020
+          },
+          {
+            "turn": 3,
+            "speakerId": "anna",
+            "startMs": 10400,
+            "endMs": 15640
+          },
+          {
+            "turn": 4,
+            "speakerId": "marco",
+            "startMs": 16020,
+            "endMs": 20740
+          },
+          {
+            "turn": 5,
+            "speakerId": "anna",
+            "startMs": 21120,
+            "endMs": 25320
+          }
+        ]
       }
     },
     {
@@ -2430,6 +3366,7 @@
         "C1"
       ],
       "scriptType": "dialogue",
+      "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
         "workplace_wellbeing",
@@ -2441,25 +3378,27 @@
           "id": "anna",
           "name": "Anna",
           "role": "coworker",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": true
         },
         {
           "id": "marco",
           "name": "Marco",
           "role": "coworker",
-          "voice": "Puck"
+          "voice": "Puck",
+          "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
           "speakerId": "anna",
-          "text": "You have the expression of someone who has survived a very long morning."
+          "text": "You have the expression of someone who has survived a very long morning, Marco."
         },
         {
           "turn": 2,
           "speakerId": "marco",
-          "text": "That is accurate. Three calls, two urgent messages, and one spreadsheet that refused to make sense."
+          "text": "That is accurate, Anna. Three calls, two urgent messages, and one spreadsheet that refused to make sense."
         },
         {
           "turn": 3,
@@ -2477,10 +3416,10 @@
           "text": "Exactly. A short break does not solve the work, but it makes us better company for the work when we return."
         }
       ],
-      "plainText": "You have the expression of someone who has survived a very long morning.\nThat is accurate. Three calls, two urgent messages, and one spreadsheet that refused to make sense.\nThen this is a well-earned pause. I came in for coffee, but honestly I needed a few minutes without notifications.\nThere is something useful about stepping away before frustration starts making decisions for you.\nExactly. A short break does not solve the work, but it makes us better company for the work when we return.",
+      "plainText": "You have the expression of someone who has survived a very long morning, Marco.\nThat is accurate, Anna. Three calls, two urgent messages, and one spreadsheet that refused to make sense.\nThen this is a well-earned pause. I came in for coffee, but honestly I needed a few minutes without notifications.\nThere is something useful about stepping away before frustration starts making decisions for you.\nExactly. A short break does not solve the work, but it makes us better company for the work when we return.",
       "stats": {
-        "characterCount": 493,
-        "wordCount": 84,
+        "characterCount": 506,
+        "wordCount": 86,
         "turnCount": 5
       },
       "qaNotes": [
@@ -2493,12 +3432,45 @@
         "file": "audio/c1/office-break-room-01-c1.mp3",
         "format": "mp3",
         "bitrateKbps": 64,
-        "durationSeconds": 36.86,
-        "bytes": 295148,
-        "generatedAt": "2026-07-05",
+        "durationSeconds": 37.66,
+        "bytes": 301484,
+        "generatedAt": "2026-07-11",
         "voiceStrategy": "turn_by_turn_concatenation",
-        "estimatedCostUsd": 0.017598,
-        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag."
+        "estimatedCostUsd": 0.01798,
+        "costEstimationMethod": "Estimated from prior Gemini TTS demo cost per second; OpenRouter usage receipts may lag.",
+        "interTurnSilenceMs": 380,
+        "segments": [
+          {
+            "turn": 1,
+            "speakerId": "anna",
+            "startMs": 0,
+            "endMs": 5800
+          },
+          {
+            "turn": 2,
+            "speakerId": "marco",
+            "startMs": 6180,
+            "endMs": 14340
+          },
+          {
+            "turn": 3,
+            "speakerId": "anna",
+            "startMs": 14720,
+            "endMs": 23120
+          },
+          {
+            "turn": 4,
+            "speakerId": "marco",
+            "startMs": 23500,
+            "endMs": 29820
+          },
+          {
+            "turn": 5,
+            "speakerId": "anna",
+            "startMs": 30200,
+            "endMs": 37600
+          }
+        ]
       }
     },
     {

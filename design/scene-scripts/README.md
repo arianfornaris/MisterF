@@ -77,7 +77,7 @@ This is the highest-priority requirement. Speaker `name` and `role` are authorin
 - **One voice per character, consistent for the whole script**, and clearly distinguishable voices between characters (and, where relevant, a voice that fits the character). This is what lets a learner separate speakers without labels.
 - **Record identity coverage in metadata** so the tutor knows who it may name. Add a per-speaker `nameSpokenInAudio: true|false` flag (or a script-level `identityStrategy: "named_in_dialogue" | "narrator_intro" | "role_only"`). The comprehension/tutor layer must reference role-only speakers by role, never by name.
 
-> **Current state:** 24 of 27 dialogue scripts name their speakers in metadata but never speak those names in the audio. These must be fixed (add in-dialogue naming) or reclassified to role-only before comprehension questions are generated from them.
+> **Status:** Fixed. All 27 dialogue scripts previously named their speakers in metadata but never spoke those names. They were rewritten (24 named in-dialogue, 3 reclassified to `role_only`) and their audio regenerated via `apply_script_rewrites.py`. Each now carries `identityStrategy` and per-speaker `nameSpokenInAudio`.
 
 ### P2 — Grounding and answerability
 

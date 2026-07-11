@@ -1,8 +1,8 @@
 # Scene Media Metadata — V3 Additions (handoff)
 
-Status: design/data layer. Audio regeneration for the affected scripts is **pending a valid
-OpenRouter key** (see "Open items"). This note is the handoff for the code work that adapts the
-runtime, tutor, and UI to the new fields.
+Status: data layer applied. The 27 dialogue scripts have been rewritten, tagged with the new
+metadata, and their audio regenerated with per-turn segments in `scene-scripts.json`. This note is
+the handoff for the code work that adapts the runtime, tutor, and UI to the new fields.
 
 ## Why
 
@@ -65,9 +65,8 @@ Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
 
 ## Open items
 
-- **Audio regeneration is blocked:** the local `misterf-web/.env.{development,production}`
-  OpenRouter key returns `401 "User not found"` (rotated/invalid). Once a valid key is available,
-  run `OPENROUTER_API_KEY=… python3 design/scene-scripts/apply_script_rewrites.py` to write the
-  transcript/metadata changes and regenerate the 27 audios with segments. Until then,
-  `scene-scripts.json` is intentionally left unchanged so transcripts never drift from audio (P6).
-- Decide whether narrations get the identity fields in the same pass.
+- Decide whether the 123 narrations get `identityStrategy`/`nameSpokenInAudio` (and single-turn
+  `segments`) in a follow-up pass, for schema consistency.
+- Note for re-runs: the local `misterf-web/.env.{development,production}` OpenRouter key returned
+  `401 "User not found"`; the working key was supplied out-of-band. Re-running
+  `apply_script_rewrites.py` needs a valid `OPENROUTER_API_KEY` in the environment.
