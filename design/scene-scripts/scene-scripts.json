@@ -2959,6 +2959,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -2970,7 +2971,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3016,6 +3018,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -3027,7 +3030,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3072,6 +3076,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -3083,7 +3088,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3485,6 +3491,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -3496,7 +3503,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3542,6 +3550,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -3553,7 +3562,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3598,6 +3608,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -3609,7 +3620,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3655,6 +3667,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -3666,7 +3679,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3712,6 +3726,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -3723,7 +3738,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3768,6 +3784,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -3779,7 +3796,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3825,6 +3843,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -3836,7 +3855,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3882,6 +3902,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -3893,7 +3914,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3938,6 +3960,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -3949,7 +3972,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -3995,6 +4019,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -4006,7 +4031,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4052,6 +4078,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -4063,7 +4090,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4108,6 +4136,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -4119,7 +4148,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4165,6 +4195,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -4176,7 +4207,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4222,6 +4254,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -4233,7 +4266,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4278,6 +4312,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -4289,7 +4324,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4335,6 +4371,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -4346,7 +4383,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4392,6 +4430,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -4403,7 +4442,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4448,6 +4488,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -4459,7 +4500,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4505,6 +4547,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -4516,7 +4559,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4562,6 +4606,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -4573,7 +4618,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4618,6 +4664,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -4629,7 +4676,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4675,6 +4723,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -4686,7 +4735,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4732,6 +4782,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -4743,7 +4794,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4788,6 +4840,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -4799,7 +4852,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4845,6 +4899,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -4856,7 +4911,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4902,6 +4958,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -4913,7 +4970,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -4958,6 +5016,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -4969,7 +5028,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5015,6 +5075,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -5026,7 +5087,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5072,6 +5134,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -5083,7 +5146,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5128,6 +5192,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -5139,7 +5204,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5185,6 +5251,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -5196,7 +5263,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5242,6 +5310,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -5253,7 +5322,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5298,6 +5368,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -5309,7 +5380,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5355,6 +5427,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -5366,7 +5439,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5412,6 +5486,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -5423,7 +5498,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5468,6 +5544,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -5479,7 +5556,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5525,6 +5603,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -5536,7 +5615,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5582,6 +5662,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -5593,7 +5674,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5638,6 +5720,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -5649,7 +5732,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5695,6 +5779,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -5706,7 +5791,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5752,6 +5838,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -5763,7 +5850,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5808,6 +5896,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -5819,7 +5908,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5865,6 +5955,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -5876,7 +5967,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5922,6 +6014,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -5933,7 +6026,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -5978,6 +6072,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -5989,7 +6084,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6035,6 +6131,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -6046,7 +6143,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6092,6 +6190,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -6103,7 +6202,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6148,6 +6248,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -6159,7 +6260,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6205,6 +6307,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -6216,7 +6319,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6262,6 +6366,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -6273,7 +6378,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6318,6 +6424,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -6329,7 +6436,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6375,6 +6483,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -6386,7 +6495,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6432,6 +6542,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -6443,7 +6554,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6488,6 +6600,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -6499,7 +6612,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6545,6 +6659,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -6556,7 +6671,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6602,6 +6718,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -6613,7 +6730,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6658,6 +6776,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -6669,7 +6788,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6715,6 +6835,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -6726,7 +6847,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6772,6 +6894,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -6783,7 +6906,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6828,6 +6952,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -6839,7 +6964,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6885,6 +7011,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -6896,7 +7023,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6942,6 +7070,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -6953,7 +7082,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -6998,6 +7128,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -7009,7 +7140,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7055,6 +7187,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -7066,7 +7199,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7112,6 +7246,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -7123,7 +7258,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7168,6 +7304,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -7179,7 +7316,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7225,6 +7363,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -7236,7 +7375,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7282,6 +7422,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -7293,7 +7434,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7338,6 +7480,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -7349,7 +7492,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7395,6 +7539,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -7406,7 +7551,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7452,6 +7598,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -7463,7 +7610,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7508,6 +7656,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -7519,7 +7668,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7565,6 +7715,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -7576,7 +7727,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7622,6 +7774,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -7633,7 +7786,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7678,6 +7832,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -7689,7 +7844,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7735,6 +7891,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -7746,7 +7903,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7792,6 +7950,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -7803,7 +7962,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7848,6 +8008,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -7859,7 +8020,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7905,6 +8067,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -7916,7 +8079,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -7962,6 +8126,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -7973,7 +8138,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8018,6 +8184,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -8029,7 +8196,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8075,6 +8243,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -8086,7 +8255,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8132,6 +8302,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -8143,7 +8314,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8188,6 +8360,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -8199,7 +8372,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8245,6 +8419,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -8256,7 +8431,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8302,6 +8478,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -8313,7 +8490,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8358,6 +8536,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -8369,7 +8548,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8415,6 +8595,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -8426,7 +8607,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8472,6 +8654,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -8483,7 +8666,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8528,6 +8712,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -8539,7 +8724,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8585,6 +8771,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -8596,7 +8783,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8642,6 +8830,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -8653,7 +8842,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8698,6 +8888,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -8709,7 +8900,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8755,6 +8947,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -8766,7 +8959,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8812,6 +9006,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -8823,7 +9018,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8868,6 +9064,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -8879,7 +9076,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8925,6 +9123,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -8936,7 +9135,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -8982,6 +9182,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -8993,7 +9194,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9038,6 +9240,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -9049,7 +9252,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9095,6 +9299,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -9106,7 +9311,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9152,6 +9358,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -9163,7 +9370,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9208,6 +9416,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "role_only",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -9219,7 +9428,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9265,6 +9475,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -9276,7 +9487,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9322,6 +9534,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -9333,7 +9546,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9378,6 +9592,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -9389,7 +9604,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9435,6 +9651,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -9446,7 +9663,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9492,6 +9710,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -9503,7 +9722,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9548,6 +9768,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -9559,7 +9780,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9605,6 +9827,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -9616,7 +9839,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9662,6 +9886,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -9673,7 +9898,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9718,6 +9944,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -9729,7 +9956,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9775,6 +10003,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -9786,7 +10015,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9832,6 +10062,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -9843,7 +10074,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9888,6 +10120,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -9899,7 +10132,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -9945,6 +10179,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -9956,7 +10191,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -10002,6 +10238,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -10013,7 +10250,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -10058,6 +10296,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -10069,7 +10308,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -10115,6 +10355,7 @@
         "A2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "simple_story_sequence",
@@ -10126,7 +10367,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -10172,6 +10414,7 @@
         "B2"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "story_sequence",
@@ -10183,7 +10426,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [
@@ -10228,6 +10472,7 @@
         "C1"
       ],
       "scriptType": "narration",
+      "identityStrategy": "named_in_narration",
       "source": "codex-authored-story-rewrite",
       "teachingFocus": [
         "nuanced_storytelling",
@@ -10239,7 +10484,8 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
-          "voice": "Kore"
+          "voice": "Kore",
+          "nameSpokenInAudio": false
         }
       ],
       "transcript": [

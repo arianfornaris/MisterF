@@ -112,17 +112,18 @@ This is the highest-priority requirement. Speaker `name` and `role` are authorin
 
 These fields are the contract the comprehension/tutor layer and the UI consume. They are added by `apply_script_rewrites.py` when a rewrite is approved. **This is the source of truth for the code-agent handoff.**
 
-**Script entry — `identityStrategy`** (string enum, one per script):
+**Script entry — `identityStrategy`** (string enum, present on **every** script):
 
-| Value | Meaning | How the tutor/UI must refer to speakers |
-| --- | --- | --- |
-| `named_in_dialogue` | Every named speaker says/hears their name aloud in the audio. | By name (e.g. "Maria", "Mr. James"). |
-| `role_only` | Speakers are roles, not proper names; no name is spoken. | By role only (e.g. "the father", "the store clerk"). Never invent a name. |
-| `narrator_intro` | A narrator names the characters before/within the passage. | By the name(s) the narrator speaks. |
+| Value | Applies to | Meaning | How the tutor/UI must refer to the people |
+| --- | --- | --- | --- |
+| `named_in_dialogue` | dialogue | Speakers name each other aloud. | By name (e.g. "Maria", "Mr. James"). |
+| `named_in_narration` | narration/monologue | The narration names its character(s) with a proper name. | By the name spoken in the text. |
+| `role_only` | either | No proper name is spoken; the people are roles or a collective subject. | By role/generic only (e.g. "the father", "the store clerk", "the neighbors"). Never invent a name. |
 
-**Speaker — `speakers[].nameSpokenInAudio`** (boolean): whether *this* speaker's name is actually spoken in the audio. `true` for named speakers in a `named_in_dialogue` script; `false` for `role_only` speakers. A question may use a speaker's name only when this is `true`.
+**Speaker — `speakers[].nameSpokenInAudio`** (boolean, present on **every** speaker): whether *this speaker's* name is actually spoken in the audio.
 
-For `role_only` scripts the speaker's `name`/`role` are also rewritten to the spoken role (e.g. `name: "the store clerk"`, `role: "store_staff"`).
+- Dialogue: `true` for named speakers, `false` for `role_only` speakers. A question may use a speaker's name only when this is `true`. For `role_only` dialogue the speaker's `name`/`role` are also rewritten to the spoken role (e.g. `name: "the store clerk"`, `role: "store_staff"`).
+- Narration/monologue narrator: always `false` — **the narrator is a voice, not a character.** Whether the *story's* character is nameable is carried by `identityStrategy` (`named_in_narration` vs `role_only`), not by the narrator's flag. Do not read the narrator's `nameSpokenInAudio` to decide whether to name the protagonist; read `identityStrategy` and take the name from the transcript text.
 
 **Audio — `audio.segments`** (array) and **`audio.interTurnSilenceMs`** (number): per-turn timing marks into the single concatenated MP3 (see "Audio Packaging & Segmentation"). Each segment is `{ turn, speakerId, startMs, endMs }` and marks the **spoken** region of that turn; the pause between turns is the gap between one turn's `endMs` and the next turn's `startMs`. Used for single-line replay, transcript-highlight sync, shadowing, and tutor "replay line N".
 

@@ -110,10 +110,16 @@ interface SceneMediaLevel {
   script?: SceneMediaScript;
 }
 
-// How speakers are identified to the listener. Drives whether the tutor may
-// refer to a speaker by name or must use their role. See
+// How the people in the audio are identified to the listener. Drives whether
+// the tutor may use a name or must use a role. Present on every script. See
 // design/scene-scripts/README.md ("Identity & Audio Metadata").
-type IdentityStrategy = "named_in_dialogue" | "role_only" | "narrator_intro";
+//   named_in_dialogue  - dialogue; speakers name each other aloud
+//   named_in_narration - narration/monologue; the text names its character(s)
+//   role_only          - no proper name spoken; refer by role/generic
+type IdentityStrategy =
+  | "named_in_dialogue"
+  | "named_in_narration"
+  | "role_only";
 
 type SceneMediaScript =
   | {
@@ -135,6 +141,9 @@ type SceneMediaScript =
     }
   | {
       scriptType: "narration" | "monologue";
+      // "named_in_narration" when the text names its character(s), else
+      // "role_only" for a generic/collective subject.
+      identityStrategy: IdentityStrategy;
       text: string;
     };
 ```

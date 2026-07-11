@@ -23,16 +23,23 @@ Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
 
 ### Script level
 
-- `identityStrategy: "named_in_dialogue" | "role_only" | "narrator_intro"`
-  - `named_in_dialogue` — every named speaker is named aloud; refer to speakers by name.
-  - `role_only` — speakers are roles, no proper name is spoken; refer to them by role only, never
-    invent a name. Their `speakers[].name` is the role text (e.g. `"the store clerk"`).
-  - `narrator_intro` — a narrator names the characters; use the names the narrator speaks.
+- `identityStrategy: "named_in_dialogue" | "named_in_narration" | "role_only"` — present on
+  **every** script.
+  - `named_in_dialogue` — dialogue; speakers name each other aloud. Use names.
+  - `named_in_narration` — narration/monologue whose text names its character(s). Use the name from
+    the transcript.
+  - `role_only` — no proper name is spoken; the people are roles or a collective subject. Refer by
+    role/generic only ("the father", "the store clerk", "the neighbors"); never invent a name. For
+    role_only *dialogue*, `speakers[].name` is itself the role text (e.g. `"the store clerk"`).
 
 ### Speaker level (`speakers[]`)
 
-- `nameSpokenInAudio: boolean` — whether this speaker's name is actually spoken. A question or
-  tutor turn may use the name **only when true**; otherwise use the role.
+- `nameSpokenInAudio: boolean` — present on **every** speaker; whether this speaker's name is
+  actually spoken. A question or tutor turn may use a speaker's name **only when true**.
+- **Narration caveat:** the narrator is a voice, not a character, so its `nameSpokenInAudio` is
+  always `false`. Do **not** use it to decide whether the story's protagonist is nameable — read the
+  script's `identityStrategy` instead. The character name, when nameable, comes from the transcript
+  text (a narration has no character in `speakers[]`).
 
 ### Audio object (`audio`)
 
@@ -52,21 +59,26 @@ Audio Metadata). Runtime types: `docs/features/scene-media-library.md`.
   product-safe fields (already listed in `scene-media-library.md`).
 - **Player UI:** use `segments` for single-line replay (`seek(startMs)` … stop at `endMs`),
   optional transcript-highlight sync, and shadowing/repeat-after-me. Fall back gracefully when a
-  script has no `segments` (narration/monologue single-turn audio does not carry them yet).
+  script has no `segments` (single-turn narration/monologue audio omits them by design).
 
 ## Current coverage
 
-- Applied to the **27 dialogue scripts** (the batch-1 hand-authored scenes) via
-  `design/scene-scripts/apply_script_rewrites.py`: text rewrite + `identityStrategy` +
-  `nameSpokenInAudio` + regenerated audio with `segments`.
-- **Narrations (123)** do not yet carry `identityStrategy`/`nameSpokenInAudio`. Their characters
-  are named inside the narrated text (or are generic "a man/woman"), so they are lower risk, but a
-  follow-up pass should tag them for consistency (single-turn audio also does not carry `segments`).
+**All 150 scripts now carry `identityStrategy`, and every speaker carries `nameSpokenInAudio`** —
+the interface is uniform; consumers never special-case by `scriptType`.
+
+- **27 dialogues** via `apply_script_rewrites.py`: text rewrite + `identityStrategy` +
+  `nameSpokenInAudio` + regenerated audio with `segments` (24 `named_in_dialogue`, 3 `role_only`).
+- **123 narrations** via `apply_narration_identity.py` (metadata only, no audio change):
+  115 `named_in_narration`, 8 `role_only` (collective/generic subjects). Narrations are single-turn,
+  so they carry no `segments` — `segments` is optional and only present on multi-turn dialogue audio.
+
+Distribution: `named_in_dialogue` 24, `named_in_narration` 115, `role_only` 11.
 
 ## Open items
 
-- Decide whether the 123 narrations get `identityStrategy`/`nameSpokenInAudio` (and single-turn
-  `segments`) in a follow-up pass, for schema consistency.
+- New scripts should set `identityStrategy` at authoring/generation time. The narration backfill
+  used a curated person-name allowlist (`apply_narration_identity.py`) that will not recognize
+  new names, so it is a one-time pass, not an ongoing classifier.
 - Note for re-runs: the local `misterf-web/.env.{development,production}` OpenRouter key returned
   `401 "User not found"`; the working key was supplied out-of-band. Re-running
-  `apply_script_rewrites.py` needs a valid `OPENROUTER_API_KEY` in the environment.
+  `apply_script_rewrites.py` (audio) needs a valid `OPENROUTER_API_KEY` in the environment.
