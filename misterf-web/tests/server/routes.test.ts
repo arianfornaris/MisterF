@@ -686,8 +686,13 @@ describe('main route smoke tests', () => {
     });
     const cookie = await createAuthenticatedCookie(user.id, profile.id);
     createReadyUserSceneMedia({
+      audio: {
+        durationSeconds: 18,
+        format: 'mp3',
+        src: '/public/scene-media/audio/a1-a2/airport-security-line-01-a1-a2.mp3',
+      },
       format: 'single_panel_scene',
-      generationMode: 'image_only',
+      generationMode: 'complete_scene',
       id: 'route-ready-media',
       image: {
         alt: 'A traveler at airport security.',
@@ -697,7 +702,14 @@ describe('main route smoke tests', () => {
       ownerProfileId: profile.id,
       ownerUserId: user.id,
       prompt: 'Create an airport scene.',
-      scriptTypePreference: 'unspecified',
+      script: {
+        scriptType: 'dialogue',
+        turns: [
+          { speaker: 'Agent', text: 'Please place your bag on the belt.' },
+          { speaker: 'Traveler', text: 'Of course.' },
+        ],
+      },
+      scriptTypePreference: 'dialogue',
       setting: 'Airport security',
       skills: ['Travel questions'],
       tags: ['airport'],
@@ -745,8 +757,19 @@ describe('main route smoke tests', () => {
     const mediaAuthoringHtml = await mediaAuthoringResponse.text();
     expect(mediaAuthoringResponse.status).toBe(200);
     expect(mediaAuthoringHtml).toContain('Editando media');
+    expect(mediaAuthoringHtml).toContain('Información');
     expect(mediaAuthoringHtml).toContain('Chat IA');
     expect(mediaAuthoringHtml).toContain('value="Route Ready Media"');
+    expect(mediaAuthoringHtml).toContain('Escena completa');
+    expect(mediaAuthoringHtml).toContain('Escena de un panel');
+    expect(mediaAuthoringHtml).toContain('Airport security');
+    expect(mediaAuthoringHtml).toContain('Create an airport scene.');
+    expect(mediaAuthoringHtml).toContain('A traveler speaks with a security officer.');
+    expect(mediaAuthoringHtml).toContain('Please place your bag on the belt.');
+    expect(mediaAuthoringHtml).toContain('Travel questions');
+    expect(mediaAuthoringHtml).toContain('airport');
+    expect(mediaAuthoringHtml).toContain('speaking');
+    expect(mediaAuthoringHtml).toContain('<audio');
     const authoringCsrfToken = extractCsrfToken(mediaAuthoringHtml);
     const saveTitleResponse = await postForm(
       '/media-library/route-ready-media/edit/save',
