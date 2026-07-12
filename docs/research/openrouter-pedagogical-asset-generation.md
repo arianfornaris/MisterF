@@ -219,6 +219,40 @@ This makes built-in listening, runtime-generated audio, and roleplay (feature 1.
 
 `zyphra/zonos-v0.1-transformer`, `zyphra/zonos-v0.1-hybrid`, `sesame/csm-1b`, and `canopylabs/orpheus-3b-0.1-ft` were all listed by OpenRouter at $7 per million characters. They are viable middle-tier candidates if Kokoro quality is insufficient and Gemini's output-token pricing proves too high.
 
+### Finding: Child Voices (2026-07-12)
+
+Question raised by authoring: a request to make a character sound like a young
+child (e.g. a 7-year-old) produced no change. Checked every alternative in this
+note for child-voice support. **None ships a dedicated preset child voice** —
+all prebuilt catalogs are adult voices:
+
+- **Gemini 3.1 Flash TTS** (current default): fixed prebuilt catalog, adult only.
+- **Kokoro 82M**: 54 presets (`af_`, `am_`, `bf_`, `bm_`, …), all adult.
+- **Voxtral Mini TTS**: 20 adult presets; custom cloning only via the Mistral API.
+- **MAI-Voice-2**: prompted synthesis + zero-shot cloning from a 5–60s reference,
+  with consent guardrails; no documented child preset.
+- **Zonos**: zero-shot cloning + pitch/rate/emotion control; no preset and no
+  age control.
+- **Sesame CSM-1b**: cloning-based; no presets.
+- **Orpheus 3B**: adult presets (`tara`, `leah`, …); a "child voice" only as a
+  post-processing pitch/speed effect, not a real child timbre.
+
+Only two paths to a child-sounding voice, both weak:
+
+1. **Voice cloning** (Voxtral, MAI-Voice-2, Zonos, Sesame, Orpheus): would need a
+   recording of an actual child as the reference. Cloning a minor's voice is a
+   consent/ethics/legal problem — MAI-Voice-2 explicitly blocks non-consented
+   cloning — so this is not viable without a properly consented child voice actor.
+2. **Pitch/rate shifting** (Zonos, Orpheus effect): approximates a higher register
+   but sounds like a sped-up adult ("chipmunk"), not a convincing 7-year-old.
+
+Real **preset** child voices exist only in the classic **Azure Neural TTS**
+catalog (e.g. `en-US-AnaNeural`), which is a different product from Microsoft's
+MAI-Voice-2. Using it means adding a provider outside OpenRouter — exactly what
+this research set out to avoid. Conclusion: within the OpenRouter-only scope
+there is no path to a convincing child voice; a genuine child voice requires a
+new provider (Azure) or a consented cloned sample.
+
 ## Suggested Evaluation Plan
 
 Run a small bake-off before committing the default model.
