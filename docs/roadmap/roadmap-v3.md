@@ -188,11 +188,15 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
 - [ ] Add focused tests/fixtures for valid block rendering, invalid asset ids,
   missing optional layers, private generated media access, and the media library
   source boundary.
-- [ ] Improve the media audio player now that audio is multi-file: the player
-  is no longer a single `<audio>` element but an ordered set of per-turn WAV
-  clips, so refine playback UX (continuous play across clips, per-turn speaker
-  labels, clip progress, prev/next navigation) in both the media library and
-  wherever media audio is rendered.
+- [~] Improve the media audio player now that audio is multi-file. Started
+  2026-07-12: the per-turn WAV clips are fetched and concatenated client-side
+  into a single WAV blob played through one `<audio>` element with one
+  timeline, one scrubber, and one total duration; the track shows a marker at
+  each character turn boundary and labels the current speaker. The player
+  component also supports an optional transcript with active-turn highlight and
+  click-to-jump. Remaining: enable that transcript on the media detail/authoring
+  pages (which still render the script in a separate card) and de-duplicate,
+  and consider caching the combined blob to avoid re-fetching clips per view.
 - [ ] Improve the media derivation and creation flow to be step by step
   instead of one synchronous blocking pass: guide the user through the
   decisions (title/level/format, script, layers) as discrete steps, and leave
