@@ -800,7 +800,7 @@
           "id": "clerk",
           "name": "the store clerk",
           "role": "store_staff",
-          "voice": "Kore",
+          "voice": "Charon",
           "nameSpokenInAudio": false
         }
       ],
@@ -839,7 +839,8 @@
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -912,7 +913,7 @@
           "id": "clerk",
           "name": "the store clerk",
           "role": "store_staff",
-          "voice": "Kore",
+          "voice": "Charon",
           "nameSpokenInAudio": false
         }
       ],
@@ -951,7 +952,8 @@
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1023,7 +1025,7 @@
           "id": "clerk",
           "name": "the store clerk",
           "role": "store_staff",
-          "voice": "Kore",
+          "voice": "Charon",
           "nameSpokenInAudio": false
         }
       ],
@@ -1062,7 +1064,8 @@
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1460,56 +1463,57 @@
       ],
       "speakers": [
         {
-          "id": "uncle_ben",
-          "name": "Uncle Ben",
-          "role": "helper",
-          "voice": "Puck",
+          "id": "grandma",
+          "name": "Grandma Rosa",
+          "role": "grandmother",
+          "voice": "Kore",
           "nameSpokenInAudio": true
         },
         {
-          "id": "nina",
-          "name": "Nina",
+          "id": "leo",
+          "name": "Leo",
           "role": "learner_cook",
-          "voice": "Kore",
+          "voice": "Puck",
           "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "nina",
-          "text": "My pancake is too dark, Uncle Ben."
+          "speakerId": "leo",
+          "text": "My pancake is too dark, Grandma Rosa."
         },
         {
           "turn": 2,
-          "speakerId": "uncle_ben",
-          "text": "That is okay, Nina. Turn down the heat."
+          "speakerId": "grandma",
+          "text": "That is okay, Leo. Turn down the heat."
         },
         {
           "turn": 3,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "Now I pour a little batter."
         },
         {
           "turn": 4,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "Good. Wait for small bubbles."
         },
         {
           "turn": 5,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "This pancake looks much better."
         }
       ],
-      "plainText": "My pancake is too dark, Uncle Ben.\nThat is okay, Nina. Turn down the heat.\nNow I pour a little batter.\nGood. Wait for small bubbles.\nThis pancake looks much better.",
+      "plainText": "My pancake is too dark, Grandma Rosa.\nThat is okay, Leo. Turn down the heat.\nNow I pour a little batter.\nGood. Wait for small bubbles.\nThis pancake looks much better.",
       "stats": {
-        "characterCount": 164,
+        "characterCount": 166,
         "wordCount": 31,
         "turnCount": 5
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1520,31 +1524,31 @@
         "clips": [
           {
             "turn": 1,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-01.wav",
             "bytes": 145964
           },
           {
             "turn": 2,
-            "speakerId": "uncle_ben",
+            "speakerId": "grandma",
             "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-02.wav",
             "bytes": 188204
           },
           {
             "turn": 3,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-03.wav",
             "bytes": 107564
           },
           {
             "turn": 4,
-            "speakerId": "uncle_ben",
+            "speakerId": "grandma",
             "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-04.wav",
             "bytes": 151724
           },
           {
             "turn": 5,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-05.wav",
             "bytes": 134444
           }
@@ -1572,56 +1576,57 @@
       ],
       "speakers": [
         {
-          "id": "uncle_ben",
-          "name": "Uncle Ben",
-          "role": "helper",
-          "voice": "Puck",
+          "id": "grandma",
+          "name": "Grandma Rosa",
+          "role": "grandmother",
+          "voice": "Kore",
           "nameSpokenInAudio": true
         },
         {
-          "id": "nina",
-          "name": "Nina",
+          "id": "leo",
+          "name": "Leo",
           "role": "learner_cook",
-          "voice": "Kore",
+          "voice": "Puck",
           "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "nina",
-          "text": "The first pancake burned, Uncle Ben, because I left it in the pan too long."
+          "speakerId": "leo",
+          "text": "The first pancake burned, Grandma Rosa, because I left it in the pan too long."
         },
         {
           "turn": 2,
-          "speakerId": "uncle_ben",
-          "text": "That is how everyone learns, Nina. Lower the heat and watch for bubbles on top."
+          "speakerId": "grandma",
+          "text": "That is how everyone learns, Leo. Lower the heat and watch for bubbles on top."
         },
         {
           "turn": 3,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "So I should wait until the edges look dry before I flip it?"
         },
         {
           "turn": 4,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "Exactly. Then slide the spatula under it and turn it over quickly."
         },
         {
           "turn": 5,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "This one is golden. I think breakfast is improving."
         }
       ],
-      "plainText": "The first pancake burned, Uncle Ben, because I left it in the pan too long.\nThat is how everyone learns, Nina. Lower the heat and watch for bubbles on top.\nSo I should wait until the edges look dry before I flip it?\nExactly. Then slide the spatula under it and turn it over quickly.\nThis one is golden. I think breakfast is improving.",
+      "plainText": "The first pancake burned, Grandma Rosa, because I left it in the pan too long.\nThat is how everyone learns, Leo. Lower the heat and watch for bubbles on top.\nSo I should wait until the edges look dry before I flip it?\nExactly. Then slide the spatula under it and turn it over quickly.\nThis one is golden. I think breakfast is improving.",
       "stats": {
-        "characterCount": 334,
+        "characterCount": 336,
         "wordCount": 64,
         "turnCount": 5
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1632,31 +1637,31 @@
         "clips": [
           {
             "turn": 1,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-01.wav",
             "bytes": 230444
           },
           {
             "turn": 2,
-            "speakerId": "uncle_ben",
+            "speakerId": "grandma",
             "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-02.wav",
             "bytes": 280364
           },
           {
             "turn": 3,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-03.wav",
             "bytes": 190124
           },
           {
             "turn": 4,
-            "speakerId": "uncle_ben",
+            "speakerId": "grandma",
             "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-04.wav",
             "bytes": 251564
           },
           {
             "turn": 5,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-05.wav",
             "bytes": 213164
           }
@@ -1683,56 +1688,57 @@
       ],
       "speakers": [
         {
-          "id": "uncle_ben",
-          "name": "Uncle Ben",
-          "role": "helper",
-          "voice": "Puck",
+          "id": "grandma",
+          "name": "Grandma Rosa",
+          "role": "grandmother",
+          "voice": "Kore",
           "nameSpokenInAudio": true
         },
         {
-          "id": "nina",
-          "name": "Nina",
+          "id": "leo",
+          "name": "Leo",
           "role": "learner_cook",
-          "voice": "Kore",
+          "voice": "Puck",
           "nameSpokenInAudio": true
         }
       ],
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "nina",
-          "text": "The first pancake looks like evidence from a kitchen disaster, Uncle Ben."
+          "speakerId": "leo",
+          "text": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa."
         },
         {
           "turn": 2,
-          "speakerId": "uncle_ben",
-          "text": "It looks like practice, Nina. Pancakes are surprisingly good teachers because they show every mistake immediately."
+          "speakerId": "grandma",
+          "text": "It looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately."
         },
         {
           "turn": 3,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "So the heat was too high, and I waited too long before turning it."
         },
         {
           "turn": 4,
-          "speakerId": "uncle_ben",
+          "speakerId": "grandma",
           "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
         },
         {
           "turn": 5,
-          "speakerId": "nina",
+          "speakerId": "leo",
           "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
         }
       ],
-      "plainText": "The first pancake looks like evidence from a kitchen disaster, Uncle Ben.\nIt looks like practice, Nina. Pancakes are surprisingly good teachers because they show every mistake immediately.\nSo the heat was too high, and I waited too long before turning it.\nRight. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set.\nThis one is actually golden. I suppose breakfast forgives beginners after all.",
+      "plainText": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa.\nIt looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately.\nSo the heat was too high, and I waited too long before turning it.\nRight. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set.\nThis one is actually golden. I suppose breakfast forgives beginners after all.",
       "stats": {
-        "characterCount": 450,
+        "characterCount": 452,
         "wordCount": 75,
         "turnCount": 5
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1743,31 +1749,31 @@
         "clips": [
           {
             "turn": 1,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-01.wav",
             "bytes": 253484
           },
           {
             "turn": 2,
-            "speakerId": "uncle_ben",
+            "speakerId": "grandma",
             "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-02.wav",
             "bytes": 374444
           },
           {
             "turn": 3,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-03.wav",
             "bytes": 213164
           },
           {
             "turn": 4,
-            "speakerId": "uncle_ben",
+            "speakerId": "grandma",
             "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-04.wav",
             "bytes": 393644
           },
           {
             "turn": 5,
-            "speakerId": "nina",
+            "speakerId": "leo",
             "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-05.wav",
             "bytes": 284204
           }
@@ -1795,10 +1801,10 @@
       ],
       "speakers": [
         {
-          "id": "emma",
-          "name": "Emma",
+          "id": "diego",
+          "name": "Diego",
           "role": "late_employee",
-          "voice": "Kore",
+          "voice": "Charon",
           "nameSpokenInAudio": true
         },
         {
@@ -1812,17 +1818,17 @@
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "I am sorry I am late, Noah."
         },
         {
           "turn": 2,
           "speakerId": "noah",
-          "text": "It is okay, Emma. The meeting just started."
+          "text": "It is okay, Diego. The meeting just started."
         },
         {
           "turn": 3,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Did I miss anything important?"
         },
         {
@@ -1832,19 +1838,20 @@
         },
         {
           "turn": 5,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Thanks. I will sit down quietly."
         }
       ],
-      "plainText": "I am sorry I am late, Noah.\nIt is okay, Emma. The meeting just started.\nDid I miss anything important?\nNot yet. We are looking at the plan.\nThanks. I will sit down quietly.",
+      "plainText": "I am sorry I am late, Noah.\nIt is okay, Diego. The meeting just started.\nDid I miss anything important?\nNot yet. We are looking at the plan.\nThanks. I will sit down quietly.",
       "stats": {
-        "characterCount": 172,
+        "characterCount": 173,
         "wordCount": 34,
         "turnCount": 5
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1855,7 +1862,7 @@
         "clips": [
           {
             "turn": 1,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-01.wav",
             "bytes": 138284
           },
@@ -1867,7 +1874,7 @@
           },
           {
             "turn": 3,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-03.wav",
             "bytes": 119084
           },
@@ -1879,7 +1886,7 @@
           },
           {
             "turn": 5,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-05.wav",
             "bytes": 140204
           }
@@ -1907,10 +1914,10 @@
       ],
       "speakers": [
         {
-          "id": "emma",
-          "name": "Emma",
+          "id": "diego",
+          "name": "Diego",
           "role": "late_employee",
-          "voice": "Kore",
+          "voice": "Charon",
           "nameSpokenInAudio": true
         },
         {
@@ -1924,17 +1931,17 @@
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Sorry I am late, Noah. The elevator stopped on almost every floor."
         },
         {
           "turn": 2,
           "speakerId": "noah",
-          "text": "Do not worry, Emma. We have only reviewed the schedule so far."
+          "text": "Do not worry, Diego. We have only reviewed the schedule so far."
         },
         {
           "turn": 3,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Good. I was afraid I had missed the decision about the client presentation."
         },
         {
@@ -1944,19 +1951,20 @@
         },
         {
           "turn": 5,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."
         }
       ],
-      "plainText": "Sorry I am late, Noah. The elevator stopped on almost every floor.\nDo not worry, Emma. We have only reviewed the schedule so far.\nGood. I was afraid I had missed the decision about the client presentation.\nThat part is next. I saved you a seat and opened the notes on my laptop.\nThanks, Noah. I will catch up quickly and add my comments after the overview.",
+      "plainText": "Sorry I am late, Noah. The elevator stopped on almost every floor.\nDo not worry, Diego. We have only reviewed the schedule so far.\nGood. I was afraid I had missed the decision about the client presentation.\nThat part is next. I saved you a seat and opened the notes on my laptop.\nThanks, Noah. I will catch up quickly and add my comments after the overview.",
       "stats": {
-        "characterCount": 356,
+        "characterCount": 357,
         "wordCount": 67,
         "turnCount": 5
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -1967,7 +1975,7 @@
         "clips": [
           {
             "turn": 1,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-01.wav",
             "bytes": 274604
           },
@@ -1979,7 +1987,7 @@
           },
           {
             "turn": 3,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-03.wav",
             "bytes": 226604
           },
@@ -1991,7 +1999,7 @@
           },
           {
             "turn": 5,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-05.wav",
             "bytes": 232364
           }
@@ -2018,10 +2026,10 @@
       ],
       "speakers": [
         {
-          "id": "emma",
-          "name": "Emma",
+          "id": "diego",
+          "name": "Diego",
           "role": "late_employee",
-          "voice": "Kore",
+          "voice": "Charon",
           "nameSpokenInAudio": true
         },
         {
@@ -2035,17 +2043,17 @@
       "transcript": [
         {
           "turn": 1,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected."
         },
         {
           "turn": 2,
           "speakerId": "noah",
-          "text": "You are fine, Emma. We have covered the timeline, but the main discussion has not started yet."
+          "text": "You are fine, Diego. We have covered the timeline, but the main discussion has not started yet."
         },
         {
           "turn": 3,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "That is a relief. I was worried I had missed the part where we divide the presentation tasks."
         },
         {
@@ -2055,19 +2063,20 @@
         },
         {
           "turn": 5,
-          "speakerId": "emma",
+          "speakerId": "diego",
           "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."
         }
       ],
-      "plainText": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected.\nYou are fine, Emma. We have covered the timeline, but the main discussion has not started yet.\nThat is a relief. I was worried I had missed the part where we divide the presentation tasks.\nNot yet. I put the shared notes in front of you, and I marked the section where your input will matter most.\nPerfect. I will listen for a minute, then jump in once I understand where the group has landed.",
+      "plainText": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected.\nYou are fine, Diego. We have covered the timeline, but the main discussion has not started yet.\nThat is a relief. I was worried I had missed the part where we divide the presentation tasks.\nNot yet. I put the shared notes in front of you, and I marked the section where your input will matter most.\nPerfect. I will listen for a minute, then jump in once I understand where the group has landed.",
       "stats": {
-        "characterCount": 490,
+        "characterCount": 491,
         "wordCount": 91,
         "turnCount": 5
       },
       "qaNotes": [
         "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
+        "No panel numbers are spoken in the transcript.",
+        "Visual character and voice audit passed (July 2026)."
       ],
       "audio": {
         "provider": "openrouter",
@@ -2078,7 +2087,7 @@
         "clips": [
           {
             "turn": 1,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/c1/late-meeting-workplace-01-c1/turn-01.wav",
             "bytes": 316844
           },
@@ -2090,7 +2099,7 @@
           },
           {
             "turn": 3,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/c1/late-meeting-workplace-01-c1/turn-03.wav",
             "bytes": 280364
           },
@@ -2102,7 +2111,7 @@
           },
           {
             "turn": 5,
-            "speakerId": "emma",
+            "speakerId": "diego",
             "file": "audio/c1/late-meeting-workplace-01-c1/turn-05.wav",
             "bytes": 282284
           }

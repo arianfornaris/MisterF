@@ -42,6 +42,8 @@ def replace_identity(entry: dict, replacements: dict[str, dict]) -> None:
         turn["speakerId"] = id_replacements.get(turn["speakerId"], turn["speakerId"])
         for old_name, new_name in name_replacements.items():
             turn["text"] = turn["text"].replace(old_name, new_name)
+    for clip in entry.get("audio", {}).get("clips", []):
+        clip["speakerId"] = id_replacements.get(clip["speakerId"], clip["speakerId"])
 
     entry["plainText"] = "\n".join(turn["text"] for turn in entry["transcript"])
     entry["stats"] = {

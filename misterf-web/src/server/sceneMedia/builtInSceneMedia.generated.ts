@@ -3316,7 +3316,7 @@ export const builtInSceneMediaItems =
     "audio": {
       "clips": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-01.wav",
           "turn": 1
         },
@@ -3326,7 +3326,7 @@ export const builtInSceneMediaItems =
           "turn": 2
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-03.wav",
           "turn": 3
         },
@@ -3336,7 +3336,7 @@ export const builtInSceneMediaItems =
           "turn": 4
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/a1-a2/late-meeting-workplace-01-a1-a2/turn-05.wav",
           "turn": 5
         }
@@ -3362,7 +3362,7 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
-          "name": "Emma",
+          "name": "Diego",
           "nameSpokenInAudio": true,
           "role": "late_employee"
         },
@@ -3374,15 +3374,15 @@ export const builtInSceneMediaItems =
       ],
       "turns": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "I am sorry I am late, Noah."
         },
         {
           "speaker": "Noah",
-          "text": "It is okay, Emma. The meeting just started."
+          "text": "It is okay, Diego. The meeting just started."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Did I miss anything important?"
         },
         {
@@ -3390,7 +3390,7 @@ export const builtInSceneMediaItems =
           "text": "Not yet. We are looking at the plan."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Thanks. I will sit down quietly."
         }
       ]
@@ -3438,7 +3438,7 @@ export const builtInSceneMediaItems =
     "audio": {
       "clips": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-01.wav",
           "turn": 1
         },
@@ -3448,7 +3448,7 @@ export const builtInSceneMediaItems =
           "turn": 2
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-03.wav",
           "turn": 3
         },
@@ -3458,7 +3458,7 @@ export const builtInSceneMediaItems =
           "turn": 4
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/b1-b2/late-meeting-workplace-01-b1-b2/turn-05.wav",
           "turn": 5
         }
@@ -3484,7 +3484,7 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
-          "name": "Emma",
+          "name": "Diego",
           "nameSpokenInAudio": true,
           "role": "late_employee"
         },
@@ -3496,15 +3496,15 @@ export const builtInSceneMediaItems =
       ],
       "turns": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Sorry I am late, Noah. The elevator stopped on almost every floor."
         },
         {
           "speaker": "Noah",
-          "text": "Do not worry, Emma. We have only reviewed the schedule so far."
+          "text": "Do not worry, Diego. We have only reviewed the schedule so far."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Good. I was afraid I had missed the decision about the client presentation."
         },
         {
@@ -3512,7 +3512,7 @@ export const builtInSceneMediaItems =
           "text": "That part is next. I saved you a seat and opened the notes on my laptop."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."
         }
       ]
@@ -3561,7 +3561,7 @@ export const builtInSceneMediaItems =
     "audio": {
       "clips": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/c1/late-meeting-workplace-01-c1/turn-01.wav",
           "turn": 1
         },
@@ -3571,7 +3571,7 @@ export const builtInSceneMediaItems =
           "turn": 2
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/c1/late-meeting-workplace-01-c1/turn-03.wav",
           "turn": 3
         },
@@ -3581,7 +3581,7 @@ export const builtInSceneMediaItems =
           "turn": 4
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "src": "/public/scene-media/audio/c1/late-meeting-workplace-01-c1/turn-05.wav",
           "turn": 5
         }
@@ -3607,7 +3607,7 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
-          "name": "Emma",
+          "name": "Diego",
           "nameSpokenInAudio": true,
           "role": "late_employee"
         },
@@ -3619,15 +3619,15 @@ export const builtInSceneMediaItems =
       ],
       "turns": [
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected."
         },
         {
           "speaker": "Noah",
-          "text": "You are fine, Emma. We have covered the timeline, but the main discussion has not started yet."
+          "text": "You are fine, Diego. We have covered the timeline, but the main discussion has not started yet."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "That is a relief. I was worried I had missed the part where we divide the presentation tasks."
         },
         {
@@ -3635,7 +3635,7 @@ export const builtInSceneMediaItems =
           "text": "Not yet. I put the shared notes in front of you, and I marked the section where your input will matter most."
         },
         {
-          "speaker": "Emma",
+          "speaker": "Diego",
           "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."
         }
       ]
@@ -6817,27 +6817,27 @@ export const builtInSceneMediaItems =
     "audio": {
       "clips": [
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-01.wav",
           "turn": 1
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "src": "/public/scene-media/audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-02.wav",
           "turn": 2
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-03.wav",
           "turn": 3
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "src": "/public/scene-media/audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-04.wav",
           "turn": 4
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-05.wav",
           "turn": 5
         }
@@ -6863,35 +6863,35 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
-          "name": "Uncle Ben",
+          "name": "Grandma Rosa",
           "nameSpokenInAudio": true,
-          "role": "helper"
+          "role": "grandmother"
         },
         {
-          "name": "Nina",
+          "name": "Leo",
           "nameSpokenInAudio": true,
           "role": "learner_cook"
         }
       ],
       "turns": [
         {
-          "speaker": "Nina",
-          "text": "My pancake is too dark, Uncle Ben."
+          "speaker": "Leo",
+          "text": "My pancake is too dark, Grandma Rosa."
         },
         {
-          "speaker": "Uncle Ben",
-          "text": "That is okay, Nina. Turn down the heat."
+          "speaker": "Grandma Rosa",
+          "text": "That is okay, Leo. Turn down the heat."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "Now I pour a little batter."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "Good. Wait for small bubbles."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "This pancake looks much better."
         }
       ]
@@ -6940,27 +6940,27 @@ export const builtInSceneMediaItems =
     "audio": {
       "clips": [
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-01.wav",
           "turn": 1
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "src": "/public/scene-media/audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-02.wav",
           "turn": 2
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-03.wav",
           "turn": 3
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "src": "/public/scene-media/audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-04.wav",
           "turn": 4
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-05.wav",
           "turn": 5
         }
@@ -6986,35 +6986,35 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
-          "name": "Uncle Ben",
+          "name": "Grandma Rosa",
           "nameSpokenInAudio": true,
-          "role": "helper"
+          "role": "grandmother"
         },
         {
-          "name": "Nina",
+          "name": "Leo",
           "nameSpokenInAudio": true,
           "role": "learner_cook"
         }
       ],
       "turns": [
         {
-          "speaker": "Nina",
-          "text": "The first pancake burned, Uncle Ben, because I left it in the pan too long."
+          "speaker": "Leo",
+          "text": "The first pancake burned, Grandma Rosa, because I left it in the pan too long."
         },
         {
-          "speaker": "Uncle Ben",
-          "text": "That is how everyone learns, Nina. Lower the heat and watch for bubbles on top."
+          "speaker": "Grandma Rosa",
+          "text": "That is how everyone learns, Leo. Lower the heat and watch for bubbles on top."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "So I should wait until the edges look dry before I flip it?"
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "Exactly. Then slide the spatula under it and turn it over quickly."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "This one is golden. I think breakfast is improving."
         }
       ]
@@ -7064,27 +7064,27 @@ export const builtInSceneMediaItems =
     "audio": {
       "clips": [
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/c1/pancake-practice-kitchen-01-c1/turn-01.wav",
           "turn": 1
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "src": "/public/scene-media/audio/c1/pancake-practice-kitchen-01-c1/turn-02.wav",
           "turn": 2
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/c1/pancake-practice-kitchen-01-c1/turn-03.wav",
           "turn": 3
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "src": "/public/scene-media/audio/c1/pancake-practice-kitchen-01-c1/turn-04.wav",
           "turn": 4
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "src": "/public/scene-media/audio/c1/pancake-practice-kitchen-01-c1/turn-05.wav",
           "turn": 5
         }
@@ -7110,35 +7110,35 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
-          "name": "Uncle Ben",
+          "name": "Grandma Rosa",
           "nameSpokenInAudio": true,
-          "role": "helper"
+          "role": "grandmother"
         },
         {
-          "name": "Nina",
+          "name": "Leo",
           "nameSpokenInAudio": true,
           "role": "learner_cook"
         }
       ],
       "turns": [
         {
-          "speaker": "Nina",
-          "text": "The first pancake looks like evidence from a kitchen disaster, Uncle Ben."
+          "speaker": "Leo",
+          "text": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa."
         },
         {
-          "speaker": "Uncle Ben",
-          "text": "It looks like practice, Nina. Pancakes are surprisingly good teachers because they show every mistake immediately."
+          "speaker": "Grandma Rosa",
+          "text": "It looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "So the heat was too high, and I waited too long before turning it."
         },
         {
-          "speaker": "Uncle Ben",
+          "speaker": "Grandma Rosa",
           "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
         },
         {
-          "speaker": "Nina",
+          "speaker": "Leo",
           "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
         }
       ]

@@ -1,353 +1,813 @@
 {
   "lost-wallet-cafe-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Both speakers now named aloud; set nameSpokenInAudio=true for maria and mr_james.",
     "notes": "Names introduced via a natural self-introduction between strangers (a standard ESL pattern). Mr. James is café staff, which makes the title plausible.",
     "turns": [
-      {"speakerId": "maria", "text": "Oh no. My wallet is not in my bag."},
-      {"speakerId": "mr_james", "text": "Excuse me. Is this brown wallet yours?"},
-      {"speakerId": "maria", "text": "Yes, it is! Thank you so much. I am Maria."},
-      {"speakerId": "mr_james", "text": "You are welcome, Maria. I am Mr. James. It was near the door."},
-      {"speakerId": "maria", "text": "Thank you, Mr. James. I am very lucky today."}
+      {
+        "speakerId": "maria",
+        "text": "Oh no. My wallet is not in my bag."
+      },
+      {
+        "speakerId": "mr_james",
+        "text": "Excuse me. Is this brown wallet yours?"
+      },
+      {
+        "speakerId": "maria",
+        "text": "Yes, it is! Thank you so much. I am Maria."
+      },
+      {
+        "speakerId": "mr_james",
+        "text": "You are welcome, Maria. I am Mr. James. It was near the door."
+      },
+      {
+        "speakerId": "maria",
+        "text": "Thank you, Mr. James. I am very lucky today."
+      }
     ]
   },
   "lost-wallet-cafe-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for maria and mr_james.",
     "notes": "Maria gives her name; the helper introduces himself as staff, anchoring both the name and his café role.",
     "turns": [
-      {"speakerId": "maria", "text": "Excuse me, I just ordered coffee, but I cannot find my wallet anywhere."},
-      {"speakerId": "mr_james", "text": "I think this may be yours. It fell from your bag when you came in."},
-      {"speakerId": "maria", "text": "That is it! I was sure I had lost it outside in the rain. I'm Maria — thank you."},
-      {"speakerId": "mr_james", "text": "You're welcome, Maria. I'm James, I work here. I picked it up before anyone stepped on it."},
-      {"speakerId": "maria", "text": "Thank you, Mr. James. You saved me a lot of trouble."}
+      {
+        "speakerId": "maria",
+        "text": "Excuse me, I just ordered coffee, but I cannot find my wallet anywhere."
+      },
+      {
+        "speakerId": "mr_james",
+        "text": "I think this may be yours. It fell from your bag when you came in."
+      },
+      {
+        "speakerId": "maria",
+        "text": "That is it! I was sure I had lost it outside in the rain. I'm Maria — thank you."
+      },
+      {
+        "speakerId": "mr_james",
+        "text": "You're welcome, Maria. I'm James, I work here. I picked it up before anyone stepped on it."
+      },
+      {
+        "speakerId": "maria",
+        "text": "Thank you, Mr. James. You saved me a lot of trouble."
+      }
     ]
   },
   "lost-wallet-cafe-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for maria and mr_james.",
     "notes": "Names woven into the exchange; he identifies as the café manager, keeping the C1 register intact.",
     "turns": [
-      {"speakerId": "maria", "text": "I have checked every pocket twice, and my wallet has somehow disappeared."},
-      {"speakerId": "mr_james", "text": "Before you panic, take a look at this. I noticed it sliding out of your bag as you stepped away from the entrance."},
-      {"speakerId": "maria", "text": "That is mine. I honestly thought it had fallen outside, and with this rain I would never have found it. I'm Maria, by the way."},
-      {"speakerId": "mr_james", "text": "Nice to meet you, Maria. I'm James — I manage the café. Luckily it landed just inside the door, so I picked it up before the next customer walked in."},
-      {"speakerId": "maria", "text": "I really appreciate your honesty, Mr. James. You turned a stressful moment into a small reminder that strangers can be kind."}
+      {
+        "speakerId": "maria",
+        "text": "I have checked every pocket twice, and my wallet has somehow disappeared."
+      },
+      {
+        "speakerId": "mr_james",
+        "text": "Before you panic, take a look at this. I noticed it sliding out of your bag as you stepped away from the entrance."
+      },
+      {
+        "speakerId": "maria",
+        "text": "That is mine. I honestly thought it had fallen outside, and with this rain I would never have found it. I'm Maria, by the way."
+      },
+      {
+        "speakerId": "mr_james",
+        "text": "Nice to meet you, Maria. I'm James — I manage the café. Luckily it landed just inside the door, so I picked it up before the next customer walked in."
+      },
+      {
+        "speakerId": "maria",
+        "text": "I really appreciate your honesty, Mr. James. You turned a stressful moment into a small reminder that strangers can be kind."
+      }
     ]
   },
   "shared-umbrella-bus-stop-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for leo and ms_clark.",
     "notes": "Both names introduced in the first two turns via a brief exchange.",
     "turns": [
-      {"speakerId": "leo", "text": "It is raining a lot. I forgot my umbrella."},
-      {"speakerId": "ms_clark", "text": "Come under my umbrella. I am Ms. Clark."},
-      {"speakerId": "leo", "text": "Thank you, Ms. Clark. I am Leo. Is the bus coming soon?"},
-      {"speakerId": "ms_clark", "text": "Yes, Leo, I can see it now."},
-      {"speakerId": "leo", "text": "Great. Now I am not so wet."}
+      {
+        "speakerId": "leo",
+        "text": "It is raining a lot. I forgot my umbrella."
+      },
+      {
+        "speakerId": "ms_clark",
+        "text": "Come under my umbrella. I am Ms. Clark."
+      },
+      {
+        "speakerId": "leo",
+        "text": "Thank you, Ms. Clark. I am Leo. Is the bus coming soon?"
+      },
+      {
+        "speakerId": "ms_clark",
+        "text": "Yes, Leo, I can see it now."
+      },
+      {
+        "speakerId": "leo",
+        "text": "Great. Now I am not so wet."
+      }
     ]
   },
   "shared-umbrella-bus-stop-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for leo and ms_clark.",
     "notes": "Ms. Clark introduces herself while offering shelter; Leo responds with his name.",
     "turns": [
-      {"speakerId": "leo", "text": "I checked the weather this morning, but it said the rain would start later."},
-      {"speakerId": "ms_clark", "text": "That happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way."},
-      {"speakerId": "leo", "text": "Thanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined."},
-      {"speakerId": "ms_clark", "text": "No problem, Leo. The bus is turning the corner now, so we only need to wait a minute."},
-      {"speakerId": "leo", "text": "You are very kind. I will remember to bring my own umbrella next time."}
+      {
+        "speakerId": "leo",
+        "text": "I checked the weather this morning, but it said the rain would start later."
+      },
+      {
+        "speakerId": "ms_clark",
+        "text": "That happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way."
+      },
+      {
+        "speakerId": "leo",
+        "text": "Thanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined."
+      },
+      {
+        "speakerId": "ms_clark",
+        "text": "No problem, Leo. The bus is turning the corner now, so we only need to wait a minute."
+      },
+      {
+        "speakerId": "leo",
+        "text": "You are very kind. I will remember to bring my own umbrella next time."
+      }
     ]
   },
   "shared-umbrella-bus-stop-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for leo and ms_clark.",
     "notes": "Names added by direct address without disturbing the C1 phrasing.",
     "turns": [
-      {"speakerId": "leo", "text": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked."},
-      {"speakerId": "ms_clark", "text": "Step in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark."},
-      {"speakerId": "leo", "text": "Thank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand."},
-      {"speakerId": "ms_clark", "text": "It is no bother at all, Leo. Public transport is much easier when people look out for each other."},
-      {"speakerId": "leo", "text": "That is true. A small favor can make a miserable wait feel almost pleasant."}
+      {
+        "speakerId": "leo",
+        "text": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked."
+      },
+      {
+        "speakerId": "ms_clark",
+        "text": "Step in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark."
+      },
+      {
+        "speakerId": "leo",
+        "text": "Thank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand."
+      },
+      {
+        "speakerId": "ms_clark",
+        "text": "It is no bother at all, Leo. Public transport is much easier when people look out for each other."
+      },
+      {
+        "speakerId": "leo",
+        "text": "That is true. A small favor can make a miserable wait feel almost pleasant."
+      }
     ]
   },
   "torn-grocery-bag-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "role_only",
     "metadataRec": "Reclassify to roles: 'Dad' -> name 'the father' / role parent; 'Clerk' -> name 'the store clerk' / role store_staff. Set identityStrategy=role_only. The tutor must reference these by role, never by a proper name.",
-    "notes": "Dad and Clerk are role labels, not proper names, so no name can be spoken. Instead the audio anchors each role: the clerk states she works there; the parent role is clear from context. Comprehension questions should use 'the father' and 'the clerk'.",
+    "notes": "Dad and Clerk are role labels, not proper names. The clerk states that he works at the store, and the parent role is clear from context.",
     "turns": [
-      {"speakerId": "dad", "text": "Oh no. The bag broke."},
-      {"speakerId": "clerk", "text": "I work here. I can help you pick up the apples."},
-      {"speakerId": "dad", "text": "Thank you. The bread is on the ground too."},
-      {"speakerId": "clerk", "text": "Here is a stronger bag from the store."},
-      {"speakerId": "dad", "text": "That is much better. Thanks for your help."}
+      {
+        "speakerId": "dad",
+        "text": "Oh no. The bag broke."
+      },
+      {
+        "speakerId": "clerk",
+        "text": "I work here. I can help you pick up the apples."
+      },
+      {
+        "speakerId": "dad",
+        "text": "Thank you. The bread is on the ground too."
+      },
+      {
+        "speakerId": "clerk",
+        "text": "Here is a stronger bag from the store."
+      },
+      {
+        "speakerId": "dad",
+        "text": "That is much better. Thanks for your help."
+      }
     ]
   },
   "torn-grocery-bag-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "role_only",
     "metadataRec": "Reclassify to roles (father / store clerk); identityStrategy=role_only.",
-    "notes": "Clerk role made audible ('I work here'); parent role reinforced ('my daughter'). Original already addressed the daughter 'Mia', who is not a speaker.",
+    "notes": "Dad and Clerk are role labels, not proper names. The clerk states that he works at the store, and the parent role is clear from context.",
     "turns": [
-      {"speakerId": "dad", "text": "Careful, Mia. The bottom of the bag just tore, and the apples are rolling everywhere."},
-      {"speakerId": "clerk", "text": "Do not worry, I work here. I will grab them before they go into the street."},
-      {"speakerId": "dad", "text": "Thanks. I should have used two bags because these groceries are heavier than I thought."},
-      {"speakerId": "clerk", "text": "Here, put everything in this reusable store bag. It is stronger and easier to carry."},
-      {"speakerId": "dad", "text": "Perfect. Now my daughter and I can get home without losing dinner on the sidewalk."}
+      {
+        "speakerId": "dad",
+        "text": "Careful, Mia. The bottom of the bag just tore, and the apples are rolling everywhere."
+      },
+      {
+        "speakerId": "clerk",
+        "text": "Do not worry, I work here. I will grab them before they go into the street."
+      },
+      {
+        "speakerId": "dad",
+        "text": "Thanks. I should have used two bags because these groceries are heavier than I thought."
+      },
+      {
+        "speakerId": "clerk",
+        "text": "Here, put everything in this reusable store bag. It is stronger and easier to carry."
+      },
+      {
+        "speakerId": "dad",
+        "text": "Perfect. Now my daughter and I can get home without losing dinner on the sidewalk."
+      }
     ]
   },
   "torn-grocery-bag-01-c1": {
-    "criteria": ["P1", "P4"],
+    "criteria": [
+      "P1",
+      "P4"
+    ],
     "identityStrategy": "role_only",
     "metadataRec": "Reclassify to roles (father / store clerk); identityStrategy=role_only.",
-    "notes": "Roles anchored audibly (clerk 'from the register'; father references his daughter). Length note: C1 dialogue runs shorter than the narration band by design; not padded.",
+    "notes": "Dad and Clerk are role labels, not proper names. The clerk states that he works at the store, and the parent role is clear from context.",
     "turns": [
-      {"speakerId": "dad", "text": "Well, that was dramatic. One second we had groceries, and the next second dinner was escaping across the sidewalk."},
-      {"speakerId": "clerk", "text": "I saw the bag give way from the register. Let me help before the apples roll any farther."},
-      {"speakerId": "dad", "text": "I appreciate it. My daughter is trying to rescue the bread, but I think the bag has officially retired."},
-      {"speakerId": "clerk", "text": "This reusable one from the store should survive the trip home. It has wider handles and holds more weight."},
-      {"speakerId": "dad", "text": "Excellent. Next time I will not underestimate a harmless-looking bag full of apples."}
+      {
+        "speakerId": "dad",
+        "text": "Well, that was dramatic. One second we had groceries, and the next second dinner was escaping across the sidewalk."
+      },
+      {
+        "speakerId": "clerk",
+        "text": "I saw the bag give way from the register. Let me help before the apples roll any farther."
+      },
+      {
+        "speakerId": "dad",
+        "text": "I appreciate it. My daughter is trying to rescue the bread, but I think the bag has officially retired."
+      },
+      {
+        "speakerId": "clerk",
+        "text": "This reusable one from the store should survive the trip home. It has wider handles and holds more weight."
+      },
+      {
+        "speakerId": "dad",
+        "text": "Excellent. Next time I will not underestimate a harmless-looking bag full of apples."
+      }
     ]
   },
   "shared-lunch-classroom-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for mina and sam.",
     "notes": "Classmates address each other by name in the first turns.",
     "turns": [
-      {"speakerId": "sam", "text": "I forgot my lunch today."},
-      {"speakerId": "mina", "text": "You can have half of my sandwich, Sam."},
-      {"speakerId": "sam", "text": "Really? Thank you, Mina."},
-      {"speakerId": "mina", "text": "Yes. I also have an apple."},
-      {"speakerId": "sam", "text": "You are a good friend."}
+      {
+        "speakerId": "sam",
+        "text": "I forgot my lunch today."
+      },
+      {
+        "speakerId": "mina",
+        "text": "You can have half of my sandwich, Sam."
+      },
+      {
+        "speakerId": "sam",
+        "text": "Really? Thank you, Mina."
+      },
+      {
+        "speakerId": "mina",
+        "text": "Yes. I also have an apple."
+      },
+      {
+        "speakerId": "sam",
+        "text": "You are a good friend."
+      }
     ]
   },
   "shared-lunch-classroom-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for mina and sam.",
     "notes": "Original named only Mina (turn 5). Added Mina's direct address of Sam in turn 2 so both names are audible early.",
     "turns": [
-      {"speakerId": "sam", "text": "I was in such a hurry this morning that I left my lunch on the kitchen table."},
-      {"speakerId": "mina", "text": "That is okay, Sam. I packed more than I need, so we can share."},
-      {"speakerId": "sam", "text": "Are you sure? I do not want you to be hungry later."},
-      {"speakerId": "mina", "text": "I am sure. You can have half the sandwich, and we can split the fruit."},
-      {"speakerId": "sam", "text": "Thanks, Mina. I will bring something extra tomorrow, just in case you forget too."}
+      {
+        "speakerId": "sam",
+        "text": "I was in such a hurry this morning that I left my lunch on the kitchen table."
+      },
+      {
+        "speakerId": "mina",
+        "text": "That is okay, Sam. I packed more than I need, so we can share."
+      },
+      {
+        "speakerId": "sam",
+        "text": "Are you sure? I do not want you to be hungry later."
+      },
+      {
+        "speakerId": "mina",
+        "text": "I am sure. You can have half the sandwich, and we can split the fruit."
+      },
+      {
+        "speakerId": "sam",
+        "text": "Thanks, Mina. I will bring something extra tomorrow, just in case you forget too."
+      }
     ]
   },
   "shared-lunch-classroom-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for mina and sam.",
     "notes": "Both names added by direct address within the existing C1 lines.",
     "turns": [
-      {"speakerId": "sam", "text": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter."},
-      {"speakerId": "mina", "text": "That sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich."},
-      {"speakerId": "sam", "text": "I appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger."},
-      {"speakerId": "mina", "text": "Do not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry."},
-      {"speakerId": "sam", "text": "Fair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance."}
+      {
+        "speakerId": "sam",
+        "text": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter."
+      },
+      {
+        "speakerId": "mina",
+        "text": "That sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich."
+      },
+      {
+        "speakerId": "sam",
+        "text": "I appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger."
+      },
+      {
+        "speakerId": "mina",
+        "text": "Do not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry."
+      },
+      {
+        "speakerId": "sam",
+        "text": "Fair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance."
+      }
     ]
   },
   "pancake-practice-kitchen-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
-    "metadataRec": "Set nameSpokenInAudio=true for nina and uncle_ben.",
-    "notes": "Family members name each other naturally in the first two turns.",
+    "metadataRec": "Set nameSpokenInAudio=true for Grandma Rosa and Leo.",
+    "notes": "The grandmother teaches her teenage grandson; they name each other naturally.",
     "turns": [
-      {"speakerId": "nina", "text": "My pancake is too dark, Uncle Ben."},
-      {"speakerId": "uncle_ben", "text": "That is okay, Nina. Turn down the heat."},
-      {"speakerId": "nina", "text": "Now I pour a little batter."},
-      {"speakerId": "uncle_ben", "text": "Good. Wait for small bubbles."},
-      {"speakerId": "nina", "text": "This pancake looks much better."}
+      {
+        "speakerId": "leo",
+        "text": "My pancake is too dark, Grandma Rosa."
+      },
+      {
+        "speakerId": "grandma",
+        "text": "That is okay, Leo. Turn down the heat."
+      },
+      {
+        "speakerId": "leo",
+        "text": "Now I pour a little batter."
+      },
+      {
+        "speakerId": "grandma",
+        "text": "Good. Wait for small bubbles."
+      },
+      {
+        "speakerId": "leo",
+        "text": "This pancake looks much better."
+      }
     ]
   },
   "pancake-practice-kitchen-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
-    "metadataRec": "Set nameSpokenInAudio=true for nina and uncle_ben.",
-    "notes": "Names added by direct address without changing the cooking instructions.",
+    "metadataRec": "Set nameSpokenInAudio=true for Grandma Rosa and Leo.",
+    "notes": "The grandmother teaches her teenage grandson; they name each other naturally.",
     "turns": [
-      {"speakerId": "nina", "text": "The first pancake burned, Uncle Ben, because I left it in the pan too long."},
-      {"speakerId": "uncle_ben", "text": "That is how everyone learns, Nina. Lower the heat and watch for bubbles on top."},
-      {"speakerId": "nina", "text": "So I should wait until the edges look dry before I flip it?"},
-      {"speakerId": "uncle_ben", "text": "Exactly. Then slide the spatula under it and turn it over quickly."},
-      {"speakerId": "nina", "text": "This one is golden. I think breakfast is improving."}
+      {
+        "speakerId": "leo",
+        "text": "The first pancake burned, Grandma Rosa, because I left it in the pan too long."
+      },
+      {
+        "speakerId": "grandma",
+        "text": "That is how everyone learns, Leo. Lower the heat and watch for bubbles on top."
+      },
+      {
+        "speakerId": "leo",
+        "text": "So I should wait until the edges look dry before I flip it?"
+      },
+      {
+        "speakerId": "grandma",
+        "text": "Exactly. Then slide the spatula under it and turn it over quickly."
+      },
+      {
+        "speakerId": "leo",
+        "text": "This one is golden. I think breakfast is improving."
+      }
     ]
   },
   "pancake-practice-kitchen-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
-    "metadataRec": "Set nameSpokenInAudio=true for nina and uncle_ben.",
-    "notes": "Both names woven into the first two C1 lines.",
+    "metadataRec": "Set nameSpokenInAudio=true for Grandma Rosa and Leo.",
+    "notes": "The grandmother teaches her teenage grandson; they name each other naturally.",
     "turns": [
-      {"speakerId": "nina", "text": "The first pancake looks like evidence from a kitchen disaster, Uncle Ben."},
-      {"speakerId": "uncle_ben", "text": "It looks like practice, Nina. Pancakes are surprisingly good teachers because they show every mistake immediately."},
-      {"speakerId": "nina", "text": "So the heat was too high, and I waited too long before turning it."},
-      {"speakerId": "uncle_ben", "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."},
-      {"speakerId": "nina", "text": "This one is actually golden. I suppose breakfast forgives beginners after all."}
+      {
+        "speakerId": "leo",
+        "text": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa."
+      },
+      {
+        "speakerId": "grandma",
+        "text": "It looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately."
+      },
+      {
+        "speakerId": "leo",
+        "text": "So the heat was too high, and I waited too long before turning it."
+      },
+      {
+        "speakerId": "grandma",
+        "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
+      },
+      {
+        "speakerId": "leo",
+        "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
+      }
     ]
   },
   "late-meeting-workplace-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
-    "metadataRec": "Set nameSpokenInAudio=true for emma and noah.",
-    "notes": "Coworkers address each other by name in the opening turns.",
+    "metadataRec": "Set nameSpokenInAudio=true for Diego and Noah.",
+    "notes": "The coworkers address each other by name; Diego matches the late worker shown in the image.",
     "turns": [
-      {"speakerId": "emma", "text": "I am sorry I am late, Noah."},
-      {"speakerId": "noah", "text": "It is okay, Emma. The meeting just started."},
-      {"speakerId": "emma", "text": "Did I miss anything important?"},
-      {"speakerId": "noah", "text": "Not yet. We are looking at the plan."},
-      {"speakerId": "emma", "text": "Thanks. I will sit down quietly."}
+      {
+        "speakerId": "diego",
+        "text": "I am sorry I am late, Noah."
+      },
+      {
+        "speakerId": "noah",
+        "text": "It is okay, Diego. The meeting just started."
+      },
+      {
+        "speakerId": "diego",
+        "text": "Did I miss anything important?"
+      },
+      {
+        "speakerId": "noah",
+        "text": "Not yet. We are looking at the plan."
+      },
+      {
+        "speakerId": "diego",
+        "text": "Thanks. I will sit down quietly."
+      }
     ]
   },
   "late-meeting-workplace-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
-    "metadataRec": "Set nameSpokenInAudio=true for emma and noah.",
-    "notes": "Original named only Noah (turn 5). Added names to turns 1-2 so both are audible early.",
+    "metadataRec": "Set nameSpokenInAudio=true for Diego and Noah.",
+    "notes": "The coworkers address each other by name; Diego matches the late worker shown in the image.",
     "turns": [
-      {"speakerId": "emma", "text": "Sorry I am late, Noah. The elevator stopped on almost every floor."},
-      {"speakerId": "noah", "text": "Do not worry, Emma. We have only reviewed the schedule so far."},
-      {"speakerId": "emma", "text": "Good. I was afraid I had missed the decision about the client presentation."},
-      {"speakerId": "noah", "text": "That part is next. I saved you a seat and opened the notes on my laptop."},
-      {"speakerId": "emma", "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."}
+      {
+        "speakerId": "diego",
+        "text": "Sorry I am late, Noah. The elevator stopped on almost every floor."
+      },
+      {
+        "speakerId": "noah",
+        "text": "Do not worry, Diego. We have only reviewed the schedule so far."
+      },
+      {
+        "speakerId": "diego",
+        "text": "Good. I was afraid I had missed the decision about the client presentation."
+      },
+      {
+        "speakerId": "noah",
+        "text": "That part is next. I saved you a seat and opened the notes on my laptop."
+      },
+      {
+        "speakerId": "diego",
+        "text": "Thanks, Noah. I will catch up quickly and add my comments after the overview."
+      }
     ]
   },
   "late-meeting-workplace-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
-    "metadataRec": "Set nameSpokenInAudio=true for emma and noah.",
-    "notes": "Names added by direct address within the existing C1 lines.",
+    "metadataRec": "Set nameSpokenInAudio=true for Diego and Noah.",
+    "notes": "The coworkers address each other by name; Diego matches the late worker shown in the image.",
     "turns": [
-      {"speakerId": "emma", "text": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected."},
-      {"speakerId": "noah", "text": "You are fine, Emma. We have covered the timeline, but the main discussion has not started yet."},
-      {"speakerId": "emma", "text": "That is a relief. I was worried I had missed the part where we divide the presentation tasks."},
-      {"speakerId": "noah", "text": "Not yet. I put the shared notes in front of you, and I marked the section where your input will matter most."},
-      {"speakerId": "emma", "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."}
+      {
+        "speakerId": "diego",
+        "text": "I apologize for slipping in late, Noah. The elevator queue downstairs was worse than I expected."
+      },
+      {
+        "speakerId": "noah",
+        "text": "You are fine, Diego. We have covered the timeline, but the main discussion has not started yet."
+      },
+      {
+        "speakerId": "diego",
+        "text": "That is a relief. I was worried I had missed the part where we divide the presentation tasks."
+      },
+      {
+        "speakerId": "noah",
+        "text": "Not yet. I put the shared notes in front of you, and I marked the section where your input will matter most."
+      },
+      {
+        "speakerId": "diego",
+        "text": "Perfect. I will listen for a minute, then jump in once I understand where the group has landed."
+      }
     ]
   },
   "printer-help-workplace-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for maya and liam.",
     "notes": "Coworkers named by direct address in the first two turns.",
     "turns": [
-      {"speakerId": "maya", "text": "Liam, the printer is not working."},
-      {"speakerId": "liam", "text": "Let me look, Maya. Is there paper inside?"},
-      {"speakerId": "maya", "text": "Yes, but the light is red."},
-      {"speakerId": "liam", "text": "The paper is stuck. I can fix it."},
-      {"speakerId": "maya", "text": "Great. I need these pages for the meeting."}
+      {
+        "speakerId": "maya",
+        "text": "Liam, the printer is not working."
+      },
+      {
+        "speakerId": "liam",
+        "text": "Let me look, Maya. Is there paper inside?"
+      },
+      {
+        "speakerId": "maya",
+        "text": "Yes, but the light is red."
+      },
+      {
+        "speakerId": "liam",
+        "text": "The paper is stuck. I can fix it."
+      },
+      {
+        "speakerId": "maya",
+        "text": "Great. I need these pages for the meeting."
+      }
     ]
   },
   "printer-help-workplace-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for maya and liam.",
     "notes": "Names added by direct address without altering the troubleshooting steps.",
     "turns": [
-      {"speakerId": "maya", "text": "Liam, the printer stopped halfway through my report, and now it keeps flashing a red light."},
-      {"speakerId": "liam", "text": "That usually means a paper jam, Maya. Open this tray and pull the page out slowly."},
-      {"speakerId": "maya", "text": "I see it. The corner is folded, so it must have gone in at an angle."},
-      {"speakerId": "liam", "text": "Exactly. Once we remove it, press this button and send the file again."},
-      {"speakerId": "maya", "text": "Thanks, Liam. I still have time to bring the copies to the meeting."}
+      {
+        "speakerId": "maya",
+        "text": "Liam, the printer stopped halfway through my report, and now it keeps flashing a red light."
+      },
+      {
+        "speakerId": "liam",
+        "text": "That usually means a paper jam, Maya. Open this tray and pull the page out slowly."
+      },
+      {
+        "speakerId": "maya",
+        "text": "I see it. The corner is folded, so it must have gone in at an angle."
+      },
+      {
+        "speakerId": "liam",
+        "text": "Exactly. Once we remove it, press this button and send the file again."
+      },
+      {
+        "speakerId": "maya",
+        "text": "Thanks, Liam. I still have time to bring the copies to the meeting."
+      }
     ]
   },
   "printer-help-workplace-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for maya and liam.",
     "notes": "Both names woven into the first two C1 lines.",
     "turns": [
-      {"speakerId": "maya", "text": "Of course the printer waits until ten minutes before the meeting to become mysterious, Liam."},
-      {"speakerId": "liam", "text": "It is not being mysterious, Maya, just dramatic. The red light usually means a page is trapped inside the tray."},
-      {"speakerId": "maya", "text": "I can see the edge, but if I pull too hard I will tear it and make things worse."},
-      {"speakerId": "liam", "text": "Good instinct. Hold both sides and ease it out slowly. Then we will reset the tray before you print the report again."},
-      {"speakerId": "maya", "text": "Thank you, Liam. If this works, the meeting will never know how close it came to being paperless."}
+      {
+        "speakerId": "maya",
+        "text": "Of course the printer waits until ten minutes before the meeting to become mysterious, Liam."
+      },
+      {
+        "speakerId": "liam",
+        "text": "It is not being mysterious, Maya, just dramatic. The red light usually means a page is trapped inside the tray."
+      },
+      {
+        "speakerId": "maya",
+        "text": "I can see the edge, but if I pull too hard I will tear it and make things worse."
+      },
+      {
+        "speakerId": "liam",
+        "text": "Good instinct. Hold both sides and ease it out slowly. Then we will reset the tray before you print the report again."
+      },
+      {
+        "speakerId": "maya",
+        "text": "Thank you, Liam. If this works, the meeting will never know how close it came to being paperless."
+      }
     ]
   },
   "team-deadline-workplace-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for sofia and omar.",
     "notes": "Teammates name each other in the opening turns.",
     "turns": [
-      {"speakerId": "sofia", "text": "We have a lot of work today, Omar."},
-      {"speakerId": "omar", "text": "Yes, Sofia, but we can finish together."},
-      {"speakerId": "sofia", "text": "I will check the pictures."},
-      {"speakerId": "omar", "text": "I will write the last notes."},
-      {"speakerId": "sofia", "text": "Good. Then we can send the project."}
+      {
+        "speakerId": "sofia",
+        "text": "We have a lot of work today, Omar."
+      },
+      {
+        "speakerId": "omar",
+        "text": "Yes, Sofia, but we can finish together."
+      },
+      {
+        "speakerId": "sofia",
+        "text": "I will check the pictures."
+      },
+      {
+        "speakerId": "omar",
+        "text": "I will write the last notes."
+      },
+      {
+        "speakerId": "sofia",
+        "text": "Good. Then we can send the project."
+      }
     ]
   },
   "team-deadline-workplace-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for sofia and omar.",
     "notes": "Names added by direct address without changing the task split.",
     "turns": [
-      {"speakerId": "sofia", "text": "The deadline is in one hour, Omar, so we need to choose what matters most."},
-      {"speakerId": "omar", "text": "I can finish the summary, Sofia, while you check the images and numbers."},
-      {"speakerId": "sofia", "text": "That works. After that, we should read the whole project once more."},
-      {"speakerId": "omar", "text": "Agreed. If we find small mistakes, we can fix them before sending it."},
-      {"speakerId": "sofia", "text": "I was nervous before, but now the plan feels possible."}
+      {
+        "speakerId": "sofia",
+        "text": "The deadline is in one hour, Omar, so we need to choose what matters most."
+      },
+      {
+        "speakerId": "omar",
+        "text": "I can finish the summary, Sofia, while you check the images and numbers."
+      },
+      {
+        "speakerId": "sofia",
+        "text": "That works. After that, we should read the whole project once more."
+      },
+      {
+        "speakerId": "omar",
+        "text": "Agreed. If we find small mistakes, we can fix them before sending it."
+      },
+      {
+        "speakerId": "sofia",
+        "text": "I was nervous before, but now the plan feels possible."
+      }
     ]
   },
   "team-deadline-workplace-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for sofia and omar.",
     "notes": "Both names woven into the first two C1 lines.",
     "turns": [
-      {"speakerId": "sofia", "text": "We are not going to polish every detail before the deadline, Omar, so we need to be strategic."},
-      {"speakerId": "omar", "text": "Agreed, Sofia. I will tighten the conclusion and remove anything that repeats information from the chart."},
-      {"speakerId": "sofia", "text": "Good. I will verify the numbers and make sure the visuals support the main argument instead of distracting from it."},
-      {"speakerId": "omar", "text": "Once those pieces are done, we can read the project aloud. That usually reveals awkward sentences faster than staring at the screen."},
-      {"speakerId": "sofia", "text": "Exactly. The deadline still feels close, but at least the work now has a shape we can finish."}
+      {
+        "speakerId": "sofia",
+        "text": "We are not going to polish every detail before the deadline, Omar, so we need to be strategic."
+      },
+      {
+        "speakerId": "omar",
+        "text": "Agreed, Sofia. I will tighten the conclusion and remove anything that repeats information from the chart."
+      },
+      {
+        "speakerId": "sofia",
+        "text": "Good. I will verify the numbers and make sure the visuals support the main argument instead of distracting from it."
+      },
+      {
+        "speakerId": "omar",
+        "text": "Once those pieces are done, we can read the project aloud. That usually reveals awkward sentences faster than staring at the screen."
+      },
+      {
+        "speakerId": "sofia",
+        "text": "Exactly. The deadline still feels close, but at least the work now has a shape we can finish."
+      }
     ]
   },
   "office-break-room-01-a1-a2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for anna and marco.",
     "notes": "Original named only Marco (turn 1). Added Marco's direct address of Anna in turn 2 so both names are audible.",
     "turns": [
-      {"speakerId": "anna", "text": "Hi Marco. Are you on a break?"},
-      {"speakerId": "marco", "text": "Yes, Anna. I need some water."},
-      {"speakerId": "anna", "text": "I have coffee and a snack."},
-      {"speakerId": "marco", "text": "Nice. The morning was busy."},
-      {"speakerId": "anna", "text": "Yes, but five quiet minutes help."}
+      {
+        "speakerId": "anna",
+        "text": "Hi Marco. Are you on a break?"
+      },
+      {
+        "speakerId": "marco",
+        "text": "Yes, Anna. I need some water."
+      },
+      {
+        "speakerId": "anna",
+        "text": "I have coffee and a snack."
+      },
+      {
+        "speakerId": "marco",
+        "text": "Nice. The morning was busy."
+      },
+      {
+        "speakerId": "anna",
+        "text": "Yes, but five quiet minutes help."
+      }
     ]
   },
   "office-break-room-01-b1-b2": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for anna and marco.",
     "notes": "Names added by direct address in the first two turns.",
     "turns": [
-      {"speakerId": "anna", "text": "You look relieved to be away from your desk, Marco."},
-      {"speakerId": "marco", "text": "I am, Anna. The morning was full of calls, and I needed a short break before the next one."},
-      {"speakerId": "anna", "text": "Same here. I made coffee, but I am mostly enjoying the quiet."},
-      {"speakerId": "marco", "text": "Sometimes five minutes in the break room makes the rest of the day easier."},
-      {"speakerId": "anna", "text": "Exactly. After this, I can go back with a clearer head."}
+      {
+        "speakerId": "anna",
+        "text": "You look relieved to be away from your desk, Marco."
+      },
+      {
+        "speakerId": "marco",
+        "text": "I am, Anna. The morning was full of calls, and I needed a short break before the next one."
+      },
+      {
+        "speakerId": "anna",
+        "text": "Same here. I made coffee, but I am mostly enjoying the quiet."
+      },
+      {
+        "speakerId": "marco",
+        "text": "Sometimes five minutes in the break room makes the rest of the day easier."
+      },
+      {
+        "speakerId": "anna",
+        "text": "Exactly. After this, I can go back with a clearer head."
+      }
     ]
   },
   "office-break-room-01-c1": {
-    "criteria": ["P1"],
+    "criteria": [
+      "P1"
+    ],
     "identityStrategy": "named_in_dialogue",
     "metadataRec": "Set nameSpokenInAudio=true for anna and marco.",
     "notes": "Both names woven into the first two C1 lines.",
     "turns": [
-      {"speakerId": "anna", "text": "You have the expression of someone who has survived a very long morning, Marco."},
-      {"speakerId": "marco", "text": "That is accurate, Anna. Three calls, two urgent messages, and one spreadsheet that refused to make sense."},
-      {"speakerId": "anna", "text": "Then this is a well-earned pause. I came in for coffee, but honestly I needed a few minutes without notifications."},
-      {"speakerId": "marco", "text": "There is something useful about stepping away before frustration starts making decisions for you."},
-      {"speakerId": "anna", "text": "Exactly. A short break does not solve the work, but it makes us better company for the work when we return."}
+      {
+        "speakerId": "anna",
+        "text": "You have the expression of someone who has survived a very long morning, Marco."
+      },
+      {
+        "speakerId": "marco",
+        "text": "That is accurate, Anna. Three calls, two urgent messages, and one spreadsheet that refused to make sense."
+      },
+      {
+        "speakerId": "anna",
+        "text": "Then this is a well-earned pause. I came in for coffee, but honestly I needed a few minutes without notifications."
+      },
+      {
+        "speakerId": "marco",
+        "text": "There is something useful about stepping away before frustration starts making decisions for you."
+      },
+      {
+        "speakerId": "anna",
+        "text": "Exactly. A short break does not solve the work, but it makes us better company for the work when we return."
+      }
     ]
   }
 }
