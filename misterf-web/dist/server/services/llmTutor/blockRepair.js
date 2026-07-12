@@ -77,7 +77,6 @@ export async function repairTutorResponseBlocks(input) {
     for (let attempt = 0; attempt < maxRepairAttempts; attempt += 1) {
         const result = await generateText({
             abortSignal: input.abortSignal,
-            maxOutputTokens: 1800,
             messages: buildRepairMessages(),
             model: getLanguageModel(input.llm),
             providerOptions: getProviderOptions(),

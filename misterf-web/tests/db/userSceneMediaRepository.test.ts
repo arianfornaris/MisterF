@@ -146,7 +146,13 @@ describe('user scene media repository', () => {
       src: '/public/scene-media/images/airport.png',
     };
     const script = {
+      identityStrategy: 'named_in_dialogue' as const,
       scriptType: 'dialogue' as const,
+      speakers: [{
+        name: 'Agent',
+        nameSpokenInAudio: true,
+        role: 'airport_agent',
+      }],
       turns: [
         {
           speaker: 'Agent',
@@ -155,9 +161,13 @@ describe('user scene media repository', () => {
       ],
     };
     const audio = {
-      durationSeconds: 24,
-      format: 'mp3' as const,
-      src: '/public/scene-media/audio/airport.mp3',
+      clips: [{
+        speaker: 'Agent',
+        src: '/public/scene-media/audio/airport/turn-01.wav',
+        turn: 1,
+      }],
+      format: 'wav' as const,
+      voiceStrategy: 'per_turn_clips' as const,
     };
 
     const media = createReadyUserSceneMedia({

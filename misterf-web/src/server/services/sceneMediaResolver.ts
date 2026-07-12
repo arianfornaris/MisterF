@@ -46,7 +46,7 @@ export type ResolveSceneMediaRecommendation = {
 
 type CompactSceneMediaCatalogItem = {
   audioAvailable: boolean;
-  audioDurationSeconds?: number;
+  audioClipCount?: number;
   format: string;
   id: string;
   level?: string;
@@ -281,7 +281,7 @@ function toCompactCatalogItem(
 
   return {
     audioAvailable: Boolean(item.audio),
-    audioDurationSeconds: item.audio?.durationSeconds,
+    audioClipCount: item.audio?.clips.length,
     format: item.format,
     id: item.id,
     level: item.level,

@@ -136,6 +136,12 @@ function normalizePlan(
 
 function serializeCurrentMedia(media: SceneMediaLibraryItem): Record<string, unknown> {
   return {
+    audio: media.audio ? {
+      clipCount: media.audio.clips.length,
+      format: media.audio.format,
+      speakers: Array.from(new Set(media.audio.clips.map((clip) => clip.speaker))),
+      voiceStrategy: media.audio.voiceStrategy,
+    } : undefined,
     format: media.format,
     imageAlt: media.image?.alt,
     level: media.level,

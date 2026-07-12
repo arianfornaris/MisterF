@@ -292,35 +292,6 @@ export async function serveSceneMediaImageAsset(
   response.redirect(readUrl);
 }
 
-export async function serveSceneMediaAudioAsset(
-  request: Request,
-  response: Response,
-): Promise<void> {
-  const auth = ensureVerifiedSceneMediaUser(request, response);
-  if (!auth) {
-    return;
-  }
-
-  const mediaId = typeof request.params.mediaId === 'string'
-    ? request.params.mediaId
-    : '';
-  const mediaItem = findSceneMediaItemById(mediaId, {
-    profileId: auth.activeProfile.id,
-    userId: auth.user.id,
-  });
-  const storageKey = mediaItem?.audio?.storageKey;
-  if (!mediaItem || mediaItem.source !== 'user_generated' || !storageKey) {
-    response.sendStatus(404);
-    return;
-  }
-
-  const readUrl = await getUserFileStorageProvider().createReadUrl({
-    expiresInSeconds: 300,
-    storageKey,
-  });
-  response.redirect(readUrl);
-}
-
 export async function createSceneMediaFromPrompt(
   request: Request,
   response: Response,
@@ -592,7 +563,7 @@ export async function reviseSceneMedia(
       creditExhausted: isCreditExhaustedError(error),
       message: isCreditExhaustedError(error)
         ? response.locals.t('mediaLibrary.creditExhausted')
-        : response.locals.t('mediaLibrary.revisionFailed'),
+        : sceneMediaRevisionFailureMessage(response, error),
       userMessage: message,
     });
   }
@@ -796,6 +767,13 @@ function sceneMediaCreationFailureMessage(response: Response, error: unknown): s
     return response.locals.t('mediaLibrary.failure.contentPolicy');
   }
   return response.locals.t('mediaLibrary.creationFailed');
+}
+
+function sceneMediaRevisionFailureMessage(response: Response, error: unknown): string {
+  if (error instanceof SceneMediaCreationError && error.reason === 'audio_provider_error') {
+    return response.locals.t('mediaLibrary.revisionAudioFailed');
+  }
+  return response.locals.t('mediaLibrary.revisionFailed');
 }
 
 function wantsJsonResponse(request: Request): boolean {

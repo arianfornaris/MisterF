@@ -1,4 +1,5 @@
 import { env } from '../config/env.js';
+import { buildSceneMediaSourceContextPrompt, } from './generationContext.js';
 export class SceneMediaImageContentPolicyError extends Error {
     constructor(message = 'Scene media image prompt was rejected by content policy.') {
         super(message);
@@ -15,12 +16,19 @@ export async function generateSceneMediaImage(input) {
     const imagePrompt = buildSceneMediaImagePrompt(input);
     const response = await fetch(`${env.openrouterBaseUrl.replace(/\/+$/, '')}/images`, {
         body: JSON.stringify({
-            aspect_ratio: getAspectRatio(input.format),
+            aspect_ratio: '1:1',
+            input_references: input.referenceImages?.map((image) => ({
+                image_url: {
+                    url: `data:${image.contentType};base64,${image.bytes.toString('base64')}`,
+                },
+                type: 'image_url',
+            })),
             model: env.sceneMediaImageModel,
             n: 1,
             output_format: 'png',
             prompt: imagePrompt,
             quality: 'medium',
+            resolution: '1K',
         }),
         headers: {
             Authorization: `Bearer ${input.openRouterApiKey}`,
@@ -64,8 +72,8 @@ function buildSceneMediaImagePrompt(input) {
         single_panel_scene: 'Create one single-panel scene image with a clear focal action.',
         two_panel_contrast: 'Create one two-panel contrast image with clear before/after or compare/contrast structure.',
     };
-    const sourceContext = input.sourceVisualSummary?.length
-        ? ` Preserve useful context from this source media: ${input.sourceVisualSummary.join('; ')}.`
+    const sourceContext = input.sourceContext
+        ? buildSceneMediaSourceContextPrompt(input.sourceContext)
         : '';
     const scriptHint = input.scriptTypePreference === 'dialogue'
         ? 'Include two or three visible characters with distinct speaking roles, but do not render speech bubbles or readable text.'
@@ -81,13 +89,7 @@ function buildSceneMediaImagePrompt(input) {
         scriptHint,
         'Use a friendly, classroom-safe style with natural people, recognizable actions, and visual details that invite language practice.',
         'Avoid political, sexual, graphic, hateful, copyrighted-character, branded, or unsafe content.',
-    ].filter(Boolean).join(' ');
-}
-function getAspectRatio(format) {
-    if (format === 'single_panel_scene') {
-        return '4:3';
-    }
-    return '16:9';
+    ].filter(Boolean).join('\n');
 }
 function normalizeImageContentType(contentType) {
     if (contentType === 'image/jpeg' ||

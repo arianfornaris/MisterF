@@ -24,7 +24,6 @@ import { sceneMediaRouter } from './sceneMedia/routes.js';
 import { settingsRouter } from './settings/routes.js';
 import { logger } from './services/logger.js';
 import { registerChatSocket } from './socket/chatSocket.js';
-import { registerSceneMediaSocket } from './sceneMedia/socket.js';
 import { superadminRouter } from './superadmin/routes.js';
 import { clientTelemetryRouter } from './telemetry/clientErrors.js';
 requireSessionSecret();
@@ -92,7 +91,6 @@ app.use((error, request, response, next) => {
     response.status(500).send(translate(request.locale ?? 'en', 'error.unexpected'));
 });
 registerChatSocket(io);
-registerSceneMediaSocket(io);
 export function startServer() {
     server.listen(env.port, env.host, () => {
         logger.info('server_started', {

@@ -20,27 +20,47 @@ export type SceneMediaImageLayer = {
 };
 
 export type SceneMediaAudioLayer = {
-  durationSeconds: number;
-  format: 'mp3';
+  clips: SceneMediaAudioClip[];
+  format: 'wav';
   model?: string;
   provider?: 'openrouter';
+  voiceStrategy: 'per_turn_clips';
+};
+
+export type SceneMediaAudioClip = {
+  speaker: string;
   src: string;
   storageKey?: string;
-  voices?: Array<{
-    speaker: string;
-    voice: string;
-  }>;
+  turn: number;
 };
+
+export type SceneMediaIdentityStrategy =
+  | 'named_in_dialogue'
+  | 'named_in_narration'
+  | 'role_only';
 
 export type SceneMediaScript =
   | {
+      identityStrategy: Extract<
+        SceneMediaIdentityStrategy,
+        'named_in_dialogue' | 'role_only'
+      >;
       scriptType: 'dialogue';
+      speakers: Array<{
+        name: string;
+        nameSpokenInAudio: boolean;
+        role: string;
+      }>;
       turns: Array<{
         speaker: string;
         text: string;
       }>;
     }
   | {
+      identityStrategy: Extract<
+        SceneMediaIdentityStrategy,
+        'named_in_narration' | 'role_only'
+      >;
       scriptType: 'monologue' | 'narration';
       text: string;
     };

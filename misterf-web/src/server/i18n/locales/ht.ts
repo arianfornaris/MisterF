@@ -142,6 +142,9 @@ export const ht: LocaleCatalog = {
     archive: 'Achive',
     authoringChatEmpty: 'Dekri chanjman ou vle fè nan medya sa a.',
     audio: 'Odyo',
+    audioClipProgress: 'Klip {{current}} sou {{total}}',
+    audioClipCount: 'Klip odyo: {{count}}',
+    audioPlayerAria: 'Odyo pou koute',
     backToLibrary: 'Retounen nan bibliyotèk medya a',
     clearFilters: 'Netwaye filtè yo',
     count: '{{shown}} sou {{total}} medya',
@@ -158,6 +161,8 @@ export const ht: LocaleCatalog = {
     details: 'Detay',
     doNotIncludeScriptAndAudio: 'Pa mete skrip ak odyo',
     duration: '{{seconds}} segonn',
+    nextClip: 'Liy apre a',
+    previousClip: 'Liy anvan an',
     empty: 'Pa gen medya ki matche ak filtè sa yo.',
     editingKicker: 'Ap modifye medya',
     failure: {
@@ -178,6 +183,12 @@ export const ht: LocaleCatalog = {
     generationMode: 'Mòd jenerasyon',
     generationPrompt: 'Prompt jenerasyon',
     imageLayer: 'Imaj',
+    identityStrategy: {
+      named_in_dialogue: 'Non yo etabli nan dyalòg la',
+      named_in_narration: 'Non yo etabli nan narasyon an',
+      role_only: 'Wòl sèlman',
+    },
+    identityStrategyLabel: 'Idantifikasyon pèsonaj',
     imageDetails: '{{width}} × {{height}} · {{contentType}}',
     intro:
       'Gade medya sèn built-in ki disponib pou pwochen flò tutor, quiz, roleplay, ak konpreyansyon.',
@@ -207,6 +218,8 @@ export const ht: LocaleCatalog = {
     promptPlaceholder:
       'Yon elèv mande direksyon nan yon estasyon tren ki gen anpil moun epi li pratike kesyon politès.',
     preview: 'Jwe medya',
+    revisionAudioFailed:
+      'Skrip la te prepare, men nou pa t kapab rejenere odyo a. Medya aktyèl la pa chanje.',
     revisionFailed: 'Mwen pa t kapab aplike chanjman sa a. Medya aktyèl la pa chanje.',
     script: 'Skrip',
     scriptAndAudioLayer: 'Skrip ak odyo',
@@ -224,6 +237,8 @@ export const ht: LocaleCatalog = {
       user_generated: 'Itilizatè kreye',
     },
     sourceLabel: 'Sous',
+    speakerRole: 'Wòl',
+    nameSpokenInAudio: 'Non an pwononse nan odyo a',
     sourceMediaId: 'ID medya sous',
     summaryFallback: 'Medya sèn',
     tags: 'Tags',

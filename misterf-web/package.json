@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server/server.ts",
     "dev:client": "vite build --watch",
-    "build": "npm run build:server && npm run build:client",
+    "build": "npm run build:scene-media && npm run build:server && npm run build:client",
     "build:scene-media": "node scripts/build-scene-media.mjs",
     "storage:publicize-scene-media": "tsx scripts/publicize-scene-media.ts",
     "build:server": "rm -rf dist && tsc",

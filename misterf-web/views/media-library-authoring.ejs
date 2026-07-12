@@ -80,6 +80,22 @@
             <% } else { %>
               <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>
             <% } %>
+            <% if (mediaItem.script) { %>
+              <dl class="scene-media-definition-list border-top pt-3 mt-3 mb-0">
+                <dt><%= t('mediaLibrary.identityStrategyLabel') %></dt>
+                <dd><%= t(`mediaLibrary.identityStrategy.${mediaItem.script.identityStrategy}`) %></dd>
+                <% if (mediaItem.script.scriptType === 'dialogue') { %>
+                  <% mediaItem.script.speakers.forEach((speaker) => { %>
+                    <dt><%= speaker.name %></dt>
+                    <dd>
+                      <%= t('mediaLibrary.speakerRole') %>: <%= speaker.role %> ·
+                      <%= t('mediaLibrary.nameSpokenInAudio') %>:
+                      <%= speaker.nameSpokenInAudio ? t('common.yes') : t('common.no') %>
+                    </dd>
+                  <% }) %>
+                <% } %>
+              </dl>
+            <% } %>
           </div>
         </section>
       </div>
@@ -130,9 +146,9 @@
             <div class="card-body">
               <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
               <% if (mediaItem.audio) { %>
-                <audio class="w-100" controls preload="metadata" src="<%= mediaItem.audio.src %>"></audio>
+                <%- include('partials/scene-media-audio-player', { audio: mediaItem.audio }) %>
                 <p class="text-body-secondary small mb-0 mt-2">
-                  <%= t('mediaLibrary.duration', { seconds: Math.round(mediaItem.audio.durationSeconds) }) %>
+                  <%= t('mediaLibrary.audioClipCount', { count: mediaItem.audio.clips.length }) %>
                 </p>
               <% } else { %>
                 <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>

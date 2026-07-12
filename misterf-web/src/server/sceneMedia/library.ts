@@ -32,17 +32,29 @@ const sceneMediaImageLayerSchema = z
 
 const sceneMediaAudioLayerSchema = z
   .object({
-    durationSeconds: z.number().positive(),
-    format: z.literal('mp3'),
-    src: z.string().trim().min(1),
-    storageKey: z.string().trim().min(1).optional(),
+    clips: z.array(z.object({
+      speaker: z.string().trim().min(1),
+      src: z.string().trim().min(1),
+      storageKey: z.string().trim().min(1).optional(),
+      turn: z.number().int().positive(),
+    }).strict()).min(1),
+    format: z.literal('wav'),
+    model: z.string().trim().min(1).optional(),
+    provider: z.literal('openrouter').optional(),
+    voiceStrategy: z.literal('per_turn_clips'),
   })
   .strict();
 
 const sceneMediaScriptSchema = z.union([
   z
     .object({
+      identityStrategy: z.enum(['named_in_dialogue', 'role_only']),
       scriptType: z.literal('dialogue'),
+      speakers: z.array(z.object({
+        name: z.string().trim().min(1),
+        nameSpokenInAudio: z.boolean(),
+        role: z.string().trim().min(1),
+      }).strict()).min(1).max(3),
       turns: z
         .array(
           z
@@ -57,6 +69,7 @@ const sceneMediaScriptSchema = z.union([
     .strict(),
   z
     .object({
+      identityStrategy: z.enum(['named_in_narration', 'role_only']),
       scriptType: z.enum(['monologue', 'narration']),
       text: z.string().trim().min(1),
     })

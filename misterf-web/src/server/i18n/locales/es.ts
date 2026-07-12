@@ -133,6 +133,9 @@ export const es: LocaleCatalog = {
     archive: 'Archivar',
     authoringChatEmpty: 'Describe el cambio que quieres hacer en esta media.',
     audio: 'Audio',
+    audioClipProgress: 'Fragmento {{current}} de {{total}}',
+    audioClipCount: 'Fragmentos de audio: {{count}}',
+    audioPlayerAria: 'Audio de escucha',
     backToLibrary: 'Volver a la biblioteca de medios',
     clearFilters: 'Limpiar filtros',
     count: '{{shown}} de {{total}} medias',
@@ -149,6 +152,8 @@ export const es: LocaleCatalog = {
     details: 'Detalles',
     doNotIncludeScriptAndAudio: 'No incluir guion y audio',
     duration: '{{seconds}} segundos',
+    nextClip: 'Siguiente línea',
+    previousClip: 'Línea anterior',
     empty: 'No hay medias que coincidan con estos filtros.',
     editingKicker: 'Editando media',
     failure: {
@@ -169,6 +174,12 @@ export const es: LocaleCatalog = {
     generationMode: 'Modo de generación',
     generationPrompt: 'Prompt de generación',
     imageLayer: 'Imagen',
+    identityStrategy: {
+      named_in_dialogue: 'Nombres establecidos en el diálogo',
+      named_in_narration: 'Nombres establecidos en la narración',
+      role_only: 'Solo roles',
+    },
+    identityStrategyLabel: 'Identificación de personajes',
     imageDetails: '{{width}} × {{height}} · {{contentType}}',
     intro:
       'Explora las escenas built-in disponibles para futuros flujos del tutor, quizzes, roleplays y comprensión.',
@@ -198,6 +209,8 @@ export const es: LocaleCatalog = {
     promptPlaceholder:
       'Un estudiante pide direcciones en una estación de tren concurrida y practica preguntas amables.',
     preview: 'Reproducir media',
+    revisionAudioFailed:
+      'El guion fue preparado, pero no se pudo regenerar el audio. La media actual no fue modificada.',
     revisionFailed: 'No pude aplicar ese cambio. La media actual no fue modificada.',
     script: 'Guion',
     scriptAndAudioLayer: 'Guion y audio',
@@ -215,6 +228,8 @@ export const es: LocaleCatalog = {
       user_generated: 'Creada por el usuario',
     },
     sourceLabel: 'Origen',
+    speakerRole: 'Rol',
+    nameSpokenInAudio: 'Nombre pronunciado en el audio',
     sourceMediaId: 'ID de media de origen',
     summaryFallback: 'Media de escena',
     tags: 'Tags',

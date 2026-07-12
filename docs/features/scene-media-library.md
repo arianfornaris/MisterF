@@ -166,6 +166,10 @@ The accepted trade-off is a larger number of immutable objects and larger WAV
 payloads. Clips should be cached and preloaded before playback. Durations are
 not persisted; a client that needs them reads them from the loaded clips.
 
+Migration `21` removes complete user-media rows created with the obsolete
+single-MP3 contract. They cannot be losslessly converted into per-turn clips;
+image-only rows remain intact.
+
 `identityStrategy` and `nameSpokenInAudio` define whether learner-facing
 questions and tutor responses may identify a character by name. A name may be
 used only when it is actually established in the audio; otherwise the character

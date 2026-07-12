@@ -21,6 +21,7 @@ export class SpacesUserFileStorageProvider {
             ...config,
             endpoint: config.endpoint.replace(/\/+$/, ''),
             rootPrefix: normalizePathSegment(config.rootPrefix, 'root prefix'),
+            publicBaseUrl: config.publicBaseUrl?.replace(/\/+$/, ''),
         };
     }
     async putObject(input) {
@@ -37,6 +38,9 @@ export class SpacesUserFileStorageProvider {
         if (input.cacheControl) {
             headers['cache-control'] = input.cacheControl;
         }
+        if (input.visibility === 'public-read') {
+            headers['x-amz-acl'] = 'public-read';
+        }
         const signedRequest = this.signHeaderRequest({
             headers,
             method: 'PUT',
@@ -49,7 +53,7 @@ export class SpacesUserFileStorageProvider {
             method: 'PUT',
         });
         if (!response.ok) {
-            throw new UserFileStorageOperationError(`Spaces PUT failed with HTTP ${response.status}.`);
+            throw await createSpacesOperationError('PUT', response);
         }
         return {
             sizeBytes: body.byteLength,
@@ -70,7 +74,30 @@ export class SpacesUserFileStorageProvider {
             method: 'DELETE',
         });
         if (!response.ok && response.status !== 404) {
-            throw new UserFileStorageOperationError(`Spaces DELETE failed with HTTP ${response.status}.`);
+            throw await createSpacesOperationError('DELETE', response);
+        }
+    }
+    async makeObjectPublic(storageKey) {
+        const body = Buffer.alloc(0);
+        const payloadHash = sha256Hex(body);
+        const signedRequest = this.signHeaderRequest({
+            headers: {
+                'content-length': '0',
+                'x-amz-acl': 'public-read',
+                'x-amz-content-sha256': payloadHash,
+            },
+            method: 'PUT',
+            payloadHash,
+            query: new URLSearchParams({ acl: '' }),
+            storageKey: normalizeStorageKey(storageKey),
+        });
+        const response = await fetch(signedRequest.url, {
+            body,
+            headers: signedRequest.headers,
+            method: 'PUT',
+        });
+        if (!response.ok) {
+            throw await createSpacesOperationError('PUT', response);
         }
     }
     async createReadUrl(input) {
@@ -80,14 +107,32 @@ export class SpacesUserFileStorageProvider {
             storageKey: normalizeStorageKey(input.storageKey),
         });
     }
+    createPublicUrl(storageKey) {
+        const normalizedKey = normalizeStorageKey(storageKey);
+        const encodedKey = normalizedKey
+            .split('/')
+            .map((segment) => encodeURIComponent(segment))
+            .join('/');
+        if (this.config.publicBaseUrl) {
+            return `${this.config.publicBaseUrl}/${encodedKey}`;
+        }
+        return `${this.config.endpoint}/${encodeURIComponent(this.config.bucket)}/${encodedKey}`;
+    }
     signHeaderRequest(input) {
         const now = new Date();
         const amzDate = formatAmzDate(now);
         const datestamp = amzDate.slice(0, 8);
         const { canonicalUri, url } = this.objectUrl(input.storageKey);
+        const urlObject = new URL(url);
+        const canonicalQuery = input.query
+            ? canonicalizeSearchParams(input.query)
+            : '';
+        if (input.query) {
+            urlObject.search = input.query.toString();
+        }
         const headers = normalizeHeaders({
             ...input.headers,
-            host: new URL(url).host,
+            host: urlObject.host,
             'x-amz-date': amzDate,
         });
         const signedHeaders = Object.keys(headers).sort().join(';');
@@ -98,7 +143,7 @@ export class SpacesUserFileStorageProvider {
         const canonicalRequest = [
             input.method,
             canonicalUri,
-            '',
+            canonicalQuery,
             canonicalHeaders,
             signedHeaders,
             input.payloadHash,
@@ -114,13 +159,12 @@ export class SpacesUserFileStorageProvider {
             headers: {
                 ...headers,
                 authorization: [
-                    'AWS4-HMAC-SHA256',
-                    `Credential=${this.config.accessKey}/${credentialScope}`,
+                    `AWS4-HMAC-SHA256 Credential=${this.config.accessKey}/${credentialScope}`,
                     `SignedHeaders=${signedHeaders}`,
                     `Signature=${signature}`,
                 ].join(', '),
             },
-            url,
+            url: urlObject.toString(),
         };
     }
     signPresignedGetUrl(input) {
@@ -182,6 +226,7 @@ export function getUserFileStorageProvider() {
         endpoint: env.doSpacesEndpoint,
         region: env.userFileStorageRegion,
         rootPrefix: env.userFileStorageRootPrefix,
+        publicBaseUrl: env.userFileStoragePublicBaseUrl,
         secretKey: env.doSpacesSecretKey,
     });
 }
@@ -279,5 +324,26 @@ function hmacHex(key, value) {
 }
 function awsEncode(value) {
     return encodeURIComponent(value).replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
+}
+async function createSpacesOperationError(operation, response) {
+    const responseBody = await response.text().catch(() => '');
+    const providerCode = readXmlElement(responseBody, 'Code');
+    const providerMessage = readXmlElement(responseBody, 'Message');
+    const providerDetail = [providerCode, providerMessage]
+        .filter(Boolean)
+        .join(': ')
+        .slice(0, 500);
+    return new UserFileStorageOperationError(`Spaces ${operation} failed with HTTP ${response.status}${providerDetail ? ` (${providerDetail})` : ''}.`);
+}
+function readXmlElement(xml, elementName) {
+    const match = xml.match(new RegExp(`<${elementName}>([\\s\\S]*?)</${elementName}>`, 'i'));
+    return match?.[1]
+        ?.replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\s+/g, ' ')
+        .trim() ?? '';
 }
 //# sourceMappingURL=userFileStorage.js.map

@@ -28,7 +28,6 @@ export async function resolveSceneMedia(request) {
         };
     }
     const result = await generateText({
-        maxOutputTokens: 900,
         messages: [{
                 content: buildResolverUserPrompt(request, catalog),
                 role: 'user',

@@ -133,7 +133,6 @@ export async function generateTutorConversationReport(input) {
                 operation: 'tutor_report',
             }, turnNumber);
             const result = await generateText({
-                maxOutputTokens: 2600,
                 messages,
                 model: getLanguageModel({
                     modelTier: 'regular',

@@ -133,6 +133,9 @@ export const en: LocaleCatalog = {
     archive: 'Archive',
     authoringChatEmpty: 'Describe the change you want to make to this media.',
     audio: 'Audio',
+    audioClipProgress: 'Clip {{current}} of {{total}}',
+    audioClipCount: 'Audio clips: {{count}}',
+    audioPlayerAria: 'Listening audio',
     backToLibrary: 'Back to media library',
     clearFilters: 'Clear filters',
     count: '{{shown}} of {{total}} media items',
@@ -149,6 +152,8 @@ export const en: LocaleCatalog = {
     details: 'Details',
     doNotIncludeScriptAndAudio: 'Do not include script and audio',
     duration: '{{seconds}} seconds',
+    nextClip: 'Next line',
+    previousClip: 'Previous line',
     empty: 'No media items match these filters.',
     editingKicker: 'Editing media',
     failure: {
@@ -169,6 +174,12 @@ export const en: LocaleCatalog = {
     generationMode: 'Generation mode',
     generationPrompt: 'Generation prompt',
     imageLayer: 'Image',
+    identityStrategy: {
+      named_in_dialogue: 'Names established in dialogue',
+      named_in_narration: 'Names established in narration',
+      role_only: 'Roles only',
+    },
+    identityStrategyLabel: 'Character identification',
     imageDetails: '{{width}} × {{height}} · {{contentType}}',
     intro:
       'Browse the built-in scene media available for future tutor, quiz, roleplay, and comprehension flows.',
@@ -198,6 +209,8 @@ export const en: LocaleCatalog = {
     promptPlaceholder:
       'A learner asks for directions in a busy train station and practices polite questions.',
     preview: 'Play media',
+    revisionAudioFailed:
+      'The script was prepared, but the audio could not be regenerated. The current media was not modified.',
     revisionFailed: 'I could not apply that change. The current media was not modified.',
     script: 'Script',
     scriptAndAudioLayer: 'Script and audio',
@@ -215,6 +228,8 @@ export const en: LocaleCatalog = {
       user_generated: 'User generated',
     },
     sourceLabel: 'Source',
+    speakerRole: 'Role',
+    nameSpokenInAudio: 'Name spoken in audio',
     sourceMediaId: 'Source media ID',
     summaryFallback: 'Scene media item',
     tags: 'Tags',

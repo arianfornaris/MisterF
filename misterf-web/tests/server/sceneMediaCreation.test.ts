@@ -89,7 +89,12 @@ beforeEach(async () => {
   });
   scriptMocks.generateSceneMediaScriptPackage.mockResolvedValue({
     script: {
+      identityStrategy: 'named_in_dialogue',
       scriptType: 'dialogue',
+      speakers: [
+        { name: 'Clerk', nameSpokenInAudio: true, role: 'ticket_clerk' },
+        { name: 'Learner', nameSpokenInAudio: true, role: 'traveler' },
+      ],
       turns: [
         { speaker: 'Clerk', text: 'How can I help you?' },
         { speaker: 'Learner', text: 'I would like a ticket, please.' },
@@ -111,13 +116,17 @@ beforeEach(async () => {
     visualSummary: ['A learner buys a ticket from a clerk.'],
   });
   audioMocks.generateSceneMediaAudio.mockResolvedValue({
-    bytes: Buffer.from('audio'),
-    contentType: 'audio/mpeg',
-    durationSeconds: 22,
-    extension: 'mp3',
+    clips: [{
+      bytes: Buffer.from('audio'),
+      contentType: 'audio/wav',
+      extension: 'wav',
+      speaker: 'Clerk',
+      turn: 1,
+      voice: 'Kore',
+    }],
     model: 'test-tts-model',
     provider: 'openrouter',
-    voices: [],
+    voiceStrategy: 'per_turn_clips',
   });
   storageMocks.createSceneMediaStorageKey.mockImplementation((input) => (
     `misterf/users/${input.userId}/scene-media/${input.mediaId}/${input.fileRole}/file.${input.extension}`
@@ -155,7 +164,7 @@ describe('synchronous scene media creation', () => {
       width: 720,
     }));
     expect(draft.script).toBeDefined();
-    expect(draft.audio?.src).toMatch(/^https:\/\/public\.example\.test\//);
+    expect(draft.audio?.clips[0]?.src).toMatch(/^https:\/\/public\.example\.test\//);
     expect(scriptMocks.generateSceneMediaScriptPackage).toHaveBeenCalledWith(
       expect.objectContaining({
         imageBytes: expect.any(Buffer),

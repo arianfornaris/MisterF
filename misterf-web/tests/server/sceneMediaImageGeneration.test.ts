@@ -60,7 +60,12 @@ describe('scene media image generation', () => {
         },
         level: 'A1-A2',
         script: {
+          identityStrategy: 'named_in_dialogue',
           scriptType: 'dialogue',
+          speakers: [
+            { name: 'Agent', nameSpokenInAudio: true, role: 'airline_agent' },
+            { name: 'Student', nameSpokenInAudio: true, role: 'traveler' },
+          ],
           turns: [
             { speaker: 'Agent', text: 'May I see your passport?' },
             { speaker: 'Student', text: 'Yes, here it is.' },

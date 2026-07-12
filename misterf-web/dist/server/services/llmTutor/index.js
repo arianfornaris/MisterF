@@ -164,7 +164,6 @@ export async function runTutorAgentLoop(history, options) {
         try {
             const result = await generateText({
                 abortSignal: options.abortSignal,
-                maxOutputTokens: 1800,
                 messages,
                 model: getLanguageModel(options.llm),
                 providerOptions: getProviderOptions(),
@@ -359,7 +358,6 @@ export async function translateTextWithLlm(input) {
         throw new Error('No hay texto para traducir.');
     }
     const result = await generateText({
-        maxOutputTokens: 1000,
         messages: [{ content: text, role: 'user' }],
         model: getLanguageModel(input.llm),
         providerOptions: getProviderOptions(),
@@ -422,7 +420,6 @@ export async function evaluateQuizResultItemsWithLlm(input) {
     let lastError = null;
     for (let attempt = 0; attempt < maxQuizEvaluationCorrectionAttempts; attempt += 1) {
         const result = await generateText({
-            maxOutputTokens: Math.min(24000, Math.max(1600, input.quiz.items.length * 280)),
             messages,
             model: getLanguageModel(input.llm),
             providerOptions: getProviderOptions(),

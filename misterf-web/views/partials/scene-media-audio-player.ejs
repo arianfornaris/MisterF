@@ -1,0 +1,50 @@
+<%
+  const playerClips = audio?.clips ?? [];
+  const playerClipsJson = JSON.stringify(playerClips).replace(/[<>&\u2028\u2029]/g, (character) => ({
+    '<': '\\u003c',
+    '>': '\\u003e',
+    '&': '\\u0026',
+    '\u2028': '\\u2028',
+    '\u2029': '\\u2029',
+  })[character]);
+%>
+<div
+  class="scene-media-audio-player"
+  data-scene-media-audio-player
+  data-previous-label="<%= t('mediaLibrary.previousClip') %>"
+  data-next-label="<%= t('mediaLibrary.nextClip') %>"
+  data-progress-label="<%= t('mediaLibrary.audioClipProgress', { current: '{{current}}', total: '{{total}}' }) %>"
+>
+  <div class="d-flex align-items-center gap-2">
+    <button
+      class="btn btn-outline-secondary flex-shrink-0"
+      type="button"
+      title="<%= t('mediaLibrary.previousClip') %>"
+      aria-label="<%= t('mediaLibrary.previousClip') %>"
+      data-scene-media-audio-previous
+    >
+      <i class="bi bi-skip-backward-fill" aria-hidden="true"></i>
+    </button>
+    <audio
+      class="w-100 min-w-0"
+      controls
+      preload="metadata"
+      aria-label="<%= t('mediaLibrary.audioPlayerAria') %>"
+      data-scene-media-audio-element
+    ></audio>
+    <button
+      class="btn btn-outline-secondary flex-shrink-0"
+      type="button"
+      title="<%= t('mediaLibrary.nextClip') %>"
+      aria-label="<%= t('mediaLibrary.nextClip') %>"
+      data-scene-media-audio-next
+    >
+      <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div class="d-flex align-items-center justify-content-between gap-3 small text-body-secondary mt-2">
+    <span class="text-truncate" data-scene-media-audio-speaker></span>
+    <span class="flex-shrink-0" data-scene-media-audio-position></span>
+  </div>
+  <script type="application/json" data-scene-media-audio-clips><%- playerClipsJson %></script>
+</div>

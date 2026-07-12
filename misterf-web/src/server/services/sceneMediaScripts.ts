@@ -22,13 +22,26 @@ const scriptGenerationTurns = 2;
 
 const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
     z.object({
+      identityStrategy: z.union([
+        z.literal('named_in_dialogue'),
+        z.literal('role_only'),
+      ]),
       scriptType: z.literal('dialogue'),
+      speakers: z.array(z.object({
+        name: z.string().trim().min(1).max(40),
+        nameSpokenInAudio: z.boolean(),
+        role: z.string().trim().min(1).max(60),
+      }).strict()).min(1).max(3),
       turns: z.array(z.object({
         speaker: z.string().trim().min(1).max(40),
         text: z.string().trim().min(1).max(320),
       }).strict()).min(2).max(8),
     }).strict(),
     z.object({
+      identityStrategy: z.union([
+        z.literal('named_in_narration'),
+        z.literal('role_only'),
+      ]),
       scriptType: z.union([z.literal('monologue'), z.literal('narration')]),
       text: z.string().trim().min(1).max(1800),
     }).strict(),
@@ -187,6 +200,10 @@ export function buildSceneMediaScriptSystemPrompt(): string {
     'Return one JSON object only. Do not use markdown, comments, or surrounding prose.',
     'When a script is requested, it must be in English and suitable for the requested learner level.',
     'If dialogue is requested, use at most three speakers. If the user asks for more, merge or simplify roles.',
+    'Every named dialogue character must be named naturally in the spoken turns. Set identityStrategy to "named_in_dialogue" and nameSpokenInAudio to true only when the name is actually spoken.',
+    'When a dialogue character is not named aloud, use a stable spoken role as both its speaker name and role, set nameSpokenInAudio to false, and use identityStrategy "role_only".',
+    'For narration or monologue, use identityStrategy "named_in_narration" only when the character name occurs in the text; otherwise use "role_only".',
+    'Every fact that a listening question could target must be recoverable from the spoken script or the visible image. Do not rely on hidden metadata.',
     'Script and audio are an atomic layer. When requested, produce a script that can be directly synthesized into listening audio; otherwise omit script entirely.',
     'Inspect the supplied image directly. The title, visual summary, setting, and any script must describe the actual image rather than relying only on alt text.',
     'When source media context is provided, treat it as reference data. The user request defines requested changes, kept layers are immutable compatibility anchors, and source traits not explicitly changed should remain continuous.',
@@ -235,12 +252,12 @@ export function buildSceneMediaScriptUserPrompt(
     '  "skills": ["English skill practiced"],',
     '  "useCases": ["listening", "speaking", "writing prompt"]' + (includeScript ? ',' : ''),
     includeScript
-      ? '  "script": { "scriptType": "dialogue", "turns": [{ "speaker": "Name", "text": "Line" }] }'
+      ? '  "script": { "scriptType": "dialogue", "identityStrategy": "named_in_dialogue", "speakers": [{ "name": "Name", "role": "role", "nameSpokenInAudio": true }], "turns": [{ "speaker": "Name", "text": "Line that establishes names aloud" }] }'
       : '',
     '}',
     '',
     includeScript
-      ? 'For narration or monologue, script must be { "scriptType": "narration" | "monologue", "text": "..." }.'
+      ? 'For narration or monologue, script must be { "scriptType": "narration" | "monologue", "identityStrategy": "named_in_narration" | "role_only", "text": "..." }.'
       : 'Return metadata only and omit script.',
   ].filter(Boolean).join('\n');
 }
