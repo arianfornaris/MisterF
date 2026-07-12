@@ -79,7 +79,7 @@
       "file": "images/shared-umbrella-bus-stop-01.png",
       "sourceFile": "images/shared-umbrella-bus-stop-01-source.png",
       "source": "codex-imagegen",
-      "generatedAt": "2026-07-05",
+      "generatedAt": "2026-07-12",
       "format": "four_panel_wordless_story",
       "panelCount": 4,
       "layout": "2x2-grid",
@@ -118,7 +118,7 @@
       "characters": [
         {
           "role": "person_needing_help",
-          "description": "Teenage boy with medium-brown skin, curly hair, a blue hoodie, and a backpack."
+          "description": "Young adult man with medium-brown skin, curly hair, light stubble, a blue hoodie, and a work backpack."
         },
         {
           "role": "helper",
@@ -126,21 +126,22 @@
         }
       ],
       "panelSequence": [
-        "The boy waits at a rainy bus stop.",
+        "A young adult commuter waits at a rainy bus stop.",
         "The rain gets heavier and he realizes he has no umbrella.",
-        "The woman shares her umbrella with him.",
-        "They walk toward the bus together."
+        "An older woman shares her umbrella with him.",
+        "The two adults walk toward the bus together."
       ],
       "pedagogicalPromptIdeas": [
         "Describe the weather in each panel.",
         "Write a story about the bus stop.",
-        "How does the boy feel in panel two?",
+        "How does the commuter feel in panel two?",
         "What does the woman do to help?"
       ],
-      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a rainy bus stop story in a clean 2x2 grid: a teenage boy waits for a bus, realizes he forgot his umbrella, a woman shares her umbrella, and they board the bus together. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, signs, route numbers, logos, labels, panel numbers, or watermarks.",
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a rainy bus stop story in a clean 2x2 grid: a young adult commuter with a work backpack waits for a bus, realizes he forgot his umbrella, an older woman shares her umbrella, and the two adults board the bus together. The commuter must have unmistakably adult facial structure, height, shoulders, and body proportions in every panel. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, signs, route numbers, logos, labels, panel numbers, or watermarks.",
       "qaNotes": [
         "Designed as a four-panel wordless bus stop story.",
-        "Visual QA passed: no readable text detected, the umbrella-sharing action is clear, and the panel sequence works left to right, top to bottom."
+        "Visual QA passed: no readable text detected, the umbrella-sharing action is clear, and the panel sequence works left to right, top to bottom.",
+        "Adult-character revision passed: the commuter is visibly an adult in all four panels (July 2026)."
       ]
     },
     {
@@ -150,7 +151,7 @@
       "file": "images/torn-grocery-bag-01.png",
       "sourceFile": "images/torn-grocery-bag-01-source.png",
       "source": "codex-imagegen",
-      "generatedAt": "2026-07-05",
+      "generatedAt": "2026-07-12",
       "format": "four_panel_wordless_story",
       "panelCount": 4,
       "layout": "2x2-grid",
@@ -226,7 +227,7 @@
       "file": "images/shared-lunch-classroom-01.png",
       "sourceFile": "images/shared-lunch-classroom-01-source.png",
       "source": "codex-imagegen",
-      "generatedAt": "2026-07-05",
+      "generatedAt": "2026-07-12",
       "format": "four_panel_wordless_story",
       "panelCount": 4,
       "layout": "2x2-grid",
@@ -245,7 +246,7 @@
         "story_sequence"
       ],
       "skills": [
-        "school_vocabulary",
+        "adult_education_vocabulary",
         "food_vocabulary",
         "emotions",
         "friendship",
@@ -258,40 +259,41 @@
         "sharing",
         "friendship",
         "food",
-        "school",
+        "adult-education",
         "kindness",
         "problem-solution"
       ],
       "characters": [
         {
-          "role": "student_needing_help",
-          "description": "Young East Asian student with short black hair and a purple sweater."
+          "role": "adult_learner_needing_help",
+          "description": "East Asian adult learner in his late twenties with short black hair and a purple sweater."
         },
         {
-          "role": "friend",
-          "description": "Classmate with brown skin, long braids, and a yellow cardigan."
+          "role": "adult_classmate",
+          "description": "Black adult learner in her late twenties with long braids and a yellow cardigan."
         },
         {
-          "role": "teacher",
-          "description": "Teacher with curly hair and glasses."
+          "role": "adult_instructor",
+          "description": "Adult continuing-education instructor with curly hair and glasses."
         }
       ],
       "panelSequence": [
-        "The student opens a lunchbox.",
-        "The student sees the lunchbox is empty and feels worried.",
-        "A classmate offers to share food.",
-        "The two students eat together while the teacher smiles nearby."
+        "An adult learner opens his lunchbox during a course break.",
+        "He sees that the lunchbox is empty and feels worried.",
+        "An adult classmate offers to share food.",
+        "The two adult learners eat together while their instructor smiles nearby."
       ],
       "pedagogicalPromptIdeas": [
-        "Describe how the student feels in each panel.",
+        "Describe how the adult learner feels in each panel.",
         "What food does the classmate share?",
-        "Write a story about lunchtime.",
-        "What does the teacher see?"
+        "Write a story about a break between classes.",
+        "What does the instructor see?"
       ],
-      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a classroom lunch story in a clean 2x2 grid: a student opens a lunchbox, sees it is empty, a classmate offers to share food, and the two students eat together while a teacher smiles nearby. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, posters with text, worksheet writing, book words, labels, panel numbers, or watermarks.",
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a continuing-education classroom lunch story in a clean 2x2 grid: an adult learner opens a lunchbox, sees it is empty, an adult classmate offers to share food, and the two adults eat together while their instructor smiles nearby. Both learners must have unmistakably adult facial structure, height, shoulders, and body proportions in every panel. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, posters with text, worksheet writing, book words, labels, panel numbers, or watermarks.",
       "qaNotes": [
         "Designed as a four-panel wordless classroom sharing story.",
-        "Visual QA passed: no readable text detected, the empty lunchbox and sharing action are clear."
+        "Visual QA passed: no readable text detected, the empty lunchbox and sharing action are clear.",
+        "Adult-character revision passed: both learners are visibly adults in all panels (July 2026)."
       ]
     },
     {
@@ -301,7 +303,7 @@
       "file": "images/pancake-practice-kitchen-01.png",
       "sourceFile": "images/pancake-practice-kitchen-01-source.png",
       "source": "codex-imagegen",
-      "generatedAt": "2026-07-05",
+      "generatedAt": "2026-07-12",
       "format": "four_panel_wordless_story",
       "panelCount": 4,
       "layout": "2x2-grid",
@@ -344,12 +346,12 @@
         },
         {
           "role": "learner",
-          "description": "Teenage grandson with light-brown skin and red hair."
+          "description": "Adult grandson in his late twenties with light-brown skin, red hair, and light stubble."
         }
       ],
       "panelSequence": [
-        "The grandmother shows the grandson pancake batter.",
-        "The grandson pours too much batter and makes a mess.",
+        "The grandmother shows her adult grandson how to prepare pancake batter.",
+        "The adult grandson pours too much batter and makes a mess.",
         "They laugh and clean the counter together.",
         "They proudly serve a plate of pancakes."
       ],
@@ -359,10 +361,11 @@
         "Write a story about learning to cook.",
         "How do the characters feel at the end?"
       ],
-      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a home kitchen cooking story in a clean 2x2 grid: a grandmother teaches her teenage grandson to make pancakes, he pours too much batter and makes a small mess, they laugh and clean up, and they proudly serve pancakes. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, labels, recipe text, appliance text, posters, panel numbers, or watermarks.",
+      "generationPrompt": "Create a square four-panel wordless comic illustration for an English-learning activity. Show a home kitchen cooking story in a clean 2x2 grid: a grandmother teaches her adult grandson in his late twenties to make pancakes, he pours too much batter and makes a small mess, they laugh and clean up, and they proudly serve pancakes. The grandson must have unmistakably adult facial structure, light stubble, height, shoulders, hands, and body proportions in every panel. Use clean 2D cartoon illustration matching modern English workbook art and the Mister F roleplay avatars: rounded expressive characters, crisp outlines, bright natural colors, light simple shading, friendly educational tone. No readable text anywhere: no captions, speech bubbles, labels, recipe text, appliance text, posters, panel numbers, or watermarks.",
       "qaNotes": [
         "Designed as a four-panel wordless home cooking story.",
-        "Visual QA passed: no readable text detected, the cooking mistake and resolution are clear."
+        "Visual QA passed: no readable text detected, the cooking mistake and resolution are clear.",
+        "Adult-character revision passed: the grandson is visibly an adult in all four panels (July 2026)."
       ]
     },
     {

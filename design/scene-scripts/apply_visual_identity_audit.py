@@ -90,7 +90,7 @@ def main() -> None:
                     "id": "leo",
                     "name": "Leo",
                     "replaceName": "Nina",
-                    "role": "learner_cook",
+                    "role": "adult_grandson_learning_to_cook",
                     "voice": "Puck",
                 },
             })
@@ -116,7 +116,7 @@ def main() -> None:
                 {"Uncle Ben": "Grandma Rosa", "Nina": "Leo"},
             )
             rewrite["metadataRec"] = "Set nameSpokenInAudio=true for Grandma Rosa and Leo."
-            rewrite["notes"] = "The grandmother teaches her teenage grandson; they name each other naturally."
+            rewrite["notes"] = "The grandmother teaches her adult grandson; they name each other naturally."
         elif script_id.startswith("torn-grocery-bag-01-"):
             rewrite["notes"] = (
                 "Dad and Clerk are role labels, not proper names. The clerk states that he works "

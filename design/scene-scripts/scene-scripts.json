@@ -34,9 +34,7 @@
     "sceneCount": 50,
     "scriptCount": 150,
     "levelsPerScene": 3,
-    "audioGenerated": true,
-    "totalAudioDurationSeconds": 3559.24,
-    "estimatedTotalCostUsd": 1.699309,
+    "audioGenerated": false,
     "levelCounts": {
       "A1-A2": 50,
       "B1-B2": 50,
@@ -96,7 +94,9 @@
     },
     "rewrittenStoryScriptCount": 123,
     "rewrittenStoryAudioDurationSeconds": 2865.82,
-    "rewrittenStoryEstimatedCostUsd": 1.368244
+    "rewrittenStoryEstimatedCostUsd": 1.368244,
+    "audioReadyCount": 141,
+    "audioPendingCount": 9
   },
   "scripts": [
     {
@@ -439,7 +439,7 @@
       "sceneImageId": "shared-umbrella-bus-stop-01",
       "sceneImageFile": "../scene-images/images/shared-umbrella-bus-stop-01.png",
       "title": "Under The Umbrella",
-      "status": "generated",
+      "status": "pending_audio",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -457,7 +457,7 @@
         {
           "id": "leo",
           "name": "Leo",
-          "role": "person_needing_help",
+          "role": "adult_commuter_needing_help",
           "voice": "Puck",
           "nameSpokenInAudio": true
         },
@@ -473,85 +473,47 @@
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "It is raining a lot. I forgot my umbrella."
+          "text": "It is raining hard, and I left my umbrella at home."
         },
         {
           "turn": 2,
           "speakerId": "ms_clark",
-          "text": "Come under my umbrella. I am Ms. Clark."
+          "text": "Come under mine. I am Ms. Clark."
         },
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Thank you, Ms. Clark. I am Leo. Is the bus coming soon?"
+          "text": "Thank you, Ms. Clark. I am Leo. I do not want my work papers to get wet."
         },
         {
           "turn": 4,
           "speakerId": "ms_clark",
-          "text": "Yes, Leo, I can see it now."
+          "text": "You are welcome, Leo. The bus is almost here."
         },
         {
           "turn": 5,
           "speakerId": "leo",
-          "text": "Great. Now I am not so wet."
+          "text": "Great. You saved my morning."
         }
       ],
-      "plainText": "It is raining a lot. I forgot my umbrella.\nCome under my umbrella. I am Ms. Clark.\nThank you, Ms. Clark. I am Leo. Is the bus coming soon?\nYes, Leo, I can see it now.\nGreat. Now I am not so wet.",
+      "plainText": "It is raining hard, and I left my umbrella at home.\nCome under mine. I am Ms. Clark.\nThank you, Ms. Clark. I am Leo. I do not want my work papers to get wet.\nYou are welcome, Leo. The bus is almost here.\nGreat. You saved my morning.",
       "stats": {
-        "characterCount": 194,
-        "wordCount": 43,
+        "characterCount": 232,
+        "wordCount": 49,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "leo",
-            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-01.wav",
-            "bytes": 199724
-          },
-          {
-            "turn": 2,
-            "speakerId": "ms_clark",
-            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-02.wav",
-            "bytes": 172844
-          },
-          {
-            "turn": 3,
-            "speakerId": "leo",
-            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-03.wav",
-            "bytes": 217004
-          },
-          {
-            "turn": 4,
-            "speakerId": "ms_clark",
-            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-04.wav",
-            "bytes": 147884
-          },
-          {
-            "turn": 5,
-            "speakerId": "leo",
-            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-05.wav",
-            "bytes": 157484
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "shared-umbrella-bus-stop-01-b1-b2",
       "sceneImageId": "shared-umbrella-bus-stop-01",
       "sceneImageFile": "../scene-images/images/shared-umbrella-bus-stop-01.png",
       "title": "Waiting In The Rain",
-      "status": "generated",
+      "status": "pending_audio",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -569,7 +531,7 @@
         {
           "id": "leo",
           "name": "Leo",
-          "role": "person_needing_help",
+          "role": "adult_commuter_needing_help",
           "voice": "Puck",
           "nameSpokenInAudio": true
         },
@@ -585,85 +547,47 @@
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "I checked the weather this morning, but it said the rain would start later."
+          "text": "I checked the forecast before leaving for work, but it said the rain would start later."
         },
         {
           "turn": 2,
           "speakerId": "ms_clark",
-          "text": "That happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way."
+          "text": "That happens all the time. Come closer, or your laptop bag will get completely wet. I am Ms. Clark, by the way."
         },
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Thanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined."
+          "text": "Thanks, Ms. Clark. I am Leo. My laptop and work papers are in there."
         },
         {
           "turn": 4,
           "speakerId": "ms_clark",
-          "text": "No problem, Leo. The bus is turning the corner now, so we only need to wait a minute."
+          "text": "No problem, Leo. The bus is turning the corner, so we only need to wait another minute."
         },
         {
           "turn": 5,
           "speakerId": "leo",
-          "text": "You are very kind. I will remember to bring my own umbrella next time."
+          "text": "I appreciate it. Next time I will keep an umbrella in my office bag."
         }
       ],
-      "plainText": "I checked the weather this morning, but it said the rain would start later.\nThat happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way.\nThanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined.\nNo problem, Leo. The bus is turning the corner now, so we only need to wait a minute.\nYou are very kind. I will remember to bring my own umbrella next time.",
+      "plainText": "I checked the forecast before leaving for work, but it said the rain would start later.\nThat happens all the time. Come closer, or your laptop bag will get completely wet. I am Ms. Clark, by the way.\nThanks, Ms. Clark. I am Leo. My laptop and work papers are in there.\nNo problem, Leo. The bus is turning the corner, so we only need to wait another minute.\nI appreciate it. Next time I will keep an umbrella in my office bag.",
       "stats": {
-        "characterCount": 438,
-        "wordCount": 86,
+        "characterCount": 425,
+        "wordCount": 83,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "leo",
-            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-01.wav",
-            "bytes": 205484
-          },
-          {
-            "turn": 2,
-            "speakerId": "ms_clark",
-            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-02.wav",
-            "bytes": 337964
-          },
-          {
-            "turn": 3,
-            "speakerId": "leo",
-            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-03.wav",
-            "bytes": 305324
-          },
-          {
-            "turn": 4,
-            "speakerId": "ms_clark",
-            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-04.wav",
-            "bytes": 249644
-          },
-          {
-            "turn": 5,
-            "speakerId": "leo",
-            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-05.wav",
-            "bytes": 232364
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "shared-umbrella-bus-stop-01-c1",
       "sceneImageId": "shared-umbrella-bus-stop-01",
       "sceneImageFile": "../scene-images/images/shared-umbrella-bus-stop-01.png",
       "title": "A Small Courtesy In Bad Weather",
-      "status": "generated",
+      "status": "pending_audio",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -680,7 +604,7 @@
         {
           "id": "leo",
           "name": "Leo",
-          "role": "person_needing_help",
+          "role": "adult_commuter_needing_help",
           "voice": "Puck",
           "nameSpokenInAudio": true
         },
@@ -696,78 +620,40 @@
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked."
+          "text": "I should have known better than to trust a clear morning forecast. Now my laptop bag is taking the worst of the storm."
         },
         {
           "turn": 2,
           "speakerId": "ms_clark",
-          "text": "Step in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark."
+          "text": "Step in a little closer. There is enough room, and it would be a shame to let your work equipment get soaked. I am Ms. Clark."
         },
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Thank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand."
+          "text": "Thank you, Ms. Clark. I am Leo. I did not want to impose, but I was running out of dry places to stand."
         },
         {
           "turn": 4,
           "speakerId": "ms_clark",
-          "text": "It is no bother at all, Leo. Public transport is much easier when people look out for each other."
+          "text": "It is no imposition, Leo. The daily commute is easier when people look out for one another."
         },
         {
           "turn": 5,
           "speakerId": "leo",
-          "text": "That is true. A small favor can make a miserable wait feel almost pleasant."
+          "text": "That is true. A small courtesy can make a miserable journey feel almost pleasant."
         }
       ],
-      "plainText": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked.\nStep in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark.\nThank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand.\nIt is no bother at all, Leo. Public transport is much easier when people look out for each other.\nThat is true. A small favor can make a miserable wait feel almost pleasant.",
+      "plainText": "I should have known better than to trust a clear morning forecast. Now my laptop bag is taking the worst of the storm.\nStep in a little closer. There is enough room, and it would be a shame to let your work equipment get soaked. I am Ms. Clark.\nThank you, Ms. Clark. I am Leo. I did not want to impose, but I was running out of dry places to stand.\nIt is no imposition, Leo. The daily commute is easier when people look out for one another.\nThat is true. A small courtesy can make a miserable journey feel almost pleasant.",
       "stats": {
-        "characterCount": 523,
-        "wordCount": 105,
+        "characterCount": 522,
+        "wordCount": 103,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "leo",
-            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-01.wav",
-            "bytes": 332204
-          },
-          {
-            "turn": 2,
-            "speakerId": "ms_clark",
-            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-02.wav",
-            "bytes": 410924
-          },
-          {
-            "turn": 3,
-            "speakerId": "leo",
-            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-03.wav",
-            "bytes": 364844
-          },
-          {
-            "turn": 4,
-            "speakerId": "ms_clark",
-            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-04.wav",
-            "bytes": 297644
-          },
-          {
-            "turn": 5,
-            "speakerId": "leo",
-            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-05.wav",
-            "bytes": 280364
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "torn-grocery-bag-01-a1-a2",
@@ -1111,8 +997,8 @@
       "id": "shared-lunch-classroom-01-a1-a2",
       "sceneImageId": "shared-lunch-classroom-01",
       "sceneImageFile": "../scene-images/images/shared-lunch-classroom-01.png",
-      "title": "Lunch With Friends",
-      "status": "generated",
+      "title": "Lunch Between Classes",
+      "status": "pending_audio",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -1123,21 +1009,21 @@
       "source": "codex-authored",
       "teachingFocus": [
         "food",
-        "school",
+        "adult_education",
         "sharing"
       ],
       "speakers": [
         {
           "id": "mina",
           "name": "Mina",
-          "role": "student_sharing_food",
+          "role": "adult_learner_sharing_food",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
         {
           "id": "sam",
           "name": "Sam",
-          "role": "student_without_lunch",
+          "role": "adult_learner_without_lunch",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1146,7 +1032,7 @@
         {
           "turn": 1,
           "speakerId": "sam",
-          "text": "I forgot my lunch today."
+          "text": "Mina, I left my lunch at home before class."
         },
         {
           "turn": 2,
@@ -1161,70 +1047,32 @@
         {
           "turn": 4,
           "speakerId": "mina",
-          "text": "Yes. I also have an apple."
+          "text": "Of course. I also brought some fruit."
         },
         {
           "turn": 5,
           "speakerId": "sam",
-          "text": "You are a good friend."
+          "text": "That is very kind. I will bring coffee tomorrow."
         }
       ],
-      "plainText": "I forgot my lunch today.\nYou can have half of my sandwich, Sam.\nReally? Thank you, Mina.\nYes. I also have an apple.\nYou are a good friend.",
+      "plainText": "Mina, I left my lunch at home before class.\nYou can have half of my sandwich, Sam.\nReally? Thank you, Mina.\nOf course. I also brought some fruit.\nThat is very kind. I will bring coffee tomorrow.",
       "stats": {
-        "characterCount": 138,
-        "wordCount": 28,
+        "characterCount": 194,
+        "wordCount": 37,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "sam",
-            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-01.wav",
-            "bytes": 117164
-          },
-          {
-            "turn": 2,
-            "speakerId": "mina",
-            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-02.wav",
-            "bytes": 132524
-          },
-          {
-            "turn": 3,
-            "speakerId": "sam",
-            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-03.wav",
-            "bytes": 136364
-          },
-          {
-            "turn": 4,
-            "speakerId": "mina",
-            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-04.wav",
-            "bytes": 149804
-          },
-          {
-            "turn": 5,
-            "speakerId": "sam",
-            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-05.wav",
-            "bytes": 119084
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "shared-lunch-classroom-01-b1-b2",
       "sceneImageId": "shared-lunch-classroom-01",
       "sceneImageFile": "../scene-images/images/shared-lunch-classroom-01.png",
-      "title": "Sharing At Lunch",
-      "status": "generated",
+      "title": "Sharing During The Course",
+      "status": "pending_audio",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -1234,22 +1082,22 @@
       "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
-        "friendship",
-        "school_lunch",
+        "adult_education",
+        "food",
         "gratitude"
       ],
       "speakers": [
         {
           "id": "mina",
           "name": "Mina",
-          "role": "student_sharing_food",
+          "role": "adult_learner_sharing_food",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
         {
           "id": "sam",
           "name": "Sam",
-          "role": "student_without_lunch",
+          "role": "adult_learner_without_lunch",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1258,17 +1106,17 @@
         {
           "turn": 1,
           "speakerId": "sam",
-          "text": "I was in such a hurry this morning that I left my lunch on the kitchen table."
+          "text": "I came straight from work, Mina, and left my lunch on the kitchen table."
         },
         {
           "turn": 2,
           "speakerId": "mina",
-          "text": "That is okay, Sam. I packed more than I need, so we can share."
+          "text": "That is okay, Sam. I packed more than I need, so we can share during the break."
         },
         {
           "turn": 3,
           "speakerId": "sam",
-          "text": "Are you sure? I do not want you to be hungry later."
+          "text": "Are you sure? We still have another two hours of class this afternoon."
         },
         {
           "turn": 4,
@@ -1278,65 +1126,27 @@
         {
           "turn": 5,
           "speakerId": "sam",
-          "text": "Thanks, Mina. I will bring something extra tomorrow, just in case you forget too."
+          "text": "Thanks, Mina. I will bring coffee for both of us next time."
         }
       ],
-      "plainText": "I was in such a hurry this morning that I left my lunch on the kitchen table.\nThat is okay, Sam. I packed more than I need, so we can share.\nAre you sure? I do not want you to be hungry later.\nI am sure. You can have half the sandwich, and we can split the fruit.\nThanks, Mina. I will bring something extra tomorrow, just in case you forget too.",
+      "plainText": "I came straight from work, Mina, and left my lunch on the kitchen table.\nThat is okay, Sam. I packed more than I need, so we can share during the break.\nAre you sure? We still have another two hours of class this afternoon.\nI am sure. You can have half the sandwich, and we can split the fruit.\nThanks, Mina. I will bring coffee for both of us next time.",
       "stats": {
-        "characterCount": 345,
-        "wordCount": 72,
+        "characterCount": 354,
+        "wordCount": 71,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "sam",
-            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-01.wav",
-            "bytes": 243884
-          },
-          {
-            "turn": 2,
-            "speakerId": "mina",
-            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-02.wav",
-            "bytes": 211244
-          },
-          {
-            "turn": 3,
-            "speakerId": "sam",
-            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-03.wav",
-            "bytes": 178604
-          },
-          {
-            "turn": 4,
-            "speakerId": "mina",
-            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-04.wav",
-            "bytes": 251564
-          },
-          {
-            "turn": 5,
-            "speakerId": "sam",
-            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-05.wav",
-            "bytes": 243884
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "shared-lunch-classroom-01-c1",
       "sceneImageId": "shared-lunch-classroom-01",
       "sceneImageFile": "../scene-images/images/shared-lunch-classroom-01.png",
-      "title": "The Kindness Of Half A Sandwich",
-      "status": "generated",
+      "title": "A Generous Break Between Classes",
+      "status": "pending_audio",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -1345,22 +1155,22 @@
       "identityStrategy": "named_in_dialogue",
       "source": "codex-authored",
       "teachingFocus": [
-        "social_awareness",
+        "adult_education",
         "reciprocity",
-        "natural_school_dialogue"
+        "natural_dialogue"
       ],
       "speakers": [
         {
           "id": "mina",
           "name": "Mina",
-          "role": "student_sharing_food",
+          "role": "adult_learner_sharing_food",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
         {
           "id": "sam",
           "name": "Sam",
-          "role": "student_without_lunch",
+          "role": "adult_learner_without_lunch",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1369,85 +1179,47 @@
         {
           "turn": 1,
           "speakerId": "sam",
-          "text": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter."
+          "text": "I managed to bring every course handout, Mina, but somehow left my lunch sitting on the counter."
         },
         {
           "turn": 2,
           "speakerId": "mina",
-          "text": "That sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich."
+          "text": "That sounds like the result of rushing here after work, Sam. Take half of my sandwich."
         },
         {
           "turn": 3,
           "speakerId": "sam",
-          "text": "I appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger."
+          "text": "I appreciate it, Mina, but I do not want your generosity to become your afternoon hunger."
         },
         {
           "turn": 4,
           "speakerId": "mina",
-          "text": "Do not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry."
+          "text": "Do not worry. I packed more than enough, and our instructor will not mind if we finish the fruit during the break."
         },
         {
           "turn": 5,
           "speakerId": "sam",
-          "text": "Fair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance."
+          "text": "Fair point. I will provide the coffee next week as both a thank-you and emergency insurance."
         }
       ],
-      "plainText": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter.\nThat sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich.\nI appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger.\nDo not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry.\nFair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance.",
+      "plainText": "I managed to bring every course handout, Mina, but somehow left my lunch sitting on the counter.\nThat sounds like the result of rushing here after work, Sam. Take half of my sandwich.\nI appreciate it, Mina, but I do not want your generosity to become your afternoon hunger.\nDo not worry. I packed more than enough, and our instructor will not mind if we finish the fruit during the break.\nFair point. I will provide the coffee next week as both a thank-you and emergency insurance.",
       "stats": {
-        "characterCount": 504,
-        "wordCount": 89,
+        "characterCount": 481,
+        "wordCount": 87,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "sam",
-            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-01.wav",
-            "bytes": 299564
-          },
-          {
-            "turn": 2,
-            "speakerId": "mina",
-            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-02.wav",
-            "bytes": 313004
-          },
-          {
-            "turn": 3,
-            "speakerId": "sam",
-            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-03.wav",
-            "bytes": 288044
-          },
-          {
-            "turn": 4,
-            "speakerId": "mina",
-            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-04.wav",
-            "bytes": 372524
-          },
-          {
-            "turn": 5,
-            "speakerId": "sam",
-            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-05.wav",
-            "bytes": 385964
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "pancake-practice-kitchen-01-a1-a2",
       "sceneImageId": "pancake-practice-kitchen-01",
       "sceneImageFile": "../scene-images/images/pancake-practice-kitchen-01.png",
-      "title": "Making Pancakes",
-      "status": "generated",
+      "title": "Making Pancakes For Friends",
+      "status": "pending_audio",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -1472,7 +1244,7 @@
         {
           "id": "leo",
           "name": "Leo",
-          "role": "learner_cook",
+          "role": "adult_grandson_learning_to_cook",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1481,7 +1253,7 @@
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "My pancake is too dark, Grandma Rosa."
+          "text": "Grandma Rosa, I promised to make pancakes for my friends, but this one is too dark."
         },
         {
           "turn": 2,
@@ -1491,76 +1263,37 @@
         {
           "turn": 3,
           "speakerId": "leo",
-          "text": "Now I pour a little batter."
+          "text": "I will use less batter this time."
         },
         {
           "turn": 4,
           "speakerId": "grandma",
-          "text": "Good. Wait for small bubbles."
+          "text": "Good. Wait for small bubbles before you turn it."
         },
         {
           "turn": 5,
           "speakerId": "leo",
-          "text": "This pancake looks much better."
+          "text": "This one looks much better. Brunch may be saved."
         }
       ],
-      "plainText": "My pancake is too dark, Grandma Rosa.\nThat is okay, Leo. Turn down the heat.\nNow I pour a little batter.\nGood. Wait for small bubbles.\nThis pancake looks much better.",
+      "plainText": "Grandma Rosa, I promised to make pancakes for my friends, but this one is too dark.\nThat is okay, Leo. Turn down the heat.\nI will use less batter this time.\nGood. Wait for small bubbles before you turn it.\nThis one looks much better. Brunch may be saved.",
       "stats": {
-        "characterCount": 166,
-        "wordCount": 31,
+        "characterCount": 254,
+        "wordCount": 49,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript.",
-        "Visual character and voice audit passed (July 2026)."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "leo",
-            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-01.wav",
-            "bytes": 145964
-          },
-          {
-            "turn": 2,
-            "speakerId": "grandma",
-            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-02.wav",
-            "bytes": 188204
-          },
-          {
-            "turn": 3,
-            "speakerId": "leo",
-            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-03.wav",
-            "bytes": 107564
-          },
-          {
-            "turn": 4,
-            "speakerId": "grandma",
-            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-04.wav",
-            "bytes": 151724
-          },
-          {
-            "turn": 5,
-            "speakerId": "leo",
-            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-05.wav",
-            "bytes": 134444
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "pancake-practice-kitchen-01-b1-b2",
       "sceneImageId": "pancake-practice-kitchen-01",
       "sceneImageFile": "../scene-images/images/pancake-practice-kitchen-01.png",
-      "title": "Pancake Practice",
-      "status": "generated",
+      "title": "Preparing For Brunch",
+      "status": "pending_audio",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -1585,7 +1318,7 @@
         {
           "id": "leo",
           "name": "Leo",
-          "role": "learner_cook",
+          "role": "adult_grandson_learning_to_cook",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1594,7 +1327,7 @@
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "The first pancake burned, Grandma Rosa, because I left it in the pan too long."
+          "text": "I invited my friends for brunch, Grandma Rosa, but the first pancake burned."
         },
         {
           "turn": 2,
@@ -1609,71 +1342,32 @@
         {
           "turn": 4,
           "speakerId": "grandma",
-          "text": "Exactly. Then slide the spatula under it and turn it over quickly."
+          "text": "Exactly. Then slide the spatula underneath and turn it over quickly."
         },
         {
           "turn": 5,
           "speakerId": "leo",
-          "text": "This one is golden. I think breakfast is improving."
+          "text": "This one is golden. I think my guests will actually get breakfast."
         }
       ],
-      "plainText": "The first pancake burned, Grandma Rosa, because I left it in the pan too long.\nThat is how everyone learns, Leo. Lower the heat and watch for bubbles on top.\nSo I should wait until the edges look dry before I flip it?\nExactly. Then slide the spatula under it and turn it over quickly.\nThis one is golden. I think breakfast is improving.",
+      "plainText": "I invited my friends for brunch, Grandma Rosa, but the first pancake burned.\nThat is how everyone learns, Leo. Lower the heat and watch for bubbles on top.\nSo I should wait until the edges look dry before I flip it?\nExactly. Then slide the spatula underneath and turn it over quickly.\nThis one is golden. I think my guests will actually get breakfast.",
       "stats": {
-        "characterCount": 336,
+        "characterCount": 351,
         "wordCount": 64,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript.",
-        "Visual character and voice audit passed (July 2026)."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "leo",
-            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-01.wav",
-            "bytes": 230444
-          },
-          {
-            "turn": 2,
-            "speakerId": "grandma",
-            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-02.wav",
-            "bytes": 280364
-          },
-          {
-            "turn": 3,
-            "speakerId": "leo",
-            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-03.wav",
-            "bytes": 190124
-          },
-          {
-            "turn": 4,
-            "speakerId": "grandma",
-            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-04.wav",
-            "bytes": 251564
-          },
-          {
-            "turn": 5,
-            "speakerId": "leo",
-            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-05.wav",
-            "bytes": 213164
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "pancake-practice-kitchen-01-c1",
       "sceneImageId": "pancake-practice-kitchen-01",
       "sceneImageFile": "../scene-images/images/pancake-practice-kitchen-01.png",
-      "title": "Learning By Burning One Pancake",
-      "status": "generated",
+      "title": "Learning Before Hosting Brunch",
+      "status": "pending_audio",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -1697,7 +1391,7 @@
         {
           "id": "leo",
           "name": "Leo",
-          "role": "learner_cook",
+          "role": "adult_grandson_learning_to_cook",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1706,12 +1400,12 @@
         {
           "turn": 1,
           "speakerId": "leo",
-          "text": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa."
+          "text": "I volunteered to host brunch, Grandma Rosa, and my first pancake looks like evidence from a kitchen disaster."
         },
         {
           "turn": 2,
           "speakerId": "grandma",
-          "text": "It looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately."
+          "text": "It looks like practice, Leo. Pancakes are good teachers because they reveal every mistake immediately."
         },
         {
           "turn": 3,
@@ -1721,64 +1415,25 @@
         {
           "turn": 4,
           "speakerId": "grandma",
-          "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
+          "text": "Right. Keep the pan medium-hot, use less batter, and flip when bubbles appear and the edges begin to set."
         },
         {
           "turn": 5,
           "speakerId": "leo",
-          "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
+          "text": "This one is actually golden. Perhaps my friends will trust me with brunch after all."
         }
       ],
-      "plainText": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa.\nIt looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately.\nSo the heat was too high, and I waited too long before turning it.\nRight. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set.\nThis one is actually golden. I suppose breakfast forgives beginners after all.",
+      "plainText": "I volunteered to host brunch, Grandma Rosa, and my first pancake looks like evidence from a kitchen disaster.\nIt looks like practice, Leo. Pancakes are good teachers because they reveal every mistake immediately.\nSo the heat was too high, and I waited too long before turning it.\nRight. Keep the pan medium-hot, use less batter, and flip when bubbles appear and the edges begin to set.\nThis one is actually golden. Perhaps my friends will trust me with brunch after all.",
       "stats": {
-        "characterCount": 452,
-        "wordCount": 75,
+        "characterCount": 470,
+        "wordCount": 81,
         "turnCount": 5
       },
       "qaNotes": [
-        "Script is tied to visible actions from the approved scene image.",
-        "No panel numbers are spoken in the transcript.",
-        "Visual character and voice audit passed (July 2026)."
-      ],
-      "audio": {
-        "provider": "openrouter",
-        "model": "google/gemini-3.1-flash-tts-preview",
-        "format": "wav",
-        "voiceStrategy": "per_turn_clips",
-        "generatedAt": "2026-07-11",
-        "clips": [
-          {
-            "turn": 1,
-            "speakerId": "leo",
-            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-01.wav",
-            "bytes": 253484
-          },
-          {
-            "turn": 2,
-            "speakerId": "grandma",
-            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-02.wav",
-            "bytes": 374444
-          },
-          {
-            "turn": 3,
-            "speakerId": "leo",
-            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-03.wav",
-            "bytes": 213164
-          },
-          {
-            "turn": 4,
-            "speakerId": "grandma",
-            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-04.wav",
-            "bytes": 393644
-          },
-          {
-            "turn": 5,
-            "speakerId": "leo",
-            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-05.wav",
-            "bytes": 284204
-          }
-        ]
-      }
+        "Script is tied to visible actions from the approved adult-character scene image.",
+        "All speaking characters are adults and named naturally in the dialogue.",
+        "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
+      ]
     },
     {
       "id": "late-meeting-workplace-01-a1-a2",

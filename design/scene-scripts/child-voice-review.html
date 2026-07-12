@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Built-in Scene Media: Adult Character Revision Review</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #f5f6f7;
+      --surface: #ffffff;
+      --text: #1f2933;
+      --muted: #66737f;
+      --border: #d9dee3;
+      --accent: #0b7285;
+      --risk-background: #fff3cd;
+      --risk-border: #e2b93b;
+      --child-background: #fff0f0;
+      --child-border: #d9485f;
+      --adult-background: #f7f9fa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 64px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+    }
+
+    h2 {
+      margin-bottom: 4px;
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      margin-bottom: 12px;
+      font-size: 1.05rem;
+    }
+
+    .intro,
+    .scene,
+    .script {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+
+    .intro {
+      margin: 24px 0;
+      padding: 18px;
+    }
+
+    .intro p:last-child {
+      margin-bottom: 0;
+    }
+
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .summary span,
+    .badge {
+      display: inline-block;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 9px;
+      background: var(--adult-background);
+      font-size: 0.85rem;
+      font-weight: 650;
+    }
+
+    .scene {
+      margin-top: 28px;
+      overflow: hidden;
+    }
+
+    .scene-header {
+      display: grid;
+      grid-template-columns: minmax(240px, 360px) 1fr;
+      gap: 24px;
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .scene-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--adult-background);
+    }
+
+    .scene-id,
+    .script-id {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      overflow-wrap: anywhere;
+    }
+
+    .risk-note {
+      margin: 16px 0;
+      border-left: 4px solid var(--risk-border);
+      padding: 12px 14px;
+      background: var(--risk-background);
+    }
+
+    .characters {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .character {
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 9px 11px;
+      background: var(--adult-background);
+    }
+
+    .character.child {
+      border-color: var(--child-border);
+      background: var(--child-background);
+    }
+
+    .character strong {
+      margin-right: 6px;
+    }
+
+    .character-meta {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .scripts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .script {
+      overflow: hidden;
+    }
+
+    .script-header {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .script-header h3 {
+      margin-bottom: 4px;
+    }
+
+    .turns {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .turn {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--adult-background);
+    }
+
+    .turn:last-child {
+      border-bottom: 0;
+    }
+
+    .turn.child {
+      border-left: 4px solid var(--child-border);
+      padding-left: 10px;
+      background: var(--child-background);
+    }
+
+    .speaker {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 0.88rem;
+    }
+
+    .speaker-name {
+      font-weight: 750;
+    }
+
+    .speaker-voice {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .turn p {
+      margin-bottom: 0;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .legend span::before {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 6px;
+      border: 1px solid var(--border);
+      background: var(--adult-background);
+      content: "";
+      vertical-align: -1px;
+    }
+
+    .legend .child-key::before {
+      border-color: var(--child-border);
+      background: var(--child-background);
+    }
+
+    @media (max-width: 900px) {
+      .scene-header,
+      .scripts {
+        grid-template-columns: 1fr;
+      }
+
+      .scene-image {
+        max-width: 520px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      main {
+        width: 100%;
+        padding: 0;
+      }
+
+      .scene {
+        break-before: page;
+      }
+
+      .scene:first-of-type {
+        break-before: auto;
+      }
+
+      .scripts {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Adult Character Revision Review</h1>
+      <p>Revised built-in scene media images and scripts with adult-only dialogue characters.</p>
+    </header>
+
+    <section class="intro" aria-labelledby="review-summary">
+      <h2 id="review-summary">Review summary</h2>
+      <p>
+        The three affected visuals and their nine scripts now use adult characters and adult contexts.
+        Audio is intentionally pending: the existing WAV files remain on disk but are not linked to these revised transcripts.
+      </p>
+      <div class="summary" aria-label="Review totals">
+        <span>3 revised scenes</span>
+        <span>9 revised scripts</span>
+        <span>6 adult dialogue speakers</span>
+      </div>
+      <p class="legend">
+        <span class="child-key">No minor turns remain</span>
+        <span>Adult character or spoken turn</span>
+      </p>
+    </section>
+
+    <div id="report"></div>
+  </main>
+
+  <script>
+    const scenes = [
+  {
+    "id": "shared-umbrella-bus-stop-01",
+    "title": "Shared Umbrella at the Bus Stop",
+    "finding": "Resolved: Leo is now a young adult commuter, and both dialogue voices represent adults.",
+    "characters": [
+      {
+        "id": "leo",
+        "name": "Leo",
+        "description": "Young adult commuter carrying a work backpack",
+        "voice": "Puck",
+        "child": false
+      },
+      {
+        "id": "ms_clark",
+        "name": "Ms. Clark",
+        "description": "Older adult commuter sharing her umbrella",
+        "voice": "Kore",
+        "child": false
+      }
+    ],
+    "image": "../scene-images/images/shared-umbrella-bus-stop-01.png",
+    "scripts": [
+      {
+        "id": "shared-umbrella-bus-stop-01-a1-a2",
+        "level": "A1-A2",
+        "title": "Under The Umbrella",
+        "turns": [
+          [
+            "leo",
+            "It is raining hard, and I left my umbrella at home."
+          ],
+          [
+            "ms_clark",
+            "Come under mine. I am Ms. Clark."
+          ],
+          [
+            "leo",
+            "Thank you, Ms. Clark. I am Leo. I do not want my work papers to get wet."
+          ],
+          [
+            "ms_clark",
+            "You are welcome, Leo. The bus is almost here."
+          ],
+          [
+            "leo",
+            "Great. You saved my morning."
+          ]
+        ]
+      },
+      {
+        "id": "shared-umbrella-bus-stop-01-b1-b2",
+        "level": "B1-B2",
+        "title": "Waiting In The Rain",
+        "turns": [
+          [
+            "leo",
+            "I checked the forecast before leaving for work, but it said the rain would start later."
+          ],
+          [
+            "ms_clark",
+            "That happens all the time. Come closer, or your laptop bag will get completely wet. I am Ms. Clark, by the way."
+          ],
+          [
+            "leo",
+            "Thanks, Ms. Clark. I am Leo. My laptop and work papers are in there."
+          ],
+          [
+            "ms_clark",
+            "No problem, Leo. The bus is turning the corner, so we only need to wait another minute."
+          ],
+          [
+            "leo",
+            "I appreciate it. Next time I will keep an umbrella in my office bag."
+          ]
+        ]
+      },
+      {
+        "id": "shared-umbrella-bus-stop-01-c1",
+        "level": "C1",
+        "title": "A Small Courtesy In Bad Weather",
+        "turns": [
+          [
+            "leo",
+            "I should have known better than to trust a clear morning forecast. Now my laptop bag is taking the worst of the storm."
+          ],
+          [
+            "ms_clark",
+            "Step in a little closer. There is enough room, and it would be a shame to let your work equipment get soaked. I am Ms. Clark."
+          ],
+          [
+            "leo",
+            "Thank you, Ms. Clark. I am Leo. I did not want to impose, but I was running out of dry places to stand."
+          ],
+          [
+            "ms_clark",
+            "It is no imposition, Leo. The daily commute is easier when people look out for one another."
+          ],
+          [
+            "leo",
+            "That is true. A small courtesy can make a miserable journey feel almost pleasant."
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "shared-lunch-classroom-01",
+    "title": "Shared Lunch in an Adult Education Classroom",
+    "finding": "Resolved: Mina and Sam are adult learners in a continuing-education course.",
+    "characters": [
+      {
+        "id": "mina",
+        "name": "Mina",
+        "description": "Adult learner sharing food",
+        "voice": "Kore",
+        "child": false
+      },
+      {
+        "id": "sam",
+        "name": "Sam",
+        "description": "Adult learner without lunch",
+        "voice": "Puck",
+        "child": false
+      },
+      {
+        "id": "instructor",
+        "name": "Instructor",
+        "description": "Adult instructor visible in the image; no spoken turns",
+        "voice": "None",
+        "child": false
+      }
+    ],
+    "image": "../scene-images/images/shared-lunch-classroom-01.png",
+    "scripts": [
+      {
+        "id": "shared-lunch-classroom-01-a1-a2",
+        "level": "A1-A2",
+        "title": "Lunch Between Classes",
+        "turns": [
+          [
+            "sam",
+            "Mina, I left my lunch at home before class."
+          ],
+          [
+            "mina",
+            "You can have half of my sandwich, Sam."
+          ],
+          [
+            "sam",
+            "Really? Thank you, Mina."
+          ],
+          [
+            "mina",
+            "Of course. I also brought some fruit."
+          ],
+          [
+            "sam",
+            "That is very kind. I will bring coffee tomorrow."
+          ]
+        ]
+      },
+      {
+        "id": "shared-lunch-classroom-01-b1-b2",
+        "level": "B1-B2",
+        "title": "Sharing During The Course",
+        "turns": [
+          [
+            "sam",
+            "I came straight from work, Mina, and left my lunch on the kitchen table."
+          ],
+          [
+            "mina",
+            "That is okay, Sam. I packed more than I need, so we can share during the break."
+          ],
+          [
+            "sam",
+            "Are you sure? We still have another two hours of class this afternoon."
+          ],
+          [
+            "mina",
+            "I am sure. You can have half the sandwich, and we can split the fruit."
+          ],
+          [
+            "sam",
+            "Thanks, Mina. I will bring coffee for both of us next time."
+          ]
+        ]
+      },
+      {
+        "id": "shared-lunch-classroom-01-c1",
+        "level": "C1",
+        "title": "A Generous Break Between Classes",
+        "turns": [
+          [
+            "sam",
+            "I managed to bring every course handout, Mina, but somehow left my lunch sitting on the counter."
+          ],
+          [
+            "mina",
+            "That sounds like the result of rushing here after work, Sam. Take half of my sandwich."
+          ],
+          [
+            "sam",
+            "I appreciate it, Mina, but I do not want your generosity to become your afternoon hunger."
+          ],
+          [
+            "mina",
+            "Do not worry. I packed more than enough, and our instructor will not mind if we finish the fruit during the break."
+          ],
+          [
+            "sam",
+            "Fair point. I will provide the coffee next week as both a thank-you and emergency insurance."
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pancake-practice-kitchen-01",
+    "title": "Pancake Practice",
+    "finding": "Resolved: Leo is now Grandma Rosa's adult grandson, and both dialogue voices represent adults.",
+    "characters": [
+      {
+        "id": "grandma",
+        "name": "Grandma Rosa",
+        "description": "Adult grandmother teaching the recipe",
+        "voice": "Kore",
+        "child": false
+      },
+      {
+        "id": "leo",
+        "name": "Leo",
+        "description": "Adult grandson learning to cook for friends",
+        "voice": "Puck",
+        "child": false
+      }
+    ],
+    "image": "../scene-images/images/pancake-practice-kitchen-01.png",
+    "scripts": [
+      {
+        "id": "pancake-practice-kitchen-01-a1-a2",
+        "level": "A1-A2",
+        "title": "Making Pancakes For Friends",
+        "turns": [
+          [
+            "leo",
+            "Grandma Rosa, I promised to make pancakes for my friends, but this one is too dark."
+          ],
+          [
+            "grandma",
+            "That is okay, Leo. Turn down the heat."
+          ],
+          [
+            "leo",
+            "I will use less batter this time."
+          ],
+          [
+            "grandma",
+            "Good. Wait for small bubbles before you turn it."
+          ],
+          [
+            "leo",
+            "This one looks much better. Brunch may be saved."
+          ]
+        ]
+      },
+      {
+        "id": "pancake-practice-kitchen-01-b1-b2",
+        "level": "B1-B2",
+        "title": "Preparing For Brunch",
+        "turns": [
+          [
+            "leo",
+            "I invited my friends for brunch, Grandma Rosa, but the first pancake burned."
+          ],
+          [
+            "grandma",
+            "That is how everyone learns, Leo. Lower the heat and watch for bubbles on top."
+          ],
+          [
+            "leo",
+            "So I should wait until the edges look dry before I flip it?"
+          ],
+          [
+            "grandma",
+            "Exactly. Then slide the spatula underneath and turn it over quickly."
+          ],
+          [
+            "leo",
+            "This one is golden. I think my guests will actually get breakfast."
+          ]
+        ]
+      },
+      {
+        "id": "pancake-practice-kitchen-01-c1",
+        "level": "C1",
+        "title": "Learning Before Hosting Brunch",
+        "turns": [
+          [
+            "leo",
+            "I volunteered to host brunch, Grandma Rosa, and my first pancake looks like evidence from a kitchen disaster."
+          ],
+          [
+            "grandma",
+            "It looks like practice, Leo. Pancakes are good teachers because they reveal every mistake immediately."
+          ],
+          [
+            "leo",
+            "So the heat was too high, and I waited too long before turning it."
+          ],
+          [
+            "grandma",
+            "Right. Keep the pan medium-hot, use less batter, and flip when bubbles appear and the edges begin to set."
+          ],
+          [
+            "leo",
+            "This one is actually golden. Perhaps my friends will trust me with brunch after all."
+          ]
+        ]
+      }
+    ]
+  }
+];
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderCharacter(character) {
+      const classification = character.child ? "Minor" : "Adult";
+      return `
+        <li class="character ${character.child ? "child" : "adult"}">
+          <strong>${escapeHtml(character.name)}</strong>
+          <span class="badge">${classification}</span>
+          <div class="character-meta">
+            ${escapeHtml(character.description)} · configured voice: ${escapeHtml(character.voice)}
+          </div>
+        </li>
+      `;
+    }
+
+    function renderScript(scene, script) {
+      const charactersById = Object.fromEntries(scene.characters.map((character) => [character.id, character]));
+      const turns = script.turns.map(([speakerId, text], index) => {
+        const speaker = charactersById[speakerId];
+        return `
+          <li class="turn ${speaker.child ? "child" : "adult"}">
+            <div class="speaker">
+              <span class="speaker-name">${index + 1}. ${escapeHtml(speaker.name)}${speaker.child ? " — MINOR" : ""}</span>
+              <span class="speaker-voice">Voice: ${escapeHtml(speaker.voice)}</span>
+            </div>
+            <p>${escapeHtml(text)}</p>
+          </li>
+        `;
+      }).join("");
+
+      return `
+        <article class="script">
+          <header class="script-header">
+            <span class="badge">${escapeHtml(script.level)}</span>
+            <h3>${escapeHtml(script.title)}</h3>
+            <div class="script-id">${escapeHtml(script.id)}</div>
+          </header>
+          <ol class="turns">${turns}</ol>
+        </article>
+      `;
+    }
+
+    function renderScene(scene) {
+      return `
+        <section class="scene" aria-labelledby="${escapeHtml(scene.id)}-title">
+          <div class="scene-header">
+            <div>
+              <img class="scene-image" src="${escapeHtml(scene.image)}" alt="${escapeHtml(scene.title)}">
+            </div>
+            <div>
+              <h2 id="${escapeHtml(scene.id)}-title">${escapeHtml(scene.title)}</h2>
+              <div class="scene-id">${escapeHtml(scene.id)}</div>
+              <p class="risk-note"><strong>Status:</strong> ${escapeHtml(scene.finding)}</p>
+              <h3>Characters</h3>
+              <ul class="characters">${scene.characters.map(renderCharacter).join("")}</ul>
+            </div>
+          </div>
+          <div class="scripts">${scene.scripts.map((script) => renderScript(scene, script)).join("")}</div>
+        </section>
+      `;
+    }
+
+    document.querySelector("#report").innerHTML = scenes.map(renderScene).join("");
+  </script>
+</body>
+</html>

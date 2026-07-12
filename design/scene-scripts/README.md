@@ -139,9 +139,10 @@ role, transcript turns, and assigned TTS voice.
 - Record visible identity facts explicitly in `scene-images.json` when they are
   needed to make future audits reproducible, but do not turn uncertain visual
   presentation into a stronger factual claim.
-- After changing a speaker id, name, role, transcript reference, or voice, regenerate
-  every affected level with per-turn WAV clips, rebuild the review index, and rebuild
-  the runtime registry. JSON/schema validation alone is not sufficient.
+- After changing a speaker id, name, role, transcript reference, or voice, either
+  regenerate every affected level with per-turn WAV clips or detach its stale audio
+  metadata and mark it `pending_audio`. Rebuild the runtime registry only after the
+  transcript and audio are aligned. JSON/schema validation alone is not sufficient.
 
 The July 2026 full-library audit found four concrete mismatches. The corrected
 MP3 assets remain available in the audit branch history, but they must not replace
@@ -151,19 +152,29 @@ the affected WAV clips together during a future audio refresh.
 | Scene | Finding | Approved correction for the next audio refresh |
 | --- | --- | --- |
 | `late-meeting-workplace-01` | The late worker shown is a man, but the scripts used Emma with the Kore voice. | Use Diego with the Charon voice. |
-| `pancake-practice-kitchen-01` | The grandmother is teaching her teenage grandson, but the helper and learner identities were reversed. | Use Grandma Rosa/Kore as the helper and Leo/Puck as the learner. |
+| `pancake-practice-kitchen-01` | The grandmother is teaching her adult grandson, but the helper and learner identities were reversed. | Use Grandma Rosa/Kore as the helper and Leo/Puck as the adult learner. |
 | `torn-grocery-bag-01` | The store clerk shown is a man, but the clerk turns used the Kore voice. | Keep the role-only clerk identity and use the Charon voice. |
 | `airport-security-line-01` | The original dialogue described the mother's child as her son but assigned a female-presenting voice. | The current script is narration, so there is no child voice to correct; preserve the explicit `family_child` image metadata if dialogue is authored again. |
 
-Do not apply the metadata changes without regenerating the corresponding audio;
-that would make the registry disagree with what learners hear. When an audio refresh
-is explicitly authorized, apply the audit and then repeat `--scene-id` as needed
-instead of regenerating the full library:
+In July 2026, `shared-umbrella-bus-stop-01`, `shared-lunch-classroom-01`, and
+`pancake-practice-kitchen-01` were revised to use adult-only speaking casts because
+Gemini TTS does not provide child voices. Their nine transcript entries are marked
+`pending_audio` and contain no `audio` object. The previous WAV files remain on disk
+but are intentionally unreachable from the registry until an audio refresh is
+explicitly authorized.
+
+Do not leave changed transcript metadata attached to old audio; that would make the
+registry disagree with what learners hear. When an audio refresh is explicitly
+authorized, apply the audits and then repeat `--scene-id` as needed instead of
+regenerating the full library:
 
 ```bash
 python3 design/scene-scripts/apply_visual_identity_audit.py
+python3 design/scene-scripts/apply_adult_scene_revisions.py
 OPENROUTER_API_KEY=... python3 design/scene-scripts/generate_clip_audio.py \
   --scene-id late-meeting-workplace-01 \
+  --scene-id shared-umbrella-bus-stop-01 \
+  --scene-id shared-lunch-classroom-01 \
   --scene-id pancake-practice-kitchen-01 \
   --scene-id torn-grocery-bag-01 \
   --force

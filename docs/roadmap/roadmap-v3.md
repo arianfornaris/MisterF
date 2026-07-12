@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-09)
+Date: 2026-07-06 (last updated: 2026-07-12)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -174,6 +174,13 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   - [ ] Add route/render and repository tests for storage-backed generated
     media, profile access boundaries, generated-layer failure modes, archive,
     atomic persistence, and no-copy reuse of built-in/user layers.
+- [ ] Regenerate and promote the adult-only audio for
+  `shared-umbrella-bus-stop-01`, `shared-lunch-classroom-01`, and
+  `pancake-practice-kitchen-01`. The revised images and nine transcripts are
+  approved, but their 45 per-turn WAV clips remain pending. Follow the
+  [Built-In Adult Scene WAV Refresh Handoff](../issues/built-in-adult-scene-wav-refresh.md),
+  including forced regeneration, adult-voice listening QA, registry status and
+  summary repair, review-index regeneration, and runtime catalog rebuild.
 - [ ] Add media-to-resource derivation so a selected media item can create
   quizzes, practice guides, and future resource types through a resource-specific
   instruction modal while preserving `sourceMediaId` provenance.
