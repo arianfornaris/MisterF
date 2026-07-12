@@ -92,6 +92,16 @@ export class SceneMediaScriptProviderError extends Error {
   }
 }
 
+function summarizeScriptValidationIssues(
+  error: z.ZodError,
+): Array<{ code: string; message: string; path: string }> {
+  return error.issues.slice(0, 12).map((issue) => ({
+    code: issue.code,
+    message: issue.message,
+    path: issue.path.map((segment) => String(segment)).join('.') || '(root)',
+  }));
+}
+
 export async function generateSceneMediaScriptPackage(
   input: GenerateSceneMediaScriptInput,
 ): Promise<GeneratedSceneMediaScriptPackage> {
@@ -170,8 +180,10 @@ async function generateSceneMediaPackage<T>(
 
     const parsed = schema.safeParse(parsedJson);
     if (!parsed.success) {
+      const issues = summarizeScriptValidationIssues(parsed.error);
       logger.warn('scene_media_script_validation_failed', {
         issueCount: parsed.error.issues.length,
+        issues,
         turn: turn + 1,
       });
       if (turn < scriptGenerationTurns - 1) {
@@ -180,7 +192,9 @@ async function generateSceneMediaPackage<T>(
           role: 'assistant',
         });
         messages.push({
-          content: 'The JSON did not match the schema. Fix the shape and constraints, then return only JSON.',
+          content:
+            'The JSON did not match the schema. Fix these validation issues, then return only JSON:\n'
+            + JSON.stringify(issues, null, 2),
           role: 'user',
         });
         continue;
