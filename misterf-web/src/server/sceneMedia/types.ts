@@ -9,61 +9,125 @@ export type SceneMediaFormat =
 
 export type SceneMediaImageLayer = {
   alt: string;
+  checksumSha256?: string;
+  contentType?: string;
   height?: number;
   mediaId?: string;
   source?: SceneMediaSource;
   src: string;
+  storageKey?: string;
   width?: number;
 };
 
 export type SceneMediaAudioLayer = {
-  durationSeconds: number;
-  format: 'mp3';
+  clips: SceneMediaAudioClip[];
+  format: 'wav';
+  model?: string;
+  provider?: 'openrouter';
+  voiceStrategy: 'per_turn_clips';
+};
+
+export type SceneMediaAudioClip = {
+  speaker: string;
   src: string;
   storageKey?: string;
+  turn: number;
 };
+
+export type SceneMediaIdentityStrategy =
+  | 'named_in_dialogue'
+  | 'named_in_narration'
+  | 'role_only';
 
 export type SceneMediaScript =
   | {
+      identityStrategy: Extract<
+        SceneMediaIdentityStrategy,
+        'named_in_dialogue' | 'role_only'
+      >;
       scriptType: 'dialogue';
+      speakers: Array<{
+        name: string;
+        nameSpokenInAudio: boolean;
+        role: string;
+      }>;
       turns: Array<{
         speaker: string;
         text: string;
       }>;
     }
   | {
+      identityStrategy: Extract<
+        SceneMediaIdentityStrategy,
+        'named_in_narration' | 'role_only'
+      >;
       scriptType: 'monologue' | 'narration';
       text: string;
     };
 
 export type SceneMediaLibraryItem = {
+  authoringMessages?: SceneMediaAuthoringMessage[];
   audio?: SceneMediaAudioLayer;
+  archivedAt?: string | null;
   createdFrom?: {
     baseBuiltInMediaId?: string;
     baseVisualAssetId?: string;
     conversationId?: string;
     prompt?: string;
     resourceId?: string;
+    sourceMediaId?: string;
   };
+  createdAt?: string;
   format: SceneMediaFormat;
+  generationMode?: UserSceneMediaGenerationMode;
+  generationPrompt?: string;
   id: string;
   image?: SceneMediaImageLayer;
   level?: SceneMediaLevel;
+  ownerProfileId?: string;
   ownerUserId?: string;
   script?: SceneMediaScript;
+  scriptTypePreference?: UserSceneMediaScriptTypePreference;
   setting?: string;
   skills: string[];
   source: SceneMediaSource;
-  status: 'archived' | 'ready';
+  status: SceneMediaStatus;
   tags: string[];
   title: string;
+  updatedAt?: string;
   useCases: string[];
   visualAssetId?: string;
   visualSummary: string[];
+};
+
+export type SceneMediaAuthoringMessage = {
+  content: string;
+  createdAt: string;
+  draftSnapshot?: Record<string, unknown>;
+  role: 'assistant' | 'user';
 };
 
 export type SceneMediaLibraryFilters = {
   format?: SceneMediaFormat;
   level?: SceneMediaLevel;
   query?: string;
+};
+
+export type SceneMediaStatus =
+  | 'archived'
+  | 'ready';
+
+export type UserSceneMediaGenerationMode = 'complete_scene' | 'image_only';
+
+export type UserSceneMediaScriptTypePreference =
+  | 'dialogue'
+  | 'monologue'
+  | 'narration'
+  | 'unspecified';
+
+export type UserSceneMediaLayerDecision = 'do_not_include' | 'generate_new' | 'keep_existing';
+
+export type UserSceneMediaLayerDecisions = {
+  image: Exclude<UserSceneMediaLayerDecision, 'do_not_include'>;
+  scriptAndAudio: UserSceneMediaLayerDecision;
 };

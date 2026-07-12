@@ -7,6 +7,10 @@ import type {
   SceneMediaLibraryFilters,
   SceneMediaLibraryItem,
 } from './types.js';
+import {
+  findUserSceneMediaForProfile,
+  listUserSceneMediaForProfile,
+} from './userMediaRepository.js';
 
 export const sceneMediaLevels = ['A1-A2', 'B1-B2', 'C1'] as const;
 export const sceneMediaFormats = [
@@ -28,17 +32,29 @@ const sceneMediaImageLayerSchema = z
 
 const sceneMediaAudioLayerSchema = z
   .object({
-    durationSeconds: z.number().positive(),
-    format: z.literal('mp3'),
-    src: z.string().trim().min(1),
-    storageKey: z.string().trim().min(1).optional(),
+    clips: z.array(z.object({
+      speaker: z.string().trim().min(1),
+      src: z.string().trim().min(1),
+      storageKey: z.string().trim().min(1).optional(),
+      turn: z.number().int().positive(),
+    }).strict()).min(1),
+    format: z.literal('wav'),
+    model: z.string().trim().min(1).optional(),
+    provider: z.literal('openrouter').optional(),
+    voiceStrategy: z.literal('per_turn_clips'),
   })
   .strict();
 
 const sceneMediaScriptSchema = z.union([
   z
     .object({
+      identityStrategy: z.enum(['named_in_dialogue', 'role_only']),
       scriptType: z.literal('dialogue'),
+      speakers: z.array(z.object({
+        name: z.string().trim().min(1),
+        nameSpokenInAudio: z.boolean(),
+        role: z.string().trim().min(1),
+      }).strict()).min(1).max(3),
       turns: z
         .array(
           z
@@ -53,6 +69,7 @@ const sceneMediaScriptSchema = z.union([
     .strict(),
   z
     .object({
+      identityStrategy: z.enum(['named_in_narration', 'role_only']),
       scriptType: z.enum(['monologue', 'narration']),
       text: z.string().trim().min(1),
     })
@@ -81,7 +98,7 @@ const sceneMediaLibraryItemSchema = z
     setting: z.string().trim().min(1).optional(),
     skills: z.array(z.string().trim().min(1)),
     source: z.enum(['built_in', 'user_generated']),
-    status: z.enum(['archived', 'ready']),
+    status: z.literal('ready'),
     tags: z.array(z.string().trim().min(1)),
     title: z.string().trim().min(1),
     useCases: z.array(z.string().trim().min(1)),
@@ -98,14 +115,24 @@ const itemsById = new Map(validatedBuiltInItems.map((item) => [item.id, item]));
 
 export function listSceneMediaItems(
   filters: SceneMediaLibraryFilters = {},
+  owner?: {
+    profileId: string;
+    userId: string;
+  },
 ): SceneMediaLibraryItem[] {
   const normalizedQuery = normalizeSearchText(filters.query ?? '');
+  const userItems = owner
+    ? listUserSceneMediaForProfile({
+      ownerProfileId: owner.profileId,
+      ownerUserId: owner.userId,
+    })
+    : [];
+  const items = [
+    ...userItems,
+    ...validatedBuiltInItems,
+  ];
 
-  return validatedBuiltInItems.filter((item) => {
-    if (item.status !== 'ready') {
-      return false;
-    }
-
+  return items.filter((item) => {
     if (filters.level && item.level !== filters.level) {
       return false;
     }
@@ -133,9 +160,24 @@ export function listSceneMediaItems(
 
 export function findSceneMediaItemById(
   mediaId: string,
+  owner?: {
+    profileId: string;
+    userId: string;
+  },
 ): SceneMediaLibraryItem | null {
+  if (owner) {
+    const userItem = findUserSceneMediaForProfile({
+      mediaId,
+      ownerProfileId: owner.profileId,
+      ownerUserId: owner.userId,
+    });
+    if (userItem) {
+      return userItem;
+    }
+  }
+
   const item = itemsById.get(mediaId);
-  return item && item.status === 'ready' ? item : null;
+  return item ?? null;
 }
 
 export function normalizeSceneMediaLevel(

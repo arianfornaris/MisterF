@@ -1,0 +1,179 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const originalEnv = {
+  DO_SPACES_ENDPOINT: process.env.DO_SPACES_ENDPOINT,
+  ENV_FILE: process.env.ENV_FILE,
+  USER_FILE_STORAGE_BUCKET: process.env.USER_FILE_STORAGE_BUCKET,
+  USER_FILE_STORAGE_REGION: process.env.USER_FILE_STORAGE_REGION,
+  USER_FILE_STORAGE_ROOT_PREFIX: process.env.USER_FILE_STORAGE_ROOT_PREFIX,
+  USER_FILE_STORAGE_PUBLIC_BASE_URL: process.env.USER_FILE_STORAGE_PUBLIC_BASE_URL,
+};
+
+afterEach(() => {
+  for (const [name, value] of Object.entries(originalEnv)) {
+    if (value === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = value;
+    }
+  }
+  vi.restoreAllMocks();
+  vi.resetModules();
+});
+
+describe('user file storage', () => {
+  it('builds scene media storage keys under the configured root prefix', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.USER_FILE_STORAGE_ROOT_PREFIX = 'misterf';
+    vi.resetModules();
+    const { createSceneMediaStorageKey } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+
+    expect(createSceneMediaStorageKey({
+      extension: '.png',
+      fileId: 'file_123',
+      fileRole: 'image',
+      mediaId: 'media_456',
+      userId: 'user_789',
+    })).toBe('misterf/users/user_789/scene-media/media_456/image/file_123.png');
+  });
+
+  it('rejects unsafe scene media storage key segments', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    vi.resetModules();
+    const { createSceneMediaStorageKey } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+
+    expect(() => createSceneMediaStorageKey({
+      extension: 'png',
+      fileId: 'file_123',
+      fileRole: 'image',
+      mediaId: '../media',
+      userId: 'user_789',
+    })).toThrow('Invalid media id.');
+  });
+
+  it('creates presigned DigitalOcean Spaces read URLs without exposing the secret', async () => {
+    const { SpacesUserFileStorageProvider } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+    const provider = new SpacesUserFileStorageProvider({
+      accessKey: 'test-access-key',
+      bucket: 'misterf.us-files-dev',
+      endpoint: 'https://atl1.digitaloceanspaces.com',
+      region: 'atl1',
+      rootPrefix: 'misterf',
+      secretKey: 'test-secret-key',
+    });
+
+    const url = await provider.createReadUrl({
+      expiresInSeconds: 60,
+      storageKey: 'misterf/users/user_1/scene-media/media_1/image/file_1.png',
+    });
+
+    expect(url).toContain('https://atl1.digitaloceanspaces.com/misterf.us-files-dev/');
+    expect(url).toContain('X-Amz-Algorithm=AWS4-HMAC-SHA256');
+    expect(url).toContain('X-Amz-Expires=60');
+    expect(url).toContain('X-Amz-Signature=');
+    expect(url).not.toContain('test-secret-key');
+  });
+
+  it('creates stable public URLs for immutable objects', async () => {
+    const { SpacesUserFileStorageProvider } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+    const provider = new SpacesUserFileStorageProvider({
+      accessKey: 'test-access-key',
+      bucket: 'misterf.us-files-dev',
+      endpoint: 'https://atl1.digitaloceanspaces.com',
+      publicBaseUrl: 'https://media.example.test',
+      region: 'atl1',
+      rootPrefix: 'misterf',
+      secretKey: 'test-secret-key',
+    });
+
+    expect(provider.createPublicUrl(
+      'misterf/users/user_1/scene-media/media_1/image/file_1.webp',
+    )).toBe(
+      'https://media.example.test/misterf/users/user_1/scene-media/media_1/image/file_1.webp',
+    );
+  });
+
+  it('signs PUT requests to DigitalOcean Spaces', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(null, { status: 200 }),
+    );
+    const { SpacesUserFileStorageProvider } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+    const provider = new SpacesUserFileStorageProvider({
+      accessKey: 'test-access-key',
+      bucket: 'misterf.us-files-dev',
+      endpoint: 'https://atl1.digitaloceanspaces.com',
+      region: 'atl1',
+      rootPrefix: 'misterf',
+      secretKey: 'test-secret-key',
+    });
+
+    const result = await provider.putObject({
+      body: Buffer.from('image-bytes'),
+      cacheControl: 'public, max-age=31536000, immutable',
+      contentType: 'image/png',
+      key: 'misterf/users/user_1/scene-media/media_1/image/file_1.png',
+      metadata: {
+        mediaId: 'media_1',
+      },
+      visibility: 'public-read',
+    });
+
+    expect(result).toEqual({
+      sizeBytes: 11,
+      storageKey: 'misterf/users/user_1/scene-media/media_1/image/file_1.png',
+    });
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toBe(
+      'https://atl1.digitaloceanspaces.com/misterf.us-files-dev/misterf/users/user_1/scene-media/media_1/image/file_1.png',
+    );
+    expect(init?.method).toBe('PUT');
+    const headers = init?.headers as Record<string, string>;
+    expect(headers.authorization).toMatch(
+      /^AWS4-HMAC-SHA256 Credential=test-access-key\//,
+    );
+    expect(headers.authorization).not.toContain('AWS4-HMAC-SHA256,');
+    expect(headers['content-type']).toBe('image/png');
+    expect(headers['cache-control']).toBe('public, max-age=31536000, immutable');
+    expect(headers['x-amz-acl']).toBe('public-read');
+    expect(headers['x-amz-meta-mediaid']).toBe('media_1');
+  });
+
+  it('preserves safe DigitalOcean error details for storage diagnostics', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        '<?xml version="1.0"?><Error><Code>AccessDenied</Code><Message>The provided key does not have write access.</Message><RequestId>request-id</RequestId></Error>',
+        { status: 403 },
+      ),
+    );
+    const { SpacesUserFileStorageProvider } = await import(
+      '../../src/server/storage/userFileStorage.js'
+    );
+    const provider = new SpacesUserFileStorageProvider({
+      accessKey: 'test-access-key',
+      bucket: 'misterf.us-files-dev',
+      endpoint: 'https://atl1.digitaloceanspaces.com',
+      region: 'atl1',
+      rootPrefix: 'misterf',
+      secretKey: 'test-secret-key',
+    });
+
+    await expect(provider.putObject({
+      body: Buffer.from('image-bytes'),
+      contentType: 'image/png',
+      key: 'misterf/users/user_1/scene-media/media_1/image/file_1.png',
+    })).rejects.toThrow(
+      'Spaces PUT failed with HTTP 403 (AccessDenied: The provided key does not have write access.).',
+    );
+  });
+});

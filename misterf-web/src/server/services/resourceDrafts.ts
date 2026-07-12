@@ -205,7 +205,6 @@ async function generateStructuredDraft<T>(input: {
   actorLabel: string;
   correctionPromptPath: string;
   initialUserMessage: string;
-  maxOutputTokens?: number;
   openRouterApiKey?: string | null;
   schema: z.ZodType<T>;
   systemPromptPath: string;
@@ -238,7 +237,6 @@ async function generateStructuredDraft<T>(input: {
     );
 
     const result = await generateText({
-      maxOutputTokens: input.maxOutputTokens ?? 1800,
       model: getLanguageModel({
         modelTier: 'regular',
         openRouterApiKey: input.openRouterApiKey,
@@ -260,6 +258,27 @@ async function generateStructuredDraft<T>(input: {
         operation: 'resource_draft',
       },
     );
+
+    if (result.finishReason === 'length') {
+      logger.warn('resource_draft_output_truncated', {
+        actorLabel: input.actorLabel,
+        operation: 'resource_draft',
+        turn: turn + 1,
+      });
+      if (turn < maxDraftGenerationTurns - 1) {
+        appendCorrectionRequest(messages, {
+          actorLabel: input.actorLabel,
+          correctionPromptPath: input.correctionPromptPath,
+          reason:
+            'Your previous response exceeded the output budget. Return a complete, more concise JSON object and keep every required field.',
+          systemPromptVariables: input.systemPromptVariables,
+          turn: turn + 1,
+        });
+        continue;
+      }
+
+      throw new Error('La IA devolvió un borrador truncado.');
+    }
 
     let parsedJson: unknown;
     try {
@@ -356,7 +375,6 @@ export async function generatePracticeGuideRevision(input: {
       null,
       2,
     ),
-    maxOutputTokens: 4400,
     openRouterApiKey: input.openRouterApiKey,
     schema: practiceGuideRevisionSchema,
     systemPromptPath: 'resources/practice-guide-revision.md',
@@ -392,7 +410,6 @@ export async function generateQuizDraft(input: {
     actorLabel: 'Quiz draft',
     correctionPromptPath: 'resources/quiz-draft-correction.md',
     initialUserMessage: input.prompt,
-    maxOutputTokens: 6000,
     openRouterApiKey: input.openRouterApiKey,
     schema: quizDraftSchema,
     systemPromptPath: 'resources/quiz-draft.md',
@@ -421,7 +438,6 @@ export async function generateQuizRevision(input: {
       null,
       2,
     ),
-    maxOutputTokens: 7600,
     openRouterApiKey: input.openRouterApiKey,
     schema: quizRevisionSchema,
     systemPromptPath: 'resources/quiz-revision.md',
@@ -478,7 +494,6 @@ export async function generateRoleplayDraft(input: {
     actorLabel: 'Roleplay draft',
     correctionPromptPath: 'resources/roleplay-draft-correction.md',
     initialUserMessage: input.prompt,
-    maxOutputTokens: 4800,
     openRouterApiKey: input.openRouterApiKey,
     schema: roleplayDraftSchema,
     systemPromptPath: 'resources/roleplay-draft.md',
@@ -511,7 +526,6 @@ export async function generateRoleplayRevision(input: {
       null,
       2,
     ),
-    maxOutputTokens: 5600,
     openRouterApiKey: input.openRouterApiKey,
     schema: roleplayRevisionSchema,
     systemPromptPath: 'resources/roleplay-revision.md',

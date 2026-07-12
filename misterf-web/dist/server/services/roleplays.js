@@ -154,7 +154,6 @@ export async function generateOpeningRoleplayTurn(input) {
     const parsed = await generateStructuredRoleplayOutput({
         actorLabel: 'Roleplay opening turn',
         llm: input.llm,
-        maxOutputTokens: 900,
         schema: nextRoleplayTurnSchema,
         systemPromptPath: 'resources/roleplay-turn.md',
         userPayload: {
@@ -192,7 +191,6 @@ export async function generateNextRoleplayTurn(input) {
     const parsed = await generateStructuredRoleplayOutput({
         actorLabel: 'Roleplay turn',
         llm: input.llm,
-        maxOutputTokens: 1200,
         schema: nextRoleplayTurnSchema,
         systemPromptPath: 'resources/roleplay-turn.md',
         userPayload: {
@@ -213,7 +211,6 @@ export async function evaluateRoleplayAttempt(input) {
     return generateStructuredRoleplayOutput({
         actorLabel: 'Roleplay evaluation',
         llm: input.llm,
-        maxOutputTokens: 5200,
         schema: roleplayEvaluationResultSchema,
         systemPromptPath: 'resources/roleplay-evaluation.md',
         systemPromptVariables: {
@@ -269,7 +266,6 @@ async function generateStructuredRoleplayOutput(input) {
             operation: 'roleplay',
         }, turn + 1);
         const result = await generateText({
-            maxOutputTokens: input.maxOutputTokens,
             model: getLanguageModel(input.llm),
             messages,
             providerOptions: getProviderOptions(),

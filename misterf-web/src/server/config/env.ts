@@ -67,6 +67,13 @@ function resolveProjectPath(value: string): string {
 }
 
 const nodeEnv = process.env.NODE_ENV ?? 'development';
+const userFileStorageRegion =
+  process.env.USER_FILE_STORAGE_REGION ?? 'atl1';
+const userFileStorageEndpoint =
+  process.env.DO_SPACES_ENDPOINT ??
+  `https://${userFileStorageRegion}.digitaloceanspaces.com`;
+const defaultUserFileStorageBucket =
+  nodeEnv === 'production' ? 'misterf.us-files' : 'misterf.us-files-dev';
 
 export const env = {
   projectRoot,
@@ -123,6 +130,10 @@ export const env = {
   openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
   openrouterUserKeyLimitReset:
     process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',
+  sceneMediaImageModel:
+    process.env.SCENE_MEDIA_IMAGE_MODEL ?? 'google/gemini-3.1-flash-lite-image',
+  sceneMediaTtsModel:
+    process.env.SCENE_MEDIA_TTS_MODEL ?? 'google/gemini-3.1-flash-tts-preview',
   stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',
   stripeCredits200PriceId: process.env.STRIPE_CREDITS_200_PRICE_ID ?? '',
@@ -140,4 +151,15 @@ export const env = {
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
   superadminEmail: (process.env.SUPERADMIN_EMAIL ?? '').trim().toLowerCase(),
+  userFileStorageProvider: process.env.USER_FILE_STORAGE_PROVIDER ?? 'spaces',
+  userFileStorageBucket:
+    process.env.USER_FILE_STORAGE_BUCKET ?? defaultUserFileStorageBucket,
+  userFileStorageRegion,
+  userFileStorageRootPrefix:
+    process.env.USER_FILE_STORAGE_ROOT_PREFIX ?? 'misterf',
+  userFileStoragePublicBaseUrl:
+    process.env.USER_FILE_STORAGE_PUBLIC_BASE_URL ?? '',
+  doSpacesEndpoint: userFileStorageEndpoint,
+  doSpacesAccessKey: process.env.DO_SPACES_ACCESS_KEY ?? '',
+  doSpacesSecretKey: process.env.DO_SPACES_SECRET_KEY ?? '',
 };

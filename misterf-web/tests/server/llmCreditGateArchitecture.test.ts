@@ -7,6 +7,9 @@ const expectedGenerateTextCallCounts: Record<string, number> = {
   'src/server/services/llmTutor/index.ts': 3,
   'src/server/services/resourceDrafts.ts': 1,
   'src/server/services/roleplays.ts': 1,
+  'src/server/services/sceneMediaResolver.ts': 1,
+  'src/server/services/sceneMediaRevisions.ts': 1,
+  'src/server/services/sceneMediaScripts.ts': 1,
   'src/server/services/tutorReports.ts': 1,
 };
 
@@ -15,6 +18,7 @@ const creditCheckedEntrypoints = [
   'src/server/chat/handlers.ts',
   'src/server/practiceGuides/handlers.ts',
   'src/server/roleplays/handlers.ts',
+  'src/server/sceneMedia/handlers.ts',
   'src/server/socket/chatSocket.ts',
 ];
 
@@ -73,6 +77,15 @@ describe('LLM credit gate architecture', () => {
         readProjectFile(file),
         `${file} should not call generateText directly; add a gated service instead`,
       ).not.toMatch(/\bgenerateText\s*\(/);
+    }
+  });
+
+  it('lets models use their native output budget', () => {
+    for (const file of listFiles('src/server', new Set(['.ts']))) {
+      expect(
+        readProjectFile(file),
+        `${file} should not impose an application-level LLM output token cap`,
+      ).not.toContain('maxOutputTokens');
     }
   });
 

@@ -11,6 +11,9 @@ as a normal product state.
 ## Rules
 
 - Before user-scoped LLM inference, call `getCreditCheckedOpenRouterApiKeyForUser(user.id)` or an equivalent shared credit gate.
+- Do not set application-level `maxOutputTokens` limits on LLM calls. Let the
+  selected model and provider use their native output budget, then enforce the
+  product contract with schemas, validation, and correction handling.
 - Do not call model providers directly in user flows without a credit gate.
 - Catch `CreditExhaustedError` or use `isCreditExhaustedError(error)` at HTTP boundaries.
 - Never let insufficient credit render an Express stack trace or generic error page.

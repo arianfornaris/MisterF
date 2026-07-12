@@ -1,0 +1,114 @@
+<%- include('partials/app-shell-open') %>
+
+<% const hasScriptAndAudio = Boolean(sourceMedia.script && sourceMedia.audio); %>
+<section class="app-page">
+  <div class="app-page-header app-page-header-has-close">
+    <div>
+      <p class="app-page-kicker"><%= t('mediaLibrary.variationOf', { title: sourceMedia.title }) %></p>
+      <h1 class="app-page-title"><%= t('mediaLibrary.createVariation') %></h1>
+    </div>
+    <div class="app-page-header-actions">
+      <a class="app-page-close-button" href="/media-library/<%= encodeURIComponent(sourceMedia.id) %>" title="<%= t('common.close') %>" aria-label="<%= t('common.close') %>">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (error) { %>
+    <div class="alert alert-danger" role="alert">
+      <%= error %>
+      <% if (creditExhausted) { %>
+        <a class="alert-link ms-1" href="/credits?returnTo=<%= encodeURIComponent(`/media-library/${sourceMedia.id}/variations/new`) %>"><%= t('credits.buyCredits') %></a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <div class="row g-4">
+    <div class="col-12 col-lg-4">
+      <% if (sourceMedia.image) { %>
+        <img class="img-fluid scene-media-detail-image" src="<%= sourceMedia.image.src %>" alt="<%= sourceMedia.image.alt %>">
+      <% } %>
+      <p class="mt-2 mb-0 fw-semibold"><%= sourceMedia.title %></p>
+    </div>
+    <div class="col-12 col-lg-8">
+      <form class="card resource-form-card" method="post" action="/media-library/<%= encodeURIComponent(sourceMedia.id) %>/variations" data-scene-media-generate-form data-scene-media-variation-form data-source-level="<%= sourceMedia.level || '' %>">
+        <div class="card-body">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="d-grid gap-3">
+            <div>
+              <label class="form-label" for="variationPrompt"><%= t('mediaLibrary.variationPrompt') %></label>
+              <textarea class="form-control" id="variationPrompt" name="prompt" rows="5" maxlength="2000" required placeholder="<%= t('mediaLibrary.variationPromptPlaceholder') %>"><%= form.prompt %></textarea>
+              <div class="form-text"><%= t('mediaLibrary.promptGuide') %></div>
+            </div>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="variationLevel"><%= t('mediaLibrary.level') %></label>
+                <select class="form-select" id="variationLevel" name="level" required data-scene-media-variation-level>
+                  <% sceneMediaLevels.forEach((level) => { %>
+                    <option value="<%= level %>" <%= form.level === level ? 'selected' : '' %>><%= level %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" for="variationFormat"><%= t('mediaLibrary.formatLabel') %></label>
+                <select class="form-select" id="variationFormat" name="format" required data-scene-media-variation-format>
+                  <% formatOptions.forEach((format) => { %>
+                    <option value="<%= format %>" <%= form.format === format ? 'selected' : '' %>><%= t(`mediaLibrary.format.${format}`) %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+            <fieldset>
+              <legend class="form-label"><%= t('mediaLibrary.imageLayer') %></legend>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="imageDecision" id="variationImageKeep" value="keep_existing" <%= form.imageDecision === 'keep_existing' ? 'checked' : '' %> data-scene-media-image-decision>
+                <label class="form-check-label" for="variationImageKeep"><%= t('mediaLibrary.keepExistingImage') %></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="imageDecision" id="variationImageGenerate" value="generate_new" <%= form.imageDecision === 'generate_new' ? 'checked' : '' %> data-scene-media-image-decision>
+                <label class="form-check-label" for="variationImageGenerate"><%= t('mediaLibrary.generateNewImage') %></label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend class="form-label"><%= t('mediaLibrary.scriptAndAudioLayer') %></legend>
+              <% if (hasScriptAndAudio) { %>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="scriptAndAudioDecision" id="variationScriptKeep" value="keep_existing" <%= form.scriptAndAudioDecision === 'keep_existing' ? 'checked' : '' %> data-scene-media-script-audio-decision>
+                  <label class="form-check-label" for="variationScriptKeep"><%= t('mediaLibrary.keepExistingScriptAndAudio') %></label>
+                </div>
+              <% } %>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="scriptAndAudioDecision" id="variationScriptGenerate" value="generate_new" <%= form.scriptAndAudioDecision === 'generate_new' ? 'checked' : '' %> data-scene-media-script-audio-decision>
+                <label class="form-check-label" for="variationScriptGenerate"><%= t('mediaLibrary.generateNewScriptAndAudio') %></label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="scriptAndAudioDecision" id="variationScriptNone" value="do_not_include" <%= form.scriptAndAudioDecision === 'do_not_include' ? 'checked' : '' %> data-scene-media-script-audio-decision>
+                <label class="form-check-label" for="variationScriptNone"><%= t('mediaLibrary.doNotIncludeScriptAndAudio') %></label>
+              </div>
+            </fieldset>
+            <div class="d-none" data-scene-media-level-warning>
+              <div class="alert alert-warning mb-0" role="status"><%= t('mediaLibrary.levelScriptAudioWarning') %></div>
+            </div>
+            <div class="<%= form.scriptAndAudioDecision === 'generate_new' ? '' : 'd-none' %>" data-scene-media-variation-script-type-wrap>
+              <label class="form-label" for="variationScriptType"><%= t('mediaLibrary.scriptType') %></label>
+              <select class="form-select" id="variationScriptType" name="scriptTypePreference">
+                <% ['unspecified', 'dialogue', 'narration', 'monologue'].forEach((type) => { %>
+                  <option value="<%= type %>" <%= form.scriptTypePreference === type ? 'selected' : '' %>><%= t(`mediaLibrary.scriptType${type === 'unspecified' ? 'Unspecified' : type.charAt(0).toUpperCase() + type.slice(1)}`) %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-4">
+            <button class="btn btn-primary" type="submit" data-scene-media-generate-submit data-loading-text="<%= t('mediaLibrary.creating') %>">
+              <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.createVariation') %>
+            </button>
+            <a class="btn btn-secondary" href="/media-library/<%= encodeURIComponent(sourceMedia.id) %>"><%= t('common.cancel') %></a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/scene-media-pending-modal') %>
+<%- include('partials/app-shell-close', { pageScriptPartial: 'media-library-client-script' }) %>

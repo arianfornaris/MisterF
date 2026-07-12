@@ -29,6 +29,7 @@ const approvedImages = new Map(
 );
 
 fs.mkdirSync(publicImageRoot, { recursive: true });
+fs.rmSync(publicAudioRoot, { force: true, recursive: true });
 fs.mkdirSync(publicAudioRoot, { recursive: true });
 
 for (const image of approvedImages.values()) {
@@ -51,17 +52,17 @@ for (const script of sceneScriptsRegistry.scripts) {
   }
 
   const audio = script.audio
-    ? buildAudioLayer(script.audio)
+    ? buildAudioLayer(script.audio, script.speakers)
     : undefined;
 
-  if (script.audio?.file) {
+  for (const clip of script.audio?.clips ?? []) {
     copyFileIfChanged(
-      path.join(designRoot, 'scene-scripts', script.audio.file),
-      path.join(publicAudioRoot, script.audio.file.replace(/^audio\//, '')),
+      path.join(designRoot, 'scene-scripts', clip.file),
+      path.join(publicAudioRoot, clip.file.replace(/^audio\//, '')),
     );
   }
 
-  mediaItems.push({
+  const mediaItem = {
     audio,
     format: image.format,
     id: script.id,
@@ -84,7 +85,9 @@ for (const script of sceneScriptsRegistry.scripts) {
     useCases: image.useCases ?? [],
     visualAssetId: image.id,
     visualSummary: image.panelSequence ?? [],
-  });
+  };
+  validateMediaItem(mediaItem);
+  mediaItems.push(mediaItem);
 }
 
 mediaItems.sort((a, b) => a.id.localeCompare(b.id));
@@ -119,11 +122,20 @@ function copyFileIfChanged(sourcePath, destinationPath) {
   fs.copyFileSync(sourcePath, destinationPath);
 }
 
-function buildAudioLayer(audio) {
+function buildAudioLayer(audio, speakers = []) {
+  const speakerNames = new Map(
+    speakers.map((speaker) => [speaker.id, speaker.name]),
+  );
   return {
-    durationSeconds: audio.durationSeconds,
+    clips: audio.clips.map((clip) => ({
+      speaker: speakerNames.get(clip.speakerId) ?? clip.speakerId,
+      src: `/public/scene-media/audio/${clip.file.replace(/^audio\//, '')}`,
+      turn: clip.turn,
+    })),
     format: audio.format,
-    src: `/public/scene-media/audio/${audio.file.replace(/^audio\//, '')}`,
+    model: audio.model,
+    provider: audio.provider,
+    voiceStrategy: audio.voiceStrategy,
   };
 }
 
@@ -141,7 +153,13 @@ function buildScript(script) {
     );
 
     return {
+      identityStrategy: script.identityStrategy,
       scriptType: 'dialogue',
+      speakers: (script.speakers ?? []).map((speaker) => ({
+        name: speaker.name,
+        nameSpokenInAudio: speaker.nameSpokenInAudio,
+        role: speaker.role,
+      })),
       turns: script.transcript.map((turn) => ({
         speaker: speakerNames.get(turn.speakerId) ?? turn.speakerId,
         text: turn.text,
@@ -150,6 +168,7 @@ function buildScript(script) {
   }
 
   return {
+    identityStrategy: script.identityStrategy,
     scriptType: script.scriptType,
     text: script.transcript.map((turn) => turn.text).join('\n'),
   };
@@ -157,4 +176,21 @@ function buildScript(script) {
 
 function unique(values) {
   return Array.from(new Set(values.filter(Boolean)));
+}
+
+function validateMediaItem(item) {
+  if (!item.audio || !item.script) {
+    return;
+  }
+  const turns = item.script.scriptType === 'dialogue'
+    ? item.script.turns
+    : [{ speaker: item.audio.clips[0]?.speaker }];
+  if (item.audio.clips.length !== turns.length) {
+    throw new Error(`${item.id}: audio clip count does not match script turns.`);
+  }
+  for (const [index, clip] of item.audio.clips.entries()) {
+    if (clip.turn !== index + 1 || clip.speaker !== turns[index]?.speaker) {
+      throw new Error(`${item.id}: audio clip ${index + 1} does not match its script turn.`);
+    }
+  }
 }

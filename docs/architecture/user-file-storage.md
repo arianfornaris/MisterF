@@ -17,7 +17,8 @@ and future tooling can share one root convention.
 - Keep large binary files out of SQLite.
 - Give generated and uploaded files a stable storage key that can be referenced
   by app metadata.
-- Support private user media by default.
+- Support private user files by default, with an explicit public-delivery MVP
+  exception for immutable scene-media image and audio assets.
 - Keep the domain model independent from the provider so local disk, test fakes,
   or another object store can be swapped without changing feature code.
 - Preserve enough metadata to audit ownership, lifecycle state, provenance, and
@@ -36,12 +37,17 @@ interface UserFileStorageProvider {
     body: Uint8Array | Buffer;
     cacheControl?: string;
     metadata?: Record<string, string>;
+    visibility?: 'private' | 'public-read';
   }): Promise<{
     storageKey: string;
     sizeBytes: number;
   }>;
 
   deleteObject(storageKey: string): Promise<void>;
+
+  makeObjectPublic(storageKey: string): Promise<void>;
+
+  createPublicUrl(storageKey: string): string;
 
   createReadUrl(input: {
     storageKey: string;
@@ -98,6 +104,40 @@ Preferred delivery pattern:
 Built-in public assets can continue living under app public folders. Generated
 or uploaded user files should use object storage, even when a derived resource
 needs to render them for students or shared-link guests.
+
+### Scene Media MVP Public-Delivery Exception
+
+For the V3 scene-media MVP, generated image and audio objects may be exposed
+through stable public object URLs. This is an intentional product tradeoff: fast
+browser caching, followed by edge caching when the endpoint is available, is
+more important in this phase than preventing someone
+who already has an asset URL from opening the binary directly.
+
+The exception applies only to immutable scene-media binaries. The media library,
+metadata, prompts, ownership records, scripts, and management actions remain
+profile-authorized application data. Object keys must use opaque generated ids,
+must never contain user-provided text or PII, and must never be overwritten. A
+changed image or audio layer receives a new key and URL.
+
+Scene-media responses should use a long-lived cache policy such as
+`public, max-age=31536000, immutable` and a stable CDN URL without a changing
+presigned query string when a CDN-compatible hostname is configured. Until then,
+the stable public Spaces origin URL still provides browser caching. The database
+should continue storing `storageKey` as the
+provider-independent source reference; public delivery URLs are derived render
+data, not ownership evidence.
+
+This exception is technical debt to revisit after the media-resource sharing
+model exists. The future design may put edge authorization, signed CDN access,
+or grant-aware delivery in front of the same immutable keys without changing the
+scene-media domain contract.
+
+The existing bucket names contain periods (`misterf.us-files` and
+`misterf.us-files-dev`). DigitalOcean's default wildcard TLS certificate does
+not support period-containing bucket hostnames, and the CDN API therefore does
+not accept them as standard CDN origins. Edge caching requires either a custom
+CDN domain and certificate or future dash-only replacement buckets. This does
+not block stable path-style public origin URLs or browser caching.
 
 ## Metadata To Persist
 

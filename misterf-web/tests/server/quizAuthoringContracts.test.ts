@@ -25,6 +25,7 @@ vi.mock('ai', async (importOriginal) => {
 });
 
 import {
+  generatePracticeGuideDraft,
   generateQuizDraft,
   generateQuizRevision,
 } from '../../src/server/services/resourceDrafts.js';
@@ -42,9 +43,9 @@ import {
 
 const testApiKey = 'test-openrouter-key';
 
-function modelResult(text: string) {
+function modelResult(text: string, finishReason = 'stop') {
   return {
-    finishReason: 'stop',
+    finishReason,
     providerMetadata: undefined,
     text,
     usage: { inputTokens: 100, outputTokens: 200, totalTokens: 300 },
@@ -229,6 +230,37 @@ describe('quiz revision contract', () => {
 
     expect(revision.draft.title).toBe('Daily Routines Quiz');
     expect(generateTextMock).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('practice guide draft generation contract', () => {
+  it('uses the model output budget and retries truncation without echoing partial JSON', async () => {
+    const validDraft = {
+      description: 'Focused practice with everyday color vocabulary.',
+      title: 'Everyday Colors',
+      tutorInstructions: 'Guide one short color exercise at a time.',
+    };
+    generateTextMock
+      .mockResolvedValueOnce(modelResult('{"title":"truncated', 'length'))
+      .mockResolvedValueOnce(modelResult(JSON.stringify(validDraft)));
+
+    const draft = await generatePracticeGuideDraft({
+      openRouterApiKey: testApiKey,
+      prompt: 'Crea una guía de práctica sobre los colores.',
+    });
+
+    expect(draft).toEqual(validDraft);
+    expect(generateTextMock).toHaveBeenCalledTimes(2);
+    expect(generateTextMock.mock.calls[0]?.[0]).not.toHaveProperty('maxOutputTokens');
+    expect(capturedMessages(1)).not.toContainEqual(
+      expect.objectContaining({
+        content: '{"title":"truncated',
+        role: 'assistant',
+      }),
+    );
+    expect(capturedMessages(1).at(-1)?.content).toContain(
+      'exceeded the output budget',
+    );
   });
 });
 

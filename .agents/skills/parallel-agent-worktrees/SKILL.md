@@ -48,7 +48,10 @@ cp <main-checkout>/misterf-web/.env.development .
   Verify `pm2 status` shows the main app stopped, `lsof` shows the worktree
   `node` process listening on the expected port, and `curl` returns a healthy
   response. Stop the worktree server before handing control back or before
-  restarting the main pm2 app.
+  restarting the main pm2 app. Read its logs with
+  `pm2 logs misterf-web-worktree --lines 80 --nostream` (or
+  `~/.pm2/logs/misterf-web-worktree-{out,error}.log`); see `restart-local-server`
+  for details.
 - New DB migrations: take the next free id on top of current `main`. If the
   integration lands another migration first, renumber yours during the merge
   (migrations are forward-only; see `database-migration-safety`).
