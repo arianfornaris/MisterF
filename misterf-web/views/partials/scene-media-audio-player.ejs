@@ -1,50 +1,98 @@
 <%
   const playerClips = audio?.clips ?? [];
-  const playerClipsJson = JSON.stringify(playerClips).replace(/[<>&\u2028\u2029]/g, (character) => ({
-    '<': '\\u003c',
-    '>': '\\u003e',
-    '&': '\\u0026',
-    '\u2028': '\\u2028',
-    '\u2029': '\\u2029',
-  })[character]);
+  const playerDialogueTurns =
+    typeof script !== 'undefined' && script && script.scriptType === 'dialogue'
+      ? script.turns
+      : null;
+  const playerNarrationText =
+    typeof script !== 'undefined' && script && script.scriptType !== 'dialogue'
+      ? script.text
+      : null;
+  const playerSegments = playerClips.map((clip, index) => ({
+    src: clip.src,
+    speaker:
+      clip.speaker ||
+      (playerDialogueTurns && playerDialogueTurns[index]
+        ? playerDialogueTurns[index].speaker
+        : ''),
+    text: playerDialogueTurns && playerDialogueTurns[index]
+      ? playerDialogueTurns[index].text
+      : playerClips.length === 1
+        ? playerNarrationText
+        : null,
+  }));
+  const encodePlayerJson = (value) =>
+    JSON.stringify(value)
+      .replace(/</g, '\\u003c')
+      .replace(/>/g, '\\u003e')
+      .replace(/&/g, '\\u0026');
 %>
 <div
   class="scene-media-audio-player"
   data-scene-media-audio-player
-  data-previous-label="<%= t('mediaLibrary.previousClip') %>"
-  data-next-label="<%= t('mediaLibrary.nextClip') %>"
-  data-progress-label="<%= t('mediaLibrary.audioClipProgress', { current: '{{current}}', total: '{{total}}' }) %>"
+  data-play-label="<%= t('mediaLibrary.playAudio') %>"
+  data-pause-label="<%= t('mediaLibrary.pauseAudio') %>"
+  data-loading-label="<%= t('mediaLibrary.audioLoading') %>"
+  data-error-label="<%= t('mediaLibrary.audioError') %>"
+  data-show-script-label="<%= t('mediaLibrary.showScript') %>"
+  data-hide-script-label="<%= t('mediaLibrary.hideScript') %>"
 >
-  <div class="d-flex align-items-center gap-2">
+  <audio
+    class="d-none"
+    preload="none"
+    aria-label="<%= t('mediaLibrary.audioPlayerAria') %>"
+    data-scene-media-audio-element
+  ></audio>
+  <div class="d-flex align-items-center gap-3">
     <button
-      class="btn btn-outline-secondary flex-shrink-0"
+      class="btn btn-primary rounded-circle flex-shrink-0 scene-media-audio-toggle"
       type="button"
-      title="<%= t('mediaLibrary.previousClip') %>"
-      aria-label="<%= t('mediaLibrary.previousClip') %>"
-      data-scene-media-audio-previous
+      aria-label="<%= t('mediaLibrary.playAudio') %>"
+      title="<%= t('mediaLibrary.playAudio') %>"
+      data-scene-media-audio-toggle
+      disabled
     >
-      <i class="bi bi-skip-backward-fill" aria-hidden="true"></i>
+      <span
+        class="spinner-border spinner-border-sm d-none"
+        role="status"
+        aria-hidden="true"
+        data-scene-media-audio-spinner
+      ></span>
+      <i class="bi bi-play-fill" aria-hidden="true" data-scene-media-audio-icon></i>
     </button>
-    <audio
-      class="w-100 min-w-0"
-      controls
-      preload="metadata"
-      aria-label="<%= t('mediaLibrary.audioPlayerAria') %>"
-      data-scene-media-audio-element
-    ></audio>
+    <div class="flex-grow-1 min-w-0">
+      <div
+        class="scene-media-audio-track"
+        role="slider"
+        tabindex="0"
+        aria-label="<%= t('mediaLibrary.audioPlayerAria') %>"
+        aria-valuemin="0"
+        aria-valuenow="0"
+        aria-valuemax="0"
+        data-scene-media-audio-track
+      >
+        <div class="scene-media-audio-progress" data-scene-media-audio-progress></div>
+        <div class="scene-media-audio-markers" data-scene-media-audio-markers></div>
+      </div>
+      <div class="d-flex align-items-center justify-content-between gap-2 small text-body-secondary mt-1">
+        <span class="text-truncate" data-scene-media-audio-speaker></span>
+        <span class="flex-shrink-0" data-scene-media-audio-time>0:00 / 0:00</span>
+      </div>
+    </div>
+  </div>
+  <div class="mt-2 d-none" data-scene-media-audio-transcript-wrap>
     <button
-      class="btn btn-outline-secondary flex-shrink-0"
+      class="btn btn-sm btn-link px-0"
       type="button"
-      title="<%= t('mediaLibrary.nextClip') %>"
-      aria-label="<%= t('mediaLibrary.nextClip') %>"
-      data-scene-media-audio-next
+      aria-expanded="false"
+      data-scene-media-audio-transcript-toggle
     >
-      <i class="bi bi-skip-forward-fill" aria-hidden="true"></i>
+      <%= t('mediaLibrary.showScript') %>
     </button>
+    <ol
+      class="list-unstyled mb-0 mt-1 d-none scene-media-audio-transcript"
+      data-scene-media-audio-transcript
+    ></ol>
   </div>
-  <div class="d-flex align-items-center justify-content-between gap-3 small text-body-secondary mt-2">
-    <span class="text-truncate" data-scene-media-audio-speaker></span>
-    <span class="flex-shrink-0" data-scene-media-audio-position></span>
-  </div>
-  <script type="application/json" data-scene-media-audio-clips><%- playerClipsJson %></script>
+  <script type="application/json" data-scene-media-audio-segments><%- encodePlayerJson(playerSegments) %></script>
 </div>

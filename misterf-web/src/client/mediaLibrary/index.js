@@ -1,5 +1,6 @@
 import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
 import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
+import { createSceneAudioPlayer } from './sceneAudioPlayer.js';
 
 function readJsonScript(element, fallback) {
   try {
@@ -9,98 +10,12 @@ function readJsonScript(element, fallback) {
   }
 }
 
-function initializeAudioPlayer(root) {
-  if (!(root instanceof HTMLElement)) {
-    return null;
-  }
-  const audio = root.querySelector('[data-scene-media-audio-element]');
-  const previous = root.querySelector('[data-scene-media-audio-previous]');
-  const next = root.querySelector('[data-scene-media-audio-next]');
-  const speaker = root.querySelector('[data-scene-media-audio-speaker]');
-  const position = root.querySelector('[data-scene-media-audio-position]');
-  if (!(audio instanceof HTMLAudioElement)) {
-    return null;
-  }
-
-  let clips = readJsonScript(
-    root.querySelector('[data-scene-media-audio-clips]'),
-    [],
-  );
-  let currentIndex = 0;
-
-  const render = () => {
-    const clip = clips[currentIndex];
-    root.classList.toggle('d-none', !clip);
-    if (!clip) {
-      audio.pause();
-      audio.removeAttribute('src');
-      audio.load();
-      if (speaker) speaker.textContent = '';
-      if (position) position.textContent = '';
-      return;
-    }
-    if (audio.getAttribute('src') !== clip.src) {
-      audio.src = clip.src;
-      audio.load();
-    }
-    if (speaker) speaker.textContent = clip.speaker || '';
-    if (position) position.textContent = `${currentIndex + 1} / ${clips.length}`;
-    if (previous instanceof HTMLButtonElement) {
-      previous.disabled = currentIndex === 0;
-    }
-    if (next instanceof HTMLButtonElement) {
-      next.disabled = currentIndex >= clips.length - 1;
-    }
-    const progressLabel = (root.dataset.progressLabel || '')
-      .replace('{{current}}', String(currentIndex + 1))
-      .replace('{{total}}', String(clips.length));
-    audio.setAttribute('aria-label', progressLabel || audio.getAttribute('aria-label') || '');
-  };
-
-  const select = (index, autoplay = false) => {
-    if (index < 0 || index >= clips.length) {
-      return;
-    }
-    currentIndex = index;
-    render();
-    if (autoplay) {
-      void audio.play().catch(() => {});
-    }
-  };
-
-  previous?.addEventListener('click', () => select(currentIndex - 1, true));
-  next?.addEventListener('click', () => select(currentIndex + 1, true));
-  audio.addEventListener('ended', () => {
-    if (currentIndex < clips.length - 1) {
-      select(currentIndex + 1, true);
-    }
-  });
-
-  render();
-  return {
-    play() {
-      if (clips.length === 0) return;
-      void audio.play().catch(() => {});
-    },
-    setClips(nextClips) {
-      audio.pause();
-      clips = Array.isArray(nextClips) ? nextClips : [];
-      currentIndex = 0;
-      render();
-    },
-    stop() {
-      audio.pause();
-      audio.currentTime = 0;
-    },
-  };
-}
-
 function initializeAudioPlayers() {
   for (const root of document.querySelectorAll('[data-scene-media-audio-player]')) {
     if (root.closest('[data-scene-media-preview-modal]')) {
       continue;
     }
-    initializeAudioPlayer(root);
+    createSceneAudioPlayer(root);
   }
 }
 
@@ -150,7 +65,7 @@ function initializePreviewModal() {
   const image = modalElement.querySelector('[data-scene-media-preview-image]');
   const scriptSection = modalElement.querySelector('[data-scene-media-preview-script-section]');
   const scriptContent = modalElement.querySelector('[data-scene-media-preview-script]');
-  const player = initializeAudioPlayer(
+  const player = createSceneAudioPlayer(
     modalElement.querySelector('[data-scene-media-audio-player]'),
   );
 
@@ -166,7 +81,13 @@ function initializePreviewModal() {
         image.src = item.image?.src || '';
         image.alt = item.image?.alt || '';
       }
-      player?.setClips(item.audio?.clips || []);
+      player?.setData(
+        (item.audio?.clips || []).map((clip) => ({
+          src: clip.src,
+          speaker: clip.speaker || '',
+          text: null,
+        })),
+      );
       renderPreviewScript(scriptSection, scriptContent, item.script);
       modal.show();
       player?.play();
