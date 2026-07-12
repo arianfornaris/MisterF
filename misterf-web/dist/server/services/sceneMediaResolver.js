@@ -162,7 +162,7 @@ function toCompactCatalogItem(item) {
         : 0;
     return {
         audioAvailable: Boolean(item.audio),
-        audioDurationSeconds: item.audio?.durationSeconds,
+        audioClipCount: item.audio?.clips.length,
         format: item.format,
         id: item.id,
         level: item.level,

@@ -11,8 +11,8 @@ const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
 const contentPolicyMessage = 'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.';
 export class SceneMediaCreationError extends Error {
     reason;
-    constructor(message, reason = 'generation_failed') {
-        super(message);
+    constructor(message, reason = 'generation_failed', options = {}) {
+        super(message, { cause: options.cause });
         this.name = 'SceneMediaCreationError';
         this.reason = reason;
     }
@@ -66,9 +66,9 @@ export async function generateReadySceneMedia(input) {
                 ? await reuseAudio(input.sourceItem, storage)
                 : undefined;
         if (audioResult &&
-            'uploadedStorageKey' in audioResult &&
-            typeof audioResult.uploadedStorageKey === 'string') {
-            uploadedKeys.push(audioResult.uploadedStorageKey);
+            'uploadedStorageKeys' in audioResult &&
+            Array.isArray(audioResult.uploadedStorageKeys)) {
+            uploadedKeys.push(...audioResult.uploadedStorageKeys);
         }
         const image = {
             ...imageResult.layer,
@@ -110,6 +110,9 @@ export async function generateReadySceneMedia(input) {
             ownerUserId: input.ownerUserId,
             prompt: input.prompt,
             provenance: {
+                audioVoices: audioResult && 'voices' in audioResult
+                    ? audioResult.voices
+                    : null,
                 layerDecisions: input.layerDecisions ?? null,
                 sourceMediaId: input.sourceItem?.id ?? null,
                 sourceVisualAssetId: input.sourceItem?.visualAssetId ?? null,
@@ -134,9 +137,12 @@ export async function generateReadySceneMedia(input) {
 export async function deleteUnpersistedSceneMediaObjects(draft, sourceItem) {
     const sourceKeys = new Set([
         sourceItem?.image?.storageKey,
-        sourceItem?.audio?.storageKey,
+        ...(sourceItem?.audio?.clips.map((clip) => clip.storageKey) ?? []),
     ].filter((value) => Boolean(value)));
-    const draftKeys = [draft.image.storageKey, draft.audio?.storageKey]
+    const draftKeys = [
+        draft.image.storageKey,
+        ...(draft.audio?.clips.map((clip) => clip.storageKey) ?? []),
+    ]
         .filter((value) => Boolean(value))
         .filter((value) => !sourceKeys.has(value));
     const storage = getUserFileStorageProvider();
@@ -227,55 +233,81 @@ async function generateMetadata(input) {
     return generateSceneMediaMetadataPackage(generationInput);
 }
 async function generateAndStoreAudio(input) {
-    const openRouterApiKey = await requireCreditKey(input.ownerUserId);
-    const generated = await generateSceneMediaAudio({ openRouterApiKey, script: input.script });
-    const storageKey = createSceneMediaStorageKey({
-        extension: generated.extension,
-        fileRole: 'audio',
-        mediaId: input.mediaId,
-        userId: input.ownerUserId,
+    const generated = await generateSceneMediaAudio({
+        getOpenRouterApiKey: () => requireCreditKey(input.ownerUserId),
+        script: input.script,
     });
     const storage = getUserFileStorageProvider();
-    await storage.putObject({
-        body: generated.bytes,
-        cacheControl: publicImmutableCacheControl,
-        contentType: generated.contentType,
-        key: storageKey,
-        metadata: {
-            mediaId: input.mediaId,
-            model: generated.model,
-            provider: generated.provider,
-            userId: input.ownerUserId,
-        },
-        visibility: 'public-read',
-    });
+    const uploadedStorageKeys = [];
+    const clips = [];
+    try {
+        for (const clip of generated.clips) {
+            const storageKey = createSceneMediaStorageKey({
+                extension: clip.extension,
+                fileId: `turn-${String(clip.turn).padStart(2, '0')}`,
+                fileRole: 'audio',
+                mediaId: input.mediaId,
+                userId: input.ownerUserId,
+            });
+            await storage.putObject({
+                body: clip.bytes,
+                cacheControl: publicImmutableCacheControl,
+                contentType: clip.contentType,
+                key: storageKey,
+                metadata: {
+                    mediaId: input.mediaId,
+                    model: generated.model,
+                    provider: generated.provider,
+                    speaker: clip.speaker,
+                    turn: String(clip.turn),
+                    userId: input.ownerUserId,
+                    voice: clip.voice,
+                },
+                visibility: 'public-read',
+            });
+            uploadedStorageKeys.push(storageKey);
+            clips.push({
+                speaker: clip.speaker,
+                src: storage.createPublicUrl(storageKey),
+                storageKey,
+                turn: clip.turn,
+            });
+        }
+    }
+    catch (error) {
+        await Promise.allSettled(uploadedStorageKeys.map((key) => storage.deleteObject(key)));
+        throw error;
+    }
     return {
         layer: {
-            durationSeconds: generated.durationSeconds,
-            format: 'mp3',
+            clips,
+            format: 'wav',
             model: generated.model,
             provider: generated.provider,
-            src: storage.createPublicUrl(storageKey),
-            storageKey,
-            voices: generated.voices,
+            voiceStrategy: generated.voiceStrategy,
         },
-        uploadedStorageKey: storageKey,
+        uploadedStorageKeys,
+        voices: Array.from(new Map(generated.clips.map((clip) => [clip.speaker, {
+                speaker: clip.speaker,
+                voice: clip.voice,
+            }])).values()),
     };
 }
 async function reuseAudio(sourceItem, storage) {
     if (!sourceItem?.audio) {
         return undefined;
     }
-    if (sourceItem.audio.storageKey) {
-        await storage.makeObjectPublic(sourceItem.audio.storageKey);
-        return {
-            layer: {
-                ...sourceItem.audio,
-                src: storage.createPublicUrl(sourceItem.audio.storageKey),
-            },
-        };
+    const clips = [];
+    for (const clip of sourceItem.audio.clips) {
+        if (clip.storageKey) {
+            await storage.makeObjectPublic(clip.storageKey);
+            clips.push({ ...clip, src: storage.createPublicUrl(clip.storageKey) });
+        }
+        else {
+            clips.push(clip);
+        }
     }
-    return { layer: sourceItem.audio };
+    return { layer: { ...sourceItem.audio, clips } };
 }
 function createSourceContext(input) {
     return input.sourceItem && input.layerDecisions
@@ -302,13 +334,13 @@ function mapCreationError(error) {
         return new SceneMediaCreationError(contentPolicyMessage, 'content_policy');
     }
     if (error instanceof SceneMediaImageProviderError) {
-        return new SceneMediaCreationError('Unable to generate this media image.', 'image_provider_error');
+        return new SceneMediaCreationError('Unable to generate this media image.', 'image_provider_error', { cause: error });
     }
     if (error instanceof SceneMediaScriptProviderError) {
-        return new SceneMediaCreationError('Unable to generate this media metadata.', 'script_provider_error');
+        return new SceneMediaCreationError('Unable to generate this media metadata.', 'script_provider_error', { cause: error });
     }
     if (error instanceof SceneMediaAudioProviderError) {
-        return new SceneMediaCreationError('Unable to generate this media audio.', 'audio_provider_error');
+        return new SceneMediaCreationError('Unable to generate this media audio.', 'audio_provider_error', { cause: error });
     }
     return error instanceof Error ? error : new Error(String(error));
 }

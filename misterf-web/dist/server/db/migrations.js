@@ -1957,5 +1957,18 @@ export const migrations = [
         ON user_scene_media (user_id, profile_id, source_media_id, updated_at DESC);
     `,
     },
+    {
+        id: 21,
+        name: 'remove_legacy_scene_media_audio',
+        up: `
+      DELETE FROM user_scene_media
+      WHERE audio_json IS NOT NULL
+        AND (
+          json_extract(audio_json, '$.format') IS NOT 'wav'
+          OR json_extract(audio_json, '$.voiceStrategy') IS NOT 'per_turn_clips'
+          OR json_type(audio_json, '$.clips') IS NOT 'array'
+        );
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

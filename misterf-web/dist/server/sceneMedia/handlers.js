@@ -194,29 +194,6 @@ export async function serveSceneMediaImageAsset(request, response) {
     });
     response.redirect(readUrl);
 }
-export async function serveSceneMediaAudioAsset(request, response) {
-    const auth = ensureVerifiedSceneMediaUser(request, response);
-    if (!auth) {
-        return;
-    }
-    const mediaId = typeof request.params.mediaId === 'string'
-        ? request.params.mediaId
-        : '';
-    const mediaItem = findSceneMediaItemById(mediaId, {
-        profileId: auth.activeProfile.id,
-        userId: auth.user.id,
-    });
-    const storageKey = mediaItem?.audio?.storageKey;
-    if (!mediaItem || mediaItem.source !== 'user_generated' || !storageKey) {
-        response.sendStatus(404);
-        return;
-    }
-    const readUrl = await getUserFileStorageProvider().createReadUrl({
-        expiresInSeconds: 300,
-        storageKey,
-    });
-    response.redirect(readUrl);
-}
 export async function createSceneMediaFromPrompt(request, response) {
     const auth = ensureVerifiedSceneMediaUser(request, response);
     if (!auth) {
@@ -453,7 +430,7 @@ export async function reviseSceneMedia(request, response) {
             creditExhausted: isCreditExhaustedError(error),
             message: isCreditExhaustedError(error)
                 ? response.locals.t('mediaLibrary.creditExhausted')
-                : response.locals.t('mediaLibrary.revisionFailed'),
+                : sceneMediaRevisionFailureMessage(response, error),
             userMessage: message,
         });
     }
@@ -595,6 +572,12 @@ function sceneMediaCreationFailureMessage(response, error) {
         return response.locals.t('mediaLibrary.failure.contentPolicy');
     }
     return response.locals.t('mediaLibrary.creationFailed');
+}
+function sceneMediaRevisionFailureMessage(response, error) {
+    if (error instanceof SceneMediaCreationError && error.reason === 'audio_provider_error') {
+        return response.locals.t('mediaLibrary.revisionAudioFailed');
+    }
+    return response.locals.t('mediaLibrary.revisionFailed');
 }
 function wantsJsonResponse(request) {
     return Boolean(request.get('accept')?.includes('application/json'));

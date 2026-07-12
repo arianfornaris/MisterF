@@ -106,6 +106,12 @@ function normalizePlan(plan, media) {
 }
 function serializeCurrentMedia(media) {
     return {
+        audio: media.audio ? {
+            clipCount: media.audio.clips.length,
+            format: media.audio.format,
+            speakers: Array.from(new Set(media.audio.clips.map((clip) => clip.speaker))),
+            voiceStrategy: media.audio.voiceStrategy,
+        } : undefined,
         format: media.format,
         imageAlt: media.image?.alt,
         level: media.level,
