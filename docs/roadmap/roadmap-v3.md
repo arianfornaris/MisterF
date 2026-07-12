@@ -208,6 +208,16 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
 - [ ] Allow a create-script, review, then create-audio flow: generate the
   structured script first, let the user review and edit it, and only then
   synthesize the per-turn audio clips from the approved script.
+- [ ] Give authoring control over audio voice and delivery style. Today voices
+  are hard-coded (`dialogueVoices = ['Kore', 'Puck', 'Aoede']`) and assigned by
+  speaker order, the revision chat has no voice/style lever, and the OpenRouter
+  TTS request sends only text + voice with no style prompt — so a request like
+  "make Sam sound like a 7-year-old" cannot change anything. Add per-speaker
+  voice selection from the Gemini prebuilt catalog and natural-language style
+  direction (emotion, pace, register) passed through to the TTS call, surfaced
+  in the authoring/revision flow. Note Gemini TTS has no true child voices and
+  no voice cloning; this can only approximate a lighter/younger register, so a
+  provider with real child voices would be a separate follow-up.
 
 ## 1.3 Voice Messages in Roleplays
 
