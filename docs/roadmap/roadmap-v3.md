@@ -159,9 +159,13 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     scripts are synthesized through OpenRouter's Speech API, defaulting to
     `google/gemini-3.1-flash-tts-preview` per the research; narration and
     monologue use one voice, dialogue assigns distinct voices where possible,
-    MP3 output is stored in Spaces, and provider/model/voice metadata is
-    persisted on the audio layer. Human QA, exact duration targeting, and
-    fallback/draft model controls remain pending.
+    and provider/model/voice metadata is persisted on the audio layer. Updated
+    2026-07-12: audio is now an ordered list of per-turn WAV clips
+    (`format: 'wav'`, `voiceStrategy: 'per_turn_clips'`) instead of one
+    concatenated MP3; each clip stores its speaker, turn, and Spaces
+    `storageKey`, and migration 21 purges legacy single-file audio rows. Human
+    QA, exact duration targeting, and fallback/draft model controls remain
+    pending.
   - [x] Remove persisted generation jobs and incomplete media placeholders.
     Completed 2026-07-10: failures return to the creation page with preserved
     form state, no media row is created until every requested layer is ready,
