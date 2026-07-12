@@ -134,7 +134,6 @@ export const es: LocaleCatalog = {
     authoringChatEmpty: 'Describe el cambio que quieres hacer en esta media.',
     audio: 'Audio',
     audioClipProgress: 'Fragmento {{current}} de {{total}}',
-    audioClipCount: 'Fragmentos de audio: {{count}}',
     audioPlayerAria: 'Audio de escucha',
     audioLoading: 'Cargando audio…',
     audioError: 'No se pudo cargar el audio.',

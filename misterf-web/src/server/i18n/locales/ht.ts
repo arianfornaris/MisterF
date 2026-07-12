@@ -143,7 +143,6 @@ export const ht: LocaleCatalog = {
     authoringChatEmpty: 'Dekri chanjman ou vle fè nan medya sa a.',
     audio: 'Odyo',
     audioClipProgress: 'Klip {{current}} sou {{total}}',
-    audioClipCount: 'Klip odyo: {{count}}',
     audioPlayerAria: 'Odyo pou koute',
     audioLoading: 'Y ap chaje odyo…',
     audioError: 'Nou pa t ka chaje odyo a.',

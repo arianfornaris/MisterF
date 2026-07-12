@@ -134,7 +134,6 @@ export const en: LocaleCatalog = {
     authoringChatEmpty: 'Describe the change you want to make to this media.',
     audio: 'Audio',
     audioClipProgress: 'Clip {{current}} of {{total}}',
-    audioClipCount: 'Audio clips: {{count}}',
     audioPlayerAria: 'Listening audio',
     audioLoading: 'Loading audio…',
     audioError: 'Audio could not be loaded.',

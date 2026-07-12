@@ -147,9 +147,6 @@
               <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
               <% if (mediaItem.audio) { %>
                 <%- include('partials/scene-media-audio-player', { audio: mediaItem.audio }) %>
-                <p class="text-body-secondary small mb-0 mt-2">
-                  <%= t('mediaLibrary.audioClipCount', { count: mediaItem.audio.clips.length }) %>
-                </p>
               <% } else { %>
                 <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>
               <% } %>
