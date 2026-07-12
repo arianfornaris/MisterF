@@ -613,13 +613,15 @@ def plain_text(turns: list[tuple[str, str]]) -> str:
     return "\n".join(text for _, text in turns)
 
 
-def synthesize_turn(text: str, voice: str, api_key: str, retry_count: int = 2) -> bytes:
+def synthesize_turn(
+    text: str, voice: str, api_key: str, retry_count: int = 2, response_format: str = "pcm"
+) -> bytes:
     url = "https://openrouter.ai/api/v1/audio/speech"
     payload = {
         "model": MODEL,
         "input": text,
         "voice": voice,
-        "response_format": "pcm",
+        "response_format": response_format,
     }
     body = json.dumps(payload).encode("utf-8")
     headers = {

@@ -99,21 +99,32 @@ interface SceneMediaImageLayer {
 }
 
 interface SceneMediaAudioLayer {
-  src: string;
-  durationSeconds: number;
-  format: "mp3";
-  storageKey?: string;
+  format: "wav";
+  voiceStrategy: "per_turn_clips";
   provider?: "openrouter";
   model?: string;
-  voices?: Array<{
+  clips: Array<{
+    turn: number;
     speaker: string;
-    voice: string;
+    src: string;
+    storageKey?: string;
   }>;
 }
+
+type IdentityStrategy =
+  | "named_in_dialogue"
+  | "named_in_narration"
+  | "role_only";
 
 type SceneMediaScript =
   | {
       scriptType: "dialogue";
+      identityStrategy: IdentityStrategy;
+      speakers: Array<{
+        name: string;
+        role: string;
+        nameSpokenInAudio: boolean;
+      }>;
       turns: Array<{
         speaker: string;
         text: string;
@@ -121,6 +132,7 @@ type SceneMediaScript =
     }
   | {
       scriptType: "narration" | "monologue";
+      identityStrategy: IdentityStrategy;
       text: string;
     };
 ```
@@ -137,6 +149,28 @@ requested, one atomic script-and-audio layer. It should not need to mimic a
 built-in matrix of variants to be usable by tutor, resource, or quiz flows.
 
 The runtime registry should not carry duplicated `plainText` transcripts. Use `turns` for dialogue and `text` for narration or monologue.
+
+### Audio Packaging
+
+Audio is an ordered list of per-turn WAV clips, not one concatenated MP3. A
+narration or monologue has one clip; a dialogue has one clip per turn. The
+client plays the list through one sequencer and may replay an individual line
+by selecting its clip.
+
+Gemini TTS via OpenRouter returns PCM. Each provider response is wrapped in a
+WAV header without decoding, concatenating, or re-encoding it. This removes the
+runtime `ffmpeg` dependency, preserves a distinct voice for every character,
+and gives built-in and user-generated media the same playback contract.
+
+The accepted trade-off is a larger number of immutable objects and larger WAV
+payloads. Clips should be cached and preloaded before playback. Durations are
+not persisted; a client that needs them reads them from the loaded clips.
+
+`identityStrategy` and `nameSpokenInAudio` define whether learner-facing
+questions and tutor responses may identify a character by name. A name may be
+used only when it is actually established in the audio; otherwise the character
+must be referenced by role. See `design/scene-scripts/README.md` for the full
+quality and identity rules.
 
 ## Built-In Assets
 
@@ -155,7 +189,7 @@ The built-in registry should contain only product-safe fields:
 - visual format;
 - optional single learner level;
 - public image URL and alt text;
-- optional public audio URL, duration, and format;
+- optional ordered public WAV clip URLs and audio format;
 - optional structured script data for that media item;
 - teaching tags/use cases needed for selection.
 
@@ -192,7 +226,11 @@ item:
     alt: "..."
   },
   script: { scriptType: "narration", text: "..." },
-  audio: { src: "...", durationSeconds: 32.4, format: "mp3" },
+  audio: {
+    format: "wav",
+    voiceStrategy: "per_turn_clips",
+    clips: [{ turn: 1, speaker: "Narrator", src: "..." }]
+  },
   createdFrom: {
     baseBuiltInMediaId: "airport-security-line-01",
     baseVisualAssetId: "airport-security-line-01",

@@ -384,6 +384,11 @@ def main() -> None:
       margin: 8px 0;
     }}
 
+    .turn-audio {{
+      min-height: 30px;
+      margin: 6px 0 0;
+    }}
+
     .transcript {{
       display: grid;
       gap: 8px;
@@ -690,12 +695,12 @@ def main() -> None:
     }}
 
     function renderSummary() {{
-      const totalDuration = scripts.reduce((sum, script) => sum + Number(script.audio?.durationSeconds || 0), 0);
+      const totalClips = scripts.reduce((sum, script) => sum + (script.audio?.clips?.length || 0), 0);
       const flaggedCount = scripts.filter((script) => noteFor(script.id).needsRewrite).length;
       const tiles = [
         ["Scenes", sceneImages.length],
         ["Scripts", scripts.length],
-        ["Audio", formatSeconds(totalDuration)],
+        ["Clips", totalClips],
         ["Flagged", flaggedCount],
       ];
       elements.summaryGrid.innerHTML = tiles.map(([label, value]) => `
@@ -770,6 +775,7 @@ def main() -> None:
         <div class="turn">
           <div class="speaker">${{escapeHtml(speakerName(script, turn.speakerId))}}</div>
           <div class="turn-text">${{escapeHtml(turn.text)}}</div>
+          ${{(script.audio?.clips || []).filter((clip) => clip.turn === turn.turn).map((clip) => `<audio class="turn-audio" controls preload="none" src="${{escapeAttribute(clip.file)}}"></audio>`).join("")}}
         </div>
       `).join("");
       return `
@@ -778,14 +784,13 @@ def main() -> None:
             <div>
               <h3>${{escapeHtml(script.level)}} · ${{escapeHtml(script.title)}}</h3>
               <div class="script-meta">
-                ${{escapeHtml(script.scriptType)}} · ${{script.stats.wordCount}} words · ${{script.stats.characterCount}} chars · ${{formatSeconds(script.audio?.durationSeconds)}} · ${{escapeHtml(script.audio?.model || "no audio")}}
+                ${{escapeHtml(script.scriptType)}} · ${{script.stats.wordCount}} words · ${{script.stats.characterCount}} chars · ${{script.audio?.clips?.length || 0}} clip(s) · ${{escapeHtml(script.audio?.model || "no audio")}}
               </div>
             </div>
             <div class="badge-row">
               ${{note.needsRewrite ? '<span class="badge danger">Needs rewrite</span>' : '<span class="badge">OK</span>'}}
             </div>
           </div>
-          <audio controls preload="none" src="${{escapeAttribute(script.audio?.file || "")}}"></audio>
           <div class="transcript${{state.collapsedText ? " hidden" : ""}}">
             ${{transcript}}
           </div>
