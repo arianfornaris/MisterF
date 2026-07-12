@@ -188,6 +188,22 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
 - [ ] Add focused tests/fixtures for valid block rendering, invalid asset ids,
   missing optional layers, private generated media access, and the media library
   source boundary.
+- [ ] Improve the media audio player now that audio is multi-file: the player
+  is no longer a single `<audio>` element but an ordered set of per-turn WAV
+  clips, so refine playback UX (continuous play across clips, per-turn speaker
+  labels, clip progress, prev/next navigation) in both the media library and
+  wherever media audio is rendered.
+- [ ] Improve the media derivation and creation flow to be step by step
+  instead of one synchronous blocking pass: guide the user through the
+  decisions (title/level/format, script, layers) as discrete steps, and leave
+  image and audio generation as the final step so the expensive, credit-gated
+  provider calls only run once everything else is confirmed.
+- [ ] Improve the media-authoring AI chat to use tools and hold a more natural
+  conversation, rather than a rigid form-like exchange: let the model drive the
+  creation steps through tool calls and converse normally with the user.
+- [ ] Allow a create-script, review, then create-audio flow: generate the
+  structured script first, let the user review and edit it, and only then
+  synthesize the per-turn audio clips from the approved script.
 
 ## 1.3 Voice Messages in Roleplays
 
