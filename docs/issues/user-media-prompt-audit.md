@@ -2,9 +2,11 @@
 
 Date: 2026-07-12
 
-Status: **Analysis. No code changed.** Findings and recommendations for porting
-the built-in scene-media authoring guidelines into the app's user-generation
-system prompts and pipeline.
+Status: **Implemented 2026-07-13 (commit `b87c2a45`).** All findings below (P0–P3)
+were applied to the user-generation path: `sceneMediaScripts.ts` (gender in the
+schema/prompt, complexity-based levels, narrative/TTS rules, no-description-phrase
+validation), `audioGeneration.ts` (gender-keyed voices), and the revision
+template. Human review of generated output against these rules is still valuable.
 
 Roadmap: [V3, Scene Media Library](../roadmap/roadmap-v3.md#12-scene-media-library)
 

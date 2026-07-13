@@ -227,7 +227,7 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   in the authoring/revision flow. Note Gemini TTS has no true child voices and
   no voice cloning; this can only approximate a lighter/younger register, so a
   provider with real child voices would be a separate follow-up.
-- [ ] Audit and harden the system prompts that drive user media creation and
+- [x] Audit and harden the system prompts that drive user media creation and
   editing, porting the guidelines proven while authoring the built-in library.
   Analyze all media metadata and evaluate the quality of the generation prompts
   in `src/server/services/sceneMediaScripts.ts` (and the revision/authoring
@@ -236,8 +236,11 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   `design/scene-scripts/script-levels.md` — so the work is to distill those into
   the app's prompts and validation. Full analysis:
   [User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md).
+  Done 2026-07-13 (commit `b87c2a45`): all sub-tasks below implemented in
+  `sceneMediaScripts.ts` (schema + prompt + content validation),
+  `audioGeneration.ts` (gender-keyed voices), and the revision template.
   Findings, in priority order:
-  - [ ] **P0 — Gender-aware voices (end-to-end).** `audioGeneration.ts` assigns
+  - [x] **P0 — Gender-aware voices (end-to-end).** `audioGeneration.ts` assigns
     TTS voices by speaker order (`['Kore','Puck','Aoede']`), not gender, and the
     generation schema has no `gender` field — so the user path reproduces the
     exact bug the built-in library just fixed (a two-man dialogue gets a female
@@ -245,23 +248,23 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     prompt (the model already receives the image), and pick each voice from a
     gender-keyed pool (female: Kore/Aoede/Leda; male: Puck/Charon/Fenrir),
     reusing the runtime `SceneMediaSpeakerGender` type.
-  - [ ] **P1 — Forbid narration/meta text inside spoken turns.** The type union
+  - [x] **P1 — Forbid narration/meta text inside spoken turns.** The type union
     prevents a "mixed" script type, but nothing stops descriptive lines inside a
     turn ("He opens the door and says…") or meta phrases ("this image shows").
     Add the prompt rule and a server check mirroring the built-in
     `validate_no_description_phrases`.
-  - [ ] **P1 — Complexity-based level guidance.** Replace the duration-based
+  - [x] **P1 — Complexity-based level guidance.** Replace the duration-based
     hints ("about 20–45 seconds") with the `script-levels.md` bands
     (grammar/vocab/connectors per level plus the listening-load rule: shorter,
     single-pass-parseable sentences).
-  - [ ] **P2 — Narrative/identity specifics.** Name each character aloud in the
+  - [x] **P2 — Narrative/identity specifics.** Name each character aloud in the
     first one or two turns; scale cast size by level (two speakers for A1-A2, at
     most three higher); require a clear arc (setup, complication, action,
     resolution). (Identity strategy and the answerability rule are already
     ported.)
-  - [ ] **P2 — TTS-safe text.** Instruct the model to spell out abbreviations and
+  - [x] **P2 — TTS-safe text.** Instruct the model to spell out abbreviations and
     numbers so names/times/figures are pronounced correctly.
-  - [ ] **P3 — Schema tightening + revision parity.** Require `min(2)` speakers
+  - [x] **P3 — Schema tightening + revision parity.** Require `min(2)` speakers
     for `dialogue` (a one-speaker dialogue currently validates); ensure the
     revision path (`sceneMediaRevisions.ts`), which regenerates through the same
     generator, inherits every rule above.
