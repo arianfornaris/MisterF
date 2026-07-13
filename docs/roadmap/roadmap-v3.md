@@ -278,14 +278,16 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   audit above ([User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md))
   to the full media prompt surface. Analyze each prompt one by one:
   - [x] **Script/metadata system prompt** —
-    `system-prompts/scene-media/generation.md`. Reviewed with the user prompt as
-    one loop: rules are coherent with the Zod schema, no JSON shape lives here.
+    `system-prompts/scene-media/generation.md`. Now holds the self-documented
+    TypeScript `Response`/`Script` type (the response contract), with per-field
+    doc comments as the single source of truth; the field rules were removed from
+    the prose so nothing is duplicated. Rules are coherent with the Zod schema.
   - [x] **Script/metadata user prompt** — `buildSceneMediaScriptUserPrompt` in
-    `services/sceneMediaScripts.ts`. Converted the requested-shape block from a
-    JSON example to a TypeScript `interface`/`type` per the JSON Shape
-    Convention, and made the monologue `gender` required in the generation
-    schema so the type matches field-for-field. (Static level/format guidance
-    kept in code for now; it is per-request assembly, not a flat template.)
+    `services/sceneMediaScripts.ts`. Replaced the inline JSON example with a
+    reference to the `Response` type in the system prompt (single source of
+    truth), and made the monologue `gender` required in the generation schema so
+    the type matches field-for-field. Static level/format guidance stays in code
+    (per-request assembly, not a flat template).
   - [ ] **Image generation prompt** — `buildSceneMediaImagePrompt` in
     `sceneMedia/imageGeneration.ts` (format instruction, level, script hint,
     safety); still hardcoded.
