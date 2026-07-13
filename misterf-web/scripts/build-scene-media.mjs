@@ -156,6 +156,7 @@ function buildScript(script) {
       identityStrategy: script.identityStrategy,
       scriptType: 'dialogue',
       speakers: (script.speakers ?? []).map((speaker) => ({
+        gender: speaker.gender,
         name: speaker.name,
         nameSpokenInAudio: speaker.nameSpokenInAudio,
         role: speaker.role,

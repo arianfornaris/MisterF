@@ -3362,11 +3362,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "Diego",
           "nameSpokenInAudio": true,
           "role": "late_employee"
         },
         {
+          "gender": "male",
           "name": "Noah",
           "nameSpokenInAudio": true,
           "role": "coworker"
@@ -3484,11 +3486,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "Diego",
           "nameSpokenInAudio": true,
           "role": "late_employee"
         },
         {
+          "gender": "male",
           "name": "Noah",
           "nameSpokenInAudio": true,
           "role": "coworker"
@@ -3607,11 +3611,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "Diego",
           "nameSpokenInAudio": true,
           "role": "late_employee"
         },
         {
+          "gender": "male",
           "name": "Noah",
           "nameSpokenInAudio": true,
           "role": "coworker"
@@ -4345,11 +4351,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Maria",
           "nameSpokenInAudio": true,
           "role": "person_who_lost_item"
         },
         {
+          "gender": "male",
           "name": "Mr. James",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -4467,11 +4475,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Maria",
           "nameSpokenInAudio": true,
           "role": "person_who_lost_item"
         },
         {
+          "gender": "male",
           "name": "Mr. James",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -4589,11 +4599,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Maria",
           "nameSpokenInAudio": true,
           "role": "person_who_lost_item"
         },
         {
+          "gender": "male",
           "name": "Mr. James",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -5903,11 +5915,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Anna",
           "nameSpokenInAudio": true,
           "role": "coworker"
         },
         {
+          "gender": "male",
           "name": "Marco",
           "nameSpokenInAudio": true,
           "role": "coworker"
@@ -6022,11 +6036,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Anna",
           "nameSpokenInAudio": true,
           "role": "coworker"
         },
         {
+          "gender": "male",
           "name": "Marco",
           "nameSpokenInAudio": true,
           "role": "coworker"
@@ -6141,11 +6157,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Anna",
           "nameSpokenInAudio": true,
           "role": "coworker"
         },
         {
+          "gender": "male",
           "name": "Marco",
           "nameSpokenInAudio": true,
           "role": "coworker"
@@ -6850,7 +6868,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "pancake-practice-kitchen-01-a1-a2",
     "image": {
-      "alt": "Pancake Practice. The grandmother shows the grandson pancake batter. The grandson pours too much batter and makes a mess. They laugh and clean the counter together. They proudly serve a plate of pancakes.",
+      "alt": "Pancake Practice. The grandmother shows her adult grandson how to prepare pancake batter. The adult grandson pours too much batter and makes a mess. They laugh and clean the counter together. They proudly serve a plate of pancakes.",
       "height": 1024,
       "mediaId": "pancake-practice-kitchen-01",
       "source": "built_in",
@@ -6863,20 +6881,22 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Grandma Rosa",
           "nameSpokenInAudio": true,
           "role": "grandmother"
         },
         {
+          "gender": "male",
           "name": "Leo",
           "nameSpokenInAudio": true,
-          "role": "learner_cook"
+          "role": "adult_grandson_learning_to_cook"
         }
       ],
       "turns": [
         {
           "speaker": "Leo",
-          "text": "My pancake is too dark, Grandma Rosa."
+          "text": "Grandma Rosa, I promised to make pancakes for my friends, but this one is too dark."
         },
         {
           "speaker": "Grandma Rosa",
@@ -6884,15 +6904,15 @@ export const builtInSceneMediaItems =
         },
         {
           "speaker": "Leo",
-          "text": "Now I pour a little batter."
+          "text": "I will use less batter this time."
         },
         {
           "speaker": "Grandma Rosa",
-          "text": "Good. Wait for small bubbles."
+          "text": "Good. Wait for small bubbles before you turn it."
         },
         {
           "speaker": "Leo",
-          "text": "This pancake looks much better."
+          "text": "This one looks much better. Brunch may be saved."
         }
       ]
     },
@@ -6919,7 +6939,7 @@ export const builtInSceneMediaItems =
       "cleaning",
       "problem-solution"
     ],
-    "title": "Making Pancakes",
+    "title": "Making Pancakes For Friends",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -6930,8 +6950,8 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "pancake-practice-kitchen-01",
     "visualSummary": [
-      "The grandmother shows the grandson pancake batter.",
-      "The grandson pours too much batter and makes a mess.",
+      "The grandmother shows her adult grandson how to prepare pancake batter.",
+      "The adult grandson pours too much batter and makes a mess.",
       "They laugh and clean the counter together.",
       "They proudly serve a plate of pancakes."
     ]
@@ -6973,7 +6993,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "pancake-practice-kitchen-01-b1-b2",
     "image": {
-      "alt": "Pancake Practice. The grandmother shows the grandson pancake batter. The grandson pours too much batter and makes a mess. They laugh and clean the counter together. They proudly serve a plate of pancakes.",
+      "alt": "Pancake Practice. The grandmother shows her adult grandson how to prepare pancake batter. The adult grandson pours too much batter and makes a mess. They laugh and clean the counter together. They proudly serve a plate of pancakes.",
       "height": 1024,
       "mediaId": "pancake-practice-kitchen-01",
       "source": "built_in",
@@ -6986,20 +7006,22 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Grandma Rosa",
           "nameSpokenInAudio": true,
           "role": "grandmother"
         },
         {
+          "gender": "male",
           "name": "Leo",
           "nameSpokenInAudio": true,
-          "role": "learner_cook"
+          "role": "adult_grandson_learning_to_cook"
         }
       ],
       "turns": [
         {
           "speaker": "Leo",
-          "text": "The first pancake burned, Grandma Rosa, because I left it in the pan too long."
+          "text": "I invited my friends for brunch, Grandma Rosa, but the first pancake burned."
         },
         {
           "speaker": "Grandma Rosa",
@@ -7011,11 +7033,11 @@ export const builtInSceneMediaItems =
         },
         {
           "speaker": "Grandma Rosa",
-          "text": "Exactly. Then slide the spatula under it and turn it over quickly."
+          "text": "Exactly. Then slide the spatula underneath and turn it over quickly."
         },
         {
           "speaker": "Leo",
-          "text": "This one is golden. I think breakfast is improving."
+          "text": "This one is golden. I think my guests will actually get breakfast."
         }
       ]
     },
@@ -7043,7 +7065,7 @@ export const builtInSceneMediaItems =
       "cleaning",
       "problem-solution"
     ],
-    "title": "Pancake Practice",
+    "title": "Preparing For Brunch",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7054,8 +7076,8 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "pancake-practice-kitchen-01",
     "visualSummary": [
-      "The grandmother shows the grandson pancake batter.",
-      "The grandson pours too much batter and makes a mess.",
+      "The grandmother shows her adult grandson how to prepare pancake batter.",
+      "The adult grandson pours too much batter and makes a mess.",
       "They laugh and clean the counter together.",
       "They proudly serve a plate of pancakes."
     ]
@@ -7097,7 +7119,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "pancake-practice-kitchen-01-c1",
     "image": {
-      "alt": "Pancake Practice. The grandmother shows the grandson pancake batter. The grandson pours too much batter and makes a mess. They laugh and clean the counter together. They proudly serve a plate of pancakes.",
+      "alt": "Pancake Practice. The grandmother shows her adult grandson how to prepare pancake batter. The adult grandson pours too much batter and makes a mess. They laugh and clean the counter together. They proudly serve a plate of pancakes.",
       "height": 1024,
       "mediaId": "pancake-practice-kitchen-01",
       "source": "built_in",
@@ -7110,24 +7132,26 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Grandma Rosa",
           "nameSpokenInAudio": true,
           "role": "grandmother"
         },
         {
+          "gender": "male",
           "name": "Leo",
           "nameSpokenInAudio": true,
-          "role": "learner_cook"
+          "role": "adult_grandson_learning_to_cook"
         }
       ],
       "turns": [
         {
           "speaker": "Leo",
-          "text": "The first pancake looks like evidence from a kitchen disaster, Grandma Rosa."
+          "text": "I volunteered to host brunch, Grandma Rosa, and my first pancake looks like evidence from a kitchen disaster."
         },
         {
           "speaker": "Grandma Rosa",
-          "text": "It looks like practice, Leo. Pancakes are surprisingly good teachers because they show every mistake immediately."
+          "text": "It looks like practice, Leo. Pancakes are good teachers because they reveal every mistake immediately."
         },
         {
           "speaker": "Leo",
@@ -7135,11 +7159,11 @@ export const builtInSceneMediaItems =
         },
         {
           "speaker": "Grandma Rosa",
-          "text": "Right. Keep the pan medium-hot, pour less batter, and flip when the surface has bubbles and the edges begin to set."
+          "text": "Right. Keep the pan medium-hot, use less batter, and flip when bubbles appear and the edges begin to set."
         },
         {
           "speaker": "Leo",
-          "text": "This one is actually golden. I suppose breakfast forgives beginners after all."
+          "text": "This one is actually golden. Perhaps my friends will trust me with brunch after all."
         }
       ]
     },
@@ -7167,7 +7191,7 @@ export const builtInSceneMediaItems =
       "cleaning",
       "problem-solution"
     ],
-    "title": "Learning By Burning One Pancake",
+    "title": "Learning Before Hosting Brunch",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -7178,8 +7202,8 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "pancake-practice-kitchen-01",
     "visualSummary": [
-      "The grandmother shows the grandson pancake batter.",
-      "The grandson pours too much batter and makes a mess.",
+      "The grandmother shows her adult grandson how to prepare pancake batter.",
+      "The adult grandson pours too much batter and makes a mess.",
       "They laugh and clean the counter together.",
       "They proudly serve a plate of pancakes."
     ]
@@ -8062,11 +8086,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Maya",
           "nameSpokenInAudio": true,
           "role": "person_needing_help"
         },
         {
+          "gender": "male",
           "name": "Liam",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -8184,11 +8210,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Maya",
           "nameSpokenInAudio": true,
           "role": "person_needing_help"
         },
         {
+          "gender": "male",
           "name": "Liam",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -8307,11 +8335,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Maya",
           "nameSpokenInAudio": true,
           "role": "person_needing_help"
         },
         {
+          "gender": "male",
           "name": "Liam",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -8825,7 +8855,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "shared-lunch-classroom-01-a1-a2",
     "image": {
-      "alt": "Shared Lunch In The Classroom. The student opens a lunchbox. The student sees the lunchbox is empty and feels worried. A classmate offers to share food. The two students eat together while the teacher smiles nearby.",
+      "alt": "Shared Lunch In The Classroom. An adult learner opens his lunchbox during a course break. He sees that the lunchbox is empty and feels worried. An adult classmate offers to share food. The two adult learners eat together while their instructor smiles nearby.",
       "height": 1024,
       "mediaId": "shared-lunch-classroom-01",
       "source": "built_in",
@@ -8838,20 +8868,22 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Mina",
           "nameSpokenInAudio": true,
-          "role": "student_sharing_food"
+          "role": "adult_learner_sharing_food"
         },
         {
+          "gender": "male",
           "name": "Sam",
           "nameSpokenInAudio": true,
-          "role": "student_without_lunch"
+          "role": "adult_learner_without_lunch"
         }
       ],
       "turns": [
         {
           "speaker": "Sam",
-          "text": "I forgot my lunch today."
+          "text": "Mina, I left my lunch at home before class."
         },
         {
           "speaker": "Mina",
@@ -8863,24 +8895,24 @@ export const builtInSceneMediaItems =
         },
         {
           "speaker": "Mina",
-          "text": "Yes. I also have an apple."
+          "text": "Of course. I also brought some fruit."
         },
         {
           "speaker": "Sam",
-          "text": "You are a good friend."
+          "text": "That is very kind. I will bring coffee tomorrow."
         }
       ]
     },
     "setting": "classroom",
     "skills": [
-      "school_vocabulary",
+      "adult_education_vocabulary",
       "food_vocabulary",
       "emotions",
       "friendship",
       "present_continuous",
       "past_tense_story",
       "food",
-      "school",
+      "adult_education",
       "sharing"
     ],
     "source": "built_in",
@@ -8891,11 +8923,11 @@ export const builtInSceneMediaItems =
       "sharing",
       "friendship",
       "food",
-      "school",
+      "adult-education",
       "kindness",
       "problem-solution"
     ],
-    "title": "Lunch With Friends",
+    "title": "Lunch Between Classes",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -8906,10 +8938,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "shared-lunch-classroom-01",
     "visualSummary": [
-      "The student opens a lunchbox.",
-      "The student sees the lunchbox is empty and feels worried.",
-      "A classmate offers to share food.",
-      "The two students eat together while the teacher smiles nearby."
+      "An adult learner opens his lunchbox during a course break.",
+      "He sees that the lunchbox is empty and feels worried.",
+      "An adult classmate offers to share food.",
+      "The two adult learners eat together while their instructor smiles nearby."
     ]
   },
   {
@@ -8949,7 +8981,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "shared-lunch-classroom-01-b1-b2",
     "image": {
-      "alt": "Shared Lunch In The Classroom. The student opens a lunchbox. The student sees the lunchbox is empty and feels worried. A classmate offers to share food. The two students eat together while the teacher smiles nearby.",
+      "alt": "Shared Lunch In The Classroom. An adult learner opens his lunchbox during a course break. He sees that the lunchbox is empty and feels worried. An adult classmate offers to share food. The two adult learners eat together while their instructor smiles nearby.",
       "height": 1024,
       "mediaId": "shared-lunch-classroom-01",
       "source": "built_in",
@@ -8962,28 +8994,30 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Mina",
           "nameSpokenInAudio": true,
-          "role": "student_sharing_food"
+          "role": "adult_learner_sharing_food"
         },
         {
+          "gender": "male",
           "name": "Sam",
           "nameSpokenInAudio": true,
-          "role": "student_without_lunch"
+          "role": "adult_learner_without_lunch"
         }
       ],
       "turns": [
         {
           "speaker": "Sam",
-          "text": "I was in such a hurry this morning that I left my lunch on the kitchen table."
+          "text": "I came straight from work, Mina, and left my lunch on the kitchen table."
         },
         {
           "speaker": "Mina",
-          "text": "That is okay, Sam. I packed more than I need, so we can share."
+          "text": "That is okay, Sam. I packed more than I need, so we can share during the break."
         },
         {
           "speaker": "Sam",
-          "text": "Are you sure? I do not want you to be hungry later."
+          "text": "Are you sure? We still have another two hours of class this afternoon."
         },
         {
           "speaker": "Mina",
@@ -8991,19 +9025,20 @@ export const builtInSceneMediaItems =
         },
         {
           "speaker": "Sam",
-          "text": "Thanks, Mina. I will bring something extra tomorrow, just in case you forget too."
+          "text": "Thanks, Mina. I will bring coffee for both of us next time."
         }
       ]
     },
     "setting": "classroom",
     "skills": [
-      "school_vocabulary",
+      "adult_education_vocabulary",
       "food_vocabulary",
       "emotions",
       "friendship",
       "present_continuous",
       "past_tense_story",
-      "school_lunch",
+      "adult_education",
+      "food",
       "gratitude"
     ],
     "source": "built_in",
@@ -9014,11 +9049,11 @@ export const builtInSceneMediaItems =
       "sharing",
       "friendship",
       "food",
-      "school",
+      "adult-education",
       "kindness",
       "problem-solution"
     ],
-    "title": "Sharing At Lunch",
+    "title": "Sharing During The Course",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -9029,10 +9064,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "shared-lunch-classroom-01",
     "visualSummary": [
-      "The student opens a lunchbox.",
-      "The student sees the lunchbox is empty and feels worried.",
-      "A classmate offers to share food.",
-      "The two students eat together while the teacher smiles nearby."
+      "An adult learner opens his lunchbox during a course break.",
+      "He sees that the lunchbox is empty and feels worried.",
+      "An adult classmate offers to share food.",
+      "The two adult learners eat together while their instructor smiles nearby."
     ]
   },
   {
@@ -9072,7 +9107,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "shared-lunch-classroom-01-c1",
     "image": {
-      "alt": "Shared Lunch In The Classroom. The student opens a lunchbox. The student sees the lunchbox is empty and feels worried. A classmate offers to share food. The two students eat together while the teacher smiles nearby.",
+      "alt": "Shared Lunch In The Classroom. An adult learner opens his lunchbox during a course break. He sees that the lunchbox is empty and feels worried. An adult classmate offers to share food. The two adult learners eat together while their instructor smiles nearby.",
       "height": 1024,
       "mediaId": "shared-lunch-classroom-01",
       "source": "built_in",
@@ -9085,50 +9120,52 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Mina",
           "nameSpokenInAudio": true,
-          "role": "student_sharing_food"
+          "role": "adult_learner_sharing_food"
         },
         {
+          "gender": "male",
           "name": "Sam",
           "nameSpokenInAudio": true,
-          "role": "student_without_lunch"
+          "role": "adult_learner_without_lunch"
         }
       ],
       "turns": [
         {
           "speaker": "Sam",
-          "text": "I cannot believe I managed to remember my project but leave my lunch sitting on the counter."
+          "text": "I managed to bring every course handout, Mina, but somehow left my lunch sitting on the counter."
         },
         {
           "speaker": "Mina",
-          "text": "That sounds exactly like something that happens on a busy morning, Sam. Here, take half of my sandwich."
+          "text": "That sounds like the result of rushing here after work, Sam. Take half of my sandwich."
         },
         {
           "speaker": "Sam",
-          "text": "I appreciate it, Mina, but I do not want your kindness to turn into your afternoon hunger."
+          "text": "I appreciate it, Mina, but I do not want your generosity to become your afternoon hunger."
         },
         {
           "speaker": "Mina",
-          "text": "Do not worry. I brought more than enough, and sharing is easier than watching you pretend you are not hungry."
+          "text": "Do not worry. I packed more than enough, and our instructor will not mind if we finish the fruit during the break."
         },
         {
           "speaker": "Sam",
-          "text": "Fair point. Tomorrow I will pack something extra, partly as a thank-you and partly as emergency insurance."
+          "text": "Fair point. I will provide the coffee next week as both a thank-you and emergency insurance."
         }
       ]
     },
     "setting": "classroom",
     "skills": [
-      "school_vocabulary",
+      "adult_education_vocabulary",
       "food_vocabulary",
       "emotions",
       "friendship",
       "present_continuous",
       "past_tense_story",
-      "social_awareness",
+      "adult_education",
       "reciprocity",
-      "natural_school_dialogue"
+      "natural_dialogue"
     ],
     "source": "built_in",
     "status": "ready",
@@ -9138,11 +9175,11 @@ export const builtInSceneMediaItems =
       "sharing",
       "friendship",
       "food",
-      "school",
+      "adult-education",
       "kindness",
       "problem-solution"
     ],
-    "title": "The Kindness Of Half A Sandwich",
+    "title": "A Generous Break Between Classes",
     "useCases": [
       "chat_prompt",
       "quiz_prompt",
@@ -9153,10 +9190,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "shared-lunch-classroom-01",
     "visualSummary": [
-      "The student opens a lunchbox.",
-      "The student sees the lunchbox is empty and feels worried.",
-      "A classmate offers to share food.",
-      "The two students eat together while the teacher smiles nearby."
+      "An adult learner opens his lunchbox during a course break.",
+      "He sees that the lunchbox is empty and feels worried.",
+      "An adult classmate offers to share food.",
+      "The two adult learners eat together while their instructor smiles nearby."
     ]
   },
   {
@@ -9196,7 +9233,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "shared-umbrella-bus-stop-01-a1-a2",
     "image": {
-      "alt": "Shared Umbrella At The Bus Stop. The boy waits at a rainy bus stop. The rain gets heavier and he realizes he has no umbrella. The woman shares her umbrella with him. They walk toward the bus together.",
+      "alt": "Shared Umbrella At The Bus Stop. A young adult commuter waits at a rainy bus stop. The rain gets heavier and he realizes he has no umbrella. An older woman shares her umbrella with him. The two adults walk toward the bus together.",
       "height": 1024,
       "mediaId": "shared-umbrella-bus-stop-01",
       "source": "built_in",
@@ -9209,11 +9246,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "Leo",
           "nameSpokenInAudio": true,
-          "role": "person_needing_help"
+          "role": "adult_commuter_needing_help"
         },
         {
+          "gender": "female",
           "name": "Ms. Clark",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -9222,23 +9261,23 @@ export const builtInSceneMediaItems =
       "turns": [
         {
           "speaker": "Leo",
-          "text": "It is raining a lot. I forgot my umbrella."
+          "text": "It is raining hard, and I left my umbrella at home."
         },
         {
           "speaker": "Ms. Clark",
-          "text": "Come under my umbrella. I am Ms. Clark."
+          "text": "Come under mine. I am Ms. Clark."
         },
         {
           "speaker": "Leo",
-          "text": "Thank you, Ms. Clark. I am Leo. Is the bus coming soon?"
+          "text": "Thank you, Ms. Clark. I am Leo. I do not want my work papers to get wet."
         },
         {
           "speaker": "Ms. Clark",
-          "text": "Yes, Leo, I can see it now."
+          "text": "You are welcome, Leo. The bus is almost here."
         },
         {
           "speaker": "Leo",
-          "text": "Great. Now I am not so wet."
+          "text": "Great. You saved my morning."
         }
       ]
     },
@@ -9276,10 +9315,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "shared-umbrella-bus-stop-01",
     "visualSummary": [
-      "The boy waits at a rainy bus stop.",
+      "A young adult commuter waits at a rainy bus stop.",
       "The rain gets heavier and he realizes he has no umbrella.",
-      "The woman shares her umbrella with him.",
-      "They walk toward the bus together."
+      "An older woman shares her umbrella with him.",
+      "The two adults walk toward the bus together."
     ]
   },
   {
@@ -9319,7 +9358,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "shared-umbrella-bus-stop-01-b1-b2",
     "image": {
-      "alt": "Shared Umbrella At The Bus Stop. The boy waits at a rainy bus stop. The rain gets heavier and he realizes he has no umbrella. The woman shares her umbrella with him. They walk toward the bus together.",
+      "alt": "Shared Umbrella At The Bus Stop. A young adult commuter waits at a rainy bus stop. The rain gets heavier and he realizes he has no umbrella. An older woman shares her umbrella with him. The two adults walk toward the bus together.",
       "height": 1024,
       "mediaId": "shared-umbrella-bus-stop-01",
       "source": "built_in",
@@ -9332,11 +9371,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "Leo",
           "nameSpokenInAudio": true,
-          "role": "person_needing_help"
+          "role": "adult_commuter_needing_help"
         },
         {
+          "gender": "female",
           "name": "Ms. Clark",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -9345,23 +9386,23 @@ export const builtInSceneMediaItems =
       "turns": [
         {
           "speaker": "Leo",
-          "text": "I checked the weather this morning, but it said the rain would start later."
+          "text": "I checked the forecast before leaving for work, but it said the rain would start later."
         },
         {
           "speaker": "Ms. Clark",
-          "text": "That happens all the time. Come closer, or your backpack will get completely wet. I'm Ms. Clark, by the way."
+          "text": "That happens all the time. Come closer, or your laptop bag will get completely wet. I am Ms. Clark, by the way."
         },
         {
           "speaker": "Leo",
-          "text": "Thanks, Ms. Clark. I'm Leo. I have homework in there, and I really do not want it to get ruined."
+          "text": "Thanks, Ms. Clark. I am Leo. My laptop and work papers are in there."
         },
         {
           "speaker": "Ms. Clark",
-          "text": "No problem, Leo. The bus is turning the corner now, so we only need to wait a minute."
+          "text": "No problem, Leo. The bus is turning the corner, so we only need to wait another minute."
         },
         {
           "speaker": "Leo",
-          "text": "You are very kind. I will remember to bring my own umbrella next time."
+          "text": "I appreciate it. Next time I will keep an umbrella in my office bag."
         }
       ]
     },
@@ -9400,10 +9441,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "shared-umbrella-bus-stop-01",
     "visualSummary": [
-      "The boy waits at a rainy bus stop.",
+      "A young adult commuter waits at a rainy bus stop.",
       "The rain gets heavier and he realizes he has no umbrella.",
-      "The woman shares her umbrella with him.",
-      "They walk toward the bus together."
+      "An older woman shares her umbrella with him.",
+      "The two adults walk toward the bus together."
     ]
   },
   {
@@ -9443,7 +9484,7 @@ export const builtInSceneMediaItems =
     "format": "four_panel_wordless_story",
     "id": "shared-umbrella-bus-stop-01-c1",
     "image": {
-      "alt": "Shared Umbrella At The Bus Stop. The boy waits at a rainy bus stop. The rain gets heavier and he realizes he has no umbrella. The woman shares her umbrella with him. They walk toward the bus together.",
+      "alt": "Shared Umbrella At The Bus Stop. A young adult commuter waits at a rainy bus stop. The rain gets heavier and he realizes he has no umbrella. An older woman shares her umbrella with him. The two adults walk toward the bus together.",
       "height": 1024,
       "mediaId": "shared-umbrella-bus-stop-01",
       "source": "built_in",
@@ -9456,11 +9497,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "Leo",
           "nameSpokenInAudio": true,
-          "role": "person_needing_help"
+          "role": "adult_commuter_needing_help"
         },
         {
+          "gender": "female",
           "name": "Ms. Clark",
           "nameSpokenInAudio": true,
           "role": "helper"
@@ -9469,23 +9512,23 @@ export const builtInSceneMediaItems =
       "turns": [
         {
           "speaker": "Leo",
-          "text": "I should have known better than to trust a clear morning sky. Now everything in my bag is getting soaked."
+          "text": "I should have known better than to trust a clear morning forecast. Now my laptop bag is taking the worst of the storm."
         },
         {
           "speaker": "Ms. Clark",
-          "text": "Step in a little closer — there is enough room, and it would be a shame to let your books take the worst of the storm. I'm Ms. Clark."
+          "text": "Step in a little closer. There is enough room, and it would be a shame to let your work equipment get soaked. I am Ms. Clark."
         },
         {
           "speaker": "Leo",
-          "text": "Thank you, Ms. Clark. I'm Leo. I did not want to bother anyone, but I was running out of dry places to stand."
+          "text": "Thank you, Ms. Clark. I am Leo. I did not want to impose, but I was running out of dry places to stand."
         },
         {
           "speaker": "Ms. Clark",
-          "text": "It is no bother at all, Leo. Public transport is much easier when people look out for each other."
+          "text": "It is no imposition, Leo. The daily commute is easier when people look out for one another."
         },
         {
           "speaker": "Leo",
-          "text": "That is true. A small favor can make a miserable wait feel almost pleasant."
+          "text": "That is true. A small courtesy can make a miserable journey feel almost pleasant."
         }
       ]
     },
@@ -9524,10 +9567,10 @@ export const builtInSceneMediaItems =
     ],
     "visualAssetId": "shared-umbrella-bus-stop-01",
     "visualSummary": [
-      "The boy waits at a rainy bus stop.",
+      "A young adult commuter waits at a rainy bus stop.",
       "The rain gets heavier and he realizes he has no umbrella.",
-      "The woman shares her umbrella with him.",
-      "They walk toward the bus together."
+      "An older woman shares her umbrella with him.",
+      "The two adults walk toward the bus together."
     ]
   },
   {
@@ -9781,11 +9824,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Sofia",
           "nameSpokenInAudio": true,
           "role": "team_member"
         },
         {
+          "gender": "male",
           "name": "Omar",
           "nameSpokenInAudio": true,
           "role": "team_member"
@@ -9903,11 +9948,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Sofia",
           "nameSpokenInAudio": true,
           "role": "team_member"
         },
         {
+          "gender": "male",
           "name": "Omar",
           "nameSpokenInAudio": true,
           "role": "team_member"
@@ -10024,11 +10071,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "female",
           "name": "Sofia",
           "nameSpokenInAudio": true,
           "role": "team_member"
         },
         {
+          "gender": "male",
           "name": "Omar",
           "nameSpokenInAudio": true,
           "role": "team_member"
@@ -10357,11 +10406,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "the father",
           "nameSpokenInAudio": false,
           "role": "parent"
         },
         {
+          "gender": "male",
           "name": "the store clerk",
           "nameSpokenInAudio": false,
           "role": "store_staff"
@@ -10480,11 +10531,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "the father",
           "nameSpokenInAudio": false,
           "role": "parent"
         },
         {
+          "gender": "male",
           "name": "the store clerk",
           "nameSpokenInAudio": false,
           "role": "store_staff"
@@ -10604,11 +10657,13 @@ export const builtInSceneMediaItems =
       "scriptType": "dialogue",
       "speakers": [
         {
+          "gender": "male",
           "name": "the father",
           "nameSpokenInAudio": false,
           "role": "parent"
         },
         {
+          "gender": "male",
           "name": "the store clerk",
           "nameSpokenInAudio": false,
           "role": "store_staff"

@@ -591,12 +591,44 @@ def load_env_file(path: Path) -> None:
             os.environ[key] = value
 
 
+ASSETS_GEN_KEY_FILE = ROOT / ".assts-gen-key"
+
+
+def read_assets_gen_key() -> str | None:
+    """Return the OpenRouter key from the local, gitignored .assts-gen-key file.
+
+    The file is the preferred key source for design/ asset generation so it stays
+    decoupled from the misterf-web app env. It may hold either the raw key on its
+    own line or an OPENROUTER_API_KEY=... assignment. See the
+    generate-scene-assets skill.
+    """
+    if not ASSETS_GEN_KEY_FILE.exists():
+        return None
+    for line in ASSETS_GEN_KEY_FILE.read_text().splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" in line:
+            _, value = line.split("=", 1)
+            line = value.strip().strip('"').strip("'")
+        return line or None
+    return None
+
+
 def get_api_key() -> str:
+    key = read_assets_gen_key()
+    if key:
+        return key
+    if os.environ.get("OPENROUTER_API_KEY"):
+        return os.environ["OPENROUTER_API_KEY"]
     load_env_file(REPO_ROOT / "misterf-web" / ".env.development")
     load_env_file(REPO_ROOT / "misterf-web" / ".env.production")
     key = os.environ.get("OPENROUTER_API_KEY")
     if not key:
-        raise RuntimeError("OPENROUTER_API_KEY is not set and was not found in local env files.")
+        raise RuntimeError(
+            "No OpenRouter key found. Create design/scene-scripts/.assts-gen-key "
+            "with your key, or set OPENROUTER_API_KEY. See the generate-scene-assets skill."
+        )
     return key
 
 

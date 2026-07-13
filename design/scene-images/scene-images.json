@@ -47,10 +47,12 @@
       "characters": [
         {
           "role": "person_who_lost_item",
+          "gender": "female",
           "description": "Young Latina woman in a yellow raincoat with a shoulder bag."
         },
         {
           "role": "helper",
+          "gender": "male",
           "description": "Older Black man in a green jacket returning a wallet."
         }
       ],
@@ -118,10 +120,12 @@
       "characters": [
         {
           "role": "person_needing_help",
+          "gender": "male",
           "description": "Young adult man with medium-brown skin, curly hair, light stubble, a blue hoodie, and a work backpack."
         },
         {
           "role": "helper",
+          "gender": "female",
           "description": "Middle-aged woman with light skin, short gray hair, a red coat, and an umbrella."
         }
       ],
@@ -191,14 +195,17 @@
       "characters": [
         {
           "role": "parent",
+          "gender": "male",
           "description": "Young father with dark skin, glasses, and a green sweater."
         },
         {
           "role": "child",
+          "gender": "female",
           "description": "Small daughter wearing orange overalls."
         },
         {
           "role": "helper",
+          "gender": "male",
           "description": "Friendly male store clerk with tan skin, short black hair, and a black apron."
         }
       ],
@@ -266,14 +273,17 @@
       "characters": [
         {
           "role": "adult_learner_needing_help",
+          "gender": "male",
           "description": "East Asian adult learner in his late twenties with short black hair and a purple sweater."
         },
         {
           "role": "adult_classmate",
+          "gender": "female",
           "description": "Black adult learner in her late twenties with long braids and a yellow cardigan."
         },
         {
           "role": "adult_instructor",
+          "gender": "female",
           "description": "Adult continuing-education instructor with curly hair and glasses."
         }
       ],
@@ -342,10 +352,12 @@
       "characters": [
         {
           "role": "teacher",
+          "gender": "female",
           "description": "Grandmother with medium-brown skin, silver hair, and a teal cardigan."
         },
         {
           "role": "learner",
+          "gender": "male",
           "description": "Adult grandson in his late twenties with light-brown skin, red hair, and light stubble."
         }
       ],
@@ -413,10 +425,12 @@
       "characters": [
         {
           "role": "late_worker",
+          "gender": "male",
           "description": "Young man with medium-brown skin, short curly hair, a teal shirt, and a messenger bag."
         },
         {
           "role": "coworkers",
+          "gender": "mixed",
           "description": "Two coworkers already seated at the meeting table: a woman in a cream blouse and a bearded man in a blue blazer."
         }
       ],
@@ -483,10 +497,12 @@
       "characters": [
         {
           "role": "person_needing_help",
+          "gender": "female",
           "description": "Office worker with light-brown skin, shoulder-length black hair, a yellow blouse, and dark pants."
         },
         {
           "role": "helper",
+          "gender": "male",
           "description": "Coworker with dark skin, glasses, and a blue cardigan."
         }
       ],
@@ -553,14 +569,17 @@
       "characters": [
         {
           "role": "team_member",
+          "gender": "male",
           "description": "Coworker with fair skin, short red hair, and a navy jacket."
         },
         {
           "role": "team_member",
+          "gender": "female",
           "description": "Coworker with brown skin, long black hair, and a green blouse."
         },
         {
           "role": "team_member",
+          "gender": "male",
           "description": "Coworker with tan skin, short hair, and a gray sweater."
         }
       ],
@@ -625,6 +644,7 @@
       "characters": [
         {
           "role": "desk_owner",
+          "gender": "female",
           "description": "Adult woman with medium skin, wavy dark hair, a coral cardigan, and glasses."
         }
       ],
@@ -688,6 +708,7 @@
       "characters": [
         {
           "role": "coworkers",
+          "gender": "mixed",
           "description": "Five varied adult coworkers using an office break room."
         }
       ],
@@ -751,14 +772,17 @@
       "characters": [
         {
           "role": "patient",
+          "gender": "male",
           "description": "Adult patient with tan skin, short dark hair, a green jacket, and a scarf."
         },
         {
           "role": "doctor",
+          "gender": "male",
           "description": "Doctor with dark skin, short hair, glasses, and a white coat."
         },
         {
           "role": "receptionist",
+          "gender": "female",
           "description": "Friendly clinic receptionist."
         }
       ],
@@ -825,10 +849,12 @@
       "characters": [
         {
           "role": "customer",
+          "gender": "female",
           "description": "Older woman with light skin, silver hair, and a purple cardigan."
         },
         {
           "role": "pharmacist",
+          "gender": "male",
           "description": "Pharmacist with brown skin, short black hair, and a white coat."
         }
       ],
@@ -896,14 +922,17 @@
       "characters": [
         {
           "role": "injured_person",
+          "gender": "female",
           "description": "Teenage girl with brown skin, curly hair in a ponytail, a pink hoodie, and jeans."
         },
         {
           "role": "friend",
+          "gender": "male",
           "description": "Friend with light skin, short blond hair, and a blue jacket."
         },
         {
           "role": "nurse",
+          "gender": "female",
           "description": "Nurse with olive skin, dark hair, and teal scrubs."
         }
       ],
@@ -969,6 +998,7 @@
       "characters": [
         {
           "role": "person_resting",
+          "gender": "male",
           "description": "Adult man with dark skin, shaved head, glasses, and a soft blue sweater."
         }
       ],
@@ -1032,18 +1062,22 @@
       "characters": [
         {
           "role": "receptionist",
+          "gender": "female",
           "description": "Clinic receptionist with a dark ponytail and blue scrubs at the front desk."
         },
         {
           "role": "patient",
+          "gender": "female",
           "description": "Woman with curly dark hair, a green sweater, and a shoulder bag checking in."
         },
         {
           "role": "nurse",
+          "gender": "female",
           "description": "Nurse with dark skin and blue scrubs holding a door open to call a patient."
         },
         {
           "role": "waiting_family",
+          "gender": "mixed",
           "description": "A father in a green hoodie and his son in an orange hoodie waiting on the couch, and an older woman reading nearby."
         }
       ],
@@ -1108,10 +1142,12 @@
       "characters": [
         {
           "role": "traveler",
+          "gender": "female",
           "description": "Young traveler with brown skin, shoulder-length curly hair, a red jacket, and a small rolling suitcase."
         },
         {
           "role": "station_employee",
+          "gender": "female",
           "description": "Station employee with light skin, gray hair, and a blue uniform."
         }
       ],
@@ -1178,10 +1214,12 @@
       "characters": [
         {
           "role": "traveler",
+          "gender": "male",
           "description": "Middle-aged traveler with dark skin, glasses, a green shirt, and a tan jacket."
         },
         {
           "role": "hotel_staff",
+          "gender": "male",
           "description": "Hotel staff member with olive skin, short black hair, and a navy blazer."
         }
       ],
@@ -1248,10 +1286,12 @@
       "characters": [
         {
           "role": "person_needing_help",
+          "gender": "female",
           "description": "Older traveler with light skin, white hair, a purple coat, and a small shoulder bag."
         },
         {
           "role": "helper",
+          "gender": "male",
           "description": "Young traveler with tan skin, black hair, and a yellow backpack."
         }
       ],
@@ -1317,6 +1357,7 @@
       "characters": [
         {
           "role": "traveler",
+          "gender": "male",
           "description": "Young adult traveler with medium-brown skin, short curly hair, an orange sweater, and jeans."
         }
       ],
@@ -1380,22 +1421,27 @@
       "characters": [
         {
           "role": "security_officer",
+          "gender": "female",
           "description": "Security officer with dark skin, a white shirt, a tie, and blue gloves, directing travelers."
         },
         {
           "role": "young_traveler",
+          "gender": "male",
           "description": "Young man in a green hoodie placing his backpack in a bin on the conveyor."
         },
         {
           "role": "family_mother",
+          "gender": "female",
           "description": "Woman in a denim jacket with curly hair and a shoulder bag."
         },
         {
           "role": "family_child",
+          "gender": "male",
           "description": "Young boy in a yellow hoodie holding a teddy bear and a backpack."
         },
         {
           "role": "grandfather",
+          "gender": "male",
           "description": "Older man with a gray beard and a tan jacket with a suitcase."
         }
       ],
@@ -1444,10 +1490,12 @@
       "characters": [
         {
           "role": "shopper",
+          "gender": "male",
           "description": "Young adult shopper with brown skin, short curly hair, a denim jacket, and jeans."
         },
         {
           "role": "store_clerk",
+          "gender": "female",
           "description": "Friendly store clerk with light skin, red hair, and a green shirt."
         }
       ],
@@ -1515,10 +1563,12 @@
       "characters": [
         {
           "role": "customer",
+          "gender": "female",
           "description": "Young woman with olive skin, long dark hair, a yellow cardigan, and glasses."
         },
         {
           "role": "barista",
+          "gender": "male",
           "description": "Friendly barista with dark skin, short hair, and a blue apron."
         }
       ],
@@ -1585,10 +1635,12 @@
       "characters": [
         {
           "role": "customer",
+          "gender": "male",
           "description": "Adult man with tan skin, beard, green hoodie, and backpack."
         },
         {
           "role": "technician",
+          "gender": "male",
           "description": "Technician with light-brown skin, short hair, and a gray shirt."
         }
       ],
@@ -1653,6 +1705,7 @@
       "characters": [
         {
           "role": "shopper",
+          "gender": "female",
           "description": "Adult shopper with light skin, short gray hair, orange jacket, and comfortable shoes."
         }
       ],
@@ -1714,22 +1767,27 @@
       "characters": [
         {
           "role": "cashier",
+          "gender": "female",
           "description": "Cashier with a black ponytail, a blue shirt, and a green apron scanning groceries."
         },
         {
           "role": "shopper",
+          "gender": "female",
           "description": "Woman in a denim jacket and striped shirt placing groceries on the belt."
         },
         {
           "role": "waiting_father",
+          "gender": "male",
           "description": "Father in a blue sweater with a beard and his young son in a yellow hoodie with a cart."
         },
         {
           "role": "waiting_grandmother",
+          "gender": "female",
           "description": "Older woman with gray hair, glasses, and a purple cardigan holding a basket."
         },
         {
           "role": "bagger",
+          "gender": "male",
           "description": "A helper in a green hoodie bagging groceries at the end of the counter."
         }
       ],
@@ -1800,10 +1858,12 @@
       "characters": [
         {
           "role": "resident",
+          "gender": "female",
           "description": "Woman with a black bob and hoop earrings, wearing a blue coat and carrying a cream tote bag."
         },
         {
           "role": "helper",
+          "gender": "male",
           "description": "Neighbor with dark skin, glasses, and a gray sweater who keeps a spare key."
         }
       ],
@@ -1866,10 +1926,12 @@
       "characters": [
         {
           "role": "person_doing_laundry",
+          "gender": "male",
           "description": "Teenage boy with short black hair, a yellow t-shirt, and blue jeans."
         },
         {
           "role": "friend",
+          "gender": "female",
           "description": "Teenage girl with long dark braids and a green hoodie who knows how to sort laundry."
         }
       ],
@@ -1930,10 +1992,12 @@
       "characters": [
         {
           "role": "parent",
+          "gender": "male",
           "description": "Father with short dark hair and a teal sweater, holding coffee and checking his watch."
         },
         {
           "role": "child",
+          "gender": "male",
           "description": "Young boy with curly hair, a yellow hoodie, and a red backpack, eating toast."
         }
       ],
@@ -1993,6 +2057,7 @@
       "characters": [
         {
           "role": "room_owner",
+          "gender": "female",
           "description": "Teenage girl with curly dark hair, a purple sweater, and blue jeans."
         }
       ],
@@ -2052,22 +2117,27 @@
       "characters": [
         {
           "role": "grandmother",
+          "gender": "female",
           "description": "Older woman with silver hair in a bun and a purple cardigan, serving rice."
         },
         {
           "role": "father",
+          "gender": "male",
           "description": "Man with dark skin, a short beard, and a green shirt, pouring water."
         },
         {
           "role": "mother",
+          "gender": "female",
           "description": "Woman with dark hair in a bun and a cream sweater."
         },
         {
           "role": "teen_son",
+          "gender": "male",
           "description": "Teenage boy in a blue hoodie passing a bowl of salad."
         },
         {
           "role": "young_daughter",
+          "gender": "female",
           "description": "Young girl with a ponytail and a pink polka-dot top, reaching for the bread."
         }
       ],
@@ -2130,18 +2200,22 @@
       "characters": [
         {
           "role": "student_planner",
+          "gender": "male",
           "description": "Teen boy with dark skin and short black hair in a green hoodie."
         },
         {
           "role": "student_researcher",
+          "gender": "female",
           "description": "Teen girl with straight black hair in a purple hoodie, using a laptop."
         },
         {
           "role": "student_designer",
+          "gender": "male",
           "description": "Teen boy with brown hair in a blue hoodie."
         },
         {
           "role": "student_presenter",
+          "gender": "female",
           "description": "Teen girl with curly hair in a bun and a yellow sweater."
         }
       ],
@@ -2205,10 +2279,12 @@
       "characters": [
         {
           "role": "student",
+          "gender": "male",
           "description": "Boy with spiky black hair and a blue sweater."
         },
         {
           "role": "teacher",
+          "gender": "female",
           "description": "Older teacher with gray hair, glasses, and a green cardigan."
         }
       ],
@@ -2272,14 +2348,17 @@
       "characters": [
         {
           "role": "student_pourer",
+          "gender": "male",
           "description": "Teen boy with dark skin and curly hair, wearing a green hoodie and safety goggles."
         },
         {
           "role": "student_partner",
+          "gender": "female",
           "description": "Teen girl with straight black hair, a purple sweater, and safety goggles."
         },
         {
           "role": "teacher",
+          "gender": "female",
           "description": "Science teacher with a brown ponytail and a blue cardigan."
         }
       ],
@@ -2342,6 +2421,7 @@
       "characters": [
         {
           "role": "student",
+          "gender": "male",
           "description": "Boy with short curly hair and a red hoodie."
         }
       ],
@@ -2400,14 +2480,17 @@
       "characters": [
         {
           "role": "presenter",
+          "gender": "female",
           "description": "Girl with long black hair and a purple sweater, holding a hand-drawn environment poster."
         },
         {
           "role": "teacher",
+          "gender": "female",
           "description": "Teacher with shoulder-length brown hair and a green cardigan."
         },
         {
           "role": "classmates",
+          "gender": "mixed",
           "description": "Several seated classmates watching the presentation."
         }
       ],
@@ -2470,14 +2553,17 @@
       "characters": [
         {
           "role": "guest_woman",
+          "gender": "female",
           "description": "Woman with dark curly hair in a bun, a green blouse, and a tan shoulder bag."
         },
         {
           "role": "guest_man",
+          "gender": "male",
           "description": "Man with dark hair and a short beard in a blue blazer."
         },
         {
           "role": "host",
+          "gender": "female",
           "description": "Restaurant host with a dark ponytail and a black shirt, holding a tablet."
         }
       ],
@@ -2541,10 +2627,12 @@
       "characters": [
         {
           "role": "diner",
+          "gender": "female",
           "description": "Woman with long dark hair and a green cardigan."
         },
         {
           "role": "waiter",
+          "gender": "male",
           "description": "Waiter with black hair, a white shirt, and a black vest."
         }
       ],
@@ -2608,10 +2696,12 @@
       "characters": [
         {
           "role": "customer",
+          "gender": "male",
           "description": "Young man with curly red hair and a blue sweater."
         },
         {
           "role": "server",
+          "gender": "female",
           "description": "Server with a black ponytail and a black shirt, holding a notepad."
         }
       ],
@@ -2674,6 +2764,7 @@
       "characters": [
         {
           "role": "diner",
+          "gender": "male",
           "description": "Man with short dark hair and a green shirt."
         }
       ],
@@ -2734,26 +2825,32 @@
       "characters": [
         {
           "role": "server",
+          "gender": "female",
           "description": "Waitress with black hair and a black apron, serving plates of pasta and chicken."
         },
         {
           "role": "guest_mother",
+          "gender": "female",
           "description": "Woman with dark hair and a green cardigan."
         },
         {
           "role": "guest_father",
+          "gender": "male",
           "description": "Man with dark skin, glasses, a beard, and a blue sweater."
         },
         {
           "role": "guest_boy",
+          "gender": "male",
           "description": "Boy with dark hair in a blue hoodie."
         },
         {
           "role": "guest_girl",
+          "gender": "female",
           "description": "Young girl with a ponytail and a pink top."
         },
         {
           "role": "guest_friends",
+          "gender": "mixed",
           "description": "A couple across the table: a man in a cream shirt and a woman in a yellow sweater pouring water."
         }
       ],
@@ -2816,10 +2913,12 @@
       "characters": [
         {
           "role": "patron",
+          "gender": "female",
           "description": "Older woman with silver curly hair, a purple cardigan, and a tan crossbody bag."
         },
         {
           "role": "librarian",
+          "gender": "female",
           "description": "Librarian with dark hair in a bun, glasses, a green cardigan, and a lanyard."
         }
       ],
@@ -2883,22 +2982,27 @@
       "characters": [
         {
           "role": "volunteer_teen_girl",
+          "gender": "female",
           "description": "Teen girl with a ponytail, a purple hoodie, and blue work gloves."
         },
         {
           "role": "volunteer_teen_boy",
+          "gender": "male",
           "description": "Teen boy in a green hoodie with a litter grabber."
         },
         {
           "role": "volunteer_child",
+          "gender": "male",
           "description": "Young boy in a yellow hoodie holding a trash bag."
         },
         {
           "role": "volunteer_dad",
+          "gender": "male",
           "description": "Man with dark skin, glasses, a beard, and a blue sweater."
         },
         {
           "role": "volunteer_grandmother",
+          "gender": "female",
           "description": "Older woman in a purple jacket and a sun hat."
         }
       ],
@@ -2964,10 +3068,12 @@
       "characters": [
         {
           "role": "customer",
+          "gender": "male",
           "description": "Young man with black hair, a blue jacket, and a shoulder bag, carrying a box."
         },
         {
           "role": "clerk",
+          "gender": "male",
           "description": "Postal clerk with dark skin, glasses, and a light blue polo shirt."
         }
       ],
@@ -3030,10 +3136,12 @@
       "characters": [
         {
           "role": "children",
+          "gender": "mixed",
           "description": "Several children playing: two building a sandcastle, one on a swing, and one on the slide."
         },
         {
           "role": "parents",
+          "gender": "mixed",
           "description": "A few parents watching and helping near the benches."
         }
       ],
@@ -3096,26 +3204,32 @@
       "characters": [
         {
           "role": "gardener_watering",
+          "gender": "female",
           "description": "Woman in a green shirt and gloves watering plants with a blue can."
         },
         {
           "role": "gardener_grandmother",
+          "gender": "female",
           "description": "Older woman with silver hair and a purple cardigan holding a basket of tomatoes."
         },
         {
           "role": "gardener_man",
+          "gender": "male",
           "description": "Man with dark skin, glasses, and a teal shirt, chatting with a neighbor."
         },
         {
           "role": "gardener_neighbor",
+          "gender": "female",
           "description": "Woman in a straw hat and red shirt holding a potted plant."
         },
         {
           "role": "gardener_boy",
+          "gender": "male",
           "description": "Boy in a yellow shirt planting a seedling with a trowel."
         },
         {
           "role": "gardener_kneeling",
+          "gender": "female",
           "description": "Woman in a straw hat and blue shirt tending a garden bed."
         }
       ],
@@ -3178,14 +3292,17 @@
       "characters": [
         {
           "role": "caller",
+          "gender": "female",
           "description": "Woman with curly dark brown hair and a yellow blouse, on a video call at her desk."
         },
         {
           "role": "support_agent",
+          "gender": "male",
           "description": "Support agent with a headset and a blue shirt, appearing on the screen."
         },
         {
           "role": "call_participants",
+          "gender": "mixed",
           "description": "Four coworkers shown in the video-call grid."
         }
       ],
@@ -3249,10 +3366,12 @@
       "characters": [
         {
           "role": "person",
+          "gender": "male",
           "description": "Man with brown hair and a green sweater, checking his phone calendar."
         },
         {
           "role": "friend",
+          "gender": "male",
           "description": "Friend with dark skin and an orange jacket who helps read the calendar."
         }
       ],
@@ -3316,10 +3435,12 @@
       "characters": [
         {
           "role": "learner",
+          "gender": "female",
           "description": "Older woman with silver hair and a purple blouse, using a laptop."
         },
         {
           "role": "helper",
+          "gender": "female",
           "description": "Younger woman with black hair and a blue cardigan who helps with the form."
         }
       ],
@@ -3382,6 +3503,7 @@
       "characters": [
         {
           "role": "person",
+          "gender": "male",
           "description": "Young man with black hair and a gray hoodie."
         }
       ],
@@ -3440,6 +3562,7 @@
       "characters": [
         {
           "role": "person",
+          "gender": "female",
           "description": "Woman with long dark braids, hoop earrings, and a teal sweater in her kitchen."
         }
       ],

@@ -51,6 +51,7 @@ const sceneMediaScriptSchema = z.union([
       identityStrategy: z.enum(['named_in_dialogue', 'role_only']),
       scriptType: z.literal('dialogue'),
       speakers: z.array(z.object({
+        gender: z.enum(['female', 'male', 'neutral']).optional(),
         name: z.string().trim().min(1),
         nameSpokenInAudio: z.boolean(),
         role: z.string().trim().min(1),

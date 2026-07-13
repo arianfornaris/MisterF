@@ -39,6 +39,8 @@ export type SceneMediaIdentityStrategy =
   | 'named_in_narration'
   | 'role_only';
 
+export type SceneMediaSpeakerGender = 'female' | 'male' | 'neutral';
+
 export type SceneMediaScript =
   | {
       identityStrategy: Extract<
@@ -47,6 +49,9 @@ export type SceneMediaScript =
       >;
       scriptType: 'dialogue';
       speakers: Array<{
+        // Present on built-in library items; the AI user-generation path does
+        // not assign gender yet, so it is optional here.
+        gender?: SceneMediaSpeakerGender;
         name: string;
         nameSpokenInAudio: boolean;
         role: string;

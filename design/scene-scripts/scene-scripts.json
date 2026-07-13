@@ -34,7 +34,7 @@
     "sceneCount": 50,
     "scriptCount": 150,
     "levelsPerScene": 3,
-    "audioGenerated": false,
+    "audioGenerated": true,
     "levelCounts": {
       "A1-A2": 50,
       "B1-B2": 50,
@@ -95,8 +95,8 @@
     "rewrittenStoryScriptCount": 123,
     "rewrittenStoryAudioDurationSeconds": 2865.82,
     "rewrittenStoryEstimatedCostUsd": 1.368244,
-    "audioReadyCount": 141,
-    "audioPendingCount": 9
+    "audioReadyCount": 150,
+    "audioPendingCount": 0
   },
   "scripts": [
     {
@@ -123,6 +123,7 @@
           "id": "maria",
           "name": "Maria",
           "role": "person_who_lost_item",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -130,6 +131,7 @@
           "id": "mr_james",
           "name": "Mr. James",
           "role": "helper",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -235,6 +237,7 @@
           "id": "maria",
           "name": "Maria",
           "role": "person_who_lost_item",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -242,6 +245,7 @@
           "id": "mr_james",
           "name": "Mr. James",
           "role": "helper",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -346,6 +350,7 @@
           "id": "maria",
           "name": "Maria",
           "role": "person_who_lost_item",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -353,6 +358,7 @@
           "id": "mr_james",
           "name": "Mr. James",
           "role": "helper",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -439,7 +445,7 @@
       "sceneImageId": "shared-umbrella-bus-stop-01",
       "sceneImageFile": "../scene-images/images/shared-umbrella-bus-stop-01.png",
       "title": "Under The Umbrella",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -458,6 +464,7 @@
           "id": "leo",
           "name": "Leo",
           "role": "adult_commuter_needing_help",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         },
@@ -465,6 +472,7 @@
           "id": "ms_clark",
           "name": "Ms. Clark",
           "role": "helper",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         }
@@ -506,14 +514,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-01.wav",
+            "bytes": 197804
+          },
+          {
+            "turn": 2,
+            "speakerId": "ms_clark",
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-02.wav",
+            "bytes": 172844
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-03.wav",
+            "bytes": 305324
+          },
+          {
+            "turn": 4,
+            "speakerId": "ms_clark",
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-04.wav",
+            "bytes": 180524
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "file": "audio/a1-a2/shared-umbrella-bus-stop-01-a1-a2/turn-05.wav",
+            "bytes": 124844
+          }
+        ]
+      }
     },
     {
       "id": "shared-umbrella-bus-stop-01-b1-b2",
       "sceneImageId": "shared-umbrella-bus-stop-01",
       "sceneImageFile": "../scene-images/images/shared-umbrella-bus-stop-01.png",
       "title": "Waiting In The Rain",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -532,6 +579,7 @@
           "id": "leo",
           "name": "Leo",
           "role": "adult_commuter_needing_help",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         },
@@ -539,6 +587,7 @@
           "id": "ms_clark",
           "name": "Ms. Clark",
           "role": "helper",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         }
@@ -580,14 +629,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-01.wav",
+            "bytes": 249644
+          },
+          {
+            "turn": 2,
+            "speakerId": "ms_clark",
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-02.wav",
+            "bytes": 378284
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-03.wav",
+            "bytes": 241964
+          },
+          {
+            "turn": 4,
+            "speakerId": "ms_clark",
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-04.wav",
+            "bytes": 251564
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "file": "audio/b1-b2/shared-umbrella-bus-stop-01-b1-b2/turn-05.wav",
+            "bytes": 217004
+          }
+        ]
+      }
     },
     {
       "id": "shared-umbrella-bus-stop-01-c1",
       "sceneImageId": "shared-umbrella-bus-stop-01",
       "sceneImageFile": "../scene-images/images/shared-umbrella-bus-stop-01.png",
       "title": "A Small Courtesy In Bad Weather",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -605,6 +693,7 @@
           "id": "leo",
           "name": "Leo",
           "role": "adult_commuter_needing_help",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         },
@@ -612,6 +701,7 @@
           "id": "ms_clark",
           "name": "Ms. Clark",
           "role": "helper",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         }
@@ -653,7 +743,46 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-01.wav",
+            "bytes": 385964
+          },
+          {
+            "turn": 2,
+            "speakerId": "ms_clark",
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-02.wav",
+            "bytes": 412844
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-03.wav",
+            "bytes": 364844
+          },
+          {
+            "turn": 4,
+            "speakerId": "ms_clark",
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-04.wav",
+            "bytes": 297644
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "file": "audio/c1/shared-umbrella-bus-stop-01-c1/turn-05.wav",
+            "bytes": 322604
+          }
+        ]
+      }
     },
     {
       "id": "torn-grocery-bag-01-a1-a2",
@@ -679,6 +808,7 @@
           "id": "dad",
           "name": "the father",
           "role": "parent",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": false
         },
@@ -686,6 +816,7 @@
           "id": "clerk",
           "name": "the store clerk",
           "role": "store_staff",
+          "gender": "male",
           "voice": "Charon",
           "nameSpokenInAudio": false
         }
@@ -792,6 +923,7 @@
           "id": "dad",
           "name": "the father",
           "role": "parent",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": false
         },
@@ -799,6 +931,7 @@
           "id": "clerk",
           "name": "the store clerk",
           "role": "store_staff",
+          "gender": "male",
           "voice": "Charon",
           "nameSpokenInAudio": false
         }
@@ -904,6 +1037,7 @@
           "id": "dad",
           "name": "the father",
           "role": "parent",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": false
         },
@@ -911,6 +1045,7 @@
           "id": "clerk",
           "name": "the store clerk",
           "role": "store_staff",
+          "gender": "male",
           "voice": "Charon",
           "nameSpokenInAudio": false
         }
@@ -998,7 +1133,7 @@
       "sceneImageId": "shared-lunch-classroom-01",
       "sceneImageFile": "../scene-images/images/shared-lunch-classroom-01.png",
       "title": "Lunch Between Classes",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -1017,6 +1152,7 @@
           "id": "mina",
           "name": "Mina",
           "role": "adult_learner_sharing_food",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1024,6 +1160,7 @@
           "id": "sam",
           "name": "Sam",
           "role": "adult_learner_without_lunch",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1065,14 +1202,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "sam",
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-01.wav",
+            "bytes": 170924
+          },
+          {
+            "turn": 2,
+            "speakerId": "mina",
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-02.wav",
+            "bytes": 128684
+          },
+          {
+            "turn": 3,
+            "speakerId": "sam",
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-03.wav",
+            "bytes": 115244
+          },
+          {
+            "turn": 4,
+            "speakerId": "mina",
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-04.wav",
+            "bytes": 144044
+          },
+          {
+            "turn": 5,
+            "speakerId": "sam",
+            "file": "audio/a1-a2/shared-lunch-classroom-01-a1-a2/turn-05.wav",
+            "bytes": 186284
+          }
+        ]
+      }
     },
     {
       "id": "shared-lunch-classroom-01-b1-b2",
       "sceneImageId": "shared-lunch-classroom-01",
       "sceneImageFile": "../scene-images/images/shared-lunch-classroom-01.png",
       "title": "Sharing During The Course",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -1091,6 +1267,7 @@
           "id": "mina",
           "name": "Mina",
           "role": "adult_learner_sharing_food",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1098,6 +1275,7 @@
           "id": "sam",
           "name": "Sam",
           "role": "adult_learner_without_lunch",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1139,14 +1317,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "sam",
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-01.wav",
+            "bytes": 218924
+          },
+          {
+            "turn": 2,
+            "speakerId": "mina",
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-02.wav",
+            "bytes": 255404
+          },
+          {
+            "turn": 3,
+            "speakerId": "sam",
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-03.wav",
+            "bytes": 240044
+          },
+          {
+            "turn": 4,
+            "speakerId": "mina",
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-04.wav",
+            "bytes": 249644
+          },
+          {
+            "turn": 5,
+            "speakerId": "sam",
+            "file": "audio/b1-b2/shared-lunch-classroom-01-b1-b2/turn-05.wav",
+            "bytes": 188204
+          }
+        ]
+      }
     },
     {
       "id": "shared-lunch-classroom-01-c1",
       "sceneImageId": "shared-lunch-classroom-01",
       "sceneImageFile": "../scene-images/images/shared-lunch-classroom-01.png",
       "title": "A Generous Break Between Classes",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -1164,6 +1381,7 @@
           "id": "mina",
           "name": "Mina",
           "role": "adult_learner_sharing_food",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1171,6 +1389,7 @@
           "id": "sam",
           "name": "Sam",
           "role": "adult_learner_without_lunch",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1212,14 +1431,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "sam",
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-01.wav",
+            "bytes": 328364
+          },
+          {
+            "turn": 2,
+            "speakerId": "mina",
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-02.wav",
+            "bytes": 274604
+          },
+          {
+            "turn": 3,
+            "speakerId": "sam",
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-03.wav",
+            "bytes": 288044
+          },
+          {
+            "turn": 4,
+            "speakerId": "mina",
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-04.wav",
+            "bytes": 347564
+          },
+          {
+            "turn": 5,
+            "speakerId": "sam",
+            "file": "audio/c1/shared-lunch-classroom-01-c1/turn-05.wav",
+            "bytes": 316844
+          }
+        ]
+      }
     },
     {
       "id": "pancake-practice-kitchen-01-a1-a2",
       "sceneImageId": "pancake-practice-kitchen-01",
       "sceneImageFile": "../scene-images/images/pancake-practice-kitchen-01.png",
       "title": "Making Pancakes For Friends",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "A1-A2",
       "cefrRange": [
         "A1",
@@ -1238,6 +1496,7 @@
           "id": "grandma",
           "name": "Grandma Rosa",
           "role": "grandmother",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1245,6 +1504,7 @@
           "id": "leo",
           "name": "Leo",
           "role": "adult_grandson_learning_to_cook",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1286,14 +1546,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-01.wav",
+            "bytes": 313004
+          },
+          {
+            "turn": 2,
+            "speakerId": "grandma",
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-02.wav",
+            "bytes": 186284
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-03.wav",
+            "bytes": 122924
+          },
+          {
+            "turn": 4,
+            "speakerId": "grandma",
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-04.wav",
+            "bytes": 172844
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "file": "audio/a1-a2/pancake-practice-kitchen-01-a1-a2/turn-05.wav",
+            "bytes": 195884
+          }
+        ]
+      }
     },
     {
       "id": "pancake-practice-kitchen-01-b1-b2",
       "sceneImageId": "pancake-practice-kitchen-01",
       "sceneImageFile": "../scene-images/images/pancake-practice-kitchen-01.png",
       "title": "Preparing For Brunch",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "B1-B2",
       "cefrRange": [
         "B1",
@@ -1312,6 +1611,7 @@
           "id": "grandma",
           "name": "Grandma Rosa",
           "role": "grandmother",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1319,6 +1619,7 @@
           "id": "leo",
           "name": "Leo",
           "role": "adult_grandson_learning_to_cook",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1360,14 +1661,53 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-01.wav",
+            "bytes": 261164
+          },
+          {
+            "turn": 2,
+            "speakerId": "grandma",
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-02.wav",
+            "bytes": 289964
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-03.wav",
+            "bytes": 220844
+          },
+          {
+            "turn": 4,
+            "speakerId": "grandma",
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-04.wav",
+            "bytes": 278444
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "file": "audio/b1-b2/pancake-practice-kitchen-01-b1-b2/turn-05.wav",
+            "bytes": 251564
+          }
+        ]
+      }
     },
     {
       "id": "pancake-practice-kitchen-01-c1",
       "sceneImageId": "pancake-practice-kitchen-01",
       "sceneImageFile": "../scene-images/images/pancake-practice-kitchen-01.png",
       "title": "Learning Before Hosting Brunch",
-      "status": "pending_audio",
+      "status": "generated",
       "level": "C1",
       "cefrRange": [
         "C1"
@@ -1385,6 +1725,7 @@
           "id": "grandma",
           "name": "Grandma Rosa",
           "role": "grandmother",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1392,6 +1733,7 @@
           "id": "leo",
           "name": "Leo",
           "role": "adult_grandson_learning_to_cook",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1433,7 +1775,46 @@
         "Script is tied to visible actions from the approved adult-character scene image.",
         "All speaking characters are adults and named naturally in the dialogue.",
         "Audio metadata was intentionally removed; existing WAV files were left untouched pending a future refresh."
-      ]
+      ],
+      "audio": {
+        "provider": "openrouter",
+        "model": "google/gemini-3.1-flash-tts-preview",
+        "format": "wav",
+        "voiceStrategy": "per_turn_clips",
+        "generatedAt": "2026-07-12",
+        "clips": [
+          {
+            "turn": 1,
+            "speakerId": "leo",
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-01.wav",
+            "bytes": 353324
+          },
+          {
+            "turn": 2,
+            "speakerId": "grandma",
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-02.wav",
+            "bytes": 351404
+          },
+          {
+            "turn": 3,
+            "speakerId": "leo",
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-03.wav",
+            "bytes": 249644
+          },
+          {
+            "turn": 4,
+            "speakerId": "grandma",
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-04.wav",
+            "bytes": 370604
+          },
+          {
+            "turn": 5,
+            "speakerId": "leo",
+            "file": "audio/c1/pancake-practice-kitchen-01-c1/turn-05.wav",
+            "bytes": 307244
+          }
+        ]
+      }
     },
     {
       "id": "late-meeting-workplace-01-a1-a2",
@@ -1459,6 +1840,7 @@
           "id": "diego",
           "name": "Diego",
           "role": "late_employee",
+          "gender": "male",
           "voice": "Charon",
           "nameSpokenInAudio": true
         },
@@ -1466,6 +1848,7 @@
           "id": "noah",
           "name": "Noah",
           "role": "coworker",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1572,6 +1955,7 @@
           "id": "diego",
           "name": "Diego",
           "role": "late_employee",
+          "gender": "male",
           "voice": "Charon",
           "nameSpokenInAudio": true
         },
@@ -1579,6 +1963,7 @@
           "id": "noah",
           "name": "Noah",
           "role": "coworker",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1684,6 +2069,7 @@
           "id": "diego",
           "name": "Diego",
           "role": "late_employee",
+          "gender": "male",
           "voice": "Charon",
           "nameSpokenInAudio": true
         },
@@ -1691,6 +2077,7 @@
           "id": "noah",
           "name": "Noah",
           "role": "coworker",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1797,6 +2184,7 @@
           "id": "maya",
           "name": "Maya",
           "role": "person_needing_help",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1804,6 +2192,7 @@
           "id": "liam",
           "name": "Liam",
           "role": "helper",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -1909,6 +2298,7 @@
           "id": "maya",
           "name": "Maya",
           "role": "person_needing_help",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -1916,6 +2306,7 @@
           "id": "liam",
           "name": "Liam",
           "role": "helper",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2020,6 +2411,7 @@
           "id": "maya",
           "name": "Maya",
           "role": "person_needing_help",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2027,6 +2419,7 @@
           "id": "liam",
           "name": "Liam",
           "role": "helper",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2132,6 +2525,7 @@
           "id": "sofia",
           "name": "Sofia",
           "role": "team_member",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2139,6 +2533,7 @@
           "id": "omar",
           "name": "Omar",
           "role": "team_member",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2244,6 +2639,7 @@
           "id": "sofia",
           "name": "Sofia",
           "role": "team_member",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2251,6 +2647,7 @@
           "id": "omar",
           "name": "Omar",
           "role": "team_member",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2355,6 +2752,7 @@
           "id": "sofia",
           "name": "Sofia",
           "role": "team_member",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2362,6 +2760,7 @@
           "id": "omar",
           "name": "Omar",
           "role": "team_member",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2467,6 +2866,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -2528,6 +2928,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -2588,6 +2989,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -2649,6 +3051,7 @@
           "id": "anna",
           "name": "Anna",
           "role": "coworker",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2656,6 +3059,7 @@
           "id": "marco",
           "name": "Marco",
           "role": "coworker",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2761,6 +3165,7 @@
           "id": "anna",
           "name": "Anna",
           "role": "coworker",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2768,6 +3173,7 @@
           "id": "marco",
           "name": "Marco",
           "role": "coworker",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2872,6 +3278,7 @@
           "id": "anna",
           "name": "Anna",
           "role": "coworker",
+          "gender": "female",
           "voice": "Kore",
           "nameSpokenInAudio": true
         },
@@ -2879,6 +3286,7 @@
           "id": "marco",
           "name": "Marco",
           "role": "coworker",
+          "gender": "male",
           "voice": "Puck",
           "nameSpokenInAudio": true
         }
@@ -2984,6 +3392,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3045,6 +3454,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3105,6 +3515,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3166,6 +3577,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3227,6 +3639,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3287,6 +3700,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3348,6 +3762,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3409,6 +3824,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3469,6 +3885,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3530,6 +3947,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3591,6 +4009,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3651,6 +4070,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3712,6 +4132,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3773,6 +4194,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3833,6 +4255,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3894,6 +4317,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -3955,6 +4379,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4015,6 +4440,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4076,6 +4502,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4137,6 +4564,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4197,6 +4625,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4258,6 +4687,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4319,6 +4749,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4379,6 +4810,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4440,6 +4872,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4501,6 +4934,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4561,6 +4995,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4622,6 +5057,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4683,6 +5119,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4743,6 +5180,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4804,6 +5242,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4865,6 +5304,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4925,6 +5365,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -4986,6 +5427,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5047,6 +5489,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5107,6 +5550,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5168,6 +5612,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5229,6 +5674,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5289,6 +5735,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5350,6 +5797,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5411,6 +5859,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5471,6 +5920,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5532,6 +5982,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5593,6 +6044,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5653,6 +6105,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5714,6 +6167,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5775,6 +6229,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5835,6 +6290,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5896,6 +6352,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -5957,6 +6414,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6017,6 +6475,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6078,6 +6537,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6139,6 +6599,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6199,6 +6660,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6260,6 +6722,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6321,6 +6784,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6381,6 +6845,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6442,6 +6907,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6503,6 +6969,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6563,6 +7030,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6624,6 +7092,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6685,6 +7154,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6745,6 +7215,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6806,6 +7277,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6867,6 +7339,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6927,6 +7400,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -6988,6 +7462,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7049,6 +7524,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7109,6 +7585,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7170,6 +7647,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7231,6 +7709,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7291,6 +7770,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7352,6 +7832,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7413,6 +7894,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7473,6 +7955,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7534,6 +8017,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7595,6 +8079,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7655,6 +8140,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7716,6 +8202,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7777,6 +8264,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7837,6 +8325,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7898,6 +8387,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -7959,6 +8449,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8019,6 +8510,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8080,6 +8572,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8141,6 +8634,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8201,6 +8695,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8262,6 +8757,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8323,6 +8819,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8383,6 +8880,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8444,6 +8942,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8505,6 +9004,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8565,6 +9065,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8626,6 +9127,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8687,6 +9189,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8747,6 +9250,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8808,6 +9312,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8869,6 +9374,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8929,6 +9435,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -8990,6 +9497,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9051,6 +9559,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9111,6 +9620,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9172,6 +9682,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9233,6 +9744,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9293,6 +9805,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9354,6 +9867,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9415,6 +9929,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9475,6 +9990,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9536,6 +10052,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9597,6 +10114,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9657,6 +10175,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9718,6 +10237,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9779,6 +10299,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9839,6 +10360,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9900,6 +10422,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -9961,6 +10484,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -10021,6 +10545,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -10082,6 +10607,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -10143,6 +10669,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
@@ -10203,6 +10730,7 @@
           "id": "narrator",
           "name": "Narrator",
           "role": "narrator",
+          "gender": "neutral",
           "voice": "Kore",
           "nameSpokenInAudio": false
         }
