@@ -25,7 +25,10 @@ const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
         }).strict()).min(2).max(8),
     }).strict(),
     z.object({
-        gender: z.enum(['female', 'male', 'neutral']).optional(),
+        // Required on fresh model output (a monologue's speaker gender; 'neutral'
+        // for narration). The runtime SceneMediaScript type keeps it optional for
+        // items authored before the field existed.
+        gender: z.enum(['female', 'male', 'neutral']),
         identityStrategy: z.union([
             z.literal('named_in_narration'),
             z.literal('role_only'),
@@ -248,24 +251,55 @@ export function buildSceneMediaScriptUserPrompt(input, includeScript = true) {
         input.imageAlt ? `Generated image alt text: ${input.imageAlt}` : '',
         input.sourceContext ? buildSceneMediaSourceContextPrompt(input.sourceContext) : '',
         '',
-        'Return JSON in this exact shape:',
-        '{',
-        '  "title": "short title",',
-        '  "setting": "where this happens",',
-        '  "visualSummary": ["1-5 short visual facts"],',
-        '  "tags": ["search tag"],',
-        '  "skills": ["English skill practiced"],',
-        '  "useCases": ["listening", "speaking", "writing prompt"]' + (includeScript ? ',' : ''),
-        includeScript
-            ? '  "script": { "scriptType": "dialogue", "identityStrategy": "named_in_dialogue", "speakers": [{ "name": "Name", "role": "role", "gender": "female" | "male" | "neutral", "nameSpokenInAudio": true }], "turns": [{ "speaker": "Name", "text": "Line that establishes names aloud" }] }'
-            : '',
-        '}',
+        'Return one JSON object that satisfies this TypeScript type. Output raw JSON only: no markdown, no comments.',
         '',
-        includeScript
-            ? 'For narration or monologue, script must be { "scriptType": "narration" | "monologue", "identityStrategy": "named_in_narration" | "role_only", "gender": "female" | "male" | "neutral", "text": "..." }. Use gender for a monologue speaker; use "neutral" for pure narration.'
-            : 'Return metadata only and omit script.',
+        includeScript ? scriptResponseType : metadataResponseType,
     ].filter(Boolean).join('\n');
 }
+// The requested JSON shape, expressed as TypeScript so optionality, unions, and
+// enums are unambiguous. Field names, enum values, and the `scriptType`
+// discriminant must stay identical to `sceneMediaScriptSchema` /
+// `sceneMediaMetadataSchema` above.
+const metadataResponseType = [
+    'interface Response {',
+    '  title: string;            // short, specific title',
+    '  setting: string;          // where this happens',
+    '  visualSummary: string[];  // 1-5 short visual facts about the image',
+    '  tags: string[];           // 1-8 search tags',
+    '  skills: string[];         // 1-6 English skills practiced',
+    '  useCases: string[];       // 1-6, e.g. "listening", "speaking"',
+    '}',
+].join('\n');
+const scriptResponseType = [
+    'interface Response {',
+    '  title: string;            // short, specific title',
+    '  setting: string;          // where this happens',
+    '  visualSummary: string[];  // 1-5 short visual facts about the image',
+    '  tags: string[];           // 1-8 search tags',
+    '  skills: string[];         // 1-6 English skills practiced',
+    '  useCases: string[];       // 1-6, e.g. "listening", "speaking"',
+    '  script: Script;',
+    '}',
+    '',
+    'type Script =',
+    '  | {',
+    "      scriptType: 'dialogue';",
+    "      identityStrategy: 'named_in_dialogue' | 'role_only';",
+    '      speakers: {           // 2-3 speakers',
+    '        name: string;',
+    '        role: string;',
+    "        gender: 'female' | 'male' | 'neutral';  // match the person shown in the image",
+    '        nameSpokenInAudio: boolean;',
+    '      }[];',
+    '      turns: { speaker: string; text: string }[];  // 2-8 turns, in spoken order',
+    '    }',
+    '  | {',
+    "      scriptType: 'monologue' | 'narration';",
+    "      identityStrategy: 'named_in_narration' | 'role_only';",
+    "      gender: 'female' | 'male' | 'neutral';  // monologue: the speaker; narration: 'neutral'",
+    '      text: string;',
+    '    };',
+].join('\n');
 function isContentPolicyFinish(finishReason, providerMetadata) {
     const metadata = JSON.stringify(providerMetadata ?? {}).toLowerCase();
     return (finishReason === 'content-filter' ||

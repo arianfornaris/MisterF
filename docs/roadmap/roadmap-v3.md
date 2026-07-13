@@ -277,11 +277,15 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   extends the completed user-media
   audit above ([User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md))
   to the full media prompt surface. Analyze each prompt one by one:
-  - [ ] **Script/metadata system prompt** —
-    `system-prompts/scene-media/generation.md`.
-  - [ ] **Script/metadata user prompt** — `buildSceneMediaScriptUserPrompt` in
-    `services/sceneMediaScripts.ts` (level bands, format guidance, requested JSON
-    shape). Consider whether its static guidance also belongs in a template.
+  - [x] **Script/metadata system prompt** —
+    `system-prompts/scene-media/generation.md`. Reviewed with the user prompt as
+    one loop: rules are coherent with the Zod schema, no JSON shape lives here.
+  - [x] **Script/metadata user prompt** — `buildSceneMediaScriptUserPrompt` in
+    `services/sceneMediaScripts.ts`. Converted the requested-shape block from a
+    JSON example to a TypeScript `interface`/`type` per the JSON Shape
+    Convention, and made the monologue `gender` required in the generation
+    schema so the type matches field-for-field. (Static level/format guidance
+    kept in code for now; it is per-request assembly, not a flat template.)
   - [ ] **Image generation prompt** — `buildSceneMediaImagePrompt` in
     `sceneMedia/imageGeneration.ts` (format instruction, level, script hint,
     safety); still hardcoded.
