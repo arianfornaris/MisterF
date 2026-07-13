@@ -1,6 +1,6 @@
 ---
 name: system-prompt-coherence
-description: Use when creating, editing, reviewing, or debugging any LLM system prompt, prompt fragment, repair prompt, correction prompt, tool-use prompt, or multi-file prompt loop in Mister F. Requires reviewing the prompt as a whole so local prompt edits do not introduce contradictions, regressions, duplicated rules, or confusing instructions for the model.
+description: Use when creating, editing, reviewing, or debugging any LLM system prompt, prompt fragment, repair prompt, correction prompt, tool-use prompt, or multi-file prompt loop in Mister F. Requires reviewing the prompt as a whole so local prompt edits do not introduce contradictions, regressions, duplicated rules, or confusing instructions for the model. Also covers how a prompt must describe a JSON data shape: use TypeScript type/interface syntax, not a filled-in JSON example.
 ---
 
 # System Prompt Coherence
@@ -14,6 +14,42 @@ Never treat a prompt edit as an isolated line change. Prompt behavior comes from
 the full assembled instruction set: base system prompt, injected protocol,
 context prompts, repair/correction prompts, tool descriptions, and runtime
 messages. Review the loop as the model sees it.
+
+## JSON Shape Convention
+
+Whenever a prompt describes the shape of a JSON the model must return or consume,
+define it with **TypeScript type/interface syntax** — never a filled-in JSON
+example or prose as the contract. TypeScript states optionality, unions, enums,
+arrays, and nullability unambiguously, and it reads as the same contract the Zod
+schema validates against, so the prompt and the validator do not drift.
+
+Rules:
+
+- Use `interface`/`type` with explicit field types: `?` for optional fields, `|`
+  for unions, string-literal unions for enums, `T[]` for arrays, `| null` for
+  nullable.
+- Keep field names, enum values, and any discriminant (e.g. `scriptType`)
+  **identical** to the Zod schema the code parses the response with. When the
+  schema changes, update the prompt's TypeScript in the same edit.
+- Per-field guidance goes in short inline `//` comments, not separate prose.
+- Do not use a concrete JSON example as the shape contract. If an example adds
+  value, keep it clearly secondary to the TypeScript definition.
+- Say what the model must output around the type (e.g. "Return one JSON object
+  that satisfies this type. Do not include markdown or comments.").
+
+Example — instead of `Return JSON like { "scriptType": "dialogue", "speakers": [...] }`, write:
+
+```ts
+// Return one JSON object matching this type. No markdown, no comments.
+interface ScriptPackage {
+  title: string;
+  script: {
+    scriptType: 'dialogue';
+    speakers: { name: string; gender: 'female' | 'male' | 'neutral'; nameSpokenInAudio: boolean; role: string }[];
+    turns: { speaker: string; text: string }[];
+  };
+}
+```
 
 ## Workflow
 
@@ -47,6 +83,9 @@ messages. Review the loop as the model sees it.
   persistent practice guides, learner messages from teacher-only context, and
   exercises from optional navigation choices.
 - The model is told what to do instead of the forbidden behavior.
+- Any JSON data shape is defined with TypeScript type/interface syntax (not a
+  JSON example) and matches the Zod schema field-for-field (see JSON Shape
+  Convention).
 - Tool descriptions match the system prompt and include the same boundaries.
 - Repair/correction prompts know the current protocol and do not repair toward
   removed or deprecated block types.

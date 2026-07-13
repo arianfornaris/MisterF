@@ -272,7 +272,9 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   flow, one prompt at a time, applying the `system-prompt-coherence` skill (read
   each loop as the model sees it: no contradictions, duplicated rules, or
   forbidden behavior without a stated alternative; confirm each carries the right
-  gender/identity/level/safety guidance). This extends the completed user-media
+  gender/identity/level/safety guidance; and rewrite any JSON-shape description as
+  TypeScript type/interface syntax per the skill's JSON Shape Convention). This
+  extends the completed user-media
   audit above ([User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md))
   to the full media prompt surface. Analyze each prompt one by one:
   - [ ] **Script/metadata system prompt** —
