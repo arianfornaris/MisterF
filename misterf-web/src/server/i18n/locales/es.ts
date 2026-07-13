@@ -178,6 +178,13 @@ export const es: LocaleCatalog = {
     generationPending: 'Estamos creando tu media. Esto puede tardar un momento.',
     generationMode: 'Modo de generación',
     generationPrompt: 'Prompt de generación',
+    progress: {
+      starting: 'Preparando la generación…',
+      image: 'Creando la imagen…',
+      metadata: 'Escribiendo el guion y los detalles…',
+      audio: 'Creando audio {{completed}}/{{total}}…',
+      saving: 'Guardando la media…',
+    },
     imageLayer: 'Imagen',
     identityStrategy: {
       named_in_dialogue: 'Nombres establecidos en el diálogo',

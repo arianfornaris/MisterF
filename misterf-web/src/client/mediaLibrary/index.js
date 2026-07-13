@@ -97,21 +97,169 @@ function initializePreviewModal() {
   modalElement.addEventListener('hidden.bs.modal', () => player?.stop());
 }
 
+function getPendingModalUi(modalElement) {
+  return {
+    bar: modalElement.querySelector('[data-scene-media-pending-bar]'),
+    creditLink: modalElement.querySelector('[data-scene-media-pending-credit-link]'),
+    error: modalElement.querySelector('[data-scene-media-pending-error]'),
+    errorMessage: modalElement.querySelector('[data-scene-media-pending-error-message]'),
+    genericError: modalElement.dataset.genericError || '',
+    loading: modalElement.querySelector('[data-scene-media-pending-loading]'),
+    message: modalElement.querySelector('[data-scene-media-pending-message]'),
+    progress: modalElement.querySelector('[data-scene-media-pending-progress]'),
+  };
+}
+
+function updatePendingProgress(ui, percent, message) {
+  const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+  if (ui.bar instanceof HTMLElement) {
+    ui.bar.style.width = `${clamped}%`;
+  }
+  if (ui.progress instanceof HTMLElement) {
+    ui.progress.setAttribute('aria-valuenow', String(clamped));
+  }
+  if (typeof message === 'string' && message && ui.message instanceof HTMLElement) {
+    ui.message.textContent = message;
+  }
+}
+
+function showPendingError(ui, message, creditExhausted) {
+  ui.loading?.classList.add('d-none');
+  ui.error?.classList.remove('d-none');
+  if (ui.errorMessage instanceof HTMLElement) {
+    ui.errorMessage.textContent = message || ui.genericError;
+  }
+  if (ui.creditLink instanceof HTMLElement) {
+    ui.creditLink.classList.toggle('d-none', !creditExhausted);
+    if (creditExhausted) {
+      const returnTo = window.location.pathname + window.location.search;
+      ui.creditLink.setAttribute('href', `/credits?returnTo=${encodeURIComponent(returnTo)}`);
+    }
+  }
+}
+
+function resetPendingModal(ui) {
+  ui.error?.classList.add('d-none');
+  ui.loading?.classList.remove('d-none');
+  ui.creditLink?.classList.add('d-none');
+  updatePendingProgress(ui, 0, '');
+}
+
+async function streamGenerationProgress(form, ui) {
+  // Send urlencoded (not multipart) so express.urlencoded and CSRF still parse
+  // the body; disabled controls are re-enabled so their values are included.
+  const body = new URLSearchParams();
+  for (const element of form.querySelectorAll('[disabled]')) {
+    element.disabled = false;
+  }
+  for (const [key, value] of new FormData(form)) {
+    if (typeof value === 'string') {
+      body.append(key, value);
+    }
+  }
+
+  const response = await fetch(form.action, {
+    body,
+    credentials: 'same-origin',
+    headers: { Accept: 'application/x-ndjson' },
+    method: 'POST',
+  });
+  if (!response.ok || !response.body) {
+    showPendingError(ui, ui.genericError, false);
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (value) {
+      buffer += decoder.decode(value, { stream: true });
+    }
+    let newlineIndex = buffer.indexOf('\n');
+    while (newlineIndex >= 0) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      newlineIndex = buffer.indexOf('\n');
+      if (!line) continue;
+      let event;
+      try {
+        event = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      if (event.type === 'progress') {
+        updatePendingProgress(ui, event.percent, event.message);
+      } else if (event.type === 'done') {
+        updatePendingProgress(ui, 100, event.message);
+        window.location.assign(event.redirect);
+        return;
+      } else if (event.type === 'error') {
+        showPendingError(ui, event.message, Boolean(event.creditExhausted));
+        return;
+      }
+    }
+    if (done) {
+      break;
+    }
+  }
+  // Stream ended without a terminal event: surface a generic failure.
+  showPendingError(ui, ui.genericError, false);
+}
+
 function initializeGenerationForms() {
+  const modalElement = document.querySelector('[data-scene-media-pending-modal]');
+  const canStream =
+    modalElement instanceof HTMLElement &&
+    window.bootstrap?.Modal &&
+    typeof window.fetch === 'function' &&
+    typeof ReadableStream === 'function';
+
   for (const form of document.querySelectorAll('[data-scene-media-generate-form]')) {
     if (!(form instanceof HTMLFormElement)) {
       continue;
     }
-    form.addEventListener('submit', () => {
-      const submit = form.querySelector('[data-scene-media-generate-submit]');
-      if (submit instanceof HTMLButtonElement) {
-        submit.disabled = true;
-        submit.textContent = submit.dataset.loadingText || submit.textContent;
-      }
-      const pendingModal = document.querySelector('[data-scene-media-pending-modal]');
-      if (pendingModal && window.bootstrap?.Modal) {
-        window.bootstrap.Modal.getOrCreateInstance(pendingModal).show();
-      }
+
+    const submit = form.querySelector('[data-scene-media-generate-submit]');
+    const originalLabel = submit instanceof HTMLButtonElement ? submit.textContent : '';
+    const setSubmitting = (submitting) => {
+      if (!(submit instanceof HTMLButtonElement)) return;
+      submit.disabled = submitting;
+      submit.textContent = submitting
+        ? submit.dataset.loadingText || originalLabel
+        : originalLabel;
+    };
+
+    if (!canStream) {
+      // Progressive enhancement: keep the classic redirect flow (server renders
+      // the result) and just show the pending spinner while it works.
+      form.addEventListener('submit', () => {
+        setSubmitting(true);
+        if (modalElement instanceof HTMLElement && window.bootstrap?.Modal) {
+          window.bootstrap.Modal.getOrCreateInstance(modalElement).show();
+        }
+      });
+      continue;
+    }
+
+    const ui = getPendingModalUi(modalElement);
+    const modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+    modalElement.addEventListener('hidden.bs.modal', () => {
+      resetPendingModal(ui);
+      setSubmitting(false);
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      setSubmitting(true);
+      resetPendingModal(ui);
+      updatePendingProgress(ui, 3, ui.message?.textContent || '');
+      modal.show();
+      streamGenerationProgress(form, ui).catch(() => {
+        showPendingError(ui, ui.genericError, false);
+      });
     });
   }
 }

@@ -19,6 +19,9 @@ export type GeneratedSceneMediaAudio = {
 
 export type GenerateSceneMediaAudioInput = {
   getOpenRouterApiKey: () => Promise<string>;
+  // Reports which clip is being synthesized (1-based) out of the total, so the
+  // caller can surface "creating audio 3/8" style progress.
+  onClipProgress?: (completed: number, total: number) => void;
   script: SceneMediaScript;
 };
 
@@ -66,6 +69,7 @@ export async function generateSceneMediaAudio(
   const clips: GeneratedSceneMediaAudioClip[] = [];
 
   for (const segment of segments) {
+    input.onClipProgress?.(clips.length + 1, segments.length);
     const pcmBytes = await requestSpeechPcm({
       getOpenRouterApiKey: input.getOpenRouterApiKey,
       input: segment.text,

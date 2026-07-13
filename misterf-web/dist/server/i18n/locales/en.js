@@ -169,6 +169,13 @@ export const en = {
         generationPending: 'Creating your media. This may take a moment.',
         generationMode: 'Generation mode',
         generationPrompt: 'Generation prompt',
+        progress: {
+            starting: 'Preparing generation…',
+            image: 'Creating the image…',
+            metadata: 'Writing the script and details…',
+            audio: 'Creating audio {{completed}}/{{total}}…',
+            saving: 'Saving your media…',
+        },
         imageLayer: 'Image',
         identityStrategy: {
             named_in_dialogue: 'Names established in dialogue',

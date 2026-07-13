@@ -187,6 +187,13 @@ export const ht: LocaleCatalog = {
     generationPending: 'N ap kreye medya ou a. Sa ka pran yon ti moman.',
     generationMode: 'Mòd jenerasyon',
     generationPrompt: 'Prompt jenerasyon',
+    progress: {
+      starting: 'N ap prepare jenerasyon an…',
+      image: 'N ap kreye imaj la…',
+      metadata: 'N ap ekri istwa a ak detay yo…',
+      audio: 'N ap kreye odyo {{completed}}/{{total}}…',
+      saving: 'N ap anrejistre medya ou a…',
+    },
     imageLayer: 'Imaj',
     identityStrategy: {
       named_in_dialogue: 'Non yo etabli nan dyalòg la',

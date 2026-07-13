@@ -29,6 +29,7 @@ export async function generateSceneMediaAudio(input) {
     const segments = scriptToAudioSegments(input.script);
     const clips = [];
     for (const segment of segments) {
+        input.onClipProgress?.(clips.length + 1, segments.length);
         const pcmBytes = await requestSpeechPcm({
             getOpenRouterApiKey: input.getOpenRouterApiKey,
             input: segment.text,

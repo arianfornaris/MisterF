@@ -21,6 +21,7 @@ export async function generateReadySceneMedia(input) {
     const mediaId = input.mediaId ?? randomUUID();
     const storage = getUserFileStorageProvider();
     const uploadedKeys = [];
+    const report = input.onProgress ?? (() => { });
     try {
         const sourceContext = createSourceContext(input);
         const sourceImage = input.sourceItem
@@ -28,6 +29,7 @@ export async function generateReadySceneMedia(input) {
             : undefined;
         const shouldGenerateImage = !input.sourceItem ||
             input.layerDecisions?.image === 'generate_new';
+        report({ stage: 'image', completed: 0, total: 1 });
         const imageResult = shouldGenerateImage
             ? await generateAndStoreImage({
                 ...input,
@@ -36,6 +38,7 @@ export async function generateReadySceneMedia(input) {
                 sourceContext,
             })
             : await reuseImage(input.sourceItem, storage);
+        report({ stage: 'image', completed: 1, total: 1 });
         if ('uploadedStorageKey' in imageResult &&
             typeof imageResult.uploadedStorageKey === 'string') {
             uploadedKeys.push(imageResult.uploadedStorageKey);
@@ -45,12 +48,14 @@ export async function generateReadySceneMedia(input) {
             input.layerDecisions?.scriptAndAudio === 'keep_existing' &&
             input.sourceItem.script &&
             input.sourceItem.audio);
+        report({ stage: 'metadata', completed: 0, total: 1 });
         const metadata = await generateMetadata({
             ...input,
             imageAsset: imageResult.asset,
             includeScript: shouldGenerateScript,
             sourceContext,
         });
+        report({ stage: 'metadata', completed: 1, total: 1 });
         const script = shouldGenerateScript
             ? metadata.script
             : shouldKeepScript
@@ -59,6 +64,7 @@ export async function generateReadySceneMedia(input) {
         const audioResult = shouldGenerateScript && script
             ? await generateAndStoreAudio({
                 mediaId,
+                onProgress: (completed, total) => report({ stage: 'audio', completed, total }),
                 ownerUserId: input.ownerUserId,
                 script,
             })
@@ -235,6 +241,7 @@ async function generateMetadata(input) {
 async function generateAndStoreAudio(input) {
     const generated = await generateSceneMediaAudio({
         getOpenRouterApiKey: () => requireCreditKey(input.ownerUserId),
+        onClipProgress: input.onProgress,
         script: input.script,
     });
     const storage = getUserFileStorageProvider();

@@ -194,6 +194,101 @@ export async function serveSceneMediaImageAsset(request, response) {
     });
     response.redirect(readUrl);
 }
+function wantsProgressStream(request) {
+    return Boolean(request.get('accept')?.includes('application/x-ndjson'));
+}
+function sceneMediaProgressPercent(progress) {
+    switch (progress.stage) {
+        case 'image':
+            return progress.completed >= progress.total ? 40 : 12;
+        case 'metadata':
+            return progress.completed >= progress.total ? 58 : 46;
+        case 'audio': {
+            const ratio = progress.total > 0 ? progress.completed / progress.total : 0;
+            return Math.min(92, 60 + Math.round(ratio * 32));
+        }
+        case 'saving':
+            return 96;
+    }
+}
+function sceneMediaProgressMessage(t, progress) {
+    switch (progress.stage) {
+        case 'image':
+            return t('mediaLibrary.progress.image');
+        case 'metadata':
+            return t('mediaLibrary.progress.metadata');
+        case 'audio':
+            return t('mediaLibrary.progress.audio', {
+                completed: progress.completed,
+                total: progress.total,
+            });
+        case 'saving':
+            return t('mediaLibrary.progress.saving');
+    }
+}
+// Runs the (long) generation while streaming newline-delimited JSON progress
+// events to the client instead of blocking on a single redirect. Emits
+// `progress` events per stage, then a final `done` (with the redirect target)
+// or `error` event. Errors are reported in-band so the already-flushed stream
+// can surface them; the HTTP status stays 200.
+async function streamSceneMediaGeneration(response, options) {
+    const t = response.locals.t;
+    response.status(200);
+    response.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+    response.setHeader('Cache-Control', 'no-cache, no-transform');
+    response.setHeader('X-Accel-Buffering', 'no');
+    response.flushHeaders?.();
+    const write = (payload) => {
+        response.write(`${JSON.stringify(payload)}\n`);
+    };
+    const savingProgress = {
+        stage: 'saving',
+        completed: 1,
+        total: 1,
+    };
+    try {
+        const draft = await generateReadySceneMedia({
+            ...options.generateInput,
+            onProgress: (progress) => write({
+                message: sceneMediaProgressMessage(t, progress),
+                percent: sceneMediaProgressPercent(progress),
+                type: 'progress',
+            }),
+        });
+        write({
+            message: sceneMediaProgressMessage(t, savingProgress),
+            percent: sceneMediaProgressPercent(savingProgress),
+            type: 'progress',
+        });
+        let media;
+        try {
+            media = createReadyUserSceneMedia(draft);
+        }
+        catch (error) {
+            await options.cleanup(draft);
+            throw error;
+        }
+        write({
+            percent: 100,
+            redirect: `/media-library/${encodeURIComponent(media.id)}`,
+            type: 'done',
+        });
+    }
+    catch (error) {
+        logger.error(options.logEvent, {
+            error: serializeError(error),
+            ...options.logContext,
+        });
+        write({
+            creditExhausted: isCreditExhaustedError(error),
+            message: sceneMediaCreationFailureMessage(response, error),
+            type: 'error',
+        });
+    }
+    finally {
+        response.end();
+    }
+}
 export async function createSceneMediaFromPrompt(request, response) {
     const auth = ensureVerifiedSceneMediaUser(request, response);
     if (!auth) {
@@ -208,17 +303,27 @@ export async function createSceneMediaFromPrompt(request, response) {
         });
         return;
     }
-    try {
-        const draft = await generateReadySceneMedia({
-            createdAssistantMessage: response.locals.t('mediaLibrary.createdChatMessage'),
-            format,
-            generationMode,
-            level,
-            ownerProfileId: auth.activeProfile.id,
-            ownerUserId: auth.user.id,
-            prompt,
-            scriptTypePreference,
+    const generateInput = {
+        createdAssistantMessage: response.locals.t('mediaLibrary.createdChatMessage'),
+        format,
+        generationMode,
+        level,
+        ownerProfileId: auth.activeProfile.id,
+        ownerUserId: auth.user.id,
+        prompt,
+        scriptTypePreference,
+    };
+    if (wantsProgressStream(request)) {
+        await streamSceneMediaGeneration(response, {
+            cleanup: (draft) => deleteUnpersistedSceneMediaObjects(draft),
+            generateInput,
+            logContext: { userId: auth.user.id },
+            logEvent: 'scene_media_creation_failed',
         });
+        return;
+    }
+    try {
+        const draft = await generateReadySceneMedia(generateInput);
         let media;
         try {
             media = createReadyUserSceneMedia(draft);
@@ -261,19 +366,29 @@ export async function createSceneMediaVariation(request, response) {
         scriptAndAudio: scriptAndAudioDecision,
     };
     const generationMode = scriptAndAudioDecision === 'do_not_include' ? 'image_only' : 'complete_scene';
-    try {
-        const draft = await generateReadySceneMedia({
-            createdAssistantMessage: response.locals.t('mediaLibrary.variationCreatedChatMessage'),
-            format,
-            generationMode,
-            layerDecisions,
-            level,
-            ownerProfileId: activeProfile.id,
-            ownerUserId: user.id,
-            prompt,
-            scriptTypePreference,
-            sourceItem,
+    const generateInput = {
+        createdAssistantMessage: response.locals.t('mediaLibrary.variationCreatedChatMessage'),
+        format,
+        generationMode,
+        layerDecisions,
+        level,
+        ownerProfileId: activeProfile.id,
+        ownerUserId: user.id,
+        prompt,
+        scriptTypePreference,
+        sourceItem,
+    };
+    if (wantsProgressStream(request)) {
+        await streamSceneMediaGeneration(response, {
+            cleanup: (draft) => deleteUnpersistedSceneMediaObjects(draft, sourceItem),
+            generateInput,
+            logContext: { sourceMediaId: sourceItem.id, userId: user.id },
+            logEvent: 'scene_media_variation_failed',
         });
+        return;
+    }
+    try {
+        const draft = await generateReadySceneMedia(generateInput);
         let media;
         try {
             media = createReadyUserSceneMedia(draft);

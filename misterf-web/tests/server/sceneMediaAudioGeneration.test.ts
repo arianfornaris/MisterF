@@ -163,6 +163,52 @@ describe('scene media audio generation', () => {
     expect(body.voice).toBe('Puck');
   });
 
+  it('reports per-clip progress as each turn is synthesized', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(Buffer.from([1, 2]), {
+        headers: { 'content-type': 'application/octet-stream' },
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response(Buffer.from([3, 4]), {
+        headers: { 'content-type': 'application/octet-stream' },
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response(Buffer.from([5, 6]), {
+        headers: { 'content-type': 'application/octet-stream' },
+        status: 200,
+      }));
+    const onClipProgress = vi.fn();
+    const { generateSceneMediaAudio } = await import(
+      '../../src/server/sceneMedia/audioGeneration.js'
+    );
+
+    await generateSceneMediaAudio({
+      getOpenRouterApiKey: async () => 'user-openrouter-key',
+      onClipProgress,
+      script: {
+        identityStrategy: 'named_in_dialogue',
+        scriptType: 'dialogue',
+        speakers: [
+          { name: 'Maya', nameSpokenInAudio: true, role: 'traveler' },
+          { name: 'Leo', nameSpokenInAudio: true, role: 'clerk' },
+        ],
+        turns: [
+          { speaker: 'Maya', text: 'One.' },
+          { speaker: 'Leo', text: 'Two.' },
+          { speaker: 'Maya', text: 'Three.' },
+        ],
+      },
+    });
+
+    expect(onClipProgress.mock.calls).toEqual([
+      [1, 3],
+      [2, 3],
+      [3, 3],
+    ]);
+  });
+
   it('maps TTS safety rejections to a content-policy error', async () => {
     process.env.ENV_FILE = '/dev/null';
     process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';
