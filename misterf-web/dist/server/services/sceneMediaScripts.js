@@ -13,16 +13,18 @@ const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
         ]),
         scriptType: z.literal('dialogue'),
         speakers: z.array(z.object({
+            gender: z.enum(['female', 'male', 'neutral']),
             name: z.string().trim().min(1).max(40),
             nameSpokenInAudio: z.boolean(),
             role: z.string().trim().min(1).max(60),
-        }).strict()).min(1).max(3),
+        }).strict()).min(2).max(3),
         turns: z.array(z.object({
             speaker: z.string().trim().min(1).max(40),
             text: z.string().trim().min(1).max(320),
         }).strict()).min(2).max(8),
     }).strict(),
     z.object({
+        gender: z.enum(['female', 'male', 'neutral']).optional(),
         identityStrategy: z.union([
             z.literal('named_in_narration'),
             z.literal('role_only'),
@@ -62,7 +64,7 @@ function summarizeScriptValidationIssues(error) {
     }));
 }
 export async function generateSceneMediaScriptPackage(input) {
-    const result = await generateSceneMediaPackage(input, true, scriptGenerationSchema);
+    const result = await generateSceneMediaPackage(input, true, scriptGenerationSchema, (data) => findScriptContentIssues(data.script));
     return {
         ...result,
         script: result.script,
@@ -71,7 +73,50 @@ export async function generateSceneMediaScriptPackage(input) {
 export async function generateSceneMediaMetadataPackage(input) {
     return generateSceneMediaPackage(input, false, sceneMediaMetadataSchema);
 }
-async function generateSceneMediaPackage(input, includeScript, schema) {
+// Spoken text must not describe the medium or the exercise (mirrors the built-in
+// `validate_no_description_phrases` guard). Case-insensitive substring / panel
+// checks against the text a learner actually hears.
+const descriptionPhrases = [
+    'this image',
+    'this picture',
+    'the image shows',
+    'the image presents',
+    'the picture shows',
+    'this scene shows',
+    'the scene shows',
+    'the two panels',
+    'this wordless story',
+    'the story shows',
+    'this is a short story about',
+    'the contrast in',
+    'the listener can',
+    'the learner can',
+];
+const panelReferencePattern = /\bpanel\s+(\d+|one|two|three|four)\b/i;
+function findScriptContentIssues(script) {
+    const spokenText = script.scriptType === 'dialogue'
+        ? script.turns.map((turn) => turn.text).join('\n')
+        : script.text;
+    const lower = spokenText.toLowerCase();
+    const issues = [];
+    const hit = descriptionPhrases.find((phrase) => lower.includes(phrase));
+    if (hit) {
+        issues.push({
+            code: 'description_phrase',
+            message: `Spoken text must not describe the image or exercise. Remove phrasing like "${hit}".`,
+            path: 'script',
+        });
+    }
+    if (panelReferencePattern.test(spokenText)) {
+        issues.push({
+            code: 'panel_reference',
+            message: 'Spoken text must not reference panel numbers.',
+            path: 'script',
+        });
+    }
+    return issues;
+}
+async function generateSceneMediaPackage(input, includeScript, schema, extraValidation) {
     const system = buildSceneMediaScriptSystemPrompt();
     const messages = [
         {
@@ -146,6 +191,27 @@ async function generateSceneMediaPackage(input, includeScript, schema) {
             }
             throw new SceneMediaScriptProviderError('The script generator returned an invalid script package.');
         }
+        const contentIssues = extraValidation ? extraValidation(parsed.data) : [];
+        if (contentIssues.length > 0) {
+            logger.warn('scene_media_script_content_rejected', {
+                issueCount: contentIssues.length,
+                issues: contentIssues,
+                turn: turn + 1,
+            });
+            if (turn < scriptGenerationTurns - 1) {
+                messages.push({
+                    content: result.text.slice(0, 8000),
+                    role: 'assistant',
+                });
+                messages.push({
+                    content: 'The script broke content rules. Fix these issues, then return only JSON:\n'
+                        + JSON.stringify(contentIssues, null, 2),
+                    role: 'user',
+                });
+                continue;
+            }
+            throw new SceneMediaScriptProviderError('The script generator returned a script that broke content rules.');
+        }
         return parsed.data;
     }
     throw new SceneMediaScriptProviderError('The script generator did not return a usable script package.');
@@ -155,10 +221,16 @@ export function buildSceneMediaScriptSystemPrompt() {
         'You generate compact pedagogical scene media metadata and listening scripts for Mister F, an English-learning app.',
         'Return one JSON object only. Do not use markdown, comments, or surrounding prose.',
         'When a script is requested, it must be in English and suitable for the requested learner level.',
-        'If dialogue is requested, use at most three speakers. If the user asks for more, merge or simplify roles.',
+        'Cast size scales with level: use two speakers for A1-A2, and at most three for B1-B2 and C1. If the user asks for more, merge or simplify roles.',
         'Every named dialogue character must be named naturally in the spoken turns. Set identityStrategy to "named_in_dialogue" and nameSpokenInAudio to true only when the name is actually spoken.',
+        'When a character is named, weave the name into natural speech in the first one or two turns (a greeting or direct address, e.g. "Hi, Maria!" or "Thanks, Mr. James.").',
         'When a dialogue character is not named aloud, use a stable spoken role as both its speaker name and role, set nameSpokenInAudio to false, and use identityStrategy "role_only".',
         'For narration or monologue, use identityStrategy "named_in_narration" only when the character name occurs in the text; otherwise use "role_only".',
+        'Assign each speaker a gender that matches the person who performs that role in the image: "female" or "male" for a visible character, and "neutral" only for a narrator. The synthesized voice follows this field, so a male character must not be given a female gender or vice versa. For a monologue, set the top-level gender to the speaking character\'s gender; for pure narration, use "neutral".',
+        'Dialogue turns contain only the words a character speaks aloud. Do not write stage directions or third-person description of actions inside a turn (never "He opens the door and says...").',
+        'Never describe the medium or the exercise in any spoken text: do not write phrases like "this image shows", "this picture", "the scene shows", "the learner can", "the listener can", "this wordless story", or panel numbers.',
+        'Each script must stand alone as listening input with a clear arc: setup, complication, action, and resolution.',
+        'Write TTS-safe spoken text: spell out abbreviations and numbers so names, times, and figures are pronounced correctly (e.g. "Mister James", "three thirty", "twenty dollars").',
         'Every fact that a listening question could target must be recoverable from the spoken script or the visible image. Do not rely on hidden metadata.',
         'Script and audio are an atomic layer. When requested, produce a script that can be directly synthesized into listening audio; otherwise omit script entirely.',
         'Inspect the supplied image directly. The title, visual summary, setting, and any script must describe the actual image rather than relying only on alt text.',
@@ -169,10 +241,13 @@ export function buildSceneMediaScriptSystemPrompt() {
     ].join('\n');
 }
 export function buildSceneMediaScriptUserPrompt(input, includeScript = true) {
+    // Level is defined by linguistic complexity, not word count. Ranges are soft
+    // targets calibrated for listening (higher load than reading), so passages run
+    // shorter than a reading text at the same CEFR band. See script-levels.md.
     const levelGuidance = {
-        'A1-A2': 'Use simple present/past, short turns, familiar vocabulary, and target about 20-45 seconds of audio.',
-        'B1-B2': 'Use natural everyday speech, moderate sentence variety, and target about 35-75 seconds of audio.',
-        C1: 'Use more nuanced language, idioms only when clear from context, and target about 60-120 seconds of audio.',
+        'A1-A2': 'Around 30-60 words. Mostly present simple/continuous, simple past, and common modals. Concrete nouns, visible actions, emotions, times, and places. Short turns. Avoid idioms, long clauses, and abstract explanation.',
+        'B1-B2': 'Around 55-90 words. Add reasons, reactions, plans, and mild negotiation. Use connectors such as because, although, after, before, so, and while. Natural but clean speech; keep the situation easy to infer from the image.',
+        C1: 'Around 75-130 words. Add nuance, implied meaning, repair strategies, richer verbs, embedded clauses, and varied rhythm. Keep it grounded in the image; do not invent unrelated backstory. Avoid slang that reduces international reuse.',
     };
     const formatGuidance = {
         four_panel_wordless_story: 'The media image is a four-panel wordless story. The script should follow the panel sequence clearly.',
@@ -199,12 +274,12 @@ export function buildSceneMediaScriptUserPrompt(input, includeScript = true) {
         '  "skills": ["English skill practiced"],',
         '  "useCases": ["listening", "speaking", "writing prompt"]' + (includeScript ? ',' : ''),
         includeScript
-            ? '  "script": { "scriptType": "dialogue", "identityStrategy": "named_in_dialogue", "speakers": [{ "name": "Name", "role": "role", "nameSpokenInAudio": true }], "turns": [{ "speaker": "Name", "text": "Line that establishes names aloud" }] }'
+            ? '  "script": { "scriptType": "dialogue", "identityStrategy": "named_in_dialogue", "speakers": [{ "name": "Name", "role": "role", "gender": "female" | "male" | "neutral", "nameSpokenInAudio": true }], "turns": [{ "speaker": "Name", "text": "Line that establishes names aloud" }] }'
             : '',
         '}',
         '',
         includeScript
-            ? 'For narration or monologue, script must be { "scriptType": "narration" | "monologue", "identityStrategy": "named_in_narration" | "role_only", "text": "..." }.'
+            ? 'For narration or monologue, script must be { "scriptType": "narration" | "monologue", "identityStrategy": "named_in_narration" | "role_only", "gender": "female" | "male" | "neutral", "text": "..." }. Use gender for a monologue speaker; use "neutral" for pure narration.'
             : 'Return metadata only and omit script.',
     ].filter(Boolean).join('\n');
 }

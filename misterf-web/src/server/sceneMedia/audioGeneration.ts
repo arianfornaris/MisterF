@@ -1,5 +1,5 @@
 import { env } from '../config/env.js';
-import type { SceneMediaScript } from './types.js';
+import type { SceneMediaScript, SceneMediaSpeakerGender } from './types.js';
 
 export type GeneratedSceneMediaAudioClip = {
   bytes: Buffer;
@@ -29,7 +29,14 @@ type AudioSegment = {
   voice: string;
 };
 
-const dialogueVoices = ['Kore', 'Puck', 'Aoede'];
+// TTS voices grouped by the gender they present. One voice per character, kept
+// stable for the whole script; distinct speakers of the same gender cycle within
+// the pool so their voices stay distinguishable.
+const femaleVoices = ['Kore', 'Aoede', 'Leda'];
+const maleVoices = ['Puck', 'Charon', 'Fenrir'];
+// Order-based fallback for speakers with no gender (e.g. media authored before
+// the gender field existed): preserves the previous round-robin behavior.
+const fallbackVoices = ['Kore', 'Puck', 'Aoede'];
 const singleVoice = 'Kore';
 const pcmChannels = 1;
 const pcmSampleRate = 24_000;
@@ -84,13 +91,23 @@ export async function generateSceneMediaAudio(
 
 function scriptToAudioSegments(script: SceneMediaScript): AudioSegment[] {
   if (script.scriptType === 'dialogue') {
+    const genderBySpeaker = new Map(
+      script.speakers.map((speaker) => [speaker.name, speaker.gender]),
+    );
     const speakerVoiceMap = new Map<string, string>();
+    const poolCursor = { fallback: 0, female: 0, male: 0 };
     return script.turns.map((turn, index) => {
       if (!speakerVoiceMap.has(turn.speaker)) {
-        speakerVoiceMap.set(
-          turn.speaker,
-          dialogueVoices[speakerVoiceMap.size % dialogueVoices.length] ?? singleVoice,
-        );
+        const gender = genderBySpeaker.get(turn.speaker);
+        let voice: string;
+        if (gender === 'female') {
+          voice = femaleVoices[poolCursor.female++ % femaleVoices.length] ?? singleVoice;
+        } else if (gender === 'male') {
+          voice = maleVoices[poolCursor.male++ % maleVoices.length] ?? singleVoice;
+        } else {
+          voice = fallbackVoices[poolCursor.fallback++ % fallbackVoices.length] ?? singleVoice;
+        }
+        speakerVoiceMap.set(turn.speaker, voice);
       }
       return {
         speaker: turn.speaker,
@@ -105,8 +122,20 @@ function scriptToAudioSegments(script: SceneMediaScript): AudioSegment[] {
     speaker: script.scriptType === 'narration' ? 'Narrator' : 'Speaker',
     text: script.text,
     turn: 1,
-    voice: singleVoice,
+    voice: monologueVoice(script.gender),
   }];
+}
+
+// A monologue's character voice follows its gender; a narrator (neutral or
+// unset) uses the default single voice.
+function monologueVoice(gender: SceneMediaSpeakerGender | undefined): string {
+  if (gender === 'female') {
+    return femaleVoices[0] ?? singleVoice;
+  }
+  if (gender === 'male') {
+    return maleVoices[0] ?? singleVoice;
+  }
+  return singleVoice;
 }
 
 async function requestSpeechPcm(input: {

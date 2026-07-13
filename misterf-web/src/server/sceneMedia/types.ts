@@ -66,6 +66,10 @@ export type SceneMediaScript =
         SceneMediaIdentityStrategy,
         'named_in_narration' | 'role_only'
       >;
+      // Speaker gender for a monologue's character; 'neutral' (or omitted) for a
+      // narrator. Drives the TTS voice. Present on generated media; optional for
+      // backward compatibility with items authored before the field existed.
+      gender?: SceneMediaSpeakerGender;
       scriptType: 'monologue' | 'narration';
       text: string;
     };

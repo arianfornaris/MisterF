@@ -30,8 +30,8 @@ const validScript = {
   identityStrategy: 'named_in_dialogue',
   scriptType: 'dialogue',
   speakers: [
-    { name: 'Ana', nameSpokenInAudio: true, role: 'traveler' },
-    { name: 'Officer', nameSpokenInAudio: false, role: 'security officer' },
+    { gender: 'female', name: 'Ana', nameSpokenInAudio: true, role: 'traveler' },
+    { gender: 'male', name: 'Officer', nameSpokenInAudio: false, role: 'security officer' },
   ],
   turns: [
     { speaker: 'Ana', text: 'Good morning, here is my passport.' },

@@ -99,6 +99,70 @@ describe('scene media audio generation', () => {
     });
   });
 
+  it('assigns voices from gender-keyed pools, not speaker order', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response(Buffer.from([1, 2]), {
+        headers: { 'content-type': 'application/octet-stream' },
+        status: 200,
+      }))
+      .mockResolvedValueOnce(new Response(Buffer.from([3, 4]), {
+        headers: { 'content-type': 'application/octet-stream' },
+        status: 200,
+      }));
+    const { generateSceneMediaAudio } = await import(
+      '../../src/server/sceneMedia/audioGeneration.js'
+    );
+
+    const result = await generateSceneMediaAudio({
+      getOpenRouterApiKey: async () => 'user-openrouter-key',
+      script: {
+        identityStrategy: 'named_in_dialogue',
+        scriptType: 'dialogue',
+        speakers: [
+          { gender: 'male', name: 'Diego', nameSpokenInAudio: true, role: 'worker' },
+          { gender: 'male', name: 'Noah', nameSpokenInAudio: true, role: 'coworker' },
+        ],
+        turns: [
+          { speaker: 'Diego', text: 'Sorry I am late, Noah.' },
+          { speaker: 'Noah', text: 'No problem, Diego.' },
+        ],
+      },
+    });
+
+    // Both speakers are male: distinct male-pool voices, never the female default.
+    expect(result.clips.map((clip) => clip.voice)).toEqual(['Puck', 'Charon']);
+  });
+
+  it('uses the character gender for a monologue voice', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(Buffer.from([5, 6]), {
+        headers: { 'content-type': 'application/octet-stream' },
+        status: 200,
+      }),
+    );
+    const { generateSceneMediaAudio } = await import(
+      '../../src/server/sceneMedia/audioGeneration.js'
+    );
+
+    const result = await generateSceneMediaAudio({
+      getOpenRouterApiKey: async () => 'user-openrouter-key',
+      script: {
+        gender: 'male',
+        identityStrategy: 'role_only',
+        scriptType: 'monologue',
+        text: 'He checks his watch and sighs.',
+      },
+    });
+
+    expect(result.clips[0]?.voice).toBe('Puck');
+    const body = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)) as Record<string, unknown>;
+    expect(body.voice).toBe('Puck');
+  });
+
   it('maps TTS safety rejections to a content-policy error', async () => {
     process.env.ENV_FILE = '/dev/null';
     process.env.OPENROUTER_BASE_URL = 'https://openrouter.test/api/v1';

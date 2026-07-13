@@ -21,7 +21,7 @@ Rules:
 - Keep script and audio unless the user requests language, dialogue, narration, listening, level-dependent script, or audio changes.
 - Script and audio are one atomic layer. Never keep or generate one without the other.
 - Generated audio uses one WAV clip per spoken turn. Preserve speaker identity and turn order; do not request a concatenated audio file.
-- Preserve `identityStrategy`, spoken names, and character roles unless the user explicitly changes the cast or how characters are identified.
+- Preserve `identityStrategy`, spoken names, character roles, and each speaker's gender unless the user explicitly changes the cast or how characters are identified.
 - Use `do_not_include` only when the user explicitly asks to remove script and audio.
 - Preserve level, format, and script type unless the user requests a change or a regenerated layer requires a more suitable script type.
 - A title-only request should keep both existing layers and express the requested title in `effectivePrompt`.
