@@ -298,6 +298,20 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     (the edit chat that decides keep/generate image, script type, and level).
   - [ ] **Revision JSON correction prompt** —
     `system-prompts/scene-media/revision-correction.md`.
+  - [ ] **Anti-drift tests for prompt ↔ schema ↔ data sync.** After the per-prompt
+    review, add regression tests that fail when a prompt's declared protocol
+    drifts from the code and data it must agree with. The worry is that over time
+    the prompts, the Zod schemas, and the existing data silently de-synchronize.
+    Cover: (a) the TypeScript shape declared in each prompt template
+    (`generation.md`, `revision.md`) vs the Zod schema that validates the model's
+    output — field names, enum values (e.g. `gender`, `identityStrategy`,
+    `scriptType`), and discriminants must match; (b) the built-in media
+    (`builtInSceneMediaItems`) and the design registries
+    (`design/scene-scripts/scene-scripts.json`, `scene-images.json`) vs that same
+    shape — e.g. every dialogue speaker carries a valid `gender`, every script
+    type is one the prompt/schema allow. The goal is that changing a schema, a
+    prompt, or the built-in data without updating the others breaks CI, so the
+    generation/revision contracts cannot quietly rot.
 
 ## 1.3 Voice Messages in Roleplays
 
