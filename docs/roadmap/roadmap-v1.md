@@ -161,7 +161,10 @@ The core V1 product surface. All implementation slices are done:
   "Crear recurso" menu creates assignment/guide/roleplay resources seeded from
   the conversation (and from summary/result surfaces) via
   `resourceFromContext`.
-- [x] Slice 13 — Home page work: intentionally moved out to V3 (see Part 3).
+- [x] Slice 13 — Home page work: intentionally moved out to V3 (see Part 3),
+  with the product direction captured in [Home Start Experience
+  Exploration](../features/home-start-experience.md) and the supporting
+  [open English-learning resources research](../research/open-english-learning-resources.md).
 - [x] Slice 14 — Free resources for growth: anonymous fill-then-account flow
   for shared quizzes (guest attempt, claim and evaluate after signup) and
   anonymous "Comenzar" flows for shared roleplays/practice guides, always on
@@ -315,6 +318,14 @@ Moved to the idea inbox, [issues/incomming.md](../issues/incomming.md), on
 2026-07-04: home page work (V3), public/free shared roleplay attempts,
 the classroom layer, CEFR level standardization, marketplace exploration,
 and tutor plan sub-steps with structured onboarding.
+
+The V3 home page direction is described in [Home Start Experience
+Exploration](../features/home-start-experience.md). It should also consider the
+[open English-learning resources research](../research/open-english-learning-resources.md),
+which recommends using short, rights-traceable learning tasks on the home page
+as an immediate starting point for self-directed users before investing in a
+complete course system. Those tasks can later become components of structured
+units or learning paths.
 
 ## Engineering And Quality
 
