@@ -317,6 +317,18 @@ speech surface earlier.
   classifier taxes every tutor turn with extra cost and latency, so it must be
   justified by data. Revisit after the comprehension blocks land, since they
   change the leakage surface.
+- [ ] Review the quality of the LLM prompts across the app. Audit every
+  model-facing instruction set — the `system-prompts/**` templates and any
+  still-hardcoded prompts (tutor, block repair/correction, quizzes, practice
+  guides, roleplays, scene media generation/revision) — for clarity,
+  coherence, coverage, and drift, applying the `system-prompt-coherence` skill
+  so each loop reads well as the model sees it (no contradictory or duplicated
+  rules, forbidden behaviors always paired with the preferred alternative,
+  tool descriptions matching the system prompt, correction prompts aligned with
+  the current protocol). Prefer moving remaining hardcoded prompts into editable
+  `system-prompts/` templates. The scene media generation/user-media audit
+  ([User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md))
+  is the model for this pass; extend it to the rest of the prompt surface.
 
 ---
 
