@@ -268,6 +268,28 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     for `dialogue` (a one-speaker dialogue currently validates); ensure the
     revision path (`sceneMediaRevisions.ts`), which regenerates through the same
     generator, inherits every rule above.
+- [ ] Review the quality of every prompt in the media **creation and editing**
+  flow, one prompt at a time, applying the `system-prompt-coherence` skill (read
+  each loop as the model sees it: no contradictions, duplicated rules, or
+  forbidden behavior without a stated alternative; confirm each carries the right
+  gender/identity/level/safety guidance). This extends the completed user-media
+  audit above ([User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md))
+  to the full media prompt surface. Analyze each prompt one by one:
+  - [ ] **Script/metadata system prompt** —
+    `system-prompts/scene-media/generation.md`.
+  - [ ] **Script/metadata user prompt** — `buildSceneMediaScriptUserPrompt` in
+    `services/sceneMediaScripts.ts` (level bands, format guidance, requested JSON
+    shape). Consider whether its static guidance also belongs in a template.
+  - [ ] **Image generation prompt** — `buildSceneMediaImagePrompt` in
+    `sceneMedia/imageGeneration.ts` (format instruction, level, script hint,
+    safety); still hardcoded.
+  - [ ] **Source / continuity context** — `buildSceneMediaSourceContextPrompt` in
+    `sceneMedia/generationContext.ts`, shared by script and image generation when
+    editing or making variations.
+  - [ ] **Revision planning prompt** — `system-prompts/scene-media/revision.md`
+    (the edit chat that decides keep/generate image, script type, and level).
+  - [ ] **Revision JSON correction prompt** —
+    `system-prompts/scene-media/revision-correction.md`.
 
 ## 1.3 Voice Messages in Roleplays
 
@@ -317,19 +339,6 @@ speech surface earlier.
   classifier taxes every tutor turn with extra cost and latency, so it must be
   justified by data. Revisit after the comprehension blocks land, since they
   change the leakage surface.
-- [ ] Review the quality of the LLM prompts across the app. Audit every
-  model-facing instruction set — the `system-prompts/**` templates and any
-  still-hardcoded prompts (tutor, block repair/correction, quizzes, practice
-  guides, roleplays, scene media generation/revision) — for clarity,
-  coherence, coverage, and drift, applying the `system-prompt-coherence` skill
-  so each loop reads well as the model sees it (no contradictory or duplicated
-  rules, forbidden behaviors always paired with the preferred alternative,
-  tool descriptions matching the system prompt, correction prompts aligned with
-  the current protocol). Prefer moving remaining hardcoded prompts into editable
-  `system-prompts/` templates. The scene media generation/user-media audit
-  ([User Media Generation Prompt Audit](../issues/user-media-prompt-audit.md))
-  is the model for this pass; extend it to the rest of the prompt surface.
-
 ---
 
 # V3 Exit Criteria (Draft)
