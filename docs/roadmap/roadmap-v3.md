@@ -174,13 +174,15 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   - [ ] Add route/render and repository tests for storage-backed generated
     media, profile access boundaries, generated-layer failure modes, archive,
     atomic persistence, and no-copy reuse of built-in/user layers.
-- [ ] Regenerate and promote the adult-only audio for
+- [x] Regenerate and promote the adult-only audio for
   `shared-umbrella-bus-stop-01`, `shared-lunch-classroom-01`, and
-  `pancake-practice-kitchen-01`. The revised images and nine transcripts are
-  approved, but their 45 per-turn WAV clips remain pending. Follow the
-  [Built-In Adult Scene WAV Refresh Handoff](../issues/built-in-adult-scene-wav-refresh.md),
-  including forced regeneration, adult-voice listening QA, registry status and
-  summary repair, review-index regeneration, and runtime catalog rebuild.
+  `pancake-practice-kitchen-01`. Done 2026-07-12 (commit `dcbb08e8`): forced
+  regeneration of all 45 per-turn WAV clips, `generate_clip_audio.py` now
+  promotes `status: "generated"` only after every turn succeeds and repairs the
+  `batchSummary` audio counters, review index and runtime catalog rebuilt
+  (registry 150 ready / 0 pending). Human adult-voice listening QA is the only
+  remaining step (see the
+  [Built-In Adult Scene WAV Refresh Handoff](../issues/built-in-adult-scene-wav-refresh.md)).
 - [ ] Add media-to-resource derivation so a selected media item can create
   quizzes, practice guides, and future resource types through a resource-specific
   instruction modal while preserving `sourceMediaId` provenance.
@@ -225,6 +227,21 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   in the authoring/revision flow. Note Gemini TTS has no true child voices and
   no voice cloning; this can only approximate a lighter/younger register, so a
   provider with real child voices would be a separate follow-up.
+- [ ] Audit and harden the system prompts that drive user media creation and
+  editing, porting the guidelines proven while authoring the built-in library.
+  Analyze all media metadata and evaluate the quality of the generation prompts
+  in `src/server/services/sceneMediaScripts.ts` (and the revision/authoring
+  chat). Concretely, generated scripts must: assign each character the correct
+  **gender** (the built-in library now carries an explicit `gender` field on
+  `characters` and `speakers`, but the user path does not set or reason about it
+  yet); keep **conversations coherent** and level-appropriate (natural turn
+  order, consistent names/roles, believable exchanges); and **never mix dialogue
+  with narration** within a single script type. The built-in design docs already
+  encode much of this — `design/scene-scripts/README.md` (script types, levels,
+  audio direction, identity/gender conventions) and
+  `design/scene-scripts/script-levels.md` — so the work is to distill those
+  guidelines into the app's prompts and validation so user-created media meets
+  the same quality bar as the curated built-in set.
 
 ## 1.3 Voice Messages in Roleplays
 
