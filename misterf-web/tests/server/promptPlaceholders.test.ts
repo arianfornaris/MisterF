@@ -47,6 +47,7 @@ function languageName(locale: TestLocale): string {
  * locale so language-parametrized prompts are checked in all three languages.
  */
 const promptRenderers: Record<string, (locale: TestLocale) => string> = {
+  'scene-media/generation.md': () => renderSystemPrompt('scene-media/generation.md', {}),
   'scene-media/revision-correction.md': () =>
     renderSystemPrompt('scene-media/revision-correction.md', {
       CORRECTION_REASON: correctionReason,
