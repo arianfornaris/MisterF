@@ -346,44 +346,62 @@ export function buildSceneMediaScriptUserPrompt(
 // enums are unambiguous. Field names, enum values, and the `scriptType`
 // discriminant must stay identical to `sceneMediaScriptSchema` /
 // `sceneMediaMetadataSchema` above.
+// The requested shape is a self-documented TypeScript type: every field's
+// meaning, allowed values, and constraints live in its doc comment, so nothing
+// here is re-described in the system prompt prose.
+const metadataFields = [
+  '  /** Short, specific title shown in the media library. */',
+  '  title: string;',
+  '  /** Where the scene takes place. */',
+  '  setting: string;',
+  '  /** 1-5 short factual observations about what is visible in the image. */',
+  '  visualSummary: string[];',
+  '  /** 1-8 search tags. */',
+  '  tags: string[];',
+  '  /** 1-6 English skills this media practices. */',
+  '  skills: string[];',
+  '  /** 1-6 use cases, e.g. "listening", "speaking". */',
+  '  useCases: string[];',
+];
+
 const metadataResponseType = [
   'interface Response {',
-  '  title: string;            // short, specific title',
-  '  setting: string;          // where this happens',
-  '  visualSummary: string[];  // 1-5 short visual facts about the image',
-  '  tags: string[];           // 1-8 search tags',
-  '  skills: string[];         // 1-6 English skills practiced',
-  '  useCases: string[];       // 1-6, e.g. "listening", "speaking"',
+  ...metadataFields,
   '}',
 ].join('\n');
 
 const scriptResponseType = [
   'interface Response {',
-  '  title: string;            // short, specific title',
-  '  setting: string;          // where this happens',
-  '  visualSummary: string[];  // 1-5 short visual facts about the image',
-  '  tags: string[];           // 1-8 search tags',
-  '  skills: string[];         // 1-6 English skills practiced',
-  '  useCases: string[];       // 1-6, e.g. "listening", "speaking"',
+  ...metadataFields,
   '  script: Script;',
   '}',
   '',
   'type Script =',
   '  | {',
   "      scriptType: 'dialogue';",
+  "      /** 'named_in_dialogue' when speakers say each other's names aloud; 'role_only' when no proper name is ever spoken. */",
   "      identityStrategy: 'named_in_dialogue' | 'role_only';",
-  '      speakers: {           // 2-3 speakers',
+  '      /** 2-3 speakers. */',
+  '      speakers: {',
+  '        /** Spoken name if named aloud; otherwise the spoken role itself, e.g. "the clerk". */',
   '        name: string;',
+  '        /** The character\'s function in the scene, e.g. "customer", "store_staff". */',
   '        role: string;',
-  "        gender: 'female' | 'male' | 'neutral';  // match the person shown in the image",
+  '        /** Gender of the person who performs this role in the image. Drives the TTS voice, so it must match the visible character; never give a male character a female gender or vice versa. */',
+  "        gender: 'female' | 'male' | 'neutral';",
+  '        /** true only when this speaker\'s name is actually spoken in a turn; false for role-only speakers. */',
   '        nameSpokenInAudio: boolean;',
   '      }[];',
-  '      turns: { speaker: string; text: string }[];  // 2-8 turns, in spoken order',
+  '      /** 2-8 turns in spoken order. Each text is only the words spoken aloud. */',
+  '      turns: { speaker: string; text: string }[];',
   '    }',
   '  | {',
   "      scriptType: 'monologue' | 'narration';",
+  "      /** 'named_in_narration' only when the character's proper name occurs in the text; otherwise 'role_only'. */",
   "      identityStrategy: 'named_in_narration' | 'role_only';",
-  "      gender: 'female' | 'male' | 'neutral';  // monologue: the speaker; narration: 'neutral'",
+  "      /** A monologue's speaking character gender (drives the voice); 'neutral' for pure narration. */",
+  "      gender: 'female' | 'male' | 'neutral';",
+  '      /** The full spoken text. */',
   '      text: string;',
   '    };',
 ].join('\n');

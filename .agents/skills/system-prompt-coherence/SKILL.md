@@ -23,6 +23,16 @@ example or prose as the contract. TypeScript states optionality, unions, enums,
 arrays, and nullability unambiguously, and it reads as the same contract the Zod
 schema validates against, so the prompt and the validator do not drift.
 
+**The TypeScript definition is the single source of truth for each field — its
+documentation lives inside the definition, not around it.** Document every field
+that needs explanation with TypeScript doc syntax (`/** ... */` JSDoc above the
+field for meaningful semantics, brief inline `//` notes for short constraints).
+Because the definition is fully self-documented, do not restate field meanings,
+allowed values, or constraints in separate prose elsewhere in the prompt — that
+prose is exactly the duplicated-rule drift this skill exists to prevent. If a
+reader would need a paragraph to understand a field, that paragraph belongs in
+the field's doc comment.
+
 Rules:
 
 - Use `interface`/`type` with explicit field types: `?` for optional fields, `|`
@@ -31,21 +41,33 @@ Rules:
 - Keep field names, enum values, and any discriminant (e.g. `scriptType`)
   **identical** to the Zod schema the code parses the response with. When the
   schema changes, update the prompt's TypeScript in the same edit.
-- Per-field guidance goes in short inline `//` comments, not separate prose.
+- Put all per-field documentation inside the definition (JSDoc `/** */` or inline
+  `//`). Do not describe the same fields again in prose outside the type.
 - Do not use a concrete JSON example as the shape contract. If an example adds
   value, keep it clearly secondary to the TypeScript definition.
 - Say what the model must output around the type (e.g. "Return one JSON object
   that satisfies this type. Do not include markdown or comments.").
 
-Example — instead of `Return JSON like { "scriptType": "dialogue", "speakers": [...] }`, write:
+Example — instead of `Return JSON like { "scriptType": "dialogue", "speakers": [...] }`
+followed by a paragraph explaining each field, write a self-documented type:
 
 ```ts
 // Return one JSON object matching this type. No markdown, no comments.
 interface ScriptPackage {
+  /** Short, specific title shown in the media library. */
   title: string;
   script: {
     scriptType: 'dialogue';
-    speakers: { name: string; gender: 'female' | 'male' | 'neutral'; nameSpokenInAudio: boolean; role: string }[];
+    /** 2-3 speakers. Assign `gender` to match the person shown in the image. */
+    speakers: {
+      name: string;
+      /** Drives the TTS voice; must match the visible character. */
+      gender: 'female' | 'male' | 'neutral';
+      /** true only when this name is actually spoken in a turn. */
+      nameSpokenInAudio: boolean;
+      role: string;
+    }[];
+    /** One entry per spoken line, in order. */
     turns: { speaker: string; text: string }[];
   };
 }
@@ -84,8 +106,9 @@ interface ScriptPackage {
   exercises from optional navigation choices.
 - The model is told what to do instead of the forbidden behavior.
 - Any JSON data shape is defined with TypeScript type/interface syntax (not a
-  JSON example) and matches the Zod schema field-for-field (see JSON Shape
-  Convention).
+  JSON example), matches the Zod schema field-for-field, and is self-documented
+  with doc comments — no field is re-described in prose outside the type (see
+  JSON Shape Convention).
 - Tool descriptions match the system prompt and include the same boundaries.
 - Repair/correction prompts know the current protocol and do not repair toward
   removed or deprecated block types.
