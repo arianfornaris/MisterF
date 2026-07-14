@@ -1,7 +1,7 @@
 # Scene Media Editing — Inference Inputs
 
 Status: implemented (V3). Covers how user-generated scene media is edited after
-creation: manual metadata edits plus four AI edit flows, each of which feeds a
+creation: manual title edits plus four AI edit flows, each of which feeds a
 different slice of the media into its model call.
 
 This document is the reference for **what data each edit inference actually
@@ -22,7 +22,7 @@ memory) and only committed on approval.
 | Change image | `POST /preview/image` | `POST /preview/apply` (quick) |
 | Change script | `POST /preview/script` | `POST /preview/script/apply` (generates audio, streamed) |
 | Regenerate description (metadata) | `POST /preview/metadata` | `POST /preview/apply` (quick) |
-| Manual metadata (title/level/script type) | — (form) | `POST /edit/save` |
+| Manual title | — (form) | `POST /edit/save` |
 
 Approving a script is the point where audio is generated (script and audio are
 one atomic layer). Image and metadata apply are quick DB commits.
@@ -33,10 +33,10 @@ What each inference receives as input:
 
 | Input | 🖼️ Image | 📝 Script | 🔊 Audio | 🏷️ Metadata |
 | --- | :--: | :--: | :--: | :--: |
-| User prompt | ✓ required | ✓ required | — | ✓ optional (guidance) |
+| User prompt | ✓ required | ✓ unless level/type changes | — | ✓ optional (guidance) |
 | Current image (bytes) | ✓ img2img reference | ✓ vision | — | ✓ vision |
 | Current/base script | — | ✓ live or last draft | ✓ **sole input** | ✓ |
-| Descriptive metadata (title, setting, visual summary, tags, skills, use cases) | — | ✓ continuity | — | ✓ continuity |
+| Descriptive metadata (title, setting, visual summary) | — | ✓ continuity | — | ✓ continuity |
 | Level | ✓ | ✓ | — | ✓ |
 | Format | ✓ | ✓ | — | ✓ |
 | Script-type preference | ✓ | ✓ | — | ✓ |
@@ -60,10 +60,13 @@ changes are purely visual. No source context is passed.
 
 ### 📝 Change script — `generateSceneMediaScriptDraft` → `generateSceneMediaScriptPackage`
 
-The most contextualized flow. Inputs: the change prompt (required), the current
-image (vision), the base script (live, or the last draft when iterating), and
-the full descriptive metadata as continuity context, plus level, format, and
-script-type preference. Generates the script text only; no audio.
+The most contextualized flow. Inputs: the change prompt (optional when level or
+script type changes), the current image (vision), the base script (live, or the
+last draft when iterating), and the full descriptive metadata as continuity
+context, plus format and the manually selected target level and script-type
+preference. Generates the script text only; no audio. The target level and
+script type remain pending with the draft and are persisted only when the
+author approves the script and its regenerated audio.
 
 ### 🔊 Generate audio — `generateAndStoreSceneMediaAudio` → `generateSceneMediaAudio`
 
@@ -77,14 +80,15 @@ a stable voice. Nothing else (no image, prompt, or metadata).
 Inputs: the current image (vision), the current script, the current descriptive
 metadata (continuity), plus optional guidance. With empty guidance the effective
 prompt falls back to the media's `generationPrompt`, then `createdFrom.prompt`,
-then the title. Regenerates the whole descriptive bundle (title, setting, visual
-summary, tags, skills, use cases) to resync it with the current scene.
+then the title. Regenerates the whole descriptive bundle (title, setting, and
+visual summary) to resync it with the current scene.
 
 ## Dependency direction
 
 ```
-prompt / level / format ─▶ IMAGE ─┬─▶ SCRIPT ──▶ AUDIO
-                                  └─▶ DESCRIPTION (metadata)
+prompt / stored level / format ─▶ IMAGE ─┬─▶ SCRIPT ──▶ AUDIO
+                                        └─▶ DESCRIPTION (metadata)
+selected target level / script type ───────▶ SCRIPT
 ```
 
 - The image depends only on itself (as an img2img reference) plus the prompt.
@@ -96,3 +100,5 @@ image or script edit; the "Regenerate description" flow is the resync tool.
 Changing a script regenerates its audio on approval. The old creation
 `generationPrompt` is no longer shown in the editor (it froze at creation and
 drifted stale); the column is retained only as the metadata-resync fallback.
+Level and script type cannot be relabeled independently: they change through
+the script preview so the stored parameters, script, and audio stay coherent.

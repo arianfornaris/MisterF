@@ -14,7 +14,6 @@ import {
   renderNewSceneMediaVariationPage,
   renderSceneMediaDetailPage,
   renderSceneMediaLibraryPage,
-  reviseSceneMedia,
   saveSceneMediaDetails,
   serveSceneMediaImageAsset,
 } from './handlers.js';
@@ -28,7 +27,6 @@ sceneMediaRouter.get('/media-library/:mediaId', renderSceneMediaDetailPage);
 sceneMediaRouter.get('/media-library/:mediaId/variations/new', renderNewSceneMediaVariationPage);
 sceneMediaRouter.get('/media-library/:mediaId/edit', renderEditSceneMediaPage);
 sceneMediaRouter.post('/media-library/:mediaId/edit/save', saveSceneMediaDetails);
-sceneMediaRouter.post('/media-library/:mediaId/edit/revise', reviseSceneMedia);
 sceneMediaRouter.post('/media-library/:mediaId/preview/image', previewSceneMediaImage);
 sceneMediaRouter.post('/media-library/:mediaId/preview/script', previewSceneMediaScript);
 sceneMediaRouter.post('/media-library/:mediaId/preview/metadata', previewSceneMediaMetadata);

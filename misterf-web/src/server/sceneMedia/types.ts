@@ -75,7 +75,6 @@ export type SceneMediaScript =
     };
 
 export type SceneMediaLibraryItem = {
-  authoringMessages?: SceneMediaAuthoringMessage[];
   audio?: SceneMediaAudioLayer;
   archivedAt?: string | null;
   createdFrom?: {
@@ -104,13 +103,6 @@ export type SceneMediaLibraryItem = {
   updatedAt?: string;
   visualAssetId?: string;
   visualSummary: string[];
-};
-
-export type SceneMediaAuthoringMessage = {
-  content: string;
-  createdAt: string;
-  draftSnapshot?: Record<string, unknown>;
-  role: 'assistant' | 'user';
 };
 
 // The derived descriptive metadata bundle the metadata LLM produces about a
@@ -143,9 +135,11 @@ export type SceneMediaPendingPreview =
       // author approves the script (see the script apply flow), so a pending
       // script holds no audio and no temporary storage objects yet.
       createdAt: number;
+      level: SceneMediaLevel;
       prompt: string;
       previewId: string;
       script: SceneMediaScript;
+      scriptTypePreference: UserSceneMediaScriptTypePreference;
       storageKeys: string[];
       type: 'script';
     }

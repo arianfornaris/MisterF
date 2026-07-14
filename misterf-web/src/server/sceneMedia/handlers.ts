@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express';
 import {
-  getCreditCheckedOpenRouterApiKeyForUser,
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import {
@@ -17,7 +16,6 @@ import {
   sceneMediaLevels,
 } from './library.js';
 import type {
-  SceneMediaAuthoringMessage,
   SceneMediaLibraryItem,
   UserSceneMediaGenerationMode,
   UserSceneMediaLayerDecisions,
@@ -29,9 +27,7 @@ import {
   applyUserSceneMediaScript,
   archiveUserSceneMediaForProfile,
   createReadyUserSceneMedia,
-  updateReadyUserSceneMedia,
-  updateUserSceneMediaAuthoringMessages,
-  updateUserSceneMediaDetails,
+  updateUserSceneMediaTitle,
   type CreateReadyUserSceneMediaInput,
 } from './userMediaRepository.js';
 import {
@@ -51,15 +47,12 @@ import type { Translator } from '../i18n/index.js';
 import { randomUUID } from 'node:crypto';
 import { getUserFileStorageProvider } from '../storage/userFileStorage.js';
 import {
-  createAuthoringSnapshot,
   deleteUnpersistedSceneMediaObjects,
   generateReadySceneMedia,
   SceneMediaCreationError,
   type GenerateReadySceneMediaInput,
   type SceneMediaGenerationProgress,
 } from './creation.js';
-import { readSceneMediaImageAsset } from './imageAssets.js';
-import { generateSceneMediaRevisionPlan } from '../services/sceneMediaRevisions.js';
 import { logger, serializeError } from '../services/logger.js';
 
 type SceneMediaRequestUser = {
@@ -472,7 +465,6 @@ export async function createSceneMediaFromPrompt(
   }
 
   const generateInput: GenerateReadySceneMediaInput = {
-    createdAssistantMessage: response.locals.t('mediaLibrary.createdChatMessage'),
     format,
     generationMode,
     level,
@@ -550,7 +542,6 @@ export async function createSceneMediaVariation(
   const generationMode: UserSceneMediaGenerationMode =
     scriptAndAudioDecision === 'do_not_include' ? 'image_only' : 'complete_scene';
   const generateInput: GenerateReadySceneMediaInput = {
-    createdAssistantMessage: response.locals.t('mediaLibrary.variationCreatedChatMessage'),
     format,
     generationMode,
     layerDecisions,
@@ -601,17 +592,14 @@ export function renderEditSceneMediaPage(request: Request, response: Response): 
   if (!resolved) {
     return;
   }
-  renderSceneMediaAuthoringView(request, response, resolved, {
-    activeTab: request.query.tab === 'chat' ? 'chat' : 'general',
-    error: '',
-  });
+  renderSceneMediaAuthoringView(request, response, resolved, { error: '' });
 }
 
 function renderSceneMediaAuthoringView(
   request: Request,
   response: Response,
   resolved: SceneMediaRequestUser & { mediaItem: SceneMediaLibraryItem },
-  input: { activeTab: 'chat' | 'general'; error: string },
+  input: { error: string },
 ): void {
   response.render('media-library-authoring', {
     ...buildAppShellContext({
@@ -623,9 +611,7 @@ function renderSceneMediaAuthoringView(
       title: `${resolved.mediaItem.title} · ${appDocumentTitle}`,
       user: resolved.user,
     }),
-    activeTab: input.activeTab,
     authoringError: input.error,
-    mediaAuthoringMessages: resolved.mediaItem.authoringMessages ?? [],
     mediaItem: resolved.mediaItem,
     sceneMediaLevels,
   });
@@ -636,26 +622,22 @@ export function saveSceneMediaDetails(request: Request, response: Response): voi
   if (!resolved) {
     return;
   }
-  // Manual metadata edits are label/preference changes only: they never
-  // regenerate the stored image, script, or audio. Level and script type
-  // fall back to the current values when the posted value is invalid.
+  // The general form edits the title only. Level and script type belong to the
+  // script regeneration flow so stored labels cannot drift from the content.
   const title = readField(request.body.title, 120);
   if (!title) {
     renderSceneMediaAuthoringView(request, response.status(422), resolved, {
-      activeTab: 'general',
       error: response.locals.t('mediaLibrary.titleRequired'),
     });
     return;
   }
-  updateUserSceneMediaDetails({
-    level: normalizeSceneMediaLevel(request.body.level) || resolved.mediaItem.level || 'A1-A2',
+  updateUserSceneMediaTitle({
     mediaId: resolved.mediaItem.id,
     ownerProfileId: resolved.activeProfile.id,
     ownerUserId: resolved.user.id,
-    scriptTypePreference: normalizeScriptTypePreference(request.body.scriptTypePreference),
     title,
   });
-  response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}/edit?tab=general`);
+  response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}/edit`);
 }
 
 // Generates a not-yet-applied image change and streams progress. The preview is
@@ -756,11 +738,25 @@ export async function previewSceneMediaScript(
   if (!resolved) {
     return;
   }
-  const prompt = readField(request.body.prompt, 2000);
-  if (!prompt) {
+  const currentLevel = resolved.mediaItem.level ?? 'A1-A2';
+  const storedScriptTypePreference = resolved.mediaItem.scriptTypePreference;
+  const currentScriptTypePreference = storedScriptTypePreference &&
+    storedScriptTypePreference !== 'unspecified'
+    ? storedScriptTypePreference
+    : resolved.mediaItem.script?.scriptType ?? 'unspecified';
+  const level = normalizeSceneMediaLevel(request.body.level) ?? currentLevel;
+  const scriptTypePreference = normalizeOptionalScriptTypePreference(
+    request.body.scriptTypePreference,
+  ) ?? currentScriptTypePreference;
+  const requestedPrompt = readField(request.body.prompt, 2000);
+  const parametersChanged = level !== currentLevel ||
+    scriptTypePreference !== currentScriptTypePreference;
+  if (!requestedPrompt && !parametersChanged) {
     response.status(422).json({ error: response.locals.t('mediaLibrary.invalidRequest') });
     return;
   }
+  const prompt = requestedPrompt ||
+    'Regenerate the script using the selected learner level and script type.';
 
   const owner: SceneMediaPreviewOwnerKey = {
     mediaId: resolved.mediaItem.id,
@@ -777,19 +773,23 @@ export async function previewSceneMediaScript(
     const baseScript = existing?.type === 'script' ? existing.script : undefined;
     const draft = await generateSceneMediaScriptDraft({
       baseScript,
+      level,
       media: resolved.mediaItem,
       onProgress: stream.writeProgress,
       ownerUserId: resolved.user.id,
       prompt,
+      scriptTypePreference,
     });
     if (existing) {
       await Promise.allSettled(existing.storageKeys.map((key) => storage.deleteObject(key)));
     }
     setPendingPreview(owner, {
       createdAt: Date.now(),
+      level,
       previewId,
       prompt,
       script: draft.script,
+      scriptTypePreference,
       storageKeys: [],
       type: 'script',
     });
@@ -941,7 +941,7 @@ export async function applySceneMediaPreview(
   deletePendingPreview(owner);
   response.json({
     ok: true,
-    redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit?tab=general`,
+    redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit`,
   });
 }
 
@@ -984,17 +984,19 @@ export async function applySceneMediaScript(
       .filter((key): key is string => Boolean(key));
     applyUserSceneMediaScript({
       audio: generated.audio,
+      level: pending.level,
       mediaId: owner.mediaId,
       ownerProfileId: owner.ownerProfileId,
       ownerUserId: owner.ownerUserId,
       script: pending.script,
+      scriptTypePreference: pending.scriptTypePreference,
     });
     await Promise.allSettled(staleKeys.map((key) => storage.deleteObject(key)));
     deletePendingPreview(owner);
     stream.write({
       layer: 'script',
       percent: 100,
-      redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit?tab=general`,
+      redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit`,
       type: 'done',
     });
   } catch (error) {
@@ -1036,139 +1038,6 @@ export async function discardSceneMediaPreview(
     deletePendingPreview(owner);
   }
   response.json({ ok: true });
-}
-
-export async function reviseSceneMedia(
-  request: Request,
-  response: Response,
-): Promise<void> {
-  const resolved = resolveOwnedUserSceneMedia(request, response);
-  if (!resolved) {
-    return;
-  }
-  const message = readField(request.body.message, 4000);
-  if (message.length < 3) {
-    respondToRevisionFailure(request, response, resolved, {
-      creditExhausted: false,
-      message: response.locals.t('mediaLibrary.writeChange'),
-      userMessage: message,
-    });
-    return;
-  }
-
-  try {
-    const imageAsset = await readSceneMediaImageAsset(resolved.mediaItem);
-    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
-      resolved.user.id,
-    );
-    if (!openRouterApiKey) {
-      throw new SceneMediaCreationError('Missing user OpenRouter API key.');
-    }
-    const plan = await generateSceneMediaRevisionPlan({
-      conversationHistory: resolved.mediaItem.authoringMessages ?? [],
-      currentMedia: resolved.mediaItem,
-      imageBytes: imageAsset.bytes,
-      imageContentType: imageAsset.contentType,
-      instructionLanguage: resolved.activeProfile.instructionLanguage,
-      openRouterApiKey,
-      prompt: message,
-    });
-    const layerDecisions: UserSceneMediaLayerDecisions = {
-      image: plan.imageDecision,
-      scriptAndAudio: plan.scriptAndAudioDecision,
-    };
-    const generationMode: UserSceneMediaGenerationMode =
-      plan.scriptAndAudioDecision === 'do_not_include'
-        ? 'image_only'
-        : 'complete_scene';
-    const draft = await generateReadySceneMedia({
-      format: plan.format,
-      generationMode,
-      layerDecisions,
-      level: plan.level,
-      mediaId: resolved.mediaItem.id,
-      ownerProfileId: resolved.activeProfile.id,
-      ownerUserId: resolved.user.id,
-      prompt: plan.effectivePrompt,
-      scriptTypePreference: plan.scriptTypePreference,
-      sourceItem: resolved.mediaItem,
-    });
-    const snapshot = createAuthoringSnapshot(draft);
-    const authoringMessages = appendSceneMediaAuthoringMessages(
-      resolved.mediaItem.authoringMessages ?? [],
-      createSceneMediaAuthoringMessage('user', message),
-      createSceneMediaAuthoringMessage('assistant', plan.assistantMessage, snapshot),
-    );
-    const { createdFrom: _createdFrom, id: _id, ...updatedDraft } = draft;
-    let updated: SceneMediaLibraryItem | null;
-    try {
-      updated = updateReadyUserSceneMedia({
-        ...updatedDraft,
-        authoringMessages,
-        mediaId: resolved.mediaItem.id,
-        ownerProfileId: resolved.activeProfile.id,
-        ownerUserId: resolved.user.id,
-      });
-    } catch (error) {
-      await deleteUnpersistedSceneMediaObjects(draft, resolved.mediaItem);
-      throw error;
-    }
-    if (!updated) {
-      await deleteUnpersistedSceneMediaObjects(draft, resolved.mediaItem);
-      throw new Error('Unable to save the revised media.');
-    }
-    if (wantsJsonResponse(request)) {
-      response.json({ assistantMessage: plan.assistantMessage });
-      return;
-    }
-    response.redirect(`/media-library/${encodeURIComponent(updated.id)}/edit?tab=chat`);
-  } catch (error) {
-    logger.error('scene_media_revision_failed', {
-      error: serializeError(error),
-      mediaId: resolved.mediaItem.id,
-      userId: resolved.user.id,
-    });
-    respondToRevisionFailure(request, response, resolved, {
-      creditExhausted: isCreditExhaustedError(error),
-      message: isCreditExhaustedError(error)
-        ? response.locals.t('mediaLibrary.creditExhausted')
-        : sceneMediaRevisionFailureMessage(response, error),
-      userMessage: message,
-    });
-  }
-}
-
-function respondToRevisionFailure(
-  request: Request,
-  response: Response,
-  resolved: SceneMediaRequestUser & { mediaItem: SceneMediaLibraryItem },
-  input: { creditExhausted: boolean; message: string; userMessage: string },
-): void {
-  const messages = appendSceneMediaAuthoringMessages(
-    resolved.mediaItem.authoringMessages ?? [],
-    createSceneMediaAuthoringMessage('user', input.userMessage),
-    createSceneMediaAuthoringMessage('assistant', input.message),
-  );
-  const mediaItem = updateUserSceneMediaAuthoringMessages({
-    mediaId: resolved.mediaItem.id,
-    messages,
-    ownerProfileId: resolved.activeProfile.id,
-    ownerUserId: resolved.user.id,
-  }) ?? { ...resolved.mediaItem, authoringMessages: messages };
-  if (wantsJsonResponse(request)) {
-    response.status(422).json({
-      creditExhausted: input.creditExhausted,
-      error: input.message,
-    });
-    return;
-  }
-  renderSceneMediaAuthoringView(request, response.status(422), {
-    ...resolved,
-    mediaItem,
-  }, {
-    activeTab: 'chat',
-    error: input.message,
-  });
 }
 
 export function archiveSceneMedia(
@@ -1306,28 +1175,6 @@ function resolveOwnedUserSceneMedia(
   return resolved;
 }
 
-function createSceneMediaAuthoringMessage(
-  role: SceneMediaAuthoringMessage['role'],
-  content: string,
-  draftSnapshot?: Record<string, unknown>,
-): SceneMediaAuthoringMessage {
-  return {
-    content: content.trim().slice(0, 6000),
-    createdAt: new Date().toISOString(),
-    draftSnapshot,
-    role,
-  };
-}
-
-function appendSceneMediaAuthoringMessages(
-  existing: SceneMediaAuthoringMessage[],
-  ...messages: SceneMediaAuthoringMessage[]
-): SceneMediaAuthoringMessage[] {
-  return [...existing, ...messages]
-    .filter((message) => message.content.trim())
-    .slice(-40);
-}
-
 function sceneMediaCreationFailureMessage(response: Response, error: unknown): string {
   if (isCreditExhaustedError(error)) {
     return response.locals.t('mediaLibrary.creditExhausted');
@@ -1336,17 +1183,6 @@ function sceneMediaCreationFailureMessage(response: Response, error: unknown): s
     return response.locals.t('mediaLibrary.failure.contentPolicy');
   }
   return response.locals.t('mediaLibrary.creationFailed');
-}
-
-function sceneMediaRevisionFailureMessage(response: Response, error: unknown): string {
-  if (error instanceof SceneMediaCreationError && error.reason === 'audio_provider_error') {
-    return response.locals.t('mediaLibrary.revisionAudioFailed');
-  }
-  return response.locals.t('mediaLibrary.revisionFailed');
-}
-
-function wantsJsonResponse(request: Request): boolean {
-  return Boolean(request.get('accept')?.includes('application/json'));
 }
 
 function readField(value: unknown, maxLength: number): string {
@@ -1366,11 +1202,18 @@ function normalizeGenerationMode(value: unknown): UserSceneMediaGenerationMode |
 function normalizeScriptTypePreference(
   value: unknown,
 ): UserSceneMediaScriptTypePreference {
-  return value === 'dialogue' ||
+  return normalizeOptionalScriptTypePreference(value) ?? 'unspecified';
+}
+
+function normalizeOptionalScriptTypePreference(
+  value: unknown,
+): UserSceneMediaScriptTypePreference | undefined {
+  return value === 'unspecified' ||
+    value === 'dialogue' ||
     value === 'narration' ||
     value === 'monologue'
     ? value
-    : 'unspecified';
+    : undefined;
 }
 
 function normalizeImageDecision(

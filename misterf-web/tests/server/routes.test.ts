@@ -757,16 +757,16 @@ describe('main route smoke tests', () => {
     expect(newMediaHtml).toContain('data-scene-media-pending-modal');
 
     const mediaAuthoringResponse = await fetch(
-      `${baseUrl}/media-library/route-ready-media/edit?tab=general`,
+      `${baseUrl}/media-library/route-ready-media/edit`,
       { headers: { cookie }, redirect: 'manual' },
     );
     const mediaAuthoringHtml = await mediaAuthoringResponse.text();
     expect(mediaAuthoringResponse.status).toBe(200);
     expect(mediaAuthoringHtml).toContain('Editando media');
-    expect(mediaAuthoringHtml).toContain('Información');
-    expect(mediaAuthoringHtml).toContain('Chat IA');
+    expect(mediaAuthoringHtml).not.toContain('Chat IA');
     expect(mediaAuthoringHtml).toContain('app-page-header app-page-header-has-close mb-4');
-    expect(mediaAuthoringHtml).toContain('nav nav-pills authoring-tabs mb-4');
+    expect(mediaAuthoringHtml).not.toContain('nav nav-pills authoring-tabs');
+    expect(mediaAuthoringHtml).not.toContain('data-authoring-chat-form');
     expect(mediaAuthoringHtml).toContain('value="Route Ready Media"');
     expect(mediaAuthoringHtml).toContain('Escena completa');
     expect(mediaAuthoringHtml).toContain('Escena de un panel');
@@ -774,30 +774,52 @@ describe('main route smoke tests', () => {
     expect(mediaAuthoringHtml).toContain('A traveler speaks with a security officer.');
     expect(mediaAuthoringHtml).toContain('Please place your bag on the belt.');
     expect(mediaAuthoringHtml).toContain('<audio');
+    expect(mediaAuthoringHtml).not.toContain('id="mediaLevel"');
+    expect(mediaAuthoringHtml).not.toContain('id="mediaScriptType"');
+    expect(mediaAuthoringHtml).toContain('data-current-level="A1-A2"');
+    expect(mediaAuthoringHtml).toContain('data-current-script-type-preference="dialogue"');
+    expect(mediaAuthoringHtml).toContain('id="sceneMediaChangeLevel"');
+    expect(mediaAuthoringHtml).toContain('id="sceneMediaChangeScriptType"');
     const authoringCsrfToken = extractCsrfToken(mediaAuthoringHtml);
     const saveTitleResponse = await postForm(
       '/media-library/route-ready-media/edit/save',
-      { _csrf: authoringCsrfToken, title: 'Updated Route Media' },
+      {
+        _csrf: authoringCsrfToken,
+        level: 'C1',
+        scriptTypePreference: 'monologue',
+        title: 'Updated Route Media',
+      },
       cookie,
     );
     expect(saveTitleResponse.status).toBe(302);
     expect(saveTitleResponse.headers.get('location')).toBe(
-      '/media-library/route-ready-media/edit?tab=general',
+      '/media-library/route-ready-media/edit',
     );
     expect(findUserSceneMediaForProfile({
       mediaId: 'route-ready-media',
       ownerProfileId: profile.id,
       ownerUserId: user.id,
-    })?.title).toBe('Updated Route Media');
+    })).toEqual(expect.objectContaining({
+      level: 'A1-A2',
+      scriptTypePreference: 'dialogue',
+      title: 'Updated Route Media',
+    }));
 
-    const mediaChatResponse = await fetch(
+    const legacyMediaChatResponse = await fetch(
       `${baseUrl}/media-library/route-ready-media/edit?tab=chat`,
       { headers: { cookie }, redirect: 'manual' },
     );
-    const mediaChatHtml = await mediaChatResponse.text();
-    expect(mediaChatResponse.status).toBe(200);
-    expect(mediaChatHtml).toContain('Modificar con IA');
-    expect(mediaChatHtml).toContain('data-authoring-chat-form');
+    const legacyMediaChatHtml = await legacyMediaChatResponse.text();
+    expect(legacyMediaChatResponse.status).toBe(200);
+    expect(legacyMediaChatHtml).not.toContain('Chat IA');
+    expect(legacyMediaChatHtml).not.toContain('data-authoring-chat-form');
+
+    const removedReviseResponse = await postForm(
+      '/media-library/route-ready-media/edit/revise',
+      { _csrf: authoringCsrfToken, message: 'Change the scene.' },
+      cookie,
+    );
+    expect(removedReviseResponse.status).toBe(404);
 
     const filteredResponse = await fetch(`${baseUrl}/media-library?level=C1`, {
       headers: { cookie },

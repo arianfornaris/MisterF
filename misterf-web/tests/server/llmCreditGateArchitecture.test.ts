@@ -8,7 +8,6 @@ const expectedGenerateTextCallCounts: Record<string, number> = {
   'src/server/services/resourceDrafts.ts': 1,
   'src/server/services/roleplays.ts': 1,
   'src/server/services/sceneMediaResolver.ts': 1,
-  'src/server/services/sceneMediaRevisions.ts': 1,
   'src/server/services/sceneMediaScripts.ts': 1,
   'src/server/services/tutorReports.ts': 1,
 };
@@ -18,7 +17,6 @@ const creditCheckedEntrypoints = [
   'src/server/chat/handlers.ts',
   'src/server/practiceGuides/handlers.ts',
   'src/server/roleplays/handlers.ts',
-  'src/server/sceneMedia/handlers.ts',
   'src/server/socket/chatSocket.ts',
 ];
 
@@ -91,6 +89,15 @@ describe('LLM credit gate architecture', () => {
 
   it('keeps LLM entrypoints connected to the shared credit gate', () => {
     for (const file of creditCheckedEntrypoints) {
+      expect(readProjectFile(file), `${file} must use the shared credit gate`).toContain(
+        'getCreditCheckedOpenRouterApiKeyForUser',
+      );
+    }
+
+    for (const file of [
+      'src/server/sceneMedia/creation.ts',
+      'src/server/sceneMedia/sceneMediaPreview.ts',
+    ]) {
       expect(readProjectFile(file), `${file} must use the shared credit gate`).toContain(
         'getCreditCheckedOpenRouterApiKeyForUser',
       );

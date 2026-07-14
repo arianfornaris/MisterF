@@ -35,15 +35,14 @@ afterEach(async () => {
 });
 
 describe('user scene media repository', () => {
-  it('persists ready media and authoring history', async () => {
+  it('persists ready media and applies layer updates', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
     const {
       applyUserSceneMediaImage,
+      applyUserSceneMediaScript,
       createReadyUserSceneMedia,
       findUserSceneMediaForProfile,
-      updateUserSceneMediaAuthoringMessages,
-      updateUserSceneMediaDetails,
       updateUserSceneMediaTitle,
     } = await import('../../src/server/sceneMedia/userMediaRepository.js');
     const user = createExternalUser({
@@ -55,14 +54,7 @@ describe('user scene media repository', () => {
     });
     const profile = createProfile({ name: 'Ready media profile', userId: user.id });
     const mediaId = 'ready-media-1';
-    const initialMessages = [{
-      content: 'Create an airport scene.',
-      createdAt: '2026-07-10T12:00:00.000Z',
-      role: 'user' as const,
-    }];
-
     const media = createReadyUserSceneMedia({
-      authoringMessages: initialMessages,
       format: 'single_panel_scene',
       generationMode: 'image_only',
       id: mediaId,
@@ -85,7 +77,6 @@ describe('user scene media repository', () => {
     });
 
     expect(media.status).toBe('ready');
-    expect(media.authoringMessages).toEqual(initialMessages);
 
     updateUserSceneMediaTitle({
       mediaId,
@@ -93,44 +84,48 @@ describe('user scene media repository', () => {
       ownerUserId: user.id,
       title: 'Airport Check-In',
     });
-    const revisedMessages = [...initialMessages, {
-      content: 'Title updated.',
-      createdAt: '2026-07-10T12:01:00.000Z',
-      role: 'assistant' as const,
-    }];
-    updateUserSceneMediaAuthoringMessages({
-      mediaId,
-      messages: revisedMessages,
-      ownerProfileId: profile.id,
-      ownerUserId: user.id,
-    });
     expect(findUserSceneMediaForProfile({
       mediaId,
       ownerProfileId: profile.id,
       ownerUserId: user.id,
     })).toEqual(expect.objectContaining({
-      authoringMessages: revisedMessages,
       title: 'Airport Check-In',
     }));
 
-    updateUserSceneMediaDetails({
+    const revisedScript = {
+      identityStrategy: 'named_in_narration' as const,
+      scriptType: 'narration' as const,
+      text: 'Maya checks her passport before walking to the airport counter.',
+    };
+    const revisedAudio = {
+      clips: [{
+        speaker: 'Narrator',
+        src: 'https://cdn.example.test/revised-turn-01.wav',
+        turn: 1,
+      }],
+      format: 'wav' as const,
+      voiceStrategy: 'per_turn_clips' as const,
+    };
+    applyUserSceneMediaScript({
+      audio: revisedAudio,
       level: 'B1-B2',
       mediaId,
       ownerProfileId: profile.id,
       ownerUserId: user.id,
-      scriptTypePreference: 'dialogue',
-      title: 'Airport Check-In (edited)',
+      script: revisedScript,
+      scriptTypePreference: 'narration',
     });
     expect(findUserSceneMediaForProfile({
       mediaId,
       ownerProfileId: profile.id,
       ownerUserId: user.id,
     })).toEqual(expect.objectContaining({
-      // Manual metadata edits change only labels/preferences, not content.
-      authoringMessages: revisedMessages,
+      audio: revisedAudio,
+      generationMode: 'complete_scene',
       level: 'B1-B2',
-      scriptTypePreference: 'dialogue',
-      title: 'Airport Check-In (edited)',
+      script: revisedScript,
+      scriptTypePreference: 'narration',
+      title: 'Airport Check-In',
     }));
 
     const revisedImage = {
@@ -210,7 +205,6 @@ describe('user scene media repository', () => {
 
     const media = createReadyUserSceneMedia({
       audio,
-      authoringMessages: [],
       format: 'single_panel_scene',
       generationMode: 'complete_scene',
       id: 'airport-variation',

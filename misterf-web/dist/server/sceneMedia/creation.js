@@ -83,19 +83,8 @@ export async function generateReadySceneMedia(input) {
         const generationMode = script && audioResult
             ? 'complete_scene'
             : 'image_only';
-        const snapshot = createAuthoringSnapshot({
-            audio: audioResult?.layer,
-            format: input.format,
-            image,
-            level: input.level,
-            script,
-            setting: metadata.setting,
-            title: metadata.title,
-            visualSummary: metadata.visualSummary,
-        });
         return {
             audio: audioResult?.layer,
-            authoringMessages: createInitialAuthoringMessages(input.prompt, snapshot, input.createdAssistantMessage),
             createdFrom: input.sourceItem ? {
                 baseBuiltInMediaId: input.sourceItem.source === 'built_in'
                     ? input.sourceItem.id
@@ -344,20 +333,5 @@ function mapCreationError(error) {
         return new SceneMediaCreationError('Unable to generate this media audio.', 'audio_provider_error', { cause: error });
     }
     return error instanceof Error ? error : new Error(String(error));
-}
-function createInitialAuthoringMessages(prompt, snapshot, assistantMessage = 'The media was created successfully.') {
-    const now = new Date().toISOString();
-    return [
-        { content: prompt, createdAt: now, role: 'user' },
-        {
-            content: assistantMessage,
-            createdAt: now,
-            draftSnapshot: snapshot,
-            role: 'assistant',
-        },
-    ];
-}
-export function createAuthoringSnapshot(input) {
-    return { ...input };
 }
 //# sourceMappingURL=creation.js.map

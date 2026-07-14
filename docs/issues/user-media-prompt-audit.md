@@ -8,6 +8,11 @@ schema/prompt, complexity-based levels, narrative/TTS rules, no-description-phra
 validation), `audioGeneration.ts` (gender-keyed voices), and the revision
 template. Human review of generated output against these rules is still valuable.
 
+Update 2026-07-14: the legacy media revision chat, its service, and its prompts
+were removed after layer-specific preview flows replaced it. References to
+`sceneMediaRevisions.ts` below describe the historical implementation audited
+at the time.
+
 Roadmap: [V3, Scene Media Library](../roadmap/roadmap-v3.md#12-scene-media-library)
 
 ## Scope
@@ -18,8 +23,9 @@ What drives user media creation/editing today:
   prompt** and JSON schema (`buildSceneMediaScriptSystemPrompt`,
   `buildSceneMediaScriptUserPrompt`, `sceneMediaScriptSchema`).
 - `src/server/sceneMedia/audioGeneration.ts` — **voice assignment** and TTS.
-- `src/server/services/sceneMediaRevisions.ts` — the revision/authoring chat
-  (produces a *plan*, then regenerates through the same generator).
+- `src/server/services/sceneMediaRevisions.ts` — historical revision/authoring
+  chat removed 2026-07-14 (it produced a *plan*, then regenerated through the
+  same generator).
 - `src/server/sceneMedia/creation.ts` — orchestration (image → metadata/script →
   audio). The image is generated first and **passed to the script generator as
   `imageBytes`**, so the model already sees the picture when it writes the script.

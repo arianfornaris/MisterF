@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-13)
+Date: 2026-07-06 (last updated: 2026-07-14)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -174,16 +174,15 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   - [ ] Add route/render and repository tests for storage-backed generated
     media, profile access boundaries, generated-layer failure modes, archive,
     atomic persistence, and no-copy reuse of built-in/user layers.
-- [~] Add scene media editing: manual metadata edits plus per-layer "change
+- [~] Add scene media editing: manual title edits plus per-layer "change
   with a preview" modals. Proposed 2026-07-13; the earlier tool-driven authoring
   chat idea was dropped in favor of per-layer buttons because they are more
   intuitive for non-technical authors.
-  - [x] Manual metadata edits on the `General` tab. Done 2026-07-13: title,
-    level, and script type (`scriptTypePreference`) save via `edit/save`
-    (`saveSceneMediaDetails` + `updateUserSceneMediaDetails`) as labels/
-    preferences without regenerating content, with a hint that changing level
-    or script type only relabels the item. Generation mode stays
-    derived/read-only (a consequence of whether a script+audio layer exists).
+  - [x] Manual title edits on the `General` tab. Done 2026-07-13 and refined
+    2026-07-14: `edit/save` changes only the title. Level and script type were
+    moved into the script-change modal so they cannot relabel an unchanged
+    script/audio layer. Generation mode stays derived/read-only (a consequence
+    of whether a script+audio layer exists).
   - [~] Per-layer change modals with preview-before-apply. Done 2026-07-13:
     "Cambiar imagen" and "Cambiar guion" buttons on the `General` tab open one
     modal (`partials/scene-media-change-modal`) with a describe → generate →
@@ -197,14 +196,20 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     deletes its temporary storage objects (`preview/discard`). Script changes
     are two steps: `preview/script` generates the script only (using the current
     or last-draft script as continuity context) and shows it side-by-side with
-    the current script; approving it (`preview/script/apply`) generates the
-    audio with streamed progress and commits the atomic script+audio layer, so
-    audio is never generated for a rejected script. Preview generation lives in
+    the current script. Updated 2026-07-14: the modal also exposes level and
+    script type as explicit generation parameters; approving the draft
+    (`preview/script/apply`) generates the audio with streamed progress and
+    atomically commits level, script type, script, and audio, so labels cannot
+    drift from content and audio is never generated for a rejected script.
+    Preview generation lives in
     `sceneMedia/sceneMediaPreview.ts`; apply uses `applyUserSceneMediaImage` /
     `applyUserSceneMediaScript`.
-  - [ ] Retire the legacy AI chat tab and the one-shot `edit/revise` flow
-    (`services/sceneMediaRevisions.ts`), now superseded by the change modals.
-    Left in place for now; remove once the modals are validated in use.
+  - [x] Retire the legacy AI chat tab and the one-shot `edit/revise` flow.
+    Done 2026-07-14: removed the tab, route, handler, client hooks,
+    `services/sceneMediaRevisions.ts`, and its planning/correction prompts after
+    the layer-specific change modals superseded them. The historical
+    `authoring_messages_json` column remains unused for production-data
+    compatibility; no destructive migration was introduced.
   - [ ] Preview/asset cleanup on process restart. The in-memory pending store
     means a restart between generate and apply leaks the temporary preview
     object in Spaces. Acceptable for now (bounded, best-effort); revisit with a
@@ -301,9 +306,9 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   - [x] **P2 — TTS-safe text.** Instruct the model to spell out abbreviations and
     numbers so names/times/figures are pronounced correctly.
   - [x] **P3 — Schema tightening + revision parity.** Require `min(2)` speakers
-    for `dialogue` (a one-speaker dialogue currently validates); ensure the
-    revision path (`sceneMediaRevisions.ts`), which regenerates through the same
-    generator, inherits every rule above.
+    for `dialogue` (a one-speaker dialogue currently validates). The legacy
+    all-purpose revision path inherited the same generator rules until that
+    chat flow was removed on 2026-07-14.
 - [ ] Review the quality of every prompt in the media **creation and editing**
   flow, one prompt at a time, applying the `system-prompt-coherence` skill (read
   each loop as the model sees it: no contradictions, duplicated rules, or
@@ -326,20 +331,23 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     (per-request assembly, not a flat template).
   - [ ] **Image generation prompt** — `buildSceneMediaImagePrompt` in
     `sceneMedia/imageGeneration.ts` (format instruction, level, script hint,
-    safety); still hardcoded.
+    safety); still hardcoded. Observed 2026-07-14: generated images sometimes
+    add captions, labels, arrows, callouts, or directional markers that are not
+    intrinsic parts of the requested scene. Review the prompt so output stays
+    scene-only and permits real-world text or signage only when it is naturally
+    part of the requested setting.
   - [ ] **Source / continuity context** — `buildSceneMediaSourceContextPrompt` in
     `sceneMedia/generationContext.ts`, shared by script and image generation when
     editing or making variations.
-  - [ ] **Revision planning prompt** — `system-prompts/scene-media/revision.md`
-    (the edit chat that decides keep/generate image, script type, and level).
-  - [ ] **Revision JSON correction prompt** —
-    `system-prompts/scene-media/revision-correction.md`.
+  - [x] **Legacy revision planning and correction prompts** — removed with the
+    retired media authoring chat on 2026-07-14; layer-specific modals now send
+    explicit parameters directly to their dedicated generation flows.
   - [ ] **Anti-drift tests for prompt ↔ schema ↔ data sync.** After the per-prompt
     review, add regression tests that fail when a prompt's declared protocol
     drifts from the code and data it must agree with. The worry is that over time
     the prompts, the Zod schemas, and the existing data silently de-synchronize.
     Cover: (a) the TypeScript shape declared in each prompt template
-    (`generation.md`, `revision.md`) vs the Zod schema that validates the model's
+    (`generation.md`) vs the Zod schema that validates the model's
     output — field names, enum values (e.g. `gender`, `identityStrategy`,
     `scriptType`), and discriminants must match; (b) the built-in media
     (`builtInSceneMediaItems`) and the design registries
@@ -347,9 +355,28 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     shape — e.g. every dialogue speaker carries a valid `gender`, every script
     type is one the prompt/schema allow. The goal is that changing a schema, a
     prompt, or the built-in data without updating the others breaks CI, so the
-    generation/revision contracts cannot quietly rot.
+    generation contracts cannot quietly rot.
 
-## 1.3 Voice Messages in Roleplays
+## 1.3 Review Resource AI Editing Chats
+
+Added 2026-07-14 after replacing the media library's generic authoring chat
+with contextual, layer-specific edit actions. Review every remaining resource
+editing chat to confirm that conversation is still the clearest interaction
+for the resource and that it is not hiding parameters better expressed next to
+the content being changed.
+
+- [ ] Review the quiz `Chat IA` edit tab, including the add-block shortcut and
+  whether block-level changes should use contextual controls with preview and
+  explicit parameters.
+- [ ] Review the practice-guide `Chat IA` edit tab and whether its current
+  general fields and tutor instructions need more direct revision actions.
+- [ ] Review the roleplay `Chat IA` edit tab, including character, scenario,
+  turn-limit, and evaluation-related changes that may deserve dedicated UI.
+- [ ] For each resource, decide whether to keep, redesign, or retire the chat;
+  document the chosen ownership boundary and remove any superseded routes,
+  prompts, history writes, client hooks, and unused persistence safely.
+
+## 1.4 Voice Messages in Roleplays
 
 Added 2026-07-08. Idea: let the learner send **audio messages** in a
 [Roleplay](../features/roleplays.md) attempt, and let the fictional character

@@ -1,7 +1,6 @@
 import { getDb } from '../db/database.js';
 import type {
   SceneMediaAudioLayer,
-  SceneMediaAuthoringMessage,
   SceneMediaDescriptiveMetadata,
   SceneMediaFormat,
   SceneMediaImageLayer,
@@ -15,7 +14,6 @@ import type {
 
 type UserSceneMediaRow = {
   archived_at: string | null;
-  authoring_messages_json: string;
   audio_json: string | null;
   created_at: string;
   created_from_json: string;
@@ -40,7 +38,6 @@ type UserSceneMediaRow = {
 
 export type CreateReadyUserSceneMediaInput = {
   audio?: SceneMediaAudioLayer;
-  authoringMessages?: SceneMediaAuthoringMessage[];
   createdFrom?: Record<string, unknown>;
   format: SceneMediaFormat;
   generationMode: UserSceneMediaGenerationMode;
@@ -58,16 +55,6 @@ export type CreateReadyUserSceneMediaInput = {
   sourceVisualAssetId?: string | null;
   title: string;
   visualSummary: string[];
-};
-
-export type UpdateReadyUserSceneMediaInput = Omit<
-  CreateReadyUserSceneMediaInput,
-  'createdFrom' | 'id' | 'ownerProfileId' | 'ownerUserId'
-> & {
-  authoringMessages: SceneMediaAuthoringMessage[];
-  mediaId: string;
-  ownerProfileId: string;
-  ownerUserId: string;
 };
 
 export function createReadyUserSceneMedia(
@@ -95,10 +82,9 @@ export function createReadyUserSceneMedia(
           audio_json,
           script_json,
           created_from_json,
-          provenance_json,
-          authoring_messages_json
+          provenance_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, 'ready', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, 'ready', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -120,7 +106,6 @@ export function createReadyUserSceneMedia(
       input.script ? JSON.stringify(input.script) : null,
       JSON.stringify(input.createdFrom ?? {}),
       JSON.stringify(input.provenance ?? {}),
-      JSON.stringify(input.authoringMessages ?? []),
     );
 
   const media = findUserSceneMediaById(input.id);
@@ -128,60 +113,6 @@ export function createReadyUserSceneMedia(
     throw new Error('Failed to create ready user scene media.');
   }
   return media;
-}
-
-export function updateReadyUserSceneMedia(
-  input: UpdateReadyUserSceneMediaInput,
-): SceneMediaLibraryItem | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE user_scene_media
-        SET title = ?,
-            status = 'ready',
-            generation_mode = ?,
-            generation_prompt = ?,
-            script_type_preference = ?,
-            format = ?,
-            level = ?,
-            setting = ?,
-            visual_summary_json = ?,
-            image_json = ?,
-            audio_json = ?,
-            script_json = ?,
-            provenance_json = ?,
-            authoring_messages_json = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-          AND user_id = ?
-          AND profile_id = ?
-          AND archived_at IS NULL
-      `,
-    )
-    .run(
-      input.title,
-      input.generationMode,
-      input.prompt,
-      input.scriptTypePreference,
-      input.format,
-      input.level,
-      input.setting ?? null,
-      JSON.stringify(input.visualSummary),
-      JSON.stringify(input.image),
-      input.audio ? JSON.stringify(input.audio) : null,
-      input.script ? JSON.stringify(input.script) : null,
-      JSON.stringify(input.provenance ?? {}),
-      JSON.stringify(input.authoringMessages),
-      input.mediaId,
-      input.ownerUserId,
-      input.ownerProfileId,
-    );
-
-  return findUserSceneMediaForProfile({
-    mediaId: input.mediaId,
-    ownerProfileId: input.ownerProfileId,
-    ownerUserId: input.ownerUserId,
-  });
 }
 
 export function updateUserSceneMediaTitle(input: {
@@ -202,44 +133,6 @@ export function updateUserSceneMediaTitle(input: {
       `,
     )
     .run(input.title, input.mediaId, input.ownerUserId, input.ownerProfileId);
-
-  return findUserSceneMediaForProfile({
-    mediaId: input.mediaId,
-    ownerProfileId: input.ownerProfileId,
-    ownerUserId: input.ownerUserId,
-  });
-}
-
-export function updateUserSceneMediaDetails(input: {
-  level: SceneMediaLevel;
-  mediaId: string;
-  ownerProfileId: string;
-  ownerUserId: string;
-  scriptTypePreference: UserSceneMediaScriptTypePreference;
-  title: string;
-}): SceneMediaLibraryItem | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE user_scene_media
-        SET title = ?,
-            level = ?,
-            script_type_preference = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-          AND user_id = ?
-          AND profile_id = ?
-          AND archived_at IS NULL
-      `,
-    )
-    .run(
-      input.title,
-      input.level,
-      input.scriptTypePreference,
-      input.mediaId,
-      input.ownerUserId,
-      input.ownerProfileId,
-    );
 
   return findUserSceneMediaForProfile({
     mediaId: input.mediaId,
@@ -283,10 +176,12 @@ export function applyUserSceneMediaImage(input: {
 
 export function applyUserSceneMediaScript(input: {
   audio: SceneMediaAudioLayer;
+  level: SceneMediaLevel;
   mediaId: string;
   ownerProfileId: string;
   ownerUserId: string;
   script: SceneMediaScript;
+  scriptTypePreference: UserSceneMediaScriptTypePreference;
 }): SceneMediaLibraryItem | null {
   getDb()
     .prepare(
@@ -295,6 +190,8 @@ export function applyUserSceneMediaScript(input: {
         SET script_json = ?,
             audio_json = ?,
             generation_mode = 'complete_scene',
+            level = ?,
+            script_type_preference = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
           AND user_id = ?
@@ -305,6 +202,8 @@ export function applyUserSceneMediaScript(input: {
     .run(
       JSON.stringify(input.script),
       JSON.stringify(input.audio),
+      input.level,
+      input.scriptTypePreference,
       input.mediaId,
       input.ownerUserId,
       input.ownerProfileId,
@@ -341,37 +240,6 @@ export function applyUserSceneMediaMetadata(input: {
       input.metadata.title,
       input.metadata.setting,
       JSON.stringify(input.metadata.visualSummary),
-      input.mediaId,
-      input.ownerUserId,
-      input.ownerProfileId,
-    );
-
-  return findUserSceneMediaForProfile({
-    mediaId: input.mediaId,
-    ownerProfileId: input.ownerProfileId,
-    ownerUserId: input.ownerUserId,
-  });
-}
-
-export function updateUserSceneMediaAuthoringMessages(input: {
-  mediaId: string;
-  messages: SceneMediaAuthoringMessage[];
-  ownerProfileId: string;
-  ownerUserId: string;
-}): SceneMediaLibraryItem | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE user_scene_media
-        SET authoring_messages_json = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-          AND user_id = ?
-          AND profile_id = ?
-          AND archived_at IS NULL
-      `,
-    )
-    .run(
-      JSON.stringify(input.messages),
       input.mediaId,
       input.ownerUserId,
       input.ownerProfileId,
@@ -470,7 +338,6 @@ function toSceneMediaLibraryItem(row: UserSceneMediaRow): SceneMediaLibraryItem 
 
   return {
     archivedAt: row.archived_at,
-    authoringMessages: parseAuthoringMessages(row.authoring_messages_json),
     audio: audio ?? undefined,
     createdAt: row.created_at,
     createdFrom: createdFrom ? {
@@ -499,35 +366,6 @@ function toSceneMediaLibraryItem(row: UserSceneMediaRow): SceneMediaLibraryItem 
     visualAssetId: row.source_visual_asset_id ?? undefined,
     visualSummary: parseStringArray(row.visual_summary_json),
   };
-}
-
-function parseAuthoringMessages(value: string): SceneMediaAuthoringMessage[] {
-  const parsed = parseJsonValue<unknown>(value);
-  if (!Array.isArray(parsed)) {
-    return [];
-  }
-
-  return parsed.flatMap((item): SceneMediaAuthoringMessage[] => {
-    if (!item || typeof item !== 'object') {
-      return [];
-    }
-    const record = item as Record<string, unknown>;
-    if (
-      (record.role !== 'assistant' && record.role !== 'user') ||
-      typeof record.content !== 'string' ||
-      typeof record.createdAt !== 'string'
-    ) {
-      return [];
-    }
-    return [{
-      content: record.content,
-      createdAt: record.createdAt,
-      draftSnapshot: record.draftSnapshot && typeof record.draftSnapshot === 'object'
-        ? record.draftSnapshot as Record<string, unknown>
-        : undefined,
-      role: record.role,
-    }];
-  });
 }
 
 function parseStringArray(value: string): string[] {

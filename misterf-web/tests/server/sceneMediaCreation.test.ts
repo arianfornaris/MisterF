@@ -217,4 +217,35 @@ describe('synchronous scene media creation', () => {
       expect.objectContaining({ imageBytes: expect.any(Buffer) }),
     );
   });
+
+  it('uses explicit target level and script type for a script preview', async () => {
+    const { generateSceneMediaScriptDraft } = await import(
+      '../../src/server/sceneMedia/sceneMediaPreview.js'
+    );
+    await generateSceneMediaScriptDraft({
+      level: 'C1',
+      media: {
+        format: 'single_panel_scene',
+        id: 'media-script-preview',
+        image: { alt: 'A traveler speaks with a ticket clerk.', src: '/source.png' },
+        level: 'A1-A2',
+        scriptTypePreference: 'dialogue',
+        source: 'user_generated',
+        status: 'ready',
+        title: 'Buying a Ticket',
+        visualSummary: ['A traveler stands at a ticket counter.'],
+      },
+      ownerUserId: 'user-1',
+      prompt: 'Use more nuanced language.',
+      scriptTypePreference: 'monologue',
+    });
+
+    expect(scriptMocks.generateSceneMediaScriptPackage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        level: 'C1',
+        prompt: 'Use more nuanced language.',
+        scriptTypePreference: 'monologue',
+      }),
+    );
+  });
 });

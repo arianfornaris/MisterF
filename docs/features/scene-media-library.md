@@ -540,9 +540,9 @@ There is no persisted generation-job model or realtime job channel.
 
 Generation can partially fail before persistence. Any newly uploaded objects are
 deleted on a best-effort basis, the form is rendered again with its values, and
-no incomplete media card is created. An AI chat revision follows the same atomic
-rule: the current media remains unchanged until every replacement layer is
-ready.
+no incomplete media card is created. Layer-specific edits follow the same atomic
+rule: the current media remains unchanged until a preview is approved and every
+replacement layer is ready.
 
 User-facing failure messages:
 
@@ -550,8 +550,8 @@ User-facing failure messages:
 - policy/safety failure: `This media could not be created because the content
   does not comply with our content policy`.
 
-The user-facing message appears on the creation/variation page or as an
-assistant message in the authoring chat. Technical provider errors stay in logs.
+The user-facing message appears on the creation/variation page or inside the
+layer-change modal. Technical provider errors stay in logs.
 
 ## Resolver Service
 
@@ -714,11 +714,11 @@ Resource derivation rules:
   enough permission to render that media for students, guests, shared links, and
   follow-up tutor conversations without exposing the owner's whole media
   library.
-- If a media item changes title/tags later, derived resources may show updated
+- If a media item changes title later, derived resources may show updated
   display metadata, but they should not silently change the underlying script,
   audio, or image content used by an existing attempt or assignment.
 - The generated resource should record enough provenance to answer "created from
-  this media" in history and future authoring chat context.
+  this media" in resource history and future authoring context.
 
 ## Media As A Resource
 
@@ -823,7 +823,7 @@ Add or update tests for:
   form state on failure;
 - credit exhaustion paths for image-only, complete-scene, and variation generation;
 - policy/safety failure paths that render the content-policy message on the
-  creation page or authoring chat without creating a media row;
+  creation page or layer-change modal without creating a media row;
 - layer reuse when creating a variation, especially keeping a built-in image without copying it to object storage;
 - script-and-audio atomicity: no user-generated media with only script or only audio in the MVP;
 - absence of media rows when generation fails before persistence;

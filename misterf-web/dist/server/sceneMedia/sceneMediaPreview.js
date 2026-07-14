@@ -105,10 +105,10 @@ export async function generateSceneMediaScriptDraft(input) {
             imageAlt: input.media.image?.alt,
             imageBytes: imageAsset?.bytes,
             imageContentType: imageAsset?.contentType,
-            level: input.media.level ?? 'A1-A2',
+            level: input.level,
             openRouterApiKey,
             prompt: input.prompt,
-            scriptTypePreference: input.media.scriptTypePreference ?? 'unspecified',
+            scriptTypePreference: input.scriptTypePreference,
             sourceContext,
         });
         report({ stage: 'metadata', completed: 1, total: 1 });

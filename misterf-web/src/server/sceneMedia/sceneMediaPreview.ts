@@ -33,7 +33,9 @@ import type {
   SceneMediaFormat,
   SceneMediaImageLayer,
   SceneMediaLibraryItem,
+  SceneMediaLevel,
   SceneMediaScript,
+  UserSceneMediaScriptTypePreference,
 } from './types.js';
 
 const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
@@ -145,10 +147,12 @@ export async function generateSceneMediaImagePreview(input: {
 // change request instead of writing a fresh, unrelated script.
 export async function generateSceneMediaScriptDraft(input: {
   baseScript?: SceneMediaScript;
+  level: SceneMediaLevel;
   media: SceneMediaLibraryItem;
   onProgress?: SceneMediaProgressReporter;
   ownerUserId: string;
   prompt: string;
+  scriptTypePreference: UserSceneMediaScriptTypePreference;
 }): Promise<GeneratedScriptDraft> {
   const report = input.onProgress ?? (() => {});
   report({ stage: 'metadata', completed: 0, total: 1 });
@@ -168,10 +172,10 @@ export async function generateSceneMediaScriptDraft(input: {
       imageAlt: input.media.image?.alt,
       imageBytes: imageAsset?.bytes,
       imageContentType: imageAsset?.contentType,
-      level: input.media.level ?? 'A1-A2',
+      level: input.level,
       openRouterApiKey,
       prompt: input.prompt,
-      scriptTypePreference: input.media.scriptTypePreference ?? 'unspecified',
+      scriptTypePreference: input.scriptTypePreference,
       sourceContext,
     });
     report({ stage: 'metadata', completed: 1, total: 1 });

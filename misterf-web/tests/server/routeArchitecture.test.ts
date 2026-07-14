@@ -66,4 +66,15 @@ describe('server route architecture', () => {
     expect(view).not.toContain("currentView === 'practiceGuides'");
     expect(view).not.toContain("practice-guides-page <%= currentView");
   });
+
+  it('keeps the retired scene media authoring chat removed', () => {
+    const routes = readProjectFile('src/server/sceneMedia/routes.ts');
+    const view = readProjectFile('views/media-library-authoring.ejs');
+
+    expect(routes).not.toContain('/edit/revise');
+    expect(view).not.toContain('data-authoring-chat-form');
+    expect(view).not.toContain("activeTab === 'chat'");
+    expect(fs.existsSync(path.join(process.cwd(), 'src/server/services/sceneMediaRevisions.ts')))
+      .toBe(false);
+  });
 });

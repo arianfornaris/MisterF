@@ -1,5 +1,3 @@
-import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
-import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { createSceneAudioPlayer } from './sceneAudioPlayer.js';
 
 function readJsonScript(element, fallback) {
@@ -426,6 +424,7 @@ function initializeChangeModal() {
     formatWrap: el('[data-scene-media-change-format-wrap]'),
     generateButton: el('[data-scene-media-change-generate]'),
     imageCompare: el('[data-scene-media-change-image-compare]'),
+    levelSelect: el('[data-scene-media-change-level]'),
     metadataCompare: el('[data-scene-media-change-metadata-compare]'),
     metadataNote: el('[data-scene-media-change-metadata-note]'),
     progress: el('[data-scene-media-change-progress]'),
@@ -437,6 +436,8 @@ function initializeChangeModal() {
     resultLabelScript: el('[data-scene-media-change-result-label-script]'),
     retryButton: el('[data-scene-media-change-retry]'),
     scriptCompare: el('[data-scene-media-change-script-compare]'),
+    scriptParametersWrap: el('[data-scene-media-change-script-parameters-wrap]'),
+    scriptTypeSelect: el('[data-scene-media-change-script-type]'),
     title: el('[data-scene-media-change-title]'),
   };
   const liveScript = readJsonScript(el('[data-scene-media-change-current-script]'), null);
@@ -534,6 +535,16 @@ function initializeChangeModal() {
       ui.formatSelect.value = data.currentFormat;
     }
     show(ui.formatWrap, layer === 'image');
+    if (ui.levelSelect instanceof HTMLSelectElement && data.currentLevel) {
+      ui.levelSelect.value = data.currentLevel;
+    }
+    if (
+      ui.scriptTypeSelect instanceof HTMLSelectElement &&
+      data.currentScriptTypePreference
+    ) {
+      ui.scriptTypeSelect.value = data.currentScriptTypePreference;
+    }
+    show(ui.scriptParametersWrap, layer === 'script');
     renderCurrentReference();
     show(ui.error, false);
     setPhase('describe');
@@ -580,8 +591,15 @@ function initializeChangeModal() {
 
   const generate = async () => {
     const prompt = ui.prompt.value.trim();
-    // Metadata guidance is optional (empty = resync); the others need a prompt.
-    if (!prompt && state.layer !== 'metadata') {
+    const scriptParametersChanged = state.layer === 'script' && (
+      (ui.levelSelect instanceof HTMLSelectElement &&
+        ui.levelSelect.value !== data.currentLevel) ||
+      (ui.scriptTypeSelect instanceof HTMLSelectElement &&
+        ui.scriptTypeSelect.value !== data.currentScriptTypePreference)
+    );
+    // Metadata guidance is optional (empty = resync). A script prompt is also
+    // optional when the author explicitly changed its level or type.
+    if (!prompt && state.layer !== 'metadata' && !scriptParametersChanged) {
       ui.prompt.focus();
       return;
     }
@@ -592,6 +610,14 @@ function initializeChangeModal() {
     const fields = { _csrf: data.csrf, prompt };
     if (state.layer === 'image' && ui.formatSelect instanceof HTMLSelectElement) {
       fields.format = ui.formatSelect.value;
+    }
+    if (state.layer === 'script') {
+      if (ui.levelSelect instanceof HTMLSelectElement) {
+        fields.level = ui.levelSelect.value;
+      }
+      if (ui.scriptTypeSelect instanceof HTMLSelectElement) {
+        fields.scriptTypePreference = ui.scriptTypeSelect.value;
+      }
     }
     try {
       const response = await postUrlEncoded(endpoint, fields);
@@ -721,5 +747,3 @@ initializeVariationControls();
 initializeAudioPlayers();
 initializePreviewModal();
 initializeChangeModal();
-initializeAuthoringChatScroll();
-initializeAuthoringChatRevision();

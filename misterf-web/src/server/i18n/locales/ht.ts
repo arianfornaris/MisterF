@@ -140,7 +140,6 @@ export const ht: LocaleCatalog = {
   mediaLibrary: {
     applyFilters: 'Aplike filtè yo',
     archive: 'Achive',
-    authoringChatEmpty: 'Dekri chanjman ou vle fè nan medya sa a.',
     audio: 'Odyo',
     audioClipProgress: 'Klip {{current}} sou {{total}}',
     audioPlayerAria: 'Odyo pou koute',
@@ -155,7 +154,6 @@ export const ht: LocaleCatalog = {
     count: '{{shown}} sou {{total}} medya',
     createMedia: 'Kreye medya',
     createVariation: 'Kreye varyasyon',
-    createdChatMessage: 'Medya a kreye avèk siksè.',
     creating: 'Ap kreye...',
     creationFailed: 'Nou pa t kapab kreye medya sa a. Verifye demann lan epi eseye ankò.',
     creditExhausted:
@@ -241,14 +239,10 @@ export const ht: LocaleCatalog = {
     level: 'Nivo',
     levelAll: 'Tout nivo',
     levelNone: 'San nivo',
-    manualEditHint:
-      'Chanje nivo a oswa tip eskrip la sèlman mete etikèt la ajou; li pa rejenere eskrip oswa odyo aktyèl la.',
     mediaId: 'ID medya',
     metadata: 'Metadata',
     modeCompleteScene: 'Sèn konplè',
     modeImageOnly: 'Imaj sèlman',
-    modifyWithAi: 'Modifye ak IA',
-    modifyWithAiCopy: 'Mande chanjman nan imaj, nivo, metadata, skrip oswa odyo.',
     notSpecified: 'Pa espesifye',
     open: 'Louvri',
     play: 'Jwe',
@@ -258,9 +252,6 @@ export const ht: LocaleCatalog = {
     promptPlaceholder:
       'Yon elèv mande direksyon nan yon estasyon tren ki gen anpil moun epi li pratike kesyon politès.',
     preview: 'Jwe medya',
-    revisionAudioFailed:
-      'Skrip la te prepare, men nou pa t kapab rejenere odyo a. Medya aktyèl la pa chanje.',
-    revisionFailed: 'Mwen pa t kapab aplike chanjman sa a. Medya aktyèl la pa chanje.',
     script: 'Skrip',
     scriptAndAudioLayer: 'Skrip ak odyo',
     scriptType: 'Kalite skrip',
@@ -283,7 +274,6 @@ export const ht: LocaleCatalog = {
     summaryFallback: 'Medya sèn',
     tags: 'Tags',
     tagsAndSkills: 'Tags ak skills',
-    tabInformation: 'Enfòmasyon',
     title: 'Bibliyotèk medya',
     titleRequired: 'Ekri yon tit pou medya sa a.',
     visualAssetId: 'ID asset vizyèl',
@@ -292,9 +282,7 @@ export const ht: LocaleCatalog = {
     variationPrompt: 'Enstriksyon varyasyon',
     variationPromptPlaceholder:
       'Kenbe imaj la, men fè konvèsasyon an pratike pase senp ak de pèsonaj.',
-    variationCreatedChatMessage: 'Varyasyon medya a kreye avèk siksè.',
     variationOf: 'Varyasyon {{title}}',
-    writeChange: 'Dekri chanjman ou vle fè a.',
     levelScriptAudioWarning:
       'Skrip ak odyo ki egziste yo ka pa koresponn ak nouvo nivo a.',
   },

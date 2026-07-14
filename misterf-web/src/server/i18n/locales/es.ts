@@ -131,7 +131,6 @@ export const es: LocaleCatalog = {
   mediaLibrary: {
     applyFilters: 'Aplicar filtros',
     archive: 'Archivar',
-    authoringChatEmpty: 'Describe el cambio que quieres hacer en esta media.',
     audio: 'Audio',
     audioClipProgress: 'Fragmento {{current}} de {{total}}',
     audioPlayerAria: 'Audio de escucha',
@@ -146,7 +145,6 @@ export const es: LocaleCatalog = {
     count: '{{shown}} de {{total}} medias',
     createMedia: 'Crear media',
     createVariation: 'Crear variación',
-    createdChatMessage: 'La media se creó correctamente.',
     creating: 'Creando...',
     creationFailed: 'No se pudo crear esta media. Revisa la solicitud e inténtalo de nuevo.',
     creditExhausted:
@@ -232,14 +230,10 @@ export const es: LocaleCatalog = {
     level: 'Nivel',
     levelAll: 'Todos los niveles',
     levelNone: 'Sin nivel',
-    manualEditHint:
-      'Cambiar el nivel o el tipo de guion solo actualiza la etiqueta; no regenera el guion ni el audio actuales.',
     mediaId: 'ID de media',
     metadata: 'Metadata',
     modeCompleteScene: 'Escena completa',
     modeImageOnly: 'Solo imagen',
-    modifyWithAi: 'Modificar con IA',
-    modifyWithAiCopy: 'Pide cambios en la imagen, nivel, metadata, guion o audio.',
     notSpecified: 'No especificado',
     open: 'Abrir',
     play: 'Reproducir',
@@ -249,9 +243,6 @@ export const es: LocaleCatalog = {
     promptPlaceholder:
       'Un estudiante pide direcciones en una estación de tren concurrida y practica preguntas amables.',
     preview: 'Reproducir media',
-    revisionAudioFailed:
-      'El guion fue preparado, pero no se pudo regenerar el audio. La media actual no fue modificada.',
-    revisionFailed: 'No pude aplicar ese cambio. La media actual no fue modificada.',
     script: 'Guion',
     scriptAndAudioLayer: 'Guion y audio',
     scriptType: 'Tipo de guion',
@@ -274,7 +265,6 @@ export const es: LocaleCatalog = {
     summaryFallback: 'Media de escena',
     tags: 'Tags',
     tagsAndSkills: 'Tags y skills',
-    tabInformation: 'Información',
     title: 'Biblioteca de medios',
     titleRequired: 'Escribe un título para esta media.',
     visualAssetId: 'ID de asset visual',
@@ -283,9 +273,7 @@ export const es: LocaleCatalog = {
     variationPrompt: 'Instrucciones de variación',
     variationPromptPlaceholder:
       'Mantén la imagen, pero haz que la conversación practique pasado simple con dos personajes.',
-    variationCreatedChatMessage: 'La variación de la media se creó correctamente.',
     variationOf: 'Variación de {{title}}',
-    writeChange: 'Describe el cambio que quieres hacer.',
     levelScriptAudioWarning:
       'El guion y audio existentes podrían no coincidir con el nuevo nivel.',
   },

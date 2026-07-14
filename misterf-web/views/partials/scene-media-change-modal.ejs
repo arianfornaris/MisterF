@@ -1,3 +1,8 @@
+<%
+  const currentScriptTypePreference = mediaItem.scriptTypePreference === 'unspecified' && mediaItem.script
+    ? mediaItem.script.scriptType
+    : (mediaItem.scriptTypePreference || 'unspecified');
+%>
 <div
   class="modal fade"
   tabindex="-1"
@@ -11,6 +16,8 @@
   data-current-image-src="<%= mediaItem.image ? mediaItem.image.src : '' %>"
   data-current-image-alt="<%= mediaItem.image ? mediaItem.image.alt : '' %>"
   data-current-format="<%= mediaItem.format %>"
+  data-current-level="<%= mediaItem.level || 'A1-A2' %>"
+  data-current-script-type-preference="<%= currentScriptTypePreference %>"
   data-image-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/image"
   data-script-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script"
   data-metadata-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/metadata"
@@ -55,6 +62,24 @@
                 <option value="<%= f %>" <%= mediaItem.format === f ? 'selected' : '' %>><%= t(`mediaLibrary.format.${f}`) %></option>
               <% }) %>
             </select>
+          </div>
+          <div class="row g-3 mb-3 d-none" data-scene-media-change-script-parameters-wrap>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="sceneMediaChangeLevel"><%= t('mediaLibrary.level') %></label>
+              <select class="form-select" id="sceneMediaChangeLevel" data-scene-media-change-level>
+                <% sceneMediaLevels.forEach((level) => { %>
+                  <option value="<%= level %>" <%= mediaItem.level === level ? 'selected' : '' %>><%= level %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="sceneMediaChangeScriptType"><%= t('mediaLibrary.scriptType') %></label>
+              <select class="form-select" id="sceneMediaChangeScriptType" data-scene-media-change-script-type>
+                <% ['unspecified', 'dialogue', 'narration', 'monologue'].forEach((type) => { %>
+                  <option value="<%= type %>" <%= currentScriptTypePreference === type ? 'selected' : '' %>><%= t(`mediaLibrary.scriptType${type === 'unspecified' ? 'Unspecified' : type.charAt(0).toUpperCase() + type.slice(1)}`) %></option>
+                <% }) %>
+              </select>
+            </div>
           </div>
           <div class="mb-2">
             <label class="form-label" for="sceneMediaChangePrompt" data-scene-media-change-prompt-label></label>
