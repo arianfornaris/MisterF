@@ -87,6 +87,63 @@ export function updateUserSceneMediaTitle(input) {
         ownerUserId: input.ownerUserId,
     });
 }
+export function updateUserSceneMediaDetails(input) {
+    getDb()
+        .prepare(`
+        UPDATE user_scene_media
+        SET title = ?,
+            level = ?,
+            script_type_preference = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `)
+        .run(input.title, input.level, input.scriptTypePreference, input.mediaId, input.ownerUserId, input.ownerProfileId);
+    return findUserSceneMediaForProfile({
+        mediaId: input.mediaId,
+        ownerProfileId: input.ownerProfileId,
+        ownerUserId: input.ownerUserId,
+    });
+}
+export function applyUserSceneMediaImage(input) {
+    getDb()
+        .prepare(`
+        UPDATE user_scene_media
+        SET image_json = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `)
+        .run(JSON.stringify(input.image), input.mediaId, input.ownerUserId, input.ownerProfileId);
+    return findUserSceneMediaForProfile({
+        mediaId: input.mediaId,
+        ownerProfileId: input.ownerProfileId,
+        ownerUserId: input.ownerUserId,
+    });
+}
+export function applyUserSceneMediaScript(input) {
+    getDb()
+        .prepare(`
+        UPDATE user_scene_media
+        SET script_json = ?,
+            audio_json = ?,
+            generation_mode = 'complete_scene',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `)
+        .run(JSON.stringify(input.script), JSON.stringify(input.audio), input.mediaId, input.ownerUserId, input.ownerProfileId);
+    return findUserSceneMediaForProfile({
+        mediaId: input.mediaId,
+        ownerProfileId: input.ownerProfileId,
+        ownerUserId: input.ownerUserId,
+    });
+}
 export function updateUserSceneMediaAuthoringMessages(input) {
     getDb()
         .prepare(`

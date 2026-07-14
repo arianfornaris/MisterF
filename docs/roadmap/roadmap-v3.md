@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-12)
+Date: 2026-07-06 (last updated: 2026-07-13)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -174,6 +174,38 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   - [ ] Add route/render and repository tests for storage-backed generated
     media, profile access boundaries, generated-layer failure modes, archive,
     atomic persistence, and no-copy reuse of built-in/user layers.
+- [~] Add scene media editing: manual metadata edits plus per-layer "change
+  with a preview" modals. Proposed 2026-07-13; the earlier tool-driven authoring
+  chat idea was dropped in favor of per-layer buttons because they are more
+  intuitive for non-technical authors.
+  - [x] Manual metadata edits on the `General` tab. Done 2026-07-13: title,
+    level, and script type (`scriptTypePreference`) save via `edit/save`
+    (`saveSceneMediaDetails` + `updateUserSceneMediaDetails`) as labels/
+    preferences without regenerating content, with a hint that changing level
+    or script type only relabels the item. Generation mode stays
+    derived/read-only (a consequence of whether a script+audio layer exists).
+  - [~] Per-layer change modals with preview-before-apply. Done 2026-07-13:
+    "Cambiar imagen" and "Cambiar guion" buttons on the `General` tab open one
+    modal (`partials/scene-media-change-modal`) with a describe → generate →
+    preview flow. Generation streams NDJSON progress (reuses commit `e78742db`)
+    via `POST /media-library/:id/preview/{image,script}`; the preview is held
+    in an in-memory store (`sceneMediaPreviewStore`) keyed to the media and is
+    never applied until the author clicks "Usar esta versión"
+    (`preview/apply`). "Volver a intentar" re-prompts without leaving the modal;
+    image regeneration references the last pending preview so tweaks chain
+    iteratively (image-to-image). Cancel/close discards the pending preview and
+    deletes its temporary storage objects (`preview/discard`). Script changes
+    regenerate the atomic script+audio layer. Preview generation lives in
+    `sceneMedia/sceneMediaPreview.ts`; apply uses `applyUserSceneMediaImage` /
+    `applyUserSceneMediaScript`.
+  - [ ] Retire the legacy AI chat tab and the one-shot `edit/revise` flow
+    (`services/sceneMediaRevisions.ts`), now superseded by the change modals.
+    Left in place for now; remove once the modals are validated in use.
+  - [ ] Preview/asset cleanup on process restart. The in-memory pending store
+    means a restart between generate and apply leaks the temporary preview
+    object in Spaces. Acceptable for now (bounded, best-effort); revisit with a
+    periodic orphan sweep of `.../scene-media/{id}/**/preview-*` objects if it
+    becomes noticeable.
 - [x] Regenerate and promote the adult-only audio for
   `shared-umbrella-bus-stop-01`, `shared-lunch-classroom-01`, and
   `pancake-practice-kitchen-01`. Done 2026-07-12 (commit `dcbb08e8`): forced

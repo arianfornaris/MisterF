@@ -116,6 +116,29 @@ export type SceneMediaAuthoringMessage = {
   role: 'assistant' | 'user';
 };
 
+// A generated-but-not-applied layer change awaiting the author's approval in
+// the change modal. Held in memory (see sceneMediaPreviewStore) between the
+// generate and apply requests; `storageKeys` are the temporary objects to
+// delete when the preview is superseded or discarded.
+export type SceneMediaPendingPreview =
+  | {
+      createdAt: number;
+      image: SceneMediaImageLayer;
+      prompt: string;
+      previewId: string;
+      storageKeys: string[];
+      type: 'image';
+    }
+  | {
+      audio: SceneMediaAudioLayer;
+      createdAt: number;
+      prompt: string;
+      previewId: string;
+      script: SceneMediaScript;
+      storageKeys: string[];
+      type: 'script';
+    };
+
 export type SceneMediaLibraryFilters = {
   format?: SceneMediaFormat;
   level?: SceneMediaLevel;

@@ -227,6 +227,111 @@ export function updateUserSceneMediaTitle(input: {
   });
 }
 
+export function updateUserSceneMediaDetails(input: {
+  level: SceneMediaLevel;
+  mediaId: string;
+  ownerProfileId: string;
+  ownerUserId: string;
+  scriptTypePreference: UserSceneMediaScriptTypePreference;
+  title: string;
+}): SceneMediaLibraryItem | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE user_scene_media
+        SET title = ?,
+            level = ?,
+            script_type_preference = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `,
+    )
+    .run(
+      input.title,
+      input.level,
+      input.scriptTypePreference,
+      input.mediaId,
+      input.ownerUserId,
+      input.ownerProfileId,
+    );
+
+  return findUserSceneMediaForProfile({
+    mediaId: input.mediaId,
+    ownerProfileId: input.ownerProfileId,
+    ownerUserId: input.ownerUserId,
+  });
+}
+
+export function applyUserSceneMediaImage(input: {
+  image: SceneMediaImageLayer;
+  mediaId: string;
+  ownerProfileId: string;
+  ownerUserId: string;
+}): SceneMediaLibraryItem | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE user_scene_media
+        SET image_json = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `,
+    )
+    .run(
+      JSON.stringify(input.image),
+      input.mediaId,
+      input.ownerUserId,
+      input.ownerProfileId,
+    );
+
+  return findUserSceneMediaForProfile({
+    mediaId: input.mediaId,
+    ownerProfileId: input.ownerProfileId,
+    ownerUserId: input.ownerUserId,
+  });
+}
+
+export function applyUserSceneMediaScript(input: {
+  audio: SceneMediaAudioLayer;
+  mediaId: string;
+  ownerProfileId: string;
+  ownerUserId: string;
+  script: SceneMediaScript;
+}): SceneMediaLibraryItem | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE user_scene_media
+        SET script_json = ?,
+            audio_json = ?,
+            generation_mode = 'complete_scene',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `,
+    )
+    .run(
+      JSON.stringify(input.script),
+      JSON.stringify(input.audio),
+      input.mediaId,
+      input.ownerUserId,
+      input.ownerProfileId,
+    );
+
+  return findUserSceneMediaForProfile({
+    mediaId: input.mediaId,
+    ownerProfileId: input.ownerProfileId,
+    ownerUserId: input.ownerUserId,
+  });
+}
+
 export function updateUserSceneMediaAuthoringMessages(input: {
   mediaId: string;
   messages: SceneMediaAuthoringMessage[];

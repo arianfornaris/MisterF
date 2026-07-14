@@ -42,6 +42,7 @@ describe('user scene media repository', () => {
       createReadyUserSceneMedia,
       findUserSceneMediaForProfile,
       updateUserSceneMediaAuthoringMessages,
+      updateUserSceneMediaDetails,
       updateUserSceneMediaTitle,
     } = await import('../../src/server/sceneMedia/userMediaRepository.js');
     const user = createExternalUser({
@@ -112,6 +113,26 @@ describe('user scene media repository', () => {
     })).toEqual(expect.objectContaining({
       authoringMessages: revisedMessages,
       title: 'Airport Check-In',
+    }));
+
+    updateUserSceneMediaDetails({
+      level: 'B1-B2',
+      mediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+      scriptTypePreference: 'dialogue',
+      title: 'Airport Check-In (edited)',
+    });
+    expect(findUserSceneMediaForProfile({
+      mediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })).toEqual(expect.objectContaining({
+      // Manual metadata edits change only labels/preferences, not content.
+      authoringMessages: revisedMessages,
+      level: 'B1-B2',
+      scriptTypePreference: 'dialogue',
+      title: 'Airport Check-In (edited)',
     }));
   });
 

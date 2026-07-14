@@ -1,7 +1,10 @@
 import { getCreditCheckedOpenRouterApiKeyForUser, isCreditExhaustedError, } from '../services/creditGate.js';
 import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { findSceneMediaItemById, listSceneMediaItems, normalizeSceneMediaFormat, normalizeSceneMediaLevel, sceneMediaFormats, sceneMediaLevels, } from './library.js';
-import { archiveUserSceneMediaForProfile, createReadyUserSceneMedia, updateReadyUserSceneMedia, updateUserSceneMediaAuthoringMessages, updateUserSceneMediaTitle, } from './userMediaRepository.js';
+import { applyUserSceneMediaImage, applyUserSceneMediaScript, archiveUserSceneMediaForProfile, createReadyUserSceneMedia, updateReadyUserSceneMedia, updateUserSceneMediaAuthoringMessages, updateUserSceneMediaDetails, } from './userMediaRepository.js';
+import { generateSceneMediaImagePreview, generateSceneMediaScriptPreview, readSceneMediaReferenceImage, } from './sceneMediaPreview.js';
+import { deletePendingPreview, getPendingPreview, setPendingPreview, } from './sceneMediaPreviewStore.js';
+import { randomUUID } from 'node:crypto';
 import { getUserFileStorageProvider } from '../storage/userFileStorage.js';
 import { createAuthoringSnapshot, deleteUnpersistedSceneMediaObjects, generateReadySceneMedia, SceneMediaCreationError, } from './creation.js';
 import { readSceneMediaImageAsset } from './imageAssets.js';
@@ -226,6 +229,28 @@ function sceneMediaProgressMessage(t, progress) {
             return t('mediaLibrary.progress.saving');
     }
 }
+// Opens a newline-delimited JSON progress stream on the response and returns
+// writers for raw payloads and for translated progress events. The HTTP status
+// stays 200; terminal `done`/`error` events are written in-band.
+function openSceneMediaProgressStream(response) {
+    const t = response.locals.t;
+    response.status(200);
+    response.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+    response.setHeader('Cache-Control', 'no-cache, no-transform');
+    response.setHeader('X-Accel-Buffering', 'no');
+    response.flushHeaders?.();
+    const write = (payload) => {
+        response.write(`${JSON.stringify(payload)}\n`);
+    };
+    return {
+        write,
+        writeProgress: (progress) => write({
+            message: sceneMediaProgressMessage(t, progress),
+            percent: sceneMediaProgressPercent(progress),
+            type: 'progress',
+        }),
+    };
+}
 // Runs the (long) generation while streaming newline-delimited JSON progress
 // events to the client instead of blocking on a single redirect. Emits
 // `progress` events per stage, then a final `done` (with the redirect target)
@@ -437,13 +462,17 @@ function renderSceneMediaAuthoringView(request, response, resolved, input) {
         authoringError: input.error,
         mediaAuthoringMessages: resolved.mediaItem.authoringMessages ?? [],
         mediaItem: resolved.mediaItem,
+        sceneMediaLevels,
     });
 }
-export function saveSceneMediaTitle(request, response) {
+export function saveSceneMediaDetails(request, response) {
     const resolved = resolveOwnedUserSceneMedia(request, response);
     if (!resolved) {
         return;
     }
+    // Manual metadata edits are label/preference changes only: they never
+    // regenerate the stored image, script, or audio. Level and script type
+    // fall back to the current values when the posted value is invalid.
     const title = readField(request.body.title, 120);
     if (!title) {
         renderSceneMediaAuthoringView(request, response.status(422), resolved, {
@@ -452,13 +481,231 @@ export function saveSceneMediaTitle(request, response) {
         });
         return;
     }
-    updateUserSceneMediaTitle({
+    updateUserSceneMediaDetails({
+        level: normalizeSceneMediaLevel(request.body.level) || resolved.mediaItem.level || 'A1-A2',
         mediaId: resolved.mediaItem.id,
         ownerProfileId: resolved.activeProfile.id,
         ownerUserId: resolved.user.id,
+        scriptTypePreference: normalizeScriptTypePreference(request.body.scriptTypePreference),
         title,
     });
     response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}/edit?tab=general`);
+}
+// Generates a not-yet-applied image change and streams progress. The preview is
+// stored in the pending-preview store keyed to this media so a later apply can
+// commit it; a prior pending preview is superseded and its objects deleted. The
+// reference image is the last pending image preview when present, so successive
+// tweaks refine each other ("modificaciones puntuales").
+export async function previewSceneMediaImage(request, response) {
+    const resolved = resolveOwnedUserSceneMedia(request, response);
+    if (!resolved) {
+        return;
+    }
+    const prompt = readField(request.body.prompt, 2000);
+    if (!prompt || !resolved.mediaItem.image) {
+        response.status(422).json({ error: response.locals.t('mediaLibrary.invalidRequest') });
+        return;
+    }
+    const owner = {
+        mediaId: resolved.mediaItem.id,
+        ownerProfileId: resolved.activeProfile.id,
+        ownerUserId: resolved.user.id,
+    };
+    const storage = getUserFileStorageProvider();
+    const stream = openSceneMediaProgressStream(response);
+    const previewId = randomUUID();
+    try {
+        const existing = getPendingPreview(owner);
+        const referenceImage = await readSceneMediaReferenceImage(resolved.mediaItem, existing?.type === 'image' ? existing.image : undefined);
+        const preview = await generateSceneMediaImagePreview({
+            media: resolved.mediaItem,
+            onProgress: stream.writeProgress,
+            ownerUserId: resolved.user.id,
+            previewId,
+            prompt,
+            referenceImage,
+        });
+        if (existing) {
+            await Promise.allSettled(existing.storageKeys.map((key) => storage.deleteObject(key)));
+        }
+        setPendingPreview(owner, {
+            createdAt: Date.now(),
+            image: preview.image,
+            previewId,
+            prompt,
+            storageKeys: preview.storageKeys,
+            type: 'image',
+        });
+        stream.write({
+            imageAlt: preview.image.alt,
+            imageSrc: preview.image.src,
+            layer: 'image',
+            percent: 100,
+            previewId,
+            type: 'done',
+        });
+    }
+    catch (error) {
+        logger.error('scene_media_preview_failed', {
+            error: serializeError(error),
+            layer: 'image',
+            mediaId: resolved.mediaItem.id,
+            userId: resolved.user.id,
+        });
+        stream.write({
+            creditExhausted: isCreditExhaustedError(error),
+            message: sceneMediaCreationFailureMessage(response, error),
+            type: 'error',
+        });
+    }
+    finally {
+        response.end();
+    }
+}
+// Generates a not-yet-applied script+audio change and streams progress. Script
+// and audio are one atomic layer, so this always regenerates the audio too.
+export async function previewSceneMediaScript(request, response) {
+    const resolved = resolveOwnedUserSceneMedia(request, response);
+    if (!resolved) {
+        return;
+    }
+    const prompt = readField(request.body.prompt, 2000);
+    if (!prompt) {
+        response.status(422).json({ error: response.locals.t('mediaLibrary.invalidRequest') });
+        return;
+    }
+    const owner = {
+        mediaId: resolved.mediaItem.id,
+        ownerProfileId: resolved.activeProfile.id,
+        ownerUserId: resolved.user.id,
+    };
+    const storage = getUserFileStorageProvider();
+    const stream = openSceneMediaProgressStream(response);
+    const previewId = randomUUID();
+    try {
+        const existing = getPendingPreview(owner);
+        const preview = await generateSceneMediaScriptPreview({
+            media: resolved.mediaItem,
+            onProgress: stream.writeProgress,
+            ownerUserId: resolved.user.id,
+            previewId,
+            prompt,
+        });
+        if (existing) {
+            await Promise.allSettled(existing.storageKeys.map((key) => storage.deleteObject(key)));
+        }
+        setPendingPreview(owner, {
+            audio: preview.audio,
+            createdAt: Date.now(),
+            previewId,
+            prompt,
+            script: preview.script,
+            storageKeys: preview.storageKeys,
+            type: 'script',
+        });
+        stream.write({
+            audioClips: preview.audio.clips.map((clip) => ({
+                speaker: clip.speaker,
+                src: clip.src,
+            })),
+            layer: 'script',
+            percent: 100,
+            previewId,
+            script: preview.script,
+            type: 'done',
+        });
+    }
+    catch (error) {
+        logger.error('scene_media_preview_failed', {
+            error: serializeError(error),
+            layer: 'script',
+            mediaId: resolved.mediaItem.id,
+            userId: resolved.user.id,
+        });
+        stream.write({
+            creditExhausted: isCreditExhaustedError(error),
+            message: sceneMediaCreationFailureMessage(response, error),
+            type: 'error',
+        });
+    }
+    finally {
+        response.end();
+    }
+}
+// Promotes the pending preview to the live media and deletes the superseded
+// live objects. Guarded by previewId so a stale modal cannot apply the wrong
+// preview.
+export async function applySceneMediaPreview(request, response) {
+    const resolved = resolveOwnedUserSceneMedia(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = {
+        mediaId: resolved.mediaItem.id,
+        ownerProfileId: resolved.activeProfile.id,
+        ownerUserId: resolved.user.id,
+    };
+    const pending = getPendingPreview(owner);
+    const previewId = readField(request.body.previewId, 100);
+    if (!pending || (previewId && pending.previewId !== previewId)) {
+        response.status(409).json({ error: response.locals.t('mediaLibrary.changeModal.expired') });
+        return;
+    }
+    const storage = getUserFileStorageProvider();
+    if (pending.type === 'image') {
+        const oldStorageKey = resolved.mediaItem.image?.storageKey;
+        applyUserSceneMediaImage({
+            image: pending.image,
+            mediaId: owner.mediaId,
+            ownerProfileId: owner.ownerProfileId,
+            ownerUserId: owner.ownerUserId,
+        });
+        if (oldStorageKey && oldStorageKey !== pending.image.storageKey) {
+            await storage.deleteObject(oldStorageKey).catch(() => { });
+        }
+    }
+    else {
+        const newKeys = new Set(pending.audio.clips
+            .map((clip) => clip.storageKey)
+            .filter((key) => Boolean(key)));
+        const staleKeys = (resolved.mediaItem.audio?.clips ?? [])
+            .map((clip) => clip.storageKey)
+            .filter((key) => Boolean(key))
+            .filter((key) => !newKeys.has(key));
+        applyUserSceneMediaScript({
+            audio: pending.audio,
+            mediaId: owner.mediaId,
+            ownerProfileId: owner.ownerProfileId,
+            ownerUserId: owner.ownerUserId,
+            script: pending.script,
+        });
+        await Promise.allSettled(staleKeys.map((key) => storage.deleteObject(key)));
+    }
+    deletePendingPreview(owner);
+    response.json({
+        ok: true,
+        redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit?tab=general`,
+    });
+}
+// Drops the pending preview and deletes its temporary objects. Called when the
+// author closes or cancels the change modal without applying.
+export async function discardSceneMediaPreview(request, response) {
+    const resolved = resolveOwnedUserSceneMedia(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = {
+        mediaId: resolved.mediaItem.id,
+        ownerProfileId: resolved.activeProfile.id,
+        ownerUserId: resolved.user.id,
+    };
+    const pending = getPendingPreview(owner);
+    if (pending) {
+        const storage = getUserFileStorageProvider();
+        await Promise.allSettled(pending.storageKeys.map((key) => storage.deleteObject(key)));
+        deletePendingPreview(owner);
+    }
+    response.json({ ok: true });
 }
 export async function reviseSceneMedia(request, response) {
     const resolved = resolveOwnedUserSceneMedia(request, response);

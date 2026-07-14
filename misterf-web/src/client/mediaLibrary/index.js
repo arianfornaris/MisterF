@@ -12,7 +12,10 @@ function readJsonScript(element, fallback) {
 
 function initializeAudioPlayers() {
   for (const root of document.querySelectorAll('[data-scene-media-audio-player]')) {
-    if (root.closest('[data-scene-media-preview-modal]')) {
+    if (
+      root.closest('[data-scene-media-preview-modal]') ||
+      root.closest('[data-scene-media-change-modal]')
+    ) {
       continue;
     }
     createSceneAudioPlayer(root);
@@ -324,8 +327,248 @@ function initializeVariationControls() {
 
 initializeGenerationForms();
 initializeCreationMode();
+async function postUrlEncoded(url, fields) {
+  const body = new URLSearchParams();
+  for (const [key, value] of Object.entries(fields)) {
+    body.append(key, value);
+  }
+  return fetch(url, {
+    body,
+    credentials: 'same-origin',
+    headers: { Accept: 'application/x-ndjson' },
+    method: 'POST',
+  });
+}
+
+async function consumeNdjson(response, onEvent) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (value) {
+      buffer += decoder.decode(value, { stream: true });
+    }
+    let newlineIndex = buffer.indexOf('\n');
+    while (newlineIndex >= 0) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      newlineIndex = buffer.indexOf('\n');
+      if (line) {
+        let event;
+        try {
+          event = JSON.parse(line);
+        } catch {
+          event = null;
+        }
+        if (event) onEvent(event);
+      }
+    }
+    if (done) break;
+  }
+}
+
+function initializeChangeModal() {
+  const modalElement = document.querySelector('[data-scene-media-change-modal]');
+  if (!(modalElement instanceof HTMLElement) || !window.bootstrap?.Modal) {
+    return;
+  }
+  const data = modalElement.dataset;
+  const modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+
+  const el = (selector) => modalElement.querySelector(selector);
+  const ui = {
+    applyButton: el('[data-scene-media-change-apply]'),
+    audioNote: el('[data-scene-media-change-audio-note]'),
+    audioWrap: el('[data-scene-media-change-result-audio]'),
+    bar: el('[data-scene-media-change-bar]'),
+    beforeImage: el('[data-scene-media-change-before-image]'),
+    afterImage: el('[data-scene-media-change-after-image]'),
+    cancelButton: el('[data-scene-media-change-cancel]'),
+    closeButton: el('[data-scene-media-change-close]'),
+    error: el('[data-scene-media-change-error]'),
+    generateButton: el('[data-scene-media-change-generate]'),
+    imageCompare: el('[data-scene-media-change-image-compare]'),
+    progress: el('[data-scene-media-change-progress]'),
+    progressMessage: el('[data-scene-media-change-progress-message]'),
+    prompt: el('[data-scene-media-change-prompt]'),
+    promptLabel: el('[data-scene-media-change-prompt-label]'),
+    resultLabel: el('[data-scene-media-change-result-label]'),
+    resultLabelScript: el('[data-scene-media-change-result-label-script]'),
+    retryButton: el('[data-scene-media-change-retry]'),
+    scriptResult: el('[data-scene-media-change-script-result]'),
+    scriptContent: el('[data-scene-media-change-result-script]'),
+    title: el('[data-scene-media-change-title]'),
+  };
+  const player = createSceneAudioPlayer(el('[data-scene-media-audio-player]'));
+
+  const state = { applied: false, currentImageSrc: '', layer: 'image', previewId: null };
+
+  const show = (element, visible) => element?.classList.toggle('d-none', !visible);
+  const setPhase = (phase) => {
+    for (const node of modalElement.querySelectorAll('[data-scene-media-change-phase]')) {
+      show(node, node.getAttribute('data-scene-media-change-phase') === phase);
+    }
+    const generating = phase === 'generating';
+    const preview = phase === 'preview';
+    show(ui.closeButton, !generating);
+    show(ui.cancelButton, !generating);
+    show(ui.generateButton, phase === 'describe');
+    show(ui.retryButton, preview);
+    show(ui.applyButton, preview);
+  };
+  const setProgress = (percent, message) => {
+    const clamped = Math.max(0, Math.min(100, Math.round(percent)));
+    if (ui.bar) ui.bar.style.width = `${clamped}%`;
+    ui.progress?.setAttribute('aria-valuenow', String(clamped));
+    if (message && ui.progressMessage) ui.progressMessage.textContent = message;
+  };
+  const showError = (message) => {
+    if (ui.error) {
+      ui.error.textContent = message || data.genericError;
+      show(ui.error, true);
+    }
+  };
+
+  const discardPending = () => {
+    if (!state.previewId || state.applied) return;
+    state.previewId = null;
+    postUrlEncoded(data.discardEndpoint, { _csrf: data.csrf }).catch(() => {});
+  };
+
+  const openFor = (layer) => {
+    state.layer = layer;
+    state.previewId = null;
+    state.applied = false;
+    state.currentImageSrc = data.currentImageSrc || '';
+    const isImage = layer === 'image';
+    ui.title.textContent = isImage ? data.titleImage : data.titleScript;
+    ui.promptLabel.textContent = isImage ? data.labelImage : data.labelScript;
+    ui.prompt.value = '';
+    ui.prompt.setAttribute('placeholder', isImage ? data.placeholderImage : data.placeholderScript);
+    show(ui.audioNote, !isImage);
+    show(ui.error, false);
+    setPhase('describe');
+    modal.show();
+    window.setTimeout(() => ui.prompt.focus(), 200);
+  };
+
+  const handleDone = (event) => {
+    state.previewId = event.previewId;
+    if (state.layer === 'image') {
+      if (ui.beforeImage instanceof HTMLImageElement) {
+        ui.beforeImage.src = state.currentImageSrc;
+      }
+      if (ui.afterImage instanceof HTMLImageElement) {
+        ui.afterImage.src = event.imageSrc;
+        ui.afterImage.alt = event.imageAlt || '';
+      }
+      state.currentImageSrc = event.imageSrc;
+      if (ui.resultLabel) ui.resultLabel.textContent = data.resultImage;
+      show(ui.imageCompare, true);
+      show(ui.scriptResult, false);
+    } else {
+      if (ui.resultLabelScript) ui.resultLabelScript.textContent = data.resultScript;
+      renderPreviewScript(ui.scriptResult, ui.scriptContent, event.script);
+      show(ui.scriptContent, true);
+      const clips = Array.isArray(event.audioClips) ? event.audioClips : [];
+      player?.setData(clips.map((clip) => ({ src: clip.src, speaker: clip.speaker || '', text: null })));
+      show(ui.audioWrap, clips.length > 0);
+      show(ui.imageCompare, false);
+      show(ui.scriptResult, true);
+    }
+    setPhase('preview');
+  };
+
+  const generate = async () => {
+    const prompt = ui.prompt.value.trim();
+    if (!prompt) {
+      ui.prompt.focus();
+      return;
+    }
+    show(ui.error, false);
+    setPhase('generating');
+    setProgress(3, data.starting || '');
+    const endpoint = state.layer === 'image' ? data.imageEndpoint : data.scriptEndpoint;
+    try {
+      const response = await postUrlEncoded(endpoint, { _csrf: data.csrf, prompt });
+      if (!response.ok || !response.body) {
+        showError(data.genericError);
+        setPhase('describe');
+        return;
+      }
+      let terminal = false;
+      await consumeNdjson(response, (event) => {
+        if (event.type === 'progress') {
+          setProgress(event.percent, event.message);
+        } else if (event.type === 'done') {
+          terminal = true;
+          handleDone(event);
+        } else if (event.type === 'error') {
+          terminal = true;
+          showError(event.message);
+          setPhase('describe');
+        }
+      });
+      if (!terminal) {
+        showError(data.genericError);
+        setPhase('describe');
+      }
+    } catch {
+      showError(data.genericError);
+      setPhase('describe');
+    }
+  };
+
+  const apply = async () => {
+    if (!state.previewId) return;
+    if (ui.applyButton instanceof HTMLButtonElement) {
+      ui.applyButton.disabled = true;
+      ui.applyButton.textContent = data.applyingLabel;
+    }
+    try {
+      const response = await postUrlEncoded(data.applyEndpoint, {
+        _csrf: data.csrf,
+        previewId: state.previewId,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (response.ok && payload.ok) {
+        state.applied = true;
+        window.location.assign(payload.redirect || window.location.href);
+        return;
+      }
+      showError(payload.error || data.genericError);
+      setPhase('describe');
+    } catch {
+      showError(data.genericError);
+      setPhase('describe');
+    } finally {
+      if (ui.applyButton instanceof HTMLButtonElement) {
+        ui.applyButton.disabled = false;
+        ui.applyButton.textContent = data.applyLabel;
+      }
+    }
+  };
+
+  for (const trigger of document.querySelectorAll('[data-scene-media-change-trigger]')) {
+    trigger.addEventListener('click', () => openFor(trigger.getAttribute('data-layer') || 'image'));
+  }
+  ui.generateButton?.addEventListener('click', generate);
+  ui.retryButton?.addEventListener('click', () => {
+    show(ui.error, false);
+    setPhase('describe');
+    ui.prompt.focus();
+  });
+  ui.applyButton?.addEventListener('click', apply);
+  modalElement.addEventListener('hidden.bs.modal', () => {
+    player?.stop();
+    discardPending();
+  });
+}
+
 initializeVariationControls();
 initializeAudioPlayers();
 initializePreviewModal();
+initializeChangeModal();
 initializeAuthoringChatScroll();
 initializeAuthoringChatRevision();

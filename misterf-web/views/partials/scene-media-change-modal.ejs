@@ -1,0 +1,81 @@
+<div
+  class="modal fade"
+  tabindex="-1"
+  aria-hidden="true"
+  aria-labelledby="sceneMediaChangeTitle"
+  data-scene-media-change-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  data-csrf="<%= csrfToken %>"
+  data-generic-error="<%= t('mediaLibrary.creationFailed') %>"
+  data-current-image-src="<%= mediaItem.image ? mediaItem.image.src : '' %>"
+  data-current-image-alt="<%= mediaItem.image ? mediaItem.image.alt : '' %>"
+  data-image-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/image"
+  data-script-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script"
+  data-apply-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/apply"
+  data-discard-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/discard"
+  data-title-image="<%= t('mediaLibrary.changeModal.imageTitle') %>"
+  data-title-script="<%= t('mediaLibrary.changeModal.scriptTitle') %>"
+  data-label-image="<%= t('mediaLibrary.changeModal.describeImage') %>"
+  data-label-script="<%= t('mediaLibrary.changeModal.describeScript') %>"
+  data-placeholder-image="<%= t('mediaLibrary.changeModal.imagePlaceholder') %>"
+  data-placeholder-script="<%= t('mediaLibrary.changeModal.scriptPlaceholder') %>"
+  data-result-image="<%= t('mediaLibrary.changeModal.newImage') %>"
+  data-result-script="<%= t('mediaLibrary.changeModal.newScript') %>"
+  data-apply-label="<%= t('mediaLibrary.changeModal.apply') %>"
+  data-applying-label="<%= t('mediaLibrary.changeModal.applying') %>"
+>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="sceneMediaChangeTitle" data-scene-media-change-title></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-scene-media-change-close></button>
+      </div>
+      <div class="modal-body">
+        <div data-scene-media-change-phase="describe">
+          <div class="mb-2">
+            <label class="form-label" for="sceneMediaChangePrompt" data-scene-media-change-prompt-label></label>
+            <textarea class="form-control" id="sceneMediaChangePrompt" rows="3" maxlength="2000" data-scene-media-change-prompt></textarea>
+            <div class="form-text d-none" data-scene-media-change-audio-note><%= t('mediaLibrary.changeModal.scriptAudioNote') %></div>
+          </div>
+        </div>
+
+        <div class="text-center py-4 d-none" data-scene-media-change-phase="generating">
+          <div class="spinner-border text-primary mb-3" role="status"><span class="visually-hidden"><%= t('common.loading') %></span></div>
+          <p class="mb-3 fw-semibold" data-scene-media-change-progress-message><%= t('mediaLibrary.progress.starting') %></p>
+          <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-scene-media-change-progress>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" data-scene-media-change-bar></div>
+          </div>
+        </div>
+
+        <div class="d-none" data-scene-media-change-phase="preview">
+          <div class="row g-3" data-scene-media-change-image-compare>
+            <div class="col-6">
+              <p class="small text-body-secondary mb-1"><%= t('mediaLibrary.changeModal.current') %></p>
+              <img class="img-fluid rounded border" alt="" data-scene-media-change-before-image>
+            </div>
+            <div class="col-6">
+              <p class="small fw-semibold mb-1" data-scene-media-change-result-label></p>
+              <img class="img-fluid rounded border" alt="" data-scene-media-change-after-image>
+            </div>
+          </div>
+          <div class="d-none" data-scene-media-change-script-result>
+            <p class="small fw-semibold mb-1" data-scene-media-change-result-label-script></p>
+            <div data-scene-media-change-result-script></div>
+            <div class="mt-3 d-none" data-scene-media-change-result-audio>
+              <%- include('scene-media-audio-player', { audio: undefined }) %>
+            </div>
+          </div>
+        </div>
+
+        <div class="alert alert-danger mt-3 mb-0 d-none" role="alert" data-scene-media-change-error></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-scene-media-change-cancel><%= t('common.cancel') %></button>
+        <button type="button" class="btn btn-outline-primary d-none" data-scene-media-change-retry><%= t('mediaLibrary.changeModal.retry') %></button>
+        <button type="button" class="btn btn-primary" data-scene-media-change-generate><i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.changeModal.generate') %></button>
+        <button type="button" class="btn btn-primary d-none" data-scene-media-change-apply><%= t('mediaLibrary.changeModal.apply') %></button>
+      </div>
+    </div>
+  </div>
+</div>

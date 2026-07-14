@@ -1,15 +1,19 @@
 import express from 'express';
 import {
+  applySceneMediaPreview,
   createSceneMediaFromPrompt,
   createSceneMediaVariation,
   archiveSceneMedia,
+  discardSceneMediaPreview,
+  previewSceneMediaImage,
+  previewSceneMediaScript,
   renderEditSceneMediaPage,
   renderNewSceneMediaPage,
   renderNewSceneMediaVariationPage,
   renderSceneMediaDetailPage,
   renderSceneMediaLibraryPage,
   reviseSceneMedia,
-  saveSceneMediaTitle,
+  saveSceneMediaDetails,
   serveSceneMediaImageAsset,
 } from './handlers.js';
 
@@ -21,8 +25,12 @@ sceneMediaRouter.post('/media-library', createSceneMediaFromPrompt);
 sceneMediaRouter.get('/media-library/:mediaId', renderSceneMediaDetailPage);
 sceneMediaRouter.get('/media-library/:mediaId/variations/new', renderNewSceneMediaVariationPage);
 sceneMediaRouter.get('/media-library/:mediaId/edit', renderEditSceneMediaPage);
-sceneMediaRouter.post('/media-library/:mediaId/edit/save', saveSceneMediaTitle);
+sceneMediaRouter.post('/media-library/:mediaId/edit/save', saveSceneMediaDetails);
 sceneMediaRouter.post('/media-library/:mediaId/edit/revise', reviseSceneMedia);
+sceneMediaRouter.post('/media-library/:mediaId/preview/image', previewSceneMediaImage);
+sceneMediaRouter.post('/media-library/:mediaId/preview/script', previewSceneMediaScript);
+sceneMediaRouter.post('/media-library/:mediaId/preview/apply', applySceneMediaPreview);
+sceneMediaRouter.post('/media-library/:mediaId/preview/discard', discardSceneMediaPreview);
 sceneMediaRouter.get('/media-library/:mediaId/image', serveSceneMediaImageAsset);
 sceneMediaRouter.post('/media-library/:mediaId/archive', archiveSceneMedia);
 sceneMediaRouter.post('/media-library/:mediaId/variations', createSceneMediaVariation);

@@ -3,7 +3,6 @@
 <%
   const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
   const generationModeLabel = (mode) => t(`mediaLibrary.mode${mode === 'complete_scene' ? 'CompleteScene' : 'ImageOnly'}`);
-  const scriptTypeLabel = (scriptType) => t(`mediaLibrary.scriptType${scriptType ? `${scriptType.charAt(0).toUpperCase()}${scriptType.slice(1)}` : 'Unspecified'}`);
   const sourceLabel = (source) => t(`mediaLibrary.source.${source}`);
 %>
 
@@ -49,7 +48,14 @@
             >
           <% } %>
           <div class="card-body">
-            <h2 class="h5 mb-3"><%= t('mediaLibrary.imageLayer') %></h2>
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+              <h2 class="h5 mb-0"><%= t('mediaLibrary.imageLayer') %></h2>
+              <% if (mediaItem.image) { %>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="image">
+                  <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.changeImage') %>
+                </button>
+              <% } %>
+            </div>
             <p class="mb-0"><%= mediaItem.image?.alt || t('mediaLibrary.notSpecified') %></p>
             <% if (mediaItem.image?.width && mediaItem.image?.height) { %>
               <p class="small text-body-secondary mb-0 mt-2">
@@ -65,7 +71,12 @@
 
         <section class="card mt-4">
           <div class="card-body">
-            <h2 class="h5 mb-3"><%= t('mediaLibrary.script') %></h2>
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+              <h2 class="h5 mb-0"><%= t('mediaLibrary.script') %></h2>
+              <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="script">
+                <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.changeScript') %>
+              </button>
+            </div>
             <% if (mediaItem.script?.scriptType === 'dialogue') { %>
               <div class="list-group list-group-flush">
                 <% mediaItem.script.turns.forEach((turn) => { %>
@@ -103,11 +114,30 @@
       <div class="col-12 col-xl-5">
         <div class="d-grid gap-4">
           <form class="card resource-form-card" method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/edit/save" autocomplete="off">
-            <div class="card-body">
+            <div class="card-body d-grid gap-3">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <label class="form-label" for="mediaTitle"><%= t('quizzes.titleLabel') %></label>
-              <input class="form-control" id="mediaTitle" name="title" maxlength="120" value="<%= mediaItem.title %>" required>
-              <button class="btn btn-primary mt-3" type="submit"><i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %></button>
+              <div>
+                <label class="form-label" for="mediaTitle"><%= t('quizzes.titleLabel') %></label>
+                <input class="form-control" id="mediaTitle" name="title" maxlength="120" value="<%= mediaItem.title %>" required>
+              </div>
+              <div>
+                <label class="form-label" for="mediaLevel"><%= t('mediaLibrary.level') %></label>
+                <select class="form-select" id="mediaLevel" name="level" required>
+                  <% sceneMediaLevels.forEach((level) => { %>
+                    <option value="<%= level %>" <%= mediaItem.level === level ? 'selected' : '' %>><%= level %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" for="mediaScriptType"><%= t('mediaLibrary.scriptType') %></label>
+                <select class="form-select" id="mediaScriptType" name="scriptTypePreference">
+                  <% ['unspecified', 'dialogue', 'narration', 'monologue'].forEach((type) => { %>
+                    <option value="<%= type %>" <%= mediaItem.scriptTypePreference === type ? 'selected' : '' %>><%= t(`mediaLibrary.scriptType${type === 'unspecified' ? 'Unspecified' : type.charAt(0).toUpperCase() + type.slice(1)}`) %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="form-text mt-0"><%= t('mediaLibrary.manualEditHint') %></div>
+              <div><button class="btn btn-primary" type="submit"><i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %></button></div>
             </div>
           </form>
 
@@ -115,14 +145,10 @@
             <div class="card-body">
               <h2 class="h5 mb-3"><%= t('mediaLibrary.metadata') %></h2>
               <dl class="scene-media-definition-list mb-0">
-                <dt><%= t('mediaLibrary.level') %></dt>
-                <dd><%= mediaItem.level || t('mediaLibrary.notSpecified') %></dd>
                 <dt><%= t('mediaLibrary.formatLabel') %></dt>
                 <dd><%= formatLabel(mediaItem.format) %></dd>
                 <dt><%= t('mediaLibrary.generationMode') %></dt>
                 <dd><%= generationModeLabel(mediaItem.generationMode) %></dd>
-                <dt><%= t('mediaLibrary.scriptType') %></dt>
-                <dd><%= scriptTypeLabel(mediaItem.script?.scriptType || mediaItem.scriptTypePreference) %></dd>
                 <dt><%= t('mediaLibrary.setting') %></dt>
                 <dd><%= mediaItem.setting || t('mediaLibrary.notSpecified') %></dd>
                 <dt><%= t('mediaLibrary.sourceLabel') %></dt>
@@ -195,6 +221,8 @@
         </div>
       </div>
     </section>
+
+    <%- include('partials/scene-media-change-modal') %>
   <% } %>
 
   <% if (activeTab === 'chat') { %>
