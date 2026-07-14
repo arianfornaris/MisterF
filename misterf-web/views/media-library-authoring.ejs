@@ -182,6 +182,12 @@
 
     <section class="card mt-4">
       <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+          <h2 class="h5 mb-0"><%= t('mediaLibrary.tagsAndSkills') %></h2>
+          <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="metadata">
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.regenerateMetadata') %>
+          </button>
+        </div>
         <div class="row g-4">
           <% [
             { label: t('mediaLibrary.tags'), values: mediaItem.tags },

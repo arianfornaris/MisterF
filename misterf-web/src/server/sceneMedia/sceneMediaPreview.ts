@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
 import {
+  generateSceneMediaMetadataPackage,
   generateSceneMediaScriptPackage,
   SceneMediaScriptContentPolicyError,
   SceneMediaScriptProviderError,
@@ -28,6 +29,7 @@ import {
 import { readSceneMediaImageAsset, type SceneMediaImageAsset } from './imageAssets.js';
 import type {
   SceneMediaAudioLayer,
+  SceneMediaDescriptiveMetadata,
   SceneMediaImageLayer,
   SceneMediaLibraryItem,
   SceneMediaScript,
@@ -172,6 +174,59 @@ export async function generateSceneMediaScriptDraft(input: {
     });
     report({ stage: 'metadata', completed: 1, total: 1 });
     return { script: scriptPackage.script };
+  } catch (error) {
+    throw mapPreviewError(error);
+  }
+}
+
+// Regenerates the descriptive metadata bundle (title, setting, visual summary,
+// tags, skills, use cases) to match the current scene. The current image and
+// script/metadata are passed as continuity context; the prompt carries the
+// optional guidance (or a fallback describing the scene). Text only — nothing
+// is stored until the author approves.
+export async function generateSceneMediaMetadataDraft(input: {
+  media: SceneMediaLibraryItem;
+  onProgress?: SceneMediaProgressReporter;
+  ownerUserId: string;
+  prompt: string;
+}): Promise<{ metadata: SceneMediaDescriptiveMetadata }> {
+  const report = input.onProgress ?? (() => {});
+  report({ stage: 'description', completed: 0, total: 1 });
+
+  try {
+    const openRouterApiKey = await requireCreditKey(input.ownerUserId);
+    const imageAsset = input.media.image
+      ? await readSceneMediaImageAsset(input.media)
+      : undefined;
+    const sourceContext = createSceneMediaGenerationSourceContext({
+      layerDecisions: {
+        image: 'keep_existing',
+        scriptAndAudio: input.media.script ? 'keep_existing' : 'do_not_include',
+      },
+      sourceItem: input.media,
+    });
+    const pkg = await generateSceneMediaMetadataPackage({
+      format: input.media.format,
+      imageAlt: input.media.image?.alt,
+      imageBytes: imageAsset?.bytes,
+      imageContentType: imageAsset?.contentType,
+      level: input.media.level ?? 'A1-A2',
+      openRouterApiKey,
+      prompt: input.prompt,
+      scriptTypePreference: input.media.scriptTypePreference ?? 'unspecified',
+      sourceContext,
+    });
+    report({ stage: 'description', completed: 1, total: 1 });
+    return {
+      metadata: {
+        setting: pkg.setting,
+        skills: pkg.skills,
+        tags: pkg.tags,
+        title: pkg.title,
+        useCases: pkg.useCases,
+        visualSummary: pkg.visualSummary,
+      },
+    };
   } catch (error) {
     throw mapPreviewError(error);
   }

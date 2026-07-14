@@ -45,7 +45,12 @@ const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
 const contentPolicyMessage =
   'No se pudo crear la media por tener contenido no aprobado por nuestra política de contenidos.';
 
-export type SceneMediaGenerationStage = 'image' | 'metadata' | 'audio' | 'saving';
+export type SceneMediaGenerationStage =
+  | 'image'
+  | 'metadata'
+  | 'description'
+  | 'audio'
+  | 'saving';
 
 export type SceneMediaGenerationProgress = {
   stage: SceneMediaGenerationStage;

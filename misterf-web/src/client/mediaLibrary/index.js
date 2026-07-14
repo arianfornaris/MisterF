@@ -51,6 +51,34 @@ function fillScriptContent(content, script) {
   content.append(text);
 }
 
+function fillMetadataContent(content, metadata, labels) {
+  if (!(content instanceof HTMLElement)) {
+    return;
+  }
+  content.replaceChildren();
+  if (!metadata) return;
+  const rows = [
+    [labels.title, metadata.title],
+    [labels.setting, metadata.setting],
+    [labels.visualSummary, (metadata.visualSummary || []).join(' · ')],
+    [labels.tags, (metadata.tags || []).join(', ')],
+    [labels.skills, (metadata.skills || []).join(', ')],
+    [labels.useCases, (metadata.useCases || []).join(', ')],
+  ];
+  const list = document.createElement('dl');
+  list.className = 'mb-0 small';
+  for (const [label, value] of rows) {
+    const term = document.createElement('dt');
+    term.className = 'text-body-secondary fw-normal';
+    term.textContent = label;
+    const detail = document.createElement('dd');
+    detail.className = 'mb-2';
+    detail.textContent = value || '—';
+    list.append(term, detail);
+  }
+  content.append(list);
+}
+
 function renderPreviewScript(section, content, script) {
   if (!(section instanceof HTMLElement) || !(content instanceof HTMLElement)) {
     return;
@@ -383,11 +411,13 @@ function initializeChangeModal() {
   const el = (selector) => modalElement.querySelector(selector);
   const ui = {
     afterImage: el('[data-scene-media-change-after-image]'),
+    afterMetadata: el('[data-scene-media-change-after-metadata]'),
     afterScript: el('[data-scene-media-change-after-script]'),
     applyButton: el('[data-scene-media-change-apply]'),
     audioNote: el('[data-scene-media-change-audio-note]'),
     bar: el('[data-scene-media-change-bar]'),
     beforeImage: el('[data-scene-media-change-before-image]'),
+    beforeMetadata: el('[data-scene-media-change-before-metadata]'),
     beforeScript: el('[data-scene-media-change-before-script]'),
     cancelButton: el('[data-scene-media-change-cancel]'),
     closeButton: el('[data-scene-media-change-close]'),
@@ -397,17 +427,29 @@ function initializeChangeModal() {
     error: el('[data-scene-media-change-error]'),
     generateButton: el('[data-scene-media-change-generate]'),
     imageCompare: el('[data-scene-media-change-image-compare]'),
+    metadataCompare: el('[data-scene-media-change-metadata-compare]'),
+    metadataNote: el('[data-scene-media-change-metadata-note]'),
     progress: el('[data-scene-media-change-progress]'),
     progressMessage: el('[data-scene-media-change-progress-message]'),
     prompt: el('[data-scene-media-change-prompt]'),
     promptLabel: el('[data-scene-media-change-prompt-label]'),
     resultLabel: el('[data-scene-media-change-result-label]'),
+    resultLabelMetadata: el('[data-scene-media-change-result-label-metadata]'),
     resultLabelScript: el('[data-scene-media-change-result-label-script]'),
     retryButton: el('[data-scene-media-change-retry]'),
     scriptCompare: el('[data-scene-media-change-script-compare]'),
     title: el('[data-scene-media-change-title]'),
   };
   const liveScript = readJsonScript(el('[data-scene-media-change-current-script]'), null);
+  const liveMetadata = readJsonScript(el('[data-scene-media-change-current-metadata]'), null);
+  const fieldLabels = {
+    setting: data.fieldSetting,
+    skills: data.fieldSkills,
+    tags: data.fieldTags,
+    title: data.fieldTitle,
+    useCases: data.fieldUsecases,
+    visualSummary: data.fieldVisualsummary,
+  };
 
   const state = {
     applied: false,
@@ -453,8 +495,7 @@ function initializeChangeModal() {
   // change. Reflects the latest base (live media first, then the last preview)
   // so it stays in sync with what the next generation refines.
   const renderCurrentReference = () => {
-    const isImage = state.layer === 'image';
-    if (isImage) {
+    if (state.layer === 'image') {
       if (ui.currentImage instanceof HTMLImageElement) {
         ui.currentImage.src = state.currentImageSrc || '';
         ui.currentImage.alt = data.currentImageAlt || '';
@@ -462,11 +503,14 @@ function initializeChangeModal() {
       show(ui.currentImage, Boolean(state.currentImageSrc));
       show(ui.currentContent, false);
       show(ui.currentWrap, Boolean(state.currentImageSrc));
-    } else {
+    } else if (state.layer === 'script') {
       fillScriptContent(ui.currentContent, state.currentScript);
       show(ui.currentImage, false);
       show(ui.currentContent, Boolean(state.currentScript));
       show(ui.currentWrap, Boolean(state.currentScript));
+    } else {
+      // Metadata: no inline reference; the before/after shows the comparison.
+      show(ui.currentWrap, false);
     }
   };
 
@@ -476,12 +520,19 @@ function initializeChangeModal() {
     state.applied = false;
     state.currentImageSrc = data.currentImageSrc || '';
     state.currentScript = liveScript;
-    const isImage = layer === 'image';
-    ui.title.textContent = isImage ? data.titleImage : data.titleScript;
-    ui.promptLabel.textContent = isImage ? data.labelImage : data.labelScript;
+    const titles = { image: data.titleImage, metadata: data.titleMetadata, script: data.titleScript };
+    const labels = { image: data.labelImage, metadata: data.labelMetadata, script: data.labelScript };
+    const placeholders = {
+      image: data.placeholderImage,
+      metadata: data.placeholderMetadata,
+      script: data.placeholderScript,
+    };
+    ui.title.textContent = titles[layer] || '';
+    ui.promptLabel.textContent = labels[layer] || '';
     ui.prompt.value = '';
-    ui.prompt.setAttribute('placeholder', isImage ? data.placeholderImage : data.placeholderScript);
-    show(ui.audioNote, !isImage);
+    ui.prompt.setAttribute('placeholder', placeholders[layer] || '');
+    show(ui.audioNote, layer === 'script');
+    show(ui.metadataNote, layer === 'metadata');
     renderCurrentReference();
     show(ui.error, false);
     setPhase('describe');
@@ -491,6 +542,9 @@ function initializeChangeModal() {
 
   const handleDone = (event) => {
     state.previewId = event.previewId;
+    show(ui.imageCompare, false);
+    show(ui.scriptCompare, false);
+    show(ui.metadataCompare, false);
     if (state.layer === 'image') {
       if (ui.beforeImage instanceof HTMLImageElement) {
         ui.beforeImage.src = state.currentImageSrc;
@@ -502,28 +556,38 @@ function initializeChangeModal() {
       state.currentImageSrc = event.imageSrc;
       if (ui.resultLabel) ui.resultLabel.textContent = data.resultImage;
       show(ui.imageCompare, true);
-      show(ui.scriptCompare, false);
-    } else {
+    } else if (state.layer === 'script') {
       if (ui.resultLabelScript) ui.resultLabelScript.textContent = data.resultScript;
       fillScriptContent(ui.beforeScript, state.currentScript);
       fillScriptContent(ui.afterScript, event.script);
       state.currentScript = event.script;
-      show(ui.imageCompare, false);
       show(ui.scriptCompare, true);
+    } else {
+      if (ui.resultLabelMetadata) ui.resultLabelMetadata.textContent = data.resultMetadata;
+      fillMetadataContent(ui.beforeMetadata, liveMetadata, fieldLabels);
+      fillMetadataContent(ui.afterMetadata, event.metadata, fieldLabels);
+      show(ui.metadataCompare, true);
     }
     setPhase('preview');
   };
 
+  const endpoints = {
+    image: () => data.imageEndpoint,
+    metadata: () => data.metadataEndpoint,
+    script: () => data.scriptEndpoint,
+  };
+
   const generate = async () => {
     const prompt = ui.prompt.value.trim();
-    if (!prompt) {
+    // Metadata guidance is optional (empty = resync); the others need a prompt.
+    if (!prompt && state.layer !== 'metadata') {
       ui.prompt.focus();
       return;
     }
     show(ui.error, false);
     setPhase('generating');
     setProgress(3, '');
-    const endpoint = state.layer === 'image' ? data.imageEndpoint : data.scriptEndpoint;
+    const endpoint = endpoints[state.layer]();
     try {
       const response = await postUrlEncoded(endpoint, { _csrf: data.csrf, prompt });
       if (!response.ok || !response.body) {
@@ -626,10 +690,11 @@ function initializeChangeModal() {
 
   const apply = () => {
     if (!state.previewId) return;
-    if (state.layer === 'image') {
-      applyImage();
-    } else {
+    // Script apply generates audio (streaming); image and metadata are quick.
+    if (state.layer === 'script') {
       applyScript();
+    } else {
+      applyImage();
     }
   };
 

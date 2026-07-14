@@ -25,6 +25,7 @@ import type {
 } from './types.js';
 import {
   applyUserSceneMediaImage,
+  applyUserSceneMediaMetadata,
   applyUserSceneMediaScript,
   archiveUserSceneMediaForProfile,
   createReadyUserSceneMedia,
@@ -36,6 +37,7 @@ import {
 import {
   generateAndStoreSceneMediaAudio,
   generateSceneMediaImagePreview,
+  generateSceneMediaMetadataDraft,
   generateSceneMediaScriptDraft,
   readSceneMediaReferenceImage,
 } from './sceneMediaPreview.js';
@@ -320,6 +322,7 @@ function sceneMediaProgressPercent(progress: SceneMediaGenerationProgress): numb
     case 'image':
       return progress.completed >= progress.total ? 40 : 12;
     case 'metadata':
+    case 'description':
       return progress.completed >= progress.total ? 58 : 46;
     case 'audio': {
       const ratio = progress.total > 0 ? progress.completed / progress.total : 0;
@@ -339,6 +342,8 @@ function sceneMediaProgressMessage(
       return t('mediaLibrary.progress.image');
     case 'metadata':
       return t('mediaLibrary.progress.metadata');
+    case 'description':
+      return t('mediaLibrary.progress.description');
     case 'audio':
       return t('mediaLibrary.progress.audio', {
         completed: progress.completed,
@@ -801,10 +806,81 @@ export async function previewSceneMediaScript(
   }
 }
 
-// Promotes the pending image preview to the live media and deletes the old
-// image object. Quick JSON response (no generation). Guarded by previewId so a
-// stale modal cannot apply the wrong preview. Script previews use the streaming
-// applySceneMediaScript instead, since approving a script generates its audio.
+// Regenerates the descriptive metadata bundle (title, setting, visual summary,
+// tags, skills, use cases) from the current scene and streams progress. The
+// guidance is optional: empty guidance is a pure resync, falling back to the
+// media's own generation prompt/title. Stored as a text-only pending preview.
+export async function previewSceneMediaMetadata(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const resolved = resolveOwnedUserSceneMedia(request, response);
+  if (!resolved) {
+    return;
+  }
+  const guidance = readField(request.body.prompt, 2000);
+  const effectivePrompt = guidance ||
+    resolved.mediaItem.generationPrompt ||
+    resolved.mediaItem.createdFrom?.prompt ||
+    resolved.mediaItem.title;
+
+  const owner: SceneMediaPreviewOwnerKey = {
+    mediaId: resolved.mediaItem.id,
+    ownerProfileId: resolved.activeProfile.id,
+    ownerUserId: resolved.user.id,
+  };
+  const storage = getUserFileStorageProvider();
+  const stream = openSceneMediaProgressStream(response);
+  const previewId = randomUUID();
+  try {
+    const existing = getPendingPreview(owner);
+    const draft = await generateSceneMediaMetadataDraft({
+      media: resolved.mediaItem,
+      onProgress: stream.writeProgress,
+      ownerUserId: resolved.user.id,
+      prompt: effectivePrompt,
+    });
+    if (existing) {
+      await Promise.allSettled(existing.storageKeys.map((key) => storage.deleteObject(key)));
+    }
+    setPendingPreview(owner, {
+      createdAt: Date.now(),
+      metadata: draft.metadata,
+      previewId,
+      prompt: guidance,
+      storageKeys: [],
+      type: 'metadata',
+    });
+    stream.write({
+      layer: 'metadata',
+      metadata: draft.metadata,
+      percent: 100,
+      previewId,
+      type: 'done',
+    });
+  } catch (error) {
+    logger.error('scene_media_preview_failed', {
+      error: serializeError(error),
+      layer: 'metadata',
+      mediaId: resolved.mediaItem.id,
+      userId: resolved.user.id,
+    });
+    stream.write({
+      creditExhausted: isCreditExhaustedError(error),
+      message: sceneMediaCreationFailureMessage(response, error),
+      type: 'error',
+    });
+  } finally {
+    response.end();
+  }
+}
+
+// Promotes a pending image or metadata preview to the live media. Both are
+// quick JSON commits (no generation): image swaps the image layer and deletes
+// the old object; metadata rewrites the descriptive fields. Guarded by
+// previewId so a stale modal cannot apply the wrong preview. Script previews use
+// the streaming applySceneMediaScript instead, since approving a script
+// generates its audio.
 export async function applySceneMediaPreview(
   request: Request,
   response: Response,
@@ -820,21 +896,34 @@ export async function applySceneMediaPreview(
   };
   const pending = getPendingPreview(owner);
   const previewId = readField(request.body.previewId, 100);
-  if (!pending || pending.type !== 'image' || (previewId && pending.previewId !== previewId)) {
+  if (
+    !pending ||
+    (pending.type !== 'image' && pending.type !== 'metadata') ||
+    (previewId && pending.previewId !== previewId)
+  ) {
     response.status(409).json({ error: response.locals.t('mediaLibrary.changeModal.expired') });
     return;
   }
 
-  const storage = getUserFileStorageProvider();
-  const oldStorageKey = resolved.mediaItem.image?.storageKey;
-  applyUserSceneMediaImage({
-    image: pending.image,
-    mediaId: owner.mediaId,
-    ownerProfileId: owner.ownerProfileId,
-    ownerUserId: owner.ownerUserId,
-  });
-  if (oldStorageKey && oldStorageKey !== pending.image.storageKey) {
-    await storage.deleteObject(oldStorageKey).catch(() => {});
+  if (pending.type === 'image') {
+    const storage = getUserFileStorageProvider();
+    const oldStorageKey = resolved.mediaItem.image?.storageKey;
+    applyUserSceneMediaImage({
+      image: pending.image,
+      mediaId: owner.mediaId,
+      ownerProfileId: owner.ownerProfileId,
+      ownerUserId: owner.ownerUserId,
+    });
+    if (oldStorageKey && oldStorageKey !== pending.image.storageKey) {
+      await storage.deleteObject(oldStorageKey).catch(() => {});
+    }
+  } else {
+    applyUserSceneMediaMetadata({
+      mediaId: owner.mediaId,
+      metadata: pending.metadata,
+      ownerProfileId: owner.ownerProfileId,
+      ownerUserId: owner.ownerUserId,
+    });
   }
 
   deletePendingPreview(owner);

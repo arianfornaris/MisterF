@@ -7,6 +7,7 @@ import {
   archiveSceneMedia,
   discardSceneMediaPreview,
   previewSceneMediaImage,
+  previewSceneMediaMetadata,
   previewSceneMediaScript,
   renderEditSceneMediaPage,
   renderNewSceneMediaPage,
@@ -30,6 +31,7 @@ sceneMediaRouter.post('/media-library/:mediaId/edit/save', saveSceneMediaDetails
 sceneMediaRouter.post('/media-library/:mediaId/edit/revise', reviseSceneMedia);
 sceneMediaRouter.post('/media-library/:mediaId/preview/image', previewSceneMediaImage);
 sceneMediaRouter.post('/media-library/:mediaId/preview/script', previewSceneMediaScript);
+sceneMediaRouter.post('/media-library/:mediaId/preview/metadata', previewSceneMediaMetadata);
 sceneMediaRouter.post('/media-library/:mediaId/preview/apply', applySceneMediaPreview);
 sceneMediaRouter.post('/media-library/:mediaId/preview/script/apply', applySceneMediaScript);
 sceneMediaRouter.post('/media-library/:mediaId/preview/discard', discardSceneMediaPreview);

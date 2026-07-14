@@ -12,17 +12,28 @@
   data-current-image-alt="<%= mediaItem.image ? mediaItem.image.alt : '' %>"
   data-image-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/image"
   data-script-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script"
+  data-metadata-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/metadata"
   data-apply-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/apply"
   data-script-apply-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script/apply"
   data-discard-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/discard"
   data-title-image="<%= t('mediaLibrary.changeModal.imageTitle') %>"
   data-title-script="<%= t('mediaLibrary.changeModal.scriptTitle') %>"
+  data-title-metadata="<%= t('mediaLibrary.changeModal.metadataTitle') %>"
   data-label-image="<%= t('mediaLibrary.changeModal.describeImage') %>"
   data-label-script="<%= t('mediaLibrary.changeModal.describeScript') %>"
+  data-label-metadata="<%= t('mediaLibrary.changeModal.describeMetadata') %>"
   data-placeholder-image="<%= t('mediaLibrary.changeModal.imagePlaceholder') %>"
   data-placeholder-script="<%= t('mediaLibrary.changeModal.scriptPlaceholder') %>"
+  data-placeholder-metadata="<%= t('mediaLibrary.changeModal.metadataPlaceholder') %>"
   data-result-image="<%= t('mediaLibrary.changeModal.newImage') %>"
   data-result-script="<%= t('mediaLibrary.changeModal.newScript') %>"
+  data-result-metadata="<%= t('mediaLibrary.changeModal.newMetadata') %>"
+  data-field-title="<%= t('quizzes.titleLabel') %>"
+  data-field-setting="<%= t('mediaLibrary.setting') %>"
+  data-field-visualsummary="<%= t('mediaLibrary.visualSummary') %>"
+  data-field-tags="<%= t('mediaLibrary.tags') %>"
+  data-field-skills="<%= t('mediaLibrary.skills') %>"
+  data-field-usecases="<%= t('mediaLibrary.useCases') %>"
   data-apply-label="<%= t('mediaLibrary.changeModal.apply') %>"
   data-applying-label="<%= t('mediaLibrary.changeModal.applying') %>"
 >
@@ -43,6 +54,7 @@
             <label class="form-label" for="sceneMediaChangePrompt" data-scene-media-change-prompt-label></label>
             <textarea class="form-control" id="sceneMediaChangePrompt" rows="3" maxlength="2000" data-scene-media-change-prompt></textarea>
             <div class="form-text d-none" data-scene-media-change-audio-note><%= t('mediaLibrary.changeModal.scriptAudioNote') %></div>
+            <div class="form-text d-none" data-scene-media-change-metadata-note><%= t('mediaLibrary.changeModal.metadataNote') %></div>
           </div>
         </div>
 
@@ -78,9 +90,22 @@
             </div>
             <div class="form-text mt-2"><%= t('mediaLibrary.changeModal.scriptAudioNote') %></div>
           </div>
+          <div class="d-none" data-scene-media-change-metadata-compare>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <p class="small text-body-secondary mb-1"><%= t('mediaLibrary.changeModal.current') %></p>
+                <div class="border rounded p-2 scene-media-change-script-box" data-scene-media-change-before-metadata></div>
+              </div>
+              <div class="col-12 col-md-6">
+                <p class="small fw-semibold mb-1" data-scene-media-change-result-label-metadata></p>
+                <div class="border rounded p-2 scene-media-change-script-box" data-scene-media-change-after-metadata></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <script type="application/json" data-scene-media-change-current-script><%- JSON.stringify(mediaItem.script || null).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') %></script>
+        <script type="application/json" data-scene-media-change-current-metadata><%- JSON.stringify({ setting: mediaItem.setting || '', skills: mediaItem.skills, tags: mediaItem.tags, title: mediaItem.title, useCases: mediaItem.useCases, visualSummary: mediaItem.visualSummary }).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') %></script>
 
         <div class="alert alert-danger mt-3 mb-0 d-none" role="alert" data-scene-media-change-error></div>
       </div>

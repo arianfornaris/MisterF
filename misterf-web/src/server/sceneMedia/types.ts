@@ -116,6 +116,18 @@ export type SceneMediaAuthoringMessage = {
   role: 'assistant' | 'user';
 };
 
+// The derived descriptive metadata bundle the metadata LLM produces about a
+// scene. These describe the image/script; nothing downstream depends on them,
+// so they can be regenerated independently to resync with the current scene.
+export type SceneMediaDescriptiveMetadata = {
+  setting: string;
+  skills: string[];
+  tags: string[];
+  title: string;
+  useCases: string[];
+  visualSummary: string[];
+};
+
 // A generated-but-not-applied layer change awaiting the author's approval in
 // the change modal. Held in memory (see sceneMediaPreviewStore) between the
 // generate and apply requests; `storageKeys` are the temporary objects to
@@ -139,6 +151,16 @@ export type SceneMediaPendingPreview =
       script: SceneMediaScript;
       storageKeys: string[];
       type: 'script';
+    }
+  | {
+      // A regenerated descriptive metadata bundle awaiting approval. Text only,
+      // so it holds no temporary storage objects.
+      createdAt: number;
+      metadata: SceneMediaDescriptiveMetadata;
+      prompt: string;
+      previewId: string;
+      storageKeys: string[];
+      type: 'metadata';
     };
 
 export type SceneMediaLibraryFilters = {

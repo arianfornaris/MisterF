@@ -2,6 +2,7 @@ import { getDb } from '../db/database.js';
 import type {
   SceneMediaAudioLayer,
   SceneMediaAuthoringMessage,
+  SceneMediaDescriptiveMetadata,
   SceneMediaFormat,
   SceneMediaImageLayer,
   SceneMediaLevel,
@@ -320,6 +321,48 @@ export function applyUserSceneMediaScript(input: {
     .run(
       JSON.stringify(input.script),
       JSON.stringify(input.audio),
+      input.mediaId,
+      input.ownerUserId,
+      input.ownerProfileId,
+    );
+
+  return findUserSceneMediaForProfile({
+    mediaId: input.mediaId,
+    ownerProfileId: input.ownerProfileId,
+    ownerUserId: input.ownerUserId,
+  });
+}
+
+export function applyUserSceneMediaMetadata(input: {
+  mediaId: string;
+  metadata: SceneMediaDescriptiveMetadata;
+  ownerProfileId: string;
+  ownerUserId: string;
+}): SceneMediaLibraryItem | null {
+  getDb()
+    .prepare(
+      `
+        UPDATE user_scene_media
+        SET title = ?,
+            setting = ?,
+            visual_summary_json = ?,
+            tags_json = ?,
+            skills_json = ?,
+            use_cases_json = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+          AND user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NULL
+      `,
+    )
+    .run(
+      input.metadata.title,
+      input.metadata.setting,
+      JSON.stringify(input.metadata.visualSummary),
+      JSON.stringify(input.metadata.tags),
+      JSON.stringify(input.metadata.skills),
+      JSON.stringify(input.metadata.useCases),
       input.mediaId,
       input.ownerUserId,
       input.ownerProfileId,
