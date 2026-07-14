@@ -509,6 +509,9 @@ export async function previewSceneMediaImage(request, response) {
         response.status(422).json({ error: response.locals.t('mediaLibrary.invalidRequest') });
         return;
     }
+    // The author may switch the layout (e.g. four panels -> two); default to the
+    // media's current format.
+    const format = normalizeSceneMediaFormat(request.body.format) || resolved.mediaItem.format;
     const owner = {
         mediaId: resolved.mediaItem.id,
         ownerProfileId: resolved.activeProfile.id,
@@ -519,8 +522,19 @@ export async function previewSceneMediaImage(request, response) {
     const previewId = randomUUID();
     try {
         const existing = getPendingPreview(owner);
-        const referenceImage = await readSceneMediaReferenceImage(resolved.mediaItem, existing?.type === 'image' ? existing.image : undefined);
+        // Only reference an image that already matches the target layout: the last
+        // preview of the same format (iterative tweaks), otherwise the live image
+        // when the format is unchanged. A format change regenerates from scratch so
+        // the new panel layout is not fought by an old-layout reference.
+        let referenceImage;
+        if (existing?.type === 'image' && existing.format === format) {
+            referenceImage = await readSceneMediaReferenceImage(resolved.mediaItem, existing.image);
+        }
+        else if (format === resolved.mediaItem.format) {
+            referenceImage = await readSceneMediaReferenceImage(resolved.mediaItem);
+        }
         const preview = await generateSceneMediaImagePreview({
+            format,
             media: resolved.mediaItem,
             onProgress: stream.writeProgress,
             ownerUserId: resolved.user.id,
@@ -533,6 +547,7 @@ export async function previewSceneMediaImage(request, response) {
         }
         setPendingPreview(owner, {
             createdAt: Date.now(),
+            format,
             image: preview.image,
             previewId,
             prompt,
@@ -727,6 +742,7 @@ export async function applySceneMediaPreview(request, response) {
         const storage = getUserFileStorageProvider();
         const oldStorageKey = resolved.mediaItem.image?.storageKey;
         applyUserSceneMediaImage({
+            format: pending.format,
             image: pending.image,
             mediaId: owner.mediaId,
             ownerProfileId: owner.ownerProfileId,

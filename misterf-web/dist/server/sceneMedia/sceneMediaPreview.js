@@ -30,7 +30,7 @@ export async function generateSceneMediaImagePreview(input) {
     try {
         const openRouterApiKey = await requireCreditKey(input.ownerUserId);
         const generated = await generateSceneMediaImage({
-            format: input.media.format,
+            format: input.format,
             level: input.media.level ?? 'A1-A2',
             openRouterApiKey,
             prompt: input.prompt,

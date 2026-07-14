@@ -249,6 +249,7 @@ export function updateUserSceneMediaDetails(input: {
 }
 
 export function applyUserSceneMediaImage(input: {
+  format: SceneMediaFormat;
   image: SceneMediaImageLayer;
   mediaId: string;
   ownerProfileId: string;
@@ -258,7 +259,7 @@ export function applyUserSceneMediaImage(input: {
     .prepare(
       `
         UPDATE user_scene_media
-        SET image_json = ?, updated_at = CURRENT_TIMESTAMP
+        SET image_json = ?, format = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
           AND user_id = ?
           AND profile_id = ?
@@ -267,6 +268,7 @@ export function applyUserSceneMediaImage(input: {
     )
     .run(
       JSON.stringify(input.image),
+      input.format,
       input.mediaId,
       input.ownerUserId,
       input.ownerProfileId,

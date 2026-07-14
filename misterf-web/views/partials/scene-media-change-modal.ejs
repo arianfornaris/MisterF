@@ -10,6 +10,7 @@
   data-generic-error="<%= t('mediaLibrary.creationFailed') %>"
   data-current-image-src="<%= mediaItem.image ? mediaItem.image.src : '' %>"
   data-current-image-alt="<%= mediaItem.image ? mediaItem.image.alt : '' %>"
+  data-current-format="<%= mediaItem.format %>"
   data-image-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/image"
   data-script-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script"
   data-metadata-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/metadata"
@@ -46,6 +47,14 @@
             <p class="small text-body-secondary mb-1"><%= t('mediaLibrary.changeModal.current') %></p>
             <img class="img-fluid rounded border d-none" style="max-height: 220px" alt="" data-scene-media-change-current-image>
             <div class="border rounded p-2 d-none scene-media-change-script-box" data-scene-media-change-current-content></div>
+          </div>
+          <div class="mb-3 d-none" data-scene-media-change-format-wrap>
+            <label class="form-label" for="sceneMediaChangeFormat"><%= t('mediaLibrary.formatLabel') %></label>
+            <select class="form-select" id="sceneMediaChangeFormat" data-scene-media-change-format>
+              <% ['single_panel_scene', 'two_panel_contrast', 'four_panel_wordless_story'].forEach((f) => { %>
+                <option value="<%= f %>" <%= mediaItem.format === f ? 'selected' : '' %>><%= t(`mediaLibrary.format.${f}`) %></option>
+              <% }) %>
+            </select>
           </div>
           <div class="mb-2">
             <label class="form-label" for="sceneMediaChangePrompt" data-scene-media-change-prompt-label></label>

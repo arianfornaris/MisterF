@@ -105,13 +105,13 @@ export function applyUserSceneMediaImage(input) {
     getDb()
         .prepare(`
         UPDATE user_scene_media
-        SET image_json = ?, updated_at = CURRENT_TIMESTAMP
+        SET image_json = ?, format = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
           AND user_id = ?
           AND profile_id = ?
           AND archived_at IS NULL
       `)
-        .run(JSON.stringify(input.image), input.mediaId, input.ownerUserId, input.ownerProfileId);
+        .run(JSON.stringify(input.image), input.format, input.mediaId, input.ownerUserId, input.ownerProfileId);
     return findUserSceneMediaForProfile({
         mediaId: input.mediaId,
         ownerProfileId: input.ownerProfileId,

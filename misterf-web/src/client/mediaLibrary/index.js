@@ -422,6 +422,8 @@ function initializeChangeModal() {
     currentImage: el('[data-scene-media-change-current-image]'),
     currentWrap: el('[data-scene-media-change-current-wrap]'),
     error: el('[data-scene-media-change-error]'),
+    formatSelect: el('[data-scene-media-change-format]'),
+    formatWrap: el('[data-scene-media-change-format-wrap]'),
     generateButton: el('[data-scene-media-change-generate]'),
     imageCompare: el('[data-scene-media-change-image-compare]'),
     metadataCompare: el('[data-scene-media-change-metadata-compare]'),
@@ -527,6 +529,11 @@ function initializeChangeModal() {
     ui.prompt.setAttribute('placeholder', placeholders[layer] || '');
     show(ui.audioNote, layer === 'script');
     show(ui.metadataNote, layer === 'metadata');
+    // Format (panel layout) can only change through an image regeneration.
+    if (ui.formatSelect instanceof HTMLSelectElement && data.currentFormat) {
+      ui.formatSelect.value = data.currentFormat;
+    }
+    show(ui.formatWrap, layer === 'image');
     renderCurrentReference();
     show(ui.error, false);
     setPhase('describe');
@@ -582,8 +589,12 @@ function initializeChangeModal() {
     setPhase('generating');
     setProgress(3, '');
     const endpoint = endpoints[state.layer]();
+    const fields = { _csrf: data.csrf, prompt };
+    if (state.layer === 'image' && ui.formatSelect instanceof HTMLSelectElement) {
+      fields.format = ui.formatSelect.value;
+    }
     try {
-      const response = await postUrlEncoded(endpoint, { _csrf: data.csrf, prompt });
+      const response = await postUrlEncoded(endpoint, fields);
       if (!response.ok || !response.body) {
         showError(data.genericError);
         setPhase('describe');

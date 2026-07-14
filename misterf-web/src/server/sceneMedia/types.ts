@@ -129,6 +129,9 @@ export type SceneMediaDescriptiveMetadata = {
 export type SceneMediaPendingPreview =
   | {
       createdAt: number;
+      // The target format the image was generated with; applied to the media on
+      // approval so a layout change (e.g. four panels -> two) sticks.
+      format: SceneMediaFormat;
       image: SceneMediaImageLayer;
       prompt: string;
       previewId: string;

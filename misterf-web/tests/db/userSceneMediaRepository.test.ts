@@ -39,6 +39,7 @@ describe('user scene media repository', () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
     const {
+      applyUserSceneMediaImage,
       createReadyUserSceneMedia,
       findUserSceneMediaForProfile,
       updateUserSceneMediaAuthoringMessages,
@@ -130,6 +131,25 @@ describe('user scene media repository', () => {
       level: 'B1-B2',
       scriptTypePreference: 'dialogue',
       title: 'Airport Check-In (edited)',
+    }));
+
+    const revisedImage = {
+      alt: 'Two airport check-in scenes shown side by side.',
+      contentType: 'image/webp',
+      height: 720,
+      src: 'https://cdn.example.test/revised-image.webp',
+      storageKey: 'misterf/users/user/scene-media/ready-media-1/image/revised.webp',
+      width: 1280,
+    };
+    expect(applyUserSceneMediaImage({
+      format: 'two_panel_contrast',
+      image: revisedImage,
+      mediaId,
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })).toEqual(expect.objectContaining({
+      format: 'two_panel_contrast',
+      image: revisedImage,
     }));
   });
 
