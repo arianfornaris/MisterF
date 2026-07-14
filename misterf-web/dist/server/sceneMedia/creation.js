@@ -90,10 +90,7 @@ export async function generateReadySceneMedia(input) {
             level: input.level,
             script,
             setting: metadata.setting,
-            skills: metadata.skills,
-            tags: metadata.tags,
             title: metadata.title,
-            useCases: metadata.useCases,
             visualSummary: metadata.visualSummary,
         });
         return {
@@ -126,12 +123,9 @@ export async function generateReadySceneMedia(input) {
             script,
             scriptTypePreference: input.scriptTypePreference,
             setting: metadata.setting,
-            skills: metadata.skills,
             sourceMediaId: input.sourceItem?.id ?? null,
             sourceVisualAssetId: input.sourceItem?.visualAssetId ?? null,
-            tags: metadata.tags,
             title: metadata.title,
-            useCases: metadata.useCases,
             visualSummary: metadata.visualSummary,
         };
     }

@@ -39,10 +39,7 @@ const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
 ]);
 const sceneMediaMetadataSchema = z.object({
     setting: z.string().trim().min(1).max(120),
-    skills: z.array(z.string().trim().min(1).max(80)).min(1).max(6),
-    tags: z.array(z.string().trim().min(1).max(60)).min(1).max(8),
     title: z.string().trim().min(1).max(80),
-    useCases: z.array(z.string().trim().min(1).max(80)).min(1).max(6),
     visualSummary: z.array(z.string().trim().min(1).max(180)).min(1).max(5),
 }).strict();
 const scriptGenerationSchema = sceneMediaMetadataSchema.extend({

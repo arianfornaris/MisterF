@@ -17,9 +17,6 @@ export function createReadyUserSceneMedia(input) {
           level,
           setting,
           visual_summary_json,
-          tags_json,
-          skills_json,
-          use_cases_json,
           image_json,
           audio_json,
           script_json,
@@ -27,9 +24,9 @@ export function createReadyUserSceneMedia(input) {
           provenance_json,
           authoring_messages_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, 'ready', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, 'ready', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(input.id, input.ownerUserId, input.ownerProfileId, input.sourceMediaId ?? null, input.sourceVisualAssetId ?? null, input.title, input.generationMode, input.prompt, input.scriptTypePreference, input.format, input.level, input.setting ?? null, JSON.stringify(input.visualSummary), JSON.stringify(input.tags), JSON.stringify(input.skills), JSON.stringify(input.useCases), JSON.stringify(input.image), input.audio ? JSON.stringify(input.audio) : null, input.script ? JSON.stringify(input.script) : null, JSON.stringify(input.createdFrom ?? {}), JSON.stringify(input.provenance ?? {}), JSON.stringify(input.authoringMessages ?? []));
+        .run(input.id, input.ownerUserId, input.ownerProfileId, input.sourceMediaId ?? null, input.sourceVisualAssetId ?? null, input.title, input.generationMode, input.prompt, input.scriptTypePreference, input.format, input.level, input.setting ?? null, JSON.stringify(input.visualSummary), JSON.stringify(input.image), input.audio ? JSON.stringify(input.audio) : null, input.script ? JSON.stringify(input.script) : null, JSON.stringify(input.createdFrom ?? {}), JSON.stringify(input.provenance ?? {}), JSON.stringify(input.authoringMessages ?? []));
     const media = findUserSceneMediaById(input.id);
     if (!media) {
         throw new Error('Failed to create ready user scene media.');
@@ -49,9 +46,6 @@ export function updateReadyUserSceneMedia(input) {
             level = ?,
             setting = ?,
             visual_summary_json = ?,
-            tags_json = ?,
-            skills_json = ?,
-            use_cases_json = ?,
             image_json = ?,
             audio_json = ?,
             script_json = ?,
@@ -63,7 +57,7 @@ export function updateReadyUserSceneMedia(input) {
           AND profile_id = ?
           AND archived_at IS NULL
       `)
-        .run(input.title, input.generationMode, input.prompt, input.scriptTypePreference, input.format, input.level, input.setting ?? null, JSON.stringify(input.visualSummary), JSON.stringify(input.tags), JSON.stringify(input.skills), JSON.stringify(input.useCases), JSON.stringify(input.image), input.audio ? JSON.stringify(input.audio) : null, input.script ? JSON.stringify(input.script) : null, JSON.stringify(input.provenance ?? {}), JSON.stringify(input.authoringMessages), input.mediaId, input.ownerUserId, input.ownerProfileId);
+        .run(input.title, input.generationMode, input.prompt, input.scriptTypePreference, input.format, input.level, input.setting ?? null, JSON.stringify(input.visualSummary), JSON.stringify(input.image), input.audio ? JSON.stringify(input.audio) : null, input.script ? JSON.stringify(input.script) : null, JSON.stringify(input.provenance ?? {}), JSON.stringify(input.authoringMessages), input.mediaId, input.ownerUserId, input.ownerProfileId);
     return findUserSceneMediaForProfile({
         mediaId: input.mediaId,
         ownerProfileId: input.ownerProfileId,
@@ -151,16 +145,13 @@ export function applyUserSceneMediaMetadata(input) {
         SET title = ?,
             setting = ?,
             visual_summary_json = ?,
-            tags_json = ?,
-            skills_json = ?,
-            use_cases_json = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
           AND user_id = ?
           AND profile_id = ?
           AND archived_at IS NULL
       `)
-        .run(input.metadata.title, input.metadata.setting, JSON.stringify(input.metadata.visualSummary), JSON.stringify(input.metadata.tags), JSON.stringify(input.metadata.skills), JSON.stringify(input.metadata.useCases), input.mediaId, input.ownerUserId, input.ownerProfileId);
+        .run(input.metadata.title, input.metadata.setting, JSON.stringify(input.metadata.visualSummary), input.mediaId, input.ownerUserId, input.ownerProfileId);
     return findUserSceneMediaForProfile({
         mediaId: input.mediaId,
         ownerProfileId: input.ownerProfileId,
@@ -262,13 +253,10 @@ function toSceneMediaLibraryItem(row) {
         script: script ?? undefined,
         scriptTypePreference: row.script_type_preference,
         setting: row.setting ?? undefined,
-        skills: parseStringArray(row.skills_json),
         source: 'user_generated',
         status: row.status,
-        tags: parseStringArray(row.tags_json),
         title: row.title,
         updatedAt: row.updated_at,
-        useCases: parseStringArray(row.use_cases_json),
         visualAssetId: row.source_visual_asset_id ?? undefined,
         visualSummary: parseStringArray(row.visual_summary_json),
     };

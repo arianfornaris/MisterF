@@ -220,10 +220,7 @@ export async function generateSceneMediaMetadataDraft(input: {
     return {
       metadata: {
         setting: pkg.setting,
-        skills: pkg.skills,
-        tags: pkg.tags,
         title: pkg.title,
-        useCases: pkg.useCases,
         visualSummary: pkg.visualSummary,
       },
     };

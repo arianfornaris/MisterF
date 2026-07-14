@@ -31,12 +31,6 @@ interface Response {
   setting: string;
   /** 1-5 short factual observations about what is visible in the image. */
   visualSummary: string[];
-  /** 1-8 search tags. */
-  tags: string[];
-  /** 1-6 English skills this media practices. */
-  skills: string[];
-  /** 1-6 use cases, e.g. "listening", "speaking". */
-  useCases: string[];
   /** The listening script. Include only when a script is requested; omit for metadata-only generation. */
   script?: Script;
 }

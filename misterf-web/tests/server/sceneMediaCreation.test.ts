@@ -101,18 +101,12 @@ beforeEach(async () => {
       ],
     },
     setting: 'Train station',
-    skills: ['Polite requests'],
-    tags: ['travel', 'tickets'],
     title: 'Buying a Train Ticket',
-    useCases: ['listening', 'speaking'],
     visualSummary: ['A learner buys a ticket from a clerk.'],
   });
   scriptMocks.generateSceneMediaMetadataPackage.mockResolvedValue({
     setting: 'Train station',
-    skills: ['Polite requests'],
-    tags: ['travel', 'tickets'],
     title: 'Buying a Train Ticket',
-    useCases: ['speaking'],
     visualSummary: ['A learner buys a ticket from a clerk.'],
   });
   audioMocks.generateSceneMediaAudio.mockResolvedValue({
@@ -207,12 +201,9 @@ describe('synchronous scene media creation', () => {
         id: 'source-media',
         image: { alt: 'A person in a blue coat.', src: '/source.png' },
         level: 'B1-B2',
-        skills: ['Description'],
         source: 'built_in',
         status: 'ready',
-        tags: ['clothing'],
         title: 'Blue Coat',
-        useCases: ['speaking'],
         visualSummary: ['A person wears a blue coat.'],
       },
     });

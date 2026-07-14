@@ -173,29 +173,6 @@
       </section>
     <% } %>
 
-    <section class="card mt-4">
-      <div class="card-body">
-        <h2 class="h5 mb-3"><%= t('mediaLibrary.tagsAndSkills') %></h2>
-        <div class="row g-4">
-          <div class="col-12 col-lg-6">
-            <h3 class="h6"><%= t('mediaLibrary.tags') %></h3>
-            <div class="d-flex flex-wrap gap-2">
-              <% mediaItem.tags.forEach((tag) => { %>
-                <span class="badge text-bg-light border"><%= tag %></span>
-              <% }) %>
-            </div>
-          </div>
-          <div class="col-12 col-lg-6">
-            <h3 class="h6"><%= t('mediaLibrary.skills') %></h3>
-            <div class="d-flex flex-wrap gap-2">
-              <% mediaItem.skills.forEach((skill) => { %>
-                <span class="badge text-bg-light border"><%= skill %></span>
-              <% }) %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   </section>
 </section>
 

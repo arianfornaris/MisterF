@@ -77,12 +77,9 @@ for (const script of sceneScriptsRegistry.scripts) {
     level: script.level,
     script: buildScript(script),
     setting: image.setting,
-    skills: unique([...(image.skills ?? []), ...(script.teachingFocus ?? [])]),
     source: 'built_in',
     status: 'ready',
-    tags: image.tags ?? [],
     title: script.title || image.title,
-    useCases: image.useCases ?? [],
     visualAssetId: image.id,
     visualSummary: image.panelSequence ?? [],
   };
@@ -173,10 +170,6 @@ function buildScript(script) {
     scriptType: script.scriptType,
     text: script.transcript.map((turn) => turn.text).join('\n'),
   };
-}
-
-function unique(values) {
-  return Array.from(new Set(values.filter(Boolean)));
 }
 
 function validateMediaItem(item) {

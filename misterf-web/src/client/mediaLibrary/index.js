@@ -61,9 +61,6 @@ function fillMetadataContent(content, metadata, labels) {
     [labels.title, metadata.title],
     [labels.setting, metadata.setting],
     [labels.visualSummary, (metadata.visualSummary || []).join(' · ')],
-    [labels.tags, (metadata.tags || []).join(', ')],
-    [labels.skills, (metadata.skills || []).join(', ')],
-    [labels.useCases, (metadata.useCases || []).join(', ')],
   ];
   const list = document.createElement('dl');
   list.className = 'mb-0 small';
@@ -444,10 +441,7 @@ function initializeChangeModal() {
   const liveMetadata = readJsonScript(el('[data-scene-media-change-current-metadata]'), null);
   const fieldLabels = {
     setting: data.fieldSetting,
-    skills: data.fieldSkills,
-    tags: data.fieldTags,
     title: data.fieldTitle,
-    useCases: data.fieldUsecases,
     visualSummary: data.fieldVisualsummary,
   };
 

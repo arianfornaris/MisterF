@@ -19,10 +19,7 @@ export type SceneMediaGenerationSourceContext = {
   level?: SceneMediaLevel;
   script?: SceneMediaScript;
   setting?: string;
-  skills: string[];
-  tags: string[];
   title: string;
-  useCases: string[];
   visualSummary: string[];
 };
 
@@ -45,10 +42,7 @@ export function createSceneMediaGenerationSourceContext(input: {
     level: input.sourceItem.level,
     script: input.sourceItem.script,
     setting: input.sourceItem.setting,
-    skills: [...input.sourceItem.skills],
-    tags: [...input.sourceItem.tags],
     title: input.sourceItem.title,
-    useCases: [...input.sourceItem.useCases],
     visualSummary: [...input.sourceItem.visualSummary],
   };
 }

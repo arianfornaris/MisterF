@@ -79,10 +79,7 @@ describe('user scene media repository', () => {
       prompt: 'Create an airport scene.',
       scriptTypePreference: 'unspecified',
       setting: 'Airport desk',
-      skills: ['Polite questions'],
-      tags: ['airport'],
       title: 'At the Airport Desk',
-      useCases: ['speaking'],
       visualSummary: ['A traveler speaks with an airport agent.'],
     });
 
@@ -207,9 +204,6 @@ describe('user scene media repository', () => {
       sourceMediaId: 'airport-security-line-01-a1-a2',
       sourceVisualAssetId: 'airport-security-line-01',
       title: 'Airport Variation',
-      skills: [],
-      tags: [],
-      useCases: [],
       visualSummary: ['A traveler waits in an airport line.'],
     });
 

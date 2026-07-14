@@ -58,7 +58,12 @@
 
         <section class="card mt-4">
           <div class="card-body">
-            <h2 class="h5 mb-3"><%= t('mediaLibrary.visualSummary') %></h2>
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+              <h2 class="h5 mb-0"><%= t('mediaLibrary.visualSummary') %></h2>
+              <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="metadata">
+                <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.regenerateMetadata') %>
+              </button>
+            </div>
             <% if (mediaItem.visualSummary.length > 0) { %>
               <ol class="mb-0">
                 <% mediaItem.visualSummary.forEach((line) => { %>
@@ -172,37 +177,6 @@
         </div>
       </div>
     </div>
-
-    <section class="card mt-4">
-      <div class="card-body">
-        <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-          <h2 class="h5 mb-0"><%= t('mediaLibrary.tagsAndSkills') %></h2>
-          <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="metadata">
-            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.regenerateMetadata') %>
-          </button>
-        </div>
-        <div class="row g-4">
-          <% [
-            { label: t('mediaLibrary.tags'), values: mediaItem.tags },
-            { label: t('mediaLibrary.skills'), values: mediaItem.skills },
-            { label: t('mediaLibrary.useCases'), values: mediaItem.useCases },
-          ].forEach((group) => { %>
-            <div class="col-12 col-lg-4">
-              <h2 class="h6"><%= group.label %></h2>
-              <div class="d-flex flex-wrap gap-2">
-                <% if (group.values.length > 0) { %>
-                  <% group.values.forEach((value) => { %>
-                    <span class="badge text-bg-light border"><%= value %></span>
-                  <% }) %>
-                <% } else { %>
-                  <span class="text-body-secondary"><%= t('mediaLibrary.notSpecified') %></span>
-                <% } %>
-              </div>
-            </div>
-          <% }) %>
-        </div>
-      </div>
-    </section>
 
     <%- include('partials/scene-media-change-modal') %>
   <% } %>

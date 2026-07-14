@@ -98,13 +98,10 @@ export type SceneMediaLibraryItem = {
   script?: SceneMediaScript;
   scriptTypePreference?: UserSceneMediaScriptTypePreference;
   setting?: string;
-  skills: string[];
   source: SceneMediaSource;
   status: SceneMediaStatus;
-  tags: string[];
   title: string;
   updatedAt?: string;
-  useCases: string[];
   visualAssetId?: string;
   visualSummary: string[];
 };
@@ -121,10 +118,7 @@ export type SceneMediaAuthoringMessage = {
 // so they can be regenerated independently to resync with the current scene.
 export type SceneMediaDescriptiveMetadata = {
   setting: string;
-  skills: string[];
-  tags: string[];
   title: string;
-  useCases: string[];
   visualSummary: string[];
 };
 

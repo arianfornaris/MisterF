@@ -147,10 +147,7 @@ function serializeCurrentMedia(media: SceneMediaLibraryItem): Record<string, unk
     level: media.level,
     script: media.script,
     setting: media.setting,
-    skills: media.skills,
-    tags: media.tags,
     title: media.title,
-    useCases: media.useCases,
     visualSummary: media.visualSummary,
   };
 }

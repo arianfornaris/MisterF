@@ -31,36 +31,9 @@ export const builtInSceneMediaItems = [
             "text": "Jon stood in the airport security line with his backpack. He was worried because the line moved fast. A worker showed him where to put his shoes and bag. Jon followed the steps and reached his gate on time."
         },
         "setting": "airport-security",
-        "skills": [
-            "travel_vocabulary",
-            "airport_vocabulary",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "airport",
-            "security",
-            "line",
-            "luggage",
-            "scanner",
-            "routine"
-        ],
         "title": "Airport Security Line - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "airport-security-line-01",
         "visualSummary": [
             "Travelers move through an airport security line, placing bags in bins as an officer directs them."
@@ -97,36 +70,9 @@ export const builtInSceneMediaItems = [
             "text": "Jon had flown before, but airport security still made him nervous. The line moved quickly, and everyone seemed to know what to do. When he hesitated with his backpack, a staff member pointed to an empty tray and gave simple directions. Jon placed his things inside, walked through the scanner, and collected everything on the other side. He reached his gate with enough time to buy water."
         },
         "setting": "airport-security",
-        "skills": [
-            "travel_vocabulary",
-            "airport_vocabulary",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "airport",
-            "security",
-            "line",
-            "luggage",
-            "scanner",
-            "routine"
-        ],
         "title": "Airport Security Line - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "airport-security-line-01",
         "visualSummary": [
             "Travelers move through an airport security line, placing bags in bins as an officer directs them."
@@ -163,36 +109,9 @@ export const builtInSceneMediaItems = [
             "text": "Airport security always made Jon feel as if he were taking a test no one had explained. The people around him removed shoes, opened bags, and moved trays with practiced speed. When he paused, a staff member noticed and guided him with a calm gesture. Jon followed the sequence step by step, then watched his backpack emerge from the scanner. Nothing dramatic happened, which felt like the victory. He left the line more confident than when he had entered it."
         },
         "setting": "airport-security",
-        "skills": [
-            "travel_vocabulary",
-            "airport_vocabulary",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "airport",
-            "security",
-            "line",
-            "luggage",
-            "scanner",
-            "routine"
-        ],
         "title": "Airport Security Line - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "airport-security-line-01",
         "visualSummary": [
             "Travelers move through an airport security line, placing bags in bins as an officer directs them."
@@ -229,31 +148,9 @@ export const builtInSceneMediaItems = [
             "text": "Marta sat at the kitchen table and checked her phone. Her appointment was tomorrow morning. She pressed confirm and wrote the time on a paper. Then she put her keys beside the door so she would be ready."
         },
         "setting": "home-kitchen-table",
-        "skills": [
-            "appointment",
-            "confirmation",
-            "device",
-            "calendar",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "appointment",
-            "confirmation",
-            "device",
-            "calendar"
-        ],
         "title": "Appointment Confirmation - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "appointment-confirmation-01",
         "visualSummary": [
             "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
@@ -290,31 +187,9 @@ export const builtInSceneMediaItems = [
             "text": "Marta almost ignored the appointment message because she was making dinner. Then she remembered missing an appointment once before. She sat at the table, read the time carefully, and pressed confirm. After that, she wrote the address on a paper and placed her keys near the door. The next morning would still be busy, but one important thing was already prepared."
         },
         "setting": "home-kitchen-table",
-        "skills": [
-            "appointment",
-            "confirmation",
-            "device",
-            "calendar",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "appointment",
-            "confirmation",
-            "device",
-            "calendar"
-        ],
         "title": "Appointment Confirmation - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "appointment-confirmation-01",
         "visualSummary": [
             "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
@@ -351,31 +226,9 @@ export const builtInSceneMediaItems = [
             "text": "Marta was in the middle of an ordinary evening when the appointment reminder appeared. In the past, she might have trusted herself to remember it later, which usually meant remembering too late. This time, she stopped what she was doing, confirmed the appointment, wrote down the time, and placed her keys where she would see them in the morning. Nothing dramatic happened, and that was the point. A quiet decision at the kitchen table protected tomorrow from unnecessary stress."
         },
         "setting": "home-kitchen-table",
-        "skills": [
-            "appointment",
-            "confirmation",
-            "device",
-            "calendar",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "appointment",
-            "confirmation",
-            "device",
-            "calendar"
-        ],
         "title": "Appointment Confirmation - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "appointment-confirmation-01",
         "visualSummary": [
             "A woman smiles and points at her phone, where a green checkmark confirms her appointment, with the same confirmation shown on her laptop."
@@ -412,36 +265,9 @@ export const builtInSceneMediaItems = [
             "text": "Marco came home tired and quiet. He wanted to finish many chores, but his body needed a break. He rested on the sofa and drank water. After a short time, he felt better and made dinner slowly."
         },
         "setting": "home-living-room",
-        "skills": [
-            "health_vocabulary",
-            "before_after",
-            "adjectives",
-            "feelings",
-            "self-care",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "rest",
-            "tired",
-            "better",
-            "home",
-            "water",
-            "before-after"
-        ],
         "title": "Before And After Resting - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "before-after-resting-01",
         "visualSummary": [
             "The man feels tired on the sofa.",
@@ -479,36 +305,9 @@ export const builtInSceneMediaItems = [
             "text": "Marco came home with a headache and a long list of things to do. He almost started cleaning right away, but he noticed he was moving too slowly to do anything well. He sat on the sofa, closed his eyes, and drank a glass of water. After twenty minutes, the room looked the same, but Marco did not. He made dinner calmly and saved the chores for later."
         },
         "setting": "home-living-room",
-        "skills": [
-            "health_vocabulary",
-            "before_after",
-            "adjectives",
-            "feelings",
-            "self-care",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "rest",
-            "tired",
-            "better",
-            "home",
-            "water",
-            "before-after"
-        ],
         "title": "Before And After Resting - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "before-after-resting-01",
         "visualSummary": [
             "The man feels tired on the sofa.",
@@ -546,36 +345,9 @@ export const builtInSceneMediaItems = [
             "text": "Marco was proud of being useful, which is why resting felt strangely difficult. He came home exhausted, saw the laundry basket, and immediately felt guilty. Then he caught himself staring at the same sock for almost a minute. Instead of forcing his way through the evening, he sat down, drank water, and allowed the day to slow. The pause did not erase his responsibilities, but it changed his relationship to them. When he stood up again, he chose one small task and did it well."
         },
         "setting": "home-living-room",
-        "skills": [
-            "health_vocabulary",
-            "before_after",
-            "adjectives",
-            "feelings",
-            "self-care",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "rest",
-            "tired",
-            "better",
-            "home",
-            "water",
-            "before-after"
-        ],
         "title": "Before And After Resting - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "before-after-resting-01",
         "visualSummary": [
             "The man feels tired on the sofa.",
@@ -613,33 +385,9 @@ export const builtInSceneMediaItems = [
             "text": "The table was busy with plates, drinks, and many hands. Leo could not reach the bread. His cousin passed it to him and poured water for their aunt. Everyone talked, shared food, and left the restaurant smiling."
         },
         "setting": "restaurant-table",
-        "skills": [
-            "food",
-            "restaurant",
-            "present",
-            "continuous",
-            "people",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "food",
-            "restaurant",
-            "present",
-            "continuous",
-            "people"
-        ],
         "title": "Busy Restaurant Table - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "busy-restaurant-table-01",
         "visualSummary": [
             "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
@@ -676,33 +424,9 @@ export const builtInSceneMediaItems = [
             "text": "At first, the restaurant table felt too crowded. Plates arrived, glasses moved, and everyone talked at the same time. Leo wanted bread but could not reach it, so his cousin passed the basket across the table. That small action started a chain: someone poured water, someone shared salad, and someone made room for dessert. The table stayed busy, but it became friendly instead of confusing."
         },
         "setting": "restaurant-table",
-        "skills": [
-            "food",
-            "restaurant",
-            "present",
-            "continuous",
-            "people",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "food",
-            "restaurant",
-            "present",
-            "continuous",
-            "people"
-        ],
         "title": "Busy Restaurant Table - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "busy-restaurant-table-01",
         "visualSummary": [
             "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
@@ -739,33 +463,9 @@ export const builtInSceneMediaItems = [
             "text": "The restaurant table looked chaotic from a distance: arms crossing, glasses filling, plates arriving, and conversations competing for space. Leo nearly stayed quiet because he could not reach anything without interrupting. Then his cousin noticed and passed the bread. The gesture seemed small, but it changed the rhythm of the meal. People began offering dishes before being asked, making jokes, and making space. The table remained crowded, yet it no longer felt disorganized. It felt like a family learning how to share the same moment."
         },
         "setting": "restaurant-table",
-        "skills": [
-            "food",
-            "restaurant",
-            "present",
-            "continuous",
-            "people",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "food",
-            "restaurant",
-            "present",
-            "continuous",
-            "people"
-        ],
         "title": "Busy Restaurant Table - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "busy-restaurant-table-01",
         "visualSummary": [
             "A big group of family and friends enjoys a lively dinner while a waitress serves plates of pasta and chicken."
@@ -802,34 +502,9 @@ export const builtInSceneMediaItems = [
             "text": "Iris thought her appointment was on Thursday. Then she checked her calendar and saw it was today. She called quickly and changed her plan. Iris arrived on time because she fixed the mistake early."
         },
         "setting": "home-and-waiting-room",
-        "skills": [
-            "calendar",
-            "appointment",
-            "time",
-            "mistake",
-            "correction",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "calendar",
-            "appointment",
-            "time",
-            "mistake",
-            "correction"
-        ],
         "title": "Calendar Mistake - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "calendar-mistake-01",
         "visualSummary": [
             "A man compares his phone calendar with the wall calendar.",
@@ -869,34 +544,9 @@ export const builtInSceneMediaItems = [
             "text": "Iris was drinking coffee when a reminder appeared on her phone. She stared at it twice. The appointment she thought was on Thursday was actually that afternoon. For one minute, she panicked. Then she called work, moved one task, and packed her bag. She reached the office with five minutes to spare. The calendar mistake became a warning, not a disaster."
         },
         "setting": "home-and-waiting-room",
-        "skills": [
-            "calendar",
-            "appointment",
-            "time",
-            "mistake",
-            "correction",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "calendar",
-            "appointment",
-            "time",
-            "mistake",
-            "correction"
-        ],
         "title": "Calendar Mistake - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "calendar-mistake-01",
         "visualSummary": [
             "A man compares his phone calendar with the wall calendar.",
@@ -936,34 +586,9 @@ export const builtInSceneMediaItems = [
             "text": "Iris trusted her memory until her phone quietly proved it wrong. The appointment she had been saving for Thursday was scheduled for that very afternoon. Panic arrived first, followed by the urge to blame the calendar. Instead, Iris checked the details, rearranged her work, and left earlier than planned. She arrived with only five minutes to spare, but five minutes was enough. The mistake did not disappear; it became the reason she started checking tomorrow before ending today."
         },
         "setting": "home-and-waiting-room",
-        "skills": [
-            "calendar",
-            "appointment",
-            "time",
-            "mistake",
-            "correction",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "calendar",
-            "appointment",
-            "time",
-            "mistake",
-            "correction"
-        ],
         "title": "Calendar Mistake - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "calendar-mistake-01",
         "visualSummary": [
             "A man compares his phone calendar with the wall calendar.",
@@ -1003,31 +628,9 @@ export const builtInSceneMediaItems = [
             "text": "Mila stood in front of the class with her poster. Her hands felt cold, but she started speaking. Her friends listened and smiled. When she finished, the teacher clapped, and Mila felt brave."
         },
         "setting": "classroom",
-        "skills": [
-            "presentation",
-            "classroom",
-            "students",
-            "teacher",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "presentation",
-            "classroom",
-            "students",
-            "teacher"
-        ],
         "title": "Classroom Presentation - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "classroom-presentation-01",
         "visualSummary": [
             "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
@@ -1064,31 +667,9 @@ export const builtInSceneMediaItems = [
             "text": "Mila had practiced her presentation three times at home, but the classroom still looked very large. When she stood beside her poster, she forgot the first sentence. Then her friend smiled from the front row, and Mila remembered to breathe. She began again, slowly. By the end, her voice was stronger. The applause felt good, but finishing felt even better."
         },
         "setting": "classroom",
-        "skills": [
-            "presentation",
-            "classroom",
-            "students",
-            "teacher",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "presentation",
-            "classroom",
-            "students",
-            "teacher"
-        ],
         "title": "Classroom Presentation - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "classroom-presentation-01",
         "visualSummary": [
             "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
@@ -1125,31 +706,9 @@ export const builtInSceneMediaItems = [
             "text": "Mila thought the hardest part of the presentation would be remembering the facts. She was wrong. The hardest part was standing in front of the class while everyone waited for her first word. For a few seconds, silence felt enormous. Then she saw her friend nod, took a breath, and trusted the practice she had done at home. The presentation was not perfect, but it was clear. When she sat down, Mila understood that courage could sound like a shaking voice that continues anyway."
         },
         "setting": "classroom",
-        "skills": [
-            "presentation",
-            "classroom",
-            "students",
-            "teacher",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "presentation",
-            "classroom",
-            "students",
-            "teacher"
-        ],
         "title": "Classroom Presentation - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "classroom-presentation-01",
         "visualSummary": [
             "A girl presents her hand-drawn poster about protecting the earth while her teacher and classmates listen."
@@ -1186,35 +745,9 @@ export const builtInSceneMediaItems = [
             "text": "Neighbors met in the community garden on Sunday. Ana planted tomatoes, and Mr. Green watered the flowers. A child found the first small strawberry. Everyone smiled because the garden was growing."
         },
         "setting": "community-garden",
-        "skills": [
-            "community",
-            "garden",
-            "plants",
-            "tools",
-            "present",
-            "continuous",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "garden",
-            "plants",
-            "tools",
-            "present",
-            "continuous"
-        ],
         "title": "Community Garden - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "community-garden-01",
         "visualSummary": [
             "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
@@ -1251,35 +784,9 @@ export const builtInSceneMediaItems = [
             "text": "The community garden began as an empty corner between two buildings. On Sunday, the neighbors met there with tools, seeds, and old gloves. Ana planted tomatoes while Mr. Green fixed a loose wooden box. A child found the first small strawberry and called everyone over. The garden was not finished, but it already felt alive. The neighbors left tired and happy."
         },
         "setting": "community-garden",
-        "skills": [
-            "community",
-            "garden",
-            "plants",
-            "tools",
-            "present",
-            "continuous",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "garden",
-            "plants",
-            "tools",
-            "present",
-            "continuous"
-        ],
         "title": "Community Garden - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "community-garden-01",
         "visualSummary": [
             "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
@@ -1316,35 +823,9 @@ export const builtInSceneMediaItems = [
             "text": "The community garden had started as a practical idea: turn unused land into something useful. Over time, it became more than vegetables. On Sunday, neighbors who rarely spoke in the hallway worked side by side, sharing tools and advice. Ana planted tomatoes, Mr. Green repaired a box, and a child discovered a strawberry so small everyone laughed. The harvest was still weeks away, but something had already grown. The garden gave the neighborhood a reason to meet."
         },
         "setting": "community-garden",
-        "skills": [
-            "community",
-            "garden",
-            "plants",
-            "tools",
-            "present",
-            "continuous",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "garden",
-            "plants",
-            "tools",
-            "present",
-            "continuous"
-        ],
         "title": "Community Garden - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "community-garden-01",
         "visualSummary": [
             "Neighbors of all ages work together in a community garden, watering, planting, and harvesting vegetables."
@@ -1381,33 +862,9 @@ export const builtInSceneMediaItems = [
             "text": "Leo wanted to call his mother, but his phone was dead. He found a charger and waited near the wall. After a few minutes, the screen turned on. Leo called his mother and told her he was safe."
         },
         "setting": "desk",
-        "skills": [
-            "phone",
-            "charging",
-            "before",
-            "after",
-            "technology",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "phone",
-            "charging",
-            "before",
-            "after",
-            "technology"
-        ],
         "title": "Dead Phone, Charged Phone - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "dead-charged-phone-01",
         "visualSummary": [
             "The young man looks frustrated at his dead phone with an unplugged charger.",
@@ -1445,33 +902,9 @@ export const builtInSceneMediaItems = [
             "text": "Leo reached for his phone to call his mother and saw a black screen. The battery was dead, and he had promised to check in after school. He searched his backpack and found the charger at the bottom. While the phone charged, he watched the screen nervously. When it turned on, he called right away. His mother was not angry; she was just glad to hear his voice."
         },
         "setting": "desk",
-        "skills": [
-            "phone",
-            "charging",
-            "before",
-            "after",
-            "technology",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "phone",
-            "charging",
-            "before",
-            "after",
-            "technology"
-        ],
         "title": "Dead Phone, Charged Phone - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "dead-charged-phone-01",
         "visualSummary": [
             "The young man looks frustrated at his dead phone with an unplugged charger.",
@@ -1509,33 +942,9 @@ export const builtInSceneMediaItems = [
             "text": "Leo's dead phone turned a small promise into a small crisis. He had told his mother he would call after school, and the black screen made him imagine her worry growing minute by minute. He found the charger tangled at the bottom of his backpack and waited beside the outlet as if patience could speed electricity. When the phone finally woke up, he called before checking any messages. His mother's first words were simple relief, and Leo learned that staying connected sometimes begins with being prepared."
         },
         "setting": "desk",
-        "skills": [
-            "phone",
-            "charging",
-            "before",
-            "after",
-            "technology",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "phone",
-            "charging",
-            "before",
-            "after",
-            "technology"
-        ],
         "title": "Dead Phone, Charged Phone - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "dead-charged-phone-01",
         "visualSummary": [
             "The young man looks frustrated at his dead phone with an unplugged charger.",
@@ -1573,37 +982,9 @@ export const builtInSceneMediaItems = [
             "text": "Rosa had a cough all weekend, so she went to the clinic on Monday. The receptionist helped her check in. The doctor listened to her chest and asked simple questions. Rosa went home with clear advice, warm tea, and a plan to rest."
         },
         "setting": "clinic",
-        "skills": [
-            "health_vocabulary",
-            "symptoms",
-            "appointments",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "doctor",
-            "cough",
-            "appointment",
-            "stethoscope",
-            "self-care"
-        ],
         "title": "Doctor Visit For A Cough - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "doctor-visit-cough-01",
         "visualSummary": [
             "The patient coughs gently in the clinic waiting area.",
@@ -1643,37 +1024,9 @@ export const builtInSceneMediaItems = [
             "text": "Rosa tried to ignore her cough during the weekend, but by Monday morning she sounded worse. At the clinic, the receptionist helped her check in and told her to wait for the doctor. The doctor listened carefully, checked her breathing, and explained that she needed rest and water. Rosa left relieved because the problem was not serious and she knew what to do next."
         },
         "setting": "clinic",
-        "skills": [
-            "health_vocabulary",
-            "symptoms",
-            "appointments",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "doctor",
-            "cough",
-            "appointment",
-            "stethoscope",
-            "self-care"
-        ],
         "title": "Doctor Visit For A Cough - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "doctor-visit-cough-01",
         "visualSummary": [
             "The patient coughs gently in the clinic waiting area.",
@@ -1713,37 +1066,9 @@ export const builtInSceneMediaItems = [
             "text": "Rosa had been telling herself the cough was nothing, mostly because she disliked missing work. By Monday, even her short sentences ended in a rough sound, so she finally went to the clinic. The doctor examined her, asked about sleep and fever, and spoke calmly enough to make the visit feel less frightening. Rosa left without dramatic news, but with something better: a practical plan, permission to rest, and the quiet confidence that she had acted in time."
         },
         "setting": "clinic",
-        "skills": [
-            "health_vocabulary",
-            "symptoms",
-            "appointments",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "doctor",
-            "cough",
-            "appointment",
-            "stethoscope",
-            "self-care"
-        ],
         "title": "Doctor Visit For A Cough - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "doctor-visit-cough-01",
         "visualSummary": [
             "The patient coughs gently in the clinic waiting area.",
@@ -1783,33 +1108,9 @@ export const builtInSceneMediaItems = [
             "text": "In the morning, the playground was empty and quiet. After school, children ran to the swings and slide. One shy boy stood near the gate. A girl invited him to play, and soon the playground was full of noise."
         },
         "setting": "playground",
-        "skills": [
-            "community",
-            "playground",
-            "before",
-            "after",
-            "people",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "playground",
-            "before",
-            "after",
-            "people"
-        ],
         "title": "Empty Playground, Busy Playground - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-busy-playground-01",
         "visualSummary": [
             "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
@@ -1847,33 +1148,9 @@ export const builtInSceneMediaItems = [
             "text": "The playground was silent before school ended. The swings moved only when the wind pushed them. Then the first children arrived, and the empty space changed quickly. One boy stayed near the gate because he did not know anyone. A girl saw him watching and asked if he wanted to join the game. By the time parents came to pick everyone up, the boy was laughing near the slide."
         },
         "setting": "playground",
-        "skills": [
-            "community",
-            "playground",
-            "before",
-            "after",
-            "people",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "playground",
-            "before",
-            "after",
-            "people"
-        ],
         "title": "Empty Playground, Busy Playground - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-busy-playground-01",
         "visualSummary": [
             "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
@@ -1911,33 +1188,9 @@ export const builtInSceneMediaItems = [
             "text": "In the morning, the playground looked almost forgotten: empty swings, a quiet slide, and a gate waiting for footsteps. After school, the space filled with movement, but not everyone entered the noise easily. A boy stood near the edge, unsure how to become part of a group that already seemed complete. A girl noticed him and made the invitation simple: one game, one turn, one chance. The playground grew busy, but the real change was smaller. One child stopped feeling invisible."
         },
         "setting": "playground",
-        "skills": [
-            "community",
-            "playground",
-            "before",
-            "after",
-            "people",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "playground",
-            "before",
-            "after",
-            "people"
-        ],
         "title": "Empty Playground, Busy Playground - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-busy-playground-01",
         "visualSummary": [
             "The neighborhood playground is empty and quiet, with still swings and an empty slide.",
@@ -1975,33 +1228,9 @@ export const builtInSceneMediaItems = [
             "text": "Aiden's backpack was empty on Sunday night. He put in books, pencils, a notebook, and his lunch box. In the morning, he checked the bag again. At school, he had everything he needed."
         },
         "setting": "classroom",
-        "skills": [
-            "school",
-            "supplies",
-            "backpack",
-            "before",
-            "after",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "supplies",
-            "backpack",
-            "before",
-            "after"
-        ],
         "title": "Empty Backpack, Full Backpack - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-backpack-01",
         "visualSummary": [
             "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
@@ -2039,33 +1268,9 @@ export const builtInSceneMediaItems = [
             "text": "Aiden usually packed his backpack five minutes before leaving, and something was always missing. This Sunday, he tried a new plan. He opened the empty bag and placed each school item inside: notebook, pencils, book, water, and lunch. In the morning, he did not need to run around the house. He picked up the full backpack and left calmly."
         },
         "setting": "classroom",
-        "skills": [
-            "school",
-            "supplies",
-            "backpack",
-            "before",
-            "after",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "supplies",
-            "backpack",
-            "before",
-            "after"
-        ],
         "title": "Empty Backpack, Full Backpack - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-backpack-01",
         "visualSummary": [
             "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
@@ -2103,33 +1308,9 @@ export const builtInSceneMediaItems = [
             "text": "Aiden's empty backpack looked harmless, but it represented every rushed morning he wanted to stop repeating. On Sunday night, he packed it slowly, checking each item against the next day's schedule. The simple routine felt almost too small to matter. Yet the next morning, while his sister searched for a pencil, Aiden was already ready by the door. The full backpack gave him more than supplies; it gave him a quieter start."
         },
         "setting": "classroom",
-        "skills": [
-            "school",
-            "supplies",
-            "backpack",
-            "before",
-            "after",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "supplies",
-            "backpack",
-            "before",
-            "after"
-        ],
         "title": "Empty Backpack, Full Backpack - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-backpack-01",
         "visualSummary": [
             "The boy looks into his empty backpack while his school supplies sit spread across the desk.",
@@ -2167,34 +1348,9 @@ export const builtInSceneMediaItems = [
             "text": "Grace entered the supermarket with an empty cart and a short list. She bought bread, fruit, milk, and rice. At the end, the cart was full. Grace checked her list and felt proud because she had not forgotten anything."
         },
         "setting": "supermarket",
-        "skills": [
-            "shopping",
-            "food_vocabulary",
-            "before_after",
-            "prepositions",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "supermarket",
-            "cart",
-            "groceries",
-            "before-after",
-            "food"
-        ],
         "title": "Empty Cart, Full Cart - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-cart-01",
         "visualSummary": [
             "The shopper starts with an empty shopping cart.",
@@ -2232,34 +1388,9 @@ export const builtInSceneMediaItems = [
             "text": "Grace promised herself she would buy only what her family needed. She started with an empty cart and a list in her hand. In each aisle, she chose carefully: fruit for breakfast, rice for dinner, and milk for the children. By the time she reached the checkout, the cart was full but organized. Grace smiled because every item had a purpose."
         },
         "setting": "supermarket",
-        "skills": [
-            "shopping",
-            "food_vocabulary",
-            "before_after",
-            "prepositions",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "supermarket",
-            "cart",
-            "groceries",
-            "before-after",
-            "food"
-        ],
         "title": "Empty Cart, Full Cart - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-cart-01",
         "visualSummary": [
             "The shopper starts with an empty shopping cart.",
@@ -2297,34 +1428,9 @@ export const builtInSceneMediaItems = [
             "text": "Grace had learned that a full cart could mean planning, not waste. She entered the supermarket with a list, a budget, and the memory of last week's forgotten dinner ingredients. This time, she moved through the aisles slowly, choosing food for real meals instead of sudden cravings. When the cart was full, it looked like the week ahead: breakfast, lunches, dinners, and a few small treats. Grace checked the list one last time and felt quietly prepared."
         },
         "setting": "supermarket",
-        "skills": [
-            "shopping",
-            "food_vocabulary",
-            "before_after",
-            "prepositions",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "supermarket",
-            "cart",
-            "groceries",
-            "before-after",
-            "food"
-        ],
         "title": "Empty Cart, Full Cart - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-cart-01",
         "visualSummary": [
             "The shopper starts with an empty shopping cart.",
@@ -2362,33 +1468,9 @@ export const builtInSceneMediaItems = [
             "text": "Sam sat at the restaurant with an empty plate and a hungry stomach. The server brought rice, chicken, and vegetables. Sam waited until everyone had food. Then he ate slowly and saved the last bite for his favorite sauce."
         },
         "setting": "restaurant-table",
-        "skills": [
-            "food",
-            "before",
-            "after",
-            "restaurant",
-            "objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "food",
-            "before",
-            "after",
-            "restaurant",
-            "objects"
-        ],
         "title": "Empty Plate, Full Plate - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-plate-01",
         "visualSummary": [
             "The man sits at a restaurant table with an empty plate, waiting patiently.",
@@ -2426,33 +1508,9 @@ export const builtInSceneMediaItems = [
             "text": "Sam arrived at the restaurant so hungry that the empty plate looked almost funny. He tried not to stare at the kitchen door. When the server brought the meal, the colors and smell made everyone at the table smile. Sam waited until his grandmother had been served, then began eating. By the end, the plate was empty again, but this time he felt happy and full."
         },
         "setting": "restaurant-table",
-        "skills": [
-            "food",
-            "before",
-            "after",
-            "restaurant",
-            "objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "food",
-            "before",
-            "after",
-            "restaurant",
-            "objects"
-        ],
         "title": "Empty Plate, Full Plate - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-plate-01",
         "visualSummary": [
             "The man sits at a restaurant table with an empty plate, waiting patiently.",
@@ -2490,33 +1548,9 @@ export const builtInSceneMediaItems = [
             "text": "The empty plate in front of Sam made the wait feel longer than it was. He had skipped lunch, and every sound from the kitchen seemed meant for another table. Then the server arrived with a meal bright enough to change his mood before he even tasted it. Sam waited for his grandmother to begin, then took the first bite with theatrical seriousness. The plate emptied slowly, through conversation and shared jokes. What had started as impatience ended as the kind of meal people remember."
         },
         "setting": "restaurant-table",
-        "skills": [
-            "food",
-            "before",
-            "after",
-            "restaurant",
-            "objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "food",
-            "before",
-            "after",
-            "restaurant",
-            "objects"
-        ],
         "title": "Empty Plate, Full Plate - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "empty-full-plate-01",
         "visualSummary": [
             "The man sits at a restaurant table with an empty plate, waiting patiently.",
@@ -2554,32 +1588,9 @@ export const builtInSceneMediaItems = [
             "text": "The Rivera family sat down for dinner after a busy day. Ana passed the rice, and her brother poured water. Everyone shared one good thing from the day. By the end of dinner, the room felt warm and quiet."
         },
         "setting": "home-dining-room",
-        "skills": [
-            "family",
-            "food",
-            "present_continuous",
-            "table_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "family",
-            "food",
-            "present-continuous",
-            "table-objects",
-            "home"
-        ],
         "title": "Family Dinner Table - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "family-dinner-table-01",
         "visualSummary": [
             "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
@@ -2616,32 +1627,9 @@ export const builtInSceneMediaItems = [
             "text": "The Rivera family almost ate dinner at different times because everyone was tired. Then Ana's father asked them to sit together for just twenty minutes. They passed food, told small stories, and laughed about a mistake at work. Nobody checked a phone. When the plates were empty, the family was still at the table, enjoying a little more time together."
         },
         "setting": "home-dining-room",
-        "skills": [
-            "family",
-            "food",
-            "present_continuous",
-            "table_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "family",
-            "food",
-            "present-continuous",
-            "table-objects",
-            "home"
-        ],
         "title": "Family Dinner Table - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "family-dinner-table-01",
         "visualSummary": [
             "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
@@ -2678,32 +1666,9 @@ export const builtInSceneMediaItems = [
             "text": "Dinner at the Rivera house nearly became another rushed stop between homework, work messages, and bedtime. Ana's father, however, placed the food in the middle of the table and asked everyone to stay until they had shared one detail from the day. At first the stories were small: a late bus, a funny answer in class, a difficult customer. Then the room softened. The meal did not solve anyone's problems, but it reminded them they did not have to carry those problems alone."
         },
         "setting": "home-dining-room",
-        "skills": [
-            "family",
-            "food",
-            "present_continuous",
-            "table_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "family",
-            "food",
-            "present-continuous",
-            "table-objects",
-            "home"
-        ],
         "title": "Family Dinner Table - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "family-dinner-table-01",
         "visualSummary": [
             "A multi-generational family shares dinner together, passing rice, salad, water, and bread around the table."
@@ -2740,34 +1705,9 @@ export const builtInSceneMediaItems = [
             "text": "Tom reached school and opened his backpack. His homework was not there. He remembered it was on the kitchen table. After school, he brought it to his teacher and promised to pack his bag at night."
         },
         "setting": "school-and-home",
-        "skills": [
-            "school",
-            "homework",
-            "teacher",
-            "problem",
-            "solution",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "homework",
-            "teacher",
-            "problem",
-            "solution"
-        ],
         "title": "Forgotten Homework - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "forgotten-homework-01",
         "visualSummary": [
             "A boy searches his backpack at his desk and cannot find his homework.",
@@ -2807,34 +1747,9 @@ export const builtInSceneMediaItems = [
             "text": "Tom felt confident until the teacher asked for the homework. He opened his backpack and found only books. Then he remembered the paper sitting on the kitchen table beside his breakfast plate. His teacher gave him one day to bring it. That evening, Tom put the homework in his bag before dinner. The next morning, he handed it in and felt the lesson more than the assignment."
         },
         "setting": "school-and-home",
-        "skills": [
-            "school",
-            "homework",
-            "teacher",
-            "problem",
-            "solution",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "homework",
-            "teacher",
-            "problem",
-            "solution"
-        ],
         "title": "Forgotten Homework - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "forgotten-homework-01",
         "visualSummary": [
             "A boy searches his backpack at his desk and cannot find his homework.",
@@ -2874,34 +1789,9 @@ export const builtInSceneMediaItems = [
             "text": "Tom had completed the homework carefully, which made forgetting it feel especially unfair. At school, his empty folder seemed to accuse him. The teacher listened, then gave him one chance to bring it the next day. Tom went home annoyed at himself, found the paper exactly where he had left it, and changed his routine. He packed his bag before he relaxed. The next morning, handing in the assignment felt less like fixing a mistake and more like becoming reliable."
         },
         "setting": "school-and-home",
-        "skills": [
-            "school",
-            "homework",
-            "teacher",
-            "problem",
-            "solution",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "homework",
-            "teacher",
-            "problem",
-            "solution"
-        ],
         "title": "Forgotten Homework - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "forgotten-homework-01",
         "visualSummary": [
             "A boy searches his backpack at his desk and cannot find his homework.",
@@ -2941,31 +1831,9 @@ export const builtInSceneMediaItems = [
             "text": "Mia closed her apartment door and then touched her empty pocket. Her keys were inside. She asked her neighbor for help. The neighbor had a spare key, and Mia got back inside before the rain started."
         },
         "setting": "apartment",
-        "skills": [
-            "home_routines",
-            "keys",
-            "asking_for_help",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "home-routines",
-            "keys",
-            "asking-for-help",
-            "home"
-        ],
         "title": "Forgotten Keys - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "forgotten-keys-home-01",
         "visualSummary": [
             "A woman reaches for her apartment door, ready to go inside.",
@@ -3005,31 +1873,9 @@ export const builtInSceneMediaItems = [
             "text": "Mia was carrying two bags when the door closed behind her. The sound was small, but the problem was big: her keys were still on the table. She knocked on her neighbor's door and explained what happened. Luckily, the neighbor kept a spare key for emergencies. Mia opened the door again, thanked her, and decided to put a key hook by the entrance."
         },
         "setting": "apartment",
-        "skills": [
-            "home_routines",
-            "keys",
-            "asking_for_help",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "home-routines",
-            "keys",
-            "asking-for-help",
-            "home"
-        ],
         "title": "Forgotten Keys - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "forgotten-keys-home-01",
         "visualSummary": [
             "A woman reaches for her apartment door, ready to go inside.",
@@ -3069,31 +1915,9 @@ export const builtInSceneMediaItems = [
             "text": "Mia knew the mistake the second the door clicked shut. Her keys were visible through the small window, sitting calmly on the table as if they had chosen to stay home. For a moment, she stood in the hallway with grocery bags cutting into her hands. Then she remembered the spare key she had given her neighbor months ago. One embarrassed knock later, the crisis was over. Mia stepped back inside, grateful for past planning and determined to build better habits."
         },
         "setting": "apartment",
-        "skills": [
-            "home_routines",
-            "keys",
-            "asking_for_help",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "home-routines",
-            "keys",
-            "asking-for-help",
-            "home"
-        ],
         "title": "Forgotten Keys - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "forgotten-keys-home-01",
         "visualSummary": [
             "A woman reaches for her apartment door, ready to go inside.",
@@ -3133,36 +1957,9 @@ export const builtInSceneMediaItems = [
             "text": "Three students met at the library for a group project. At first, they did not know what to do. They chose jobs: one read, one drew, and one wrote. The next day, they presented their poster together."
         },
         "setting": "library",
-        "skills": [
-            "school",
-            "learning",
-            "group",
-            "project",
-            "teamwork",
-            "research",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "learning",
-            "group",
-            "project",
-            "teamwork",
-            "research"
-        ],
         "title": "Group Project At The Library - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "group-project-library-01",
         "visualSummary": [
             "Four classmates gather around a library table with a laptop and books to plan a group project.",
@@ -3202,36 +1999,9 @@ export const builtInSceneMediaItems = [
             "text": "At the beginning of the project, the group felt lost. There were too many books, too many ideas, and not enough time. Sara suggested that each person choose one job. Mateo found facts, Lina made the poster, and Sara organized the notes. When they practiced in the library, the presentation finally made sense. The group walked into class nervous but prepared."
         },
         "setting": "library",
-        "skills": [
-            "school",
-            "learning",
-            "group",
-            "project",
-            "teamwork",
-            "research",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "learning",
-            "group",
-            "project",
-            "teamwork",
-            "research"
-        ],
         "title": "Group Project At The Library - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "group-project-library-01",
         "visualSummary": [
             "Four classmates gather around a library table with a laptop and books to plan a group project.",
@@ -3271,36 +2041,9 @@ export const builtInSceneMediaItems = [
             "text": "The group project began with polite confusion. Everyone had ideas, but no one knew how to turn them into a presentation. In the library, Sara finally drew three columns on a sheet of paper and divided the work. Mateo searched for evidence, Lina designed the poster, and Sara connected the pieces into a clear order. Their first practice sounded awkward, but each round improved. By presentation day, they had not only finished the project; they had learned how to become a team."
         },
         "setting": "library",
-        "skills": [
-            "school",
-            "learning",
-            "group",
-            "project",
-            "teamwork",
-            "research",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "school",
-            "learning",
-            "group",
-            "project",
-            "teamwork",
-            "research"
-        ],
         "title": "Group Project At The Library - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "group-project-library-01",
         "visualSummary": [
             "Four classmates gather around a library table with a laptop and books to plan a group project.",
@@ -3395,36 +2138,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office",
-        "skills": [
-            "workplace_vocabulary",
-            "meetings",
-            "apologies",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "workplace",
-            "time"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "meeting",
-            "late",
-            "apology",
-            "coworkers",
-            "punctuality"
-        ],
         "title": "Late For The Meeting",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "late-meeting-workplace-01",
         "visualSummary": [
             "The worker hurries through the office hallway.",
@@ -3519,37 +2235,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office",
-        "skills": [
-            "workplace_vocabulary",
-            "meetings",
-            "apologies",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "workplace_apologies",
-            "meeting_language",
-            "catching_up"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "meeting",
-            "late",
-            "apology",
-            "coworkers",
-            "punctuality"
-        ],
         "title": "Catching Up Quickly",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "late-meeting-workplace-01",
         "visualSummary": [
             "The worker hurries through the office hallway.",
@@ -3644,37 +2332,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office",
-        "skills": [
-            "workplace_vocabulary",
-            "meetings",
-            "apologies",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "professional_language",
-            "repairing_delay",
-            "meeting_context"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "meeting",
-            "late",
-            "apology",
-            "coworkers",
-            "punctuality"
-        ],
         "title": "Arriving After The Agenda Begins",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "late-meeting-workplace-01",
         "visualSummary": [
             "The worker hurries through the office hallway.",
@@ -3714,33 +2374,9 @@ export const builtInSceneMediaItems = [
             "text": "Noah washed his white shirt with a red sock. The shirt came out pink. His sister laughed, but then she helped him sort the clothes. They washed the next load carefully, and Noah learned to check pockets and colors."
         },
         "setting": "laundry-room",
-        "skills": [
-            "home_routines",
-            "laundry",
-            "colors",
-            "mistakes",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "home-routines",
-            "laundry",
-            "colors",
-            "mistakes",
-            "home"
-        ],
         "title": "Laundry Color Mistake - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "laundry-color-mistake-01",
         "visualSummary": [
             "A boy happily loads a pile of mixed-color clothes into the washing machine.",
@@ -3780,33 +2416,9 @@ export const builtInSceneMediaItems = [
             "text": "Noah wanted to finish the laundry quickly, so he put everything into one machine. When the cycle ended, his favorite white shirt had turned pale pink. His sister laughed for a second, then showed him how to separate colors. They sorted the next basket together and folded the clean clothes. Noah still had a pink shirt, but now he also had a useful lesson."
         },
         "setting": "laundry-room",
-        "skills": [
-            "home_routines",
-            "laundry",
-            "colors",
-            "mistakes",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "home-routines",
-            "laundry",
-            "colors",
-            "mistakes",
-            "home"
-        ],
         "title": "Laundry Color Mistake - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "laundry-color-mistake-01",
         "visualSummary": [
             "A boy happily loads a pile of mixed-color clothes into the washing machine.",
@@ -3846,33 +2458,9 @@ export const builtInSceneMediaItems = [
             "text": "Noah believed laundry was simple until one red sock quietly changed the color of his favorite shirt. At first, he stared at the pink fabric as if it might apologize. His sister found the situation funny, but she did not leave him alone with the problem. She showed him how to sort colors, check pockets, and read the labels he had always ignored. The shirt never became white again, but Noah kept it as a reminder that speed is not the same as efficiency."
         },
         "setting": "laundry-room",
-        "skills": [
-            "home_routines",
-            "laundry",
-            "colors",
-            "mistakes",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "home-routines",
-            "laundry",
-            "colors",
-            "mistakes",
-            "home"
-        ],
         "title": "Laundry Color Mistake - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "laundry-color-mistake-01",
         "visualSummary": [
             "A boy happily loads a pile of mixed-color clothes into the washing machine.",
@@ -3912,36 +2500,9 @@ export const builtInSceneMediaItems = [
             "text": "Mrs. Patel wanted a library card, but the form was new to her. A librarian helped her fill it out. Then Mrs. Patel chose two books. She walked home proud of her new card."
         },
         "setting": "library",
-        "skills": [
-            "community",
-            "library",
-            "card",
-            "help",
-            "borrowing",
-            "books",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "library",
-            "card",
-            "help",
-            "borrowing",
-            "books"
-        ],
         "title": "Getting A Library Card - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "library-card-help-01",
         "visualSummary": [
             "An older woman enters the library and looks around.",
@@ -3981,36 +2542,9 @@ export const builtInSceneMediaItems = [
             "text": "Mrs. Patel had passed the library many times but had never gone inside to borrow a book. One afternoon, she decided to ask for a card. The form looked confusing, and she almost left. A librarian noticed and offered help. Together they completed the application. Mrs. Patel borrowed two books and held the card carefully, as if it were a small key to a larger room."
         },
         "setting": "library",
-        "skills": [
-            "community",
-            "library",
-            "card",
-            "help",
-            "borrowing",
-            "books",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "library",
-            "card",
-            "help",
-            "borrowing",
-            "books"
-        ],
         "title": "Getting A Library Card - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "library-card-help-01",
         "visualSummary": [
             "An older woman enters the library and looks around.",
@@ -4050,36 +2584,9 @@ export const builtInSceneMediaItems = [
             "text": "For years, Mrs. Patel had treated the library as a place for other people, even though she loved books. The application form seemed to confirm her worry: too many boxes, too many unfamiliar steps. A librarian approached before embarrassment could send her back to the door. She explained each part patiently, then helped Mrs. Patel choose her first books. When the new card slid across the desk, it felt less like plastic and more like permission. Mrs. Patel left with stories under her arm."
         },
         "setting": "library",
-        "skills": [
-            "community",
-            "library",
-            "card",
-            "help",
-            "borrowing",
-            "books",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "library",
-            "card",
-            "help",
-            "borrowing",
-            "books"
-        ],
         "title": "Getting A Library Card - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "library-card-help-01",
         "visualSummary": [
             "An older woman enters the library and looks around.",
@@ -4119,37 +2626,9 @@ export const builtInSceneMediaItems = [
             "text": "Omar arrived at the hotel after a long trip. His blue suitcase was not beside him. A hotel worker helped him look near the desk and the cart. They found the suitcase, and Omar finally smiled."
         },
         "setting": "hotel-lobby",
-        "skills": [
-            "travel_vocabulary",
-            "hotel_vocabulary",
-            "luggage",
-            "asking_for_help",
-            "emotions",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "hotel",
-            "luggage",
-            "suitcase",
-            "reception",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Lost Luggage At The Hotel - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "lost-luggage-hotel-01",
         "visualSummary": [
             "The traveler arrives in the hotel lobby and cannot find a suitcase.",
@@ -4189,37 +2668,9 @@ export const builtInSceneMediaItems = [
             "text": "Omar was tired when he reached the hotel, and he wanted only a shower and sleep. Then he noticed that his blue suitcase was missing. He checked near the door, near the elevator, and beside the luggage cart. A hotel worker listened carefully and helped him search. The suitcase had been placed behind another bag at reception. Omar thanked her and went upstairs feeling lucky."
         },
         "setting": "hotel-lobby",
-        "skills": [
-            "travel_vocabulary",
-            "hotel_vocabulary",
-            "luggage",
-            "asking_for_help",
-            "emotions",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "hotel",
-            "luggage",
-            "suitcase",
-            "reception",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Lost Luggage At The Hotel - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "lost-luggage-hotel-01",
         "visualSummary": [
             "The traveler arrives in the hotel lobby and cannot find a suitcase.",
@@ -4259,37 +2710,9 @@ export const builtInSceneMediaItems = [
             "text": "After nine hours of travel, Omar had very little patience left, so the missing suitcase felt like the final insult of the day. The hotel lobby was busy, and every bag seemed almost, but not quite, like his. A staff member asked him to describe it, then began searching with a calmness Omar did not feel. They found the suitcase hidden behind a larger one near reception. Omar laughed with relief, suddenly aware that the disaster he imagined had lasted only ten minutes."
         },
         "setting": "hotel-lobby",
-        "skills": [
-            "travel_vocabulary",
-            "hotel_vocabulary",
-            "luggage",
-            "asking_for_help",
-            "emotions",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "hotel",
-            "luggage",
-            "suitcase",
-            "reception",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Lost Luggage At The Hotel - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "lost-luggage-hotel-01",
         "visualSummary": [
             "The traveler arrives in the hotel lobby and cannot find a suitcase.",
@@ -4384,36 +2807,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "cafe",
-        "skills": [
-            "describing_people",
-            "present_continuous",
-            "past_tense_story",
-            "lost_and_found",
-            "emotions",
-            "thanks",
-            "simple_past"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "cafe",
-            "rain",
-            "lost-wallet",
-            "helping",
-            "kindness",
-            "money",
-            "weather",
-            "problem-solution"
-        ],
         "title": "The Wallet On The Floor",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "lost-wallet-cafe-01",
         "visualSummary": [
             "The woman enters the cafe from the rain.",
@@ -4508,36 +2904,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "cafe",
-        "skills": [
-            "describing_people",
-            "present_continuous",
-            "past_tense_story",
-            "lost_and_found",
-            "emotions",
-            "past_sequence",
-            "relief"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "cafe",
-            "rain",
-            "lost-wallet",
-            "helping",
-            "kindness",
-            "money",
-            "weather",
-            "problem-solution"
-        ],
         "title": "A Helpful Stranger",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "lost-wallet-cafe-01",
         "visualSummary": [
             "The woman enters the cafe from the rain.",
@@ -4632,37 +3001,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "cafe",
-        "skills": [
-            "describing_people",
-            "present_continuous",
-            "past_tense_story",
-            "lost_and_found",
-            "emotions",
-            "narrative_detail",
-            "social_language",
-            "gratitude"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "cafe",
-            "rain",
-            "lost-wallet",
-            "helping",
-            "kindness",
-            "money",
-            "weather",
-            "problem-solution"
-        ],
         "title": "Relief At The Cafe Door",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "lost-wallet-cafe-01",
         "visualSummary": [
             "The woman enters the cafe from the rain.",
@@ -4702,34 +3043,9 @@ export const builtInSceneMediaItems = [
             "text": "Leo waited in the market line with a basket of food. The line was long, and he felt impatient. Then he helped an older woman pick up an orange. Soon it was his turn, and the wait felt shorter."
         },
         "setting": "market-checkout",
-        "skills": [
-            "shopping",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "checkout",
-            "cashier",
-            "groceries",
-            "line",
-            "market"
-        ],
         "title": "Market Checkout Line - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "market-checkout-line-01",
         "visualSummary": [
             "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
@@ -4766,34 +3082,9 @@ export const builtInSceneMediaItems = [
             "text": "Leo chose the slowest checkout line by mistake. He had only a few groceries, but every cart in front of him seemed full. While he waited, an orange rolled from an older woman's bag. Leo picked it up and handed it back. She thanked him, and they talked for a minute. By the time the cashier called him forward, Leo was surprised that the line no longer felt annoying."
         },
         "setting": "market-checkout",
-        "skills": [
-            "shopping",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "checkout",
-            "cashier",
-            "groceries",
-            "line",
-            "market"
-        ],
         "title": "Market Checkout Line - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "market-checkout-line-01",
         "visualSummary": [
             "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
@@ -4830,34 +3121,9 @@ export const builtInSceneMediaItems = [
             "text": "Leo entered the market in a hurry and immediately regretted choosing the longest checkout line. He watched the cashier scan groceries, heard bags rustle, and felt his patience disappear. Then an orange escaped from the bag of the woman ahead of him and rolled to his shoe. Leo picked it up, and the small act opened a conversation. They talked about recipes, rainy weather, and busy afternoons. The line did not move faster, but Leo did. He left the market less rushed than he had entered it."
         },
         "setting": "market-checkout",
-        "skills": [
-            "shopping",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "checkout",
-            "cashier",
-            "groceries",
-            "line",
-            "market"
-        ],
         "title": "Market Checkout Line - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "market-checkout-line-01",
         "visualSummary": [
             "A shopper unloads groceries at the checkout while the cashier scans items and others wait in line."
@@ -4894,35 +3160,9 @@ export const builtInSceneMediaItems = [
             "text": "Ben came to work early, but his desk was full of papers and cups. He could not find one important note. He stopped, put everything in order, and found the note under a book. When his boss arrived, Ben was ready to start."
         },
         "setting": "office-desk",
-        "skills": [
-            "workplace_vocabulary",
-            "adjectives",
-            "prepositions",
-            "before_after",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "desk",
-            "messy",
-            "clean",
-            "organization",
-            "before-after",
-            "office-objects"
-        ],
         "title": "Messy Desk, Clean Desk - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "messy-desk-clean-desk-01",
         "visualSummary": [
             "The worker sits at a messy desk and looks overwhelmed.",
@@ -4960,35 +3200,9 @@ export const builtInSceneMediaItems = [
             "text": "Ben arrived before the office was busy because he wanted a quiet start. His desk, however, looked like yesterday had never ended. He needed one small note for a morning call, but it was hidden under papers, pens, and an empty cup. Ben took ten minutes to sort the mess. By the time the phone rang, the note was in front of him and his mind felt clear."
         },
         "setting": "office-desk",
-        "skills": [
-            "workplace_vocabulary",
-            "adjectives",
-            "prepositions",
-            "before_after",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "desk",
-            "messy",
-            "clean",
-            "organization",
-            "before-after",
-            "office-objects"
-        ],
         "title": "Messy Desk, Clean Desk - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "messy-desk-clean-desk-01",
         "visualSummary": [
             "The worker sits at a messy desk and looks overwhelmed.",
@@ -5026,35 +3240,9 @@ export const builtInSceneMediaItems = [
             "text": "Ben planned to spend the first hour finishing a proposal, but his desk told a different story. Every paper seemed urgent, every note seemed unfinished, and the one detail he needed had vanished. Instead of pretending the chaos was harmless, he paused and rebuilt the space piece by piece. When the missing note finally appeared, the proposal no longer felt impossible. The clean desk had not done the work for him, but it had given him room to think."
         },
         "setting": "office-desk",
-        "skills": [
-            "workplace_vocabulary",
-            "adjectives",
-            "prepositions",
-            "before_after",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "desk",
-            "messy",
-            "clean",
-            "organization",
-            "before-after",
-            "office-objects"
-        ],
         "title": "Messy Desk, Clean Desk - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "messy-desk-clean-desk-01",
         "visualSummary": [
             "The worker sits at a messy desk and looks overwhelmed.",
@@ -5092,30 +3280,9 @@ export const builtInSceneMediaItems = [
             "text": "Lily wanted to invite a friend over, but her room was very messy. She picked up clothes, books, and toys. After one hour, the room was tidy. When her friend arrived, Lily opened the door proudly."
         },
         "setting": "bedroom",
-        "skills": [
-            "before_and_after",
-            "prepositions",
-            "room_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "before-and-after",
-            "prepositions",
-            "room-objects",
-            "home"
-        ],
         "title": "Messy Room, Tidy Room - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "messy-room-tidy-room-01",
         "visualSummary": [
             "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
@@ -5153,30 +3320,9 @@ export const builtInSceneMediaItems = [
             "text": "Lily invited her friend to visit after school, then looked around her room and panicked. Clothes were on the chair, books were on the floor, and one sock was on the desk. She almost canceled the visit, but instead she made a quick plan. First books, then clothes, then trash. By the time the doorbell rang, the room looked welcoming and Lily felt ready."
         },
         "setting": "bedroom",
-        "skills": [
-            "before_and_after",
-            "prepositions",
-            "room_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "before-and-after",
-            "prepositions",
-            "room-objects",
-            "home"
-        ],
         "title": "Messy Room, Tidy Room - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "messy-room-tidy-room-01",
         "visualSummary": [
             "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
@@ -5214,30 +3360,9 @@ export const builtInSceneMediaItems = [
             "text": "Lily's room had become a record of every rushed morning that week. When her friend asked to come over, Lily saw the mess differently: not as a private problem, but as a story she did not want the room to tell. She sorted books, rescued clothes from the floor, and cleared the desk one small area at a time. The room did not become perfect, but it became honest and comfortable. When her friend arrived, Lily felt she had made space for both of them."
         },
         "setting": "bedroom",
-        "skills": [
-            "before_and_after",
-            "prepositions",
-            "room_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "before-and-after",
-            "prepositions",
-            "room-objects",
-            "home"
-        ],
         "title": "Messy Room, Tidy Room - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "messy-room-tidy-room-01",
         "visualSummary": [
             "The girl stands in a messy bedroom full of scattered clothes and books, holding her head in stress.",
@@ -5275,38 +3400,9 @@ export const builtInSceneMediaItems = [
             "text": "Nina was walking in the park when her ankle turned. Her friend Luis helped her sit on a bench. Later, a nurse wrapped the ankle at the clinic. Nina walked slowly home, happy that Luis stayed with her."
         },
         "setting": "park-and-clinic",
-        "skills": [
-            "health_vocabulary",
-            "body_parts",
-            "minor_injuries",
-            "helping",
-            "present_continuous",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "park",
-            "ankle",
-            "sprain",
-            "bandage",
-            "friendship",
-            "helping"
-        ],
         "title": "A Minor Sprain At The Clinic - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "minor-sprain-clinic-01",
         "visualSummary": [
             "The girl mildly twists her ankle on a park path.",
@@ -5346,38 +3442,9 @@ export const builtInSceneMediaItems = [
             "text": "Nina and Luis were taking a quick walk before lunch when Nina stepped on a loose stone. Her ankle hurt, and she tried to laugh, but Luis could see she needed help. He helped her sit down, then walked with her to the clinic. The nurse wrapped the ankle and told Nina to rest. The walk ended early, but the friendship felt stronger."
         },
         "setting": "park-and-clinic",
-        "skills": [
-            "health_vocabulary",
-            "body_parts",
-            "minor_injuries",
-            "helping",
-            "present_continuous",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "park",
-            "ankle",
-            "sprain",
-            "bandage",
-            "friendship",
-            "helping"
-        ],
         "title": "A Minor Sprain At The Clinic - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "minor-sprain-clinic-01",
         "visualSummary": [
             "The girl mildly twists her ankle on a park path.",
@@ -5417,38 +3484,9 @@ export const builtInSceneMediaItems = [
             "text": "Nina wanted the park walk to feel ordinary after a stressful week, so she was annoyed when one small stone changed the plan. Her ankle twisted, and for a moment she was more embarrassed than hurt. Luis did not make a big scene; he simply offered his arm, found a bench, and helped her get to the clinic. The nurse wrapped the sprain and explained how to care for it. Nina left moving slowly, but she also left grateful that an inconvenient accident had revealed such steady friendship."
         },
         "setting": "park-and-clinic",
-        "skills": [
-            "health_vocabulary",
-            "body_parts",
-            "minor_injuries",
-            "helping",
-            "present_continuous",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "park",
-            "ankle",
-            "sprain",
-            "bandage",
-            "friendship",
-            "helping"
-        ],
         "title": "A Minor Sprain At The Clinic - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "minor-sprain-clinic-01",
         "visualSummary": [
             "The girl mildly twists her ankle on a park path.",
@@ -5488,38 +3526,9 @@ export const builtInSceneMediaItems = [
             "text": "Maya ran to the platform, but the train left without her. She looked at the empty tracks and felt upset. A station worker showed her another way. Maya took a deep breath and walked to the next train."
         },
         "setting": "train-station",
-        "skills": [
-            "travel_vocabulary",
-            "transportation",
-            "asking_for_help",
-            "emotions",
-            "present_continuous",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "train",
-            "station",
-            "platform",
-            "late",
-            "missed-train",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Missing The Train - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "missed-train-platform-01",
         "visualSummary": [
             "The traveler runs onto the platform.",
@@ -5559,38 +3568,9 @@ export const builtInSceneMediaItems = [
             "text": "Maya thought she had five minutes, but the station clock disagreed. She ran down the stairs just as the train doors closed. For a moment, she wanted to blame the rain, her alarm, and the slow ticket machine. Then a station worker pointed her toward another platform. The next train was not perfect, but it would still get her there. Maya changed plans and kept moving."
         },
         "setting": "train-station",
-        "skills": [
-            "travel_vocabulary",
-            "transportation",
-            "asking_for_help",
-            "emotions",
-            "present_continuous",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "train",
-            "station",
-            "platform",
-            "late",
-            "missed-train",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Missing The Train - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "missed-train-platform-01",
         "visualSummary": [
             "The traveler runs onto the platform.",
@@ -5630,38 +3610,9 @@ export const builtInSceneMediaItems = [
             "text": "Maya reached the platform just in time to watch her train become part of the distance. The missed train felt personal at first, as if the whole morning had chosen to work against her. A station employee noticed her panic and explained a different route with two transfers. It was not the simple trip she had planned, but it was still a trip. Maya put away her frustration, followed the signs, and discovered that a ruined schedule did not have to ruin the day."
         },
         "setting": "train-station",
-        "skills": [
-            "travel_vocabulary",
-            "transportation",
-            "asking_for_help",
-            "emotions",
-            "present_continuous",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "train",
-            "station",
-            "platform",
-            "late",
-            "missed-train",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Missing The Train - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "missed-train-platform-01",
         "visualSummary": [
             "The traveler runs onto the platform.",
@@ -5701,31 +3652,9 @@ export const builtInSceneMediaItems = [
             "text": "Ella and her son were late for school. He could not find one shoe. They looked under the bed, beside the door, and near the sofa. Ella found it under a jacket, and they left together just in time."
         },
         "setting": "home-entryway",
-        "skills": [
-            "morning_routine",
-            "family",
-            "finding_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "morning-routine",
-            "family",
-            "finding-objects",
-            "home"
-        ],
         "title": "Morning Rush - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "morning-rush-family-01",
         "visualSummary": [
             "A father checks his watch while his son rushes through breakfast in the kitchen.",
@@ -5765,31 +3694,9 @@ export const builtInSceneMediaItems = [
             "text": "Ella's morning plan was simple: breakfast, shoes, backpack, bus. Then one shoe disappeared. Her son looked worried because he did not want to be late. Ella stopped rushing and turned the search into a game. They checked the bedroom, the hallway, and finally the sofa. The shoe was hiding under a jacket. They ran to the bus laughing, a little late but still together."
         },
         "setting": "home-entryway",
-        "skills": [
-            "morning_routine",
-            "family",
-            "finding_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "morning-routine",
-            "family",
-            "finding-objects",
-            "home"
-        ],
         "title": "Morning Rush - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "morning-rush-family-01",
         "visualSummary": [
             "A father checks his watch while his son rushes through breakfast in the kitchen.",
@@ -5829,31 +3736,9 @@ export const builtInSceneMediaItems = [
             "text": "The morning began with the usual race against the clock. Ella packed lunch while her son searched for his shoes, and then the whole schedule collapsed over one missing sneaker. Instead of shouting, Ella forced herself to slow down. They retraced his steps, lifted a jacket near the sofa, and found the shoe waiting there. The bus arrived just as they reached the stop. It was not a perfect morning, but it became a small victory in patience."
         },
         "setting": "home-entryway",
-        "skills": [
-            "morning_routine",
-            "family",
-            "finding_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "morning-routine",
-            "family",
-            "finding-objects",
-            "home"
-        ],
         "title": "Morning Rush - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "morning-rush-family-01",
         "visualSummary": [
             "A father checks his watch while his son rushes through breakfast in the kitchen.",
@@ -5948,36 +3833,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office-break-room",
-        "skills": [
-            "workplace_vocabulary",
-            "daily_routines",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "workplace",
-            "small_talk",
-            "food_and_drink"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "break-room",
-            "coffee",
-            "snacks",
-            "coworkers",
-            "daily-routine",
-            "office-objects"
-        ],
         "title": "Break Time",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "office-break-room-01",
         "visualSummary": [
             "Coworkers take a short break: pouring coffee, taking snacks, chatting, and washing a mug."
@@ -6069,36 +3927,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office-break-room",
-        "skills": [
-            "workplace_vocabulary",
-            "daily_routines",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "small_talk",
-            "workday_routine",
-            "wellbeing"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "break-room",
-            "coffee",
-            "snacks",
-            "coworkers",
-            "daily-routine",
-            "office-objects"
-        ],
         "title": "Five Quiet Minutes",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "office-break-room-01",
         "visualSummary": [
             "Coworkers take a short break: pouring coffee, taking snacks, chatting, and washing a mug."
@@ -6190,36 +4021,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office-break-room",
-        "skills": [
-            "workplace_vocabulary",
-            "daily_routines",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "workplace_wellbeing",
-            "natural_small_talk",
-            "reflection"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "break-room",
-            "coffee",
-            "snacks",
-            "coworkers",
-            "daily-routine",
-            "office-objects"
-        ],
         "title": "Resetting In The Break Room",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "office-break-room-01",
         "visualSummary": [
             "Coworkers take a short break: pouring coffee, taking snacks, chatting, and washing a mug."
@@ -6256,34 +4060,9 @@ export const builtInSceneMediaItems = [
             "text": "Mrs. Chen needed to finish an online form, but one question confused her. Her neighbor sat beside her and read it slowly. They filled in the answer together. Mrs. Chen clicked send and smiled."
         },
         "setting": "home-computer",
-        "skills": [
-            "digital",
-            "online",
-            "form",
-            "helping",
-            "technology",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "digital",
-            "online",
-            "form",
-            "helping",
-            "technology"
-        ],
         "title": "Help With An Online Form - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "online-form-help-01",
         "visualSummary": [
             "An older woman feels stuck while filling out an online form.",
@@ -6323,34 +4102,9 @@ export const builtInSceneMediaItems = [
             "text": "Mrs. Chen had almost finished the online form when the final page asked for information she did not understand. She wanted to close the computer. Her neighbor Ben came over and helped her read each question. He did not type for her; he explained, and she chose the answers. When Mrs. Chen clicked send, she felt proud because the form was truly hers."
         },
         "setting": "home-computer",
-        "skills": [
-            "digital",
-            "online",
-            "form",
-            "helping",
-            "technology",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "digital",
-            "online",
-            "form",
-            "helping",
-            "technology"
-        ],
         "title": "Help With An Online Form - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "online-form-help-01",
         "visualSummary": [
             "An older woman feels stuck while filling out an online form.",
@@ -6390,34 +4144,9 @@ export const builtInSceneMediaItems = [
             "text": "Mrs. Chen disliked online forms because they made simple tasks feel suddenly official and unforgiving. She reached the final page, saw a question she did not understand, and nearly gave up. Her neighbor Ben pulled up a chair and slowed the process down. He explained the words, waited for her decisions, and let her control the keyboard. When the confirmation appeared, Mrs. Chen smiled with relief. The help had not taken independence away; it had returned it."
         },
         "setting": "home-computer",
-        "skills": [
-            "digital",
-            "online",
-            "form",
-            "helping",
-            "technology",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "digital",
-            "online",
-            "form",
-            "helping",
-            "technology"
-        ],
         "title": "Help With An Online Form - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "online-form-help-01",
         "visualSummary": [
             "An older woman feels stuck while filling out an online form.",
@@ -6457,34 +4186,9 @@ export const builtInSceneMediaItems = [
             "text": "Kai wanted lunch at a new restaurant. He told the server about his nut allergy. The server checked with the kitchen and helped him choose safe food. Kai ate carefully and enjoyed the meal."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "allergy",
-            "food",
-            "safety",
-            "ordering",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "allergy",
-            "food",
-            "safety",
-            "ordering"
-        ],
         "title": "Ordering With An Allergy - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "ordering-with-allergy-01",
         "visualSummary": [
             "A customer gives his order while the server writes it down.",
@@ -6524,34 +4228,9 @@ export const builtInSceneMediaItems = [
             "text": "Kai liked trying new restaurants, but his nut allergy meant he had to ask questions. When the server came to the table, Kai explained the allergy clearly. She did not guess. She checked with the kitchen and suggested a safe dish. Kai thanked her because asking can feel awkward. When the food arrived, he relaxed and enjoyed lunch with his friends."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "allergy",
-            "food",
-            "safety",
-            "ordering",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "allergy",
-            "food",
-            "safety",
-            "ordering"
-        ],
         "title": "Ordering With An Allergy - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "ordering-with-allergy-01",
         "visualSummary": [
             "A customer gives his order while the server writes it down.",
@@ -6591,34 +4270,9 @@ export const builtInSceneMediaItems = [
             "text": "Kai had learned that eating out required both courage and clarity. At the new restaurant, he wanted to enjoy lunch without turning his allergy into a dramatic announcement. He explained it calmly to the server, who paused the order instead of rushing him. She checked with the kitchen, returned with safe options, and made sure the plate was prepared separately. Kai's friends barely noticed the extra steps, but he did. The meal tasted better because it came with trust."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "allergy",
-            "food",
-            "safety",
-            "ordering",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "allergy",
-            "food",
-            "safety",
-            "ordering"
-        ],
         "title": "Ordering With An Allergy - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "ordering-with-allergy-01",
         "visualSummary": [
             "A customer gives his order while the server writes it down.",
@@ -6658,36 +4312,9 @@ export const builtInSceneMediaItems = [
             "text": "Lena packed her suitcase carefully before her trip. She folded shirts, socks, and a small gift. At the hotel, she opened the suitcase and found everything in the right place. The gift was safe, so she called her sister with a smile."
         },
         "setting": "home-and-hotel-room",
-        "skills": [
-            "travel_vocabulary",
-            "clothing_vocabulary",
-            "packing",
-            "before_after",
-            "prepositions",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "suitcase",
-            "packing",
-            "unpacking",
-            "hotel",
-            "clothes",
-            "before-after"
-        ],
         "title": "Packed And Unpacked Suitcase - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "packed-unpacked-suitcase-01",
         "visualSummary": [
             "The traveler packs a suitcase neatly before the trip.",
@@ -6725,36 +4352,9 @@ export const builtInSceneMediaItems = [
             "text": "Lena usually packed in a hurry, but this trip mattered. She folded her clothes carefully and placed a small birthday gift between two soft sweaters. When she arrived at the hotel, she opened the suitcase with a little fear. Nothing was broken, and the gift was still wrapped. Lena unpacked slowly, then called her sister to say she would be there on time."
         },
         "setting": "home-and-hotel-room",
-        "skills": [
-            "travel_vocabulary",
-            "clothing_vocabulary",
-            "packing",
-            "before_after",
-            "prepositions",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "suitcase",
-            "packing",
-            "unpacking",
-            "hotel",
-            "clothes",
-            "before-after"
-        ],
         "title": "Packed And Unpacked Suitcase - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "packed-unpacked-suitcase-01",
         "visualSummary": [
             "The traveler packs a suitcase neatly before the trip.",
@@ -6792,36 +4392,9 @@ export const builtInSceneMediaItems = [
             "text": "Lena treated the suitcase like a promise. She packed each item with unusual care because the trip was not just a vacation; it was the first family birthday she had attended in years. At the hotel, she opened the bag and found the gift exactly where she had placed it, protected between layers of clothes. The sight made her unexpectedly emotional. For once, nothing had been forgotten, crushed, or delayed. She unpacked, breathed out, and prepared to show up."
         },
         "setting": "home-and-hotel-room",
-        "skills": [
-            "travel_vocabulary",
-            "clothing_vocabulary",
-            "packing",
-            "before_after",
-            "prepositions",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "suitcase",
-            "packing",
-            "unpacking",
-            "hotel",
-            "clothes",
-            "before-after"
-        ],
         "title": "Packed And Unpacked Suitcase - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "comparison_prompt"
-        ],
         "visualAssetId": "packed-unpacked-suitcase-01",
         "visualSummary": [
             "The traveler packs a suitcase neatly before the trip.",
@@ -6914,37 +4487,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "home-kitchen",
-        "skills": [
-            "cooking_vocabulary",
-            "family",
-            "present_continuous",
-            "past_tense_story",
-            "mistakes_and_solutions",
-            "emotions",
-            "cooking",
-            "sequence"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "kitchen",
-            "cooking",
-            "pancakes",
-            "family",
-            "learning",
-            "mistake",
-            "cleaning",
-            "problem-solution"
-        ],
         "title": "Making Pancakes For Friends",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "pancake-practice-kitchen-01",
         "visualSummary": [
             "The grandmother shows her adult grandson how to prepare pancake batter.",
@@ -7039,38 +4584,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "home-kitchen",
-        "skills": [
-            "cooking_vocabulary",
-            "family",
-            "present_continuous",
-            "past_tense_story",
-            "mistakes_and_solutions",
-            "emotions",
-            "instructions",
-            "cooking_sequence",
-            "improvement"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "kitchen",
-            "cooking",
-            "pancakes",
-            "family",
-            "learning",
-            "mistake",
-            "cleaning",
-            "problem-solution"
-        ],
         "title": "Preparing For Brunch",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "pancake-practice-kitchen-01",
         "visualSummary": [
             "The grandmother shows her adult grandson how to prepare pancake batter.",
@@ -7165,38 +4681,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "home-kitchen",
-        "skills": [
-            "cooking_vocabulary",
-            "family",
-            "present_continuous",
-            "past_tense_story",
-            "mistakes_and_solutions",
-            "emotions",
-            "process_language",
-            "encouragement",
-            "precise_instructions"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "kitchen",
-            "cooking",
-            "pancakes",
-            "family",
-            "learning",
-            "mistake",
-            "cleaning",
-            "problem-solution"
-        ],
         "title": "Learning Before Hosting Brunch",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "pancake-practice-kitchen-01",
         "visualSummary": [
             "The grandmother shows her adult grandson how to prepare pancake batter.",
@@ -7236,34 +4723,9 @@ export const builtInSceneMediaItems = [
             "text": "On Saturday, neighbors came to clean the park. They picked up bottles, bags, and paper. A little girl found a clean flower bed under the trash. By noon, the park looked bright again."
         },
         "setting": "park",
-        "skills": [
-            "community",
-            "park",
-            "cleanup",
-            "teamwork",
-            "litter",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "park",
-            "cleanup",
-            "teamwork",
-            "litter"
-        ],
         "title": "Park Cleanup - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "park-cleanup-01",
         "visualSummary": [
             "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
@@ -7303,34 +4765,9 @@ export const builtInSceneMediaItems = [
             "text": "The park had looked sad for weeks, so a few neighbors planned a cleanup. At first, only five people arrived. Then more people came with gloves, bags, and water. They picked up trash, swept the path, and cleared the flower beds. A child found a hidden patch of yellow flowers. By lunchtime, the park felt like a place people wanted to protect."
         },
         "setting": "park",
-        "skills": [
-            "community",
-            "park",
-            "cleanup",
-            "teamwork",
-            "litter",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "park",
-            "cleanup",
-            "teamwork",
-            "litter"
-        ],
         "title": "Park Cleanup - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "park-cleanup-01",
         "visualSummary": [
             "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
@@ -7370,34 +4807,9 @@ export const builtInSceneMediaItems = [
             "text": "The neighborhood park had not become dirty all at once; it had changed slowly, one bottle and one forgotten bag at a time. On Saturday, the neighbors decided to reverse that story. They arrived with gloves, trash bags, and a little uncertainty about whether anyone else would help. By midmorning, strangers were working side by side. When a child uncovered yellow flowers near the path, everyone stopped to look. The cleanup gave the park back its color, and the neighbors back their sense of ownership."
         },
         "setting": "park",
-        "skills": [
-            "community",
-            "park",
-            "cleanup",
-            "teamwork",
-            "litter",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "park",
-            "cleanup",
-            "teamwork",
-            "litter"
-        ],
         "title": "Park Cleanup - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "park-cleanup-01",
         "visualSummary": [
             "A group of neighbors gathers with gloves, grabbers, and bags for a park cleanup.",
@@ -7437,37 +4849,9 @@ export const builtInSceneMediaItems = [
             "text": "Eli picked up medicine for his mother, but he did not understand the instructions. He asked the pharmacist for help. She showed him the bottle and a glass of water. Eli listened carefully and went home ready to help his mother safely."
         },
         "setting": "pharmacy",
-        "skills": [
-            "health_vocabulary",
-            "pharmacy",
-            "medicine",
-            "asking_questions",
-            "instructions",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "pharmacy",
-            "medicine",
-            "instructions",
-            "questions",
-            "helping",
-            "self-care"
-        ],
         "title": "Pharmacy Instructions - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "pharmacy-instructions-01",
         "visualSummary": [
             "The customer asks for help at the pharmacy counter.",
@@ -7507,37 +4891,9 @@ export const builtInSceneMediaItems = [
             "text": "Eli wanted to help his mother, so he went to the pharmacy after school. When the pharmacist gave him the medicine, he realized he was not sure how she should take it. Instead of guessing, he asked for the instructions again. The pharmacist explained slowly and used gestures to make everything clear. Eli wrote down the important details and left feeling responsible, not confused."
         },
         "setting": "pharmacy",
-        "skills": [
-            "health_vocabulary",
-            "pharmacy",
-            "medicine",
-            "asking_questions",
-            "instructions",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "pharmacy",
-            "medicine",
-            "instructions",
-            "questions",
-            "helping",
-            "self-care"
-        ],
         "title": "Pharmacy Instructions - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "pharmacy-instructions-01",
         "visualSummary": [
             "The customer asks for help at the pharmacy counter.",
@@ -7577,37 +4933,9 @@ export const builtInSceneMediaItems = [
             "text": "Eli had promised his mother he would handle the pharmacy errand, and at first it felt simple. Then the pharmacist placed the medicine on the counter and explained the schedule faster than he expected. Eli almost nodded and left, but he imagined giving the wrong instructions at home. He took a breath and asked her to repeat everything. The pharmacist smiled, clarified the timing, and showed him exactly what mattered. By asking one careful question, Eli turned a nervous errand into a useful act of care."
         },
         "setting": "pharmacy",
-        "skills": [
-            "health_vocabulary",
-            "pharmacy",
-            "medicine",
-            "asking_questions",
-            "instructions",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "pharmacy",
-            "medicine",
-            "instructions",
-            "questions",
-            "helping",
-            "self-care"
-        ],
         "title": "Pharmacy Instructions - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "pharmacy-instructions-01",
         "visualSummary": [
             "The customer asks for help at the pharmacy counter.",
@@ -7647,37 +4975,9 @@ export const builtInSceneMediaItems = [
             "text": "Diego broke his phone screen on Tuesday. On Friday, he went back to the repair shop. The technician brought out the phone, and Diego tested it. The screen worked again, so he left with a big smile."
         },
         "setting": "phone-repair-shop",
-        "skills": [
-            "services",
-            "technology_vocabulary",
-            "repair",
-            "polite_interactions",
-            "present_continuous",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "service",
-            "phone",
-            "repair",
-            "shop",
-            "technician",
-            "customer",
-            "success"
-        ],
         "title": "Picking Up A Repaired Phone - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "phone-repair-pickup-01",
         "visualSummary": [
             "The customer enters the repair shop with a blank claim slip.",
@@ -7717,37 +5017,9 @@ export const builtInSceneMediaItems = [
             "text": "Diego had spent three days borrowing his sister's phone, so he was eager to pick up his repaired one. At the shop, the technician checked his claim slip and brought out the phone. Diego turned it on, tried the camera, and sent a quick message. Everything worked. He thanked the technician because the small device suddenly felt important again."
         },
         "setting": "phone-repair-shop",
-        "skills": [
-            "services",
-            "technology_vocabulary",
-            "repair",
-            "polite_interactions",
-            "present_continuous",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "service",
-            "phone",
-            "repair",
-            "shop",
-            "technician",
-            "customer",
-            "success"
-        ],
         "title": "Picking Up A Repaired Phone - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "phone-repair-pickup-01",
         "visualSummary": [
             "The customer enters the repair shop with a blank claim slip.",
@@ -7787,37 +5059,9 @@ export const builtInSceneMediaItems = [
             "text": "Diego did not realize how much he used his phone until the screen broke and every simple task became complicated. When he returned to the repair shop, he tried not to look too hopeful. The technician placed the phone on the counter, clean and working, and invited him to test it. Diego opened the camera, checked his messages, and laughed when the screen responded perfectly. The repair had not only fixed a device; it had returned a little order to his week."
         },
         "setting": "phone-repair-shop",
-        "skills": [
-            "services",
-            "technology_vocabulary",
-            "repair",
-            "polite_interactions",
-            "present_continuous",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "service",
-            "phone",
-            "repair",
-            "shop",
-            "technician",
-            "customer",
-            "success"
-        ],
         "title": "Picking Up A Repaired Phone - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "phone-repair-pickup-01",
         "visualSummary": [
             "The customer enters the repair shop with a blank claim slip.",
@@ -7857,36 +5101,9 @@ export const builtInSceneMediaItems = [
             "text": "Ruben brought a package to the post office for his sister. He did not know which label to use. The clerk helped him choose one and weigh the box. Ruben mailed the package and sent his sister a happy message."
         },
         "setting": "post-office",
-        "skills": [
-            "community",
-            "post",
-            "office",
-            "package",
-            "mailing",
-            "service",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "post",
-            "office",
-            "package",
-            "mailing",
-            "service"
-        ],
         "title": "Mailing A Package - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "post-office-package-01",
         "visualSummary": [
             "A man carries a cardboard box into the post office.",
@@ -7926,36 +5143,9 @@ export const builtInSceneMediaItems = [
             "text": "Ruben wanted to mail a birthday gift to his sister, but the post office had too many labels and choices. He held the box and looked confused. The clerk asked where it was going, weighed it, and showed him the right option. Ruben paid, watched the label go on the box, and felt relieved. His sister would not get the gift early, but it would arrive."
         },
         "setting": "post-office",
-        "skills": [
-            "community",
-            "post",
-            "office",
-            "package",
-            "mailing",
-            "service",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "post",
-            "office",
-            "package",
-            "mailing",
-            "service"
-        ],
         "title": "Mailing A Package - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "post-office-package-01",
         "visualSummary": [
             "A man carries a cardboard box into the post office.",
@@ -7995,36 +5185,9 @@ export const builtInSceneMediaItems = [
             "text": "Ruben had wrapped the gift carefully, but mailing it turned out to be the part that made him nervous. The post office counter was busy, and every label seemed designed for someone who already knew the answer. The clerk asked a few simple questions, weighed the package, and explained the delivery choices without rushing him. When the label finally stuck to the box, Ruben felt as if the gift had begun its own small journey. He stepped outside and texted his sister, not what he had sent, but that something was on the way."
         },
         "setting": "post-office",
-        "skills": [
-            "community",
-            "post",
-            "office",
-            "package",
-            "mailing",
-            "service",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "community",
-            "post",
-            "office",
-            "package",
-            "mailing",
-            "service"
-        ],
         "title": "Mailing A Package - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "post-office-package-01",
         "visualSummary": [
             "A man carries a cardboard box into the post office.",
@@ -8119,36 +5282,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office",
-        "skills": [
-            "workplace_vocabulary",
-            "office_equipment",
-            "asking_for_help",
-            "problem_solution",
-            "present_continuous",
-            "past_tense_story",
-            "office",
-            "technology"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "printer",
-            "paper-jam",
-            "coworkers",
-            "helping",
-            "problem-solution"
-        ],
         "title": "The Printer Problem",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "printer-help-workplace-01",
         "visualSummary": [
             "The worker waits beside the printer with blank papers.",
@@ -8243,37 +5379,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office",
-        "skills": [
-            "workplace_vocabulary",
-            "office_equipment",
-            "asking_for_help",
-            "problem_solution",
-            "present_continuous",
-            "past_tense_story",
-            "office_technology",
-            "instructions",
-            "workplace_help"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "printer",
-            "paper-jam",
-            "coworkers",
-            "helping",
-            "problem-solution"
-        ],
         "title": "Fixing The Jam",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "printer-help-workplace-01",
         "visualSummary": [
             "The worker waits beside the printer with blank papers.",
@@ -8368,37 +5476,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office",
-        "skills": [
-            "workplace_vocabulary",
-            "office_equipment",
-            "asking_for_help",
-            "problem_solution",
-            "present_continuous",
-            "past_tense_story",
-            "technical_explanation",
-            "workplace_pressure",
-            "step_by_step_help"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "printer",
-            "paper-jam",
-            "coworkers",
-            "helping",
-            "problem-solution"
-        ],
         "title": "A Paper Jam Before The Meeting",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "printer-help-workplace-01",
         "visualSummary": [
             "The worker waits beside the printer with blank papers.",
@@ -8438,36 +5518,9 @@ export const builtInSceneMediaItems = [
             "text": "Nora and her father arrived at the restaurant for dinner. The host could not find their reservation. Nora showed the confirmation on her phone. The host found a table, and dinner began with a laugh."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "reservation",
-            "polite",
-            "requests",
-            "problem",
-            "solution",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "reservation",
-            "polite",
-            "requests",
-            "problem",
-            "solution"
-        ],
         "title": "Reservation Mix-Up - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "restaurant-reservation-mixup-01",
         "visualSummary": [
             "A couple arrives at the restaurant host stand for their reservation.",
@@ -8507,36 +5560,9 @@ export const builtInSceneMediaItems = [
             "text": "Nora had planned the dinner for her father's birthday, so her heart dropped when the host could not find the reservation. The restaurant was full, and her father tried to say it was fine. Nora checked her phone and found the confirmation. The host apologized and searched again. A table opened near the window. The evening started with a problem, but it became a story they would retell."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "reservation",
-            "polite",
-            "requests",
-            "problem",
-            "solution",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "reservation",
-            "polite",
-            "requests",
-            "problem",
-            "solution"
-        ],
         "title": "Reservation Mix-Up - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "restaurant-reservation-mixup-01",
         "visualSummary": [
             "A couple arrives at the restaurant host stand for their reservation.",
@@ -8576,36 +5602,9 @@ export const builtInSceneMediaItems = [
             "text": "Nora wanted the birthday dinner to feel effortless, which is exactly why the missing reservation felt so painful. The host searched the list twice while Nora's father pretended not to be disappointed. Then Nora found the confirmation message buried under a week of notifications. The host recognized the mistake, apologized, and found a quiet table near the window. The dinner was not flawless, but perhaps that helped. By dessert, the mix-up had become part of the celebration rather than a threat to it."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "reservation",
-            "polite",
-            "requests",
-            "problem",
-            "solution",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "reservation",
-            "polite",
-            "requests",
-            "problem",
-            "solution"
-        ],
         "title": "Reservation Mix-Up - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "restaurant-reservation-mixup-01",
         "visualSummary": [
             "A couple arrives at the restaurant host stand for their reservation.",
@@ -8645,34 +5644,9 @@ export const builtInSceneMediaItems = [
             "text": "The science group mixed colored water for a project. One cup fell, and blue water spread across the table. The students stopped and cleaned it together. Then they started again more carefully."
         },
         "setting": "science-classroom",
-        "skills": [
-            "science",
-            "classroom",
-            "spill",
-            "cleanup",
-            "teamwork",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "science",
-            "classroom",
-            "spill",
-            "cleanup",
-            "teamwork"
-        ],
         "title": "Science Project Spill - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "science-project-spill-01",
         "visualSummary": [
             "Two lab partners carefully mix a blue liquid in a beaker.",
@@ -8712,34 +5686,9 @@ export const builtInSceneMediaItems = [
             "text": "The science project was going well until Ben reached across the table and knocked over a cup of blue water. Everyone froze. For a second, the group looked at the spill instead of the solution. Then Maya grabbed paper towels, and Ben moved the papers away. The teacher checked that everyone was safe. After cleaning up, they restarted the experiment with slower hands and a better plan."
         },
         "setting": "science-classroom",
-        "skills": [
-            "science",
-            "classroom",
-            "spill",
-            "cleanup",
-            "teamwork",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "science",
-            "classroom",
-            "spill",
-            "cleanup",
-            "teamwork"
-        ],
         "title": "Science Project Spill - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "science-project-spill-01",
         "visualSummary": [
             "Two lab partners carefully mix a blue liquid in a beaker.",
@@ -8779,34 +5728,9 @@ export const builtInSceneMediaItems = [
             "text": "The spill happened at the worst possible moment, just as the group thought their science project was finally working. Blue water ran across the table toward their notes, and Ben's face turned red with embarrassment. Maya moved first, lifting the papers while another student found towels. Their teacher reminded them that safe scientists respond before they complain. Ten minutes later, the table was clean and the experiment began again. The project survived because the group chose teamwork over blame."
         },
         "setting": "science-classroom",
-        "skills": [
-            "science",
-            "classroom",
-            "spill",
-            "cleanup",
-            "teamwork",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "science",
-            "classroom",
-            "spill",
-            "cleanup",
-            "teamwork"
-        ],
         "title": "Science Project Spill - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "science-project-spill-01",
         "visualSummary": [
             "Two lab partners carefully mix a blue liquid in a beaker.",
@@ -8901,38 +5825,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "classroom",
-        "skills": [
-            "adult_education_vocabulary",
-            "food_vocabulary",
-            "emotions",
-            "friendship",
-            "present_continuous",
-            "past_tense_story",
-            "food",
-            "adult_education",
-            "sharing"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "classroom",
-            "lunch",
-            "sharing",
-            "friendship",
-            "food",
-            "adult-education",
-            "kindness",
-            "problem-solution"
-        ],
         "title": "Lunch Between Classes",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "shared-lunch-classroom-01",
         "visualSummary": [
             "An adult learner opens his lunchbox during a course break.",
@@ -9027,38 +5922,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "classroom",
-        "skills": [
-            "adult_education_vocabulary",
-            "food_vocabulary",
-            "emotions",
-            "friendship",
-            "present_continuous",
-            "past_tense_story",
-            "adult_education",
-            "food",
-            "gratitude"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "classroom",
-            "lunch",
-            "sharing",
-            "friendship",
-            "food",
-            "adult-education",
-            "kindness",
-            "problem-solution"
-        ],
         "title": "Sharing During The Course",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "shared-lunch-classroom-01",
         "visualSummary": [
             "An adult learner opens his lunchbox during a course break.",
@@ -9153,38 +6019,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "classroom",
-        "skills": [
-            "adult_education_vocabulary",
-            "food_vocabulary",
-            "emotions",
-            "friendship",
-            "present_continuous",
-            "past_tense_story",
-            "adult_education",
-            "reciprocity",
-            "natural_dialogue"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "classroom",
-            "lunch",
-            "sharing",
-            "friendship",
-            "food",
-            "adult-education",
-            "kindness",
-            "problem-solution"
-        ],
         "title": "A Generous Break Between Classes",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "shared-lunch-classroom-01",
         "visualSummary": [
             "An adult learner opens his lunchbox during a course break.",
@@ -9279,37 +6116,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "bus-stop",
-        "skills": [
-            "describing_weather",
-            "transportation",
-            "present_continuous",
-            "past_tense_story",
-            "asking_for_help",
-            "emotions",
-            "weather",
-            "offers"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "bus-stop",
-            "rain",
-            "umbrella",
-            "transportation",
-            "helping",
-            "kindness",
-            "weather",
-            "problem-solution"
-        ],
         "title": "Under The Umbrella",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "shared-umbrella-bus-stop-01",
         "visualSummary": [
             "A young adult commuter waits at a rainy bus stop.",
@@ -9404,38 +6213,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "bus-stop",
-        "skills": [
-            "describing_weather",
-            "transportation",
-            "present_continuous",
-            "past_tense_story",
-            "asking_for_help",
-            "emotions",
-            "weather",
-            "offers",
-            "public_transport"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "bus-stop",
-            "rain",
-            "umbrella",
-            "transportation",
-            "helping",
-            "kindness",
-            "weather",
-            "problem-solution"
-        ],
         "title": "Waiting In The Rain",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "shared-umbrella-bus-stop-01",
         "visualSummary": [
             "A young adult commuter waits at a rainy bus stop.",
@@ -9530,38 +6310,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "bus-stop",
-        "skills": [
-            "describing_weather",
-            "transportation",
-            "present_continuous",
-            "past_tense_story",
-            "asking_for_help",
-            "emotions",
-            "polite_offers",
-            "reflection",
-            "natural_dialogue"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "bus-stop",
-            "rain",
-            "umbrella",
-            "transportation",
-            "helping",
-            "kindness",
-            "weather",
-            "problem-solution"
-        ],
         "title": "A Small Courtesy In Bad Weather",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "shared-umbrella-bus-stop-01",
         "visualSummary": [
             "A young adult commuter waits at a rainy bus stop.",
@@ -9601,34 +6352,9 @@ export const builtInSceneMediaItems = [
             "text": "A waiter brought soup to the table, but the bowl slipped. A little soup spilled near Emma's chair. The waiter cleaned it quickly and brought a new bowl. Emma thanked him, and dinner continued."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "soup",
-            "spill",
-            "cleanup",
-            "helping",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "soup",
-            "spill",
-            "cleanup",
-            "helping"
-        ],
         "title": "Spilled Soup - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "spilled-soup-restaurant-01",
         "visualSummary": [
             "A waiter serves a bowl of soup to a smiling diner.",
@@ -9668,34 +6394,9 @@ export const builtInSceneMediaItems = [
             "text": "Emma was telling a story when the waiter arrived with hot soup. The bowl slipped slightly, and soup splashed onto the table. Everyone stopped. The waiter apologized, Emma moved her napkin, and another staff member came with towels. Nobody was hurt. A new bowl arrived a few minutes later, and the table relaxed again. The accident became a small interruption, not a ruined meal."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "soup",
-            "spill",
-            "cleanup",
-            "helping",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "soup",
-            "spill",
-            "cleanup",
-            "helping"
-        ],
         "title": "Spilled Soup - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "spilled-soup-restaurant-01",
         "visualSummary": [
             "A waiter serves a bowl of soup to a smiling diner.",
@@ -9735,34 +6436,9 @@ export const builtInSceneMediaItems = [
             "text": "The soup spill was small, but for one second the whole table went silent. Emma saw the waiter's face change from focus to panic, and she understood that he was more upset than anyone else. She moved her chair back, smiled, and said she was fine. The staff cleaned the table quickly and replaced the bowl. When dinner continued, the conversation returned slowly, then warmly. Emma later remembered the meal not for the spill, but for how kindly everyone let the mistake pass."
         },
         "setting": "restaurant",
-        "skills": [
-            "restaurant",
-            "soup",
-            "spill",
-            "cleanup",
-            "helping",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "restaurant",
-            "soup",
-            "spill",
-            "cleanup",
-            "helping"
-        ],
         "title": "Spilled Soup - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "spilled-soup-restaurant-01",
         "visualSummary": [
             "A waiter serves a bowl of soup to a smiling diner.",
@@ -9857,36 +6533,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office-project-room",
-        "skills": [
-            "workplace_vocabulary",
-            "teamwork",
-            "planning",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "deadlines",
-            "work_tasks"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "teamwork",
-            "deadline",
-            "planning",
-            "coworkers",
-            "success"
-        ],
         "title": "Finishing Together",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "team-deadline-workplace-01",
         "visualSummary": [
             "The coworkers look stressed at a busy project table.",
@@ -9981,35 +6630,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office-project-room",
-        "skills": [
-            "workplace_vocabulary",
-            "teamwork",
-            "planning",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "deadline_language"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "teamwork",
-            "deadline",
-            "planning",
-            "coworkers",
-            "success"
-        ],
         "title": "The Final Hour",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "team-deadline-workplace-01",
         "visualSummary": [
             "The coworkers look stressed at a busy project table.",
@@ -10104,37 +6727,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "office-project-room",
-        "skills": [
-            "workplace_vocabulary",
-            "teamwork",
-            "planning",
-            "present_continuous",
-            "past_tense_story",
-            "emotions",
-            "prioritization",
-            "collaboration",
-            "professional_tone"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "workplace",
-            "office",
-            "teamwork",
-            "deadline",
-            "planning",
-            "coworkers",
-            "success"
-        ],
         "title": "Making The Deadline Manageable",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "team-deadline-workplace-01",
         "visualSummary": [
             "The coworkers look stressed at a busy project table.",
@@ -10174,37 +6769,9 @@ export const builtInSceneMediaItems = [
             "text": "Mr. Lee wanted to buy a train ticket, but the machine confused him. A young traveler saw the problem and offered help. She showed him where to press. Soon Mr. Lee had his ticket and walked to the platform."
         },
         "setting": "train-station",
-        "skills": [
-            "travel_vocabulary",
-            "transportation",
-            "buying_tickets",
-            "asking_for_help",
-            "polite_interactions",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "ticket-machine",
-            "station",
-            "ticket",
-            "helping",
-            "polite",
-            "problem-solution"
-        ],
         "title": "Help At The Ticket Machine - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "ticket-machine-help-01",
         "visualSummary": [
             "The older traveler looks confused at a ticket machine.",
@@ -10244,37 +6811,9 @@ export const builtInSceneMediaItems = [
             "text": "Mr. Lee needed a ticket for the city train, but the machine had too many choices. He stepped back and looked worried. A young traveler asked if he needed help, then showed him the correct button and where to pay. Mr. Lee thanked her twice because he had been afraid of missing the train. With the ticket in his hand, he walked toward the platform with a lighter step."
         },
         "setting": "train-station",
-        "skills": [
-            "travel_vocabulary",
-            "transportation",
-            "buying_tickets",
-            "asking_for_help",
-            "polite_interactions",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "ticket-machine",
-            "station",
-            "ticket",
-            "helping",
-            "polite",
-            "problem-solution"
-        ],
         "title": "Help At The Ticket Machine - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "ticket-machine-help-01",
         "visualSummary": [
             "The older traveler looks confused at a ticket machine.",
@@ -10314,37 +6853,9 @@ export const builtInSceneMediaItems = [
             "text": "Mr. Lee had traveled by train for years, but the new ticket machine made him feel suddenly out of place. The screen changed faster than he expected, and the people behind him seemed impatient. A younger traveler noticed his hesitation and offered help without making him feel foolish. She guided him through each step, then stepped aside as if it were the most ordinary kindness in the world. Mr. Lee boarded with his ticket and a little more trust in asking for help."
         },
         "setting": "train-station",
-        "skills": [
-            "travel_vocabulary",
-            "transportation",
-            "buying_tickets",
-            "asking_for_help",
-            "polite_interactions",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "travel",
-            "ticket-machine",
-            "station",
-            "ticket",
-            "helping",
-            "polite",
-            "problem-solution"
-        ],
         "title": "Help At The Ticket Machine - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "ticket-machine-help-01",
         "visualSummary": [
             "The older traveler looks confused at a ticket machine.",
@@ -10439,37 +6950,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "grocery-market",
-        "skills": [
-            "food_vocabulary",
-            "shopping",
-            "family",
-            "present_continuous",
-            "past_tense_story",
-            "problem_solution",
-            "help"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "grocery",
-            "shopping",
-            "food",
-            "apples",
-            "bread",
-            "family",
-            "helping",
-            "accident",
-            "problem-solution"
-        ],
         "title": "The Broken Bag",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "torn-grocery-bag-01",
         "visualSummary": [
             "The father and daughter choose groceries.",
@@ -10564,38 +7047,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "grocery-market",
-        "skills": [
-            "food_vocabulary",
-            "shopping",
-            "family",
-            "present_continuous",
-            "past_tense_story",
-            "problem_solution",
-            "shopping_problem",
-            "offers"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "grocery",
-            "shopping",
-            "food",
-            "apples",
-            "bread",
-            "family",
-            "helping",
-            "accident",
-            "problem-solution"
-        ],
         "title": "A Stronger Bag",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "torn-grocery-bag-01",
         "visualSummary": [
             "The father and daughter choose groceries.",
@@ -10690,39 +7144,9 @@ export const builtInSceneMediaItems = [
             ]
         },
         "setting": "grocery-market",
-        "skills": [
-            "food_vocabulary",
-            "shopping",
-            "family",
-            "present_continuous",
-            "past_tense_story",
-            "problem_solution",
-            "problem_solving",
-            "humor",
-            "natural_sequence"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "grocery",
-            "shopping",
-            "food",
-            "apples",
-            "bread",
-            "family",
-            "helping",
-            "accident",
-            "problem-solution"
-        ],
         "title": "Saving Dinner From The Sidewalk",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "torn-grocery-bag-01",
         "visualSummary": [
             "The father and daughter choose groceries.",
@@ -10762,36 +7186,9 @@ export const builtInSceneMediaItems = [
             "text": "Nora joined an important video call, but no one could hear her. She checked the button and looked worried. Her brother pointed to the microphone setting. Nora fixed it and said hello just in time."
         },
         "setting": "home-office",
-        "skills": [
-            "digital",
-            "video",
-            "call",
-            "troubleshooting",
-            "remote",
-            "work",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "digital",
-            "video",
-            "call",
-            "troubleshooting",
-            "remote",
-            "work"
-        ],
         "title": "Video Call Problem - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "video-call-problem-01",
         "visualSummary": [
             "A woman waves hello as her video call with four coworkers begins.",
@@ -10831,36 +7228,9 @@ export const builtInSceneMediaItems = [
             "text": "Nora prepared for her video call all morning, but when the meeting started, her microphone did not work. She waved at the screen while everyone waited. Her brother noticed the problem from across the room and pointed to the settings. Nora clicked the right button, tested her voice, and finally joined the conversation. The call began late, but her idea was still heard."
         },
         "setting": "home-office",
-        "skills": [
-            "digital",
-            "video",
-            "call",
-            "troubleshooting",
-            "remote",
-            "work",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "digital",
-            "video",
-            "call",
-            "troubleshooting",
-            "remote",
-            "work"
-        ],
         "title": "Video Call Problem - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "video-call-problem-01",
         "visualSummary": [
             "A woman waves hello as her video call with four coworkers begins.",
@@ -10900,36 +7270,9 @@ export const builtInSceneMediaItems = [
             "text": "Nora had practiced her presentation until every sentence felt ready, which made the silent microphone especially cruel. On screen, her colleagues watched her smile, gesture, and slowly panic. Her brother, passing behind the desk, noticed the muted setting before she did. One click brought her voice back into the room. Nora apologized, took a breath, and began. The technical problem had stolen two minutes, but it had not stolen her preparation."
         },
         "setting": "home-office",
-        "skills": [
-            "digital",
-            "video",
-            "call",
-            "troubleshooting",
-            "remote",
-            "work",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "digital",
-            "video",
-            "call",
-            "troubleshooting",
-            "remote",
-            "work"
-        ],
         "title": "Video Call Problem - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "video-call-problem-01",
         "visualSummary": [
             "A woman waves hello as her video call with four coworkers begins.",
@@ -10969,36 +7312,9 @@ export const builtInSceneMediaItems = [
             "text": "Sam arrived early for his appointment, but he felt nervous. The receptionist smiled and helped him check in. In the waiting room, he saw other people reading and talking quietly. When the nurse called his name, Sam stood up feeling calmer."
         },
         "setting": "clinic-waiting-room",
-        "skills": [
-            "health_vocabulary",
-            "appointments",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "waiting-room",
-            "check-in",
-            "appointment",
-            "reception",
-            "nurse"
-        ],
         "title": "Waiting Room Check-In - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "waiting-room-check-in-01",
         "visualSummary": [
             "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
@@ -11035,36 +7351,9 @@ export const builtInSceneMediaItems = [
             "text": "Sam had never visited this clinic before, so he arrived twenty minutes early. He was worried about missing a form or sitting in the wrong place. The receptionist checked his name and pointed to a chair near the window. As Sam waited, he watched a nurse help an older man and a mother comfort her child. The room was busy, but kind. When his name was called, he was ready."
         },
         "setting": "clinic-waiting-room",
-        "skills": [
-            "health_vocabulary",
-            "appointments",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "waiting-room",
-            "check-in",
-            "appointment",
-            "reception",
-            "nurse"
-        ],
         "title": "Waiting Room Check-In - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "waiting-room-check-in-01",
         "visualSummary": [
             "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
@@ -11101,36 +7390,9 @@ export const builtInSceneMediaItems = [
             "text": "Sam entered the clinic with the small fear that everyone else understood the system except him. The receptionist, however, made the first step easy: name, appointment time, and a calm gesture toward the waiting area. As he sat down, Sam noticed the quiet choreography of the room. People arrived uncertain, staff guided them, and each small instruction reduced the confusion. By the time the nurse called his name, the appointment had already become less intimidating."
         },
         "setting": "clinic-waiting-room",
-        "skills": [
-            "health_vocabulary",
-            "appointments",
-            "present_continuous",
-            "prepositions",
-            "describing_people",
-            "describing_objects",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "health",
-            "clinic",
-            "waiting-room",
-            "check-in",
-            "appointment",
-            "reception",
-            "nurse"
-        ],
         "title": "Waiting Room Check-In - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "description_prompt"
-        ],
         "visualAssetId": "waiting-room-check-in-01",
         "visualSummary": [
             "A woman checks in at the clinic front desk while a nurse calls another patient and a family waits nearby."
@@ -11167,38 +7429,9 @@ export const builtInSceneMediaItems = [
             "text": "Ava ordered tea and a muffin, but the barista gave her coffee and cake. Ava spoke politely and showed the mistake. The barista made the right order. Ava thanked him and enjoyed her snack."
         },
         "setting": "cafe",
-        "skills": [
-            "shopping",
-            "food_vocabulary",
-            "polite_requests",
-            "problem_solution",
-            "emotions",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "cafe",
-            "wrong-order",
-            "customer",
-            "barista",
-            "food",
-            "drink",
-            "polite",
-            "problem-solution"
-        ],
         "title": "The Wrong Cafe Order - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "wrong-cafe-order-01",
         "visualSummary": [
             "The customer receives a drink and pastry.",
@@ -11238,37 +7471,9 @@ export const builtInSceneMediaItems = [
             "text": "Ava was tired after class and wanted her usual tea and muffin. When the barista handed her coffee and cake, she almost stayed quiet because the cafe was busy. Then she remembered she had paid for something else. She explained the mistake politely. The barista apologized and made the correct order. Ava sat by the window, glad she had spoken up kindly."
         },
         "setting": "cafe",
-        "skills": [
-            "shopping",
-            "food_vocabulary",
-            "polite_requests",
-            "problem_solution",
-            "emotions",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "cafe",
-            "wrong-order",
-            "customer",
-            "barista",
-            "food",
-            "drink",
-            "polite",
-            "problem-solution"
-        ],
         "title": "The Wrong Cafe Order - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "wrong-cafe-order-01",
         "visualSummary": [
             "The customer receives a drink and pastry.",
@@ -11308,38 +7513,9 @@ export const builtInSceneMediaItems = [
             "text": "Ava had practiced difficult conversations in class, but correcting a real order still made her nervous. The cafe was crowded, the barista looked busy, and the wrong drink was already in her hand. She considered accepting it just to avoid trouble. Instead, she used a calm voice and explained what she had ordered. The barista thanked her for being patient and fixed it quickly. Ava carried the right tea to her table, pleased that politeness had worked without making her invisible."
         },
         "setting": "cafe",
-        "skills": [
-            "shopping",
-            "food_vocabulary",
-            "polite_requests",
-            "problem_solution",
-            "emotions",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "cafe",
-            "wrong-order",
-            "customer",
-            "barista",
-            "food",
-            "drink",
-            "polite",
-            "problem-solution"
-        ],
         "title": "The Wrong Cafe Order - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "wrong-cafe-order-01",
         "visualSummary": [
             "The customer receives a drink and pastry.",
@@ -11379,36 +7555,9 @@ export const builtInSceneMediaItems = [
             "text": "Tara bought a sweater, but it was too big. She took it back to the store with her receipt. The clerk helped her find a smaller size. Tara tried it on, smiled, and went home happy."
         },
         "setting": "clothing-store",
-        "skills": [
-            "shopping",
-            "clothing_vocabulary",
-            "sizes",
-            "returns",
-            "emotions",
-            "past_tense_story",
-            "simple_story_sequence",
-            "everyday_vocabulary",
-            "basic_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "clothing",
-            "wrong-size",
-            "return",
-            "store-clerk",
-            "problem-solution"
-        ],
         "title": "Returning The Wrong Size - Simple Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "wrong-size-return-01",
         "visualSummary": [
             "The shopper tries on a sweater that is too large.",
@@ -11448,36 +7597,9 @@ export const builtInSceneMediaItems = [
             "text": "Tara loved the color of the sweater, but at home she saw that it was much too large. The next day, she returned to the store and showed the receipt to the clerk. She was afraid the return would be difficult, but the clerk simply asked what size she needed. Together they found the right one. Tara left with the same sweater, only now it actually fit."
         },
         "setting": "clothing-store",
-        "skills": [
-            "shopping",
-            "clothing_vocabulary",
-            "sizes",
-            "returns",
-            "emotions",
-            "past_tense_story",
-            "story_sequence",
-            "reasons_and_reactions",
-            "problem_solution"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "clothing",
-            "wrong-size",
-            "return",
-            "store-clerk",
-            "problem-solution"
-        ],
         "title": "Returning The Wrong Size - Everyday Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "wrong-size-return-01",
         "visualSummary": [
             "The shopper tries on a sweater that is too large.",
@@ -11517,36 +7639,9 @@ export const builtInSceneMediaItems = [
             "text": "Tara had bought the sweater because the color made a gray afternoon feel brighter. Unfortunately, the mirror at home told the truth: it hung on her like someone else's coat. She returned to the store expecting a complicated conversation, but the clerk listened, checked the receipt, and guided her to the correct size. When Tara tried it on again, the sweater looked the way she had imagined. The purchase was no longer a mistake; it had simply needed one more step."
         },
         "setting": "clothing-store",
-        "skills": [
-            "shopping",
-            "clothing_vocabulary",
-            "sizes",
-            "returns",
-            "emotions",
-            "past_tense_story",
-            "nuanced_storytelling",
-            "inference",
-            "natural_listening"
-        ],
         "source": "built_in",
         "status": "ready",
-        "tags": [
-            "shopping",
-            "clothing",
-            "wrong-size",
-            "return",
-            "store-clerk",
-            "problem-solution"
-        ],
         "title": "Returning The Wrong Size - Nuanced Story",
-        "useCases": [
-            "chat_prompt",
-            "quiz_prompt",
-            "writing_prompt",
-            "speaking_prompt",
-            "story_prompt",
-            "story_sequence"
-        ],
         "visualAssetId": "wrong-size-return-01",
         "visualSummary": [
             "The shopper tries on a sweater that is too large.",

@@ -29,14 +29,11 @@ type UserSceneMediaRow = {
   script_json: string | null;
   script_type_preference: UserSceneMediaScriptTypePreference;
   setting: string | null;
-  skills_json: string;
   source_media_id: string | null;
   source_visual_asset_id: string | null;
   status: SceneMediaStatus;
-  tags_json: string;
   title: string;
   updated_at: string;
-  use_cases_json: string;
   user_id: string;
   visual_summary_json: string;
 };
@@ -57,12 +54,9 @@ export type CreateReadyUserSceneMediaInput = {
   script?: SceneMediaScript;
   scriptTypePreference: UserSceneMediaScriptTypePreference;
   setting?: string;
-  skills: string[];
   sourceMediaId?: string | null;
   sourceVisualAssetId?: string | null;
-  tags: string[];
   title: string;
-  useCases: string[];
   visualSummary: string[];
 };
 
@@ -97,9 +91,6 @@ export function createReadyUserSceneMedia(
           level,
           setting,
           visual_summary_json,
-          tags_json,
-          skills_json,
-          use_cases_json,
           image_json,
           audio_json,
           script_json,
@@ -107,7 +98,7 @@ export function createReadyUserSceneMedia(
           provenance_json,
           authoring_messages_json
         )
-        VALUES (?, ?, ?, ?, ?, ?, 'ready', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, 'ready', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -124,9 +115,6 @@ export function createReadyUserSceneMedia(
       input.level,
       input.setting ?? null,
       JSON.stringify(input.visualSummary),
-      JSON.stringify(input.tags),
-      JSON.stringify(input.skills),
-      JSON.stringify(input.useCases),
       JSON.stringify(input.image),
       input.audio ? JSON.stringify(input.audio) : null,
       input.script ? JSON.stringify(input.script) : null,
@@ -158,9 +146,6 @@ export function updateReadyUserSceneMedia(
             level = ?,
             setting = ?,
             visual_summary_json = ?,
-            tags_json = ?,
-            skills_json = ?,
-            use_cases_json = ?,
             image_json = ?,
             audio_json = ?,
             script_json = ?,
@@ -182,9 +167,6 @@ export function updateReadyUserSceneMedia(
       input.level,
       input.setting ?? null,
       JSON.stringify(input.visualSummary),
-      JSON.stringify(input.tags),
-      JSON.stringify(input.skills),
-      JSON.stringify(input.useCases),
       JSON.stringify(input.image),
       input.audio ? JSON.stringify(input.audio) : null,
       input.script ? JSON.stringify(input.script) : null,
@@ -346,9 +328,6 @@ export function applyUserSceneMediaMetadata(input: {
         SET title = ?,
             setting = ?,
             visual_summary_json = ?,
-            tags_json = ?,
-            skills_json = ?,
-            use_cases_json = ?,
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
           AND user_id = ?
@@ -360,9 +339,6 @@ export function applyUserSceneMediaMetadata(input: {
       input.metadata.title,
       input.metadata.setting,
       JSON.stringify(input.metadata.visualSummary),
-      JSON.stringify(input.metadata.tags),
-      JSON.stringify(input.metadata.skills),
-      JSON.stringify(input.metadata.useCases),
       input.mediaId,
       input.ownerUserId,
       input.ownerProfileId,
@@ -514,13 +490,10 @@ function toSceneMediaLibraryItem(row: UserSceneMediaRow): SceneMediaLibraryItem 
     script: script ?? undefined,
     scriptTypePreference: row.script_type_preference,
     setting: row.setting ?? undefined,
-    skills: parseStringArray(row.skills_json),
     source: 'user_generated',
     status: row.status,
-    tags: parseStringArray(row.tags_json),
     title: row.title,
     updatedAt: row.updated_at,
-    useCases: parseStringArray(row.use_cases_json),
     visualAssetId: row.source_visual_asset_id ?? undefined,
     visualSummary: parseStringArray(row.visual_summary_json),
   };

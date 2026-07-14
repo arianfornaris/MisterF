@@ -97,12 +97,9 @@ const sceneMediaLibraryItemSchema = z
     ownerUserId: z.string().trim().min(1).optional(),
     script: sceneMediaScriptSchema.optional(),
     setting: z.string().trim().min(1).optional(),
-    skills: z.array(z.string().trim().min(1)),
     source: z.enum(['built_in', 'user_generated']),
     status: z.literal('ready'),
-    tags: z.array(z.string().trim().min(1)),
     title: z.string().trim().min(1),
-    useCases: z.array(z.string().trim().min(1)),
     visualAssetId: z.string().trim().min(1).optional(),
     visualSummary: z.array(z.string().trim().min(1)),
   })
@@ -151,9 +148,6 @@ export function listSceneMediaItems(
       item.setting,
       item.level,
       item.format,
-      ...item.tags,
-      ...item.skills,
-      ...item.useCases,
       ...item.visualSummary,
     ].filter(Boolean).join(' ')).includes(normalizedQuery);
   });

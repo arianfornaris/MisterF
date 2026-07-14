@@ -72,10 +72,7 @@ describe('scene media image generation', () => {
           ],
         },
         setting: 'Airport check-in counter',
-        skills: ['Travel questions'],
-        tags: ['airport', 'check-in'],
         title: 'Checking In',
-        useCases: ['listening', 'speaking'],
         visualSummary: ['A student gives a passport to an airline agent.'],
       },
     });

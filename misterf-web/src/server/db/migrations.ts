@@ -1999,4 +1999,13 @@ export const migrations: Migration[] = [
         );
     `,
   },
+  {
+    id: 22,
+    name: 'drop_user_scene_media_tags_skills_use_cases',
+    up: `
+      ALTER TABLE user_scene_media DROP COLUMN tags_json;
+      ALTER TABLE user_scene_media DROP COLUMN skills_json;
+      ALTER TABLE user_scene_media DROP COLUMN use_cases_json;
+    `,
+  },
 ];

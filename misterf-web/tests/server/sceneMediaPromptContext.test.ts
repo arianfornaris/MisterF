@@ -34,10 +34,7 @@ describe('scene media variation prompt context', () => {
           ],
         },
         setting: 'Airport security checkpoint',
-        skills: ['Polite requests'],
-        tags: ['airport', 'security'],
         title: 'Through Security',
-        useCases: ['listening', 'speaking'],
         visualSummary: ['A traveler places a bag on a conveyor belt.'],
       },
     });
@@ -51,9 +48,6 @@ describe('scene media variation prompt context', () => {
     expect(userPrompt).toContain('"level": "A1-A2"');
     expect(userPrompt).toContain('"format": "single_panel_scene"');
     expect(userPrompt).toContain('"imageAlt": "A traveler speaks with an airport security officer."');
-    expect(userPrompt).toContain('"skills": [');
-    expect(userPrompt).toContain('"tags": [');
-    expect(userPrompt).toContain('"useCases": [');
     expect(userPrompt).toContain('"scriptAndAudio": "generate_new"');
     expect(userPrompt).toContain('"identityStrategy": "named_in_dialogue"');
     expect(userPrompt).toContain('"text": "Please put your bag here."');

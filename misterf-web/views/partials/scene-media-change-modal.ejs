@@ -31,9 +31,6 @@
   data-field-title="<%= t('quizzes.titleLabel') %>"
   data-field-setting="<%= t('mediaLibrary.setting') %>"
   data-field-visualsummary="<%= t('mediaLibrary.visualSummary') %>"
-  data-field-tags="<%= t('mediaLibrary.tags') %>"
-  data-field-skills="<%= t('mediaLibrary.skills') %>"
-  data-field-usecases="<%= t('mediaLibrary.useCases') %>"
   data-apply-label="<%= t('mediaLibrary.changeModal.apply') %>"
   data-applying-label="<%= t('mediaLibrary.changeModal.applying') %>"
 >
@@ -105,7 +102,7 @@
         </div>
 
         <script type="application/json" data-scene-media-change-current-script><%- JSON.stringify(mediaItem.script || null).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') %></script>
-        <script type="application/json" data-scene-media-change-current-metadata><%- JSON.stringify({ setting: mediaItem.setting || '', skills: mediaItem.skills, tags: mediaItem.tags, title: mediaItem.title, useCases: mediaItem.useCases, visualSummary: mediaItem.visualSummary }).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') %></script>
+        <script type="application/json" data-scene-media-change-current-metadata><%- JSON.stringify({ setting: mediaItem.setting || '', title: mediaItem.title, visualSummary: mediaItem.visualSummary }).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') %></script>
 
         <div class="alert alert-danger mt-3 mb-0 d-none" role="alert" data-scene-media-change-error></div>
       </div>

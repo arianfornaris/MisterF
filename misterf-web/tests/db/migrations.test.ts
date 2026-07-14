@@ -139,6 +139,10 @@ describe('database migrations', () => {
         id: 21,
         name: 'remove_legacy_scene_media_audio',
       },
+      {
+        id: 22,
+        name: 'drop_user_scene_media_tags_skills_use_cases',
+      },
     ]);
 
     const tableNames = (db

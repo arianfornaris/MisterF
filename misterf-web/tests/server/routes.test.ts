@@ -720,10 +720,7 @@ describe('main route smoke tests', () => {
       },
       scriptTypePreference: 'dialogue',
       setting: 'Airport security',
-      skills: ['Travel questions'],
-      tags: ['airport'],
       title: 'Route Ready Media',
-      useCases: ['speaking'],
       visualSummary: ['A traveler speaks with a security officer.'],
     });
 
@@ -776,9 +773,6 @@ describe('main route smoke tests', () => {
     expect(mediaAuthoringHtml).toContain('Airport security');
     expect(mediaAuthoringHtml).toContain('A traveler speaks with a security officer.');
     expect(mediaAuthoringHtml).toContain('Please place your bag on the belt.');
-    expect(mediaAuthoringHtml).toContain('Travel questions');
-    expect(mediaAuthoringHtml).toContain('airport');
-    expect(mediaAuthoringHtml).toContain('speaking');
     expect(mediaAuthoringHtml).toContain('<audio');
     const authoringCsrfToken = extractCsrfToken(mediaAuthoringHtml);
     const saveTitleResponse = await postForm(

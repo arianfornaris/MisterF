@@ -176,10 +176,7 @@ export async function generateReadySceneMedia(
       level: input.level,
       script,
       setting: metadata.setting,
-      skills: metadata.skills,
-      tags: metadata.tags,
       title: metadata.title,
-      useCases: metadata.useCases,
       visualSummary: metadata.visualSummary,
     });
 
@@ -217,12 +214,9 @@ export async function generateReadySceneMedia(
       script,
       scriptTypePreference: input.scriptTypePreference,
       setting: metadata.setting,
-      skills: metadata.skills,
       sourceMediaId: input.sourceItem?.id ?? null,
       sourceVisualAssetId: input.sourceItem?.visualAssetId ?? null,
-      tags: metadata.tags,
       title: metadata.title,
-      useCases: metadata.useCases,
       visualSummary: metadata.visualSummary,
     };
   } catch (error) {
@@ -527,10 +521,7 @@ export function createAuthoringSnapshot(input: {
   level: SceneMediaLevel;
   script?: SceneMediaScript;
   setting?: string;
-  skills: string[];
-  tags: string[];
   title: string;
-  useCases: string[];
   visualSummary: string[];
 }): Record<string, unknown> {
   return { ...input };

@@ -19,10 +19,7 @@ const originalEnv = { ENV_FILE: process.env.ENV_FILE };
 
 const metadata = {
   setting: 'Airport security area',
-  skills: ['listening'],
-  tags: ['travel'],
   title: 'Airport security line',
-  useCases: ['listening practice'],
   visualSummary: ['A traveler waits at the security checkpoint.'],
 };
 

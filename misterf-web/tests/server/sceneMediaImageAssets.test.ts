@@ -11,12 +11,9 @@ function createMediaWithImage(src: string): SceneMediaLibraryItem {
       src,
     },
     level: 'A1-A2',
-    skills: [],
     source: 'built_in',
     status: 'ready',
-    tags: [],
     title: 'Test media',
-    useCases: [],
     visualSummary: [],
   };
 }

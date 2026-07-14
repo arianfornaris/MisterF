@@ -171,11 +171,8 @@ function toCompactCatalogItem(item) {
             ? `${item.script.scriptType}:${scriptWordCount}w`
             : undefined,
         setting: item.setting,
-        skills: item.skills.slice(0, 6),
         source: item.source,
-        tags: item.tags.slice(0, 8),
         title: item.title,
-        useCases: item.useCases.slice(0, 6),
         visualAssetId: item.visualAssetId,
         visualSummary: item.visualSummary.slice(0, 5),
     };
