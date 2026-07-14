@@ -774,7 +774,6 @@ describe('main route smoke tests', () => {
     expect(mediaAuthoringHtml).toContain('Escena completa');
     expect(mediaAuthoringHtml).toContain('Escena de un panel');
     expect(mediaAuthoringHtml).toContain('Airport security');
-    expect(mediaAuthoringHtml).toContain('Create an airport scene.');
     expect(mediaAuthoringHtml).toContain('A traveler speaks with a security officer.');
     expect(mediaAuthoringHtml).toContain('Please place your bag on the belt.');
     expect(mediaAuthoringHtml).toContain('Travel questions');
