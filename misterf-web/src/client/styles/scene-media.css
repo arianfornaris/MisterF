@@ -119,3 +119,8 @@
     grid-template-columns: 1fr;
   }
 }
+
+.scene-media-change-script-box {
+  max-height: 40vh;
+  overflow-y: auto;
+}

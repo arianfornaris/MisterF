@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   applySceneMediaPreview,
+  applySceneMediaScript,
   createSceneMediaFromPrompt,
   createSceneMediaVariation,
   archiveSceneMedia,
@@ -30,6 +31,7 @@ sceneMediaRouter.post('/media-library/:mediaId/edit/revise', reviseSceneMedia);
 sceneMediaRouter.post('/media-library/:mediaId/preview/image', previewSceneMediaImage);
 sceneMediaRouter.post('/media-library/:mediaId/preview/script', previewSceneMediaScript);
 sceneMediaRouter.post('/media-library/:mediaId/preview/apply', applySceneMediaPreview);
+sceneMediaRouter.post('/media-library/:mediaId/preview/script/apply', applySceneMediaScript);
 sceneMediaRouter.post('/media-library/:mediaId/preview/discard', discardSceneMediaPreview);
 sceneMediaRouter.get('/media-library/:mediaId/image', serveSceneMediaImageAsset);
 sceneMediaRouter.post('/media-library/:mediaId/archive', archiveSceneMedia);

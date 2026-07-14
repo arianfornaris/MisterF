@@ -13,6 +13,7 @@
   data-image-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/image"
   data-script-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script"
   data-apply-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/apply"
+  data-script-apply-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/script/apply"
   data-discard-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/preview/discard"
   data-title-image="<%= t('mediaLibrary.changeModal.imageTitle') %>"
   data-title-script="<%= t('mediaLibrary.changeModal.scriptTitle') %>"
@@ -59,14 +60,22 @@
               <img class="img-fluid rounded border" alt="" data-scene-media-change-after-image>
             </div>
           </div>
-          <div class="d-none" data-scene-media-change-script-result>
-            <p class="small fw-semibold mb-1" data-scene-media-change-result-label-script></p>
-            <div data-scene-media-change-result-script></div>
-            <div class="mt-3 d-none" data-scene-media-change-result-audio>
-              <%- include('scene-media-audio-player', { audio: undefined }) %>
+          <div class="d-none" data-scene-media-change-script-compare>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <p class="small text-body-secondary mb-1"><%= t('mediaLibrary.changeModal.current') %></p>
+                <div class="border rounded p-2 scene-media-change-script-box" data-scene-media-change-before-script></div>
+              </div>
+              <div class="col-12 col-md-6">
+                <p class="small fw-semibold mb-1" data-scene-media-change-result-label-script></p>
+                <div class="border rounded p-2 scene-media-change-script-box" data-scene-media-change-after-script></div>
+              </div>
             </div>
+            <div class="form-text mt-2"><%= t('mediaLibrary.changeModal.scriptAudioNote') %></div>
           </div>
         </div>
+
+        <script type="application/json" data-scene-media-change-current-script><%- JSON.stringify(mediaItem.script || null).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026') %></script>
 
         <div class="alert alert-danger mt-3 mb-0 d-none" role="alert" data-scene-media-change-error></div>
       </div>

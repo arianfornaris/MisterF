@@ -12,22 +12,18 @@ function readJsonScript(element, fallback) {
 
 function initializeAudioPlayers() {
   for (const root of document.querySelectorAll('[data-scene-media-audio-player]')) {
-    if (
-      root.closest('[data-scene-media-preview-modal]') ||
-      root.closest('[data-scene-media-change-modal]')
-    ) {
+    if (root.closest('[data-scene-media-preview-modal]')) {
       continue;
     }
     createSceneAudioPlayer(root);
   }
 }
 
-function renderPreviewScript(section, content, script) {
-  if (!(section instanceof HTMLElement) || !(content instanceof HTMLElement)) {
+function fillScriptContent(content, script) {
+  if (!(content instanceof HTMLElement)) {
     return;
   }
   content.replaceChildren();
-  section.classList.toggle('d-none', !script);
   if (!script) return;
 
   if (script.scriptType === 'dialogue') {
@@ -53,6 +49,14 @@ function renderPreviewScript(section, content, script) {
   text.className = 'mb-0 scene-media-script-text';
   text.textContent = script.text;
   content.append(text);
+}
+
+function renderPreviewScript(section, content, script) {
+  if (!(section instanceof HTMLElement) || !(content instanceof HTMLElement)) {
+    return;
+  }
+  section.classList.toggle('d-none', !script);
+  fillScriptContent(content, script);
 }
 
 function initializePreviewModal() {
@@ -378,12 +382,13 @@ function initializeChangeModal() {
 
   const el = (selector) => modalElement.querySelector(selector);
   const ui = {
+    afterImage: el('[data-scene-media-change-after-image]'),
+    afterScript: el('[data-scene-media-change-after-script]'),
     applyButton: el('[data-scene-media-change-apply]'),
     audioNote: el('[data-scene-media-change-audio-note]'),
-    audioWrap: el('[data-scene-media-change-result-audio]'),
     bar: el('[data-scene-media-change-bar]'),
     beforeImage: el('[data-scene-media-change-before-image]'),
-    afterImage: el('[data-scene-media-change-after-image]'),
+    beforeScript: el('[data-scene-media-change-before-script]'),
     cancelButton: el('[data-scene-media-change-cancel]'),
     closeButton: el('[data-scene-media-change-close]'),
     error: el('[data-scene-media-change-error]'),
@@ -396,13 +401,18 @@ function initializeChangeModal() {
     resultLabel: el('[data-scene-media-change-result-label]'),
     resultLabelScript: el('[data-scene-media-change-result-label-script]'),
     retryButton: el('[data-scene-media-change-retry]'),
-    scriptResult: el('[data-scene-media-change-script-result]'),
-    scriptContent: el('[data-scene-media-change-result-script]'),
+    scriptCompare: el('[data-scene-media-change-script-compare]'),
     title: el('[data-scene-media-change-title]'),
   };
-  const player = createSceneAudioPlayer(el('[data-scene-media-audio-player]'));
+  const liveScript = readJsonScript(el('[data-scene-media-change-current-script]'), null);
 
-  const state = { applied: false, currentImageSrc: '', layer: 'image', previewId: null };
+  const state = {
+    applied: false,
+    currentImageSrc: '',
+    currentScript: null,
+    layer: 'image',
+    previewId: null,
+  };
 
   const show = (element, visible) => element?.classList.toggle('d-none', !visible);
   const setPhase = (phase) => {
@@ -441,6 +451,7 @@ function initializeChangeModal() {
     state.previewId = null;
     state.applied = false;
     state.currentImageSrc = data.currentImageSrc || '';
+    state.currentScript = liveScript;
     const isImage = layer === 'image';
     ui.title.textContent = isImage ? data.titleImage : data.titleScript;
     ui.promptLabel.textContent = isImage ? data.labelImage : data.labelScript;
@@ -466,16 +477,14 @@ function initializeChangeModal() {
       state.currentImageSrc = event.imageSrc;
       if (ui.resultLabel) ui.resultLabel.textContent = data.resultImage;
       show(ui.imageCompare, true);
-      show(ui.scriptResult, false);
+      show(ui.scriptCompare, false);
     } else {
       if (ui.resultLabelScript) ui.resultLabelScript.textContent = data.resultScript;
-      renderPreviewScript(ui.scriptResult, ui.scriptContent, event.script);
-      show(ui.scriptContent, true);
-      const clips = Array.isArray(event.audioClips) ? event.audioClips : [];
-      player?.setData(clips.map((clip) => ({ src: clip.src, speaker: clip.speaker || '', text: null })));
-      show(ui.audioWrap, clips.length > 0);
+      fillScriptContent(ui.beforeScript, state.currentScript);
+      fillScriptContent(ui.afterScript, event.script);
+      state.currentScript = event.script;
       show(ui.imageCompare, false);
-      show(ui.scriptResult, true);
+      show(ui.scriptCompare, true);
     }
     setPhase('preview');
   };
@@ -488,7 +497,7 @@ function initializeChangeModal() {
     }
     show(ui.error, false);
     setPhase('generating');
-    setProgress(3, data.starting || '');
+    setProgress(3, '');
     const endpoint = state.layer === 'image' ? data.imageEndpoint : data.scriptEndpoint;
     try {
       const response = await postUrlEncoded(endpoint, { _csrf: data.csrf, prompt });
@@ -520,8 +529,8 @@ function initializeChangeModal() {
     }
   };
 
-  const apply = async () => {
-    if (!state.previewId) return;
+  // Image previews are already generated; applying is a quick swap.
+  const applyImage = async () => {
     if (ui.applyButton instanceof HTMLButtonElement) {
       ui.applyButton.disabled = true;
       ui.applyButton.textContent = data.applyingLabel;
@@ -550,6 +559,55 @@ function initializeChangeModal() {
     }
   };
 
+  // Approving a script generates its audio, so this streams progress before the
+  // change is committed and the page reloads.
+  const applyScript = async () => {
+    show(ui.error, false);
+    setPhase('generating');
+    setProgress(3, '');
+    try {
+      const response = await postUrlEncoded(data.scriptApplyEndpoint, {
+        _csrf: data.csrf,
+        previewId: state.previewId,
+      });
+      if (!response.ok || !response.body) {
+        showError(data.genericError);
+        setPhase('preview');
+        return;
+      }
+      let terminal = false;
+      await consumeNdjson(response, (event) => {
+        if (event.type === 'progress') {
+          setProgress(event.percent, event.message);
+        } else if (event.type === 'done') {
+          terminal = true;
+          state.applied = true;
+          window.location.assign(event.redirect || window.location.href);
+        } else if (event.type === 'error') {
+          terminal = true;
+          showError(event.message);
+          setPhase('preview');
+        }
+      });
+      if (!terminal) {
+        showError(data.genericError);
+        setPhase('preview');
+      }
+    } catch {
+      showError(data.genericError);
+      setPhase('preview');
+    }
+  };
+
+  const apply = () => {
+    if (!state.previewId) return;
+    if (state.layer === 'image') {
+      applyImage();
+    } else {
+      applyScript();
+    }
+  };
+
   for (const trigger of document.querySelectorAll('[data-scene-media-change-trigger]')) {
     trigger.addEventListener('click', () => openFor(trigger.getAttribute('data-layer') || 'image'));
   }
@@ -560,10 +618,7 @@ function initializeChangeModal() {
     ui.prompt.focus();
   });
   ui.applyButton?.addEventListener('click', apply);
-  modalElement.addEventListener('hidden.bs.modal', () => {
-    player?.stop();
-    discardPending();
-  });
+  modalElement.addEventListener('hidden.bs.modal', discardPending);
 }
 
 initializeVariationControls();

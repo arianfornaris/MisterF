@@ -195,7 +195,11 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     image regeneration references the last pending preview so tweaks chain
     iteratively (image-to-image). Cancel/close discards the pending preview and
     deletes its temporary storage objects (`preview/discard`). Script changes
-    regenerate the atomic script+audio layer. Preview generation lives in
+    are two steps: `preview/script` generates the script only (using the current
+    or last-draft script as continuity context) and shows it side-by-side with
+    the current script; approving it (`preview/script/apply`) generates the
+    audio with streamed progress and commits the atomic script+audio layer, so
+    audio is never generated for a rejected script. Preview generation lives in
     `sceneMedia/sceneMediaPreview.ts`; apply uses `applyUserSceneMediaImage` /
     `applyUserSceneMediaScript`.
   - [ ] Retire the legacy AI chat tab and the one-shot `edit/revise` flow

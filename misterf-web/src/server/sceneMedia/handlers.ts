@@ -34,8 +34,9 @@ import {
   type CreateReadyUserSceneMediaInput,
 } from './userMediaRepository.js';
 import {
+  generateAndStoreSceneMediaAudio,
   generateSceneMediaImagePreview,
-  generateSceneMediaScriptPreview,
+  generateSceneMediaScriptDraft,
   readSceneMediaReferenceImage,
 } from './sceneMediaPreview.js';
 import {
@@ -755,34 +756,32 @@ export async function previewSceneMediaScript(
   const previewId = randomUUID();
   try {
     const existing = getPendingPreview(owner);
-    const preview = await generateSceneMediaScriptPreview({
+    // Iterative refinement: build on the last script draft when present so
+    // "make it shorter" then "add a greeting" chain, mirroring the image flow.
+    const baseScript = existing?.type === 'script' ? existing.script : undefined;
+    const draft = await generateSceneMediaScriptDraft({
+      baseScript,
       media: resolved.mediaItem,
       onProgress: stream.writeProgress,
       ownerUserId: resolved.user.id,
-      previewId,
       prompt,
     });
     if (existing) {
       await Promise.allSettled(existing.storageKeys.map((key) => storage.deleteObject(key)));
     }
     setPendingPreview(owner, {
-      audio: preview.audio,
       createdAt: Date.now(),
       previewId,
       prompt,
-      script: preview.script,
-      storageKeys: preview.storageKeys,
+      script: draft.script,
+      storageKeys: [],
       type: 'script',
     });
     stream.write({
-      audioClips: preview.audio.clips.map((clip) => ({
-        speaker: clip.speaker,
-        src: clip.src,
-      })),
       layer: 'script',
       percent: 100,
       previewId,
-      script: preview.script,
+      script: draft.script,
       type: 'done',
     });
   } catch (error) {
@@ -802,9 +801,10 @@ export async function previewSceneMediaScript(
   }
 }
 
-// Promotes the pending preview to the live media and deletes the superseded
-// live objects. Guarded by previewId so a stale modal cannot apply the wrong
-// preview.
+// Promotes the pending image preview to the live media and deletes the old
+// image object. Quick JSON response (no generation). Guarded by previewId so a
+// stale modal cannot apply the wrong preview. Script previews use the streaming
+// applySceneMediaScript instead, since approving a script generates its audio.
 export async function applySceneMediaPreview(
   request: Request,
   response: Response,
@@ -820,41 +820,21 @@ export async function applySceneMediaPreview(
   };
   const pending = getPendingPreview(owner);
   const previewId = readField(request.body.previewId, 100);
-  if (!pending || (previewId && pending.previewId !== previewId)) {
+  if (!pending || pending.type !== 'image' || (previewId && pending.previewId !== previewId)) {
     response.status(409).json({ error: response.locals.t('mediaLibrary.changeModal.expired') });
     return;
   }
 
   const storage = getUserFileStorageProvider();
-  if (pending.type === 'image') {
-    const oldStorageKey = resolved.mediaItem.image?.storageKey;
-    applyUserSceneMediaImage({
-      image: pending.image,
-      mediaId: owner.mediaId,
-      ownerProfileId: owner.ownerProfileId,
-      ownerUserId: owner.ownerUserId,
-    });
-    if (oldStorageKey && oldStorageKey !== pending.image.storageKey) {
-      await storage.deleteObject(oldStorageKey).catch(() => {});
-    }
-  } else {
-    const newKeys = new Set(
-      pending.audio.clips
-        .map((clip) => clip.storageKey)
-        .filter((key): key is string => Boolean(key)),
-    );
-    const staleKeys = (resolved.mediaItem.audio?.clips ?? [])
-      .map((clip) => clip.storageKey)
-      .filter((key): key is string => Boolean(key))
-      .filter((key) => !newKeys.has(key));
-    applyUserSceneMediaScript({
-      audio: pending.audio,
-      mediaId: owner.mediaId,
-      ownerProfileId: owner.ownerProfileId,
-      ownerUserId: owner.ownerUserId,
-      script: pending.script,
-    });
-    await Promise.allSettled(staleKeys.map((key) => storage.deleteObject(key)));
+  const oldStorageKey = resolved.mediaItem.image?.storageKey;
+  applyUserSceneMediaImage({
+    image: pending.image,
+    mediaId: owner.mediaId,
+    ownerProfileId: owner.ownerProfileId,
+    ownerUserId: owner.ownerUserId,
+  });
+  if (oldStorageKey && oldStorageKey !== pending.image.storageKey) {
+    await storage.deleteObject(oldStorageKey).catch(() => {});
   }
 
   deletePendingPreview(owner);
@@ -862,6 +842,75 @@ export async function applySceneMediaPreview(
     ok: true,
     redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit?tab=general`,
   });
+}
+
+// Approves a pending script draft: generates its audio (streaming progress),
+// commits the script+audio to the live media, and deletes the superseded audio
+// clips. The author never hears an intermediate audio preview — approving the
+// script is the commit point.
+export async function applySceneMediaScript(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const resolved = resolveOwnedUserSceneMedia(request, response);
+  if (!resolved) {
+    return;
+  }
+  const owner: SceneMediaPreviewOwnerKey = {
+    mediaId: resolved.mediaItem.id,
+    ownerProfileId: resolved.activeProfile.id,
+    ownerUserId: resolved.user.id,
+  };
+  const pending = getPendingPreview(owner);
+  const previewId = readField(request.body.previewId, 100);
+  if (!pending || pending.type !== 'script' || (previewId && pending.previewId !== previewId)) {
+    response.status(409).json({ error: response.locals.t('mediaLibrary.changeModal.expired') });
+    return;
+  }
+
+  const storage = getUserFileStorageProvider();
+  const stream = openSceneMediaProgressStream(response);
+  try {
+    const generated = await generateAndStoreSceneMediaAudio({
+      keySuffix: pending.previewId.slice(0, 8),
+      media: resolved.mediaItem,
+      onProgress: stream.writeProgress,
+      ownerUserId: resolved.user.id,
+      script: pending.script,
+    });
+    const staleKeys = (resolved.mediaItem.audio?.clips ?? [])
+      .map((clip) => clip.storageKey)
+      .filter((key): key is string => Boolean(key));
+    applyUserSceneMediaScript({
+      audio: generated.audio,
+      mediaId: owner.mediaId,
+      ownerProfileId: owner.ownerProfileId,
+      ownerUserId: owner.ownerUserId,
+      script: pending.script,
+    });
+    await Promise.allSettled(staleKeys.map((key) => storage.deleteObject(key)));
+    deletePendingPreview(owner);
+    stream.write({
+      layer: 'script',
+      percent: 100,
+      redirect: `/media-library/${encodeURIComponent(owner.mediaId)}/edit?tab=general`,
+      type: 'done',
+    });
+  } catch (error) {
+    logger.error('scene_media_preview_failed', {
+      error: serializeError(error),
+      layer: 'script-apply',
+      mediaId: resolved.mediaItem.id,
+      userId: resolved.user.id,
+    });
+    stream.write({
+      creditExhausted: isCreditExhaustedError(error),
+      message: sceneMediaCreationFailureMessage(response, error),
+      type: 'error',
+    });
+  } finally {
+    response.end();
+  }
 }
 
 // Drops the pending preview and deletes its temporary objects. Called when the

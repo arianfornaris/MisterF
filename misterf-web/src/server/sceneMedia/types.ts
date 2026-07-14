@@ -130,7 +130,9 @@ export type SceneMediaPendingPreview =
       type: 'image';
     }
   | {
-      audio: SceneMediaAudioLayer;
+      // A script draft awaiting approval. The audio is generated only when the
+      // author approves the script (see the script apply flow), so a pending
+      // script holds no audio and no temporary storage objects yet.
       createdAt: number;
       prompt: string;
       previewId: string;

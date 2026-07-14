@@ -1621,6 +1621,11 @@ body {
   }
 }
 
+.scene-media-change-script-box {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
 .practice-guide-chat-list {
   display: grid;
   gap: 14px;

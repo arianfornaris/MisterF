@@ -5,6 +5,7 @@ import { generateSceneMediaScriptPackage, SceneMediaScriptContentPolicyError, Sc
 import { createSceneMediaStorageKey, getUserFileStorageProvider, } from '../storage/userFileStorage.js';
 import { generateSceneMediaAudio, SceneMediaAudioContentPolicyError, SceneMediaAudioProviderError, } from './audioGeneration.js';
 import { SceneMediaCreationError, } from './creation.js';
+import { createSceneMediaGenerationSourceContext } from './generationContext.js';
 import { generateSceneMediaImage, SceneMediaImageContentPolicyError, SceneMediaImageProviderError, } from './imageGeneration.js';
 import { readSceneMediaImageAsset } from './imageAssets.js';
 const publicImmutableCacheControl = 'public, max-age=31536000, immutable';
@@ -83,16 +84,22 @@ export async function generateSceneMediaImagePreview(input) {
         throw mapPreviewError(error);
     }
 }
-export async function generateSceneMediaScriptPreview(input) {
+// Generates a script draft only (no audio). The current or previous-draft
+// script is passed as continuity context so the model modifies it per the
+// change request instead of writing a fresh, unrelated script.
+export async function generateSceneMediaScriptDraft(input) {
     const report = input.onProgress ?? (() => { });
-    const storage = getUserFileStorageProvider();
-    const uploadedStorageKeys = [];
+    report({ stage: 'metadata', completed: 0, total: 1 });
     try {
-        report({ stage: 'metadata', completed: 0, total: 1 });
         const openRouterApiKey = await requireCreditKey(input.ownerUserId);
         const imageAsset = input.media.image
             ? await readSceneMediaImageAsset(input.media)
             : undefined;
+        const baseScript = input.baseScript ?? input.media.script;
+        const sourceContext = createSceneMediaGenerationSourceContext({
+            layerDecisions: { image: 'keep_existing', scriptAndAudio: 'generate_new' },
+            sourceItem: baseScript ? { ...input.media, script: baseScript } : input.media,
+        });
         const scriptPackage = await generateSceneMediaScriptPackage({
             format: input.media.format,
             imageAlt: input.media.image?.alt,
@@ -102,19 +109,32 @@ export async function generateSceneMediaScriptPreview(input) {
             openRouterApiKey,
             prompt: input.prompt,
             scriptTypePreference: input.media.scriptTypePreference ?? 'unspecified',
+            sourceContext,
         });
-        const script = scriptPackage.script;
         report({ stage: 'metadata', completed: 1, total: 1 });
+        return { script: scriptPackage.script };
+    }
+    catch (error) {
+        throw mapPreviewError(error);
+    }
+}
+// Synthesizes and stores the audio for an approved script under unique
+// media-scoped keys (distinct from any existing clips so the old audio is not
+// overwritten before it is replaced). Used at script-apply time.
+export async function generateAndStoreSceneMediaAudio(input) {
+    const storage = getUserFileStorageProvider();
+    const uploadedStorageKeys = [];
+    try {
         const generated = await generateSceneMediaAudio({
             getOpenRouterApiKey: () => requireCreditKey(input.ownerUserId),
-            onClipProgress: (completed, total) => report({ stage: 'audio', completed, total }),
-            script,
+            onClipProgress: (completed, total) => input.onProgress?.({ stage: 'audio', completed, total }),
+            script: input.script,
         });
         const clips = [];
         for (const clip of generated.clips) {
             const storageKey = createSceneMediaStorageKey({
                 extension: clip.extension,
-                fileId: `preview-${input.previewId}-turn-${String(clip.turn).padStart(2, '0')}`,
+                fileId: `turn-${String(clip.turn).padStart(2, '0')}-${input.keySuffix}`,
                 fileRole: 'audio',
                 mediaId: input.media.id,
                 userId: input.ownerUserId,
@@ -151,7 +171,6 @@ export async function generateSceneMediaScriptPreview(input) {
                 provider: generated.provider,
                 voiceStrategy: generated.voiceStrategy,
             },
-            script,
             storageKeys: uploadedStorageKeys,
         };
     }
