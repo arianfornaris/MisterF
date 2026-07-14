@@ -47,16 +47,13 @@
               alt="<%= mediaItem.image.alt %>"
             >
           <% } %>
-          <div class="card-body">
-            <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-              <h2 class="h5 mb-0"><%= t('mediaLibrary.imageLayer') %></h2>
-              <% if (mediaItem.image) { %>
-                <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="image">
-                  <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.changeImage') %>
-                </button>
-              <% } %>
+          <% if (mediaItem.image) { %>
+            <div class="card-body d-flex justify-content-end">
+              <button type="button" class="btn btn-sm btn-outline-primary" data-scene-media-change-trigger data-layer="image">
+                <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('mediaLibrary.changeImage') %>
+              </button>
             </div>
-          </div>
+          <% } %>
         </section>
 
         <section class="card mt-4">

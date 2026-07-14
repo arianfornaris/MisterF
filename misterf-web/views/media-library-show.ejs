@@ -88,21 +88,10 @@
 
       <div class="col-12 col-xl-5">
         <div class="d-grid gap-3">
-          <% if (mediaItem.audio) { %>
-            <section class="card">
-              <div class="card-body">
-                <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
-                <%- include('partials/scene-media-audio-player', { audio: mediaItem.audio }) %>
-              </div>
-            </section>
-          <% } %>
-
           <section class="card">
             <div class="card-body">
               <h2 class="h5 mb-3"><%= t('mediaLibrary.metadata') %></h2>
               <dl class="scene-media-definition-list mb-0">
-                <dt><%= t('mediaLibrary.mediaId') %></dt>
-                <dd><code><%= mediaItem.id %></code></dd>
                 <% if (mediaItem.visualAssetId) { %>
                   <dt><%= t('mediaLibrary.visualAssetId') %></dt>
                   <dd><code><%= mediaItem.visualAssetId %></code></dd>
@@ -171,6 +160,15 @@
               <% }) %>
             <% } %>
           </dl>
+        </div>
+      </section>
+    <% } %>
+
+    <% if (mediaItem.audio) { %>
+      <section class="card mt-4">
+        <div class="card-body">
+          <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
+          <%- include('partials/scene-media-audio-player', { audio: mediaItem.audio }) %>
         </div>
       </section>
     <% } %>
