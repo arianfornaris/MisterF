@@ -56,15 +56,20 @@
                 </button>
               <% } %>
             </div>
-            <p class="mb-0"><%= mediaItem.image?.alt || t('mediaLibrary.notSpecified') %></p>
-            <% if (mediaItem.image?.width && mediaItem.image?.height) { %>
-              <p class="small text-body-secondary mb-0 mt-2">
-                <%= t('mediaLibrary.imageDetails', {
-                  contentType: mediaItem.image.contentType || t('mediaLibrary.notSpecified'),
-                  height: mediaItem.image.height,
-                  width: mediaItem.image.width,
-                }) %>
-              </p>
+          </div>
+        </section>
+
+        <section class="card mt-4">
+          <div class="card-body">
+            <h2 class="h5 mb-3"><%= t('mediaLibrary.visualSummary') %></h2>
+            <% if (mediaItem.visualSummary.length > 0) { %>
+              <ol class="mb-0">
+                <% mediaItem.visualSummary.forEach((line) => { %>
+                  <li><%= line %></li>
+                <% }) %>
+              </ol>
+            <% } else { %>
+              <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>
             <% } %>
           </div>
         </section>
@@ -106,6 +111,17 @@
                   <% }) %>
                 <% } %>
               </dl>
+            <% } %>
+          </div>
+        </section>
+
+        <section class="card mt-4">
+          <div class="card-body">
+            <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
+            <% if (mediaItem.audio) { %>
+              <%- include('partials/scene-media-audio-player', { audio: mediaItem.audio }) %>
+            <% } else { %>
+              <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>
             <% } %>
           </div>
         </section>
@@ -153,10 +169,6 @@
                 <dd><%= mediaItem.setting || t('mediaLibrary.notSpecified') %></dd>
                 <dt><%= t('mediaLibrary.sourceLabel') %></dt>
                 <dd><%= sourceLabel(mediaItem.source) %></dd>
-                <dt><%= t('mediaLibrary.mediaId') %></dt>
-                <dd><code><%= mediaItem.id %></code></dd>
-                <dt><%= t('mediaLibrary.sourceMediaId') %></dt>
-                <dd><code><%= mediaItem.createdFrom?.sourceMediaId || t('mediaLibrary.notSpecified') %></code></dd>
               </dl>
             </div>
           </section>
@@ -167,35 +179,9 @@
               <p class="mb-0"><%= mediaItem.generationPrompt || mediaItem.createdFrom?.prompt || t('mediaLibrary.notSpecified') %></p>
             </div>
           </section>
-
-          <section class="card">
-            <div class="card-body">
-              <h2 class="h5 mb-3"><%= t('mediaLibrary.audio') %></h2>
-              <% if (mediaItem.audio) { %>
-                <%- include('partials/scene-media-audio-player', { audio: mediaItem.audio }) %>
-              <% } else { %>
-                <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>
-              <% } %>
-            </div>
-          </section>
         </div>
       </div>
     </div>
-
-    <section class="card mt-4">
-      <div class="card-body">
-        <h2 class="h5 mb-3"><%= t('mediaLibrary.visualSummary') %></h2>
-        <% if (mediaItem.visualSummary.length > 0) { %>
-          <ol class="mb-0">
-            <% mediaItem.visualSummary.forEach((line) => { %>
-              <li><%= line %></li>
-            <% }) %>
-          </ol>
-        <% } else { %>
-          <p class="text-body-secondary mb-0"><%= t('mediaLibrary.notSpecified') %></p>
-        <% } %>
-      </div>
-    </section>
 
     <section class="card mt-4">
       <div class="card-body">

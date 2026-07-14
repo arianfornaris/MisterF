@@ -391,6 +391,9 @@ function initializeChangeModal() {
     beforeScript: el('[data-scene-media-change-before-script]'),
     cancelButton: el('[data-scene-media-change-cancel]'),
     closeButton: el('[data-scene-media-change-close]'),
+    currentContent: el('[data-scene-media-change-current-content]'),
+    currentImage: el('[data-scene-media-change-current-image]'),
+    currentWrap: el('[data-scene-media-change-current-wrap]'),
     error: el('[data-scene-media-change-error]'),
     generateButton: el('[data-scene-media-change-generate]'),
     imageCompare: el('[data-scene-media-change-image-compare]'),
@@ -446,6 +449,27 @@ function initializeChangeModal() {
     postUrlEncoded(data.discardEndpoint, { _csrf: data.csrf }).catch(() => {});
   };
 
+  // Shows the current image/script as reference while the author writes the
+  // change. Reflects the latest base (live media first, then the last preview)
+  // so it stays in sync with what the next generation refines.
+  const renderCurrentReference = () => {
+    const isImage = state.layer === 'image';
+    if (isImage) {
+      if (ui.currentImage instanceof HTMLImageElement) {
+        ui.currentImage.src = state.currentImageSrc || '';
+        ui.currentImage.alt = data.currentImageAlt || '';
+      }
+      show(ui.currentImage, Boolean(state.currentImageSrc));
+      show(ui.currentContent, false);
+      show(ui.currentWrap, Boolean(state.currentImageSrc));
+    } else {
+      fillScriptContent(ui.currentContent, state.currentScript);
+      show(ui.currentImage, false);
+      show(ui.currentContent, Boolean(state.currentScript));
+      show(ui.currentWrap, Boolean(state.currentScript));
+    }
+  };
+
   const openFor = (layer) => {
     state.layer = layer;
     state.previewId = null;
@@ -458,6 +482,7 @@ function initializeChangeModal() {
     ui.prompt.value = '';
     ui.prompt.setAttribute('placeholder', isImage ? data.placeholderImage : data.placeholderScript);
     show(ui.audioNote, !isImage);
+    renderCurrentReference();
     show(ui.error, false);
     setPhase('describe');
     modal.show();
@@ -614,6 +639,7 @@ function initializeChangeModal() {
   ui.generateButton?.addEventListener('click', generate);
   ui.retryButton?.addEventListener('click', () => {
     show(ui.error, false);
+    renderCurrentReference();
     setPhase('describe');
     ui.prompt.focus();
   });
