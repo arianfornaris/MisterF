@@ -2008,4 +2008,23 @@ export const migrations: Migration[] = [
       ALTER TABLE user_scene_media DROP COLUMN use_cases_json;
     `,
   },
+  {
+    id: 23,
+    name: 'simplify_roleplay_authoring_fields',
+    up: `
+      UPDATE resources
+      SET description = COALESCE(
+        NULLIF(TRIM((SELECT scenario FROM roleplays WHERE roleplays.id = resources.id)), ''),
+        description
+      )
+      WHERE type = 'roleplay';
+
+      UPDATE roleplays
+      SET description = COALESCE(NULLIF(TRIM(scenario), ''), description);
+
+      ALTER TABLE roleplays DROP COLUMN scenario;
+      ALTER TABLE roleplays DROP COLUMN pedagogical_focus;
+      ALTER TABLE roleplays DROP COLUMN max_learner_turns;
+    `,
+  },
 ];

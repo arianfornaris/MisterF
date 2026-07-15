@@ -154,13 +154,12 @@ with a simpler resource-shaped concept.
 
 Initial product direction:
 
-- a roleplay is a reusable free-form two-character scenario
-- it defines a situation, learner context, characters, learner role, opening
-  line, tone, vocabulary, goals, and optional learner-turn limit
+- a roleplay is a reusable free-form two-character practice resource
+- it defines one complete learner-facing description, an optional level, and
+  two characters with concise character-specific descriptions
 - the AI plays the fictional character
 - the learner writes English turns in a dedicated roleplay-writing UI
-- the roleplay ends when the learner presses finish or reaches the configured
-  learner-turn limit
+- the roleplay ends when the learner presses finish
 - completion produces an evaluated result with sentence-evaluation-like
   annotations for each learner turn
 - evaluated authenticated attempts produce progress and follow-up practice
@@ -175,7 +174,7 @@ practice resource than a social room:
 - no normal chat transcript as the primary runtime UI
 
 Roleplay implementation is intentionally last in the refactor. The V2 starting
-point is AI roleplay with explicit scenario metadata, a dedicated writing
+point is AI roleplay with one authoritative description, a dedicated writing
 surface, attempts with frozen snapshots, post-completion evaluation, and
 quiz-style follow-up actions.
 
@@ -277,8 +276,8 @@ Resource detail behavior:
     with profile, view attempts where applicable
   - Practice-guide-specific examples: edit guide, launch guided practice, share
     guide-specific links where still needed
-  - Roleplay-specific examples: edit roleplay, launch roleplay, configure
-    roleplay scenario
+  - Roleplay-specific examples: edit roleplay, launch roleplay, configure the
+    roleplay description and characters
 - Detail pages do not show a close `X`; the breadcrumb provides resource-area
   navigation.
 - If a resource detail page includes a global `Nuevo` menu later, it must appear

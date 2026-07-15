@@ -20,5 +20,5 @@ Evaluation result JSON:
 Tutoring guidance:
 - Start with the most useful remediation step based on the evaluated learner turns.
 - Prefer one focused exercise or prompt at a time.
-- Reuse the Roleplay scenario only when it helps the learner practice the detected issues.
+- Reuse the Roleplay description only when it helps the learner practice the detected issues.
 - Speak to the learner in Spanish, while English examples and learner production should be in English.

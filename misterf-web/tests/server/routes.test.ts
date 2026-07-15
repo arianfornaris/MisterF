@@ -186,11 +186,9 @@ describe('main route smoke tests', () => {
           name: 'Server',
         },
       ],
-      description: 'Route shared roleplay.',
+      description: 'A customer orders lunch at a cafe. The learner wants to order lunch politely.',
       level: 'A2',
-      pedagogicalFocus: 'Evaluate polite requests and restaurant vocabulary.',
       profileId: ownerProfile.id,
-      scenario: 'A customer orders lunch at a cafe. The learner wants to order lunch politely.',
       title: 'Route Shared Roleplay',
       userId: owner.id,
     });
@@ -346,6 +344,7 @@ describe('main route smoke tests', () => {
     const {
       createProfile,
       createRoleplay,
+      findRoleplayForUser,
     } = await import('../../src/server/db/repository.js');
 
     const owner = createExternalUser({
@@ -372,12 +371,9 @@ describe('main route smoke tests', () => {
           name: 'Local',
         },
       ],
-      description: 'A roleplay for asking for directions.',
+      description: 'A visitor asks a local resident how to find a museum. The learner is trying to find the museum.',
       level: 'A2',
-      maxLearnerTurns: 3,
-      pedagogicalFocus: 'Evaluate question forms and direction vocabulary.',
       profileId: profile.id,
-      scenario: 'A visitor asks a local resident how to find a museum. The learner is trying to find the museum.',
       title: 'Directions Roleplay',
       userId: owner.id,
     });
@@ -390,8 +386,240 @@ describe('main route smoke tests', () => {
     const detailHtml = await detailResponse.text();
     expect(detailResponse.status).toBe(200);
     expect(detailHtml).toContain('Directions Roleplay');
+    expect(detailHtml).toContain('A visitor asks a local resident how to find a museum.');
+    expect(detailHtml).not.toContain('Enfoque pedagógico');
+    expect(detailHtml).not.toContain('Límite de turnos');
     expect(detailHtml).toContain('Comenzar');
     expect(detailHtml).toContain('Compartir');
+
+    const editResponse = await fetch(`${baseUrl}/roleplays/${roleplay.id}/edit`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const editHtml = await editResponse.text();
+    expect(editResponse.status).toBe(200);
+    expect(editHtml).toContain('name="description"');
+    expect(editHtml).toContain(`data-roleplay-modify-endpoint="/roleplays/${roleplay.id}/edit/modify"`);
+    expect(editHtml).toContain(`data-roleplay-modify-apply-endpoint="/roleplays/${roleplay.id}/edit/modify/apply"`);
+    expect(editHtml).toContain(`data-roleplay-modify-discard-endpoint="/roleplays/${roleplay.id}/edit/modify/discard"`);
+    expect(editHtml.match(/data-roleplay-modify-open/g)).toHaveLength(1);
+    expect(editHtml).toContain('data-roleplay-modify-modal');
+    expect(editHtml).toContain('modal-dialog-scrollable');
+    expect(editHtml).not.toContain('data-roleplay-modify-form');
+    expect(editHtml).toContain('data-roleplay-modify-comparison');
+    expect(editHtml).toContain('data-roleplay-modify-phase="preview"');
+    expect(editHtml).toContain('Aprobar y guardar');
+    expect(editHtml).toContain('name="requestedChange"');
+    expect(editHtml).toContain('Modificar con IA');
+    expect(editHtml).not.toContain('Chat IA');
+    expect(editHtml).not.toContain('data-authoring-chat-form');
+    expect(editHtml).not.toContain('authoring-tabs');
+    expect(editHtml).toContain('<select class="form-select" id="roleplayLevel" name="level" required>');
+    expect(editHtml).toContain('<option value="A1-A2"');
+    expect(editHtml).toContain('<option value="B1-B2"');
+    expect(editHtml).toContain('<option value="C1"');
+    expect(editHtml).toContain('<option value="" disabled selected>');
+    expect(editHtml).not.toContain('<input class="form-control" id="roleplayLevel"');
+    expect(editHtml).toContain('name="learnerCharacterDescription"');
+    expect(editHtml).toContain('name="aiCharacterDescription"');
+    expect(editHtml).not.toContain('name="scenario"');
+    expect(editHtml).not.toContain('name="pedagogicalFocus"');
+    expect(editHtml).not.toContain('name="maxLearnerTurns"');
+
+    const csrfToken = extractCsrfToken(editHtml);
+    const editBody = {
+      _csrf: csrfToken,
+      aiCharacterDescription: 'A local resident who gives clear directions in a friendly way.',
+      aiCharacterName: 'Local',
+      description: 'A visitor asks a local resident how to find a museum.',
+      learnerCharacterDescription: 'A visitor asking for directions politely.',
+      learnerCharacterName: 'Learner',
+      title: 'Directions Roleplay',
+    };
+    const invalidModificationResponse = await postForm(
+      `/roleplays/${roleplay.id}/edit/modify`,
+      {
+        _csrf: csrfToken,
+        currentDraft: '{}',
+        requestedChange: 'Make it more specific.',
+      },
+      cookie,
+    );
+    expect(invalidModificationResponse.status).toBe(422);
+    await expect(invalidModificationResponse.json()).resolves.toEqual({
+      error: 'No se pudo generar esta modificación. Inténtalo de nuevo.',
+    });
+    const retiredEditChatResponse = await postForm(
+      `/roleplays/${roleplay.id}/edit/revise`,
+      { _csrf: csrfToken, message: 'Change the title.' },
+      cookie,
+    );
+    expect(retiredEditChatResponse.status).toBe(404);
+    const retiredLegacyChatResponse = await postForm(
+      `/roleplays/${roleplay.id}/revise`,
+      { _csrf: csrfToken, message: 'Change the title.' },
+      cookie,
+    );
+    expect(retiredLegacyChatResponse.status).toBe(404);
+    expect(findRoleplayForUser(roleplay.id, owner.id)).toEqual(expect.objectContaining({
+      authoringMessages: [],
+      level: 'A2',
+      title: 'Directions Roleplay',
+    }));
+
+    const creditGate = await import('../../src/server/services/creditGate.js');
+    const resourceDrafts = await import('../../src/server/services/resourceDrafts.js');
+    const { storedRoleplayToDraft } = await import('../../src/server/services/roleplays.js');
+    const storedDraft = storedRoleplayToDraft(roleplay);
+    const creditKeySpy = vi
+      .spyOn(creditGate, 'getCreditCheckedOpenRouterApiKeyForUser')
+      .mockResolvedValue('test-openrouter-key');
+    const revisionSpy = vi.spyOn(resourceDrafts, 'generateRoleplayRevision');
+    try {
+      const currentDraft = {
+        characters: storedDraft.characters,
+        description: 'An unsaved description supplied as current form context.',
+        level: 'A1-A2',
+        title: 'Unsaved Current Title',
+      };
+      const proposedDraft = {
+        characters: [
+          {
+            ...currentDraft.characters.find((character) => character.id === 'learner')!,
+            description: 'A traveler who needs precise directions.',
+          },
+          {
+            ...currentDraft.characters.find((character) => character.id === 'ai')!,
+            name: 'Museum Employee',
+          },
+        ],
+        description: 'A modified description ready for review.',
+        level: 'C1',
+        title: 'Modified Roleplay Title',
+      };
+      revisionSpy.mockResolvedValueOnce({
+        assistantMessage: 'I updated the requested Roleplay fields.',
+        draft: proposedDraft,
+      });
+      const modificationRequest = 'Make the situation more advanced and update any relevant fields.';
+      const successfulModificationResponse = await postForm(
+        `/roleplays/${roleplay.id}/edit/modify`,
+        {
+          _csrf: csrfToken,
+          currentDraft: JSON.stringify(currentDraft),
+          requestedChange: modificationRequest,
+        },
+        cookie,
+      );
+      expect(successfulModificationResponse.status).toBe(200);
+      const modificationPreview = await successfulModificationResponse.json() as {
+        changes: Array<{ after: string; before: string; field: string }>;
+        previewId: string;
+      };
+      expect(modificationPreview.previewId).toEqual(expect.any(String));
+      expect(modificationPreview.changes).toEqual([
+        { after: 'Modified Roleplay Title', before: 'Unsaved Current Title', field: 'title' },
+        {
+          after: 'A modified description ready for review.',
+          before: 'An unsaved description supplied as current form context.',
+          field: 'description',
+        },
+        { after: 'C1', before: 'A1-A2', field: 'level' },
+        {
+          after: 'A traveler who needs precise directions.',
+          before: 'A visitor asking for directions politely.',
+          field: 'learner.description',
+        },
+        { after: 'Museum Employee', before: 'Local', field: 'ai.name' },
+      ]);
+      expect(revisionSpy).toHaveBeenCalledWith(expect.objectContaining({
+        currentDraft,
+        openRouterApiKey: 'test-openrouter-key',
+        prompt: modificationRequest,
+      }));
+      expect(findRoleplayForUser(roleplay.id, owner.id)).toEqual(expect.objectContaining({
+        characters: roleplay.characters,
+        description: roleplay.description,
+        level: 'A2',
+        title: 'Directions Roleplay',
+      }));
+
+      const staleApplyResponse = await postForm(
+        `/roleplays/${roleplay.id}/edit/modify/apply`,
+        { _csrf: csrfToken, previewId: 'wrong-preview-id' },
+        cookie,
+      );
+      expect(staleApplyResponse.status).toBe(409);
+
+      const applyResponse = await postForm(
+        `/roleplays/${roleplay.id}/edit/modify/apply`,
+        { _csrf: csrfToken, previewId: modificationPreview.previewId },
+        cookie,
+      );
+      expect(applyResponse.status).toBe(200);
+      await expect(applyResponse.json()).resolves.toEqual({
+        ok: true,
+        redirect: `/roleplays/${roleplay.id}/edit`,
+      });
+      expect(findRoleplayForUser(roleplay.id, owner.id)).toEqual(expect.objectContaining({
+        authoringMessages: [],
+        characters: proposedDraft.characters,
+        description: proposedDraft.description,
+        level: proposedDraft.level,
+        title: proposedDraft.title,
+      }));
+
+      revisionSpy.mockResolvedValueOnce({
+        assistantMessage: 'I changed the title.',
+        draft: {
+          ...proposedDraft,
+          title: 'Discarded Proposed Title',
+        },
+      });
+      const discardPreviewResponse = await postForm(
+        `/roleplays/${roleplay.id}/edit/modify`,
+        {
+          _csrf: csrfToken,
+          currentDraft: JSON.stringify(proposedDraft),
+          requestedChange: 'Change the title again.',
+        },
+        cookie,
+      );
+      const discardPreview = await discardPreviewResponse.json() as { previewId: string };
+      expect(discardPreviewResponse.status).toBe(200);
+      const discardResponse = await postForm(
+        `/roleplays/${roleplay.id}/edit/modify/discard`,
+        { _csrf: csrfToken, previewId: discardPreview.previewId },
+        cookie,
+      );
+      expect(discardResponse.status).toBe(200);
+      const discardedApplyResponse = await postForm(
+        `/roleplays/${roleplay.id}/edit/modify/apply`,
+        { _csrf: csrfToken, previewId: discardPreview.previewId },
+        cookie,
+      );
+      expect(discardedApplyResponse.status).toBe(409);
+      expect(findRoleplayForUser(roleplay.id, owner.id)?.title).toBe('Modified Roleplay Title');
+    } finally {
+      revisionSpy.mockRestore();
+      creditKeySpy.mockRestore();
+    }
+
+    const invalidLevelResponse = await postForm(
+      `/roleplays/${roleplay.id}/edit`,
+      { ...editBody, level: 'A2' },
+      cookie,
+    );
+    expect(invalidLevelResponse.status).toBe(422);
+    expect(findRoleplayForUser(roleplay.id, owner.id)?.level).toBe('C1');
+
+    const validLevelResponse = await postForm(
+      `/roleplays/${roleplay.id}/edit`,
+      { ...editBody, level: 'B1-B2' },
+      cookie,
+    );
+    expect(validLevelResponse.status).toBe(302);
+    expect(findRoleplayForUser(roleplay.id, owner.id)?.level).toBe('B1-B2');
   });
 
   it('renders the practice guide label and quiz attempts on resource pages', async () => {
@@ -770,7 +998,12 @@ describe('main route smoke tests', () => {
     expect(mediaAuthoringHtml).toContain('value="Route Ready Media"');
     expect(mediaAuthoringHtml).toContain('data-scene-media-title-form');
     expect(mediaAuthoringHtml).toContain('data-scene-media-generate-title');
-    expect(mediaAuthoringHtml).toContain('Generar título');
+    expect(mediaAuthoringHtml).toContain('data-scene-media-generate-title-label>Generar</span>');
+    expect(mediaAuthoringHtml).not.toContain('Generar título');
+    expect(mediaAuthoringHtml).toContain('class="d-flex flex-wrap gap-2"');
+    expect(mediaAuthoringHtml.indexOf('data-scene-media-generate-title')).toBeLessThan(
+      mediaAuthoringHtml.indexOf('data-scene-media-title-save'),
+    );
     expect(mediaAuthoringHtml).toContain('disabled data-scene-media-title-save');
     expect(mediaAuthoringHtml).toContain('bi-save me-1');
     expect(mediaAuthoringHtml).toContain('Guardar');
@@ -1127,11 +1360,9 @@ describe('main route smoke tests', () => {
         { description: 'A learner ordering lunch politely.', id: 'learner', name: 'Learner' },
         { description: 'A helpful cafe server.', id: 'ai', name: 'Server' },
       ],
-      description: 'Shared start roleplay.',
+      description: 'A customer orders lunch at a cafe.',
       level: 'A2',
-      pedagogicalFocus: 'Evaluate polite requests.',
       profileId: ownerProfile.id,
-      scenario: 'A customer orders lunch at a cafe.',
       title: 'Shared Start Roleplay',
       userId: owner.id,
     });

@@ -1290,11 +1290,11 @@ body {
   color: var(--mf-practice);
 }
 
-.roleplay-turn.is-scenario .roleplay-turn-avatar {
+.roleplay-turn.is-context .roleplay-turn-avatar {
   color: var(--bs-info);
 }
 
-.roleplay-turn.is-scenario .roleplay-turn-body {
+.roleplay-turn.is-context .roleplay-turn-body {
   border-color: var(--bs-border-color);
   background: var(--bs-tertiary-bg);
 }

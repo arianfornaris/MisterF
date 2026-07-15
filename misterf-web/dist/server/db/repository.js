@@ -355,10 +355,7 @@ function toStoredRoleplay(row) {
         description: row.description,
         id: row.id,
         level: row.level,
-        maxLearnerTurns: row.max_learner_turns,
-        pedagogicalFocus: row.pedagogical_focus,
         profileId: row.profile_id,
-        scenario: row.scenario,
         sharedVia: row.shared_via,
         sourceProfileId: row.source_profile_id,
         sourceRoleplayId: row.source_roleplay_id,
@@ -2446,10 +2443,7 @@ const roleplaySelectColumns = `
   description,
   id,
   level,
-  max_learner_turns,
-  pedagogical_focus,
   profile_id,
-  scenario,
   shared_via,
   source_profile_id,
   source_roleplay_id,
@@ -2483,10 +2477,7 @@ export function createRoleplay(input) {
           profile_id,
           title,
           description,
-          scenario,
           level,
-          pedagogical_focus,
-          max_learner_turns,
           characters_json,
           authoring_messages_json,
           source_roleplay_id,
@@ -2494,8 +2485,8 @@ export function createRoleplay(input) {
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `).run(id, input.userId, input.profileId, input.title, input.description ?? '', input.scenario ?? '', input.level ?? '', input.pedagogicalFocus ?? '', input.maxLearnerTurns ?? null, JSON.stringify(input.characters), JSON.stringify(input.authoringMessages ?? []), input.sourceRoleplayId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(id, input.userId, input.profileId, input.title, input.description ?? '', input.level ?? '', JSON.stringify(input.characters), JSON.stringify(input.authoringMessages ?? []), input.sourceRoleplayId ?? null, input.sourceUserId ?? null, input.sourceProfileId ?? null, input.sharedVia ?? null);
     });
     transaction();
     const roleplay = findRoleplayForUser(id, input.userId);
@@ -2539,15 +2530,12 @@ export function updateRoleplay(input) {
         UPDATE roleplays
         SET title = ?,
             description = ?,
-            scenario = ?,
             level = ?,
-            pedagogical_focus = ?,
-            max_learner_turns = ?,
             characters_json = ?,
             authoring_messages_json = COALESCE(?, authoring_messages_json),
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ? AND user_id = ?
-      `).run(input.title, input.description, input.scenario, input.level, input.pedagogicalFocus, input.maxLearnerTurns, JSON.stringify(input.characters), input.authoringMessages === undefined
+      `).run(input.title, input.description, input.level, JSON.stringify(input.characters), input.authoringMessages === undefined
             ? null
             : JSON.stringify(input.authoringMessages), input.roleplayId, input.userId);
     });

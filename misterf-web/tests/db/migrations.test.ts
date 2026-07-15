@@ -143,6 +143,10 @@ describe('database migrations', () => {
         id: 22,
         name: 'drop_user_scene_media_tags_skills_use_cases',
       },
+      {
+        id: 23,
+        name: 'simplify_roleplay_authoring_fields',
+      },
     ]);
 
     const tableNames = (db
@@ -291,8 +295,8 @@ describe('database migrations', () => {
     }));
     expect(getColumnNames(db, 'roleplays')).toEqual(expect.arrayContaining([
       'characters_json',
-      'pedagogical_focus',
-      'scenario',
+      'description',
+      'level',
     ]));
     expect(getColumnNames(db, 'roleplays')).not.toEqual(expect.arrayContaining([
       'evaluation_focus_json',
@@ -301,7 +305,10 @@ describe('database migrations', () => {
       'learner_character_id',
       'learner_context',
       'learning_goals_json',
+      'max_learner_turns',
       'opening_line',
+      'pedagogical_focus',
+      'scenario',
       'target_topic',
     ]));
     expect(getColumnNames(db, 'roleplay_attempts')).toEqual(expect.arrayContaining([
@@ -335,6 +342,85 @@ describe('database migrations', () => {
     ).get() as { sql: string };
     expect(sceneMediaSchema.sql).toContain("generation_mode = 'image_only'");
     expect(sceneMediaSchema.sql).toContain("generation_mode = 'complete_scene'");
+  });
+
+  it('moves legacy roleplay situations into descriptions before dropping redundant fields', async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-roleplay-fields-'));
+    process.env.DATABASE_PATH = path.join(tempDir, 'roleplays.sqlite');
+    process.env.ENV_FILE = '/dev/null';
+    vi.resetModules();
+
+    const { getDb } = await import('../../src/server/db/database.js');
+    const { migrations } = await import('../../src/server/db/migrations.js');
+    const { migrate } = await import('../../src/server/db/migrator.js');
+    const db = getDb();
+
+    db.exec(`
+      CREATE TABLE schema_migrations (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    db.unsafeMode(true);
+    try {
+      for (const migration of migrations.filter(({ id }) => id <= 22)) {
+        if (migration.up) db.exec(migration.up);
+        else migration.run?.(db);
+        db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
+          .run(migration.id, migration.name);
+      }
+    } finally {
+      db.unsafeMode(false);
+      db.pragma('writable_schema = RESET');
+    }
+
+    db.prepare(`
+      INSERT INTO users (id, email, full_name, email_verified)
+      VALUES ('user_1', 'roleplay-fields@example.com', 'Roleplay Author', 1)
+    `).run();
+    db.prepare(`
+      INSERT INTO profiles (id, user_id, name)
+      VALUES ('profile_1', 'user_1', 'Roleplay profile')
+    `).run();
+    db.prepare(`
+      INSERT INTO resources (
+        id, user_id, profile_id, type, title, description, level
+      )
+      VALUES (
+        'roleplay_1', 'user_1', 'profile_1', 'roleplay',
+        'Hotel reservation', 'Legacy short summary.', 'B1'
+      )
+    `).run();
+    db.prepare(`
+      INSERT INTO roleplays (
+        id, user_id, profile_id, title, description, scenario, level,
+        pedagogical_focus, max_learner_turns, characters_json
+      )
+      VALUES (
+        'roleplay_1', 'user_1', 'profile_1', 'Hotel reservation',
+        'Legacy short summary.', 'The learner resolves a hotel reservation problem.',
+        'B1', 'Practice polite requests.', 8, '[]'
+      )
+    `).run();
+
+    migrate();
+
+    expect(db.prepare('SELECT description FROM roleplays WHERE id = ?')
+      .get('roleplay_1')).toEqual({
+      description: 'The learner resolves a hotel reservation problem.',
+    });
+    expect(db.prepare('SELECT description FROM resources WHERE id = ?')
+      .get('roleplay_1')).toEqual({
+      description: 'The learner resolves a hotel reservation problem.',
+    });
+    expect(getColumnNames(db, 'roleplays')).not.toEqual(expect.arrayContaining([
+      'max_learner_turns',
+      'pedagogical_focus',
+      'scenario',
+    ]));
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
   it('removes legacy scene media jobs and incomplete media rows', async () => {

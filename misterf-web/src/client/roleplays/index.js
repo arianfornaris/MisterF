@@ -1,9 +1,10 @@
 import { t } from '../shared/i18n.js';
-import { initializeAuthoringChatRevision } from '../shared/authoringChatRevision.js';
-import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { renderMarkdown } from '../chat/shared/markdown.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
-import { initializeMarkdownEditors } from '../shared/markdownEditor.js';
+import {
+  getMarkdownEditorValue,
+  initializeMarkdownEditors,
+} from '../shared/markdownEditor.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
 
@@ -221,6 +222,408 @@ function initializeRoleplayAvatarSelector() {
   }
 }
 
+function getRoleplayFormControl(formEl, name) {
+  const control = formEl.elements.namedItem(name);
+  return control instanceof HTMLInputElement
+    || control instanceof HTMLSelectElement
+    || control instanceof HTMLTextAreaElement
+    ? control
+    : null;
+}
+
+function buildCurrentRoleplayDraft(formEl) {
+  const titleEl = getRoleplayFormControl(formEl, 'title');
+  const descriptionEl = getRoleplayFormControl(formEl, 'description');
+  const levelEl = getRoleplayFormControl(formEl, 'level');
+  if (
+    !(titleEl instanceof HTMLInputElement)
+    || !(descriptionEl instanceof HTMLTextAreaElement)
+    || !(levelEl instanceof HTMLSelectElement)
+  ) {
+    return null;
+  }
+
+  const buildCharacter = (id, prefix) => {
+    const nameEl = getRoleplayFormControl(formEl, `${prefix}CharacterName`);
+    const descriptionFieldEl = getRoleplayFormControl(formEl, `${prefix}CharacterDescription`);
+    const avatarEl = getRoleplayFormControl(formEl, `${prefix}CharacterAvatarId`);
+    if (
+      !(nameEl instanceof HTMLInputElement)
+      || !(descriptionFieldEl instanceof HTMLTextAreaElement)
+      || !(avatarEl instanceof HTMLInputElement)
+    ) {
+      return null;
+    }
+
+    return {
+      ...(avatarEl.value ? { avatarId: avatarEl.value } : {}),
+      description: descriptionFieldEl.value,
+      id,
+      name: nameEl.value,
+    };
+  };
+
+  const learnerCharacter = buildCharacter('learner', 'learner');
+  const aiCharacter = buildCharacter('ai', 'ai');
+  if (!learnerCharacter || !aiCharacter) {
+    return null;
+  }
+
+  return {
+    characters: [learnerCharacter, aiCharacter],
+    description: getMarkdownEditorValue(descriptionEl),
+    level: levelEl.value,
+    title: titleEl.value,
+  };
+}
+
+function findRoleplayAvatarDetails(avatarId) {
+  for (const optionEl of document.querySelectorAll('[data-roleplay-avatar-option]')) {
+    if (optionEl instanceof HTMLElement && (optionEl.dataset.avatarId || '') === avatarId) {
+      return {
+        name: optionEl.dataset.avatarName || '',
+        src: optionEl.dataset.avatarSrc || '',
+      };
+    }
+  }
+
+  return { name: '', src: '' };
+}
+
+function renderRoleplayModificationValue(container, field, value, labels) {
+  container.replaceChildren();
+  if (field === 'description') {
+    container.classList.add('resource-markdown');
+    container.innerHTML = renderMarkdown(value);
+    return;
+  }
+
+  if (field.endsWith('.avatarId')) {
+    const avatar = findRoleplayAvatarDetails(value);
+    const wrap = document.createElement('div');
+    wrap.className = 'd-flex align-items-center gap-2';
+    const preview = document.createElement('div');
+    preview.className = 'roleplay-character-avatar-preview flex-shrink-0';
+    preview.setAttribute('aria-hidden', 'true');
+    renderAvatarPreview(preview, {
+      avatarSrc: avatar.src,
+      fallbackIcon: field.startsWith('ai.') ? 'bi-person-video3' : 'bi-person',
+    });
+    const name = document.createElement('span');
+    name.textContent = avatar.name || labels.noAvatar;
+    wrap.append(preview, name);
+    container.append(wrap);
+    return;
+  }
+
+  container.textContent = value || '—';
+}
+
+function renderRoleplayModificationChanges(container, changes, labels) {
+  container.replaceChildren();
+  if (!Array.isArray(changes)) {
+    return false;
+  }
+
+  let renderedCount = 0;
+  for (const change of changes) {
+    if (
+      !change
+      || typeof change.field !== 'string'
+      || typeof change.before !== 'string'
+      || typeof change.after !== 'string'
+      || !labels.fields[change.field]
+    ) {
+      continue;
+    }
+
+    const card = document.createElement('article');
+    card.className = 'card mb-3';
+    const header = document.createElement('div');
+    header.className = 'card-header fw-semibold py-2';
+    header.textContent = labels.fields[change.field];
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    const row = document.createElement('div');
+    row.className = 'row g-3';
+
+    for (const version of ['before', 'after']) {
+      const column = document.createElement('div');
+      column.className = 'col-12 col-md-6 d-flex flex-column';
+      const heading = document.createElement('p');
+      heading.className = version === 'before'
+        ? 'small text-body-secondary mb-1'
+        : 'small fw-semibold text-primary mb-1';
+      heading.textContent = version === 'before' ? labels.current : labels.proposed;
+      const value = document.createElement('div');
+      value.className = version === 'before'
+        ? 'border rounded p-3 flex-grow-1 bg-body-tertiary'
+        : 'border border-primary rounded p-3 flex-grow-1';
+      renderRoleplayModificationValue(value, change.field, change[version], labels);
+      column.append(heading, value);
+      row.append(column);
+    }
+
+    body.append(row);
+    card.append(header, body);
+    container.append(card);
+    renderedCount += 1;
+  }
+
+  return renderedCount > 0;
+}
+
+async function postRoleplayModification(endpoint, fields) {
+  return fetch(endpoint, {
+    body: new URLSearchParams(fields),
+    credentials: 'same-origin',
+    headers: {
+      Accept: 'application/json',
+      'X-Requested-With': 'fetch',
+    },
+    method: 'POST',
+  });
+}
+
+function initializeRoleplayModification() {
+  const formEl = document.querySelector('[data-roleplay-authoring-form]');
+  const modalEl = document.querySelector('[data-roleplay-modify-modal]');
+  const openButtonEl = document.querySelector('[data-roleplay-modify-open]');
+  if (
+    !(formEl instanceof HTMLFormElement)
+    || !(modalEl instanceof HTMLElement)
+    || !(openButtonEl instanceof HTMLButtonElement)
+    || !window.bootstrap?.Modal
+  ) {
+    return;
+  }
+
+  const requestEl = modalEl.querySelector('[data-roleplay-modify-request]');
+  const comparisonEl = modalEl.querySelector('[data-roleplay-modify-comparison]');
+  const generateButtonEl = modalEl.querySelector('[data-roleplay-modify-generate]');
+  const retryButtonEl = modalEl.querySelector('[data-roleplay-modify-retry]');
+  const applyButtonEl = modalEl.querySelector('[data-roleplay-modify-apply]');
+  const applyLabelEl = modalEl.querySelector('[data-roleplay-modify-apply-label]');
+  const applySpinnerEl = modalEl.querySelector('[data-roleplay-modify-apply-spinner]');
+  const applyIconEl = modalEl.querySelector('[data-roleplay-modify-apply-icon]');
+  const errorEl = modalEl.querySelector('[data-roleplay-modify-error]');
+  const errorMessageEl = modalEl.querySelector('[data-roleplay-modify-error-message]');
+  const creditLinkEl = modalEl.querySelector('[data-roleplay-modify-credit-link]');
+  const csrfEl = formEl.querySelector('input[name="_csrf"]');
+  const previewEndpoint = modalEl.dataset.roleplayModifyEndpoint || '';
+  const applyEndpoint = modalEl.dataset.roleplayModifyApplyEndpoint || '';
+  const discardEndpoint = modalEl.dataset.roleplayModifyDiscardEndpoint || '';
+  if (
+    !(requestEl instanceof HTMLTextAreaElement)
+    || !(comparisonEl instanceof HTMLElement)
+    || !(generateButtonEl instanceof HTMLButtonElement)
+    || !(retryButtonEl instanceof HTMLButtonElement)
+    || !(applyButtonEl instanceof HTMLButtonElement)
+    || !(applyLabelEl instanceof HTMLElement)
+    || !(applySpinnerEl instanceof HTMLElement)
+    || !(applyIconEl instanceof HTMLElement)
+    || !(errorEl instanceof HTMLElement)
+    || !(errorMessageEl instanceof HTMLElement)
+    || !(creditLinkEl instanceof HTMLElement)
+    || !(csrfEl instanceof HTMLInputElement)
+    || !previewEndpoint
+    || !applyEndpoint
+    || !discardEndpoint
+  ) {
+    return;
+  }
+
+  const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+  const dismissButtons = Array.from(modalEl.querySelectorAll('[data-roleplay-modify-dismiss]'))
+    .filter((element) => element instanceof HTMLButtonElement);
+  const labels = {
+    current: modalEl.dataset.currentLabel || '',
+    fields: {
+      'ai.avatarId': modalEl.dataset.fieldAiAvatarid,
+      'ai.description': modalEl.dataset.fieldAiDescription,
+      'ai.name': modalEl.dataset.fieldAiName,
+      description: modalEl.dataset.fieldDescription,
+      'learner.avatarId': modalEl.dataset.fieldLearnerAvatarid,
+      'learner.description': modalEl.dataset.fieldLearnerDescription,
+      'learner.name': modalEl.dataset.fieldLearnerName,
+      level: modalEl.dataset.fieldLevel,
+      title: modalEl.dataset.fieldTitle,
+    },
+    noAvatar: modalEl.dataset.noAvatarLabel || '',
+    proposed: modalEl.dataset.proposedLabel || '',
+  };
+  let previewId = '';
+  let applied = false;
+  let isBusy = false;
+
+  const show = (element, visible) => element?.classList.toggle('d-none', !visible);
+  const setPhase = (phase) => {
+    for (const element of modalEl.querySelectorAll('[data-roleplay-modify-phase]')) {
+      show(element, element.getAttribute('data-roleplay-modify-phase') === phase);
+    }
+    const generating = phase === 'generating';
+    show(generateButtonEl, phase === 'describe');
+    show(retryButtonEl, phase === 'preview');
+    show(applyButtonEl, phase === 'preview');
+    for (const button of dismissButtons) {
+      show(button, !generating);
+    }
+  };
+  const showError = (message, creditExhausted = false) => {
+    errorMessageEl.textContent = message || modalEl.dataset.genericError || '';
+    errorEl.classList.remove('d-none');
+    creditLinkEl.classList.toggle('d-none', !creditExhausted);
+  };
+  const hideError = () => {
+    errorEl.classList.add('d-none');
+    creditLinkEl.classList.add('d-none');
+  };
+  const discardPreview = () => {
+    if (!previewId || applied) {
+      return;
+    }
+    const discardedPreviewId = previewId;
+    previewId = '';
+    postRoleplayModification(discardEndpoint, {
+      _csrf: csrfEl.value,
+      previewId: discardedPreviewId,
+    }).catch(() => {});
+  };
+
+  openButtonEl.addEventListener('click', () => {
+    discardPreview();
+    previewId = '';
+    applied = false;
+    requestEl.value = '';
+    requestEl.setCustomValidity('');
+    comparisonEl.replaceChildren();
+    hideError();
+    setPhase('describe');
+    modal.show();
+  });
+
+  requestEl.addEventListener('input', () => {
+    requestEl.setCustomValidity('');
+  });
+
+  modalEl.addEventListener('shown.bs.modal', () => {
+    if (!requestEl.closest('.d-none')) {
+      requestEl.focus();
+    }
+  });
+
+  modalEl.addEventListener('hidden.bs.modal', () => {
+    discardPreview();
+  });
+
+  generateButtonEl.addEventListener('click', async () => {
+    const requestedChange = requestEl.value.trim();
+    if (isBusy) {
+      return;
+    }
+
+    if (requestedChange.length < 3) {
+      requestEl.setCustomValidity(modalEl.dataset.genericError || '');
+      requestEl.reportValidity();
+      return;
+    }
+
+    const currentDraft = buildCurrentRoleplayDraft(formEl);
+    hideError();
+
+    if (!currentDraft) {
+      showError('');
+      return;
+    }
+
+    discardPreview();
+    isBusy = true;
+    setPhase('generating');
+
+    try {
+      const response = await postRoleplayModification(previewEndpoint, {
+        _csrf: csrfEl.value,
+        currentDraft: JSON.stringify(currentDraft),
+        requestedChange,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (
+        !response.ok
+        || typeof payload.previewId !== 'string'
+        || !renderRoleplayModificationChanges(comparisonEl, payload.changes, labels)
+      ) {
+        showError(payload.error, Boolean(payload.creditExhausted));
+        setPhase('describe');
+        return;
+      }
+
+      previewId = payload.previewId;
+      setPhase('preview');
+    } catch {
+      showError('');
+      setPhase('describe');
+    } finally {
+      isBusy = false;
+    }
+  });
+
+  retryButtonEl.addEventListener('click', () => {
+    discardPreview();
+    comparisonEl.replaceChildren();
+    hideError();
+    setPhase('describe');
+    requestEl.focus();
+  });
+
+  applyButtonEl.addEventListener('click', async () => {
+    if (isBusy || !previewId) {
+      return;
+    }
+
+    isBusy = true;
+    hideError();
+    applyButtonEl.disabled = true;
+    applyLabelEl.textContent = modalEl.dataset.applyingLabel || '';
+    applySpinnerEl.classList.remove('d-none');
+    applyIconEl.classList.add('d-none');
+    retryButtonEl.disabled = true;
+    for (const button of dismissButtons) {
+      button.disabled = true;
+    }
+    try {
+      const response = await postRoleplayModification(applyEndpoint, {
+        _csrf: csrfEl.value,
+        previewId,
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) {
+        if (response.status === 409) {
+          previewId = '';
+          comparisonEl.replaceChildren();
+          setPhase('describe');
+        }
+        showError(payload.error);
+        return;
+      }
+
+      applied = true;
+      window.location.assign(payload.redirect || window.location.href);
+    } catch {
+      showError('');
+    } finally {
+      isBusy = false;
+      applyButtonEl.disabled = false;
+      applyLabelEl.textContent = modalEl.dataset.applyLabel || '';
+      applySpinnerEl.classList.add('d-none');
+      applyIconEl.classList.remove('d-none');
+      retryButtonEl.disabled = false;
+      for (const button of dismissButtons) {
+        button.disabled = false;
+      }
+    }
+  });
+}
+
 function initializeRoleplayTurnComposer() {
   const formEl = document.querySelector('[data-roleplay-turn-form]');
   const transcriptEl = document.querySelector('[data-roleplay-transcript]');
@@ -293,8 +696,6 @@ function initializeRoleplayTurnComposer() {
       textareaEl,
     });
 
-    let hasReachedTurnLimit = false;
-
     try {
       const response = await fetch(formEl.action, {
         body: formData,
@@ -327,14 +728,6 @@ function initializeRoleplayTurnComposer() {
         });
       }
 
-      updateRoleplayTurnCounter(payload.learnerTurnCount);
-
-      if (payload.hasReachedTurnLimit) {
-        hasReachedTurnLimit = true;
-        textareaEl.placeholder = t('clientMisc.roleplayTurnLimit');
-        return;
-      }
-
       textareaEl.focus();
     } catch {
       loadingTurnEl.remove();
@@ -346,12 +739,6 @@ function initializeRoleplayTurnComposer() {
         textareaEl,
       });
 
-      if (hasReachedTurnLimit) {
-        textareaEl.disabled = true;
-        if (submitButtonEl instanceof HTMLButtonElement) {
-          submitButtonEl.disabled = true;
-        }
-      }
       formEl.dataset.roleplaySubmitting = 'false';
     }
   });
@@ -456,26 +843,10 @@ function hideRoleplayTurnError(errorEl) {
   }
 }
 
-function updateRoleplayTurnCounter(learnerTurnCount) {
-  const counterEl = document.querySelector('[data-roleplay-turn-counter]');
-  if (!(counterEl instanceof HTMLElement) || typeof learnerTurnCount !== 'number') {
-    return;
-  }
-
-  const maxTurns = counterEl.dataset.maxTurns || '';
-  counterEl.innerHTML = `<i class="bi bi-chat-left-text" aria-hidden="true"></i> ${learnerTurnCount}/${escapeHtml(maxTurns)} turnos`;
-}
-
 function scrollRoleplayTranscriptToBottom(transcriptEl) {
   requestAnimationFrame(() => {
     transcriptEl.scrollTop = transcriptEl.scrollHeight;
   });
-}
-
-function escapeHtml(value) {
-  const wrapper = document.createElement('div');
-  wrapper.textContent = value || '';
-  return wrapper.innerHTML;
 }
 
 function initializeRoleplayTranscriptScroll() {
@@ -547,12 +918,11 @@ function initializeRoleplayEvaluationPopovers(root = document) {
 initializeRoleplaySharingUi();
 initializeRoleplayPendingUi();
 initializeRoleplayAvatarSelector();
+initializeMarkdownEditors();
+initializeRoleplayModification();
 initializeStaticMarkdown();
 initializeRoleplayTranscriptScroll();
 initializeRoleplayTurnComposer();
 initializeRoleplayEvaluationPopovers();
-initializeAuthoringChatScroll();
-initializeAuthoringChatRevision();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
-initializeMarkdownEditors();

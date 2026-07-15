@@ -164,15 +164,14 @@ restoring the old room flow.
 ### Create roleplay
 
 1. The user opens `Recursos` and chooses `Nuevo` -> `Roleplay`.
-2. The user describes the desired scenario in natural language.
+2. The user describes the desired roleplay in natural language.
 3. The server checks the creator's credits for AI-assisted authoring.
-4. The model returns a structured roleplay draft with a scenario, level,
-   pedagogical focus, optional learner-turn limit, and exactly two characters:
-   `learner` and `ai`.
+4. The model returns a structured roleplay draft with one complete description,
+   a level, and exactly two characters: `learner` and `ai`.
 5. The roleplay is persisted as a `roleplay` resource and opens in the edit
    view.
-6. The creator can edit metadata, scenario, pedagogical focus, character names
-   and descriptions, and optional learner-turn limit manually.
+6. The creator can edit the description, level, character names, and character
+   descriptions manually.
 7. The creator can use the AI edit chat to ask for revisions. The authoring
    history and recent draft snapshots are sent with each revision request.
 
@@ -187,8 +186,7 @@ restoring the old room flow.
    UI.
 5. The server checks runtime credit and asks the model for the fictional
    character's next turn.
-6. The exchange repeats until the learner presses `Finalizar y resumir` or
-   reaches the configured turn limit.
+6. The exchange repeats until the learner presses `Finalizar y resumir`.
 7. The server checks evaluation credit and asks the model to evaluate the
    learner-controlled turns only.
 8. The result is saved and rendered with per-turn sentence-evaluation-like

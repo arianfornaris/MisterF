@@ -3,6 +3,22 @@ import { renderMarkdown } from '../chat/shared/markdown.js';
 
 const editorInstances = new WeakMap();
 
+export function getMarkdownEditorValue(textareaEl) {
+  return editorInstances.get(textareaEl)?.value() ?? textareaEl.value;
+}
+
+export function setMarkdownEditorValue(textareaEl, value) {
+  const editor = editorInstances.get(textareaEl);
+  if (editor) {
+    editor.value(value);
+    editor.codemirror.save();
+    return;
+  }
+
+  textareaEl.value = value;
+  textareaEl.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
 const defaultToolbar = [
   'heading-2',
   'bold',

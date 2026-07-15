@@ -155,7 +155,7 @@ Avoid asking for a specific copyrighted studio style. Use language such as
 ## Open Product Questions
 
 - Should teachers pick from the shared character library, or should the app
-  auto-select characters based on the generated roleplay scenario?
+  auto-select characters based on the generated roleplay description?
 - Should a roleplay resource snapshot copy the image metadata, or only store the
   character id and resolve the current registry at render time?
 - Should character images be allowed in public shared roleplays before login?

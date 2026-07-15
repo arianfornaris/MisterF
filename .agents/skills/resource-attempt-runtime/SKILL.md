@@ -28,8 +28,7 @@ persisted attempt data.
   detail page (`/quizzes/:quizId/test-attempts`) using the student-facing UI.
   Do not introduce a separate persisted preview/test attempt mode.
 - Roleplay attempts generate the AI character's first line dynamically at
-  start, honor the optional max learner-turn limit, and evaluate only after
-  completion.
+  start and evaluate only after the learner explicitly finishes the exchange.
 - Authenticated evaluated attempts record learner progress events with
   `details.resourceId` and `details.resourceType`; guest attempts record
   progress only after being claimed.

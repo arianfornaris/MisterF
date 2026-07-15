@@ -1,5 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { shouldUseTemperature } from '../../src/server/services/llmTutor/providers.js';
+import {
+  getProviderOptions,
+  shouldUseTemperature,
+} from '../../src/server/services/llmTutor/providers.js';
+
+describe('getProviderOptions', () => {
+  it('allows a call site to override the default reasoning effort', () => {
+    expect(getProviderOptions({ reasoningEffort: 'minimal' })).toMatchObject({
+      openrouter: {
+        reasoning: {
+          effort: 'minimal',
+          exclude: true,
+        },
+      },
+    });
+  });
+});
 
 describe('shouldUseTemperature', () => {
   it('excludes GPT-5 and o-series models despite the OpenRouter vendor prefix', () => {

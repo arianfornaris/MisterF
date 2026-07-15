@@ -1,9 +1,9 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
 import { quizDraftSchema, } from './quizzes.js';
-import { normalizeRoleplayRevisionConversationHistory, roleplayDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
+import { normalizeRoleplayRevisionConversationHistory, roleplayAuthoringDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
-import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
+import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
@@ -150,7 +150,9 @@ async function generateStructuredDraft(input) {
                 openRouterApiKey: input.openRouterApiKey,
             }),
             messages,
-            providerOptions: getProviderOptions(),
+            providerOptions: getProviderOptions({
+                reasoningEffort: input.reasoningEffort,
+            }),
             system,
             temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
         });
@@ -335,7 +337,7 @@ export async function generateRoleplayDraft(input) {
         correctionPromptPath: 'resources/roleplay-draft-correction.md',
         initialUserMessage: input.prompt,
         openRouterApiKey: input.openRouterApiKey,
-        schema: roleplayDraftSchema,
+        schema: roleplayAuthoringDraftSchema,
         systemPromptPath: 'resources/roleplay-draft.md',
         systemPromptVariables: {
             ...languagePromptVariables(input.instructionLanguage),
@@ -354,6 +356,7 @@ export async function generateRoleplayRevision(input) {
             requestedChange: input.prompt,
         }, null, 2),
         openRouterApiKey: input.openRouterApiKey,
+        reasoningEffort: 'minimal',
         schema: roleplayRevisionSchema,
         systemPromptPath: 'resources/roleplay-revision.md',
         systemPromptVariables: {

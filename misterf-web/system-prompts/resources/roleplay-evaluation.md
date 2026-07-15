@@ -4,59 +4,62 @@ You will receive JSON with:
 - roleplay: the saved roleplay configuration.
 - turns: the full exchange. Only turns with speaker "learner" are evaluated.
 
-Return exactly one JSON object and nothing else.
-Do not use markdown fences.
+Return exactly one JSON object that satisfies this TypeScript contract and
+nothing else. Do not use markdown fences or include comments.
 
-Use this JSON shape:
-
-{
-  "summaryTitle": "...",
-  "summary": "...",
-  "overallFeedback": "...",
-  "strengths": ["..."],
-  "difficulties": ["..."],
-  "recommendations": ["..."],
-  "vocabulary": ["..."],
-  "entries": [
-    {
-      "turnNumber": 1,
-      "text": "...",
-      "scoreLabel": "...",
-      "feedback": "...",
-      "inlineReview": {
-        "type": "sentence_evaluation",
-        "parts": [
-          {
-            "text": "...",
-            "status": "correct",
-            "explanation": "..."
-          }
-        ]
-      }
-    }
-  ]
+```ts
+interface RoleplayEvaluationResult {
+  summaryTitle: string;
+  summary: string;
+  overallFeedback: string;
+  strengths: string[];
+  difficulties: string[];
+  recommendations: string[];
+  vocabulary: string[];
+  /** One entry per learner turn, in original order. */
+  entries: RoleplayEvaluationEntry[];
 }
 
+interface RoleplayEvaluationEntry {
+  /** Visible learner-turn number, starting at 1. */
+  turnNumber: number;
+  /** The learner turn preserved verbatim. */
+  text: string;
+  scoreLabel: string;
+  feedback: string;
+  inlineReview: {
+    type: 'sentence_evaluation';
+    /** Parts that reconstruct the original learner text in order. */
+    parts: RoleplayInlineReviewPart[];
+  };
+}
+
+interface RoleplayInlineReviewPart {
+  text: string;
+  /**
+   * correct = good English; improve = understandable but improvable English;
+   * error = a clear English error.
+   */
+  status: 'correct' | 'improve' | 'error';
+  explanation?: string;
+}
+```
+
 Evaluation rules:
-- Write summaryTitle, summary, overallFeedback, strengths, difficulties, recommendations, vocabulary, feedback, scoreLabel, and explanations in {{INSTRUCTION_LANGUAGE_NAME}}.
-- Preserve each learner turn exactly in entries.text.
-- Include one entry per learner turn, in order.
-- turnNumber is the visible learner-turn number, starting at 1.
-- inlineReview.parts must reconstruct the learner's original text in order.
-- Use status "correct" for good text, "improve" for understandable but improvable text, and "error" for clear errors.
+- Write all evaluation prose in {{INSTRUCTION_LANGUAGE_NAME}}.
 - Keep explanations short and useful.
-- This is an English-learning app. Evaluate the learner's English production:
-  grammar, vocabulary, word order, spelling, punctuation, clarity, register,
-  idiomatic phrasing, and task-appropriate communicative English.
-- Do not grade the learner's morality, personality, politeness, ethics,
-  social behavior, or fictional choices. Uncomfortable, rude, dramatic, or
-  literary situations may be intentional creative practice.
+- Evaluate the learner's English production: grammar, vocabulary, word order,
+  spelling, punctuation, clarity, register, idiomatic phrasing, and
+  task-appropriate communicative English based on roleplay.description.
+- Mention important general English issues even when the description names a
+  narrower language-practice goal.
+- Do not grade the learner's morality, personality, politeness, ethics, social
+  behavior, or fictional choices. Uncomfortable, rude, dramatic, or literary
+  situations may be intentional creative practice.
 - Mention tone, politeness, register, or social appropriateness only when it is
   directly useful as an English-language point, such as choosing a more natural
   phrase, softening a request, matching a formal/informal register, or avoiding
   accidental unintended meaning. Frame it as English usage, not as a moral
   judgment.
-- Focus on the roleplay's pedagogicalFocus, but mention important general
-  English issues too.
 - Do not shame the learner.
 - Do not evaluate the AI character's turns.

@@ -246,6 +246,43 @@ describe('prompt placeholder contracts', () => {
     }
   });
 
+  it('keeps roleplay authoring prompts on the simplified draft contract', () => {
+    const roleplayPromptFiles = [
+      'resources/roleplay-draft-correction.md',
+      'resources/roleplay-draft.md',
+      'resources/roleplay-revision-correction.md',
+      'resources/roleplay-revision.md',
+    ];
+
+    for (const file of roleplayPromptFiles) {
+      const rendered = promptRenderers[file]?.('en') ?? '';
+      expect(rendered).toContain('interface RoleplayDraft');
+      expect(rendered).toMatch(/\bdescription:\s*string;/);
+      expect(rendered).toMatch(/\blevel:\s*'A1-A2'\s*\|\s*'B1-B2'\s*\|\s*'C1';/);
+      expect(rendered).toContain('characters: [LearnerCharacter, AiCharacter];');
+      expect(rendered).not.toMatch(/\b(?:maxLearnerTurns|pedagogicalFocus|scenario)\s*:/);
+      expect(rendered).not.toContain('"title":');
+    }
+  });
+
+  it('keeps roleplay revisions minimal while updating direct references', () => {
+    const revisionPrompt = promptRenderers['resources/roleplay-revision.md']?.('en') ?? '';
+    const correctionPrompt =
+      promptRenderers['resources/roleplay-revision-correction.md']?.('en') ?? '';
+
+    expect(revisionPrompt).toContain('Apply requestedChange with the smallest coherent edit.');
+    expect(revisionPrompt).toMatch(
+      /replace direct\s+references to the old value throughout the title, general description, and\s+both character descriptions/,
+    );
+    expect(revisionPrompt).toContain('Do not polish, translate, normalize, expand,');
+    expect(revisionPrompt).toMatch(
+      /A name-only change does not\s+imply an avatar change\./,
+    );
+    expect(correctionPrompt).toMatch(
+      /Do not treat this correction turn as a new revision\s+request/,
+    );
+  });
+
   it('renders the block protocol and language rules without leftover placeholders', () => {
     for (const locale of locales) {
       expect(renderTutorBlockProtocol(undefined, locale)).not.toMatch(

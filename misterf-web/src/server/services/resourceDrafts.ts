@@ -7,14 +7,19 @@ import {
 } from './quizzes.js';
 import {
   normalizeRoleplayRevisionConversationHistory,
-  roleplayDraftSchema,
+  roleplayAuthoringDraftSchema,
   roleplayRevisionSchema,
   type RoleplayDraft,
   type RoleplayRevisionConversationMessage,
   type RoleplayRevisionResult,
 } from './roleplays.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
-import { getLanguageModel, getProviderOptions, shouldUseTemperature } from './llmTutor/providers.js';
+import {
+  getLanguageModel,
+  getProviderOptions,
+  type OpenRouterReasoningEffort,
+  shouldUseTemperature,
+} from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse } from './llmTutor/logging.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
@@ -206,6 +211,7 @@ async function generateStructuredDraft<T>(input: {
   correctionPromptPath: string;
   initialUserMessage: string;
   openRouterApiKey?: string | null;
+  reasoningEffort?: OpenRouterReasoningEffort;
   schema: z.ZodType<T>;
   systemPromptPath: string;
   systemPromptVariables?: Record<string, string>;
@@ -242,7 +248,9 @@ async function generateStructuredDraft<T>(input: {
         openRouterApiKey: input.openRouterApiKey,
       }),
       messages,
-      providerOptions: getProviderOptions(),
+      providerOptions: getProviderOptions({
+        reasoningEffort: input.reasoningEffort,
+      }),
       system,
       temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.45 : undefined,
     });
@@ -495,7 +503,7 @@ export async function generateRoleplayDraft(input: {
     correctionPromptPath: 'resources/roleplay-draft-correction.md',
     initialUserMessage: input.prompt,
     openRouterApiKey: input.openRouterApiKey,
-    schema: roleplayDraftSchema,
+    schema: roleplayAuthoringDraftSchema,
     systemPromptPath: 'resources/roleplay-draft.md',
     systemPromptVariables: {
       ...languagePromptVariables(input.instructionLanguage),
@@ -527,6 +535,7 @@ export async function generateRoleplayRevision(input: {
       2,
     ),
     openRouterApiKey: input.openRouterApiKey,
+    reasoningEffort: 'minimal',
     schema: roleplayRevisionSchema,
     systemPromptPath: 'resources/roleplay-revision.md',
     systemPromptVariables: {

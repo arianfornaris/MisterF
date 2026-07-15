@@ -29,11 +29,12 @@ export function getLanguageModel(options = {}) {
         baseURL: env.openrouterBaseUrl,
     }).chat(getConfiguredModelId(options));
 }
-export function getProviderOptions() {
+export function getProviderOptions(options = {}) {
     return {
         openrouter: {
             reasoning: {
-                effort: env.openrouterReasoningEffort,
+                effort: options.reasoningEffort ??
+                    env.openrouterReasoningEffort,
                 exclude: true,
             },
         },

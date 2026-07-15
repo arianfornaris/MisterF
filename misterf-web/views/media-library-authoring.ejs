@@ -130,26 +130,16 @@
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <div>
                 <label class="form-label" for="mediaTitle"><%= t('quizzes.titleLabel') %></label>
-                <div class="input-group">
-                  <input
-                    class="form-control"
-                    id="mediaTitle"
-                    name="title"
-                    maxlength="120"
-                    value="<%= mediaItem.title %>"
-                    required
-                    data-scene-media-title-input
-                    data-original-title="<%= mediaItem.title %>"
-                  >
-                  <button
-                    class="btn btn-outline-primary"
-                    type="button"
-                    data-scene-media-generate-title
-                    data-loading-text="<%= t('mediaLibrary.generatingTitle') %>"
-                  >
-                    <i class="bi bi-stars me-1" aria-hidden="true"></i><span data-scene-media-generate-title-label><%= t('mediaLibrary.generateTitle') %></span>
-                  </button>
-                </div>
+                <input
+                  class="form-control"
+                  id="mediaTitle"
+                  name="title"
+                  maxlength="120"
+                  value="<%= mediaItem.title %>"
+                  required
+                  data-scene-media-title-input
+                  data-original-title="<%= mediaItem.title %>"
+                >
               </div>
               <div class="alert alert-danger d-none mb-0" role="alert" data-scene-media-title-error>
                 <span data-scene-media-title-error-message><%= t('mediaLibrary.titleGenerationFailed') %></span>
@@ -159,7 +149,15 @@
                   data-scene-media-title-credit-link
                 ><%= t('credits.buyCredits') %></a>
               </div>
-              <div>
+              <div class="d-flex flex-wrap gap-2">
+                <button
+                  class="btn btn-outline-primary"
+                  type="button"
+                  data-scene-media-generate-title
+                  data-loading-text="<%= t('mediaLibrary.generatingTitle') %>"
+                >
+                  <span data-scene-media-generate-title-label><%= t('mediaLibrary.generate') %></span>
+                </button>
                 <button class="btn btn-primary" type="submit" disabled data-scene-media-title-save>
                   <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('common.save') %>
                 </button>

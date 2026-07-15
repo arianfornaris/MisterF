@@ -28,11 +28,8 @@ const roleplayDraft = {
       name: 'Server',
     },
   ],
-  description: 'Restaurant roleplay description.',
+  description: 'A customer orders lunch in a small cafe and practices polite requests.',
   level: 'A2',
-  maxLearnerTurns: 20,
-  pedagogicalFocus: 'Practice polite requests and restaurant vocabulary.',
-  scenario: 'A customer orders lunch in a small cafe.',
   title: 'Cafe Order Roleplay',
 };
 
@@ -175,11 +172,9 @@ describe('resource repository', () => {
           name: 'Server',
         },
       ],
-      description: 'Restaurant roleplay description.',
+      description: 'A customer orders lunch in a small cafe. The learner wants to order lunch politely.',
       level: 'A2',
-      pedagogicalFocus: 'Evaluate polite requests and restaurant vocabulary.',
       profileId: profile.id,
-      scenario: 'A customer orders lunch in a small cafe. The learner wants to order lunch politely.',
       title: 'Cafe Order Roleplay',
       userId: user.id,
     });

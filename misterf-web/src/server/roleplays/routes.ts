@@ -2,9 +2,11 @@ import express from 'express';
 import {
   handleCreateRoleplayFollowUpConversation,
   handleCreateRoleplayResource,
+  handleApplyRoleplayModification,
+  handleDiscardRoleplayModification,
   handleFinishRoleplayAttempt,
   handleGenerateRoleplay,
-  handleReviseRoleplay,
+  handlePreviewRoleplayModification,
   handleShareRoleplayToProfile,
   handleStartRoleplayAttempt,
   handleStartSharedRoleplayAttempt,
@@ -23,8 +25,9 @@ roleplaysRouter.get('/roleplays/new', renderRoleplayNewPage);
 roleplaysRouter.post('/roleplays/generate', handleGenerateRoleplay);
 roleplaysRouter.get('/roleplays/:roleplayId/edit', renderRoleplayEditPage);
 roleplaysRouter.post('/roleplays/:roleplayId/edit', handleUpdateRoleplay);
-roleplaysRouter.post('/roleplays/:roleplayId/edit/revise', handleReviseRoleplay);
-roleplaysRouter.post('/roleplays/:roleplayId/revise', handleReviseRoleplay);
+roleplaysRouter.post('/roleplays/:roleplayId/edit/modify', handlePreviewRoleplayModification);
+roleplaysRouter.post('/roleplays/:roleplayId/edit/modify/apply', handleApplyRoleplayModification);
+roleplaysRouter.post('/roleplays/:roleplayId/edit/modify/discard', handleDiscardRoleplayModification);
 roleplaysRouter.get('/roleplays/:roleplayId', renderRoleplayShowPage);
 roleplaysRouter.post('/roleplays/:roleplayId/share/profile', handleShareRoleplayToProfile);
 roleplaysRouter.get('/roleplays/shared/:shareId/start', handleStartSharedRoleplayAttempt);

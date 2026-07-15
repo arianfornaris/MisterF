@@ -186,7 +186,10 @@ async function generateSceneMediaPackage(input, schema, system, userPrompt, extr
                 modelTier: 'regular',
                 openRouterApiKey: input.openRouterApiKey,
             }),
-            providerOptions: getProviderOptions(),
+            // Media authoring is a bounded structured-generation task. Minimal
+            // reasoning keeps creation and revision previews responsive while the
+            // schema and retry loop continue to enforce correctness.
+            providerOptions: getProviderOptions({ reasoningEffort: 'minimal' }),
             system,
             temperature: shouldUseTemperature({ modelTier: 'regular' }) ? 0.35 : undefined,
         });

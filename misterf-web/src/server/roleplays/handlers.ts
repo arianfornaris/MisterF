@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
 import { translate, type Locale } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import {
@@ -23,8 +24,6 @@ import {
   saveRoleplayAttemptResult,
   submitRoleplayAttempt,
   updateRoleplay,
-  updateRoleplayAuthoringMessages,
-  type RoleplayAuthoringMessage,
   type RoleplayCharacter,
   type RoleplayTurn,
   type StoredRoleplay,
@@ -39,8 +38,6 @@ import {
   getHomeAuthMessage,
 } from '../pages/shell.js';
 import {
-  appendRoleplayAuthoringMessages,
-  buildRoleplayAuthoringMessage,
   countLearnerTurns,
   createRoleplayDraftFromManualInput,
   evaluateRoleplayAttempt,
@@ -48,7 +45,7 @@ import {
   generateNextRoleplayTurn,
   getAiCharacter,
   getLearnerCharacter,
-  hasReachedRoleplayTurnLimit,
+  roleplayLevelOptions,
   roleplayEvaluationResultSchema,
   safeParseRoleplayDraft,
   storedRoleplayToDraft,
@@ -77,10 +74,13 @@ import {
 } from '../services/creditGate.js';
 import { recordRoleplayAttemptProgress } from '../services/learnerProgress.js';
 import { logger } from '../services/logger.js';
-
-type RoleplayAuthoringTab = 'chat' | 'general';
-
-const defaultRoleplayAuthoringTab: RoleplayAuthoringTab = 'general';
+import {
+  deletePendingRoleplayModification,
+  getPendingRoleplayModification,
+  listRoleplayModificationChanges,
+  setPendingRoleplayModification,
+  type RoleplayModificationPreviewOwner,
+} from './modificationPreviewStore.js';
 
 function ensureVerifiedRoleplayUser(
   request: Request,
@@ -133,21 +133,17 @@ function readMultilineField(value: unknown, maxLength = 8000): string {
     : '';
 }
 
+function readRawField(value: unknown, maxLength = 20000): string {
+  if (Array.isArray(value)) {
+    return readRawField(value[0], maxLength);
+  }
+
+  return typeof value === 'string' ? value.slice(0, maxLength) : '';
+}
+
 function wantsJsonResponse(request: Request): boolean {
   return request.get('accept')?.includes('application/json')
     || request.get('x-requested-with') === 'fetch';
-}
-
-function readMaxLearnerTurns(value: unknown): number | null {
-  const rawValue = readField(value, 20);
-  if (!rawValue) {
-    return null;
-  }
-
-  const parsed = Number.parseInt(rawValue, 10);
-  return Number.isFinite(parsed)
-    ? Math.min(20, Math.max(1, parsed))
-    : null;
 }
 
 function readRoleplayShareMode(value: unknown): 'link' | 'profile' | '' {
@@ -160,13 +156,6 @@ function readReturnTo(value: unknown, fallback: string): string {
   return returnTo.startsWith('/') ? returnTo : fallback;
 }
 
-function readRoleplayAuthoringTab(value: unknown): RoleplayAuthoringTab {
-  const tab = readField(value, 20);
-  return tab === 'chat' || tab === 'general'
-    ? tab
-    : defaultRoleplayAuthoringTab;
-}
-
 function resolveCharacterAvatar(character: RoleplayCharacter): RoleplayCharacterAvatar | null {
   return findRoleplayCharacterAvatar(character.avatarId);
 }
@@ -177,11 +166,8 @@ function buildRoleplayAvatarById(): Record<string, RoleplayCharacterAvatar> {
   );
 }
 
-function buildRoleplayAuthoringPath(
-  roleplayId: string,
-  tab: RoleplayAuthoringTab,
-): string {
-  return `/roleplays/${encodeURIComponent(roleplayId)}/edit?tab=${tab}`;
+function buildRoleplayAuthoringPath(roleplayId: string): string {
+  return `/roleplays/${encodeURIComponent(roleplayId)}/edit`;
 }
 
 function buildRoleplayResultPath(
@@ -230,8 +216,6 @@ function buildRoleplayResultContext(input: {
       characters: input.draft.characters,
       description: input.draft.description,
       level: input.draft.level,
-      pedagogicalFocus: input.draft.pedagogicalFocus,
-      scenario: input.draft.scenario,
       title: input.draft.title,
     },
     turns: input.attempt.turns,
@@ -259,31 +243,16 @@ function serializeViewJson(value: unknown): string {
   });
 }
 
-function summarizeRoleplayDraftCreation(
-  draft: RoleplayDraft,
-  locale: Locale,
-): string {
-  return translate(locale, 'msg.draftCreatedRoleplay', {
-    count: draft.characters.length,
-    title: draft.title,
-  });
-}
-
 function updateRoleplayWithDraft(
   roleplay: StoredRoleplay,
   userId: string,
   draft: RoleplayDraft,
-  authoringMessages?: RoleplayAuthoringMessage[],
 ): StoredRoleplay | null {
   return updateRoleplay({
-    authoringMessages,
     characters: draft.characters,
     description: draft.description,
     level: draft.level,
-    maxLearnerTurns: draft.maxLearnerTurns,
-    pedagogicalFocus: draft.pedagogicalFocus,
     roleplayId: roleplay.id,
-    scenario: draft.scenario,
     title: draft.title,
     userId,
   });
@@ -479,7 +448,6 @@ function renderRoleplayEdit(
   response: Response,
   input: {
     activeProfile: NonNullable<Request['activeProfile']>;
-    activeTab?: RoleplayAuthoringTab;
     error?: string;
     roleplay: StoredRoleplay;
     user: NonNullable<Request['authUser']>;
@@ -499,15 +467,14 @@ function renderRoleplayEdit(
       title: `${draft.title} - ${appDocumentTitle}`,
       user: input.user,
     }),
-    activeTab: input.activeTab ?? defaultRoleplayAuthoringTab,
     authoringError: input.error || '',
     aiAvatar: resolveCharacterAvatar(aiCharacter),
     aiCharacter,
     draft,
     learnerAvatar: resolveCharacterAvatar(learnerCharacter),
     learnerCharacter,
-    roleplayAuthoringMessages: input.roleplay.authoringMessages,
     roleplayAvatarOptions: listRoleplayCharacterAvatars(),
+    roleplayLevelOptions,
     selectedRoleplay: input.roleplay,
   });
 }
@@ -560,11 +527,6 @@ export async function handleGenerateRoleplay(
       prompt,
     });
     const roleplay = createRoleplay({
-      authoringMessages: appendRoleplayAuthoringMessages(
-        [],
-        buildRoleplayAuthoringMessage('user', prompt),
-        buildRoleplayAuthoringMessage('assistant', summarizeRoleplayDraftCreation(draft, request.locale), draft),
-      ),
       ...draft,
       profileId: auth.activeProfile.id,
       userId: auth.user.id,
@@ -578,7 +540,7 @@ export async function handleGenerateRoleplay(
       userId: auth.user.id,
     });
 
-    response.redirect(buildRoleplayAuthoringPath(roleplay.id, defaultRoleplayAuthoringTab));
+    response.redirect(buildRoleplayAuthoringPath(roleplay.id));
   } catch (error) {
     logger.error('roleplay_generation_failed', {
       error,
@@ -605,10 +567,7 @@ export function renderRoleplayEditPage(request: Request, response: Response): vo
     return;
   }
 
-  renderRoleplayEdit(request, response, {
-    ...resolved,
-    activeTab: readRoleplayAuthoringTab(request.query.tab),
-  });
+  renderRoleplayEdit(request, response, resolved);
 }
 
 export function handleUpdateRoleplay(request: Request, response: Response): void {
@@ -620,14 +579,19 @@ export function handleUpdateRoleplay(request: Request, response: Response): void
   const draft = storedRoleplayToDraft(resolved.roleplay);
   const updatedDraft = createRoleplayDraftFromManualInput({
     characters: readCharactersFromBody(request.body, draft),
-    description: readMultilineField(request.body.description, 1500),
+    description: readMultilineField(request.body.description, 5000),
     level: readField(request.body.level, 120),
-    maxLearnerTurns: readMaxLearnerTurns(request.body.maxLearnerTurns),
-    pedagogicalFocus: readMultilineField(request.body.pedagogicalFocus, 5000),
     previousDraft: draft,
-    scenario: readMultilineField(request.body.scenario, 2200),
     title: readField(request.body.title, 220) || draft.title,
   });
+
+  if (!updatedDraft) {
+    renderRoleplayEdit(request, response.status(422), {
+      ...resolved,
+      error: translate(request.locale, 'msg.saveRoleplayError'),
+    });
+    return;
+  }
 
   const updatedRoleplay = updateRoleplayWithDraft(
     resolved.roleplay,
@@ -637,16 +601,15 @@ export function handleUpdateRoleplay(request: Request, response: Response): void
   if (!updatedRoleplay) {
     renderRoleplayEdit(request, response.status(422), {
       ...resolved,
-      activeTab: 'general',
       error: translate(request.locale, 'msg.saveRoleplayError'),
     });
     return;
   }
 
-  response.redirect(buildRoleplayAuthoringPath(resolved.roleplay.id, 'general'));
+  response.redirect(buildRoleplayAuthoringPath(resolved.roleplay.id));
 }
 
-export async function handleReviseRoleplay(
+export async function handlePreviewRoleplayModification(
   request: Request,
   response: Response,
 ): Promise<void> {
@@ -655,18 +618,21 @@ export async function handleReviseRoleplay(
     return;
   }
 
-  const draft = storedRoleplayToDraft(resolved.roleplay);
-  const userMessage = readMultilineField(request.body.message, 4000);
-  if (userMessage.length < 3) {
-    if (wantsJsonResponse(request)) {
-      response.status(422).json({ error: translate(request.locale, 'msg.writeChangesRoleplay') });
-      return;
-    }
+  const rawCurrentDraft = readRawField(request.body.currentDraft);
+  const requestedChange = readMultilineField(request.body.requestedChange, 2000);
+  let currentDraft: RoleplayDraft | null = null;
 
-    renderRoleplayEdit(request, response.status(422), {
-      ...resolved,
-      activeTab: 'chat',
-      error: translate(request.locale, 'msg.writeChangesRoleplay'),
+  if (rawCurrentDraft) {
+    try {
+      currentDraft = safeParseRoleplayDraft(JSON.parse(rawCurrentDraft));
+    } catch {
+      currentDraft = null;
+    }
+  }
+
+  if (!currentDraft || requestedChange.length < 3) {
+    response.status(422).json({
+      error: translate(request.locale, 'roleplays.modificationFailed'),
     });
     return;
   }
@@ -674,92 +640,138 @@ export async function handleReviseRoleplay(
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generateRoleplayRevision({
-      instructionLanguage: resolved.activeProfile?.instructionLanguage,
-      conversationHistory: resolved.roleplay.authoringMessages.map((message) => ({
-        content: message.content,
-        createdAt: message.createdAt,
-        draftSnapshot: message.draftSnapshot,
-        role: message.role,
-      })),
-      currentDraft: draft,
+      instructionLanguage: resolved.activeProfile.instructionLanguage,
+      currentDraft,
       openRouterApiKey,
-      prompt: userMessage,
+      prompt: requestedChange,
     });
-    const nextAuthoringMessages = appendRoleplayAuthoringMessages(
-      resolved.roleplay.authoringMessages,
-      buildRoleplayAuthoringMessage('user', userMessage),
-      buildRoleplayAuthoringMessage('assistant', revision.assistantMessage, revision.draft),
-    );
-    const updatedRoleplay = updateRoleplayWithDraft(
-      resolved.roleplay,
-      resolved.user.id,
-      revision.draft,
-      nextAuthoringMessages,
-    );
-    if (!updatedRoleplay) {
-      if (wantsJsonResponse(request)) {
-        response.status(422).json({ error: translate(request.locale, 'msg.applyChangeError') });
-        return;
-      }
-
-      renderRoleplayEdit(request, response.status(422), {
-        ...resolved,
-        activeTab: 'chat',
-        error: translate(request.locale, 'msg.applyChangeError'),
+    const changes = listRoleplayModificationChanges(currentDraft, revision.draft);
+    if (changes.length === 0) {
+      response.status(422).json({
+        error: translate(request.locale, 'roleplays.modificationNoChanges'),
       });
       return;
     }
 
-    logger.info('roleplay_revised', {
+    const previewId = randomUUID();
+    const owner: RoleplayModificationPreviewOwner = {
+      profileId: resolved.activeProfile.id,
+      roleplayId: resolved.roleplay.id,
+      userId: resolved.user.id,
+    };
+    setPendingRoleplayModification(owner, {
+      baseStoredDraft: storedRoleplayToDraft(resolved.roleplay),
+      baseUpdatedAt: resolved.roleplay.updatedAt,
+      createdAt: Date.now(),
+      draft: revision.draft,
+      previewId,
+    });
+
+    logger.info('roleplay_modification_preview_generated', {
+      changedFields: changes.map((change) => change.field),
       resourceId: resolved.roleplay.id,
       resourceType: 'roleplay',
       roleplayId: resolved.roleplay.id,
       userId: resolved.user.id,
     });
 
-    if (wantsJsonResponse(request)) {
-      response.json({ assistantMessage: revision.assistantMessage });
-      return;
-    }
-
-    response.redirect(buildRoleplayAuthoringPath(resolved.roleplay.id, 'chat'));
+    response.json({
+      changes,
+      previewId,
+    });
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
-    const failureMessage = isCreditError
-      ? getCreditExhaustedMessage(request.locale)
-      : translate(request.locale, 'msg.applyChangeError');
-    updateRoleplayAuthoringMessages({
-      messages: appendRoleplayAuthoringMessages(
-        resolved.roleplay.authoringMessages,
-        buildRoleplayAuthoringMessage('user', userMessage),
-        buildRoleplayAuthoringMessage('assistant', failureMessage),
-      ),
-      roleplayId: resolved.roleplay.id,
-      userId: resolved.user.id,
-    });
-    logger.error('roleplay_revision_failed', {
+    logger.error('roleplay_modification_preview_failed', {
       error,
       resourceId: resolved.roleplay.id,
       resourceType: 'roleplay',
       roleplayId: resolved.roleplay.id,
       userId: resolved.user.id,
     });
-
-    if (wantsJsonResponse(request)) {
-      response.status(422).json({
-        creditExhausted: isCreditError,
-        error: failureMessage,
-      });
-      return;
-    }
-
-    renderRoleplayEdit(request, response.status(422), {
-      ...resolved,
-      activeTab: 'chat',
-      roleplay: findRoleplayForUser(resolved.roleplay.id, resolved.user.id) ?? resolved.roleplay,
-      error: failureMessage,
+    response.status(422).json({
+      creditExhausted: isCreditError,
+      error: isCreditError
+        ? getCreditExhaustedMessage(request.locale)
+        : translate(request.locale, 'roleplays.modificationFailed'),
     });
   }
+}
+
+export function handleApplyRoleplayModification(
+  request: Request,
+  response: Response,
+): void {
+  const resolved = resolveOwnRoleplay(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const owner: RoleplayModificationPreviewOwner = {
+    profileId: resolved.activeProfile.id,
+    roleplayId: resolved.roleplay.id,
+    userId: resolved.user.id,
+  };
+  const pending = getPendingRoleplayModification(owner);
+  const previewId = readField(request.body.previewId, 100);
+  const currentStoredDraft = storedRoleplayToDraft(resolved.roleplay);
+  if (
+    !pending
+    || !previewId
+    || pending.previewId !== previewId
+    || pending.baseUpdatedAt !== resolved.roleplay.updatedAt
+    || JSON.stringify(pending.baseStoredDraft) !== JSON.stringify(currentStoredDraft)
+  ) {
+    response.status(409).json({
+      error: translate(request.locale, 'roleplays.modificationExpired'),
+    });
+    return;
+  }
+
+  const updatedRoleplay = updateRoleplayWithDraft(
+    resolved.roleplay,
+    resolved.user.id,
+    pending.draft,
+  );
+  if (!updatedRoleplay) {
+    response.status(422).json({
+      error: translate(request.locale, 'msg.saveRoleplayError'),
+    });
+    return;
+  }
+
+  deletePendingRoleplayModification(owner);
+  logger.info('roleplay_modification_applied', {
+    resourceId: resolved.roleplay.id,
+    resourceType: 'roleplay',
+    roleplayId: resolved.roleplay.id,
+    userId: resolved.user.id,
+  });
+  response.json({
+    ok: true,
+    redirect: buildRoleplayAuthoringPath(resolved.roleplay.id),
+  });
+}
+
+export function handleDiscardRoleplayModification(
+  request: Request,
+  response: Response,
+): void {
+  const resolved = resolveOwnRoleplay(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const owner: RoleplayModificationPreviewOwner = {
+    profileId: resolved.activeProfile.id,
+    roleplayId: resolved.roleplay.id,
+    userId: resolved.user.id,
+  };
+  const pending = getPendingRoleplayModification(owner);
+  const previewId = readField(request.body.previewId, 100);
+  if (pending && previewId && pending.previewId === previewId) {
+    deletePendingRoleplayModification(owner);
+  }
+  response.json({ ok: true });
 }
 
 export async function renderRoleplayShowPage(
@@ -1033,13 +1045,8 @@ function renderRoleplayAttempt(
     attempt: input.attempt,
     attemptError: input.error || '',
     draft,
-    hasReachedTurnLimit: hasReachedRoleplayTurnLimit({
-      draft,
-      turns: input.attempt.turns,
-    }),
     learnerAvatar: resolveCharacterAvatar(learnerCharacter),
     learnerCharacter,
-    learnerTurnCount: countLearnerTurns(input.attempt.turns),
   });
 }
 
@@ -1112,22 +1119,6 @@ export async function handleSubmitRoleplayTurn(
     return;
   }
 
-  if (hasReachedRoleplayTurnLimit({ draft, turns: attemptWithLearnerTurn.turns })) {
-    if (wantsJson) {
-      response.json({
-        aiTurn: null,
-        hasReachedTurnLimit: true,
-        learnerTurn,
-        learnerTurnCount: countLearnerTurns(attemptWithLearnerTurn.turns),
-        ok: true,
-      });
-      return;
-    }
-
-    response.redirect(`/roleplay-attempts/${encodeURIComponent(attempt.id)}`);
-    return;
-  }
-
   try {
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(attempt.userId ?? '');
     const aiTurn = await generateNextRoleplayTurn({
@@ -1139,21 +1130,14 @@ export async function handleSubmitRoleplayTurn(
         userId: attempt.userId ?? undefined,
       },
     });
-    const attemptWithAiTurn = appendRoleplayAttemptTurns({
+    appendRoleplayAttemptTurns({
       attemptId: attempt.id,
       turns: [aiTurn],
     });
     if (wantsJson) {
       response.json({
         aiTurn,
-        hasReachedTurnLimit: hasReachedRoleplayTurnLimit({
-          draft,
-          turns: attemptWithAiTurn?.turns ?? [...attemptWithLearnerTurn.turns, aiTurn],
-        }),
         learnerTurn,
-        learnerTurnCount: countLearnerTurns(
-          attemptWithAiTurn?.turns ?? [...attemptWithLearnerTurn.turns, aiTurn],
-        ),
         ok: true,
       });
       return;
@@ -1176,7 +1160,6 @@ export async function handleSubmitRoleplayTurn(
           ? getCreditExhaustedMessage(request.locale)
           : translate(request.locale, 'msg.generateNextError'),
         learnerTurn,
-        learnerTurnCount: countLearnerTurns(attemptWithLearnerTurn.turns),
         ok: false,
       });
       return;

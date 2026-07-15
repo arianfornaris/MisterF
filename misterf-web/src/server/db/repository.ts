@@ -257,10 +257,7 @@ export type StoredRoleplay = {
   description: string;
   id: string;
   level: string;
-  maxLearnerTurns: number | null;
-  pedagogicalFocus: string;
   profileId: string;
-  scenario: string;
   sharedVia: 'link' | 'profile' | null;
   sourceProfileId: string | null;
   sourceRoleplayId: string | null;
@@ -586,10 +583,7 @@ type RoleplayRow = {
   description: string;
   id: string;
   level: string;
-  max_learner_turns: number | null;
-  pedagogical_focus: string;
   profile_id: string;
-  scenario: string;
   shared_via: 'link' | 'profile' | null;
   source_profile_id: string | null;
   source_roleplay_id: string | null;
@@ -1059,10 +1053,7 @@ function toStoredRoleplay(row: RoleplayRow): StoredRoleplay {
     description: row.description,
     id: row.id,
     level: row.level,
-    maxLearnerTurns: row.max_learner_turns,
-    pedagogicalFocus: row.pedagogical_focus,
     profileId: row.profile_id,
-    scenario: row.scenario,
     sharedVia: row.shared_via,
     sourceProfileId: row.source_profile_id,
     sourceRoleplayId: row.source_roleplay_id,
@@ -4070,10 +4061,7 @@ const roleplaySelectColumns = `
   description,
   id,
   level,
-  max_learner_turns,
-  pedagogical_focus,
   profile_id,
-  scenario,
   shared_via,
   source_profile_id,
   source_roleplay_id,
@@ -4088,10 +4076,7 @@ export function createRoleplay(input: {
   characters: RoleplayCharacter[];
   description?: string;
   level?: string;
-  maxLearnerTurns?: number | null;
-  pedagogicalFocus?: string;
   profileId: string;
-  scenario?: string;
   sharedVia?: 'link' | 'profile' | null;
   sourceProfileId?: string | null;
   sourceRoleplayId?: string | null;
@@ -4124,10 +4109,7 @@ export function createRoleplay(input: {
           profile_id,
           title,
           description,
-          scenario,
           level,
-          pedagogical_focus,
-          max_learner_turns,
           characters_json,
           authoring_messages_json,
           source_roleplay_id,
@@ -4135,7 +4117,7 @@ export function createRoleplay(input: {
           source_profile_id,
           shared_via
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
     ).run(
       id,
@@ -4143,10 +4125,7 @@ export function createRoleplay(input: {
       input.profileId,
       input.title,
       input.description ?? '',
-      input.scenario ?? '',
       input.level ?? '',
-      input.pedagogicalFocus ?? '',
-      input.maxLearnerTurns ?? null,
       JSON.stringify(input.characters),
       JSON.stringify(input.authoringMessages ?? []),
       input.sourceRoleplayId ?? null,
@@ -4202,10 +4181,7 @@ export function updateRoleplay(input: {
   characters: RoleplayCharacter[];
   description: string;
   level: string;
-  maxLearnerTurns: number | null;
-  pedagogicalFocus: string;
   roleplayId: string;
-  scenario: string;
   title: string;
   userId: string;
 }): StoredRoleplay | null {
@@ -4224,10 +4200,7 @@ export function updateRoleplay(input: {
         UPDATE roleplays
         SET title = ?,
             description = ?,
-            scenario = ?,
             level = ?,
-            pedagogical_focus = ?,
-            max_learner_turns = ?,
             characters_json = ?,
             authoring_messages_json = COALESCE(?, authoring_messages_json),
             updated_at = CURRENT_TIMESTAMP
@@ -4236,10 +4209,7 @@ export function updateRoleplay(input: {
     ).run(
       input.title,
       input.description,
-      input.scenario,
       input.level,
-      input.pedagogicalFocus,
-      input.maxLearnerTurns,
       JSON.stringify(input.characters),
       input.authoringMessages === undefined
         ? null

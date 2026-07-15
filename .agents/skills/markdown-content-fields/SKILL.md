@@ -1,6 +1,6 @@
 ---
 name: markdown-content-fields
-description: Use when adding, editing, or reviewing Mister F fields that store or render markdown, including resource descriptions, tutor instructions, roleplay scenarios, markdown editors in edit forms, `data-render-markdown` views, or prompts that let the model produce markdown.
+description: Use when adding, editing, or reviewing Mister F fields that store or render markdown, including resource descriptions, tutor instructions, roleplay descriptions, markdown editors in edit forms, `data-render-markdown` views, or prompts that let the model produce markdown.
 ---
 
 # Markdown Content Fields
@@ -11,8 +11,8 @@ Use this skill with `ejs-view-structure` for view changes and
 ## Core Rules
 
 - Long-form learner/author content fields are markdown-capable: resource
-  descriptions, practice-guide tutor instructions, roleplay
-  scenario/pedagogical focus, and similar prose fields. Short identity fields
+  descriptions, practice-guide tutor instructions, roleplay descriptions, and
+  similar prose fields. Short identity fields
   (titles, names, labels) are plain text.
 - Render markdown on the client: give the container the `resource-markdown`
   class plus the `data-render-markdown` attribute; the shared client

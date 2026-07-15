@@ -27,6 +27,14 @@ import { isRoleplayCharacterAvatarId } from '../roleplays/avatarRegistry.js';
 const maxRoleplayAuthoringMessages = 40;
 const maxRoleplayGenerationTurns = 3;
 
+export const roleplayLevelOptions = ['A1-A2', 'B1-B2', 'C1'] as const;
+
+export type RoleplayLevel = (typeof roleplayLevelOptions)[number];
+
+export function isRoleplayLevel(value: string): value is RoleplayLevel {
+  return roleplayLevelOptions.some((level) => level === value);
+}
+
 const roleplayCharacterSchema = z.object({
   avatarId: z.string()
     .trim()
@@ -40,11 +48,8 @@ const roleplayCharacterSchema = z.object({
 
 export const roleplayDraftSchema = z.object({
   characters: z.array(roleplayCharacterSchema).length(2),
-  description: z.string().trim().max(1500).default(''),
+  description: z.string().trim().min(1).max(5000),
   level: z.string().trim().max(120).default(''),
-  maxLearnerTurns: z.number().int().min(1).max(20).nullable().default(null),
-  pedagogicalFocus: z.string().trim().max(5000).default(''),
-  scenario: z.string().trim().min(1).max(2200),
   title: z.string().trim().min(1).max(220),
 }).strict().superRefine((draft, ctx) => {
   const characterIds = new Set<string>();
@@ -67,6 +72,16 @@ export const roleplayDraftSchema = z.object({
         path: ['characters'],
       });
     }
+  }
+});
+
+export const roleplayAuthoringDraftSchema = roleplayDraftSchema.superRefine((draft, ctx) => {
+  if (!isRoleplayLevel(draft.level)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Level must be one of A1-A2, B1-B2, or C1.',
+      path: ['level'],
+    });
   }
 });
 
@@ -118,18 +133,36 @@ export type RoleplayRevisionConversationMessage = {
 
 export const roleplayRevisionSchema = z.object({
   assistantMessage: z.string().trim().min(1).max(2000),
-  draft: roleplayDraftSchema,
+  draft: roleplayAuthoringDraftSchema,
 }).strict();
 
 export type RoleplayRevisionResult = z.infer<typeof roleplayRevisionSchema>;
 
 export function parseRoleplayDraft(value: unknown): RoleplayDraft {
-  return roleplayDraftSchema.parse(value);
+  return roleplayDraftSchema.parse(normalizeLegacyRoleplayDraft(value));
 }
 
 export function safeParseRoleplayDraft(value: unknown): RoleplayDraft | null {
-  const parsed = roleplayDraftSchema.safeParse(value);
+  const parsed = roleplayDraftSchema.safeParse(normalizeLegacyRoleplayDraft(value));
   return parsed.success ? parsed.data : null;
+}
+
+function normalizeLegacyRoleplayDraft(value: unknown): unknown {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return value;
+  }
+
+  const record = value as Record<string, unknown>;
+  const legacyScenario = typeof record.scenario === 'string'
+    ? record.scenario.trim()
+    : '';
+
+  return {
+    characters: record.characters,
+    description: legacyScenario || record.description,
+    level: record.level,
+    title: record.title,
+  };
 }
 
 export function storedRoleplayToDraft(roleplay: StoredRoleplay): RoleplayDraft {
@@ -137,9 +170,6 @@ export function storedRoleplayToDraft(roleplay: StoredRoleplay): RoleplayDraft {
     characters: roleplay.characters,
     description: roleplay.description,
     level: roleplay.level,
-    maxLearnerTurns: roleplay.maxLearnerTurns,
-    pedagogicalFocus: roleplay.pedagogicalFocus,
-    scenario: roleplay.scenario,
     title: roleplay.title,
   });
 }
@@ -148,22 +178,18 @@ export function createRoleplayDraftFromManualInput(input: {
   characters: RoleplayCharacter[];
   description: string;
   level: string;
-  maxLearnerTurns: number | null;
-  pedagogicalFocus: string;
   previousDraft: RoleplayDraft;
-  scenario: string;
   title: string;
-}): RoleplayDraft {
-  return roleplayDraftSchema.parse({
+}): RoleplayDraft | null {
+  const parsed = roleplayAuthoringDraftSchema.safeParse({
     ...input.previousDraft,
     characters: input.characters,
     description: input.description,
     level: input.level,
-    maxLearnerTurns: input.maxLearnerTurns,
-    pedagogicalFocus: input.pedagogicalFocus,
-    scenario: input.scenario,
     title: input.title,
   });
+
+  return parsed.success ? parsed.data : null;
 }
 
 export function normalizeRoleplayRevisionConversationHistory(
@@ -176,11 +202,11 @@ export function normalizeRoleplayRevisionConversationHistory(
         return [];
       }
 
-      const draftSnapshot = roleplayDraftSchema.safeParse(message.draftSnapshot);
+      const draftSnapshot = safeParseRoleplayDraft(message.draftSnapshot);
       return [{
         content: content.slice(0, 4000),
         createdAt: message.createdAt?.trim() || undefined,
-        draftSnapshot: draftSnapshot.success ? draftSnapshot.data : undefined,
+        draftSnapshot: draftSnapshot ?? undefined,
         role: message.role,
       }];
     })
@@ -244,16 +270,6 @@ export function getAiCharacter(draft: RoleplayDraft): RoleplayCharacter {
 
 export function countLearnerTurns(turns: RoleplayTurn[]): number {
   return turns.filter((turn) => turn.speaker === 'learner').length;
-}
-
-export function hasReachedRoleplayTurnLimit(input: {
-  draft: RoleplayDraft;
-  turns: RoleplayTurn[];
-}): boolean {
-  return Boolean(
-    input.draft.maxLearnerTurns &&
-    countLearnerTurns(input.turns) >= input.draft.maxLearnerTurns,
-  );
 }
 
 export async function generateNextRoleplayTurn(input: {

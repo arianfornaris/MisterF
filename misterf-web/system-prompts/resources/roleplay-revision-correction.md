@@ -1,47 +1,48 @@
 INTERNAL APP CONTINUATION.
 {{CORRECTION_REASON}}
 
-Re-emit the complete response as exactly one JSON object and nothing else.
-Do not use markdown fences.
-Do not add explanations or extra text.
+Correct only the structural or validation problem described above. Reapply the
+original requestedChange to the original currentDraft under the system prompt's
+minimal-change rules. Do not treat this correction turn as a new revision
+request or introduce additional content changes merely to repair the response.
 
-The only valid top-level shape is:
+Re-emit the complete response as exactly one JSON object that satisfies this
+TypeScript contract. Do not use markdown fences, comments, explanations, or
+fields outside the contract.
 
-{
-  "assistantMessage": "...",
-  "draft": {
-    "title": "...",
-    "description": "...",
-    "scenario": "...",
-    "level": "...",
-    "pedagogicalFocus": "...",
-    "maxLearnerTurns": 6,
-    "characters": [
-      {
-        "id": "learner",
-        "avatarId": "amara",
-        "name": "...",
-        "description": "..."
-      },
-      {
-        "id": "ai",
-        "avatarId": "lucas",
-        "name": "...",
-        "description": "..."
-      }
-    ]
-  }
+```ts
+interface RoleplayRevisionResponse {
+  assistantMessage: string;
+  draft: RoleplayDraft;
 }
 
-Rules to preserve:
-- draft.characters must contain exactly two characters.
-- character ids must be exactly "learner" and "ai".
-- each character must include avatarId from this list:
+interface RoleplayDraft {
+  title: string;
+  /**
+   * The complete learner-facing setup in one field. May use headings, bold,
+   * lists, quotes, and links as Markdown.
+   */
+  description: string;
+  level: 'A1-A2' | 'B1-B2' | 'C1';
+  characters: [LearnerCharacter, AiCharacter];
+}
+
+interface LearnerCharacter {
+  id: 'learner';
+  /** One id from the available avatar list. */
+  avatarId?: string;
+  name: string;
+  description: string;
+}
+
+interface AiCharacter {
+  id: 'ai';
+  /** One id from the available avatar list. */
+  avatarId?: string;
+  name: string;
+  description: string;
+}
+```
+
+Available avatar ids:
 {{ROLEPLAY_AVATAR_OPTIONS}}
-- maxLearnerTurns must be an integer from 1 to 20, or null.
-- draft.description, draft.scenario, and draft.pedagogicalFocus may use simple
-  Markdown.
-- Do not include learnerContext, targetTopic, learningGoals, languageFocus,
-  evaluationFocus, instructions, openingLine, icon, role, persona,
-  shortDescription, speakingStyle, or learnerCharacterId.
-- Return JSON only.

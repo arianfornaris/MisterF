@@ -110,6 +110,16 @@ describe('scene media script validation logging', () => {
     expect(result.script).toMatchObject({ scriptType: 'dialogue' });
     expect(result.title).toBe(metadata.title);
     expect(aiMocks.generateText).toHaveBeenCalledTimes(2);
+    expect(aiMocks.generateText).toHaveBeenCalledWith(expect.objectContaining({
+      providerOptions: {
+        openrouter: {
+          reasoning: {
+            effort: 'minimal',
+            exclude: true,
+          },
+        },
+      },
+    }));
   });
 
   it('rejects turn speaker labels that do not match a declared speaker', async () => {

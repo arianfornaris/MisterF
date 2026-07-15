@@ -17,8 +17,8 @@
     "file": "chunks/listGroupDropdownStacking-BL1TsAKu.js",
     "name": "listGroupDropdownStacking"
   },
-  "_markdownEditor-RfAK1f8x.js": {
-    "file": "chunks/markdownEditor-RfAK1f8x.js",
+  "_markdownEditor-BjPj-Zo5.js": {
+    "file": "chunks/markdownEditor-BjPj-Zo5.js",
     "name": "markdownEditor",
     "imports": [
       "_staticMarkdown-BIUnlqAT.js"
@@ -56,12 +56,12 @@
     "isEntry": true
   },
   "src/client/practiceGuides/index.js": {
-    "file": "entries/practice-guides-Di4aF7Tf.js",
+    "file": "entries/practice-guides-VHngIB5B.js",
     "name": "practice-guides",
     "src": "src/client/practiceGuides/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-RfAK1f8x.js",
+      "_markdownEditor-BjPj-Zo5.js",
       "_staticMarkdown-BIUnlqAT.js",
       "_authoringChatScroll-BZqyMRb_.js",
       "_listGroupDropdownStacking-BL1TsAKu.js",
@@ -93,14 +93,13 @@
     ]
   },
   "src/client/roleplays/index.js": {
-    "file": "entries/roleplays-DTWlNNcq.js",
+    "file": "entries/roleplays-BEDePwDD.js",
     "name": "roleplays",
     "src": "src/client/roleplays/index.js",
     "isEntry": true,
     "imports": [
-      "_markdownEditor-RfAK1f8x.js",
+      "_markdownEditor-BjPj-Zo5.js",
       "_staticMarkdown-BIUnlqAT.js",
-      "_authoringChatScroll-BZqyMRb_.js",
       "_createResourceFromContext-BLL6r_J_.js",
       "_resourceMoveModal-31XovjP8.js"
     ]

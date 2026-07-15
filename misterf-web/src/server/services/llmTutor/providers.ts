@@ -10,6 +10,14 @@ import { translate, type Locale } from '../../i18n/index.js';
 import { MissingLlmApiKeyError } from './errors.js';
 import type { LlmRequestOptions } from './types.js';
 
+export type OpenRouterReasoningEffort =
+  | 'xhigh'
+  | 'high'
+  | 'medium'
+  | 'low'
+  | 'minimal'
+  | 'none';
+
 export function getConfiguredModelId(
   options: LlmRequestOptions = {},
 ): string {
@@ -48,18 +56,14 @@ export function getLanguageModel(
   }).chat(getConfiguredModelId(options));
 }
 
-export function getProviderOptions(): ProviderOptions | undefined {
+export function getProviderOptions(options: {
+  reasoningEffort?: OpenRouterReasoningEffort;
+} = {}): ProviderOptions | undefined {
   return {
     openrouter: {
       reasoning: {
-        effort:
-          env.openrouterReasoningEffort as
-            | 'xhigh'
-            | 'high'
-            | 'medium'
-            | 'low'
-            | 'minimal'
-            | 'none',
+        effort: options.reasoningEffort ??
+          env.openrouterReasoningEffort as OpenRouterReasoningEffort,
         exclude: true,
       },
     },

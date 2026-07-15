@@ -166,11 +166,13 @@ quiz JSON, and authoring messages.
 `resource_folders` may not need extra fields at first; the row exists to make
 foreign keys and authorization explicit.
 
-`roleplays` stores the roleplay title, description, scenario, level, one
-pedagogical-focus text field, optional learner-turn limit, fixed two-character
-payload, and AI-authoring message history. The scenario includes the
-learner-facing context, and the first AI character line is generated dynamically
-when a roleplay attempt starts.
+`roleplays` stores the roleplay title, one complete learner-facing description,
+an `A1-A2`, `B1-B2`, or `C1` level, and a fixed two-character payload. Its
+legacy authoring-message column remains for compatibility but the current
+proposal-and-approval flow does not append to it. The description owns the
+complete setup and any relevant practice goal; character descriptions own only
+character-specific context. The first AI character line is generated
+dynamically when a roleplay attempt starts.
 
 `roleplay_attempts` stores runtime attempts with:
 

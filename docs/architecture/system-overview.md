@@ -100,8 +100,8 @@ Roleplays are reusable English-production resources.
 
 Users can:
 
-- create a two-character scenario from a natural-language prompt
-- revise the scenario with AI or edit it manually
+- create a two-character roleplay from a natural-language prompt
+- revise the description and characters with AI or edit them manually
 - share it through the generic resource-sharing model
 - launch a dedicated writing attempt where the learner plays one character
 - finish the attempt and receive AI evaluation by learner turn

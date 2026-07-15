@@ -378,8 +378,11 @@ the content being changed.
   explicit parameters.
 - [ ] Review the practice-guide `Chat IA` edit tab and whether its current
   general fields and tutor instructions need more direct revision actions.
-- [ ] Review the roleplay `Chat IA` edit tab, including character, scenario,
-  turn-limit, and evaluation-related changes that may deserve dedicated UI.
+- [x] Retire the roleplay `Chat IA` edit tab. Roleplay now exposes one
+  page-level `Modify with AI` action that can reach every authoring field, uses
+  the complete unsaved form as context, shows only proposed field differences
+  in a before/after comparison, and persists atomically only after explicit
+  approval.
 - [ ] For each resource, decide whether to keep, redesign, or retire the chat;
   document the chosen ownership boundary and remove any superseded routes,
   prompts, history writes, client hooks, and unused persistence safely.
@@ -418,6 +421,24 @@ infrastructure from [1.2 Scene Media Library](#12-scene-media-library) and 1.1
 Phase 2 (Listening comprehension), so it is naturally sequenced after that
 lands. The learner-audio (STT) half is more independent and could pilot the
 speech surface earlier.
+
+## 1.5 CEFR Level Standardization
+
+Added 2026-07-14. Media and Roleplay authoring currently use the `A1-A2`,
+`B1-B2`, and `C1` bands. Formalize how Mister F represents and uses learner
+levels across the entire app without prematurely changing the remaining
+free-form level fields.
+
+- [ ] Inventory every level field, prompt, filter, schema, resource type,
+  learner profile, media record, and evaluation surface that currently uses
+  labels such as A1, A2, B1, B2, C1, ranges, or free-form text.
+- [ ] Define one canonical CEFR representation and policy for single levels,
+  ranges, unknown levels, display labels, localization, and backward
+  compatibility with existing records.
+- [ ] Apply the canonical representation consistently across authoring,
+  runtime adaptation, evaluation, progress, resource filtering, and media.
+- [ ] Add migration/compatibility coverage and prompt-contract tests before
+  replacing existing free-form level values.
 
 ---
 

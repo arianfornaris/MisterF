@@ -58,14 +58,11 @@ character consistently and for Mr. F to evaluate the learner fairly.
 Current fields:
 
 - `title`: short resource title.
-- `description`: Markdown-capable teacher-facing summary.
-- `scenario`: the situation the learner is entering, including any context the
-  learner needs before writing. Markdown is optional.
-- `level`: optional learner level.
-- `pedagogicalFocus`: one free-form guidance field for language goals,
-  evaluation priorities, vocabulary, grammar, register, and any teaching notes.
-  Markdown is optional.
-- `maxLearnerTurns`: optional hard limit for the number of learner entries.
+- `description`: the single Markdown-capable learner-facing field. It contains
+  where the exchange takes place, what happened, what the learner knows, the
+  role they play, what they need to accomplish, and any relevant practice goal
+  or constraint.
+- `level`: required learner level band: `A1-A2`, `B1-B2`, or `C1`.
 - `characters`: exactly two characters for the first version. The fixed ids are
   `learner` and `ai`.
 
@@ -78,8 +75,7 @@ Each character should include:
 
 The first AI turn is not stored in the resource. It is generated dynamically
 when an attempt starts so each learner run can begin naturally while still using
-the same saved scenario and character setup. The UI starts with Bootstrap Icons
-for characters. Later, character images can replace or supplement the icon.
+the same saved description and character setup.
 
 ## Authoring Workflow
 
@@ -88,18 +84,27 @@ The authoring workflow follows the Quiz pattern where useful:
 1. The creator starts from a natural-language prompt.
 2. The AI creates a roleplay draft.
 3. The creator reviews the general resource information and character setup.
-4. The creator can edit manually.
-5. The creator can revise with AI.
-6. The creator can test the roleplay from the learner perspective.
-7. The saved resource appears in `Recursos`.
+4. The creator can edit manually or select the page-level `Modify with AI`
+   action. A modal asks for the specific modification and may revise any
+   authoring field. The request receives the complete current form, including
+   unsaved changes, as context.
+5. The modal shows a before/after comparison containing only fields the model
+   proposes changing. The creator can retry, cancel, or approve the proposal.
+6. Approval atomically saves the complete proposed draft and reloads the edit
+   page from the database. Closing or canceling discards the pending proposal.
+7. The creator can test the roleplay from the learner perspective.
+8. The saved resource appears in `Recursos`.
+
+Roleplay authoring does not expose a `Chat IA` tab. The AI proposal is held
+temporarily outside the database and addressed by an opaque preview id. Only
+the approval endpoint can persist it; the browser never posts a replacement
+draft during approval. Roleplay authoring history is not appended.
 
 The authoring UI should make it clear what the model can configure:
 
-- scenario
-- learner-facing context inside the scenario
+- one complete learner-facing description
+- a required level dropdown with `A1-A2`, `B1-B2`, and `C1`
 - two character names and descriptions
-- maximum learner turns
-- one pedagogical focus field
 
 ## Learner Runtime
 
@@ -110,13 +115,11 @@ Flow:
 
 1. The learner opens the roleplay resource.
 2. The app starts a roleplay attempt with a frozen snapshot of the resource.
-3. The app shows the scenario.
+3. The app shows the roleplay description.
 4. The AI-controlled character's first line is generated for this attempt.
 5. The learner writes the next English turn.
 6. The AI generates the other character's next turn.
-7. The exchange repeats until:
-   - the learner presses `Finalizar`, or
-   - `maxLearnerTurns` is reached.
+7. The exchange repeats until the learner presses `Finalizar`.
 8. The app submits the attempt for AI evaluation.
 9. The result page shows the roleplay again with annotations and feedback.
 
@@ -161,7 +164,7 @@ actions used by quizzes:
 
 These follow-up paths should carry a compact snapshot of:
 
-- roleplay title and scenario
+- roleplay title and description
 - learner role
 - transcript
 - evaluation result
@@ -183,7 +186,6 @@ Attempt data includes:
 - snapshot JSON
 - transcript turns
 - status
-- max learner turns at the time of attempt
 - evaluation result JSON
 - optional progress event id
 - timestamps
@@ -231,7 +233,6 @@ Future policy:
 
 - Shared roleplay attempts may become free as an acquisition path, similar to
   the planned public/free Quiz flow.
-- `maxLearnerTurns` can help cap free usage.
 - Free public roleplay attempts must be rate-limited and abuse-resistant.
 
 ## Implementation Notes

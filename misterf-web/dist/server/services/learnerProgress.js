@@ -172,7 +172,7 @@ function buildRoleplayAttemptEventDetails(input) {
             .slice(0, 6),
         practiced: uniqueLimited([
             input.draft.title,
-            compactText(input.draft.pedagogicalFocus, 120),
+            compactText(input.draft.description, 120),
             input.draft.level,
         ].filter(Boolean), 8),
         progress: input.result.strengths
