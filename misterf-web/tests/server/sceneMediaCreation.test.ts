@@ -222,6 +222,58 @@ describe('synchronous scene media creation', () => {
     );
   });
 
+  it('gives image edits the live scene context and keeps the script as an anchor', async () => {
+    const { generateSceneMediaImagePreview } = await import(
+      '../../src/server/sceneMedia/sceneMediaPreview.js'
+    );
+    await generateSceneMediaImagePreview({
+      format: 'two_panel_contrast',
+      media: {
+        format: 'single_panel_scene',
+        id: 'media-image-preview',
+        image: { alt: 'A traveler speaks with a ticket clerk.', src: '/source.png' },
+        level: 'B1-B2',
+        script: {
+          identityStrategy: 'named_in_dialogue',
+          scriptType: 'dialogue',
+          speakers: [
+            { gender: 'female', name: 'Maya', nameSpokenInAudio: true, role: 'traveler' },
+            { gender: 'male', name: 'Leo', nameSpokenInAudio: true, role: 'ticket_clerk' },
+          ],
+          turns: [
+            { speaker: 'Maya', text: 'Hi, Leo. Is this train delayed?' },
+            { speaker: 'Leo', text: 'Yes, Maya. It will leave in ten minutes.' },
+          ],
+        },
+        scriptTypePreference: 'dialogue',
+        source: 'user_generated',
+        status: 'ready',
+        title: 'A Delayed Train',
+        visualSummary: ['A traveler speaks with a clerk at a station.'],
+      },
+      ownerUserId: 'user-1',
+      previewId: 'preview-1',
+      prompt: 'Show the delayed train in the second panel.',
+      referenceImage: {
+        bytes: Buffer.from('reference-image'),
+        contentType: 'image/png',
+      },
+    });
+
+    expect(imageMocks.generateSceneMediaImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        format: 'two_panel_contrast',
+        sourceContext: expect.objectContaining({
+          layerDecisions: {
+            image: 'generate_new',
+            scriptAndAudio: 'keep_existing',
+          },
+          title: 'A Delayed Train',
+        }),
+      }),
+    );
+  });
+
   it('uses explicit target level and script type for a script preview', async () => {
     const { generateSceneMediaScriptDraft } = await import(
       '../../src/server/sceneMedia/sceneMediaPreview.js'

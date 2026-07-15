@@ -111,7 +111,9 @@ describe('scene media image generation', () => {
     expect(String(body.prompt)).toContain('"setting": "Airport check-in counter"');
     expect(String(body.prompt)).toContain('"scriptAndAudio": "keep_existing"');
     expect(String(body.prompt)).toContain('"text": "May I see your passport?"');
-    expect(String(body.prompt)).toContain('keep_existing layers are immutable anchors');
+    expect(String(body.prompt)).toContain('immutable compatibility anchors');
+    expect(String(body.prompt)).toContain('no captions, subtitles, labels, panel numbers');
+    expect(String(body.prompt)).toContain('Real-world text or signage is allowed only when it is intrinsic to the requested setting');
   });
 
   it('maps provider safety rejections to a content-policy error', async () => {

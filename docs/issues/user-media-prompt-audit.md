@@ -13,6 +13,12 @@ were removed after layer-specific preview flows replaced it. References to
 `sceneMediaRevisions.ts` below describe the historical implementation audited
 at the time.
 
+Update 2026-07-14: the follow-up full-surface review is complete. Image
+generation now enforces scene-only output with a narrow in-world-signage
+exception; source context is explicitly untrusted and layer-aware; image edits
+receive kept script continuity; title generation has its own typed contract;
+and CI structurally checks prompt types against Zod plus built-in/design data.
+
 Roadmap: [V3, Scene Media Library](../roadmap/roadmap-v3.md#12-scene-media-library)
 
 ## Scope
@@ -21,7 +27,7 @@ What drives user media creation/editing today:
 
 - `src/server/services/sceneMediaScripts.ts` — the script + metadata **system
   prompt** and JSON schema (`buildSceneMediaScriptSystemPrompt`,
-  `buildSceneMediaScriptUserPrompt`, `sceneMediaScriptSchema`).
+  `buildSceneMediaScriptUserPrompt`, `sceneMediaScriptGenerationSchema`).
 - `src/server/sceneMedia/audioGeneration.ts` — **voice assignment** and TTS.
 - `src/server/services/sceneMediaRevisions.ts` — historical revision/authoring
   chat removed 2026-07-14 (it produced a *plan*, then regenerated through the

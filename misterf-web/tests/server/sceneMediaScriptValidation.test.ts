@@ -31,7 +31,7 @@ const validScript = {
     { gender: 'male', name: 'Officer', nameSpokenInAudio: false, role: 'security officer' },
   ],
   turns: [
-    { speaker: 'Ana', text: 'Good morning, here is my passport.' },
+    { speaker: 'Ana', text: 'Good morning, I am Ana. Here is my passport.' },
     { speaker: 'Officer', text: 'Thank you. Please place your bag on the belt.' },
   ],
 };
@@ -110,5 +110,32 @@ describe('scene media script validation logging', () => {
     expect(result.script).toMatchObject({ scriptType: 'dialogue' });
     expect(result.title).toBe(metadata.title);
     expect(aiMocks.generateText).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects turn speaker labels that do not match a declared speaker', async () => {
+    process.env.ENV_FILE = '/dev/null';
+    aiMocks.generateText.mockResolvedValue({
+      finishReason: 'stop',
+      text: JSON.stringify({
+        ...metadata,
+        script: {
+          ...validScript,
+          turns: [
+            validScript.turns[0],
+            { speaker: 'Security agent', text: 'Please place your bag on the belt.' },
+          ],
+        },
+      }),
+    });
+    const { generateSceneMediaScriptPackage } = await import(
+      '../../src/server/services/sceneMediaScripts.js'
+    );
+
+    await expect(generateSceneMediaScriptPackage(input)).rejects.toMatchObject({
+      name: 'SceneMediaScriptProviderError',
+    });
+    const retryMessages = aiMocks.generateText.mock.calls[1]?.[0]?.messages ?? [];
+    expect(JSON.stringify(retryMessages)).toContain('unknown_speaker');
+    expect(JSON.stringify(retryMessages)).toContain('script.turns.1.speaker');
   });
 });

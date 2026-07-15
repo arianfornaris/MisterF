@@ -88,6 +88,13 @@ export async function generateSceneMediaImagePreview(input: {
 
   try {
     const openRouterApiKey = await requireCreditKey(input.ownerUserId);
+    const sourceContext = createSceneMediaGenerationSourceContext({
+      layerDecisions: {
+        image: 'generate_new',
+        scriptAndAudio: input.media.script ? 'keep_existing' : 'do_not_include',
+      },
+      sourceItem: input.media,
+    });
     const generated = await generateSceneMediaImage({
       format: input.format,
       level: input.media.level ?? 'A1-A2',
@@ -95,6 +102,7 @@ export async function generateSceneMediaImagePreview(input: {
       prompt: input.prompt,
       referenceImages: input.referenceImage ? [input.referenceImage] : undefined,
       scriptTypePreference: input.media.scriptTypePreference ?? 'unspecified',
+      sourceContext,
     });
     const normalizedBytes = await sharp(generated.bytes)
       .resize(720, 720, { fit: 'cover', position: 'attention' })

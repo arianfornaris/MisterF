@@ -4,9 +4,10 @@ import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logger } from './logger.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { sceneMediaSpeakerGenders } from '../sceneMedia/types.js';
 import { buildSceneMediaSourceContextPrompt, } from '../sceneMedia/generationContext.js';
 const scriptGenerationTurns = 2;
-const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
+export const sceneMediaScriptGenerationSchema = z.discriminatedUnion('scriptType', [
     z.object({
         identityStrategy: z.union([
             z.literal('named_in_dialogue'),
@@ -14,7 +15,7 @@ const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
         ]),
         scriptType: z.literal('dialogue'),
         speakers: z.array(z.object({
-            gender: z.enum(['female', 'male', 'neutral']),
+            gender: z.enum(sceneMediaSpeakerGenders),
             name: z.string().trim().min(1).max(40),
             nameSpokenInAudio: z.boolean(),
             role: z.string().trim().min(1).max(60),
@@ -28,7 +29,7 @@ const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
         // Required on fresh model output (a monologue's speaker gender; 'neutral'
         // for narration). The runtime SceneMediaScript type keeps it optional for
         // items authored before the field existed.
-        gender: z.enum(['female', 'male', 'neutral']),
+        gender: z.enum(sceneMediaSpeakerGenders),
         identityStrategy: z.union([
             z.literal('named_in_narration'),
             z.literal('role_only'),
@@ -37,16 +38,19 @@ const sceneMediaScriptSchema = z.discriminatedUnion('scriptType', [
         text: z.string().trim().min(1).max(1800),
     }).strict(),
 ]);
-const sceneMediaMetadataSchema = z.object({
+export const sceneMediaMetadataGenerationSchema = z.object({
     setting: z.string().trim().min(1).max(120),
     title: z.string().trim().min(1).max(80),
     visualSummary: z.array(z.string().trim().min(1).max(180)).min(1).max(5),
 }).strict();
-const sceneMediaTitleSchema = z.object({
+export const sceneMediaTitleGenerationSchema = z.object({
     title: z.string().trim().min(1).max(80),
 }).strict();
-const scriptGenerationSchema = sceneMediaMetadataSchema.extend({
-    script: sceneMediaScriptSchema,
+export const sceneMediaGenerationResponseSchema = sceneMediaMetadataGenerationSchema.extend({
+    script: sceneMediaScriptGenerationSchema.optional(),
+}).strict();
+export const sceneMediaScriptPackageGenerationSchema = sceneMediaMetadataGenerationSchema.extend({
+    script: sceneMediaScriptGenerationSchema,
 }).strict();
 export class SceneMediaScriptContentPolicyError extends Error {
     constructor(message = 'Scene media script prompt was rejected by content policy.') {
@@ -68,17 +72,17 @@ function summarizeScriptValidationIssues(error) {
     }));
 }
 export async function generateSceneMediaScriptPackage(input) {
-    const result = await generateSceneMediaPackage(input, scriptGenerationSchema, buildSceneMediaScriptSystemPrompt(), buildSceneMediaScriptUserPrompt(input, true), (data) => findScriptContentIssues(data.script));
+    const result = await generateSceneMediaPackage(input, sceneMediaScriptPackageGenerationSchema, buildSceneMediaScriptSystemPrompt(), buildSceneMediaScriptUserPrompt(input, true), (data) => findScriptContentIssues(data.script));
     return {
         ...result,
         script: result.script,
     };
 }
 export async function generateSceneMediaMetadataPackage(input) {
-    return generateSceneMediaPackage(input, sceneMediaMetadataSchema, buildSceneMediaScriptSystemPrompt(), buildSceneMediaScriptUserPrompt(input, false));
+    return generateSceneMediaPackage(input, sceneMediaMetadataGenerationSchema, buildSceneMediaScriptSystemPrompt(), buildSceneMediaScriptUserPrompt(input, false));
 }
 export async function generateSceneMediaTitlePackage(input) {
-    return generateSceneMediaPackage(input, sceneMediaTitleSchema, buildSceneMediaTitleSystemPrompt(), buildSceneMediaTitleUserPrompt(input));
+    return generateSceneMediaPackage(input, sceneMediaTitleGenerationSchema, buildSceneMediaTitleSystemPrompt(), buildSceneMediaTitleUserPrompt(input));
 }
 // Spoken text must not describe the medium or the exercise (mirrors the built-in
 // `validate_no_description_phrases` guard). Case-insensitive substring / panel
@@ -120,6 +124,42 @@ function findScriptContentIssues(script) {
             message: 'Spoken text must not reference panel numbers.',
             path: 'script',
         });
+    }
+    if (script.scriptType === 'dialogue') {
+        const speakerNames = new Set(script.speakers.map((speaker) => speaker.name));
+        script.turns.forEach((turn, index) => {
+            if (!speakerNames.has(turn.speaker)) {
+                issues.push({
+                    code: 'unknown_speaker',
+                    message: `Turn speaker "${turn.speaker}" must exactly match a declared speaker name.`,
+                    path: `script.turns.${index}.speaker`,
+                });
+            }
+        });
+        const namedSpeakers = script.speakers.filter((speaker) => speaker.nameSpokenInAudio);
+        if (script.identityStrategy === 'named_in_dialogue' && namedSpeakers.length === 0) {
+            issues.push({
+                code: 'missing_spoken_name',
+                message: 'named_in_dialogue requires at least one speaker name to be spoken.',
+                path: 'script.speakers',
+            });
+        }
+        if (script.identityStrategy === 'role_only' && namedSpeakers.length > 0) {
+            issues.push({
+                code: 'unexpected_spoken_name',
+                message: 'role_only requires every nameSpokenInAudio value to be false.',
+                path: 'script.speakers',
+            });
+        }
+        for (const speaker of namedSpeakers) {
+            if (!lower.includes(speaker.name.toLowerCase())) {
+                issues.push({
+                    code: 'spoken_name_missing_from_turns',
+                    message: `Speaker name "${speaker.name}" is marked as spoken but does not occur in any turn.`,
+                    path: 'script.speakers',
+                });
+            }
+        }
     }
     return issues;
 }
@@ -237,7 +277,7 @@ export function buildSceneMediaTitleUserPrompt(input) {
         two_panel_contrast: 'The image is a two-panel contrast.',
     };
     return [
-        input.prompt,
+        `Task: ${input.prompt}`,
         `Visual format: ${input.format}. ${formatGuidance[input.format]}`,
         input.imageAlt ? `Generated image alt text: ${input.imageAlt}` : '',
         input.sourceContext ? buildSceneMediaSourceContextPrompt(input.sourceContext) : '',

@@ -182,7 +182,10 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     2026-07-14: `edit/save` changes only the title. Level and script type were
     moved into the script-change modal so they cannot relabel an unchanged
     script/audio layer. Generation mode stays derived/read-only (a consequence
-    of whether a script+audio layer exists).
+    of whether a script+audio layer exists). Updated 2026-07-14: an inline,
+    credit-gated title generator uses the current image and scene context to
+    fill the title input without saving; Save is enabled only after the title
+    actually changes.
   - [~] Per-layer change modals with preview-before-apply. Done 2026-07-13:
     "Cambiar imagen" and "Cambiar guion" buttons on the `General` tab open one
     modal (`partials/scene-media-change-modal`) with a describe → generate →
@@ -252,20 +255,20 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
   decisions (title/level/format, script, layers) as discrete steps, and leave
   image and audio generation as the final step so the expensive, credit-gated
   provider calls only run once everything else is confirmed.
-- [ ] Improve the media-authoring AI chat to use tools and hold a more natural
-  conversation, rather than a rigid form-like exchange: let the model drive the
-  creation steps through tool calls and converse normally with the user.
+- [x] Retire the proposed tool-driven media-authoring chat. Superseded
+  2026-07-14 by the layer-specific preview/apply controls and inline title
+  generation; media editing no longer owns a general AI chat surface.
 - [ ] Allow a create-script, review, then create-audio flow: generate the
   structured script first, let the user review and edit it, and only then
   synthesize the per-turn audio clips from the approved script.
 - [ ] Give authoring control over audio voice and delivery style. Today voices
-  are hard-coded (`dialogueVoices = ['Kore', 'Puck', 'Aoede']`) and assigned by
-  speaker order, the revision chat has no voice/style lever, and the OpenRouter
+  are hard-coded in gender-aware pools, the layer-specific editing flow has no
+  voice/style lever, and the OpenRouter
   TTS request sends only text + voice with no style prompt — so a request like
   "make Sam sound like a 7-year-old" cannot change anything. Add per-speaker
   voice selection from the Gemini prebuilt catalog and natural-language style
   direction (emotion, pace, register) passed through to the TTS call, surfaced
-  in the authoring/revision flow. Note Gemini TTS has no true child voices and
+  in the authoring flow. Note Gemini TTS has no true child voices and
   no voice cloning; this can only approximate a lighter/younger register, so a
   provider with real child voices would be a separate follow-up.
 - [x] Audit and harden the system prompts that drive user media creation and
@@ -309,7 +312,7 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     for `dialogue` (a one-speaker dialogue currently validates). The legacy
     all-purpose revision path inherited the same generator rules until that
     chat flow was removed on 2026-07-14.
-- [ ] Review the quality of every prompt in the media **creation and editing**
+- [x] Review the quality of every prompt in the media **creation and editing**
   flow, one prompt at a time, applying the `system-prompt-coherence` skill (read
   each loop as the model sees it: no contradictions, duplicated rules, or
   forbidden behavior without a stated alternative; confirm each carries the right
@@ -329,33 +332,38 @@ shape leaves room for generated scripts/audio and later dynamic media flows.
     truth), and made the monologue `gender` required in the generation schema so
     the type matches field-for-field. Static level/format guidance stays in code
     (per-request assembly, not a flat template).
-  - [ ] **Image generation prompt** — `buildSceneMediaImagePrompt` in
+  - [x] **Image generation prompt** — `buildSceneMediaImagePrompt` in
     `sceneMedia/imageGeneration.ts` (format instruction, level, script hint,
-    safety); still hardcoded. Observed 2026-07-14: generated images sometimes
-    add captions, labels, arrows, callouts, or directional markers that are not
-    intrinsic parts of the requested scene. Review the prompt so output stays
-    scene-only and permits real-world text or signage only when it is naturally
-    part of the requested setting.
-  - [ ] **Source / continuity context** — `buildSceneMediaSourceContextPrompt` in
-    `sceneMedia/generationContext.ts`, shared by script and image generation when
-    editing or making variations.
+    safety). Completed 2026-07-14: all formats and script preferences now share
+    one scene-only rule that rejects captions, labels, panel numbers, speech
+    bubbles, arrows, callouts, diagram marks, UI, logos, and watermarks. Natural
+    text/signage is allowed only when intrinsic to the requested setting or
+    specifically requested as a natural in-world object. Format and level
+    guidance now state the positive visual alternative (actions, objects,
+    composition, expressions), and regression tests cover every
+    format/preference combination.
+  - [x] **Source / continuity context** — `buildSceneMediaSourceContextPrompt` in
+    `sceneMedia/generationContext.ts`. Completed 2026-07-14: the block is
+    explicitly untrusted quoted data, only the active request is actionable,
+    each layer decision has a concrete authority rule, and direct image evidence
+    wins over stale descriptive metadata. Image editing now receives this
+    context too, so a regenerated image stays compatible with a kept script.
+  - [x] **Title system/user prompts** — `system-prompts/scene-media/title.md`
+    and `buildSceneMediaTitleUserPrompt`. Reviewed 2026-07-14: the TypeScript
+    response contract is the single source of field rules, the task is explicit,
+    and source context remains untrusted continuity data.
   - [x] **Legacy revision planning and correction prompts** — removed with the
     retired media authoring chat on 2026-07-14; layer-specific modals now send
     explicit parameters directly to their dedicated generation flows.
-  - [ ] **Anti-drift tests for prompt ↔ schema ↔ data sync.** After the per-prompt
-    review, add regression tests that fail when a prompt's declared protocol
-    drifts from the code and data it must agree with. The worry is that over time
-    the prompts, the Zod schemas, and the existing data silently de-synchronize.
-    Cover: (a) the TypeScript shape declared in each prompt template
-    (`generation.md`) vs the Zod schema that validates the model's
-    output — field names, enum values (e.g. `gender`, `identityStrategy`,
-    `scriptType`), and discriminants must match; (b) the built-in media
-    (`builtInSceneMediaItems`) and the design registries
-    (`design/scene-scripts/scene-scripts.json`, `scene-images.json`) vs that same
-    shape — e.g. every dialogue speaker carries a valid `gender`, every script
-    type is one the prompt/schema allow. The goal is that changing a schema, a
-    prompt, or the built-in data without updating the others breaks CI, so the
-    generation contracts cannot quietly rot.
+  - [x] **Anti-drift tests for prompt ↔ schema ↔ data sync.** Completed
+    2026-07-14: CI structurally compares the TypeScript `Response` contracts in
+    `generation.md` and `title.md` with their Zod schemas (including fields,
+    optionality, unions, enums, and discriminants), validates every built-in
+    script against the generation contract, and checks the design script/image
+    registries for supported types, speaker genders, identity strategies, and
+    approved image references. The built-in build now carries narration gender
+    into runtime data. Changing a prompt contract, schema, or built-in/design
+    record without updating the others now breaks CI.
 
 ## 1.3 Review Resource AI Editing Chats
 

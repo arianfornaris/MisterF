@@ -7,6 +7,7 @@ import type {
   SceneMediaLibraryFilters,
   SceneMediaLibraryItem,
 } from './types.js';
+import { sceneMediaSpeakerGenders } from './types.js';
 import {
   findUserSceneMediaForProfile,
   listUserSceneMediaForProfile,
@@ -51,11 +52,11 @@ const sceneMediaScriptSchema = z.union([
       identityStrategy: z.enum(['named_in_dialogue', 'role_only']),
       scriptType: z.literal('dialogue'),
       speakers: z.array(z.object({
-        gender: z.enum(['female', 'male', 'neutral']).optional(),
+        gender: z.enum(sceneMediaSpeakerGenders).optional(),
         name: z.string().trim().min(1),
         nameSpokenInAudio: z.boolean(),
         role: z.string().trim().min(1),
-      }).strict()).min(1).max(3),
+      }).strict()).min(2).max(3),
       turns: z
         .array(
           z
@@ -65,11 +66,13 @@ const sceneMediaScriptSchema = z.union([
             })
             .strict(),
         )
-        .min(1),
+        .min(2)
+        .max(8),
     })
     .strict(),
   z
     .object({
+      gender: z.enum(sceneMediaSpeakerGenders).optional(),
       identityStrategy: z.enum(['named_in_narration', 'role_only']),
       scriptType: z.enum(['monologue', 'narration']),
       text: z.string().trim().min(1),

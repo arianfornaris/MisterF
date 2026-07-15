@@ -166,6 +166,7 @@ function buildScript(script) {
   }
 
   return {
+    gender: script.speakers?.[0]?.gender ?? 'neutral',
     identityStrategy: script.identityStrategy,
     scriptType: script.scriptType,
     text: script.transcript.map((turn) => turn.text).join('\n'),

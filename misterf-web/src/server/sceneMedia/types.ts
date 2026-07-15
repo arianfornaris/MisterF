@@ -34,12 +34,19 @@ export type SceneMediaAudioClip = {
   turn: number;
 };
 
-export type SceneMediaIdentityStrategy =
-  | 'named_in_dialogue'
-  | 'named_in_narration'
-  | 'role_only';
+export const sceneMediaIdentityStrategies = [
+  'named_in_dialogue',
+  'named_in_narration',
+  'role_only',
+] as const;
 
-export type SceneMediaSpeakerGender = 'female' | 'male' | 'neutral';
+export type SceneMediaIdentityStrategy = (typeof sceneMediaIdentityStrategies)[number];
+
+export const sceneMediaSpeakerGenders = ['female', 'male', 'neutral'] as const;
+
+export type SceneMediaSpeakerGender = (typeof sceneMediaSpeakerGenders)[number];
+
+export const sceneMediaScriptTypes = ['dialogue', 'monologue', 'narration'] as const;
 
 export type SceneMediaScript =
   | {

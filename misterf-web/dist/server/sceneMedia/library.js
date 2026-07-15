@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { normalizeSearchText } from '../pages/shell.js';
 import { builtInSceneMediaItems } from './builtInSceneMedia.generated.js';
+import { sceneMediaSpeakerGenders } from './types.js';
 import { findUserSceneMediaForProfile, listUserSceneMediaForProfile, } from './userMediaRepository.js';
 export const sceneMediaLevels = ['A1-A2', 'B1-B2', 'C1'];
 export const sceneMediaFormats = [
@@ -38,11 +39,11 @@ const sceneMediaScriptSchema = z.union([
         identityStrategy: z.enum(['named_in_dialogue', 'role_only']),
         scriptType: z.literal('dialogue'),
         speakers: z.array(z.object({
-            gender: z.enum(['female', 'male', 'neutral']).optional(),
+            gender: z.enum(sceneMediaSpeakerGenders).optional(),
             name: z.string().trim().min(1),
             nameSpokenInAudio: z.boolean(),
             role: z.string().trim().min(1),
-        }).strict()).min(1).max(3),
+        }).strict()).min(2).max(3),
         turns: z
             .array(z
             .object({
@@ -50,11 +51,13 @@ const sceneMediaScriptSchema = z.union([
             text: z.string().trim().min(1),
         })
             .strict())
-            .min(1),
+            .min(2)
+            .max(8),
     })
         .strict(),
     z
         .object({
+        gender: z.enum(sceneMediaSpeakerGenders).optional(),
         identityStrategy: z.enum(['named_in_narration', 'role_only']),
         scriptType: z.enum(['monologue', 'narration']),
         text: z.string().trim().min(1),

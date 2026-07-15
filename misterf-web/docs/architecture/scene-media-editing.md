@@ -37,13 +37,13 @@ What each inference receives as input:
 | --- | :--: | :--: | :--: | :--: | :--: |
 | User prompt | ✓ required | ✓ unless level/type changes | — | ✓ optional (guidance) | Fixed request |
 | Current image (bytes) | ✓ img2img reference | ✓ vision | — | ✓ vision | ✓ vision |
-| Current/base script | — | ✓ live or last draft | ✓ **sole input** | ✓ | ✓ continuity |
-| Descriptive metadata (title, setting, visual summary) | — | ✓ continuity | — | ✓ continuity | ✓ continuity |
+| Current/base script | ✓ compatibility when kept | ✓ live or last draft | ✓ **sole input** | ✓ | ✓ continuity |
+| Descriptive metadata (title, setting, visual summary) | ✓ continuity | ✓ continuity | — | ✓ continuity | ✓ continuity |
 | Level | ✓ | ✓ | — | ✓ | — |
 | Format | ✓ | ✓ | — | ✓ | ✓ |
 | Script-type preference | ✓ | ✓ | — | ✓ | — |
 | Speaker genders | — | — | ✓ (voice choice) | — | — |
-| Current audio summary (clip count, speakers) | — | ✓ | — | ✓ | ✓ continuity |
+| Current audio summary (clip count, speakers) | ✓ compatibility when kept | ✓ | — | ✓ | ✓ continuity |
 
 The script/metadata "continuity" fields reach the model through
 `SceneMediaGenerationSourceContext` (`sceneMedia/generationContext.ts`), which
@@ -54,11 +54,16 @@ change.
 
 ### 🖼️ Change image — `generateSceneMediaImagePreview` → `generateSceneMediaImage`
 
-The most isolated flow. Inputs: the change prompt (required), the previous image
-as an image-to-image reference (the last pending preview when iterating,
-otherwise the live image), plus format, level, and script-type preference (which
-tweaks the image prompt). It does **not** see the script or the metadata, so
-changes are purely visual. No source context is passed.
+Inputs: the change prompt (required), the previous image as an image-to-image
+reference (the last pending preview when iterating, otherwise the live image),
+plus format, level, and script-type preference. It also receives the source
+context: title, setting, visual summary, and any kept script/audio facts. The
+image remains the visual reference, while kept script identities and facts are
+compatibility anchors so a visual edit does not silently contradict the
+listening layer. The prompt requires scene-only output: no editorial captions,
+labels, arrows, callouts, panel numbers, speech bubbles, diagram marks, UI, or
+watermarks. Real-world text/signage is permitted only when intrinsic to the
+requested setting or specifically requested as a natural in-world object.
 
 ### 📝 Change script — `generateSceneMediaScriptDraft` → `generateSceneMediaScriptPackage`
 
@@ -101,7 +106,8 @@ prompt / stored level / format ─▶ IMAGE ─┬─▶ SCRIPT ──▶ AUDIO
 selected target level / script type ───────▶ SCRIPT
 ```
 
-- The image depends only on itself (as an img2img reference) plus the prompt.
+- A fresh image depends on the request; an edited image also depends on its
+  image reference and any kept script/audio continuity constraints.
 - The script and the description depend on the image.
 - The title suggestion depends on the image and current scene context.
 - The audio depends only on the script.
