@@ -48,6 +48,7 @@ function languageName(locale: TestLocale): string {
  */
 const promptRenderers: Record<string, (locale: TestLocale) => string> = {
   'scene-media/generation.md': () => renderSystemPrompt('scene-media/generation.md', {}),
+  'scene-media/title.md': () => renderSystemPrompt('scene-media/title.md', {}),
   'resources/practice-guide-draft-correction.md': (locale) =>
     renderSystemPrompt('resources/practice-guide-draft-correction.md', {
       CORRECTION_REASON: correctionReason,

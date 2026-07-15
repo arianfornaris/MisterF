@@ -117,14 +117,53 @@
 
       <div class="col-12 col-xl-5">
         <div class="d-grid gap-4">
-          <form class="card resource-form-card" method="post" action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/edit/save" autocomplete="off">
+          <form
+            class="card resource-form-card"
+            method="post"
+            action="/media-library/<%= encodeURIComponent(mediaItem.id) %>/edit/save"
+            autocomplete="off"
+            data-scene-media-title-form
+            data-generate-title-endpoint="/media-library/<%= encodeURIComponent(mediaItem.id) %>/generate-title"
+            data-title-generation-error="<%= t('mediaLibrary.titleGenerationFailed') %>"
+          >
             <div class="card-body d-grid gap-3">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <div>
                 <label class="form-label" for="mediaTitle"><%= t('quizzes.titleLabel') %></label>
-                <input class="form-control" id="mediaTitle" name="title" maxlength="120" value="<%= mediaItem.title %>" required>
+                <div class="input-group">
+                  <input
+                    class="form-control"
+                    id="mediaTitle"
+                    name="title"
+                    maxlength="120"
+                    value="<%= mediaItem.title %>"
+                    required
+                    data-scene-media-title-input
+                    data-original-title="<%= mediaItem.title %>"
+                  >
+                  <button
+                    class="btn btn-outline-primary"
+                    type="button"
+                    data-scene-media-generate-title
+                    data-loading-text="<%= t('mediaLibrary.generatingTitle') %>"
+                  >
+                    <i class="bi bi-stars me-1" aria-hidden="true"></i><span data-scene-media-generate-title-label><%= t('mediaLibrary.generateTitle') %></span>
+                  </button>
+                </div>
               </div>
-              <div><button class="btn btn-primary" type="submit"><i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %></button></div>
+              <div class="alert alert-danger d-none mb-0" role="alert" data-scene-media-title-error>
+                <span data-scene-media-title-error-message><%= t('mediaLibrary.titleGenerationFailed') %></span>
+                <a
+                  class="alert-link d-none ms-1"
+                  href="/credits?returnTo=<%= encodeURIComponent(`/media-library/${mediaItem.id}/edit`) %>"
+                  data-scene-media-title-credit-link
+                ><%= t('credits.buyCredits') %></a>
+              </div>
+              <div>
+                <button class="btn btn-primary" type="submit" disabled data-scene-media-title-save>
+                  <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('common.save') %>
+                </button>
+              </div>
             </div>
           </form>
 

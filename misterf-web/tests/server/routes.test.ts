@@ -768,6 +768,13 @@ describe('main route smoke tests', () => {
     expect(mediaAuthoringHtml).not.toContain('nav nav-pills authoring-tabs');
     expect(mediaAuthoringHtml).not.toContain('data-authoring-chat-form');
     expect(mediaAuthoringHtml).toContain('value="Route Ready Media"');
+    expect(mediaAuthoringHtml).toContain('data-scene-media-title-form');
+    expect(mediaAuthoringHtml).toContain('data-scene-media-generate-title');
+    expect(mediaAuthoringHtml).toContain('Generar título');
+    expect(mediaAuthoringHtml).toContain('disabled data-scene-media-title-save');
+    expect(mediaAuthoringHtml).toContain('bi-save me-1');
+    expect(mediaAuthoringHtml).toContain('Guardar');
+    expect(mediaAuthoringHtml).not.toContain('Guardar detalles');
     expect(mediaAuthoringHtml).toContain('Escena completa');
     expect(mediaAuthoringHtml).toContain('Escena de un panel');
     expect(mediaAuthoringHtml).toContain('Airport security');
@@ -820,6 +827,16 @@ describe('main route smoke tests', () => {
       cookie,
     );
     expect(removedReviseResponse.status).toBe(404);
+
+    const builtInTitleGenerationResponse = await postForm(
+      '/media-library/airport-security-line-01-a1-a2/generate-title',
+      { _csrf: authoringCsrfToken },
+      cookie,
+    );
+    expect(builtInTitleGenerationResponse.status).toBe(302);
+    expect(builtInTitleGenerationResponse.headers.get('location')).toBe(
+      '/media-library/airport-security-line-01-a1-a2',
+    );
 
     const filteredResponse = await fetch(`${baseUrl}/media-library?level=C1`, {
       headers: { cookie },

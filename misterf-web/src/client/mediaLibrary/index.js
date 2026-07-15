@@ -354,7 +354,7 @@ function initializeVariationControls() {
 
 initializeGenerationForms();
 initializeCreationMode();
-async function postUrlEncoded(url, fields) {
+async function postUrlEncoded(url, fields, accept = 'application/x-ndjson') {
   const body = new URLSearchParams();
   for (const [key, value] of Object.entries(fields)) {
     body.append(key, value);
@@ -362,9 +362,96 @@ async function postUrlEncoded(url, fields) {
   return fetch(url, {
     body,
     credentials: 'same-origin',
-    headers: { Accept: 'application/x-ndjson' },
+    headers: { Accept: accept },
     method: 'POST',
   });
+}
+
+function initializeTitleForm() {
+  const form = document.querySelector('[data-scene-media-title-form]');
+  if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+  const input = form.querySelector('[data-scene-media-title-input]');
+  const saveButton = form.querySelector('[data-scene-media-title-save]');
+  const generateButton = form.querySelector('[data-scene-media-generate-title]');
+  const generateLabel = form.querySelector('[data-scene-media-generate-title-label]');
+  const error = form.querySelector('[data-scene-media-title-error]');
+  const errorMessage = form.querySelector('[data-scene-media-title-error-message]');
+  const creditLink = form.querySelector('[data-scene-media-title-credit-link]');
+  const csrf = form.querySelector('input[name="_csrf"]');
+  if (!(input instanceof HTMLInputElement) || !(saveButton instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const normalizeTitle = (value) => value.replace(/\s+/g, ' ').trim();
+  const originalTitle = normalizeTitle(input.dataset.originalTitle || '');
+  const syncSaveState = () => {
+    const title = normalizeTitle(input.value);
+    saveButton.disabled = !title || title === originalTitle;
+  };
+  const hideError = () => {
+    error?.classList.add('d-none');
+    creditLink?.classList.add('d-none');
+  };
+  const showError = (message, creditExhausted) => {
+    if (errorMessage instanceof HTMLElement) {
+      errorMessage.textContent = message || form.dataset.titleGenerationError || '';
+    }
+    error?.classList.remove('d-none');
+    creditLink?.classList.toggle('d-none', !creditExhausted);
+  };
+
+  input.addEventListener('input', () => {
+    hideError();
+    syncSaveState();
+  });
+  form.addEventListener('submit', (event) => {
+    syncSaveState();
+    if (saveButton.disabled) {
+      event.preventDefault();
+    }
+  });
+  generateButton?.addEventListener('click', async () => {
+    if (!(generateButton instanceof HTMLButtonElement)) {
+      return;
+    }
+    const endpoint = form.dataset.generateTitleEndpoint;
+    if (!endpoint || !(csrf instanceof HTMLInputElement)) {
+      return;
+    }
+
+    hideError();
+    generateButton.disabled = true;
+    const originalLabel = generateLabel?.textContent || '';
+    if (generateLabel instanceof HTMLElement) {
+      generateLabel.textContent = generateButton.dataset.loadingText || originalLabel;
+    }
+    try {
+      const response = await postUrlEncoded(
+        endpoint,
+        { _csrf: csrf.value },
+        'application/json',
+      );
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || typeof payload.title !== 'string') {
+        showError(payload.error, Boolean(payload.creditExhausted));
+        return;
+      }
+      input.value = payload.title;
+      syncSaveState();
+      input.focus();
+      input.select();
+    } catch {
+      showError('', false);
+    } finally {
+      generateButton.disabled = false;
+      if (generateLabel instanceof HTMLElement) {
+        generateLabel.textContent = originalLabel;
+      }
+    }
+  });
+  syncSaveState();
 }
 
 async function consumeNdjson(response, onEvent) {
@@ -747,3 +834,4 @@ initializeVariationControls();
 initializeAudioPlayers();
 initializePreviewModal();
 initializeChangeModal();
+initializeTitleForm();

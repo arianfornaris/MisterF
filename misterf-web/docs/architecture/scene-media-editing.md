@@ -1,7 +1,7 @@
 # Scene Media Editing — Inference Inputs
 
 Status: implemented (V3). Covers how user-generated scene media is edited after
-creation: manual title edits plus four AI edit flows, each of which feeds a
+creation: manual title edits plus five AI-assisted flows, each of which feeds a
 different slice of the media into its model call.
 
 This document is the reference for **what data each edit inference actually
@@ -12,16 +12,18 @@ entry points), `sceneMedia/handlers.ts` (the routes), and the generators in
 
 ## Edit flows and lifecycle
 
-All AI edits use one modal (`partials/scene-media-change-modal.ejs`) with a
+Layer edits use one modal (`partials/scene-media-change-modal.ejs`) with a
 describe → generate → preview → apply flow. Generation streams NDJSON progress;
 the result is held as a not-yet-applied preview (`sceneMediaPreviewStore`, in
-memory) and only committed on approval.
+memory) and only committed on approval. Title generation is an inline helper:
+it fills the title input but does not persist anything.
 
 | Flow | Generate endpoint | Apply |
 | --- | --- | --- |
 | Change image | `POST /preview/image` | `POST /preview/apply` (quick) |
 | Change script | `POST /preview/script` | `POST /preview/script/apply` (generates audio, streamed) |
 | Regenerate description (metadata) | `POST /preview/metadata` | `POST /preview/apply` (quick) |
+| Suggest title | `POST /generate-title` | Fills the manual form only |
 | Manual title | — (form) | `POST /edit/save` |
 
 Approving a script is the point where audio is generated (script and audio are
@@ -31,17 +33,17 @@ one atomic layer). Image and metadata apply are quick DB commits.
 
 What each inference receives as input:
 
-| Input | 🖼️ Image | 📝 Script | 🔊 Audio | 🏷️ Metadata |
-| --- | :--: | :--: | :--: | :--: |
-| User prompt | ✓ required | ✓ unless level/type changes | — | ✓ optional (guidance) |
-| Current image (bytes) | ✓ img2img reference | ✓ vision | — | ✓ vision |
-| Current/base script | — | ✓ live or last draft | ✓ **sole input** | ✓ |
-| Descriptive metadata (title, setting, visual summary) | — | ✓ continuity | — | ✓ continuity |
-| Level | ✓ | ✓ | — | ✓ |
-| Format | ✓ | ✓ | — | ✓ |
-| Script-type preference | ✓ | ✓ | — | ✓ |
-| Speaker genders | — | — | ✓ (voice choice) | — |
-| Current audio summary (clip count, speakers) | — | ✓ | — | ✓ |
+| Input | 🖼️ Image | 📝 Script | 🔊 Audio | 🏷️ Metadata | Title |
+| --- | :--: | :--: | :--: | :--: | :--: |
+| User prompt | ✓ required | ✓ unless level/type changes | — | ✓ optional (guidance) | Fixed request |
+| Current image (bytes) | ✓ img2img reference | ✓ vision | — | ✓ vision | ✓ vision |
+| Current/base script | — | ✓ live or last draft | ✓ **sole input** | ✓ | ✓ continuity |
+| Descriptive metadata (title, setting, visual summary) | — | ✓ continuity | — | ✓ continuity | ✓ continuity |
+| Level | ✓ | ✓ | — | ✓ | — |
+| Format | ✓ | ✓ | — | ✓ | ✓ |
+| Script-type preference | ✓ | ✓ | — | ✓ | — |
+| Speaker genders | — | — | ✓ (voice choice) | — | — |
+| Current audio summary (clip count, speakers) | — | ✓ | — | ✓ | ✓ continuity |
 
 The script/metadata "continuity" fields reach the model through
 `SceneMediaGenerationSourceContext` (`sceneMedia/generationContext.ts`), which
@@ -83,16 +85,25 @@ prompt falls back to the media's `generationPrompt`, then `createdFrom.prompt`,
 then the title. Regenerates the whole descriptive bundle (title, setting, and
 visual summary) to resync it with the current scene.
 
+### Suggest title — `generateSceneMediaTitleDraft` → `generateSceneMediaTitlePackage`
+
+Inputs: the current image (vision) and the source context containing the current
+title, script, descriptive metadata, and audio summary. Returns one distinct
+English title. The browser places it in the existing input and enables Save;
+the endpoint never writes to the repository.
+
 ## Dependency direction
 
 ```
 prompt / stored level / format ─▶ IMAGE ─┬─▶ SCRIPT ──▶ AUDIO
-                                        └─▶ DESCRIPTION (metadata)
+                                        ├─▶ DESCRIPTION (metadata)
+                                        └─▶ TITLE SUGGESTION
 selected target level / script type ───────▶ SCRIPT
 ```
 
 - The image depends only on itself (as an img2img reference) plus the prompt.
 - The script and the description depend on the image.
+- The title suggestion depends on the image and current scene context.
 - The audio depends only on the script.
 
 Implication: the descriptive metadata is derived, so it goes stale after an

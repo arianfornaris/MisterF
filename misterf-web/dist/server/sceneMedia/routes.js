@@ -1,5 +1,5 @@
 import express from 'express';
-import { applySceneMediaPreview, applySceneMediaScript, createSceneMediaFromPrompt, createSceneMediaVariation, archiveSceneMedia, discardSceneMediaPreview, previewSceneMediaImage, previewSceneMediaMetadata, previewSceneMediaScript, renderEditSceneMediaPage, renderNewSceneMediaPage, renderNewSceneMediaVariationPage, renderSceneMediaDetailPage, renderSceneMediaLibraryPage, saveSceneMediaDetails, serveSceneMediaImageAsset, } from './handlers.js';
+import { applySceneMediaPreview, applySceneMediaScript, createSceneMediaFromPrompt, createSceneMediaVariation, archiveSceneMedia, discardSceneMediaPreview, generateSceneMediaTitle, previewSceneMediaImage, previewSceneMediaMetadata, previewSceneMediaScript, renderEditSceneMediaPage, renderNewSceneMediaPage, renderNewSceneMediaVariationPage, renderSceneMediaDetailPage, renderSceneMediaLibraryPage, saveSceneMediaDetails, serveSceneMediaImageAsset, } from './handlers.js';
 export const sceneMediaRouter = express.Router();
 sceneMediaRouter.get('/media-library', renderSceneMediaLibraryPage);
 sceneMediaRouter.get('/media-library/new', renderNewSceneMediaPage);
@@ -8,6 +8,7 @@ sceneMediaRouter.get('/media-library/:mediaId', renderSceneMediaDetailPage);
 sceneMediaRouter.get('/media-library/:mediaId/variations/new', renderNewSceneMediaVariationPage);
 sceneMediaRouter.get('/media-library/:mediaId/edit', renderEditSceneMediaPage);
 sceneMediaRouter.post('/media-library/:mediaId/edit/save', saveSceneMediaDetails);
+sceneMediaRouter.post('/media-library/:mediaId/generate-title', generateSceneMediaTitle);
 sceneMediaRouter.post('/media-library/:mediaId/preview/image', previewSceneMediaImage);
 sceneMediaRouter.post('/media-library/:mediaId/preview/script', previewSceneMediaScript);
 sceneMediaRouter.post('/media-library/:mediaId/preview/metadata', previewSceneMediaMetadata);

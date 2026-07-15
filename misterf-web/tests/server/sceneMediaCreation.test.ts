@@ -21,6 +21,7 @@ const scriptMocks = vi.hoisted(() => {
   return {
     generateSceneMediaMetadataPackage: vi.fn(),
     generateSceneMediaScriptPackage: vi.fn(),
+    generateSceneMediaTitlePackage: vi.fn(),
     SceneMediaScriptContentPolicyError,
     SceneMediaScriptProviderError,
   };
@@ -108,6 +109,9 @@ beforeEach(async () => {
     setting: 'Train station',
     title: 'Buying a Train Ticket',
     visualSummary: ['A learner buys a ticket from a clerk.'],
+  });
+  scriptMocks.generateSceneMediaTitlePackage.mockResolvedValue({
+    title: 'A Ticket Before Departure',
   });
   audioMocks.generateSceneMediaAudio.mockResolvedValue({
     clips: [{
@@ -245,6 +249,36 @@ describe('synchronous scene media creation', () => {
         level: 'C1',
         prompt: 'Use more nuanced language.',
         scriptTypePreference: 'monologue',
+      }),
+    );
+  });
+
+  it('generates a title suggestion from the current scene without persisting it', async () => {
+    const { generateSceneMediaTitleDraft } = await import(
+      '../../src/server/sceneMedia/sceneMediaPreview.js'
+    );
+    const result = await generateSceneMediaTitleDraft({
+      media: {
+        format: 'single_panel_scene',
+        id: 'media-title-preview',
+        image: { alt: 'A traveler speaks with a ticket clerk.', src: '/source.png' },
+        level: 'A1-A2',
+        scriptTypePreference: 'dialogue',
+        source: 'user_generated',
+        status: 'ready',
+        title: 'Buying a Ticket',
+        visualSummary: ['A traveler stands at a ticket counter.'],
+      },
+      ownerUserId: 'user-1',
+    });
+
+    expect(result).toEqual({ title: 'A Ticket Before Departure' });
+    expect(creditMocks.getCreditCheckedOpenRouterApiKeyForUser).toHaveBeenCalledWith('user-1');
+    expect(scriptMocks.generateSceneMediaTitlePackage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        imageBytes: expect.any(Buffer),
+        openRouterApiKey: 'user-key',
+        sourceContext: expect.objectContaining({ title: 'Buying a Ticket' }),
       }),
     );
   });

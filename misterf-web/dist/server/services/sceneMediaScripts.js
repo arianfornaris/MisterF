@@ -42,6 +42,9 @@ const sceneMediaMetadataSchema = z.object({
     title: z.string().trim().min(1).max(80),
     visualSummary: z.array(z.string().trim().min(1).max(180)).min(1).max(5),
 }).strict();
+const sceneMediaTitleSchema = z.object({
+    title: z.string().trim().min(1).max(80),
+}).strict();
 const scriptGenerationSchema = sceneMediaMetadataSchema.extend({
     script: sceneMediaScriptSchema,
 }).strict();
@@ -65,14 +68,17 @@ function summarizeScriptValidationIssues(error) {
     }));
 }
 export async function generateSceneMediaScriptPackage(input) {
-    const result = await generateSceneMediaPackage(input, true, scriptGenerationSchema, (data) => findScriptContentIssues(data.script));
+    const result = await generateSceneMediaPackage(input, scriptGenerationSchema, buildSceneMediaScriptSystemPrompt(), buildSceneMediaScriptUserPrompt(input, true), (data) => findScriptContentIssues(data.script));
     return {
         ...result,
         script: result.script,
     };
 }
 export async function generateSceneMediaMetadataPackage(input) {
-    return generateSceneMediaPackage(input, false, sceneMediaMetadataSchema);
+    return generateSceneMediaPackage(input, sceneMediaMetadataSchema, buildSceneMediaScriptSystemPrompt(), buildSceneMediaScriptUserPrompt(input, false));
+}
+export async function generateSceneMediaTitlePackage(input) {
+    return generateSceneMediaPackage(input, sceneMediaTitleSchema, buildSceneMediaTitleSystemPrompt(), buildSceneMediaTitleUserPrompt(input));
 }
 // Spoken text must not describe the medium or the exercise (mirrors the built-in
 // `validate_no_description_phrases` guard). Case-insensitive substring / panel
@@ -117,20 +123,19 @@ function findScriptContentIssues(script) {
     }
     return issues;
 }
-async function generateSceneMediaPackage(input, includeScript, schema, extraValidation) {
-    const system = buildSceneMediaScriptSystemPrompt();
+async function generateSceneMediaPackage(input, schema, system, userPrompt, extraValidation) {
     const messages = [
         {
             content: input.imageBytes
                 ? [
-                    { type: 'text', text: buildSceneMediaScriptUserPrompt(input, includeScript) },
+                    { type: 'text', text: userPrompt },
                     {
                         image: input.imageBytes,
                         mediaType: input.imageContentType ?? 'image/webp',
                         type: 'image',
                     },
                 ]
-                : buildSceneMediaScriptUserPrompt(input, includeScript),
+                : userPrompt,
             role: 'user',
         },
     ];
@@ -168,7 +173,7 @@ async function generateSceneMediaPackage(input, includeScript, schema, extraVali
                 });
                 continue;
             }
-            throw new SceneMediaScriptProviderError('The script generator returned invalid JSON.');
+            throw new SceneMediaScriptProviderError('The scene media text generator returned invalid JSON.');
         }
         const parsed = schema.safeParse(parsedJson);
         if (!parsed.success) {
@@ -190,7 +195,7 @@ async function generateSceneMediaPackage(input, includeScript, schema, extraVali
                 });
                 continue;
             }
-            throw new SceneMediaScriptProviderError('The script generator returned an invalid script package.');
+            throw new SceneMediaScriptProviderError('The scene media text generator returned an invalid package.');
         }
         const contentIssues = extraValidation ? extraValidation(parsed.data) : [];
         if (contentIssues.length > 0) {
@@ -205,23 +210,40 @@ async function generateSceneMediaPackage(input, includeScript, schema, extraVali
                     role: 'assistant',
                 });
                 messages.push({
-                    content: 'The script broke content rules. Fix these issues, then return only JSON:\n'
+                    content: 'The generated content broke content rules. Fix these issues, then return only JSON:\n'
                         + JSON.stringify(contentIssues, null, 2),
                     role: 'user',
                 });
                 continue;
             }
-            throw new SceneMediaScriptProviderError('The script generator returned a script that broke content rules.');
+            throw new SceneMediaScriptProviderError('The scene media text generator returned content that broke content rules.');
         }
         return parsed.data;
     }
-    throw new SceneMediaScriptProviderError('The script generator did not return a usable script package.');
+    throw new SceneMediaScriptProviderError('The scene media text generator did not return a usable package.');
 }
 export function buildSceneMediaScriptSystemPrompt() {
     // Editable template (no placeholders); the per-request user prompt below
-    // carries the dynamic level/format/context. Mirrors the scene-media revision
-    // loop, which also loads its system prompt from system-prompts/.
+    // carries the dynamic level, format, and context.
     return renderSystemPrompt('scene-media/generation.md').trimEnd();
+}
+export function buildSceneMediaTitleSystemPrompt() {
+    return renderSystemPrompt('scene-media/title.md').trimEnd();
+}
+export function buildSceneMediaTitleUserPrompt(input) {
+    const formatGuidance = {
+        four_panel_wordless_story: 'The image is a four-panel wordless story.',
+        single_panel_scene: 'The image is a single scene.',
+        two_panel_contrast: 'The image is a two-panel contrast.',
+    };
+    return [
+        input.prompt,
+        `Visual format: ${input.format}. ${formatGuidance[input.format]}`,
+        input.imageAlt ? `Generated image alt text: ${input.imageAlt}` : '',
+        input.sourceContext ? buildSceneMediaSourceContextPrompt(input.sourceContext) : '',
+        'Propose a new title that is meaningfully different from the current title.',
+        'Return one JSON object matching the Response type.',
+    ].filter(Boolean).join('\n');
 }
 export function buildSceneMediaScriptUserPrompt(input, includeScript = true) {
     // Level is defined by linguistic complexity, not word count. Ranges are soft

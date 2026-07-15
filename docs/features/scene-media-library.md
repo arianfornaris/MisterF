@@ -477,12 +477,12 @@ The created item should record provenance:
 Ready user-generated media has an authoring page that follows the resource
 authoring pattern:
 
-- `General` supports manual title editing in the first phase;
-- `AI Chat` accepts conversational revisions through one revise endpoint;
-- authoring messages are stored on the media row and may include applied media
-  snapshots so later requests can refer to earlier versions;
-- every revision-planning inference receives the current image bytes alongside
-  metadata, script, history, and the requested change;
+- the title can be edited manually, and an inline credit-gated action can
+  suggest a replacement title without saving it;
+- Save remains disabled until the normalized title differs from the stored
+  title;
+- image, script/audio, and descriptive metadata changes use dedicated preview
+  and approval flows instead of a general AI chat;
 - visual changes send the current image to the image model as an image-to-image
   reference;
 - changed images and audio receive new immutable storage keys and never overwrite

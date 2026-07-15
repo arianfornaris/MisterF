@@ -59,6 +59,10 @@ const sceneMediaMetadataSchema = z.object({
   visualSummary: z.array(z.string().trim().min(1).max(180)).min(1).max(5),
 }).strict();
 
+const sceneMediaTitleSchema = z.object({
+  title: z.string().trim().min(1).max(80),
+}).strict();
+
 const scriptGenerationSchema = sceneMediaMetadataSchema.extend({
   script: sceneMediaScriptSchema,
 }).strict();
@@ -72,6 +76,8 @@ export type GeneratedSceneMediaScriptPackage = z.infer<typeof sceneMediaMetadata
 };
 
 export type GeneratedSceneMediaMetadataPackage = z.infer<typeof sceneMediaMetadataSchema>;
+
+export type GeneratedSceneMediaTitlePackage = z.infer<typeof sceneMediaTitleSchema>;
 
 export type GenerateSceneMediaScriptInput = {
   format: SceneMediaFormat;
@@ -114,8 +120,9 @@ export async function generateSceneMediaScriptPackage(
 ): Promise<GeneratedSceneMediaScriptPackage> {
   const result = await generateSceneMediaPackage(
     input,
-    true,
     scriptGenerationSchema,
+    buildSceneMediaScriptSystemPrompt(),
+    buildSceneMediaScriptUserPrompt(input, true),
     (data) => findScriptContentIssues(data.script),
   );
   return {
@@ -127,7 +134,23 @@ export async function generateSceneMediaScriptPackage(
 export async function generateSceneMediaMetadataPackage(
   input: GenerateSceneMediaScriptInput,
 ): Promise<GeneratedSceneMediaMetadataPackage> {
-  return generateSceneMediaPackage(input, false, sceneMediaMetadataSchema);
+  return generateSceneMediaPackage(
+    input,
+    sceneMediaMetadataSchema,
+    buildSceneMediaScriptSystemPrompt(),
+    buildSceneMediaScriptUserPrompt(input, false),
+  );
+}
+
+export async function generateSceneMediaTitlePackage(
+  input: GenerateSceneMediaScriptInput,
+): Promise<GeneratedSceneMediaTitlePackage> {
+  return generateSceneMediaPackage(
+    input,
+    sceneMediaTitleSchema,
+    buildSceneMediaTitleSystemPrompt(),
+    buildSceneMediaTitleUserPrompt(input),
+  );
 }
 
 // Spoken text must not describe the medium or the exercise (mirrors the built-in
@@ -179,23 +202,23 @@ function findScriptContentIssues(
 
 async function generateSceneMediaPackage<T>(
   input: GenerateSceneMediaScriptInput,
-  includeScript: boolean,
   schema: z.ZodType<T>,
+  system: string,
+  userPrompt: string,
   extraValidation?: (data: T) => Array<{ code: string; message: string; path: string }>,
 ): Promise<T> {
-  const system = buildSceneMediaScriptSystemPrompt();
   const messages: ModelMessage[] = [
     {
       content: input.imageBytes
         ? [
-          { type: 'text' as const, text: buildSceneMediaScriptUserPrompt(input, includeScript) },
+          { type: 'text' as const, text: userPrompt },
           {
             image: input.imageBytes,
             mediaType: input.imageContentType ?? 'image/webp',
             type: 'image' as const,
           },
         ]
-        : buildSceneMediaScriptUserPrompt(input, includeScript),
+        : userPrompt,
       role: 'user' as const,
     },
   ];
@@ -235,7 +258,7 @@ async function generateSceneMediaPackage<T>(
         });
         continue;
       }
-      throw new SceneMediaScriptProviderError('The script generator returned invalid JSON.');
+      throw new SceneMediaScriptProviderError('The scene media text generator returned invalid JSON.');
     }
 
     const parsed = schema.safeParse(parsedJson);
@@ -259,7 +282,7 @@ async function generateSceneMediaPackage<T>(
         });
         continue;
       }
-      throw new SceneMediaScriptProviderError('The script generator returned an invalid script package.');
+      throw new SceneMediaScriptProviderError('The scene media text generator returned an invalid package.');
     }
 
     const contentIssues = extraValidation ? extraValidation(parsed.data) : [];
@@ -276,26 +299,48 @@ async function generateSceneMediaPackage<T>(
         });
         messages.push({
           content:
-            'The script broke content rules. Fix these issues, then return only JSON:\n'
+            'The generated content broke content rules. Fix these issues, then return only JSON:\n'
             + JSON.stringify(contentIssues, null, 2),
           role: 'user',
         });
         continue;
       }
-      throw new SceneMediaScriptProviderError('The script generator returned a script that broke content rules.');
+      throw new SceneMediaScriptProviderError('The scene media text generator returned content that broke content rules.');
     }
 
     return parsed.data;
   }
 
-  throw new SceneMediaScriptProviderError('The script generator did not return a usable script package.');
+  throw new SceneMediaScriptProviderError('The scene media text generator did not return a usable package.');
 }
 
 export function buildSceneMediaScriptSystemPrompt(): string {
   // Editable template (no placeholders); the per-request user prompt below
-  // carries the dynamic level/format/context. Mirrors the scene-media revision
-  // loop, which also loads its system prompt from system-prompts/.
+  // carries the dynamic level, format, and context.
   return renderSystemPrompt('scene-media/generation.md').trimEnd();
+}
+
+export function buildSceneMediaTitleSystemPrompt(): string {
+  return renderSystemPrompt('scene-media/title.md').trimEnd();
+}
+
+export function buildSceneMediaTitleUserPrompt(
+  input: GenerateSceneMediaScriptInput,
+): string {
+  const formatGuidance = {
+    four_panel_wordless_story: 'The image is a four-panel wordless story.',
+    single_panel_scene: 'The image is a single scene.',
+    two_panel_contrast: 'The image is a two-panel contrast.',
+  } satisfies Record<SceneMediaFormat, string>;
+
+  return [
+    input.prompt,
+    `Visual format: ${input.format}. ${formatGuidance[input.format]}`,
+    input.imageAlt ? `Generated image alt text: ${input.imageAlt}` : '',
+    input.sourceContext ? buildSceneMediaSourceContextPrompt(input.sourceContext) : '',
+    'Propose a new title that is meaningfully different from the current title.',
+    'Return one JSON object matching the Response type.',
+  ].filter(Boolean).join('\n');
 }
 
 export function buildSceneMediaScriptUserPrompt(

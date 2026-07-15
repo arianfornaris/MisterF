@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
 import { getCreditCheckedOpenRouterApiKeyForUser } from '../services/creditGate.js';
-import { generateSceneMediaMetadataPackage, generateSceneMediaScriptPackage, SceneMediaScriptContentPolicyError, SceneMediaScriptProviderError, } from '../services/sceneMediaScripts.js';
+import { generateSceneMediaMetadataPackage, generateSceneMediaScriptPackage, generateSceneMediaTitlePackage, SceneMediaScriptContentPolicyError, SceneMediaScriptProviderError, } from '../services/sceneMediaScripts.js';
 import { createSceneMediaStorageKey, getUserFileStorageProvider, } from '../storage/userFileStorage.js';
 import { generateSceneMediaAudio, SceneMediaAudioContentPolicyError, SceneMediaAudioProviderError, } from './audioGeneration.js';
 import { SceneMediaCreationError, } from './creation.js';
@@ -157,6 +157,38 @@ export async function generateSceneMediaMetadataDraft(input) {
                 visualSummary: pkg.visualSummary,
             },
         };
+    }
+    catch (error) {
+        throw mapPreviewError(error);
+    }
+}
+// Suggests a replacement title from the current visual and script context.
+// The result is returned to the browser only; saving remains an explicit
+// author action through the regular title form.
+export async function generateSceneMediaTitleDraft(input) {
+    try {
+        const openRouterApiKey = await requireCreditKey(input.ownerUserId);
+        const imageAsset = input.media.image
+            ? await readSceneMediaImageAsset(input.media)
+            : undefined;
+        const sourceContext = createSceneMediaGenerationSourceContext({
+            layerDecisions: {
+                image: 'keep_existing',
+                scriptAndAudio: input.media.script ? 'keep_existing' : 'do_not_include',
+            },
+            sourceItem: input.media,
+        });
+        return await generateSceneMediaTitlePackage({
+            format: input.media.format,
+            imageAlt: input.media.image?.alt,
+            imageBytes: imageAsset?.bytes,
+            imageContentType: imageAsset?.contentType,
+            level: input.media.level ?? 'A1-A2',
+            openRouterApiKey,
+            prompt: 'Generate a new title for the current scene.',
+            scriptTypePreference: input.media.scriptTypePreference ?? 'unspecified',
+            sourceContext,
+        });
     }
     catch (error) {
         throw mapPreviewError(error);

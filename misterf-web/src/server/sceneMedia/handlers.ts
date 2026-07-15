@@ -35,6 +35,7 @@ import {
   generateSceneMediaImagePreview,
   generateSceneMediaMetadataDraft,
   generateSceneMediaScriptDraft,
+  generateSceneMediaTitleDraft,
   readSceneMediaReferenceImage,
 } from './sceneMediaPreview.js';
 import {
@@ -638,6 +639,36 @@ export function saveSceneMediaDetails(request: Request, response: Response): voi
     title,
   });
   response.redirect(`/media-library/${encodeURIComponent(resolved.mediaItem.id)}/edit`);
+}
+
+export async function generateSceneMediaTitle(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const resolved = resolveOwnedUserSceneMedia(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  try {
+    const result = await generateSceneMediaTitleDraft({
+      media: resolved.mediaItem,
+      ownerUserId: resolved.user.id,
+    });
+    response.json({ title: result.title });
+  } catch (error) {
+    logger.error('scene_media_title_generation_failed', {
+      error: serializeError(error),
+      mediaId: resolved.mediaItem.id,
+      userId: resolved.user.id,
+    });
+    response.status(422).json({
+      creditExhausted: isCreditExhaustedError(error),
+      error: isCreditExhaustedError(error)
+        ? response.locals.t('mediaLibrary.creditExhausted')
+        : response.locals.t('mediaLibrary.titleGenerationFailed'),
+    });
+  }
 }
 
 // Generates a not-yet-applied image change and streams progress. The preview is
