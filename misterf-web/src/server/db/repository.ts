@@ -4907,29 +4907,6 @@ export function updatePracticeGuide(input: {
   return findPracticeGuideForUser(input.practiceGuideId, input.userId);
 }
 
-export function updatePracticeGuideAuthoringMessages(input: {
-  messages: PracticeGuideAuthoringMessage[];
-  practiceGuideId: string;
-  userId: string;
-}): StoredPracticeGuide | null {
-  getDb()
-    .prepare(
-      `
-        UPDATE practice_guides
-        SET authoring_messages_json = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `,
-    )
-    .run(
-      JSON.stringify(input.messages),
-      input.practiceGuideId,
-      input.userId,
-    );
-
-  return findPracticeGuideForUser(input.practiceGuideId, input.userId);
-}
-
 export function findImportedPracticeGuideForProfile(input: {
   profileId: string;
   sourcePracticeGuideId: string;

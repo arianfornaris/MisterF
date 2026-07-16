@@ -612,10 +612,11 @@ Important fields:
 - archive/share metadata
 - optional source metadata
 
-`authoringMessages` stores the lightweight teacher/assistant chat history used
-by the practice guide authoring `AI chat` tab, mirroring the quiz authoring
-chat. The history is sent as context when the teacher asks Mr. F to revise the
-guide, but the stored guide fields remain the source of truth.
+`authoringMessages` is retained only for backward-compatible reads of legacy
+practice-guide authoring chat data. The current `Modify with AI` flow uses an
+ephemeral proposal keyed to the author, profile, and guide; it does not append
+chat history or update the stored guide until the author explicitly approves
+the proposal. The stored guide fields remain the source of truth.
 
 ### Practice Guide Share Links
 

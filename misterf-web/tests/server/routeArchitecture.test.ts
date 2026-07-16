@@ -77,4 +77,15 @@ describe('server route architecture', () => {
     expect(fs.existsSync(path.join(process.cwd(), 'src/server/services/sceneMediaRevisions.ts')))
       .toBe(false);
   });
+
+  it('keeps the retired practice guide authoring chat removed', () => {
+    const routes = readProjectFile('src/server/practiceGuides/routes.ts');
+    const view = readProjectFile('views/practice-guides-authoring.ejs');
+
+    expect(routes).not.toContain('/edit/revise');
+    expect(routes).toContain('/edit/modify');
+    expect(view).not.toContain('data-authoring-chat-form');
+    expect(view).not.toContain('authoring-tabs');
+    expect(view).toContain('data-practice-guide-modify-modal');
+  });
 });

@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { randomUUID } from 'node:crypto';
 import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import {
@@ -20,8 +21,6 @@ import {
   listConversationsForPracticeGuide,
   restorePracticeGuideForUser,
   updatePracticeGuide,
-  updatePracticeGuideAuthoringMessages,
-  type PracticeGuideAuthoringMessage,
   type StoredPracticeGuide,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
@@ -33,6 +32,8 @@ import {
 import {
   generatePracticeGuideDraft,
   generatePracticeGuideRevision,
+  safeParsePracticeGuideDraft,
+  type PracticeGuideDraft,
 } from '../services/resourceDrafts.js';
 import {
   appDocumentTitle,
@@ -41,77 +42,18 @@ import {
   getHomeAuthMessage,
 } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
+import {
+  deletePendingPracticeGuideModification,
+  getPendingPracticeGuideModification,
+  listPracticeGuideModificationChanges,
+  setPendingPracticeGuideModification,
+  type PracticeGuideModificationPreviewOwner,
+} from './modificationPreviewStore.js';
 
 type PracticeGuidePageKind = 'new' | 'detail' | 'edit';
 
-type PracticeGuideAuthoringTab = 'chat' | 'general';
-
-const defaultPracticeGuideAuthoringTab: PracticeGuideAuthoringTab = 'general';
-const maxPracticeGuideAuthoringMessages = 40;
-const maxPracticeGuideAuthoringMessageLength = 6000;
-
-function readPracticeGuideAuthoringTab(value: unknown): PracticeGuideAuthoringTab {
-  const tab = String(value || '').trim();
-  return tab === 'chat' ? 'chat' : defaultPracticeGuideAuthoringTab;
-}
-
-function buildPracticeGuideAuthoringPath(
-  practiceGuideId: string,
-  tab: PracticeGuideAuthoringTab,
-): string {
-  return `/practice-guides/${encodeURIComponent(practiceGuideId)}/edit?tab=${tab}`;
-}
-
-function normalizePracticeGuideAuthoringMessageContent(content: string): string {
-  return content.trim().slice(0, maxPracticeGuideAuthoringMessageLength);
-}
-
-function createPracticeGuideAuthoringMessage(
-  role: PracticeGuideAuthoringMessage['role'],
-  content: string,
-): PracticeGuideAuthoringMessage {
-  return {
-    content: normalizePracticeGuideAuthoringMessageContent(content),
-    createdAt: new Date().toISOString(),
-    role,
-  };
-}
-
-function appendPracticeGuideAuthoringMessages(
-  existingMessages: PracticeGuideAuthoringMessage[],
-  ...messages: PracticeGuideAuthoringMessage[]
-): PracticeGuideAuthoringMessage[] {
-  return [...existingMessages, ...messages]
-    .flatMap((message): PracticeGuideAuthoringMessage[] => {
-      const content = normalizePracticeGuideAuthoringMessageContent(message.content);
-      if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
-        return [];
-      }
-
-      return [{
-        content,
-        createdAt: message.createdAt || new Date().toISOString(),
-        role: message.role,
-      }];
-    })
-    .slice(-maxPracticeGuideAuthoringMessages);
-}
-
-function savePracticeGuideAuthoringTurn(input: {
-  assistantMessage: string;
-  practiceGuide: StoredPracticeGuide;
-  userId: string;
-  userMessage: string;
-}): StoredPracticeGuide | null {
-  return updatePracticeGuideAuthoringMessages({
-    messages: appendPracticeGuideAuthoringMessages(
-      input.practiceGuide.authoringMessages,
-      createPracticeGuideAuthoringMessage('user', input.userMessage),
-      createPracticeGuideAuthoringMessage('assistant', input.assistantMessage),
-    ),
-    practiceGuideId: input.practiceGuide.id,
-    userId: input.userId,
-  });
+function buildPracticeGuideAuthoringPath(practiceGuideId: string): string {
+  return `/practice-guides/${encodeURIComponent(practiceGuideId)}/edit`;
 }
 
 function redirectUnauthedPracticeGuides(response: Response): void {
@@ -133,6 +75,18 @@ function normalizeReturnTo(value: string | undefined): string {
 
 function readMultilineField(value: unknown, maxLength: number): string {
   return String(value || '').trim().slice(0, maxLength);
+}
+
+function readRawField(value: unknown): string {
+  return Array.isArray(value) ? String(value[0] || '') : String(value || '');
+}
+
+function storedPracticeGuideToDraft(practiceGuide: StoredPracticeGuide): PracticeGuideDraft {
+  return {
+    description: practiceGuide.description,
+    title: practiceGuide.title,
+    tutorInstructions: practiceGuide.tutorInstructions,
+  };
 }
 
 async function buildPracticeGuidesPageModel(
@@ -394,7 +348,6 @@ function renderPracticeGuideAuthoring(
   response: Response,
   input: {
     activeProfile: NonNullable<Request['activeProfile']>;
-    activeTab?: PracticeGuideAuthoringTab;
     error?: string;
     practiceGuide: StoredPracticeGuide;
     user: NonNullable<Request['authUser']>;
@@ -410,9 +363,7 @@ function renderPracticeGuideAuthoring(
       title: `${input.practiceGuide.title} - ${appDocumentTitle}`,
       user: input.user,
     }),
-    activeTab: input.activeTab ?? defaultPracticeGuideAuthoringTab,
     authoringError: input.error || '',
-    practiceGuideAuthoringMessages: input.practiceGuide.authoringMessages,
     selectedPracticeGuide: input.practiceGuide,
   });
 }
@@ -492,27 +443,13 @@ export async function handleGeneratePracticeGuideDraft(
       tutorInstructions: draft.tutorInstructions,
       userId: auth.user.id,
     });
-    updatePracticeGuideAuthoringMessages({
-      messages: appendPracticeGuideAuthoringMessages(
-        [],
-        createPracticeGuideAuthoringMessage('user', prompt),
-        createPracticeGuideAuthoringMessage(
-          'assistant',
-          translate(request.locale, 'msg.draftCreatedGuide', { title: draft.title }),
-        ),
-      ),
-      practiceGuideId: practiceGuide.id,
-      userId: auth.user.id,
-    });
     logger.info('practice_guide_created_from_prompt', {
       profileId: auth.activeProfile.id,
       resourceId: practiceGuide.id,
       resourceType: 'practice_guide',
       userId: auth.user.id,
     });
-    response.redirect(
-      buildPracticeGuideAuthoringPath(practiceGuide.id, defaultPracticeGuideAuthoringTab),
-    );
+    response.redirect(buildPracticeGuideAuthoringPath(practiceGuide.id));
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
     logger.error('practice_guide_generation_failed', {
@@ -543,15 +480,10 @@ export function renderEditPracticeGuidePage(request: Request, response: Response
 
   renderPracticeGuideAuthoring(request, response, {
     ...resolved,
-    activeTab: readPracticeGuideAuthoringTab(request.query.tab),
   });
 }
 
-function wantsJsonResponse(request: Request): boolean {
-  return Boolean(request.get('accept')?.includes('application/json'));
-}
-
-export async function handleRevisePracticeGuide(
+export async function handlePreviewPracticeGuideModification(
   request: Request,
   response: Response,
 ): Promise<void> {
@@ -560,17 +492,20 @@ export async function handleRevisePracticeGuide(
     return;
   }
 
-  const userMessage = readMultilineField(request.body.message, 4000);
-  if (userMessage.length < 3) {
-    if (wantsJsonResponse(request)) {
-      response.status(422).json({ error: translate(request.locale, 'msg.writeChange') });
-      return;
+  const rawCurrentDraft = readRawField(request.body.currentDraft);
+  const requestedChange = readMultilineField(request.body.requestedChange, 2000);
+  let currentDraft: PracticeGuideDraft | null = null;
+  if (rawCurrentDraft) {
+    try {
+      currentDraft = safeParsePracticeGuideDraft(JSON.parse(rawCurrentDraft));
+    } catch {
+      currentDraft = null;
     }
+  }
 
-    renderPracticeGuideAuthoring(request, response.status(422), {
-      ...resolved,
-      activeTab: 'chat',
-      error: translate(request.locale, 'msg.writeChange'),
+  if (!currentDraft || requestedChange.length < 3) {
+    response.status(422).json({
+      error: translate(request.locale, 'practiceGuides.modificationFailed'),
     });
     return;
   }
@@ -579,82 +514,133 @@ export async function handleRevisePracticeGuide(
     const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
     const revision = await generatePracticeGuideRevision({
       instructionLanguage: resolved.activeProfile?.instructionLanguage,
-      conversationHistory: resolved.practiceGuide.authoringMessages.map((message) => ({
-        content: message.content,
-        createdAt: message.createdAt,
-        role: message.role,
-      })),
-      currentPracticeGuide: {
-        description: resolved.practiceGuide.description,
-        title: resolved.practiceGuide.title,
-        tutorInstructions: resolved.practiceGuide.tutorInstructions,
-      },
+      currentPracticeGuide: currentDraft,
       openRouterApiKey,
-      prompt: userMessage,
+      prompt: requestedChange,
     });
-    const updatedPracticeGuide = updatePracticeGuide({
-      description: revision.guide.description,
-      practiceGuideId: resolved.practiceGuide.id,
-      title: revision.guide.title,
-      tutorInstructions: revision.guide.tutorInstructions,
-      userId: resolved.user.id,
-    });
-    if (!updatedPracticeGuide) {
-      throw new Error('Could not save the revised practice guide.');
-    }
-
-    savePracticeGuideAuthoringTurn({
-      assistantMessage: revision.assistantMessage,
-      practiceGuide: updatedPracticeGuide,
-      userId: resolved.user.id,
-      userMessage,
-    });
-    logger.info('practice_guide_revised', {
-      profileId: updatedPracticeGuide.profileId,
-      resourceId: updatedPracticeGuide.id,
-      resourceType: 'practice_guide',
-      userId: resolved.user.id,
-    });
-
-    if (wantsJsonResponse(request)) {
-      response.json({ assistantMessage: revision.assistantMessage });
+    const changes = listPracticeGuideModificationChanges(currentDraft, revision.guide);
+    if (changes.length === 0) {
+      response.status(422).json({
+        error: translate(request.locale, 'practiceGuides.modificationNoChanges'),
+      });
       return;
     }
 
-    response.redirect(buildPracticeGuideAuthoringPath(resolved.practiceGuide.id, 'chat'));
+    const previewId = randomUUID();
+    const owner: PracticeGuideModificationPreviewOwner = {
+      practiceGuideId: resolved.practiceGuide.id,
+      profileId: resolved.activeProfile.id,
+      userId: resolved.user.id,
+    };
+    setPendingPracticeGuideModification(owner, {
+      baseStoredDraft: storedPracticeGuideToDraft(resolved.practiceGuide),
+      baseUpdatedAt: resolved.practiceGuide.updatedAt,
+      createdAt: Date.now(),
+      draft: revision.guide,
+      previewId,
+    });
+    logger.info('practice_guide_modification_preview_generated', {
+      changedFields: changes.map((change) => change.field),
+      profileId: resolved.activeProfile.id,
+      resourceId: resolved.practiceGuide.id,
+      resourceType: 'practice_guide',
+      userId: resolved.user.id,
+    });
+    response.json({ changes, previewId });
   } catch (error) {
     const isCreditError = isCreditExhaustedError(error);
-    const failureMessage = isCreditError
-      ? getCreditExhaustedMessage(request.locale)
-      : translate(request.locale, 'msg.applyChangeError');
-    const practiceGuideWithFailureMessage = savePracticeGuideAuthoringTurn({
-      assistantMessage: failureMessage,
-      practiceGuide: resolved.practiceGuide,
-      userId: resolved.user.id,
-      userMessage,
-    });
-    logger.error('practice_guide_revision_failed', {
+    logger.error('practice_guide_modification_preview_failed', {
       error,
       resourceId: resolved.practiceGuide.id,
       resourceType: 'practice_guide',
       userId: resolved.user.id,
     });
-
-    if (wantsJsonResponse(request)) {
-      response.status(422).json({
-        creditExhausted: isCreditError,
-        error: failureMessage,
-      });
-      return;
-    }
-
-    renderPracticeGuideAuthoring(request, response.status(422), {
-      ...resolved,
-      activeTab: 'chat',
-      error: failureMessage,
-      practiceGuide: practiceGuideWithFailureMessage ?? resolved.practiceGuide,
+    response.status(422).json({
+      creditExhausted: isCreditError,
+      error: isCreditError
+        ? getCreditExhaustedMessage(request.locale)
+        : translate(request.locale, 'practiceGuides.modificationFailed'),
     });
   }
+}
+
+export function handleApplyPracticeGuideModification(
+  request: Request,
+  response: Response,
+): void {
+  const resolved = resolveOwnPracticeGuide(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const owner: PracticeGuideModificationPreviewOwner = {
+    practiceGuideId: resolved.practiceGuide.id,
+    profileId: resolved.activeProfile.id,
+    userId: resolved.user.id,
+  };
+  const pending = getPendingPracticeGuideModification(owner);
+  const previewId = readMultilineField(request.body.previewId, 100);
+  if (
+    !pending
+    || !previewId
+    || pending.previewId !== previewId
+    || pending.baseUpdatedAt !== resolved.practiceGuide.updatedAt
+    || JSON.stringify(pending.baseStoredDraft)
+      !== JSON.stringify(storedPracticeGuideToDraft(resolved.practiceGuide))
+  ) {
+    response.status(409).json({
+      error: translate(request.locale, 'practiceGuides.modificationExpired'),
+    });
+    return;
+  }
+
+  const updatedPracticeGuide = updatePracticeGuide({
+    description: pending.draft.description,
+    practiceGuideId: resolved.practiceGuide.id,
+    title: pending.draft.title,
+    tutorInstructions: pending.draft.tutorInstructions,
+    userId: resolved.user.id,
+  });
+  if (!updatedPracticeGuide) {
+    response.status(422).json({
+      error: translate(request.locale, 'practiceGuides.modificationFailed'),
+    });
+    return;
+  }
+
+  deletePendingPracticeGuideModification(owner);
+  logger.info('practice_guide_modification_applied', {
+    profileId: resolved.activeProfile.id,
+    resourceId: resolved.practiceGuide.id,
+    resourceType: 'practice_guide',
+    userId: resolved.user.id,
+  });
+  response.json({
+    ok: true,
+    redirect: buildPracticeGuideAuthoringPath(resolved.practiceGuide.id),
+  });
+}
+
+export function handleDiscardPracticeGuideModification(
+  request: Request,
+  response: Response,
+): void {
+  const resolved = resolveOwnPracticeGuide(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const owner: PracticeGuideModificationPreviewOwner = {
+    practiceGuideId: resolved.practiceGuide.id,
+    profileId: resolved.activeProfile.id,
+    userId: resolved.user.id,
+  };
+  const pending = getPendingPracticeGuideModification(owner);
+  const previewId = readMultilineField(request.body.previewId, 100);
+  if (pending && previewId && pending.previewId === previewId) {
+    deletePendingPracticeGuideModification(owner);
+  }
+  response.json({ ok: true });
 }
 
 export function handleCreatePracticeGuideConversation(
@@ -776,7 +762,6 @@ export function handleUpdatePracticeGuide(request: Request, response: Response):
   if (!title || !description || !tutorInstructions) {
     renderPracticeGuideAuthoring(request, response.status(422), {
       ...resolved,
-      activeTab: 'general',
       error: translate(request.locale, 'msg.completeGuideFields'),
     });
     return;
@@ -801,7 +786,7 @@ export function handleUpdatePracticeGuide(request: Request, response: Response):
     userId: resolved.user.id,
   });
 
-  response.redirect(buildPracticeGuideAuthoringPath(practiceGuide.id, 'general'));
+  response.redirect(buildPracticeGuideAuthoringPath(practiceGuide.id));
 }
 
 export function handleArchivePracticeGuide(request: Request, response: Response): void {

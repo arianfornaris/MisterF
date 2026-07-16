@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-14)
+Date: 2026-07-06 (last updated: 2026-07-15)
 
 Status: **In planning.** V3's headline pillar is comprehension exercises
 (listening, reading, and image comprehension), promoted and carried over from
@@ -376,14 +376,18 @@ the content being changed.
 - [ ] Review the quiz `Chat IA` edit tab, including the add-block shortcut and
   whether block-level changes should use contextual controls with preview and
   explicit parameters.
-- [ ] Review the practice-guide `Chat IA` edit tab and whether its current
-  general fields and tutor instructions need more direct revision actions.
+- [x] Retire the practice-guide `Chat IA` edit tab. Practice guides now use the
+  roleplay proposal pattern: one page-level `Modify with AI` action receives
+  the complete unsaved title, description, and tutor instructions; shows only
+  changed fields in a before/after comparison; and persists atomically only
+  after explicit approval. Superseded routes, history writes, and client hooks
+  were removed while the legacy data column remains readable.
 - [x] Retire the roleplay `Chat IA` edit tab. Roleplay now exposes one
   page-level `Modify with AI` action that can reach every authoring field, uses
   the complete unsaved form as context, shows only proposed field differences
   in a before/after comparison, and persists atomically only after explicit
   approval.
-- [ ] For each resource, decide whether to keep, redesign, or retire the chat;
+- [ ] For each remaining resource, decide whether to keep, redesign, or retire the chat;
   document the chosen ownership boundary and remove any superseded routes,
   prompts, history writes, client hooks, and unused persistence safely.
 
@@ -443,6 +447,43 @@ free-form level fields.
 ---
 
 # Part 2: Engineering And Quality
+
+## 2.1 LLM Inference Portfolio Audit And Governance
+
+Added 2026-07-15 after investigating practice-guide draft latency and finding
+that resource authoring operations can inherit a global model tier and reasoning
+effort even when their output contract does not require the same quality/latency
+tradeoff as a tutor conversation.
+
+- [ ] Inventory every inference in the application. For each call site, record
+  the product operation, user-visible surface, resolved model in each
+  environment, model tier or explicit model id, reasoning effort, temperature,
+  expected input/output size, structured schema, retry/correction loop, credit
+  boundary, and whether the response is blocking, streamed, or background work.
+- [ ] Measure representative production and local traces per operation: credit
+  check time, provider latency, input/output/reasoning tokens, cost, correction
+  turns, validation failures, and end-to-end user-visible latency. Do not infer
+  suitability from the global tier name alone.
+- [ ] Define and document the model-selection policy for Mister F. Assign a
+  model and reasoning effort deliberately to each inference according to its
+  quality, latency, cost, context-size, and structured-output needs. Structured
+  transformations and bounded draft edits should default to minimal or no
+  reasoning unless evaluation evidence justifies more.
+- [ ] Create a canonical governing artifact for future inference work, preferably
+  `docs/architecture/llm-inference-policy.md` as the source of truth plus a
+  focused project skill or an extension of the existing LLM skills containing
+  the actionable review checklist. It must require every new inference to
+  declare its operation name, model selection, reasoning effort, credit gate,
+  response contract, retry policy, observability, and user-facing latency
+  behavior.
+- [ ] Add automated coverage that prevents inference call sites from silently
+  inheriting unsuitable defaults where an explicit decision is required, and
+  keeps the governing inventory synchronized with code.
+- [ ] Establish a small representative evaluation set per inference class and
+  run live quality/latency/cost comparisons before changing a model or reasoning
+  level. Record the decision and its evidence in the governing artifact.
+
+## 2.2 Structured Block Post-Processing
 
 - [ ] Always-on semantic message classifier for tutor blocks, deferred from
   V2 on 2026-07-06

@@ -15,7 +15,7 @@ function languagePromptVariables(instructionLanguage = 'es') {
         INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(instructionLanguage),
     };
 }
-const practiceGuideDraftSchema = z.object({
+export const practiceGuideDraftSchema = z.object({
     description: z.string().trim().min(1).max(1500),
     title: z.string().trim().min(1).max(220),
     tutorInstructions: z.string().trim().min(1).max(12000),
@@ -246,7 +246,6 @@ export async function generatePracticeGuideRevision(input) {
         actorLabel: 'Practice guide revision',
         correctionPromptPath: 'resources/practice-guide-revision-correction.md',
         initialUserMessage: JSON.stringify({
-            conversationHistory: normalizePracticeGuideRevisionConversationHistory(input.conversationHistory ?? []),
             currentPracticeGuide: input.currentPracticeGuide,
             requestedChange: input.prompt,
         }, null, 2),
@@ -256,20 +255,9 @@ export async function generatePracticeGuideRevision(input) {
         systemPromptVariables: languagePromptVariables(input.instructionLanguage),
     });
 }
-function normalizePracticeGuideRevisionConversationHistory(messages) {
-    return messages
-        .flatMap((message) => {
-        const content = message.content.trim();
-        if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
-            return [];
-        }
-        return [{
-                content: content.slice(0, 4000),
-                createdAt: message.createdAt?.trim() || undefined,
-                role: message.role,
-            }];
-    })
-        .slice(-24);
+export function safeParsePracticeGuideDraft(value) {
+    const parsed = practiceGuideDraftSchema.safeParse(value);
+    return parsed.success ? parsed.data : null;
 }
 export async function generateQuizDraft(input) {
     return generateStructuredDraft({

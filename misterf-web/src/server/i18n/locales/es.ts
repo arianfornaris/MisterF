@@ -617,16 +617,31 @@ export const es: LocaleCatalog = {
       'Quienes usen este enlace verán siempre la versión actual de esta guía.',
     qrAlt: 'QR del enlace para compartir la guía',
     editingKicker: 'Guía de práctica en edición',
+    editCopy: 'Ajusta los campos manualmente o usa las modificaciones con IA.',
     descriptionPlaceholder: 'Describe la práctica con Markdown sencillo.',
     descriptionError: 'Escribe una descripción para la guía.',
     help: 'Ayuda',
     tutorInstructionsPlaceholder:
       'Escribe las instrucciones del tutor con Markdown sencillo.',
     tutorInstructionsError: 'Escribe las instrucciones del tutor.',
-    modifyWithAi: 'Modificar la guía con IA',
-    modifyWithAiCopy:
-      'Usa este chat para pedir cambios concretos a la guía. Mister F actualizará el título, la descripción o las instrucciones al tutor y te responderá qué modificó.',
-    authoringChatEmpty: 'Cuéntame qué quieres ajustar en esta guía.',
+    modifyWithAiButton: 'Modificar con IA',
+    modifyPracticeGuideTitle: 'Modificar guía con IA',
+    modificationLabel: 'Describe la modificación',
+    modificationPlaceholder:
+      'Por ejemplo: adapta la práctica a nivel B1, agrega más corrección oral y organiza las instrucciones en tres etapas.',
+    modificationHelp:
+      'La IA puede modificar el título, la descripción y las instrucciones al tutor. Nada se guardará hasta que apruebes la propuesta.',
+    generatingProposal: 'Generando la propuesta de cambios…',
+    reviewModificationHelp: 'Solo se muestran los campos que cambiarían. Compáralos antes de aprobar.',
+    currentVersion: 'Antes',
+    proposedVersion: 'Después',
+    tryAnotherModification: 'Probar otra modificación',
+    generateProposal: 'Generar propuesta',
+    approveAndSave: 'Aprobar y guardar',
+    approvingChanges: 'Guardando…',
+    modificationNoChanges: 'La IA no propuso cambios en los campos. Prueba con una solicitud más específica.',
+    modificationExpired: 'Esta propuesta caducó o la guía cambió. Genérala de nuevo antes de guardar.',
+    modificationFailed: 'No se pudo generar esta modificación. Inténtalo de nuevo.',
     helpBody1:
       'Describe el objetivo de práctica, el nivel esperado, los errores que quieres corregir y el tipo de ayuda que debe ofrecer Mr. F.',
     helpBody2:

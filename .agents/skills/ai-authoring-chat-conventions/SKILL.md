@@ -15,13 +15,13 @@ author's credit-gated key), `bootstrap-tabs-conventions`, and
   `new` page (`generate-draft` style endpoints backed by
   `services/resourceDrafts.ts`), then edited through manual fields plus the AI
   editing interaction chosen for that resource.
-- Quizzes and practice guides currently use a `Chat IA` tab for conversational
-  revisions. Roleplays intentionally do not: they expose one page-level
-  `Modify with AI` proposal-and-approval modal.
+- Quizzes currently use a `Chat IA` tab for conversational revisions.
+  Practice guides and roleplays expose one page-level `Modify with AI`
+  proposal-and-approval modal instead.
 - Manual editing and AI revision coexist. Reuse one conversational revision
   pipeline for resources that expose authoring chat. A resource may instead
   use a dedicated preview/apply endpoint pair when its UI has a deliberately
-  bounded proposal-and-approval flow, as roleplays do.
+  bounded proposal-and-approval flow, as roleplays and practice guides do.
 - Modification previews receive the author's requested change and the complete
   current form state, including unsaved edits. They must not persist the
   resource or authoring history before approval. A flow may either apply values
@@ -44,10 +44,10 @@ author's credit-gated key), `bootstrap-tabs-conventions`, and
   `{ error, creditExhausted? }` with status 422 on failure; otherwise it
   keeps the redirect-to-chat-tab flow as the no-JS fallback. Both paths
   persist the turn (user + assistant messages, including failure messages).
-- Authoring chat history is persisted on the resource itself in
-  `authoring_messages_json` (currently quizzes and practice guides). The
-  roleplay column may remain for backward-compatible reads, but AI
-  roleplay modifications do not append to it. Do not add separate
+- Authoring chat history is persisted on the quiz itself in
+  `authoring_messages_json`. Practice-guide and roleplay columns may remain for
+  backward-compatible reads, but their proposal modifications do not append to
+  them. Do not add separate
   revision-history tables unless a feature genuinely needs them.
 - History messages store `role`, `content`, `createdAt`, and an optional
   `draftSnapshot` of the applied result so the model can resolve references
@@ -80,26 +80,27 @@ author's credit-gated key), `bootstrap-tabs-conventions`, and
 - Credit exhaustion is product UI, not a raw error: reuse the existing
   `*CreditExhausted` view flags and buy-credits messaging.
 
-## Proposal And Approval UX (Roleplay)
+## Proposal And Approval UX (Roleplays And Practice Guides)
 
 - Use one page-level button labeled `Modify with AI`; it does not call the model
   immediately.
 - The button opens a Bootstrap modal with a required modification request,
   contextual example, cancel action, and immediate generation progress.
-- Send the complete unsaved roleplay draft as context and allow the model to
-  revise any authoring field.
+- Send the complete unsaved resource draft as context and allow the model to
+  revise any authoring field. Practice guides include title, description, and
+  tutor instructions; roleplays include their complete role and avatar fields.
 - Hold the complete proposed draft in a bounded server-side preview store keyed
   to user, profile, and resource. Return an opaque preview id plus a list of
   changed fields; never trust a replacement draft posted back by the browser.
 - Show only changed fields in a responsive before/after comparison. Render
-  Markdown-capable descriptions through the shared safe renderer and represent
-  avatar changes visually.
+  Markdown-capable descriptions and tutor instructions through the shared safe
+  renderer and represent roleplay avatar changes visually.
 - Approval posts only the opaque preview id, rejects expired or stale proposals,
   atomically writes the proposed draft, and reloads the edit page from the
   database. Close/cancel discards the proposal.
 - Keep failures and credit-exhaustion recovery inside the modal. Do not expose
-  a roleplay authoring chat, persist a chat turn, or retain superseded revise
-  routes.
+  an authoring chat for these resources, persist a chat turn, or retain
+  superseded revise routes.
 
 ## Checks Before Finishing
 

@@ -39,7 +39,7 @@ function languagePromptVariables(
   };
 }
 
-const practiceGuideDraftSchema = z.object({
+export const practiceGuideDraftSchema = z.object({
   description: z.string().trim().min(1).max(1500),
   title: z.string().trim().min(1).max(220),
   tutorInstructions: z.string().trim().min(1).max(12000),
@@ -55,15 +55,9 @@ const quizRevisionSchema = z.object({
   draft: quizDraftSchema,
 }).strict();
 
-type PracticeGuideDraft = z.infer<typeof practiceGuideDraftSchema>;
+export type PracticeGuideDraft = z.infer<typeof practiceGuideDraftSchema>;
 export type PracticeGuideRevisionResult = z.infer<typeof practiceGuideRevisionSchema>;
 export type QuizRevisionResult = z.infer<typeof quizRevisionSchema>;
-
-export type PracticeGuideRevisionConversationMessage = {
-  content: string;
-  createdAt?: string;
-  role: 'assistant' | 'user';
-};
 
 export type QuizRevisionConversationMessage = {
   content: string;
@@ -363,7 +357,6 @@ export async function generatePracticeGuideDraft(input: {
 }
 
 export async function generatePracticeGuideRevision(input: {
-  conversationHistory?: PracticeGuideRevisionConversationMessage[];
   currentPracticeGuide: PracticeGuideDraft;
   instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
@@ -374,9 +367,6 @@ export async function generatePracticeGuideRevision(input: {
     correctionPromptPath: 'resources/practice-guide-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
-        conversationHistory: normalizePracticeGuideRevisionConversationHistory(
-          input.conversationHistory ?? [],
-        ),
         currentPracticeGuide: input.currentPracticeGuide,
         requestedChange: input.prompt,
       },
@@ -390,23 +380,9 @@ export async function generatePracticeGuideRevision(input: {
   });
 }
 
-function normalizePracticeGuideRevisionConversationHistory(
-  messages: PracticeGuideRevisionConversationMessage[],
-): PracticeGuideRevisionConversationMessage[] {
-  return messages
-    .flatMap((message): PracticeGuideRevisionConversationMessage[] => {
-      const content = message.content.trim();
-      if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
-        return [];
-      }
-
-      return [{
-        content: content.slice(0, 4000),
-        createdAt: message.createdAt?.trim() || undefined,
-        role: message.role,
-      }];
-    })
-    .slice(-24);
+export function safeParsePracticeGuideDraft(value: unknown): PracticeGuideDraft | null {
+  const parsed = practiceGuideDraftSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
 }
 
 export async function generateQuizDraft(input: {

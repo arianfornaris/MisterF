@@ -617,16 +617,31 @@ export const en: LocaleCatalog = {
       'Anyone who uses this link will always see the current version of this guide.',
     qrAlt: 'QR code of the guide share link',
     editingKicker: 'Practice guide being edited',
+    editCopy: 'Adjust the fields manually or use AI-assisted modifications.',
     descriptionPlaceholder: 'Describe the practice with simple Markdown.',
     descriptionError: 'Write a description for the guide.',
     help: 'Help',
     tutorInstructionsPlaceholder:
       'Write the tutor instructions with simple Markdown.',
     tutorInstructionsError: 'Write the tutor instructions.',
-    modifyWithAi: 'Modify the guide with AI',
-    modifyWithAiCopy:
-      'Use this chat to request specific changes to the guide. Mister F will update the title, the description, or the tutor instructions and tell you what it modified.',
-    authoringChatEmpty: 'Tell me what you’d like to adjust in this guide.',
+    modifyWithAiButton: 'Modify with AI',
+    modifyPracticeGuideTitle: 'Modify practice guide with AI',
+    modificationLabel: 'Describe the modification',
+    modificationPlaceholder:
+      'For example: Adapt the practice to B1 level, add more spoken correction, and organize the instructions into three stages.',
+    modificationHelp:
+      'AI can modify the title, description, and tutor instructions. Nothing will be saved until you approve the proposal.',
+    generatingProposal: 'Generating the proposed changes…',
+    reviewModificationHelp: 'Only fields that would change are shown. Compare them before approving.',
+    currentVersion: 'Before',
+    proposedVersion: 'After',
+    tryAnotherModification: 'Try another modification',
+    generateProposal: 'Generate proposal',
+    approveAndSave: 'Approve and save',
+    approvingChanges: 'Saving…',
+    modificationNoChanges: 'AI did not propose any field changes. Try a more specific request.',
+    modificationExpired: 'This proposal expired or the guide changed. Generate it again before saving.',
+    modificationFailed: 'This modification could not be generated. Try again.',
     helpBody1:
       'Describe the practice goal, the expected level, the mistakes you want to correct, and the kind of help Mr. F should offer.',
     helpBody2:

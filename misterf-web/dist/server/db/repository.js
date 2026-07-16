@@ -2984,17 +2984,6 @@ export function updatePracticeGuide(input) {
     transaction();
     return findPracticeGuideForUser(input.practiceGuideId, input.userId);
 }
-export function updatePracticeGuideAuthoringMessages(input) {
-    getDb()
-        .prepare(`
-        UPDATE practice_guides
-        SET authoring_messages_json = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `)
-        .run(JSON.stringify(input.messages), input.practiceGuideId, input.userId);
-    return findPracticeGuideForUser(input.practiceGuideId, input.userId);
-}
 export function findImportedPracticeGuideForProfile(input) {
     const row = getDb()
         .prepare(`

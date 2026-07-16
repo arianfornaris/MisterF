@@ -26,6 +26,7 @@ vi.mock('ai', async (importOriginal) => {
 
 import {
   generatePracticeGuideDraft,
+  generatePracticeGuideRevision,
   generateQuizDraft,
   generateQuizRevision,
 } from '../../src/server/services/resourceDrafts.js';
@@ -261,6 +262,40 @@ describe('practice guide draft generation contract', () => {
     expect(capturedMessages(1).at(-1)?.content).toContain(
       'exceeded the output budget',
     );
+  });
+
+  it('revises the complete current draft without authoring-chat history and repairs invalid output', async () => {
+    const currentPracticeGuide = {
+      description: 'Practice everyday color vocabulary.',
+      title: 'Everyday Colors',
+      tutorInstructions: 'Guide one short color exercise at a time.',
+    };
+    const validRevision = {
+      assistantMessage: 'I added the requested spoken practice.',
+      guide: {
+        ...currentPracticeGuide,
+        tutorInstructions: 'Guide one short spoken color exercise at a time.',
+      },
+    };
+    generateTextMock
+      .mockResolvedValueOnce(modelResult('{}'))
+      .mockResolvedValueOnce(modelResult(JSON.stringify(validRevision)));
+
+    const revision = await generatePracticeGuideRevision({
+      currentPracticeGuide,
+      openRouterApiKey: testApiKey,
+      prompt: 'Add spoken practice to the tutor instructions.',
+    });
+
+    expect(revision).toEqual(validRevision);
+    expect(generateTextMock).toHaveBeenCalledTimes(2);
+    const requestPayload = JSON.parse(capturedMessages(0)[0].content) as Record<string, unknown>;
+    expect(requestPayload).toEqual({
+      currentPracticeGuide,
+      requestedChange: 'Add spoken practice to the tutor instructions.',
+    });
+    expect(requestPayload).not.toHaveProperty('conversationHistory');
+    expect(capturedMessages(1).at(-1)?.content).toContain('Correct only the structural');
   });
 });
 

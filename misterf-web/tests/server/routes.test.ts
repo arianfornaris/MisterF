@@ -398,6 +398,8 @@ describe('main route smoke tests', () => {
     });
     const editHtml = await editResponse.text();
     expect(editResponse.status).toBe(200);
+    expect(editHtml).toContain('app-page-header app-page-header-has-close mb-4 pe-0');
+    expect(editHtml).toContain('app-page-header-actions position-static flex-shrink-0');
     expect(editHtml).toContain('name="description"');
     expect(editHtml).toContain(`data-roleplay-modify-endpoint="/roleplays/${roleplay.id}/edit/modify"`);
     expect(editHtml).toContain(`data-roleplay-modify-apply-endpoint="/roleplays/${roleplay.id}/edit/modify/apply"`);
@@ -620,6 +622,191 @@ describe('main route smoke tests', () => {
     );
     expect(validLevelResponse.status).toBe(302);
     expect(findRoleplayForUser(roleplay.id, owner.id)?.level).toBe('B1-B2');
+  });
+
+  it('previews and explicitly applies practice guide AI modifications without an authoring chat', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createPracticeGuide,
+      createProfile,
+      findPracticeGuideForUser,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-practice-guide-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Practice Guide Owner',
+      provider: 'google',
+      providerSubject: 'route-practice-guide-owner',
+    });
+    const profile = createProfile({
+      name: 'Route practice guide profile',
+      userId: owner.id,
+    });
+    const practiceGuide = createPracticeGuide({
+      description: 'Practice short conversations about daily routines.',
+      profileId: profile.id,
+      title: 'Daily Routine Practice',
+      tutorInstructions: 'Guide one short exercise at a time.',
+      userId: owner.id,
+    });
+    const cookie = await createAuthenticatedCookie(owner.id, profile.id);
+
+    const editResponse = await fetch(`${baseUrl}/practice-guides/${practiceGuide.id}/edit`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const editHtml = await editResponse.text();
+    expect(editResponse.status).toBe(200);
+    expect(editHtml).toContain('app-page-header app-page-header-has-close mb-4 pe-0');
+    expect(editHtml).toContain('app-page-header-actions position-static flex-shrink-0');
+    expect(editHtml).toContain('Modificar con IA');
+    expect(editHtml).toContain('data-practice-guide-modify-modal');
+    expect(editHtml).toContain(
+      `data-practice-guide-modify-endpoint="/practice-guides/${practiceGuide.id}/edit/modify"`,
+    );
+    expect(editHtml).toContain('data-practice-guide-modify-comparison');
+    expect(editHtml).not.toContain('Chat IA');
+    expect(editHtml).not.toContain('authoring-tabs');
+    expect(editHtml).not.toContain('data-authoring-chat-form');
+
+    const csrfToken = extractCsrfToken(editHtml);
+    const retiredChatResponse = await postForm(
+      `/practice-guides/${practiceGuide.id}/edit/revise`,
+      { _csrf: csrfToken, message: 'Change the title.' },
+      cookie,
+    );
+    expect(retiredChatResponse.status).toBe(404);
+
+    const invalidPreviewResponse = await postForm(
+      `/practice-guides/${practiceGuide.id}/edit/modify`,
+      {
+        _csrf: csrfToken,
+        currentDraft: '{}',
+        requestedChange: 'Make it more specific.',
+      },
+      cookie,
+    );
+    expect(invalidPreviewResponse.status).toBe(422);
+
+    const creditGate = await import('../../src/server/services/creditGate.js');
+    const resourceDrafts = await import('../../src/server/services/resourceDrafts.js');
+    const creditKeySpy = vi
+      .spyOn(creditGate, 'getCreditCheckedOpenRouterApiKeyForUser')
+      .mockResolvedValue('test-openrouter-key');
+    const revisionSpy = vi.spyOn(resourceDrafts, 'generatePracticeGuideRevision');
+    try {
+      const currentDraft = {
+        description: 'Unsaved description from the current edit form.',
+        title: 'Unsaved Guide Title',
+        tutorInstructions: 'Keep this unsaved instruction exactly.',
+      };
+      const proposedDraft = {
+        ...currentDraft,
+        description: 'Revised description proposed for review.',
+        tutorInstructions: 'Use three stages and keep the practice sequential.',
+      };
+      revisionSpy.mockResolvedValueOnce({
+        assistantMessage: 'I revised the requested guide fields.',
+        guide: proposedDraft,
+      });
+
+      const previewResponse = await postForm(
+        `/practice-guides/${practiceGuide.id}/edit/modify`,
+        {
+          _csrf: csrfToken,
+          currentDraft: JSON.stringify(currentDraft),
+          requestedChange: 'Revise the description and organize the instructions into three stages.',
+        },
+        cookie,
+      );
+      expect(previewResponse.status).toBe(200);
+      const preview = await previewResponse.json() as {
+        changes: Array<{ after: string; before: string; field: string }>;
+        previewId: string;
+      };
+      expect(preview.previewId).toEqual(expect.any(String));
+      expect(preview.changes).toEqual([
+        {
+          after: proposedDraft.description,
+          before: currentDraft.description,
+          field: 'description',
+        },
+        {
+          after: proposedDraft.tutorInstructions,
+          before: currentDraft.tutorInstructions,
+          field: 'tutorInstructions',
+        },
+      ]);
+      expect(revisionSpy).toHaveBeenCalledWith(expect.objectContaining({
+        currentPracticeGuide: currentDraft,
+        openRouterApiKey: 'test-openrouter-key',
+      }));
+      expect(findPracticeGuideForUser(practiceGuide.id, owner.id)).toEqual(
+        expect.objectContaining({
+          authoringMessages: [],
+          description: practiceGuide.description,
+          title: practiceGuide.title,
+          tutorInstructions: practiceGuide.tutorInstructions,
+        }),
+      );
+
+      const wrongApplyResponse = await postForm(
+        `/practice-guides/${practiceGuide.id}/edit/modify/apply`,
+        { _csrf: csrfToken, previewId: 'wrong-preview-id' },
+        cookie,
+      );
+      expect(wrongApplyResponse.status).toBe(409);
+
+      const applyResponse = await postForm(
+        `/practice-guides/${practiceGuide.id}/edit/modify/apply`,
+        { _csrf: csrfToken, previewId: preview.previewId },
+        cookie,
+      );
+      expect(applyResponse.status).toBe(200);
+      await expect(applyResponse.json()).resolves.toEqual({
+        ok: true,
+        redirect: `/practice-guides/${practiceGuide.id}/edit`,
+      });
+      expect(findPracticeGuideForUser(practiceGuide.id, owner.id)).toEqual(
+        expect.objectContaining({
+          authoringMessages: [],
+          ...proposedDraft,
+        }),
+      );
+
+      revisionSpy.mockResolvedValueOnce({
+        assistantMessage: 'I changed the title.',
+        guide: { ...proposedDraft, title: 'Discarded Guide Title' },
+      });
+      const discardPreviewResponse = await postForm(
+        `/practice-guides/${practiceGuide.id}/edit/modify`,
+        {
+          _csrf: csrfToken,
+          currentDraft: JSON.stringify(proposedDraft),
+          requestedChange: 'Change the title.',
+        },
+        cookie,
+      );
+      const discardPreview = await discardPreviewResponse.json() as { previewId: string };
+      const discardResponse = await postForm(
+        `/practice-guides/${practiceGuide.id}/edit/modify/discard`,
+        { _csrf: csrfToken, previewId: discardPreview.previewId },
+        cookie,
+      );
+      expect(discardResponse.status).toBe(200);
+      const discardedApplyResponse = await postForm(
+        `/practice-guides/${practiceGuide.id}/edit/modify/apply`,
+        { _csrf: csrfToken, previewId: discardPreview.previewId },
+        cookie,
+      );
+      expect(discardedApplyResponse.status).toBe(409);
+      expect(findPracticeGuideForUser(practiceGuide.id, owner.id)?.title)
+        .toBe('Unsaved Guide Title');
+    } finally {
+      revisionSpy.mockRestore();
+      creditKeySpy.mockRestore();
+    }
   });
 
   it('renders the practice guide label and quiz attempts on resource pages', async () => {

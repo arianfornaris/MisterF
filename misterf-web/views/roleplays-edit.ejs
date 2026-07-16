@@ -1,13 +1,13 @@
 <%- include('partials/app-shell-open') %>
 
 <section class="app-page roleplays-page">
-  <div class="app-page-header app-page-header-has-close">
-    <div>
+  <div class="app-page-header app-page-header-has-close mb-4 pe-0">
+    <div class="flex-grow-1">
       <p class="app-page-kicker"><%= t('roleplays.editingKicker') %></p>
       <h1 class="app-page-title"><%= draft.title %></h1>
       <p class="app-page-copy"><%= t('roleplays.editCopy') %></p>
     </div>
-    <div class="app-page-header-actions">
+    <div class="app-page-header-actions position-static flex-shrink-0">
       <button class="btn btn-outline-primary" type="button" data-roleplay-modify-open>
         <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('roleplays.modifyWithAiButton') %>
       </button>

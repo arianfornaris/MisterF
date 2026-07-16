@@ -1,10 +1,11 @@
 <%- include('partials/app-shell-open') %>
 
 <section class="app-page practice-guides-page">
-  <div class="app-page-header app-page-header-has-close">
-    <div>
+  <div class="app-page-header app-page-header-has-close mb-4 pe-0">
+    <div class="flex-grow-1">
       <p class="app-page-kicker"><%= t('practiceGuides.editingKicker') %></p>
-      <h1><%= selectedPracticeGuide.title %></h1>
+      <h1 class="app-page-title"><%= selectedPracticeGuide.title %></h1>
+      <p class="app-page-copy"><%= t('practiceGuides.editCopy') %></p>
       <form class="d-inline-block mt-3" method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/chats">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-primary" type="submit">
@@ -12,7 +13,10 @@
         </button>
       </form>
     </div>
-    <div class="app-page-header-actions">
+    <div class="app-page-header-actions position-static flex-shrink-0">
+      <button class="btn btn-outline-primary" type="button" data-practice-guide-modify-open>
+        <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('practiceGuides.modifyWithAiButton') %>
+      </button>
       <a
         class="app-page-close-button"
         href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>"
@@ -28,156 +32,160 @@
     <div class="alert alert-danger" role="alert"><%= authoringError %></div>
   <% } %>
 
-  <ul class="nav nav-pills authoring-tabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <a
-        class="nav-link <%= activeTab === 'general' ? 'active' : '' %>"
-        href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit?tab=general"
-        role="tab"
-        aria-selected="<%= activeTab === 'general' ? 'true' : 'false' %>"
-      >
-        <i class="bi bi-card-text me-1" aria-hidden="true"></i><%= t('quizzes.tabGeneral') %>
-      </a>
-    </li>
-    <li class="nav-item" role="presentation">
-      <a
-        class="nav-link <%= activeTab === 'chat' ? 'active' : '' %>"
-        href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit?tab=chat"
-        role="tab"
-        aria-selected="<%= activeTab === 'chat' ? 'true' : 'false' %>"
-      >
-        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i><%= t('quizzes.tabChat') %>
-      </a>
-    </li>
-  </ul>
-
-  <% if (activeTab === 'general') { %>
-    <form class="card resource-form-card" method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/save" autocomplete="off">
-      <div class="card-body">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <div class="row g-3">
-          <div class="col-12">
-            <label class="form-label" for="practiceGuideTitle"><%= t('quizzes.titleLabel') %></label>
-            <input class="form-control" id="practiceGuideTitle" name="title" maxlength="120" value="<%= selectedPracticeGuide.title %>" required>
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="practiceGuideDescription"><%= t('resources.description') %></label>
-            <textarea
-              class="form-control"
-              id="practiceGuideDescription"
-              name="description"
-              rows="4"
-              maxlength="500"
-              required
-              placeholder="<%= t('practiceGuides.descriptionPlaceholder') %>"
-              data-markdown-editor
-              data-markdown-editor-required="true"
-              data-markdown-editor-error="practiceGuideDescriptionError"
-              data-markdown-editor-min-height="8rem"
-            ><%= selectedPracticeGuide.description %></textarea>
-            <div class="invalid-feedback" id="practiceGuideDescriptionError" hidden>
-              <%= t('practiceGuides.descriptionError') %>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="practice-guide-help-row">
-              <label class="form-label" for="practiceGuideTutorInstructions"><%= t('practiceGuides.tutorInstructions') %></label>
-              <button
-                class="btn btn-link practice-guide-help-button"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#practiceGuideHelpModal"
-              >
-                <i class="bi bi-question-circle me-1" aria-hidden="true"></i>
-                <%= t('practiceGuides.help') %>
-              </button>
-            </div>
-            <textarea
-              class="form-control"
-              id="practiceGuideTutorInstructions"
-              name="tutorInstructions"
-              rows="10"
-              maxlength="4000"
-              required
-              placeholder="<%= t('practiceGuides.tutorInstructionsPlaceholder') %>"
-              data-markdown-editor
-              data-markdown-editor-required="true"
-              data-markdown-editor-error="practiceGuideTutorInstructionsError"
-              data-markdown-editor-min-height="18rem"
-            ><%= selectedPracticeGuide.tutorInstructions %></textarea>
-            <div class="invalid-feedback" id="practiceGuideTutorInstructionsError" hidden>
-              <%= t('practiceGuides.tutorInstructionsError') %>
-            </div>
-          </div>
+  <form
+    class="card resource-form-card"
+    method="post"
+    action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/save"
+    autocomplete="off"
+    data-practice-guide-authoring-form
+  >
+    <div class="card-body">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label" for="practiceGuideTitle"><%= t('quizzes.titleLabel') %></label>
+          <input class="form-control" id="practiceGuideTitle" name="title" maxlength="220" value="<%= selectedPracticeGuide.title %>" required>
         </div>
-        <div class="d-flex flex-wrap gap-2 mt-3">
-          <button class="btn btn-primary" type="submit">
-            <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %>
-          </button>
-        </div>
-      </div>
-    </form>
-  <% } %>
-
-  <% if (activeTab === 'chat') { %>
-    <div class="authoring-chat-panel">
-      <div class="authoring-chat-context">
-        <div class="authoring-chat-context-icon" aria-hidden="true">
-          <i class="bi bi-stars"></i>
-        </div>
-        <div>
-          <h2 class="authoring-chat-context-title"><%= t('practiceGuides.modifyWithAi') %></h2>
-          <p class="authoring-chat-context-copy mb-0">
-            <%= t('practiceGuides.modifyWithAiCopy') %>
-          </p>
-        </div>
-      </div>
-      <div class="authoring-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
-        <% if (practiceGuideAuthoringMessages.length === 0) { %>
-          <article class="message-row is-model authoring-chat-message-row">
-            <div class="message-bubble">
-              <p class="authoring-chat-message-content mb-0"><%= t('practiceGuides.authoringChatEmpty') %></p>
-            </div>
-          </article>
-        <% } else { %>
-          <% practiceGuideAuthoringMessages.forEach((message) => { %>
-            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> authoring-chat-message-row">
-              <div class="message-bubble">
-                <p class="authoring-chat-message-content mb-0"><%= message.content %></p>
-              </div>
-            </article>
-          <% }) %>
-        <% } %>
-      </div>
-      <form
-        class="composer authoring-chat-composer"
-        method="post"
-        action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/revise"
-        data-authoring-chat-form
-        data-authoring-chat-credits-return-to="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit?tab=chat"
-      >
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label class="visually-hidden" for="practiceGuideRevisionMessage"><%= t('quizzes.message') %></label>
-        <div class="composer-input-wrap">
+        <div class="col-12">
+          <label class="form-label" for="practiceGuideDescription"><%= t('resources.description') %></label>
           <textarea
-            class="composer-input"
-            id="practiceGuideRevisionMessage"
-            name="message"
-            rows="2"
-            maxlength="4000"
-            placeholder="<%= t('quizzes.describeChangesPlaceholder') %>"
+            class="form-control"
+            id="practiceGuideDescription"
+            name="description"
+            rows="4"
+            maxlength="1500"
             required
-          ></textarea>
+            placeholder="<%= t('practiceGuides.descriptionPlaceholder') %>"
+            data-markdown-editor
+            data-markdown-editor-required="true"
+            data-markdown-editor-error="practiceGuideDescriptionError"
+            data-markdown-editor-min-height="8rem"
+          ><%= selectedPracticeGuide.description %></textarea>
+          <div class="invalid-feedback" id="practiceGuideDescriptionError" hidden>
+            <%= t('practiceGuides.descriptionError') %>
+          </div>
         </div>
-        <div class="composer-footer">
-          <button class="btn btn-primary authoring-chat-submit-button" type="submit" data-authoring-chat-submit>
-            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.applyChanges') %>
-          </button>
+        <div class="col-12">
+          <div class="practice-guide-help-row">
+            <label class="form-label" for="practiceGuideTutorInstructions"><%= t('practiceGuides.tutorInstructions') %></label>
+            <button
+              class="btn btn-link practice-guide-help-button"
+              type="button"
+              data-bs-toggle="modal"
+              data-bs-target="#practiceGuideHelpModal"
+            >
+              <i class="bi bi-question-circle me-1" aria-hidden="true"></i>
+              <%= t('practiceGuides.help') %>
+            </button>
+          </div>
+          <textarea
+            class="form-control"
+            id="practiceGuideTutorInstructions"
+            name="tutorInstructions"
+            rows="10"
+            maxlength="12000"
+            required
+            placeholder="<%= t('practiceGuides.tutorInstructionsPlaceholder') %>"
+            data-markdown-editor
+            data-markdown-editor-required="true"
+            data-markdown-editor-error="practiceGuideTutorInstructionsError"
+            data-markdown-editor-min-height="18rem"
+          ><%= selectedPracticeGuide.tutorInstructions %></textarea>
+          <div class="invalid-feedback" id="practiceGuideTutorInstructionsError" hidden>
+            <%= t('practiceGuides.tutorInstructionsError') %>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
-  <% } %>
+    <div class="card-footer d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit">
+        <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %>
+      </button>
+    </div>
+  </form>
 </section>
+
+<div
+  class="modal fade"
+  id="practiceGuideModifyModal"
+  tabindex="-1"
+  aria-labelledby="practiceGuideModifyModalTitle"
+  aria-hidden="true"
+  data-practice-guide-modify-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  data-practice-guide-modify-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify"
+  data-practice-guide-modify-apply-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify/apply"
+  data-practice-guide-modify-discard-endpoint="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/edit/modify/discard"
+  data-generic-error="<%= t('practiceGuides.modificationFailed') %>"
+  data-current-label="<%= t('practiceGuides.currentVersion') %>"
+  data-proposed-label="<%= t('practiceGuides.proposedVersion') %>"
+  data-field-title="<%= t('quizzes.titleLabel') %>"
+  data-field-description="<%= t('resources.description') %>"
+  data-field-tutor-instructions="<%= t('practiceGuides.tutorInstructions') %>"
+  data-apply-label="<%= t('practiceGuides.approveAndSave') %>"
+  data-applying-label="<%= t('practiceGuides.approvingChanges') %>"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="practiceGuideModifyModalTitle"><%= t('practiceGuides.modifyPracticeGuideTitle') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-practice-guide-modify-dismiss></button>
+      </div>
+      <div class="modal-body">
+        <div data-practice-guide-modify-phase="describe">
+          <label class="form-label" for="practiceGuideModificationRequest"><%= t('practiceGuides.modificationLabel') %></label>
+          <textarea
+            class="form-control"
+            id="practiceGuideModificationRequest"
+            name="requestedChange"
+            rows="5"
+            minlength="3"
+            maxlength="2000"
+            required
+            data-practice-guide-modify-request
+            placeholder="<%= t('practiceGuides.modificationPlaceholder') %>"
+          ></textarea>
+          <div class="form-text"><%= t('practiceGuides.modificationHelp') %></div>
+        </div>
+
+        <div class="text-center py-4 d-none" data-practice-guide-modify-phase="generating">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden"><%= t('common.loading') %></span>
+          </div>
+          <p class="mb-0 fw-semibold"><%= t('practiceGuides.generatingProposal') %></p>
+        </div>
+
+        <div class="d-none" data-practice-guide-modify-phase="preview">
+          <p class="text-body-secondary"><%= t('practiceGuides.reviewModificationHelp') %></p>
+          <div data-practice-guide-modify-comparison></div>
+        </div>
+
+        <div class="alert alert-danger d-none mb-0" role="alert" data-practice-guide-modify-error>
+          <span data-practice-guide-modify-error-message><%= t('practiceGuides.modificationFailed') %></span>
+          <a
+            class="alert-link d-none ms-1"
+            href="/credits?returnTo=<%= encodeURIComponent(`/practice-guides/${selectedPracticeGuide.id}/edit`) %>"
+            data-practice-guide-modify-credit-link
+          ><%= t('credits.buyCredits') %></a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-practice-guide-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-practice-guide-modify-retry>
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('practiceGuides.tryAnotherModification') %>
+        </button>
+        <button class="btn btn-primary" type="button" data-practice-guide-modify-generate>
+          <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('practiceGuides.generateProposal') %>
+        </button>
+        <button class="btn btn-primary d-none" type="button" data-practice-guide-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-practice-guide-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-practice-guide-modify-apply-icon></i><span data-practice-guide-modify-apply-label><%= t('practiceGuides.approveAndSave') %></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div
   class="modal fade"
@@ -193,12 +201,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
       </div>
       <div class="modal-body">
-        <p class="mb-2">
-          <%= t('practiceGuides.helpBody1') %>
-        </p>
-        <p class="mb-0 text-body-secondary">
-          <%= t('practiceGuides.helpBody2') %>
-        </p>
+        <p class="mb-2"><%= t('practiceGuides.helpBody1') %></p>
+        <p class="mb-0 text-body-secondary"><%= t('practiceGuides.helpBody2') %></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" data-bs-dismiss="modal"><%= t('common.close') %></button>
