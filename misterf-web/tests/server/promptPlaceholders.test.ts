@@ -74,13 +74,36 @@ const promptRenderers: Record<string, (locale: TestLocale) => string> = {
     }),
   'resources/quiz-draft.md': (locale) =>
     renderSystemPrompt('resources/quiz-draft.md', quizAuthoringPlaceholders(locale)),
-  'resources/quiz-revision-correction.md': (locale) =>
-    renderSystemPrompt('resources/quiz-revision-correction.md', {
+  'resources/quiz-metadata-revision-correction.md': (locale) =>
+    renderSystemPrompt('resources/quiz-metadata-revision-correction.md', {
       CORRECTION_REASON: correctionReason,
       ...quizAuthoringPlaceholders(locale),
     }),
-  'resources/quiz-revision.md': (locale) =>
-    renderSystemPrompt('resources/quiz-revision.md', quizAuthoringPlaceholders(locale)),
+  'resources/quiz-metadata-revision.md': (locale) =>
+    renderSystemPrompt(
+      'resources/quiz-metadata-revision.md',
+      quizAuthoringPlaceholders(locale),
+    ),
+  'resources/quiz-block-revision-correction.md': (locale) =>
+    renderSystemPrompt('resources/quiz-block-revision-correction.md', {
+      CORRECTION_REASON: correctionReason,
+      ...quizAuthoringPlaceholders(locale),
+    }),
+  'resources/quiz-block-revision.md': (locale) =>
+    renderSystemPrompt(
+      'resources/quiz-block-revision.md',
+      quizAuthoringPlaceholders(locale),
+    ),
+  'resources/quiz-blocks-revision-correction.md': (locale) =>
+    renderSystemPrompt('resources/quiz-blocks-revision-correction.md', {
+      CORRECTION_REASON: correctionReason,
+      ...quizAuthoringPlaceholders(locale),
+    }),
+  'resources/quiz-blocks-revision.md': (locale) =>
+    renderSystemPrompt(
+      'resources/quiz-blocks-revision.md',
+      quizAuthoringPlaceholders(locale),
+    ),
   'resources/quiz-translation-authoring-kinds.md': () =>
     renderSystemPrompt('resources/quiz-translation-authoring-kinds.md', {}),
   'resources/roleplay-draft-correction.md': () =>

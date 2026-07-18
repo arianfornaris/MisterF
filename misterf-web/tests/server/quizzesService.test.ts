@@ -1,15 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import {
+  applyQuizBlocksAndSectionsToDraft,
   buildQuizBlockSectionList,
   buildQuizEvaluationSections,
+  diffQuizBlocks,
   quizDraftToQuizBlock,
   quizDraftToStudentQuizBlock,
   buildQuizResultBlock,
   canonicalizeQuizDraftBlockOrder,
+  findQuizBlock,
+  insertQuizBlock,
   moveQuizBlock,
   normalizeQuizResponses,
   parseQuizDraft,
+  quizBlocksDiffHasChanges,
   safeParseQuizDraft,
+  setQuizBlockItem,
 } from '../../src/server/services/quizzes.js';
 import { quizResultBlockSchema } from '../../src/server/services/llmTutor/schemas.js';
 
@@ -40,6 +46,79 @@ const validDraft = {
   targetTopic: 'Present perfect',
   title: 'Present Perfect Diagnostic',
 };
+
+describe('quiz block AI modification helpers', () => {
+  const newOpenTextItem = {
+    kind: 'quiz_open_text' as const,
+    prompt: 'Describe your weekend.',
+    placeholder: 'Write here…',
+  };
+
+  it('setQuizBlockItem replaces only the target block and preserves the rest', () => {
+    const draft = parseQuizDraft(validDraft);
+    const updated = setQuizBlockItem(draft, 'open_text', newOpenTextItem);
+
+    expect(findQuizBlock(updated, 'open_text')?.item).toEqual(newOpenTextItem);
+    // Every other block is byte-for-byte identical.
+    expect(findQuizBlock(updated, 'choice')).toEqual(findQuizBlock(draft, 'choice'));
+    expect(updated.blocks).toHaveLength(2);
+    // Metadata is untouched.
+    expect(updated.title).toBe(draft.title);
+  });
+
+  it('setQuizBlockItem is a no-op for an unknown block id', () => {
+    const draft = parseQuizDraft(validDraft);
+    expect(setQuizBlockItem(draft, 'missing', newOpenTextItem)).toEqual(draft);
+  });
+
+  it('insertQuizBlock adds a block with a fresh id at the requested position', () => {
+    const draft = parseQuizDraft(validDraft);
+    const atEnd = insertQuizBlock(draft, newOpenTextItem, { position: 'end' });
+    expect(atEnd.draft.blocks).toHaveLength(3);
+    expect(atEnd.draft.blocks.at(-1)?.id).toBe(atEnd.blockId);
+    expect(draft.blocks.some((block) => block.id === atEnd.blockId)).toBe(false);
+
+    const atStart = insertQuizBlock(draft, newOpenTextItem, { position: 'start' });
+    expect(atStart.draft.blocks[0]?.id).toBe(atStart.blockId);
+  });
+
+  it('diffQuizBlocks classifies added, changed, moved, and removed blocks', () => {
+    const before = parseQuizDraft(validDraft);
+    const changed = setQuizBlockItem(before, 'open_text', newOpenTextItem);
+    const withNew = insertQuizBlock(changed, newOpenTextItem, { position: 'end' });
+    const diff = diffQuizBlocks(before, withNew.draft);
+
+    expect(diff.summary.changed).toBe(1);
+    expect(diff.summary.added).toBe(1);
+    expect(diff.summary.removed).toBe(0);
+    expect(quizBlocksDiffHasChanges(diff)).toBe(true);
+
+    const removedDiff = diffQuizBlocks(before, applyQuizBlocksAndSectionsToDraft(
+      before,
+      before.blocks.filter((block) => block.id !== 'choice'),
+      before.sections,
+    ));
+    expect(removedDiff.summary.removed).toBe(1);
+    expect(removedDiff.removed[0]?.id).toBe('choice');
+  });
+
+  it('quizBlocksDiffHasChanges is false when nothing changed', () => {
+    const before = parseQuizDraft(validDraft);
+    expect(quizBlocksDiffHasChanges(diffQuizBlocks(before, before))).toBe(false);
+  });
+
+  it('applyQuizBlocksAndSectionsToDraft preserves metadata', () => {
+    const before = parseQuizDraft(validDraft);
+    const updated = applyQuizBlocksAndSectionsToDraft(
+      before,
+      [before.blocks[1], before.blocks[0]],
+      before.sections,
+    );
+    expect(updated.title).toBe(before.title);
+    expect(updated.level).toBe(before.level);
+    expect(updated.blocks).toHaveLength(2);
+  });
+});
 
 describe('quiz service', () => {
   it('accepts valid quiz drafts and rejects duplicate block ids', () => {

@@ -88,4 +88,35 @@ describe('server route architecture', () => {
     expect(view).not.toContain('authoring-tabs');
     expect(view).toContain('data-practice-guide-modify-modal');
   });
+
+  it('replaces the quiz authoring chat with scoped modify operations', () => {
+    const routes = readProjectFile('src/server/quizzes/routes.ts');
+    const view = readProjectFile('views/quizzes-authoring.ejs');
+
+    // The conversational revise tab and its facade are gone.
+    expect(routes).not.toContain('/edit/revise');
+    expect(routes).not.toContain('/edit/blocks\'');
+    expect(view).not.toContain('data-authoring-chat-form');
+    expect(view).not.toContain("activeTab === 'chat'");
+
+    // The three scoped operations plus per-block modify are wired.
+    expect(routes).toContain('/edit/modify');
+    expect(routes).toContain('/edit/blocks-modify');
+    expect(routes).toContain('/edit/add-block');
+    expect(routes).toContain('/edit/blocks/:blockId/modify');
+    expect(view).toContain('data-quiz-modify-modal');
+    expect(view).toContain('data-quiz-blocks-modify-modal');
+    expect(view).toContain('data-quiz-block-modify-modal');
+    expect(view).toContain('data-quiz-add-block-modal');
+
+    // The shared authoring-chat client modules were removed (quizzes were the
+    // last consumer).
+    for (const file of [
+      'src/client/shared/authoringChatRevision.js',
+      'src/client/shared/authoringChatScroll.js',
+      'system-prompts/resources/quiz-revision.md',
+    ]) {
+      expect(fs.existsSync(path.join(process.cwd(), file))).toBe(false);
+    }
+  });
 });

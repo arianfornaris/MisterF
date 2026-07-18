@@ -1,14 +1,13 @@
 import { t } from '../shared/i18n.js';
 import { createQuizResultCard } from '../chat/cards/createQuizResultCard.js';
 import { renderMarkdown } from '../chat/utils/formatting.js';
-import {
-  initializeAuthoringChatRevision,
-  stageAuthoringChatMessage,
-} from '../shared/authoringChatRevision.js';
-import { initializeAuthoringChatScroll } from '../shared/authoringChatScroll.js';
 import { initializeCreateResourceFromContext } from '../shared/createResourceFromContext.js';
 import { initializeResourceMoveModal } from '../shared/resourceMoveModal.js';
 import { initializeStaticMarkdown } from '../shared/staticMarkdown.js';
+import {
+  initializeModificationModal,
+  renderStringFieldChanges,
+} from '../shared/modificationModal.js';
 import {
   buildInitialQuizItemState,
   buildQuizResponsePayload,
@@ -138,35 +137,405 @@ function initializeQuizPendingUi() {
  * the chat tab where it is sent through the normal conversational flow. If
  * anything is missing the form falls back to its regular POST.
  */
-function initializeQuizAddBlockShortcut() {
-  const formEl = document.querySelector('[data-quiz-add-block-form]');
-  if (!(formEl instanceof HTMLFormElement)) {
+function initializeQuizAddBlock() {
+  const modalEl = document.querySelector('[data-quiz-add-block-modal]');
+  const openButtonEl = document.querySelector('[data-quiz-add-block-open]');
+  if (!(modalEl instanceof HTMLElement) || !(openButtonEl instanceof HTMLElement)) {
     return;
   }
 
-  formEl.addEventListener('submit', (event) => {
-    const chatUrl = formEl.dataset.quizAddBlockChatUrl;
-    const promptEl = formEl.querySelector('textarea[name="prompt"]');
-    const kindEl = formEl.querySelector('input[name="blockKind"]:checked');
-    if (!chatUrl || !(promptEl instanceof HTMLTextAreaElement)) {
-      return;
+  const kindSelectEl = modalEl.querySelector('[data-quiz-add-block-kind]');
+  const levelInputEl = modalEl.querySelector('[data-quiz-add-block-level]');
+  const sectionSelectEl = modalEl.querySelector('[data-quiz-add-block-section]');
+  const positionSelectEl = modalEl.querySelector('[data-quiz-add-block-position]');
+  const kindLabels = {};
+  if (kindSelectEl instanceof HTMLSelectElement) {
+    for (const option of kindSelectEl.options) {
+      kindLabels[option.value] = option.textContent || option.value;
+    }
+  }
+  const labels = {
+    current: modalEl.dataset.currentLabel || '',
+    kinds: kindLabels,
+    proposed: modalEl.dataset.proposedLabel || '',
+  };
+
+  initializeModificationModal({
+    modalEl,
+    resolveContext: () => ({
+      applyEndpoint: modalEl.dataset.modifyApplyEndpoint || '',
+      buildCurrentDraft: () => ({}),
+      currentField: 'unused',
+      discardEndpoint: modalEl.dataset.modifyDiscardEndpoint || '',
+      extraFields: () => ({
+        kind: kindSelectEl instanceof HTMLSelectElement ? kindSelectEl.value : '',
+        level: levelInputEl instanceof HTMLInputElement ? levelInputEl.value : '',
+        position:
+          positionSelectEl instanceof HTMLSelectElement ? positionSelectEl.value : 'end',
+        sectionId:
+          sectionSelectEl instanceof HTMLSelectElement ? sectionSelectEl.value : '',
+      }),
+      previewEndpoint: modalEl.dataset.modifyEndpoint || '',
+      renderChanges: (container, proposedItem) => {
+        container.replaceChildren();
+        if (!proposedItem || typeof proposedItem !== 'object') {
+          return false;
+        }
+        const heading = document.createElement('p');
+        heading.className = 'small fw-semibold text-primary mb-1';
+        heading.textContent = labels.proposed;
+        const card = renderQuizBlockPreviewCard(proposedItem, labels.kinds);
+        card.classList.add('border-primary');
+        container.append(heading, card);
+        return true;
+      },
+    }),
+    triggers: openButtonEl,
+  });
+}
+
+function getQuizMetadataControl(formEl, name) {
+  const control = formEl.elements.namedItem(name);
+  return control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement
+    ? control
+    : null;
+}
+
+function buildCurrentQuizMetadata(formEl) {
+  const fields = {
+    description: 'description',
+    evaluationInstructions: 'evaluationInstructions',
+    instructions: 'instructions',
+    level: 'level',
+    targetTopic: 'targetTopic',
+    title: 'title',
+  };
+  const metadata = {};
+  for (const [key, name] of Object.entries(fields)) {
+    const control = getQuizMetadataControl(formEl, name);
+    if (!control) {
+      return null;
     }
 
-    const prompt = promptEl.value.trim();
-    if (!prompt) {
-      return;
-    }
+    metadata[key] = control.value;
+  }
 
-    const kindLabel = kindEl instanceof HTMLInputElement ? kindEl.dataset.kindLabel || '' : '';
-    const message = kindLabel
-      ? t('clientMisc.addBlockOfKind', { kind: kindLabel, prompt })
-      : t('clientMisc.addBlock', { prompt });
-    if (!stageAuthoringChatMessage(message)) {
-      return;
-    }
+  if (!metadata.title.trim()) {
+    return null;
+  }
 
-    event.preventDefault();
-    window.location.assign(chatUrl);
+  return metadata;
+}
+
+function initializeQuizMetadataModification() {
+  const modalEl = document.querySelector('[data-quiz-modify-modal]');
+  const openButtonEl = document.querySelector('[data-quiz-modify-open]');
+  const formEl = document.querySelector('[data-quiz-general-form]');
+  if (!(modalEl instanceof HTMLElement)) {
+    return;
+  }
+
+  const labels = {
+    current: modalEl.dataset.currentLabel || '',
+    fields: {
+      description: modalEl.dataset.fieldDescription,
+      evaluationInstructions: modalEl.dataset.fieldEvaluationInstructions,
+      instructions: modalEl.dataset.fieldInstructions,
+      level: modalEl.dataset.fieldLevel,
+      targetTopic: modalEl.dataset.fieldTargetTopic,
+      title: modalEl.dataset.fieldTitle,
+    },
+    proposed: modalEl.dataset.proposedLabel || '',
+  };
+
+  if (!(formEl instanceof HTMLFormElement) || !(openButtonEl instanceof HTMLElement)) {
+    return;
+  }
+
+  initializeModificationModal({
+    buildCurrentDraft: () => buildCurrentQuizMetadata(formEl),
+    modalEl,
+    renderChanges: (container, changes) =>
+      renderStringFieldChanges(container, changes, labels),
+    triggers: openButtonEl,
+  });
+}
+
+function describeQuizItemAnswerKey(item) {
+  if (!item || typeof item !== 'object') {
+    return '';
+  }
+
+  if (item.kind === 'quiz_multiple_choice' && Array.isArray(item.correctOptions)) {
+    return item.correctOptions.join(' | ');
+  }
+  if (
+    (item.kind === 'quiz_fill_in_the_blank_input'
+      || item.kind === 'quiz_fill_in_the_blank_choice')
+    && Array.isArray(item.blanks)
+  ) {
+    return item.blanks
+      .map((blank, index) =>
+        `#${index + 1}: ${(blank?.acceptableAnswers || []).join(' | ')}`)
+      .join('   ');
+  }
+  if (item.kind === 'quiz_matching_pairs' && Array.isArray(item.correctPairs)) {
+    return item.correctPairs.map((pair) => `${pair?.left} → ${pair?.right}`).join('   ');
+  }
+  if (item.kind === 'quiz_order_sentences' && Array.isArray(item.sentences)) {
+    return item.sentences.map((sentence, index) => `${index + 1}. ${sentence}`).join('  ');
+  }
+  if (
+    (item.kind === 'quiz_unscramble_sentence'
+      || item.kind === 'quiz_translate_to_english'
+      || item.kind === 'quiz_understand_in_spanish'
+      || item.kind === 'quiz_open_text')
+    && Array.isArray(item.acceptableAnswers)
+  ) {
+    return item.acceptableAnswers.join(' | ');
+  }
+
+  return '';
+}
+
+function collectQuizKindLabels() {
+  const select = document.querySelector(
+    '[data-quiz-add-block-kind], [data-quiz-block-modify-kind]',
+  );
+  const labels = {};
+  if (select instanceof HTMLSelectElement) {
+    for (const option of select.options) {
+      labels[option.value] = option.textContent || option.value;
+    }
+  }
+  return labels;
+}
+
+function renderQuizBlockPreviewCard(item, kindLabels) {
+  const card = document.createElement('div');
+  card.className = 'border rounded p-3 flex-grow-1';
+
+  const kindBadge = document.createElement('span');
+  kindBadge.className = 'badge text-bg-secondary mb-2';
+  kindBadge.textContent = kindLabels[item?.kind] || item?.kind || '';
+  card.append(kindBadge);
+
+  const prompt = document.createElement('p');
+  prompt.className = 'fw-semibold mb-2';
+  prompt.textContent = typeof item?.prompt === 'string' ? item.prompt : '';
+  card.append(prompt);
+
+  const body = document.createElement('div');
+  body.className = 'quiz-block-preview-body';
+  try {
+    const itemState = buildInitialQuizItemState(item, 0, 'quiz-block-preview', null);
+    renderQuizItemBody(body, item, itemState, {}, { readOnly: true });
+  } catch {
+    body.textContent = '';
+  }
+  card.append(body);
+
+  const answerKey = describeQuizItemAnswerKey(item);
+  if (answerKey) {
+    const key = document.createElement('p');
+    key.className = 'small text-body-secondary mt-2 mb-0';
+    key.style.whiteSpace = 'pre-wrap';
+    key.textContent = answerKey;
+    card.append(key);
+  }
+
+  return card;
+}
+
+function renderQuizBlockComparison(container, currentItem, proposedItem, labels) {
+  container.replaceChildren();
+  if (!proposedItem || typeof proposedItem !== 'object') {
+    return false;
+  }
+
+  const row = document.createElement('div');
+  row.className = 'row g-3';
+  for (const [version, item] of [['before', currentItem], ['after', proposedItem]]) {
+    const column = document.createElement('div');
+    column.className = 'col-12 col-md-6 d-flex flex-column';
+    const heading = document.createElement('p');
+    heading.className = version === 'before'
+      ? 'small text-body-secondary mb-1'
+      : 'small fw-semibold text-primary mb-1';
+    heading.textContent = version === 'before' ? labels.current : labels.proposed;
+    const card = renderQuizBlockPreviewCard(item, labels.kinds);
+    if (version === 'after') {
+      card.classList.add('border-primary');
+    }
+    column.append(heading, card);
+    row.append(column);
+  }
+
+  container.append(row);
+  return true;
+}
+
+function renderQuizBlocksDiff(container, diff, labels) {
+  container.replaceChildren();
+  if (!diff || typeof diff !== 'object' || !Array.isArray(diff.blocks)) {
+    return false;
+  }
+
+  const summary = diff.summary || {};
+  const summaryParts = [
+    [summary.added, labels.status.added],
+    [summary.changed, labels.status.changed],
+    [summary.moved, labels.status.moved],
+    [summary.removed, labels.status.removed],
+  ].filter(([count]) => Number(count) > 0);
+  if (summaryParts.length > 0) {
+    const summaryEl = document.createElement('p');
+    summaryEl.className = 'fw-semibold mb-3';
+    summaryEl.textContent = summaryParts
+      .map(([count, label]) => `${label}: ${count}`)
+      .join(' · ');
+    container.append(summaryEl);
+  }
+
+  const sectionsChanged =
+    (diff.sections?.added?.length || 0)
+    + (diff.sections?.changed?.length || 0)
+    + (diff.sections?.removed?.length || 0);
+  if (sectionsChanged > 0) {
+    const sectionsEl = document.createElement('p');
+    sectionsEl.className = 'small text-body-secondary mb-3';
+    sectionsEl.textContent = labels.sectionsChanged;
+    container.append(sectionsEl);
+  }
+
+  const badgeClass = {
+    added: 'text-bg-success',
+    changed: 'text-bg-primary',
+    moved: 'text-bg-info',
+    unchanged: 'text-bg-light border',
+  };
+
+  const appendBlock = (block, status, muted) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'mb-3';
+    const badge = document.createElement('span');
+    badge.className = `badge ${muted ? 'text-bg-secondary' : badgeClass[status] || 'text-bg-light border'} mb-1`;
+    badge.textContent = labels.status[status] || status;
+    const card = renderQuizBlockPreviewCard(block.item, labels.kinds);
+    if (muted) {
+      card.classList.add('opacity-50');
+    } else if (status !== 'unchanged') {
+      card.classList.add('border-primary');
+    }
+    wrap.append(badge, card);
+    container.append(wrap);
+  };
+
+  for (const block of diff.blocks) {
+    appendBlock(block, block.status, false);
+  }
+  for (const block of diff.removed || []) {
+    appendBlock(block, 'removed', true);
+  }
+
+  return true;
+}
+
+function initializeQuizBlocksModification() {
+  const modalEl = document.querySelector('[data-quiz-blocks-modify-modal]');
+  const openButtonEl = document.querySelector('[data-quiz-blocks-modify-open]');
+  if (!(modalEl instanceof HTMLElement) || !(openButtonEl instanceof HTMLElement)) {
+    return;
+  }
+
+  const labels = {
+    kinds: collectQuizKindLabels(),
+    sectionsChanged: modalEl.dataset.sectionsChangedLabel || '',
+    status: {
+      added: modalEl.dataset.statusAdded || '',
+      changed: modalEl.dataset.statusChanged || '',
+      moved: modalEl.dataset.statusMoved || '',
+      removed: modalEl.dataset.statusRemoved || '',
+      unchanged: modalEl.dataset.statusUnchanged || '',
+    },
+  };
+
+  initializeModificationModal({
+    modalEl,
+    resolveContext: () => ({
+      applyEndpoint: modalEl.dataset.modifyApplyEndpoint || '',
+      buildCurrentDraft: () => ({}),
+      currentField: 'unused',
+      discardEndpoint: modalEl.dataset.modifyDiscardEndpoint || '',
+      previewEndpoint: modalEl.dataset.modifyEndpoint || '',
+      renderChanges: (container, diff) => renderQuizBlocksDiff(container, diff, labels),
+    }),
+    triggers: openButtonEl,
+  });
+}
+
+function initializeQuizBlockModification() {
+  const modalEl = document.querySelector('[data-quiz-block-modify-modal]');
+  const triggers = document.querySelectorAll('[data-quiz-block-modify]');
+  if (!(modalEl instanceof HTMLElement) || triggers.length === 0) {
+    return;
+  }
+
+  const kindSelectEl = modalEl.querySelector('[data-quiz-block-modify-kind]');
+  const levelInputEl = modalEl.querySelector('[data-quiz-block-modify-level]');
+  const kindLabels = {};
+  if (kindSelectEl instanceof HTMLSelectElement) {
+    for (const option of kindSelectEl.options) {
+      kindLabels[option.value] = option.textContent || option.value;
+    }
+  }
+  const labels = {
+    current: modalEl.dataset.currentLabel || '',
+    kinds: kindLabels,
+    proposed: modalEl.dataset.proposedLabel || '',
+  };
+
+  initializeModificationModal({
+    modalEl,
+    resolveContext: (trigger) => {
+      const blockId = trigger.dataset.blockId || '';
+      const baseEndpoint = trigger.dataset.modifyEndpoint || '';
+      const itemScriptEl = document.querySelector(
+        `[data-quiz-block-item="${window.CSS?.escape ? CSS.escape(blockId) : blockId}"]`,
+      );
+      let currentItem = null;
+      try {
+        currentItem = itemScriptEl ? JSON.parse(itemScriptEl.textContent || 'null') : null;
+      } catch {
+        currentItem = null;
+      }
+      if (!blockId || !baseEndpoint || !currentItem) {
+        return null;
+      }
+
+      return {
+        applyEndpoint: `${baseEndpoint}/apply`,
+        buildCurrentDraft: () => currentItem,
+        currentField: 'currentItem',
+        discardEndpoint: `${baseEndpoint}/discard`,
+        extraFields: () => ({
+          kind: kindSelectEl instanceof HTMLSelectElement ? kindSelectEl.value : currentItem.kind,
+          level: levelInputEl instanceof HTMLInputElement ? levelInputEl.value : '',
+        }),
+        onOpen: () => {
+          if (kindSelectEl instanceof HTMLSelectElement) {
+            kindSelectEl.value = trigger.dataset.currentKind || currentItem.kind || '';
+          }
+          if (levelInputEl instanceof HTMLInputElement) {
+            levelInputEl.value = trigger.dataset.level || '';
+          }
+        },
+        previewEndpoint: baseEndpoint,
+        renderChanges: (container, changes) =>
+          renderQuizBlockComparison(container, currentItem, changes, labels),
+      };
+    },
+    triggers,
   });
 }
 
@@ -552,9 +921,10 @@ initializeQuizQuizUi();
 initializeQuizResultUi();
 initializeQuizSharingUi();
 initializeQuizPendingUi();
-initializeQuizAddBlockShortcut();
-initializeAuthoringChatScroll();
-initializeAuthoringChatRevision();
+initializeQuizAddBlock();
+initializeQuizMetadataModification();
+initializeQuizBlockModification();
+initializeQuizBlocksModification();
 initializeCreateResourceFromContext();
 initializeResourceMoveModal();
 initializeStaticMarkdown();

@@ -1,10 +1,12 @@
 import { languages, translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
-import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, updateQuizAuthoringMessages, } from '../db/repository.js';
+import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
-import { buildQuizBlockSectionList, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResultTitle, canonicalizeQuizDraftBlockOrder, createQuizDraftFromManualInput, duplicateQuizBlock, evaluateQuizAttempt, moveQuizBlock, normalizeQuizResponses, removeQuizBlock, safeParseQuizDraft, } from '../services/quizzes.js';
-import { generateQuizDraft, generateQuizRevision, } from '../services/resourceDrafts.js';
+import { applyQuizMetadataToDraft, buildQuizBlockSectionList, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResultTitle, canonicalizeQuizDraftBlockOrder, createQuizDraftFromManualInput, applyQuizBlocksAndSectionsToDraft, diffQuizBlocks, duplicateQuizBlock, evaluateQuizAttempt, findQuizBlock, insertQuizBlock, moveQuizBlock, normalizeQuizResponses, quizBlocksDiffHasChanges, quizDraftToMetadata, removeQuizBlock, safeParseQuizDraft, safeParseQuizMetadata, setQuizBlockItem, storedQuizToDraft, } from '../services/quizzes.js';
+import { generateQuizDraft, generateQuizBlockRevision, generateQuizBlocksRevision, generateQuizMetadataRevision, } from '../services/resourceDrafts.js';
+import { deletePendingModification, getPendingModification, listStringFieldChanges, setPendingModification, } from '../resources/modificationPreviewStore.js';
+import { randomUUID } from 'node:crypto';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { createFixedWindowRateLimiter } from '../services/fixedWindowRateLimiter.js';
@@ -80,13 +82,6 @@ function appendQuizAuthoringMessages(existingMessages, ...messages) {
 function summarizeQuizDraftCreation(draft, locale) {
     const blocks = formatCountLabel(draft.blocks.length, translate(locale, 'msg.blockSg'), translate(locale, 'msg.blockPl'));
     return translate(locale, 'msg.draftCreatedQuiz', { blocks, title: draft.title });
-}
-function saveQuizAuthoringTurn(input) {
-    return updateQuizAuthoringMessages({
-        quizId: input.quiz.id,
-        messages: appendQuizAuthoringMessages(input.quiz.authoringMessages, createQuizAuthoringMessage('user', input.userMessage), createQuizAuthoringMessage('assistant', input.assistantMessage, input.draftSnapshot)),
-        userId: input.userId,
-    });
 }
 function buildQuizBlockOutlineItems(draft, locale) {
     const sectionList = buildQuizBlockSectionList(draft);
@@ -197,6 +192,12 @@ function readMultilineField(value, maxLength = 8000) {
         ? value.replace(/\r\n/g, '\n').trim().slice(0, maxLength)
         : '';
 }
+function readRawField(value) {
+    if (Array.isArray(value)) {
+        return readRawField(value[0]);
+    }
+    return typeof value === 'string' ? value : '';
+}
 function readReturnTo(value, fallback) {
     const returnTo = readField(value, 1200);
     return returnTo.startsWith('/') ? returnTo : fallback;
@@ -207,10 +208,10 @@ function readQuizShareMode(value) {
 }
 function readQuizAuthoringTab(value) {
     const tab = readField(value, 20);
-    if (tab === 'blocks' || tab === 'chat' || tab === 'general') {
+    if (tab === 'blocks' || tab === 'general') {
         return tab;
     }
-    if (tab === 'design' || tab === 'preview') {
+    if (tab === 'design' || tab === 'preview' || tab === 'chat') {
         return 'general';
     }
     return defaultQuizAuthoringTab;
@@ -346,7 +347,6 @@ function renderQuizAuthoring(request, response, input) {
         activeTab: input.activeTab ?? defaultQuizAuthoringTab,
         blockSections: buildQuizBlockSectionList(draft),
         quizBlockKinds: getQuizBlockKinds(request.locale),
-        quizAuthoringMessages: input.quiz.authoringMessages,
         authoringError: input.error || '',
         draft,
         selectedQuiz: input.quiz,
@@ -600,136 +600,564 @@ export function handleUpdateQuizMetadata(request, response) {
     }
     response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'general'));
 }
-export async function handleReviseQuiz(request, response) {
+const quizMetadataModificationFields = [
+    'title',
+    'description',
+    'targetTopic',
+    'level',
+    'instructions',
+    'evaluationInstructions',
+];
+function quizMetadataModificationOwner(resolved) {
+    return {
+        operation: 'quiz-metadata',
+        profileId: resolved.activeProfile.id,
+        resourceId: resolved.quiz.id,
+        userId: resolved.user.id,
+    };
+}
+export async function handlePreviewQuizMetadataModification(request, response) {
     const resolved = resolveOwnQuiz(request, response);
     if (!resolved) {
         return;
     }
-    const draft = safeParseQuizDraft(resolved.quiz.quiz);
-    const userMessage = readMultilineField(request.body.message, 4000);
-    if (!draft || userMessage.length < 3) {
-        if (wantsJsonResponse(request)) {
-            response.status(422).json({ error: translate(request.locale, 'msg.writeChange') });
-            return;
+    const rawCurrentMetadata = readRawField(request.body.currentMetadata);
+    const requestedChange = readMultilineField(request.body.requestedChange, 2000);
+    let currentMetadata = null;
+    if (rawCurrentMetadata) {
+        try {
+            currentMetadata = safeParseQuizMetadata(JSON.parse(rawCurrentMetadata));
         }
-        renderQuizAuthoring(request, response, {
-            ...resolved,
-            activeTab: 'chat',
-            error: translate(request.locale, 'msg.writeChange'),
+        catch {
+            currentMetadata = null;
+        }
+    }
+    if (!currentMetadata || requestedChange.length < 3) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizMetadataModificationFailed'),
         });
         return;
     }
     try {
         const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
-        const revision = await generateQuizRevision({
-            instructionLanguage: resolved.activeProfile?.instructionLanguage,
-            conversationHistory: resolved.quiz.authoringMessages.map((message) => ({
-                content: message.content,
-                createdAt: message.createdAt,
-                draftSnapshot: message.draftSnapshot,
-                role: message.role,
-            })),
-            currentDraft: draft,
+        const revision = await generateQuizMetadataRevision({
+            currentMetadata,
+            instructionLanguage: resolved.activeProfile.instructionLanguage,
             openRouterApiKey,
-            prompt: userMessage,
+            prompt: requestedChange,
         });
-        const revisedDraft = canonicalizeQuizDraftBlockOrder(revision.draft);
-        const nextAuthoringMessages = appendQuizAuthoringMessages(resolved.quiz.authoringMessages, createQuizAuthoringMessage('user', userMessage), createQuizAuthoringMessage('assistant', revision.assistantMessage, revisedDraft));
-        const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, revisedDraft, nextAuthoringMessages);
-        if (!updatedQuiz) {
-            const quizWithFailureMessage = saveQuizAuthoringTurn({
-                quiz: resolved.quiz,
-                assistantMessage: translate(request.locale, 'msg.applyChangeError'),
-                userId: resolved.user.id,
-                userMessage,
-            });
-            if (wantsJsonResponse(request)) {
-                response.status(422).json({ error: translate(request.locale, 'msg.applyChangeError') });
-                return;
-            }
-            renderQuizAuthoring(request, response.status(422), {
-                ...resolved,
-                activeTab: 'chat',
-                quiz: quizWithFailureMessage ?? resolved.quiz,
-                error: translate(request.locale, 'msg.applyChangeError'),
+        const changes = listStringFieldChanges(currentMetadata, revision.metadata, quizMetadataModificationFields);
+        if (changes.length === 0) {
+            response.status(422).json({
+                error: translate(request.locale, 'msg.quizMetadataModificationNoChanges'),
             });
             return;
         }
-        logger.info('quiz_revised', {
+        const previewId = randomUUID();
+        setPendingModification(quizMetadataModificationOwner(resolved), {
+            baseSnapshot: storedQuizToDraft(resolved.quiz),
+            baseUpdatedAt: resolved.quiz.updatedAt,
+            createdAt: Date.now(),
+            previewId,
+            proposed: revision.metadata,
+        });
+        logger.info('quiz_metadata_modification_preview_generated', {
+            changedFields: changes.map((change) => change.field),
             quizId: resolved.quiz.id,
-            blockCount: revisedDraft.blocks.length,
             resourceId: resolved.quiz.id,
             resourceType: 'quiz',
             userId: resolved.user.id,
         });
-        if (wantsJsonResponse(request)) {
-            response.json({ assistantMessage: revision.assistantMessage });
-            return;
-        }
-        response.redirect(buildQuizAuthoringPath(resolved.quiz.id, 'chat'));
+        response.json({ changes, previewId });
     }
     catch (error) {
         const isCreditError = isCreditExhaustedError(error);
-        const failureMessage = isCreditError
-            ? getCreditExhaustedMessage(request.locale)
-            : translate(request.locale, 'msg.applyChangeError');
-        const quizWithFailureMessage = saveQuizAuthoringTurn({
-            quiz: resolved.quiz,
-            assistantMessage: failureMessage,
-            userId: resolved.user.id,
-            userMessage,
-        });
-        logger.error('quiz_revision_failed', {
-            quizId: resolved.quiz.id,
+        logger.error('quiz_metadata_modification_preview_failed', {
             error,
+            quizId: resolved.quiz.id,
             resourceId: resolved.quiz.id,
             resourceType: 'quiz',
             userId: resolved.user.id,
         });
-        if (wantsJsonResponse(request)) {
-            response.status(422).json({
-                creditExhausted: isCreditError,
-                error: failureMessage,
-            });
-            return;
-        }
-        renderQuizAuthoring(request, response.status(422), {
-            ...resolved,
-            activeTab: 'chat',
-            quiz: quizWithFailureMessage ?? resolved.quiz,
-            error: failureMessage,
+        response.status(422).json({
+            creditExhausted: isCreditError,
+            error: isCreditError
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.quizMetadataModificationFailed'),
         });
     }
 }
-/**
- * "Agregar bloque" is a shortcut into the authoring AI chat: it composes a
- * chat message from the selected block kind plus the teacher's prompt and
- * runs the normal revision flow. This is the no-JS fallback path; with
- * JavaScript the client stages the same message and sends it from the chat
- * tab directly.
- */
-export async function handleAddQuizBlock(request, response) {
+export function handleApplyQuizMetadataModification(request, response) {
     const resolved = resolveOwnQuiz(request, response);
     if (!resolved) {
         return;
     }
-    const blockKind = readField(request.body.blockKind, 120);
-    const prompt = readMultilineField(request.body.prompt, 3000);
-    if (prompt.length < 3) {
-        renderQuizAuthoring(request, response.status(422), {
-            ...resolved,
-            activeTab: 'blocks',
-            error: translate(request.locale, 'msg.describeBlock'),
+    const owner = quizMetadataModificationOwner(resolved);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    if (!pending
+        || !previewId
+        || pending.previewId !== previewId
+        || pending.baseUpdatedAt !== resolved.quiz.updatedAt
+        || JSON.stringify(pending.baseSnapshot)
+            !== JSON.stringify(storedQuizToDraft(resolved.quiz))) {
+        response.status(409).json({
+            error: translate(request.locale, 'msg.quizMetadataModificationExpired'),
         });
         return;
     }
-    request.body.message = buildAddQuizBlockChatMessage(blockKind, prompt, request.locale);
-    await handleReviseQuiz(request, response);
+    const updatedDraft = applyQuizMetadataToDraft(storedQuizToDraft(resolved.quiz), pending.proposed);
+    const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
+    if (!updatedQuiz) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizMetadataModificationFailed'),
+        });
+        return;
+    }
+    deletePendingModification(owner);
+    logger.info('quiz_metadata_modification_applied', {
+        quizId: resolved.quiz.id,
+        resourceId: resolved.quiz.id,
+        resourceType: 'quiz',
+        userId: resolved.user.id,
+    });
+    response.json({
+        ok: true,
+        redirect: buildQuizAuthoringPath(resolved.quiz.id, 'general'),
+    });
 }
-function buildAddQuizBlockChatMessage(blockKind, prompt, locale) {
-    const kind = getQuizBlockKinds(locale).find((candidate) => candidate.value === blockKind);
-    const kindLabel = kind?.label ?? translate(locale, 'msg.bestFitKind');
-    return translate(locale, 'msg.addBlockOfKind', { kind: kindLabel, prompt });
+export function handleDiscardQuizMetadataModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = quizMetadataModificationOwner(resolved);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    if (pending && previewId && pending.previewId === previewId) {
+        deletePendingModification(owner);
+    }
+    response.json({ ok: true });
+}
+function quizBlockModificationOwner(resolved, blockId) {
+    return {
+        operation: 'quiz-block',
+        profileId: resolved.activeProfile.id,
+        resourceId: resolved.quiz.id,
+        target: blockId,
+        userId: resolved.user.id,
+    };
+}
+function buildQuizBlockRevisionContext(draft, blockId) {
+    const block = findQuizBlock(draft, blockId);
+    const section = block?.sectionId
+        ? draft.sections.find((candidate) => candidate.id === block.sectionId)
+        : undefined;
+    return {
+        instructions: draft.instructions,
+        level: draft.level,
+        sectionInstructions: section?.instructions,
+        siblingKinds: draft.blocks
+            .filter((candidate) => candidate.id !== blockId)
+            .map((candidate) => candidate.item.kind),
+        targetTopic: draft.targetTopic,
+        title: draft.title,
+    };
+}
+function isSupportedQuizBlockKind(kind, locale) {
+    return getQuizBlockKinds(locale).some((candidate) => candidate.value === kind);
+}
+export async function handlePreviewQuizBlockModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const draft = safeParseQuizDraft(resolved.quiz.quiz);
+    const blockId = readField(request.params.blockId, 120);
+    const block = draft ? findQuizBlock(draft, blockId) : undefined;
+    const requestedChange = readMultilineField(request.body.requestedChange, 2000);
+    const requestedKindInput = readField(request.body.kind, 120);
+    const level = readField(request.body.level, 120);
+    if (!draft || !block || requestedChange.length < 3) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizBlockModificationFailed'),
+        });
+        return;
+    }
+    const targetKind = isSupportedQuizBlockKind(requestedKindInput, request.locale)
+        ? requestedKindInput
+        : block.item.kind;
+    try {
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
+        const revision = await generateQuizBlockRevision({
+            currentItem: block.item,
+            instructionLanguage: resolved.activeProfile.instructionLanguage,
+            level: level || draft.level,
+            openRouterApiKey,
+            prompt: requestedChange,
+            quizContext: buildQuizBlockRevisionContext(draft, blockId),
+            targetKind,
+        });
+        const previewId = randomUUID();
+        setPendingModification(quizBlockModificationOwner(resolved, blockId), {
+            baseSnapshot: storedQuizToDraft(resolved.quiz),
+            baseUpdatedAt: resolved.quiz.updatedAt,
+            createdAt: Date.now(),
+            previewId,
+            proposed: revision.item,
+        });
+        logger.info('quiz_block_modification_preview_generated', {
+            blockId,
+            fromKind: block.item.kind,
+            quizId: resolved.quiz.id,
+            resourceId: resolved.quiz.id,
+            resourceType: 'quiz',
+            toKind: revision.item.kind,
+            userId: resolved.user.id,
+        });
+        response.json({ changes: revision.item, previewId });
+    }
+    catch (error) {
+        const isCreditError = isCreditExhaustedError(error);
+        logger.error('quiz_block_modification_preview_failed', {
+            blockId,
+            error,
+            quizId: resolved.quiz.id,
+            resourceId: resolved.quiz.id,
+            resourceType: 'quiz',
+            userId: resolved.user.id,
+        });
+        response.status(422).json({
+            creditExhausted: isCreditError,
+            error: isCreditError
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.quizBlockModificationFailed'),
+        });
+    }
+}
+export function handleApplyQuizBlockModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const blockId = readField(request.params.blockId, 120);
+    const owner = quizBlockModificationOwner(resolved, blockId);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    const currentDraft = storedQuizToDraft(resolved.quiz);
+    if (!pending
+        || !previewId
+        || pending.previewId !== previewId
+        || pending.baseUpdatedAt !== resolved.quiz.updatedAt
+        || JSON.stringify(pending.baseSnapshot) !== JSON.stringify(currentDraft)
+        || !findQuizBlock(currentDraft, blockId)) {
+        response.status(409).json({
+            error: translate(request.locale, 'msg.quizBlockModificationExpired'),
+        });
+        return;
+    }
+    const updatedDraft = setQuizBlockItem(currentDraft, blockId, pending.proposed);
+    const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
+    if (!updatedQuiz) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizBlockModificationFailed'),
+        });
+        return;
+    }
+    deletePendingModification(owner);
+    logger.info('quiz_block_modification_applied', {
+        blockId,
+        quizId: resolved.quiz.id,
+        resourceId: resolved.quiz.id,
+        resourceType: 'quiz',
+        userId: resolved.user.id,
+    });
+    response.json({
+        ok: true,
+        redirect: buildQuizAuthoringPath(resolved.quiz.id, 'blocks', buildQuizBlockAnchorId(blockId)),
+    });
+}
+export function handleDiscardQuizBlockModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const blockId = readField(request.params.blockId, 120);
+    const owner = quizBlockModificationOwner(resolved, blockId);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    if (pending && previewId && pending.previewId === previewId) {
+        deletePendingModification(owner);
+    }
+    response.json({ ok: true });
+}
+function quizAddBlockModificationOwner(resolved) {
+    return {
+        operation: 'quiz-add-block',
+        profileId: resolved.activeProfile.id,
+        resourceId: resolved.quiz.id,
+        userId: resolved.user.id,
+    };
+}
+function readQuizBlockPosition(value) {
+    return readField(value, 20) === 'start' ? 'start' : 'end';
+}
+export async function handlePreviewQuizAddBlock(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const draft = safeParseQuizDraft(resolved.quiz.quiz);
+    const requestedChange = readMultilineField(request.body.requestedChange, 2000);
+    const requestedKindInput = readField(request.body.kind, 120);
+    const level = readField(request.body.level, 120);
+    const sectionIdInput = readField(request.body.sectionId, 120);
+    const position = readQuizBlockPosition(request.body.position);
+    if (!draft || requestedChange.length < 3) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizBlockModificationFailed'),
+        });
+        return;
+    }
+    const targetKind = isSupportedQuizBlockKind(requestedKindInput, request.locale)
+        ? requestedKindInput
+        : getQuizBlockKinds(request.locale)[0].value;
+    const sectionId = draft.sections.some((section) => section.id === sectionIdInput)
+        ? sectionIdInput
+        : undefined;
+    try {
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
+        const creation = await generateQuizBlockRevision({
+            instructionLanguage: resolved.activeProfile.instructionLanguage,
+            level: level || draft.level,
+            openRouterApiKey,
+            prompt: requestedChange,
+            quizContext: {
+                instructions: draft.instructions,
+                level: draft.level,
+                sectionInstructions: sectionId
+                    ? draft.sections.find((section) => section.id === sectionId)?.instructions
+                    : undefined,
+                siblingKinds: draft.blocks.map((block) => block.item.kind),
+                targetTopic: draft.targetTopic,
+                title: draft.title,
+            },
+            targetKind,
+        });
+        const previewId = randomUUID();
+        setPendingModification(quizAddBlockModificationOwner(resolved), {
+            baseSnapshot: storedQuizToDraft(resolved.quiz),
+            baseUpdatedAt: resolved.quiz.updatedAt,
+            createdAt: Date.now(),
+            previewId,
+            proposed: { item: creation.item, position, sectionId },
+        });
+        logger.info('quiz_add_block_preview_generated', {
+            kind: creation.item.kind,
+            quizId: resolved.quiz.id,
+            resourceId: resolved.quiz.id,
+            resourceType: 'quiz',
+            userId: resolved.user.id,
+        });
+        response.json({ changes: creation.item, previewId });
+    }
+    catch (error) {
+        const isCreditError = isCreditExhaustedError(error);
+        logger.error('quiz_add_block_preview_failed', {
+            error,
+            quizId: resolved.quiz.id,
+            resourceId: resolved.quiz.id,
+            resourceType: 'quiz',
+            userId: resolved.user.id,
+        });
+        response.status(422).json({
+            creditExhausted: isCreditError,
+            error: isCreditError
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.quizBlockModificationFailed'),
+        });
+    }
+}
+export function handleApplyQuizAddBlock(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = quizAddBlockModificationOwner(resolved);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    const currentDraft = storedQuizToDraft(resolved.quiz);
+    if (!pending
+        || !previewId
+        || pending.previewId !== previewId
+        || pending.baseUpdatedAt !== resolved.quiz.updatedAt
+        || JSON.stringify(pending.baseSnapshot) !== JSON.stringify(currentDraft)) {
+        response.status(409).json({
+            error: translate(request.locale, 'msg.quizBlockModificationExpired'),
+        });
+        return;
+    }
+    const inserted = insertQuizBlock(currentDraft, pending.proposed.item, {
+        position: pending.proposed.position,
+        sectionId: pending.proposed.sectionId,
+    });
+    const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, inserted.draft);
+    if (!updatedQuiz) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizBlockModificationFailed'),
+        });
+        return;
+    }
+    deletePendingModification(owner);
+    logger.info('quiz_add_block_applied', {
+        blockId: inserted.blockId,
+        quizId: resolved.quiz.id,
+        resourceId: resolved.quiz.id,
+        resourceType: 'quiz',
+        userId: resolved.user.id,
+    });
+    response.json({
+        ok: true,
+        redirect: buildQuizAuthoringPath(resolved.quiz.id, 'blocks', buildQuizBlockAnchorId(inserted.blockId)),
+    });
+}
+export function handleDiscardQuizAddBlock(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = quizAddBlockModificationOwner(resolved);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    if (pending && previewId && pending.previewId === previewId) {
+        deletePendingModification(owner);
+    }
+    response.json({ ok: true });
+}
+function quizBlocksModificationOwner(resolved) {
+    return {
+        operation: 'quiz-blocks',
+        profileId: resolved.activeProfile.id,
+        resourceId: resolved.quiz.id,
+        userId: resolved.user.id,
+    };
+}
+export async function handlePreviewQuizBlocksModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const draft = safeParseQuizDraft(resolved.quiz.quiz);
+    const requestedChange = readMultilineField(request.body.requestedChange, 2000);
+    if (!draft || requestedChange.length < 3) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizBlocksModificationFailed'),
+        });
+        return;
+    }
+    try {
+        const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(resolved.user.id);
+        const revision = await generateQuizBlocksRevision({
+            currentDraft: draft,
+            currentMetadata: quizDraftToMetadata(draft),
+            instructionLanguage: resolved.activeProfile.instructionLanguage,
+            openRouterApiKey,
+            prompt: requestedChange,
+        });
+        const proposedDraft = applyQuizBlocksAndSectionsToDraft(draft, revision.blocks, revision.sections);
+        const diff = diffQuizBlocks(draft, proposedDraft);
+        if (!quizBlocksDiffHasChanges(diff)) {
+            response.status(422).json({
+                error: translate(request.locale, 'msg.quizBlocksModificationNoChanges'),
+            });
+            return;
+        }
+        const previewId = randomUUID();
+        setPendingModification(quizBlocksModificationOwner(resolved), {
+            baseSnapshot: storedQuizToDraft(resolved.quiz),
+            baseUpdatedAt: resolved.quiz.updatedAt,
+            createdAt: Date.now(),
+            previewId,
+            proposed: proposedDraft,
+        });
+        logger.info('quiz_blocks_modification_preview_generated', {
+            quizId: resolved.quiz.id,
+            resourceId: resolved.quiz.id,
+            resourceType: 'quiz',
+            summary: diff.summary,
+            userId: resolved.user.id,
+        });
+        response.json({ changes: diff, previewId });
+    }
+    catch (error) {
+        const isCreditError = isCreditExhaustedError(error);
+        logger.error('quiz_blocks_modification_preview_failed', {
+            error,
+            quizId: resolved.quiz.id,
+            resourceId: resolved.quiz.id,
+            resourceType: 'quiz',
+            userId: resolved.user.id,
+        });
+        response.status(422).json({
+            creditExhausted: isCreditError,
+            error: isCreditError
+                ? getCreditExhaustedMessage(request.locale)
+                : translate(request.locale, 'msg.quizBlocksModificationFailed'),
+        });
+    }
+}
+export function handleApplyQuizBlocksModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = quizBlocksModificationOwner(resolved);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    const currentDraft = storedQuizToDraft(resolved.quiz);
+    if (!pending
+        || !previewId
+        || pending.previewId !== previewId
+        || pending.baseUpdatedAt !== resolved.quiz.updatedAt
+        || JSON.stringify(pending.baseSnapshot) !== JSON.stringify(currentDraft)) {
+        response.status(409).json({
+            error: translate(request.locale, 'msg.quizBlocksModificationExpired'),
+        });
+        return;
+    }
+    const updatedDraft = applyQuizBlocksAndSectionsToDraft(currentDraft, pending.proposed.blocks, pending.proposed.sections);
+    const updatedQuiz = updateQuizWithDraft(resolved.quiz, resolved.user.id, updatedDraft);
+    if (!updatedQuiz) {
+        response.status(422).json({
+            error: translate(request.locale, 'msg.quizBlocksModificationFailed'),
+        });
+        return;
+    }
+    deletePendingModification(owner);
+    logger.info('quiz_blocks_modification_applied', {
+        blockCount: updatedDraft.blocks.length,
+        quizId: resolved.quiz.id,
+        resourceId: resolved.quiz.id,
+        resourceType: 'quiz',
+        userId: resolved.user.id,
+    });
+    response.json({
+        ok: true,
+        redirect: buildQuizAuthoringPath(resolved.quiz.id, 'blocks'),
+    });
+}
+export function handleDiscardQuizBlocksModification(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const owner = quizBlocksModificationOwner(resolved);
+    const pending = getPendingModification(owner);
+    const previewId = readField(request.body.previewId, 100);
+    if (pending && previewId && pending.previewId === previewId) {
+        deletePendingModification(owner);
+    }
+    response.json({ ok: true });
 }
 export function handleDeleteQuizBlock(request, response) {
     updateDraftBlocks(request, response, (draft, blockId) => removeQuizBlock(draft, blockId));

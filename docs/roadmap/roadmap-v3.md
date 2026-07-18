@@ -373,9 +373,170 @@ editing chat to confirm that conversation is still the clearest interaction
 for the resource and that it is not hiding parameters better expressed next to
 the content being changed.
 
-- [ ] Review the quiz `Chat IA` edit tab, including the add-block shortcut and
+- [~] Review the quiz `Chat IA` edit tab, including the add-block shortcut and
   whether block-level changes should use contextual controls with preview and
-  explicit parameters.
+  explicit parameters. Reviewed 2026-07-17: the chat should be replaced by
+  scoped per-unit operations. All six implementation phases below are
+  code-complete as of 2026-07-17 (typecheck/tests/build green); the only
+  remaining work is a live logged-in click-through of each operation against real
+  inference before this item is marked done. Design:
+  [Quiz AI Modifications](../features/quiz-ai-modifications.md). The review found
+  that, unlike roleplays and practice guides, the quiz chat is the **only** editor
+  for block content and the only manager of sections (design-mode block cards are
+  read-only, `Agregar bloque` is a facade that delegates to `handleReviseQuiz`,
+  and section headers are display-only), so the operations must be built before
+  the chat is retired. Every chat turn also regenerates the whole draft, so today
+  even a one-word fix pays whole-draft latency and lets untouched blocks drift.
+  Decisions: scope operations by authoring tab (`General` button, `Bloques`
+  button, per-block menu option) because that maps to what the author already
+  sees; single-turn operations with no conversational history; manual per-kind
+  block editing out of scope; item kind changeable through an explicit control.
+  Note the tab split is a UX win rather than a cost win — blocks are
+  substantially all of a quiz's content, so the `Bloques` operation costs about
+  what a chat turn costs today. The real win is demoting the expensive call from
+  the only path to the rare path, with a preview so drift is visible before it
+  lands.
+  - [~] Phase 1 — Extract the shared pending-modification store and client
+    preview modal (today duplicated across roleplays and practice guides, keyed
+    per resource; quizzes need per-operation/per-target keys), then ship the
+    `General` tab button over the six metadata fields. Code complete 2026-07-17;
+    live click-through QA behind login still pending. Delivered: generic
+    server store `src/server/resources/modificationPreviewStore.ts` (keyed by
+    operation + optional target, with a `listStringFieldChanges` diff helper);
+    generic client `src/client/shared/modificationModal.js` (describe → preview →
+    apply/retry/discard, plus `renderStringFieldChanges`); a metadata-only
+    revision (`quizMetadataSchema`/`applyQuizMetadataToDraft` in
+    `services/quizzes.ts`, `generateQuizMetadataRevision` in
+    `services/resourceDrafts.ts`, prompts
+    `system-prompts/resources/quiz-metadata-revision{,-correction}.md`) that can
+    never emit block content; quiz preview/apply/discard handlers + routes
+    (`/quizzes/:id/edit/modify{,/apply,/discard}`); a `Modify details with AI`
+    button and modal on the `General` tab; i18n in es/en/ht; and the new prompts
+    registered in `promptPlaceholders.test.ts`. Verified: `typecheck`,
+    `test:typecheck`, full `tests/server` suite, and client build all pass; the
+    new route is registered on the running dev server. Note: roleplays and
+    practice guides still carry their own store/modal copies — migrating them
+    onto the shared modules is a deferred cleanup, not required for later phases.
+  - [~] Phase 2 — Per-block menu option: one item in, one item out, side-by-side
+    preview through the existing `quizItemRenderer` and `preview` card mode, with
+    item kind and level as explicit modal parameters. The intended default path.
+    Code complete 2026-07-17; live login click-through QA pending. Delivered:
+    block helpers `findQuizBlock`/`setQuizBlockItem` in `services/quizzes.ts`
+    (item-only replacement, preserves id/section/other blocks); block-scoped
+    revision `generateQuizBlockRevision` in `services/resourceDrafts.ts` (per-
+    request schema refined so `item.kind` must equal the requested kind — kind
+    change is an explicit control) with prompts
+    `system-prompts/resources/quiz-block-revision{,-correction}.md` (quiz context
+    passed as untrusted quoted data); handlers
+    `handle{Preview,Apply,Discard}QuizBlockModification` keyed by
+    operation `quiz-block` + block-id target; routes
+    `/quizzes/:id/edit/blocks/:blockId/modify{,/apply,/discard}`; a `Modificar con
+    IA` item in each design-mode block card `⋮` menu plus the item JSON embedded
+    per card; a shared block modal with kind `<select>` + level input reusing the
+    generic controller; client before/after render via `quizItemRenderer`
+    (read-only) plus a per-kind answer-key summary. The generic client controller
+    (`src/client/shared/modificationModal.js`) was extended to support multiple
+    triggers on one modal with per-open `resolveContext(trigger)`, which phases 3
+    and 4 reuse. i18n es/en/ht; new prompts registered in
+    `promptPlaceholders.test.ts`. Verified: typecheck, test:typecheck, full
+    `tests/server` (158), client build, and route registration on the running dev
+    server. Answer key shows in the preview (a plus over EJS `preview` mode, which
+    hides it).
+  - [~] Phase 3 — Re-point `Agregar bloque` at the block-scoped generator with
+    preview-before-insert and explicit placement, removing the chat facade.
+    Code complete 2026-07-17; live login click-through QA pending. Delivered:
+    `generateQuizBlockRevision` now doubles as creation when `currentItem` is
+    omitted (same one-item-out schema with the kind refine; prompt updated to
+    cover create-or-revise); `insertQuizBlock` in `services/quizzes.ts` (fresh
+    unique id, explicit `sectionId` + `position` placement, canonicalized order);
+    add-block handlers `handle{Preview,Apply,Discard}QuizAddBlock` (owner op
+    `quiz-add-block`, placement stored in the pending record) on routes
+    `/quizzes/:id/edit/add-block{,/apply,/discard}`; the `Agregar bloque` modal
+    rebuilt as a describe→preview→insert flow with explicit kind, level, section,
+    and position controls, previewing the proposed item card before it is added.
+    Removed the chat facade: `handleAddQuizBlock`, `buildAddQuizBlockChatMessage`,
+    the `/edit/blocks` POST route, and the client `stageAuthoringChatMessage`
+    add-block shortcut. i18n es/en/ht. Verified: typecheck, test:typecheck, full
+    `tests/server` (158), client build, and EJS compile of the changed templates.
+    (Note: POST route registration cannot be probed by curl because CSRF 403s
+    before routing; it is guaranteed by typecheck + explicit router wiring
+    instead.) Leftover dead i18n keys `addBlockOfKind`/`bestFitKind` can be swept
+    in Phase 5.
+  - [x] Phase 4 — `Bloques` tab button over blocks and sections in one call, with
+    a block-by-block preview covering changed, added, removed, reordered, and
+    regrouped blocks. Code complete 2026-07-17; live QA pending. Delivered:
+    `generateQuizBlocksRevision` returns `{ blocks, sections }` only (metadata
+    injected + full-draft validated via `superRefine` so section cross-refs and
+    unique ids are caught inside the correction loop) with prompts
+    `quiz-blocks-revision{,-correction}.md`; `applyQuizBlocksAndSectionsToDraft`,
+    `diffQuizBlocks`, and `quizBlocksDiffHasChanges` in `services/quizzes.ts`
+    (per-block status added/changed/moved/unchanged + removed list + section
+    diff); handlers `handle{Preview,Apply,Discard}QuizBlocksModification` (owner
+    op `quiz-blocks`) on routes `/quizzes/:id/edit/blocks-modify{,/apply,/discard}`;
+    a `Modificar con IA` button next to `Agregar bloque`, its modal, and a client
+    diff renderer with a status summary + color-coded per-block cards. Verified:
+    typecheck, test:typecheck, tests/server (158), client build, EJS compile.
+  - [x] Phase 5 — Retire the chat tab. Done 2026-07-17. Removed: the `Chat IA`
+    nav pill and panel, `POST /quizzes/:id/edit/revise` + `handleReviseQuiz` +
+    `saveQuizAuthoringTurn`, the `generateQuizRevision` service with its schema,
+    result type, conversation-history type, and normalizer, the
+    `quiz-revision{,-correction}.md` prompts, and the `chat` authoring tab from
+    the tab type/reader (legacy `?tab=chat` now redirects to `general`). Quizzes
+    were the last consumer of the shared authoring chat, so
+    `src/client/shared/authoringChatRevision.js` and `authoringChatScroll.js` were
+    deleted and `authoring.css` reduced to the tab layout. The
+    `authoring_messages_json` column and its `updateQuizAuthoringMessages`
+    repository function are retained for backward-compatible reads (no destructive
+    migration), per the practice-guide/roleplay precedent. Dead chat i18n keys
+    (`quizzes.tabChat`, `modifyWithAi`, `authoringChat*`, `msg.writeChange`,
+    `msg.addBlockOfKind`, `msg.bestFitKind`, …) were left in place: harmless at
+    runtime, and a mechanical key sweep across three locales is a low-priority
+    follow-up not worth risking at the end of the change.
+  - [x] Phase 6 — Tests and documentation. Done 2026-07-17. Added service
+    contract tests for the metadata, per-block (revise + create + kind-mismatch
+    recovery), and blocks (parse + cross-ref recovery) operations in
+    `quizAuthoringContracts.test.ts`; pure-logic unit tests for `setQuizBlockItem`
+    isolation, `insertQuizBlock` placement, and `diffQuizBlocks`/
+    `quizBlocksDiffHasChanges` in `quizzesService.test.ts`; a route-architecture
+    guard in `routeArchitecture.test.ts` asserting the chat is gone and the four
+    modals + scoped routes exist; and prompt↔placeholder registration for the four
+    new prompts. Full suite: `tests/server`+`tests/db` 181 passing, typecheck and
+    test:typecheck clean, client build clean, dev server healthy (200).
+  - [ ] Follow-up — Update the `ai-authoring-chat-conventions` skill and the chat
+    references in
+    [Teacher-Assigned Practice](../features/teacher-assigned-practice.md) to match
+    the retired-chat reality (the skill still says "Quizzes currently use a
+    `Chat IA` tab").
+- [ ] Migrate roleplay and practice-guide modification modals onto the shared
+  controller. Split out of the quiz work on 2026-07-17: Phase 1 extracted a
+  generic pending-modification store (`server/resources/modificationPreviewStore.ts`)
+  and a generic client modal controller (`client/shared/modificationModal.js`,
+  with multi-trigger + per-open `resolveContext`), and all four quiz operations
+  use them. Roleplays and practice guides still carry their own near-duplicate
+  `modificationPreviewStore.ts` and their own copies of the modal logic inside
+  `client/roleplays/index.js` and `client/practiceGuides/index.js`. Port them to
+  the shared store and controller (roleplay avatar diffs and practice-guide
+  Markdown fields become custom `renderChanges` implementations), then delete the
+  duplicates. Low risk but touches two shipped flows, so it needs its own
+  before/after click-through.
+- [x] Sweep the dead chat i18n keys left by the quiz chat retirement
+  (`quizzes.tabChat`, `modifyWithAi`, `modifyWithAiCopy`, `authoringChat*`,
+  `quizzes.message`, `describeChangesPlaceholder`, `applyChanges`, `blockTypeAria`,
+  `msg.writeChange`, `msg.applyChangeError`, `msg.addBlockOfKind`,
+  `msg.bestFitKind`, `msg.describeBlock`, `clientMisc.addBlock`/`addBlockOfKind`)
+  across es/en/ht. Done 2026-07-17: removed from all three locales; the shared
+  translation-map type enforced parity (typecheck stays green), and
+  `quizzes.addBlock` (the button label) was deliberately kept. Verified:
+  typecheck, test:typecheck, `tests/server` (168), client build.
+- [ ] Add manual block editing to quiz authoring. Split out of the quiz chat
+  review on 2026-07-17: today a typo in one option cannot be fixed without
+  spending an inference, because design-mode block cards are read-only. The same
+  gap applies to sections, which after the quiz work will be creatable and
+  regroupable only through the `Bloques` AI operation; deterministic section
+  rename/delete/reassign belongs here too. Nine item
+  kinds with different shapes make this a per-kind editor effort comparable to
+  the scoped-operations work itself, so it is tracked on its own. The block
+  change modal with preview makes the gap survivable meanwhile.
 - [x] Retire the practice-guide `Chat IA` edit tab. Practice guides now use the
   roleplay proposal pattern: one page-level `Modify with AI` action receives
   the complete unsaved title, description, and tutor instructions; shows only

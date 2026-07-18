@@ -49,20 +49,10 @@
         <i class="bi bi-ui-checks-grid me-1" aria-hidden="true"></i><%= t('quizzes.blocks') %>
       </a>
     </li>
-    <li class="nav-item" role="presentation">
-      <a
-        class="nav-link <%= activeTab === 'chat' ? 'active' : '' %>"
-        href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=chat"
-        role="tab"
-        aria-selected="<%= activeTab === 'chat' ? 'true' : 'false' %>"
-      >
-        <i class="bi bi-chat-dots me-1" aria-hidden="true"></i><%= t('quizzes.tabChat') %>
-      </a>
-    </li>
   </ul>
 
   <% if (activeTab === 'general') { %>
-    <form class="card resource-form-card" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/save">
+    <form class="card resource-form-card" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/save" data-quiz-general-form>
       <div class="card-body">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <div class="row g-3">
@@ -97,6 +87,9 @@
           <button class="btn btn-primary" type="submit">
             <i class="bi bi-save me-1" aria-hidden="true"></i><%= t('quizzes.saveDetails') %>
           </button>
+          <button class="btn btn-outline-primary" type="button" data-quiz-modify-open>
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.modifyGeneralWithAi') %>
+          </button>
         </div>
       </div>
     </form>
@@ -106,9 +99,14 @@
     <div class="quiz-blocks-panel">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
         <h2 class="h5 mb-0"><%= t('quizzes.blocks') %></h2>
-        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#quizAddBlockModal">
-          <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('quizzes.addBlock') %>
-        </button>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-outline-primary" type="button" data-quiz-blocks-modify-open>
+            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.modifyBlocksWithAi') %>
+          </button>
+          <button class="btn btn-outline-secondary" type="button" data-quiz-add-block-open>
+            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('quizzes.addBlock') %>
+          </button>
+        </div>
       </div>
       <div class="quiz-block-list" aria-label="<%= t('quizzes.quizBlocksAria') %>">
         <% draft.blocks.forEach((block, index) => { %>
@@ -144,111 +142,377 @@
     </div>
   <% } %>
 
-  <% if (activeTab === 'chat') { %>
-    <div class="authoring-chat-panel">
-      <div class="authoring-chat-context">
-        <div class="authoring-chat-context-icon" aria-hidden="true">
-          <i class="bi bi-stars"></i>
-        </div>
-        <div>
-          <h2 class="authoring-chat-context-title"><%= t('quizzes.modifyWithAi') %></h2>
-          <p class="authoring-chat-context-copy mb-0">
-            <%= t('quizzes.modifyWithAiCopy') %>
-          </p>
-        </div>
-      </div>
-      <div class="authoring-chat-history messages" aria-label="<%= t('quizzes.authoringChatHistoryAria') %>" data-authoring-chat-history>
-        <% if (quizAuthoringMessages.length === 0) { %>
-          <article class="message-row is-model authoring-chat-message-row">
-            <div class="message-bubble">
-              <p class="authoring-chat-message-content mb-0"><%= t('quizzes.authoringChatEmpty') %></p>
-            </div>
-          </article>
-        <% } else { %>
-          <% quizAuthoringMessages.forEach((message) => { %>
-            <article class="message-row <%= message.role === 'user' ? 'is-user' : 'is-model' %> authoring-chat-message-row">
-              <div class="message-bubble">
-                <p class="authoring-chat-message-content mb-0"><%= message.content %></p>
-              </div>
-            </article>
-          <% }) %>
-        <% } %>
-      </div>
-      <form
-        class="composer authoring-chat-composer"
-        method="post"
-        action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/revise"
-        data-authoring-chat-form
-        data-authoring-chat-credits-return-to="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=chat"
-      >
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <label class="visually-hidden" for="quizRevisionMessage"><%= t('quizzes.message') %></label>
-        <div class="composer-input-wrap">
-          <textarea
-            class="composer-input"
-            id="quizRevisionMessage"
-            name="message"
-            rows="2"
-            maxlength="4000"
-            placeholder="<%= t('quizzes.describeChangesPlaceholder') %>"
-            required
-          ></textarea>
-        </div>
-        <div class="composer-footer">
-          <button class="btn btn-primary authoring-chat-submit-button" type="submit" data-authoring-chat-submit>
-            <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.applyChanges') %>
-          </button>
-        </div>
-      </form>
-    </div>
-  <% } %>
 
 </section>
 
-<div class="modal fade" id="quizAddBlockModal" tabindex="-1" aria-labelledby="quizAddBlockModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <form
-      class="modal-content"
-      method="post"
-      action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/blocks"
-      data-quiz-add-block-form
-      data-quiz-add-block-chat-url="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit?tab=chat"
-    >
+<div
+  class="modal fade"
+  id="quizModifyBlocksModal"
+  tabindex="-1"
+  aria-labelledby="quizModifyBlocksModalTitle"
+  aria-hidden="true"
+  data-quiz-blocks-modify-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  data-modify-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/blocks-modify"
+  data-modify-apply-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/blocks-modify/apply"
+  data-modify-discard-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/blocks-modify/discard"
+  data-generic-error="<%= t('quizzes.modificationFailed') %>"
+  data-apply-label="<%= t('quizzes.approveAndSave') %>"
+  data-applying-label="<%= t('quizzes.approvingChanges') %>"
+  data-status-added="<%= t('quizzes.blockStatusAdded') %>"
+  data-status-changed="<%= t('quizzes.blockStatusChanged') %>"
+  data-status-moved="<%= t('quizzes.blockStatusMoved') %>"
+  data-status-removed="<%= t('quizzes.blockStatusRemoved') %>"
+  data-status-unchanged="<%= t('quizzes.blockStatusUnchanged') %>"
+  data-sections-changed-label="<%= t('quizzes.sectionsChangedLabel') %>"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="quizModifyBlocksModalTitle"><%= t('quizzes.modifyBlocksTitle') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-modify-dismiss></button>
+      </div>
+      <div class="modal-body">
+        <div data-modify-phase="describe">
+          <label class="form-label" for="quizBlocksModificationRequest"><%= t('quizzes.modifyBlocksLabel') %></label>
+          <textarea
+            class="form-control"
+            id="quizBlocksModificationRequest"
+            rows="4"
+            minlength="3"
+            maxlength="2000"
+            required
+            data-modify-request
+            placeholder="<%= t('quizzes.modifyBlocksPlaceholder') %>"
+          ></textarea>
+          <div class="form-text"><%= t('quizzes.modifyBlocksHelp') %></div>
+        </div>
+
+        <div class="text-center py-4 d-none" data-modify-phase="generating">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden"><%= t('common.loading') %></span>
+          </div>
+          <p class="mb-0 fw-semibold"><%= t('quizzes.generatingProposal') %></p>
+        </div>
+
+        <div class="d-none" data-modify-phase="preview">
+          <p class="text-body-secondary"><%= t('quizzes.reviewBlocksModificationHelp') %></p>
+          <div data-modify-comparison></div>
+        </div>
+
+        <div class="alert alert-danger d-none mb-0" role="alert" data-modify-error>
+          <span data-modify-error-message><%= t('quizzes.modificationFailed') %></span>
+          <a
+            class="alert-link d-none ms-1"
+            href="/credits?returnTo=<%= encodeURIComponent(`/quizzes/${selectedQuiz.id}/edit?tab=blocks`) %>"
+            data-modify-credit-link
+          ><%= t('credits.buyCredits') %></a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-modify-retry>
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('quizzes.tryAnotherModification') %>
+        </button>
+        <button class="btn btn-primary" type="button" data-modify-generate>
+          <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.generateProposal') %>
+        </button>
+        <button class="btn btn-primary d-none" type="button" data-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-modify-apply-icon></i><span data-modify-apply-label><%= t('quizzes.approveAndSave') %></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="quizAddBlockModal"
+  tabindex="-1"
+  aria-labelledby="quizAddBlockModalLabel"
+  aria-hidden="true"
+  data-quiz-add-block-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  data-modify-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/add-block"
+  data-modify-apply-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/add-block/apply"
+  data-modify-discard-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/add-block/discard"
+  data-generic-error="<%= t('quizzes.modificationFailed') %>"
+  data-current-label="<%= t('quizzes.currentVersion') %>"
+  data-proposed-label="<%= t('quizzes.proposedVersion') %>"
+  data-apply-label="<%= t('quizzes.addBlockApprove') %>"
+  data-applying-label="<%= t('quizzes.approvingChanges') %>"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <div class="modal-header">
         <h2 class="modal-title fs-5" id="quizAddBlockModalLabel"><%= t('quizzes.addBlock') %></h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-modify-dismiss></button>
       </div>
       <div class="modal-body">
-        <p class="form-label mb-2"><%= t('resources.typeLabel') %></p>
-        <div class="quiz-block-kind-list mb-3" role="radiogroup" aria-label="<%= t('quizzes.blockTypeAria') %>">
-          <% quizBlockKinds.forEach((kind, kindIndex) => { %>
-            <label class="quiz-block-kind">
-              <input
-                class="quiz-block-kind-input visually-hidden"
-                type="radio"
-                name="blockKind"
-                value="<%= kind.value %>"
-                data-kind-label="<%= kind.label %>"
-                <%= kindIndex === 0 ? 'checked' : '' %>
-                required
-              >
-              <strong><%= kind.label %></strong>
-              <span><%= kind.description %></span>
-            </label>
-          <% }) %>
+        <div data-modify-phase="describe">
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-8">
+              <label class="form-label" for="quizAddBlockKind"><%= t('resources.typeLabel') %></label>
+              <select class="form-select" id="quizAddBlockKind" data-quiz-add-block-kind>
+                <% quizBlockKinds.forEach((kind) => { %>
+                  <option value="<%= kind.value %>"><%= kind.label %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="quizAddBlockLevel"><%= t('quizzes.level') %></label>
+              <input class="form-control" id="quizAddBlockLevel" value="<%= draft.level %>" data-quiz-add-block-level>
+            </div>
+            <% if (draft.sections.length > 0) { %>
+              <div class="col-12 col-md-8">
+                <label class="form-label" for="quizAddBlockSection"><%= t('quizzes.section') %></label>
+                <select class="form-select" id="quizAddBlockSection" data-quiz-add-block-section>
+                  <option value=""><%= t('quizzes.noSection') %></option>
+                  <% draft.sections.forEach((section, sectionIndex) => { %>
+                    <option value="<%= section.id %>"><%= section.title || `${t('quizzes.section')} ${sectionIndex + 1}` %></option>
+                  <% }) %>
+                </select>
+              </div>
+            <% } %>
+            <div class="col-12 <%= draft.sections.length > 0 ? 'col-md-4' : 'col-md-4' %>">
+              <label class="form-label" for="quizAddBlockPosition"><%= t('quizzes.position') %></label>
+              <select class="form-select" id="quizAddBlockPosition" data-quiz-add-block-position>
+                <option value="end"><%= t('quizzes.positionEnd') %></option>
+                <option value="start"><%= t('quizzes.positionStart') %></option>
+              </select>
+            </div>
+          </div>
+          <label class="form-label" for="quizAddBlockRequest"><%= t('quizzes.addBlockDescribeLabel') %></label>
+          <textarea
+            class="form-control"
+            id="quizAddBlockRequest"
+            rows="4"
+            minlength="3"
+            maxlength="2000"
+            required
+            data-modify-request
+            placeholder="<%= t('quizzes.addBlockPlaceholder') %>"
+          ></textarea>
+          <div class="form-text"><%= t('quizzes.addBlockHelp') %></div>
         </div>
-        <label class="form-label" for="quizBlockPrompt">Prompt</label>
-        <textarea class="form-control" id="quizBlockPrompt" name="prompt" rows="5" required></textarea>
-        <div class="form-text"><%= t('quizzes.addBlockHelp') %></div>
+
+        <div class="text-center py-4 d-none" data-modify-phase="generating">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden"><%= t('common.loading') %></span>
+          </div>
+          <p class="mb-0 fw-semibold"><%= t('quizzes.generatingProposal') %></p>
+        </div>
+
+        <div class="d-none" data-modify-phase="preview">
+          <p class="text-body-secondary"><%= t('quizzes.reviewAddBlockHelp') %></p>
+          <div data-modify-comparison></div>
+        </div>
+
+        <div class="alert alert-danger d-none mb-0" role="alert" data-modify-error>
+          <span data-modify-error-message><%= t('quizzes.modificationFailed') %></span>
+          <a
+            class="alert-link d-none ms-1"
+            href="/credits?returnTo=<%= encodeURIComponent(`/quizzes/${selectedQuiz.id}/edit?tab=blocks`) %>"
+            data-modify-credit-link
+          ><%= t('credits.buyCredits') %></a>
+        </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><%= t('common.cancel') %></button>
-        <button class="btn btn-primary" type="submit">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-modify-retry>
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('quizzes.tryAnotherModification') %>
+        </button>
+        <button class="btn btn-primary" type="button" data-modify-generate>
           <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.createBlock') %>
         </button>
+        <button class="btn btn-primary d-none" type="button" data-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-modify-apply-icon></i><span data-modify-apply-label><%= t('quizzes.addBlockApprove') %></span>
+        </button>
       </div>
-    </form>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="quizModifyGeneralModal"
+  tabindex="-1"
+  aria-labelledby="quizModifyGeneralModalTitle"
+  aria-hidden="true"
+  data-quiz-modify-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  data-current-field="currentMetadata"
+  data-modify-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/modify"
+  data-modify-apply-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/modify/apply"
+  data-modify-discard-endpoint="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/edit/modify/discard"
+  data-generic-error="<%= t('quizzes.modificationFailed') %>"
+  data-current-label="<%= t('quizzes.currentVersion') %>"
+  data-proposed-label="<%= t('quizzes.proposedVersion') %>"
+  data-field-title="<%= t('quizzes.titleLabel') %>"
+  data-field-description="<%= t('resources.description') %>"
+  data-field-target-topic="<%= t('quizzes.topic') %>"
+  data-field-level="<%= t('quizzes.level') %>"
+  data-field-instructions="<%= t('quizzes.studentInstructions') %>"
+  data-field-evaluation-instructions="<%= t('quizzes.modelInstructions') %>"
+  data-apply-label="<%= t('quizzes.approveAndSave') %>"
+  data-applying-label="<%= t('quizzes.approvingChanges') %>"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="quizModifyGeneralModalTitle"><%= t('quizzes.modifyGeneralTitle') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-modify-dismiss></button>
+      </div>
+      <div class="modal-body">
+        <div data-modify-phase="describe">
+          <label class="form-label" for="quizModificationRequest"><%= t('quizzes.modificationLabel') %></label>
+          <textarea
+            class="form-control"
+            id="quizModificationRequest"
+            name="requestedChange"
+            rows="5"
+            minlength="3"
+            maxlength="2000"
+            required
+            data-modify-request
+            placeholder="<%= t('quizzes.modificationPlaceholder') %>"
+          ></textarea>
+          <div class="form-text"><%= t('quizzes.modificationHelp') %></div>
+        </div>
+
+        <div class="text-center py-4 d-none" data-modify-phase="generating">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden"><%= t('common.loading') %></span>
+          </div>
+          <p class="mb-0 fw-semibold"><%= t('quizzes.generatingProposal') %></p>
+        </div>
+
+        <div class="d-none" data-modify-phase="preview">
+          <p class="text-body-secondary"><%= t('quizzes.reviewModificationHelp') %></p>
+          <div data-modify-comparison></div>
+        </div>
+
+        <div class="alert alert-danger d-none mb-0" role="alert" data-modify-error>
+          <span data-modify-error-message><%= t('quizzes.modificationFailed') %></span>
+          <a
+            class="alert-link d-none ms-1"
+            href="/credits?returnTo=<%= encodeURIComponent(`/quizzes/${selectedQuiz.id}/edit?tab=general`) %>"
+            data-modify-credit-link
+          ><%= t('credits.buyCredits') %></a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-modify-retry>
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('quizzes.tryAnotherModification') %>
+        </button>
+        <button class="btn btn-primary" type="button" data-modify-generate>
+          <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.generateProposal') %>
+        </button>
+        <button class="btn btn-primary d-none" type="button" data-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-modify-apply-icon></i><span data-modify-apply-label><%= t('quizzes.approveAndSave') %></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  class="modal fade"
+  id="quizModifyBlockModal"
+  tabindex="-1"
+  aria-labelledby="quizModifyBlockModalTitle"
+  aria-hidden="true"
+  data-quiz-block-modify-modal
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  data-generic-error="<%= t('quizzes.modificationFailed') %>"
+  data-current-label="<%= t('quizzes.currentVersion') %>"
+  data-proposed-label="<%= t('quizzes.proposedVersion') %>"
+  data-apply-label="<%= t('quizzes.approveAndSave') %>"
+  data-applying-label="<%= t('quizzes.approvingChanges') %>"
+>
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="quizModifyBlockModalTitle"><%= t('quizzes.modifyBlockTitle') %></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<%= t('common.close') %>" data-modify-dismiss></button>
+      </div>
+      <div class="modal-body">
+        <div data-modify-phase="describe">
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-8">
+              <label class="form-label" for="quizBlockModifyKind"><%= t('resources.typeLabel') %></label>
+              <select class="form-select" id="quizBlockModifyKind" data-quiz-block-modify-kind>
+                <% quizBlockKinds.forEach((kind) => { %>
+                  <option value="<%= kind.value %>"><%= kind.label %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="quizBlockModifyLevel"><%= t('quizzes.level') %></label>
+              <input class="form-control" id="quizBlockModifyLevel" data-quiz-block-modify-level>
+            </div>
+          </div>
+          <label class="form-label" for="quizBlockModificationRequest"><%= t('quizzes.modificationLabel') %></label>
+          <textarea
+            class="form-control"
+            id="quizBlockModificationRequest"
+            rows="4"
+            minlength="3"
+            maxlength="2000"
+            required
+            data-modify-request
+            placeholder="<%= t('quizzes.modifyBlockPlaceholder') %>"
+          ></textarea>
+          <div class="form-text"><%= t('quizzes.modifyBlockHelp') %></div>
+        </div>
+
+        <div class="text-center py-4 d-none" data-modify-phase="generating">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden"><%= t('common.loading') %></span>
+          </div>
+          <p class="mb-0 fw-semibold"><%= t('quizzes.generatingProposal') %></p>
+        </div>
+
+        <div class="d-none" data-modify-phase="preview">
+          <p class="text-body-secondary"><%= t('quizzes.reviewBlockModificationHelp') %></p>
+          <div data-modify-comparison></div>
+        </div>
+
+        <div class="alert alert-danger d-none mb-0" role="alert" data-modify-error>
+          <span data-modify-error-message><%= t('quizzes.modificationFailed') %></span>
+          <a
+            class="alert-link d-none ms-1"
+            href="/credits?returnTo=<%= encodeURIComponent(`/quizzes/${selectedQuiz.id}/edit?tab=blocks`) %>"
+            data-modify-credit-link
+          ><%= t('credits.buyCredits') %></a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-modify-dismiss><%= t('common.cancel') %></button>
+        <button class="btn btn-outline-primary d-none" type="button" data-modify-retry>
+          <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('quizzes.tryAnotherModification') %>
+        </button>
+        <button class="btn btn-primary" type="button" data-modify-generate>
+          <i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.generateProposal') %>
+        </button>
+        <button class="btn btn-primary d-none" type="button" data-modify-apply>
+          <span class="spinner-border spinner-border-sm me-1 d-none" aria-hidden="true" data-modify-apply-spinner></span>
+          <i class="bi bi-check-lg me-1" aria-hidden="true" data-modify-apply-icon></i><span data-modify-apply-label><%= t('quizzes.approveAndSave') %></span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

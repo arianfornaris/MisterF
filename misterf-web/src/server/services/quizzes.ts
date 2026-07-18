@@ -121,6 +121,30 @@ export type QuizBlock = z.infer<typeof quizBlockSchema>;
 export type QuizSection = z.infer<typeof quizSectionSchema>;
 export type QuizDraft = z.infer<typeof quizDraftSchema>;
 
+/**
+ * The quiz's `General` tab metadata: everything a teacher edits without
+ * touching blocks or sections. This is the exact scope of the metadata AI
+ * modification operation, kept as its own contract so a metadata revision can
+ * never emit or alter block content.
+ */
+export const quizMetadataSchema = z
+  .object({
+    description: z.string().trim().max(1500).default(''),
+    evaluationInstructions: z.string().trim().max(3000).default(''),
+    instructions: z.string().trim().max(3000).default(''),
+    level: z.string().trim().max(120).default(''),
+    targetTopic: z.string().trim().max(220).default(''),
+    title: z.string().trim().min(1).max(220),
+  })
+  .strict();
+
+export type QuizMetadata = z.infer<typeof quizMetadataSchema>;
+
+export function safeParseQuizMetadata(value: unknown): QuizMetadata | null {
+  const parsed = quizMetadataSchema.safeParse(value);
+  return parsed.success ? parsed.data : null;
+}
+
 export type QuizEvaluationSummary = {
   correctCount: number;
   incorrectCount: number;
@@ -381,6 +405,161 @@ export function createQuizDraftFromManualInput(input: {
   });
 }
 
+export function quizDraftToMetadata(draft: QuizDraft): QuizMetadata {
+  return quizMetadataSchema.parse({
+    description: draft.description,
+    evaluationInstructions: draft.evaluationInstructions,
+    instructions: draft.instructions,
+    level: draft.level,
+    targetTopic: draft.targetTopic,
+    title: draft.title,
+  });
+}
+
+/**
+ * Applies revised metadata onto an existing draft, preserving its blocks and
+ * sections untouched. Used by the metadata AI modification operation so a
+ * `General`-tab change can never rewrite block content.
+ */
+export function applyQuizMetadataToDraft(
+  previousDraft: QuizDraft,
+  metadata: QuizMetadata,
+): QuizDraft {
+  return createQuizDraftFromManualInput({
+    description: metadata.description,
+    evaluationInstructions: metadata.evaluationInstructions,
+    instructions: metadata.instructions,
+    level: metadata.level,
+    previousDraft,
+    targetTopic: metadata.targetTopic,
+    title: metadata.title || previousDraft.title,
+  });
+}
+
+/**
+ * Replaces a draft's blocks and sections while preserving its metadata (title,
+ * description, topic, level, instructions, evaluation instructions). Used by the
+ * `Bloques`-tab AI modification operation so a whole-tab change can never
+ * rewrite the general details owned by the `General` tab.
+ */
+export function applyQuizBlocksAndSectionsToDraft(
+  previousDraft: QuizDraft,
+  blocks: QuizBlock[],
+  sections: QuizSection[],
+): QuizDraft {
+  return canonicalizeQuizDraftBlockOrder(
+    quizDraftSchema.parse({
+      ...quizDraftToMetadata(previousDraft),
+      blocks,
+      sections,
+    }),
+  );
+}
+
+export type QuizBlockDiffStatus = 'added' | 'changed' | 'moved' | 'unchanged';
+
+export type QuizBlocksDiff = {
+  blocks: Array<{
+    id: string;
+    item: TutorQuizItem;
+    sectionId?: string;
+    status: QuizBlockDiffStatus;
+  }>;
+  removed: Array<{ id: string; item: TutorQuizItem }>;
+  sections: {
+    added: string[];
+    changed: string[];
+    removed: string[];
+  };
+  summary: {
+    added: number;
+    changed: number;
+    moved: number;
+    removed: number;
+  };
+};
+
+/**
+ * Computes a block-by-block and section diff between two drafts for the
+ * `Bloques` modification preview. A block is `added` when its id is new,
+ * `changed` when its item content differs, `moved` when the same content
+ * changes position or section, and `unchanged` otherwise. Returns the proposed
+ * blocks in their proposed order plus the list of removed blocks.
+ */
+export function diffQuizBlocks(before: QuizDraft, after: QuizDraft): QuizBlocksDiff {
+  const beforeById = new Map(before.blocks.map((block, index) => [block.id, { block, index }]));
+  const afterIds = new Set(after.blocks.map((block) => block.id));
+
+  const blocks = after.blocks.map((block, index) => {
+    const previous = beforeById.get(block.id);
+    let status: QuizBlockDiffStatus;
+    if (!previous) {
+      status = 'added';
+    } else if (JSON.stringify(previous.block.item) !== JSON.stringify(block.item)) {
+      status = 'changed';
+    } else if (previous.index !== index || previous.block.sectionId !== block.sectionId) {
+      status = 'moved';
+    } else {
+      status = 'unchanged';
+    }
+    return {
+      id: block.id,
+      item: block.item,
+      sectionId: block.sectionId,
+      status,
+    };
+  });
+
+  const removed = before.blocks
+    .filter((block) => !afterIds.has(block.id))
+    .map((block) => ({ id: block.id, item: block.item }));
+
+  const beforeSectionById = new Map(before.sections.map((section) => [section.id, section]));
+  const afterSectionById = new Map(after.sections.map((section) => [section.id, section]));
+  const sections = {
+    added: after.sections
+      .filter((section) => !beforeSectionById.has(section.id))
+      .map((section) => section.id),
+    changed: after.sections
+      .filter((section) => {
+        const previous = beforeSectionById.get(section.id);
+        return (
+          previous
+          && (previous.title !== section.title
+            || previous.instructions !== section.instructions)
+        );
+      })
+      .map((section) => section.id),
+    removed: before.sections
+      .filter((section) => !afterSectionById.has(section.id))
+      .map((section) => section.id),
+  };
+
+  return {
+    blocks,
+    removed,
+    sections,
+    summary: {
+      added: blocks.filter((block) => block.status === 'added').length,
+      changed: blocks.filter((block) => block.status === 'changed').length,
+      moved: blocks.filter((block) => block.status === 'moved').length,
+      removed: removed.length,
+    },
+  };
+}
+
+export function quizBlocksDiffHasChanges(diff: QuizBlocksDiff): boolean {
+  return (
+    diff.summary.added > 0
+    || diff.summary.changed > 0
+    || diff.summary.moved > 0
+    || diff.summary.removed > 0
+    || diff.sections.added.length > 0
+    || diff.sections.changed.length > 0
+    || diff.sections.removed.length > 0
+  );
+}
+
 /**
  * Reorders blocks so every section's blocks are contiguous: unsectioned
  * blocks first, then each section in sections-array order. The sort is
@@ -408,6 +587,36 @@ export function canonicalizeQuizDraftBlockOrder(draft: QuizDraft): QuizDraft {
   });
 }
 
+export function findQuizBlock(
+  draft: QuizDraft,
+  blockId: string,
+): QuizBlock | undefined {
+  return draft.blocks.find((block) => block.id === blockId);
+}
+
+/**
+ * Replaces a single block's item, preserving the block id, its section, and
+ * every other block. Used by the per-block AI modification operation so a
+ * block-scoped change can never alter another block. Returns the unchanged
+ * draft when the block id is not found.
+ */
+export function setQuizBlockItem(
+  draft: QuizDraft,
+  blockId: string,
+  item: TutorQuizItem,
+): QuizDraft {
+  if (!draft.blocks.some((block) => block.id === blockId)) {
+    return draft;
+  }
+
+  return quizDraftSchema.parse({
+    ...draft,
+    blocks: draft.blocks.map((block) =>
+      block.id === blockId ? { ...block, item } : block,
+    ),
+  });
+}
+
 export function removeQuizBlock(
   draft: QuizDraft,
   blockId: string,
@@ -416,6 +625,41 @@ export function removeQuizBlock(
     ...draft,
     blocks: draft.blocks.filter((block) => block.id !== blockId),
   });
+}
+
+/**
+ * Inserts a new block carrying `item` into the draft. Placement is explicit:
+ * an optional `sectionId` (ignored when it does not match a declared section)
+ * and a `position` within the resulting order. The block gets a fresh unique
+ * id; the returned order is canonicalized so section grouping stays valid.
+ * Used by the add-block AI operation.
+ */
+export function insertQuizBlock(
+  draft: QuizDraft,
+  item: TutorQuizItem,
+  placement: { position?: 'end' | 'start'; sectionId?: string } = {},
+): { blockId: string; draft: QuizDraft } {
+  const sectionId =
+    placement.sectionId
+    && draft.sections.some((section) => section.id === placement.sectionId)
+      ? placement.sectionId
+      : undefined;
+  const blockId = ensureUniqueBlockId('block', draft.blocks);
+  const newBlock: QuizBlock = sectionId
+    ? { id: blockId, item, sectionId }
+    : { id: blockId, item };
+
+  const blocks =
+    placement.position === 'start'
+      ? [newBlock, ...draft.blocks]
+      : [...draft.blocks, newBlock];
+
+  return {
+    blockId,
+    draft: canonicalizeQuizDraftBlockOrder(
+      quizDraftSchema.parse({ ...draft, blocks }),
+    ),
+  };
 }
 
 export function duplicateQuizBlock(

@@ -1,6 +1,7 @@
 import { generateText } from 'ai';
 import { z } from 'zod';
-import { quizDraftSchema, } from './quizzes.js';
+import { quizBlockSchema, quizDraftSchema, quizMetadataSchema, quizSectionSchema, } from './quizzes.js';
+import { quizItemSchema } from './llmTutor/schemas.js';
 import { normalizeRoleplayRevisionConversationHistory, roleplayAuthoringDraftSchema, roleplayRevisionSchema, } from './roleplays.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
@@ -24,9 +25,8 @@ const practiceGuideRevisionSchema = z.object({
     assistantMessage: z.string().trim().min(1).max(2000),
     guide: practiceGuideDraftSchema,
 }).strict();
-const quizRevisionSchema = z.object({
-    assistantMessage: z.string().trim().min(1).max(2000),
-    draft: quizDraftSchema,
+const quizMetadataRevisionSchema = z.object({
+    metadata: quizMetadataSchema,
 }).strict();
 function appendCorrectionRequest(messages, input) {
     const invalidOutput = input.invalidOutput?.trim();
@@ -270,53 +270,97 @@ export async function generateQuizDraft(input) {
         systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
     });
 }
-export async function generateQuizRevision(input) {
+export async function generateQuizMetadataRevision(input) {
     return generateStructuredDraft({
-        actorLabel: 'Quiz revision',
-        correctionPromptPath: 'resources/quiz-revision-correction.md',
+        actorLabel: 'Quiz metadata revision',
+        correctionPromptPath: 'resources/quiz-metadata-revision-correction.md',
         initialUserMessage: JSON.stringify({
-            conversationHistory: normalizeQuizRevisionConversationHistory(input.conversationHistory ?? []),
-            currentDraft: input.currentDraft,
+            currentMetadata: input.currentMetadata,
             requestedChange: input.prompt,
         }, null, 2),
         openRouterApiKey: input.openRouterApiKey,
-        schema: quizRevisionSchema,
-        systemPromptPath: 'resources/quiz-revision.md',
+        schema: quizMetadataRevisionSchema,
+        systemPromptPath: 'resources/quiz-metadata-revision.md',
         systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
     });
 }
-function normalizeQuizRevisionConversationHistory(messages) {
-    const recentMessages = messages
-        .flatMap((message) => {
-        const content = message.content.trim();
-        if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
-            return [];
-        }
-        const draftSnapshot = quizDraftSchema.safeParse(message.draftSnapshot);
-        return [{
-                content: content.slice(0, 4000),
-                createdAt: message.createdAt?.trim() || undefined,
-                draftSnapshot: draftSnapshot.success ? draftSnapshot.data : undefined,
-                role: message.role,
-            }];
+/**
+ * Revises a quiz's blocks and sections in one call while preserving its
+ * metadata (title/description/topic/level/instructions). The model returns only
+ * `{ blocks, sections }`; the current metadata is injected before validation so
+ * the `Bloques`-tab operation can never rewrite the general details. The result
+ * is a fully validated draft (unique ids, section cross-references).
+ */
+export async function generateQuizBlocksRevision(input) {
+    // Validate the model's blocks/sections against the full draft schema (unique
+    // ids, section cross-references) by assembling them with the current metadata,
+    // so cross-cutting errors are caught inside the generation correction loop.
+    const blocksRevisionSchema = z
+        .object({
+        blocks: z.array(quizBlockSchema).min(1),
+        sections: z.array(quizSectionSchema).default([]),
     })
-        .slice(-24);
-    let includedSnapshots = 0;
-    return recentMessages
-        .slice()
-        .reverse()
-        .map((message) => {
-        if (!message.draftSnapshot || includedSnapshots >= 6) {
-            return {
-                content: message.content,
-                createdAt: message.createdAt,
-                role: message.role,
-            };
+        .superRefine((value, ctx) => {
+        const assembled = quizDraftSchema.safeParse({
+            ...input.currentMetadata,
+            blocks: value.blocks,
+            sections: value.sections,
+        });
+        if (!assembled.success) {
+            for (const issue of assembled.error.issues) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: issue.message,
+                    path: issue.path,
+                });
+            }
         }
-        includedSnapshots += 1;
-        return message;
+    });
+    return generateStructuredDraft({
+        actorLabel: 'Quiz blocks revision',
+        correctionPromptPath: 'resources/quiz-blocks-revision-correction.md',
+        initialUserMessage: JSON.stringify({
+            currentBlocks: input.currentDraft.blocks,
+            currentSections: input.currentDraft.sections,
+            metadataContext: input.currentMetadata,
+            requestedChange: input.prompt,
+        }, null, 2),
+        openRouterApiKey: input.openRouterApiKey,
+        schema: blocksRevisionSchema,
+        systemPromptPath: 'resources/quiz-blocks-revision.md',
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+    });
+}
+/**
+ * Generates a single quiz item, scoped so it can never touch other blocks.
+ * When `currentItem` is provided the model revises it (the per-block modify
+ * operation); when it is omitted the model creates a new item of `targetKind`
+ * from the request (the add-block operation). Either way the returned
+ * `item.kind` is enforced to equal `targetKind`.
+ */
+export async function generateQuizBlockRevision(input) {
+    const blockRevisionSchema = z
+        .object({
+        item: quizItemSchema.refine((item) => item.kind === input.targetKind, {
+            message: `item.kind must be "${input.targetKind}".`,
+        }),
     })
-        .reverse();
+        .strict();
+    return generateStructuredDraft({
+        actorLabel: input.currentItem ? 'Quiz block revision' : 'Quiz block creation',
+        correctionPromptPath: 'resources/quiz-block-revision-correction.md',
+        initialUserMessage: JSON.stringify({
+            ...(input.currentItem ? { currentItem: input.currentItem } : {}),
+            level: input.level,
+            quizContext: input.quizContext,
+            requestedChange: input.prompt,
+            requestedKind: input.targetKind,
+        }, null, 2),
+        openRouterApiKey: input.openRouterApiKey,
+        schema: blockRevisionSchema,
+        systemPromptPath: 'resources/quiz-block-revision.md',
+        systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+    });
 }
 export async function generateRoleplayDraft(input) {
     const roleplayAvatarOptions = buildRoleplayCharacterAvatarPromptOptions();

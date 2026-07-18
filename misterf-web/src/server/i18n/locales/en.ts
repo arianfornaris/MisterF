@@ -561,7 +561,6 @@ export const en: LocaleCatalog = {
     qrAlt: 'QR code of the quiz share link',
     editingKicker: 'Quiz being edited',
     tabGeneral: 'General',
-    tabChat: 'AI Chat',
     titleLabel: 'Title',
     topic: 'Topic',
     level: 'Level',
@@ -574,19 +573,58 @@ export const en: LocaleCatalog = {
     saveDetails: 'Save details',
     addBlock: 'Add block',
     quizBlocksAria: 'Quiz blocks',
-    modifyWithAi: 'Modify the quiz with AI',
-    modifyWithAiCopy:
-      'Use this chat to request specific changes to the quiz: details, blocks, or sections (create, edit, or remove them). Mister F will apply the changes and tell you what it modified.',
-    authoringChatHistoryAria: 'Authoring chat history',
-    authoringChatEmpty: 'Tell me what you’d like to adjust in this quiz.',
-    message: 'Message',
-    describeChangesPlaceholder: 'Describe the changes you want to apply',
-    applyChanges: 'Apply changes',
-    blockTypeAria: 'Block type',
     addBlockHelp:
-      'Your request will be sent as a message to the AI Chat and Mister F will add the block.',
+      'Mister F will generate a block and you can review it before adding it.',
+    addBlockDescribeLabel: 'Describe the block',
+    addBlockPlaceholder:
+      'E.g. a multiple-choice question about the past simple with four options…',
+    addBlockApprove: 'Add block',
+    reviewAddBlockHelp: 'Review the proposed block before adding it.',
+    noSection: 'No section',
+    positionEnd: 'At the end',
+    positionStart: 'At the beginning',
     createBlock: 'Create block',
     updating: 'Updating the quiz...',
+    modifyGeneralWithAi: 'Modify details with AI',
+    modifyGeneralTitle: 'Modify details with AI',
+    modificationLabel: 'Describe the modification',
+    modificationPlaceholder:
+      'E.g. change the level to A2, rewrite the student instructions in a warmer tone…',
+    modificationHelp:
+      'Only changes the quiz general details (title, description, topic, level, and instructions). It does not touch the blocks.',
+    generatingProposal: 'Generating the proposed changes…',
+    reviewModificationHelp:
+      'Only the fields that would change are shown. Compare them before approving.',
+    currentVersion: 'Before',
+    proposedVersion: 'After',
+    tryAnotherModification: 'Try another modification',
+    generateProposal: 'Generate proposal',
+    approveAndSave: 'Approve and save',
+    approvingChanges: 'Saving…',
+    modificationFailed: 'This modification could not be generated. Please try again.',
+    modifyBlockWithAi: 'Modify with AI',
+    modifyBlockTitle: 'Modify block with AI',
+    modifyBlockPlaceholder:
+      'E.g. make the options harder, change the sentence to past tense, add a distractor…',
+    modifyBlockHelp:
+      'Only changes this block. You can change the type and level above before generating.',
+    reviewBlockModificationHelp:
+      'Compare the current block with the proposal before approving.',
+    modifyBlocksWithAi: 'Modify with AI',
+    modifyBlocksTitle: 'Modify blocks with AI',
+    modifyBlocksLabel: 'What do you want to change in the blocks?',
+    modifyBlocksPlaceholder:
+      'E.g. translate them to English, take everything down to A1, reorganize into two sections, add three more questions…',
+    modifyBlocksHelp:
+      'Changes several blocks and sections at once. It does not touch the general details.',
+    reviewBlocksModificationHelp:
+      'Review every proposed change before approving.',
+    blockStatusAdded: 'New',
+    blockStatusChanged: 'Changed',
+    blockStatusMoved: 'Moved',
+    blockStatusRemoved: 'Removed',
+    blockStatusUnchanged: 'Unchanged',
+    sectionsChangedLabel: 'Sections also change.',
   },
   practiceGuides: {
     kicker: 'Practice guides',
@@ -1035,8 +1073,6 @@ export const en: LocaleCatalog = {
     saveName: 'Save name',
     cannotConnect:
       'I can’t connect to the server right now. Check PM2 or try again in a few seconds.',
-    addBlockOfKind: 'Add a block of type "{{kind}}": {{prompt}}',
-    addBlock: 'Add a block: {{prompt}}',
     quizReadySend: 'All set. You can submit the quiz.',
     answerAllBeforeSend: 'Answer all the questions before submitting.',
     writeBeforeContinue: 'Write your answer before continuing.',
@@ -1148,8 +1184,6 @@ export const en: LocaleCatalog = {
     understandInSpanishPrompt: 'Explain in Spanish: "{{sentence}}"',
   },
   msg: {
-    applyChangeError: 'I couldn’t apply that change right now.',
-    writeChange: 'Write the change you want to make.',
     toolStatusProgress: 'Running tool: checking your progress...',
     toolStatusGeneric: 'Running tool: {{toolName}}...',
     quizCorrectAnswers: '{{correct}}/{{total}} correct answers',
@@ -1167,7 +1201,22 @@ export const en: LocaleCatalog = {
     describeQuizBetter: 'Describe the quiz a bit better.',
     generateQuizError: 'I couldn’t generate the quiz right now. Try again.',
     saveQuizDetailsError: 'I couldn’t save the quiz details.',
-    describeBlock: 'Describe the block you want to add.',
+    quizMetadataModificationFailed:
+      'This modification could not be generated. Please try again.',
+    quizMetadataModificationNoChanges:
+      'The AI did not propose any detail changes. Try a more specific request.',
+    quizMetadataModificationExpired:
+      'This proposal expired or the quiz changed. Generate it again before saving.',
+    quizBlockModificationFailed:
+      'This block modification could not be generated. Please try again.',
+    quizBlockModificationExpired:
+      'This proposal expired or the quiz changed. Generate it again before saving.',
+    quizBlocksModificationFailed:
+      'This blocks modification could not be generated. Please try again.',
+    quizBlocksModificationNoChanges:
+      'The proposal did not change any block. Try a different instruction.',
+    quizBlocksModificationExpired:
+      'This proposal expired or the quiz changed. Generate it again before saving.',
     updateBlocksError: 'I couldn’t update the blocks right now.',
     submitQuizError: 'I couldn’t submit the quiz. Try again.',
     evaluateQuizError:
@@ -1222,8 +1271,6 @@ export const en: LocaleCatalog = {
     draftCreatedGuide: 'Done. I created a first version of "{{title}}".',
     completeGuideFields:
       'Complete the title, the description, and the tutor instructions.',
-    bestFitKind: 'the best-fitting type',
-    addBlockOfKind: 'Add a block of type "{{kind}}": {{prompt}}',
     googleValidateError:
       'I couldn’t validate the Google sign-in. Try again.',
     backToLogin: 'Back to login',

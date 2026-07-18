@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleAddQuizBlock, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleDeleteQuizBlock, handleDuplicateQuizBlock, handleGenerateQuiz, handleMoveQuizBlock, handleRestoreQuiz, handleReviseQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizNewPage, renderQuizResultPage, renderQuizShowPage, } from './handlers.js';
+import { handleApplyQuizAddBlock, handleApplyQuizBlockModification, handleApplyQuizBlocksModification, handleApplyQuizMetadataModification, handleArchiveQuiz, handleClaimQuizAttempt, handleCreateQuizFollowUpConversation, handleCreateQuizResource, handleDeleteQuizBlock, handleDiscardQuizAddBlock, handleDiscardQuizBlockModification, handleDiscardQuizBlocksModification, handleDiscardQuizMetadataModification, handleDuplicateQuizBlock, handleGenerateQuiz, handleMoveQuizBlock, handlePreviewQuizAddBlock, handlePreviewQuizBlockModification, handlePreviewQuizBlocksModification, handlePreviewQuizMetadataModification, handleRestoreQuiz, handleShareQuizToProfile, handleStartSharedQuizAttempt, handleStartQuizTestAttempt, handleSubmitQuizAttempt, handleUpdateQuizMetadata, renderQuizAttemptPage, renderQuizEditPage, renderQuizNewPage, renderQuizResultPage, renderQuizShowPage, } from './handlers.js';
 export const quizzesRouter = express.Router();
 quizzesRouter.get('/quizzes', (_request, response) => {
     response.redirect('/resources');
@@ -10,8 +10,18 @@ quizzesRouter.post('/quizzes/generate-draft', handleGenerateQuiz);
 quizzesRouter.post('/quizzes/shared/:shareId/take', handleStartSharedQuizAttempt);
 quizzesRouter.get('/quizzes/:quizId/edit', renderQuizEditPage);
 quizzesRouter.post('/quizzes/:quizId/edit/save', handleUpdateQuizMetadata);
-quizzesRouter.post('/quizzes/:quizId/edit/revise', handleReviseQuiz);
-quizzesRouter.post('/quizzes/:quizId/edit/blocks', handleAddQuizBlock);
+quizzesRouter.post('/quizzes/:quizId/edit/modify', handlePreviewQuizMetadataModification);
+quizzesRouter.post('/quizzes/:quizId/edit/modify/apply', handleApplyQuizMetadataModification);
+quizzesRouter.post('/quizzes/:quizId/edit/modify/discard', handleDiscardQuizMetadataModification);
+quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify', handlePreviewQuizBlocksModification);
+quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify/apply', handleApplyQuizBlocksModification);
+quizzesRouter.post('/quizzes/:quizId/edit/blocks-modify/discard', handleDiscardQuizBlocksModification);
+quizzesRouter.post('/quizzes/:quizId/edit/add-block', handlePreviewQuizAddBlock);
+quizzesRouter.post('/quizzes/:quizId/edit/add-block/apply', handleApplyQuizAddBlock);
+quizzesRouter.post('/quizzes/:quizId/edit/add-block/discard', handleDiscardQuizAddBlock);
+quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/modify', handlePreviewQuizBlockModification);
+quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/modify/apply', handleApplyQuizBlockModification);
+quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/modify/discard', handleDiscardQuizBlockModification);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/delete', handleDeleteQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/duplicate', handleDuplicateQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-up', handleMoveQuizBlock);

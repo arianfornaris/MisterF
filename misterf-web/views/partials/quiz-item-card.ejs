@@ -68,6 +68,20 @@
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li>
+            <button
+              class="dropdown-item"
+              type="button"
+              data-quiz-block-modify
+              data-block-id="<%= block.id %>"
+              data-modify-endpoint="<%= quizEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/modify"
+              data-current-kind="<%= item.kind %>"
+              data-level="<%= draft.level %>"
+            >
+              <i class="bi bi-stars me-2" aria-hidden="true"></i><%= t('quizzes.modifyBlockWithAi') %>
+            </button>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
             <form method="post" action="<%= quizEditBasePath %>/blocks/<%= encodeURIComponent(block.id) %>/move-up">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <button class="dropdown-item" type="submit" <%= index === 0 ? 'disabled' : '' %>>
@@ -94,6 +108,7 @@
           </li>
         </ul>
       </div>
+      <script type="application/json" data-quiz-block-item="<%= block.id %>"><%- JSON.stringify(item).replace(/</g, '\\u003c') %></script>
     <% } %>
 
     <div class="quiz-block-heading d-flex align-items-start gap-3 mb-3">

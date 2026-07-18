@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  blockAdditionQuizRevision,
   danglingSectionQuizDraft,
   duplicateBlockIdsQuizDraft,
   invalidQuizEvaluation,
@@ -11,7 +10,6 @@ import {
   unknownKindQuizDraft,
   validQuizDraft,
   validQuizEvaluation,
-  validQuizRevision,
 } from './fixtures/quizAuthoringFixtures.js';
 
 const generateTextMock = vi.hoisted(() => vi.fn());
@@ -27,8 +25,10 @@ vi.mock('ai', async (importOriginal) => {
 import {
   generatePracticeGuideDraft,
   generatePracticeGuideRevision,
+  generateQuizBlockRevision,
+  generateQuizBlocksRevision,
   generateQuizDraft,
-  generateQuizRevision,
+  generateQuizMetadataRevision,
 } from '../../src/server/services/resourceDrafts.js';
 import { evaluateQuizResultItemsWithLlm } from '../../src/server/services/llmTutor/index.js';
 import {
@@ -184,52 +184,173 @@ describe('quiz draft generation contract', () => {
   });
 });
 
-describe('quiz revision contract', () => {
-  it('parses a representative whole-draft revision', async () => {
-    enqueueModelTexts(JSON.stringify(validQuizRevision));
+describe('quiz metadata modification contract', () => {
+  const currentMetadata = {
+    description: 'A quiz about daily routines.',
+    evaluationInstructions: 'Grade generously.',
+    instructions: 'Answer every question.',
+    level: 'A2',
+    targetTopic: 'daily routines',
+    title: 'Daily Routines Quiz',
+  };
 
-    const revision = await generateQuizRevision({
-      currentDraft: parseQuizDraft(validQuizDraft),
-      openRouterApiKey: testApiKey,
-      prompt: 'Cambia la pregunta de opción múltiple.',
-    });
-
-    expect(revision.assistantMessage).toContain('opción múltiple');
-    expect(revision.draft.blocks).toHaveLength(9);
-  });
-
-  it('parses a single-block addition (block generation travels as a revision)', async () => {
-    enqueueModelTexts(JSON.stringify(blockAdditionQuizRevision));
-
-    const revision = await generateQuizRevision({
-      currentDraft: parseQuizDraft(validQuizDraft),
-      openRouterApiKey: testApiKey,
-      prompt: 'Agrega un ejercicio de ordenar oraciones sobre la noche.',
-    });
-
-    expect(revision.draft.blocks).toHaveLength(10);
-    expect(revision.draft.blocks.at(-1)?.id).toBe('order-2');
-    expect(revision.draft.blocks.at(-1)?.item.kind).toBe(
-      'quiz_order_sentences',
+  it('parses a metadata-only revision without touching blocks', async () => {
+    enqueueModelTexts(
+      JSON.stringify({ metadata: { ...currentMetadata, level: 'B1' } }),
     );
-  });
 
-  it('recovers when the revision draft violates the schema', async () => {
+    const revision = await generateQuizMetadataRevision({
+      currentMetadata,
+      openRouterApiKey: testApiKey,
+      prompt: 'Súbelo a nivel B1.',
+    });
+
+    expect(revision.metadata.level).toBe('B1');
+    expect(revision.metadata).not.toHaveProperty('blocks');
+    const payload = JSON.parse(capturedMessages(0)[0].content) as Record<string, unknown>;
+    expect(payload).toEqual({
+      currentMetadata,
+      requestedChange: 'Súbelo a nivel B1.',
+    });
+  });
+});
+
+describe('quiz block modification contract', () => {
+  const quizContext = {
+    instructions: 'Answer every question.',
+    level: 'A2',
+    siblingKinds: ['quiz_open_text'],
+    targetTopic: 'daily routines',
+    title: 'Daily Routines Quiz',
+  };
+  const currentItem = {
+    kind: 'quiz_multiple_choice' as const,
+    prompt: 'Pick the correct sentence.',
+    selectionMode: 'single' as const,
+    options: ['She goes to school.', 'She go to school.'],
+    correctOptions: ['She goes to school.'],
+  };
+
+  it('parses a single revised item that keeps the requested kind', async () => {
     enqueueModelTexts(
       JSON.stringify({
-        assistantMessage: 'Listo.',
-        draft: duplicateBlockIdsQuizDraft,
+        item: {
+          ...currentItem,
+          options: ['She goes to school.', 'She go to school.', 'She going to school.'],
+        },
       }),
-      JSON.stringify(validQuizRevision),
     );
 
-    const revision = await generateQuizRevision({
-      currentDraft: parseQuizDraft(validQuizDraft),
+    const revision = await generateQuizBlockRevision({
+      currentItem,
+      level: 'A2',
       openRouterApiKey: testApiKey,
-      prompt: 'Cambia la primera pregunta.',
+      prompt: 'Agrega un distractor.',
+      quizContext,
+      targetKind: 'quiz_multiple_choice',
     });
 
-    expect(revision.draft.title).toBe('Daily Routines Quiz');
+    expect(revision.item.kind).toBe('quiz_multiple_choice');
+    expect(generateTextMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects and recovers when the item kind does not match the requested kind', async () => {
+    enqueueModelTexts(
+      JSON.stringify({ item: currentItem }),
+      JSON.stringify({
+        item: {
+          kind: 'quiz_open_text',
+          prompt: 'Describe your morning.',
+          placeholder: 'Write here…',
+        },
+      }),
+    );
+
+    const revision = await generateQuizBlockRevision({
+      currentItem,
+      level: 'A2',
+      openRouterApiKey: testApiKey,
+      prompt: 'Conviértelo en respuesta abierta.',
+      quizContext,
+      targetKind: 'quiz_open_text',
+    });
+
+    expect(revision.item.kind).toBe('quiz_open_text');
+    expect(generateTextMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('creates a new item when no current item is provided', async () => {
+    enqueueModelTexts(
+      JSON.stringify({
+        item: {
+          kind: 'quiz_open_text',
+          prompt: 'Write about your weekend.',
+          placeholder: 'Write here…',
+        },
+      }),
+    );
+
+    const revision = await generateQuizBlockRevision({
+      level: 'A2',
+      openRouterApiKey: testApiKey,
+      prompt: 'Una pregunta abierta sobre el fin de semana.',
+      quizContext,
+      targetKind: 'quiz_open_text',
+    });
+
+    expect(revision.item.kind).toBe('quiz_open_text');
+    const payload = JSON.parse(capturedMessages(0)[0].content) as Record<string, unknown>;
+    expect(payload).not.toHaveProperty('currentItem');
+  });
+});
+
+describe('quiz blocks modification contract', () => {
+  const currentDraft = parseQuizDraft(validQuizDraft);
+  const currentMetadata = {
+    description: currentDraft.description,
+    evaluationInstructions: currentDraft.evaluationInstructions,
+    instructions: currentDraft.instructions,
+    level: currentDraft.level,
+    targetTopic: currentDraft.targetTopic,
+    title: currentDraft.title,
+  };
+
+  it('parses a blocks-and-sections revision and returns only those parts', async () => {
+    enqueueModelTexts(
+      JSON.stringify({ blocks: validQuizDraft.blocks, sections: validQuizDraft.sections ?? [] }),
+    );
+
+    const revision = await generateQuizBlocksRevision({
+      currentDraft,
+      currentMetadata,
+      openRouterApiKey: testApiKey,
+      prompt: 'Reordena los bloques.',
+    });
+
+    expect(revision.blocks).toHaveLength(9);
+    expect(revision).not.toHaveProperty('title');
+    const payload = JSON.parse(capturedMessages(0)[0].content) as Record<string, unknown>;
+    expect(payload).toHaveProperty('metadataContext');
+    expect(payload).not.toHaveProperty('metadata');
+  });
+
+  it('recovers when the proposed blocks violate cross-block constraints', async () => {
+    enqueueModelTexts(
+      JSON.stringify({
+        blocks: duplicateBlockIdsQuizDraft.blocks,
+        sections: duplicateBlockIdsQuizDraft.sections ?? [],
+      }),
+      JSON.stringify({ blocks: validQuizDraft.blocks, sections: validQuizDraft.sections ?? [] }),
+    );
+
+    const revision = await generateQuizBlocksRevision({
+      currentDraft,
+      currentMetadata,
+      openRouterApiKey: testApiKey,
+      prompt: 'Cambia el primer bloque.',
+    });
+
+    expect(revision.blocks).toHaveLength(9);
     expect(generateTextMock).toHaveBeenCalledTimes(2);
   });
 });
@@ -371,9 +492,8 @@ describe('prompt-schema drift guards', () => {
   it('offers the Spanish translation kinds only to Spanish authoring profiles', () => {
     const authoringPrompts = [
       'resources/quiz-draft.md',
-      'resources/quiz-revision.md',
-      'resources/quiz-draft-correction.md',
-      'resources/quiz-revision-correction.md',
+      'resources/quiz-block-revision.md',
+      'resources/quiz-blocks-revision.md',
     ];
 
     for (const promptPath of authoringPrompts) {
@@ -410,16 +530,21 @@ describe('prompt-schema drift guards', () => {
     expect(prompt).toContain('{{blank}}');
   });
 
-  it('documents the revision envelope keys in the revision prompt', () => {
-    const prompt = loadSystemPrompt('resources/quiz-revision.md');
-    expect(prompt).toContain('assistantMessage');
-    expect(prompt).toContain('draft');
+  it('documents the response contract in the block and blocks revision prompts', () => {
+    expect(loadSystemPrompt('resources/quiz-block-revision.md')).toContain(
+      'QuizBlockRevisionResponse',
+    );
+    const blocksPrompt = loadSystemPrompt('resources/quiz-blocks-revision.md');
+    expect(blocksPrompt).toContain('QuizBlocksRevisionResponse');
+    expect(blocksPrompt).toContain('sections');
   });
 
   it('keeps the correction reason placeholder in every correction prompt', () => {
     for (const path of [
       'resources/quiz-draft-correction.md',
-      'resources/quiz-revision-correction.md',
+      'resources/quiz-block-revision-correction.md',
+      'resources/quiz-blocks-revision-correction.md',
+      'resources/quiz-metadata-revision-correction.md',
       'tutor/quiz-result-evaluation-correction.md',
     ]) {
       expect(loadSystemPrompt(path)).toContain('{{CORRECTION_REASON}}');

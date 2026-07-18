@@ -2,9 +2,15 @@ import { generateText, type ModelMessage } from 'ai';
 import type { Locale } from '../i18n/index.js';
 import { z } from 'zod';
 import {
+  quizBlockSchema,
   quizDraftSchema,
+  quizMetadataSchema,
+  quizSectionSchema,
   type QuizDraft,
+  type QuizMetadata,
 } from './quizzes.js';
+import { quizItemSchema } from './llmTutor/schemas.js';
+import type { TutorQuizItem } from './llmTutor/types.js';
 import {
   normalizeRoleplayRevisionConversationHistory,
   roleplayAuthoringDraftSchema,
@@ -50,22 +56,21 @@ const practiceGuideRevisionSchema = z.object({
   guide: practiceGuideDraftSchema,
 }).strict();
 
-const quizRevisionSchema = z.object({
-  assistantMessage: z.string().trim().min(1).max(2000),
-  draft: quizDraftSchema,
+const quizMetadataRevisionSchema = z.object({
+  metadata: quizMetadataSchema,
 }).strict();
+
+export type QuizBlockRevisionContext = {
+  instructions: string;
+  level: string;
+  sectionInstructions?: string;
+  siblingKinds: string[];
+  targetTopic: string;
+  title: string;
+};
 
 export type PracticeGuideDraft = z.infer<typeof practiceGuideDraftSchema>;
 export type PracticeGuideRevisionResult = z.infer<typeof practiceGuideRevisionSchema>;
-export type QuizRevisionResult = z.infer<typeof quizRevisionSchema>;
-
-export type QuizRevisionConversationMessage = {
-  content: string;
-  createdAt?: string;
-  draftSnapshot?: Record<string, unknown>;
-  role: 'assistant' | 'user';
-};
-
 
 function appendCorrectionRequest(messages: ModelMessage[], input: {
   actorLabel: string;
@@ -401,71 +406,132 @@ export async function generateQuizDraft(input: {
   });
 }
 
-export async function generateQuizRevision(input: {
-  conversationHistory?: QuizRevisionConversationMessage[];
-  currentDraft: QuizDraft;
+export async function generateQuizMetadataRevision(input: {
+  currentMetadata: QuizMetadata;
   instructionLanguage?: Locale;
   openRouterApiKey?: string | null;
   prompt: string;
-}): Promise<QuizRevisionResult> {
+}): Promise<{ metadata: QuizMetadata }> {
   return generateStructuredDraft({
-    actorLabel: 'Quiz revision',
-    correctionPromptPath: 'resources/quiz-revision-correction.md',
+    actorLabel: 'Quiz metadata revision',
+    correctionPromptPath: 'resources/quiz-metadata-revision-correction.md',
     initialUserMessage: JSON.stringify(
       {
-        conversationHistory: normalizeQuizRevisionConversationHistory(
-          input.conversationHistory ?? [],
-        ),
-        currentDraft: input.currentDraft,
+        currentMetadata: input.currentMetadata,
         requestedChange: input.prompt,
       },
       null,
       2,
     ),
     openRouterApiKey: input.openRouterApiKey,
-    schema: quizRevisionSchema,
-    systemPromptPath: 'resources/quiz-revision.md',
+    schema: quizMetadataRevisionSchema,
+    systemPromptPath: 'resources/quiz-metadata-revision.md',
     systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
   });
 }
 
-function normalizeQuizRevisionConversationHistory(
-  messages: QuizRevisionConversationMessage[],
-): QuizRevisionConversationMessage[] {
-  const recentMessages = messages
-    .flatMap((message): QuizRevisionConversationMessage[] => {
-      const content = message.content.trim();
-      if (!content || (message.role !== 'assistant' && message.role !== 'user')) {
-        return [];
-      }
-
-      const draftSnapshot = quizDraftSchema.safeParse(message.draftSnapshot);
-      return [{
-        content: content.slice(0, 4000),
-        createdAt: message.createdAt?.trim() || undefined,
-        draftSnapshot: draftSnapshot.success ? draftSnapshot.data : undefined,
-        role: message.role,
-      }];
+/**
+ * Revises a quiz's blocks and sections in one call while preserving its
+ * metadata (title/description/topic/level/instructions). The model returns only
+ * `{ blocks, sections }`; the current metadata is injected before validation so
+ * the `Bloques`-tab operation can never rewrite the general details. The result
+ * is a fully validated draft (unique ids, section cross-references).
+ */
+export async function generateQuizBlocksRevision(input: {
+  currentMetadata: QuizMetadata;
+  currentDraft: QuizDraft;
+  instructionLanguage?: Locale;
+  openRouterApiKey?: string | null;
+  prompt: string;
+}): Promise<{ blocks: QuizDraft['blocks']; sections: QuizDraft['sections'] }> {
+  // Validate the model's blocks/sections against the full draft schema (unique
+  // ids, section cross-references) by assembling them with the current metadata,
+  // so cross-cutting errors are caught inside the generation correction loop.
+  const blocksRevisionSchema = z
+    .object({
+      blocks: z.array(quizBlockSchema).min(1),
+      sections: z.array(quizSectionSchema).default([]),
     })
-    .slice(-24);
-
-  let includedSnapshots = 0;
-  return recentMessages
-    .slice()
-    .reverse()
-    .map((message): QuizRevisionConversationMessage => {
-      if (!message.draftSnapshot || includedSnapshots >= 6) {
-        return {
-          content: message.content,
-          createdAt: message.createdAt,
-          role: message.role,
-        };
+    .superRefine((value, ctx) => {
+      const assembled = quizDraftSchema.safeParse({
+        ...input.currentMetadata,
+        blocks: value.blocks,
+        sections: value.sections,
+      });
+      if (!assembled.success) {
+        for (const issue of assembled.error.issues) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: issue.message,
+            path: issue.path,
+          });
+        }
       }
+    });
 
-      includedSnapshots += 1;
-      return message;
+  return generateStructuredDraft({
+    actorLabel: 'Quiz blocks revision',
+    correctionPromptPath: 'resources/quiz-blocks-revision-correction.md',
+    initialUserMessage: JSON.stringify(
+      {
+        currentBlocks: input.currentDraft.blocks,
+        currentSections: input.currentDraft.sections,
+        metadataContext: input.currentMetadata,
+        requestedChange: input.prompt,
+      },
+      null,
+      2,
+    ),
+    openRouterApiKey: input.openRouterApiKey,
+    schema: blocksRevisionSchema,
+    systemPromptPath: 'resources/quiz-blocks-revision.md',
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+  });
+}
+
+/**
+ * Generates a single quiz item, scoped so it can never touch other blocks.
+ * When `currentItem` is provided the model revises it (the per-block modify
+ * operation); when it is omitted the model creates a new item of `targetKind`
+ * from the request (the add-block operation). Either way the returned
+ * `item.kind` is enforced to equal `targetKind`.
+ */
+export async function generateQuizBlockRevision(input: {
+  currentItem?: TutorQuizItem;
+  instructionLanguage?: Locale;
+  level: string;
+  openRouterApiKey?: string | null;
+  prompt: string;
+  quizContext: QuizBlockRevisionContext;
+  targetKind: string;
+}): Promise<{ item: TutorQuizItem }> {
+  const blockRevisionSchema = z
+    .object({
+      item: quizItemSchema.refine((item) => item.kind === input.targetKind, {
+        message: `item.kind must be "${input.targetKind}".`,
+      }),
     })
-    .reverse();
+    .strict();
+
+  return generateStructuredDraft({
+    actorLabel: input.currentItem ? 'Quiz block revision' : 'Quiz block creation',
+    correctionPromptPath: 'resources/quiz-block-revision-correction.md',
+    initialUserMessage: JSON.stringify(
+      {
+        ...(input.currentItem ? { currentItem: input.currentItem } : {}),
+        level: input.level,
+        quizContext: input.quizContext,
+        requestedChange: input.prompt,
+        requestedKind: input.targetKind,
+      },
+      null,
+      2,
+    ),
+    openRouterApiKey: input.openRouterApiKey,
+    schema: blockRevisionSchema,
+    systemPromptPath: 'resources/quiz-block-revision.md',
+    systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
+  });
 }
 
 export async function generateRoleplayDraft(input: {
