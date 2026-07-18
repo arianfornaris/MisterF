@@ -2,7 +2,7 @@
 
 Fecha de referencia: 17 de julio de 2026
 
-Estado: activo — primera versión del plan; debe actualizarse con evidencia y
+Estado: activo — foco inicial aprobado; debe actualizarse con evidencia y
 decisiones reales
 
 ## 1. Propósito
@@ -157,6 +157,16 @@ que exista un modelo de negocio validado.
 - [x] Completar una primera investigación documental de la competencia el 17 de
   julio de 2026. El análisis y sus próximos pasos están en
   [Investigación de la competencia](./investigacion-de-la-competencia.md).
+- [x] Ampliar la investigación con Langua, Toddle AI Tutors, Richmond Learning
+  Platform, Richmond Solution y Cambridge One. La ampliación precisó que Twee
+  es el competidor funcional más cercano para el profesor independiente, Toddle
+  es el competidor conceptual más cercano al ciclo cerrado y Langua es la
+  amenaza más cercana desde el lado del estudiante.
+- [x] Aprobar como foco inicial a profesores y tutores independientes que
+  enseñan inglés a adultos inmigrantes, comenzando por el sur de Florida.
+- [x] Precisar la diferenciación inicial: Mister F debe ser una capa ligera de
+  continuidad alrededor de la tarea y el material real del profesor, sin
+  exigir un LMS escolar ni un currículo editorial.
 - [ ] Ejecutar pruebas prácticas uniformes de los competidores más relevantes y
   contrastar los hallazgos con entrevistas a usuarios.
 
@@ -175,9 +185,9 @@ que exista un modelo de negocio validado.
 
 ## 5. Orden estratégico recomendado
 
-### Recomendación provisional: comenzar por profesores y tutores independientes
+### Decisión vigente: comenzar por profesores y tutores independientes
 
-El enfoque para profesores y tutores humanos es el mejor candidato inicial,
+El enfoque para profesores y tutores humanos es el punto de entrada aprobado,
 porque el problema es concreto, ya existe una parte importante del producto y
 cada profesor puede acercar a varios estudiantes. También conecta naturalmente
 con el autoaprendizaje: un estudiante que descubre Mister F mediante una tarea
@@ -188,9 +198,27 @@ su padre puede funcionar como colaborador de diseño y usuario temprano. Esa
 proximidad reduce el costo de aprendizaje inicial, pero no sustituye entrevistas
 y pilotos con profesores fuera de la familia.
 
-Esta es una hipótesis recomendada, no una decisión definitiva. Debe compararse
-con evidencia obtenida de estudiantes independientes y de personas que estudian
-para objetivos concretos.
+La decisión define dónde concentrar la primera validación; no demuestra todavía
+que el segmento tenga suficiente demanda o disposición a pagar. Solo debe
+reabrirse si las entrevistas y pilotos producen evidencia clara en contra.
+
+La investigación competitiva obliga a evitar promesas demasiado generales:
+
+- Twee ya facilita creación, asignación y evaluación para profesores de
+  idiomas;
+- Langua ya combina tutoría humana con práctica de IA entre sesiones;
+- Toddle AI Tutors ya devuelve al profesor observaciones obtenidas de las
+  conversaciones de los estudiantes;
+- Cambridge y Richmond combinan contenido editorial, asignaciones, seguimiento
+  y adaptación en determinados productos.
+
+Por tanto, Mister F no debe presentarse solamente como tutor de IA, práctica
+adaptativa o ciclo cerrado. Debe demostrar una combinación específica:
+
+> El profesor independiente define el objetivo y aporta su material; el
+> estudiante realiza la actividad y practica sus dificultades concretas; Mister
+> F devuelve al profesor evidencia útil para decidir qué hacer en la próxima
+> clase, sin exigir infraestructura escolar.
 
 Riesgos principales de este punto de entrada:
 
@@ -203,6 +231,8 @@ Riesgos principales de este punto de entrada:
   consentimiento y seguridad;
 - una oferta que dependa de reuniones constantes o soporte manual por cada
   estudiante puede superar rápidamente la capacidad de un único operador.
+- Toddle o Langua pueden extenderse hacia este segmento, por lo que el foco
+  inicial es una puerta de entrada y no una barrera competitiva permanente.
 
 Por estas razones, el primer segmento recomendado es **profesores y tutores
 independientes de adultos**, antes de escuelas o sistemas educativos grandes.
@@ -218,23 +248,23 @@ problema prioritario y un resultado que Mister F pueda prometer y medir.
 
 Pasos:
 
-- [ ] Definir un perfil de cliente inicial específico. Propuesta para validar:
-  profesores o tutores independientes de inglés que trabajan con adultos y
-  asignan práctica fuera de clase.
+- [x] Definir y aprobar el perfil de cliente inicial: profesores o tutores
+  independientes de inglés que trabajan con adultos inmigrantes, asignan
+  práctica fuera de clase y pueden operar sin infraestructura escolar.
 - [ ] Confirmar que Arian puede acceder personalmente a suficientes profesores
   del segmento para entrevistarlos y ejecutar pilotos sin un equipo comercial.
-- [ ] Definir al usuario beneficiario correspondiente: estudiante adulto que
-  necesita retroalimentación antes de la próxima clase.
+- [x] Definir al usuario beneficiario correspondiente: estudiante adulto que
+  necesita retroalimentación y práctica antes de la próxima clase.
 - [ ] Describir el problema en palabras del cliente, sin mencionar todavía las
   funcionalidades de Mister F.
-- [ ] Formular una promesa concreta. Borrador: “Convierte la tarea de inglés en
-  retroalimentación y práctica personalizada sin aumentar el tiempo de revisión
-  del profesor”.
+- [?] Validar una promesa concreta. Borrador: “Convierte cada tarea y dificultad
+  real en práctica guiada, y llega a la próxima clase sabiendo dónde necesita
+  ayuda cada estudiante”.
 - [ ] Definir qué resultado educativo y qué ahorro de tiempo se intentarán
   medir.
-- [ ] Comparar este segmento con una alternativa de autoaprendizaje y una de
-  inglés aplicado, utilizando los mismos criterios.
-- [ ] Tomar y documentar la decisión del mercado inicial.
+- [x] Comparar documentalmente este segmento con alternativas para profesores,
+  autoaprendizaje y sistemas editoriales. Pendiente: prueba práctica uniforme.
+- [x] Tomar y documentar la decisión del mercado inicial.
 
 Criterio para completar la fase:
 
@@ -293,6 +323,14 @@ Pasos comerciales:
 
 - [ ] Definir qué incluye el piloto, su duración, límites, soporte y resultado
   esperado.
+- [ ] Tratar como requisitos del piloto el ciclo completo y no funciones
+  aisladas: intención del profesor, material real, actividad, evaluación,
+  práctica derivada del error y reporte para la siguiente clase.
+- [ ] Permitir que el profesor defina objetivo, contexto y límites de la ayuda
+  que recibirá el estudiante.
+- [ ] Comprobar que un profesor puede compartir la primera actividad mediante un
+  enlace sin configurar una escuela, comprar códigos editoriales ni adoptar un
+  currículo obligatorio.
 - [ ] Diseñar dos o tres hipótesis de precio: pago por profesor, por estudiante,
   por uso o suscripción.
 - [ ] Decidir si el primer piloto será pagado, tendrá un depósito o será gratuito
@@ -329,6 +367,9 @@ Pasos de medición:
 
 - [ ] Definir los eventos y reportes necesarios para medir invitaciones,
   inicios, finalizaciones, evaluaciones, práctica posterior y repetición.
+- [ ] Definir un reporte breve y accionable que indique al profesor qué
+  dificultades aparecieron, qué practicó el estudiante y qué convendría revisar
+  en la próxima clase.
 - [ ] Crear una medición simple del tiempo que el profesor dedica antes y
   después de usar Mister F.
 - [ ] Elegir una forma de medir aprendizaje o corrección de errores antes y
@@ -363,6 +404,8 @@ Pasos:
 - [ ] Registrar una línea base sobre su proceso actual y el tiempo de revisión.
 - [ ] Acompañar la creación y asignación del primer quiz.
 - [ ] Medir el recorrido completo del estudiante.
+- [ ] Observar si el profesor comprende el reporte y lo utiliza para decidir una
+  intervención en la siguiente clase.
 - [ ] Revisar semanalmente uso, errores, costos y comentarios.
 - [ ] Corregir bloqueos críticos sin convertir cada solicitud individual en una
   nueva funcionalidad permanente.
@@ -376,6 +419,10 @@ Indicadores iniciales que deberán fijarse antes del piloto:
 - porcentaje que crea una segunda actividad dentro de 30 días;
 - porcentaje de estudiantes invitados que inicia y completa la tarea;
 - porcentaje que revisa su evaluación e inicia práctica posterior;
+- porcentaje que practica al menos una dificultad detectada en la actividad;
+- porcentaje de profesores que consulta el reporte antes de la próxima clase;
+- porcentaje de profesores que afirma haber tomado una decisión concreta a
+  partir del reporte;
 - cambio observado en errores o desempeño;
 - tiempo ahorrado o desplazado para el profesor;
 - costo de inteligencia artificial por usuario activo;
@@ -410,6 +457,8 @@ Pasos:
   reembolsos, disputas y costos de pago.
 - [ ] Analizar retención por cohorte de profesores y estudiantes.
 - [ ] Identificar el evento de activación que mejor predice el uso repetido.
+- [ ] Comprobar si completar el ciclo hasta el reporte del profesor predice mejor
+  la repetición que crear o asignar una actividad por sí sola.
 - [ ] Documentar por qué los clientes renuevan, reducen uso o cancelan.
 - [ ] Establecer una meta financiera de 12 meses basada en evidencia del piloto.
 
@@ -529,9 +578,13 @@ pueden ajustarse, pero el orden debe preservarse.
 
 ### Días 1 a 15 — Enfoque
 
-- decidir el primer segmento y redactar su problema principal;
+- documentar el problema principal del segmento ya aprobado en palabras de los
+  profesores;
 - preparar la guía de entrevistas;
 - construir la lista de contactos;
+- ejecutar de forma secuencial el escenario comparativo en Twee y Langua;
+- solicitar una demostración de Toddle solamente si no crea un compromiso de
+  compra ni un gasto incompatible con el presupuesto;
 - reservar bloques semanales separados para producto, entrevistas y operación;
 - definir las métricas que faltan en el producto actual;
 - organizar los documentos corporativos disponibles de Little Software LLC;
@@ -552,6 +605,8 @@ pueden ajustarse, pero el orden debe preservarse.
 ### Días 36 a 50 — Oferta y preparación
 
 - definir el piloto y las hipótesis de precio;
+- comprobar el ciclo completo desde el objetivo del profesor hasta el reporte
+  utilizado en la próxima clase;
 - calcular costos unitarios preliminares;
 - completar los requisitos legales y operativos mínimos;
 - configurar medición y soporte;
@@ -577,6 +632,8 @@ El roadmap debe revisarse junto con un tablero que, como mínimo, registre:
 | Demanda | Profesores que aceptan un piloto | Sin medir |
 | Activación | Profesores que asignan su primer quiz | Sin medir |
 | Uso | Estudiantes que completan una tarea | Sin medir |
+| Continuidad | Estudiantes que practican una dificultad detectada | Sin medir |
+| Valor docente | Profesores que consultan y utilizan el reporte | Sin medir |
 | Valor | Profesores que asignan una segunda actividad | Sin medir |
 | Aprendizaje | Mejora observada después de la práctica | Sin medir |
 | Conversión | Pilotos que se convierten en clientes | Sin medir |

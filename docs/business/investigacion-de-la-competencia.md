@@ -2,8 +2,8 @@
 
 Fecha de referencia: 17 de julio de 2026
 
-Estado: investigación documental inicial completada — pendiente de pruebas
-prácticas, entrevistas y actualización periódica
+Estado: investigación documental ampliada — pendiente de pruebas prácticas,
+entrevistas y actualización periódica
 
 ## 1. Resumen ejecutivo
 
@@ -13,29 +13,43 @@ profesores, aplicaciones de autoaprendizaje, tutores humanos, asistentes
 generales de inteligencia artificial, herramientas de escritura y traducción,
 y recursos especializados para objetivos como ciudadanía o conducción.
 
-La investigación produce seis conclusiones principales:
+La investigación produce ocho conclusiones principales:
 
 1. **Existe demanda comprobada para cada pieza de la visión.** Hay productos
    grandes dedicados a crear tareas, enseñar idiomas con IA, corregir escritura,
    traducir dentro de otras aplicaciones y preparar exámenes específicos.
-2. **Twee es el competidor funcional más cercano al punto de entrada para
-   profesores.** Genera materiales de idiomas, permite compartir actividades,
-   administra clases y evalúa respuestas con IA.
-3. **ChatGPT es el sustituto horizontal más peligroso.** Su modo de estudio
+2. **Twee sigue siendo el competidor funcional más cercano y accesible para el
+   profesor independiente.** Genera materiales de idiomas, permite compartir
+   actividades, administra clases y evalúa respuestas con IA.
+3. **Toddle AI Tutors es el competidor conceptual más cercano al ciclo completo
+   de Mister F.** El profesor configura un tutor, cada estudiante recibe ayuda
+   adaptativa y las conversaciones regresan al profesor como información para
+   su próxima intervención. Su foco institucional K-12, sin embargo, es muy
+   diferente del segmento inicial de Mister F.
+4. **Langua es una amenaza mayor de lo que sugería el análisis inicial del
+   autoaprendizaje.** Ya propone combinar tutor humano y práctica con IA entre
+   sesiones, y convierte errores frecuentes y vocabulario guardado en práctica
+   posterior. La mera promesa de “practicar entre clases” no diferencia a
+   Mister F.
+5. **Richmond y Cambridge muestran el poder de los ecosistemas editoriales.**
+   Combinan contenido reconocido, asignaciones, seguimiento y, en determinados
+   productos, práctica adaptativa. Mister F no debe intentar vencerlos por
+   tamaño de biblioteca o autoridad curricular.
+6. **ChatGPT es el sustituto horizontal más peligroso.** Su modo de estudio
    puede explicar, preguntar, revisar materiales y personalizar con memoria en
    todos sus planes. Un “chat con un tutor de IA” por sí solo no constituye una
    ventaja sostenible.
-4. **El autoaprendizaje general es el frente más difícil para entrar de forma
+7. **El autoaprendizaje general es el frente más difícil para entrar de forma
    directa.** Duolingo, ELSA, Speak y Praktika ya compiten con marca, contenido,
    voz, hábitos, rutas personalizadas y práctica conversacional.
-5. **El espacio más prometedor para Mister F es la continuidad entre el
-   profesor humano y la práctica individual.** En las ofertas públicas
-   revisadas no aparece con igual claridad la combinación completa de tarea
-   asignada, evaluación, práctica conversacional generada a partir de los
-   errores y memoria longitudinal del aprendizaje.
-6. **Los objetivos concretos y el uso cotidiano son oportunidades reales, pero
-   posteriores.** Los primeros compiten contra contenido oficial y gratuito; el
-   segundo compite contra herramientas integradas en millones de flujos de
+8. **El espacio más prometedor sigue siendo la continuidad dirigida por el
+   profesor, pero debe definirse para un segmento estrecho.** La oportunidad no
+   es reclamar un ciclo inexistente en el mercado, sino ofrecerlo de forma
+   ligera a tutores independientes de adultos inmigrantes, partiendo de sus
+   tareas y materiales reales y devolviendo evidencia útil para la próxima
+   clase. Los objetivos concretos y el uso cotidiano son oportunidades reales,
+   pero posteriores. Los primeros compiten contra contenido oficial y gratuito;
+   el segundo compite contra herramientas integradas en millones de flujos de
    trabajo y presenta riesgos importantes de privacidad.
 
 Existe además una diferencia de escala que debe orientar la lectura: Mister F
@@ -54,9 +68,9 @@ La competencia no invalida la visión. Obliga a formularla con mayor precisión.
 Mister F no debería presentarse como otro generador de quizzes ni como otro
 tutor de IA. La posición que merece validarse es:
 
-> Mister F extiende el trabajo del profesor fuera de clase: convierte cada
-> tarea en retroalimentación inmediata y cada dificultad en práctica
-> personalizada.
+> Mister F es la capa ligera de continuidad para tutores independientes de
+> inglés: convierte las tareas y dificultades reales de cada adulto en
+> práctica guiada y devuelve al profesor evidencia para la próxima clase.
 
 Esta posición sigue siendo una hipótesis. Debe comprobarse con profesores y
 estudiantes reales.
@@ -101,9 +115,11 @@ oportunidades por validar.
 | Categoría | Representantes | Fortaleza principal | Riesgo para Mister F |
 | --- | --- | --- | --- |
 | IA para profesores de idiomas | Twee | Creación rápida, actividades interactivas y evaluación con IA | Competidor más cercano al flujo profesor-estudiante |
+| Tutores de IA configurados por el profesor | Toddle AI Tutors | Tutor adaptativo individual y análisis que regresa al docente | Coincidencia conceptual directa con el ciclo cerrado de Mister F |
 | Plataformas ESL para profesores | Off2Class, Ellii | Currículo, biblioteca, clases, tareas y reportes | Mayor profundidad de contenido y gestión educativa |
+| Ecosistemas editoriales y adaptativos | Richmond Learning Platform, Richmond Solution, Cambridge One | Contenido reconocido, asignaciones, datos y práctica personalizada en productos compatibles | Ventaja de contenido, marca y distribución institucional |
 | Evaluación y participación general | Wayground, Kahoot! | Adopción escolar, gamificación, asignaciones y analítica | Bajo costo de cambio y enorme distribución docente |
-| Autoaprendizaje de idiomas | Duolingo, ELSA, Speak, Praktika | Hábito, voz, rutas y retroalimentación personalizada | Dificulta competir como app general para aprender inglés |
+| Autoaprendizaje de idiomas | Langua, Duolingo, ELSA, Speak, Praktika | Hábito, voz, rutas y retroalimentación personalizada | Dificulta competir como app general y ocupa la práctica entre sesiones |
 | Tutoría humana | Preply y tutores independientes | Relación humana y adaptación en tiempo real | Compite por presupuesto, pero también puede ser canal |
 | IA general | ChatGPT y otros asistentes generales | Flexibilidad, voz, archivos, memoria y costo marginal bajo | Convierte el chat educativo básico en una función común |
 | Ayuda cotidiana | Grammarly, DeepL, Google Translate | Integración dentro del flujo de escritura y traducción | Ventaja enorme de distribución e inmediatez |
@@ -262,6 +278,149 @@ Mister F no debería intentar ganar por gamificación general, número de tipos 
 pregunta o adopción escolar masiva. Debe demostrar mayor profundidad en el
 aprendizaje de inglés después de la evaluación.
 
+### 4.5. Toddle AI Tutors
+
+**Qué ofrece**
+
+Toddle es una plataforma integral para escuelas K-12. Dentro de ella, AI Tutors
+permite que el profesor defina el objetivo, aporte documentos, enlaces o videos
+y establezca reglas como nivel de ayuda, idioma y uso de texto o voz. El tutor
+ofrece interacción individual, adapta su respuesta al estudiante y analiza las
+conversaciones para entregar al profesor observaciones de clase e individuales
+que pueden orientar la enseñanza posterior. Las interacciones son visibles para
+el docente y la empresa destaca controles de seguridad y privacidad
+([Toddle AI Tutors](https://www.toddleapp.com/ai-tutors/),
+[IA de Toddle](https://www.toddleapp.com/ai/)).
+
+AI Tutors forma parte del plan institucional Toddle Ultimate. Toddle publica
+precios personalizados por usuario y ofrece a las escuelas pruebas que
+normalmente duran entre dos y tres semanas
+([precios de Toddle](https://www.toddleapp.com/pricing/)).
+
+**Por qué es importante**
+
+Toddle es el competidor conceptual más cercano encontrado hasta ahora. Su flujo
+ya contiene la idea central de profesor que configura una experiencia,
+estudiante que recibe apoyo adaptativo y evidencia que regresa al profesor para
+la próxima intervención. Por tanto, Mister F no puede afirmar que ese ciclo sea
+único en el mercado.
+
+**Ventajas visibles de Toddle**
+
+- integración dentro de un LMS escolar completo;
+- control explícito del profesor sobre el tutor;
+- práctica individual en múltiples materias e idiomas;
+- análisis de todas las conversaciones para orientar la enseñanza;
+- soporte de texto, voz, imágenes y expresiones matemáticas;
+- controles institucionales de seguridad, visibilidad y administración.
+
+**Espacio para Mister F**
+
+Toddle vende a instituciones K-12 y requiere una adopción escolar amplia.
+Mister F puede concentrarse en un flujo mucho más ligero para tutores
+independientes de inglés y adultos inmigrantes: entrar mediante un enlace,
+partir de una tarea real, explicar errores lingüísticos y devolver al mismo
+profesor una síntesis accionable sin comprar ni implantar un LMS escolar.
+
+**Implicación estratégica**
+
+La ventaja no es inventar el ciclo cerrado, sino hacerlo accesible, específico
+para el aprendizaje de inglés adulto y viable para una relación docente que
+puede operar por WhatsApp, videollamada o clases pequeñas.
+
+### 4.6. Richmond Learning Platform y Richmond Solution
+
+**Qué ofrecen**
+
+Richmond Learning Platform (RLP) es el entorno digital de la editorial
+Richmond. Permite asignar actividades, consultar calificaciones y reportes en
+Markbook, crear pruebas con Test Manager, compartir recursos y utilizar
+contenido en línea o sin conexión
+([Richmond Learning Platform](https://richmondlp.com/),
+[Richmond Digital](https://richmond.com.ar/richmond-digital/)).
+
+Conviene no atribuir toda la adaptatividad a RLP. En las fuentes públicas
+revisadas, las afirmaciones explícitas de aprendizaje adaptativo aparecen en
+Richmond Solution, una oferta más amplia para instituciones que utiliza datos
+para ajustar recursos y actividades. Richmond Studio añade práctica,
+retroalimentación inmediata, reconocimiento de voz y seguimiento para
+estudiantes pertenecientes a ese ecosistema
+([Richmond Solution BE](https://richmondsolution.com/en/soluciones/be/),
+[Richmond Studio](https://studio.richmondelt.com/)).
+
+**Ventajas visibles**
+
+- contenido editorial estructurado;
+- combinación de materiales impresos y digitales;
+- asignaciones, calificaciones y reportes;
+- relación comercial y formativa con escuelas;
+- soluciones de aprendizaje adaptativo integradas con su oferta institucional.
+
+**Espacio para Mister F**
+
+Mister F puede partir del material que el profesor ya posee, aunque no
+pertenezca a una editorial, y concentrarse en respuestas abiertas, conversación
+y práctica derivada de errores individuales. No necesita reemplazar el libro ni
+construir una biblioteca equivalente.
+
+**Implicación estratégica**
+
+Richmond muestra que contenido, plataforma, capacitación y distribución forman
+un paquete difícil de copiar. Para un fundador único, competir contra ese
+paquete sería una mala asignación de recursos. La oportunidad está en ser una
+capa flexible alrededor de contenidos diversos.
+
+### 4.7. Cambridge One y Personalised Learning
+
+**Qué ofrecen**
+
+Cambridge One reúne materiales digitales de Cambridge, clases, asignaciones y
+reportes. El profesor puede seleccionar actividades de un curso, asignarlas y
+consultar estado, puntuación, intentos, tiempo dedicado y progreso individual
+([Cambridge One](https://www.cambridgeone.org/home?desktop=true),
+[asignación de tareas](https://cambridgeonehelp.cambridge.org/hc/en-gb/articles/4410612256274-How-do-I-set-homework-assignments-on-Cambridge-One),
+[seguimiento del progreso](https://cambridgeonehelp.cambridge.org/hc/en-gb/articles/4410620865170-How-can-I-monitor-my-students-progress)).
+
+Personalised Learning es un componente disponible cuando el material activado
+lo incluye; no es una propiedad de todos los cursos de Cambridge One. Después
+de una comprobación inicial de Reading o Listening, el profesor puede asignar
+un mismo bloque a la clase y cada estudiante recibe actividades diferentes
+adaptadas a su nivel
+([inicio de Personalised Learning](https://cambridgeonehelp.cambridge.org/hc/en-gb/articles/23799483316882-How-can-I-get-started-with-Personalised-Learning),
+[asignación personalizada](https://cambridgeonehelp.cambridge.org/hc/en-gb/articles/23800034009490-How-can-I-assign-Personalised-Learning)).
+
+Cambridge también permite que profesores independientes compren determinados
+códigos de estudiante, aunque con límites y disponibilidad según el material
+([acceso para profesores independientes](https://cambridgeonehelp.cambridge.org/hc/en-gb/articles/27806269219730-As-an-independent-teacher-where-can-I-buy-Cambridge-One-digital-learning-materials-for-my-students)).
+
+La amenaza alcanza directamente al inglés adulto: la presentación oficial de
+EVOLVE Second Edition, curso de inglés estadounidense para adultos y adultos
+jóvenes, anuncia en Cambridge One un Speaking Companion con IA y práctica
+adaptativa adicional de Reading y Listening
+([presentación de EVOLVE Second Edition](https://www.cambridge.org/sites/default/files/media/documents/evolve2e-executive-preview.pdf)).
+
+**Ventajas visibles**
+
+- prestigio editorial y contenido investigado y estructurado;
+- distribución internacional e institucional;
+- asignaciones y datos de progreso dentro del curso;
+- práctica adaptativa en productos compatibles;
+- acceso tanto institucional como, de forma limitada, independiente.
+
+**Espacio para Mister F**
+
+Cambridge One organiza muy bien el trabajo dentro de materiales Cambridge.
+Mister F puede ser independiente de la editorial y conectar una tarea, una
+producción abierta o una necesidad surgida en clase con explicación y práctica
+posterior. Su valor tendría que aparecer incluso cuando el profesor combina un
+libro, un video, una conversación y material propio.
+
+**Implicación estratégica**
+
+“Personalización” o “aprendizaje adaptativo” no son mensajes diferenciadores
+por sí solos. Mister F debe explicar de qué evidencia parte, cómo interviene el
+profesor y qué ocurre después con las dificultades concretas del estudiante.
+
 ## 5. Competidores del autoaprendizaje
 
 ### 5.1. Duolingo
@@ -368,6 +527,70 @@ Los tutores humanos compiten por el presupuesto del estudiante independiente,
 pero son un posible canal y cliente para Mister F. La estrategia más coherente
 no es afirmar que la IA reemplaza al tutor, sino permitir que un tutor atienda
 mejor el trabajo entre sesiones.
+
+### 5.5. Langua de LanguaTalk
+
+**Qué ofrece**
+
+Langua es el tutor de IA creado por LanguaTalk, empresa que comenzó en 2021 como
+mercado de tutores humanos y lanzó Langua en 2024. Ofrece conversaciones por
+texto o voz, roleplays, debates, correcciones, traducciones y reportes después
+de cada conversación. El usuario puede guardar vocabulario y convertirlo en
+tarjetas, historias o conversaciones; el producto también genera ejercicios de
+gramática a partir de errores frecuentes
+([tutor de IA de Langua](https://languatalk.com/ai-language-tutor),
+[historia de LanguaTalk y Langua](https://support.languatalk.com/article/89-what-is-languatalk-and-who-created-it)).
+
+Su propia documentación recomienda combinar las sesiones con un tutor humano y
+la práctica con Langua entre sesiones. La plataforma mantiene al mismo tiempo
+el mercado donde los estudiantes pueden reservar tutores humanos
+([condiciones y descripción de los servicios](https://languatalk.com/blog/terms-and-privacy),
+[posición sobre IA y tutores](https://support.languatalk.com/article/156-will-ai-affect-tutors-and-their-bookings)).
+
+Langua ofrece niveles gratuito, Standard y Unlimited. La página pública indica
+límites diarios diferentes y pruebas para los planes pagados, pero el precio
+final debe verificarse en la cuenta y el país del usuario
+([planes de Langua](https://support.languatalk.com/article/142-how-much-does-langua-cost-pricing),
+[límites gratuitos y pagados](https://support.languatalk.com/article/143-whats-the-difference-between-the-free-and-pro-versions-of-langua)).
+
+**Ventajas visibles**
+
+- conversación por voz y texto diseñada específicamente para idiomas;
+- correcciones inmediatas y reportes posteriores;
+- práctica reutilizable a partir de vocabulario y errores frecuentes;
+- variedad de escenarios y voces;
+- combinación explícita de tutoría humana y práctica con IA;
+- mercado de tutores que puede alimentar su distribución.
+
+**Espacio para Mister F**
+
+En las fuentes públicas revisadas no aparece un flujo donde un profesor externo
+asigne una actividad concreta, supervise la práctica resultante y reciba una
+síntesis vinculada con su próxima clase. Esto es una inferencia documental, no
+una prueba de ausencia, y debe comprobarse usando el producto.
+
+Además, la continuidad de contexto merece una prueba práctica. La página de
+producto anuncia memoria de intereses y datos importantes, mientras una guía de
+uso todavía advierte que la memoria entre conversaciones es incompleta y
+recomienda continuar el mismo chat cuando se necesita conservar contexto
+([guía de conversaciones](https://support.languatalk.com/article/160-learn-how-to-use-langua-effectively-conversations-help-guide)).
+
+**Implicación estratégica**
+
+Langua elimina como diferenciadores suficientes la conversación natural, la
+corrección inmediata, el reporte posterior y la práctica entre clases. Mister F
+debe unir esas capacidades a la intención pedagógica de un profesor concreto:
+qué asignó, qué esperaba, dónde falló el estudiante, qué practicó después y qué
+debería hacer el profesor en la siguiente sesión.
+
+**Comparación de los cuatro competidores añadidos**
+
+| Producto | Comprador o usuario principal | Control del profesor | Práctica adaptativa | Evidencia que regresa al profesor | Dependencia de contenido propio |
+| --- | --- | --- | --- | --- | --- |
+| Toddle AI Tutors | Escuela K-12 | Alto | Sí, durante la conversación | Sí, a nivel individual y de clase | Puede usar contexto del profesor dentro de Toddle |
+| Richmond | Escuela o institución | Alto dentro de la solución | Sí, en Richmond Solution | Calificaciones, progreso y analítica | Alta relación con el ecosistema Richmond |
+| Cambridge One | Institución o profesor con material Cambridge | Alto dentro del curso | Sí, en componentes compatibles | Tareas, puntuaciones, intentos y reportes | Requiere materiales y códigos Cambridge |
+| Langua | Estudiante individual | No se observa un flujo docente público equivalente | Sí, según errores, nivel e intereses | Reportes para el estudiante; flujo al profesor por validar | Baja para conversar; posee su propio ecosistema de tutoría |
 
 ## 6. El sustituto horizontal: ChatGPT
 
@@ -512,8 +735,11 @@ tratarse como una visión de largo plazo.
 
 ### 10.1. Cerrar el ciclo después de la evaluación
 
-Muchas plataformas crean, asignan y califican. La oportunidad es convertir el
-resultado en la siguiente intervención adecuada:
+Muchas plataformas crean, asignan y califican. Toddle demuestra que incluso el
+ciclo que devuelve observaciones del tutor de IA al profesor ya existe en el
+mercado institucional. La oportunidad de Mister F es implementar ese ciclo para
+el tutor independiente de adultos, con menor fricción y profundidad específica
+en inglés:
 
 ```text
 Clase humana → tarea → respuesta → evaluación → práctica personalizada
@@ -522,7 +748,9 @@ Clase humana → tarea → respuesta → evaluación → práctica personalizada
 ```
 
 Esta es la oportunidad más alineada con el producto y debe ser el centro de las
-entrevistas y pilotos.
+entrevistas y pilotos. No debe presentarse como una invención exclusiva, sino
+como una solución mejor ajustada a un segmento que Toddle, las editoriales y las
+aplicaciones individuales no atienden de la misma manera.
 
 ### 10.2. Ser una capa para el profesor, no otro currículo obligatorio
 
@@ -594,8 +822,14 @@ confianza.
   utilizan o pueden acceder a ella.
 - “Creamos quizzes automáticamente”. Twee, Wayground, Kahoot! y ChatGPT ya lo
   hacen.
-- “Puedes conversar con un tutor virtual”. Duolingo, ELSA, Speak, Praktika y
-  asistentes generales ya lo ofrecen.
+- “Puedes conversar con un tutor virtual”. Langua, Toddle, Duolingo, ELSA,
+  Speak, Praktika y asistentes generales ya lo ofrecen.
+- “Práctica personalizada entre clases”. Langua ya la relaciona explícitamente
+  con la tutoría humana y genera ejercicios a partir de errores frecuentes.
+- “Cerramos el ciclo con el profesor”. Toddle ya analiza las conversaciones de
+  sus tutores de IA y devuelve observaciones al docente dentro de su plataforma.
+- “Tenemos aprendizaje adaptativo”. Cambridge y Richmond lo ofrecen en
+  determinados productos respaldados por sus ecosistemas editoriales.
 - “Traducimos y corregimos tu inglés”. Google, DeepL y Grammarly tienen una
   distribución difícil de igualar.
 - “Tenemos contenido de ciudadanía o tránsito”. Las fuentes oficiales y muchas
@@ -689,12 +923,43 @@ fraude, divulgación y cumplimiento fiscal.
 referidos con pocos profesores y reglas manuales; posponer el marketplace de
 contenido hasta demostrar margen, retención y capacidad operativa.
 
+### Riesgo 10 — Confundir una diferencia de segmento con una ventaja permanente
+
+Toddle ya ofrece el ciclo conceptual y podría crear una oferta más ligera;
+Langua ya relaciona IA y tutoría humana y podría añadir funciones para que el
+profesor asigne o supervise práctica.
+
+**Respuesta recomendada:** tratar el segmento inicial como puerta de entrada,
+no como barrera defensiva. Aprender más rápido mediante relaciones directas con
+tutores y construir historial, flujos y confianza que aumenten el costo de
+cambio.
+
+### Riesgo 11 — Subestimar el ecosistema editorial
+
+Cambridge y Richmond pueden combinar contenido reconocido, códigos de acceso,
+capacitación, relaciones escolares y funciones adaptativas. Mister F no dispone
+del capital ni del canal para replicar ese paquete.
+
+**Respuesta recomendada:** admitir materiales externos, complementar los libros
+que ya usan los profesores y evitar una inversión temprana en un currículo
+general propio.
+
+### Riesgo 12 — Prometer memoria o personalización sin evidencia verificable
+
+Los competidores usan estos términos con significados distintos: adaptación en
+una conversación, selección de actividades por nivel, historial de errores o
+memoria entre sesiones.
+
+**Respuesta recomendada:** definir cada promesa en términos observables y medir
+si Mister F conserva el dato correcto, produce una práctica pertinente y ayuda
+al profesor a tomar una decisión concreta.
+
 ## 13. Posicionamiento recomendado para validar
 
 ### Categoría propuesta
 
-**Plataforma de práctica de inglés que conecta profesores humanos con tutoría
-personalizada mediante IA.**
+**Capa ligera de continuidad de aprendizaje para tutores independientes de
+inglés y sus estudiantes adultos.**
 
 ### Usuario inicial
 
@@ -703,14 +968,16 @@ inmigrantes y asigna práctica fuera de clase.
 
 ### Promesa principal
 
-**Tus estudiantes no tienen que esperar a la próxima clase para saber qué
-hicieron mal y practicarlo.**
+**Convierte cada tarea y dificultad real en práctica guiada, y llega a la
+próxima clase sabiendo dónde necesita ayuda cada estudiante.**
 
 ### Explicación de apoyo
 
-El profesor crea o adapta una actividad, la comparte y Mister F ayuda al
-estudiante a recibir retroalimentación y continuar practicando sus dificultades.
-El tutor humano conserva el control pedagógico.
+El profesor crea o adapta una actividad con su propio material, la comparte y
+Mister F ayuda al estudiante a recibir retroalimentación y continuar practicando
+sus dificultades. El resultado vuelve al profesor como una síntesis accionable.
+El tutor humano conserva el control pedagógico sin adoptar un LMS escolar ni un
+currículo editorial obligatorio.
 
 ### Alternativas de mensaje para probar
 
@@ -741,11 +1008,15 @@ pilotos.
 
 - reporte útil para el profesor sobre dificultades y actividad, con privacidad
   adecuada;
+- configuración explícita del objetivo, contexto y límites del tutor por parte
+  del profesor;
 - importación sencilla del material que el profesor ya utiliza;
 - alineación y etiquetado CEFR;
 - ejercicios de voz y evaluación de pronunciación;
 - medición del tiempo ahorrado al profesor;
-- costo por estudiante y por ciclo completo.
+- costo por estudiante y por ciclo completo;
+- diferencia observable entre historial, memoria y adaptación durante una sola
+  actividad.
 
 ### Posponer hasta validar el núcleo
 
@@ -764,11 +1035,14 @@ Crear cuentas de prueba y ejecutar el mismo escenario en:
 
 - Mister F;
 - Twee;
+- Langua;
 - Off2Class;
 - Ellii;
 - Wayground;
 - ChatGPT;
-- una aplicación de autoaprendizaje centrada en voz.
+- Toddle, si se obtiene una demostración o prueba institucional;
+- un material con Personalised Learning de Cambridge One o una demostración de
+  Richmond Solution, solo si puede accederse sin comprometer el presupuesto.
 
 Las pruebas se realizarán de forma secuencial. No se mantendrán varias
 suscripciones pagadas a la vez y cada compra deberá responder a una pregunta que
@@ -788,6 +1062,8 @@ Medir:
 - precisión y claridad de la evaluación;
 - capacidad de convertir errores en práctica;
 - información que recibe el profesor;
+- grado de control que conserva el profesor sobre objetivo, ayuda y contenido;
+- persistencia real del contexto entre actividades y sesiones;
 - precio y límites;
 - tratamiento de datos y consentimiento.
 
@@ -812,6 +1088,9 @@ Mostrar los tres mensajes de la sección 13 sin explicar el producto. Medir:
 Revisar trimestralmente:
 
 - funciones y precios de Twee;
+- flujo docente de Toddle AI Tutors;
+- funciones de asignación o supervisión que Langua pudiera ofrecer a tutores;
+- materiales adaptativos disponibles en Cambridge One y Richmond Solution;
 - avances de tutores de voz;
 - funciones educativas de ChatGPT y otros asistentes generales;
 - ofertas para profesores de Off2Class, Ellii y Wayground;
@@ -823,11 +1102,16 @@ La investigación no muestra que Mister F deba abandonar su visión. Muestra que
 debe elegir con cuidado dónde competir.
 
 El mercado no necesita otro producto cuya principal diferencia sea generar
-contenido con IA. Puede existir espacio para un producto que conecte el trabajo
-del profesor con lo que el estudiante hace, comprende y practica entre clases.
+contenido con IA. Toddle demuestra que el ciclo cerrado con el profesor ya
+existe en entornos escolares, y Langua demuestra que la práctica con IA entre
+sesiones humanas ya existe para el estudiante individual. La oportunidad no es
+reclamar esas ideas como exclusivas, sino reunirlas en una experiencia mucho más
+ligera y específica para el tutor independiente de adultos inmigrantes.
+
 Mister F ya posee partes importantes de ese ciclo. El siguiente desafío no es
-añadir todas las funciones que tienen los competidores, sino demostrar que ese
-ciclo produce un resultado suficientemente importante para que profesores y
+añadir todas las funciones que tienen los competidores, sino demostrar que el
+flujo basado en la tarea real, los errores del estudiante y la próxima clase
+produce un resultado suficientemente importante para que profesores y
 estudiantes regresen y alguien esté dispuesto a pagar.
 
 Para un fundador único, el objetivo no es vencer a cada competidor en su propio
