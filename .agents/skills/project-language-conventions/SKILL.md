@@ -1,6 +1,6 @@
 ---
 name: project-language-conventions
-description: Use for any Mister F task that creates or edits repository artifacts, including code, comments, documentation, issue reports, trackers, prompts, tests, commit messages, or user-facing files. The user may speak Spanish, but repository artifacts are written in English by default, and product UI copy must use the app's i18n catalogs.
+description: Use for any Mister F task that creates or edits repository artifacts, including code, comments, documentation, business plans, issue reports, trackers, prompts, tests, commit messages, or user-facing files. Repository artifacts are written in English by default, docs/business is intentionally written in Spanish with required founder context, and product UI copy must use the app's i18n catalogs.
 ---
 
 # Project Language Conventions
@@ -20,6 +20,29 @@ Write repository artifacts in English:
 - tests and test names
 - commit messages, PR text, and changelog-style notes
 - agent-facing skills and project instructions
+
+## Business Documentation Exception
+
+Documentation under `docs/business/**` is intentionally written in Spanish.
+This is a founder-authorized exception to the English repository documentation
+rule.
+
+Before creating or editing business documentation, read:
+
+- `docs/business/README.md`
+- `docs/business/contexto-del-fundador.md`
+- `docs/business/presupuesto-inicial.md`
+
+Business plans must reflect that Arian Fornaris is the only founder, developer,
+and operator during the initial stage. Do not assume existing sales, marketing,
+support, content, finance, or engineering teams. Identify recurring operational
+work and any professional external help a proposal requires. Preserve the
+initial focus on adult immigrants and independent English teachers in South
+Florida while distinguishing the founder's lived experience from validated
+market evidence. Use approximately USD 60 per month as the current total
+founder-funded operating budget. Do not assume paid acquisition, overlapping
+SaaS subscriptions, employees, contractors, or professional services are
+funded; separate required external expertise from currently affordable work.
 
 ## Product UI Copy
 
@@ -59,8 +82,9 @@ for a specific instruction-language experience, such as:
    product UI copy, locale catalog content, prompt content, or user-authored
    learning content.
 2. Use English for project artifacts by default.
-3. For product UI copy, use i18n keys and update every supported locale.
-4. If non-English text appears outside locale catalogs, prompts, fixtures, or
+3. Use Spanish for `docs/business/**` and apply the required founder context.
+4. For product UI copy, use i18n keys and update every supported locale.
+5. If non-English text appears outside locale catalogs, prompts, fixtures, or
    intentionally authored learning content, verify it is deliberate.
-5. If a previous artifact was created in the wrong language or bypasses i18n,
+6. If a previous artifact was created in the wrong language or bypasses i18n,
    translate, catalog, or replace it when touching that area.
