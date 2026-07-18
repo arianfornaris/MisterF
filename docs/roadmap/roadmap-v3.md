@@ -548,9 +548,17 @@ the content being changed.
   the complete unsaved form as context, shows only proposed field differences
   in a before/after comparison, and persists atomically only after explicit
   approval.
-- [ ] For each remaining resource, decide whether to keep, redesign, or retire the chat;
+- [x] For each remaining resource, decide whether to keep, redesign, or retire the chat;
   document the chosen ownership boundary and remove any superseded routes,
   prompts, history writes, client hooks, and unused persistence safely.
+  Done 2026-07-17: every resource has been decided and all chats retired —
+  scene media (2026-07-14), roleplays and practice guides (2026-07-16), quizzes
+  (2026-07-17). No authoring chat surface remains in `src/` or `views/`, and the
+  shared chat client modules were deleted with the quiz work. Ownership
+  boundaries are documented per resource in
+  [Quiz AI Modifications](../features/quiz-ai-modifications.md) and the roadmap
+  entries above. Legacy `authoring_messages_json` columns remain readable by
+  design; no destructive migration was introduced.
 
 ## 1.4 Voice Messages in Roleplays
 
