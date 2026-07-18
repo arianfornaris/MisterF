@@ -239,6 +239,20 @@ profesor, una conversación con el tutor virtual y una necesidad cotidiana
 podrían contribuir al mismo perfil de aprendizaje, siempre dentro de límites
 claros de privacidad y consentimiento.
 
+### 5.1. Dimensión transversal: referidos y economía de creadores
+
+Además de utilizar Mister F para enseñar, un profesor podría recomendar la
+plataforma a sus estudiantes y recibir una comisión cuando una referencia se
+convierta en una compra elegible. En una etapa posterior, profesores y otros
+creadores también podrían monetizar recursos o recorridos propios.
+
+Esta dimensión puede conectar adquisición, distribución y sostenibilidad de los
+profesores, pero no constituye todavía un quinto mercado ni una función
+aprobada. El programa de referidos debe validarse antes y mantenerse separado
+de una economía de contenidos, que añade propiedad intelectual, moderación,
+pagos y soporte. La hipótesis completa se desarrolla en
+[Programa de referidos y monetización de profesores y creadores](./programa-de-referidos-y-creadores.md).
+
 ## 6. Públicos y roles iniciales
 
 Es importante no tratar como equivalentes al usuario, al beneficiario y al
@@ -247,7 +261,8 @@ cliente que paga.
 | Rol | Necesidad principal | Posible relación comercial |
 | --- | --- | --- |
 | Estudiante de un profesor | Completar tareas, entender errores y practicar | Puede acceder por invitación; podría convertirse en cliente directo |
-| Profesor o tutor independiente | Crear práctica y extender su acompañamiento | Usuario profesional y posible cliente |
+| Profesor o tutor independiente | Crear práctica, extender su acompañamiento y recomendar una herramienta confiable | Usuario profesional, posible cliente, canal y participante de referidos |
+| Creador educativo | Diseñar recursos o recorridos para una audiencia | Posible afiliado y, en una etapa posterior, participante en ingresos de contenido |
 | Estudiante independiente | Organizar y personalizar su aprendizaje | Usuario y posible cliente directo |
 | Persona con una meta específica | Aprender inglés y contenido aplicado | Usuario directo o participante de una organización |
 | Institución u organización | Apoyar a una población y observar resultados | Posible comprador, aliado o canal |
@@ -300,6 +315,9 @@ marca o mercadeo.
    debe suponer capital, publicidad, empleados o herramientas adicionales que no
    estén financiados. Los primeros ingresos deben cubrir sus costos variables y
    acercar el producto a sostener la operación.
+10. **El valor compartido requiere transparencia y margen.** Una recompensa a
+    profesores o creadores debe divulgarse claramente, financiarse con ingresos
+    elegibles y conservar una contribución sostenible para Mister F.
 
 ## 9. Hipótesis estratégicas por validar
 
@@ -309,6 +327,11 @@ marca o mercadeo.
   tareas y la comprensión del estudiante.
 - Una parte de los estudiantes invitados por profesores continuará utilizando
   Mister F de forma independiente.
+- Una comisión transparente y económicamente viable aumentará las referencias
+  de profesores sin reducir la confianza o la calidad de los usuarios
+  adquiridos.
+- Los profesores distinguen y valoran de forma diferente monetizar referencias
+  y monetizar recursos educativos propios.
 - Los usuarios de autoaprendizaje necesitan una combinación de conversación
   abierta y recorridos guiados.
 - Los objetivos concretos, como ciudadanía o tránsito, generan una motivación y
@@ -347,6 +370,10 @@ otras, estas preguntas:
    sin comprometer la calidad ni su bienestar?
 10. ¿Cuál es el desglose exacto de los USD 60 mensuales y qué gasto puede
     reducirse, sustituirse o pasar a ser financiado por clientes?
+11. ¿Qué tipo de recompensa por referidos alinea a profesores, estudiantes y
+    Mister F sin destruir el margen ni crear una carga operativa excesiva?
+12. ¿Cuándo, si alguna vez, debe Mister F evolucionar desde referidos hacia una
+    economía de recursos creados por terceros?
 
 ## 11. Próximo nivel de documentación
 

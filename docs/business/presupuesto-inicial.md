@@ -205,6 +205,12 @@ El crecimiento inicial debe depender de:
 La publicidad pagada se pospone hasta conocer activación, retención, precio y
 margen.
 
+Un programa de referidos puede convertir parte de la adquisición en un costo
+variable financiado por ventas. Sin embargo, cada comisión debe reservarse a
+partir de ingresos elegibles y registrarse como una obligación del negocio. No
+puede salir del presupuesto personal de USD 60 ni considerarse ganancia de
+Mister F mientras esté pendiente de pago o reversión.
+
 ### Investigación de la competencia
 
 Las pruebas pagadas de competidores deben realizarse de forma secuencial, no
@@ -249,4 +255,6 @@ Todo plan del negocio debe:
 8. identificar cuándo un requisito profesional obliga a posponer una actividad;
 9. considerar el tiempo de Arian como un recurso económico limitado;
 10. explicar cómo una iniciativa puede acercar al negocio a cubrir sus propios
-    costos.
+    costos;
+11. tratar comisiones, reembolsos, disputas y tarifas de pago como costos
+    variables antes de calcular el margen.

@@ -24,6 +24,9 @@ documentación técnica del proyecto continúa escribiéndose en inglés.
 - [Investigación de la competencia](./investigacion-de-la-competencia.md): mapa
   competitivo, análisis por enfoque, oportunidades, riesgos y posicionamiento
   recomendado para validar.
+- [Programa de referidos y monetización de profesores y creadores](./programa-de-referidos-y-creadores.md):
+  hipótesis inspirada en Gumroad, modelos posibles, unidad económica, riesgos y
+  plan de validación de bajo costo.
 
 ## Contexto obligatorio
 
@@ -41,6 +44,11 @@ El negocio es autofinanciado y dispone actualmente de aproximadamente USD 60
 mensuales para dominios, servidores, herramientas de IA y el resto de la
 operación. Ningún plan debe asumir capital adicional sin una decisión explícita
 del fundador.
+
+Los planes sobre adquisición, incentivos para profesores o economía de
+creadores deben consultar
+[Programa de referidos y monetización de profesores y creadores](./programa-de-referidos-y-creadores.md)
+y distinguir las hipótesis pendientes de las políticas ya aprobadas.
 
 ## Naturaleza de estos documentos
 

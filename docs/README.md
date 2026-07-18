@@ -46,6 +46,9 @@ English documentation convention.
 - [Competitive Research](./business/investigacion-de-la-competencia.md):
   Spanish-language competitive landscape, risks, opportunities, and
   positioning hypotheses
+- [Teacher and Creator Referral Program](./business/programa-de-referidos-y-creadores.md):
+  Spanish-language hypothesis for referrals, creator monetization, unit
+  economics, risks, and low-cost validation
 
 ### Architecture
 

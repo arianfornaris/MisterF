@@ -40,6 +40,12 @@ experiencia construyendo software en equipos pequeños o de una sola persona.
 Entre sus antecedentes se encuentra Phaser Editor, una herramienta que
 desarrolló y comercializó por sí solo desde Cuba.
 
+Parte de su experiencia comercial incluye el uso del programa de referidos de
+Gumroad. Esa experiencia práctica inspira la hipótesis de permitir que
+profesores y creadores moneticen referencias a Mister F. Se considera una
+fuente valiosa de patrones y preguntas, no una prueba de que las reglas o la
+economía de Gumroad puedan trasladarse directamente a este producto.
+
 Esa experiencia demuestra capacidad para diseñar, construir, publicar y
 mantener un producto especializado con pocos recursos. No demuestra por sí sola
 conocimiento del mercado estadounidense, ventas locales, regulación, finanzas o
@@ -122,6 +128,10 @@ producto con rapidez sin depender inicialmente de un equipo de ingeniería.
 **Experiencia previa como creador independiente.** Phaser Editor demuestra que
 Arian puede sostener y comercializar un producto especializado como operador
 único.
+
+**Experiencia directa con referidos digitales.** La participación en el modelo
+de Gumroad permite partir de una comprensión práctica de enlaces, comisiones y
+motivaciones de creadores, aunque Mister F deba validar su propio diseño.
 
 **Motivación de largo plazo.** El producto resuelve problemas que afectan al
 fundador, su familia y su comunidad, lo que puede sostener el esfuerzo durante

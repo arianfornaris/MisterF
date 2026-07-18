@@ -43,6 +43,10 @@ market evidence. Use approximately USD 60 per month as the current total
 founder-funded operating budget. Do not assume paid acquisition, overlapping
 SaaS subscriptions, employees, contractors, or professional services are
 funded; separate required external expertise from currently affordable work.
+When a business document discusses acquisition, teacher incentives, referrals,
+affiliates, or creator monetization, also read
+`docs/business/programa-de-referidos-y-creadores.md` and distinguish its
+unvalidated hypotheses from approved operating policies.
 
 ## Product UI Copy
 

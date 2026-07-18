@@ -575,6 +575,19 @@ puede acelerar la comprensión del flujo entre clase, tarea y práctica. Para
 evitar diseñar un producto excesivamente específico, cada hallazgo importante
 debe contrastarse con otros profesores independientes.
 
+### 10.8. Compartir el valor económico con el canal docente
+
+Un profesor no solo puede utilizar Mister F: también puede ser la persona de
+confianza que presenta la plataforma al estudiante. Un programa de referidos
+podría transformar parte de la adquisición en un costo variable y ofrecer al
+profesor una fuente complementaria de ingresos.
+
+Esta oportunidad no se deriva de que otros productos educativos carezcan de
+programas de afiliados. La hipótesis diferenciadora es integrar recomendación,
+actividad educativa compartida y continuidad autónoma del estudiante. Debe
+validarse que la comisión mejore la adopción sin perjudicar el margen o la
+confianza.
+
 ## 11. Lo que no parece una ventaja sostenible
 
 - “Utilizamos inteligencia artificial”. Todos los grupos analizados ya la
@@ -665,6 +678,16 @@ igualarlas impediría que Arian dedique tiempo a usuarios, ventas y operación.
 continuidad entre tarea, evaluación y práctica; tratar las funciones de los
 competidores como alternativas que el usuario ya tiene, no como una lista que
 Mister F deba replicar.
+
+### Riesgo 9 — Convertir un canal en un sistema financiero prematuro
+
+Referidos, contenido de terceros y pagos a creadores pueden parecer una sola
+función, pero requieren atribución, conciliación, reembolsos, prevención de
+fraude, divulgación y cumplimiento fiscal.
+
+**Respuesta recomendada:** validar primero una oferta pagada; después probar
+referidos con pocos profesores y reglas manuales; posponer el marketplace de
+contenido hasta demostrar margen, retención y capacidad operativa.
 
 ## 13. Posicionamiento recomendado para validar
 

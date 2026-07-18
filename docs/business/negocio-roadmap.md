@@ -23,6 +23,11 @@ mensuales, ya dedicados en gran medida a dominios, servidores y herramientas de
 IA. El roadmap debe interpretarse también junto con
 [Presupuesto inicial y disciplina financiera](./presupuesto-inicial.md).
 
+La posible monetización de profesores y creadores mediante referencias se
+documenta como una hipótesis transversal en
+[Programa de referidos y monetización de profesores y creadores](./programa-de-referidos-y-creadores.md).
+No debe confundirse una idea documentada con un programa ya aprobado.
+
 El roadmap no garantiza el éxito. Su función es reducir incertidumbre en el
 orden correcto: primero demostrar que existe un problema importante para un
 público accesible; después demostrar uso, aprendizaje y disposición a pagar; y
@@ -143,6 +148,9 @@ que exista un modelo de negocio validado.
   único fundador y operador.
 - [x] Documentar el presupuesto operativo actual de aproximadamente USD 60
   mensuales y establecer reglas de disciplina financiera.
+- [x] Documentar la hipótesis de un programa de referidos inspirado en la
+  experiencia de Gumroad y separar referencias de una futura economía de
+  creadores.
 - [ ] Crear el registro detallado de servicios, costos y fechas de renovación.
 - [x] Crear este roadmap como registro vivo de prioridades, evidencia y
   decisiones.
@@ -161,6 +169,8 @@ que exista un modelo de negocio validado.
 - [ ] Precio y margen de contribución validados.
 - [ ] Retención de profesores o estudiantes demostrada por cohortes.
 - [ ] Un canal repetible de adquisición de clientes.
+- [ ] Un programa de referidos con atribución, margen y carga operativa
+  validados.
 - [ ] Ingresos suficientes para sostener la operación.
 
 ## 5. Orden estratégico recomendado
@@ -396,6 +406,8 @@ Pasos:
 - [ ] Separar ingresos recurrentes, pagos únicos, créditos y descuentos.
 - [ ] Medir margen de contribución por cliente después de inteligencia
   artificial, pagos, infraestructura y soporte directo.
+- [ ] Modelar el margen después de descuentos, comisiones por referidos,
+  reembolsos, disputas y costos de pago.
 - [ ] Analizar retención por cohorte de profesores y estudiantes.
 - [ ] Identificar el evento de activación que mejor predice el uso repetido.
 - [ ] Documentar por qué los clientes renuevan, reducen uso o cancelan.
@@ -432,6 +444,12 @@ Pasos:
   costo de adquisición.
 - [ ] Crear materiales de venta basados en resultados de clientes reales.
 - [ ] Diseñar un mecanismo de recomendación para profesores y estudiantes.
+- [ ] Entrevistar a profesores y estudiantes sobre incentivos, divulgación y
+  confianza antes de prometer comisiones.
+- [ ] Probar un programa cerrado y manual con pocos profesores únicamente
+  después de validar una oferta pagada y revisar los requisitos operativos.
+- [ ] Comparar activación, retención, margen y soporte de usuarios referidos con
+  los adquiridos por otros canales.
 - [ ] Documentar el proceso comercial desde el primer contacto hasta la
   activación.
 - [ ] Repetir el proceso con suficientes clientes para distinguir una señal de
@@ -524,6 +542,8 @@ pueden ajustarse, pero el orden debe preservarse.
 ### Días 16 a 35 — Descubrimiento
 
 - realizar las entrevistas con profesores y estudiantes;
+- investigar si los profesores ya recomiendan productos, si aceptarían una
+  comisión y cómo esperan divulgarla a sus estudiantes;
 - observar procesos reales de tareas y revisión;
 - sintetizar patrones semanalmente;
 - decidir si continuar, ajustar o cambiar el segmento;
@@ -567,6 +587,7 @@ El roadmap debe revisarse junto con un tablero que, como mínimo, registre:
 | Caja | Gasto operativo mensual | Aproximadamente USD 60 |
 | Caja | Ingresos que cubren la operación básica | Sin medir |
 | Crecimiento | Clientes nuevos por canal | Sin medir |
+| Crecimiento | Profesores que producen referencias pagadas y rentables | Sin medir |
 
 Las métricas de uso existentes pueden ayudar, pero no sustituyen entrevistas,
 pagos ni medición del resultado educativo.
@@ -594,7 +615,11 @@ Las siguientes decisiones no deben ser asumidas por el roadmap:
 10. decidir qué gasto personal extraordinario, si alguno, puede autorizar fuera
     de los USD 60 y bajo qué condiciones;
 11. decidir cómo se reinvertirán los primeros ingresos sin crear gastos fijos
-    prematuros.
+    prematuros;
+12. decidir si el programa inicial recompensará una primera compra o ingresos
+    recurrentes y bajo qué límites;
+13. decidir cuándo existe suficiente margen y validación legal, fiscal y
+    operativa para pagar comisiones reales.
 
 ## 10. Próximos documentos recomendados
 
