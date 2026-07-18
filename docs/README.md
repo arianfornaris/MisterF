@@ -25,6 +25,31 @@ deferrals.
 
 ## Structure
 
+### Business
+
+Use `business/` for the Spanish-language strategic and commercial documentation
+for Mister F. This directory is an intentional exception to the repository's
+English documentation convention.
+
+- [Business Documentation](./business/README.md): Spanish-language index for
+  the business documentation
+- [Founder Context](./business/contexto-del-fundador.md): founder profile,
+  solo-operator constraints, strengths, and operating rules for every business
+  plan
+- [Initial Budget](./business/presupuesto-inicial.md): the founder-funded USD
+  60 monthly operating constraint and financial discipline rules
+- [Business Foundations](./business/fundamentos-del-negocio.md): initial
+  vision, product entry points, audiences, principles, hypotheses, and open
+  decisions
+- [Business Roadmap](./business/negocio-roadmap.md): completed milestones,
+  validation phases, business gates, and a suggested 90-day action plan
+- [Competitive Research](./business/investigacion-de-la-competencia.md):
+  Spanish-language competitive landscape, risks, opportunities, and
+  positioning hypotheses
+- [Teacher and Creator Referral Program](./business/programa-de-referidos-y-creadores.md):
+  Spanish-language hypothesis for referrals, creator monetization, unit
+  economics, risks, and low-cost validation
+
 ### Architecture
 
 Use `architecture/` for documents that explain how the system is organized and
