@@ -5,6 +5,12 @@
     <div>
       <p class="app-page-kicker"><%= t('quizzes.resultKicker') %></p>
       <h1><%= resultTitle %></h1>
+      <% if (resultOwnerView) { %>
+        <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0" role="note">
+          <i class="bi bi-person-circle flex-shrink-0" aria-hidden="true"></i>
+          <span><%= t('quizzes.resultOwnerView', { name: resultOwnerViewStudentLabel }) %></span>
+        </div>
+      <% } else { %>
       <div class="resource-action-row mt-3">
         <% if (isAuthenticated) { %>
           <form method="post" action="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
@@ -32,6 +38,7 @@
           <a class="btn btn-outline-secondary" href="/login?returnTo=<%= encodeURIComponent(resultReturnTo) %>"><%= t('quizzes.alreadyHaveAccount') %></a>
         <% } %>
       </div>
+      <% } %>
     </div>
     <div class="app-page-header-actions">
       <a

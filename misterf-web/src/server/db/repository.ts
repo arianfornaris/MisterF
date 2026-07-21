@@ -92,6 +92,7 @@ export type StoredResourceFolderMoveOption = StoredResource & {
 };
 
 export type StoredResourceShareLink = {
+  collectResults: boolean;
   createdAt: string;
   id: string;
   resourceId: string;
@@ -200,6 +201,7 @@ export type QuizAuthoringMessage = {
 export type StoredQuizAttempt = {
   quizId: string;
   claimToken: string | null;
+  collectResults: boolean;
   createdAt: string;
   evaluatedAt: string | null;
   guestToken: string | null;
@@ -456,6 +458,7 @@ type ResourceFolderMoveOptionRow = ResourceRow & {
 };
 
 type ResourceShareLinkRow = {
+  collect_results: number;
   created_at: string;
   id: string;
   resource_id: string;
@@ -547,6 +550,7 @@ type QuizRow = {
 type QuizAttemptRow = {
   quiz_id: string;
   claim_token: string | null;
+  collect_results: number;
   created_at: string;
   evaluated_at: string | null;
   guest_token: string | null;
@@ -752,6 +756,7 @@ function toStoredResourceFolderMoveOption(
 
 function toStoredResourceShareLink(row: ResourceShareLinkRow): StoredResourceShareLink {
   return {
+    collectResults: row.collect_results === 1,
     createdAt: row.created_at,
     id: row.id,
     resourceId: row.resource_id,
@@ -1011,6 +1016,7 @@ function toStoredQuizAttempt(row: QuizAttemptRow): StoredQuizAttempt {
   return {
     quizId: row.quiz_id,
     claimToken: row.claim_token,
+    collectResults: row.collect_results === 1,
     createdAt: row.created_at,
     evaluatedAt: row.evaluated_at,
     guestToken: row.guest_token,
@@ -2382,7 +2388,7 @@ export function findResourceShareLinkById(
   const row = getDb()
     .prepare(
       `
-        SELECT id, resource_id, created_at, revoked_at
+        SELECT id, resource_id, collect_results, created_at, revoked_at
         FROM resource_share_links
         WHERE id = ?
       `,
@@ -2398,7 +2404,7 @@ export function findResourceShareLinkForResource(
   const row = getDb()
     .prepare(
       `
-        SELECT id, resource_id, created_at, revoked_at
+        SELECT id, resource_id, collect_results, created_at, revoked_at
         FROM resource_share_links
         WHERE resource_id = ?
           AND revoked_at IS NULL
@@ -2427,6 +2433,21 @@ export function getOrCreateResourceShareLink(
   }
 
   return created;
+}
+
+export function setResourceShareLinkCollectResults(input: {
+  collectResults: boolean;
+  resourceId: string;
+}): void {
+  getDb()
+    .prepare(
+      `
+        UPDATE resource_share_links
+        SET collect_results = ?
+        WHERE resource_id = ?
+      `,
+    )
+    .run(input.collectResults ? 1 : 0, input.resourceId);
 }
 
 export function findResourceAccessGrant(input: {
@@ -3662,6 +3683,7 @@ export function restoreQuizForUser(
 
 export function createQuizAttempt(input: {
   quizId: string;
+  collectResults?: boolean;
   profileId?: string | null;
   snapshot: Record<string, unknown>;
   userId?: string | null;
@@ -3680,9 +3702,10 @@ export function createQuizAttempt(input: {
           profile_id,
           guest_token,
           claim_token,
-          snapshot_json
+          snapshot_json,
+          collect_results
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
     )
     .run(
@@ -3693,6 +3716,7 @@ export function createQuizAttempt(input: {
       guestToken,
       claimToken,
       JSON.stringify(input.snapshot),
+      input.collectResults ? 1 : 0,
     );
 
   const attempt = findQuizAttemptById(id);
@@ -3723,7 +3747,8 @@ export function findQuizAttemptById(id: string): StoredQuizAttempt | null {
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE id = ?
       `,
@@ -3763,7 +3788,8 @@ export function findQuizAttemptByGuestToken(
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE guest_token = ?
       `,
@@ -3795,7 +3821,8 @@ export function findQuizAttemptByClaimToken(
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE claim_token = ?
       `,
@@ -3829,7 +3856,8 @@ export function listQuizAttemptsForUser(input: {
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE user_id = ?
           AND profile_id = ?
@@ -3845,6 +3873,62 @@ export function listQuizAttemptsForUser(input: {
     ) as QuizAttemptRow[];
 
   return rows.map(toStoredQuizAttempt);
+}
+
+export type StoredCollectedQuizAttempt = StoredQuizAttempt & {
+  studentEmail: string | null;
+  studentName: string | null;
+};
+
+/**
+ * Attempts whose share collected results for the resource owner: only
+ * attempts that snapshotted collect_results at start, never the owner's own
+ * attempts (their `Probar` runs and self-attempts stay out of the list).
+ */
+export function listCollectedQuizAttemptsForOwner(input: {
+  ownerUserId: string;
+  quizId: string;
+}): StoredCollectedQuizAttempt[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          qa.quiz_id,
+          qa.claim_token,
+          qa.created_at,
+          qa.evaluated_at,
+          qa.guest_token,
+          qa.id,
+          qa.profile_id,
+          qa.progress_event_id,
+          qa.responses_json,
+          qa.result_json,
+          qa.snapshot_json,
+          qa.started_at,
+          qa.status,
+          qa.submitted_at,
+          qa.updated_at,
+          qa.user_id,
+          qa.collect_results,
+          users.email AS student_email,
+          users.full_name AS student_name
+        FROM quiz_attempts qa
+        LEFT JOIN users ON users.id = qa.user_id
+        WHERE qa.quiz_id = ?
+          AND qa.collect_results = 1
+          AND (qa.user_id IS NULL OR qa.user_id != ?)
+        ORDER BY qa.created_at DESC
+      `,
+    )
+    .all(input.quizId, input.ownerUserId) as Array<
+    QuizAttemptRow & { student_email: string | null; student_name: string | null }
+  >;
+
+  return rows.map((row) => ({
+    ...toStoredQuizAttempt(row),
+    studentEmail: row.student_email,
+    studentName: row.student_name,
+  }));
 }
 
 export function submitQuizAttempt(input: {

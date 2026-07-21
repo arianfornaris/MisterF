@@ -126,7 +126,13 @@ export const en: LocaleCatalog = {
     notNow: 'Not now',
     takeQuiz: 'Take the quiz',
     start: 'Start',
+    starting: 'Getting the activity ready...',
     addToMyResources: 'Add to my resources',
+    sharedResultsNotice:
+      'The person who shared this activity will see your answers and your evaluation. By starting, you agree to share them.',
+    shareCollectResultsLabel: 'Receive the results of people who complete it',
+    shareCollectResultsHint:
+      'With this option on, people opening the link see a notice and their results appear in the Results section. It only applies to attempts started after the change.',
   },
   mediaLibrary: {
     applyFilters: 'Apply filters',
@@ -502,6 +508,9 @@ export const en: LocaleCatalog = {
     quizKicker: 'Quiz',
     submit: 'Submit',
     evaluating: 'Evaluating the quiz...',
+    evaluatingCopy:
+      'We are reviewing your answers. This can take a few seconds; please keep this page open.',
+    seeResult: 'See my result',
     resultKicker: 'Result',
     practice: 'Practice',
     saveProgress: 'Save to my progress',
@@ -554,6 +563,12 @@ export const en: LocaleCatalog = {
     blocks: 'Blocks',
     submissions: 'Submissions',
     submission: 'Submission',
+    resultsSectionTitle: 'Student results',
+    resultsEmpty:
+      'No student results yet. Share the quiz link to start receiving them.',
+    resultsGuestStudent: 'Guest',
+    resultOwnerView:
+      'You are viewing {{name}}’s result in read-only mode.',
     noOtherProfiles:
       'You don’t have other profiles available to receive this quiz.',
     shareLinkBody:
@@ -709,6 +724,7 @@ export const en: LocaleCatalog = {
     retryEvaluation: 'Retry evaluation',
     beingEvaluated: 'This attempt is being evaluated.',
     processing: 'Processing the Roleplay...',
+    starting: 'Getting the Roleplay ready...',
     turnsEvaluatedSuffix: 'turns evaluated',
     strengths: 'Strengths',
     difficulties: 'Difficulties',
@@ -1029,6 +1045,9 @@ export const en: LocaleCatalog = {
       'If you close this quiz, you’ll lose this pending evaluation. Do you want to abort it?',
     quizBack: 'Back',
     quizSubmitted: 'Quiz submitted. Mister F is evaluating it.',
+    evaluationCorrect: 'Correct',
+    evaluationIncorrect: 'Incorrect',
+    evaluationPartial: 'Partial',
     section: 'Section',
     orderDropzone: 'Build the sequence here',
     orderNotYet: 'Not yet. Reorder the sequence and try again.',

@@ -175,6 +175,47 @@
     </div>
   </section>
 
+  <% if (canManageQuiz) { %>
+    <div class="resource-section">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <h2 class="h5 mb-0"><%= t('quizzes.resultsSectionTitle') %></h2>
+        <span class="badge text-bg-light border"><%= quizCollectedAttempts.length %></span>
+      </div>
+      <% if (quizCollectedAttempts.length === 0) { %>
+        <p class="text-body-secondary mb-0"><%= t('quizzes.resultsEmpty') %></p>
+      <% } else { %>
+        <div class="list-group shadow-sm">
+          <% quizCollectedAttempts.forEach((attempt) => { %>
+            <% if (attempt.status === 'evaluated') { %>
+              <a class="list-group-item list-group-item-action" href="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/result">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                  <span>
+                    <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= attempt.studentLabel %>
+                    <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
+                    <% if (attempt.resultSummaryLabel) { %>
+                      <span class="badge text-bg-light border ms-1"><%= attempt.resultSummaryLabel %></span>
+                    <% } %>
+                  </span>
+                  <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
+                </div>
+              </a>
+            <% } else { %>
+              <div class="list-group-item">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                  <span>
+                    <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= attempt.studentLabel %>
+                    <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
+                  </span>
+                  <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
+                </div>
+              </div>
+            <% } %>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
   <% if (quizAttempts.length > 0) { %>
     <div class="resource-section">
       <h2 class="h5"><%= t('quizzes.submissions') %></h2>
@@ -258,6 +299,29 @@
         <p class="mb-0 text-body-secondary">
           <%= t('quizzes.shareLinkBody') %>
         </p>
+        <div>
+          <form
+            method="post"
+            action="/resources/<%= encodeURIComponent(selectedQuiz.id) %>/share/collect-results"
+            class="form-check form-switch mb-1"
+          >
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>?share=link">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              id="quizShareCollectResults"
+              name="collectResults"
+              <%= shareLink && shareLink.collectResults ? 'checked' : '' %>
+              onchange="this.form.requestSubmit()"
+            >
+            <label class="form-check-label" for="quizShareCollectResults">
+              <%= t('resources.shareCollectResultsLabel') %>
+            </label>
+          </form>
+          <p class="form-text mb-0"><%= t('resources.shareCollectResultsHint') %></p>
+        </div>
         <label class="form-label" for="quizShareLink"><%= t('resources.link') %></label>
         <input class="form-control" id="quizShareLink" value="<%= shareUrl %>" readonly data-quiz-share-link-field>
         <div class="d-flex flex-wrap gap-2">

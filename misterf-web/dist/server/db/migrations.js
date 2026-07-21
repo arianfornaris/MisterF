@@ -1998,5 +1998,16 @@ export const migrations = [
       ALTER TABLE roleplays DROP COLUMN max_learner_turns;
     `,
     },
+    {
+        id: 24,
+        name: 'add_share_results_feedback_flag',
+        up: `
+      ALTER TABLE resource_share_links
+        ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 1;
+
+      ALTER TABLE quiz_attempts
+        ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 0;
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

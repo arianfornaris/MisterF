@@ -133,7 +133,12 @@ que exista un modelo de negocio validado.
 - [x] Ampliar la plataforma para ofrecer interfaz e instrucción en español,
   inglés y criollo haitiano. V2 fue publicada el 8 de julio de 2026.
 - [~] Continuar ampliando las capacidades pedagógicas del producto mediante el
-  roadmap técnico V3.
+  roadmap técnico V3. Actualización del 18 de julio de 2026: V3 fue reenfocado
+  como el MVP del piloto docente — resultados visibles para el dueño del quiz
+  y reporte para la próxima clase — según la
+  [Propuesta de MVP](./propuesta-mvp.md); las fases restantes de comprensión,
+  la biblioteca de medios pendiente y otros trabajos no esenciales para el
+  piloto pasaron al roadmap técnico V4.
 
 ### 4.3. Base estratégica
 

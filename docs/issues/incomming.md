@@ -29,6 +29,11 @@ clase, fechas de entrega, dashboards del profesor, revisión de resultados de
 estudiantes por parte del profesor, y créditos de estudiantes financiados por
 el profesor o la organización.
 
+Nota: visión completa (roles, aulas, paquetes, invitaciones, organizaciones y
+su camino por etapas) capturada el 2026-07-18 en
+`docs/features/classrooms.md`; la primera etapa (resultados a nivel de quiz)
+está propuesta para el MVP de V3.
+
 ---
 
 Intentos públicos/gratuitos de roleplays compartidos, con límite máximo

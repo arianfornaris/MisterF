@@ -1,119 +1,121 @@
 ---
 name: ai-authoring-chat-conventions
-description: Use when adding, editing, or reviewing Mister F AI-assisted resource authoring, including AI draft generation from a prompt, AI chat revision tabs, proposal preview modals, chat shortcuts from other tabs, authoring history persistence, revision prompts, or pending-generation modals for quizzes, roleplays, practice guides, and future resource types.
+description: Use when adding, editing, or reviewing Mister F AI-assisted resource authoring, including AI draft generation from a prompt, Modify-with-AI proposal preview modals, scoped quiz operations (metadata, per-block, add block, blocks+sections), revision prompts, authoring history persistence, or pending-generation modals for quizzes, roleplays, practice guides, and future resource types.
 ---
 
-# AI Authoring Chat Conventions
+# AI Authoring Conventions (Proposal And Approval)
 
 Use this skill with `llm-credit-gate` (every authoring inference runs on the
 author's credit-gated key), `bootstrap-tabs-conventions`, and
 `bootstrap-modal-conventions`.
 
+History note (2026-07): resource authoring chats are fully retired. Scene
+media dropped its chat on 2026-07-14, roleplays and practice guides on
+2026-07-16, and quizzes on 2026-07-17 (live QA 2026-07-20). Every resource now
+uses bounded proposal-and-approval modals. There is no authoring chat surface
+in `src/` or `views/`, and the shared chat client modules
+(`authoringChatRevision.js`, `authoringChatScroll.js`) were deleted. Do not
+reintroduce an authoring chat for a resource without an explicit design
+decision.
+
 ## Lifecycle
 
 - A resource is first created from a natural-language prompt on an AI-first
   `new` page (`generate-draft` style endpoints backed by
-  `services/resourceDrafts.ts`), then edited through manual fields plus the AI
-  editing interaction chosen for that resource.
-- Quizzes currently use a `Chat IA` tab for conversational revisions.
-  Practice guides and roleplays expose one page-level `Modify with AI`
-  proposal-and-approval modal instead.
-- Manual editing and AI revision coexist. Reuse one conversational revision
-  pipeline for resources that expose authoring chat. A resource may instead
-  use a dedicated preview/apply endpoint pair when its UI has a deliberately
-  bounded proposal-and-approval flow, as roleplays and practice guides do.
+  `services/resourceDrafts.ts`), then edited through manual fields plus
+  scoped `Modify with AI` operations.
+- Manual editing and AI revision coexist. Each AI operation is single-turn:
+  request → preview → apply/discard. There is no conversational history sent
+  to the model.
 - Modification previews receive the author's requested change and the complete
   current form state, including unsaved edits. They must not persist the
-  resource or authoring history before approval. A flow may either apply values
-  to the form for a later normal save or hold a complete proposal server-side
-  and commit it through an explicit approval endpoint.
+  resource before approval. The complete proposal is held server-side and
+  committed through an explicit approval endpoint.
 
-## Conversational revision pipeline (server)
+## Scoped Quiz Operations (the reference implementation)
 
-- For resources with `Chat IA`, use one revise endpoint per resource:
-  `POST /<resource>/:id/edit/revise` taking
-  a `message` field. It loads the stored authoring history, calls the
-  `*-revision.md` prompt with `conversationHistory`, `currentDraft` (or
-  current fields), and `requestedChange`, and expects
-  `{ assistantMessage, <draft> }` back.
+Quizzes expose four operations, each scoped to what the author already sees:
+
+- **Metadata** (`General` tab button): revises only the six general fields
+  through a metadata-only schema that cannot emit block content
+  (`quiz-metadata-revision{,-correction}.md`). Routes:
+  `/quizzes/:id/edit/modify{,/apply,/discard}`.
+- **Per-block** (each block card's `⋮` menu): one item in, one item out, with
+  item kind and level as explicit modal parameters; the per-request schema
+  refines `item.kind` to equal the requested kind, so kind change is an
+  explicit control, never model discretion
+  (`quiz-block-revision{,-correction}.md`). Routes:
+  `/quizzes/:id/edit/blocks/:blockId/modify{,/apply,/discard}`.
+- **Add block** (`Agregar bloque`): the same block generator with
+  `currentItem` omitted, plus explicit kind, level, section, and position
+  controls and a preview before insert (`insertQuizBlock` assigns a fresh
+  unique id and canonicalizes order). Routes:
+  `/quizzes/:id/edit/add-block{,/apply,/discard}`.
+- **Blocks + sections** (`Bloques` tab button): revises blocks and sections in
+  one call, full-draft validated so cross-references are caught in the
+  correction loop, previewed as a per-block diff (added / changed / moved /
+  removed / regrouped) with a status summary
+  (`quiz-blocks-revision{,-correction}.md`). Routes:
+  `/quizzes/:id/edit/blocks-modify{,/apply,/discard}`.
+
+Shared infrastructure:
+
+- Server: generic pending-modification store
+  `src/server/resources/modificationPreviewStore.ts`, keyed by operation +
+  optional target, with a `listStringFieldChanges` diff helper.
+- Client: generic modal controller `src/client/shared/modificationModal.js`
+  (describe → preview → apply/retry/discard), supporting multiple triggers on
+  one modal with per-open `resolveContext(trigger)`.
+- Roleplays and practice guides still carry their own near-duplicate store and
+  modal copies; migrating them onto the shared modules is a tracked cleanup.
+  New resources must use the shared modules.
+
+## Proposal And Approval UX
+
+- Use scoped buttons/menu items labeled `Modify with AI` (or the resource's
+  localized equivalent); they do not call the model until the author submits a
+  request.
+- The modal has a required modification request, contextual example, explicit
+  parameters where the operation calls for them (kind, level, placement),
+  cancel action, and immediate generation progress.
+- Send the complete unsaved form state as context. Quiz context passed to
+  block-scoped prompts is quoted untrusted data.
+- Hold the complete proposed result in the bounded server-side preview store
+  keyed to user, profile, resource, operation, and target. Return an opaque
+  preview id plus the changes to render; never trust a replacement draft
+  posted back by the browser.
+- Show only actual differences in a responsive before/after comparison.
+  Render Markdown-capable fields through the shared safe renderer; render quiz
+  items through `quizItemRenderer` (read-only) with an answer-key summary;
+  represent roleplay avatar changes visually.
+- Approval posts only the opaque preview id, rejects expired or stale
+  proposals, atomically writes the proposal, and reloads the edit page from
+  the database. Close/cancel discards the proposal server-side.
 - Invalid model output goes through the matching `*-correction.md` retry
   prompt before failing. System prompts live in `system-prompts/resources/`;
-  follow `system-prompt-coherence` when editing them.
-- The endpoint is dual-mode: when the request `Accept` header includes
-  `application/json` it answers `{ assistantMessage }` on success or
-  `{ error, creditExhausted? }` with status 422 on failure; otherwise it
-  keeps the redirect-to-chat-tab flow as the no-JS fallback. Both paths
-  persist the turn (user + assistant messages, including failure messages).
-- Authoring chat history is persisted on the quiz itself in
-  `authoring_messages_json`. Practice-guide and roleplay columns may remain for
-  backward-compatible reads, but their proposal modifications do not append to
-  them. Do not add separate
-  revision-history tables unless a feature genuinely needs them.
-- History messages store `role`, `content`, `createdAt`, and an optional
-  `draftSnapshot` of the applied result so the model can resolve references
-  like "vuelve a la versión anterior".
+  follow `system-prompt-coherence` when editing them, and register new
+  prompts in `promptPlaceholders.test.ts`.
+- Keep failures and credit-exhaustion recovery inside the modal, using the
+  existing `*CreditExhausted` view flags and buy-credits messaging.
 
-## Chat UX (client)
+## Authoring History
 
-- When a resource exposes `Chat IA`, it must feel like a normal Mister F
-  conversation, never a
-  blocking modal. Reuse `src/client/shared/authoringChatRevision.js`: mark the
-  composer with `data-authoring-chat-form` (plus
-  `data-authoring-chat-credits-return-to`) and the submit button with
-  `data-authoring-chat-submit`; the history container uses
-  `data-authoring-chat-history`.
-- The module appends the teacher bubble, shows a `typing-caret` assistant
-  bubble while waiting, then swaps in the assistant reply. Errors (including
-  credit exhaustion, which adds a buy-credits link) render as assistant
-  bubbles in the chat, not as page alerts.
-- Composer keys match the main chat: Enter sends the message, Shift+Enter
-  inserts a line break (ignore Enter while `event.isComposing`).
-- Shortcuts from other tabs stage a message instead of duplicating pipelines:
-  compose the chat message client-side, call `stageAuthoringChatMessage`, and
-  navigate to the chat tab, where the staged message auto-submits through the
-  normal flow (see the quiz "Agregar bloque" modal). The shortcut's form
-  action keeps a server-side fallback that composes the same message and
-  delegates to the revise handler.
-- Blocking pending modals remain only for full-page generation flows (the
-  AI-first `new` pages); keep that modal open until success or a visible
-  error.
-- Credit exhaustion is product UI, not a raw error: reuse the existing
-  `*CreditExhausted` view flags and buy-credits messaging.
-
-## Proposal And Approval UX (Roleplays And Practice Guides)
-
-- Use one page-level button labeled `Modify with AI`; it does not call the model
-  immediately.
-- The button opens a Bootstrap modal with a required modification request,
-  contextual example, cancel action, and immediate generation progress.
-- Send the complete unsaved resource draft as context and allow the model to
-  revise any authoring field. Practice guides include title, description, and
-  tutor instructions; roleplays include their complete role and avatar fields.
-- Hold the complete proposed draft in a bounded server-side preview store keyed
-  to user, profile, and resource. Return an opaque preview id plus a list of
-  changed fields; never trust a replacement draft posted back by the browser.
-- Show only changed fields in a responsive before/after comparison. Render
-  Markdown-capable descriptions and tutor instructions through the shared safe
-  renderer and represent roleplay avatar changes visually.
-- Approval posts only the opaque preview id, rejects expired or stale proposals,
-  atomically writes the proposed draft, and reloads the edit page from the
-  database. Close/cancel discards the proposal.
-- Keep failures and credit-exhaustion recovery inside the modal. Do not expose
-  an authoring chat for these resources, persist a chat turn, or retain
-  superseded revise routes.
+- The `authoring_messages_json` columns remain only for backward-compatible
+  reads of pre-retirement data. Proposal operations do not append to them.
+  Do not add revision-history tables unless a feature genuinely needs them.
 
 ## Checks Before Finishing
 
-- For resources with authoring chat, verify history round-trips: generate,
-  revise twice, reload the page, and confirm the chat shows all turns.
-- For resources with authoring chat, verify the revise endpoint still handles
-  both modes: fetch with `Accept: application/json` and a plain form POST.
-- For proposal previews, verify the request includes unsaved fields, the
-  comparison contains only actual differences, the database remains unchanged
-  before approval, and apply/discard/stale ids have the expected persistence
-  behavior.
+- Verify the preview request includes unsaved fields, the comparison contains
+  only actual differences, and the database remains unchanged before
+  approval.
+- Verify apply, discard, and stale/expired preview ids have the expected
+  persistence behavior.
+- For scoped operations, verify isolation: a metadata operation cannot touch
+  blocks; a per-block operation leaves every other block byte-identical.
 - Verify the correction prompt path still parses when the main prompt changes
   shape.
-- Add or update service tests for validation and history append behavior.
+- Add or update service contract tests (see `quizAuthoringContracts.test.ts`)
+  and route-architecture guards for new operations.
 - Run typecheck/tests and restart the local server when server or view code
   changed.

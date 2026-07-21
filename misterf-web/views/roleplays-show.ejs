@@ -29,9 +29,18 @@
   <% } %>
 
   <div class="resource-action-row">
-    <form method="post" action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/attempts">
+    <form
+      method="post"
+      action="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/attempts"
+      data-roleplay-pending-form
+    >
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button class="btn btn-primary" type="submit">
+      <button
+        class="btn btn-primary"
+        type="submit"
+        data-roleplay-pending-submit
+        data-loading-text="<%= t('roleplays.starting') %>"
+      >
         <i class="bi bi-play-circle me-1" aria-hidden="true"></i><%= t('resources.start') %>
       </button>
     </form>
@@ -256,5 +265,9 @@
     resourceMoveFolderOptions: roleplayFolderOptions,
   }) %>
 <% } %>
+
+<%- include('partials/roleplay-pending-modal', {
+  roleplayPendingMessage: t('roleplays.starting'),
+}) %>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'roleplays-client-script' }) %>

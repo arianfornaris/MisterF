@@ -19,6 +19,7 @@ import {
   listResourceFolderPathForResource,
   listResourceFoldersForProfile,
   grantResourceAccess,
+  listCollectedQuizAttemptsForOwner,
   listQuizAttemptsForUser,
   markQuizAttemptEvaluating,
   markQuizAttemptFailed,
@@ -27,10 +28,12 @@ import {
   submitQuizAttempt,
   updateQuiz,
   type QuizAuthoringMessage,
+  type StoredCollectedQuizAttempt,
   type StoredQuiz,
   type StoredQuizAttempt,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { findUserById } from '../auth/repository.js';
 import {
   appDocumentTitle,
   buildAbsoluteAppUrl,
@@ -516,6 +519,33 @@ function buildQuizAttemptListItems(
   }));
 }
 
+function buildCollectedQuizAttemptListItems(
+  attempts: StoredCollectedQuizAttempt[],
+  locale: Locale,
+) {
+  return attempts.map((attempt) => {
+    const parsedResult =
+      attempt.status === 'evaluated' && attempt.result
+        ? quizResultBlockSchema.safeParse(attempt.result)
+        : null;
+    const summary = parsedResult?.success
+      ? buildQuizEvaluationSummary(parsedResult.data)
+      : null;
+    return {
+      ...attempt,
+      ...getQuizAttemptStatusView(attempt.status, locale),
+      relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+      resultSummaryLabel: summary
+        ? `${summary.correctCount}/${summary.totalCount}`
+        : '',
+      studentLabel:
+        attempt.studentName
+        || attempt.studentEmail
+        || translate(locale, 'quizzes.resultsGuestStudent'),
+    };
+  });
+}
+
 function getQuizAttemptStatusView(
   status: StoredQuizAttempt['status'],
   locale: Locale,
@@ -701,7 +731,7 @@ function resolveAccessibleAttempt(
   }
 
   const guestToken =
-    readField(request.query.guestToken, 200) || readField(request.body.guestToken, 200);
+    readField(request.query.guestToken, 200) || readField(request.body?.guestToken, 200);
   if (!attempt.userId && attempt.guestToken && guestToken === attempt.guestToken) {
     return attempt;
   }
@@ -745,10 +775,15 @@ function renderQuizResult(
   request: Request,
   response: Response,
   attempt: StoredQuizAttempt,
+  options: { ownerView?: boolean; ownerViewStudentLabel?: string } = {},
 ): void {
   const draft = safeParseQuizDraft(attempt.snapshot);
   const result = attempt.result ? quizResultBlockSchema.safeParse(attempt.result) : null;
   if (!draft || !result?.success) {
+    if (options.ownerView) {
+      response.redirect(`/quizzes/${encodeURIComponent(attempt.quizId)}`);
+      return;
+    }
     response.redirect(appendGuestToken(`/quiz-attempts/${encodeURIComponent(attempt.id)}`, attempt));
     return;
   }
@@ -763,7 +798,11 @@ function renderQuizResult(
     }),
     attempt,
     draft,
-    guestToken: attempt.guestToken || '',
+    // The guest token grants attempt access; the owner's read-only view must
+    // never embed it in links or forms.
+    guestToken: options.ownerView ? '' : attempt.guestToken || '',
+    resultOwnerView: Boolean(options.ownerView),
+    resultOwnerViewStudentLabel: options.ownerViewStudentLabel || '',
     resultBlockJson: serializeViewJson(result.data),
     resultBlock: result.data,
     resultTitle: buildQuizResultTitle(result.data, request.locale),
@@ -1748,6 +1787,12 @@ export async function renderQuizShowPage(
       : resolved.activeProfile.id,
     userId: resolved.user.id,
   });
+  const collectedAttempts = resolved.canManageQuiz
+    ? listCollectedQuizAttemptsForOwner({
+        ownerUserId: resolved.user.id,
+        quizId: resolved.quiz.id,
+      })
+    : [];
 
   renderQuizzesView(response, 'quizzes-show', {
     ...buildQuizzesShellContext(request, {
@@ -1756,6 +1801,10 @@ export async function renderQuizShowPage(
       user: resolved.user,
     }),
     quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
+    quizCollectedAttempts: buildCollectedQuizAttemptListItems(
+      collectedAttempts,
+      request.locale,
+    ),
     quizBlockOutlineItems: buildQuizBlockOutlineItems(draft, request.locale),
     canManageQuiz: resolved.canManageQuiz,
     quizShareMode,
@@ -1867,6 +1916,7 @@ export function handleStartSharedQuizAttempt(request: Request, response: Respons
     });
     const attempt = createQuizAttempt({
       quizId: quiz.id,
+      collectResults: shareLink.collectResults,
       profileId: activeProfile.id,
       snapshot: draft,
       userId: user.id,
@@ -1874,6 +1924,7 @@ export function handleStartSharedQuizAttempt(request: Request, response: Respons
     logger.info('quiz_attempt_started', {
       quizId: quiz.id,
       attemptId: attempt.id,
+      collectResults: attempt.collectResults,
       isGuest: false,
       profileId: attempt.profileId,
       resourceId: quiz.id,
@@ -1899,10 +1950,15 @@ export function handleStartSharedQuizAttempt(request: Request, response: Respons
     return;
   }
 
-  const attempt = createQuizAttempt({ quizId: quiz.id, snapshot: draft });
+  const attempt = createQuizAttempt({
+    quizId: quiz.id,
+    collectResults: shareLink.collectResults,
+    snapshot: draft,
+  });
   logger.info('quiz_public_attempt_started', {
     quizId: quiz.id,
     attemptId: attempt.id,
+    collectResults: attempt.collectResults,
     isGuest: true,
     resourceId: quiz.id,
     resourceType: 'quiz',
@@ -2000,16 +2056,17 @@ export async function handleSubmitQuizAttempt(
   }
 
   // Anonymous student: the answers are saved, but evaluation needs an account.
-  // Send them to sign up / log in; on return the result page claims the attempt
-  // and evaluates it with the new account's own credit-gated key.
+  // Send them to sign up / log in; on return the evaluating page claims the
+  // attempt and evaluates it with the new account's own credit-gated key,
+  // showing progress while the inference runs.
   const user = request.authUser;
   const activeProfile = request.activeProfile;
   if (!user?.emailVerified || !activeProfile) {
-    const resultPath = appendGuestToken(
-      `/quiz-attempts/${encodeURIComponent(submittedAttempt.id)}/result`,
+    const evaluatingPath = appendGuestToken(
+      `/quiz-attempts/${encodeURIComponent(submittedAttempt.id)}/evaluating`,
       submittedAttempt,
     );
-    response.redirect(`/signup?returnTo=${encodeURIComponent(resultPath)}`);
+    response.redirect(`/signup?returnTo=${encodeURIComponent(evaluatingPath)}`);
     return;
   }
 
@@ -2022,6 +2079,89 @@ export async function handleSubmitQuizAttempt(
     response.redirect(`/quiz-attempts/${encodeURIComponent(evaluated.id)}/result`);
   } catch (error) {
     renderQuizEvaluationError(request, response, submittedAttempt, error);
+  }
+}
+
+/**
+ * Interstitial shown while a submitted attempt is evaluated. Rendering this
+ * page is instant; the evaluation inference runs in the POST it triggers, so
+ * the student always sees progress instead of a hanging navigation. This is
+ * the landing spot for a guest who just created an account to see their
+ * result.
+ */
+export function renderQuizEvaluatingPage(request: Request, response: Response): void {
+  const attempt = resolveAccessibleAttempt(request, response);
+  if (!attempt) {
+    return;
+  }
+
+  if (attempt.status === 'evaluated') {
+    response.redirect(
+      appendGuestToken(`/quiz-attempts/${encodeURIComponent(attempt.id)}/result`, attempt),
+    );
+    return;
+  }
+
+  const evaluatingPath = appendGuestToken(
+    `/quiz-attempts/${encodeURIComponent(attempt.id)}/evaluating`,
+    attempt,
+  );
+  const user = request.authUser;
+  if (!user?.emailVerified || !request.activeProfile) {
+    response.redirect(`/signup?returnTo=${encodeURIComponent(evaluatingPath)}`);
+    return;
+  }
+
+  const draft = safeParseQuizDraft(attempt.snapshot);
+  if (!draft) {
+    response.redirect('/resources');
+    return;
+  }
+
+  renderQuizzesView(response, 'quizzes-evaluating', {
+    ...buildQuizzesShellContext(request, {
+      activeProfile: request.activeProfile,
+      title: `${draft.title} - ${appDocumentTitle}`,
+      user,
+    }),
+    attempt,
+    draft,
+    guestToken: attempt.guestToken || '',
+  });
+}
+
+/**
+ * Evaluates a submitted attempt on the student's own credit-gated key,
+ * claiming it first when it started as a guest attempt.
+ */
+export async function handleEvaluateQuizAttempt(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const attempt = resolveAccessibleAttempt(request, response);
+  if (!attempt) {
+    return;
+  }
+
+  const auth = ensureVerifiedQuizUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  if (attempt.status === 'evaluated') {
+    response.redirect(`/quiz-attempts/${encodeURIComponent(attempt.id)}/result`);
+    return;
+  }
+
+  try {
+    const evaluated = await evaluateSubmittedQuizAttemptForUser({
+      attempt,
+      profileId: auth.activeProfile.id,
+      userId: auth.user.id,
+    });
+    response.redirect(`/quiz-attempts/${encodeURIComponent(evaluated.id)}/result`);
+  } catch (error) {
+    renderQuizEvaluationError(request, response, attempt, error);
   }
 }
 
@@ -2099,27 +2239,61 @@ function renderQuizEvaluationError(
 }
 
 export async function renderQuizResultPage(request: Request, response: Response): Promise<void> {
-  let attempt = resolveAccessibleAttempt(request, response);
+  // Quiz-owner read-only view of a collected student attempt. Checked before
+  // the normal resolver so the owner path can never claim, evaluate, or act on
+  // the student's attempt — evaluated attempts render, anything else goes back
+  // to the quiz page.
+  const requestedAttempt = findQuizAttemptById(readField(request.params.attemptId, 120));
+  const viewer = request.authUser;
+  if (
+    requestedAttempt
+    && requestedAttempt.collectResults
+    && viewer?.emailVerified
+    && requestedAttempt.userId !== viewer.id
+  ) {
+    const attemptQuiz = findQuizForUser(requestedAttempt.quizId, viewer.id);
+    if (attemptQuiz) {
+      if (requestedAttempt.status !== 'evaluated') {
+        response.redirect(`/quizzes/${encodeURIComponent(attemptQuiz.id)}`);
+        return;
+      }
+      const studentUser = requestedAttempt.userId
+        ? findUserById(requestedAttempt.userId)
+        : null;
+      logger.info('quiz_owner_result_viewed', {
+        attemptId: requestedAttempt.id,
+        quizId: attemptQuiz.id,
+        resourceId: attemptQuiz.id,
+        resourceType: 'quiz',
+        userId: viewer.id,
+      });
+      renderQuizResult(request, response, requestedAttempt, {
+        ownerView: true,
+        ownerViewStudentLabel:
+          studentUser?.fullName
+          || studentUser?.email
+          || translate(request.locale, 'quizzes.resultsGuestStudent'),
+      });
+      return;
+    }
+  }
+
+  const attempt = resolveAccessibleAttempt(request, response);
   if (!attempt) {
     return;
   }
 
   // A student who filled a quiz as a guest and just signed in / signed up lands
-  // here with the attempt only submitted. Claim it and evaluate it now with
-  // their own credit-gated key, then show the result.
+  // here with the attempt only submitted. Evaluation needs an inference, so it
+  // runs behind the evaluating page (a POST with visible progress) instead of
+  // blocking this render with a blank page.
   const user = request.authUser;
   const activeProfile = request.activeProfile;
   if (user?.emailVerified && activeProfile && attempt.status === 'submitted') {
-    try {
-      attempt = await evaluateSubmittedQuizAttemptForUser({
-        attempt,
-        profileId: activeProfile.id,
-        userId: user.id,
-      });
-    } catch (error) {
-      renderQuizEvaluationError(request, response, attempt, error);
-      return;
-    }
+    response.redirect(
+      appendGuestToken(`/quiz-attempts/${encodeURIComponent(attempt.id)}/evaluating`, attempt),
+    );
+    return;
   }
 
   renderQuizResult(request, response, attempt);

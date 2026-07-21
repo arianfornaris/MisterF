@@ -264,4 +264,98 @@ describe('quiz repository', () => {
     expect(snapshot?.quizAttemptId).toBe(attempt.id);
     expect(snapshot?.quizTitle).toBe(quizDraft.title);
   });
+
+  it('snapshots the share results-feedback flag per attempt and lists collected attempts for the owner', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      createQuizAttempt,
+      findQuizAttemptById,
+      findResourceShareLinkForResource,
+      getOrCreateResourceShareLink,
+      listCollectedQuizAttemptsForOwner,
+      setResourceShareLinkCollectResults,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'collect-owner@example.com',
+      emailVerified: true,
+      fullName: 'Collect Owner',
+      provider: 'google',
+      providerSubject: 'collect-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Owner profile', userId: owner.id });
+    const student = createExternalUser({
+      email: 'collect-student@example.com',
+      emailVerified: true,
+      fullName: 'Collect Student',
+      provider: 'google',
+      providerSubject: 'collect-student',
+    });
+    const studentProfile = createProfile({ name: 'Student profile', userId: student.id });
+
+    const quiz = createQuiz({
+      profileId: ownerProfile.id,
+      quiz: quizDraft,
+      title: quizDraft.title,
+      userId: owner.id,
+    });
+
+    // New share links collect results by default; the flag is per share link
+    // and toggleable.
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+    expect(shareLink.collectResults).toBe(true);
+    setResourceShareLinkCollectResults({ collectResults: false, resourceId: quiz.id });
+    expect(findResourceShareLinkForResource(quiz.id)?.collectResults).toBe(false);
+    setResourceShareLinkCollectResults({ collectResults: true, resourceId: quiz.id });
+    expect(findResourceShareLinkForResource(quiz.id)?.collectResults).toBe(true);
+
+    const collectedStudentAttempt = createQuizAttempt({
+      collectResults: true,
+      profileId: studentProfile.id,
+      quizId: quiz.id,
+      snapshot: quizDraft,
+      userId: student.id,
+    });
+    const collectedGuestAttempt = createQuizAttempt({
+      collectResults: true,
+      quizId: quiz.id,
+      snapshot: quizDraft,
+    });
+    const uncollectedAttempt = createQuizAttempt({
+      profileId: studentProfile.id,
+      quizId: quiz.id,
+      snapshot: quizDraft,
+      userId: student.id,
+    });
+    const ownerAttempt = createQuizAttempt({
+      collectResults: true,
+      profileId: ownerProfile.id,
+      quizId: quiz.id,
+      snapshot: quizDraft,
+      userId: owner.id,
+    });
+
+    expect(findQuizAttemptById(collectedStudentAttempt.id)?.collectResults).toBe(true);
+    expect(findQuizAttemptById(uncollectedAttempt.id)?.collectResults).toBe(false);
+
+    // The owner list contains only collected attempts and never the owner's
+    // own attempts, with the student's account identity joined in.
+    const collected = listCollectedQuizAttemptsForOwner({
+      ownerUserId: owner.id,
+      quizId: quiz.id,
+    });
+    expect(collected.map((item) => item.id).sort()).toEqual(
+      [collectedGuestAttempt.id, collectedStudentAttempt.id].sort(),
+    );
+    expect(collected.map((item) => item.id)).not.toContain(ownerAttempt.id);
+    expect(collected.map((item) => item.id)).not.toContain(uncollectedAttempt.id);
+    expect(
+      collected.find((item) => item.id === collectedStudentAttempt.id)?.studentName,
+    ).toBe('Collect Student');
+    expect(
+      collected.find((item) => item.id === collectedGuestAttempt.id)?.studentName,
+    ).toBeNull();
+  });
 });

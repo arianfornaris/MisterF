@@ -8,6 +8,7 @@ import {
   handleClaimQuizAttempt,
   handleCreateQuizFollowUpConversation,
   handleCreateQuizResource,
+  handleEvaluateQuizAttempt,
   handleDeleteQuizBlock,
   handleDiscardQuizAddBlock,
   handleDiscardQuizBlockModification,
@@ -28,6 +29,7 @@ import {
   handleUpdateQuizMetadata,
   renderQuizAttemptPage,
   renderQuizEditPage,
+  renderQuizEvaluatingPage,
   renderQuizNewPage,
   renderQuizResultPage,
   renderQuizShowPage,
@@ -66,6 +68,8 @@ quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);
 quizzesRouter.post('/quizzes/:quizId/restore', handleRestoreQuiz);
 quizzesRouter.post('/quizzes/:quizId/test-attempts', handleStartQuizTestAttempt);
 quizzesRouter.get('/quiz-attempts/:attemptId', renderQuizAttemptPage);
+quizzesRouter.get('/quiz-attempts/:attemptId/evaluating', renderQuizEvaluatingPage);
+quizzesRouter.post('/quiz-attempts/:attemptId/evaluate', handleEvaluateQuizAttempt);
 quizzesRouter.get('/quiz-attempts/:attemptId/result', renderQuizResultPage);
 quizzesRouter.post('/quiz-attempts/:attemptId/claim', handleClaimQuizAttempt);
 quizzesRouter.post('/quiz-attempts/:attemptId/submit', handleSubmitQuizAttempt);

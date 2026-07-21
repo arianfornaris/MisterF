@@ -676,10 +676,10 @@ function normalizeEvaluationStatus(status) {
 function getEvaluationStatusLabel(status) {
   switch (normalizeEvaluationStatus(status)) {
     case 'correct':
-      return 'Certera';
+      return t('card.evaluationCorrect');
     case 'incorrect':
-      return 'No certera';
+      return t('card.evaluationIncorrect');
     default:
-      return 'Parcial';
+      return t('card.evaluationPartial');
   }
 }

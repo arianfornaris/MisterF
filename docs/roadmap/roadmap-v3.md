@@ -1,13 +1,24 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-15)
+Date: 2026-07-06 (last updated: 2026-07-18)
 
-Status: **In planning.** V3's headline pillar is comprehension exercises
-(listening, reading, and image comprehension), promoted and carried over from
-[Roadmap V2](roadmap-v2.md) where it was scoped out so V2 could ship as the
-internationalization release. Remaining product-feature candidates stay in the
-idea inbox, [issues/incomming.md](../issues/incomming.md), until they are
-promoted here.
+Status: **In progress.** V3's headline is the **Teacher Pilot MVP**: the
+smallest product that lets a real teacher run the full assigned-practice
+cycle — create a quiz from their own material, share it by link, students
+complete it and get evaluated, students practice their difficulties, and the
+teacher sees the attempts and a next-class report. Refocused on 2026-07-18 to
+align with the approved business focus (independent teachers of adult
+immigrant learners); decision record:
+[Roadmap V3/V4 MVP Adjustment Proposal](roadmap-v3-v4-mvp-adjustment-proposal.md)
+and [Propuesta de MVP](../business/propuesta-mvp.md).
+
+The previous headline pillar, comprehension exercises (carried from
+[Roadmap V2](roadmap-v2.md)), was downgraded on the same date: Phase 1
+(reading) stays as an optional stretch goal and the remaining phases moved to
+[Roadmap V4](roadmap-v4.md), along with the remaining scene-media work, voice
+messages in roleplays, and CEFR standardization. Remaining product-feature
+candidates stay in the idea inbox,
+[issues/incomming.md](../issues/incomming.md), until they are promoted here.
 
 This document is the living tracker for V3: items move through the status
 legend as work happens (`[~]` when started, `[x]` with a date when done), and
@@ -46,6 +57,12 @@ item kinds and the `quiz_result` evaluation pipeline, rendered as a single
 card. Implementation follows the design doc's phase order; each phase ships
 independently.
 
+Downgraded on 2026-07-18 (MVP refocus): Phase 1 (reading) is an **optional
+stretch goal** for V3 — it reuses the `quiz`/`quiz_result` pipeline and gives
+pilot teachers one more activity type, but it must not delay the MVP. Phase 2
+(listening), Phase 3 (image), and availability in teacher quizzes moved to
+[Roadmap V4](roadmap-v4.md).
+
 - [ ] Detailed block design decision: `stimulus` field on the existing
   `quiz` block versus dedicated stimulus blocks (the design doc leans to
   the former).
@@ -53,17 +70,9 @@ independently.
   learner's level, questions in the same card, results through the
   `quiz_result` pipeline and progress events. No new infrastructure;
   validates the pattern.
-- [ ] Phase 2 — Listening comprehension: server-side quality TTS from an
-  LLM-generated transcript, audio cached by transcript hash in object
-  storage (DigitalOcean Spaces), two voices for dialogues, player UX
-  (limited replays, 0.75x speed, transcript revealed after answering), and
-  TTS spend inside the existing credit guardrails.
-- [ ] Phase 3 — Image comprehension: curated image library with rich
-  metadata (batch pre-generated or stock, e.g. Pixabay); the tutor selects
-  by metadata and generates questions about the description.
-- [ ] Availability in teacher quizzes: reading/listening sections as quiz
-  items once the stimulus pattern exists in the protocol.
-- [ ] Manual QA per phase against live inference.
+- Phases 2 (listening) and 3 (image), and availability in teacher quizzes:
+  moved to [Roadmap V4](roadmap-v4.md) on 2026-07-18.
+- [ ] Manual QA against live inference for any phase that ships in V3.
 
 Interaction with the V2 i18n work: comprehension stimuli are always in
 English (the target language); question wording and feedback follow the
@@ -77,6 +86,12 @@ Promoted to V3 on 2026-07-07. Design:
 `scene_media` block backed by a shared library of built-in and user-generated
 scene media. V3 starts by promoting curated built-in assets, while the library
 shape leaves room for generated scripts/audio and later dynamic media flows.
+
+**Frozen for V3 on 2026-07-18 (MVP refocus).** The shipped work below stays
+as the V3 record, but every remaining unchecked item — and the pending parts
+of the `[~]` items — is no longer V3 scope; it is tracked in
+[Roadmap V4](roadmap-v4.md) ("Scene Media Library — Remaining Work"). The
+checklist is preserved here for context and history only.
 
 - [x] Promote approved design assets from `design/scene-images/` and
   `design/scene-scripts/` into product runtime asset folders. Done 2026-07-09:
@@ -373,13 +388,23 @@ editing chat to confirm that conversation is still the clearest interaction
 for the resource and that it is not hiding parameters better expressed next to
 the content being changed.
 
-- [~] Review the quiz `Chat IA` edit tab, including the add-block shortcut and
+- [x] Review the quiz `Chat IA` edit tab, including the add-block shortcut and
   whether block-level changes should use contextual controls with preview and
   explicit parameters. Reviewed 2026-07-17: the chat should be replaced by
   scoped per-unit operations. All six implementation phases below are
-  code-complete as of 2026-07-17 (typecheck/tests/build green); the only
-  remaining work is a live logged-in click-through of each operation against real
-  inference before this item is marked done. Design:
+  code-complete as of 2026-07-17 (typecheck/tests/build green). **Done
+  2026-07-20: live logged-in click-through of all four operations against real
+  inference passed** — fresh account, new quiz generated from a prompt, then
+  metadata modify (only changed fields in the preview; apply persisted),
+  per-block modify with an explicit kind change (`fill_in_the_blank_input` →
+  `multiple_choice`; only the target block changed), add block with
+  explicit placement (`start`; preview shown before insert; unique id
+  collision handled), and blocks+sections modify ("Nuevo: 1 · Movido: 5" diff;
+  two sections created and persisted correctly). The discard path was also
+  exercised (preview generated, cancelled, no persistence). Server error log
+  clean across the session (6 LLM calls, 4 previews, 4 applies). Observation,
+  not a bug: the first inserted block gets the id `block` (base id without
+  suffix); later inserts get `block_5` etc. — ids stay unique. Design:
   [Quiz AI Modifications](../features/quiz-ai-modifications.md). The review found
   that, unlike roleplays and practice guides, the quiz chat is the **only** editor
   for block content and the only manager of sections (design-mode block cards are
@@ -396,11 +421,11 @@ the content being changed.
   what a chat turn costs today. The real win is demoting the expensive call from
   the only path to the rare path, with a preview so drift is visible before it
   lands.
-  - [~] Phase 1 — Extract the shared pending-modification store and client
+  - [x] Phase 1 — Extract the shared pending-modification store and client
     preview modal (today duplicated across roleplays and practice guides, keyed
     per resource; quizzes need per-operation/per-target keys), then ship the
     `General` tab button over the six metadata fields. Code complete 2026-07-17;
-    live click-through QA behind login still pending. Delivered: generic
+    live QA passed 2026-07-20. Delivered: generic
     server store `src/server/resources/modificationPreviewStore.ts` (keyed by
     operation + optional target, with a `listStringFieldChanges` diff helper);
     generic client `src/client/shared/modificationModal.js` (describe → preview →
@@ -417,10 +442,11 @@ the content being changed.
     new route is registered on the running dev server. Note: roleplays and
     practice guides still carry their own store/modal copies — migrating them
     onto the shared modules is a deferred cleanup, not required for later phases.
-  - [~] Phase 2 — Per-block menu option: one item in, one item out, side-by-side
+  - [x] Phase 2 — Per-block menu option: one item in, one item out, side-by-side
     preview through the existing `quizItemRenderer` and `preview` card mode, with
     item kind and level as explicit modal parameters. The intended default path.
-    Code complete 2026-07-17; live login click-through QA pending. Delivered:
+    Code complete 2026-07-17; live QA passed 2026-07-20 (including an explicit
+    kind change and the discard path). Delivered:
     block helpers `findQuizBlock`/`setQuizBlockItem` in `services/quizzes.ts`
     (item-only replacement, preserves id/section/other blocks); block-scoped
     revision `generateQuizBlockRevision` in `services/resourceDrafts.ts` (per-
@@ -442,9 +468,10 @@ the content being changed.
     `tests/server` (158), client build, and route registration on the running dev
     server. Answer key shows in the preview (a plus over EJS `preview` mode, which
     hides it).
-  - [~] Phase 3 — Re-point `Agregar bloque` at the block-scoped generator with
+  - [x] Phase 3 — Re-point `Agregar bloque` at the block-scoped generator with
     preview-before-insert and explicit placement, removing the chat facade.
-    Code complete 2026-07-17; live login click-through QA pending. Delivered:
+    Code complete 2026-07-17; live QA passed 2026-07-20 (insert at `start`
+    verified in the persisted draft). Delivered:
     `generateQuizBlockRevision` now doubles as creation when `currentItem` is
     omitted (same one-item-out schema with the kind refine; prompt updated to
     cover create-or-revise); `insertQuizBlock` in `services/quizzes.ts` (fresh
@@ -464,7 +491,9 @@ the content being changed.
     in Phase 5.
   - [x] Phase 4 — `Bloques` tab button over blocks and sections in one call, with
     a block-by-block preview covering changed, added, removed, reordered, and
-    regrouped blocks. Code complete 2026-07-17; live QA pending. Delivered:
+    regrouped blocks. Code complete 2026-07-17; live QA passed 2026-07-20
+    (sections created + regroup + new block in one call, diff labels correct,
+    persistence verified). Delivered:
     `generateQuizBlocksRevision` returns `{ blocks, sections }` only (metadata
     injected + full-draft validated via `superRefine` so section cross-refs and
     unique ids are caught inside the correction loop) with prompts
@@ -502,13 +531,19 @@ the content being changed.
     modals + scoped routes exist; and prompt↔placeholder registration for the four
     new prompts. Full suite: `tests/server`+`tests/db` 181 passing, typecheck and
     test:typecheck clean, client build clean, dev server healthy (200).
-  - [ ] Follow-up — Update the `ai-authoring-chat-conventions` skill and the chat
+  - [x] Follow-up — Update the `ai-authoring-chat-conventions` skill and the chat
     references in
     [Teacher-Assigned Practice](../features/teacher-assigned-practice.md) to match
-    the retired-chat reality (the skill still says "Quizzes currently use a
-    `Chat IA` tab").
+    the retired-chat reality. Done 2026-07-20: the skill was rewritten around
+    the proposal-and-approval model with the four scoped quiz operations as
+    the reference implementation (chat sections removed, retirement history
+    noted); the feature doc got a prominent supersedence note and an updated
+    Implementation Status, keeping the original chat design as historical
+    record.
 - [ ] Migrate roleplay and practice-guide modification modals onto the shared
-  controller. Split out of the quiz work on 2026-07-17: Phase 1 extracted a
+  controller. Optional for V3 (2026-07-18, MVP refocus): keep only if it stays
+  cheap; otherwise it moves to Roadmap V4. Split out of the quiz work on
+  2026-07-17: Phase 1 extracted a
   generic pending-modification store (`server/resources/modificationPreviewStore.ts`)
   and a generic client modal controller (`client/shared/modificationModal.js`,
   with multi-trigger + per-open `resolveContext`), and all four quiz operations
@@ -528,15 +563,17 @@ the content being changed.
   translation-map type enforced parity (typecheck stays green), and
   `quizzes.addBlock` (the button label) was deliberately kept. Verified:
   typecheck, test:typecheck, `tests/server` (168), client build.
-- [ ] Add manual block editing to quiz authoring. Split out of the quiz chat
-  review on 2026-07-17: today a typo in one option cannot be fixed without
-  spending an inference, because design-mode block cards are read-only. The same
-  gap applies to sections, which after the quiz work will be creatable and
-  regroupable only through the `Bloques` AI operation; deterministic section
-  rename/delete/reassign belongs here too. Nine item
-  kinds with different shapes make this a per-kind editor effort comparable to
-  the scoped-operations work itself, so it is tracked on its own. The block
-  change modal with preview makes the gap survivable meanwhile.
+- [ ] Add manual block editing to quiz authoring. **Rescoped 2026-07-18 for
+  the Teacher Pilot MVP:** V3 ships only minimal manual editing for the most
+  common item kinds — fixing a typo must not cost an inference, because a
+  pilot teacher will hit typos and losing trust there is expensive. The full
+  per-kind editor across all nine item kinds and deterministic section
+  rename/delete/reassign move to Roadmap V4. Original context (split out of
+  the quiz chat review on 2026-07-17): a typo in one option cannot be fixed
+  without spending an inference, because design-mode block cards are
+  read-only; the same gap applies to sections, which are creatable and
+  regroupable only through the `Bloques` AI operation. The block change modal
+  with preview makes the gap survivable meanwhile.
 - [x] Retire the practice-guide `Chat IA` edit tab. Practice guides now use the
   roleplay proposal pattern: one page-level `Modify with AI` action receives
   the complete unsaved title, description, and tutor instructions; shows only
@@ -562,56 +599,155 @@ the content being changed.
 
 ## 1.4 Voice Messages in Roleplays
 
-Added 2026-07-08. Idea: let the learner send **audio messages** in a
-[Roleplay](../features/roleplays.md) attempt, and let the fictional character
-reply with audio too when the learner turns that on. This deepens the
-English-production goal of roleplays — practicing speaking and listening, not
-only writing — while staying inside the existing roleplay resource shape
-(snapshot attempt, evaluate, progress, follow-up).
-
-- [ ] Learner audio input: record a spoken English turn in the roleplay-writing
-  UI, transcribe it (speech-to-text), and feed the transcript into the same
-  turn pipeline the written turns use, so evaluation and progress work
-  unchanged. Decide whether the transcript, the audio, or both are persisted in
-  the attempt for later evaluation.
-- [ ] Character audio output (opt-in): when the learner enables it, the
-  fictional character's turns are voiced with TTS. Reuses the shared audio
-  infrastructure from [1.2 Scene Media Library](#12-scene-media-library) and the
-  comprehension Phase 2 TTS work (server-side quality TTS, object-storage
-  caching, voice selection, credit guardrails) — sequence this after that
-  infrastructure exists.
-- [ ] Evaluation of spoken turns: decide how pronunciation/fluency factor into
-  Mr. F's turn-by-turn evaluation, or whether v1 evaluates only the transcript
-  text (same as written turns) and defers spoken-specific feedback.
-- [ ] Cost, latency, and guardrails: STT and TTS spend inside the existing
-  credit guardrails; UX for record/playback limits mirrors the comprehension
-  listening constraints where sensible.
-- [ ] Manual QA against live inference (record → transcribe → character voice
-  reply → evaluate).
-
-Dependency note: the character-audio half leans on the shared media/TTS
-infrastructure from [1.2 Scene Media Library](#12-scene-media-library) and 1.1
-Phase 2 (Listening comprehension), so it is naturally sequenced after that
-lands. The learner-audio (STT) half is more independent and could pilot the
-speech surface earlier.
+Added 2026-07-08. **Moved to [Roadmap V4](roadmap-v4.md) on 2026-07-18 (MVP
+refocus):** the character-audio half is sequenced after the TTS
+infrastructure that also moved to V4, and neither half is needed for the
+teacher pilot. Full scope and notes now live in Roadmap V4.
 
 ## 1.5 CEFR Level Standardization
 
-Added 2026-07-14. Media and Roleplay authoring currently use the `A1-A2`,
-`B1-B2`, and `C1` bands. Formalize how Mister F represents and uses learner
-levels across the entire app without prematurely changing the remaining
-free-form level fields.
+Added 2026-07-14. **Moved to [Roadmap V4](roadmap-v4.md) on 2026-07-18 (MVP
+refocus):** the pilot runs with the existing `A1-A2`/`B1-B2`/`C1` authoring
+bands. Full scope now lives in Roadmap V4.
 
-- [ ] Inventory every level field, prompt, filter, schema, resource type,
-  learner profile, media record, and evaluation surface that currently uses
-  labels such as A1, A2, B1, B2, C1, ranges, or free-form text.
-- [ ] Define one canonical CEFR representation and policy for single levels,
-  ranges, unknown levels, display labels, localization, and backward
-  compatibility with existing records.
-- [ ] Apply the canonical representation consistently across authoring,
-  runtime adaptation, evaluation, progress, resource filtering, and media.
-- [ ] Add migration/compatibility coverage and prompt-contract tests before
-  replacing existing free-form level values.
+## 1.6 Quiz Results & Next-Class Report
+
+Added 2026-07-18. **The MVP centerpiece** and the only wholly missing piece of
+the approved teacher promise ("reach the next class knowing where each
+student needs help"). Business context:
+[Propuesta de MVP](../business/propuesta-mvp.md).
+
+Design decision (2026-07-18, with the founder): no teacher/student profiles,
+no role-aware homes, no dashboards, no classroom entity. Authorization is
+resource-scoped — the quiz owner sees the attempts of their quiz — and the
+surface is the existing quiz page. The long-term classroom/packages/
+organization shape is designed in [Classrooms](../features/classrooms.md) and
+stays out of V3.
+
+- [x] Results-feedback flag on sharing (added 2026-07-20, founder decision):
+  when sharing a quiz, the owner chooses whether they want to receive the
+  results of the people who complete it. Each attempt snapshots the flag
+  at start time: turning the flag on later never exposes attempts made
+  without the disclosure notice, and turning it off stops collection for new
+  attempts without hiding legitimately collected ones. Default on for the
+  teacher flow. Done 2026-07-20: migration 24 adds
+  `resource_share_links.collect_results` (default on; resource-generic, so
+  roleplay/guide shares reuse it as-is) and `quiz_attempts.collect_results`
+  (default off, so pre-flag attempts are never exposed);
+  `POST /resources/:resourceId/share/collect-results` (owner-only) backs a
+  switch in the quiz share-link modal that reopens the modal after saving.
+  Note vs the original sketch: the sharing model is one live link per
+  resource, so "one link with feedback, another without" became "one
+  toggleable flag per share link" — sequential, not simultaneous, control.
+- [x] Attempts visibility for the quiz owner. Done 2026-07-20: a
+  `Resultados de estudiantes` section on the quiz page (owner-only) lists
+  collected attempts — student account name or `Invitado`, status badge,
+  correct/total summary, relative time — and evaluated ones link to a
+  read-only owner view of the result page (banner with the student label; no
+  learner actions; the guest token is never embedded). Only attempts whose
+  share had the flag on at start appear; the owner's own attempts (`Probar`
+  or self-taken) are excluded by query. The owner path in the result handler
+  runs before the normal attempt resolver, so it can never claim or evaluate
+  a student's attempt. Route/repository/migration tests added; live
+  click-through verified (including the frozen-visibility rule). Also fixed
+  in passing: a latent 500 in `resolveAccessibleAttempt` on GETs without a
+  body (`request.body.guestToken` on `undefined`), and the retired-chat
+  leftover in `promptContracts.test.ts` that still loaded
+  `quiz-revision-correction.md`.
+- [x] Disclosure-at-start consent: when the share collects results, the
+  shared-link page states clearly — before answering — that the person who
+  shared the activity will see the student's answers and evaluation;
+  starting the attempt constitutes consent. Shown only when the flag is on
+  (no collection, no notice needed). Adults-only pilot policy. (Per-student
+  opt-in was considered and rejected: an incomplete report breaks the
+  teacher promise. Voluntary sharing is reserved for the student's own
+  follow-up practice, deferred past the MVP.) Done 2026-07-20: notice on the
+  shared page (es/en/ht), gated on the share flag; the flag rides the
+  attempt through the guest → signup → claim flow via the start-time
+  snapshot. Verified live and by route tests (notice shown/hidden per flag).
+- [ ] Next-class report per quiz: deterministic aggregation of persisted
+  results — most-failed items, recurring difficulty patterns, per-student
+  summary, who started follow-up practice. Optional AI-written summary gated
+  on the quiz owner's credits. One clear page; no dashboards.
+- [ ] "Shared by me" aggregated view (added 2026-07-18): one page listing the
+  user's shared resources — quizzes, practice guides, and roleplays, since
+  sharing already exists for all three — with attempt counts and who
+  practiced each, as the guide's entry point. Same primitive, no roles and no
+  new entities — serves the teacher, the private tutor, and a parent with
+  their own account (the parent-child case runs through learning profiles
+  inside the parent's account). Full formula:
+  [Classrooms](../features/classrooms.md).
+- Design constraint (2026-07-18): the MVP returns results for **quizzes
+  only**, but the cross-cutting pieces — disclosure/consent copy, the
+  "Shared by me" view, and the naming of results routes/storage — are built
+  resource-generic, because the same feedback loop extends to roleplays
+  (attempt evaluation + transcript) and practice guides (the session's
+  finalized report, not the raw chat) in the next iteration. Disclosure
+  follows assignment, not resource type.
+- [ ] Funnel instrumentation check: verify each pilot funnel step (invited →
+  started → completed → reviewed → practiced → report viewed) is recorded and
+  queryable, adding minimal events where missing. Manual SQL is acceptable
+  for the pilot.
+- [x] Fix the guest evaluation hand-off. Done 2026-07-20: evaluation used to
+  run inside the result page's GET, so a student who had just signed up sat on
+  a blank navigation for the whole inference. Evaluation moved to
+  `POST /quiz-attempts/:id/evaluate` behind a new
+  `GET /quiz-attempts/:id/evaluating` page that renders instantly with the
+  spinner and self-posts (visible button as the no-JS fallback); the result
+  page now redirects there instead of blocking, and signup returns to it.
+  Verified live: result redirect 29 ms, evaluating page 22 ms, then the normal
+  evaluated-result experience.
+- [ ] Manual QA of the full teacher cycle against live inference (create →
+  share → guest attempt → signup/claim → evaluation → follow-up practice →
+  owner report).
+
+## 1.7 Pilot Readiness
+
+Added 2026-07-18. Operational items that make the pilot runnable within the
+business constraints ([Presupuesto inicial](../business/presupuesto-inicial.md)).
+
+- [ ] Pilot credit mechanics: document the existing superadmin per-user
+  OpenRouter limit flow as the way to fund pilot teachers/students, and
+  define the pilot credit policy with the founder (cap per participant, total
+  pilot budget, behavior when a cap is hit). No new payment infrastructure.
+- [ ] Measure the real AI cost and latency of one full teacher cycle per
+  operation (quiz generation/modification, evaluation, follow-up tutoring,
+  report summary), feeding the contribution-margin input the business docs
+  need. (This is the slice of section 2.1 kept in V3.)
+
+---
+
+## 1.8 Inference Wait-State Coverage
+
+Added 2026-07-20 after the guest-evaluation hang. **Rule: every operation that
+runs an inference must show a wait or progress affordance** — a pending modal,
+an inline spinner, a streamed progress log, or at minimum a disabled button
+with a loading label. A blank navigation or an unresponsive button is a bug,
+because inferences routinely take several seconds and the learner cannot tell
+the app apart from a freeze.
+
+- [x] Audit every inference entry point against its UI surface. Done
+  2026-07-20; covered surfaces confirmed: quiz creation, the four quiz AI
+  modification operations (`data-modify-phase="generating"`), quiz submit,
+  guest evaluation (section 1.6), practice-guide creation and modification,
+  roleplay creation/modification/turns/finish, scene-media creation,
+  variations, title generation and the streamed preview flows, chat finalize,
+  report-practice, and the create-resource-from-context actions. Follow-up
+  practice buttons (`/quiz-attempts/:id/practice`,
+  `/roleplay-attempts/:id/practice`) and the shared practice-guide start run
+  no inference — they create a conversation and hand off to the chat, whose
+  own typing indicator covers the tutor's first message.
+- [x] Fix the two gaps the audit found, both in roleplay opening-turn
+  generation. Done 2026-07-20: (1) starting a roleplay from its detail page
+  posted with no pending wiring at all; (2) starting a shared roleplay is a
+  plain link navigation, so it waited on a blank page. Both now show the
+  pending modal, which was also extracted to
+  `views/partials/roleplay-pending-modal.ejs` instead of being duplicated per
+  page.
+- [ ] Consider a guard test that keeps this rule from regressing: assert every
+  route whose handler resolves a credit-gated key has a UI trigger carrying a
+  known pending marker. Non-trivial because triggers live in EJS and client
+  JS, so it is tracked but not yet scoped.
 
 ---
 
@@ -624,53 +760,35 @@ that resource authoring operations can inherit a global model tier and reasoning
 effort even when their output contract does not require the same quality/latency
 tradeoff as a tutor conversation.
 
-- [ ] Inventory every inference in the application. For each call site, record
-  the product operation, user-visible surface, resolved model in each
-  environment, model tier or explicit model id, reasoning effort, temperature,
-  expected input/output size, structured schema, retry/correction loop, credit
-  boundary, and whether the response is blocking, streamed, or background work.
-- [ ] Measure representative production and local traces per operation: credit
-  check time, provider latency, input/output/reasoning tokens, cost, correction
-  turns, validation failures, and end-to-end user-visible latency. Do not infer
-  suitability from the global tier name alone.
-- [ ] Define and document the model-selection policy for Mister F. Assign a
-  model and reasoning effort deliberately to each inference according to its
-  quality, latency, cost, context-size, and structured-output needs. Structured
-  transformations and bounded draft edits should default to minimal or no
-  reasoning unless evaluation evidence justifies more.
-- [ ] Create a canonical governing artifact for future inference work, preferably
-  `docs/architecture/llm-inference-policy.md` as the source of truth plus a
-  focused project skill or an extension of the existing LLM skills containing
-  the actionable review checklist. It must require every new inference to
-  declare its operation name, model selection, reasoning effort, credit gate,
-  response contract, retry policy, observability, and user-facing latency
-  behavior.
-- [ ] Add automated coverage that prevents inference call sites from silently
-  inheriting unsuitable defaults where an explicit decision is required, and
-  keeps the governing inventory synchronized with code.
-- [ ] Establish a small representative evaluation set per inference class and
-  run live quality/latency/cost comparisons before changing a model or reasoning
-  level. Record the decision and its evidence in the governing artifact.
+**Rescoped 2026-07-18 (MVP refocus):** only the pilot-cycle cost/latency
+measurement stays in V3, tracked as part of
+[1.7 Pilot Readiness](#17-pilot-readiness). The full inventory, model-selection
+policy, governing artifact, CI enforcement, and evaluation sets moved to
+[Roadmap V4](roadmap-v4.md).
 
 ## 2.2 Structured Block Post-Processing
 
-- [ ] Always-on semantic message classifier for tutor blocks, deferred from
-  V2 on 2026-07-06
-  ([Structured Block Post-Processing](../issues/completed/structured-block-postprocessing.md)):
-  a cheap per-response classifier inference that catches exercise payloads in
-  `message` prose that the deterministic linter misses. Prerequisite: quantify
-  the linter's miss rate from production block-repair logs first — the
-  classifier taxes every tutor turn with extra cost and latency, so it must be
-  justified by data. Revisit after the comprehension blocks land, since they
-  change the leakage surface.
+Deferred from V2 on 2026-07-06. **Moved to [Roadmap V4](roadmap-v4.md) on
+2026-07-18** (unchanged: still gated on quantifying the deterministic
+linter's miss rate from production block-repair logs first).
 ---
 
-# V3 Exit Criteria (Draft)
+# V3 Exit Criteria
 
-- [ ] Reading and listening comprehension exercises work end to end in
-  tutor conversations (image comprehension may ship later without blocking
-  V3).
-- [ ] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass;
-  new prompt surfaces have regression fixtures.
+Replaced on 2026-07-18 (MVP refocus). With this scope, shipping V3 makes the
+product pilot-ready; running the pilot itself is business-roadmap work
+([negocio-roadmap](../business/negocio-roadmap.md), Fases 2–4), not a
+technical exit criterion.
+
+- [ ] A real teacher can run the full cycle in production: create a quiz from
+  their own material, share it, students complete it and get evaluated,
+  students can start follow-up practice, and the teacher sees the attempts
+  and the next-class report.
+- [ ] Live logged-in QA of the quiz AI modification operations (section 1.3)
+  is done.
+- [ ] The pilot funnel is measurable end to end, and the AI cost of one full
+  cycle is known.
+- [ ] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass; new
+  surfaces (attempts views, next-class report) have regression coverage.
 - [ ] Deployed to production per the versioning policy
   (`versioning-and-releases` skill).

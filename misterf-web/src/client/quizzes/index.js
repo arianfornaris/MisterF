@@ -132,6 +132,25 @@ function initializeQuizPendingUi() {
 }
 
 /**
+ * The evaluating page posts itself as soon as it loads, so the student sees
+ * the spinner immediately while the evaluation inference runs. The button
+ * stays as the no-JS fallback and is disabled once the auto-submit fires.
+ */
+function initializeQuizAutoSubmit() {
+  const formEl = document.querySelector('[data-quiz-auto-submit-form]');
+  if (!(formEl instanceof HTMLFormElement)) {
+    return;
+  }
+
+  const buttonEl = formEl.querySelector('[data-quiz-auto-submit-button]');
+  if (buttonEl instanceof HTMLButtonElement) {
+    buttonEl.disabled = true;
+  }
+
+  formEl.submit();
+}
+
+/**
  * "Agregar bloque" is a shortcut into the AI chat: compose the message from
  * the selected block kind plus the teacher's prompt, stage it, and jump to
  * the chat tab where it is sent through the normal conversational flow. If
@@ -921,6 +940,7 @@ initializeQuizQuizUi();
 initializeQuizResultUi();
 initializeQuizSharingUi();
 initializeQuizPendingUi();
+initializeQuizAutoSubmit();
 initializeQuizAddBlock();
 initializeQuizMetadataModification();
 initializeQuizBlockModification();

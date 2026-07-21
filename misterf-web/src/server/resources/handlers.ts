@@ -18,6 +18,7 @@ import {
   listResourcesForProfile,
   removeResourceFromFolder,
   restoreResourceForUser,
+  setResourceShareLinkCollectResults,
   updateResourceFolder,
   type StoredResource,
   type StoredAccessibleResource,
@@ -527,6 +528,46 @@ export function handleAcceptSharedResourceLink(
   });
 
   response.redirect(buildResourceDetailPath(resource));
+}
+
+/**
+ * Owner toggle for the share results-feedback flag: whether attempts started
+ * through the resource's share link return their results to the owner. The
+ * flag is snapshotted per attempt at start, so flipping it never changes the
+ * visibility of attempts that already began.
+ */
+export function handleUpdateResourceShareCollectResults(
+  request: Request,
+  response: Response,
+): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const returnTo = normalizeReturnTo(request.body.returnTo);
+  const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+  if (!resource || resource.archivedAt) {
+    response.redirect(returnTo);
+    return;
+  }
+
+  const collectResults = readField(request.body.collectResults, 10) === 'on';
+  getOrCreateResourceShareLink(resource.id);
+  setResourceShareLinkCollectResults({
+    collectResults,
+    resourceId: resource.id,
+  });
+  logger.info('resource_share_collect_results_updated', {
+    ...buildResourceLogDetails({
+      profileId: resource.profileId,
+      resource,
+      userId: auth.user.id,
+    }),
+    collectResults,
+  });
+
+  response.redirect(returnTo);
 }
 
 export function handleShareResourceToProfile(request: Request, response: Response): void {

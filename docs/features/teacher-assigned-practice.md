@@ -4,6 +4,14 @@ Status: implemented — shipped with V1; the Implementation Status section
 below details what landed. Remaining ideas were triaged to the roadmap and
 the idea inbox.
 
+> **2026-07 update — the `AI chat` tab is retired.** Every mention of the
+> `AI chat` / authoring chat below describes the original V1 design and is
+> historical. On 2026-07-17 (live QA 2026-07-20) the chat was replaced by four
+> scoped `Modify with AI` operations with preview-before-apply — metadata
+> (`General` tab), per-block, add block, and blocks+sections (`Bloques` tab).
+> Current design: [Quiz AI Modifications](quiz-ai-modifications.md); current
+> conventions: the `ai-authoring-chat-conventions` skill.
+
 ## Product Intent
 
 Mister F is not only a self-study tutor. A major product direction is helping
@@ -37,9 +45,11 @@ The first V1 implementation is in place:
 
 - `Quizzes` appears in the authenticated sidebar below `Guías de Práctica`.
 - Teachers create an AI-generated quiz from a natural-language prompt.
-- The authoring workspace includes `General`, `Bloques`, and `AI chat` tabs.
-- The `AI chat` tab persists teacher/assistant history and sends that history
-  as context on later quiz revisions.
+- The authoring workspace includes `General` and `Bloques` tabs. (The former
+  `AI chat` tab was retired on 2026-07-17 in favor of scoped `Modify with AI`
+  operations; see [Quiz AI Modifications](quiz-ai-modifications.md). Legacy
+  `?tab=chat` URLs redirect to `general`, and `authoring_messages_json`
+  remains readable for pre-retirement data.)
 - Blocks are numbered for human reference and keep stable internal ids.
 - Teachers can update metadata, reorder, delete, duplicate, and AI-generate
   blocks.

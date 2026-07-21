@@ -94,6 +94,7 @@ function toStoredResourceFolderMoveOption(row) {
 }
 function toStoredResourceShareLink(row) {
     return {
+        collectResults: row.collect_results === 1,
         createdAt: row.created_at,
         id: row.id,
         resourceId: row.resource_id,
@@ -317,6 +318,7 @@ function toStoredQuizAttempt(row) {
     return {
         quizId: row.quiz_id,
         claimToken: row.claim_token,
+        collectResults: row.collect_results === 1,
         createdAt: row.created_at,
         evaluatedAt: row.evaluated_at,
         guestToken: row.guest_token,
@@ -1350,7 +1352,7 @@ export function moveResourceFolderItem(input) {
 export function findResourceShareLinkById(id) {
     const row = getDb()
         .prepare(`
-        SELECT id, resource_id, created_at, revoked_at
+        SELECT id, resource_id, collect_results, created_at, revoked_at
         FROM resource_share_links
         WHERE id = ?
       `)
@@ -1360,7 +1362,7 @@ export function findResourceShareLinkById(id) {
 export function findResourceShareLinkForResource(resourceId) {
     const row = getDb()
         .prepare(`
-        SELECT id, resource_id, created_at, revoked_at
+        SELECT id, resource_id, collect_results, created_at, revoked_at
         FROM resource_share_links
         WHERE resource_id = ?
           AND revoked_at IS NULL
@@ -1381,6 +1383,15 @@ export function getOrCreateResourceShareLink(resourceId) {
         throw new Error('Could not load newly created resource share link.');
     }
     return created;
+}
+export function setResourceShareLinkCollectResults(input) {
+    getDb()
+        .prepare(`
+        UPDATE resource_share_links
+        SET collect_results = ?
+        WHERE resource_id = ?
+      `)
+        .run(input.collectResults ? 1 : 0, input.resourceId);
 }
 export function findResourceAccessGrant(input) {
     const row = getDb()
@@ -2182,11 +2193,12 @@ export function createQuizAttempt(input) {
           profile_id,
           guest_token,
           claim_token,
-          snapshot_json
+          snapshot_json,
+          collect_results
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.quizId, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, JSON.stringify(input.snapshot));
+        .run(id, input.quizId, input.userId ?? null, input.profileId ?? null, guestToken, claimToken, JSON.stringify(input.snapshot), input.collectResults ? 1 : 0);
     const attempt = findQuizAttemptById(id);
     if (!attempt) {
         throw new Error('Could not load newly created quiz attempt.');
@@ -2212,7 +2224,8 @@ export function findQuizAttemptById(id) {
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE id = ?
       `)
@@ -2242,7 +2255,8 @@ export function findQuizAttemptByGuestToken(guestToken) {
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE guest_token = ?
       `)
@@ -2268,7 +2282,8 @@ export function findQuizAttemptByClaimToken(claimToken) {
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE claim_token = ?
       `)
@@ -2294,7 +2309,8 @@ export function listQuizAttemptsForUser(input) {
           status,
           submitted_at,
           updated_at,
-          user_id
+          user_id,
+          collect_results
         FROM quiz_attempts
         WHERE user_id = ?
           AND profile_id = ?
@@ -2303,6 +2319,48 @@ export function listQuizAttemptsForUser(input) {
       `)
         .all(input.userId, input.profileId, input.quizId ?? null, input.quizId ?? null);
     return rows.map(toStoredQuizAttempt);
+}
+/**
+ * Attempts whose share collected results for the resource owner: only
+ * attempts that snapshotted collect_results at start, never the owner's own
+ * attempts (their `Probar` runs and self-attempts stay out of the list).
+ */
+export function listCollectedQuizAttemptsForOwner(input) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          qa.quiz_id,
+          qa.claim_token,
+          qa.created_at,
+          qa.evaluated_at,
+          qa.guest_token,
+          qa.id,
+          qa.profile_id,
+          qa.progress_event_id,
+          qa.responses_json,
+          qa.result_json,
+          qa.snapshot_json,
+          qa.started_at,
+          qa.status,
+          qa.submitted_at,
+          qa.updated_at,
+          qa.user_id,
+          qa.collect_results,
+          users.email AS student_email,
+          users.full_name AS student_name
+        FROM quiz_attempts qa
+        LEFT JOIN users ON users.id = qa.user_id
+        WHERE qa.quiz_id = ?
+          AND qa.collect_results = 1
+          AND (qa.user_id IS NULL OR qa.user_id != ?)
+        ORDER BY qa.created_at DESC
+      `)
+        .all(input.quizId, input.ownerUserId);
+    return rows.map((row) => ({
+        ...toStoredQuizAttempt(row),
+        studentEmail: row.student_email,
+        studentName: row.student_name,
+    }));
 }
 export function submitQuizAttempt(input) {
     getDb()

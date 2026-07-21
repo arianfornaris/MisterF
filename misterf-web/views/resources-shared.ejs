@@ -31,6 +31,13 @@
         <div class="resource-markdown" data-render-markdown><%= sharedResource.description %></div>
       <% } %>
 
+      <% if (quizTakeAction && shareLink.collectResults) { %>
+        <div class="alert alert-info d-flex align-items-start gap-2 mb-0" role="note">
+          <i class="bi bi-eye flex-shrink-0" aria-hidden="true"></i>
+          <span><%= t('resources.sharedResultsNotice') %></span>
+        </div>
+      <% } %>
+
       <% if (quizTakeAction) { %>
         <form method="post" action="<%= quizTakeAction %>" class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -42,7 +49,7 @@
       <% } else if (startAction) { %>
         <div class="d-flex flex-wrap justify-content-end gap-2 align-items-center">
           <a class="btn btn-link" href="/resources"><%= t('resources.notNow') %></a>
-          <a class="btn btn-primary" href="<%= startAction %>">
+          <a class="btn btn-primary" href="<%= startAction %>" data-shared-resource-start>
             <i class="bi bi-play-fill me-1" aria-hidden="true"></i><%= t('resources.start') %>
           </a>
         </div>
@@ -63,5 +70,25 @@
     </div>
   </section>
 </section>
+
+<% if (startAction) { %>
+  <div
+    class="modal fade"
+    tabindex="-1"
+    aria-hidden="true"
+    data-shared-resource-pending-modal
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body d-flex align-items-center gap-3">
+          <div class="spinner-border text-primary" aria-hidden="true"></div>
+          <p class="mb-0"><%= t('resources.starting') %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'resources-client-script' }) %>

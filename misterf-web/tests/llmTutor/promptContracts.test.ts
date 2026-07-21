@@ -282,14 +282,19 @@ describe('tutor prompt contracts', () => {
   });
 
   it('keeps quiz order-sentences support synchronized across prompt repair paths', () => {
+    // The conversational quiz-revision prompts were retired with the quiz
+    // authoring chat (2026-07-17); the scoped block/blocks revision prompts
+    // are the generation paths that must stay in sync with the draft prompts.
     const protocol = renderTutorBlockProtocol();
     const draftCorrection = loadSystemPrompt('resources/quiz-draft-correction.md');
-    const revisionCorrection = loadSystemPrompt('resources/quiz-revision-correction.md');
+    const blockRevision = loadSystemPrompt('resources/quiz-block-revision.md');
+    const blocksRevision = loadSystemPrompt('resources/quiz-blocks-revision.md');
 
     expect(protocol).toContain('interface QuizOrderSentencesItem');
     expect(protocol).toContain('kind: "quiz_order_sentences"');
     expect(draftCorrection).toContain('quiz_order_sentences');
-    expect(revisionCorrection).toContain('quiz_order_sentences');
+    expect(blockRevision).toContain('quiz_order_sentences');
+    expect(blocksRevision).toContain('quiz_order_sentences');
   });
 
   it('tells practice-guide chats to adapt older manual ordering instructions', () => {

@@ -17,8 +17,8 @@
       "_staticMarkdown-BIUnlqAT.js"
     ]
   },
-  "_quizItemRenderer-BVjRLC87.js": {
-    "file": "chunks/quizItemRenderer-BVjRLC87.js",
+  "_quizItemRenderer-BLz2HKbw.js": {
+    "file": "chunks/quizItemRenderer-BLz2HKbw.js",
     "name": "quizItemRenderer",
     "imports": [
       "_staticMarkdown-BIUnlqAT.js"
@@ -33,12 +33,12 @@
     "name": "staticMarkdown"
   },
   "src/client/chat/index.js": {
-    "file": "entries/chat-h-xj5XbJ.js",
+    "file": "entries/chat-ehX8CENN.js",
     "name": "chat",
     "src": "src/client/chat/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-BVjRLC87.js",
+      "_quizItemRenderer-BLz2HKbw.js",
       "_staticMarkdown-BIUnlqAT.js"
     ]
   },
@@ -61,19 +61,19 @@
     ]
   },
   "src/client/quizzes/index.js": {
-    "file": "entries/quizzes-BxH-3cu-.js",
+    "file": "entries/quizzes-CH8usGLa.js",
     "name": "quizzes",
     "src": "src/client/quizzes/index.js",
     "isEntry": true,
     "imports": [
-      "_quizItemRenderer-BVjRLC87.js",
+      "_quizItemRenderer-BLz2HKbw.js",
       "_staticMarkdown-BIUnlqAT.js",
       "_createResourceFromContext-DYFTXg2n.js",
       "_resourceMoveModal-D7d-tMTV.js"
     ]
   },
   "src/client/resources/index.js": {
-    "file": "entries/resources-OdJxFieD.js",
+    "file": "entries/resources-yQq-xagq.js",
     "name": "resources",
     "src": "src/client/resources/index.js",
     "isEntry": true,

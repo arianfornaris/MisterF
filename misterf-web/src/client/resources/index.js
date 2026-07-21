@@ -108,8 +108,31 @@ function initializeResourceFolderSharing() {
   }
 }
 
+/**
+ * Starting a shared resource is a plain link navigation, but the server may
+ * run an inference before it can answer (a roleplay generates its opening
+ * turn). Show the pending modal on click so the learner never waits on a
+ * blank page.
+ */
+function initializeSharedResourceStart() {
+  const startLinkEl = document.querySelector('[data-shared-resource-start]');
+  const pendingModalEl = document.querySelector('[data-shared-resource-pending-modal]');
+  if (!(startLinkEl instanceof HTMLAnchorElement) || !pendingModalEl) {
+    return;
+  }
+
+  startLinkEl.addEventListener('click', () => {
+    startLinkEl.classList.add('disabled');
+    startLinkEl.setAttribute('aria-disabled', 'true');
+    if (window.bootstrap?.Modal) {
+      window.bootstrap.Modal.getOrCreateInstance(pendingModalEl).show();
+    }
+  });
+}
+
 initializeResourceFolderEditing();
 initializeResourceFolderSharing();
+initializeSharedResourceStart();
 initializeResourceMoveModal();
 initializeListGroupDropdownStacking();
 initializeStaticMarkdown();

@@ -147,6 +147,10 @@ describe('database migrations', () => {
         id: 23,
         name: 'simplify_roleplay_authoring_fields',
       },
+      {
+        id: 24,
+        name: 'add_share_results_feedback_flag',
+      },
     ]);
 
     const tableNames = (db
@@ -247,11 +251,17 @@ describe('database migrations', () => {
     ]));
     expect(getColumnNames(db, 'quiz_attempts')).toEqual(expect.arrayContaining([
       'claim_token',
+      'collect_results',
       'guest_token',
       'result_json',
       'snapshot_json',
     ]));
     expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
+    expect(getColumnNames(db, 'resource_share_links')).toEqual(expect.arrayContaining([
+      'collect_results',
+      'resource_id',
+      'revoked_at',
+    ]));
     expect(getColumnNames(db, 'resources')).toEqual(expect.arrayContaining([
       'archived_at',
       'description',

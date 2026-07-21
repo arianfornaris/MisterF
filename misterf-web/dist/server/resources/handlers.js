@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, updateResourceFolder, } from '../db/repository.js';
+import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
 function ensureVerifiedResourceUser(request, response) {
@@ -379,6 +379,39 @@ export function handleAcceptSharedResourceLink(request, response) {
         shareLinkId: shareLink.id,
     });
     response.redirect(buildResourceDetailPath(resource));
+}
+/**
+ * Owner toggle for the share results-feedback flag: whether attempts started
+ * through the resource's share link return their results to the owner. The
+ * flag is snapshotted per attempt at start, so flipping it never changes the
+ * visibility of attempts that already began.
+ */
+export function handleUpdateResourceShareCollectResults(request, response) {
+    const auth = ensureVerifiedResourceUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const returnTo = normalizeReturnTo(request.body.returnTo);
+    const resource = findResourceForUser(readField(request.params.resourceId, 100), auth.user.id);
+    if (!resource || resource.archivedAt) {
+        response.redirect(returnTo);
+        return;
+    }
+    const collectResults = readField(request.body.collectResults, 10) === 'on';
+    getOrCreateResourceShareLink(resource.id);
+    setResourceShareLinkCollectResults({
+        collectResults,
+        resourceId: resource.id,
+    });
+    logger.info('resource_share_collect_results_updated', {
+        ...buildResourceLogDetails({
+            profileId: resource.profileId,
+            resource,
+            userId: auth.user.id,
+        }),
+        collectResults,
+    });
+    response.redirect(returnTo);
 }
 export function handleShareResourceToProfile(request, response) {
     const auth = ensureVerifiedResourceUser(request, response);

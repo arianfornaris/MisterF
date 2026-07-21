@@ -27,6 +27,10 @@ documentación técnica del proyecto continúa escribiéndose en inglés.
 - [Programa de referidos y monetización de profesores y creadores](./programa-de-referidos-y-creadores.md):
   hipótesis inspirada en Gumroad, modelos posibles, unidad económica, riesgos y
   plan de validación de bajo costo.
+- [Propuesta de MVP: el ciclo del piloto docente](./propuesta-mvp.md):
+  definición aprobada (18 de julio de 2026) del producto mínimo necesario para
+  ejecutar el piloto con profesores; el roadmap técnico V3 quedó reenfocado en
+  torno a ella.
 
 ## Contexto obligatorio
 

@@ -1526,7 +1526,225 @@ describe('main route smoke tests', () => {
     expect(submitResponse.status).toBe(302);
     const submitLocation = submitResponse.headers.get('location') ?? '';
     expect(submitLocation).toMatch(/^\/signup\?returnTo=/);
-    expect(decodeURIComponent(submitLocation)).toContain(`/quiz-attempts/${attemptId}/result`);
+    // Signup returns to the evaluating page, which shows progress while the
+    // evaluation inference runs, instead of blocking the result render.
+    expect(decodeURIComponent(submitLocation)).toContain(
+      `/quiz-attempts/${attemptId}/evaluating`,
+    );
+  });
+
+  it('routes a submitted attempt through the evaluating page instead of blocking the result', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      createQuizAttempt,
+      submitQuizAttempt,
+    } = await import('../../src/server/db/repository.js');
+
+    const student = createExternalUser({
+      email: 'evaluating-student@example.com',
+      emailVerified: true,
+      fullName: 'Evaluating Student',
+      provider: 'google',
+      providerSubject: 'evaluating-student',
+    });
+    const studentProfile = createProfile({
+      name: 'Student profile',
+      userId: student.id,
+    });
+    const evaluatingDraft = {
+      blocks: [
+        { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+      ],
+      title: 'Evaluating Flow Quiz',
+    };
+    const quiz = createQuiz({
+      profileId: studentProfile.id,
+      quiz: evaluatingDraft,
+      title: 'Evaluating Flow Quiz',
+      userId: student.id,
+    });
+    const attempt = createQuizAttempt({
+      quizId: quiz.id,
+      profileId: studentProfile.id,
+      snapshot: evaluatingDraft,
+      userId: student.id,
+    });
+    submitQuizAttempt({ attemptId: attempt.id, responses: [] });
+
+    const cookie = await createAuthenticatedCookie(student.id, studentProfile.id);
+
+    // The result page no longer runs the evaluation inline; it hands off to the
+    // evaluating page.
+    const resultResponse = await fetch(`${baseUrl}/quiz-attempts/${attempt.id}/result`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    expect(resultResponse.status).toBe(302);
+    expect(resultResponse.headers.get('location')).toBe(
+      `/quiz-attempts/${attempt.id}/evaluating`,
+    );
+
+    // The evaluating page renders instantly with the progress affordance and
+    // the self-posting form that triggers the evaluation.
+    const evaluatingResponse = await fetch(`${baseUrl}/quiz-attempts/${attempt.id}/evaluating`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const evaluatingHtml = await evaluatingResponse.text();
+    expect(evaluatingResponse.status).toBe(200);
+    expect(evaluatingHtml).toContain('data-quiz-auto-submit-form');
+    expect(evaluatingHtml).toContain(`/quiz-attempts/${attempt.id}/evaluate`);
+    expect(evaluatingHtml).toContain('Evaluando el quiz');
+
+    // Signed-out visitors without the guest token are sent to signup, never to
+    // an evaluation they cannot pay for.
+    const anonymousResponse = await fetch(`${baseUrl}/quiz-attempts/${attempt.id}/evaluating`, {
+      redirect: 'manual',
+    });
+    expect(anonymousResponse.status).toBe(302);
+    expect(anonymousResponse.headers.get('location')).toBe('/login');
+  });
+
+  it('collects shared-quiz results for the owner behind the share results-feedback flag', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      findQuizAttemptById,
+      findResourceShareLinkForResource,
+      getOrCreateResourceShareLink,
+      saveQuizAttemptResult,
+      setResourceShareLinkCollectResults,
+      submitQuizAttempt,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'route-collect-owner@example.com',
+      emailVerified: true,
+      fullName: 'Route Collect Owner',
+      provider: 'google',
+      providerSubject: 'route-collect-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Route collect profile', userId: owner.id });
+    const quiz = createQuiz({
+      profileId: ownerProfile.id,
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Route Collect Quiz',
+      },
+      title: 'Route Collect Quiz',
+      userId: owner.id,
+    });
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+    const sharePath = `/resources/shared/${shareLink.id}`;
+
+    // Flag on (default): the shared page shows the disclosure notice and the
+    // guest attempt snapshots the flag at start.
+    const sharedHtml = await (await fetch(`${baseUrl}${sharePath}`, { redirect: 'manual' })).text();
+    expect(sharedHtml).toContain('verá tus respuestas y tu evaluación');
+    const csrfToken = extractCsrfToken(sharedHtml);
+    const collectedStart = await postForm(
+      `/quizzes/shared/${shareLink.id}/take`,
+      { _csrf: csrfToken },
+      '',
+    );
+    const collectedAttemptId = decodeURIComponent(
+      (collectedStart.headers.get('location') ?? '')
+        .replace('/quiz-attempts/', '')
+        .split('?')[0],
+    );
+    expect(findQuizAttemptById(collectedAttemptId)?.collectResults).toBe(true);
+
+    // Flag off: no notice, and new attempts are not collected.
+    setResourceShareLinkCollectResults({ collectResults: false, resourceId: quiz.id });
+    const noNoticeHtml = await (await fetch(`${baseUrl}${sharePath}`, { redirect: 'manual' })).text();
+    expect(noNoticeHtml).not.toContain('verá tus respuestas y tu evaluación');
+    const uncollectedStart = await postForm(
+      `/quizzes/shared/${shareLink.id}/take`,
+      { _csrf: csrfToken },
+      '',
+    );
+    const uncollectedAttemptId = decodeURIComponent(
+      (uncollectedStart.headers.get('location') ?? '')
+        .replace('/quiz-attempts/', '')
+        .split('?')[0],
+    );
+    expect(findQuizAttemptById(uncollectedAttemptId)?.collectResults).toBe(false);
+
+    // Evaluate the collected guest attempt through repository factories.
+    submitQuizAttempt({ attemptId: collectedAttemptId, responses: [] });
+    saveQuizAttemptResult({
+      attemptId: collectedAttemptId,
+      result: {
+        items: [
+          {
+            evaluation: { feedback: 'Bien.', status: 'correct' },
+            kind: 'quiz_open_text',
+            prompt: 'Write one sentence.',
+            userResponse: { text: 'I wrote one sentence.' },
+          },
+        ],
+        title: 'Route Collect Quiz',
+        type: 'quiz_result',
+      },
+    });
+
+    // The owner's quiz page lists only the collected attempt.
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+    const quizPageHtml = await (
+      await fetch(`${baseUrl}/quizzes/${quiz.id}`, {
+        headers: { cookie: ownerCookie },
+        redirect: 'manual',
+      })
+    ).text();
+    expect(quizPageHtml).toContain('Resultados de estudiantes');
+    expect(quizPageHtml).toContain(`/quiz-attempts/${collectedAttemptId}/result`);
+    expect(quizPageHtml).not.toContain(uncollectedAttemptId);
+
+    // Owner read-only result view: renders without the learner actions and
+    // without the guest token; the uncollected attempt stays inaccessible.
+    const ownerResultResponse = await fetch(
+      `${baseUrl}/quiz-attempts/${collectedAttemptId}/result`,
+      { headers: { cookie: ownerCookie }, redirect: 'manual' },
+    );
+    expect(ownerResultResponse.status).toBe(200);
+    const ownerResultHtml = await ownerResultResponse.text();
+    expect(ownerResultHtml).toContain('modo solo lectura');
+    expect(ownerResultHtml).not.toContain('guestToken=');
+    expect(ownerResultHtml).not.toContain(`/quiz-attempts/${collectedAttemptId}/practice`);
+    const deniedResponse = await fetch(
+      `${baseUrl}/quiz-attempts/${uncollectedAttemptId}/result`,
+      { headers: { cookie: ownerCookie }, redirect: 'manual' },
+    );
+    expect(deniedResponse.status).toBe(302);
+    expect(deniedResponse.headers.get('location')).toBe('/login');
+
+    // The toggle route is owner-only.
+    const stranger = createExternalUser({
+      email: 'route-collect-stranger@example.com',
+      emailVerified: true,
+      fullName: 'Route Collect Stranger',
+      provider: 'google',
+      providerSubject: 'route-collect-stranger',
+    });
+    const strangerProfile = createProfile({ name: 'Stranger profile', userId: stranger.id });
+    const strangerCookie = await createAuthenticatedCookie(stranger.id, strangerProfile.id);
+    await postForm(
+      `/resources/${quiz.id}/share/collect-results`,
+      { _csrf: csrfToken, collectResults: 'on' },
+      strangerCookie,
+    );
+    expect(findResourceShareLinkForResource(quiz.id)?.collectResults).toBe(false);
+    await postForm(
+      `/resources/${quiz.id}/share/collect-results`,
+      { _csrf: csrfToken, collectResults: 'on' },
+      ownerCookie,
+    );
+    expect(findResourceShareLinkForResource(quiz.id)?.collectResults).toBe(true);
   });
 
   it('sends anonymous visitors from a shared roleplay/guide start to sign up', async () => {
