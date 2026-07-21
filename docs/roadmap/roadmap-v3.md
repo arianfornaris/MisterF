@@ -684,6 +684,21 @@ stays out of V3.
   (attempt evaluation + transcript) and practice guides (the session's
   finalized report, not the raw chat) in the next iteration. Disclosure
   follows assignment, not resource type.
+- [x] Make the feedback flag uniform across both share kinds. Done 2026-07-20:
+  the share link carried the flag but `Compartir con perfil` did not, so the
+  interim parent→child (same-account) case never collected. Added
+  `collect_results` to `resource_access_grants` (migration 25), a toggle on
+  the quiz profile-share modal (default on), grant-flag snapshot when a
+  non-author profile starts a `Probar` attempt, link grants inheriting the
+  link's flag (so repeats from Resources also collect), and re-keyed the
+  owner's collected-attempts list on the **author profile** (not the owner
+  user) so sibling profiles surface, labeled by profile name. Verified live
+  end to end: a child-profile attempt shared with the flag on appears in the
+  owner's `Resultados de estudiantes` as "Hijo QA" while the author's own
+  `Probar` runs stay out. Note: taking an owned quiz auto-switches the active
+  profile back to the author profile on navigation, so the child must have
+  their own profile active to attempt as a student — a known interim-model
+  wrinkle, not a blocker.
 - [ ] Funnel instrumentation check: verify each pilot funnel step (invited →
   started → completed → reviewed → practiced → report viewed) is recorded and
   queryable, adding minimal events where missing. Manual SQL is acceptable

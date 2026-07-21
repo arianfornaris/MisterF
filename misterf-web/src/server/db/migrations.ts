@@ -2038,4 +2038,12 @@ export const migrations: Migration[] = [
         ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 0;
     `,
   },
+  {
+    id: 25,
+    name: 'add_grant_results_feedback_flag',
+    up: `
+      ALTER TABLE resource_access_grants
+        ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 1;
+    `,
+  },
 ];

@@ -151,6 +151,10 @@ describe('database migrations', () => {
         id: 24,
         name: 'add_share_results_feedback_flag',
       },
+      {
+        id: 25,
+        name: 'add_grant_results_feedback_flag',
+      },
     ]);
 
     const tableNames = (db
@@ -283,6 +287,7 @@ describe('database migrations', () => {
       'resource_type',
     ]));
     expect(getColumnNames(db, 'resource_access_grants')).toEqual(expect.arrayContaining([
+      'collect_results',
       'granted_by_user_id',
       'granted_via',
       'profile_id',

@@ -340,10 +340,10 @@ describe('quiz repository', () => {
     expect(findQuizAttemptById(collectedStudentAttempt.id)?.collectResults).toBe(true);
     expect(findQuizAttemptById(uncollectedAttempt.id)?.collectResults).toBe(false);
 
-    // The owner list contains only collected attempts and never the owner's
-    // own attempts, with the student's account identity joined in.
+    // The owner list contains only collected attempts and never the quiz
+    // author profile's own attempts, with the student's identity joined in.
     const collected = listCollectedQuizAttemptsForOwner({
-      ownerUserId: owner.id,
+      authorProfileId: ownerProfile.id,
       quizId: quiz.id,
     });
     expect(collected.map((item) => item.id).sort()).toEqual(
@@ -352,10 +352,105 @@ describe('quiz repository', () => {
     expect(collected.map((item) => item.id)).not.toContain(ownerAttempt.id);
     expect(collected.map((item) => item.id)).not.toContain(uncollectedAttempt.id);
     expect(
+      collected.find((item) => item.id === collectedStudentAttempt.id)?.studentProfileName,
+    ).toBe('Student profile');
+    expect(
       collected.find((item) => item.id === collectedStudentAttempt.id)?.studentName,
     ).toBe('Collect Student');
     expect(
       collected.find((item) => item.id === collectedGuestAttempt.id)?.studentName,
     ).toBeNull();
+  });
+
+  it('carries the results-feedback flag on a profile share grant and surfaces sibling-profile attempts', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      createQuizAttempt,
+      findResourceAccessGrant,
+      grantResourceAccess,
+      listCollectedQuizAttemptsForOwner,
+    } = await import('../../src/server/db/repository.js');
+
+    // A single account (a parent) with an author profile and a child profile.
+    const account = createExternalUser({
+      email: 'parent@example.com',
+      emailVerified: true,
+      fullName: 'Parent',
+      provider: 'google',
+      providerSubject: 'parent',
+    });
+    const authorProfile = createProfile({ name: 'Parent profile', userId: account.id });
+    const childProfile = createProfile({ name: 'Child profile', userId: account.id });
+
+    const quiz = createQuiz({
+      profileId: authorProfile.id,
+      quiz: quizDraft,
+      title: quizDraft.title,
+      userId: account.id,
+    });
+
+    // Sharing to a profile with collection on records the flag on the grant.
+    grantResourceAccess({
+      collectResults: true,
+      grantedByUserId: account.id,
+      grantedVia: 'profile',
+      profileId: childProfile.id,
+      resourceId: quiz.id,
+      userId: account.id,
+    });
+    const grant = findResourceAccessGrant({
+      profileId: childProfile.id,
+      resourceId: quiz.id,
+      userId: account.id,
+    });
+    expect(grant?.collectResults).toBe(true);
+
+    // The child's attempt snapshots the grant flag; the author profile's own
+    // Probar run never collects.
+    const childAttempt = createQuizAttempt({
+      collectResults: grant?.collectResults ?? false,
+      profileId: childProfile.id,
+      quizId: quiz.id,
+      snapshot: quizDraft,
+      userId: account.id,
+    });
+    const authorTestAttempt = createQuizAttempt({
+      collectResults: false,
+      profileId: authorProfile.id,
+      quizId: quiz.id,
+      snapshot: quizDraft,
+      userId: account.id,
+    });
+
+    // Even though the child attempt shares the owner's user id, it surfaces
+    // because the exclusion is keyed on the author profile, and it is labeled
+    // by the child profile name.
+    const collected = listCollectedQuizAttemptsForOwner({
+      authorProfileId: authorProfile.id,
+      quizId: quiz.id,
+    });
+    expect(collected.map((item) => item.id)).toEqual([childAttempt.id]);
+    expect(collected.map((item) => item.id)).not.toContain(authorTestAttempt.id);
+    expect(collected[0]?.studentProfileName).toBe('Child profile');
+
+    // Re-sharing with collection off flips the grant flag (future attempts
+    // stop collecting; snapshots on existing attempts are unchanged).
+    grantResourceAccess({
+      collectResults: false,
+      grantedByUserId: account.id,
+      grantedVia: 'profile',
+      profileId: childProfile.id,
+      resourceId: quiz.id,
+      userId: account.id,
+    });
+    expect(
+      findResourceAccessGrant({
+        profileId: childProfile.id,
+        resourceId: quiz.id,
+        userId: account.id,
+      })?.collectResults,
+    ).toBe(false);
   });
 });

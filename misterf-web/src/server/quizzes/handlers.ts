@@ -13,6 +13,7 @@ import {
   findProfileById,
   findProfileForUser,
   findResourceAccessForProfile,
+  findResourceAccessGrant,
   findResourceFolderForResource,
   findResourceShareLinkById,
   getOrCreateResourceShareLink,
@@ -539,7 +540,8 @@ function buildCollectedQuizAttemptListItems(
         ? `${summary.correctCount}/${summary.totalCount}`
         : '',
       studentLabel:
-        attempt.studentName
+        attempt.studentProfileName
+        || attempt.studentName
         || attempt.studentEmail
         || translate(locale, 'quizzes.resultsGuestStudent'),
     };
@@ -1789,7 +1791,7 @@ export async function renderQuizShowPage(
   });
   const collectedAttempts = resolved.canManageQuiz
     ? listCollectedQuizAttemptsForOwner({
-        ownerUserId: resolved.user.id,
+        authorProfileId: resolved.quiz.profileId,
         quizId: resolved.quiz.id,
       })
     : [];
@@ -1835,6 +1837,7 @@ export function handleShareQuizToProfile(request: Request, response: Response): 
   }
 
   grantResourceAccess({
+    collectResults: readField(request.body.collectResults, 10) === 'on',
     grantedByUserId: resolved.user.id,
     grantedVia: 'profile',
     profileId: targetProfile.id,
@@ -1907,6 +1910,7 @@ export function handleStartSharedQuizAttempt(request: Request, response: Respons
   const activeProfile = request.activeProfile;
   if (user?.emailVerified && activeProfile) {
     grantResourceAccess({
+      collectResults: shareLink.collectResults,
       grantedByUserId: quiz.userId,
       grantedVia: 'link',
       profileId: activeProfile.id,
@@ -1981,8 +1985,21 @@ export function handleStartQuizTestAttempt(
     return;
   }
 
+  // The quiz author's own runs are private tests and never collect. Any other
+  // profile reaches this through a profile share, so the attempt snapshots the
+  // grant's results-feedback flag — the same primitive as the shared link.
+  const isAuthorProfile = resolved.activeProfile.id === resolved.quiz.profileId;
+  const collectResults = isAuthorProfile
+    ? false
+    : findResourceAccessGrant({
+        profileId: resolved.activeProfile.id,
+        resourceId: resolved.quiz.id,
+        userId: resolved.user.id,
+      })?.collectResults ?? false;
+
   const attempt = createQuizAttempt({
     quizId: resolved.quiz.id,
+    collectResults,
     profileId: resolved.activeProfile.id,
     snapshot: draft,
     userId: resolved.user.id,
@@ -1990,6 +2007,7 @@ export function handleStartQuizTestAttempt(
   logger.info('quiz_attempt_started', {
     quizId: resolved.quiz.id,
     attemptId: attempt.id,
+    collectResults: attempt.collectResults,
     isGuest: false,
     profileId: attempt.profileId,
     resourceId: resolved.quiz.id,

@@ -133,6 +133,8 @@ export const es: LocaleCatalog = {
     shareCollectResultsLabel: 'Recibir los resultados de quienes la completen',
     shareCollectResultsHint:
       'Con esta opción activa, quienes abran el enlace verán un aviso y sus resultados aparecerán en la sección Resultados. Solo aplica a los intentos que comiencen después del cambio.',
+    shareCollectResultsProfileHint:
+      'Con esta opción activa, los intentos de este perfil aparecerán en la sección Resultados. Solo aplica a los intentos que comiencen después de compartir.',
   },
   mediaLibrary: {
     applyFilters: 'Aplicar filtros',

@@ -133,6 +133,8 @@ export const en: LocaleCatalog = {
     shareCollectResultsLabel: 'Receive the results of people who complete it',
     shareCollectResultsHint:
       'With this option on, people opening the link see a notice and their results appear in the Results section. It only applies to attempts started after the change.',
+    shareCollectResultsProfileHint:
+      'With this option on, this profile’s attempts appear in the Results section. It only applies to attempts started after sharing.',
   },
   mediaLibrary: {
     applyFilters: 'Apply filters',

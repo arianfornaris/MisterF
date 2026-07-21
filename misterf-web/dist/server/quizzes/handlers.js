@@ -1,6 +1,6 @@
 import { languages, translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
-import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listCollectedQuizAttemptsForOwner, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
+import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceAccessGrant, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listCollectedQuizAttemptsForOwner, listQuizAttemptsForUser, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
@@ -319,7 +319,8 @@ function buildCollectedQuizAttemptListItems(attempts, locale) {
             resultSummaryLabel: summary
                 ? `${summary.correctCount}/${summary.totalCount}`
                 : '',
-            studentLabel: attempt.studentName
+            studentLabel: attempt.studentProfileName
+                || attempt.studentName
                 || attempt.studentEmail
                 || translate(locale, 'quizzes.resultsGuestStudent'),
         };
@@ -1297,7 +1298,7 @@ export async function renderQuizShowPage(request, response) {
     });
     const collectedAttempts = resolved.canManageQuiz
         ? listCollectedQuizAttemptsForOwner({
-            ownerUserId: resolved.user.id,
+            authorProfileId: resolved.quiz.profileId,
             quizId: resolved.quiz.id,
         })
         : [];
@@ -1336,6 +1337,7 @@ export function handleShareQuizToProfile(request, response) {
         return;
     }
     grantResourceAccess({
+        collectResults: readField(request.body.collectResults, 10) === 'on',
         grantedByUserId: resolved.user.id,
         grantedVia: 'profile',
         profileId: targetProfile.id,
@@ -1396,6 +1398,7 @@ export function handleStartSharedQuizAttempt(request, response) {
     const activeProfile = request.activeProfile;
     if (user?.emailVerified && activeProfile) {
         grantResourceAccess({
+            collectResults: shareLink.collectResults,
             grantedByUserId: quiz.userId,
             grantedVia: 'link',
             profileId: activeProfile.id,
@@ -1462,8 +1465,20 @@ export function handleStartQuizTestAttempt(request, response) {
     if (!draft) {
         return;
     }
+    // The quiz author's own runs are private tests and never collect. Any other
+    // profile reaches this through a profile share, so the attempt snapshots the
+    // grant's results-feedback flag — the same primitive as the shared link.
+    const isAuthorProfile = resolved.activeProfile.id === resolved.quiz.profileId;
+    const collectResults = isAuthorProfile
+        ? false
+        : findResourceAccessGrant({
+            profileId: resolved.activeProfile.id,
+            resourceId: resolved.quiz.id,
+            userId: resolved.user.id,
+        })?.collectResults ?? false;
     const attempt = createQuizAttempt({
         quizId: resolved.quiz.id,
+        collectResults,
         profileId: resolved.activeProfile.id,
         snapshot: draft,
         userId: resolved.user.id,
@@ -1471,6 +1486,7 @@ export function handleStartQuizTestAttempt(request, response) {
     logger.info('quiz_attempt_started', {
         quizId: resolved.quiz.id,
         attemptId: attempt.id,
+        collectResults: attempt.collectResults,
         isGuest: false,
         profileId: attempt.profileId,
         resourceId: resolved.quiz.id,

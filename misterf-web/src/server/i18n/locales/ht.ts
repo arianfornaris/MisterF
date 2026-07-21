@@ -142,6 +142,8 @@ export const ht: LocaleCatalog = {
     shareCollectResultsLabel: 'Resevwa rezilta moun ki fè aktivite a',
     shareCollectResultsHint:
       'Lè opsyon sa a aktif, moun ki louvri lyen an ap wè yon avi epi rezilta yo ap parèt nan seksyon Rezilta a. Li aplike sèlman pou tantativ ki kòmanse apre chanjman an.',
+    shareCollectResultsProfileHint:
+      'Lè opsyon sa a aktif, tantativ pwofil sa a ap parèt nan seksyon Rezilta a. Li aplike sèlman pou tantativ ki kòmanse apre ou fin pataje.',
   },
   mediaLibrary: {
     applyFilters: 'Aplike filtè yo',

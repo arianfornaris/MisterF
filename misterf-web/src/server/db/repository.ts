@@ -65,6 +65,7 @@ export type StoredAccessibleResource = StoredResource & {
 };
 
 export type StoredResourceAccessGrant = {
+  collectResults: boolean;
   createdAt: string;
   grantedByUserId: string;
   grantedVia: ResourceShareKind;
@@ -466,6 +467,7 @@ type ResourceShareLinkRow = {
 };
 
 type ResourceAccessGrantRow = {
+  collect_results: number;
   created_at: string;
   granted_by_user_id: string;
   granted_via: ResourceShareKind;
@@ -718,6 +720,7 @@ function toStoredResourceAccessGrant(
   row: ResourceAccessGrantRow,
 ): StoredResourceAccessGrant {
   return {
+    collectResults: row.collect_results === 1,
     createdAt: row.created_at,
     grantedByUserId: row.granted_by_user_id,
     grantedVia: row.granted_via,
@@ -2466,6 +2469,7 @@ export function findResourceAccessGrant(input: {
           granted_by_user_id,
           granted_via,
           share_link_id,
+          collect_results,
           created_at,
           updated_at,
           revoked_at
@@ -2484,6 +2488,7 @@ export function findResourceAccessGrant(input: {
 }
 
 export function grantResourceAccess(input: {
+  collectResults?: boolean;
   grantedByUserId: string;
   grantedVia: ResourceShareKind;
   profileId: string;
@@ -2500,6 +2505,7 @@ export function grantResourceAccess(input: {
     return null;
   }
 
+  const collectResults = input.collectResults ?? true;
   const id = randomUUID();
   getDb()
     .prepare(
@@ -2511,13 +2517,15 @@ export function grantResourceAccess(input: {
           profile_id,
           granted_by_user_id,
           granted_via,
-          share_link_id
+          share_link_id,
+          collect_results
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(resource_id, user_id, profile_id) DO UPDATE SET
           granted_by_user_id = excluded.granted_by_user_id,
           granted_via = excluded.granted_via,
           share_link_id = excluded.share_link_id,
+          collect_results = excluded.collect_results,
           revoked_at = NULL,
           updated_at = CURRENT_TIMESTAMP
       `,
@@ -2530,6 +2538,7 @@ export function grantResourceAccess(input: {
       input.grantedByUserId,
       input.grantedVia,
       input.shareLinkId ?? null,
+      collectResults ? 1 : 0,
     );
 
   return findResourceAccessGrant({
@@ -3878,15 +3887,19 @@ export function listQuizAttemptsForUser(input: {
 export type StoredCollectedQuizAttempt = StoredQuizAttempt & {
   studentEmail: string | null;
   studentName: string | null;
+  studentProfileName: string | null;
 };
 
 /**
  * Attempts whose share collected results for the resource owner: only
- * attempts that snapshotted collect_results at start, never the owner's own
- * attempts (their `Probar` runs and self-attempts stay out of the list).
+ * attempts that snapshotted collect_results at start, and never the quiz
+ * author profile's own attempts (the owner's `Probar` runs). This is keyed on
+ * the author profile rather than the owner user, so attempts by sibling
+ * profiles in the same account (for example a parent's child profile) still
+ * surface.
  */
 export function listCollectedQuizAttemptsForOwner(input: {
-  ownerUserId: string;
+  authorProfileId: string;
   quizId: string;
 }): StoredCollectedQuizAttempt[] {
   const rows = getDb()
@@ -3911,23 +3924,30 @@ export function listCollectedQuizAttemptsForOwner(input: {
           qa.user_id,
           qa.collect_results,
           users.email AS student_email,
-          users.full_name AS student_name
+          users.full_name AS student_name,
+          profiles.name AS student_profile_name
         FROM quiz_attempts qa
         LEFT JOIN users ON users.id = qa.user_id
+        LEFT JOIN profiles ON profiles.id = qa.profile_id
         WHERE qa.quiz_id = ?
           AND qa.collect_results = 1
-          AND (qa.user_id IS NULL OR qa.user_id != ?)
+          AND (qa.profile_id IS NULL OR qa.profile_id != ?)
         ORDER BY qa.created_at DESC
       `,
     )
-    .all(input.quizId, input.ownerUserId) as Array<
-    QuizAttemptRow & { student_email: string | null; student_name: string | null }
+    .all(input.quizId, input.authorProfileId) as Array<
+    QuizAttemptRow & {
+      student_email: string | null;
+      student_name: string | null;
+      student_profile_name: string | null;
+    }
   >;
 
   return rows.map((row) => ({
     ...toStoredQuizAttempt(row),
     studentEmail: row.student_email,
     studentName: row.student_name,
+    studentProfileName: row.student_profile_name,
   }));
 }
 
