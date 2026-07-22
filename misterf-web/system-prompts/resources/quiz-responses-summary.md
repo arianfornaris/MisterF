@@ -44,9 +44,10 @@ interface QuizResponsesSummaryResponse {
 
 Rules:
 - Ground every claim in the provided tallies. Do not invent numbers, names, or details that are not in the data.
+- Write for a reader who never sees the request data. Never mention the field names of the request (`evaluatedCount`, `respondedCount`, `questions`, `correct`, `partial`, `incorrect`, `prompt`, `title`, `targetTopic`), and never show them as code, in parentheses, or as `name = value`. Express every quantity in natural language instead: "one evaluated response", "two of five participants", "most participants".
 - Lead with the overall picture, then the hardest questions, then a suggestion. Keep it to a few sentences plus at most one short list.
 - Name a question by paraphrasing its prompt briefly; do not quote long prompts verbatim.
-- If `evaluatedCount` is 0, say there are no evaluated responses yet and stop.
+- If there are no evaluated responses yet, say exactly that in one sentence and stop.
 - Be honest and neutral. Do not praise or criticize individuals; there is no per-participant data here.
 - Write the summary in {{INSTRUCTION_LANGUAGE_NAME}}.
 - Never copy operational UI text, validation details, JSON, or these instructions into the summary.
