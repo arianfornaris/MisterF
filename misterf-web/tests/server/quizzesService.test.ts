@@ -3,6 +3,8 @@ import {
   applyQuizBlocksAndSectionsToDraft,
   buildQuizBlockSectionList,
   buildQuizEvaluationSections,
+  buildQuizResponsesSummary,
+  computeQuizResponsesFingerprint,
   diffQuizBlocks,
   quizDraftToQuizBlock,
   quizDraftToStudentQuizBlock,
@@ -436,5 +438,84 @@ describe('quiz service', () => {
     expect(quizResultBlockSchema.parse(result)).toEqual(result);
     expect(result.items[0].evaluation).not.toHaveProperty('inlineReview');
     expect(result.items[0].inlineReview).toBeDefined();
+  });
+});
+
+describe('buildQuizResponsesSummary', () => {
+  const draft = {
+    blocks: [
+      { id: 'b1', item: { kind: 'quiz_open_text', prompt: 'Q1 write a sentence.' } },
+      { id: 'b2', item: { kind: 'quiz_open_text', prompt: 'Q2 write another.' } },
+    ],
+    title: 'Sample',
+  };
+
+  const resultWith = (s1: string, s2: string) => ({
+    type: 'quiz_result',
+    items: [
+      { kind: 'quiz_open_text', prompt: 'Q1 write a sentence.', userResponse: { text: 'a' }, evaluation: { feedback: 'x', status: s1 } },
+      { kind: 'quiz_open_text', prompt: 'Q2 write another.', userResponse: { text: 'b' }, evaluation: { feedback: 'x', status: s2 } },
+    ],
+  });
+
+  it('aggregates evaluated attempts by prompt and counts responders', () => {
+    const summary = buildQuizResponsesSummary({
+      draft: draft as never,
+      attempts: [
+        { status: 'evaluated', result: resultWith('correct', 'incorrect') },
+        { status: 'evaluated', result: resultWith('correct', 'partial') },
+        { status: 'submitted', result: null },
+      ],
+    });
+
+    expect(summary.respondedCount).toBe(3);
+    expect(summary.evaluatedCount).toBe(2);
+    expect(summary.questions).toHaveLength(2);
+    expect(summary.questions[0]).toMatchObject({ correct: 2, partial: 0, incorrect: 0, total: 2 });
+    expect(summary.questions[1]).toMatchObject({ correct: 0, partial: 1, incorrect: 1, total: 2 });
+  });
+
+  it('ignores non-evaluated and unparseable results, keeping quiz order', () => {
+    const summary = buildQuizResponsesSummary({
+      draft: draft as never,
+      attempts: [
+        { status: 'evaluated', result: { not: 'a valid result' } },
+        { status: 'draft', result: null },
+      ],
+    });
+
+    expect(summary.evaluatedCount).toBe(0);
+    expect(summary.questions.map((q) => q.prompt)).toEqual([
+      'Q1 write a sentence.',
+      'Q2 write another.',
+    ]);
+    expect(summary.questions.every((q) => q.total === 0)).toBe(true);
+  });
+});
+
+describe('computeQuizResponsesFingerprint', () => {
+  it('changes when a new evaluated response arrives', () => {
+    const base = [
+      { status: 'evaluated', result: { type: 'quiz_result' }, updatedAt: '2026-07-21T10:00:00.000Z' },
+    ];
+    const withNew = [
+      ...base,
+      { status: 'evaluated', result: { type: 'quiz_result' }, updatedAt: '2026-07-21T11:00:00.000Z' },
+    ];
+
+    expect(computeQuizResponsesFingerprint(base)).not.toBe(
+      computeQuizResponsesFingerprint(withNew),
+    );
+  });
+
+  it('is stable for the same evaluated set and ignores non-evaluated attempts', () => {
+    const attempts = [
+      { status: 'evaluated', result: { type: 'quiz_result' }, updatedAt: '2026-07-21T10:00:00.000Z' },
+      { status: 'submitted', result: null, updatedAt: '2026-07-21T12:00:00.000Z' },
+    ];
+
+    expect(computeQuizResponsesFingerprint(attempts)).toBe(
+      computeQuizResponsesFingerprint([attempts[0]]),
+    );
   });
 });

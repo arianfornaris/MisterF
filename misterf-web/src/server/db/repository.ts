@@ -3885,9 +3885,9 @@ export function listQuizAttemptsForUser(input: {
 }
 
 export type StoredCollectedQuizAttempt = StoredQuizAttempt & {
-  studentEmail: string | null;
-  studentName: string | null;
-  studentProfileName: string | null;
+  participantEmail: string | null;
+  participantName: string | null;
+  participantProfileName: string | null;
 };
 
 /**
@@ -3923,9 +3923,9 @@ export function listCollectedQuizAttemptsForOwner(input: {
           qa.updated_at,
           qa.user_id,
           qa.collect_results,
-          users.email AS student_email,
-          users.full_name AS student_name,
-          profiles.name AS student_profile_name
+          users.email AS participant_email,
+          users.full_name AS participant_name,
+          profiles.name AS participant_profile_name
         FROM quiz_attempts qa
         LEFT JOIN users ON users.id = qa.user_id
         LEFT JOIN profiles ON profiles.id = qa.profile_id
@@ -3937,18 +3937,79 @@ export function listCollectedQuizAttemptsForOwner(input: {
     )
     .all(input.quizId, input.authorProfileId) as Array<
     QuizAttemptRow & {
-      student_email: string | null;
-      student_name: string | null;
-      student_profile_name: string | null;
+      participant_email: string | null;
+      participant_name: string | null;
+      participant_profile_name: string | null;
     }
   >;
 
   return rows.map((row) => ({
     ...toStoredQuizAttempt(row),
-    studentEmail: row.student_email,
-    studentName: row.student_name,
-    studentProfileName: row.student_profile_name,
+    participantEmail: row.participant_email,
+    participantName: row.participant_name,
+    participantProfileName: row.participant_profile_name,
   }));
+}
+
+export type StoredQuizResponseSummary = {
+  generatedAt: string;
+  inputFingerprint: string;
+  quizId: string;
+  summaryText: string;
+};
+
+export function getQuizResponseSummary(
+  quizId: string,
+): StoredQuizResponseSummary | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT quiz_id, summary_text, input_fingerprint, generated_at
+        FROM quiz_response_summaries
+        WHERE quiz_id = ?
+      `,
+    )
+    .get(quizId) as
+    | {
+        generated_at: string;
+        input_fingerprint: string;
+        quiz_id: string;
+        summary_text: string;
+      }
+    | undefined;
+
+  return row
+    ? {
+        generatedAt: row.generated_at,
+        inputFingerprint: row.input_fingerprint,
+        quizId: row.quiz_id,
+        summaryText: row.summary_text,
+      }
+    : null;
+}
+
+export function upsertQuizResponseSummary(input: {
+  inputFingerprint: string;
+  quizId: string;
+  summaryText: string;
+}): void {
+  getDb()
+    .prepare(
+      `
+        INSERT INTO quiz_response_summaries (
+          quiz_id,
+          summary_text,
+          input_fingerprint,
+          generated_at
+        )
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(quiz_id) DO UPDATE SET
+          summary_text = excluded.summary_text,
+          input_fingerprint = excluded.input_fingerprint,
+          generated_at = CURRENT_TIMESTAMP
+      `,
+    )
+    .run(input.quizId, input.summaryText, input.inputFingerprint);
 }
 
 export function submitQuizAttempt(input: {

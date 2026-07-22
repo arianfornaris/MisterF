@@ -352,13 +352,13 @@ describe('quiz repository', () => {
     expect(collected.map((item) => item.id)).not.toContain(ownerAttempt.id);
     expect(collected.map((item) => item.id)).not.toContain(uncollectedAttempt.id);
     expect(
-      collected.find((item) => item.id === collectedStudentAttempt.id)?.studentProfileName,
+      collected.find((item) => item.id === collectedStudentAttempt.id)?.participantProfileName,
     ).toBe('Student profile');
     expect(
-      collected.find((item) => item.id === collectedStudentAttempt.id)?.studentName,
+      collected.find((item) => item.id === collectedStudentAttempt.id)?.participantName,
     ).toBe('Collect Student');
     expect(
-      collected.find((item) => item.id === collectedGuestAttempt.id)?.studentName,
+      collected.find((item) => item.id === collectedGuestAttempt.id)?.participantName,
     ).toBeNull();
   });
 
@@ -433,7 +433,7 @@ describe('quiz repository', () => {
     });
     expect(collected.map((item) => item.id)).toEqual([childAttempt.id]);
     expect(collected.map((item) => item.id)).not.toContain(authorTestAttempt.id);
-    expect(collected[0]?.studentProfileName).toBe('Child profile');
+    expect(collected[0]?.participantProfileName).toBe('Child profile');
 
     // Re-sharing with collection off flips the grant flag (future attempts
     // stop collecting; snapshots on existing attempts are unchanged).
@@ -452,5 +452,54 @@ describe('quiz repository', () => {
         userId: account.id,
       })?.collectResults,
     ).toBe(false);
+  });
+});
+
+describe('quiz response summaries', () => {
+  it('upserts and reads back the persisted AI summary with its fingerprint', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createProfile,
+      createQuiz,
+      getQuizResponseSummary,
+      upsertQuizResponseSummary,
+    } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'summary-owner@example.com',
+      emailVerified: true,
+      fullName: 'Summary Owner',
+      provider: 'google',
+      providerSubject: 'summary-owner',
+    });
+    const profile = createProfile({ name: 'Owner profile', userId: user.id });
+    const quiz = createQuiz({
+      profileId: profile.id,
+      quiz: quizDraft,
+      title: quizDraft.title,
+      userId: user.id,
+    });
+
+    expect(getQuizResponseSummary(quiz.id)).toBeNull();
+
+    upsertQuizResponseSummary({
+      inputFingerprint: '2:2026-07-21T10:00:00.000Z',
+      quizId: quiz.id,
+      summaryText: 'First summary.',
+    });
+    const first = getQuizResponseSummary(quiz.id);
+    expect(first?.summaryText).toBe('First summary.');
+    expect(first?.inputFingerprint).toBe('2:2026-07-21T10:00:00.000Z');
+    expect(first?.generatedAt).toBeTruthy();
+
+    // Regenerating overwrites text and fingerprint for the same quiz.
+    upsertQuizResponseSummary({
+      inputFingerprint: '3:2026-07-21T11:00:00.000Z',
+      quizId: quiz.id,
+      summaryText: 'Updated summary.',
+    });
+    const second = getQuizResponseSummary(quiz.id);
+    expect(second?.summaryText).toBe('Updated summary.');
+    expect(second?.inputFingerprint).toBe('3:2026-07-21T11:00:00.000Z');
   });
 });

@@ -16,6 +16,7 @@ import {
   handleDiscardQuizMetadataModification,
   handleDuplicateQuizBlock,
   handleGenerateQuiz,
+  handleGenerateQuizResponsesSummary,
   handleMoveQuizBlock,
   handlePreviewQuizAddBlock,
   handlePreviewQuizBlockModification,
@@ -63,6 +64,7 @@ quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/duplicate', handleDupl
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-up', handleMoveQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-down', handleMoveQuizBlock);
 quizzesRouter.get('/quizzes/:quizId', renderQuizShowPage);
+quizzesRouter.post('/quizzes/:quizId/summary', handleGenerateQuizResponsesSummary);
 quizzesRouter.post('/quizzes/:quizId/share/profile', handleShareQuizToProfile);
 quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);
 quizzesRouter.post('/quizzes/:quizId/restore', handleRestoreQuiz);

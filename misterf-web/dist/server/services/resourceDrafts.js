@@ -270,6 +270,22 @@ export async function generateQuizDraft(input) {
         systemPromptVariables: quizAuthoringPlaceholders(input.instructionLanguage ?? 'es'),
     });
 }
+const quizResponsesSummarySchema = z
+    .object({
+    summary: z.string().trim().min(1).max(2000),
+})
+    .strict();
+export async function generateQuizResponsesSummary(input) {
+    return generateStructuredDraft({
+        actorLabel: 'Quiz responses summary',
+        correctionPromptPath: 'resources/quiz-responses-summary-correction.md',
+        initialUserMessage: JSON.stringify(input.request, null, 2),
+        openRouterApiKey: input.openRouterApiKey,
+        schema: quizResponsesSummarySchema,
+        systemPromptPath: 'resources/quiz-responses-summary.md',
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+    });
+}
 export async function generateQuizMetadataRevision(input) {
     return generateStructuredDraft({
         actorLabel: 'Quiz metadata revision',

@@ -665,10 +665,26 @@ stays out of V3.
   shared page (es/en/ht), gated on the share flag; the flag rides the
   attempt through the guest → signup → claim flow via the start-time
   snapshot. Verified live and by route tests (notice shown/hidden per flag).
-- [ ] Next-class report per quiz: deterministic aggregation of persisted
-  results — most-failed items, recurring difficulty patterns, per-student
-  summary, who started follow-up practice. Optional AI-written summary gated
-  on the quiz owner's credits. One clear page; no dashboards.
+- [x] Responses summary per quiz. Done 2026-07-21. Renamed away from the
+  teacher-framed "next-class report" to a general "Resumen de respuestas" on
+  the quiz page (founder decision: use "participants", not "students", while
+  the sharing primitive stays general). Two layers:
+  (1) a **live deterministic aggregation** — per-question correct/partial/
+  incorrect tallies keyed by prompt (survives block reordering), plus
+  responded/evaluated counts — recomputed on every view, never persisted, so
+  it can never go stale;
+  (2) an **optional AI summary** the owner generates on their own credit-gated
+  key, persisted in `quiz_response_summaries` (migration 26) with an input
+  fingerprint (`evaluatedCount:maxUpdatedAt`). When new responses arrive the
+  fingerprint diverges and the card shows a "Hay respuestas nuevas desde este
+  resumen" badge with an "Actualizar resumen" action. Generation shows the
+  pending modal (§1.8 rule). `POST /quizzes/:id/summary`, owner-only, empty
+  state guarded before inference. Prompts
+  `resources/quiz-responses-summary{,-correction}.md`; generator reuses the
+  shared `generateStructuredDraft` (no new `generateText` site). Verified live
+  end to end (aggregation, AI generation, staleness on a new response).
+  The per-participant list was renamed "Participantes" and anonymous attempts
+  labeled "Anónimo".
 - [ ] "Shared by me" aggregated view (added 2026-07-18): one page listing the
   user's shared resources — quizzes, practice guides, and roleplays, since
   sharing already exists for all three — with attempt counts and who

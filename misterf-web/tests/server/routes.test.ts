@@ -1533,6 +1533,47 @@ describe('main route smoke tests', () => {
     );
   });
 
+  it('guards the quiz responses summary before any inference', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const { createProfile, createQuiz } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'summary-route-owner@example.com',
+      emailVerified: true,
+      fullName: 'Summary Route Owner',
+      provider: 'google',
+      providerSubject: 'summary-route-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Summary route profile', userId: owner.id });
+    const quiz = createQuiz({
+      profileId: ownerProfile.id,
+      quiz: {
+        blocks: [
+          { id: 'open_text', item: { kind: 'quiz_open_text', prompt: 'Write one sentence.' } },
+        ],
+        title: 'Summary Route Quiz',
+      },
+      title: 'Summary Route Quiz',
+      userId: owner.id,
+    });
+
+    // The owner with no evaluated responses is redirected with an empty-state
+    // error and no inference runs (nothing to summarize).
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+    const quizHtml = await (await fetch(`${baseUrl}/quizzes/${quiz.id}`, {
+      headers: { cookie: ownerCookie },
+    })).text();
+    const summaryResponse = await postForm(
+      `/quizzes/${quiz.id}/summary`,
+      { _csrf: extractCsrfToken(quizHtml) },
+      ownerCookie,
+    );
+    expect(summaryResponse.status).toBe(302);
+    expect(summaryResponse.headers.get('location')).toBe(
+      `/quizzes/${quiz.id}?summaryError=empty`,
+    );
+  });
+
   it('routes a submitted attempt through the evaluating page instead of blocking the result', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
@@ -1701,7 +1742,7 @@ describe('main route smoke tests', () => {
         redirect: 'manual',
       })
     ).text();
-    expect(quizPageHtml).toContain('Resultados de estudiantes');
+    expect(quizPageHtml).toContain('Participantes');
     expect(quizPageHtml).toContain(`/quiz-attempts/${collectedAttemptId}/result`);
     expect(quizPageHtml).not.toContain(uncollectedAttemptId);
 

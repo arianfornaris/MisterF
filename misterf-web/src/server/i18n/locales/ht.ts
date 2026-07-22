@@ -554,12 +554,28 @@ export const ht: LocaleCatalog = {
     blocks: 'Blòk',
     submissions: 'Soumisyon',
     submission: 'Soumisyon',
-    resultsSectionTitle: 'Rezilta elèv yo',
-    resultsEmpty:
-      'Poko gen rezilta elèv. Pataje lyen quiz la pou w kòmanse resevwa yo.',
-    resultsGuestStudent: 'Envite',
+    participantsSectionTitle: 'Patisipan yo',
+    participantsEmpty:
+      'Poko gen repons. Pataje lyen quiz la pou w kòmanse resevwa yo.',
+    resultsAnonymousParticipant: 'Anonim',
     resultOwnerView:
       'W ap gade rezilta {{name}} an mòd lekti sèlman.',
+    responsesSummaryTitle: 'Rezime repons yo',
+    responsesSummaryCount: '{{responded}} reponn · {{evaluated}} evalye',
+    responsesSummaryNoneEvaluated:
+      'Gen repons an kou, men poko gen youn evalye.',
+    aiSummaryTitle: 'Rezime ak IA',
+    aiSummaryIntro:
+      'Jenere yon rezime ekri sou kijan patisipan yo fè ak sa pou w revize.',
+    aiSummaryGenerate: 'Jenere rezime ak IA',
+    aiSummaryRegenerate: 'Mete rezime a ajou',
+    aiSummaryStale: 'Gen nouvo repons depi rezime sa a',
+    aiSummaryGeneratedAt: 'Jenere {{when}}',
+    aiSummaryGenerating: 'Ap jenere rezime a...',
+    summaryErrorEmpty:
+      'Poko gen repons evalye pou rezime.',
+    summaryErrorGeneric:
+      'Mwen pa t kapab jenere rezime a kounye a. Tanpri eseye ankò.',
     noOtherProfiles:
       'Ou pa gen lòt pwofil disponib pou resevwa quiz sa a.',
     shareLinkBody:

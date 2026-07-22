@@ -2017,5 +2017,17 @@ export const migrations = [
         ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 1;
     `,
     },
+    {
+        id: 26,
+        name: 'add_quiz_response_summaries',
+        up: `
+      CREATE TABLE quiz_response_summaries (
+        quiz_id TEXT PRIMARY KEY,
+        summary_text TEXT NOT NULL,
+        input_fingerprint TEXT NOT NULL,
+        generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

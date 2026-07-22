@@ -74,6 +74,15 @@ const promptRenderers: Record<string, (locale: TestLocale) => string> = {
     }),
   'resources/quiz-draft.md': (locale) =>
     renderSystemPrompt('resources/quiz-draft.md', quizAuthoringPlaceholders(locale)),
+  'resources/quiz-responses-summary-correction.md': (locale) =>
+    renderSystemPrompt('resources/quiz-responses-summary-correction.md', {
+      CORRECTION_REASON: correctionReason,
+      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
+    }),
+  'resources/quiz-responses-summary.md': (locale) =>
+    renderSystemPrompt('resources/quiz-responses-summary.md', {
+      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
+    }),
   'resources/quiz-metadata-revision-correction.md': (locale) =>
     renderSystemPrompt('resources/quiz-metadata-revision-correction.md', {
       CORRECTION_REASON: correctionReason,

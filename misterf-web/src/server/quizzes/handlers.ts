@@ -20,8 +20,10 @@ import {
   listResourceFolderPathForResource,
   listResourceFoldersForProfile,
   grantResourceAccess,
+  getQuizResponseSummary,
   listCollectedQuizAttemptsForOwner,
   listQuizAttemptsForUser,
+  upsertQuizResponseSummary,
   markQuizAttemptEvaluating,
   markQuizAttemptFailed,
   restoreQuizForUser,
@@ -47,7 +49,9 @@ import {
   buildQuizBlockSectionList,
   quizDraftToStudentQuizBlock,
   buildQuizEvaluationSummary,
+  buildQuizResponsesSummary,
   buildQuizResultTitle,
+  computeQuizResponsesFingerprint,
   canonicalizeQuizDraftBlockOrder,
   createQuizDraftFromManualInput,
   applyQuizBlocksAndSectionsToDraft,
@@ -73,6 +77,7 @@ import {
   generateQuizBlockRevision,
   generateQuizBlocksRevision,
   generateQuizMetadataRevision,
+  generateQuizResponsesSummary,
   type QuizBlockRevisionContext,
 } from '../services/resourceDrafts.js';
 import {
@@ -539,11 +544,11 @@ function buildCollectedQuizAttemptListItems(
       resultSummaryLabel: summary
         ? `${summary.correctCount}/${summary.totalCount}`
         : '',
-      studentLabel:
-        attempt.studentProfileName
-        || attempt.studentName
-        || attempt.studentEmail
-        || translate(locale, 'quizzes.resultsGuestStudent'),
+      participantLabel:
+        attempt.participantProfileName
+        || attempt.participantName
+        || attempt.participantEmail
+        || translate(locale, 'quizzes.resultsAnonymousParticipant'),
     };
   });
 }
@@ -777,7 +782,7 @@ function renderQuizResult(
   request: Request,
   response: Response,
   attempt: StoredQuizAttempt,
-  options: { ownerView?: boolean; ownerViewStudentLabel?: string } = {},
+  options: { ownerView?: boolean; ownerViewParticipantLabel?: string } = {},
 ): void {
   const draft = safeParseQuizDraft(attempt.snapshot);
   const result = attempt.result ? quizResultBlockSchema.safeParse(attempt.result) : null;
@@ -804,7 +809,7 @@ function renderQuizResult(
     // never embed it in links or forms.
     guestToken: options.ownerView ? '' : attempt.guestToken || '',
     resultOwnerView: Boolean(options.ownerView),
-    resultOwnerViewStudentLabel: options.ownerViewStudentLabel || '',
+    resultOwnerViewParticipantLabel: options.ownerViewParticipantLabel || '',
     resultBlockJson: serializeViewJson(result.data),
     resultBlock: result.data,
     resultTitle: buildQuizResultTitle(result.data, request.locale),
@@ -1795,6 +1800,22 @@ export async function renderQuizShowPage(
         quizId: resolved.quiz.id,
       })
     : [];
+  const responsesSummary = resolved.canManageQuiz
+    ? buildQuizResponsesSummary({ attempts: collectedAttempts, draft })
+    : null;
+  const storedAiSummary = resolved.canManageQuiz
+    ? getQuizResponseSummary(resolved.quiz.id)
+    : null;
+  const aiSummary =
+    responsesSummary && storedAiSummary
+      ? {
+          generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt),
+          stale:
+            storedAiSummary.inputFingerprint
+            !== computeQuizResponsesFingerprint(collectedAttempts),
+          text: storedAiSummary.summaryText,
+        }
+      : null;
 
   renderQuizzesView(response, 'quizzes-show', {
     ...buildQuizzesShellContext(request, {
@@ -1805,6 +1826,12 @@ export async function renderQuizShowPage(
     quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
     quizCollectedAttempts: buildCollectedQuizAttemptListItems(
       collectedAttempts,
+      request.locale,
+    ),
+    quizResponsesSummary: responsesSummary,
+    quizAiSummary: aiSummary,
+    quizResponsesSummaryError: readQuizResponsesSummaryError(
+      request.query.summaryError,
       request.locale,
     ),
     quizBlockOutlineItems: buildQuizBlockOutlineItems(draft, request.locale),
@@ -1821,6 +1848,114 @@ export async function renderQuizShowPage(
     shareTargetQuizProfiles,
     shareUrl,
   });
+}
+
+function readQuizResponsesSummaryError(
+  value: unknown,
+  locale: Locale,
+): { isCredit: boolean; message: string } | null {
+  const code = readField(value, 20);
+  if (code === 'credit') {
+    return {
+      isCredit: true,
+      message: getCreditExhaustedMessage(locale),
+    };
+  }
+  if (code === 'empty') {
+    return {
+      isCredit: false,
+      message: translate(locale, 'quizzes.summaryErrorEmpty'),
+    };
+  }
+  if (code === 'generic') {
+    return {
+      isCredit: false,
+      message: translate(locale, 'quizzes.summaryErrorGeneric'),
+    };
+  }
+  return null;
+}
+
+/**
+ * Generates (or regenerates) the AI summary of a quiz's collected responses on
+ * the owner's own credit-gated key, and persists it with a fingerprint of the
+ * inputs so the view can flag it stale when new responses arrive. The
+ * deterministic aggregation is always live; only this narrative is stored,
+ * because it costs an inference.
+ */
+export async function handleGenerateQuizResponsesSummary(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const resolved = resolveOwnQuiz(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  const draft = quizToDraftOrRedirect(resolved.quiz, response);
+  if (!draft) {
+    return;
+  }
+
+  const quizPath = `/quizzes/${encodeURIComponent(resolved.quiz.id)}`;
+  const collectedAttempts = listCollectedQuizAttemptsForOwner({
+    authorProfileId: resolved.quiz.profileId,
+    quizId: resolved.quiz.id,
+  });
+  const summary = buildQuizResponsesSummary({ attempts: collectedAttempts, draft });
+  if (summary.evaluatedCount === 0) {
+    response.redirect(`${quizPath}?summaryError=empty`);
+    return;
+  }
+
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
+      resolved.user.id,
+    );
+    const result = await generateQuizResponsesSummary({
+      instructionLanguage: resolved.activeProfile.instructionLanguage,
+      openRouterApiKey,
+      request: {
+        evaluatedCount: summary.evaluatedCount,
+        questions: summary.questions.map((question) => ({
+          correct: question.correct,
+          incorrect: question.incorrect,
+          partial: question.partial,
+          prompt: question.prompt,
+        })),
+        respondedCount: summary.respondedCount,
+        targetTopic: draft.targetTopic ?? '',
+        title: draft.title,
+      },
+    });
+    upsertQuizResponseSummary({
+      inputFingerprint: computeQuizResponsesFingerprint(collectedAttempts),
+      quizId: resolved.quiz.id,
+      summaryText: result.summary,
+    });
+    logger.info('quiz_responses_summary_generated', {
+      evaluatedCount: summary.evaluatedCount,
+      quizId: resolved.quiz.id,
+      resourceId: resolved.quiz.id,
+      resourceType: 'quiz',
+      respondedCount: summary.respondedCount,
+      userId: resolved.user.id,
+    });
+    response.redirect(quizPath);
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect(`${quizPath}?summaryError=credit`);
+      return;
+    }
+    logger.error('quiz_responses_summary_failed', {
+      error,
+      quizId: resolved.quiz.id,
+      resourceId: resolved.quiz.id,
+      resourceType: 'quiz',
+      userId: resolved.user.id,
+    });
+    response.redirect(`${quizPath}?summaryError=generic`);
+  }
 }
 
 export function handleShareQuizToProfile(request: Request, response: Response): void {
@@ -2275,7 +2410,7 @@ export async function renderQuizResultPage(request: Request, response: Response)
         response.redirect(`/quizzes/${encodeURIComponent(attemptQuiz.id)}`);
         return;
       }
-      const studentUser = requestedAttempt.userId
+      const participantUser = requestedAttempt.userId
         ? findUserById(requestedAttempt.userId)
         : null;
       logger.info('quiz_owner_result_viewed', {
@@ -2287,10 +2422,10 @@ export async function renderQuizResultPage(request: Request, response: Response)
       });
       renderQuizResult(request, response, requestedAttempt, {
         ownerView: true,
-        ownerViewStudentLabel:
-          studentUser?.fullName
-          || studentUser?.email
-          || translate(request.locale, 'quizzes.resultsGuestStudent'),
+        ownerViewParticipantLabel:
+          participantUser?.fullName
+          || participantUser?.email
+          || translate(request.locale, 'quizzes.resultsAnonymousParticipant'),
       });
       return;
     }

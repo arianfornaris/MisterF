@@ -155,6 +155,10 @@ describe('database migrations', () => {
         id: 25,
         name: 'add_grant_results_feedback_flag',
       },
+      {
+        id: 26,
+        name: 'add_quiz_response_summaries',
+      },
     ]);
 
     const tableNames = (db
@@ -165,6 +169,7 @@ describe('database migrations', () => {
     expect(tableNames).toEqual(expect.arrayContaining([
       'auth_action_tokens',
       'quiz_attempts',
+      'quiz_response_summaries',
       'quizzes',
       'conversation_quiz_attempt_snapshots',
       'conversation_tutor_plans',

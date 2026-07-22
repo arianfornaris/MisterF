@@ -565,12 +565,28 @@ export const en: LocaleCatalog = {
     blocks: 'Blocks',
     submissions: 'Submissions',
     submission: 'Submission',
-    resultsSectionTitle: 'Student results',
-    resultsEmpty:
-      'No student results yet. Share the quiz link to start receiving them.',
-    resultsGuestStudent: 'Guest',
+    participantsSectionTitle: 'Participants',
+    participantsEmpty:
+      'No responses yet. Share the quiz link to start receiving them.',
+    resultsAnonymousParticipant: 'Anonymous',
     resultOwnerView:
       'You are viewing {{name}}’s result in read-only mode.',
+    responsesSummaryTitle: 'Responses summary',
+    responsesSummaryCount: '{{responded}} responded · {{evaluated}} evaluated',
+    responsesSummaryNoneEvaluated:
+      'There are responses in progress, but none evaluated yet.',
+    aiSummaryTitle: 'AI summary',
+    aiSummaryIntro:
+      'Generate a written summary of how participants did and what to review next.',
+    aiSummaryGenerate: 'Generate AI summary',
+    aiSummaryRegenerate: 'Refresh summary',
+    aiSummaryStale: 'New responses since this summary',
+    aiSummaryGeneratedAt: 'Generated {{when}}',
+    aiSummaryGenerating: 'Generating the summary...',
+    summaryErrorEmpty:
+      'There are no evaluated responses to summarize yet.',
+    summaryErrorGeneric:
+      'I couldn’t generate the summary right now. Please try again.',
     noOtherProfiles:
       'You don’t have other profiles available to receive this quiz.',
     shareLinkBody:

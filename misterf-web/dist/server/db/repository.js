@@ -2354,9 +2354,9 @@ export function listCollectedQuizAttemptsForOwner(input) {
           qa.updated_at,
           qa.user_id,
           qa.collect_results,
-          users.email AS student_email,
-          users.full_name AS student_name,
-          profiles.name AS student_profile_name
+          users.email AS participant_email,
+          users.full_name AS participant_name,
+          profiles.name AS participant_profile_name
         FROM quiz_attempts qa
         LEFT JOIN users ON users.id = qa.user_id
         LEFT JOIN profiles ON profiles.id = qa.profile_id
@@ -2368,10 +2368,44 @@ export function listCollectedQuizAttemptsForOwner(input) {
         .all(input.quizId, input.authorProfileId);
     return rows.map((row) => ({
         ...toStoredQuizAttempt(row),
-        studentEmail: row.student_email,
-        studentName: row.student_name,
-        studentProfileName: row.student_profile_name,
+        participantEmail: row.participant_email,
+        participantName: row.participant_name,
+        participantProfileName: row.participant_profile_name,
     }));
+}
+export function getQuizResponseSummary(quizId) {
+    const row = getDb()
+        .prepare(`
+        SELECT quiz_id, summary_text, input_fingerprint, generated_at
+        FROM quiz_response_summaries
+        WHERE quiz_id = ?
+      `)
+        .get(quizId);
+    return row
+        ? {
+            generatedAt: row.generated_at,
+            inputFingerprint: row.input_fingerprint,
+            quizId: row.quiz_id,
+            summaryText: row.summary_text,
+        }
+        : null;
+}
+export function upsertQuizResponseSummary(input) {
+    getDb()
+        .prepare(`
+        INSERT INTO quiz_response_summaries (
+          quiz_id,
+          summary_text,
+          input_fingerprint,
+          generated_at
+        )
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(quiz_id) DO UPDATE SET
+          summary_text = excluded.summary_text,
+          input_fingerprint = excluded.input_fingerprint,
+          generated_at = CURRENT_TIMESTAMP
+      `)
+        .run(input.quizId, input.summaryText, input.inputFingerprint);
 }
 export function submitQuizAttempt(input) {
     getDb()

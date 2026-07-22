@@ -585,6 +585,71 @@ export function buildQuizEvaluationSummary(result) {
     }
     return summary;
 }
+/**
+ * Live, deterministic aggregation of the responses collected for a quiz. Not
+ * persisted: it is recomputed from the current attempts on every view, so it
+ * always reflects reality (a stored report would go stale the moment a new
+ * participant responds). Per-question tallies are keyed by prompt text, so
+ * they survive block reordering; questions are reported in the current quiz's
+ * order. Only evaluated attempts contribute to the tallies; `respondedCount`
+ * counts every collected attempt.
+ */
+export function buildQuizResponsesSummary(input) {
+    const tally = new Map();
+    let evaluatedCount = 0;
+    for (const attempt of input.attempts) {
+        if (attempt.status !== 'evaluated' || !attempt.result) {
+            continue;
+        }
+        const parsed = quizResultBlockSchema.safeParse(attempt.result);
+        if (!parsed.success) {
+            continue;
+        }
+        evaluatedCount += 1;
+        for (const item of parsed.data.items) {
+            const bucket = tally.get(item.prompt) ?? { correct: 0, incorrect: 0, partial: 0 };
+            bucket[item.evaluation.status] += 1;
+            tally.set(item.prompt, bucket);
+        }
+    }
+    const questions = input.draft.blocks.map((block) => {
+        const bucket = tally.get(block.item.prompt) ?? { correct: 0, incorrect: 0, partial: 0 };
+        return {
+            correct: bucket.correct,
+            incorrect: bucket.incorrect,
+            partial: bucket.partial,
+            prompt: block.item.prompt,
+            total: bucket.correct + bucket.incorrect + bucket.partial,
+        };
+    });
+    return {
+        evaluatedCount,
+        questions,
+        respondedCount: input.attempts.length,
+    };
+}
+/**
+ * Fingerprint of the inputs an AI summary was generated from, so a stored
+ * summary can be flagged stale when new responses arrive. Derived from the
+ * evaluated attempts that feed the summary: their count plus the latest
+ * update timestamp. If either changes (a new evaluated response, or one
+ * re-evaluated), the fingerprint changes and the owner sees a "regenerate"
+ * prompt.
+ */
+export function computeQuizResponsesFingerprint(attempts) {
+    let evaluatedCount = 0;
+    let latestUpdatedAt = '';
+    for (const attempt of attempts) {
+        if (attempt.status !== 'evaluated' || !attempt.result) {
+            continue;
+        }
+        evaluatedCount += 1;
+        if (attempt.updatedAt > latestUpdatedAt) {
+            latestUpdatedAt = attempt.updatedAt;
+        }
+    }
+    return `${evaluatedCount}:${latestUpdatedAt}`;
+}
 export function buildQuizResultTitle(result, locale = 'es') {
     const summary = buildQuizEvaluationSummary(result);
     return translate(locale, 'msg.quizCorrectAnswers', {
