@@ -134,6 +134,29 @@
     </div>
   <% } %>
 
+  <% if (canManageQuiz) { %>
+    <section class="resource-section">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
+            <a class="btn btn-outline-secondary btn-sm" href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/participation">
+              <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
+            </a>
+          </div>
+          <% if (quizParticipationCounts.submissions === 0) { %>
+            <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
+          <% } else { %>
+            <div class="resource-meta-row">
+              <span><i class="bi bi-check-circle" aria-hidden="true"></i> <%= t('quizzes.participantsCompletedCount', { count: quizParticipationCounts.completed }) %></span>
+              <span><i class="bi bi-inbox" aria-hidden="true"></i> <%= t('quizzes.participantsSubmissionsCount', { count: quizParticipationCounts.submissions }) %></span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </section>
+  <% } %>
+
   <section class="resource-section">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
       <h2 class="h5 mb-0"><%= t('quizzes.blocks') %></h2>
@@ -175,114 +198,11 @@
     </div>
   </section>
 
-  <% if (canManageQuiz && quizResponsesSummary && quizResponsesSummary.respondedCount > 0) { %>
-    <div class="resource-section">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h2 class="h5 mb-0"><%= t('quizzes.responsesSummaryTitle') %></h2>
-        <span class="badge text-bg-light border"><%= t('quizzes.responsesSummaryCount', { responded: quizResponsesSummary.respondedCount, evaluated: quizResponsesSummary.evaluatedCount }) %></span>
-      </div>
 
-      <% if (quizResponsesSummaryError) { %>
-        <div class="alert alert-warning" role="alert">
-          <p class="mb-<%= quizResponsesSummaryError.isCredit ? '2' : '0' %>"><%= quizResponsesSummaryError.message %></p>
-          <% if (quizResponsesSummaryError.isCredit) { %>
-            <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/quizzes/${selectedQuiz.id}`) %>"><%= t('credit.buy') %></a>
-          <% } %>
-        </div>
-      <% } %>
-
-      <% if (quizResponsesSummary.evaluatedCount > 0) { %>
-        <div class="list-group shadow-sm mb-3">
-          <% quizResponsesSummary.questions.forEach((question, index) => { %>
-            <div class="list-group-item">
-              <div class="d-flex align-items-start gap-3">
-                <span class="badge rounded-pill text-bg-light border flex-shrink-0">#<%= index + 1 %></span>
-                <div class="flex-grow-1">
-                  <p class="mb-1 text-break"><%= question.prompt %></p>
-                  <div class="d-flex flex-wrap gap-2">
-                    <span class="badge text-bg-success"><%= question.correct %> <%= t('quizzes.correctSuffix') %></span>
-                    <span class="badge text-bg-warning"><%= question.partial %> <%= t('quizzes.partialSuffix') %></span>
-                    <span class="badge text-bg-danger"><%= question.incorrect %> <%= t('quizzes.toImproveSuffix') %></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <% }) %>
-        </div>
-
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-              <h3 class="h6 mb-0"><i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.aiSummaryTitle') %></h3>
-              <% if (quizAiSummary && quizAiSummary.stale) { %>
-                <span class="badge text-bg-warning"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i><%= t('quizzes.aiSummaryStale') %></span>
-              <% } %>
-            </div>
-
-            <% if (quizAiSummary) { %>
-              <div class="resource-markdown" data-render-markdown><%= quizAiSummary.text %></div>
-              <p class="text-body-secondary small mt-2 mb-2"><%= t('quizzes.aiSummaryGeneratedAt', { when: quizAiSummary.generatedAtRelative }) %></p>
-            <% } else { %>
-              <p class="text-body-secondary mb-2"><%= t('quizzes.aiSummaryIntro') %></p>
-            <% } %>
-
-            <form method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/summary" data-quiz-generate-form>
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <button class="btn btn-<%= quizAiSummary ? 'outline-secondary' : 'primary' %> btn-sm" type="submit" data-quiz-generate-submit>
-                <i class="bi bi-<%= quizAiSummary ? 'arrow-clockwise' : 'stars' %> me-1" aria-hidden="true"></i>
-                <%= quizAiSummary ? t('quizzes.aiSummaryRegenerate') : t('quizzes.aiSummaryGenerate') %>
-              </button>
-            </form>
-          </div>
-        </div>
-      <% } else { %>
-        <p class="text-body-secondary mb-0"><%= t('quizzes.responsesSummaryNoneEvaluated') %></p>
-      <% } %>
-    </div>
-  <% } %>
-
-  <% if (canManageQuiz) { %>
-    <div class="resource-section">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
-        <span class="badge text-bg-light border"><%= quizCollectedAttempts.length %></span>
-      </div>
-      <% if (quizCollectedAttempts.length === 0) { %>
-        <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
-      <% } else { %>
-        <div class="list-group shadow-sm">
-          <% quizCollectedAttempts.forEach((attempt) => { %>
-            <% if (attempt.status === 'evaluated') { %>
-              <a class="list-group-item list-group-item-action" href="/quiz-attempts/<%= encodeURIComponent(attempt.id) %>/result">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                  <span>
-                    <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= attempt.participantLabel %>
-                    <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
-                    <% if (attempt.resultSummaryLabel) { %>
-                      <span class="badge text-bg-light border ms-1"><%= attempt.resultSummaryLabel %></span>
-                    <% } %>
-                  </span>
-                  <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
-                </div>
-              </a>
-            <% } else { %>
-              <div class="list-group-item">
-                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-                  <span>
-                    <i class="bi bi-person-circle me-1" aria-hidden="true"></i><%= attempt.participantLabel %>
-                    <span class="badge <%= attempt.statusBadgeClass %> ms-1"><%= attempt.statusLabel %></span>
-                  </span>
-                  <span class="text-body-secondary"><%= attempt.relativeUpdatedAt %></span>
-                </div>
-              </div>
-            <% } %>
-          <% }) %>
-        </div>
-      <% } %>
-    </div>
-  <% } %>
-
-  <% if (quizAttempts.length > 0) { %>
+  <%# The owner's own attempts here are their Probar test runs; they have the
+      Participantes card for others' attempts, so this list only serves a
+      non-owner recipient who needs to reach their own result. %>
+  <% if (!canManageQuiz && quizAttempts.length > 0) { %>
     <div class="resource-section">
       <h2 class="h5"><%= t('quizzes.submissions') %></h2>
       <div class="list-group">
@@ -439,19 +359,6 @@
     resourceMoveCurrentFolder: quizCurrentFolder,
     resourceMoveFolderOptions: quizFolderOptions,
   }) %>
-<% } %>
-
-<% if (canManageQuiz) { %>
-  <div class="modal fade" tabindex="-1" aria-hidden="true" data-quiz-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-body d-flex align-items-center gap-3">
-          <div class="spinner-border text-primary" aria-hidden="true"></div>
-          <p class="mb-0"><%= t('quizzes.aiSummaryGenerating') %></p>
-        </div>
-      </div>
-    </div>
-  </div>
 <% } %>
 
 <%- include('partials/app-shell-close', { pageScriptPartial: 'quizzes-client-script' }) %>

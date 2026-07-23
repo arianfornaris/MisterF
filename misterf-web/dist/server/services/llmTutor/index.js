@@ -449,7 +449,7 @@ export async function evaluateQuizResultItemsWithLlm(input) {
                     issues: parsed.error.issues,
                 });
             }
-            return parsed.data.items;
+            return { items: parsed.data.items, overall: parsed.data.overall };
         }
         catch (error) {
             lastError = error;

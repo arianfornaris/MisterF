@@ -72,6 +72,14 @@
 
   <div data-quiz-result-host></div>
   <div class="quiz-block-list" data-quiz-result-fallback>
+    <% if (resultBlock.overall) { %>
+      <div class="card border-primary-subtle mb-3">
+        <div class="card-body">
+          <h2 class="h6 mb-2"><i class="bi bi-clipboard-check me-1" aria-hidden="true"></i><%= t('quizzes.overallTitle') %></h2>
+          <p class="mb-0"><%= resultBlock.overall %></p>
+        </div>
+      </div>
+    <% } %>
     <% resultBlock.items.forEach((resultItem, index) => { %>
       <%- include('partials/quiz-result-item', { index, resultItem }) %>
     <% }) %>

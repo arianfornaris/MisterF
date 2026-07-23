@@ -550,7 +550,7 @@ export async function evaluateQuizAttempt(input) {
     const draft = parseQuizDraft(input.attempt.snapshot);
     const quiz = quizDraftToQuizBlock(draft);
     const responses = normalizeStoredResponses(input.attempt.responses);
-    const evaluations = await evaluateQuizResultItemsWithLlm({
+    const evaluation = await evaluateQuizResultItemsWithLlm({
         evaluationInstructions: draft.evaluationInstructions,
         instructionLanguage: input.instructionLanguage,
         llm: input.llm,
@@ -560,8 +560,9 @@ export async function evaluateQuizAttempt(input) {
     });
     return quizResultBlockSchema.parse(buildQuizResultBlock({
         draft,
-        evaluations,
+        evaluations: evaluation.items,
         locale: input.instructionLanguage,
+        overall: evaluation.overall,
         responses,
     }));
 }
@@ -658,6 +659,7 @@ export function buildQuizResultTitle(result, locale = 'es') {
     });
 }
 export function buildQuizResultBlock(input) {
+    const overall = input.overall?.trim();
     return {
         items: input.draft.blocks.map((block, index) => buildQuizResultItem({
             evaluation: input.evaluations[index] ?? {
@@ -667,6 +669,7 @@ export function buildQuizResultBlock(input) {
             item: block.item,
             response: input.responses[index] ?? {},
         })),
+        ...(overall ? { overall } : {}),
         prompt: input.draft.instructions || input.draft.description || input.draft.title,
         title: input.draft.title,
         type: 'quiz_result',

@@ -580,11 +580,14 @@ export async function evaluateQuizResultItemsWithLlm(input: {
     itemIndexes: number[];
     title?: string;
   }>;
-}): Promise<Array<{
-  feedback: string;
-  inlineReview?: Record<string, unknown>;
-  status: 'correct' | 'incorrect' | 'partial';
-}>> {
+}): Promise<{
+  items: Array<{
+    feedback: string;
+    inlineReview?: Record<string, unknown>;
+    status: 'correct' | 'incorrect' | 'partial';
+  }>;
+  overall?: string;
+}> {
   const system = renderSystemPrompt('tutor/quiz-result-evaluation.md', {
     INSTRUCTION_LANGUAGE_NAME: instructionLanguageEnglishName(
       input.instructionLanguage ?? 'es',
@@ -654,7 +657,7 @@ export async function evaluateQuizResultItemsWithLlm(input: {
         });
       }
 
-      return parsed.data.items;
+      return { items: parsed.data.items, overall: parsed.data.overall };
     } catch (error) {
       lastError = error;
       if (attempt >= maxQuizEvaluationCorrectionAttempts - 1) {

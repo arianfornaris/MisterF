@@ -38,6 +38,19 @@ export function createQuizResultCard(block) {
     header.append(prompt);
   }
 
+  if (typeof block.overall === 'string' && block.overall.trim()) {
+    const overall = document.createElement('div');
+    overall.className = 'quiz-result-overall';
+    const overallTitle = document.createElement('p');
+    overallTitle.className = 'quiz-result-overall-title';
+    overallTitle.textContent = t('card.quizOverallTitle');
+    const overallBody = document.createElement('div');
+    overallBody.className = 'quiz-result-overall-body';
+    overallBody.innerHTML = renderMarkdown(block.overall.trim());
+    overall.append(overallTitle, overallBody);
+    header.append(overall);
+  }
+
   const progressRow = document.createElement('div');
   progressRow.className = 'quiz-result-progress-row';
 

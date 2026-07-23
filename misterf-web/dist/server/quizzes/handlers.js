@@ -1302,20 +1302,6 @@ export async function renderQuizShowPage(request, response) {
             quizId: resolved.quiz.id,
         })
         : [];
-    const responsesSummary = resolved.canManageQuiz
-        ? buildQuizResponsesSummary({ attempts: collectedAttempts, draft })
-        : null;
-    const storedAiSummary = resolved.canManageQuiz
-        ? getQuizResponseSummary(resolved.quiz.id)
-        : null;
-    const aiSummary = responsesSummary && storedAiSummary
-        ? {
-            generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt),
-            stale: storedAiSummary.inputFingerprint
-                !== computeQuizResponsesFingerprint(collectedAttempts),
-            text: storedAiSummary.summaryText,
-        }
-        : null;
     renderQuizzesView(response, 'quizzes-show', {
         ...buildQuizzesShellContext(request, {
             activeProfile: resolved.activeProfile,
@@ -1323,10 +1309,7 @@ export async function renderQuizShowPage(request, response) {
             user: resolved.user,
         }),
         quizAttempts: buildQuizAttemptListItems(attempts, request.locale),
-        quizCollectedAttempts: buildCollectedQuizAttemptListItems(collectedAttempts, request.locale),
-        quizResponsesSummary: responsesSummary,
-        quizAiSummary: aiSummary,
-        quizResponsesSummaryError: readQuizResponsesSummaryError(request.query.summaryError, request.locale),
+        quizParticipationCounts: buildQuizParticipationCounts(collectedAttempts),
         quizBlockOutlineItems: buildQuizBlockOutlineItems(draft, request.locale),
         canManageQuiz: resolved.canManageQuiz,
         quizShareMode,
@@ -1340,6 +1323,71 @@ export async function renderQuizShowPage(request, response) {
         shareLink,
         shareTargetQuizProfiles,
         shareUrl,
+    });
+}
+/**
+ * Headline counts for the quiz page's Participantes teaser: how many distinct
+ * participants finished (an evaluated attempt) and how many responses came in
+ * overall. A participant with several attempts counts once as completed but
+ * contributes each submission.
+ */
+function buildQuizParticipationCounts(attempts) {
+    const completedParticipants = new Set();
+    for (const attempt of attempts) {
+        if (attempt.status !== 'evaluated') {
+            continue;
+        }
+        // Guests have no profile, so each guest attempt is its own participant.
+        completedParticipants.add(attempt.profileId ?? `attempt:${attempt.id}`);
+    }
+    return {
+        completed: completedParticipants.size,
+        submissions: attempts.length,
+    };
+}
+/**
+ * Dedicated participation page: the live responses summary, the stored AI
+ * summary with its staleness state, and the per-participant list. Split out of
+ * the quiz page so the quiz page stays about the quiz itself.
+ */
+export async function renderQuizParticipationPage(request, response) {
+    const resolved = resolveOwnQuiz(request, response);
+    if (!resolved) {
+        return;
+    }
+    const draft = quizToDraftOrRedirect(resolved.quiz, response);
+    if (!draft) {
+        return;
+    }
+    const collectedAttempts = listCollectedQuizAttemptsForOwner({
+        authorProfileId: resolved.quiz.profileId,
+        quizId: resolved.quiz.id,
+    });
+    const responsesSummary = buildQuizResponsesSummary({
+        attempts: collectedAttempts,
+        draft,
+    });
+    const storedAiSummary = getQuizResponseSummary(resolved.quiz.id);
+    const aiSummary = storedAiSummary
+        ? {
+            generatedAtRelative: formatRelativeTime(storedAiSummary.generatedAt),
+            stale: storedAiSummary.inputFingerprint
+                !== computeQuizResponsesFingerprint(collectedAttempts),
+            text: storedAiSummary.summaryText,
+        }
+        : null;
+    renderQuizzesView(response, 'quizzes-participation', {
+        ...buildQuizzesShellContext(request, {
+            activeProfile: resolved.activeProfile,
+            title: `${resolved.quiz.title} - ${appDocumentTitle}`,
+            user: resolved.user,
+        }),
+        canManageQuiz: true,
+        quizAiSummary: aiSummary,
+        quizCollectedAttempts: buildCollectedQuizAttemptListItems(collectedAttempts, request.locale),
+        quizResponsesSummary: responsesSummary,
+        quizResponsesSummaryError: readQuizResponsesSummaryError(request.query.summaryError, request.locale),
+        selectedQuiz: resolved.quiz,
     });
 }
 function readQuizResponsesSummaryError(value, locale) {
@@ -1380,7 +1428,9 @@ export async function handleGenerateQuizResponsesSummary(request, response) {
     if (!draft) {
         return;
     }
-    const quizPath = `/quizzes/${encodeURIComponent(resolved.quiz.id)}`;
+    // The summary lives on the participation page, so every outcome returns
+    // there rather than to the quiz page.
+    const quizPath = `/quizzes/${encodeURIComponent(resolved.quiz.id)}/participation`;
     const collectedAttempts = listCollectedQuizAttemptsForOwner({
         authorProfileId: resolved.quiz.profileId,
         quizId: resolved.quiz.id,

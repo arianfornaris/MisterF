@@ -19,6 +19,7 @@ answers to choose from), even when the item prompt does not repeat them.
 Your job is to review each quiz item and the learner's response, then return STRICT JSON with this shape:
 
 {
+  "overall": "Short holistic assessment of the whole attempt in {{INSTRUCTION_LANGUAGE_NAME}}.",
   "items": [
     {
       "status": "correct" | "partial" | "incorrect",
@@ -95,6 +96,7 @@ Your job is to review each quiz item and the learner's response, then return STR
 Rules:
 
 - Return JSON only. No markdown fences. No explanation outside the JSON.
+- Always include `overall`: a short holistic read of the whole attempt for the learner, in {{INSTRUCTION_LANGUAGE_NAME}}. Name what they did well and the one or two things to focus on next. Keep it to 1-3 sentences. Make it actionable guidance, not a grade, a score, or generic praise; the per-item feedback and the score already exist. Do not restate every item; step back and describe the pattern across the whole quiz. When there is only one item, keep `overall` to a single short sentence.
 - The `items` array must have exactly one entry per quiz item, in the same order.
 - `feedback` must be in {{INSTRUCTION_LANGUAGE_NAME}}, warm, concise, and specific.
 - Keep each `feedback` short: usually 1 or 2 sentences.

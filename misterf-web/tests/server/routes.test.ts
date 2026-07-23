@@ -1570,7 +1570,7 @@ describe('main route smoke tests', () => {
     );
     expect(summaryResponse.status).toBe(302);
     expect(summaryResponse.headers.get('location')).toBe(
-      `/quizzes/${quiz.id}?summaryError=empty`,
+      `/quizzes/${quiz.id}/participation?summaryError=empty`,
     );
   });
 
@@ -1742,9 +1742,20 @@ describe('main route smoke tests', () => {
         redirect: 'manual',
       })
     ).text();
+    // The quiz page keeps only the compact teaser plus a link; the per-
+    // participant list lives on the participation page.
     expect(quizPageHtml).toContain('Participantes');
-    expect(quizPageHtml).toContain(`/quiz-attempts/${collectedAttemptId}/result`);
-    expect(quizPageHtml).not.toContain(uncollectedAttemptId);
+    expect(quizPageHtml).toContain(`/quizzes/${quiz.id}/participation`);
+    expect(quizPageHtml).not.toContain(`/quiz-attempts/${collectedAttemptId}/result`);
+
+    const participationHtml = await (
+      await fetch(`${baseUrl}/quizzes/${quiz.id}/participation`, {
+        headers: { cookie: ownerCookie },
+        redirect: 'manual',
+      })
+    ).text();
+    expect(participationHtml).toContain(`/quiz-attempts/${collectedAttemptId}/result`);
+    expect(participationHtml).not.toContain(uncollectedAttemptId);
 
     // Owner read-only result view: renders without the learner actions and
     // without the guest token; the uncollected attempt stays inaccessible.

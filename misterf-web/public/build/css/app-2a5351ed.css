@@ -2709,6 +2709,31 @@ body {
   margin-bottom: 0;
 }
 
+.quiz-result-overall {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--mf-border, rgba(0, 0, 0, 0.1));
+  border-radius: 0.5rem;
+  background: var(--mf-surface-2, rgba(0, 0, 0, 0.02));
+}
+
+.quiz-result-overall-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--mf-muted-ink, #6c757d);
+}
+
+.quiz-result-overall-body > :first-child {
+  margin-top: 0;
+}
+
+.quiz-result-overall-body > :last-child {
+  margin-bottom: 0;
+}
+
 .quiz-result-progress-row,
 .quiz-result-footer,
 .quiz-result-item-header {

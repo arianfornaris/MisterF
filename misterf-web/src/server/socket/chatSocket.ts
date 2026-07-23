@@ -1241,11 +1241,14 @@ export function registerChatSocket(io: Server): void {
           io.to(conversationId).emit('message:updated', updatedMessage);
         }
 
-        let quizEvaluations: Array<{
-          feedback: string;
-          inlineReview?: Record<string, unknown>;
-          status: 'correct' | 'incorrect' | 'partial';
-        }>;
+        let quizEvaluations: {
+          items: Array<{
+            feedback: string;
+            inlineReview?: Record<string, unknown>;
+            status: 'correct' | 'incorrect' | 'partial';
+          }>;
+          overall?: string;
+        };
         try {
           const llmOptions = await getLlmRequestOptionsForUser(userId);
           llmOptions.modelTier = normalizeProfileModelTier(payload.modelTier);
@@ -1278,8 +1281,9 @@ export function registerChatSocket(io: Server): void {
 
         const quizResultBlock = buildQuizResultBlock({
           block,
-          evaluations: quizEvaluations,
+          evaluations: quizEvaluations.items,
           locale: conversation?.instructionLanguage ?? 'es',
+          overall: quizEvaluations.overall,
           responses,
         });
         const quizResultMessage = addMessage(
@@ -1967,12 +1971,15 @@ function buildQuizResultBlock(input: {
     status: 'correct' | 'incorrect' | 'partial';
   }>;
   locale: Locale;
+  overall?: string;
   responses: Array<Record<string, unknown>>;
 }): TutorQuizResultBlock {
+  const overall = input.overall?.trim();
   return {
     type: 'quiz_result',
     title: input.block.title?.trim() || translate(input.locale, 'msg.quizCompletedFallback'),
     prompt: input.block.prompt.trim(),
+    ...(overall ? { overall } : {}),
     items: input.block.items.map((item, index) => {
       const response = input.responses[index] ?? {};
       const evaluation = input.evaluations[index] ?? {

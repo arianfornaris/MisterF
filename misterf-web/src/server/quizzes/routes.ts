@@ -32,6 +32,7 @@ import {
   renderQuizEditPage,
   renderQuizEvaluatingPage,
   renderQuizNewPage,
+  renderQuizParticipationPage,
   renderQuizResultPage,
   renderQuizShowPage,
 } from './handlers.js';
@@ -64,6 +65,7 @@ quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/duplicate', handleDupl
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-up', handleMoveQuizBlock);
 quizzesRouter.post('/quizzes/:quizId/edit/blocks/:blockId/move-down', handleMoveQuizBlock);
 quizzesRouter.get('/quizzes/:quizId', renderQuizShowPage);
+quizzesRouter.get('/quizzes/:quizId/participation', renderQuizParticipationPage);
 quizzesRouter.post('/quizzes/:quizId/summary', handleGenerateQuizResponsesSummary);
 quizzesRouter.post('/quizzes/:quizId/share/profile', handleShareQuizToProfile);
 quizzesRouter.post('/quizzes/:quizId/archive', handleArchiveQuiz);

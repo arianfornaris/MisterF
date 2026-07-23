@@ -836,8 +836,9 @@ export function registerChatSocket(io) {
             }
             const quizResultBlock = buildQuizResultBlock({
                 block,
-                evaluations: quizEvaluations,
+                evaluations: quizEvaluations.items,
                 locale: conversation?.instructionLanguage ?? 'es',
+                overall: quizEvaluations.overall,
                 responses,
             });
             const quizResultMessage = addMessage(conversationId, 'model', buildQuizResultMessageContent(quizResultBlock), {
@@ -1328,10 +1329,12 @@ function fillSentencePlaceholdersForQuiz(sentence, values, placeholderToken) {
     return nextSentence.replace(/\s+/g, ' ').trim();
 }
 function buildQuizResultBlock(input) {
+    const overall = input.overall?.trim();
     return {
         type: 'quiz_result',
         title: input.block.title?.trim() || translate(input.locale, 'msg.quizCompletedFallback'),
         prompt: input.block.prompt.trim(),
+        ...(overall ? { overall } : {}),
         items: input.block.items.map((item, index) => {
             const response = input.responses[index] ?? {};
             const evaluation = input.evaluations[index] ?? {

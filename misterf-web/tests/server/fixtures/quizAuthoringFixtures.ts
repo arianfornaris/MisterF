@@ -172,6 +172,8 @@ export const smallQuizDraft: Record<string, unknown> = {
 };
 
 export const validQuizEvaluation: Record<string, unknown> = {
+  overall:
+    'En general vas bien con el presente; repasa la conjugación en tercera persona.',
   items: [
     {
       feedback: 'Buena descripción, verbos en presente bien usados.',

@@ -430,15 +430,16 @@ describe('quiz evaluation contract', () => {
   it('parses a representative valid evaluation', async () => {
     enqueueModelTexts(JSON.stringify(validQuizEvaluation));
 
-    const items = await evaluateQuizResultItemsWithLlm({
+    const evaluation = await evaluateQuizResultItemsWithLlm({
       llm: { openRouterApiKey: testApiKey },
       quiz,
       responses,
     });
 
-    expect(items).toHaveLength(2);
-    expect(items[0].status).toBe('correct');
-    expect(items[1].status).toBe('incorrect');
+    expect(evaluation.items).toHaveLength(2);
+    expect(evaluation.items[0].status).toBe('correct');
+    expect(evaluation.items[1].status).toBe('incorrect');
+    expect(evaluation.overall).toBe(validQuizEvaluation.overall);
   });
 
   it('recovers from a schema-invalid evaluation through one correction turn', async () => {
@@ -447,13 +448,13 @@ describe('quiz evaluation contract', () => {
       JSON.stringify(validQuizEvaluation),
     );
 
-    const items = await evaluateQuizResultItemsWithLlm({
+    const evaluation = await evaluateQuizResultItemsWithLlm({
       llm: { openRouterApiKey: testApiKey },
       quiz,
       responses,
     });
 
-    expect(items).toHaveLength(2);
+    expect(evaluation.items).toHaveLength(2);
     expect(generateTextMock).toHaveBeenCalledTimes(2);
     expect(capturedMessages(1).at(-1)?.content).toContain(
       'did not satisfy the required schema',

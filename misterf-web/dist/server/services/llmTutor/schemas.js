@@ -629,11 +629,19 @@ export const quizResultBlockSchema = z
     type: z.literal('quiz_result'),
     title: z.string().trim().min(1).max(200).optional(),
     prompt: z.string().trim().min(1).max(2000).optional(),
+    // A short holistic read of the whole attempt (strengths + what to focus on
+    // next). Optional so results stored before this field still parse; new
+    // evaluations always produce it.
+    overall: z.string().trim().min(1).max(800).optional(),
     items: z.array(quizResultItemSchema).min(1),
 })
     .strict();
 export const quizResultEvaluationsSchema = z
     .object({
+    // Holistic assessment of the whole attempt. Optional in the model contract
+    // so a rare omission degrades gracefully (the result still renders) instead
+    // of failing the learner's evaluation; the prompt requires it.
+    overall: z.string().trim().min(1).max(800).optional(),
     items: z
         .array(z.union([
         z
