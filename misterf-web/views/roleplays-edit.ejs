@@ -5,6 +5,11 @@
     <div class="flex-grow-1">
       <p class="app-page-kicker"><%= t('roleplays.editingKicker') %></p>
       <h1 class="app-page-title"><%= draft.title %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: draft.title, href: `/roleplays/${encodeURIComponent(selectedRoleplay.id)}` },
+        { label: t('roleplays.editingKicker') },
+      ] }) %>
       <p class="app-page-copy"><%= t('roleplays.editCopy') %></p>
     </div>
     <div class="app-page-header-actions position-static flex-shrink-0">

@@ -14,17 +14,13 @@
       <p class="app-page-kicker"><%= selectedFolder ? t('resources.kickerFolder') : t('resources.kickerLibrary') %></p>
       <h1 class="app-page-title"><%= selectedFolder ? selectedFolder.title : t('resources.title') %></h1>
       <% if (selectedFolder) { %>
-        <p class="app-page-copy">
-          <a href="/resources"><%= t('resources.title') %></a>
-          <% resourceFolderBreadcrumbItems.forEach((folder, index) => { %>
-            <span class="mx-1">/</span>
-            <% if (index < resourceFolderBreadcrumbItems.length - 1) { %>
-              <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
-            <% } else { %>
-              <span><%= folder.title %></span>
-            <% } %>
-          <% }) %>
-        </p>
+        <%- include('partials/breadcrumb', { crumbs: [
+          { label: t('resources.title'), href: '/resources' },
+          ...resourceFolderBreadcrumbItems.map((folder) => ({
+            label: folder.title,
+            href: `/resources/folders/${encodeURIComponent(folder.id)}`,
+          })),
+        ] }) %>
         <% if (selectedFolderCanManage) { %>
         <div class="resource-action-row mt-3">
           <div class="dropdown">
@@ -36,19 +32,20 @@
             >
               <i class="bi bi-plus-lg me-1" aria-hidden="true"></i><%= t('resources.new') %>
             </button>
+            <% const newInFolderQuery = `?folder=${encodeURIComponent(selectedFolder.id)}`; %>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="/quizzes/new">
+                <a class="dropdown-item" href="/quizzes/new<%= newInFolderQuery %>">
                   <i class="bi bi-ui-checks-grid me-2" aria-hidden="true"></i><%= t('resources.typeQuiz') %>
                 </a>
               </li>
               <li>
-                <a class="dropdown-item" href="/practice-guides/new">
+                <a class="dropdown-item" href="/practice-guides/new<%= newInFolderQuery %>">
                   <i class="bi bi-journal-plus me-2" aria-hidden="true"></i><%= t('resources.typePracticeGuide') %>
                 </a>
               </li>
               <li>
-                <a class="dropdown-item" href="/roleplays/new">
+                <a class="dropdown-item" href="/roleplays/new<%= newInFolderQuery %>">
                   <i class="bi bi-person-video3 me-2" aria-hidden="true"></i><%= t('resources.typeRoleplay') %>
                 </a>
               </li>

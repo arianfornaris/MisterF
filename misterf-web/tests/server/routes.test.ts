@@ -857,7 +857,7 @@ describe('main route smoke tests', () => {
       title: quizDraft.title,
       userId: owner.id,
     });
-    createPracticeGuide({
+    const practiceGuide = createPracticeGuide({
       description: 'Route labels guide.',
       profileId: ownerProfile.id,
       title: 'Route Labels Guide',
@@ -865,11 +865,16 @@ describe('main route smoke tests', () => {
       userId: owner.id,
     });
 
+    // A collected participant submission is what surfaces to the owner as
+    // participation. It must be a different profile than the owner's (here a
+    // guest, so no profile) and flagged collect_results; the owner's own
+    // attempts are Probar test runs and are intentionally excluded.
     const attempt = createQuizAttempt({
       quizId: quiz.id,
-      profileId: ownerProfile.id,
+      collectResults: true,
+      profileId: null,
       snapshot: quizDraft,
-      userId: owner.id,
+      userId: null,
     });
     submitQuizAttempt({
       attemptId: attempt.id,
@@ -909,8 +914,24 @@ describe('main route smoke tests', () => {
     const quizHtml = await quizResponse.text();
     expect(quizResponse.status).toBe(200);
     expect(quizHtml).toContain('Route Labels Quiz');
-    expect(quizHtml).toContain('Entregas');
-    expect(quizHtml).toContain(`/quiz-attempts/${attempt.id}/result`);
+    // The owner sees the Participantes teaser with counts from the collected
+    // participant submission, plus a link to the dedicated participation page.
+    // The direct submission list ("Entregas") is only shown to non-owner
+    // recipients, so it is asserted from the participation surface here.
+    expect(quizHtml).toContain('Participantes');
+    expect(quizHtml).toContain('1 entregas');
+    expect(quizHtml).toContain(`/quizzes/${quiz.id}/participation`);
+
+    // The practice-guide detail page renders through the practice-guides-view
+    // partial, whose breadcrumb include must resolve relative to views/partials/.
+    const guideResponse = await fetch(`${baseUrl}/practice-guides/${practiceGuide.id}`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const guideHtml = await guideResponse.text();
+    expect(guideResponse.status).toBe(200);
+    expect(guideHtml).toContain('Route Labels Guide');
+    expect(guideHtml).toContain('data-breadcrumb');
   });
 
   it('renders quiz sections in the authoring blocks tab', async () => {

@@ -12,9 +12,10 @@
     <div>
       <p class="app-page-kicker"><%= t('mediaLibrary.detailKicker') %></p>
       <h1 class="app-page-title"><%= mediaItem.title %></h1>
-      <p class="app-page-copy">
-        <%= t('mediaLibrary.detailIntro') %>
-      </p>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('mediaLibrary.title'), href: '/media-library' },
+        { label: mediaItem.title },
+      ] }) %>
     </div>
     <div class="app-page-header-actions">
       <a

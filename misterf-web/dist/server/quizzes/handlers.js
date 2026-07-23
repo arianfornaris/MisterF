@@ -1,12 +1,13 @@
 import { languages, translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
-import { archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceAccessGrant, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, getQuizResponseSummary, listCollectedQuizAttemptsForOwner, listQuizAttemptsForUser, upsertQuizResponseSummary, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
+import { addResourceToFolder, archiveQuizForUser, attachQuizAttemptToUser, createQuiz, createQuizAttempt, createConversationFromQuizAttempt, findQuizAttemptById, findQuizById, findQuizForUser, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceAccessGrant, findResourceFolderForResource, findResourceShareLinkById, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, getQuizResponseSummary, listCollectedQuizAttemptsForOwner, listQuizAttemptsForUser, upsertQuizResponseSummary, markQuizAttemptEvaluating, markQuizAttemptFailed, restoreQuizForUser, saveQuizAttemptResult, submitQuizAttempt, updateQuiz, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { findUserById } from '../auth/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { applyQuizMetadataToDraft, buildQuizBlockSectionList, quizDraftToStudentQuizBlock, buildQuizEvaluationSummary, buildQuizResponsesSummary, buildQuizResultTitle, computeQuizResponsesFingerprint, canonicalizeQuizDraftBlockOrder, createQuizDraftFromManualInput, applyQuizBlocksAndSectionsToDraft, diffQuizBlocks, duplicateQuizBlock, evaluateQuizAttempt, findQuizBlock, insertQuizBlock, moveQuizBlock, normalizeQuizResponses, quizBlocksDiffHasChanges, quizDraftToMetadata, removeQuizBlock, safeParseQuizDraft, safeParseQuizMetadata, setQuizBlockItem, storedQuizToDraft, } from '../services/quizzes.js';
 import { generateQuizDraft, generateQuizBlockRevision, generateQuizBlocksRevision, generateQuizMetadataRevision, generateQuizResponsesSummary, } from '../services/resourceDrafts.js';
 import { deletePendingModification, getPendingModification, listStringFieldChanges, setPendingModification, } from '../resources/modificationPreviewStore.js';
+import { resolveOriginFolderContext } from '../resources/originFolder.js';
 import { randomUUID } from 'node:crypto';
 import { buildResourceFromContextPrompt, createResourceFromContextDraft, normalizeContextResourceType, } from '../services/resourceFromContext.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
@@ -532,6 +533,7 @@ export function renderQuizNewPage(request, response) {
             title: `Nuevo quiz - ${appDocumentTitle}`,
             user: auth.user,
         }),
+        ...resolveOriginFolderContext(request.query.folder, auth.user.id),
         generationError: '',
         generationPrompt: '',
     });
@@ -541,6 +543,7 @@ export async function handleGenerateQuiz(request, response) {
     if (!auth) {
         return;
     }
+    const originFolder = resolveOriginFolderContext(request.body.folderId, auth.user.id);
     const prompt = readMultilineField(request.body.prompt, 6000);
     if (prompt.length < 10) {
         renderQuizzesView(response.status(422), 'quizzes-new', {
@@ -549,6 +552,7 @@ export async function handleGenerateQuiz(request, response) {
                 title: `Nuevo quiz - ${appDocumentTitle}`,
                 user: auth.user,
             }),
+            ...originFolder,
             generationError: translate(request.locale, 'msg.describeQuizBetter'),
             generationPrompt: prompt,
         });
@@ -572,6 +576,13 @@ export async function handleGenerateQuiz(request, response) {
             title: draft.title,
             userId: auth.user.id,
         });
+        if (originFolder.originFolderId) {
+            addResourceToFolder({
+                folderId: originFolder.originFolderId,
+                resourceId: quiz.id,
+                userId: auth.user.id,
+            });
+        }
         logger.info('quiz_created_from_prompt', {
             quizId: quiz.id,
             blockCount: draft.blocks.length,
@@ -596,6 +607,7 @@ export async function handleGenerateQuiz(request, response) {
                 title: `Nuevo quiz - ${appDocumentTitle}`,
                 user: auth.user,
             }),
+            ...originFolder,
             generationError,
             generationPrompt: prompt,
         });

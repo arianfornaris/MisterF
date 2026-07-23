@@ -12,6 +12,13 @@
     <div>
       <p class="app-page-kicker"><%= t('quizzes.resultKicker') %></p>
       <h1 class="app-page-title"><%= result.summaryTitle %></h1>
+      <% if (isAuthenticated) { %>
+        <%- include('partials/breadcrumb', { crumbs: [
+          { label: t('resources.title'), href: '/resources' },
+          { label: draft.title, href: `/roleplays/${encodeURIComponent(attempt.roleplayId)}` },
+          { label: t('quizzes.resultKicker') },
+        ] }) %>
+      <% } %>
       <p class="app-page-copy"><%= result.summary %></p>
       <div class="resource-action-row mt-3">
         <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice">

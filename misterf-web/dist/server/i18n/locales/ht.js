@@ -461,6 +461,7 @@ export const ht = {
         noDescription: 'Pa gen deskripsyon',
         blocksSuffix: 'blòk',
         quizKicker: 'Quiz',
+        attemptKicker: 'Tantativ',
         submit: 'Soumèt',
         evaluating: 'Ap evalye quiz la...',
         evaluatingCopy: 'N ap gade repons ou yo. Sa ka pran kèk segond; tanpri pa fèmen paj sa a.',
@@ -655,6 +656,7 @@ export const ht = {
         create: 'Kreye Roleplay',
         creating: 'Ap kreye Roleplay la...',
         roleplayKicker: 'Roleplay',
+        attemptKicker: 'Konvèsasyon',
         youLabel: 'Ou:',
         aiLabel: 'AI:',
         turnsSuffix: 'tou',
@@ -812,6 +814,7 @@ export const ht = {
         label: 'Lang',
     },
     nav: {
+        breadcrumb: 'Chemen navigasyon',
         chatControls: 'Kontwòl chat',
         conversations: 'Konvèsasyon',
         translator: 'Tradiktè',

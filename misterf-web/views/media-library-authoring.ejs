@@ -11,6 +11,11 @@
     <div>
       <p class="app-page-kicker"><%= t('mediaLibrary.editingKicker') %></p>
       <h1 class="app-page-title"><%= mediaItem.title %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('mediaLibrary.title'), href: '/media-library' },
+        { label: mediaItem.title, href: `/media-library/${encodeURIComponent(mediaItem.id)}` },
+        { label: t('mediaLibrary.editingKicker') },
+      ] }) %>
     </div>
     <div class="app-page-header-actions">
       <a class="app-page-close-button" href="/media-library/<%= encodeURIComponent(mediaItem.id) %>" title="<%= t('common.close') %>" aria-label="<%= t('common.close') %>">

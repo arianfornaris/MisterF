@@ -1,15 +1,31 @@
 <%- include('partials/app-shell-open') %>
 
+<%
+  const guideNewFolderPath = Array.isArray(originFolderPath) ? originFolderPath : [];
+  const guideNewFolderId = typeof originFolderId === 'string' ? originFolderId : null;
+  const guideNewCloseHref = guideNewFolderId
+    ? `/resources/folders/${encodeURIComponent(guideNewFolderId)}`
+    : '/resources';
+%>
+
 <section class="app-page practice-guides-page">
   <div class="app-page-header app-page-header-has-close">
     <div>
       <p class="app-page-kicker"><%= t('practiceGuides.kicker') %></p>
       <h1><%= t('practiceGuides.newTitle') %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        ...guideNewFolderPath.map((folder) => ({
+          label: folder.title,
+          href: `/resources/folders/${encodeURIComponent(folder.id)}`,
+        })),
+        { label: t('practiceGuides.newTitle') },
+      ] }) %>
     </div>
     <div class="app-page-header-actions">
       <a
         class="app-page-close-button"
-        href="/resources"
+        href="<%= guideNewCloseHref %>"
         title="<%= t('common.close') %>"
         aria-label="<%= t('common.close') %>"
       >
@@ -22,7 +38,7 @@
     <div class="alert <%= generationCreditExhausted ? 'alert-warning' : 'alert-danger' %>" role="alert">
       <p class="mb-<%= generationCreditExhausted ? '2' : '0' %>"><%= generationError %></p>
       <% if (generationCreditExhausted) { %>
-        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent('/practice-guides/new') %>"><%= t('credit.buy') %></a>
+        <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(guideNewFolderId ? `/practice-guides/new?folder=${guideNewFolderId}` : '/practice-guides/new') %>"><%= t('credit.buy') %></a>
       <% } %>
     </div>
   <% } %>
@@ -31,6 +47,7 @@
     <div class="card-body">
       <form method="post" action="/practice-guides/generate-draft" data-resource-generate-form>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% if (guideNewFolderId) { %><input type="hidden" name="folderId" value="<%= guideNewFolderId %>"><% } %>
         <div class="mb-3">
           <label class="form-label" for="practiceGuidePrompt"><%= t('practiceGuides.describeLabel') %></label>
           <textarea

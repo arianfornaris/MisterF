@@ -1,13 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
-import { archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, } from '../db/repository.js';
+import { addResourceToFolder, archivePracticeGuideForUser, createConversationFromPracticeGuide, createPracticeGuide, deletePracticeGuideForUser, findResourceAccessForProfile, findResourceShareLinkById, findPracticeGuideById, findPracticeGuideForUser, findProfileById, findProfileForUser, findResourceFolderForResource, getOrCreateResourceShareLink, listResourceFolderPathForResource, listResourceFoldersForProfile, grantResourceAccess, listConversationsForPracticeGuide, restorePracticeGuideForUser, updatePracticeGuide, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
 import { getCreditCheckedOpenRouterApiKeyForUser, getCreditExhaustedMessage, isCreditExhaustedError, } from '../services/creditGate.js';
 import { generatePracticeGuideDraft, generatePracticeGuideRevision, safeParsePracticeGuideDraft, } from '../services/resourceDrafts.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
 import { deletePendingPracticeGuideModification, getPendingPracticeGuideModification, listPracticeGuideModificationChanges, setPendingPracticeGuideModification, } from './modificationPreviewStore.js';
+import { resolveOriginFolderContext, } from '../resources/originFolder.js';
 function buildPracticeGuideAuthoringPath(practiceGuideId) {
     return `/practice-guides/${encodeURIComponent(practiceGuideId)}/edit`;
 }
@@ -250,6 +251,7 @@ export function renderNewPracticeGuidePage(request, response) {
         activeProfile: auth.activeProfile,
         generationError: '',
         generationPrompt: '',
+        originFolder: resolveOriginFolderContext(request.query.folder, auth.user.id),
         user: auth.user,
     });
 }
@@ -264,6 +266,7 @@ function renderPracticeGuideNewView(request, response, input) {
             title: `${translate(request.locale, 'practiceGuides.newTitle')} - ${appDocumentTitle}`,
             user: input.user,
         }),
+        ...(input.originFolder ?? { originFolderId: null, originFolderPath: [] }),
         generationCreditExhausted: Boolean(input.generationCreditExhausted),
         generationError: input.generationError,
         generationPrompt: input.generationPrompt,
@@ -274,12 +277,14 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
     if (!auth) {
         return;
     }
+    const originFolder = resolveOriginFolderContext(request.body.folderId, auth.user.id);
     const prompt = readMultilineField(request.body.prompt, 6000);
     if (prompt.length < 10) {
         renderPracticeGuideNewView(request, response.status(422), {
             activeProfile: auth.activeProfile,
             generationError: translate(request.locale, 'msg.describeGuideBetter'),
             generationPrompt: prompt,
+            originFolder,
             user: auth.user,
         });
         return;
@@ -298,6 +303,13 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
             tutorInstructions: draft.tutorInstructions,
             userId: auth.user.id,
         });
+        if (originFolder.originFolderId) {
+            addResourceToFolder({
+                folderId: originFolder.originFolderId,
+                resourceId: practiceGuide.id,
+                userId: auth.user.id,
+            });
+        }
         logger.info('practice_guide_created_from_prompt', {
             profileId: auth.activeProfile.id,
             resourceId: practiceGuide.id,
@@ -319,6 +331,7 @@ export async function handleGeneratePracticeGuideDraft(request, response) {
                 ? getCreditExhaustedMessage(request.locale)
                 : translate(request.locale, 'msg.generateGuideError'),
             generationPrompt: prompt,
+            originFolder,
             user: auth.user,
         });
     }

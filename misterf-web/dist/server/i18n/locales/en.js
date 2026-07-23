@@ -470,6 +470,7 @@ export const en = {
         noDescription: 'No description',
         blocksSuffix: 'blocks',
         quizKicker: 'Quiz',
+        attemptKicker: 'Attempt',
         submit: 'Submit',
         evaluating: 'Evaluating the quiz...',
         evaluatingCopy: 'We are reviewing your answers. This can take a few seconds; please keep this page open.',
@@ -664,6 +665,7 @@ export const en = {
         create: 'Create Roleplay',
         creating: 'Creating the Roleplay...',
         roleplayKicker: 'Roleplay',
+        attemptKicker: 'Conversation',
         youLabel: 'You:',
         aiLabel: 'AI:',
         turnsSuffix: 'turns',
@@ -862,6 +864,7 @@ export const en = {
         label: 'Language',
     },
     nav: {
+        breadcrumb: 'Breadcrumb',
         chatControls: 'Chat controls',
         conversations: 'Conversations',
         translator: 'Translator',

@@ -5,6 +5,13 @@
     <div>
       <p class="app-page-kicker"><%= t('quizzes.resultKicker') %></p>
       <h1><%= resultTitle %></h1>
+      <% if (isAuthenticated) { %>
+        <%- include('partials/breadcrumb', { crumbs: [
+          { label: t('resources.title'), href: '/resources' },
+          { label: draft.title, href: `/quizzes/${encodeURIComponent(attempt.quizId)}` },
+          { label: t('quizzes.resultKicker') },
+        ] }) %>
+      <% } %>
       <% if (resultOwnerView) { %>
         <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0" role="note">
           <i class="bi bi-person-circle flex-shrink-0" aria-hidden="true"></i>

@@ -497,6 +497,7 @@ export const ht: LocaleCatalog = {
     noDescription: 'Pa gen deskripsyon',
     blocksSuffix: 'blòk',
     quizKicker: 'Quiz',
+    attemptKicker: 'Tantativ',
     submit: 'Soumèt',
     evaluating: 'Ap evalye quiz la...',
     evaluatingCopy:
@@ -725,6 +726,7 @@ export const ht: LocaleCatalog = {
     create: 'Kreye Roleplay',
     creating: 'Ap kreye Roleplay la...',
     roleplayKicker: 'Roleplay',
+    attemptKicker: 'Konvèsasyon',
     youLabel: 'Ou:',
     aiLabel: 'AI:',
     turnsSuffix: 'tou',
@@ -897,6 +899,7 @@ export const ht: LocaleCatalog = {
     label: 'Lang',
   },
   nav: {
+    breadcrumb: 'Chemen navigasyon',
     chatControls: 'Kontwòl chat',
     conversations: 'Konvèsasyon',
     translator: 'Tradiktè',

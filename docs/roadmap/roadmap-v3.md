@@ -782,6 +782,42 @@ the app apart from a freeze.
 
 ---
 
+## 1.9 In-Tutor Platform Awareness
+
+Added 2026-07-23 (founder request). In regular conversations with Mister F, the
+tutor currently has no knowledge of the platform itself, so if a learner or
+teacher asks about a feature ("how do I create a quiz?", "where are my shared
+resources?", "can I make a roleplay?"), the tutor cannot help. Goal: give the
+tutor enough general product knowledge to answer feature questions and point
+users to the right place, without bloating every prompt or letting the tutor
+drift off its pedagogical role.
+
+Open design questions (to consider, not yet decided):
+
+- **Delivery mechanism.** Two candidates: (a) a compact, always-present
+  "About the platform" section in the system prompt, or (b) an on-demand tool
+  the tutor calls only when the user asks about the platform (keeps the base
+  prompt small and the knowledge in one maintainable place). The founder leans
+  toward considering the tool approach. A hybrid is possible: a one-line pointer
+  in the prompt plus a tool for detail.
+- **Scope of knowledge.** Which features to describe (quizzes, roleplays,
+  practice guides, media library, resources/folders, sharing, progress) and at
+  what depth. Keep it feature-level and navigational, not a full manual.
+- **Freshness/maintenance.** Where the canonical platform description lives so it
+  does not drift from the actual product as features change.
+- **Role boundaries.** Ensure platform answers do not derail tutoring; the tutor
+  should answer briefly and return to the learning task.
+
+- [ ] Decide delivery mechanism (prompt section vs. tool vs. hybrid).
+- [ ] Draft the canonical platform-feature description and decide where it lives.
+- [ ] Wire it into regular tutor conversations and verify the tutor answers a
+  feature question correctly without losing its pedagogical framing.
+
+Relevant skills when this is picked up: `system-prompt-coherence`,
+`llm-tool-documentation`.
+
+---
+
 # Part 2: Engineering And Quality
 
 ## 2.1 LLM Inference Portfolio Audit And Governance
@@ -816,9 +852,11 @@ attempt/result pages. Some views have neither.
 Snapshot of the gap on 2026-07-21 (breadcrumb present vs missing):
 
 - Have it: `resources-list`, `resources-shared`, `quizzes-show`,
-  `quizzes-participation`, `roleplays-show`, `roleplays-new`, `media-library`,
-  `media-library-show`.
-- Missing it: `quizzes-authoring`, `quizzes-new`, `practice-guides` (detail),
+  `quizzes-participation`, `roleplays-show`, `roleplays-new`, `media-library`.
+  (Correction 2026-07-23: `media-library-show` does *not* have a breadcrumb —
+  it uses a close-`X` (`app-page-header-has-close`) with plain intro copy, so it
+  belongs under "missing it".)
+- Missing it: `media-library-show`, `quizzes-authoring`, `quizzes-new`, `practice-guides` (detail),
   `practice-guides-authoring`, `practice-guides-new`, `roleplays-edit`,
   `media-library-authoring`, `media-library-new`,
   `media-library-variation-new`. Focused attempt/result/evaluating pages
@@ -827,17 +865,36 @@ Snapshot of the gap on 2026-07-21 (breadcrumb present vs missing):
   whether that is the intended pattern there or whether they should also carry
   a breadcrumb.
 
-- [ ] Define one navigation convention for the resources + media area: when a
+- [x] Define one navigation convention for the resources + media area: when a
   page shows a breadcrumb, when it shows a close-`X`, what the trail contains
   (including folder ancestry for foldered resources), and how shared/detail/
   authoring/creation pages differ. Capture it in the
-  `resource-page-conventions` project skill.
-- [ ] Apply it across every resources and media-library view, filling the
+  `resource-page-conventions` project skill. **Done 2026-07-23:** uniform
+  breadcrumb on every page (incl. attempt/result/evaluating); media library trail
+  is flat (no folders); `-new` pages point to the origin folder if any, else the
+  area root; close-`X` stays only as an optional immersive exit and must link
+  deterministically. Skill's `description` broadened to name the media library.
+- [x] Apply it across every resources and media-library view, filling the
   gaps above. Reuse a shared breadcrumb partial rather than repeating the
-  markup per view.
-- [ ] Add a lightweight guard (render/architecture test) that a resources/
+  markup per view. **Done 2026-07-23:** shared `views/partials/breadcrumb.ejs`
+  (generic `crumbs` array; last crumb is the plain current page). Migrated the
+  views that already had a breadcrumb and added one to every gap: media-library
+  detail/authoring/new/variation-new, quizzes authoring/new/attempt/evaluating/
+  result, roleplays edit/new/attempt/result, practice-guides detail/authoring/
+  new. Attempt/evaluating/result render it only for authenticated viewers (guests
+  on shared quiz links keep the close-`X`). `-new` origin-folder plumbing added
+  end-to-end (`resolveOriginFolderContext` helper + `addResourceToFolder` on
+  create) for quizzes, roleplays, and practice guides; verified in-browser
+  (detail, folder list, `/quizzes/new?folder=…` breadcrumb + hidden field + close
+  target, media-library flat trail). Snapshot corrections: `media-library-show`,
+  `roleplays-new`, and `practice-guides` detail were mis-listed above.
+- [x] Add a lightweight guard (render/architecture test) that a resources/
   media page exposes the expected back-navigation, so new views can't silently
-  ship without it.
+  ship without it. **Done 2026-07-23:**
+  `tests/server/resourceBreadcrumbArchitecture.test.ts` asserts every required
+  area view includes the breadcrumb partial and forces any newly added area view
+  to be classified as required, delegating, or explicitly exempt (list roots and
+  external share-landing pages).
 
 ---
 

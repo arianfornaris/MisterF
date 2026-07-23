@@ -5,6 +5,13 @@
     <div>
       <p class="app-page-kicker"><%= t('roleplays.roleplayKicker') %></p>
       <h1 class="app-page-title"><%= draft.title %></h1>
+      <% if (isAuthenticated) { %>
+        <%- include('partials/breadcrumb', { crumbs: [
+          { label: t('resources.title'), href: '/resources' },
+          { label: draft.title, href: `/roleplays/${encodeURIComponent(attempt.roleplayId)}` },
+          { label: t('roleplays.attemptKicker') },
+        ] }) %>
+      <% } %>
     </div>
     <div class="app-page-header-actions">
       <a

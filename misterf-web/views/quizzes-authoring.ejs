@@ -5,6 +5,11 @@
     <div>
       <p class="app-page-kicker"><%= t('quizzes.editingKicker') %></p>
       <h1><%= draft.title %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: draft.title, href: `/quizzes/${encodeURIComponent(selectedQuiz.id)}` },
+        { label: t('quizzes.editingKicker') },
+      ] }) %>
       <form class="d-inline-block mt-3" method="post" action="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>/test-attempts">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
         <button class="btn btn-primary" type="submit">

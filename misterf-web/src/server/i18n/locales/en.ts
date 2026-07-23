@@ -508,6 +508,7 @@ export const en: LocaleCatalog = {
     noDescription: 'No description',
     blocksSuffix: 'blocks',
     quizKicker: 'Quiz',
+    attemptKicker: 'Attempt',
     submit: 'Submit',
     evaluating: 'Evaluating the quiz...',
     evaluatingCopy:
@@ -736,6 +737,7 @@ export const en: LocaleCatalog = {
     create: 'Create Roleplay',
     creating: 'Creating the Roleplay...',
     roleplayKicker: 'Roleplay',
+    attemptKicker: 'Conversation',
     youLabel: 'You:',
     aiLabel: 'AI:',
     turnsSuffix: 'turns',
@@ -968,6 +970,7 @@ export const en: LocaleCatalog = {
     label: 'Language',
   },
   nav: {
+    breadcrumb: 'Breadcrumb',
     chatControls: 'Chat controls',
     conversations: 'Conversations',
     translator: 'Translator',

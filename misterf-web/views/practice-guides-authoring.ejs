@@ -5,6 +5,11 @@
     <div class="flex-grow-1">
       <p class="app-page-kicker"><%= t('practiceGuides.editingKicker') %></p>
       <h1 class="app-page-title"><%= selectedPracticeGuide.title %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: selectedPracticeGuide.title, href: `/practice-guides/${encodeURIComponent(selectedPracticeGuide.id)}` },
+        { label: t('practiceGuides.editingKicker') },
+      ] }) %>
       <p class="app-page-copy"><%= t('practiceGuides.editCopy') %></p>
       <form class="d-inline-block mt-3" method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/chats">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">

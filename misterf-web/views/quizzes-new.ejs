@@ -1,15 +1,31 @@
 <%- include('partials/app-shell-open') %>
 
+<%
+  const quizNewFolderPath = Array.isArray(originFolderPath) ? originFolderPath : [];
+  const quizNewFolderId = typeof originFolderId === 'string' ? originFolderId : null;
+  const quizNewCloseHref = quizNewFolderId
+    ? `/resources/folders/${encodeURIComponent(quizNewFolderId)}`
+    : '/resources';
+%>
+
 <section class="app-page quizzes-page">
   <div class="app-page-header app-page-header-has-close">
     <div>
       <p class="app-page-kicker"><%= t('quizzes.kicker') %></p>
       <h1><%= t('quizzes.newTitle') %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        ...quizNewFolderPath.map((folder) => ({
+          label: folder.title,
+          href: `/resources/folders/${encodeURIComponent(folder.id)}`,
+        })),
+        { label: t('quizzes.newTitle') },
+      ] }) %>
     </div>
     <div class="app-page-header-actions">
       <a
         class="app-page-close-button"
-        href="/resources"
+        href="<%= quizNewCloseHref %>"
         title="<%= t('common.close') %>"
         aria-label="<%= t('common.close') %>"
       >
@@ -26,6 +42,7 @@
     <div class="card-body">
       <form method="post" action="/quizzes/generate" data-quiz-generate-form>
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% if (quizNewFolderId) { %><input type="hidden" name="folderId" value="<%= quizNewFolderId %>"><% } %>
         <div class="mb-3">
           <label class="form-label" for="quizPrompt"><%= t('quizzes.describeLabel') %></label>
           <textarea

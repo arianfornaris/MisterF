@@ -5,13 +5,11 @@
     <div>
       <p class="app-page-kicker"><%= t('quizzes.participationKicker') %></p>
       <h1 class="app-page-title"><%= selectedQuiz.title %></h1>
-      <p class="app-page-copy">
-        <a href="/resources"><%= t('resources.title') %></a>
-        <span class="mx-1">/</span>
-        <a href="/quizzes/<%= encodeURIComponent(selectedQuiz.id) %>"><%= selectedQuiz.title %></a>
-        <span class="mx-1">/</span>
-        <span><%= t('quizzes.participationKicker') %></span>
-      </p>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: selectedQuiz.title, href: `/quizzes/${encodeURIComponent(selectedQuiz.id)}` },
+        { label: t('quizzes.participationKicker') },
+      ] }) %>
     </div>
     <div class="app-page-header-actions">
       <a

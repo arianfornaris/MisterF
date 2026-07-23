@@ -19,15 +19,14 @@
                 <%= selectedPracticeGuide ? selectedPracticeGuide.title : t('practiceGuides.defaultTitle') %>
               </h1>
               <% if (selectedPracticeGuide) { %>
-                <p class="app-page-copy">
-                  <a href="/resources"><%= t('resources.title') %></a>
-                  <% practiceGuideFolderPath.forEach((folder) => { %>
-                    <span class="mx-1">/</span>
-                    <a href="/resources/folders/<%= encodeURIComponent(folder.id) %>"><%= folder.title %></a>
-                  <% }) %>
-                  <span class="mx-1">/</span>
-                  <span><%= selectedPracticeGuide.title %></span>
-                </p>
+                <%- include('breadcrumb', { crumbs: [
+                  { label: t('resources.title'), href: '/resources' },
+                  ...practiceGuideFolderPath.map((folder) => ({
+                    label: folder.title,
+                    href: `/resources/folders/${encodeURIComponent(folder.id)}`,
+                  })),
+                  { label: selectedPracticeGuide.title },
+                ] }) %>
               <% } %>
             </div>
           </div>

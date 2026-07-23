@@ -1,0 +1,25 @@
+<%
+  // Shared back-navigation breadcrumb for the resources and media-library areas.
+  // See the `resource-page-conventions` skill.
+  //
+  // Callers include this partial with a `crumbs` array; each crumb is
+  // { label, href }. A crumb renders as a link when it has an href and is not
+  // the last item. The last crumb is always plain text and marked as the
+  // current page, so callers omit href on the final (current-page) crumb.
+  const breadcrumbCrumbs = (typeof crumbs !== 'undefined' && Array.isArray(crumbs))
+    ? crumbs.filter((crumb) => crumb && crumb.label)
+    : [];
+%>
+<% if (breadcrumbCrumbs.length) { %>
+<nav class="app-page-copy" data-breadcrumb aria-label="<%= t('nav.breadcrumb') %>">
+  <% breadcrumbCrumbs.forEach((crumb, index) => { %>
+    <% const isLast = index === breadcrumbCrumbs.length - 1; %>
+    <% if (index > 0) { %><span class="mx-1" aria-hidden="true">/</span><% } %>
+    <% if (crumb.href && !isLast) { %>
+      <a href="<%= crumb.href %>"><%= crumb.label %></a>
+    <% } else { %>
+      <span<% if (isLast) { %> aria-current="page"<% } %>><%= crumb.label %></span>
+    <% } %>
+  <% }) %>
+</nav>
+<% } %>

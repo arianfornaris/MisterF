@@ -5,6 +5,10 @@
     <div>
       <p class="app-page-kicker"><%= t('mediaLibrary.kicker') %></p>
       <h1 class="app-page-title"><%= t('mediaLibrary.createMedia') %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('mediaLibrary.title'), href: '/media-library' },
+        { label: t('mediaLibrary.createMedia') },
+      ] }) %>
     </div>
     <div class="app-page-header-actions">
       <a class="app-page-close-button" href="/media-library" title="<%= t('common.close') %>" aria-label="<%= t('common.close') %>">

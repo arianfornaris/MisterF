@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { translate, type Locale } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import {
+  addResourceToFolder,
   appendRoleplayAttemptTurns,
   createConversationFromRoleplayAttempt,
   createRoleplay,
@@ -56,6 +57,7 @@ import {
   generateRoleplayDraft,
   generateRoleplayRevision,
 } from '../services/resourceDrafts.js';
+import { resolveOriginFolderContext } from '../resources/originFolder.js';
 import {
   findRoleplayCharacterAvatar,
   listRoleplayCharacterAvatars,
@@ -491,6 +493,7 @@ export function renderRoleplayNewPage(request: Request, response: Response): voi
       title: `Nuevo Roleplay - ${appDocumentTitle}`,
       user: auth.user,
     }),
+    ...resolveOriginFolderContext(request.query.folder, auth.user.id),
     generationError: '',
     generationPrompt: '',
   });
@@ -505,6 +508,8 @@ export async function handleGenerateRoleplay(
     return;
   }
 
+  const originFolder = resolveOriginFolderContext(request.body.folderId, auth.user.id);
+
   const prompt = readMultilineField(request.body.prompt, 6000);
   if (prompt.length < 10) {
     response.status(422).render('roleplays-new', {
@@ -513,6 +518,7 @@ export async function handleGenerateRoleplay(
         title: `Nuevo Roleplay - ${appDocumentTitle}`,
         user: auth.user,
       }),
+      ...originFolder,
       generationError: translate(request.locale, 'msg.describeRoleplayBetter'),
       generationPrompt: prompt,
     });
@@ -531,6 +537,14 @@ export async function handleGenerateRoleplay(
       profileId: auth.activeProfile.id,
       userId: auth.user.id,
     });
+
+    if (originFolder.originFolderId) {
+      addResourceToFolder({
+        folderId: originFolder.originFolderId,
+        resourceId: roleplay.id,
+        userId: auth.user.id,
+      });
+    }
 
     logger.info('roleplay_created_from_prompt', {
       profileId: auth.activeProfile.id,
@@ -553,6 +567,7 @@ export async function handleGenerateRoleplay(
         title: `Nuevo Roleplay - ${appDocumentTitle}`,
         user: auth.user,
       }),
+      ...originFolder,
       generationError: isCreditExhaustedError(error)
         ? getCreditExhaustedMessage(request.locale)
         : translate(request.locale, 'msg.generateRoleplayError'),
