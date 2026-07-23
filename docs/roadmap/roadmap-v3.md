@@ -802,6 +802,43 @@ policy, governing artifact, CI enforcement, and evaluation sets moved to
 Deferred from V2 on 2026-07-06. **Moved to [Roadmap V4](roadmap-v4.md) on
 2026-07-18** (unchanged: still gated on quantifying the deterministic
 linter's miss rate from production block-repair logs first).
+
+## 2.3 Resource And Media Navigation Consistency (Breadcrumbs)
+
+Added 2026-07-21 (founder observation). Navigation across the resources area
+and the media library is inconsistent — several views ship no breadcrumb,
+so the user loses the trail back to the list/folder they came from. Two
+idioms coexist today and are applied unevenly: a breadcrumb (`app-page-copy`
+with links back to `/resources` or `/media-library`) on list/detail pages,
+and a close-button `X` (`app-page-header-has-close`) on focused
+attempt/result pages. Some views have neither.
+
+Snapshot of the gap on 2026-07-21 (breadcrumb present vs missing):
+
+- Have it: `resources-list`, `resources-shared`, `quizzes-show`,
+  `quizzes-participation`, `roleplays-show`, `roleplays-new`, `media-library`,
+  `media-library-show`.
+- Missing it: `quizzes-authoring`, `quizzes-new`, `practice-guides` (detail),
+  `practice-guides-authoring`, `practice-guides-new`, `roleplays-edit`,
+  `media-library-authoring`, `media-library-new`,
+  `media-library-variation-new`. Focused attempt/result/evaluating pages
+  (`quizzes-attempt`, `quizzes-result`, `quizzes-evaluating`,
+  `roleplays-attempt`, `roleplays-result`) use the close-`X` instead — decide
+  whether that is the intended pattern there or whether they should also carry
+  a breadcrumb.
+
+- [ ] Define one navigation convention for the resources + media area: when a
+  page shows a breadcrumb, when it shows a close-`X`, what the trail contains
+  (including folder ancestry for foldered resources), and how shared/detail/
+  authoring/creation pages differ. Capture it in the
+  `resource-page-conventions` project skill.
+- [ ] Apply it across every resources and media-library view, filling the
+  gaps above. Reuse a shared breadcrumb partial rather than repeating the
+  markup per view.
+- [ ] Add a lightweight guard (render/architecture test) that a resources/
+  media page exposes the expected back-navigation, so new views can't silently
+  ship without it.
+
 ---
 
 # V3 Exit Criteria
