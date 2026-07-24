@@ -559,22 +559,18 @@ describe('resource repository', () => {
     );
   });
 
-  it('lists resources the profile has shared and aggregates collected quiz counts', async () => {
+  it('lists the resources the profile has shared', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {
       archiveQuizForUser,
-      countCollectedQuizAttemptsByQuiz,
       createPracticeGuide,
       createProfile,
       createQuiz,
-      createQuizAttempt,
       createResourceFolder,
       createRoleplay,
       getOrCreateResourceShareLink,
       grantResourceAccess,
       listSharedResourcesForProfile,
-      saveQuizAttemptResult,
-      submitQuizAttempt,
     } = await import('../../src/server/db/repository.js');
 
     const owner = createExternalUser({
@@ -673,42 +669,5 @@ describe('resource repository', () => {
     const grantItem = shared.find((resource) => resource.id === grantQuiz.id);
     expect(grantItem?.hasActiveLink).toBe(false);
     expect(grantItem?.activeGrantCount).toBe(1);
-
-    // Two collected attempts from one student participant (one evaluated), plus
-    // an author-profile attempt that must be excluded from the counts.
-    const evaluatedAttempt = createQuizAttempt({
-      quizId: grantQuiz.id,
-      collectResults: true,
-      profileId: studentProfile.id,
-      snapshot: { blocks: [], title: 'Grant Shared Quiz' },
-      userId: student.id,
-    });
-    submitQuizAttempt({ attemptId: evaluatedAttempt.id, responses: [] });
-    saveQuizAttemptResult({
-      attemptId: evaluatedAttempt.id,
-      result: { items: [], title: 'Grant Shared Quiz', type: 'quiz_result' },
-    });
-    const pendingAttempt = createQuizAttempt({
-      quizId: grantQuiz.id,
-      collectResults: true,
-      profileId: studentProfile.id,
-      snapshot: { blocks: [], title: 'Grant Shared Quiz' },
-      userId: student.id,
-    });
-    submitQuizAttempt({ attemptId: pendingAttempt.id, responses: [] });
-    createQuizAttempt({
-      quizId: grantQuiz.id,
-      collectResults: true,
-      profileId: profile.id,
-      snapshot: { blocks: [], title: 'Grant Shared Quiz' },
-      userId: owner.id,
-    });
-
-    const counts = countCollectedQuizAttemptsByQuiz({
-      authorProfileId: profile.id,
-      quizIds: [grantQuiz.id, linkQuiz.id],
-    });
-    expect(counts.get(grantQuiz.id)).toEqual({ completed: 1, submissions: 2 });
-    expect(counts.get(linkQuiz.id)).toBeUndefined();
   });
 });

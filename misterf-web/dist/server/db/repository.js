@@ -2443,54 +2443,6 @@ export function listCollectedQuizAttemptsForOwner(input) {
         participantProfileName: row.participant_profile_name,
     }));
 }
-/**
- * Per-quiz collected-attempt counts for a batch of quizzes, using the same
- * filter as `listCollectedQuizAttemptsForOwner` (collected, non-author profile)
- * and the same "completed = distinct evaluated participant" rule as the quiz
- * participation teaser. Aggregates in one query so the "Shared by me" list does
- * not load full attempt rows per quiz.
- */
-export function countCollectedQuizAttemptsByQuiz(input) {
-    const counts = new Map();
-    if (input.quizIds.length === 0) {
-        return counts;
-    }
-    const placeholders = input.quizIds.map(() => '?').join(', ');
-    const rows = getDb()
-        .prepare(`
-        SELECT id, quiz_id, profile_id, status
-        FROM quiz_attempts
-        WHERE quiz_id IN (${placeholders})
-          AND collect_results = 1
-          AND (profile_id IS NULL OR profile_id != ?)
-      `)
-        .all(...input.quizIds, input.authorProfileId);
-    const completedParticipants = new Map();
-    for (const row of rows) {
-        let entry = counts.get(row.quiz_id);
-        if (!entry) {
-            entry = { completed: 0, submissions: 0 };
-            counts.set(row.quiz_id, entry);
-        }
-        entry.submissions += 1;
-        if (row.status === 'evaluated') {
-            let participants = completedParticipants.get(row.quiz_id);
-            if (!participants) {
-                participants = new Set();
-                completedParticipants.set(row.quiz_id, participants);
-            }
-            // Guests have no profile, so each guest attempt is its own participant.
-            participants.add(row.profile_id ?? `attempt:${row.id}`);
-        }
-    }
-    for (const [quizId, participants] of completedParticipants) {
-        const entry = counts.get(quizId);
-        if (entry) {
-            entry.completed = participants.size;
-        }
-    }
-    return counts;
-}
 export function getQuizResponseSummary(quizId) {
     const row = getDb()
         .prepare(`

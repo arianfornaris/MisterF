@@ -692,18 +692,19 @@ stays out of V3.
   new entities — serves the teacher, the private tutor, and a parent with
   their own account (the parent-child case runs through learning profiles
   inside the parent's account). Full formula:
-  [Classrooms](../features/classrooms.md). **Done 2026-07-23:** dedicated nav
-  entry "Compartidos" → `/resources/shared-by-me` (own view
-  `resources-shared-by-me.ejs`). Resource-generic and scoped to the active
-  profile: `listSharedResourcesForProfile` returns owned, non-folder,
-  non-archived resources with an active share link or ≥1 active grant. Quizzes
-  show participation counts (completed · submissions via
-  `countCollectedQuizAttemptsByQuiz`, reusing the collected-attempt filter) and
-  link to the existing participation page; guides/roleplays show a lightweight
-  "Compartido con N" signal (their result artifacts stay deferred). Covered by a
-  repo test (`tests/db/resourcesRepository.test.ts`), a route/render test
-  (`tests/server/routes.test.ts`), and the breadcrumb guard (classified as a nav
-  root). Verified live on the QA account.
+  [Classrooms](../features/classrooms.md). **Done 2026-07-23:** first shipped as
+  a dedicated "Compartidos" page, then simplified the same day (founder
+  preference) into the existing `/resources` catalog rather than a separate
+  surface — the catalog already mixes owned and shared-with-me resources, so no
+  new page was warranted. Each resource carries a **"Compartido por mí"** badge
+  (owned, with an active share link or grant — via `listSharedResourcesForProfile`)
+  or a **"Compartido conmigo"** badge (reached through a grant), and a new
+  **"Compartido"** filter (all / por mí / conmigo) sits alongside the type and
+  sort filters. Scoped to the active profile. Trade-off accepted: the at-a-glance
+  attempt counts / "who practiced" are dropped from the list — that data stays on
+  each quiz's participation page (one click from the detail). Covered by a repo
+  test (`listSharedResourcesForProfile`) and a route test (badges + both filter
+  values). Verified live on the QA account.
 - Design constraint (2026-07-18): the MVP returns results for **quizzes
   only**, but the cross-cutting pieces — disclosure/consent copy, the
   "Shared by me" view, and the naming of results routes/storage — are built

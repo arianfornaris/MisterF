@@ -1,8 +1,7 @@
 import express from 'express';
-import { handleArchiveResource, handleAcceptSharedResourceLink, handleCreateResourceFolder, handleMoveResourceToFolder, handleRemoveResourceFromFolder, handleRestoreResource, handleShareResourceToProfile, handleUpdateResourceFolder, handleUpdateResourceShareCollectResults, renderResourcesListPage, renderSharedByMePage, renderSharedResourcePage, } from './handlers.js';
+import { handleArchiveResource, handleAcceptSharedResourceLink, handleCreateResourceFolder, handleMoveResourceToFolder, handleRemoveResourceFromFolder, handleRestoreResource, handleShareResourceToProfile, handleUpdateResourceFolder, handleUpdateResourceShareCollectResults, renderResourcesListPage, renderSharedResourcePage, } from './handlers.js';
 export const resourcesRouter = express.Router();
 resourcesRouter.get('/resources', renderResourcesListPage);
-resourcesRouter.get('/resources/shared-by-me', renderSharedByMePage);
 resourcesRouter.get('/resources/shared/:shareId', renderSharedResourcePage);
 resourcesRouter.post('/resources/shared/:shareId/accept', handleAcceptSharedResourceLink);
 resourcesRouter.get('/resources/folders/:folderId', renderResourcesListPage);

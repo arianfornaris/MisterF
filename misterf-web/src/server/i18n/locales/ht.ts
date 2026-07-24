@@ -79,6 +79,12 @@ export const ht: LocaleCatalog = {
     archive: 'Achive',
     editFolder: 'Modifye katab',
     shared: 'Pataje',
+    sharedByMeBadge: 'Mwen pataje',
+    sharedWithMeBadge: 'Pataje avè m',
+    sharedFilterLabel: 'Pataje',
+    sharedAll: 'Tout',
+    sharedByMeOption: 'Mwen pataje',
+    sharedWithMeOption: 'Pataje avè m',
     controlsAria: 'Kontwòl resous',
     searchFilterSortAria: 'Chèche, filtre ak klase resous',
     search: 'Chèche',
@@ -898,17 +904,6 @@ export const ht: LocaleCatalog = {
   language: {
     label: 'Lang',
   },
-  sharedByMe: {
-    kicker: 'Pataje pa mwen',
-    title: 'Pataje',
-    intro: 'Resous ou pataje yo ak moun ki pratike ak yo.',
-    empty:
-      'Ou poko pataje okenn resous. Pataje yon quiz, yon gid pratik, oswa yon roleplay pou wè li isit la.',
-    sharedWithCount: 'Pataje ak {{count}}',
-    activeLink: 'Lyen aktif',
-    viewParticipation: 'Wè patisipasyon',
-    openResource: 'Louvri',
-  },
   nav: {
     breadcrumb: 'Chemen navigasyon',
     chatControls: 'Kontwòl chat',
@@ -919,7 +914,6 @@ export const ht: LocaleCatalog = {
     newConversation: 'Nouvo konvèsasyon',
     mediaLibrary: 'Bibliyotèk medya',
     resources: 'Resous',
-    sharedByMe: 'Pataje',
     progress: 'Pwogrè',
     recent: 'Resan',
     conversationOptions: 'Opsyon konvèsasyon',

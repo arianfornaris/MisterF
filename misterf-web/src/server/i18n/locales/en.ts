@@ -70,6 +70,12 @@ export const en: LocaleCatalog = {
     archive: 'Archive',
     editFolder: 'Edit folder',
     shared: 'Shared',
+    sharedByMeBadge: 'Shared by me',
+    sharedWithMeBadge: 'Shared with me',
+    sharedFilterLabel: 'Shared',
+    sharedAll: 'All',
+    sharedByMeOption: 'Shared by me',
+    sharedWithMeOption: 'Shared with me',
     controlsAria: 'Resource controls',
     searchFilterSortAria: 'Search, filter, and sort resources',
     search: 'Search',
@@ -969,17 +975,6 @@ export const en: LocaleCatalog = {
   language: {
     label: 'Language',
   },
-  sharedByMe: {
-    kicker: 'Shared by me',
-    title: 'Shared',
-    intro: 'The resources you have shared and who has practiced with them.',
-    empty:
-      'You have not shared any resources yet. Share a quiz, a practice guide, or a roleplay to see it here.',
-    sharedWithCount: 'Shared with {{count}}',
-    activeLink: 'Active link',
-    viewParticipation: 'View participation',
-    openResource: 'Open',
-  },
   nav: {
     breadcrumb: 'Breadcrumb',
     chatControls: 'Chat controls',
@@ -990,7 +985,6 @@ export const en: LocaleCatalog = {
     newConversation: 'New conversation',
     mediaLibrary: 'Media Library',
     resources: 'Resources',
-    sharedByMe: 'Shared',
     progress: 'Progress',
     recent: 'Recent',
     conversationOptions: 'Conversation options',

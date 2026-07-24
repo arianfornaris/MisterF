@@ -934,105 +934,82 @@ describe('main route smoke tests', () => {
     expect(guideHtml).toContain('data-breadcrumb');
   });
 
-  it('lists resources shared by the owner on the Shared by me page', async () => {
+  it('badges and filters shared-by-me and shared-with-me resources on /resources', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
-    const {
-      createProfile,
-      createQuiz,
-      createQuizAttempt,
-      createRoleplay,
-      getOrCreateResourceShareLink,
-      grantResourceAccess,
-      saveQuizAttemptResult,
-      submitQuizAttempt,
-    } = await import('../../src/server/db/repository.js');
+    const { createProfile, createQuiz, getOrCreateResourceShareLink, grantResourceAccess } =
+      await import('../../src/server/db/repository.js');
 
     const owner = createExternalUser({
-      email: 'shared-by-me-owner@example.com',
+      email: 'shared-badges-owner@example.com',
       emailVerified: true,
-      fullName: 'Shared By Me Owner',
+      fullName: 'Shared Badges Owner',
       provider: 'google',
-      providerSubject: 'shared-by-me-owner',
+      providerSubject: 'shared-badges-owner',
     });
-    const ownerProfile = createProfile({ name: 'Shared owner profile', userId: owner.id });
-    const student = createExternalUser({
-      email: 'shared-by-me-student@example.com',
+    const ownerProfile = createProfile({ name: 'Shared badges profile', userId: owner.id });
+    const otherOwner = createExternalUser({
+      email: 'shared-badges-other@example.com',
       emailVerified: true,
-      fullName: 'Shared By Me Student',
+      fullName: 'Shared Badges Other',
       provider: 'google',
-      providerSubject: 'shared-by-me-student',
+      providerSubject: 'shared-badges-other',
     });
-    const studentProfile = createProfile({ name: 'Shared student profile', userId: student.id });
+    const otherProfile = createProfile({ name: 'Other owner profile', userId: otherOwner.id });
 
-    const quizDraft = { blocks: [], title: 'Shared By Me Quiz' };
-    const sharedQuiz = createQuiz({
-      description: '',
-      instructions: '',
-      profileId: ownerProfile.id,
-      quiz: quizDraft,
-      title: 'Shared By Me Quiz',
-      userId: owner.id,
-    });
-    const privateQuiz = createQuiz({
-      description: '',
-      instructions: '',
-      profileId: ownerProfile.id,
-      quiz: { blocks: [], title: 'Unshared By Me Quiz' },
-      title: 'Unshared By Me Quiz',
-      userId: owner.id,
-    });
-    const sharedRoleplay = createRoleplay({
-      characters: [
-        { description: 'A learner ordering lunch politely at a cafe.', id: 'learner', name: 'Learner' },
-        { description: 'A friendly cafe server helping the customer order.', id: 'ai', name: 'Server' },
-      ],
-      description: 'A customer orders lunch in a small cafe and practices polite requests.',
-      level: 'A2',
-      profileId: ownerProfile.id,
-      title: 'Shared By Me Roleplay',
-      userId: owner.id,
-    });
+    const makeQuiz = (title: string, profileId: string, userId: string) =>
+      createQuiz({
+        description: '',
+        instructions: '',
+        profileId,
+        quiz: { blocks: [], title },
+        title,
+        userId,
+      });
 
-    // Share the quiz via a link and record one evaluated collected guest attempt.
-    getOrCreateResourceShareLink(sharedQuiz.id);
-    const attempt = createQuizAttempt({
-      quizId: sharedQuiz.id,
-      collectResults: true,
-      profileId: null,
-      snapshot: quizDraft,
-      userId: null,
-    });
-    submitQuizAttempt({ attemptId: attempt.id, responses: [] });
-    saveQuizAttemptResult({
-      attemptId: attempt.id,
-      result: { items: [], title: 'Shared By Me Quiz', type: 'quiz_result' },
-    });
-    // Share the roleplay via a profile grant (the "shared with N" signal).
+    const sharedByMeQuiz = makeQuiz('Shared By Me Badge Quiz', ownerProfile.id, owner.id);
+    const privateQuiz = makeQuiz('Private Badge Quiz', ownerProfile.id, owner.id);
+    const sharedWithMeQuiz = makeQuiz('Shared With Me Badge Quiz', otherProfile.id, otherOwner.id);
+
+    // Owner puts their quiz up for sharing (link) -> "shared by me".
+    getOrCreateResourceShareLink(sharedByMeQuiz.id);
+    // Another owner shares their quiz with the owner's profile -> "shared with me".
     grantResourceAccess({
-      grantedByUserId: owner.id,
+      grantedByUserId: otherOwner.id,
       grantedVia: 'profile',
-      profileId: studentProfile.id,
-      resourceId: sharedRoleplay.id,
-      userId: student.id,
+      profileId: ownerProfile.id,
+      resourceId: sharedWithMeQuiz.id,
+      userId: owner.id,
     });
 
     const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
-    const response = await fetch(`${baseUrl}/resources/shared-by-me`, {
-      headers: { cookie: ownerCookie },
-      redirect: 'manual',
-    });
-    const html = await response.text();
+    const getResources = async (query = '') => {
+      const response = await fetch(`${baseUrl}/resources${query}`, {
+        headers: { cookie: ownerCookie },
+        redirect: 'manual',
+      });
+      expect(response.status).toBe(200);
+      return response.text();
+    };
 
-    expect(response.status).toBe(200);
-    // Shared quiz: title, its collected counts, and the participation link.
-    expect(html).toContain('Shared By Me Quiz');
-    expect(html).toContain('1 entregas');
-    expect(html).toContain(`/quizzes/${sharedQuiz.id}/participation`);
-    // Shared roleplay: title and the "shared with N" signal.
-    expect(html).toContain('Shared By Me Roleplay');
-    expect(html).toContain('Compartido con 1');
-    // The unshared quiz must not appear.
-    expect(html).not.toContain('Unshared By Me Quiz');
+    // Unfiltered: both shared resources appear with their badges.
+    const allHtml = await getResources();
+    expect(allHtml).toContain('Shared By Me Badge Quiz');
+    expect(allHtml).toContain('Shared With Me Badge Quiz');
+    expect(allHtml).toContain('Private Badge Quiz');
+    expect(allHtml).toContain('Compartido por mí');
+    expect(allHtml).toContain('Compartido conmigo');
+
+    // shared=by_me keeps only the resource the owner shared out.
+    const byMeHtml = await getResources('?shared=by_me');
+    expect(byMeHtml).toContain('Shared By Me Badge Quiz');
+    expect(byMeHtml).not.toContain('Shared With Me Badge Quiz');
+    expect(byMeHtml).not.toContain('Private Badge Quiz');
+
+    // shared=with_me keeps only what others shared with the owner.
+    const withMeHtml = await getResources('?shared=with_me');
+    expect(withMeHtml).toContain('Shared With Me Badge Quiz');
+    expect(withMeHtml).not.toContain('Shared By Me Badge Quiz');
+    expect(withMeHtml).not.toContain('Private Badge Quiz');
   });
 
   it('renders quiz sections in the authoring blocks tab', async () => {

@@ -13,8 +13,15 @@
         <i class="bi <%= resource.iconClass %> me-2" aria-hidden="true"></i><%= resource.title %>
       </h2>
       <span class="badge rounded-pill <%= resource.badgeClass %>"><%= resource.label %></span>
-      <% if (!resource.canManage || resource.accessKind === 'shared') { %>
-        <span class="badge text-bg-light border"><%= t('resources.shared') %></span>
+      <% if (resource.isSharedWithMe) { %>
+        <span class="badge text-bg-light border">
+          <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('resources.sharedWithMeBadge') %>
+        </span>
+      <% } %>
+      <% if (resource.isSharedByMe) { %>
+        <span class="badge text-bg-light border">
+          <i class="bi bi-share me-1" aria-hidden="true"></i><%= t('resources.sharedByMeBadge') %>
+        </span>
       <% } %>
       <% if (resource.archivedAt) { %>
         <span class="badge text-bg-light border"><%= t('resources.archived') %></span>

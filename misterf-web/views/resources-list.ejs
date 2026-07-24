@@ -215,6 +215,16 @@
         <i class="bi bi-funnel me-1" aria-hidden="true"></i><%= t('resources.filter') %>
       </button>
       <button
+        class="btn <%= resourceFilters.shared !== 'all' ? 'btn-primary' : 'btn-outline-secondary' %>"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#resourceSharedPanel"
+        aria-expanded="false"
+        aria-controls="resourceSharedPanel"
+      >
+        <i class="bi bi-share me-1" aria-hidden="true"></i><%= t('resources.sharedFilterLabel') %>
+      </button>
+      <button
         class="btn <%= resourceFilters.sort !== 'updated_desc' ? 'btn-primary' : 'btn-outline-secondary' %>"
         type="button"
         data-bs-toggle="collapse"
@@ -238,6 +248,7 @@
         action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
       >
         <input type="hidden" name="type" value="<%= resourceFilters.type %>">
+        <input type="hidden" name="shared" value="<%= resourceFilters.shared %>">
         <input type="hidden" name="sort" value="<%= resourceFilters.sort %>">
         <label class="form-label" for="resourceSearch"><%= t('resources.search') %></label>
         <div class="input-group">
@@ -263,6 +274,7 @@
         action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
       >
         <input type="hidden" name="q" value="<%= resourceFilters.query %>">
+        <input type="hidden" name="shared" value="<%= resourceFilters.shared %>">
         <input type="hidden" name="sort" value="<%= resourceFilters.sort %>">
         <label class="form-label" for="resourceTypeFilter"><%= t('resources.typeLabel') %></label>
         <div class="d-flex flex-column flex-sm-row gap-2">
@@ -278,6 +290,27 @@
       </form>
     </div>
 
+    <div class="collapse" id="resourceSharedPanel" data-bs-parent=".resource-filter-panels">
+      <form
+        class="resource-filter-panel"
+        method="get"
+        action="<%= selectedFolder ? `/resources/folders/${encodeURIComponent(selectedFolder.id)}` : '/resources' %>"
+      >
+        <input type="hidden" name="q" value="<%= resourceFilters.query %>">
+        <input type="hidden" name="type" value="<%= resourceFilters.type %>">
+        <input type="hidden" name="sort" value="<%= resourceFilters.sort %>">
+        <label class="form-label" for="resourceSharedFilter"><%= t('resources.sharedFilterLabel') %></label>
+        <div class="d-flex flex-column flex-sm-row gap-2">
+          <select class="form-select" id="resourceSharedFilter" name="shared">
+            <option value="all" <%= resourceFilters.shared === 'all' ? 'selected' : '' %>><%= t('resources.sharedAll') %></option>
+            <option value="by_me" <%= resourceFilters.shared === 'by_me' ? 'selected' : '' %>><%= t('resources.sharedByMeOption') %></option>
+            <option value="with_me" <%= resourceFilters.shared === 'with_me' ? 'selected' : '' %>><%= t('resources.sharedWithMeOption') %></option>
+          </select>
+          <button class="btn btn-secondary" type="submit"><%= t('resources.apply') %></button>
+        </div>
+      </form>
+    </div>
+
     <div class="collapse" id="resourceSortPanel" data-bs-parent=".resource-filter-panels">
       <form
         class="resource-filter-panel"
@@ -286,6 +319,7 @@
       >
         <input type="hidden" name="q" value="<%= resourceFilters.query %>">
         <input type="hidden" name="type" value="<%= resourceFilters.type %>">
+        <input type="hidden" name="shared" value="<%= resourceFilters.shared %>">
         <label class="form-label" for="resourceSort"><%= t('resources.sort') %></label>
         <div class="d-flex flex-column flex-sm-row gap-2">
           <select class="form-select" id="resourceSort" name="sort">

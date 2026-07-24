@@ -1,5 +1,5 @@
 import QRCode from 'qrcode';
-import { addResourceToFolder, archiveResourceForUser, countCollectedQuizAttemptsByQuiz, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
+import { addResourceToFolder, archiveResourceForUser, createResourceFolder, findResourceAccessForProfile, findResourceById, findResourceForUser, findResourceFolderForResource, findResourceShareLinkById, findProfileForUser, getOrCreateResourceShareLink, grantResourceAccess, listAccessibleResourceFolderPath, listResourceFolderItems, listResourceFoldersForProfile, listResourcesForProfile, listSharedResourcesForProfile, removeResourceFromFolder, restoreResourceForUser, setResourceShareLinkCollectResults, updateResourceFolder, } from '../db/repository.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, normalizeSearchText, } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
 function ensureVerifiedResourceUser(request, response) {
@@ -30,6 +30,13 @@ function readResourceTypeFilter(value) {
         resourceType === 'resource_folder' ||
         resourceType === 'roleplay') {
         return resourceType;
+    }
+    return 'all';
+}
+function readResourceSharedFilter(value) {
+    const shared = readField(value, 20);
+    if (shared === 'by_me' || shared === 'with_me') {
+        return shared;
     }
     return 'all';
 }
@@ -90,7 +97,7 @@ function toAccessibleOwnerResource(resource) {
         shareLinkId: null,
     };
 }
-function buildResourceListItem(resource) {
+function buildResourceListItem(resource, sharedByMeIds) {
     const meta = {
         quiz: {
             badgeClass: 'text-bg-primary',
@@ -128,6 +135,8 @@ function buildResourceListItem(resource) {
         label: meta.label,
         relativeUpdatedAt: formatRelativeTime(resource.updatedAt),
         canManage: resource.accessKind === 'owner',
+        isSharedByMe: resource.accessKind === 'owner' && (sharedByMeIds?.has(resource.id) ?? false),
+        isSharedWithMe: resource.accessKind === 'shared',
     };
 }
 function buildResourceFolderListItem(folder) {
@@ -156,10 +165,17 @@ function compareResourceDates(left, right) {
 function compareResourceTypes(left, right) {
     return resourceTypeSortRank[left.type] - resourceTypeSortRank[right.type];
 }
-function filterAndSortResources(resources, filters) {
+function filterAndSortResources(resources, filters, sharedByMeIds) {
     const normalizedQuery = normalizeSearchText(filters.query);
     const filteredResources = resources.filter((resource) => {
         if (filters.type !== 'all' && resource.type !== filters.type) {
+            return false;
+        }
+        if (filters.shared === 'with_me' && resource.accessKind !== 'shared') {
+            return false;
+        }
+        if (filters.shared === 'by_me' &&
+            !(resource.accessKind === 'owner' && sharedByMeIds.has(resource.id))) {
             return false;
         }
         if (!normalizedQuery) {
@@ -258,12 +274,17 @@ export async function renderResourcesListPage(request, response) {
     const allResources = selectedFolder
         ? scopedResources
         : removeFiledResourcesFromRoot(scopedResources, folderOptions, auth.user.id);
+    const sharedByMeIds = new Set(listSharedResourcesForProfile({
+        profileId: auth.activeProfile.id,
+        userId: auth.user.id,
+    }).map((resource) => resource.id));
     const filters = {
         query: readField(request.query.q, 160),
+        shared: readResourceSharedFilter(request.query.shared),
         sort: readResourceSort(request.query.sort),
         type: readResourceTypeFilter(request.query.type),
     };
-    const resourceItems = filterAndSortResources(allResources, filters);
+    const resourceItems = filterAndSortResources(allResources, filters, sharedByMeIds);
     response.render('resources-list', {
         ...buildAppShellContext({
             activeProfile: auth.activeProfile,
@@ -276,15 +297,16 @@ export async function renderResourcesListPage(request, response) {
                 : `Recursos - ${appDocumentTitle}`,
             user: auth.user,
         }),
-        folderBreadcrumbItems: selectedFolderPath.map(buildResourceListItem),
+        folderBreadcrumbItems: selectedFolderPath.map((item) => buildResourceListItem(item)),
         folderOptions: folderOptions.map(buildResourceFolderListItem),
         resourceFilters: {
             ...filters,
             hasActiveFilters: Boolean(filters.query) ||
                 filters.type !== 'all' ||
+                filters.shared !== 'all' ||
                 filters.sort !== 'updated_desc',
         },
-        resourceItems: resourceItems.map(buildResourceListItem),
+        resourceItems: resourceItems.map((resource) => buildResourceListItem(resource, sharedByMeIds)),
         selectedFolderCanManage,
         selectedFolderParent: selectedFolderParent
             ? buildResourceListItem(toAccessibleOwnerResource(selectedFolderParent))
@@ -294,55 +316,6 @@ export async function renderResourcesListPage(request, response) {
         selectedFolderShareQrDataUrl,
         selectedFolderShareUrl,
         shareTargetResourceProfiles,
-    });
-}
-/**
- * The guide's "Shared by me" entry point (roadmap V3 §1.6): every resource the
- * active profile has shared, with quiz participation counts and a lightweight
- * shared-with signal for guides and roleplays.
- */
-export function renderSharedByMePage(request, response) {
-    const auth = ensureVerifiedResourceUser(request, response);
-    if (!auth) {
-        return;
-    }
-    const sharedResources = listSharedResourcesForProfile({
-        profileId: auth.activeProfile.id,
-        userId: auth.user.id,
-    });
-    const quizIds = sharedResources
-        .filter((resource) => resource.type === 'quiz')
-        .map((resource) => resource.id);
-    const quizCounts = countCollectedQuizAttemptsByQuiz({
-        authorProfileId: auth.activeProfile.id,
-        quizIds,
-    });
-    const sharedItems = sharedResources.map((resource) => {
-        const isQuiz = resource.type === 'quiz';
-        const counts = isQuiz ? quizCounts.get(resource.id) : undefined;
-        return {
-            ...buildResourceListItem(resource),
-            sharedWithCount: resource.activeGrantCount,
-            hasActiveLink: resource.hasActiveLink,
-            isQuiz,
-            completed: counts?.completed ?? 0,
-            submissions: counts?.submissions ?? 0,
-            participationPath: isQuiz
-                ? `/quizzes/${encodeURIComponent(resource.id)}/participation`
-                : null,
-        };
-    });
-    response.render('resources-shared-by-me', {
-        ...buildAppShellContext({
-            activeProfile: auth.activeProfile,
-            authMessage: getHomeAuthMessage(request, auth.user),
-            currentView: 'sharedByMe',
-            guestInitialGreeting: '',
-            request,
-            title: `Compartidos - ${appDocumentTitle}`,
-            user: auth.user,
-        }),
-        sharedItems,
     });
 }
 export function renderSharedResourcePage(request, response) {
