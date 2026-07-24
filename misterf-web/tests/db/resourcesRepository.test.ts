@@ -558,4 +558,157 @@ describe('resource repository', () => {
       progressEvents[0]?.id,
     );
   });
+
+  it('lists resources the profile has shared and aggregates collected quiz counts', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      archiveQuizForUser,
+      countCollectedQuizAttemptsByQuiz,
+      createPracticeGuide,
+      createProfile,
+      createQuiz,
+      createQuizAttempt,
+      createResourceFolder,
+      createRoleplay,
+      getOrCreateResourceShareLink,
+      grantResourceAccess,
+      listSharedResourcesForProfile,
+      saveQuizAttemptResult,
+      submitQuizAttempt,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'sbm-owner@example.com',
+      emailVerified: true,
+      fullName: 'Shared Owner',
+      provider: 'google',
+      providerSubject: 'sbm-owner',
+    });
+    const profile = createProfile({ name: 'Owner profile', userId: owner.id });
+    const otherProfile = createProfile({ name: 'Other profile', userId: owner.id });
+    const student = createExternalUser({
+      email: 'sbm-student@example.com',
+      emailVerified: true,
+      fullName: 'Shared Student',
+      provider: 'google',
+      providerSubject: 'sbm-student',
+    });
+    const studentProfile = createProfile({ name: 'Student profile', userId: student.id });
+
+    const makeQuiz = (title: string, profileId = profile.id) =>
+      createQuiz({
+        description: '',
+        instructions: '',
+        profileId,
+        quiz: { blocks: [], title },
+        title,
+        userId: owner.id,
+      });
+
+    const linkQuiz = makeQuiz('Link Shared Quiz');
+    const grantQuiz = makeQuiz('Grant Shared Quiz');
+    const privateQuiz = makeQuiz('Private Quiz');
+    const archivedQuiz = makeQuiz('Archived Shared Quiz');
+    const otherProfileQuiz = makeQuiz('Other Profile Quiz', otherProfile.id);
+    const guide = createPracticeGuide({
+      description: '',
+      profileId: profile.id,
+      title: 'Shared Guide',
+      tutorInstructions: '',
+      userId: owner.id,
+    });
+    const roleplay = createRoleplay({
+      characters: [
+        { description: 'A learner ordering lunch politely at a cafe.', id: 'learner', name: 'Learner' },
+        { description: 'A friendly cafe server helping the customer order.', id: 'ai', name: 'Server' },
+      ],
+      description: 'A customer orders lunch in a small cafe and practices polite requests.',
+      level: 'A2',
+      profileId: profile.id,
+      title: 'Shared Roleplay',
+      userId: owner.id,
+    });
+    const folder = createResourceFolder({
+      description: '',
+      profileId: profile.id,
+      title: 'Shared Folder',
+      userId: owner.id,
+    });
+
+    getOrCreateResourceShareLink(linkQuiz.id);
+    getOrCreateResourceShareLink(guide.id);
+    getOrCreateResourceShareLink(archivedQuiz.id);
+    getOrCreateResourceShareLink(folder.id);
+    getOrCreateResourceShareLink(otherProfileQuiz.id);
+    grantResourceAccess({
+      grantedByUserId: owner.id,
+      grantedVia: 'profile',
+      profileId: studentProfile.id,
+      resourceId: grantQuiz.id,
+      userId: student.id,
+    });
+    grantResourceAccess({
+      grantedByUserId: owner.id,
+      grantedVia: 'profile',
+      profileId: studentProfile.id,
+      resourceId: roleplay.id,
+      userId: student.id,
+    });
+    archiveQuizForUser(archivedQuiz.id, owner.id);
+
+    const shared = listSharedResourcesForProfile({ profileId: profile.id, userId: owner.id });
+    const sharedIds = shared.map((resource) => resource.id);
+
+    expect(sharedIds).toEqual(
+      expect.arrayContaining([linkQuiz.id, grantQuiz.id, guide.id, roleplay.id]),
+    );
+    expect(sharedIds).not.toContain(privateQuiz.id); // not shared
+    expect(sharedIds).not.toContain(archivedQuiz.id); // archived
+    expect(sharedIds).not.toContain(folder.id); // folders excluded
+    expect(sharedIds).not.toContain(otherProfileQuiz.id); // different profile
+
+    const linkItem = shared.find((resource) => resource.id === linkQuiz.id);
+    expect(linkItem?.hasActiveLink).toBe(true);
+    expect(linkItem?.activeGrantCount).toBe(0);
+    const grantItem = shared.find((resource) => resource.id === grantQuiz.id);
+    expect(grantItem?.hasActiveLink).toBe(false);
+    expect(grantItem?.activeGrantCount).toBe(1);
+
+    // Two collected attempts from one student participant (one evaluated), plus
+    // an author-profile attempt that must be excluded from the counts.
+    const evaluatedAttempt = createQuizAttempt({
+      quizId: grantQuiz.id,
+      collectResults: true,
+      profileId: studentProfile.id,
+      snapshot: { blocks: [], title: 'Grant Shared Quiz' },
+      userId: student.id,
+    });
+    submitQuizAttempt({ attemptId: evaluatedAttempt.id, responses: [] });
+    saveQuizAttemptResult({
+      attemptId: evaluatedAttempt.id,
+      result: { items: [], title: 'Grant Shared Quiz', type: 'quiz_result' },
+    });
+    const pendingAttempt = createQuizAttempt({
+      quizId: grantQuiz.id,
+      collectResults: true,
+      profileId: studentProfile.id,
+      snapshot: { blocks: [], title: 'Grant Shared Quiz' },
+      userId: student.id,
+    });
+    submitQuizAttempt({ attemptId: pendingAttempt.id, responses: [] });
+    createQuizAttempt({
+      quizId: grantQuiz.id,
+      collectResults: true,
+      profileId: profile.id,
+      snapshot: { blocks: [], title: 'Grant Shared Quiz' },
+      userId: owner.id,
+    });
+
+    const counts = countCollectedQuizAttemptsByQuiz({
+      authorProfileId: profile.id,
+      quizIds: [grantQuiz.id, linkQuiz.id],
+    });
+    expect(counts.get(grantQuiz.id)).toEqual({ completed: 1, submissions: 2 });
+    expect(counts.get(linkQuiz.id)).toBeUndefined();
+  });
 });

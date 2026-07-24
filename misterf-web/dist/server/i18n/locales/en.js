@@ -863,6 +863,16 @@ export const en = {
     language: {
         label: 'Language',
     },
+    sharedByMe: {
+        kicker: 'Shared by me',
+        title: 'Shared',
+        intro: 'The resources you have shared and who has practiced with them.',
+        empty: 'You have not shared any resources yet. Share a quiz, a practice guide, or a roleplay to see it here.',
+        sharedWithCount: 'Shared with {{count}}',
+        activeLink: 'Active link',
+        viewParticipation: 'View participation',
+        openResource: 'Open',
+    },
     nav: {
         breadcrumb: 'Breadcrumb',
         chatControls: 'Chat controls',
@@ -873,6 +883,7 @@ export const en = {
         newConversation: 'New conversation',
         mediaLibrary: 'Media Library',
         resources: 'Resources',
+        sharedByMe: 'Shared',
         progress: 'Progress',
         recent: 'Recent',
         conversationOptions: 'Conversation options',

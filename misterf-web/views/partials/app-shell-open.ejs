@@ -98,6 +98,11 @@
                     <%= t('nav.resources') %>
                   </a>
 
+                  <a class="panel-nav-link <%= currentView === 'sharedByMe' ? 'is-active' : '' %>" href="/resources/shared-by-me">
+                    <i class="bi bi-send" aria-hidden="true"></i>
+                    <%= t('nav.sharedByMe') %>
+                  </a>
+
                   <a class="panel-nav-link <%= currentView === 'progress' ? 'is-active' : '' %>" href="/progress">
                     <i class="bi bi-graph-up" aria-hidden="true"></i>
                     <%= t('nav.progress') %>

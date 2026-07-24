@@ -50,6 +50,9 @@ const exemptViews: Record<string, string> = {
   // Area list root: it is the origin of the trail and its title already names
   // the location, so it needs no breadcrumb.
   'media-library.ejs': 'area list root',
+  // Own nav-root page (the "Shared by me" guide dashboard): breadcrumb origin,
+  // like /resources and /media-library.
+  'resources-shared-by-me.ejs': 'area nav root',
   // External share-recipient landing pages: reached via a share token by someone
   // who has no /resources catalog of their own, so a resources breadcrumb does
   // not belong here.

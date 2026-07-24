@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 import {
   addResourceToFolder,
   archiveResourceForUser,
+  countCollectedQuizAttemptsByQuiz,
   createResourceFolder,
   findResourceAccessForProfile,
   findResourceById,
@@ -16,6 +17,7 @@ import {
   listResourceFolderItems,
   listResourceFoldersForProfile,
   listResourcesForProfile,
+  listSharedResourcesForProfile,
   removeResourceFromFolder,
   restoreResourceForUser,
   setResourceShareLinkCollectResults,
@@ -428,6 +430,72 @@ export async function renderResourcesListPage(
     selectedFolderShareQrDataUrl,
     selectedFolderShareUrl,
     shareTargetResourceProfiles,
+  });
+}
+
+type SharedByMeItem = ResourceListItem & {
+  /** People the resource is shared with (active access grants). */
+  sharedWithCount: number;
+  hasActiveLink: boolean;
+  isQuiz: boolean;
+  /** Quiz-only: distinct participants who finished, and total submissions. */
+  completed: number;
+  submissions: number;
+  /** Quiz-only: link to the participation ("who practiced") page. */
+  participationPath: string | null;
+};
+
+/**
+ * The guide's "Shared by me" entry point (roadmap V3 §1.6): every resource the
+ * active profile has shared, with quiz participation counts and a lightweight
+ * shared-with signal for guides and roleplays.
+ */
+export function renderSharedByMePage(request: Request, response: Response): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const sharedResources = listSharedResourcesForProfile({
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+
+  const quizIds = sharedResources
+    .filter((resource) => resource.type === 'quiz')
+    .map((resource) => resource.id);
+  const quizCounts = countCollectedQuizAttemptsByQuiz({
+    authorProfileId: auth.activeProfile.id,
+    quizIds,
+  });
+
+  const sharedItems: SharedByMeItem[] = sharedResources.map((resource) => {
+    const isQuiz = resource.type === 'quiz';
+    const counts = isQuiz ? quizCounts.get(resource.id) : undefined;
+    return {
+      ...buildResourceListItem(resource),
+      sharedWithCount: resource.activeGrantCount,
+      hasActiveLink: resource.hasActiveLink,
+      isQuiz,
+      completed: counts?.completed ?? 0,
+      submissions: counts?.submissions ?? 0,
+      participationPath: isQuiz
+        ? `/quizzes/${encodeURIComponent(resource.id)}/participation`
+        : null,
+    };
+  });
+
+  response.render('resources-shared-by-me', {
+    ...buildAppShellContext({
+      activeProfile: auth.activeProfile,
+      authMessage: getHomeAuthMessage(request, auth.user),
+      currentView: 'sharedByMe',
+      guestInitialGreeting: '',
+      request,
+      title: `Compartidos - ${appDocumentTitle}`,
+      user: auth.user,
+    }),
+    sharedItems,
   });
 }
 

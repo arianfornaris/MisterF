@@ -685,14 +685,25 @@ stays out of V3.
   end to end (aggregation, AI generation, staleness on a new response).
   The per-participant list was renamed "Participantes" and anonymous attempts
   labeled "Anónimo".
-- [ ] "Shared by me" aggregated view (added 2026-07-18): one page listing the
+- [x] "Shared by me" aggregated view (added 2026-07-18): one page listing the
   user's shared resources — quizzes, practice guides, and roleplays, since
   sharing already exists for all three — with attempt counts and who
   practiced each, as the guide's entry point. Same primitive, no roles and no
   new entities — serves the teacher, the private tutor, and a parent with
   their own account (the parent-child case runs through learning profiles
   inside the parent's account). Full formula:
-  [Classrooms](../features/classrooms.md).
+  [Classrooms](../features/classrooms.md). **Done 2026-07-23:** dedicated nav
+  entry "Compartidos" → `/resources/shared-by-me` (own view
+  `resources-shared-by-me.ejs`). Resource-generic and scoped to the active
+  profile: `listSharedResourcesForProfile` returns owned, non-folder,
+  non-archived resources with an active share link or ≥1 active grant. Quizzes
+  show participation counts (completed · submissions via
+  `countCollectedQuizAttemptsByQuiz`, reusing the collected-attempt filter) and
+  link to the existing participation page; guides/roleplays show a lightweight
+  "Compartido con N" signal (their result artifacts stay deferred). Covered by a
+  repo test (`tests/db/resourcesRepository.test.ts`), a route/render test
+  (`tests/server/routes.test.ts`), and the breadcrumb guard (classified as a nav
+  root). Verified live on the QA account.
 - Design constraint (2026-07-18): the MVP returns results for **quizzes
   only**, but the cross-cutting pieces — disclosure/consent copy, the
   "Shared by me" view, and the naming of results routes/storage — are built

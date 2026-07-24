@@ -127,6 +127,7 @@ export function buildAppShellContext(input: {
     | 'progress'
     | 'profiles'
     | 'resources'
+    | 'sharedByMe'
     | 'settings';
   guestInitialGreeting: string;
   initialConversationId?: string;

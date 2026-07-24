@@ -2014,6 +2014,92 @@ export function listResourcesForProfile(input: {
   return Array.from(uniqueResources.values());
 }
 
+export type StoredSharedResource = StoredAccessibleResource & {
+  /** Active access grants on the resource (people it is shared with). */
+  activeGrantCount: number;
+  /** Whether the resource currently has a live share link. */
+  hasActiveLink: boolean;
+};
+
+/**
+ * Resources the active profile owns and has put up for sharing: non-folder,
+ * non-archived, with at least one active share link or active access grant.
+ * Powers the "Shared by me" guide entry point (roadmap V3 §1.6). A resource
+ * with a live link but no practicers still counts — it has been shared.
+ */
+export function listSharedResourcesForProfile(input: {
+  profileId: string;
+  userId: string;
+}): StoredSharedResource[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          resource.id,
+          resource.user_id,
+          resource.profile_id,
+          resource.type,
+          resource.title,
+          resource.description,
+          resource.topic,
+          resource.level,
+          resource.archived_at,
+          resource.source_resource_id,
+          resource.source_user_id,
+          resource.source_profile_id,
+          resource.shared_via,
+          resource.created_at,
+          resource.updated_at,
+          'owner' AS access_kind,
+          NULL AS grant_id,
+          NULL AS granted_via,
+          NULL AS share_link_id,
+          NULL AS access_created_at,
+          (
+            SELECT COUNT(*)
+            FROM resource_access_grants AS grant_row
+            WHERE grant_row.resource_id = resource.id
+              AND grant_row.revoked_at IS NULL
+          ) AS active_grant_count,
+          (
+            SELECT COUNT(*)
+            FROM resource_share_links AS share_link
+            WHERE share_link.resource_id = resource.id
+              AND share_link.revoked_at IS NULL
+          ) AS active_link_count
+        FROM resources AS resource
+        WHERE resource.user_id = ?
+          AND resource.profile_id = ?
+          AND resource.type != 'resource_folder'
+          AND resource.archived_at IS NULL
+          AND (
+            EXISTS (
+              SELECT 1
+              FROM resource_access_grants AS grant_row
+              WHERE grant_row.resource_id = resource.id
+                AND grant_row.revoked_at IS NULL
+            )
+            OR EXISTS (
+              SELECT 1
+              FROM resource_share_links AS share_link
+              WHERE share_link.resource_id = resource.id
+                AND share_link.revoked_at IS NULL
+            )
+          )
+        ORDER BY resource.updated_at DESC, resource.created_at DESC
+      `,
+    )
+    .all(input.userId, input.profileId) as Array<
+      AccessibleResourceRow & { active_grant_count: number; active_link_count: number }
+    >;
+
+  return rows.map((row) => ({
+    ...toStoredAccessibleResource(row),
+    activeGrantCount: row.active_grant_count,
+    hasActiveLink: row.active_link_count > 0,
+  }));
+}
+
 export function createResourceFolder(input: {
   description?: string;
   profileId: string;
@@ -3949,6 +4035,77 @@ export function listCollectedQuizAttemptsForOwner(input: {
     participantName: row.participant_name,
     participantProfileName: row.participant_profile_name,
   }));
+}
+
+export type CollectedQuizAttemptCounts = {
+  /** Distinct participants with an evaluated attempt. */
+  completed: number;
+  /** Total collected attempts (submissions). */
+  submissions: number;
+};
+
+/**
+ * Per-quiz collected-attempt counts for a batch of quizzes, using the same
+ * filter as `listCollectedQuizAttemptsForOwner` (collected, non-author profile)
+ * and the same "completed = distinct evaluated participant" rule as the quiz
+ * participation teaser. Aggregates in one query so the "Shared by me" list does
+ * not load full attempt rows per quiz.
+ */
+export function countCollectedQuizAttemptsByQuiz(input: {
+  authorProfileId: string;
+  quizIds: string[];
+}): Map<string, CollectedQuizAttemptCounts> {
+  const counts = new Map<string, CollectedQuizAttemptCounts>();
+  if (input.quizIds.length === 0) {
+    return counts;
+  }
+
+  const placeholders = input.quizIds.map(() => '?').join(', ');
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, quiz_id, profile_id, status
+        FROM quiz_attempts
+        WHERE quiz_id IN (${placeholders})
+          AND collect_results = 1
+          AND (profile_id IS NULL OR profile_id != ?)
+      `,
+    )
+    .all(...input.quizIds, input.authorProfileId) as Array<{
+      id: string;
+      quiz_id: string;
+      profile_id: string | null;
+      status: string;
+    }>;
+
+  const completedParticipants = new Map<string, Set<string>>();
+  for (const row of rows) {
+    let entry = counts.get(row.quiz_id);
+    if (!entry) {
+      entry = { completed: 0, submissions: 0 };
+      counts.set(row.quiz_id, entry);
+    }
+    entry.submissions += 1;
+
+    if (row.status === 'evaluated') {
+      let participants = completedParticipants.get(row.quiz_id);
+      if (!participants) {
+        participants = new Set<string>();
+        completedParticipants.set(row.quiz_id, participants);
+      }
+      // Guests have no profile, so each guest attempt is its own participant.
+      participants.add(row.profile_id ?? `attempt:${row.id}`);
+    }
+  }
+
+  for (const [quizId, participants] of completedParticipants) {
+    const entry = counts.get(quizId);
+    if (entry) {
+      entry.completed = participants.size;
+    }
+  }
+
+  return counts;
 }
 
 export type StoredQuizResponseSummary = {

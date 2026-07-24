@@ -863,6 +863,16 @@ export const es = {
     language: {
         label: 'Idioma',
     },
+    sharedByMe: {
+        kicker: 'Compartido por mí',
+        title: 'Compartidos',
+        intro: 'Los recursos que has compartido y quién ha practicado con ellos.',
+        empty: 'Todavía no has compartido ningún recurso. Comparte un quiz, una guía o un roleplay para verlo aquí.',
+        sharedWithCount: 'Compartido con {{count}}',
+        activeLink: 'Enlace activo',
+        viewParticipation: 'Ver participación',
+        openResource: 'Abrir',
+    },
     nav: {
         breadcrumb: 'Ruta de navegación',
         chatControls: 'Controles del chat',
@@ -873,6 +883,7 @@ export const es = {
         newConversation: 'Nueva conversación',
         mediaLibrary: 'Biblioteca de medios',
         resources: 'Recursos',
+        sharedByMe: 'Compartidos',
         progress: 'Progreso',
         recent: 'Recientes',
         conversationOptions: 'Opciones de conversación',

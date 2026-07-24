@@ -1,0 +1,58 @@
+<%- include('partials/app-shell-open') %>
+
+<section class="app-page resources-page">
+  <div class="app-page-header">
+    <div>
+      <p class="app-page-kicker"><%= t('sharedByMe.kicker') %></p>
+      <h1 class="app-page-title"><%= t('sharedByMe.title') %></h1>
+      <p class="app-page-copy"><%= t('sharedByMe.intro') %></p>
+    </div>
+  </div>
+
+  <% if (sharedItems.length === 0) { %>
+    <section class="app-page-detail-shell">
+      <p class="text-body-secondary mb-0"><%= t('sharedByMe.empty') %></p>
+    </section>
+  <% } else { %>
+    <div class="list-group shadow-sm">
+      <% sharedItems.forEach((item) => { %>
+        <div class="list-group-item position-relative d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <a class="stretched-link" href="<%= item.detailPath %>">
+            <span class="visually-hidden"><%= t('sharedByMe.openResource') %> <%= item.label %> <%= item.title %></span>
+          </a>
+          <div class="min-w-0 flex-grow-1">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h2 class="h6 fw-normal mb-0">
+                <i class="bi <%= item.iconClass %> me-2" aria-hidden="true"></i><%= item.title %>
+              </h2>
+              <span class="badge rounded-pill <%= item.badgeClass %>"><%= item.label %></span>
+              <% if (item.hasActiveLink) { %>
+                <span class="badge text-bg-light border">
+                  <i class="bi bi-link-45deg me-1" aria-hidden="true"></i><%= t('sharedByMe.activeLink') %>
+                </span>
+              <% } %>
+            </div>
+            <p class="mb-0 small text-body-secondary">
+              <% if (item.isQuiz) { %>
+                <i class="bi bi-check-circle me-1" aria-hidden="true"></i><%= t('quizzes.participantsCompletedCount', { count: item.completed }) %>
+                <span class="mx-1">·</span>
+                <i class="bi bi-inbox me-1" aria-hidden="true"></i><%= t('quizzes.participantsSubmissionsCount', { count: item.submissions }) %>
+              <% } else { %>
+                <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('sharedByMe.sharedWithCount', { count: item.sharedWithCount }) %>
+              <% } %>
+            </p>
+          </div>
+          <% if (item.isQuiz && item.participationPath) { %>
+            <div class="position-relative z-1 flex-shrink-0">
+              <a class="btn btn-sm btn-outline-secondary" href="<%= item.participationPath %>">
+                <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('sharedByMe.viewParticipation') %>
+              </a>
+            </div>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/app-shell-close') %>
