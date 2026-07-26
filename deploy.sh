@@ -36,8 +36,10 @@ ssh "$REMOTE_HOST" "
 set -euo pipefail
 cd '$REMOTE_DIR'
 git pull
-npm ci --omit=dev
-pm2 restart ecosystem.config.cjs --only '$PM2_APP_NAME' --env production --update-env
+pm2 stop '$PM2_APP_NAME' || true
+NODE_OPTIONS=--max-old-space-size=256 npm_config_jobs=1 \
+  npm ci --omit=dev --no-audit --no-fund
+pm2 startOrRestart ecosystem.config.cjs --only '$PM2_APP_NAME' --env production --update-env
 "
 
 echo "==> Deploy complete"

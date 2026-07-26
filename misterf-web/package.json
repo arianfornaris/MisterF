@@ -1,6 +1,6 @@
 {
   "name": "misterf-web",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Mister F web tutor for practicing English sentence writing.",
   "main": "dist/server/server.js",
   "scripts": {
