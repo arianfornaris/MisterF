@@ -1013,6 +1013,62 @@ describe('main route smoke tests', () => {
     expect(withMeHtml).not.toContain('Private Badge Quiz');
   });
 
+  it('scope=all finds filed resources across folders and shows their folder', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      addResourceToFolder,
+      createProfile,
+      createQuiz,
+      createResourceFolder,
+      getOrCreateResourceShareLink,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'scope-owner@example.com',
+      emailVerified: true,
+      fullName: 'Scope Owner',
+      provider: 'google',
+      providerSubject: 'scope-owner',
+    });
+    const ownerProfile = createProfile({ name: 'Scope profile', userId: owner.id });
+
+    const folder = createResourceFolder({
+      description: '',
+      profileId: ownerProfile.id,
+      title: 'Scope Folder',
+      userId: owner.id,
+    });
+    const filedQuiz = createQuiz({
+      description: '',
+      instructions: '',
+      profileId: ownerProfile.id,
+      quiz: { blocks: [], title: 'Filed Shared Scope Quiz' },
+      title: 'Filed Shared Scope Quiz',
+      userId: owner.id,
+    });
+    getOrCreateResourceShareLink(filedQuiz.id);
+    addResourceToFolder({ folderId: folder.id, resourceId: filedQuiz.id, userId: owner.id });
+
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+    const getResources = async (query: string) => {
+      const response = await fetch(`${baseUrl}/resources${query}`, {
+        headers: { cookie: ownerCookie },
+        redirect: 'manual',
+      });
+      expect(response.status).toBe(200);
+      return response.text();
+    };
+
+    // Current-folder scope at the root hides resources filed inside folders.
+    const folderScopeHtml = await getResources('?type=by_me');
+    expect(folderScopeHtml).not.toContain('Filed Shared Scope Quiz');
+
+    // Global scope surfaces it across folders and labels its folder.
+    const globalScopeHtml = await getResources('?type=by_me&scope=all');
+    expect(globalScopeHtml).toContain('Filed Shared Scope Quiz');
+    expect(globalScopeHtml).toContain('Scope Folder');
+  });
+
   it('renders quiz sections in the authoring blocks tab', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createQuiz, createProfile } = await import('../../src/server/db/repository.js');

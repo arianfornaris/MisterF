@@ -253,6 +253,13 @@
           >
           <button class="btn btn-secondary" type="submit"><%= t('resources.search') %></button>
         </div>
+        <div class="mt-2">
+          <label class="form-label" for="resourceSearchScope"><%= t('resources.scopeLabel') %></label>
+          <select class="form-select" id="resourceSearchScope" name="scope">
+            <option value="folder" <%= resourceFilters.scope === 'folder' ? 'selected' : '' %>><%= t('resources.scopeFolder') %></option>
+            <option value="all" <%= resourceFilters.scope === 'all' ? 'selected' : '' %>><%= t('resources.scopeAll') %></option>
+          </select>
+        </div>
       </form>
     </div>
 
@@ -277,6 +284,13 @@
           </select>
           <button class="btn btn-secondary" type="submit"><%= t('resources.apply') %></button>
         </div>
+        <div class="mt-2">
+          <label class="form-label" for="resourceTypeScope"><%= t('resources.scopeLabel') %></label>
+          <select class="form-select" id="resourceTypeScope" name="scope">
+            <option value="folder" <%= resourceFilters.scope === 'folder' ? 'selected' : '' %>><%= t('resources.scopeFolder') %></option>
+            <option value="all" <%= resourceFilters.scope === 'all' ? 'selected' : '' %>><%= t('resources.scopeAll') %></option>
+          </select>
+        </div>
       </form>
     </div>
 
@@ -288,6 +302,7 @@
       >
         <input type="hidden" name="q" value="<%= resourceFilters.query %>">
         <input type="hidden" name="type" value="<%= resourceFilters.type %>">
+        <input type="hidden" name="scope" value="<%= resourceFilters.scope %>">
         <label class="form-label" for="resourceSort"><%= t('resources.sort') %></label>
         <div class="d-flex flex-column flex-sm-row gap-2">
           <select class="form-select" id="resourceSort" name="sort">

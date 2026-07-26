@@ -29,6 +29,10 @@
     </div>
     <p class="mb-0 small text-body-secondary">
       <%= t('resources.updated') %> <%= resource.relativeUpdatedAt %>
+      <% if (resource.folderTitle) { %>
+        <span class="mx-1" aria-hidden="true">·</span>
+        <i class="bi bi-folder me-1" aria-hidden="true"></i><%= t('resources.inFolder', { folder: resource.folderTitle }) %>
+      <% } %>
     </p>
   </div>
   <% if (resource.canManage) { %>

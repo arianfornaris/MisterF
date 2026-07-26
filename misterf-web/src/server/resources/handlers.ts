@@ -53,6 +53,8 @@ type ResourceListItem = StoredAccessibleResource & {
   isSharedByMe: boolean;
   /** Reached through a share (the active profile is not the owner). */
   isSharedWithMe: boolean;
+  /** Parent folder title, shown only in the flat global ("Todo") scope. */
+  folderTitle: string | null;
 };
 
 type ResourceFolderListItem = ResourceListItem & {
@@ -112,6 +114,12 @@ function readResourceSort(value: unknown): ResourceSortOption {
   }
 
   return 'updated_desc';
+}
+
+type ResourceScope = 'folder' | 'all';
+
+function readResourceScope(value: unknown): ResourceScope {
+  return readField(value, 10) === 'all' ? 'all' : 'folder';
 }
 
 function buildResourceDetailPath(resource: StoredResource): string {
@@ -180,6 +188,7 @@ function toAccessibleOwnerResource(resource: StoredResource): StoredAccessibleRe
 function buildResourceListItem(
   resource: StoredAccessibleResource,
   sharedByMeIds?: ReadonlySet<string>,
+  folderTitle: string | null = null,
 ): ResourceListItem {
   const meta = {
     quiz: {
@@ -222,6 +231,7 @@ function buildResourceListItem(
     isSharedByMe:
       resource.accessKind === 'owner' && (sharedByMeIds?.has(resource.id) ?? false),
     isSharedWithMe: resource.accessKind === 'shared',
+    folderTitle,
   };
 }
 
@@ -359,7 +369,13 @@ export async function renderResourcesListPage(
     return;
   }
 
-  const folderId = readField(request.params.folderId, 100) || null;
+  // The global ("Todo") scope flattens the whole catalog, so it ignores the
+  // current folder entirely (both for the listing and the page chrome).
+  const scope = readResourceScope(request.query.scope);
+  const globalScope = scope === 'all';
+  const folderId = globalScope
+    ? null
+    : readField(request.params.folderId, 100) || null;
   const selectedFolder = folderId
     ? findResourceAccessForProfile({
         includeArchived: false,
@@ -411,7 +427,20 @@ export async function renderResourcesListPage(
     type: null,
     userId: auth.user.id,
   });
-  const allResources = selectedFolder
+  // Map each filed resource to its parent folder title, used to show "en:
+  // Carpeta X" in the flat global scope.
+  const resourceFolderTitles = new Map<string, string>();
+  if (globalScope) {
+    for (const folder of folderOptions) {
+      for (const item of listResourceFolderItems(folder.id, auth.user.id)) {
+        resourceFolderTitles.set(item.resourceId, folder.title);
+      }
+    }
+  }
+  const allResources = globalScope
+    ? // Flat catalog across all folders: real resources only, folders hidden.
+      scopedResources.filter((resource) => resource.type !== 'resource_folder')
+    : selectedFolder
     ? scopedResources
     : removeFiledResourcesFromRoot(scopedResources, folderOptions, auth.user.id);
   const sharedByMeIds = new Set(
@@ -422,6 +451,7 @@ export async function renderResourcesListPage(
   );
   const filters = {
     query: readField(request.query.q, 160),
+    scope,
     sort: readResourceSort(request.query.sort),
     type: readResourceTypeFilter(request.query.type),
   };
@@ -446,10 +476,15 @@ export async function renderResourcesListPage(
       hasActiveFilters:
         Boolean(filters.query) ||
         filters.type !== 'all' ||
+        filters.scope !== 'folder' ||
         filters.sort !== 'updated_desc',
     },
     resourceItems: resourceItems.map((resource) =>
-      buildResourceListItem(resource, sharedByMeIds),
+      buildResourceListItem(
+        resource,
+        sharedByMeIds,
+        globalScope ? resourceFolderTitles.get(resource.id) ?? null : null,
+      ),
     ),
     selectedFolderCanManage,
     selectedFolderParent: selectedFolderParent

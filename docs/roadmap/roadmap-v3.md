@@ -706,6 +706,14 @@ stays out of V3.
   data stays on each quiz's participation page (one click from the detail).
   Covered by a repo test (`listSharedResourcesForProfile`) and a route test
   (badges + both filter values). Verified live on the QA account.
+  Follow-up 2026-07-23: the catalog filters (search, type/sharing, sort) were
+  folder-scoped, which fragmented the "what have I shared" view once resources
+  live in folders. Added a **scope selector** (`scope=folder|all`) inside the
+  Search and Filter panels — `Todo` flattens the whole profile catalog across
+  folders (folders hidden, filed resources included) and each row shows `en:
+  Carpeta X`. Default stays `Carpeta actual`. Covered by a route test
+  (filed shared resource hidden at folder scope, surfaced with its folder under
+  `scope=all`).
 - Design constraint (2026-07-18): the MVP returns results for **quizzes
   only**, but the cross-cutting pieces — disclosure/consent copy, the
   "Shared by me" view, and the naming of results routes/storage — are built
