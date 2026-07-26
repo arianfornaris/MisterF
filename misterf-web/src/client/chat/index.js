@@ -2,7 +2,6 @@ import { t } from '../shared/i18n.js';
 import { ChatState } from './app/ChatState.js';
 import { createChatRuntime } from './app/ChatRuntime.js';
 import { chatSocketEvents } from './constants/events.js';
-import { createTranslatorController } from './features/translator.js';
 import { ChatSocketClient } from './socket/ChatSocketClient.js';
 import { registerChatSocketHandlers } from './socket/registerChatSocketHandlers.js';
 import { disableTextAssist } from './utils/textAssist.js';
@@ -72,16 +71,6 @@ const closeTutorPlanModalEl = document.querySelector('#closeTutorPlanModal');
 const confirmCloseTutorPlanButtonEl = document.querySelector('[data-confirm-close-tutor-plan]');
 const tutorReportPendingModalEl = document.querySelector('[data-tutor-report-pending-modal]');
 const tutorReportPendingTitleEl = document.querySelector('[data-tutor-report-pending-title]');
-const translatorModalEl = document.querySelector('#translatorModal');
-const translatorFormEl = document.querySelector('#translatorForm');
-const translatorInputEl = document.querySelector('#translatorInput');
-const translatorResultEl = document.querySelector('#translatorResult');
-const translatorSubmitEl = document.querySelector('[data-translator-submit]');
-const translatorOpenButtonEls = document.querySelectorAll('[data-open-translator]');
-const translatorCopyButtonEls = document.querySelectorAll('[data-translator-copy]');
-const translatorLanguageMenuEl = document.querySelector('[data-translator-language-menu]');
-const translatorToEnLabelEl = document.querySelector('[data-translator-to-en-label]');
-const translatorFromEnLabelEl = document.querySelector('[data-translator-from-en-label]');
 const creditModalEl = document.querySelector('#creditModal');
 const creditBuyLinkEl = document.querySelector('[data-credit-buy-link]');
 const creditMessageEl = document.querySelector('[data-credit-message]');
@@ -110,7 +99,6 @@ let isAssistantStopping = false;
 let isGuestPromptPending = false;
 let guestPromptTimerId = 0;
 let disconnectNoticeTimerId = 0;
-let pendingTranslatorSelection = '';
 let pendingTutorPlanClose = false;
 let userInputHistory = [];
 let userInputHistoryIndex = -1;
@@ -232,24 +220,6 @@ runtime = createChatRuntime({
   syncSendButton,
   toolStatusEl,
 });
-const translatorController = createTranslatorController({
-  copyTextToClipboard: (...args) => tutorMessageRenderer.copyTextToClipboard(...args),
-  getPendingTranslatorSelection: () => pendingTranslatorSelection,
-  getSocket: () => socket,
-  setPendingTranslatorSelection: (value) => {
-    pendingTranslatorSelection = value;
-  },
-  translatorCopyButtonEls,
-  translatorFormEl,
-  translatorFromEnLabelEl,
-  translatorInputEl,
-  translatorLanguageMenuEl,
-  translatorModalEl,
-  translatorOpenButtonEls,
-  translatorResultEl,
-  translatorSubmitEl,
-  translatorToEnLabelEl,
-});
 
 disableComposerTextAssist();
 tutorMessageRenderer.initializeStaticMarkdown();
@@ -300,7 +270,6 @@ if (socket) {
     shouldAutoJoinSocketThread,
     showCreditExhaustedModal,
     socketClient,
-    translatorController,
     tutorPlanView,
   });
 }
@@ -374,8 +343,6 @@ closeTutorPlanModalEl?.addEventListener('hidden.bs.modal', () => {
 practiceGuideStartButtonEl?.addEventListener('click', () => {
   runtime.startPracticeGuideConversation();
 });
-
-translatorController.bindUi();
 
 formatConversationDates();
 

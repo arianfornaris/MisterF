@@ -1,4 +1,4 @@
-import { t } from '../../shared/i18n.js';
+import { t } from '../shared/i18n.js';
 
 const STORAGE_KEY = 'misterf_translator_lang';
 

@@ -18,6 +18,7 @@ export default defineConfig({
         'media-library': path.resolve('src/client/mediaLibrary/index.js'),
         resources: path.resolve('src/client/resources/index.js'),
         roleplays: path.resolve('src/client/roleplays/index.js'),
+        translator: path.resolve('src/client/translator/index.js'),
       },
       output: {
         assetFileNames: 'assets/[name]-[hash][extname]',

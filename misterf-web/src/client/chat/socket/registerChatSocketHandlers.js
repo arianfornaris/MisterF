@@ -142,14 +142,6 @@ export function registerChatSocketHandlers(deps) {
     deps.renderer.appendEphemeralError(message || t('clientChat.conversationUpdateFailed'));
   });
 
-  socketClient.on('translator:result', (payload) => {
-    deps.translatorController.handleResult(payload);
-  });
-
-  socketClient.on('translator:error', (payload) => {
-    deps.translatorController.handleError(payload);
-  });
-
   socketClient.on('llm:request_tokens', (payload) => {
     if (!deps.runtime.isCurrentConversationPayload(payload)) {
       return;

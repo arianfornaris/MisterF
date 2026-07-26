@@ -12,6 +12,7 @@
     <script src="/vendor/dompurify/purify.min.js"></script>
     <script src="/vendor/marked/marked.umd.js"></script>
     <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <%- include('translator-client-script') %>
     <% if (typeof pageScriptPartial === 'string' && pageScriptPartial) { %>
       <%- include(pageScriptPartial) %>
     <% } %>
