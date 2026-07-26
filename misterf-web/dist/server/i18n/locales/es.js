@@ -70,8 +70,6 @@ export const es = {
         shared: 'Compartido',
         sharedByMeBadge: 'Compartido por mí',
         sharedWithMeBadge: 'Compartido conmigo',
-        sharedFilterLabel: 'Compartido',
-        sharedAll: 'Todos',
         sharedByMeOption: 'Compartido por mí',
         sharedWithMeOption: 'Compartido conmigo',
         controlsAria: 'Controles de recursos',

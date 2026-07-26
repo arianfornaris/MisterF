@@ -698,13 +698,14 @@ stays out of V3.
   surface — the catalog already mixes owned and shared-with-me resources, so no
   new page was warranted. Each resource carries a **"Compartido por mí"** badge
   (owned, with an active share link or grant — via `listSharedResourcesForProfile`)
-  or a **"Compartido conmigo"** badge (reached through a grant), and a new
-  **"Compartido"** filter (all / por mí / conmigo) sits alongside the type and
-  sort filters. Scoped to the active profile. Trade-off accepted: the at-a-glance
-  attempt counts / "who practiced" are dropped from the list — that data stays on
-  each quiz's participation page (one click from the detail). Covered by a repo
-  test (`listSharedResourcesForProfile`) and a route test (badges + both filter
-  values). Verified live on the QA account.
+  or a **"Compartido conmigo"** badge (reached through a grant). The two sharing
+  categories are **integrated into the existing type filter** (options `by_me` /
+  `with_me` alongside the resource types, not a separate filter control — founder
+  correction 2026-07-23). Scoped to the active profile. Trade-off accepted: the
+  at-a-glance attempt counts / "who practiced" are dropped from the list — that
+  data stays on each quiz's participation page (one click from the detail).
+  Covered by a repo test (`listSharedResourcesForProfile`) and a route test
+  (badges + both filter values). Verified live on the QA account.
 - Design constraint (2026-07-18): the MVP returns results for **quizzes
   only**, but the cross-cutting pieces — disclosure/consent copy, the
   "Shared by me" view, and the naming of results routes/storage — are built
@@ -907,6 +908,35 @@ Snapshot of the gap on 2026-07-21 (breadcrumb present vs missing):
   area view includes the breadcrumb partial and forces any newly added area view
   to be classified as required, delegating, or explicitly exempt (list roots and
   external share-landing pages).
+
+---
+
+## 2.4 Archived Resource Recovery
+
+Added 2026-07-23 (founder observation). When a resource is archived there is
+currently **no way to recover it from the app**. The restore path exists
+server-side — `POST /resources/:resourceId/restore` →
+`handleRestoreResource` → `restoreResourceForUser`, which clears `archived_at` —
+but nothing in the UI reaches an archived resource: `renderResourcesListPage`
+always queries with `includeArchived: false`, the catalog has no "archived"
+filter or view, and there is no restore control anywhere. So archiving is
+effectively a one-way delete from the user's perspective, even though the data
+is still there and un-archivable by a single POST. This is a data-loss-shaped
+UX gap and should be closed.
+
+- [ ] Give the catalog a way to see archived resources — e.g. an "Archived"
+  option integrated into the catalog's existing filter (alongside the type and
+  shared-by-me / shared-with-me options), or a dedicated archived view — passing
+  `includeArchived: true` on that path only. Keep archived items out of the
+  default listing.
+- [ ] Add a restore control on archived items (and consider surfacing it on the
+  resource detail page too) that POSTs to the existing restore route, with the
+  same folder/return handling as archive.
+- [ ] Confirm the behavior for foldered and shared resources (does restore put
+  the resource back in its folder; what happens to grants/share links that were
+  active at archive time) and cover it with a route/render test.
+- [ ] Audit whether media-library items have the same archive-without-recovery
+  gap and, if so, fold the fix in or track it alongside.
 
 ---
 

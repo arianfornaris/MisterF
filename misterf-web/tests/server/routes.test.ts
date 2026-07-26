@@ -999,14 +999,15 @@ describe('main route smoke tests', () => {
     expect(allHtml).toContain('Compartido por mí');
     expect(allHtml).toContain('Compartido conmigo');
 
-    // shared=by_me keeps only the resource the owner shared out.
-    const byMeHtml = await getResources('?shared=by_me');
+    // The sharing categories live inside the type filter: type=by_me keeps only
+    // the resource the owner shared out.
+    const byMeHtml = await getResources('?type=by_me');
     expect(byMeHtml).toContain('Shared By Me Badge Quiz');
     expect(byMeHtml).not.toContain('Shared With Me Badge Quiz');
     expect(byMeHtml).not.toContain('Private Badge Quiz');
 
-    // shared=with_me keeps only what others shared with the owner.
-    const withMeHtml = await getResources('?shared=with_me');
+    // type=with_me keeps only what others shared with the owner.
+    const withMeHtml = await getResources('?type=with_me');
     expect(withMeHtml).toContain('Shared With Me Badge Quiz');
     expect(withMeHtml).not.toContain('Shared By Me Badge Quiz');
     expect(withMeHtml).not.toContain('Private Badge Quiz');

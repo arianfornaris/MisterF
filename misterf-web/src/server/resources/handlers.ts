@@ -35,9 +35,8 @@ import {
 } from '../pages/shell.js';
 import { logger } from '../services/logger.js';
 
-type ResourceFilterType = StoredResource['type'] | 'all';
+type ResourceFilterType = StoredResource['type'] | 'all' | 'by_me' | 'with_me';
 type ResourceSortOption = 'title_asc' | 'type' | 'updated_desc';
-type ResourceSharedFilter = 'all' | 'by_me' | 'with_me';
 
 type ResourceListItem = StoredAccessibleResource & {
   actionLabel: string;
@@ -96,18 +95,11 @@ function readResourceTypeFilter(value: unknown): ResourceFilterType {
     resourceType === 'quiz' ||
     resourceType === 'practice_guide' ||
     resourceType === 'resource_folder' ||
-    resourceType === 'roleplay'
+    resourceType === 'roleplay' ||
+    resourceType === 'by_me' ||
+    resourceType === 'with_me'
   ) {
     return resourceType;
-  }
-
-  return 'all';
-}
-
-function readResourceSharedFilter(value: unknown): ResourceSharedFilter {
-  const shared = readField(value, 20);
-  if (shared === 'by_me' || shared === 'with_me') {
-    return shared;
   }
 
   return 'all';
@@ -282,7 +274,6 @@ function filterAndSortResources(
   resources: StoredAccessibleResource[],
   filters: {
     query: string;
-    shared: ResourceSharedFilter;
     sort: ResourceSortOption;
     type: ResourceFilterType;
   },
@@ -290,18 +281,17 @@ function filterAndSortResources(
 ): StoredAccessibleResource[] {
   const normalizedQuery = normalizeSearchText(filters.query);
   const filteredResources = resources.filter((resource) => {
-    if (filters.type !== 'all' && resource.type !== filters.type) {
-      return false;
-    }
-
-    if (filters.shared === 'with_me' && resource.accessKind !== 'shared') {
-      return false;
-    }
-
-    if (
-      filters.shared === 'by_me' &&
-      !(resource.accessKind === 'owner' && sharedByMeIds.has(resource.id))
-    ) {
+    // The type filter also carries the sharing categories, so a resource can be
+    // filtered by its kind or by its sharing relationship, not both at once.
+    if (filters.type === 'with_me') {
+      if (resource.accessKind !== 'shared') {
+        return false;
+      }
+    } else if (filters.type === 'by_me') {
+      if (!(resource.accessKind === 'owner' && sharedByMeIds.has(resource.id))) {
+        return false;
+      }
+    } else if (filters.type !== 'all' && resource.type !== filters.type) {
       return false;
     }
 
@@ -432,7 +422,6 @@ export async function renderResourcesListPage(
   );
   const filters = {
     query: readField(request.query.q, 160),
-    shared: readResourceSharedFilter(request.query.shared),
     sort: readResourceSort(request.query.sort),
     type: readResourceTypeFilter(request.query.type),
   };
@@ -457,7 +446,6 @@ export async function renderResourcesListPage(
       hasActiveFilters:
         Boolean(filters.query) ||
         filters.type !== 'all' ||
-        filters.shared !== 'all' ||
         filters.sort !== 'updated_desc',
     },
     resourceItems: resourceItems.map((resource) =>

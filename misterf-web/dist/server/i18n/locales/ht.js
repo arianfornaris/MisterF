@@ -79,8 +79,6 @@ export const ht = {
         shared: 'Pataje',
         sharedByMeBadge: 'Mwen pataje',
         sharedWithMeBadge: 'Pataje avè m',
-        sharedFilterLabel: 'Pataje',
-        sharedAll: 'Tout',
         sharedByMeOption: 'Mwen pataje',
         sharedWithMeOption: 'Pataje avè m',
         controlsAria: 'Kontwòl resous',

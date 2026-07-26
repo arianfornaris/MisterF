@@ -72,8 +72,6 @@ export const en: LocaleCatalog = {
     shared: 'Shared',
     sharedByMeBadge: 'Shared by me',
     sharedWithMeBadge: 'Shared with me',
-    sharedFilterLabel: 'Shared',
-    sharedAll: 'All',
     sharedByMeOption: 'Shared by me',
     sharedWithMeOption: 'Shared with me',
     controlsAria: 'Resource controls',
