@@ -1,7 +1,7 @@
 import { t } from '../../shared/i18n.js';
 export class TutorPlanView {
   constructor({ onCloseRequest, panelEl }) {
-    this.isMinimized = false;
+    this.isMinimized = true;
     this.onCloseRequest = onCloseRequest;
     this.panelEl = panelEl;
     this.plan = null;
@@ -14,11 +14,20 @@ export class TutorPlanView {
 
     const normalizedPlan = normalizeTutorPlan(plan);
     if (!normalizedPlan) {
-      this.isMinimized = false;
+      this.isMinimized = true;
       this.plan = null;
       this.panelEl.classList.add('d-none');
       this.panelEl.replaceChildren();
       return;
+    }
+
+    if (
+      this.plan
+      && isTutorPlanComplete(this.plan)
+      && !isTutorPlanComplete(normalizedPlan)
+      && getTutorPlanSnapshot(this.plan) !== getTutorPlanSnapshot(normalizedPlan)
+    ) {
+      this.isMinimized = true;
     }
 
     this.plan = normalizedPlan;
@@ -102,7 +111,7 @@ function createHeader(plan, actions) {
   const actionGroup = createActionGroup([
     createIconButton({
       iconClass: 'bi bi-dash-lg',
-      label: 'Minimizar plan',
+      label: t('clientMisc.minimizePlan'),
       onClick: actions.onMinimize,
     }),
     createCloseButton(actions.onClose),
@@ -123,7 +132,7 @@ function createMinimizedView(plan, actions) {
   const actionGroup = createActionGroup([
     createIconButton({
       iconClass: 'bi bi-arrows-angle-expand',
-      label: 'Expandir plan',
+      label: t('clientMisc.expandPlan'),
       onClick: actions.onRestore,
     }),
     createCloseButton(actions.onClose),
@@ -172,9 +181,23 @@ function getCurrentStep(plan) {
 
   return {
     id: 'completed-plan',
-    label: 'Plan completo',
+    label: t('clientMisc.planComplete'),
     status: 'done',
   };
+}
+
+function isTutorPlanComplete(plan) {
+  return plan.steps.length > 0 && plan.steps.every(
+    (step) => step.status === 'done' || step.status === 'skipped',
+  );
+}
+
+function getTutorPlanSnapshot(plan) {
+  return JSON.stringify({
+    steps: plan.steps,
+    summary: plan.summary,
+    title: plan.title,
+  });
 }
 
 function createStepList(steps) {

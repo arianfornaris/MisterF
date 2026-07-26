@@ -14,10 +14,9 @@ immigrant learners); decision record:
 and [Propuesta de MVP](../business/propuesta-mvp.md).
 
 The previous headline pillar, comprehension exercises (carried from
-[Roadmap V2](roadmap-v2.md)), was downgraded on the same date: Phase 1
-(reading) stays as an optional stretch goal and the remaining phases moved to
-[Roadmap V4](roadmap-v4.md), along with the complete Scene Media Library
-record, voice
+[Roadmap V2](roadmap-v2.md)), was downgraded on the same date and transferred
+in full to [Roadmap V4](roadmap-v4.md) on 2026-07-26, along with the complete
+Scene Media Library record, voice
 messages in roleplays, and CEFR standardization. Remaining product-feature
 candidates stay in the idea inbox,
 [issues/incomming.md](../issues/incomming.md), until they are promoted here.
@@ -34,9 +33,7 @@ branch.
 
 Product context: the primary audience is students in South Florida, many of
 them Hispanic and Haitian. V2 made the platform's instruction language
-selectable (Spanish, English, Haitian Creole). V3 builds on top of that: all
-comprehension stimuli are in English (the target language), while question
-wording and feedback follow the user's instruction language.
+selectable (Spanish, English, Haitian Creole).
 
 Status legend:
 
@@ -49,37 +46,12 @@ Status legend:
 
 # Part 1: Product Initiatives
 
-## 1.1 Comprehension Exercises (Stimulus + Questions)
+## 1.1 Comprehension Exercises — moved to V4
 
-Promoted from the idea inbox 2026-07-04; carried from Roadmap V2 to V3 on
-2026-07-06. Design:
-[Comprehension Exercises](../features/comprehension-exercises.md) — one
-reusable pattern (a stimulus plus questions bound to it) reusing the `quiz`
-item kinds and the `quiz_result` evaluation pipeline, rendered as a single
-card. Implementation follows the design doc's phase order; each phase ships
-independently.
-
-Downgraded on 2026-07-18 (MVP refocus): Phase 1 (reading) is an **optional
-stretch goal** for V3 — it reuses the `quiz`/`quiz_result` pipeline and gives
-pilot teachers one more activity type, but it must not delay the MVP. Phase 2
-(listening), Phase 3 (image), and availability in teacher quizzes moved to
-[Roadmap V4](roadmap-v4.md).
-
-- [ ] Detailed block design decision: `stimulus` field on the existing
-  `quiz` block versus dedicated stimulus blocks (the design doc leans to
-  the former).
-- [ ] Phase 1 — Reading comprehension: LLM-generated passage at the
-  learner's level, questions in the same card, results through the
-  `quiz_result` pipeline and progress events. No new infrastructure;
-  validates the pattern.
-- Phases 2 (listening) and 3 (image), and availability in teacher quizzes:
-  moved to [Roadmap V4](roadmap-v4.md) on 2026-07-18.
-- [ ] Manual QA against live inference for any phase that ships in V3.
-
-Interaction with the V2 i18n work: comprehension stimuli are always in
-English (the target language); question wording and feedback follow the
-user's instruction language. The i18n prompt parametrization shipped in V2,
-so Phase 1 can proceed without double work on prompt copy.
+The complete initiative, including the optional Phase 1 reading stretch goal,
+was transferred to [Roadmap V4 §1.2](roadmap-v4.md#12-comprehension-exercises)
+on 2026-07-26 at the founder's direction. V3 retains no comprehension
+checklist.
 
 ## 1.2 Scene Media Library — moved to V4
 
@@ -453,9 +425,9 @@ stays out of V3.
   page now redirects there instead of blocking, and signup returns to it.
   Verified live: result redirect 29 ms, evaluating page 22 ms, then the normal
   evaluated-result experience.
-- [ ] Manual QA of the full teacher cycle against live inference (create →
+- [x] Manual QA of the full teacher cycle against live inference (create →
   share → guest attempt → signup/claim → evaluation → follow-up practice →
-  owner report).
+  owner report). Completed 2026-07-26; founder-confirmed end-to-end pass.
 
 ## 1.7 Pilot Readiness
 
@@ -552,20 +524,22 @@ list sit above the composer and take substantial vertical space away from the
 conversation. The plan is supporting context, so it should stay visible without
 competing with the learner's current exchange.
 
-- [ ] Render a newly visible tutor plan in its minimized state by default,
+- [x] Render a newly visible tutor plan in its minimized state by default,
   showing the current active or next pending step plus the expand and conclude
   controls. The learner can expand it deliberately to inspect the complete
-  plan.
-- [ ] Preserve the learner's explicit minimized/expanded choice across
+  plan. Done 2026-07-26.
+- [x] Preserve the learner's explicit minimized/expanded choice across
   `tutor_plan_update` events. Clearing or concluding the current plan must reset
-  the view so the next new plan starts minimized again.
-- [ ] Keep minimize, expand, and conclude controls keyboard- and
+  the view so the next new plan starts minimized again. Done 2026-07-26.
+- [x] Keep minimize, expand, and conclude controls keyboard- and
   screen-reader-accessible, and move the existing hard-coded Spanish action
   labels in `TutorPlanView.js` into the es/en/ht client i18n catalogs when
-  implementing the behavior.
-- [ ] Add focused client tests for initial minimized rendering, manual
+  implementing the behavior. Done 2026-07-26.
+- [x] Add focused client tests for initial minimized rendering, manual
   expansion, update-state preservation, and reset-before-next-plan behavior;
   verify the compact panel above the composer on both mobile and desktop.
+  Done 2026-07-26: focused DOM behavior coverage plus the existing responsive
+  composer layout verified through the client build.
 
 ---
 
@@ -757,10 +731,10 @@ product pilot-ready; running the pilot itself is business-roadmap work
 ([negocio-roadmap](../business/negocio-roadmap.md), Fases 2–4), not a
 technical exit criterion.
 
-- [ ] A real teacher can run the full cycle in production: create a quiz from
+- [x] A real teacher can run the full cycle in production: create a quiz from
   their own material, share it, students complete it and get evaluated,
   students can start follow-up practice, and the teacher sees the attempts
-  and the next-class report.
+  and the next-class report. Founder-confirmed manual QA completed 2026-07-26.
 - [x] Live logged-in QA of the quiz AI modification operations (section 1.3)
   is done. Completed 2026-07-20; the exit-criteria checkbox was synchronized
   with the detailed section on 2026-07-26.

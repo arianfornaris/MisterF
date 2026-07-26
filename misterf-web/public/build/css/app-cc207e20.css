@@ -4136,10 +4136,6 @@ button.sentence-part:focus {
   padding: 0.55rem 0.95rem;
 }
 
-.tutor-plan-step-active {
-  background: rgba(var(--bs-primary-rgb), 0.06);
-}
-
 .composer-input-wrap {
   grid-area: input;
   position: relative;

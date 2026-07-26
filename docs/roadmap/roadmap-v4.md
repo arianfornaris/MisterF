@@ -63,13 +63,28 @@ Deferred here from a V2 audit discussion on 2026-07-07.
   - QA pass with an `ht` profile (tutor blocks, quiz authoring, attempt
     evaluation, shared es-authored quizzes still rendering as authored).
 
-## 1.2 Comprehension Exercises — Phases 2 And 3
+## 1.2 Comprehension Exercises
 
-Carried from [Roadmap V3 §1.1](roadmap-v3.md) on 2026-07-18 (MVP refocus).
-Phase 1 (reading) stays in V3 as an optional stretch goal. Design:
-[Comprehension Exercises](../features/comprehension-exercises.md). Stimuli are
-always in English (the target language); question wording and feedback follow
-the user's instruction language.
+Promoted from the idea inbox on 2026-07-04 and carried from V2 to V3 on
+2026-07-06. Phases 2 and 3 moved here on 2026-07-18 during the Teacher Pilot
+MVP refocus; the remaining Phase 1 reading stretch goal and its design
+decision were transferred from [Roadmap V3 §1.1](roadmap-v3.md) on 2026-07-26
+at the founder's direction, so V4 now owns the complete initiative. Design:
+[Comprehension Exercises](../features/comprehension-exercises.md) — one
+reusable pattern (a stimulus plus questions bound to it) reusing the `quiz`
+item kinds and the `quiz_result` evaluation pipeline, rendered as a single
+card. Each phase ships independently.
+
+Stimuli are always in English (the target language); question wording and
+feedback follow the user's instruction language. The V2 i18n prompt
+parametrization means Phase 1 can proceed without duplicating prompt copy.
+
+- [ ] Detailed block design decision: `stimulus` field on the existing
+  `quiz` block versus dedicated stimulus blocks (the design doc leans to
+  the former).
+- [ ] Phase 1 — Reading comprehension: LLM-generated passage at the learner's
+  level, questions in the same card, results through the `quiz_result`
+  pipeline and progress events. No new infrastructure; validates the pattern.
 
 - [ ] Phase 2 — Listening comprehension: server-side quality TTS from an
   LLM-generated transcript, audio cached by transcript hash in object
