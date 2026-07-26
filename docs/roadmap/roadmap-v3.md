@@ -694,12 +694,45 @@ portfolio and governance audit from section 2.1 back into V3.
   gate and credit-exhaustion boundary, deploy through the normal versioning
   flow, and verify the selected model ids and inference outcomes in production
   traces.
+- [ ] Update the model-tier labels/descriptions to match the actual bound
+  models. Added 2026-07-26 (founder observation): the profile model selector's
+  cost hints are stale — both Lite and Regular still read "costo 1x"
+  (`modelLiteDesc`/`modelRegularDesc` in `src/server/i18n/locales/{es,en,ht}.ts`)
+  even though the three tiers (Flash-Lite, Flash, Pro) now have distinct
+  costs. Recompute each tier's relative cost from the selected model's actual
+  input/output pricing (see the price notes above) and update the copy across
+  es/en/ht so the label reflects the model currently in effect for that tier,
+  rather than a hard-coded multiplier. Confirm the wording stays correct if the
+  bound model ids change.
 
 References:
 
 - [Google: Using the latest Gemini models](https://ai.google.dev/gemini-api/docs/latest-model)
 - [Google: Gemini deprecations](https://ai.google.dev/gemini-api/docs/deprecations)
 - [OpenRouter: Google models](https://openrouter.ai/google)
+
+---
+
+## 2.6 Instruction-Language Selection Review
+
+Added 2026-07-26 (founder observation). The instruction language can currently
+be set from **two** places, and it is unclear whether both should exist: the
+account **Settings** page (`views/settings.ejs`, `POST /settings/language`) and
+the per-profile form (`views/profiles-form.ejs`, the `instructionLanguage`
+field). Both write `instructionLanguage`, so the same setting surfaces twice and
+the relationship between "the account's language" and "the profile's language"
+is ambiguous to the user.
+
+- [ ] Map exactly what each control writes and reads today: whether the Settings
+  form edits the active profile's `instructionLanguage` or a separate
+  account/user-level value, how the two interact when a user has multiple
+  profiles, and which one wins on new conversations.
+- [ ] Decide the intended model — instruction language as a per-profile setting,
+  an account-level default, or both with a clear precedence — and where it
+  should live in the UI so it is not duplicated confusingly.
+- [ ] Reconcile the surfaces per that decision (remove or relabel the redundant
+  control), keeping es/en/ht copy consistent, and verify the change end to end
+  for single- and multi-profile accounts.
 
 ---
 
