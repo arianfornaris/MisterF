@@ -505,10 +505,32 @@ Open design questions (to consider, not yet decided):
 - **Role boundaries.** Ensure platform answers do not derail tutoring; the tutor
   should answer briefly and return to the learning task.
 
-- [ ] Decide delivery mechanism (prompt section vs. tool vs. hybrid).
-- [ ] Draft the canonical platform-feature description and decide where it lives.
-- [ ] Wire it into regular tutor conversations and verify the tutor answers a
-  feature question correctly without losing its pedagogical framing.
+- [x] Decide delivery mechanism (prompt section vs. tool vs. hybrid). Done
+  2026-07-26 (founder decision): **hybrid** — an on-demand `get_platform_help`
+  tool holds the knowledge, plus a one-line boundary in the tutor system prompt
+  so the base prompt stays small and the model knows when to call it.
+- [x] Draft the canonical platform-feature description and decide where it lives.
+  Done 2026-07-26: single source of truth is
+  `misterf-web/system-prompts/tutor/platform-overview.md` (prompt-as-file
+  convention, cached, edited when the product changes). Feature-level and
+  navigational only — main nav, activity types (quiz/roleplay/practice guide),
+  sharing/results, progress, profiles, translator — with an explicit rule to
+  answer briefly in the instruction language and that the tutor performs no app
+  actions.
+- [x] Wire it into regular tutor conversations and verify the tutor answers a
+  feature question correctly without losing its pedagogical framing. Code
+  complete 2026-07-26: `buildTutorPlatformTools` (`llmTutor/platformTools.ts`,
+  no params, always available — no auth/profile needed) merged into the agent
+  loop in `llmTutor/index.ts`; the `system.md` Tool Use Boundaries updated to
+  list `get_platform_help` with its use/omit rule (no contradiction with the
+  "only tools are…" clause); docs synced (`architecture.md` Tool Architecture,
+  `runtime.md` Tools Available to Mr. F); unit test `tests/llmTutor/
+  platformTools.test.ts` and prompt registered in `promptPlaceholders.test.ts`.
+  Verified: typecheck, full `tests/server`+`tests/llmTutor` (281), server
+  restarted healthy. **Live behavioral QA (ask "how do I create a quiz?" in a
+  logged-in chat, confirm the tool fires and the tutor answers briefly then
+  returns to tutoring) pending** — magic-link auth has no dev bypass, so it
+  needs a founder click-through, like the §1.3 quiz QA.
 
 Relevant skills when this is picked up: `system-prompt-coherence`,
 `llm-tool-documentation`.

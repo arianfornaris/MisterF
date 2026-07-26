@@ -380,6 +380,28 @@ They are merged into the tutor agent loop in:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/index.ts`
 
+### Platform help tool
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/platformTools.ts`
+
+Current tools:
+
+- `get_platform_help`
+
+Use this only when the learner or teacher asks how the app works or where a
+feature lives — how to create a quiz, where shared resources are, where progress
+is shown, and similar. It is not for ordinary tutoring and should not be called
+proactively. The tutor answers briefly in the learner's instruction language,
+using the app's on-screen section names, then returns to the learning task. The
+tool takes no parameters and returns the canonical description read from
+`misterf-web/system-prompts/tutor/platform-overview.md`, which is the single
+source of truth to keep the tutor's product knowledge from drifting. Unlike the
+progress and conversation tools it needs no authenticated user or profile, so it
+is always available; it performs no app actions, so the tutor still points the
+learner to where they can act themselves.
+
 ## Quizzes
 
 ### Quiz generation

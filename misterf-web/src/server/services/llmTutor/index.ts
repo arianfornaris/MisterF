@@ -25,6 +25,7 @@ import {
   quizEvaluationSupportLanguageRules,
 } from './languagePack.js';
 import { buildTutorConversationTools } from './conversationTools.js';
+import { buildTutorPlatformTools } from './platformTools.js';
 import { buildTutorProgressTools } from './progressTools.js';
 import { buildTranslatorSystemInstruction, buildAgentSystemInstruction } from './prompt.js';
 import { getConfiguredModelId, getLanguageModel, getProviderOptions, getUserFacingFinishReasonMessage, shouldUseTemperature } from './providers.js';
@@ -273,9 +274,13 @@ export async function runTutorAgentLoop(
     onToolCall: options.onToolCall,
     userId: options.userId ?? null,
   });
+  const platformTools = buildTutorPlatformTools({
+    onToolCall: options.onToolCall,
+  });
   const mergedTools = {
     ...(progressTools || {}),
     ...(conversationTools || {}),
+    ...platformTools,
   };
   const tools: ToolSet | undefined = Object.keys(mergedTools).length > 0
     ? (mergedTools as ToolSet)

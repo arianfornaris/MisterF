@@ -162,6 +162,8 @@ const promptRenderers: Record<string, (locale: TestLocale) => string> = {
       PRACTICE_GUIDE_TITLE: 'Presente perfecto',
       PRACTICE_GUIDE_TUTOR_INSTRUCTIONS: 'Ejercicios progresivos.',
     }),
+  'tutor/platform-overview.md': () =>
+    renderSystemPrompt('tutor/platform-overview.md', {}),
   'tutor/profile-context.md': () =>
     renderSystemPrompt('tutor/profile-context.md', {
       PROFILE_DESCRIPTION: 'Perfil de prueba.',

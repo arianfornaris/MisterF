@@ -214,7 +214,7 @@ places:
 
 ## Tool Architecture
 
-Mr. F can use a limited tool set when the current request is associated with an authenticated user and active profile.
+Mr. F can use a limited tool set. The progress and conversation tools require an authenticated user and active profile; the platform-help tool is stateless reference knowledge and is always available.
 
 Tool definitions are intentionally centralized under
 `misterf-web/src/server/services/llmTutor/`. This section is the entry point for
@@ -300,6 +300,26 @@ Tools:
 They are merged into the tutor agent loop inside:
 
 - `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/index.ts`
+
+### Platform help tool
+
+Defined in:
+
+- `/Users/arian/Documents/GameDev/MatandileGames/MisterF/misterf-web/src/server/services/llmTutor/platformTools.ts`
+
+Tools:
+
+- `get_platform_help`
+
+This tool returns app-feature reference knowledge so the tutor can answer a
+learner's or teacher's question about how the product works or where a feature
+lives (create a quiz, find shared resources, see progress, etc.). It takes no
+parameters and reads the canonical description from
+`misterf-web/system-prompts/tutor/platform-overview.md` (the single source of
+truth for platform knowledge; editing the product means editing that file).
+Unlike the progress and conversation tools, it needs no authenticated user or
+active profile, so it is always available. It performs no app actions — the
+tutor still cannot create, edit, share, or open resources for the learner.
 
 Every model-facing tool must document both the tool and each input parameter.
 See the project skill:
