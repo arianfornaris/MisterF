@@ -10,6 +10,12 @@ V4). This document is kept as the decision record; the roadmap files are now
 the source of truth. The MVP definition lives in
 [Propuesta de MVP](../business/propuesta-mvp.md).
 
+Documentation update 2026-07-26: at the founder's direction, the complete Scene
+Media Library record — shipped foundation, decisions, and remaining work — and
+the related cross-area navigation history moved from V3 to V4. This changed
+tracker ownership only; it did not rewrite the 2026-07-18 product-scope
+decision recorded below.
+
 ## 1. Why adjust the roadmaps now
 
 The business documentation in `docs/business/` approved a concrete initial

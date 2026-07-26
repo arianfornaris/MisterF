@@ -5,7 +5,7 @@ Date: 2026-07-12
 Status: **Ready for implementation.** The visual assets and English transcripts
 are approved. Live TTS generation, listening QA, and runtime promotion remain.
 
-Roadmap: [V3, Scene Media Library](../roadmap/roadmap-v3.md#12-scene-media-library)
+Roadmap: [V4, Scene Media Library](../roadmap/roadmap-v4.md#13-scene-media-library)
 
 ## Objective
 
@@ -227,4 +227,3 @@ do not try to recreate the former child/teen delivery through style prompting.
 - [ ] Runtime built-in media was rebuilt and contains 150 items.
 - [ ] Typecheck, test typecheck, and tests pass.
 - [ ] No unrelated audio or source artifacts changed.
-

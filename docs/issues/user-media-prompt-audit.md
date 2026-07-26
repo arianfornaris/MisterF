@@ -19,7 +19,7 @@ exception; source context is explicitly untrusted and layer-aware; image edits
 receive kept script continuity; title generation has its own typed contract;
 and CI structurally checks prompt types against Zod plus built-in/design data.
 
-Roadmap: [V3, Scene Media Library](../roadmap/roadmap-v3.md#12-scene-media-library)
+Roadmap: [V4, Scene Media Library](../roadmap/roadmap-v4.md#13-scene-media-library)
 
 ## Scope
 
