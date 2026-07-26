@@ -1,6 +1,6 @@
 # Roadmap V3
 
-Date: 2026-07-06 (last updated: 2026-07-18)
+Date: 2026-07-06 (last updated: 2026-07-26)
 
 Status: **In progress.** V3's headline is the **Teacher Pilot MVP**: the
 smallest product that lets a real teacher run the full assigned-practice
@@ -563,17 +563,13 @@ the content being changed.
   translation-map type enforced parity (typecheck stays green), and
   `quizzes.addBlock` (the button label) was deliberately kept. Verified:
   typecheck, test:typecheck, `tests/server` (168), client build.
-- [ ] Add manual block editing to quiz authoring. **Rescoped 2026-07-18 for
-  the Teacher Pilot MVP:** V3 ships only minimal manual editing for the most
-  common item kinds — fixing a typo must not cost an inference, because a
-  pilot teacher will hit typos and losing trust there is expensive. The full
-  per-kind editor across all nine item kinds and deterministic section
-  rename/delete/reassign move to Roadmap V4. Original context (split out of
-  the quiz chat review on 2026-07-17): a typo in one option cannot be fixed
-  without spending an inference, because design-mode block cards are
-  read-only; the same gap applies to sections, which are creatable and
-  regroupable only through the `Bloques` AI operation. The block change modal
-  with preview makes the gap survivable meanwhile.
+- [x] Decide whether V3 needs manual block editing in quiz authoring. **Deferred
+  entirely to [Roadmap V4](roadmap-v4.md) on 2026-07-26 at the founder's
+  direction; V3 will not ship the previously proposed minimal editor.** A typo
+  in one option still requires the scoped block-change AI operation because
+  design-mode cards are read-only. V4 now owns the complete problem: manual
+  editing across all item kinds plus deterministic section
+  rename/delete/reassignment.
 - [x] Retire the practice-guide `Chat IA` edit tab. Practice guides now use the
   roleplay proposal pattern: one page-level `Modify with AI` action receives
   the complete unsaved title, description, and tutor instructions; shows only
@@ -932,19 +928,27 @@ effectively a one-way delete from the user's perspective, even though the data
 is still there and un-archivable by a single POST. This is a data-loss-shaped
 UX gap and should be closed.
 
-- [ ] Give the catalog a way to see archived resources — e.g. an "Archived"
-  option integrated into the catalog's existing filter (alongside the type and
-  shared-by-me / shared-with-me options), or a dedicated archived view — passing
-  `includeArchived: true` on that path only. Keep archived items out of the
-  default listing.
-- [ ] Add a restore control on archived items (and consider surfacing it on the
-  resource detail page too) that POSTs to the existing restore route, with the
-  same folder/return handling as archive.
-- [ ] Confirm the behavior for foldered and shared resources (does restore put
-  the resource back in its folder; what happens to grants/share links that were
-  active at archive time) and cover it with a route/render test.
-- [ ] Audit whether media-library items have the same archive-without-recovery
-  gap and, if so, fold the fix in or track it alongside.
+- [x] Give the catalog a way to see archived resources while keeping them out
+  of the default listing. Done 2026-07-26: `/resources/trash` is a dedicated,
+  profile-scoped Trash page reached through a quiet link below the catalog
+  controls. It lists only archived resources owned by the active profile and
+  uses the existing generic resource model; no schema change or parallel
+  archive system was introduced.
+- [x] Add a restore control on archived items. Done 2026-07-26: each Trash row
+  restores through the existing generic `POST /resources/:resourceId/restore`
+  route and returns to the Trash page.
+- [x] Confirm folder and sharing behavior with route coverage. Done 2026-07-26:
+  folder membership, live share links, and profile grants remain persisted.
+  Archived resources are unavailable through those shares; restoring the
+  resource returns it to its original folder and makes the existing shares
+  usable again.
+- [x] Audit and close the same gap in the media library. Done 2026-07-26:
+  `/media-library/trash` lists archived user-generated media, and
+  `POST /media-library/:mediaId/restore` returns an item to ready status and
+  the active library. Built-in media is never archivable. Both Trash surfaces
+  use dedicated views, quiet entry links below their catalog controls, a
+  deterministic close-`X` back to their catalog, breadcrumbs, empty states,
+  and es/en/ht copy. No permanent-delete action was added.
 
 ---
 
@@ -959,8 +963,9 @@ technical exit criterion.
   their own material, share it, students complete it and get evaluated,
   students can start follow-up practice, and the teacher sees the attempts
   and the next-class report.
-- [ ] Live logged-in QA of the quiz AI modification operations (section 1.3)
-  is done.
+- [x] Live logged-in QA of the quiz AI modification operations (section 1.3)
+  is done. Completed 2026-07-20; the exit-criteria checkbox was synchronized
+  with the detailed section on 2026-07-26.
 - [ ] The pilot funnel is measurable end to end, and the AI cost of one full
   cycle is known.
 - [ ] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass; new

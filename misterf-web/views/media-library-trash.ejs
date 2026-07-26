@@ -1,0 +1,79 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const formatLabel = (format) => t(`mediaLibrary.format.${format}`);
+  const levelLabel = (level) => level || t('mediaLibrary.levelNone');
+%>
+
+<section class="app-page" aria-label="<%= t('mediaLibrary.trash') %>">
+  <div class="app-page-header app-page-header-has-close">
+    <div>
+      <p class="app-page-kicker"><%= t('mediaLibrary.trashKicker') %></p>
+      <h1 class="app-page-title"><%= t('mediaLibrary.trash') %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('mediaLibrary.title'), href: '/media-library' },
+        { label: t('mediaLibrary.trash') },
+      ] }) %>
+      <p class="app-page-copy"><%= t('mediaLibrary.trashIntro') %></p>
+    </div>
+    <div class="app-page-header-actions">
+      <a
+        class="btn btn-link app-page-close-button"
+        href="/media-library"
+        title="<%= t('mediaLibrary.backToLibrary') %>"
+        aria-label="<%= t('mediaLibrary.backToLibrary') %>"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (mediaItems.length === 0) { %>
+    <div class="alert alert-light border mt-4 mb-0" role="status">
+      <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-trash fs-3 text-body-secondary" aria-hidden="true"></i>
+        <div>
+          <h2 class="h5 mb-1"><%= t('mediaLibrary.trashEmptyTitle') %></h2>
+          <p class="mb-0 text-body-secondary"><%= t('mediaLibrary.trashEmptyBody') %></p>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-3 mt-1">
+      <% mediaItems.forEach((item) => { %>
+        <div class="col">
+          <article class="card h-100">
+            <% if (item.image) { %>
+              <div class="ratio ratio-4x3 bg-body-tertiary">
+                <img
+                  class="card-img-top scene-media-card-image w-100 h-100"
+                  src="<%= item.image.src %>"
+                  alt="<%= item.image.alt %>"
+                  loading="lazy"
+                >
+              </div>
+            <% } %>
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                <span class="badge text-bg-primary"><%= levelLabel(item.level) %></span>
+                <span class="badge text-bg-light border"><%= formatLabel(item.format) %></span>
+              </div>
+              <h2 class="h6 fw-normal"><%= item.title %></h2>
+              <p class="small text-body-secondary mt-auto mb-3">
+                <%= t('mediaLibrary.archivedTime', { time: item.relativeArchivedAt }) %>
+              </p>
+              <form method="post" action="/media-library/<%= encodeURIComponent(item.id) %>/restore">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button class="btn btn-outline-primary btn-sm w-100" type="submit">
+                  <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('resources.restore') %>
+                </button>
+              </form>
+            </div>
+          </article>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: '' }) %>

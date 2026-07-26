@@ -498,6 +498,53 @@ export async function renderResourcesListPage(
   });
 }
 
+export function renderResourceTrashPage(request: Request, response: Response): void {
+  const auth = ensureVerifiedResourceUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const allFolders = listResourceFoldersForProfile({
+    includeArchived: true,
+    profileId: auth.activeProfile.id,
+    userId: auth.user.id,
+  });
+  const resourceFolderTitles = new Map<string, string>();
+  for (const folder of allFolders) {
+    for (const item of listResourceFolderItems(folder.id, auth.user.id)) {
+      resourceFolderTitles.set(item.resourceId, folder.title);
+    }
+  }
+
+  const resourceItems = listResourcesForProfile({
+    includeArchived: true,
+    profileId: auth.activeProfile.id,
+    type: null,
+    userId: auth.user.id,
+  })
+    .filter((resource) => resource.accessKind === 'owner' && Boolean(resource.archivedAt))
+    .map((resource) =>
+      buildResourceListItem(
+        resource,
+        undefined,
+        resourceFolderTitles.get(resource.id) ?? null,
+      ),
+    );
+
+  response.render('resources-trash', {
+    ...buildAppShellContext({
+      activeProfile: auth.activeProfile,
+      authMessage: getHomeAuthMessage(request, auth.user),
+      currentView: 'resources',
+      guestInitialGreeting: '',
+      request,
+      title: `${response.locals.t('resources.trash')} - ${appDocumentTitle}`,
+      user: auth.user,
+    }),
+    resourceItems,
+  });
+}
+
 export function renderSharedResourcePage(request: Request, response: Response): void {
   const shareId = readField(request.params.shareId, 120);
   const shareLink = findResourceShareLinkById(shareId);

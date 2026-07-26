@@ -264,6 +264,24 @@ copies. Recipients see the owner's current version and should not be able to
 edit, archive, move, or re-share the resource. A folder grant also gives
 read/use access to the folder's current contents.
 
+### Archive Recovery
+
+Archiving is reversible and does not delete generic resource relationships.
+The Resources Trash page reads archived owner resources for the active profile
+only. Folder membership, share links, and access grants remain persisted while
+the resource is archived:
+
+- archived resources are excluded from the ordinary catalog;
+- recipients cannot open an archived resource through a link or grant;
+- restoring returns the resource to its original folder when that folder still
+  exists and makes its existing live shares usable again;
+- no permanent-delete operation is exposed by the Trash UI.
+
+User-generated scene media uses its separate `user_scene_media` persistence
+model and follows the same reversible UI contract through the Media Library
+Trash page. Restoring clears `archived_at` and returns the row from `archived`
+to `ready`; built-in media is not archivable.
+
 ### V2 URL Compatibility
 
 If V2 lands before production, old V1 links can be removed or redirected as a

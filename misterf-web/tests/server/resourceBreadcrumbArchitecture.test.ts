@@ -18,6 +18,7 @@ const BREADCRUMB_INCLUDE = /include\('(?:partials\/)?breadcrumb'/;
 // Top-level area views that must render the breadcrumb partial directly.
 const requiredBreadcrumbViews = [
   'resources-list.ejs',
+  'resources-trash.ejs',
   'quizzes-show.ejs',
   'quizzes-participation.ejs',
   'quizzes-authoring.ejs',
@@ -33,6 +34,7 @@ const requiredBreadcrumbViews = [
   'practice-guides-new.ejs',
   'practice-guides-authoring.ejs',
   'media-library-show.ejs',
+  'media-library-trash.ejs',
   'media-library-authoring.ejs',
   'media-library-new.ejs',
   'media-library-variation-new.ejs',

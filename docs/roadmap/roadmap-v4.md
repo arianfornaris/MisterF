@@ -213,6 +213,22 @@ individual steps here only when the V3 pilot shows they are needed.
 Also in this family, cheap and independent once outreach starts: the public
 landing page and the opt-in "share my practice with the teacher" action.
 
+## 1.7 Manual Quiz Editing
+
+Deferred from [Roadmap V3 §1.3](roadmap-v3.md) on 2026-07-26 at the founder's
+direction. V3 keeps the scoped AI block-change operation as the only way to
+correct block content; the previously proposed minimal V3 editor will not ship.
+
+- [ ] Add deterministic manual editing across every supported quiz item kind,
+  including prompts, answer options, answer keys, explanations, and kind-specific
+  fields, without requiring inference.
+- [ ] Add deterministic section rename, delete, and block reassignment controls.
+- [ ] Preserve the proposal-and-approval boundary of AI modifications: manual
+  edits save explicit author input, while AI operations continue to preview
+  before apply.
+- [ ] Cover each item-kind editor and section operation with service and
+  route/render tests.
+
 ---
 
 # Part 2: Engineering And Quality

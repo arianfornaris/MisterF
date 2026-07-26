@@ -1,0 +1,79 @@
+<%- include('partials/app-shell-open') %>
+
+<%
+  const resourceTypeLabels = {
+    practice_guide: t('resources.typePracticeGuide'),
+    quiz: t('resources.typeQuiz'),
+    resource_folder: t('resources.folder'),
+    roleplay: t('resources.typeRoleplay'),
+  };
+%>
+
+<section class="app-page resources-page" aria-label="<%= t('resources.trash') %>">
+  <div class="app-page-header app-page-header-has-close">
+    <div>
+      <p class="app-page-kicker"><%= t('resources.kickerTrash') %></p>
+      <h1 class="app-page-title"><%= t('resources.trash') %></h1>
+      <%- include('partials/breadcrumb', { crumbs: [
+        { label: t('resources.title'), href: '/resources' },
+        { label: t('resources.trash') },
+      ] }) %>
+      <p class="app-page-copy"><%= t('resources.trashIntro') %></p>
+    </div>
+    <div class="app-page-header-actions">
+      <a
+        class="btn btn-link app-page-close-button"
+        href="/resources"
+        title="<%= t('resources.backToResources') %>"
+        aria-label="<%= t('resources.backToResources') %>"
+      >
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+
+  <% if (resourceItems.length === 0) { %>
+    <div class="alert alert-light border mt-4 mb-0" role="status">
+      <div class="d-flex align-items-start gap-3">
+        <i class="bi bi-trash fs-3 text-body-secondary" aria-hidden="true"></i>
+        <div>
+          <h2 class="h5 mb-1"><%= t('resources.trashEmptyTitle') %></h2>
+          <p class="mb-0 text-body-secondary"><%= t('resources.trashEmptyBody') %></p>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="list-group shadow-sm mt-4">
+      <% resourceItems.forEach((resource) => { %>
+        <div class="list-group-item d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+          <div class="min-w-0">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <h2 class="h6 fw-normal mb-0">
+                <i class="bi <%= resource.iconClass %> me-2" aria-hidden="true"></i><%= resource.title %>
+              </h2>
+              <span class="badge rounded-pill <%= resource.badgeClass %>">
+                <%= resourceTypeLabels[resource.type] %>
+              </span>
+            </div>
+            <p class="mb-0 small text-body-secondary">
+              <%= t('resources.archivedTime', { time: resource.relativeUpdatedAt }) %>
+              <% if (resource.folderTitle) { %>
+                <span class="mx-1" aria-hidden="true">·</span>
+                <i class="bi bi-folder me-1" aria-hidden="true"></i><%= t('resources.originalFolder', { folder: resource.folderTitle }) %>
+              <% } %>
+            </p>
+          </div>
+          <form method="post" action="/resources/<%= encodeURIComponent(resource.id) %>/restore">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <input type="hidden" name="returnTo" value="/resources/trash">
+            <button class="btn btn-outline-primary btn-sm text-nowrap" type="submit">
+              <i class="bi bi-arrow-counterclockwise me-1" aria-hidden="true"></i><%= t('resources.restore') %>
+            </button>
+          </form>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: '' }) %>

@@ -91,7 +91,15 @@ describe('main route smoke tests', () => {
     },
     {
       location: '/login',
+      route: '/resources/trash',
+    },
+    {
+      location: '/login',
       route: '/media-library',
+    },
+    {
+      location: '/login',
+      route: '/media-library/trash',
     },
     {
       location: '/login',
@@ -1236,6 +1244,160 @@ describe('main route smoke tests', () => {
     expect(findResourceForUser(folderId, owner.id)?.archivedAt).toBeFalsy();
   });
 
+  it('recovers archived resources from trash without losing folders or sharing', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      addResourceToFolder,
+      createProfile,
+      createQuiz,
+      createResourceFolder,
+      findResourceAccessForProfile,
+      findResourceFolderForResource,
+      findResourceForUser,
+      getOrCreateResourceShareLink,
+      grantResourceAccess,
+    } = await import('../../src/server/db/repository.js');
+
+    const owner = createExternalUser({
+      email: 'resource-trash-owner@example.com',
+      emailVerified: true,
+      fullName: 'Resource Trash Owner',
+      provider: 'google',
+      providerSubject: 'resource-trash-owner',
+    });
+    const ownerProfile = createProfile({
+      name: 'Resource trash profile',
+      userId: owner.id,
+    });
+    const student = createExternalUser({
+      email: 'resource-trash-student@example.com',
+      emailVerified: true,
+      fullName: 'Resource Trash Student',
+      provider: 'google',
+      providerSubject: 'resource-trash-student',
+    });
+    const studentProfile = createProfile({
+      name: 'Resource trash student profile',
+      userId: student.id,
+    });
+    const folder = createResourceFolder({
+      description: '',
+      profileId: ownerProfile.id,
+      title: 'Original Trash Folder',
+      userId: owner.id,
+    });
+    const quiz = createQuiz({
+      description: 'A quiz used to verify trash recovery.',
+      instructions: '',
+      profileId: ownerProfile.id,
+      quiz: { blocks: [], title: 'Recoverable Trash Quiz' },
+      title: 'Recoverable Trash Quiz',
+      userId: owner.id,
+    });
+    const activeQuiz = createQuiz({
+      description: '',
+      instructions: '',
+      profileId: ownerProfile.id,
+      quiz: { blocks: [], title: 'Active Quiz Outside Trash' },
+      title: 'Active Quiz Outside Trash',
+      userId: owner.id,
+    });
+    expect(activeQuiz.archivedAt).toBeNull();
+    expect(addResourceToFolder({
+      folderId: folder.id,
+      resourceId: quiz.id,
+      userId: owner.id,
+    })).toBe(true);
+
+    const shareLink = getOrCreateResourceShareLink(quiz.id);
+    grantResourceAccess({
+      grantedByUserId: owner.id,
+      grantedVia: 'profile',
+      profileId: studentProfile.id,
+      resourceId: quiz.id,
+      userId: student.id,
+    });
+
+    const ownerCookie = await createAuthenticatedCookie(owner.id, ownerProfile.id);
+    const resourcesResponse = await fetch(`${baseUrl}/resources`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const csrfToken = extractCsrfToken(await resourcesResponse.text());
+    const archiveResponse = await postForm(
+      `/resources/${quiz.id}/archive`,
+      {
+        _csrf: csrfToken,
+        returnTo: '/resources',
+      },
+      ownerCookie,
+    );
+    expect(archiveResponse.status).toBe(302);
+    expect(findResourceForUser(quiz.id, owner.id)?.archivedAt).toBeTruthy();
+    expect(findResourceAccessForProfile({
+      profileId: studentProfile.id,
+      resourceId: quiz.id,
+      userId: student.id,
+    })).toBeNull();
+
+    const archivedShareResponse = await fetch(
+      `${baseUrl}/resources/shared/${shareLink.id}`,
+      { redirect: 'manual' },
+    );
+    expect(archivedShareResponse.status).toBe(302);
+    expect(archivedShareResponse.headers.get('location')).toBe('/resources');
+
+    const trashResponse = await fetch(`${baseUrl}/resources/trash`, {
+      headers: { cookie: ownerCookie },
+      redirect: 'manual',
+    });
+    const trashHtml = await trashResponse.text();
+    expect(trashResponse.status).toBe(200);
+    expect(trashHtml).toContain('Papelera');
+    expect(trashHtml).toContain('Recoverable Trash Quiz');
+    expect(trashHtml).toContain('Estaba en Original Trash Folder');
+    expect(trashHtml).toContain(`/resources/${quiz.id}/restore`);
+    expect(trashHtml).toContain('class="btn btn-link app-page-close-button"');
+    expect(trashHtml).toContain('href="/resources"');
+    expect(trashHtml).toContain('bi bi-x-lg');
+    expect(trashHtml).not.toContain('Active Quiz Outside Trash');
+
+    const restoreResponse = await postForm(
+      `/resources/${quiz.id}/restore`,
+      {
+        _csrf: extractCsrfToken(trashHtml),
+        returnTo: '/resources/trash',
+      },
+      ownerCookie,
+    );
+    expect(restoreResponse.status).toBe(302);
+    expect(restoreResponse.headers.get('location')).toBe('/resources/trash');
+    expect(findResourceForUser(quiz.id, owner.id)?.archivedAt).toBeNull();
+    expect(findResourceFolderForResource(quiz.id, owner.id)?.id).toBe(folder.id);
+    expect(findResourceAccessForProfile({
+      profileId: studentProfile.id,
+      resourceId: quiz.id,
+      userId: student.id,
+    })).toEqual(expect.objectContaining({
+      accessKind: 'shared',
+      id: quiz.id,
+    }));
+
+    const restoredShareResponse = await fetch(
+      `${baseUrl}/resources/shared/${shareLink.id}`,
+      { redirect: 'manual' },
+    );
+    expect(restoredShareResponse.status).toBe(200);
+    const emptyTrashHtml = await (
+      await fetch(`${baseUrl}/resources/trash`, {
+        headers: { cookie: ownerCookie },
+        redirect: 'manual',
+      })
+    ).text();
+    expect(emptyTrashHtml).toContain('La papelera está vacía');
+    expect(emptyTrashHtml).not.toContain('Recoverable Trash Quiz');
+  });
+
   it('renders the built-in media library and media detail pages', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const { createProfile } = await import('../../src/server/db/repository.js');
@@ -1497,6 +1659,44 @@ describe('main route smoke tests', () => {
       ownerProfileId: profile.id,
       ownerUserId: user.id,
     })).toBeNull();
+
+    const mediaTrashResponse = await fetch(`${baseUrl}/media-library/trash`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const mediaTrashHtml = await mediaTrashResponse.text();
+    expect(mediaTrashResponse.status).toBe(200);
+    expect(mediaTrashHtml).toContain('Papelera');
+    expect(mediaTrashHtml).toContain('Updated Route Media');
+    expect(mediaTrashHtml).toContain('/media-library/route-ready-media/restore');
+    expect(mediaTrashHtml).toContain('class="btn btn-link app-page-close-button"');
+    expect(mediaTrashHtml).toContain('href="/media-library"');
+    expect(mediaTrashHtml).toContain('bi bi-x-lg');
+
+    const restoreMediaResponse = await postForm(
+      '/media-library/route-ready-media/restore',
+      { _csrf: extractCsrfToken(mediaTrashHtml) },
+      cookie,
+    );
+    expect(restoreMediaResponse.status).toBe(302);
+    expect(restoreMediaResponse.headers.get('location')).toBe('/media-library/trash');
+    expect(findUserSceneMediaForProfile({
+      mediaId: 'route-ready-media',
+      ownerProfileId: profile.id,
+      ownerUserId: user.id,
+    })).toEqual(expect.objectContaining({
+      archivedAt: null,
+      status: 'ready',
+      title: 'Updated Route Media',
+    }));
+    const emptyMediaTrashHtml = await (
+      await fetch(`${baseUrl}/media-library/trash`, {
+        headers: { cookie },
+        redirect: 'manual',
+      })
+    ).text();
+    expect(emptyMediaTrashHtml).toContain('La papelera de medias está vacía');
+    expect(emptyMediaTrashHtml).not.toContain('Updated Route Media');
 
     const retryResponse = await postForm(
       '/media-library/route-ready-media/retry',

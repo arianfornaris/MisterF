@@ -272,6 +272,26 @@ export function listUserSceneMediaForProfile(input: {
   return rows.map(toSceneMediaLibraryItem);
 }
 
+export function listArchivedUserSceneMediaForProfile(input: {
+  ownerProfileId: string;
+  ownerUserId: string;
+}): SceneMediaLibraryItem[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT *
+        FROM user_scene_media
+        WHERE user_id = ?
+          AND profile_id = ?
+          AND archived_at IS NOT NULL
+        ORDER BY archived_at DESC, updated_at DESC, created_at DESC
+      `,
+    )
+    .all(input.ownerUserId, input.ownerProfileId) as UserSceneMediaRow[];
+
+  return rows.map(toSceneMediaLibraryItem);
+}
+
 export function findUserSceneMediaForProfile(input: {
   mediaId: string;
   ownerProfileId: string;
@@ -310,6 +330,27 @@ export function archiveUserSceneMediaForProfile(input: {
         AND user_id = ?
         AND profile_id = ?
         AND archived_at IS NULL
+    `,
+  ).run(input.mediaId, input.ownerUserId, input.ownerProfileId);
+
+  return result.changes > 0;
+}
+
+export function restoreUserSceneMediaForProfile(input: {
+  mediaId: string;
+  ownerProfileId: string;
+  ownerUserId: string;
+}): boolean {
+  const result = getDb().prepare(
+    `
+      UPDATE user_scene_media
+      SET status = 'ready',
+          archived_at = NULL,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+        AND user_id = ?
+        AND profile_id = ?
+        AND archived_at IS NOT NULL
     `,
   ).run(input.mediaId, input.ownerUserId, input.ownerProfileId);
 

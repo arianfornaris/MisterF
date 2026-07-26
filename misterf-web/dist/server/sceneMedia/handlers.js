@@ -1,7 +1,7 @@
 import { isCreditExhaustedError, } from '../services/creditGate.js';
-import { appDocumentTitle, buildAppShellContext, getHomeAuthMessage, } from '../pages/shell.js';
+import { appDocumentTitle, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { findSceneMediaItemById, listSceneMediaItems, normalizeSceneMediaFormat, normalizeSceneMediaLevel, sceneMediaFormats, sceneMediaLevels, } from './library.js';
-import { applyUserSceneMediaImage, applyUserSceneMediaMetadata, applyUserSceneMediaScript, archiveUserSceneMediaForProfile, createReadyUserSceneMedia, updateUserSceneMediaTitle, } from './userMediaRepository.js';
+import { applyUserSceneMediaImage, applyUserSceneMediaMetadata, applyUserSceneMediaScript, archiveUserSceneMediaForProfile, createReadyUserSceneMedia, listArchivedUserSceneMediaForProfile, restoreUserSceneMediaForProfile, updateUserSceneMediaTitle, } from './userMediaRepository.js';
 import { generateAndStoreSceneMediaAudio, generateSceneMediaImagePreview, generateSceneMediaMetadataDraft, generateSceneMediaScriptDraft, generateSceneMediaTitleDraft, readSceneMediaReferenceImage, } from './sceneMediaPreview.js';
 import { deletePendingPreview, getPendingPreview, setPendingPreview, } from './sceneMediaPreviewStore.js';
 import { randomUUID } from 'node:crypto';
@@ -54,6 +54,31 @@ export function renderSceneMediaLibraryPage(request, response) {
             profileId: auth.activeProfile.id,
             userId: auth.user.id,
         }).length,
+    });
+}
+export function renderSceneMediaTrashPage(request, response) {
+    const auth = ensureVerifiedSceneMediaUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const mediaItems = listArchivedUserSceneMediaForProfile({
+        ownerProfileId: auth.activeProfile.id,
+        ownerUserId: auth.user.id,
+    }).map((item) => ({
+        ...item,
+        relativeArchivedAt: formatRelativeTime(item.archivedAt ?? item.updatedAt ?? ''),
+    }));
+    response.render('media-library-trash', {
+        ...buildAppShellContext({
+            activeProfile: auth.activeProfile,
+            authMessage: getHomeAuthMessage(request, auth.user),
+            currentView: 'mediaLibrary',
+            guestInitialGreeting: '',
+            request,
+            title: `${response.locals.t('mediaLibrary.trash')} · ${appDocumentTitle}`,
+            user: auth.user,
+        }),
+        mediaItems,
     });
 }
 export function renderNewSceneMediaPage(request, response) {
@@ -891,12 +916,41 @@ export function archiveSceneMedia(request, response) {
     const mediaId = typeof request.params.mediaId === 'string'
         ? request.params.mediaId
         : '';
-    archiveUserSceneMediaForProfile({
+    const archived = archiveUserSceneMediaForProfile({
         mediaId,
         ownerProfileId: auth.activeProfile.id,
         ownerUserId: auth.user.id,
     });
+    if (archived) {
+        logger.info('scene_media_archived', {
+            mediaId,
+            profileId: auth.activeProfile.id,
+            userId: auth.user.id,
+        });
+    }
     response.redirect('/media-library');
+}
+export function restoreSceneMedia(request, response) {
+    const auth = ensureVerifiedSceneMediaUser(request, response);
+    if (!auth) {
+        return;
+    }
+    const mediaId = typeof request.params.mediaId === 'string'
+        ? request.params.mediaId
+        : '';
+    const restored = restoreUserSceneMediaForProfile({
+        mediaId,
+        ownerProfileId: auth.activeProfile.id,
+        ownerUserId: auth.user.id,
+    });
+    if (restored) {
+        logger.info('scene_media_restored', {
+            mediaId,
+            profileId: auth.activeProfile.id,
+            userId: auth.user.id,
+        });
+    }
+    response.redirect('/media-library/trash');
 }
 function defaultNewMediaForm() {
     return {

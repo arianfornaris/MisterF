@@ -15,6 +15,8 @@ import {
   renderNewSceneMediaVariationPage,
   renderSceneMediaDetailPage,
   renderSceneMediaLibraryPage,
+  renderSceneMediaTrashPage,
+  restoreSceneMedia,
   saveSceneMediaDetails,
   serveSceneMediaImageAsset,
 } from './handlers.js';
@@ -22,6 +24,7 @@ import {
 export const sceneMediaRouter = express.Router();
 
 sceneMediaRouter.get('/media-library', renderSceneMediaLibraryPage);
+sceneMediaRouter.get('/media-library/trash', renderSceneMediaTrashPage);
 sceneMediaRouter.get('/media-library/new', renderNewSceneMediaPage);
 sceneMediaRouter.post('/media-library', createSceneMediaFromPrompt);
 sceneMediaRouter.get('/media-library/:mediaId', renderSceneMediaDetailPage);
@@ -37,4 +40,5 @@ sceneMediaRouter.post('/media-library/:mediaId/preview/script/apply', applyScene
 sceneMediaRouter.post('/media-library/:mediaId/preview/discard', discardSceneMediaPreview);
 sceneMediaRouter.get('/media-library/:mediaId/image', serveSceneMediaImageAsset);
 sceneMediaRouter.post('/media-library/:mediaId/archive', archiveSceneMedia);
+sceneMediaRouter.post('/media-library/:mediaId/restore', restoreSceneMedia);
 sceneMediaRouter.post('/media-library/:mediaId/variations', createSceneMediaVariation);

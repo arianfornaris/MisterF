@@ -154,7 +154,9 @@ describe('user scene media repository', () => {
     const {
       archiveUserSceneMediaForProfile,
       createReadyUserSceneMedia,
+      listArchivedUserSceneMediaForProfile,
       listUserSceneMediaForProfile,
+      restoreUserSceneMediaForProfile,
     } = await import('../../src/server/sceneMedia/userMediaRepository.js');
 
     const user = createExternalUser({
@@ -254,5 +256,44 @@ describe('user scene media repository', () => {
       ownerProfileId: ownerProfile.id,
       ownerUserId: user.id,
     })).toEqual([]);
+    expect(listArchivedUserSceneMediaForProfile({
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })).toEqual([
+      expect.objectContaining({
+        archivedAt: expect.any(String),
+        id: media.id,
+        status: 'archived',
+      }),
+    ]);
+    expect(listArchivedUserSceneMediaForProfile({
+      ownerProfileId: otherProfile.id,
+      ownerUserId: user.id,
+    })).toEqual([]);
+
+    expect(restoreUserSceneMediaForProfile({
+      mediaId: media.id,
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })).toBe(true);
+    expect(listArchivedUserSceneMediaForProfile({
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })).toEqual([]);
+    expect(listUserSceneMediaForProfile({
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })).toEqual([
+      expect.objectContaining({
+        archivedAt: null,
+        id: media.id,
+        status: 'ready',
+      }),
+    ]);
+    expect(restoreUserSceneMediaForProfile({
+      mediaId: media.id,
+      ownerProfileId: ownerProfile.id,
+      ownerUserId: user.id,
+    })).toBe(false);
   });
 });

@@ -10,12 +10,14 @@ import {
   handleUpdateResourceFolder,
   handleUpdateResourceShareCollectResults,
   renderResourcesListPage,
+  renderResourceTrashPage,
   renderSharedResourcePage,
 } from './handlers.js';
 
 export const resourcesRouter = express.Router();
 
 resourcesRouter.get('/resources', renderResourcesListPage);
+resourcesRouter.get('/resources/trash', renderResourceTrashPage);
 resourcesRouter.get('/resources/shared/:shareId', renderSharedResourcePage);
 resourcesRouter.post('/resources/shared/:shareId/accept', handleAcceptSharedResourceLink);
 resourcesRouter.get('/resources/folders/:folderId', renderResourcesListPage);

@@ -5,6 +5,7 @@ import {
 import {
   appDocumentTitle,
   buildAppShellContext,
+  formatRelativeTime,
   getHomeAuthMessage,
 } from '../pages/shell.js';
 import {
@@ -27,6 +28,8 @@ import {
   applyUserSceneMediaScript,
   archiveUserSceneMediaForProfile,
   createReadyUserSceneMedia,
+  listArchivedUserSceneMediaForProfile,
+  restoreUserSceneMediaForProfile,
   updateUserSceneMediaTitle,
   type CreateReadyUserSceneMediaInput,
 } from './userMediaRepository.js';
@@ -120,6 +123,37 @@ export function renderSceneMediaLibraryPage(
       profileId: auth.activeProfile.id,
       userId: auth.user.id,
     }).length,
+  });
+}
+
+export function renderSceneMediaTrashPage(
+  request: Request,
+  response: Response,
+): void {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const mediaItems = listArchivedUserSceneMediaForProfile({
+    ownerProfileId: auth.activeProfile.id,
+    ownerUserId: auth.user.id,
+  }).map((item) => ({
+    ...item,
+    relativeArchivedAt: formatRelativeTime(item.archivedAt ?? item.updatedAt ?? ''),
+  }));
+
+  response.render('media-library-trash', {
+    ...buildAppShellContext({
+      activeProfile: auth.activeProfile,
+      authMessage: getHomeAuthMessage(request, auth.user),
+      currentView: 'mediaLibrary',
+      guestInitialGreeting: '',
+      request,
+      title: `${response.locals.t('mediaLibrary.trash')} · ${appDocumentTitle}`,
+      user: auth.user,
+    }),
+    mediaItems,
   });
 }
 
@@ -1083,12 +1117,46 @@ export function archiveSceneMedia(
   const mediaId = typeof request.params.mediaId === 'string'
     ? request.params.mediaId
     : '';
-  archiveUserSceneMediaForProfile({
+  const archived = archiveUserSceneMediaForProfile({
     mediaId,
     ownerProfileId: auth.activeProfile.id,
     ownerUserId: auth.user.id,
   });
+  if (archived) {
+    logger.info('scene_media_archived', {
+      mediaId,
+      profileId: auth.activeProfile.id,
+      userId: auth.user.id,
+    });
+  }
   response.redirect('/media-library');
+}
+
+export function restoreSceneMedia(
+  request: Request,
+  response: Response,
+): void {
+  const auth = ensureVerifiedSceneMediaUser(request, response);
+  if (!auth) {
+    return;
+  }
+
+  const mediaId = typeof request.params.mediaId === 'string'
+    ? request.params.mediaId
+    : '';
+  const restored = restoreUserSceneMediaForProfile({
+    mediaId,
+    ownerProfileId: auth.activeProfile.id,
+    ownerUserId: auth.user.id,
+  });
+  if (restored) {
+    logger.info('scene_media_restored', {
+      mediaId,
+      profileId: auth.activeProfile.id,
+      userId: auth.user.id,
+    });
+  }
+  response.redirect('/media-library/trash');
 }
 
 type SceneMediaCreationForm = {
