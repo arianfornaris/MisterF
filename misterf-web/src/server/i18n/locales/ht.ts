@@ -492,13 +492,13 @@ export const ht: LocaleCatalog = {
     modelHelp: 'Modèl sa a ap itilize nan nouvo konvèsasyon pwofil sa a.',
     modelLite: 'Lite',
     modelLiteDesc:
-      'Pi rapid e pi bon mache a. Li ka gen plis difikilte ak egzèsis entèaktif yo; kou 1x.',
+      'Pi rapid e pi bon mache a. Li ka gen plis difikilte ak egzèsis entèaktif yo. Pri apwoksimatif: 1x.',
     modelRegular: 'Regilye',
     modelRegularDesc:
-      'Rapid e fyab. Ideyal pou pratik regilye ak kou 1x.',
+      'Rapid e fyab. Ideyal pou pratik regilye. Pri apwoksimatif: 3x.',
     modelAdvanced: 'Avanse',
     modelAdvancedDesc:
-      'Opsyon Pro a pou travay ki bezwen plis presizyon.',
+      'Opsyon Pro a pou travay ki bezwen plis presizyon. Pri apwoksimatif: 5x.',
     onbAria: 'Konplete pwofil ou',
     onbKicker: 'Pwofil aprantisaj',
     onbTitle: 'Ede Mr. F konnen ou pi byen',
@@ -911,12 +911,7 @@ export const ht: LocaleCatalog = {
   settings: {
     kicker: 'Kont',
     title: 'Paramèt kont',
-    intro: 'Jere kont ou ak preferans ou.',
-    languageSectionKicker: 'Lang',
-    languageTitle: 'Lang enstriksyon',
-    languageCopy:
-      'Lang entèfas la ak eksplikasyon Mr. F yo pou pwofil aktif la. Anglè w ap pratike a pa chanje.',
-    languageSave: 'Anrejistre lang',
+    intro: 'Jere sekirite kont ou.',
     securityKicker: 'Sekirite',
     passwordTitle: 'Modpas',
     passwordCopy:

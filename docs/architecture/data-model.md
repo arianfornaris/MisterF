@@ -90,6 +90,7 @@ Important fields:
 - `description`
 - `learningContext`
 - `modelTier`
+- `instructionLanguage`
 - `profileOnboardingCompletedAt`
 
 `modelTier` is especially important because it now drives tutor model selection
@@ -102,6 +103,12 @@ are preserved.
 `learningContext` stores learner-authored background for Mr. F, such as goals,
 interests, work or study context, and reasons for learning English. The tutor
 receives it as teacher-only prompt context.
+
+`instructionLanguage` is profile-scoped, not account-scoped. It controls the
+app UI and Mr. F's explanations for the active profile. A new conversation
+copies the profile's current language into its own `instructionLanguage`
+snapshot; changing the profile later affects the UI and future conversations,
+but does not rewrite existing conversation history.
 
 `profileOnboardingCompletedAt` records whether the first-run profile onboarding
 has been saved or intentionally skipped. Existing profiles are marked completed

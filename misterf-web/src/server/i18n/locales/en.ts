@@ -503,13 +503,13 @@ export const en: LocaleCatalog = {
     modelHelp: 'This model will be used in this profile’s new conversations.',
     modelLite: 'Lite',
     modelLiteDesc:
-      'The fastest and cheapest. May struggle more with interactive exercises; 1x cost.',
+      'The fastest and cheapest. May struggle more with interactive exercises. Approx. cost: 1x.',
     modelRegular: 'Regular',
     modelRegularDesc:
-      'Fast and reliable. Ideal for frequent practice at 1x cost.',
+      'Fast and reliable. Ideal for frequent practice. Approx. cost: 3x.',
     modelAdvanced: 'Advanced',
     modelAdvancedDesc:
-      'The Pro option for tasks that need the highest precision.',
+      'The Pro option for tasks that need the highest precision. Approx. cost: 5x.',
     onbAria: 'Complete your profile',
     onbKicker: 'Learning profile',
     onbTitle: 'Help Mr. F get to know you better',
@@ -982,12 +982,7 @@ export const en: LocaleCatalog = {
   settings: {
     kicker: 'Account',
     title: 'Account settings',
-    intro: 'Manage your account and preferences.',
-    languageSectionKicker: 'Language',
-    languageTitle: 'Instruction language',
-    languageCopy:
-      'The language of the interface and of Mr. F’s explanations for the active profile. The English you practice does not change.',
-    languageSave: 'Save language',
+    intro: 'Manage your account security.',
     securityKicker: 'Security',
     passwordTitle: 'Password',
     passwordCopy:

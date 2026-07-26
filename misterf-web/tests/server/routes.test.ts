@@ -126,6 +126,98 @@ describe('main route smoke tests', () => {
     expect(response.headers.get('location')).toBe(location);
   });
 
+  it('keeps instruction language on profile forms for multi-profile accounts', async () => {
+    const { createExternalUser } = await import('../../src/server/auth/repository.js');
+    const {
+      createConversation,
+      createProfile,
+      findConversationForUser,
+      findProfileForUser,
+    } = await import('../../src/server/db/repository.js');
+
+    const user = createExternalUser({
+      email: 'route-profile-language@example.com',
+      emailVerified: true,
+      fullName: 'Route Profile Language',
+      provider: 'google',
+      providerSubject: 'route-profile-language',
+    });
+    const englishProfile = createProfile({
+      instructionLanguage: 'en',
+      name: 'English profile',
+      userId: user.id,
+    });
+    const creoleProfile = createProfile({
+      instructionLanguage: 'ht',
+      name: 'Creole profile',
+      userId: user.id,
+    });
+    const existingConversation = createConversation(user.id, creoleProfile.id);
+    const cookie = await createAuthenticatedCookie(user.id, englishProfile.id);
+
+    const settingsResponse = await fetch(`${baseUrl}/settings`, {
+      headers: { cookie },
+      redirect: 'manual',
+    });
+    const settingsHtml = await settingsResponse.text();
+    expect(settingsResponse.status).toBe(200);
+    expect(settingsHtml).toContain('Manage your account security.');
+    expect(settingsHtml).not.toContain('name="instructionLanguage"');
+    expect(settingsHtml).not.toContain('/settings/language');
+
+    const editResponse = await fetch(
+      `${baseUrl}/profiles/${creoleProfile.id}/edit`,
+      {
+        headers: { cookie },
+        redirect: 'manual',
+      },
+    );
+    const editHtml = await editResponse.text();
+    expect(editResponse.status).toBe(200);
+    expect(editHtml).toContain('name="instructionLanguage"');
+    expect(editHtml).toMatch(
+      /name="instructionLanguage"\s+value="ht"\s+checked/,
+    );
+
+    const retiredSettingsUpdate = await postForm(
+      '/settings/language',
+      {
+        _csrf: extractCsrfToken(editHtml),
+        instructionLanguage: 'es',
+      },
+      cookie,
+    );
+    expect(retiredSettingsUpdate.status).toBe(404);
+
+    const updateResponse = await postForm(
+      `/profiles/${creoleProfile.id}`,
+      {
+        _csrf: extractCsrfToken(editHtml),
+        description: creoleProfile.description,
+        instructionLanguage: 'es',
+        learningContext: creoleProfile.learningContext,
+        modelTier: creoleProfile.modelTier,
+        name: creoleProfile.name,
+      },
+      cookie,
+    );
+    expect(updateResponse.status).toBe(302);
+    expect(updateResponse.headers.get('location')).toBe('/profiles');
+    expect(
+      findProfileForUser(englishProfile.id, user.id)?.instructionLanguage,
+    ).toBe('en');
+    expect(
+      findProfileForUser(creoleProfile.id, user.id)?.instructionLanguage,
+    ).toBe('es');
+    expect(
+      findConversationForUser(existingConversation.id, user.id)
+        ?.instructionLanguage,
+    ).toBe('ht');
+    expect(createConversation(user.id, creoleProfile.id).instructionLanguage).toBe(
+      'es',
+    );
+  });
+
   it('renders and accepts generic live resource share links', async () => {
     const { createExternalUser } = await import('../../src/server/auth/repository.js');
     const {

@@ -1657,17 +1657,6 @@ export function markProfileOnboardingCompleted(input) {
         .run(input.profileId, input.userId);
     return findProfileForUser(input.profileId, input.userId);
 }
-export function updateProfileInstructionLanguageForUser(profileId, userId, instructionLanguage) {
-    getDb()
-        .prepare(`
-        UPDATE profiles
-        SET instruction_language = ?,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND user_id = ?
-      `)
-        .run(instructionLanguage, profileId, userId);
-    return findProfileForUser(profileId, userId);
-}
 export function updateProfileModelTierForUser(profileId, userId, modelTier) {
     getDb()
         .prepare(`

@@ -11,39 +11,6 @@
     </div>
   </div>
 
-  <% if (activeProfile) { %>
-    <section class="app-page-detail-shell">
-      <div class="app-page-section-copy">
-        <p class="app-page-kicker"><%= t('settings.languageSectionKicker') %></p>
-        <div class="card shadow-sm">
-          <div class="card-body">
-            <h2 class="h4 mb-1"><%= t('settings.languageTitle') %></h2>
-            <p class="text-body-secondary">
-              <%= t('settings.languageCopy') %>
-            </p>
-            <form method="post" action="/settings/language" class="d-flex flex-wrap align-items-center gap-3">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <div class="btn-group" role="group" aria-label="<%= t('settings.languageTitle') %>">
-                <% languages.forEach((language) => { %>
-                  <input
-                    class="btn-check"
-                    type="radio"
-                    name="instructionLanguage"
-                    id="settingsLanguage-<%= language.code %>"
-                    value="<%= language.code %>"
-                    <%= activeProfile.instructionLanguage === language.code ? 'checked' : '' %>
-                  >
-                  <label class="btn btn-outline-secondary" for="settingsLanguage-<%= language.code %>"><%= language.endonym %></label>
-                <% }) %>
-              </div>
-              <button type="submit" class="btn btn-primary"><%= t('settings.languageSave') %></button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-  <% } %>
-
   <section class="app-page-detail-shell">
     <div class="app-page-section-copy">
       <p class="app-page-kicker"><%= t('settings.securityKicker') %></p>

@@ -694,16 +694,21 @@ portfolio and governance audit from section 2.1 back into V3.
   gate and credit-exhaustion boundary, deploy through the normal versioning
   flow, and verify the selected model ids and inference outcomes in production
   traces.
-- [ ] Update the model-tier labels/descriptions to match the actual bound
-  models. Added 2026-07-26 (founder observation): the profile model selector's
-  cost hints are stale — both Lite and Regular still read "costo 1x"
-  (`modelLiteDesc`/`modelRegularDesc` in `src/server/i18n/locales/{es,en,ht}.ts`)
-  even though the three tiers (Flash-Lite, Flash, Pro) now have distinct
-  costs. Recompute each tier's relative cost from the selected model's actual
-  input/output pricing (see the price notes above) and update the copy across
-  es/en/ht so the label reflects the model currently in effect for that tier,
-  rather than a hard-coded multiplier. Confirm the wording stays correct if the
-  bound model ids change.
+- [x] Fix the comparative cost label in the profile model selector. Added
+  2026-07-26 (founder observation): both Lite and Regular read "costo 1x"
+  (`modelLiteDesc`/`modelRegularDesc` in `src/server/i18n/locales/{es,en,ht}.ts`),
+  so the comparison between tiers was wrong now that the three levels have
+  distinct costs. Scope is intentionally narrow — adjust only this learner-facing
+  comparison; do **not** expose model ids or real prices in the profile UI (those
+  belong to `/superadmin`). Done 2026-07-26: the tier descriptions now carry a
+  corrected relative-cost comparison across es/en/ht — Lite 1x, Regular ~3x,
+  Advanced ~5x — derived from the combined input+output list price per 1M tokens
+  of the bound models ($0.30+$2.50=$2.80 Flash-Lite → 1x; $1.50+$7.50=$9.00
+  Flash → 3.2x; $2.00+$12.00=$14.00 Pro → 5.0x). An earlier pass had briefly
+  added the raw
+  model id and per-million list price to each profile radio; that learner-facing
+  disclosure was reverted (founder direction) back to the simple three-radio
+  layout, and its backend (`buildProfileModelTierOptions`) and tests removed.
 
 References:
 
@@ -723,16 +728,25 @@ field). Both write `instructionLanguage`, so the same setting surfaces twice and
 the relationship between "the account's language" and "the profile's language"
 is ambiguous to the user.
 
-- [ ] Map exactly what each control writes and reads today: whether the Settings
+- [x] Map exactly what each control writes and reads today: whether the Settings
   form edits the active profile's `instructionLanguage` or a separate
   account/user-level value, how the two interact when a user has multiple
-  profiles, and which one wins on new conversations.
-- [ ] Decide the intended model — instruction language as a per-profile setting,
+  profiles, and which one wins on new conversations. Done 2026-07-26: there is
+  no account-level language field. Both controls wrote the active profile's
+  `profiles.instruction_language`; each new conversation snapshots that
+  profile value into `conversations.instruction_language`, while existing
+  conversations retain their original language.
+- [x] Decide the intended model — instruction language as a per-profile setting,
   an account-level default, or both with a clear precedence — and where it
-  should live in the UI so it is not duplicated confusingly.
-- [ ] Reconcile the surfaces per that decision (remove or relabel the redundant
+  should live in the UI so it is not duplicated confusingly. Done 2026-07-26:
+  instruction language remains a per-profile preference and lives with the
+  other profile-specific tutor preferences on the profile form.
+- [x] Reconcile the surfaces per that decision (remove or relabel the redundant
   control), keeping es/en/ht copy consistent, and verify the change end to end
-  for single- and multi-profile accounts.
+  for single- and multi-profile accounts. Done 2026-07-26: the duplicate
+  Settings control and write route were removed; profile editing remains the
+  single authenticated path. Repository and HTTP coverage verify independent
+  profile values and new-conversation snapshot behavior.
 
 ---
 
