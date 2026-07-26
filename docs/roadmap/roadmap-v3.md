@@ -658,20 +658,31 @@ portfolio and governance audit from section 2.1 back into V3.
     Google Pro id only after checking its lifecycle status, structured-output
     reliability, latency, and cost; do not bind the product tier permanently to
     a preview or rolling alias without recording that trade-off.
-- [ ] Prepare the compatibility change required by the newest text models.
+  Implementation selection recorded 2026-07-26: Lite uses
+  `google/gemini-3.5-flash-lite`, Regular uses
+  `google/gemini-3.6-flash`, and Advanced uses the exact current Pro id
+  `google/gemini-3.1-pro-preview`. The Pro choice is explicitly temporary
+  because Google still classifies it as preview; the first section of
+  `/superadmin` exposes the effective ids and lifecycle state.
+- [x] Prepare the compatibility change required by the newest text models.
   Google 3.6 Flash and 3.5 Flash-Lite deprecate and ignore `temperature`,
   `top_p`, and `top_k`, with future generations expected to reject them.
-  Mister F's `shouldUseTemperature` currently enables a custom temperature for
-  every Gemini model. Update that policy so the new model generation receives
-  no deprecated sampling parameters, add focused provider-policy tests, and
-  confirm no request ends with a prefilled assistant/model turn.
-- [ ] Reduce the application model-tier shape from four levels to three. Keep
+  Done 2026-07-26: `shouldUseTemperature` now omits the parameter for all
+  Gemini 3.x ids, with focused provider-policy coverage. The request builders
+  were checked: initial and correction requests end in a user turn, including
+  block repair.
+- [x] Reduce the application model-tier shape from four levels to three. Keep
   the existing persisted discriminators `lite`, `regular`, and `advanced`,
   mapping them to Flash-Lite, Flash, and Pro respectively; remove Max from the
   UI and normalize historical `max` profile/conversation values to `advanced`
   at the compatibility boundary. Remove `LLM_MODEL_MAX` and the Max fallback
   chain only after legacy values are covered. Update model-tier controls,
-  configuration, types, and tests together.
+  configuration, types, and tests together. Done 2026-07-26: the server and
+  browser normalizers map legacy `max` to `advanced`, repository row mapping
+  covers existing persisted values, and the profile form/configuration expose
+  only the three active tiers. Lite is the default for new profiles,
+  conversations, and requests without an explicit tier; existing selections
+  remain unchanged.
 - [ ] Compare representative operations at all three levels for structured
   contract success, correction-call rate, latency, token use, and effective
   cost. Automated tests must mock inference; record the live comparison

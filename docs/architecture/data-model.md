@@ -92,7 +92,12 @@ Important fields:
 - `modelTier`
 - `profileOnboardingCompletedAt`
 
-`modelTier` is especially important because it now drives tutor model selection from the profile rather than from a per-chat UI selector.
+`modelTier` is especially important because it now drives tutor model selection
+from the profile rather than from a per-chat UI selector. Its active values are
+`lite`, `regular`, and `advanced`, mapped to the configured Flash-Lite, Flash,
+and Pro model ids. Historical `max` values are normalized to `advanced` at the
+repository boundary. New profiles default to `lite`; existing profile choices
+are preserved.
 
 `learningContext` stores learner-authored background for Mr. F, such as goals,
 interests, work or study context, and reasons for learning English. The tutor

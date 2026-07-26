@@ -1,11 +1,16 @@
 import { t } from '../../shared/i18n.js';
-import { normalizeModelTier } from '../utils/modelTier.js';
+import {
+  DEFAULT_MODEL_TIER,
+  normalizeModelTier,
+} from '../utils/modelTier.js';
 
 export class ComposerView {
   constructor({ composerEl, inputEl, initialModelTier, sendButtonEl }) {
     this.composerEl = composerEl;
     this.inputEl = inputEl;
-    this.selectedModelTier = normalizeModelTier(initialModelTier || 'regular');
+    this.selectedModelTier = normalizeModelTier(
+      initialModelTier || DEFAULT_MODEL_TIER,
+    );
     this.sendButtonEl = sendButtonEl;
   }
 

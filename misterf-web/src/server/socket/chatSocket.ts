@@ -34,6 +34,7 @@ import {
 } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
 import {
+  defaultProfileModelTier,
   normalizeProfileModelTier,
   type ProfileModelTier,
 } from '../profiles/modelTier.js';
@@ -1487,7 +1488,7 @@ async function streamAssistantMessage(
   userId: string,
   lastUserMessageId?: number,
   extraHistory: TutorMessage[] = [],
-  modelTier: ProfileModelTier = 'regular',
+  modelTier: ProfileModelTier = defaultProfileModelTier,
 ): Promise<void> {
   if (runningConversations.has(conversationId)) {
     return;

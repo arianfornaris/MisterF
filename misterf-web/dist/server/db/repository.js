@@ -1,4 +1,5 @@
 import { randomBytes, randomUUID } from 'node:crypto';
+import { defaultProfileModelTier, normalizeProfileModelTier, } from '../profiles/modelTier.js';
 import { getDb } from './database.js';
 const defaultConversationTitle = 'Nueva conversación';
 const defaultProfileName = 'Perfil principal';
@@ -6,7 +7,7 @@ function toStoredProfile(row) {
     return {
         id: row.id,
         userId: row.user_id,
-        modelTier: row.model_tier,
+        modelTier: normalizeProfileModelTier(row.model_tier),
         name: row.name,
         description: row.description,
         learningContext: row.learning_context,
@@ -23,7 +24,7 @@ function toStoredConversation(row) {
         practiceGuideId: row.practice_guide_id,
         id: row.id,
         instructionLanguage: row.instruction_language,
-        modelTier: row.model_tier,
+        modelTier: normalizeProfileModelTier(row.model_tier),
         profileId: row.profile_id,
         title: row.title,
         titleUpdatedByUser: Boolean(row.title_updated_by_user),
@@ -1542,7 +1543,7 @@ export function createProfile(input) {
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `)
-        .run(id, input.userId, input.name, input.description ?? '', input.learningContext ?? '', input.modelTier ?? 'regular', input.instructionLanguage ?? 'es', input.profileOnboardingCompleted === false ? null : new Date().toISOString());
+        .run(id, input.userId, input.name, input.description ?? '', input.learningContext ?? '', input.modelTier ?? defaultProfileModelTier, input.instructionLanguage ?? 'es', input.profileOnboardingCompleted === false ? null : new Date().toISOString());
     const profile = findProfileForUser(id, input.userId);
     if (!profile) {
         throw new Error('Could not load newly created profile.');
@@ -1681,7 +1682,7 @@ export function updateProfileModelTierForUser(profileId, userId, modelTier) {
 export function createConversation(userId, profileId, title = defaultConversationTitle, options = {}) {
     const id = randomUUID();
     const profile = findProfileById(profileId);
-    const modelTier = options.modelTier ?? profile?.modelTier ?? 'regular';
+    const modelTier = options.modelTier ?? profile?.modelTier ?? defaultProfileModelTier;
     const instructionLanguage = profile?.instructionLanguage ?? 'es';
     getDb()
         .prepare(`

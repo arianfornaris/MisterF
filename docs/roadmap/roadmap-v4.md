@@ -499,6 +499,25 @@ correct block content; the previously proposed minimal V3 editor will not ship.
 - [ ] Cover each item-kind editor and section operation with service and
   route/render tests.
 
+## 1.8 Master Chat (Idea To Consider)
+
+Added 2026-07-26 as an exploratory V4 idea. Consider a **Master Chat** through
+which an authorized user — presumably a teacher — can manage the site's
+content conversationally by using a dedicated set of tools.
+
+- [ ] Explore the product shape and validate the teacher use case before
+  committing implementation scope. The chat could provide one place to find,
+  create, organize, update, share, and archive resources and other
+  teacher-owned content without navigating each authoring surface separately.
+- [ ] Define a safe tool and permission model. The assistant must act only
+  within the user's existing authorization boundaries, distinguish read
+  operations from mutations, preview consequential changes before applying
+  them, and leave an auditable record of tool actions.
+- [ ] Decide which content types and operations belong in the first viable
+  version, how the Master Chat reuses existing deterministic services instead
+  of duplicating business logic, and when it should hand the user off to a
+  dedicated visual editor.
+
 ---
 
 # Part 2: Engineering And Quality

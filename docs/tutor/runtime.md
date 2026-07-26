@@ -559,9 +559,13 @@ The tutor model tier is driven from the active profile.
 
 Current tiers include:
 
+- `lite`
 - `regular`
 - `advanced`
-- `max`
+
+These map to the configured Flash-Lite, Flash, and Pro model ids. Historical
+`max` values are normalized to `advanced` when profiles and conversations are
+read. `lite` is the default when no tier has been selected explicitly.
 
 The conversation model tier is synchronized with the profile when a conversation is joined or used, which keeps the runtime aligned with the profile form.
 

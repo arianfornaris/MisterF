@@ -1,11 +1,9 @@
 import type { Request, Response } from 'express';
 import { translate } from '../i18n/index.js';
 import express from 'express';
-import { env } from '../config/env.js';
 import {
   findUserForSuperadmin,
   listUsersForSuperadmin,
-  normalizeEmail,
   type SuperadminUser,
 } from '../auth/repository.js';
 import {
@@ -15,6 +13,11 @@ import {
   type OpenRouterRemoteKeyInfo,
   type OpenRouterUserKeyRecord,
 } from '../services/openRouterUserKeys.js';
+import { requireSuperadmin } from './access.js';
+import {
+  getSuperadminModelLevels,
+  type SuperadminModelLevel,
+} from './models.js';
 
 export const superadminRouter = express.Router();
 
@@ -29,6 +32,7 @@ type SuperadminViewBase = {
   formatDate: (value?: string | null) => string;
   formatMoney: (value?: number | null) => string;
   keyRecord: OpenRouterUserKeyRecord | null;
+  modelLevels: SuperadminModelLevel[];
   mode: 'list' | 'detail';
   openRouterInfo: OpenRouterRemoteKeyInfo | null;
   remoteError: string;
@@ -138,23 +142,6 @@ export async function handleOpenRouterKeyUpdate(
   }
 }
 
-function requireSuperadmin(request: Request, response: Response): boolean {
-  if (!request.authUser) {
-    response.redirect('/login');
-    return false;
-  }
-
-  if (
-    !env.superadminEmail ||
-    normalizeEmail(request.authUser.email) !== env.superadminEmail
-  ) {
-    response.status(403).send(translate(request.locale, 'superadmin.noPermission'));
-    return false;
-  }
-
-  return true;
-}
-
 function buildViewData(
   request: Request,
   response: Response,
@@ -169,6 +156,7 @@ function buildViewData(
     error: readQueryString(request.query.error),
     formatDate,
     formatMoney,
+    modelLevels: getSuperadminModelLevels(),
     success: readQueryString(request.query.success),
     users: listUsersForSuperadmin(),
   };

@@ -1,15 +1,21 @@
+export const DEFAULT_MODEL_TIER = 'lite';
+
 export function normalizeModelTier(value) {
   if (value === 'lite') {
     return 'lite';
   }
 
   if (value === 'max') {
-    return 'max';
+    return 'advanced';
   }
 
   if (value === 'advanced') {
     return 'advanced';
   }
 
-  return 'regular';
+  if (value === 'regular') {
+    return 'regular';
+  }
+
+  return DEFAULT_MODEL_TIER;
 }

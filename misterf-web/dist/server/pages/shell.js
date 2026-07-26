@@ -3,6 +3,7 @@ import { hasKnownVisitorCookie } from '../auth/session.js';
 import { pickInitialGreeting, pickKnownVisitorGreeting, } from '../socket/initialGreetings.js';
 import { listConversationsForProfile, } from '../db/repository.js';
 import { env } from '../config/env.js';
+import { defaultProfileModelTier } from '../profiles/modelTier.js';
 export const appDocumentTitle = 'Mr. F, tutor de inglés';
 const spanishRelativeTimeFormatter = new Intl.RelativeTimeFormat('es', {
     numeric: 'always',
@@ -89,7 +90,7 @@ export function buildAppShellContext(input) {
     const socketAuthToken = input.user && isAuthenticated ? createSocketAuthToken(input.user) : '';
     return {
         activeProfile: input.activeProfile,
-        activeProfileModelTier: input.activeProfile?.modelTier ?? 'regular',
+        activeProfileModelTier: input.activeProfile?.modelTier ?? defaultProfileModelTier,
         authMessage: input.authMessage,
         chatMode: 'tutor',
         conversations: input.user && input.activeProfile

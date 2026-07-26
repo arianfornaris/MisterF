@@ -1,4 +1,6 @@
-export type ProfileModelTier = 'advanced' | 'lite' | 'max' | 'regular';
+export type ProfileModelTier = 'advanced' | 'lite' | 'regular';
+
+export const defaultProfileModelTier: ProfileModelTier = 'lite';
 
 export function normalizeProfileModelTier(value: unknown): ProfileModelTier {
   if (value === 'lite') {
@@ -6,12 +8,16 @@ export function normalizeProfileModelTier(value: unknown): ProfileModelTier {
   }
 
   if (value === 'max') {
-    return 'max';
+    return 'advanced';
   }
 
   if (value === 'advanced') {
     return 'advanced';
   }
 
-  return 'regular';
+  if (value === 'regular') {
+    return 'regular';
+  }
+
+  return defaultProfileModelTier;
 }

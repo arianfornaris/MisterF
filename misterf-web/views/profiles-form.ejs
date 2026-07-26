@@ -34,7 +34,7 @@
   >
     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <input type="hidden" name="returnTo" value="/profiles">
-    <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'regular'; %>
+    <% const selectedModelTier = profilePageMode === 'edit' && selectedProfile ? selectedProfile.modelTier : 'lite'; %>
     <% const selectedInstructionLanguage = profilePageMode === 'edit' && selectedProfile
       ? selectedProfile.instructionLanguage
       : (activeProfile ? activeProfile.instructionLanguage : 'es'); %>
@@ -129,7 +129,7 @@
             type="radio"
             name="modelTier"
             value="regular"
-            <%= selectedModelTier !== 'lite' && selectedModelTier !== 'advanced' && selectedModelTier !== 'max' ? 'checked' : '' %>
+            <%= selectedModelTier === 'regular' ? 'checked' : '' %>
           >
           <span class="d-block">
             <span class="fw-semibold d-block"><%= t('profiles.modelRegular') %></span>
@@ -151,19 +151,6 @@
           </span>
         </label>
 
-        <label class="list-group-item d-flex gap-3">
-          <input
-            class="form-check-input flex-shrink-0 mt-1"
-            type="radio"
-            name="modelTier"
-            value="max"
-            <%= selectedModelTier === 'max' ? 'checked' : '' %>
-          >
-          <span class="d-block">
-            <span class="fw-semibold d-block"><%= t('profiles.modelMax') %></span>
-            <small class="text-body-secondary"><%= t('profiles.modelMaxDesc') %></small>
-          </span>
-        </label>
       </div>
     </fieldset>
 

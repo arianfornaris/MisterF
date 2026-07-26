@@ -1,6 +1,10 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { Locale } from '../i18n/index.js';
-import type { ProfileModelTier } from '../profiles/modelTier.js';
+import {
+  defaultProfileModelTier,
+  normalizeProfileModelTier,
+  type ProfileModelTier,
+} from '../profiles/modelTier.js';
 import { getDb } from './database.js';
 
 export type MessageRole = 'user' | 'model';
@@ -378,7 +382,7 @@ export type StoredTutorPlan = {
 type ProfileRow = {
   id: string;
   user_id: string;
-  model_tier: ProfileModelTier;
+  model_tier: string;
   name: string;
   description: string;
   learning_context: string;
@@ -410,7 +414,7 @@ type ConversationRow = {
   practice_guide_id: string | null;
   id: string;
   instruction_language: Locale;
-  model_tier: ProfileModelTier;
+  model_tier: string;
   profile_id: string;
   title: string;
   title_updated_by_user: number;
@@ -657,7 +661,7 @@ function toStoredProfile(row: ProfileRow): StoredProfile {
   return {
     id: row.id,
     userId: row.user_id,
-    modelTier: row.model_tier,
+    modelTier: normalizeProfileModelTier(row.model_tier),
     name: row.name,
     description: row.description,
     learningContext: row.learning_context,
@@ -675,7 +679,7 @@ function toStoredConversation(row: ConversationRow): StoredConversation {
     practiceGuideId: row.practice_guide_id,
     id: row.id,
     instructionLanguage: row.instruction_language,
-    modelTier: row.model_tier,
+    modelTier: normalizeProfileModelTier(row.model_tier),
     profileId: row.profile_id,
     title: row.title,
     titleUpdatedByUser: Boolean(row.title_updated_by_user),
@@ -2666,7 +2670,7 @@ export function createProfile(input: {
       input.name,
       input.description ?? '',
       input.learningContext ?? '',
-      input.modelTier ?? 'regular',
+      input.modelTier ?? defaultProfileModelTier,
       input.instructionLanguage ?? 'es',
       input.profileOnboardingCompleted === false ? null : new Date().toISOString(),
     );
@@ -2884,7 +2888,8 @@ export function createConversation(
 ): StoredConversation {
   const id = randomUUID();
   const profile = findProfileById(profileId);
-  const modelTier = options.modelTier ?? profile?.modelTier ?? 'regular';
+  const modelTier =
+    options.modelTier ?? profile?.modelTier ?? defaultProfileModelTier;
   const instructionLanguage = profile?.instructionLanguage ?? 'es';
   getDb()
     .prepare(

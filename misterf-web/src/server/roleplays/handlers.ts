@@ -31,6 +31,7 @@ import {
   type StoredRoleplayAttempt,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import {
   appDocumentTitle,
   buildAbsoluteAppUrl,
@@ -916,7 +917,8 @@ export async function handleStartRoleplayAttempt(
     const openingTurn = await generateOpeningRoleplayTurn({
       draft,
       llm: {
-        modelTier: resolved.activeProfile.modelTier ?? 'regular',
+        modelTier:
+          resolved.activeProfile.modelTier ?? defaultProfileModelTier,
         openRouterApiKey,
         userId: resolved.user.id,
       },
@@ -998,7 +1000,7 @@ export async function handleStartSharedRoleplayAttempt(
     const openingTurn = await generateOpeningRoleplayTurn({
       draft,
       llm: {
-        modelTier: activeProfile.modelTier ?? 'regular',
+        modelTier: activeProfile.modelTier ?? defaultProfileModelTier,
         openRouterApiKey,
         userId: user.id,
       },
@@ -1140,7 +1142,8 @@ export async function handleSubmitRoleplayTurn(
       attempt: attemptWithLearnerTurn,
       draft,
       llm: {
-        modelTier: request.activeProfile?.modelTier ?? 'regular',
+        modelTier:
+          request.activeProfile?.modelTier ?? defaultProfileModelTier,
         openRouterApiKey,
         userId: attempt.userId ?? undefined,
       },
@@ -1223,7 +1226,8 @@ export async function handleFinishRoleplayAttempt(
       draft,
       instructionLanguage: request.activeProfile?.instructionLanguage,
       llm: {
-        modelTier: request.activeProfile?.modelTier ?? 'regular',
+        modelTier:
+          request.activeProfile?.modelTier ?? defaultProfileModelTier,
         openRouterApiKey,
         userId: attempt.userId ?? undefined,
       },

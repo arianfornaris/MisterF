@@ -18,6 +18,7 @@ import {
   logLlmResponse,
 } from './llmTutor/logging.js';
 import type { LlmRequestOptions } from './llmTutor/types.js';
+import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { logger } from './logger.js';
@@ -380,7 +381,7 @@ async function generateStructuredRoleplayOutput<T>(input: {
   systemPromptVariables?: Record<string, string>;
   userPayload: Record<string, unknown>;
 }): Promise<T> {
-  const modelTier = input.llm.modelTier ?? 'regular';
+  const modelTier = input.llm.modelTier ?? defaultProfileModelTier;
   const system = renderSystemPrompt(
     input.systemPromptPath,
     input.systemPromptVariables,

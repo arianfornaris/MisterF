@@ -3,7 +3,7 @@ import { getSessionTokenFromCookieHeader, hashSessionToken, } from '../auth/sess
 import { verifySocketAuthToken } from '../auth/socketAuth.js';
 import { addMessage, ensureUserHasProfile, createConversation, deleteConversationForUser, deleteConversationTutorPlan, findConversationForUser, findProfileForUser, getConversationQuizAttemptSnapshot, getConversationPracticeGuideSnapshot, getConversationRoleplayAttemptSnapshot, getConversationTutorPlan, getConversationTutorReportSnapshot, findMessageInConversation, listMessages, renameConversationForUser, updateConversationModelTierForUser, updateMessageMetadata, } from '../db/repository.js';
 import { getActiveProfileIdFromCookieHeader } from '../auth/profiles.js';
-import { normalizeProfileModelTier, } from '../profiles/modelTier.js';
+import { defaultProfileModelTier, normalizeProfileModelTier, } from '../profiles/modelTier.js';
 import { pickInitialGreeting } from './initialGreetings.js';
 import { toTutorHistory } from '../services/llmTutor/history.js';
 import { normalizeConversationTitle } from '../services/llmTutor/conversationTitles.js';
@@ -979,7 +979,7 @@ async function getLlmRequestOptionsForUser(userId) {
         userId,
     };
 }
-async function streamAssistantMessage(io, conversationId, userId, lastUserMessageId, extraHistory = [], modelTier = 'regular') {
+async function streamAssistantMessage(io, conversationId, userId, lastUserMessageId, extraHistory = [], modelTier = defaultProfileModelTier) {
     if (runningConversations.has(conversationId)) {
         return;
     }

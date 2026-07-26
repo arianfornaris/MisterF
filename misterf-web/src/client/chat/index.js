@@ -7,7 +7,10 @@ import { ChatSocketClient } from './socket/ChatSocketClient.js';
 import { registerChatSocketHandlers } from './socket/registerChatSocketHandlers.js';
 import { disableTextAssist } from './utils/textAssist.js';
 import { formatConversationDates } from './utils/dates.js';
-import { normalizeModelTier } from './utils/modelTier.js';
+import {
+  DEFAULT_MODEL_TIER,
+  normalizeModelTier,
+} from './utils/modelTier.js';
 import { consumeGuestDraft, getGuestDraft, preserveGuestDraft } from './utils/storage.js';
 import { ComposerView } from './ui/ComposerView.js';
 import { ConversationListView } from './ui/ConversationListView.js';
@@ -86,7 +89,9 @@ const isInitiallyAuthenticated = document.body.dataset.authenticated === 'true';
 const chatMode = 'tutor';
 const socketAuthToken = document.body.dataset.socketAuthToken || '';
 const guestInitialGreeting = document.body.dataset.guestInitialGreeting || '';
-const defaultModelTier = normalizeModelTier(document.body.dataset.activeProfileModelTier || 'regular');
+const defaultModelTier = normalizeModelTier(
+  document.body.dataset.activeProfileModelTier || DEFAULT_MODEL_TIER,
+);
 const initialConversationId =
   document.body.dataset.initialConversationId?.trim() || '';
 const shouldInitializeSocket = isInitiallyAuthenticated;

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  defaultProfileModelTier,
   normalizeProfileModelTier,
 } from '../../src/server/profiles/modelTier.js';
 
@@ -8,7 +9,6 @@ const MODEL_ENV_VARS = [
   'LLM_MODEL_LITE',
   'LLM_MODEL_REGULAR',
   'LLM_MODEL_ADVANCED',
-  'LLM_MODEL_MAX',
 ] as const;
 const STORAGE_ENV_VARS = [
   'DO_SPACES_ENDPOINT',
@@ -48,19 +48,23 @@ async function loadEnvWith(
 }
 
 describe('normalizeProfileModelTier', () => {
-  it('accepts every ladder tier', () => {
+  it('accepts every active ladder tier', () => {
     expect(normalizeProfileModelTier('lite')).toBe('lite');
     expect(normalizeProfileModelTier('regular')).toBe('regular');
     expect(normalizeProfileModelTier('advanced')).toBe('advanced');
-    expect(normalizeProfileModelTier('max')).toBe('max');
   });
 
-  it('coerces unknown values to regular', () => {
-    expect(normalizeProfileModelTier(undefined)).toBe('regular');
-    expect(normalizeProfileModelTier(null)).toBe('regular');
-    expect(normalizeProfileModelTier('')).toBe('regular');
-    expect(normalizeProfileModelTier('ultra')).toBe('regular');
-    expect(normalizeProfileModelTier(42)).toBe('regular');
+  it('maps the retired max tier to advanced', () => {
+    expect(normalizeProfileModelTier('max')).toBe('advanced');
+  });
+
+  it('defaults unknown values to lite', () => {
+    expect(defaultProfileModelTier).toBe('lite');
+    expect(normalizeProfileModelTier(undefined)).toBe('lite');
+    expect(normalizeProfileModelTier(null)).toBe('lite');
+    expect(normalizeProfileModelTier('')).toBe('lite');
+    expect(normalizeProfileModelTier('ultra')).toBe('lite');
+    expect(normalizeProfileModelTier(42)).toBe('lite');
   });
 });
 
@@ -70,23 +74,11 @@ describe('model env fallback chain', () => {
       LLM_MODEL_LITE: 'vendor/lite-model',
       LLM_MODEL_REGULAR: 'vendor/regular-model',
       LLM_MODEL_ADVANCED: 'vendor/advanced-model',
-      LLM_MODEL_MAX: 'vendor/max-model',
     });
 
     expect(env.llmLiteModel).toBe('vendor/lite-model');
     expect(env.llmRegularModel).toBe('vendor/regular-model');
     expect(env.llmAdvancedModel).toBe('vendor/advanced-model');
-    expect(env.llmMaxModel).toBe('vendor/max-model');
-  });
-
-  it('falls back lite -> regular and advanced/max -> lower tiers', async () => {
-    const { env } = await loadEnvWith({
-      LLM_MODEL_REGULAR: 'vendor/regular-model',
-    });
-
-    expect(env.llmLiteModel).toBe('vendor/regular-model');
-    expect(env.llmAdvancedModel).toBe('vendor/regular-model');
-    expect(env.llmMaxModel).toBe('vendor/regular-model');
   });
 
   it('falls back to LLM_MODEL for every tier', async () => {
@@ -97,17 +89,14 @@ describe('model env fallback chain', () => {
     expect(env.llmLiteModel).toBe('vendor/single-model');
     expect(env.llmRegularModel).toBe('vendor/single-model');
     expect(env.llmAdvancedModel).toBe('vendor/single-model');
-    expect(env.llmMaxModel).toBe('vendor/single-model');
   });
 
-  it('has a built-in default for every tier with no variables set', async () => {
+  it('has the three-model Google portfolio as its built-in default', async () => {
     const { env } = await loadEnvWith({});
 
-    expect(env.llmLiteModel).not.toBe('');
-    expect(env.llmRegularModel).not.toBe('');
-    expect(env.llmAdvancedModel).not.toBe('');
-    expect(env.llmMaxModel).not.toBe('');
-    expect(env.llmLiteModel).toBe(env.llmRegularModel);
+    expect(env.llmLiteModel).toBe('google/gemini-3.5-flash-lite');
+    expect(env.llmRegularModel).toBe('google/gemini-3.6-flash');
+    expect(env.llmAdvancedModel).toBe('google/gemini-3.1-pro-preview');
   });
 });
 
@@ -170,7 +159,6 @@ describe('getConfiguredModelId tier mapping', () => {
       LLM_MODEL_LITE: 'vendor/lite-model',
       LLM_MODEL_REGULAR: 'vendor/regular-model',
       LLM_MODEL_ADVANCED: 'vendor/advanced-model',
-      LLM_MODEL_MAX: 'vendor/max-model',
     });
     const { getConfiguredModelId } = await import(
       '../../src/server/services/llmTutor/providers.js'
@@ -179,8 +167,7 @@ describe('getConfiguredModelId tier mapping', () => {
     expect(getConfiguredModelId({ modelTier: 'lite' })).toBe('vendor/lite-model');
     expect(getConfiguredModelId({ modelTier: 'regular' })).toBe('vendor/regular-model');
     expect(getConfiguredModelId({ modelTier: 'advanced' })).toBe('vendor/advanced-model');
-    expect(getConfiguredModelId({ modelTier: 'max' })).toBe('vendor/max-model');
-    expect(getConfiguredModelId()).toBe('vendor/regular-model');
+    expect(getConfiguredModelId()).toBe('vendor/lite-model');
   });
 
   it('lets an explicit modelId override the tier', async () => {
@@ -194,5 +181,32 @@ describe('getConfiguredModelId tier mapping', () => {
     expect(
       getConfiguredModelId({ modelId: 'vendor/explicit-model', modelTier: 'lite' }),
     ).toBe('vendor/explicit-model');
+  });
+});
+
+describe('temperature policy', () => {
+  it('omits temperature for every configured Gemini 3 tier', async () => {
+    await loadEnvWith({
+      LLM_MODEL_LITE: 'google/gemini-3.5-flash-lite',
+      LLM_MODEL_REGULAR: 'google/gemini-3.6-flash',
+      LLM_MODEL_ADVANCED: 'google/gemini-3.1-pro-preview',
+    });
+    const { shouldUseTemperature } = await import(
+      '../../src/server/services/llmTutor/providers.js'
+    );
+
+    expect(shouldUseTemperature({ modelTier: 'lite' })).toBe(false);
+    expect(shouldUseTemperature({ modelTier: 'regular' })).toBe(false);
+    expect(shouldUseTemperature({ modelTier: 'advanced' })).toBe(false);
+  });
+
+  it('preserves the existing policy for older Gemini and GPT-5 models', async () => {
+    await loadEnvWith({});
+    const { shouldUseTemperature } = await import(
+      '../../src/server/services/llmTutor/providers.js'
+    );
+
+    expect(shouldUseTemperature({ modelId: 'google/gemini-2.5-flash' })).toBe(true);
+    expect(shouldUseTemperature({ modelId: 'openai/gpt-5-mini' })).toBe(false);
   });
 });

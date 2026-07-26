@@ -11,6 +11,7 @@ import {
   type StoredProfile,
 } from '../db/repository.js';
 import { env } from '../config/env.js';
+import { defaultProfileModelTier } from '../profiles/modelTier.js';
 
 export const appDocumentTitle = 'Mr. F, tutor de inglés';
 
@@ -140,7 +141,8 @@ export function buildAppShellContext(input: {
 
   return {
     activeProfile: input.activeProfile,
-    activeProfileModelTier: input.activeProfile?.modelTier ?? 'regular',
+    activeProfileModelTier:
+      input.activeProfile?.modelTier ?? defaultProfileModelTier,
     authMessage: input.authMessage,
     chatMode: 'tutor',
     conversations:

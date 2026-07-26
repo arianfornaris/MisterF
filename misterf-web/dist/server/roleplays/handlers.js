@@ -3,6 +3,7 @@ import { translate } from '../i18n/index.js';
 import QRCode from 'qrcode';
 import { addResourceToFolder, appendRoleplayAttemptTurns, createConversationFromRoleplayAttempt, createRoleplay, createRoleplayAttempt, findProfileById, findProfileForUser, findResourceAccessForProfile, findResourceFolderForResource, findResourceShareLinkById, findRoleplayAttemptById, findRoleplayById, findRoleplayForUser, getOrCreateResourceShareLink, grantResourceAccess, listResourceFolderPathForResource, listResourceFoldersForProfile, listRoleplayAttemptsForUser, markRoleplayAttemptFailed, saveRoleplayAttemptResult, submitRoleplayAttempt, updateRoleplay, } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import { appDocumentTitle, buildAbsoluteAppUrl, buildAppShellContext, formatRelativeTime, getHomeAuthMessage, } from '../pages/shell.js';
 import { countLearnerTurns, createRoleplayDraftFromManualInput, evaluateRoleplayAttempt, generateOpeningRoleplayTurn, generateNextRoleplayTurn, getAiCharacter, getLearnerCharacter, roleplayLevelOptions, roleplayEvaluationResultSchema, safeParseRoleplayDraft, storedRoleplayToDraft, } from '../services/roleplays.js';
 import { generateRoleplayDraft, generateRoleplayRevision, } from '../services/resourceDrafts.js';
@@ -660,7 +661,7 @@ export async function handleStartRoleplayAttempt(request, response) {
         const openingTurn = await generateOpeningRoleplayTurn({
             draft,
             llm: {
-                modelTier: resolved.activeProfile.modelTier ?? 'regular',
+                modelTier: resolved.activeProfile.modelTier ?? defaultProfileModelTier,
                 openRouterApiKey,
                 userId: resolved.user.id,
             },
@@ -734,7 +735,7 @@ export async function handleStartSharedRoleplayAttempt(request, response) {
         const openingTurn = await generateOpeningRoleplayTurn({
             draft,
             llm: {
-                modelTier: activeProfile.modelTier ?? 'regular',
+                modelTier: activeProfile.modelTier ?? defaultProfileModelTier,
                 openRouterApiKey,
                 userId: user.id,
             },
@@ -856,7 +857,7 @@ export async function handleSubmitRoleplayTurn(request, response) {
             attempt: attemptWithLearnerTurn,
             draft,
             llm: {
-                modelTier: request.activeProfile?.modelTier ?? 'regular',
+                modelTier: request.activeProfile?.modelTier ?? defaultProfileModelTier,
                 openRouterApiKey,
                 userId: attempt.userId ?? undefined,
             },
@@ -931,7 +932,7 @@ export async function handleFinishRoleplayAttempt(request, response) {
             draft,
             instructionLanguage: request.activeProfile?.instructionLanguage,
             llm: {
-                modelTier: request.activeProfile?.modelTier ?? 'regular',
+                modelTier: request.activeProfile?.modelTier ?? defaultProfileModelTier,
                 openRouterApiKey,
                 userId: attempt.userId ?? undefined,
             },

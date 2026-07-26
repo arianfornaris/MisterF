@@ -66,21 +66,14 @@ export const env = {
         (nodeEnv === 'production' ? 'info' : 'debug'),
     llmProvider: 'openrouter',
     llmLiteModel: process.env.LLM_MODEL_LITE ??
-        process.env.LLM_MODEL_REGULAR ??
         process.env.LLM_MODEL ??
-        'openai/gpt-5-mini',
+        'google/gemini-3.5-flash-lite',
     llmRegularModel: process.env.LLM_MODEL_REGULAR ??
         process.env.LLM_MODEL ??
-        'openai/gpt-5-mini',
+        'google/gemini-3.6-flash',
     llmAdvancedModel: process.env.LLM_MODEL_ADVANCED ??
-        process.env.LLM_MODEL_REGULAR ??
         process.env.LLM_MODEL ??
-        'openai/gpt-5',
-    llmMaxModel: process.env.LLM_MODEL_MAX ??
-        process.env.LLM_MODEL_ADVANCED ??
-        process.env.LLM_MODEL_REGULAR ??
-        process.env.LLM_MODEL ??
-        'openai/gpt-5',
+        'google/gemini-3.1-pro-preview',
     llmContextWindow: readInteger('LLM_CONTEXT_WINDOW', 128000),
     openrouterApiKey: process.env.OPENROUTER_API_KEY ?? '',
     openrouterBaseUrl: process.env.OPENROUTER_BASE_URL ?? 'https://openrouter.ai/api/v1',

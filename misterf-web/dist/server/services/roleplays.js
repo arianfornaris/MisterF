@@ -2,6 +2,7 @@ import { generateText } from 'ai';
 import { z } from 'zod';
 import { getLanguageModel, getProviderOptions, shouldUseTemperature, } from './llmTutor/providers.js';
 import { logLlmInvalidRawResponse, logLlmRequest, logLlmResponse, } from './llmTutor/logging.js';
+import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { logger } from './logger.js';
@@ -267,7 +268,7 @@ export function appendRoleplayAuthoringMessages(existingMessages, ...messages) {
         .slice(-maxRoleplayAuthoringMessages);
 }
 async function generateStructuredRoleplayOutput(input) {
-    const modelTier = input.llm.modelTier ?? 'regular';
+    const modelTier = input.llm.modelTier ?? defaultProfileModelTier;
     const system = renderSystemPrompt(input.systemPromptPath, input.systemPromptVariables);
     const messages = [
         {

@@ -16,6 +16,13 @@ export const en: LocaleCatalog = {
   superadmin: {
     users: 'Users',
     backToChat: 'Back to chat',
+    modelsTitle: 'Text models',
+    modelsIntro:
+      'Effective model IDs configured for each text-model level.',
+    modelLevel: 'Level',
+    modelId: 'Model ID',
+    modelLifecycleStable: 'Stable',
+    modelLifecyclePreview: 'Preview',
     allUsers: 'All users',
     noUsers: 'There are no registered users yet.',
     userData: 'User data',
@@ -502,10 +509,7 @@ export const en: LocaleCatalog = {
       'Fast and reliable. Ideal for frequent practice at 1x cost.',
     modelAdvanced: 'Advanced',
     modelAdvancedDesc:
-      'Smarter and still fast. Use it when you want more precision at 6x cost.',
-    modelMax: 'Max',
-    modelMaxDesc:
-      'The most powerful and slowest option. Recommended for demanding sessions at 7x cost.',
+      'The Pro option for tasks that need the highest precision.',
     onbAria: 'Complete your profile',
     onbKicker: 'Learning profile',
     onbTitle: 'Help Mr. F get to know you better',

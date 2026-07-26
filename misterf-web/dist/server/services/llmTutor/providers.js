@@ -6,16 +6,16 @@ export function getConfiguredModelId(options = {}) {
     if (options.modelId?.trim()) {
         return options.modelId.trim();
     }
-    if (options.modelTier === 'max') {
-        return env.llmMaxModel;
-    }
     if (options.modelTier === 'advanced') {
         return env.llmAdvancedModel;
     }
     if (options.modelTier === 'lite') {
         return env.llmLiteModel;
     }
-    return env.llmRegularModel;
+    if (options.modelTier === 'regular') {
+        return env.llmRegularModel;
+    }
+    return env.llmLiteModel;
 }
 export function getLanguageModel(options = {}) {
     const apiKey = options.openRouterApiKey || env.openrouterApiKey;
@@ -43,8 +43,11 @@ export function getProviderOptions(options = {}) {
 export function shouldUseTemperature(options = {}) {
     // OpenRouter ids are vendor-prefixed (e.g. `openai/gpt-5-mini`); match on
     // the model segment. GPT-5 and o-series models reject a custom temperature.
+    // Gemini 3.x reasoning models are optimized for their defaults, while
+    // Gemini 3.6 Flash, 3.5 Flash-Lite, and later generations deprecate the
+    // sampling parameter entirely.
     const modelSegment = getConfiguredModelId(options).split('/').pop() ?? '';
-    return !/^(gpt-5|o[134])/i.test(modelSegment);
+    return !/^(gemini-3|gpt-5|o[134])/i.test(modelSegment);
 }
 export function getUserFacingFinishReasonMessage(finishReason, providerMetadata, locale = 'es') {
     const metadataText = JSON.stringify(providerMetadata ?? {}).toUpperCase();

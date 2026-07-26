@@ -16,6 +16,13 @@ export const es: LocaleCatalog = {
   superadmin: {
     users: 'Usuarios',
     backToChat: 'Volver al chat',
+    modelsTitle: 'Modelos de texto',
+    modelsIntro:
+      'IDs efectivos configurados para cada nivel de modelo de texto.',
+    modelLevel: 'Nivel',
+    modelId: 'ID del modelo',
+    modelLifecycleStable: 'Estable',
+    modelLifecyclePreview: 'Preview',
     allUsers: 'Todos los usuarios',
     noUsers: 'Todavía no hay usuarios registrados.',
     userData: 'Datos de usuario',
@@ -502,10 +509,7 @@ export const es: LocaleCatalog = {
       'Rápido y confiable. Ideal para práctica frecuente con costo 1x.',
     modelAdvanced: 'Avanzado',
     modelAdvancedDesc:
-      'Más inteligente y todavía rápido. Úsalo cuando quieras más precisión con costo 6x.',
-    modelMax: 'Max',
-    modelMaxDesc:
-      'La opción más potente y más lenta. Recomendable para sesiones exigentes con costo 7x.',
+      'La opción Pro para tareas que necesitan la máxima precisión.',
     onbAria: 'Completa tu perfil',
     onbKicker: 'Perfil de aprendizaje',
     onbTitle: 'Ayuda a Mr. F a conocerte mejor',
