@@ -532,8 +532,14 @@ Open design questions (to consider, not yet decided):
   returns to tutoring) pending** — magic-link auth has no dev bypass, so it
   needs a founder click-through, like the §1.3 quiz QA.
 
-Relevant skills when this is picked up: `system-prompt-coherence`,
-`llm-tool-documentation`.
+Freshness/maintenance (design question) resolved 2026-07-26: the platform help
+is hand-written and has no generator, so it can silently drift as the product
+changes. Closed with the `tutor-platform-help` convention skill, which requires
+updating `platform-overview.md` in the same change whenever a main feature,
+navigation area, activity type, or sharing behavior changes.
+
+Relevant skills: `tutor-platform-help` (keeps the help in sync),
+`system-prompt-coherence`, `llm-tool-documentation`.
 
 ---
 
