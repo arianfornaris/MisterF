@@ -8,7 +8,7 @@ type SchemaMigrationRow = {
   name: string;
 };
 
-type TableRow = {
+type NamedSchemaObject = {
   name: string;
 };
 
@@ -38,10 +38,9 @@ afterEach(async () => {
 });
 
 describe('database migrations', () => {
-  it('creates the current schema from an empty SQLite database', async () => {
+  it('creates the complete current schema from one clean baseline', async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-'));
-    const databasePath = path.join(tempDir, 'fresh.sqlite');
-    process.env.DATABASE_PATH = databasePath;
+    process.env.DATABASE_PATH = path.join(tempDir, 'fresh.sqlite');
     process.env.ENV_FILE = '/dev/null';
     vi.resetModules();
 
@@ -54,124 +53,27 @@ describe('database migrations', () => {
     const appliedMigrations = db
       .prepare('SELECT id, name FROM schema_migrations ORDER BY id')
       .all() as SchemaMigrationRow[];
+
     expect(appliedMigrations).toEqual([
       {
         id: 1,
         name: 'create_current_schema',
       },
-      {
-        id: 2,
-        name: 'add_teacher_assigned_practice',
-      },
-      {
-        id: 3,
-        name: 'simplify_quiz_lifecycle',
-      },
-      {
-        id: 4,
-        name: 'remove_quiz_authoring_revisions',
-      },
-      {
-        id: 5,
-        name: 'remove_quiz_authoring_sessions',
-      },
-      {
-        id: 6,
-        name: 'drop_quiz_estimated_minutes',
-      },
-      {
-        id: 7,
-        name: 'drop_quiz_rubric',
-      },
-      {
-        id: 8,
-        name: 'add_quiz_authoring_messages',
-      },
-      {
-        id: 9,
-        name: 'add_resource_foundation',
-      },
-      {
-        id: 10,
-        name: 'allow_nested_resource_folders',
-      },
-      {
-        id: 11,
-        name: 'add_live_resource_access_grants',
-      },
-      {
-        id: 12,
-        name: 'add_roleplay_resources',
-      },
-      {
-        id: 13,
-        name: 'add_practice_guide_authoring_messages',
-      },
-      {
-        id: 14,
-        name: 'add_profile_instruction_language',
-      },
-      {
-        id: 15,
-        name: 'add_conversation_instruction_language',
-      },
-      {
-        id: 16,
-        name: 'drop_instruction_language_check',
-      },
-      {
-        id: 17,
-        name: 'drop_model_tier_check',
-      },
-      {
-        id: 18,
-        name: 'add_user_scene_media',
-      },
-      {
-        id: 19,
-        name: 'add_scene_media_authoring_history',
-      },
-      {
-        id: 20,
-        name: 'remove_scene_media_generation_jobs',
-      },
-      {
-        id: 21,
-        name: 'remove_legacy_scene_media_audio',
-      },
-      {
-        id: 22,
-        name: 'drop_user_scene_media_tags_skills_use_cases',
-      },
-      {
-        id: 23,
-        name: 'simplify_roleplay_authoring_fields',
-      },
-      {
-        id: 24,
-        name: 'add_share_results_feedback_flag',
-      },
-      {
-        id: 25,
-        name: 'add_grant_results_feedback_flag',
-      },
-      {
-        id: 26,
-        name: 'add_quiz_response_summaries',
-      },
     ]);
 
-    const tableNames = (db
-      .prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
-      .all() as TableRow[])
-      .map((row) => row.name);
+    const tableNames = (db.prepare(`
+      SELECT name
+      FROM sqlite_master
+      WHERE type = 'table'
+        AND name <> 'sqlite_sequence'
+      ORDER BY name
+    `).all() as NamedSchemaObject[]).map(({ name }) => name);
 
-    expect(tableNames).toEqual(expect.arrayContaining([
+    expect(tableNames).toEqual([
       'auth_action_tokens',
-      'quiz_attempts',
-      'quiz_response_summaries',
-      'quizzes',
+      'conversation_practice_guide_snapshots',
       'conversation_quiz_attempt_snapshots',
+      'conversation_roleplay_attempt_snapshots',
       'conversation_tutor_plans',
       'conversation_tutor_report_snapshots',
       'conversations',
@@ -181,6 +83,9 @@ describe('database migrations', () => {
       'messages',
       'practice_guides',
       'profiles',
+      'quiz_attempts',
+      'quiz_response_summaries',
+      'quizzes',
       'resource_access_grants',
       'resource_folder_items',
       'resource_folders',
@@ -190,715 +95,189 @@ describe('database migrations', () => {
       'roleplays',
       'schema_migrations',
       'tutor_conversation_reports',
+      'user_identities',
       'user_openrouter_keys',
       'user_scene_media',
       'user_sessions',
       'users',
-    ]));
-    expect(tableNames).not.toContain('quiz_authoring_revisions');
-    expect(tableNames).not.toContain('quiz_authoring_sessions');
-    expect(tableNames).not.toContain('practice_guide_collections');
-    expect(tableNames).not.toContain('practice_guide_collection_share_links');
-    expect(tableNames).not.toContain('chat_rooms');
-    expect(tableNames).not.toContain('chat_room_characters');
-    expect(tableNames).not.toContain('chat_room_conversations');
-    expect(tableNames).not.toContain('chat_room_messages');
-    expect(tableNames).not.toContain('chat_room_conversation_reports');
-    expect(tableNames).not.toContain('chat_room_share_links');
-    expect(tableNames).not.toContain('conversation_chat_room_report_snapshots');
-    expect(tableNames).not.toContain('quiz_share_links');
-    expect(tableNames).not.toContain('practice_guide_share_links');
-    expect(tableNames).not.toContain('user_scene_media_generation_jobs');
+    ]);
 
-    expect(getColumnNames(db, 'profiles')).toEqual(expect.arrayContaining([
-      'instruction_language',
-      'learning_context',
-      'model_tier',
-      'profile_onboarding_completed_at',
-    ]));
-    expect(getColumnNames(db, 'conversations')).toEqual(expect.arrayContaining([
-      'closed_at',
-      'instruction_language',
-      'model_tier',
+    const expectedColumns: Record<string, string[]> = {
+      auth_action_tokens: [
+        'id', 'user_id', 'type', 'token_hash', 'created_at', 'expires_at', 'used_at',
+      ],
+      conversation_practice_guide_snapshots: [
+        'conversation_id', 'practice_guide_id', 'title', 'description',
+        'tutor_instructions', 'created_at',
+      ],
+      conversation_quiz_attempt_snapshots: [
+        'conversation_id', 'quiz_attempt_id', 'quiz_title', 'quiz_description',
+        'quiz_target_topic', 'quiz_snapshot_json', 'responses_json', 'result_json',
+        'created_at',
+      ],
+      conversation_roleplay_attempt_snapshots: [
+        'conversation_id', 'roleplay_attempt_id', 'roleplay_title',
+        'roleplay_description', 'roleplay_snapshot_json', 'turns_json', 'result_json',
+        'created_at',
+      ],
+      conversation_tutor_plans: [
+        'conversation_id', 'plan_json', 'created_at', 'updated_at',
+      ],
+      conversation_tutor_report_snapshots: [
+        'conversation_id', 'tutor_conversation_report_id', 'source_conversation_id',
+        'report_summary_title', 'report_summary_description', 'report_json', 'created_at',
+      ],
+      conversations: [
+        'id', 'user_id', 'profile_id', 'active_agent', 'practice_guide_id',
+        'model_tier', 'title', 'title_updated_by_user', 'closed_at', 'created_at',
+        'updated_at', 'instruction_language',
+      ],
+      credit_purchases: [
+        'id', 'user_id', 'stripe_checkout_session_id', 'stripe_payment_intent_id',
+        'stripe_event_id', 'package_code', 'customer_amount_cents',
+        'credited_amount_cents', 'status', 'openrouter_key_hash',
+        'remaining_before_usd', 'remaining_after_usd', 'failure_reason', 'created_at',
+        'updated_at',
+      ],
+      learner_progress_events: [
+        'id', 'user_id', 'profile_id', 'source_type', 'source_id', 'event_date',
+        'title', 'summary', 'details_json', 'created_at', 'updated_at',
+      ],
+      learner_progress_profiles: [
+        'id', 'user_id', 'profile_id', 'summary_json', 'created_at', 'updated_at',
+      ],
+      messages: [
+        'id', 'conversation_id', 'role', 'content', 'metadata', 'created_at',
+      ],
+      practice_guides: [
+        'id', 'user_id', 'profile_id', 'title', 'description', 'tutor_instructions',
+        'source_practice_guide_id', 'source_user_id', 'source_profile_id', 'shared_via',
+        'archived_at', 'created_at', 'updated_at', 'authoring_messages_json',
+      ],
+      profiles: [
+        'id', 'user_id', 'name', 'description', 'model_tier', 'learning_context',
+        'profile_onboarding_completed_at', 'created_at', 'updated_at',
+        'instruction_language',
+      ],
+      quiz_attempts: [
+        'id', 'quiz_id', 'user_id', 'profile_id', 'guest_token', 'claim_token',
+        'status', 'snapshot_json', 'responses_json', 'result_json', 'progress_event_id',
+        'started_at', 'submitted_at', 'evaluated_at', 'created_at', 'updated_at',
+        'collect_results',
+      ],
+      quiz_response_summaries: [
+        'quiz_id', 'summary_text', 'input_fingerprint', 'generated_at',
+      ],
+      quizzes: [
+        'id', 'user_id', 'profile_id', 'title', 'description', 'target_topic', 'level',
+        'instructions', 'quiz_json', 'archived_at', 'source_quiz_id', 'source_user_id',
+        'source_profile_id', 'shared_via', 'created_at', 'updated_at',
+        'authoring_messages_json',
+      ],
+      resource_access_grants: [
+        'id', 'resource_id', 'user_id', 'profile_id', 'granted_by_user_id',
+        'granted_via', 'share_link_id', 'created_at', 'updated_at', 'revoked_at',
+        'collect_results',
+      ],
+      resource_folder_items: [
+        'folder_id', 'resource_id', 'resource_type', 'position', 'created_at',
+        'updated_at',
+      ],
+      resource_folders: ['id', 'created_at', 'updated_at'],
+      resource_share_links: [
+        'id', 'resource_id', 'created_at', 'revoked_at', 'collect_results',
+      ],
+      resources: [
+        'id', 'user_id', 'profile_id', 'type', 'title', 'description', 'topic', 'level',
+        'archived_at', 'source_resource_id', 'source_user_id', 'source_profile_id',
+        'shared_via', 'created_at', 'updated_at',
+      ],
+      roleplay_attempts: [
+        'id', 'roleplay_id', 'user_id', 'profile_id', 'status', 'snapshot_json',
+        'turns_json', 'result_json', 'progress_event_id', 'started_at', 'submitted_at',
+        'evaluated_at', 'created_at', 'updated_at',
+      ],
+      roleplays: [
+        'id', 'user_id', 'profile_id', 'title', 'description', 'level',
+        'characters_json', 'authoring_messages_json', 'source_roleplay_id',
+        'source_user_id', 'source_profile_id', 'shared_via', 'archived_at', 'created_at',
+        'updated_at',
+      ],
+      tutor_conversation_reports: [
+        'id', 'conversation_id', 'user_id', 'profile_id', 'summary_title',
+        'summary_description', 'report_json', 'practice_guide_id', 'created_at',
+        'updated_at',
+      ],
+      user_identities: [
+        'id', 'user_id', 'provider', 'provider_subject', 'email', 'created_at',
+      ],
+      user_openrouter_keys: [
+        'user_id', 'key_hash', 'encrypted_api_key', 'name', 'limit_usd',
+        'limit_reset', 'status', 'last_error', 'created_at', 'updated_at',
+      ],
+      user_scene_media: [
+        'id', 'user_id', 'profile_id', 'source_media_id', 'source_visual_asset_id',
+        'title', 'status', 'generation_mode', 'generation_prompt',
+        'script_type_preference', 'format', 'level', 'setting', 'visual_summary_json',
+        'image_json', 'audio_json', 'script_json', 'created_from_json',
+        'provenance_json', 'authoring_messages_json', 'archived_at', 'created_at',
+        'updated_at',
+      ],
+      user_sessions: [
+        'id', 'user_id', 'token_hash', 'user_agent', 'ip_address', 'created_at',
+        'last_seen_at', 'expires_at', 'revoked_at',
+      ],
+      users: [
+        'id', 'email', 'full_name', 'password_hash', 'email_verified', 'created_at',
+        'updated_at', 'disabled_at',
+      ],
+    };
+
+    for (const [tableName, columns] of Object.entries(expectedColumns)) {
+      expect(getColumnNames(db, tableName), tableName).toEqual(columns);
+    }
+
+    const indexNames = (db.prepare(`
+      SELECT name
+      FROM sqlite_master
+      WHERE type = 'index'
+        AND sql IS NOT NULL
+      ORDER BY name
+    `).all() as NamedSchemaObject[]).map(({ name }) => name);
+
+    expect(indexNames).toHaveLength(46);
+    expect(indexNames).toEqual(expect.arrayContaining([
+      'idx_messages_conversation_created',
+      'idx_quizzes_user_profile_updated',
+      'idx_resource_folder_items_folder_position',
+      'idx_resources_id_type',
+      'idx_resources_profile_archived_updated',
+      'idx_roleplays_profile_archived_updated',
+      'idx_user_scene_media_profile_status_updated',
+      'idx_user_sessions_user_active',
     ]));
 
-    // Migrations 16 and 17 drop the instruction_language and model_tier
-    // CHECKs so a new instruction language or model tier no longer needs a
-    // schema change (the allowlists are enforced in application code). The
-    // columns survive; the constraints do not.
-    for (const table of ['profiles', 'conversations']) {
-      const { sql } = db
-        .prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?")
-        .get(table) as { sql: string };
+    for (const tableName of ['profiles', 'conversations']) {
+      const sql = getTableSql(db, tableName);
       expect(sql).toContain('instruction_language TEXT NOT NULL');
       expect(sql).not.toContain('CHECK (instruction_language');
       expect(sql).toContain('model_tier TEXT NOT NULL');
       expect(sql).not.toContain('CHECK (model_tier');
     }
-    expect(getColumnNames(db, 'conversations')).not.toContain(
-      'chat_room_conversation_report_id',
-    );
-    expect(getColumnNames(db, 'quizzes')).toEqual(expect.arrayContaining([
-      'authoring_messages_json',
-      'quiz_json',
-      'shared_via',
-      'source_quiz_id',
-      'source_profile_id',
-      'source_user_id',
-      'target_topic',
-    ]));
-    expect(getColumnNames(db, 'quizzes')).not.toEqual(expect.arrayContaining([
-      'estimated_minutes',
-      'is_favorite',
-      'published_at',
-      'rubric',
-      'status',
-    ]));
-    expect(getColumnNames(db, 'practice_guides')).not.toEqual(expect.arrayContaining([
-      'collection_id',
-      'position_in_collection',
-    ]));
-    expect(getColumnNames(db, 'quiz_attempts')).toEqual(expect.arrayContaining([
-      'claim_token',
-      'collect_results',
-      'guest_token',
-      'result_json',
-      'snapshot_json',
-    ]));
-    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
-    expect(getColumnNames(db, 'resource_share_links')).toEqual(expect.arrayContaining([
-      'collect_results',
-      'resource_id',
-      'revoked_at',
-    ]));
-    expect(getColumnNames(db, 'resources')).toEqual(expect.arrayContaining([
-      'archived_at',
-      'description',
-      'id',
-      'level',
-      'profile_id',
-      'shared_via',
-      'source_resource_id',
-      'title',
-      'topic',
-      'type',
-      'user_id',
-    ]));
-    expect(getColumnNames(db, 'resources')).not.toContain('is_favorite');
-    expect(getColumnNames(db, 'resource_folder_items')).toEqual(expect.arrayContaining([
-      'folder_id',
-      'position',
-      'resource_id',
-      'resource_type',
-    ]));
-    expect(getColumnNames(db, 'resource_access_grants')).toEqual(expect.arrayContaining([
-      'collect_results',
-      'granted_by_user_id',
-      'granted_via',
-      'profile_id',
-      'resource_id',
-      'revoked_at',
-      'share_link_id',
-      'user_id',
-    ]));
-    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resource_folder_items'")
-      .get()).toEqual(expect.objectContaining({
-      sql: expect.stringContaining("'resource_folder'"),
-    }));
-    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resources'")
-      .get()).toEqual(expect.objectContaining({
-      sql: expect.stringContaining("'roleplay'"),
-    }));
-    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'resource_folder_items'")
-      .get()).toEqual(expect.objectContaining({
-      sql: expect.stringContaining("'roleplay'"),
-    }));
-    expect(getColumnNames(db, 'roleplays')).toEqual(expect.arrayContaining([
-      'characters_json',
-      'description',
-      'level',
-    ]));
-    expect(getColumnNames(db, 'roleplays')).not.toEqual(expect.arrayContaining([
-      'evaluation_focus_json',
-      'instructions',
-      'language_focus_json',
-      'learner_character_id',
-      'learner_context',
-      'learning_goals_json',
-      'max_learner_turns',
-      'opening_line',
-      'pedagogical_focus',
-      'scenario',
-      'target_topic',
-    ]));
-    expect(getColumnNames(db, 'roleplay_attempts')).toEqual(expect.arrayContaining([
-      'result_json',
-      'roleplay_id',
-      'snapshot_json',
-      'turns_json',
-    ]));
-    expect(getColumnNames(db, 'user_scene_media')).toEqual(expect.arrayContaining([
-      'audio_json',
-      'authoring_messages_json',
-      'created_from_json',
-      'format',
-      'generation_mode',
-      'generation_prompt',
-      'image_json',
-      'level',
-      'profile_id',
-      'script_json',
-      'script_type_preference',
-      'status',
-      'user_id',
-      'visual_summary_json',
-    ]));
-    expect(getColumnNames(db, 'user_scene_media')).not.toEqual(expect.arrayContaining([
-      'failure_message',
-      'failure_reason',
-    ]));
-    const sceneMediaSchema = db.prepare(
-      "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'user_scene_media'",
-    ).get() as { sql: string };
-    expect(sceneMediaSchema.sql).toContain("generation_mode = 'image_only'");
-    expect(sceneMediaSchema.sql).toContain("generation_mode = 'complete_scene'");
-  });
 
-  it('moves legacy roleplay situations into descriptions before dropping redundant fields', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-roleplay-fields-'));
-    process.env.DATABASE_PATH = path.join(tempDir, 'roleplays.sqlite');
-    process.env.ENV_FILE = '/dev/null';
-    vi.resetModules();
+    expect(getTableSql(db, 'resources')).toContain("'roleplay'");
+    expect(getTableSql(db, 'resource_folder_items')).toContain("'resource_folder'");
+    expect(getTableSql(db, 'resource_folder_items')).toContain("'roleplay'");
 
-    const { getDb } = await import('../../src/server/db/database.js');
-    const { migrations } = await import('../../src/server/db/migrations.js');
-    const { migrate } = await import('../../src/server/db/migrator.js');
-    const db = getDb();
+    const sceneMediaSql = getTableSql(db, 'user_scene_media');
+    expect(sceneMediaSql).toContain("generation_mode = 'image_only'");
+    expect(sceneMediaSql).toContain("generation_mode = 'complete_scene'");
+    expect(sceneMediaSql).toContain("status = 'archived'");
 
-    db.exec(`
-      CREATE TABLE schema_migrations (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    db.unsafeMode(true);
-    try {
-      for (const migration of migrations.filter(({ id }) => id <= 22)) {
-        if (migration.up) db.exec(migration.up);
-        else migration.run?.(db);
-        db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
-          .run(migration.id, migration.name);
-      }
-    } finally {
-      db.unsafeMode(false);
-      db.pragma('writable_schema = RESET');
-    }
-
-    db.prepare(`
-      INSERT INTO users (id, email, full_name, email_verified)
-      VALUES ('user_1', 'roleplay-fields@example.com', 'Roleplay Author', 1)
-    `).run();
-    db.prepare(`
-      INSERT INTO profiles (id, user_id, name)
-      VALUES ('profile_1', 'user_1', 'Roleplay profile')
-    `).run();
-    db.prepare(`
-      INSERT INTO resources (
-        id, user_id, profile_id, type, title, description, level
-      )
-      VALUES (
-        'roleplay_1', 'user_1', 'profile_1', 'roleplay',
-        'Hotel reservation', 'Legacy short summary.', 'B1'
-      )
-    `).run();
-    db.prepare(`
-      INSERT INTO roleplays (
-        id, user_id, profile_id, title, description, scenario, level,
-        pedagogical_focus, max_learner_turns, characters_json
-      )
-      VALUES (
-        'roleplay_1', 'user_1', 'profile_1', 'Hotel reservation',
-        'Legacy short summary.', 'The learner resolves a hotel reservation problem.',
-        'B1', 'Practice polite requests.', 8, '[]'
-      )
-    `).run();
-
-    migrate();
-
-    expect(db.prepare('SELECT description FROM roleplays WHERE id = ?')
-      .get('roleplay_1')).toEqual({
-      description: 'The learner resolves a hotel reservation problem.',
-    });
-    expect(db.prepare('SELECT description FROM resources WHERE id = ?')
-      .get('roleplay_1')).toEqual({
-      description: 'The learner resolves a hotel reservation problem.',
-    });
-    expect(getColumnNames(db, 'roleplays')).not.toEqual(expect.arrayContaining([
-      'max_learner_turns',
-      'pedagogical_focus',
-      'scenario',
-    ]));
     expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
-  });
-
-  it('removes legacy scene media jobs and incomplete media rows', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-media-job-removal-'));
-    process.env.DATABASE_PATH = path.join(tempDir, 'legacy-media.sqlite');
-    process.env.ENV_FILE = '/dev/null';
-    vi.resetModules();
-
-    const { getDb } = await import('../../src/server/db/database.js');
-    const { migrations } = await import('../../src/server/db/migrations.js');
-    const db = getDb();
-
-    db.unsafeMode(true);
-    try {
-      for (const migration of migrations.filter(({ id }) => id <= 19)) {
-        if (migration.up) db.exec(migration.up);
-        else migration.run?.(db);
-      }
-    } finally {
-      db.unsafeMode(false);
-      db.pragma('writable_schema = RESET');
-    }
-
-    db.prepare(`
-      INSERT INTO users (id, email, full_name, email_verified)
-      VALUES ('media_user', 'media@example.com', 'Media User', 1)
-    `).run();
-    db.prepare(`
-      INSERT INTO profiles (id, user_id, name)
-      VALUES ('media_profile', 'media_user', 'Media Profile')
-    `).run();
-    const insertMedia = db.prepare(`
-      INSERT INTO user_scene_media (
-        id, user_id, profile_id, title, status, generation_mode,
-        generation_prompt, format, level, image_json
-      )
-      VALUES (?, 'media_user', 'media_profile', ?, ?, 'image_only', ?,
-        'single_panel_scene', 'A1-A2', ?)
-    `);
-    insertMedia.run(
-      'ready_media',
-      'Ready media',
-      'ready',
-      'A complete scene',
-      JSON.stringify({ alt: 'A complete scene', src: 'https://example.test/image.webp' }),
-    );
-    insertMedia.run('pending_media', 'Pending media', 'pending', 'An incomplete scene', null);
-    db.prepare(`
-      INSERT INTO user_scene_media_generation_jobs (
-        id, media_id, user_id, profile_id, type, prompt, status,
-        generation_mode, format, level
-      )
-      VALUES (
-        'legacy_job', 'pending_media', 'media_user', 'media_profile',
-        'new_media', 'An incomplete scene', 'pending', 'image_only',
-        'single_panel_scene', 'A1-A2'
-      )
-    `).run();
-
-    const cleanupMigration = migrations.find(({ id }) => id === 20);
-    expect(cleanupMigration?.up).toBeTruthy();
-    db.exec(cleanupMigration?.up ?? '');
-
-    expect(db.prepare('SELECT id FROM user_scene_media ORDER BY id').all()).toEqual([
-      { id: 'ready_media' },
-    ]);
-    expect(db.prepare(
-      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'user_scene_media_generation_jobs'",
-    ).get()).toBeUndefined();
-    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
-  });
-
-  it('upgrades resource folder membership to allow nested folders', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-nested-folders-'));
-    process.env.DATABASE_PATH = path.join(tempDir, 'nested-folders.sqlite');
-    process.env.ENV_FILE = '/dev/null';
-    vi.resetModules();
-
-    const { getDb } = await import('../../src/server/db/database.js');
-    const { migrations } = await import('../../src/server/db/migrations.js');
-    const { migrate } = await import('../../src/server/db/migrator.js');
-    const db = getDb();
-
-    db.exec(`
-      CREATE TABLE schema_migrations (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    for (const migration of migrations.filter((migration) => migration.id <= 9)) {
-      if (migration.up) db.exec(migration.up);
-      else migration.run?.(db);
-      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
-        .run(migration.id, migration.name);
-    }
-
-    db.prepare(`
-      INSERT INTO users (id, email, full_name, email_verified)
-      VALUES ('user_1', 'nested-folders@example.com', 'Nested Folder User', 1)
-    `).run();
-    db.prepare(`
-      INSERT INTO profiles (id, user_id, name)
-      VALUES ('profile_1', 'user_1', 'Nested Folder Profile')
-    `).run();
-    db.prepare(`
-      INSERT INTO resources (id, user_id, profile_id, type, title)
-      VALUES
-        ('folder_parent', 'user_1', 'profile_1', 'resource_folder', 'Parent Folder'),
-        ('folder_child', 'user_1', 'profile_1', 'resource_folder', 'Child Folder'),
-        ('quiz_1', 'user_1', 'profile_1', 'quiz', 'Quiz')
-    `).run();
-    db.prepare(`
-      INSERT INTO resource_folders (id)
-      VALUES ('folder_parent'), ('folder_child')
-    `).run();
-    db.prepare(`
-      INSERT INTO resource_folder_items (folder_id, resource_id, resource_type, position)
-      VALUES ('folder_parent', 'quiz_1', 'quiz', 1)
-    `).run();
-
-    migrate();
-
-    expect(db.prepare(`
-      SELECT folder_id, resource_id, resource_type
-      FROM resource_folder_items
-      WHERE resource_id = 'quiz_1'
-    `).get()).toEqual({
-      folder_id: 'folder_parent',
-      resource_id: 'quiz_1',
-      resource_type: 'quiz',
+    expect(db.prepare('PRAGMA integrity_check').get()).toEqual({
+      integrity_check: 'ok',
     });
-    expect(() => db.prepare(`
-      INSERT INTO resource_folder_items (folder_id, resource_id, resource_type, position)
-      VALUES ('folder_parent', 'folder_child', 'resource_folder', 2)
-    `).run()).not.toThrow();
-    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
-  });
-
-  it('backfills resources from legacy resource tables', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-resources-'));
-    process.env.DATABASE_PATH = path.join(tempDir, 'resources.sqlite');
-    process.env.ENV_FILE = '/dev/null';
-    vi.resetModules();
-
-    const { getDb } = await import('../../src/server/db/database.js');
-    const { migrations } = await import('../../src/server/db/migrations.js');
-    const { migrate } = await import('../../src/server/db/migrator.js');
-    const db = getDb();
-
-    db.exec(`
-      CREATE TABLE schema_migrations (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    for (const migration of migrations.filter((migration) => migration.id <= 8)) {
-      if (migration.up) db.exec(migration.up);
-      else migration.run?.(db);
-      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
-        .run(migration.id, migration.name);
-    }
-
-    const quizDraft = JSON.stringify({
-      blocks: [],
-      title: 'Resource quiz',
-    });
-
-    db.prepare(`
-      INSERT INTO users (id, email, full_name, email_verified)
-      VALUES ('user_1', 'resources@example.com', 'Resources User', 1)
-    `).run();
-    db.prepare(`
-      INSERT INTO profiles (id, user_id, name)
-      VALUES ('profile_1', 'user_1', 'Resources Profile')
-    `).run();
-    db.prepare(`
-      INSERT INTO quizzes (
-        id,
-        user_id,
-        profile_id,
-        title,
-        description,
-        target_topic,
-        level,
-        quiz_json,
-        authoring_messages_json
-      )
-      VALUES (
-        'quiz_1',
-        'user_1',
-        'profile_1',
-        'Resource Quiz',
-        'Quiz description.',
-        'Past perfect',
-        'B2',
-        ?,
-        '[]'
-      )
-    `).run(quizDraft);
-    db.prepare(`
-      INSERT INTO practice_guides (
-        id,
-        user_id,
-        profile_id,
-        title,
-        description,
-        tutor_instructions
-      )
-      VALUES (
-        'guide_1',
-        'user_1',
-        'profile_1',
-        'Legacy Guide',
-        'Guide description.',
-        'Practice modal verbs.'
-      )
-    `).run();
-    migrate();
-
-    expect(db.prepare('SELECT type, topic, level FROM resources WHERE id = ?')
-      .get('quiz_1')).toEqual({
-      level: 'B2',
-      topic: 'Past perfect',
-      type: 'quiz',
-    });
-    expect(db.prepare('SELECT type FROM resources WHERE id = ?')
-      .get('guide_1')).toEqual({ type: 'practice_guide' });
-    expect(db.prepare('SELECT COUNT(*) AS count FROM resource_folder_items')
-      .get()).toEqual({ count: 0 });
-    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
-  });
-
-  it('migrates existing quiz lifecycle data without losing attempts', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-upgrade-'));
-    process.env.DATABASE_PATH = path.join(tempDir, 'upgrade.sqlite');
-    process.env.ENV_FILE = '/dev/null';
-    vi.resetModules();
-
-    const { getDb } = await import('../../src/server/db/database.js');
-    const { migrations } = await import('../../src/server/db/migrations.js');
-    const { migrate } = await import('../../src/server/db/migrator.js');
-    const db = getDb();
-
-    db.exec(`
-      CREATE TABLE schema_migrations (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    for (const migration of migrations.filter((migration) => migration.id <= 2)) {
-      if (migration.up) db.exec(migration.up);
-      else migration.run?.(db);
-      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
-        .run(migration.id, migration.name);
-    }
-
-    const draftJson = JSON.stringify({
-      blocks: [
-        {
-          id: 'open_text',
-          item: {
-            kind: 'quiz_open_text',
-            prompt: 'Write one sentence.',
-          },
-        },
-      ],
-      title: 'Legacy quiz',
-    });
-
-    db.prepare(`
-      INSERT INTO users (id, email, full_name, email_verified)
-      VALUES ('user_1', 'legacy@example.com', 'Legacy User', 1)
-    `).run();
-    db.prepare(`
-      INSERT INTO profiles (id, user_id, name)
-      VALUES ('profile_1', 'user_1', 'Legacy Profile')
-    `).run();
-    db.prepare(`
-      INSERT INTO quizzes (
-        id,
-        user_id,
-        profile_id,
-        title,
-        quiz_json,
-        status,
-        published_at
-      )
-      VALUES ('quiz_1', 'user_1', 'profile_1', 'Legacy quiz', ?, 'published', CURRENT_TIMESTAMP)
-    `).run(draftJson);
-    db.prepare(`
-      INSERT INTO quiz_authoring_sessions (
-        id,
-        quiz_id,
-        user_id,
-        profile_id,
-        status,
-        current_draft_json
-      )
-      VALUES ('session_1', 'quiz_1', 'user_1', 'profile_1', 'published', ?)
-    `).run(draftJson);
-    db.prepare(`
-      INSERT INTO quiz_authoring_revisions (
-        id,
-        authoring_session_id,
-        source,
-        draft_json
-      )
-      VALUES ('revision_1', 'session_1', 'assistant', ?)
-    `).run(draftJson);
-    db.prepare(`
-      INSERT INTO quiz_attempts (
-        id,
-        quiz_id,
-        user_id,
-        profile_id,
-        snapshot_json
-      )
-      VALUES ('attempt_1', 'quiz_1', 'user_1', 'profile_1', ?)
-    `).run(draftJson);
-    db.prepare(`
-      INSERT INTO conversations (id, user_id, profile_id, title)
-      VALUES ('conversation_1', 'user_1', 'profile_1', 'Legacy conversation')
-    `).run();
-    db.prepare(`
-      INSERT INTO conversation_quiz_attempt_snapshots (
-        conversation_id,
-        quiz_attempt_id,
-        quiz_title,
-        quiz_snapshot_json,
-        responses_json,
-        result_json
-      )
-      VALUES ('conversation_1', 'attempt_1', 'Legacy quiz', ?, '[]', '{}')
-    `).run(draftJson);
-
-    migrate();
-
-    expect(getColumnNames(db, 'quizzes')).not.toEqual(expect.arrayContaining([
-      'estimated_minutes',
-      'published_at',
-      'rubric',
-      'status',
-    ]));
-    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
-    expect(getColumnNames(db, 'quizzes')).not.toContain('estimated_minutes');
-    expect(getColumnNames(db, 'quizzes')).not.toContain('rubric');
-    expect(getColumnNames(db, 'quizzes')).toContain('authoring_messages_json');
-    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'quiz_authoring_sessions'")
-      .get()).toBeUndefined();
-    expect(db.prepare('SELECT quiz_id FROM quiz_attempts WHERE id = ?')
-      .get('attempt_1')).toEqual({ quiz_id: 'quiz_1' });
-    expect(db.prepare('SELECT quiz_attempt_id FROM conversation_quiz_attempt_snapshots WHERE conversation_id = ?')
-      .get('conversation_1')).toEqual({ quiz_attempt_id: 'attempt_1' });
-    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'quiz_authoring_revisions'")
-      .get()).toBeUndefined();
-    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
-    expect(db.prepare("SELECT sql FROM sqlite_master WHERE name = 'conversation_quiz_attempt_snapshots'")
-      .get()).toEqual(expect.objectContaining({
-      sql: expect.stringContaining('REFERENCES quiz_attempts'),
-    }));
-  });
-
-  it('promotes legacy authoring sessions before removing the session table', async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'misterf-migrations-authoring-'));
-    process.env.DATABASE_PATH = path.join(tempDir, 'authoring.sqlite');
-    process.env.ENV_FILE = '/dev/null';
-    vi.resetModules();
-
-    const { getDb } = await import('../../src/server/db/database.js');
-    const { migrations } = await import('../../src/server/db/migrations.js');
-    const { migrate } = await import('../../src/server/db/migrator.js');
-    const db = getDb();
-
-    db.exec(`
-      CREATE TABLE schema_migrations (
-        id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    for (const migration of migrations.filter((migration) => migration.id <= 4)) {
-      if (migration.up) db.exec(migration.up);
-      else migration.run?.(db);
-      db.prepare('INSERT INTO schema_migrations (id, name) VALUES (?, ?)')
-        .run(migration.id, migration.name);
-    }
-
-    const draftJson = JSON.stringify({
-      blocks: [
-        {
-          id: 'open_text',
-          item: {
-            kind: 'quiz_open_text',
-            prompt: 'Write one sentence.',
-          },
-        },
-      ],
-      description: 'Legacy generated homework.',
-      instructions: 'Answer carefully.',
-      level: 'A2',
-      targetTopic: 'Simple past',
-      title: 'Legacy Generated Task',
-    });
-
-    db.prepare(`
-      INSERT INTO users (id, email, full_name, email_verified)
-      VALUES ('user_1', 'legacy-authoring@example.com', 'Legacy Authoring User', 1)
-    `).run();
-    db.prepare(`
-      INSERT INTO profiles (id, user_id, name)
-      VALUES ('profile_1', 'user_1', 'Legacy Profile')
-    `).run();
-    db.prepare(`
-      INSERT INTO quiz_authoring_sessions (
-        id,
-        user_id,
-        profile_id,
-        status,
-        initial_prompt,
-        current_draft_json
-      )
-      VALUES ('session_orphan', 'user_1', 'profile_1', 'drafting', 'Create a legacy task.', ?)
-    `).run(draftJson);
-    db.prepare(`
-      INSERT INTO quiz_attempts (
-        id,
-        authoring_session_id,
-        user_id,
-        profile_id,
-        snapshot_json
-      )
-      VALUES ('attempt_preview', 'session_orphan', 'user_1', 'profile_1', ?)
-    `).run(draftJson);
-
-    migrate();
-
-    expect(db.prepare('SELECT title, target_topic FROM quizzes WHERE id = ?')
-      .get('session_orphan')).toEqual({
-      target_topic: 'Simple past',
-      title: 'Legacy Generated Task',
-    });
-    expect(getColumnNames(db, 'quizzes')).toContain('authoring_messages_json');
-    expect(db.prepare('SELECT quiz_id FROM quiz_attempts WHERE id = ?')
-      .get('attempt_preview')).toEqual({
-      quiz_id: 'session_orphan',
-    });
-    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('authoring_session_id');
-    expect(getColumnNames(db, 'quiz_attempts')).not.toContain('is_preview');
-    expect(db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'quiz_authoring_sessions'")
-      .get()).toBeUndefined();
-    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 });
 
@@ -907,5 +286,22 @@ function getColumnNames(
   tableName: string,
 ): string[] {
   return (db.prepare(`PRAGMA table_info(${tableName})`).all() as TableColumnRow[])
-    .map((row) => row.name);
+    .map(({ name }) => name);
+}
+
+function getTableSql(
+  db: {
+    prepare: (sql: string) => {
+      get: (tableName: string) => unknown;
+    };
+  },
+  tableName: string,
+): string {
+  const row = db.prepare(`
+    SELECT sql
+    FROM sqlite_master
+    WHERE type = 'table' AND name = ?
+  `).get(tableName) as { sql: string };
+
+  return row.sql;
 }

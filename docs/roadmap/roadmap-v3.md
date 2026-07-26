@@ -2,7 +2,8 @@
 
 Date: 2026-07-06 (last updated: 2026-07-26)
 
-Status: **In progress.** V3's headline is the **Teacher Pilot MVP**: the
+Status: **Released as 3.0.0 on 2026-07-26.** V3's headline is the
+**Teacher Pilot MVP**: the
 smallest product that lets a real teacher run the full assigned-practice
 cycle — create a quiz from their own material, share it by link, students
 complete it and get evaluated, students practice their difficulties, and the
@@ -968,7 +969,8 @@ technical exit criterion.
   with the detailed section on 2026-07-26.
 - [ ] The pilot funnel is measurable end to end, and the AI cost of one full
   cycle is known.
-- [ ] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass; new
+- [x] `npm run typecheck`, `npm run test:typecheck`, and `npm test` pass; new
   surfaces (attempts views, next-class report) have regression coverage.
-- [ ] Deployed to production per the versioning policy
-  (`versioning-and-releases` skill).
+  Verified for the 3.0.0 release on 2026-07-26.
+- [x] Deployed to production per the versioning policy
+  (`versioning-and-releases` skill). Released as 3.0.0 on 2026-07-26.

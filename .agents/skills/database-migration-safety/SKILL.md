@@ -28,9 +28,14 @@ Always inspect the migration state before making database-related changes. The p
    - `npm test`
    - a fresh SQLite migration check
 
-## V1 Baseline Policy
+## V3 Baseline Policy
 
-The v1 baseline can use a single correct `create_current_schema` migration for fresh installs. After that baseline ships, every schema change must be a new migration with a new id.
+V3 uses a single correct `create_current_schema` migration for fresh installs.
+This baseline reset was authorized because the V3 production deployment will
+replace the existing database instead of upgrading it in place.
+
+After the V3 baseline ships, every schema change must be a new migration with a
+new id. Do not edit the baseline to accommodate later production changes.
 
 ## Red Flags
 
