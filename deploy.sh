@@ -36,6 +36,7 @@ ssh "$REMOTE_HOST" "
 set -euo pipefail
 cd '$REMOTE_DIR'
 git pull
+npm ci --omit=dev
 pm2 restart ecosystem.config.cjs --only '$PM2_APP_NAME' --env production --update-env
 "
 

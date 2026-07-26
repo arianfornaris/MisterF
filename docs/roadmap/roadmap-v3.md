@@ -2,8 +2,8 @@
 
 Date: 2026-07-06 (last updated: 2026-07-26)
 
-Status: **Released as 3.0.0 on 2026-07-26.** V3's headline is the
-**Teacher Pilot MVP**: the
+Status: **Released as 3.0.0 on 2026-07-26; current release 3.0.1.** V3's
+headline is the **Teacher Pilot MVP**: the
 smallest product that lets a real teacher run the full assigned-practice
 cycle — create a quiz from their own material, share it by link, students
 complete it and get evaluated, students practice their difficulties, and the
