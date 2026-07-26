@@ -591,6 +591,8 @@ export const ht: LocaleCatalog = {
     participantsSubmissionsCount: '{{count}} soumisyon',
     participantsEmpty:
       'Poko gen repons. Pataje lyen quiz la pou w kòmanse resevwa yo.',
+    participantsEmptyTitle: 'Poko gen repons',
+    participantsEmptyBody: 'Pataje lyen quiz la pou w kòmanse resevwa yo.',
     resultsAnonymousParticipant: 'Anonim',
     resultOwnerView:
       'W ap gade rezilta {{name}} an mòd lekti sèlman.',

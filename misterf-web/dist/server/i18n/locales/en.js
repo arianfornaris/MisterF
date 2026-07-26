@@ -559,6 +559,8 @@ export const en = {
         participantsCompletedCount: '{{count}} completed the quiz',
         participantsSubmissionsCount: '{{count}} submissions',
         participantsEmpty: 'No responses yet. Share the quiz link to start receiving them.',
+        participantsEmptyTitle: 'No responses yet',
+        participantsEmptyBody: 'Share the quiz link to start receiving them.',
         resultsAnonymousParticipant: 'Anonymous',
         resultOwnerView: 'You are viewing {{name}}’s result in read-only mode.',
         responsesSummaryTitle: 'Responses summary',

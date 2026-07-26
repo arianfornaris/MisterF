@@ -602,6 +602,8 @@ export const es: LocaleCatalog = {
     participantsSubmissionsCount: '{{count}} entregas',
     participantsEmpty:
       'Todavía no hay respuestas. Comparte el enlace del quiz para recibirlas.',
+    participantsEmptyTitle: 'Todavía no hay respuestas',
+    participantsEmptyBody: 'Comparte el enlace del quiz para recibirlas.',
     resultsAnonymousParticipant: 'Anónimo',
     resultOwnerView:
       'Estás viendo el resultado de {{name}} en modo solo lectura.',

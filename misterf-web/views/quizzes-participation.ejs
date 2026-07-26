@@ -103,14 +103,22 @@
   <% } %>
 
   <% if (canManageQuiz) { %>
-    <div class="resource-section">
-      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-        <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
-        <span class="badge text-bg-light border"><%= quizCollectedAttempts.length %></span>
+    <% if (quizCollectedAttempts.length === 0) { %>
+      <div class="alert alert-light border mt-4 mb-0" role="status">
+        <div class="d-flex align-items-start gap-3">
+          <i class="bi bi-people fs-3 text-body-secondary" aria-hidden="true"></i>
+          <div>
+            <h2 class="h5 mb-1"><%= t('quizzes.participantsEmptyTitle') %></h2>
+            <p class="mb-0 text-body-secondary"><%= t('quizzes.participantsEmptyBody') %></p>
+          </div>
+        </div>
       </div>
-      <% if (quizCollectedAttempts.length === 0) { %>
-        <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
-      <% } else { %>
+    <% } else { %>
+      <div class="resource-section">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+          <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
+          <span class="badge text-bg-light border"><%= quizCollectedAttempts.length %></span>
+        </div>
         <div class="list-group shadow-sm">
           <% quizCollectedAttempts.forEach((attempt) => { %>
             <% if (attempt.status === 'evaluated') { %>
@@ -139,13 +147,8 @@
             <% } %>
           <% }) %>
         </div>
-      <% } %>
-    </div>
-  <% } %>
-  <% if (quizResponsesSummary && quizResponsesSummary.respondedCount === 0) { %>
-    <div class="resource-section">
-      <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
-    </div>
+      </div>
+    <% } %>
   <% } %>
 </section>
 
