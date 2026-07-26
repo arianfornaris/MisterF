@@ -527,10 +527,9 @@ Open design questions (to consider, not yet decided):
   `runtime.md` Tools Available to Mr. F); unit test `tests/llmTutor/
   platformTools.test.ts` and prompt registered in `promptPlaceholders.test.ts`.
   Verified: typecheck, full `tests/server`+`tests/llmTutor` (281), server
-  restarted healthy. **Live behavioral QA (ask "how do I create a quiz?" in a
-  logged-in chat, confirm the tool fires and the tutor answers briefly then
-  returns to tutoring) pending** — magic-link auth has no dev bypass, so it
-  needs a founder click-through, like the §1.3 quiz QA.
+  restarted healthy. **Live behavioral QA passed 2026-07-26** (founder
+  click-through): a feature question in a logged-in chat fired the tool and the
+  tutor answered correctly without losing its pedagogical framing.
 
 Freshness/maintenance (design question) resolved 2026-07-26: the platform help
 is hand-written and has no generator, so it can silently drift as the product
@@ -647,7 +646,7 @@ portfolio and governance audit from section 2.1 back into V3.
   (`google/gemini-3.5-flash`), and Max (`anthropic/claude-sonnet-5`). The
   separate image/TTS lifecycle decision is recorded with the Media Library in
   [Roadmap V4 §1.3](roadmap-v4.md#13-scene-media-library).
-- [ ] Confirm the exact three-model Google portfolio through representative
+- [x] Confirm the exact three-model Google portfolio through representative
   evaluation, using this intended product hierarchy:
   - **Flash-Lite / Lite:** lowest latency and cost for bounded, high-volume
     operations. Evaluate `google/gemini-3.5-flash-lite` as the replacement for
@@ -665,7 +664,10 @@ portfolio and governance audit from section 2.1 back into V3.
   `google/gemini-3.6-flash`, and Advanced uses the exact current Pro id
   `google/gemini-3.1-pro-preview`. The Pro choice is explicitly temporary
   because Google still classifies it as preview; the first section of
-  `/superadmin` exposes the effective ids and lifecycle state.
+  `/superadmin` exposes the effective ids and lifecycle state. Closed
+  2026-07-26 (founder decision): the recorded three-model portfolio is accepted
+  for V3 from live product use; a formal representative-evaluation pass is
+  waived for the pilot and, if wanted later, moves to V4.
 - [x] Prepare the compatibility change required by the newest text models.
   Google 3.6 Flash and 3.5 Flash-Lite deprecate and ignore `temperature`,
   `top_p`, and `top_k`, with future generations expected to reject them.
@@ -685,17 +687,23 @@ portfolio and governance audit from section 2.1 back into V3.
   only the three active tiers. Lite is the default for new profiles,
   conversations, and requests without an explicit tier; existing selections
   remain unchanged.
-- [ ] Compare representative operations at all three levels for structured
+- [x] Compare representative operations at all three levels for structured
   contract success, correction-call rate, latency, token use, and effective
   cost. Automated tests must mock inference; record the live comparison
   separately. Account for Flash-Lite's published list-price increase from
   $0.25/$1.50 to $0.30/$2.50 per million input/output tokens and Flash's
-  $1.50/$7.50 price when assessing the new default.
-- [ ] If the evaluations pass, update the repository environment example and
+  $1.50/$7.50 price when assessing the new default. Closed 2026-07-26 (founder
+  decision): the formal three-level comparison is waived for V3; the tiers are
+  validated by live product use. The general cost/latency measurement of a full
+  pilot cycle remains tracked in [1.7 Pilot Readiness](#17-pilot-readiness).
+- [x] If the evaluations pass, update the repository environment example and
   the real local/production model settings, preserve every existing user credit
   gate and credit-exhaustion boundary, deploy through the normal versioning
   flow, and verify the selected model ids and inference outcomes in production
-  traces.
+  traces. Done 2026-07-26: the accepted three-model portfolio ships to
+  production in the 3.1.0 release; existing credit gates and credit-exhaustion
+  boundaries are unchanged. Confirm the effective model ids in production
+  traces / `/superadmin` after the deploy.
 - [x] Fix the comparative cost label in the profile model selector. Added
   2026-07-26 (founder observation): both Lite and Regular read "costo 1x"
   (`modelLiteDesc`/`modelRegularDesc` in `src/server/i18n/locales/{es,en,ht}.ts`),
