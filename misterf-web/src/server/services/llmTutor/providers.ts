@@ -56,14 +56,29 @@ export function getLanguageModel(
   }).chat(getConfiguredModelId(options));
 }
 
+/**
+ * Reasoning effort to request for a call. The lite model gets a lower budget
+ * than the global default because a heavy reasoning budget makes it burn its
+ * output on hidden thinking and return an empty/degenerate reply. An explicit
+ * `reasoningEffort` on the call site still wins.
+ */
+export function resolveReasoningEffort(
+  options: LlmRequestOptions = {},
+): OpenRouterReasoningEffort {
+  if (getConfiguredModelId(options) === env.llmLiteModel) {
+    return env.openrouterLiteReasoningEffort as OpenRouterReasoningEffort;
+  }
+  return env.openrouterReasoningEffort as OpenRouterReasoningEffort;
+}
+
 export function getProviderOptions(options: {
   reasoningEffort?: OpenRouterReasoningEffort;
+  llm?: LlmRequestOptions;
 } = {}): ProviderOptions | undefined {
   return {
     openrouter: {
       reasoning: {
-        effort: options.reasoningEffort ??
-          env.openrouterReasoningEffort as OpenRouterReasoningEffort,
+        effort: options.reasoningEffort ?? resolveReasoningEffort(options.llm),
         exclude: true,
       },
     },

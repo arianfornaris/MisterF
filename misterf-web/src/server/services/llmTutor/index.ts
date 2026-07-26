@@ -294,7 +294,7 @@ export async function runTutorAgentLoop(
         abortSignal: options.abortSignal,
         messages,
         model: getLanguageModel(options.llm),
-        providerOptions: getProviderOptions(),
+        providerOptions: getProviderOptions({ llm: options.llm }),
         stopWhen: stepCountIs(6),
         system,
         temperature: shouldUseTemperature(options.llm) ? 0.45 : undefined,
@@ -520,7 +520,7 @@ export async function translateTextWithLlm(input: {
   const result = await generateText({
     messages: [{ content: text, role: 'user' }],
     model: getLanguageModel(input.llm),
-    providerOptions: getProviderOptions(),
+    providerOptions: getProviderOptions({ llm: input.llm }),
     system: buildTranslatorSystemInstruction(input.direction, input.languageName),
     temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
   });
@@ -621,7 +621,7 @@ export async function evaluateQuizResultItemsWithLlm(input: {
     const result = await generateText({
       messages,
       model: getLanguageModel(input.llm),
-      providerOptions: getProviderOptions(),
+      providerOptions: getProviderOptions({ llm: input.llm }),
       system,
       temperature: shouldUseTemperature(input.llm) ? 0.15 : undefined,
     });

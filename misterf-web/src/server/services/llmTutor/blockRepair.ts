@@ -134,7 +134,7 @@ export async function repairTutorResponseBlocks(input: {
       abortSignal: input.abortSignal,
       messages: buildRepairMessages(),
       model: getLanguageModel(input.llm),
-      providerOptions: getProviderOptions(),
+      providerOptions: getProviderOptions({ llm: input.llm }),
       system: renderSystemPrompt('tutor/block-repair.md', {
         BLOCK_PROTOCOL: renderTutorBlockProtocol(undefined, language),
         DETECTED_ISSUES_JSON: JSON.stringify(currentIssues, null, 2),

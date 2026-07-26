@@ -119,6 +119,12 @@ export const env = {
     process.env.OPENROUTER_MANAGEMENT_API_KEY ?? '',
   openrouterReasoningEffort:
     process.env.OPENROUTER_REASONING_EFFORT ?? 'medium',
+  // The lite tier runs a small model (gemini flash-lite) that can spend its
+  // whole output budget on hidden reasoning and collapse the visible answer to
+  // a filler like "Listo.". Cap its reasoning below the global default so the
+  // tokens go to the actual reply. Tunable in production without a deploy.
+  openrouterLiteReasoningEffort:
+    process.env.OPENROUTER_REASONING_EFFORT_LITE ?? 'low',
   openrouterUserKeyLimitUsd: readNumber('OPENROUTER_USER_KEY_LIMIT_USD', null),
   openrouterUserKeyLimitReset:
     process.env.OPENROUTER_USER_KEY_LIMIT_RESET || '',

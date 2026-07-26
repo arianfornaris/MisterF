@@ -15,6 +15,20 @@ describe('getProviderOptions', () => {
       },
     });
   });
+
+  it('caps reasoning effort for the lite model so it does not burn output on thinking', () => {
+    // The lite model runs at a lower reasoning budget than the regular/advanced
+    // tiers, which use the global default.
+    const liteEffort = getProviderOptions({ llm: { modelTier: 'lite' } });
+    const advancedEffort = getProviderOptions({ llm: { modelTier: 'advanced' } });
+
+    expect(liteEffort).toMatchObject({
+      openrouter: { reasoning: { effort: 'low', exclude: true } },
+    });
+    expect(advancedEffort).toMatchObject({
+      openrouter: { reasoning: { effort: 'medium', exclude: true } },
+    });
+  });
 });
 
 describe('shouldUseTemperature', () => {
