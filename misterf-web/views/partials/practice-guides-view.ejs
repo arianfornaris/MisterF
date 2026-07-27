@@ -174,23 +174,29 @@
                   </div>
                 </div>
 
-                <p class="app-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
-                <% if (practiceGuideConversations.length > 0) { %>
-                  <div class="practice-guide-chat-list list-group">
-                    <% practiceGuideConversations.forEach((conversation) => { %>
-                      <a
-                        class="practice-guide-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
-                        href="/c/<%= encodeURIComponent(conversation.id) %>"
-                      >
-                        <span class="practice-guide-chat-title"><%= conversation.title %></span>
-                        <time class="practice-guide-chat-date" datetime="<%= conversation.updatedAt %>">
-                          <%= conversation.updatedAt %>
-                        </time>
-                      </a>
-                    <% }) %>
-                  </div>
-                <% } else { %>
-                  <p class="text-body-secondary mb-0"><%= t('practiceGuides.noChats') %></p>
+                <%# Mirrors the quiz and roleplay detail pages: the owner's own
+                    chats here are their test runs, and they already have the
+                    Participantes card for other people's sessions, so this list
+                    only serves a non-owner recipient resuming their own chat. %>
+                <% if (!canManagePracticeGuide) { %>
+                  <p class="app-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
+                  <% if (practiceGuideConversations.length > 0) { %>
+                    <div class="practice-guide-chat-list list-group">
+                      <% practiceGuideConversations.forEach((conversation) => { %>
+                        <a
+                          class="practice-guide-chat-item list-group-item list-group-item-action d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-1"
+                          href="/c/<%= encodeURIComponent(conversation.id) %>"
+                        >
+                          <span class="practice-guide-chat-title"><%= conversation.title %></span>
+                          <time class="practice-guide-chat-date" datetime="<%= conversation.updatedAt %>">
+                            <%= conversation.updatedAt %>
+                          </time>
+                        </a>
+                      <% }) %>
+                    </div>
+                  <% } else { %>
+                    <p class="text-body-secondary mb-0"><%= t('practiceGuides.noChats') %></p>
+                  <% } %>
                 <% } %>
               </div>
             </section>
