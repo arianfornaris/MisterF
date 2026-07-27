@@ -154,6 +154,8 @@ export const ht = {
         starting: 'N ap prepare aktivite a...',
         addToMyResources: 'Ajoute nan resous mwen yo',
         sharedResultsNotice: 'Moun ki pataje aktivite sa a ap wè repons ou yo ak evalyasyon ou. Lè ou kòmanse, ou aksepte pataje yo.',
+        participantsCompletedCount: '{{count}} fini',
+        participantsSubmissionsCount: '{{count}} patisipasyon',
         shareCollectResultsLabel: 'Resevwa rezilta moun ki fè aktivite a',
         shareCollectResultsHint: 'Lè opsyon sa a aktif, moun ki louvri lyen an ap wè yon avi epi rezilta yo ap parèt nan seksyon Rezilta a. Li aplike sèlman pou tantativ ki kòmanse apre chanjman an.',
         shareCollectResultsProfileHint: 'Lè opsyon sa a aktif, tantativ pwofil sa a ap parèt nan seksyon Rezilta a. Li aplike sèlman pou tantativ ki kòmanse apre ou fin pataje.',

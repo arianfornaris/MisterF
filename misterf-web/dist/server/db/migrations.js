@@ -799,8 +799,13 @@ export const migrations = [
       );
     `,
     },
+    // Ids continue at 27 rather than 2: `create_current_schema` is the squashed
+    // baseline for fresh installs, but databases created before the squash still
+    // carry schema_migrations rows 1..26 from the old numbering. The migrator
+    // skips any id already present, so reusing low ids would silently never run
+    // on those databases. Every id here must stay above the historical maximum.
     {
-        id: 2,
+        id: 27,
         name: 'add_roleplay_attempts_collect_results',
         // Mirrors quiz_attempts.collect_results: the flag is snapshotted at attempt
         // start, so pre-flag attempts default to 0 and are never exposed to the
@@ -811,7 +816,7 @@ export const migrations = [
     `,
     },
     {
-        id: 3,
+        id: 28,
         name: 'add_conversations_collect_results',
         // Practice-guide conversations snapshot the share's collect_results flag at
         // start; the finalized tutor_conversation_reports report is surfaced to the

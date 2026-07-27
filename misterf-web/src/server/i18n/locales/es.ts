@@ -154,6 +154,8 @@ export const es: LocaleCatalog = {
     addToMyResources: 'Agregar a mis recursos',
     sharedResultsNotice:
       'La persona que compartió esta actividad verá tus respuestas y tu evaluación. Al comenzar, aceptas compartirlas.',
+    participantsCompletedCount: '{{count}} completaron',
+    participantsSubmissionsCount: '{{count}} participaciones',
     shareCollectResultsLabel: 'Recibir los resultados de quienes la completen',
     shareCollectResultsHint:
       'Con esta opción activa, quienes abran el enlace verán un aviso y sus resultados aparecerán en la sección Resultados. Solo aplica a los intentos que comiencen después del cambio.',

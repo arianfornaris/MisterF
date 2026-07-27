@@ -842,6 +842,19 @@ export async function renderRoleplayShowPage(
   });
   const learnerCharacter = getLearnerCharacter(draft);
   const aiCharacter = getAiCharacter(draft);
+  // Owner-only at-a-glance participation, mirroring the quiz detail page: the
+  // full list lives on the participation page.
+  const collectedAttempts = resolved.canManageRoleplay
+    ? listCollectedRoleplayAttemptsForOwner({
+        authorProfileId: resolved.roleplay.profileId,
+        roleplayId: resolved.roleplay.id,
+      })
+    : [];
+  const roleplayParticipationCounts = {
+    completed: collectedAttempts.filter((attempt) => attempt.status === 'evaluated')
+      .length,
+    submissions: collectedAttempts.length,
+  };
 
   response.render('roleplays-show', {
     ...buildRoleplaysShellContext(request, {
@@ -858,6 +871,7 @@ export async function renderRoleplayShowPage(
     resourceFolderPath,
     roleplayAttempts: buildAttemptListItems(attempts, request.locale),
     roleplayAvatarById: buildRoleplayAvatarById(),
+    roleplayParticipationCounts,
     roleplayStartError: readRoleplayStartError(request.query.startError, request.locale),
     roleplayShareMode,
     roleplayShareQrDataUrl,

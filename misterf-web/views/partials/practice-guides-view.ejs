@@ -159,6 +159,26 @@
                   </div>
                 </div>
 
+                <% if (canManagePracticeGuide) { %>
+                  <div class="card mb-3">
+                    <div class="card-body">
+                      <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                        <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
+                        <a class="btn btn-outline-secondary btn-sm" href="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/participation">
+                          <i class="bi bi-people me-1" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
+                        </a>
+                      </div>
+                      <% if (collectedReportCount === 0) { %>
+                        <p class="text-body-secondary mb-0"><%= t('quizzes.participantsEmpty') %></p>
+                      <% } else { %>
+                        <div class="resource-meta-row">
+                          <span><i class="bi bi-check-circle" aria-hidden="true"></i> <%= t('resources.participantsCompletedCount', { count: collectedReportCount }) %></span>
+                        </div>
+                      <% } %>
+                    </div>
+                  </div>
+                <% } %>
+
                 <p class="app-page-section-copy"><%= t('practiceGuides.chatsOfGuide') %></p>
                 <% if (practiceGuideConversations.length > 0) { %>
                   <div class="practice-guide-chat-list list-group">

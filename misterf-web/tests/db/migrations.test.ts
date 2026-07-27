@@ -59,12 +59,15 @@ describe('database migrations', () => {
         id: 1,
         name: 'create_current_schema',
       },
+      // Ids continue above the pre-squash historical maximum (26) so they still
+      // run on databases created before the baseline squash, which carry
+      // schema_migrations rows 1..26 from the old numbering.
       {
-        id: 2,
+        id: 27,
         name: 'add_roleplay_attempts_collect_results',
       },
       {
-        id: 3,
+        id: 28,
         name: 'add_conversations_collect_results',
       },
     ]);
@@ -286,6 +289,29 @@ describe('database migrations', () => {
     expect(db.prepare('PRAGMA integrity_check').get()).toEqual({
       integrity_check: 'ok',
     });
+  });
+
+  /**
+   * The migrator skips any id already present in schema_migrations. Databases
+   * created before the baseline squash still carry rows 1..26 from the old
+   * numbering, so a post-baseline migration reusing a low id would silently
+   * never run there — the schema change would be missing at runtime even though
+   * a fresh install looks correct.
+   */
+  it('numbers post-baseline migrations above the pre-squash historical maximum', async () => {
+    const { migrations } = await import('../../src/server/db/migrations.js');
+    const preSquashHistoricalMaxId = 26;
+
+    const postBaseline = migrations.filter((migration) => migration.id !== 1);
+    for (const migration of postBaseline) {
+      expect(
+        migration.id,
+        `migration "${migration.name}" must use an id above ${preSquashHistoricalMaxId}`,
+      ).toBeGreaterThan(preSquashHistoricalMaxId);
+    }
+
+    const ids = migrations.map((migration) => migration.id);
+    expect(new Set(ids).size, 'migration ids must be unique').toBe(ids.length);
   });
 });
 

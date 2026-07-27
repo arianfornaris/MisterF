@@ -242,10 +242,21 @@ async function buildPracticeGuidesPageModel(
     ? await QRCode.toDataURL(practiceGuideShareUrl, { margin: 1, width: 180 })
     : '';
 
+  // Owner-only at-a-glance participation, mirroring the quiz detail page: the
+  // full list lives on the participation page.
+  const collectedReportCount =
+    canManagePracticeGuide && selectedPracticeGuide
+      ? listCollectedPracticeGuideReportsForOwner({
+          authorProfileId: selectedPracticeGuide.profileId,
+          practiceGuideId: selectedPracticeGuide.id,
+        }).length
+      : 0;
+
   return {
     activeProfile,
     authMessage: getHomeAuthMessage(request, user),
     canManagePracticeGuide,
+    collectedReportCount,
     practiceGuideConversations,
     practiceGuidePageMode: pageKind,
     practiceGuideShareQrDataUrl,
@@ -290,6 +301,7 @@ async function renderPracticeGuidesPage(
     practiceGuideConversations: viewModel.practiceGuideConversations,
     practiceGuidePageMode: viewModel.practiceGuidePageMode,
     canManagePracticeGuide: viewModel.canManagePracticeGuide,
+    collectedReportCount: viewModel.collectedReportCount,
     practiceGuideShareQrDataUrl: viewModel.practiceGuideShareQrDataUrl,
     practiceGuideShareUrl: viewModel.practiceGuideShareUrl,
     resourceCurrentFolder: viewModel.resourceCurrentFolder,
