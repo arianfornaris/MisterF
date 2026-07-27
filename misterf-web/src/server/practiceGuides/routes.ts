@@ -14,6 +14,7 @@ import {
   renderEditPracticeGuidePage,
   renderNewPracticeGuidePage,
   renderPracticeGuideDetailPage,
+  handleGeneratePracticeGuideParticipationSummary,
   renderPracticeGuideParticipationPage,
   renderPracticeGuideReportPage,
 } from './handlers.js';
@@ -28,6 +29,7 @@ practiceGuidesRouter.post('/practice-guides/generate-draft', handleGeneratePract
 practiceGuidesRouter.get('/practice-guides/shared/:shareId/start', handleStartSharedPracticeGuide);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId/edit', renderEditPracticeGuidePage);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId/participation', renderPracticeGuideParticipationPage);
+practiceGuidesRouter.post('/practice-guides/:practiceGuideId/summary', handleGeneratePracticeGuideParticipationSummary);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId/reports/:conversationId', renderPracticeGuideReportPage);
 practiceGuidesRouter.get('/practice-guides/:practiceGuideId', renderPracticeGuideDetailPage);
 practiceGuidesRouter.post('/practice-guides/:practiceGuideId/edit/save', handleUpdatePracticeGuide);

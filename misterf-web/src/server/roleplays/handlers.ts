@@ -18,6 +18,7 @@ import {
   findRoleplayById,
   findRoleplayForUser,
   getOrCreateResourceShareLink,
+  getResourceParticipationSummary,
   grantResourceAccess,
   listCollectedRoleplayAttemptsForOwner,
   listResourceFolderPathForResource,
@@ -27,6 +28,7 @@ import {
   saveRoleplayAttemptResult,
   submitRoleplayAttempt,
   updateRoleplay,
+  upsertResourceParticipationSummary,
   type RoleplayCharacter,
   type RoleplayTurn,
   type StoredCollectedRoleplayAttempt,
@@ -60,8 +62,13 @@ import {
 } from '../services/roleplays.js';
 import {
   generateRoleplayDraft,
+  generateRoleplayParticipationSummary,
   generateRoleplayRevision,
 } from '../services/resourceDrafts.js';
+import {
+  computeParticipationFingerprint,
+  readParticipationSummaryError,
+} from '../resources/participationSummary.js';
 import { resolveOriginFolderContext } from '../resources/originFolder.js';
 import {
   findRoleplayCharacterAvatar,
@@ -1396,6 +1403,16 @@ export function renderRoleplayParticipationPage(
     authorProfileId: resolved.roleplay.profileId,
     roleplayId: resolved.roleplay.id,
   });
+  const storedSummary = getResourceParticipationSummary(resolved.roleplay.id);
+  const participationSummary = storedSummary
+    ? {
+        generatedAtRelative: formatRelativeTime(storedSummary.generatedAt),
+        stale:
+          storedSummary.inputFingerprint
+          !== computeParticipationFingerprint(collectedAttempts),
+        text: storedSummary.summaryText,
+      }
+    : null;
 
   response.render('roleplays-participation', {
     ...buildRoleplaysShellContext(request, {
@@ -1407,8 +1424,119 @@ export function renderRoleplayParticipationPage(
       collectedAttempts,
       request.locale,
     ),
+    evaluatedCount: collectedAttempts.filter(
+      (attempt) => attempt.status === 'evaluated' && attempt.result,
+    ).length,
+    participationSummary,
+    participationSummaryError: readParticipationSummaryError(
+      request.query.summaryError,
+      request.locale,
+    ),
     selectedRoleplay: resolved.roleplay,
   });
+}
+
+/**
+ * Owner-only AI summary over the collected roleplay attempts. Mirrors the quiz
+ * responses summary: generated on the owner's own credit-gated key, persisted
+ * with a fingerprint so the page can flag it as stale, and guarded on an empty
+ * state before spending any inference.
+ */
+export async function handleGenerateRoleplayParticipationSummary(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const resolved = resolveAccessibleRoleplay(request, response);
+  if (!resolved) {
+    return;
+  }
+  if (!resolved.canManageRoleplay) {
+    response.redirect(`/roleplays/${encodeURIComponent(resolved.roleplay.id)}`);
+    return;
+  }
+
+  // The summary lives on the participation page, so every outcome returns there.
+  const participationPath = `/roleplays/${encodeURIComponent(resolved.roleplay.id)}/participation`;
+  const collectedAttempts = listCollectedRoleplayAttemptsForOwner({
+    authorProfileId: resolved.roleplay.profileId,
+    roleplayId: resolved.roleplay.id,
+  });
+  const evaluatedAttempts = collectedAttempts.filter(
+    (attempt) => attempt.status === 'evaluated' && attempt.result,
+  );
+  if (evaluatedAttempts.length === 0) {
+    response.redirect(`${participationPath}?summaryError=empty`);
+    return;
+  }
+
+  const draft = storedRoleplayToDraft(resolved.roleplay);
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
+      resolved.user.id,
+    );
+    const result = await generateRoleplayParticipationSummary({
+      instructionLanguage: resolved.activeProfile.instructionLanguage,
+      openRouterApiKey,
+      request: {
+        attempts: evaluatedAttempts.map((attempt) =>
+          summarizeRoleplayAttemptForParticipation(attempt.result),
+        ),
+        description: draft.description,
+        evaluatedCount: evaluatedAttempts.length,
+        participantCount: collectedAttempts.length,
+        title: draft.title,
+      },
+    });
+    upsertResourceParticipationSummary({
+      inputFingerprint: computeParticipationFingerprint(collectedAttempts),
+      resourceId: resolved.roleplay.id,
+      summaryText: result.summary,
+    });
+    logger.info('roleplay_participation_summary_generated', {
+      evaluatedCount: evaluatedAttempts.length,
+      participantCount: collectedAttempts.length,
+      resourceId: resolved.roleplay.id,
+      resourceType: 'roleplay',
+      userId: resolved.user.id,
+    });
+    response.redirect(participationPath);
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect(`${participationPath}?summaryError=credit`);
+      return;
+    }
+    logger.error('roleplay_participation_summary_failed', {
+      error,
+      resourceId: resolved.roleplay.id,
+      resourceType: 'roleplay',
+      userId: resolved.user.id,
+    });
+    response.redirect(`${participationPath}?summaryError=generic`);
+  }
+}
+
+/**
+ * Reduces one evaluated attempt to the aggregate signal the summary prompt
+ * needs. Reads defensively: the stored result is validated at write time, but a
+ * summary must never throw on an older or partial shape.
+ */
+function summarizeRoleplayAttemptForParticipation(
+  result: Record<string, unknown> | null,
+): { difficulties: string[]; turnCount: number; turnsToImprove: number } {
+  const rawDifficulties = result?.difficulties;
+  const difficulties = Array.isArray(rawDifficulties)
+    ? rawDifficulties.filter((item): item is string => typeof item === 'string')
+    : [];
+  const rawEntries = result?.entries;
+  const entries = Array.isArray(rawEntries) ? rawEntries : [];
+  const turnsToImprove = entries.filter(
+    (entry) =>
+      typeof entry === 'object'
+      && entry !== null
+      && (entry as { scoreLabel?: unknown }).scoreLabel === 'improve',
+  ).length;
+
+  return { difficulties, turnCount: entries.length, turnsToImprove };
 }
 
 function renderRoleplayResult(

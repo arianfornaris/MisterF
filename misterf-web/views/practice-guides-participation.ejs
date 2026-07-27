@@ -34,6 +34,48 @@
       </div>
     </div>
   <% } else { %>
+    <% if (participationSummaryError) { %>
+      <div class="alert alert-warning" role="alert">
+        <p class="mb-<%= participationSummaryError.isCredit ? '2' : '0' %>"><%= participationSummaryError.message %></p>
+        <% if (participationSummaryError.isCredit) { %>
+          <a class="btn btn-primary btn-sm" href="/credits?returnTo=<%= encodeURIComponent(`/practice-guides/${selectedPracticeGuide.id}/participation`) %>"><%= t('credit.buy') %></a>
+        <% } %>
+      </div>
+    <% } %>
+
+    <section class="resource-section">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+            <h2 class="h5 mb-0"><i class="bi bi-stars me-1" aria-hidden="true"></i><%= t('quizzes.aiSummaryTitle') %></h2>
+            <% if (participationSummary && participationSummary.stale) { %>
+              <span class="badge text-bg-warning"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i><%= t('quizzes.aiSummaryStale') %></span>
+            <% } %>
+          </div>
+
+          <% if (participationSummary) { %>
+            <div class="resource-markdown" data-render-markdown><%= participationSummary.text %></div>
+            <p class="text-body-secondary small mt-2 mb-2"><%= t('quizzes.aiSummaryGeneratedAt', { when: participationSummary.generatedAtRelative }) %></p>
+          <% } else { %>
+            <p class="text-body-secondary mb-2"><%= t('quizzes.aiSummaryIntro') %></p>
+          <% } %>
+
+          <form method="post" action="/practice-guides/<%= encodeURIComponent(selectedPracticeGuide.id) %>/summary" data-resource-generate-form>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button
+              class="btn btn-<%= participationSummary ? 'outline-secondary' : 'primary' %> btn-sm"
+              type="submit"
+              data-resource-generate-submit
+              data-loading-text="<%= t('quizzes.aiSummaryGenerating') %>"
+            >
+              <i class="bi bi-<%= participationSummary ? 'arrow-clockwise' : 'stars' %> me-1" aria-hidden="true"></i>
+              <%= participationSummary ? t('quizzes.aiSummaryRegenerate') : t('quizzes.aiSummaryGenerate') %>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
     <div class="resource-section">
       <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
         <h2 class="h5 mb-0"><%= t('quizzes.participantsSectionTitle') %></h2>
@@ -56,4 +98,15 @@
   <% } %>
 </section>
 
-<%- include('partials/app-shell-close', { pageScriptPartial: '' }) %>
+<div class="modal fade" tabindex="-1" aria-hidden="true" data-resource-pending-modal data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body d-flex align-items-center gap-3">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+        <p class="mb-0"><%= t('quizzes.aiSummaryGenerating') %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/app-shell-close', { pageScriptPartial: 'practice-guides-client-script' }) %>

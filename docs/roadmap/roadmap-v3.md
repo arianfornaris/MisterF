@@ -489,6 +489,26 @@ stays out of V3.
     read by the share handler; link-share auto-submit switch reusing the generic
     `POST /resources/:resourceId/share/collect-results`), matching the quiz.
     **Pending:** live logged-in QA of both full cycles against real inference.
+  - [x] Phase E — Owner AI participation summary for roleplays and practice
+    guides (added 2026-07-27 at the founder's request; closes the last gap
+    against the quiz participation page). Done 2026-07-27: migration 29 adds a
+    resource-keyed `resource_participation_summaries` table shared by both types
+    (quizzes keep `quiz_response_summaries`, same shape); a shared
+    `resources/participationSummary.ts` provides the staleness fingerprint and
+    the `?summaryError=` reader; generators
+    `generateRoleplayParticipationSummary` / `generateGuideParticipationSummary`
+    reuse `generateStructuredDraft` with new prompts
+    `resources/{roleplay,guide}-participation-summary{,-correction}.md`;
+    owner-only `POST /roleplays/:id/summary` and
+    `POST /practice-guides/:id/summary` guard the empty state before spending
+    inference and show the pending modal (§1.8). The roleplay summary aggregates
+    each evaluated attempt's recurring difficulties and turns needing work; the
+    guide summary aggregates the finalized reports' practiced topics, difficulty
+    areas, and next steps — no transcripts and no raw chat are ever sent.
+    Per-question tallies stay quiz-only, since only quizzes have right answers.
+    Verified: typecheck, test:typecheck, 303 tests (7 new contract/fingerprint
+    tests), build, migration applied, server healthy. **Pending:** live QA
+    against real inference, together with the Phase D click-through.
 
 ## 1.7 Pilot Readiness
 
@@ -628,6 +648,37 @@ competing with the learner's current exchange.
   verify the compact panel above the composer on both mobile and desktop.
   Done 2026-07-26: focused DOM behavior coverage plus the existing responsive
   composer layout verified through the client build.
+
+---
+
+## 1.11 Duplicate Resources And Folders
+
+Added 2026-07-27 (founder request). There is no way to copy an existing resource
+today, so reusing an activity means recreating it. The driving use case comes
+straight from the participant-results work in §1.6: an owner who runs the same
+exercise with **different groups** needs one copy per group, because attempts,
+reports, and the participation summary are all keyed to a single resource. Today
+a second group's results land on top of the first group's. Duplicating gives each
+group its own resource and therefore its own segmented evaluations and summary.
+
+Scope: duplication applies to **resources** (quizzes, roleplays, practice guides,
+and scene media) and to **folders**.
+
+- [ ] Duplicate a resource from the catalog and its detail page, producing an
+  independent copy owned by the active profile, with a clearly derived title.
+  Copy only the authored content; never copy participation data — no attempts,
+  reports, share links, grants, or participation summary carry over, and the copy
+  starts unshared so the new group's results stay separate.
+- [ ] Duplicate a folder, including the resources filed inside it. Decide and
+  record whether nested folders recurse (default expectation: yes) and what
+  happens to resources shared *with* the owner rather than owned by them
+  (expected: skipped, since duplication produces owned copies).
+- [ ] Keep it archive- and Trash-aware: archived resources are not duplicated
+  silently, and a duplicate never resurrects archived content.
+- [ ] Cover with route and repository tests (independent copy, no participation
+  data carried over, folder recursion, ownership/profile scoping), plus a live
+  click-through duplicating a resource that already has participation and
+  confirming the copy starts clean.
 
 ---
 

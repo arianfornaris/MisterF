@@ -15,6 +15,7 @@ import {
   renderRoleplayAttemptPage,
   renderRoleplayEditPage,
   renderRoleplayNewPage,
+  handleGenerateRoleplayParticipationSummary,
   renderRoleplayParticipationPage,
   renderRoleplayResultPage,
   renderRoleplayShowPage,
@@ -30,6 +31,7 @@ roleplaysRouter.post('/roleplays/:roleplayId/edit/modify', handlePreviewRoleplay
 roleplaysRouter.post('/roleplays/:roleplayId/edit/modify/apply', handleApplyRoleplayModification);
 roleplaysRouter.post('/roleplays/:roleplayId/edit/modify/discard', handleDiscardRoleplayModification);
 roleplaysRouter.get('/roleplays/:roleplayId/participation', renderRoleplayParticipationPage);
+roleplaysRouter.post('/roleplays/:roleplayId/summary', handleGenerateRoleplayParticipationSummary);
 roleplaysRouter.get('/roleplays/:roleplayId', renderRoleplayShowPage);
 roleplaysRouter.post('/roleplays/:roleplayId/share/profile', handleShareRoleplayToProfile);
 roleplaysRouter.get('/roleplays/shared/:shareId/start', handleStartSharedRoleplayAttempt);

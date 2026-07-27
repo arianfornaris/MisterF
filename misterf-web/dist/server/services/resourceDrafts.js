@@ -286,6 +286,37 @@ export async function generateQuizResponsesSummary(input) {
         systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
     });
 }
+/**
+ * Participation summaries for roleplays and practice guides. Same contract as
+ * the quiz responses summary: one Markdown blob written for the resource owner.
+ */
+const participationSummarySchema = z
+    .object({
+    summary: z.string().trim().min(1).max(2000),
+})
+    .strict();
+export async function generateRoleplayParticipationSummary(input) {
+    return generateStructuredDraft({
+        actorLabel: 'Roleplay participation summary',
+        correctionPromptPath: 'resources/roleplay-participation-summary-correction.md',
+        initialUserMessage: JSON.stringify(input.request, null, 2),
+        openRouterApiKey: input.openRouterApiKey,
+        schema: participationSummarySchema,
+        systemPromptPath: 'resources/roleplay-participation-summary.md',
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+    });
+}
+export async function generateGuideParticipationSummary(input) {
+    return generateStructuredDraft({
+        actorLabel: 'Practice guide participation summary',
+        correctionPromptPath: 'resources/guide-participation-summary-correction.md',
+        initialUserMessage: JSON.stringify(input.request, null, 2),
+        openRouterApiKey: input.openRouterApiKey,
+        schema: participationSummarySchema,
+        systemPromptPath: 'resources/guide-participation-summary.md',
+        systemPromptVariables: languagePromptVariables(input.instructionLanguage ?? 'es'),
+    });
+}
 export async function generateQuizMetadataRevision(input) {
     return generateStructuredDraft({
         actorLabel: 'Quiz metadata revision',

@@ -83,6 +83,24 @@ const promptRenderers: Record<string, (locale: TestLocale) => string> = {
     renderSystemPrompt('resources/quiz-responses-summary.md', {
       INSTRUCTION_LANGUAGE_NAME: languageName(locale),
     }),
+  'resources/roleplay-participation-summary-correction.md': (locale) =>
+    renderSystemPrompt('resources/roleplay-participation-summary-correction.md', {
+      CORRECTION_REASON: correctionReason,
+      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
+    }),
+  'resources/roleplay-participation-summary.md': (locale) =>
+    renderSystemPrompt('resources/roleplay-participation-summary.md', {
+      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
+    }),
+  'resources/guide-participation-summary-correction.md': (locale) =>
+    renderSystemPrompt('resources/guide-participation-summary-correction.md', {
+      CORRECTION_REASON: correctionReason,
+      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
+    }),
+  'resources/guide-participation-summary.md': (locale) =>
+    renderSystemPrompt('resources/guide-participation-summary.md', {
+      INSTRUCTION_LANGUAGE_NAME: languageName(locale),
+    }),
   'resources/quiz-metadata-revision-correction.md': (locale) =>
     renderSystemPrompt('resources/quiz-metadata-revision-correction.md', {
       CORRECTION_REASON: correctionReason,

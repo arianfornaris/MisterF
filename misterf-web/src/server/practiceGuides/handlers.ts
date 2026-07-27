@@ -17,6 +17,8 @@ import {
   findProfileForUser,
   findResourceFolderForResource,
   getOrCreateResourceShareLink,
+  getResourceParticipationSummary,
+  upsertResourceParticipationSummary,
   listCollectedPracticeGuideReportsForOwner,
   listResourceFolderPathForResource,
   listResourceFoldersForProfile,
@@ -35,11 +37,16 @@ import {
   isCreditExhaustedError,
 } from '../services/creditGate.js';
 import {
+  generateGuideParticipationSummary,
   generatePracticeGuideDraft,
   generatePracticeGuideRevision,
   safeParsePracticeGuideDraft,
   type PracticeGuideDraft,
 } from '../services/resourceDrafts.js';
+import {
+  computeParticipationFingerprint,
+  readParticipationSummaryError,
+} from '../resources/participationSummary.js';
 import {
   appDocumentTitle,
   buildAbsoluteAppUrl,
@@ -400,6 +407,16 @@ export function renderPracticeGuideParticipationPage(
     authorProfileId: resolved.practiceGuide.profileId,
     practiceGuideId: resolved.practiceGuide.id,
   });
+  const storedSummary = getResourceParticipationSummary(resolved.practiceGuide.id);
+  const participationSummary = storedSummary
+    ? {
+        generatedAtRelative: formatRelativeTime(storedSummary.generatedAt),
+        stale:
+          storedSummary.inputFingerprint
+          !== computeParticipationFingerprint(reports),
+        text: storedSummary.summaryText,
+      }
+    : null;
 
   response.render('practice-guides-participation', {
     ...buildAppShellContext({
@@ -415,8 +432,112 @@ export function renderPracticeGuideParticipationPage(
       reports,
       request.locale,
     ),
+    participationSummary,
+    participationSummaryError: readParticipationSummaryError(
+      request.query.summaryError,
+      request.locale,
+    ),
     selectedPracticeGuide: resolved.practiceGuide,
   });
+}
+
+/**
+ * Owner-only AI summary over the collected practice-guide reports. Mirrors the
+ * quiz and roleplay summaries: generated on the owner's own credit-gated key,
+ * persisted with a fingerprint so the page can flag it as stale, and guarded on
+ * an empty state before spending any inference.
+ */
+export async function handleGeneratePracticeGuideParticipationSummary(
+  request: Request,
+  response: Response,
+): Promise<void> {
+  const resolved = resolveOwnPracticeGuide(request, response);
+  if (!resolved) {
+    return;
+  }
+
+  // The summary lives on the participation page, so every outcome returns there.
+  const participationPath = `/practice-guides/${encodeURIComponent(resolved.practiceGuide.id)}/participation`;
+  const reports = listCollectedPracticeGuideReportsForOwner({
+    authorProfileId: resolved.practiceGuide.profileId,
+    practiceGuideId: resolved.practiceGuide.id,
+  });
+  if (reports.length === 0) {
+    response.redirect(`${participationPath}?summaryError=empty`);
+    return;
+  }
+
+  try {
+    const openRouterApiKey = await getCreditCheckedOpenRouterApiKeyForUser(
+      resolved.user.id,
+    );
+    const result = await generateGuideParticipationSummary({
+      instructionLanguage: resolved.activeProfile.instructionLanguage,
+      openRouterApiKey,
+      request: {
+        description: resolved.practiceGuide.description,
+        reportCount: reports.length,
+        reports: reports.map((report) =>
+          summarizeGuideReportForParticipation(report.report),
+        ),
+        title: resolved.practiceGuide.title,
+      },
+    });
+    upsertResourceParticipationSummary({
+      inputFingerprint: computeParticipationFingerprint(reports),
+      resourceId: resolved.practiceGuide.id,
+      summaryText: result.summary,
+    });
+    logger.info('practice_guide_participation_summary_generated', {
+      reportCount: reports.length,
+      resourceId: resolved.practiceGuide.id,
+      resourceType: 'practice_guide',
+      userId: resolved.user.id,
+    });
+    response.redirect(participationPath);
+  } catch (error) {
+    if (isCreditExhaustedError(error)) {
+      response.redirect(`${participationPath}?summaryError=credit`);
+      return;
+    }
+    logger.error('practice_guide_participation_summary_failed', {
+      error,
+      resourceId: resolved.practiceGuide.id,
+      resourceType: 'practice_guide',
+      userId: resolved.user.id,
+    });
+    response.redirect(`${participationPath}?summaryError=generic`);
+  }
+}
+
+/**
+ * Reduces one finalized report to the aggregate signal the summary prompt needs.
+ * Reads defensively: the report is validated at write time, but a summary must
+ * never throw on an older or partial shape.
+ */
+function summarizeGuideReportForParticipation(
+  report: Record<string, unknown> | null,
+): { difficultyAreas: string[]; nextSteps: string[]; practicedTopics: string[] } {
+  const readStrings = (value: unknown): string[] =>
+    Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === 'string')
+      : [];
+  const rawDifficultyAreas = report?.difficultyAreas;
+  const difficultyAreas = Array.isArray(rawDifficultyAreas)
+    ? rawDifficultyAreas
+        .map((area) =>
+          typeof area === 'object' && area !== null
+            ? (area as { title?: unknown }).title
+            : area,
+        )
+        .filter((title): title is string => typeof title === 'string')
+    : [];
+
+  return {
+    difficultyAreas,
+    nextSteps: readStrings(report?.nextSteps),
+    practicedTopics: readStrings(report?.practicedTopics),
+  };
 }
 
 /**

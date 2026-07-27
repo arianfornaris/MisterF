@@ -826,5 +826,24 @@ export const migrations = [
         ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 0;
     `,
     },
+    {
+        id: 29,
+        name: 'add_resource_participation_summaries',
+        // Owner-generated AI summary of participation, keyed by resource so
+        // roleplays and practice guides share one table. Quizzes keep their own
+        // quiz_response_summaries (same shape) rather than being migrated here.
+        // input_fingerprint records what the summary was generated from, so the UI
+        // can flag it as stale when new participation arrives.
+        up: `
+      CREATE TABLE resource_participation_summaries (
+        resource_id TEXT PRIMARY KEY
+          REFERENCES resources (id)
+          ON DELETE CASCADE,
+        summary_text TEXT NOT NULL,
+        input_fingerprint TEXT NOT NULL,
+        generated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `,
+    },
 ];
 //# sourceMappingURL=migrations.js.map

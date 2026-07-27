@@ -4151,6 +4151,71 @@ export function upsertQuizResponseSummary(input: {
     .run(input.quizId, input.summaryText, input.inputFingerprint);
 }
 
+export type StoredResourceParticipationSummary = {
+  generatedAt: string;
+  inputFingerprint: string;
+  resourceId: string;
+  summaryText: string;
+};
+
+/**
+ * Owner-generated participation summary for a roleplay or practice guide.
+ * Quizzes use quiz_response_summaries, which has the same shape.
+ */
+export function getResourceParticipationSummary(
+  resourceId: string,
+): StoredResourceParticipationSummary | null {
+  const row = getDb()
+    .prepare(
+      `
+        SELECT resource_id, summary_text, input_fingerprint, generated_at
+        FROM resource_participation_summaries
+        WHERE resource_id = ?
+      `,
+    )
+    .get(resourceId) as
+    | {
+        generated_at: string;
+        input_fingerprint: string;
+        resource_id: string;
+        summary_text: string;
+      }
+    | undefined;
+
+  return row
+    ? {
+        generatedAt: row.generated_at,
+        inputFingerprint: row.input_fingerprint,
+        resourceId: row.resource_id,
+        summaryText: row.summary_text,
+      }
+    : null;
+}
+
+export function upsertResourceParticipationSummary(input: {
+  inputFingerprint: string;
+  resourceId: string;
+  summaryText: string;
+}): void {
+  getDb()
+    .prepare(
+      `
+        INSERT INTO resource_participation_summaries (
+          resource_id,
+          summary_text,
+          input_fingerprint,
+          generated_at
+        )
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(resource_id) DO UPDATE SET
+          summary_text = excluded.summary_text,
+          input_fingerprint = excluded.input_fingerprint,
+          generated_at = CURRENT_TIMESTAMP
+      `,
+    )
+    .run(input.resourceId, input.summaryText, input.inputFingerprint);
+}
+
 export function submitQuizAttempt(input: {
   attemptId: string;
   responses: unknown[];

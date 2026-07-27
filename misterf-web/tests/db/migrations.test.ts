@@ -70,6 +70,10 @@ describe('database migrations', () => {
         id: 28,
         name: 'add_conversations_collect_results',
       },
+      {
+        id: 29,
+        name: 'add_resource_participation_summaries',
+      },
     ]);
 
     const tableNames = (db.prepare(`
@@ -100,6 +104,7 @@ describe('database migrations', () => {
       'resource_access_grants',
       'resource_folder_items',
       'resource_folders',
+      'resource_participation_summaries',
       'resource_share_links',
       'resources',
       'roleplay_attempts',
