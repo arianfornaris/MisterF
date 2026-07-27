@@ -476,13 +476,10 @@ results + "Shared by me" view) are V3 MVP scope; the founder decided the
 remaining steps belong to a later iteration. **Not committed:** promote
 individual steps here only when the V3 pilot shows they are needed.
 
-- Step 2.5 — **Results return for roleplays and practice guides** (added
-  2026-07-18; likely the first post-MVP extension): sharing already exists
-  for both; add each type's result artifact flowing back to the sharer —
-  roleplay attempt evaluation + transcript, practice-guide finalized session
-  report (not the raw chat) — reusing the resource-generic results surface
-  and disclosure-at-start consent built in V3. Disclosure follows
-  assignment, not resource type.
+- Step 2.5 — **Results return for roleplays and practice guides** — **moved to
+  [Roadmap V3 §1.6](roadmap-v3.md#16-quiz-results--next-class-report) on
+  2026-07-26** at the founder's direction (pulled forward from this candidate
+  ladder into the committed V3 scope). Implementation proposal lives there.
 - Step 3 — **Aula section**: an optional sidebar area organizing what already
   exists (people grouped into classes, activities into packages, due dates).
   A lens over the primitive, not a rebuild; precursor worth testing first is

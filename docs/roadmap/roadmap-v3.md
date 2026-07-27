@@ -390,13 +390,14 @@ stays out of V3.
   Carpeta X`. Default stays `Carpeta actual`. Covered by a route test
   (filed shared resource hidden at folder scope, surfaced with its folder under
   `scope=all`).
-- Design constraint (2026-07-18): the MVP returns results for **quizzes
+- Design constraint (2026-07-18): the MVP first returned results for **quizzes
   only**, but the cross-cutting pieces — disclosure/consent copy, the
-  "Shared by me" view, and the naming of results routes/storage — are built
+  "Shared by me" view, and the naming of results routes/storage — were built
   resource-generic, because the same feedback loop extends to roleplays
   (attempt evaluation + transcript) and practice guides (the session's
-  finalized report, not the raw chat) in the next iteration. Disclosure
-  follows assignment, not resource type.
+  finalized report, not the raw chat). Disclosure follows assignment, not
+  resource type. Update 2026-07-26 (founder decision): that extension was
+  **pulled into V3** from Roadmap V4 Step 2.5 — see the item below.
 - [x] Make the feedback flag uniform across both share kinds. Done 2026-07-20:
   the share link carried the flag but `Compartir con perfil` did not, so the
   interim parent→child (same-account) case never collected. Added
@@ -428,6 +429,45 @@ stays out of V3.
 - [x] Manual QA of the full teacher cycle against live inference (create →
   share → guest attempt → signup/claim → evaluation → follow-up practice →
   owner report). Completed 2026-07-26; founder-confirmed end-to-end pass.
+- [ ] Extend participant results to **roleplays and practice guides** (moved
+  from Roadmap V4 Step 2.5 on 2026-07-26 at the founder's direction; previously
+  the planned first post-MVP extension). The resource-generic pieces already
+  cover all three types — the sharing primitive (`resource_share_links`,
+  `resource_access_grants`), the `collect_results` flag + start-time snapshot,
+  the disclosure-at-start consent, and the "Compartido por mí" catalog. What is
+  still quiz-only is the **owner participation surface**
+  (`quizzes-participation.ejs`, `listCollectedQuizAttemptsForOwner`, the owner
+  read-only result view). Each type's **result artifact already exists** (see
+  phases), so this is mostly mirroring the quiz plumbing, not new inference.
+  Both roleplays and practice guides **require the participant to have an
+  account and profile to run** (no guest flow — confirmed 2026-07-26), so a
+  participant is always a known profile; the quiz guest→signup→claim path has no
+  analog here and is out of scope.
+  - [ ] Phase A — Generalize the participation surface: make the owner
+    participation page/handler and the collected-attempts query resource-typed
+    rather than quiz-specific, keeping the quiz behavior identical.
+  - [ ] Phase B — Roleplay results (first; cheap): `roleplay_attempts` already
+    carries an evaluated `result_json` + transcript. Add `collect_results` to it
+    (mirror migration 24), snapshot the flag at attempt start
+    (`handleStartRoleplayAttempt` + `handleStartSharedRoleplayAttempt`,
+    inheriting the share-link / grant flag), add
+    `listCollectedRoleplayAttemptsForOwner` (keyed on the author profile,
+    excluding the owner's own `Probar`), and an owner read-only mode of
+    `roleplays-result` (evaluation + transcript).
+  - [ ] Phase C — Practice-guide results (also cheap; no new artifact): the
+    finalized report **already exists** — the learner's "Finalizar y resumir"
+    persists a `tutor_conversation_reports` row (`summary_title`/
+    `summary_description` + `report_json`) already linked to the guide via
+    `practice_guide_id`. So no new report and no new inference. Work: (1)
+    snapshot `collect_results` when a shared practice-guide conversation starts
+    (`createConversationFromPracticeGuide` / `handleStartSharedPracticeGuide`) —
+    `conversations` has no such column yet, so add it, mirroring the attempt
+    snapshot; (2) `listCollectedPracticeGuideReportsForOwner` over
+    `tutor_conversation_reports` (by `practice_guide_id`, collect flag on,
+    excluding the author profile); (3) surface the existing report read-only to
+    the owner. The raw chat is never shared — only the finalized report.
+  - [ ] Phase D — Extend the §1.6 funnel instrumentation to the new types and QA
+    each against live inference (disclosure/consent shown per share flag).
 
 ## 1.7 Pilot Readiness
 
