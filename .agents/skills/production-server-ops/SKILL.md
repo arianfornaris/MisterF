@@ -40,6 +40,10 @@ Prefer the repo's `deploy.sh` (run from the repo root). It:
   `pm2 restart ecosystem.config.cjs --only misterf-web --env production --update-env`.
 
 The server checks out the branch that `git pull` advances (currently `main`).
+So the release must be on `main` before deploying — deploying from a feature
+branch (e.g. `v3`) is a no-op (`Already up to date`). See `versioning-and-releases`
+→ "Deploy Branch — Merge To main First", which requires user confirmation before
+merging a working branch into `main`.
 
 ## Secrets And Environment
 
