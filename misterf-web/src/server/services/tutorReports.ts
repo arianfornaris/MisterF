@@ -18,6 +18,7 @@ import {
   shouldUseTemperature,
 } from './llmTutor/providers.js';
 import { renderSystemPrompt } from './systemPrompts.js';
+import { isCreditExhaustedError } from './creditGate.js';
 import { instructionLanguageEnglishName } from './llmTutor/languagePack.js';
 import { parseJsonFromModelText } from './llmTutor/modelJson.js';
 import { logger } from './logger.js';
@@ -177,6 +178,10 @@ export async function generateTutorConversationReport(input: {
     },
   ];
 
+  // Keeps the provider's error when every turn fails, so a credit refusal is
+  // reported as such rather than as a generic report failure.
+  let lastRequestError: unknown;
+
   logTutorReportEvent('report:start', {
     hasOpenRouterKey: Boolean(input.openRouterApiKey),
     messageCount: input.messages.length,
@@ -287,7 +292,21 @@ export async function generateTutorConversationReport(input: {
         error: error instanceof Error ? error.message : String(error),
         turn: turnNumber,
       });
+      lastRequestError = error;
+      // A provider refusal (no credit, or a max_tokens the key cannot afford)
+      // fails identically on every retry, so stop instead of burning the loop,
+      // and let the caller classify the original error.
+      if (isCreditExhaustedError(error)) {
+        throw error;
+      }
     }
+  }
+
+  // Surface the provider's own error when the call never succeeded; the generic
+  // message below would otherwise hide a credit problem behind
+  // "unexpected error".
+  if (lastRequestError !== undefined) {
+    throw lastRequestError;
   }
 
   throw new Error('Could not generate a valid tutor conversation report.');
