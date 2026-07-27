@@ -910,13 +910,18 @@ body {
   gap: 0.75rem;
 }
 
-.roleplays-page {
+/* Vertical rhythm for resource detail and participation pages. Sections are
+   direct children and rely on this gap; without it they collapse against each
+   other. `.quizzes-page` carries the same rule in quizzes.css. */
+.roleplays-page,
+.practice-guides-page {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.roleplays-page .app-page-header-detail {
+.roleplays-page .app-page-header-detail,
+.practice-guides-page .app-page-header-detail {
   margin-bottom: 0;
 }
 
