@@ -1045,6 +1045,7 @@ export function handleSharePracticeGuideToProfile(
   }
 
   grantResourceAccess({
+    collectResults: String(request.body.collectResults || '').trim() === 'on',
     grantedByUserId: user.id,
     grantedVia: 'profile',
     profileId: targetProfile.id,

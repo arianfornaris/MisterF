@@ -643,6 +643,7 @@ export function handleShareRoleplayToProfile(request, response) {
         return;
     }
     grantResourceAccess({
+        collectResults: readField(request.body.collectResults, 10) === 'on',
         grantedByUserId: resolved.user.id,
         grantedVia: 'profile',
         profileId: targetProfile.id,

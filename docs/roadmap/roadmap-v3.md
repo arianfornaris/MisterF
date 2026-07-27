@@ -484,13 +484,11 @@ stays out of V3.
     log `collectResults`, and owner-view events were added
     (`roleplay_owner_result_viewed`, `practice_guide_owner_report_viewed`);
     disclosure-at-start now shows for roleplay/guide shares on the shared
-    resource page, gated on the collect flag. **Pending:** (a) owner-side share
-    toggles on the roleplay/guide share modals (both default-collect via the
-    generic `resource_share_links.collect_results`, so results are collected
-    today, but the owner has no per-resource on/off control or reassurance like
-    the quiz modal — reuses the existing generic
-    `POST /resources/:resourceId/share/collect-results`); (b) live logged-in QA
-    of both full cycles against real inference.
+    resource page, gated on the collect flag. Owner-side share toggles added to
+    both the roleplay and practice-guide share modals (profile-share checkbox
+    read by the share handler; link-share auto-submit switch reusing the generic
+    `POST /resources/:resourceId/share/collect-results`), matching the quiz.
+    **Pending:** live logged-in QA of both full cycles against real inference.
 
 ## 1.7 Pilot Readiness
 

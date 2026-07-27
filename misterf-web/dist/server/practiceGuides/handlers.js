@@ -790,6 +790,7 @@ export function handleSharePracticeGuideToProfile(request, response) {
         return;
     }
     grantResourceAccess({
+        collectResults: String(request.body.collectResults || '').trim() === 'on',
         grantedByUserId: user.id,
         grantedVia: 'profile',
         profileId: targetProfile.id,
