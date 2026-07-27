@@ -814,4 +814,26 @@ export const migrations: Migration[] = [
       );
     `,
   },
+  {
+    id: 2,
+    name: 'add_roleplay_attempts_collect_results',
+    // Mirrors quiz_attempts.collect_results: the flag is snapshotted at attempt
+    // start, so pre-flag attempts default to 0 and are never exposed to the
+    // resource owner.
+    up: `
+      ALTER TABLE roleplay_attempts
+        ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 0;
+    `,
+  },
+  {
+    id: 3,
+    name: 'add_conversations_collect_results',
+    // Practice-guide conversations snapshot the share's collect_results flag at
+    // start; the finalized tutor_conversation_reports report is surfaced to the
+    // guide owner only when this is 1. Default 0 keeps pre-flag sessions private.
+    up: `
+      ALTER TABLE conversations
+        ADD COLUMN collect_results INTEGER NOT NULL DEFAULT 0;
+    `,
+  },
 ];

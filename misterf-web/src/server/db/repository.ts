@@ -275,6 +275,7 @@ export type StoredRoleplay = {
 };
 
 export type StoredRoleplayAttempt = {
+  collectResults: boolean;
   createdAt: string;
   evaluatedAt: string | null;
   id: string;
@@ -604,6 +605,7 @@ type RoleplayRow = {
 };
 
 type RoleplayAttemptRow = {
+  collect_results: number;
   created_at: string;
   evaluated_at: string | null;
   id: string;
@@ -1079,6 +1081,7 @@ function toStoredRoleplay(row: RoleplayRow): StoredRoleplay {
 
 function toStoredRoleplayAttempt(row: RoleplayAttemptRow): StoredRoleplayAttempt {
   return {
+    collectResults: row.collect_results === 1,
     createdAt: row.created_at,
     evaluatedAt: row.evaluated_at,
     id: row.id,
@@ -4535,6 +4538,7 @@ export function restoreRoleplayForUser(
 }
 
 export function createRoleplayAttempt(input: {
+  collectResults?: boolean;
   profileId?: string | null;
   roleplayId: string;
   snapshot: Record<string, unknown>;
@@ -4552,9 +4556,10 @@ export function createRoleplayAttempt(input: {
           profile_id,
           status,
           snapshot_json,
-          turns_json
+          turns_json,
+          collect_results
         )
-        VALUES (?, ?, ?, ?, 'in_progress', ?, ?)
+        VALUES (?, ?, ?, ?, 'in_progress', ?, ?, ?)
       `,
     ).run(
       id,
@@ -4563,6 +4568,7 @@ export function createRoleplayAttempt(input: {
       input.profileId ?? null,
       JSON.stringify(input.snapshot),
       JSON.stringify(input.turns),
+      input.collectResults ? 1 : 0,
     );
 
   const attempt = findRoleplayAttemptById(id);
@@ -4578,6 +4584,7 @@ export function findRoleplayAttemptById(id: string): StoredRoleplayAttempt | nul
     .prepare(
       `
         SELECT
+          collect_results,
           created_at,
           evaluated_at,
           id,
@@ -4610,6 +4617,7 @@ export function listRoleplayAttemptsForUser(input: {
     .prepare(
       `
         SELECT
+          collect_results,
           created_at,
           evaluated_at,
           id,
@@ -4639,6 +4647,69 @@ export function listRoleplayAttemptsForUser(input: {
     ) as RoleplayAttemptRow[];
 
   return rows.map(toStoredRoleplayAttempt);
+}
+
+export type StoredCollectedRoleplayAttempt = StoredRoleplayAttempt & {
+  participantEmail: string | null;
+  participantName: string | null;
+  participantProfileName: string | null;
+};
+
+/**
+ * Roleplay attempts whose share collected results for the resource owner. Same
+ * rules as {@link listCollectedQuizAttemptsForOwner}: only attempts that
+ * snapshotted collect_results at start, keyed on the author profile so sibling
+ * profiles surface, and never the author profile's own `Probar` runs.
+ */
+export function listCollectedRoleplayAttemptsForOwner(input: {
+  authorProfileId: string;
+  roleplayId: string;
+}): StoredCollectedRoleplayAttempt[] {
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT
+          ra.collect_results,
+          ra.created_at,
+          ra.evaluated_at,
+          ra.id,
+          ra.profile_id,
+          ra.progress_event_id,
+          ra.result_json,
+          ra.roleplay_id,
+          ra.snapshot_json,
+          ra.started_at,
+          ra.status,
+          ra.submitted_at,
+          ra.turns_json,
+          ra.updated_at,
+          ra.user_id,
+          users.email AS participant_email,
+          users.full_name AS participant_name,
+          profiles.name AS participant_profile_name
+        FROM roleplay_attempts ra
+        LEFT JOIN users ON users.id = ra.user_id
+        LEFT JOIN profiles ON profiles.id = ra.profile_id
+        WHERE ra.roleplay_id = ?
+          AND ra.collect_results = 1
+          AND (ra.profile_id IS NULL OR ra.profile_id != ?)
+        ORDER BY ra.created_at DESC
+      `,
+    )
+    .all(input.roleplayId, input.authorProfileId) as Array<
+    RoleplayAttemptRow & {
+      participant_email: string | null;
+      participant_name: string | null;
+      participant_profile_name: string | null;
+    }
+  >;
+
+  return rows.map((row) => ({
+    ...toStoredRoleplayAttempt(row),
+    participantEmail: row.participant_email,
+    participantName: row.participant_name,
+    participantProfileName: row.participant_profile_name,
+  }));
 }
 
 export function appendRoleplayAttemptTurns(input: {

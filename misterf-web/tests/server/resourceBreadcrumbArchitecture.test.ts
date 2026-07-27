@@ -31,6 +31,7 @@ const requiredBreadcrumbViews = [
   'roleplays-edit.ejs',
   'roleplays-attempt.ejs',
   'roleplays-result.ejs',
+  'roleplays-participation.ejs',
   'practice-guides-new.ejs',
   'practice-guides-authoring.ejs',
   'media-library-show.ejs',

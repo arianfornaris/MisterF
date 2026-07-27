@@ -59,6 +59,14 @@ describe('database migrations', () => {
         id: 1,
         name: 'create_current_schema',
       },
+      {
+        id: 2,
+        name: 'add_roleplay_attempts_collect_results',
+      },
+      {
+        id: 3,
+        name: 'add_conversations_collect_results',
+      },
     ]);
 
     const tableNames = (db.prepare(`
@@ -130,7 +138,7 @@ describe('database migrations', () => {
       conversations: [
         'id', 'user_id', 'profile_id', 'active_agent', 'practice_guide_id',
         'model_tier', 'title', 'title_updated_by_user', 'closed_at', 'created_at',
-        'updated_at', 'instruction_language',
+        'updated_at', 'instruction_language', 'collect_results',
       ],
       credit_purchases: [
         'id', 'user_id', 'stripe_checkout_session_id', 'stripe_payment_intent_id',
@@ -195,7 +203,7 @@ describe('database migrations', () => {
       roleplay_attempts: [
         'id', 'roleplay_id', 'user_id', 'profile_id', 'status', 'snapshot_json',
         'turns_json', 'result_json', 'progress_event_id', 'started_at', 'submitted_at',
-        'evaluated_at', 'created_at', 'updated_at',
+        'evaluated_at', 'created_at', 'updated_at', 'collect_results',
       ],
       roleplays: [
         'id', 'user_id', 'profile_id', 'title', 'description', 'level',

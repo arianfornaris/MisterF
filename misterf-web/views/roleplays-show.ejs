@@ -54,6 +54,11 @@
           <%= t('resources.options') %>
         </button>
         <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="/roleplays/<%= encodeURIComponent(selectedRoleplay.id) %>/participation">
+              <i class="bi bi-people me-2" aria-hidden="true"></i><%= t('quizzes.participationLink') %>
+            </a>
+          </li>
           <% if (!selectedRoleplay.archivedAt) { %>
             <% if (showRoleplayMoveOption) { %>
               <li>

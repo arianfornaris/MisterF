@@ -11,6 +11,7 @@ import {
   findProfileById,
   findProfileForUser,
   findResourceAccessForProfile,
+  findResourceAccessGrant,
   findResourceFolderForResource,
   findResourceShareLinkById,
   findRoleplayAttemptById,
@@ -18,6 +19,7 @@ import {
   findRoleplayForUser,
   getOrCreateResourceShareLink,
   grantResourceAccess,
+  listCollectedRoleplayAttemptsForOwner,
   listResourceFolderPathForResource,
   listResourceFoldersForProfile,
   listRoleplayAttemptsForUser,
@@ -27,10 +29,12 @@ import {
   updateRoleplay,
   type RoleplayCharacter,
   type RoleplayTurn,
+  type StoredCollectedRoleplayAttempt,
   type StoredRoleplay,
   type StoredRoleplayAttempt,
 } from '../db/repository.js';
 import { setActiveProfileCookie } from '../auth/profiles.js';
+import { findUserById } from '../auth/repository.js';
 import { defaultProfileModelTier } from '../profiles/modelTier.js';
 import {
   appDocumentTitle,
@@ -923,7 +927,22 @@ export async function handleStartRoleplayAttempt(
         userId: resolved.user.id,
       },
     });
+    // The roleplay author's own runs are private tests and never collect. Any
+    // other profile reaches this through a profile share, so the attempt
+    // snapshots the grant's results-feedback flag — the same primitive quizzes
+    // use.
+    const isAuthorProfile =
+      resolved.activeProfile.id === resolved.roleplay.profileId;
+    const collectResults = isAuthorProfile
+      ? false
+      : findResourceAccessGrant({
+          profileId: resolved.activeProfile.id,
+          resourceId: resolved.roleplay.id,
+          userId: resolved.user.id,
+        })?.collectResults ?? false;
+
     const attempt = createRoleplayAttempt({
+      collectResults,
       profileId: resolved.activeProfile.id,
       roleplayId: resolved.roleplay.id,
       snapshot: draft,
@@ -932,6 +951,7 @@ export async function handleStartRoleplayAttempt(
     });
     logger.info('roleplay_attempt_started', {
       attemptId: attempt.id,
+      collectResults: attempt.collectResults,
       profileId: attempt.profileId,
       resourceId: resolved.roleplay.id,
       resourceType: 'roleplay',
@@ -986,6 +1006,7 @@ export async function handleStartSharedRoleplayAttempt(
   }
 
   grantResourceAccess({
+    collectResults: shareLink.collectResults,
     grantedByUserId: roleplay.userId,
     grantedVia: 'link',
     profileId: activeProfile.id,
@@ -1006,6 +1027,7 @@ export async function handleStartSharedRoleplayAttempt(
       },
     });
     const attempt = createRoleplayAttempt({
+      collectResults: shareLink.collectResults,
       profileId: activeProfile.id,
       roleplayId: roleplay.id,
       snapshot: draft,
@@ -1014,6 +1036,7 @@ export async function handleStartSharedRoleplayAttempt(
     });
     logger.info('roleplay_attempt_started', {
       attemptId: attempt.id,
+      collectResults: attempt.collectResults,
       profileId: attempt.profileId,
       resourceId: roleplay.id,
       resourceType: 'roleplay',
@@ -1268,14 +1291,124 @@ export async function handleFinishRoleplayAttempt(
 }
 
 export function renderRoleplayResultPage(request: Request, response: Response): void {
+  // Roleplay-owner read-only view of a collected participant attempt. Checked
+  // before the normal resolver so the owner path can never act on the
+  // participant's attempt — evaluated attempts render, anything else goes back
+  // to the roleplay page. Mirrors the quiz owner-result path.
+  const requestedAttempt = findRoleplayAttemptById(
+    String(request.params.attemptId || '').trim(),
+  );
+  const viewer = request.authUser;
+  if (
+    requestedAttempt
+    && requestedAttempt.collectResults
+    && viewer?.emailVerified
+    && requestedAttempt.userId !== viewer.id
+  ) {
+    const attemptRoleplay = findRoleplayForUser(
+      requestedAttempt.roleplayId,
+      viewer.id,
+    );
+    if (attemptRoleplay) {
+      if (requestedAttempt.status !== 'evaluated') {
+        response.redirect(`/roleplays/${encodeURIComponent(attemptRoleplay.id)}`);
+        return;
+      }
+      const participantUser = requestedAttempt.userId
+        ? findUserById(requestedAttempt.userId)
+        : null;
+      logger.info('roleplay_owner_result_viewed', {
+        attemptId: requestedAttempt.id,
+        resourceId: attemptRoleplay.id,
+        resourceType: 'roleplay',
+        roleplayId: attemptRoleplay.id,
+        userId: viewer.id,
+      });
+      renderRoleplayResult(request, response, requestedAttempt, {
+        ownerView: true,
+        ownerViewParticipantLabel:
+          participantUser?.fullName
+          || participantUser?.email
+          || translate(request.locale, 'quizzes.resultsAnonymousParticipant'),
+      });
+      return;
+    }
+  }
+
   const attempt = resolveAccessibleAttempt(request, response);
   if (!attempt) {
     return;
   }
 
+  renderRoleplayResult(request, response, attempt);
+}
+
+function buildCollectedRoleplayAttemptListItems(
+  attempts: StoredCollectedRoleplayAttempt[],
+  locale: Locale,
+) {
+  return attempts.map((attempt) => ({
+    ...attempt,
+    ...getRoleplayAttemptStatusView(attempt.status, locale),
+    participantLabel:
+      attempt.participantProfileName
+      || attempt.participantName
+      || attempt.participantEmail
+      || translate(locale, 'quizzes.resultsAnonymousParticipant'),
+    relativeUpdatedAt: formatRelativeTime(attempt.updatedAt),
+  }));
+}
+
+/**
+ * Owner-only participation page for a roleplay: lists the attempts collected
+ * from people the owner shared it with, each evaluated one linking to the
+ * read-only owner result view. Mirrors the quiz participation page.
+ */
+export function renderRoleplayParticipationPage(
+  request: Request,
+  response: Response,
+): void {
+  const resolved = resolveAccessibleRoleplay(request, response);
+  if (!resolved) {
+    return;
+  }
+  if (!resolved.canManageRoleplay) {
+    response.redirect(`/roleplays/${encodeURIComponent(resolved.roleplay.id)}`);
+    return;
+  }
+
+  const collectedAttempts = listCollectedRoleplayAttemptsForOwner({
+    authorProfileId: resolved.roleplay.profileId,
+    roleplayId: resolved.roleplay.id,
+  });
+
+  response.render('roleplays-participation', {
+    ...buildRoleplaysShellContext(request, {
+      activeProfile: resolved.activeProfile,
+      title: `${resolved.roleplay.title} - ${appDocumentTitle}`,
+      user: resolved.user,
+    }),
+    collectedAttempts: buildCollectedRoleplayAttemptListItems(
+      collectedAttempts,
+      request.locale,
+    ),
+    selectedRoleplay: resolved.roleplay,
+  });
+}
+
+function renderRoleplayResult(
+  request: Request,
+  response: Response,
+  attempt: StoredRoleplayAttempt,
+  options: { ownerView?: boolean; ownerViewParticipantLabel?: string } = {},
+): void {
   const draft = safeParseRoleplayDraft(attempt.snapshot);
   const result = attempt.result ? roleplayEvaluationResultSchema.safeParse(attempt.result) : null;
   if (!draft || !result?.success) {
+    if (options.ownerView) {
+      response.redirect(`/roleplays/${encodeURIComponent(attempt.roleplayId)}`);
+      return;
+    }
     response.redirect(`/roleplay-attempts/${encodeURIComponent(attempt.id)}`);
     return;
   }
@@ -1289,6 +1422,8 @@ export function renderRoleplayResultPage(request: Request, response: Response): 
     }),
     attempt,
     draft,
+    resultOwnerView: Boolean(options.ownerView),
+    resultOwnerViewParticipantLabel: options.ownerViewParticipantLabel || '',
     roleplayAvatarById: buildRoleplayAvatarById(),
     result: result.data,
     ...actionError,

@@ -20,6 +20,12 @@
         ] }) %>
       <% } %>
       <p class="app-page-copy"><%= result.summary %></p>
+      <% if (resultOwnerView) { %>
+        <div class="alert alert-info d-flex align-items-start gap-2 mt-3 mb-0" role="note">
+          <i class="bi bi-person-circle flex-shrink-0" aria-hidden="true"></i>
+          <span><%= t('quizzes.resultOwnerView', { name: resultOwnerViewParticipantLabel }) %></span>
+        </div>
+      <% } else { %>
       <div class="resource-action-row mt-3">
         <form method="post" action="/roleplay-attempts/<%= encodeURIComponent(attempt.id) %>/practice">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -31,6 +37,7 @@
           action: `/roleplay-attempts/${encodeURIComponent(attempt.id)}/resource`,
         }) %>
       </div>
+      <% } %>
     </div>
     <div class="app-page-header-actions">
       <a

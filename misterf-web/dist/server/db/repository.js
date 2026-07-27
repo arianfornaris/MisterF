@@ -371,6 +371,7 @@ function toStoredRoleplay(row) {
 }
 function toStoredRoleplayAttempt(row) {
     return {
+        collectResults: row.collect_results === 1,
         createdAt: row.created_at,
         evaluatedAt: row.evaluated_at,
         id: row.id,
@@ -2762,10 +2763,11 @@ export function createRoleplayAttempt(input) {
           profile_id,
           status,
           snapshot_json,
-          turns_json
+          turns_json,
+          collect_results
         )
-        VALUES (?, ?, ?, ?, 'in_progress', ?, ?)
-      `).run(id, input.roleplayId, input.userId ?? null, input.profileId ?? null, JSON.stringify(input.snapshot), JSON.stringify(input.turns));
+        VALUES (?, ?, ?, ?, 'in_progress', ?, ?, ?)
+      `).run(id, input.roleplayId, input.userId ?? null, input.profileId ?? null, JSON.stringify(input.snapshot), JSON.stringify(input.turns), input.collectResults ? 1 : 0);
     const attempt = findRoleplayAttemptById(id);
     if (!attempt) {
         throw new Error('Could not load newly created roleplay attempt.');
@@ -2776,6 +2778,7 @@ export function findRoleplayAttemptById(id) {
     const row = getDb()
         .prepare(`
         SELECT
+          collect_results,
           created_at,
           evaluated_at,
           id,
@@ -2800,6 +2803,7 @@ export function listRoleplayAttemptsForUser(input) {
     const rows = getDb()
         .prepare(`
         SELECT
+          collect_results,
           created_at,
           evaluated_at,
           id,
@@ -2822,6 +2826,50 @@ export function listRoleplayAttemptsForUser(input) {
       `)
         .all(input.userId, input.profileId, input.roleplayId ?? null, input.roleplayId ?? null);
     return rows.map(toStoredRoleplayAttempt);
+}
+/**
+ * Roleplay attempts whose share collected results for the resource owner. Same
+ * rules as {@link listCollectedQuizAttemptsForOwner}: only attempts that
+ * snapshotted collect_results at start, keyed on the author profile so sibling
+ * profiles surface, and never the author profile's own `Probar` runs.
+ */
+export function listCollectedRoleplayAttemptsForOwner(input) {
+    const rows = getDb()
+        .prepare(`
+        SELECT
+          ra.collect_results,
+          ra.created_at,
+          ra.evaluated_at,
+          ra.id,
+          ra.profile_id,
+          ra.progress_event_id,
+          ra.result_json,
+          ra.roleplay_id,
+          ra.snapshot_json,
+          ra.started_at,
+          ra.status,
+          ra.submitted_at,
+          ra.turns_json,
+          ra.updated_at,
+          ra.user_id,
+          users.email AS participant_email,
+          users.full_name AS participant_name,
+          profiles.name AS participant_profile_name
+        FROM roleplay_attempts ra
+        LEFT JOIN users ON users.id = ra.user_id
+        LEFT JOIN profiles ON profiles.id = ra.profile_id
+        WHERE ra.roleplay_id = ?
+          AND ra.collect_results = 1
+          AND (ra.profile_id IS NULL OR ra.profile_id != ?)
+        ORDER BY ra.created_at DESC
+      `)
+        .all(input.roleplayId, input.authorProfileId);
+    return rows.map((row) => ({
+        ...toStoredRoleplayAttempt(row),
+        participantEmail: row.participant_email,
+        participantName: row.participant_name,
+        participantProfileName: row.participant_profile_name,
+    }));
 }
 export function appendRoleplayAttemptTurns(input) {
     const attempt = findRoleplayAttemptById(input.attemptId);
